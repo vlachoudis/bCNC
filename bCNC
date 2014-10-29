@@ -1,4 +1,4 @@
 #!/bin/bash
-DIR=${HOME}/prg/CNC/bCNC
+DIR=`dirname $0`
 export PYTHONPATH=${DIR}/lib:${DIR}
 python ${DIR}/bCNC.py $*
