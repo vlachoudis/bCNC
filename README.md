@@ -3,7 +3,7 @@ bCNC
 
 GRBL CNC command sender, autoleveler and g-code editor
 
-![bCNC screenshot](/trunk/bCNC.png)
+![bCNC screenshot](https://raw.github.com/vlachoudis/bCNC/trunk/bCNC.png)
 
 Features:
 =========
