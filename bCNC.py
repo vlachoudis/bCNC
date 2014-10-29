@@ -122,6 +122,7 @@ class Application(Toplevel):
 		self.command.bind("<Return>",	self.commandExecute)
 		self.command.bind("<Up>",	self.commandHistoryUp)
 		self.command.bind("<Down>",	self.commandHistoryDown)
+		tkExtra.Balloon.set(self.command, "Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
 		self.widgets.append(self.command)
 
 		# --- Editor ---
