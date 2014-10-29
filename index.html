@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>bCNC Pendant</title>
+<meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=yes"/>
+
+<script type="text/javascript">
+
+var xmlhttp=false;
+var WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"];
+var WCSVAL = ["wcsx", "wcsy", "wcsz"];
+
+function findWcs(x)
+{
+	for (i=0; i<WCS.length; i++)
+		if (WCS[i]==x) return i;
+	return -1;
+} // findWcs
+
+function getXmlHttp()
+{
+	try {
+		// Opera 8.0+, Firefox, Safari
+		return new XMLHttpRequest();
+	} catch (e) {
+		// Internet Explorer Browsers
+		try {
+			return new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				return new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {
+				// Something went wrong
+				alert("Your browser broke!");
+				return false;
+			}
+		}
+	}
+} // getXmlHttp
+
+function getState() {
+	xmlhttp = getXmlHttp();
+	xmlhttp.open("GET", '/state');
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4) {
+			obj = JSON.parse(xmlhttp.responseText);
+			document.getElementById('state').innerHTML = obj.state;
+			document.getElementById('state').bgColor   = obj.color;
+			document.getElementById('x').innerHTML = obj.wx;
+			document.getElementById('y').innerHTML = obj.wy;
+			document.getElementById('z').innerHTML = obj.wz;
+			for (k=0; k<obj.G.length; k++) {
+				j = findWcs(obj.G[k]);
+				if (j>=0) {
+					document.getElementById('wcs').value = obj.G[k];
+					break;
+				}
+			}
+		}
+	}
+	xmlhttp.send(null);
+} // getState
+
+setInterval(getState, 1000);
+
+function vibrate(t)
+{
+	if ("vibrate" in navigator) {
+		navigator.vibrate(t);
+	} else if ("vibrate" in notification) {
+		navigator.notification.vibrate(t);
+	}
+} // vibrate
+
+function sendCmd(command)
+{
+	xmlhttp = getXmlHttp();
+	xmlhttp.open("GET", '/send?cmd=' + encodeURIComponent(command));
+	xmlhttp.send(null);
+	vibrate(100);
+} // sendCmd
+
+function sendGcode(command)
+{
+	//alert(command);
+	xmlhttp = getXmlHttp();
+	xmlhttp.open("GET", '/send?gcode=' + encodeURIComponent(command));
+	xmlhttp.send(null);
+	vibrate(50);
+} // sendCmd
+
+function setWcs()
+{
+	wcs = document.getElementById('wcs').value;
+	p = findWcs(wcs);
+
+	if (p<6)
+		cmd = "G10L20P"+(p+1);
+	else if (p==6)
+		cmd = "G28.1";
+	else if (p==7)
+		cmd = "G30.1";
+	else if (p==8)
+		cmd = "G92";
+
+	for (i=0; i<WCSVAL.length; i++) {
+		x = document.getElementById(WCSVAL[i]).value;
+		if (x != "") {
+			cmd += "XYZ"[i] + x;
+			document.getElementById(WCSVAL[i]).value = "";
+		}
+	}
+	sendGcode(cmd+"\n$#");
+} // setWcs
+
+function wcsChange()
+{
+	sendGcode(document.getElementById('wcs').value);
+} // wcsChange
+
+function sendMove(command)
+{
+	xmlhttp = getXmlHttp();
+	gcode = "G91G0";
+	step = document.getElementById('step').value;
+	if (command=='O') {
+		gcode = "G90G0X0Y0Z0";
+	} else
+	if (command=='XdYu') {
+		gcode += "X-"+xstep+"Y"+step;
+	} else
+	if (command=='Yu') {
+		gcode += "Y"+step;
+	} else
+	if (command=='XuYu') {
+		gcode += "X"+xstep+"Y"+step;
+	} else
+	if (command=='Xu') {
+		gcode += "X"+step;
+	} else
+	if (command=='Xd') {
+		gcode += "X-"+step;
+	} else
+	if (command=='XdYd') {
+		gcode += "X-"+xstep+"Y-"+step;
+	} else
+	if (command=='Yd') {
+		gcode += "Y-"+step;
+	} else
+	if (command=='XuYd') {
+		gcode += "X"+xstep+"Y-"+step;
+	} else
+	if (command=='Zu') {
+		gcode += "Z"+step;
+	} else
+	if (command=='Zd') {
+		gcode += "Z-"+step;
+	}
+	sendGcode(gcode);
+} // sendMove
+</script>
+
+<style type="text/css">
+	body {
+		background-color: white;
+		font-family: sans-serif;
+		font-style: normal;
+		font-size: 18px;
+		margin: 10px;
+	}
+	h1 {
+		text-align: center;
+		font-family: sans-serif;
+		font-size: 22px;
+		font-style: italic;
+		font-variant: normal;
+		font-weight: bold;
+	}
+	table {
+		width: 100%;
+	}
+	button {
+		font-size: 18px;
+	}
+	input[type="number"] {
+		width: 100%;
+		box-sizing: border-box;
+		-webkit-box-sizing:border-box;
+		-moz-box-sizing: border-box;
+	}
+	.large {
+		text-align: center;
+		font-size: 22px;
+		color: DarkBlue;
+	}
+	.direction {
+		width: 100%;
+		height: 64px;
+	}
+	.command {
+		width: 100%;
+		height: 32px;
+	}
+</style>
+</head>
+
+<body>
+<h1>bCNC Pendant</h1>
+<table cellpadding="0" cellspacing="0" border="1">
+	<col width="33%">
+	<col width="33%">
+	<col width="33%">
+	<tr>
+		<td colspan="3" id="state" class="large">&nbsp;</td>
+	</tr>
+	<tr>
+		<td id="x" class="large">&nbsp;</td>
+		<td id="y" class="large">&nbsp;</td>
+		<td id="z" class="large">&nbsp;</td>
+	</tr>
+</table>
+<p>
+
+<table cellpadding="0" cellspacing="2" border="0">
+	<col width="33%">
+	<col width="33%">
+	<col width="33%">
+	<tr>
+		<td><button onclick="sendCmd('HOME');"    class="button command">
+			<img src="icon?name=home"> Home</button>
+		</td>
+		<td><button onclick="sendCmd('UNLOCK');"  class="button command">
+			<img src="icon?name=unlock"> Unlock</button>
+		</td>
+		<td><button onclick="sendCmd('RESET');"   class="button command">
+			<img src="icon?name=reset"> Reset</button>
+		</td>
+	</tr>
+	<tr>
+		<td><button onclick="sendCmd('RUN');"    class="button command">
+			<img src="icon?name=start"> Run</button>
+		</td>
+		<td><button onclick="sendCmd('PAUSE');"  class="button command">
+			<img src="icon?name=pause"> Pause</button>
+		</td>
+		<td><button onclick="sendCmd('STOP');"   class="button command">
+			<img src="icon?name=stop"> Stop</button>
+		</td>
+	</tr>
+</table>
+
+<p>
+
+<table cellpadding="0" cellspacing="0" border="0">
+	<tr>
+	<th>WCS</th>
+	<td>
+		<select id="wcs" onchange="wcsChange();">
+			<option selected>G54</option>
+			<option>G55</option>
+			<option>G56</option>
+			<option>G57</option>
+			<option>G58</option>
+			<option>G59</option>
+			<option>G28</option>
+			<option>G30</option>
+			<option>G92</option>
+		</select>
+	</td>
+	<td><input id="wcsx" type="number" size="5" width="100%"/></td>
+	<td><input id="wcsy" type="number" size="5" width="100%"/></td>
+	<td><input id="wcsz" type="number" size="5" width="100%"/></td>
+	<td><button onclick="setWcs();" class="button command">set</button></td>
+	</tr>
+</table>
+
+<p>
+<table cellpadding="0" cellspacing="3" border="0">
+	<col width="20%">
+	<col width="5%">
+	<col width="25%">
+	<col width="25%">
+	<col width="25%">
+	<tr>
+		<th align="center">Z</th>
+		<td></td>
+		<td></td>
+		<th align="center">Y</th>
+		<td></td>
+	</tr>
+	<tr>
+		<td><button onclick="sendMove('Zu')"   class="button direction">&#x25B2;</button></td>
+		<td></td>
+		<td><button onclick="sendMove('XdYu')" class="button direction">&#x25F8;</button></td>
+		<td><button onclick="sendMove('Yu')"   class="button direction">&#x25B2;</button></td>
+		<td><button onclick="sendMove('XuYu')" class="button direction">&#x25F9;</button></td>
+	</tr>
+	<tr>
+		<td align="left">
+			<select id="step" width="100%">
+				<option>0.001</option>
+				<option>0.005</option>
+				<option>0.01</option>
+				<option>0.02</option>
+				<option>0.05</option>
+				<option>0.1</option>
+				<option>0.2</option>
+				<option>0.5</option>
+				<option selected>1</option>
+				<option>2</option>
+				<option>5</option>
+				<option>10</option>
+				<option>20</option>
+				<option>50</option>
+				<option>100</option>
+				<option>500</option>
+			</select>
+		</td>
+		<th align="right">X</th>
+		<td><button onclick="sendMove('Xd')"   class="button direction">&#x25C0;</button></td>
+		<td align="center" valign="center"><button onclick="sendMove('O')"    class="button">&#x25EF;</button></td>
+		<td><button onclick="sendMove('Xu')"   class="button direction">&#x25b6;</button></td>
+	</tr>
+	<tr>
+		<td><button onclick="sendMove('Zd')"   class="button direction">&#x25BC;</button></td>
+		<td></td>
+		<td><button onclick="sendMove('XdYd')" class="button direction">&#x25FA;</button></td>
+		<td><button onclick="sendMove('Yd')"   class="button direction">&#x25BC;</button></td>
+		<td><button onclick="sendMove('XuYd')" class="button direction">&#x25FF;</button></td>
+	</tr>
+</table>
+</body>
+</html>
