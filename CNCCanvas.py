@@ -329,7 +329,6 @@ class CNCCanvas(Canvas):
 			(x-GANTRY_WIDTH2, y-GANTRY_WIDTH2,
 			 x+GANTRY_WIDTH2, y+GANTRY_WIDTH2))
 
-		if not self.draw_workarea: return
 		dx = wx-mx
 		dy = wy-my
 		dz = wz-mz
@@ -340,6 +339,7 @@ class CNCCanvas(Canvas):
 			self._dy = dy
 			self._dz = dz
 
+			if not self.draw_workarea: return
 			xmin = self._dx-self.cnc.travel_x
 			ymin = self._dy-self.cnc.travel_y
 			zmin = self._dz-self.cnc.travel_z
@@ -493,12 +493,8 @@ class CNCCanvas(Canvas):
 			self.tag_lower(item)
 
 		# Draw probe points
-		coords = self.cnc.probe.probe
-		for xyz in coords:
-			xyz[0] += self._dx
-			xyz[1] += self._dy
-		for i,uv in enumerate(self.plotCoords(coords)):
-			item = self.create_text(uv, text="%g"%(self.cnc.probe.probe[i][2]),
+		for i,uv in enumerate(self.plotCoords(self.cnc.probe.points)):
+			item = self.create_text(uv, text="%g"%(self.cnc.probe.points[i][2]),
 					justify=CENTER, fill="Green")
 			self.tag_lower(item)
 

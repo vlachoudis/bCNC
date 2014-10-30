@@ -39,13 +39,13 @@ class Probe:
 		self.yn = 5
 
 		self.feed = 100
-		self.probe  = []	# probe points
+		self.points  = []	# probe points
 		self.matrix = []	# 2D matrix with Z coordinates
 		self.zeroed = False	# if probe was zeroed at any location
 
 	#----------------------------------------------------------------------
 	def clear(self):
-		del self.probe[:]
+		del self.points[:]
 		del self.matrix[:]
 		self.zeroed = False	# if probe was zeroed at any location
 
@@ -142,7 +142,7 @@ class Probe:
 	# Add a probed point to the list and the 3D matrix
 	#----------------------------------------------------------------------
 	def add(self, x,y,z):
-		self.probe.append([x,y,z])
+		self.points.append([x,y,z])
 		i = round((x-self.xmin) / self._xstep)
 		if i<0.0 or i>self.xn: return
 
@@ -164,7 +164,7 @@ class Probe:
 	# Make z-level relative to the location of (x,y,0)
 	#----------------------------------------------------------------------
 	def setZero(self, x, y):
-		del self.probe[:]
+		del self.points[:]
 		zero = self.interpolate(x,y)
 		self.xstep()
 		self.ystep()
@@ -173,7 +173,7 @@ class Probe:
 			for i in range(len(row)):
 				x = self.xmin + self._xstep*i
 				row[i] -= zero
-				self.probe.append([x,y,row[i]])
+				self.points.append([x,y,row[i]])
 		self.zeroed = True
 
 	#----------------------------------------------------------------------
@@ -309,7 +309,7 @@ class CNC:
 		self.safeZ          = 3.0	# mm
 		self.round          = 4
 		self.startup        = "G90"
-		self.probe        = Probe()
+		self.probe         = Probe()
 		self.initPath()
 
 	#----------------------------------------------------------------------
