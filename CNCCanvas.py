@@ -4,6 +4,7 @@
 # Author:       Vasilis.Vlachoudis@cern.ch
 # Date: 24-Aug-2014
 
+import math
 import bmath
 try:
 	from Tkinter import *
@@ -17,7 +18,7 @@ VIEW_ISO1    = 3
 VIEW_ISO2    = 4
 VIEW_ISO3    = 5
 
-VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO2"]
+VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
 INSERT_COLOR  = "Blue"
 INSERT_WIDTH2 = 3
@@ -27,15 +28,18 @@ MARGIN_COLOR  = "Magenta"
 SELECT_COLOR  = "Blue"
 BOX_SELECT    = "Cyan"
 
-SEL_SINGLE   = 0
-SEL_AREA     = 1
-SEL_DOUBLE   = 2
+ACTION_SELECT_SINGLE   = 0
+ACTION_SELECT_AREA     = 1
+ACTION_SELECT_DOUBLE   = 2
 
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
 
 MAXDIST      = 10000
+
+S60 = math.sin(math.radians(60))
+C60 = math.cos(math.radians(60))
 
 #==============================================================================
 # Drawing canvas
@@ -95,7 +99,7 @@ class CNCCanvas(Canvas):
 		self.zoom = 1.0
 		self.items = []
 
-		self._sel = SEL_SINGLE
+		self._action = ACTION_SELECT_SINGLE
 		self._x = self._y = 0
 		self._inParse     = False	# semaphore for parsing
 		self._gantry      = None
@@ -136,78 +140,106 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def click(self, event):
 		self.focus_set()
-		self._sel = SEL_SINGLE
 		self._x = event.x
 		self._y = event.y
+
+		if event.state & (CONTROL_MASK | SHIFT_MASK):
+			u = self.canvasx(self._x) / self.zoom
+			v = self.canvasy(self._y) / self.zoom
+
+			if self.view == VIEW_XY:
+				self.app.goto(u,-v)
+
+			elif self.view == VIEW_XZ:
+				self.app.goto(u,None,-v)
+
+			elif self.view == VIEW_YZ:
+				self.app.goto(None,u,-v)
+
+			elif self.view == VIEW_ISO1:
+				self.app.goto(0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60))
+
+			elif self.view == VIEW_ISO2:
+				self.app.goto(0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60))
+
+			elif self.view == VIEW_ISO3:
+				self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+		else:
+			self._action = ACTION_SELECT_SINGLE
 
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
 	# ----------------------------------------------------------------------
 	def buttonMotion(self, event):
-		if self._sel == SEL_AREA:
+		if self._action == ACTION_SELECT_AREA:
 			self.coords(self._select,
 				self.canvasx(self._x),
 				self.canvasy(self._y),
 				self.canvasx(event.x),
 				self.canvasy(event.y))
 
-		elif abs(event.x-self._x)>4 or abs(event.y-self._y)>4:
-			self._sel = SEL_AREA
-			self._select = self.create_rectangle(
-					self.canvasx(self._x),
-					self.canvasy(self._y),
-					self.canvasx(event.x),
-					self.canvasy(event.y),
-					outline=BOX_SELECT)
+		elif self._action in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
+			if abs(event.x-self._x)>4 or abs(event.y-self._y)>4:
+				self._action = ACTION_SELECT_AREA
+				self._select = self.create_rectangle(
+						self.canvasx(self._x),
+						self.canvasy(self._y),
+						self.canvasx(event.x),
+						self.canvasy(event.y),
+						outline=BOX_SELECT)
 
 	# ----------------------------------------------------------------------
 	# Canvas release button1. Select area
 	# ----------------------------------------------------------------------
 	def release(self, event):
-		if self._sel == SEL_AREA:
-			if event.state & SHIFT_MASK == 0:
-				closest = self.find_enclosed(
-						self.canvasx(self._x),
-						self.canvasy(self._y),
+		if self._action in (ACTION_SELECT_SINGLE,
+				ACTION_SELECT_DOUBLE,
+				ACTION_SELECT_AREA):
+			if self._action == ACTION_SELECT_AREA:
+				if event.state & SHIFT_MASK == 0:
+					closest = self.find_enclosed(
+							self.canvasx(self._x),
+							self.canvasy(self._y),
+							self.canvasx(event.x),
+							self.canvasy(event.y))
+				else:
+					closest = self.find_overlapping(
+							self.canvasx(self._x),
+							self.canvasy(self._y),
+							self.canvasx(event.x),
+							self.canvasy(event.y))
+
+				self.delete(self._select)
+				self._select = None
+
+				lines = []
+				for i in closest:
+					try: lines.append(self.items.index(i)+1)
+					except: pass
+
+			elif self._action in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
+				closest = self.find_closest(
 						self.canvasx(event.x),
-						self.canvasy(event.y))
-			else:
-				closest = self.find_overlapping(
-						self.canvasx(self._x),
-						self.canvasy(self._y),
-						self.canvasx(event.x),
-						self.canvasy(event.y))
+						self.canvasy(event.y),
+						4)
 
-			self.delete(self._select)
-			self._select = None
+				lines = []
+				for i in closest:
+					#while i is not None:
+						try:
+							lines.append(self.items.index(i)+1)
+							i = None
+						except ValueError:
+							#i = self.find_below(i)
+							pass
+			if not lines: return
 
-			lines = []
-			for i in closest:
-				try: lines.append(self.items.index(i)+1)
-				except: pass
-		else:
-			closest = self.find_closest(
-					self.canvasx(event.x),
-					self.canvasy(event.y),
-					4)
-
-			lines = []
-			for i in closest:
-				#while i is not None:
-					try:
-						lines.append(self.items.index(i)+1)
-						i = None
-					except ValueError:
-						#i = self.find_below(i)
-						pass
-		if not lines: return
-
-		self.app.editor.select(lines, self._sel==SEL_DOUBLE,
-				event.state & CONTROL_MASK==0)
+			self.app.editor.select(lines, self._action==ACTION_SELECT_DOUBLE,
+					event.state & CONTROL_MASK==0)
 
 	# ----------------------------------------------------------------------
 	def double(self, event):
-		self._sel = SEL_DOUBLE
+		self._action = ACTION_SELECT_DOUBLE
 
 	# ----------------------------------------------------------------------
 	def pan(self, event):
@@ -510,24 +542,18 @@ class CNCCanvas(Canvas):
 			coords = [(p[1]*self.zoom,-p[2]*self.zoom) for p in xyz]
 
 		elif self.view == VIEW_ISO1:
-			s60 = 0.866025404 #sin(radians(60))
-			c60 = 0.5         #cos(radians(60))
-			coords = [(( p[0]*s60 + p[1]*s60)*self.zoom,
-				   (+p[0]*c60 - p[1]*c60 - p[2])*self.zoom)
+			coords = [(( p[0]*S60 + p[1]*S60)*self.zoom,
+				   (+p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
 
 		elif self.view == VIEW_ISO2:
-			s60 = 0.866025404 #sin(radians(60))
-			c60 = 0.5         #cos(radians(60))
-			coords = [(( p[0]*s60 - p[1]*s60)*self.zoom,
-				   (-p[0]*c60 - p[1]*c60 - p[2])*self.zoom)
+			coords = [(( p[0]*S60 - p[1]*S60)*self.zoom,
+				   (-p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
 
 		elif self.view == VIEW_ISO3:
-			s60 = 0.866025404 #sin(radians(60))
-			c60 = 0.5         #cos(radians(60))
-			coords = [((-p[0]*s60 - p[1]*s60)*self.zoom,
-				   (-p[0]*c60 + p[1]*c60 - p[2])*self.zoom)
+			coords = [((-p[0]*S60 - p[1]*S60)*self.zoom,
+				   (-p[0]*C60 + p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
 
 		# Check limits

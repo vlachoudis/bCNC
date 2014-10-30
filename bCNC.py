@@ -1643,8 +1643,8 @@ class Application(Toplevel):
 			self.viewISO1()
 		elif cmd=="ISO2":
 			self.viewISO2()
-		elif cmd=="ISO2":
-			self.viewISO1()
+		elif cmd=="ISO3":
+			self.viewISO3()
 
 		elif rexx.abbrev("LOAD",cmd,2):
 			if len(line)>1:
@@ -2127,6 +2127,13 @@ class Application(Toplevel):
 		self.step.set("%.4g"%(s))
 
 	#----------------------------------------------------------------------
+	def goto(self, x=None, y=None, z=None):
+		cmd = "G90G0"
+		if x is not None: cmd += "X%g"%(x)
+		if y is not None: cmd += "Y%g"%(y)
+		if z is not None: cmd += "Z%g"%(z)
+		self.send("%s\n"%(cmd))
+
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		self.send("G91G0X%s\n"%(self.step.get()))
