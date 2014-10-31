@@ -3,7 +3,7 @@ bCNC
 
 GRBL CNC command sender, autoleveler and g-code editor
 
-![bCNC screenshot](https://github.com/vlachoudis/bCNC/blob/master/bCNC.png)
+![bCNC screenshot](https://github.com/vlachoudis/bCNC/blob/master/screenshots/bCNC.png)
 
 # Installation
 You will need the following packages to run bCNC
