@@ -5,6 +5,26 @@ GRBL CNC command sender, autoleveler and g-code editor
 
 ![bCNC screenshot](https://github.com/vlachoudis/bCNC/blob/master/bCNC.png)
 
+Installation:
+=============
+You will need the following packages to run bCNC
+- tkinter the graphical toolkit for python
+  Depending your python/OS it can either be already installed,
+  or under the names tkinter, python-tkinter, python-tk
+- pyserial or under the name python-serial, python-pyserial
+
+Expand the directory or download it from github
+and run the bCNC command
+
+Configuration:
+==============
+Currently the configuration is only via the bCNC.ini file.
+There is a global ini file in the installation directory.
+DO NOT CHANGE THIS ONE
+The first time you run bCNC will make a copy in the home
+directory typically ${HOME}/.bCNC  or ~/.bCNC
+Please edit the on in the home directory
+
 Features:
 =========
 - g-code sender
@@ -24,7 +44,7 @@ Editor functions:
   passage
 - Graphical block selection for reordering the cut process.
 
-ToDo list:
+TODO list:
 ==========
 - graphics setup (for the moment it has to be written in the ~/.bCNC.ini file)
 - manual
