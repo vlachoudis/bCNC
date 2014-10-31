@@ -5,8 +5,7 @@ GRBL CNC command sender, autoleveler and g-code editor
 
 ![bCNC screenshot](https://github.com/vlachoudis/bCNC/blob/master/bCNC.png)
 
-Installation:
-=============
+# Installation
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
   Depending your python/OS it can either be already installed,
@@ -16,8 +15,7 @@ You will need the following packages to run bCNC
 Expand the directory or download it from github
 and run the bCNC command
 
-Configuration:
-==============
+# Configuration
 Currently the configuration is only via the bCNC.ini file.
 There is a global ini file in the installation directory.
 DO NOT CHANGE THIS ONE
@@ -25,8 +23,7 @@ The first time you run bCNC will make a copy in the home
 directory typically ${HOME}/.bCNC  or ~/.bCNC
 Please edit the on in the home directory
 
-Features:
-=========
+# Features
 - g-code sender
 - workspace configuration (dialog for G54..G59 commands)
 - auto leveling, Z-probing and auto leveling by altering the g-code during
@@ -35,8 +32,7 @@ Features:
 - web pendant to be used via smart phones
 - graphics display of the g-code, and workspace
 
-Editor functions:
-=================
+# Editor functions
 - syntax highlighting
 - move/translate of g-code
 - rounding digits
@@ -44,8 +40,7 @@ Editor functions:
   passage
 - Graphical block selection for reordering the cut process.
 
-TODO list:
-==========
+# TODO list
 - graphics setup (for the moment it has to be written in the ~/.bCNC.ini file)
 - manual
 - editor rotation of g-code
@@ -53,8 +48,7 @@ TODO list:
 - tkinter canvas that I use for display can a bit slow sometimes on very big
   g-code files.
 
-Disclaimer:
-===========
+# Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in
   early stage of development, hence there should be plenty of bugs not spotted
   yet. Please use/try it with care, i don't want to be liable if it causes any
