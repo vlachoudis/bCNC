@@ -663,7 +663,63 @@ class CNC:
 		return newlines
 
 	#----------------------------------------------------------------------
-	# Round line by the ammount of digits
+	# Rotate lines around optional center (on XY plane)
+	# ang in degrees (counter-clockwise)
+	#----------------------------------------------------------------------
+	def rotateLines(self, lines, ang, x0=0.0, y0=0.0):
+		A = math.radians(ang)
+		C = math.cos(A)
+		S = math.sin(A)
+		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
+			C = round(C)	# round numbers to avoid nasty extra digits
+			S = round(S)
+
+		x = y = 0.0
+
+		newlines = []
+		for line in lines:
+			cmds    = self.parseLine(line)
+			if cmds is None:
+				newlines.append(line)
+				continue
+
+			found = False
+			for cmd in cmds:
+				c = cmd[0]
+				try:
+					value = float(cmd[1:])
+				except:
+					value = 0.0
+				if c in ("x","X"):
+					x = value
+					found = True
+				elif c in ("y","Y"):
+					y = value
+					found = True
+
+			if found:
+				xn = (x-x0)*C - (y-y0)*S + x0
+				yn = (x-x0)*S + (y-y0)*C + y0
+				newcmd  = []
+				# Replace the X/Y
+				for cmd in cmds:
+					c = cmd[0]
+					try:
+						value = float(cmd[1:])
+					except:
+						value = 0.0
+					if c in ("x","X"):
+						cmd = self.fmt(c,xn)
+					elif c in ("y","Y"):
+						cmd = self.fmt(c,yn)
+					newcmd.append(cmd)
+				newlines.append(string.join(newcmd))
+			else:
+				newlines.append(line)
+		return newlines
+
+	#----------------------------------------------------------------------
+	# Round line by the amount of digits
 	#----------------------------------------------------------------------
 	def roundLines(self, lines, acc=None):
 		newlines = []

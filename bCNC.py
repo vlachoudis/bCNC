@@ -1122,13 +1122,13 @@ class Application(Toplevel):
 		self.widgets.append((menu,i))
 		i += 1
 
-		# ---
+		# --- Move ---
 		submenu = Menu(menu)
 		menu.add_cascade(label="Move", underline=0, menu=submenu)
 		i += 1
 
 		ii = 0
-		submenu.add_command(label="Move x,y,z", underline=0,
+		submenu.add_command(label="Move command", underline=0,
 					command=lambda s=self:s.insertCommand("MOVE x y z", False))
 		self.widgets.append((submenu,ii))
 		ii += 1
@@ -1152,10 +1152,27 @@ class Application(Toplevel):
 					command=lambda s=self:s.insertCommand("MOVE TR", True))
 		self.widgets.append((submenu,ii))
 
-		# ---
+		# --- Rotate ---
 		submenu = Menu(menu)
 		menu.add_cascade(label="Rotate", underline=0, menu=submenu)
 		i += 1
+
+		ii = 0
+		submenu.add_command(label="Rotate command", underline=0,
+					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
+		self.widgets.append((submenu,ii))
+		ii += 1
+		submenu.add_command(label="Rotate CCW (90)", underline=7,
+					command=lambda s=self:s.insertCommand("ROTATE CCW", True))
+		self.widgets.append((submenu,ii))
+		ii += 1
+		submenu.add_command(label="Rotate CW (-90)", underline=8,
+					command=lambda s=self:s.insertCommand("ROTATE CW", True))
+		self.widgets.append((submenu,ii))
+		ii += 1
+		submenu.add_command(label="Rotate FLIP (180)", underline=7,
+					command=lambda s=self:s.insertCommand("ROTATE FLIP", True))
+		self.widgets.append((submenu,ii))
 
 
 		# Control Menu
@@ -1703,7 +1720,31 @@ class Application(Toplevel):
 		elif cmd == "RUN":
 			self.run()
 
-		elif rexx.abbrev("ROUND",cmd):
+		elif rexx.abbrev("ROTATE",cmd,3):
+			line1 = line[1].upper()
+			x0 = y0 = 0.0
+			if line1 == "CCW":
+				ang = 90.0
+				self.editor.selectAll()
+			elif line1 == "CW":
+				ang = -90.0
+				self.editor.selectAll()
+			elif line1 == "CW":
+				ang = -90.0
+				self.editor.selectAll()
+			elif line1=="FLIP":
+				ang = 180.0
+				self.editor.selectAll()
+			else:
+				try: ang = float(line[1])
+				except: pass
+				try: x0 = float(line[2])
+				except: pass
+				try: y0 = float(line[3])
+				except: pass
+			self._execute("ROTATE",ang,x0,y0)
+
+		elif rexx.abbrev("ROUND",cmd,3):
 			try: acc = int(line[1])
 			except: acc = 4
 			self._execute("ROUND",acc)
@@ -1774,6 +1815,8 @@ class Application(Toplevel):
 				lines = self.cnc.moveLines(lines, *args)
 			elif cmd=="ROUND":
 				lines = self.cnc.roundLines(lines, *args)
+			elif cmd=="ROTATE":
+				lines = self.cnc.rotateLines(lines, *args)
 
 			# Reselect the range in case it was changed
 			self.editor.insert(start,"\n".join(lines))
