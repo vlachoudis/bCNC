@@ -14,6 +14,18 @@ CMDPAT   = re.compile(r"([A-Za-z])")
 
 FMT = "%.4f"
 
+#------------------------------------------------------------------------------
+# Return a value combined from two dictionaries new/old
+#------------------------------------------------------------------------------
+def getValue(name,new,old,default=0.0):
+	try:
+		return new[name]
+	except:
+		try:
+			return old[name]
+		except:
+			return default
+
 #==============================================================================
 # Probing class and linear interpolation
 #==============================================================================
@@ -629,121 +641,102 @@ class CNC:
 			self.zmax = max(self.zmax,max([i[2] for i in xyz]))
 
 	#----------------------------------------------------------------------
-	# Move position by dx,dy,dz
+	# Modify the lines according to the supplied function and arguments
 	#----------------------------------------------------------------------
-	def moveLines(self, lines, dx, dy, dz):
+	def modifyLines(self, lines, func, *args):
 		newlines = []
+
+		old = {}	# Last value
+		new = {}	# New value
+
 		for line in lines:
-			newcmd  = []
-			changed = False
 			cmds    = self.parseLine(line)
 			if cmds is None:
 				newlines.append(line)
 				continue
+
+			# Collect all values
+			new.clear()
 			for cmd in cmds:
-				c = cmd[0]
+				c = cmd[0].upper()
 				try:
-					value = float(cmd[1:])
+					new[c] = float(cmd[1:])
 				except:
-					value = 0.0
-				if c in ("x","X"):
-					cmd = self.fmt(c,value+dx)
-					changed = True
-				elif c in ("y","Y"):
-					cmd = self.fmt(c,value+dy)
-					changed = True
-				elif c in ("z","Z"):
-					cmd = self.fmt(c,value+dz)
-					changed = True
-				newcmd.append(cmd)
-			if changed:
+					new[c] = 0.0
+
+			# Modify values with func
+			if func(new, old, *args):
+				# Reconstruct new cmd
+				newcmd = []
+				for cmd in cmds:
+					c = cmd[0].upper()
+					old[c] = new[c]
+					newcmd.append(self.fmt(cmd[0],new[c]))
 				newlines.append(string.join(newcmd))
 			else:
 				newlines.append(line)
 		return newlines
+
+	#----------------------------------------------------------------------
+	# Move position by dx,dy,dz
+	#----------------------------------------------------------------------
+	def moveFunc(self, new, old, dx, dy, dz):
+		changed = False
+		if 'X' in new:
+			changed = True
+			new['X'] += dx
+		if 'Y' in new:
+			changed = True
+			new['Y'] += dy
+		if 'Z' in new:
+			changed = True
+			new['Z'] += dz
+		return changed
+
+	#----------------------------------------------------------------------
+	# Move position by dx,dy,dz
+	#----------------------------------------------------------------------
+	def moveLines(self, lines, dx, dy, dz):
+		return self.modifyLines(lines, self.moveFunc, dx, dy, dz)
+
+	#----------------------------------------------------------------------
+	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
+	#----------------------------------------------------------------------
+	def rotateFunc(self, new, old, c, s, x0, y0):
+		if 'X' not in new and 'Y' not in new: return False
+		x = getValue('X',new,old)
+		y = getValue('Y',new,old)
+		new['X'] = (x-x0)*c - (y-y0)*s + x0
+		new['Y'] = (x-x0)*s + (y-y0)*c + y0
+		return True
 
 	#----------------------------------------------------------------------
 	# Rotate lines around optional center (on XY plane)
 	# ang in degrees (counter-clockwise)
 	#----------------------------------------------------------------------
 	def rotateLines(self, lines, ang, x0=0.0, y0=0.0):
-		A = math.radians(ang)
-		C = math.cos(A)
-		S = math.sin(A)
+		a = math.radians(ang)
+		c = math.cos(a)
+		s = math.sin(a)
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
-			C = round(C)	# round numbers to avoid nasty extra digits
-			S = round(S)
+			c = round(c)	# round numbers to avoid nasty extra digits
+			s = round(s)
+		return self.modifyLines(lines, self.rotateFunc, c, s, x0, y0)
 
-		x = y = 0.0
-
-		newlines = []
-		for line in lines:
-			cmds    = self.parseLine(line)
-			if cmds is None:
-				newlines.append(line)
-				continue
-
-			found = False
-			for cmd in cmds:
-				c = cmd[0]
-				try:
-					value = float(cmd[1:])
-				except:
-					value = 0.0
-				if c in ("x","X"):
-					x = value
-					found = True
-				elif c in ("y","Y"):
-					y = value
-					found = True
-
-			if found:
-				xn = (x-x0)*C - (y-y0)*S + x0
-				yn = (x-x0)*S + (y-y0)*C + y0
-				newcmd  = []
-				# Replace the X/Y
-				for cmd in cmds:
-					c = cmd[0]
-					try:
-						value = float(cmd[1:])
-					except:
-						value = 0.0
-					if c in ("x","X"):
-						cmd = self.fmt(c,xn)
-					elif c in ("y","Y"):
-						cmd = self.fmt(c,yn)
-					newcmd.append(cmd)
-				newlines.append(string.join(newcmd))
-			else:
-				newlines.append(line)
-		return newlines
+	#----------------------------------------------------------------------
+	# Round all digits with accuracy
+	#----------------------------------------------------------------------
+	def roundFunc(self, new, old):
+		for name,value in new.items():
+			new[name] = round(value,self.round)
+		return bool(new)
 
 	#----------------------------------------------------------------------
 	# Round line by the amount of digits
 	#----------------------------------------------------------------------
 	def roundLines(self, lines, acc=None):
-		newlines = []
-		for line in lines:
-			newcmd = []
-			if acc is not None: self.round = acc
-			cmds = self.parseLine(line)
-			if cmds is None:
-				newlines.append(line)
-				continue
-			changed  = False
-			for cmd in cmds:
-				c = cmd[0]
-				try: value = float(cmd[1:])
-				except: value = 0.0
-				if c.upper() in ("F","X","Y","Z","I","J","K","R","P",):
-					cmd = self.fmt(c,value)
-					changed = True
-				newcmd.append(cmd)
-			if changed:
-				newlines.append(string.join(newcmd))
-			else:
-				newlines.append(line)
-		return newlines
+		if acc is not None: self.round = acc
+		return self.modifyLines(lines, self.roundFunc)
 
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
