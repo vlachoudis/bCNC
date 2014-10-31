@@ -1781,6 +1781,8 @@ class Application(Toplevel):
 		self.editor.skipSelection(False)
 		self.selectionChange()
 
+		self.status["text"] = "%s %s"%(cmd," ".join(map(str,args)))
+
 	#----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
 		if self._historyPos is None:

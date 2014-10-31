@@ -210,8 +210,8 @@ class CNCEditor(Frame):
 			for lineNo in lines:
 				start = "%d.0"%(lineNo)
 				end   = "%d.end"%(lineNo)
-				self.text.mark_set(INSERT,start)
 				self.text.tag_add(SEL, start, end)
+			self.text.mark_set(INSERT,start)
 			self.text.see(start)
 
 	#----------------------------------------------------------------------

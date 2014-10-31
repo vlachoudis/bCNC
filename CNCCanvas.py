@@ -35,6 +35,7 @@ ACTION_SELECT_DOUBLE   = 2
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
+CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
 
 MAXDIST      = 10000
 
@@ -143,7 +144,7 @@ class CNCCanvas(Canvas):
 		self._x = event.x
 		self._y = event.y
 
-		if event.state & (CONTROL_MASK | SHIFT_MASK):
+		if event.state & CONTROLSHIFT_MASK == CONTROLSHIFT_MASK:
 			u = self.canvasx(self._x) / self.zoom
 			v = self.canvasy(self._y) / self.zoom
 
@@ -196,13 +197,14 @@ class CNCCanvas(Canvas):
 				ACTION_SELECT_DOUBLE,
 				ACTION_SELECT_AREA):
 			if self._action == ACTION_SELECT_AREA:
-				if event.state & SHIFT_MASK == 0:
+				#if event.state & SHIFT_MASK == 0:
+				if self._x < event.x:	# From left->right enclosed
 					closest = self.find_enclosed(
 							self.canvasx(self._x),
 							self.canvasy(self._y),
 							self.canvasx(event.x),
 							self.canvasy(event.y))
-				else:
+				else:			# From right->left overlapping
 					closest = self.find_overlapping(
 							self.canvasx(self._x),
 							self.canvasy(self._y),
