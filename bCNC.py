@@ -2592,7 +2592,10 @@ class Application(Toplevel):
 							if self._cline: del self._cline[0]
 
 			if tosend is not None and sum(self._cline) <= RX_BUFFER_SIZE-2:
-				self.serial.write(str(tosend))
+				if isinstance(tosend, unicode):
+					self.serial.write(tosend.encode("ascii","replace"))
+				else:
+					self.serial.write(str(tosend))
 				tosend = None
 
 	#----------------------------------------------------------------------
