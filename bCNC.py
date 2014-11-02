@@ -1114,11 +1114,11 @@ class Application(Toplevel):
 
 		i = 1
 		menu.add_command(label="Inkscape", underline=0,
-					command=lambda s=self:s.insertCommand("INKSCAPE",True))
+					command=lambda s=self:s.insertCommand("INKSCAPE all",True))
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Round", underline=0,
-					command=lambda s=self:s.insertCommand("ROUND", True))
+					command=lambda s=self:s.insertCommand("ROUND all", True))
 		self.widgets.append((menu,i))
 		i += 1
 
@@ -1419,7 +1419,10 @@ class Application(Toplevel):
 	def configWidgets(self, var, value):
 		for w in self.widgets:
 			if isinstance(w,tuple):
-				w[0].entryconfig(w[1], state=value)
+				try:
+					w[0].entryconfig(w[1], state=value)
+				except TclError:
+					pass
 			elif isinstance(w,tkExtra.Combobox):
 				w.configure(state=value)
 			else:
@@ -1654,6 +1657,8 @@ class Application(Toplevel):
 			self.home()
 
 		elif rexx.abbrev("INKSCAPE",cmd,3):
+			if len(line)>1 and rexx.abbrev("ALL",line[1].upper()):
+				self.editor.selectAll()
 			self._execute("INKSCAPE")
 
 		elif cmd=="ISO1":
@@ -1745,8 +1750,15 @@ class Application(Toplevel):
 			self._execute("ROTATE",ang,x0,y0)
 
 		elif rexx.abbrev("ROUND",cmd,3):
-			try: acc = int(line[1])
-			except: acc = 4
+			acc = None
+			if len(line)>1:
+				if rexx.abbrev("ALL",line[1].upper()):
+					self.editor.selectAll()
+				else:
+					try:
+						acc = int(line[1])
+					except:
+						pass
 			self._execute("ROUND",acc)
 
 		elif rexx.abbrev("SAVE",cmd,2):
