@@ -199,6 +199,7 @@ class CNCEditor(Frame):
 	# Select items select from canvas
 	#----------------------------------------------------------------------
 	def select(self, lines, block, clear=False):
+		self._skipSelection = True
 		if clear:
 			self.text.tag_remove(SEL, "1.0", END)
 
@@ -213,6 +214,8 @@ class CNCEditor(Frame):
 				self.text.tag_add(SEL, start, end)
 			self.text.mark_set(INSERT,start)
 			self.text.see(start)
+		self._skipSelection = False
+		self.selectionChange()
 
 	#----------------------------------------------------------------------
 	def selectSet(self, start, end):

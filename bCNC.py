@@ -1982,7 +1982,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def loadGcode(self, filename=None):
 		if filename:
-			config.set("File", "dir",  os.path.dirname(filename))
+			config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
 			config.set("File", "file", os.path.basename(filename))
 		self.editor.set(self.cnc.load(filename))
 		self.draw()
@@ -2011,7 +2011,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def saveGcode(self, filename=None):
 		if filename is not None:
-			config.set("File", "dir",  os.path.dirname(filename))
+			config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
 			config.set("File", "file", os.path.basename(filename))
 			self.cnc.filename = filename
 

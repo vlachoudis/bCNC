@@ -516,12 +516,14 @@ class CNCCanvas(Canvas):
 		self.cnc.processPath(cmds)
 		xyz = self.cnc.motionPath()
 		if xyz:
-			dash = None
 			length = self.cnc.pathLength(xyz)
 			self.cnc.pathMargins(xyz)
 			coords = self.plotCoords(xyz)
 			if coords:
-				if self.cnc.gcode == 0: dash = (4,2)
+				if self.cnc.gcode == 0:
+					dash = (4,3)
+				else:
+					dash = None
 				return self.create_line(coords, fill="Black", dash=dash)
 		return None
 
