@@ -6,6 +6,7 @@
 
 <script type="text/javascript">
 
+var rpmmax=12000;
 var xmlhttp=false;
 var WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"];
 var WCSVAL = ["wcsx", "wcsy", "wcsz"];
@@ -38,7 +39,8 @@ function getXmlHttp()
 	}
 } // getXmlHttp
 
-function getState() {
+function getState()
+{
 	xmlhttp = getXmlHttp();
 	xmlhttp.open("GET", '/state');
 	xmlhttp.onreadystatechange=function() {
@@ -61,6 +63,20 @@ function getState() {
 	xmlhttp.send(null);
 } // getState
 
+/* parse once configuration */
+function getConfig() {
+	xmlhttp = getXmlHttp();
+	xmlhttp.open("GET", '/config');
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4) {
+			obj = JSON.parse(xmlhttp.responseText);
+			rpmmax = obj.rpmmax;
+		}
+	}
+	xmlhttp.send(null);
+} // getConfig
+
+getConfig();	// call once the getConfig
 setInterval(getState, 1000);
 
 function vibrate(t)
@@ -77,7 +93,7 @@ function sendCmd(command)
 	xmlhttp = getXmlHttp();
 	xmlhttp.open("GET", '/send?cmd=' + encodeURIComponent(command));
 	xmlhttp.send(null);
-	vibrate(100);
+	vibrate(500);
 } // sendCmd
 
 function sendGcode(command)
@@ -118,6 +134,17 @@ function wcsChange()
 	sendGcode(document.getElementById('wcs').value);
 } // wcsChange
 
+function spindleChange()
+{
+	rpm = document.getElementById('spindle').value;
+	if (rpm=="Off")
+		sendGcode("M5");
+	else {
+		rpm = (parseInt(rpm) * rpmmax)/100;
+		sendGcode("M3 S"+rpm);
+	}
+} // spindleChange
+
 function sendMove(command)
 {
 	xmlhttp = getXmlHttp();
@@ -127,13 +154,13 @@ function sendMove(command)
 		gcode = "G90G0X0Y0Z0";
 	} else
 	if (command=='XdYu') {
-		gcode += "X-"+xstep+"Y"+step;
+		gcode += "X-"+step+"Y"+step;
 	} else
 	if (command=='Yu') {
 		gcode += "Y"+step;
 	} else
 	if (command=='XuYu') {
-		gcode += "X"+xstep+"Y"+step;
+		gcode += "X"+step+"Y"+step;
 	} else
 	if (command=='Xu') {
 		gcode += "X"+step;
@@ -142,13 +169,13 @@ function sendMove(command)
 		gcode += "X-"+step;
 	} else
 	if (command=='XdYd') {
-		gcode += "X-"+xstep+"Y-"+step;
+		gcode += "X-"+step+"Y-"+step;
 	} else
 	if (command=='Yd') {
 		gcode += "Y-"+step;
 	} else
 	if (command=='XuYd') {
-		gcode += "X"+xstep+"Y-"+step;
+		gcode += "X"+step+"Y-"+step;
 	} else
 	if (command=='Zu') {
 		gcode += "Z"+step;
@@ -245,6 +272,18 @@ function sendMove(command)
 		</td>
 		<td><button onclick="sendCmd('STOP');"   class="button command">
 			<img src="icon?name=stop"> Stop</button>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+			Spindle:
+			<select id="spindle" width="100%" onchange="spindleChange();">
+				<option selected>Off</option>
+				<option>25%</option>
+				<option>50%</option>
+				<option>75%</option>
+				<option>100%</option>
+			</select>
 		</td>
 	</tr>
 </table>

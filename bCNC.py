@@ -417,6 +417,33 @@ class Application(Toplevel):
 
 		#f.grid_columnconfigure(6,weight=1)
 
+		# Control -> Spindle
+		lframe = LabelFrame(frame, text="Spindle")
+		lframe.pack(side=TOP, fill=X)
+
+		self.spindle = BooleanVar()
+		self.spindleSpeed = IntVar()
+
+		b = Checkbutton(lframe, text="Spindle",
+				image=icons["spinningtop"],
+				compound=LEFT,
+				indicatoron=False,
+				variable=self.spindle,
+				command=self.spindleControl)
+		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
+		b.pack(side=LEFT, fill=Y)
+		self.widgets.append(b)
+
+		b = Scale(lframe, command=self.spindleControl,
+				variable=self.spindleSpeed,
+				showvalue=True,
+				orient=HORIZONTAL,
+				from_=config.get("CNC","spindlemin"),
+				to_=config.get("CNC","spindlemax"))
+		tkExtra.Balloon.set(b, "Set spindle RPM")
+		b.pack(side=RIGHT, expand=YES, fill=X)
+		self.widgets.append(b)
+
 		# Control -> Run
 		lframe = LabelFrame(frame, text="Run")
 		lframe.pack(side=TOP, fill=X)
@@ -428,6 +455,7 @@ class Application(Toplevel):
 				padx=3, pady=2,
 				command=self.run)
 		b.pack(side=LEFT,expand=YES,fill=X)
+		tkExtra.Balloon.set(b, "Send g-code commands from editor to CNC")
 		self.widgets.append(b)
 
 		b = Button(f, text="Pause",
@@ -436,12 +464,14 @@ class Application(Toplevel):
 				padx=3, pady=2,
 				command=self.pause)
 		b.pack(side=LEFT,expand=YES,fill=X)
+		tkExtra.Balloon.set(b, "Pause running program")
 
 		b = Button(f, text="Stop",
 				compound=LEFT,
 				image=icons["stop"],
 				padx=3, pady=2,
 				command=self.stopRun)
+		tkExtra.Balloon.set(b, "Stop running program")
 		b.pack(side=LEFT,expand=YES,fill=X)
 
 		self.progress = tkExtra.ProgressBar(lframe, height=24)
@@ -1773,6 +1803,28 @@ class Application(Toplevel):
 			except:
 				pass
 
+		elif rexx.abbrev("SPINDLE",cmd,3):
+			if len(line)>1:
+				if line[1].upper()=="OFF":
+					self.spindle.set(False)
+				elif line[1].upper()=="ON":
+					self.spindle.set(True)
+				else:
+					try:
+						rpm = int(line[1])
+						if rpm==0:
+							self.spindleSpeed.set(0)
+							self.spindle.set(False)
+						else:
+							self.spindleSpeed.set(rpm)
+							self.spindle.set(True)
+					except:
+						pass
+			else:
+				# toggle spindle
+				self.spindle.set(not self.spindle.get())
+			self.spindleControl()
+
 		elif cmd == "STOP":
 			self.stopRun()
 
@@ -2130,6 +2182,13 @@ class Application(Toplevel):
 	def grblhelp(self):
 		self.send("$\n")
 		self.tabPage.changePage("Terminal")
+
+	#----------------------------------------------------------------------
+	def spindleControl(self, event=None):
+		if self.spindle.get():
+			self.send("M3 S%d\n"%(self.spindleSpeed.get()))
+		else:
+			self.send("M5\n")
 
 	#----------------------------------------------------------------------
 	def acceptKey(self, skipRun=False):
@@ -2712,6 +2771,14 @@ class Application(Toplevel):
 				self.runEnded()
 
 		self.after(MONITOR_AFTER, self.monitorSerial)
+
+	#----------------------------------------------------------------------
+	def get(self, section, item):
+		return config.get(section, item)
+
+	#----------------------------------------------------------------------
+	def set(self, section, item, value):
+		return config.set(section, item, value)
 
 #-----------------------------------------------------------------------------
 def loadIcons():

@@ -13,6 +13,7 @@ import sys
 import json
 import urlparse
 import threading
+
 try:
 	import BaseHTTPServer as HTTPServer
 except ImportError:
@@ -65,6 +66,12 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		elif page == "/state":
 			self.do_HEAD(200, "text/text")
 			self.wfile.write(json.dumps(httpd.app._pos))
+
+		elif page == "/config":
+			self.do_HEAD(200, "text/text")
+			snd = {}
+			snd["rpmmax"] = httpd.app.get("CNC","spindlemax")
+			self.wfile.write(json.dumps(snd))
 
 		elif page == "/icon":
 			if arg is None: return
