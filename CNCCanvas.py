@@ -243,6 +243,17 @@ class CNCCanvas(Canvas):
 	def double(self, event):
 		self._action = ACTION_SELECT_DOUBLE
 
+	#----------------------------------------------------------------------
+	# Get margins of selected items
+	#----------------------------------------------------------------------
+	def getMargins(self):
+		bbox = self.bbox(SEL)
+		if not bbox: return None
+		x1,y1,x2,y2 = bbox
+		dx = (x2-x1-1)/self.zoom
+		dy = (y2-y1-1)/self.zoom
+		return dx,dy
+
 	# ----------------------------------------------------------------------
 	def pan(self, event):
 		if self._pan:

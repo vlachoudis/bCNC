@@ -1882,6 +1882,7 @@ class Application(Toplevel):
 			for j in range(s,e+1):
 				if j<len(self.canvas.items) and self.canvas.items[j]:
 					self.canvas.addtag_withtag(SEL, self.canvas.items[j])
+		#print self.canvas.getMargins()
 		self.canvas.itemconfig(SEL, width=2, fill="Blue")
 		self.insertMarker()
 
@@ -2583,6 +2584,8 @@ class Application(Toplevel):
 						if line.find("error")>=0 or line.find("ALARM")>=0:
 							self._gcount += 1
 							if self._cline: del self._cline[0]
+							if not self._alarm:
+								self._posUpdate = True
 							self._alarm = True
 							self._pos["state"] = line
 							if self.running: self.stopRun()
@@ -2630,7 +2633,13 @@ class Application(Toplevel):
 		if self._posUpdate:
 			state = self._pos["state"]
 			self.state["text"] = state
-			self._pos["color"] = STATECOLOR.get(state, STATECOLORDEF)
+			try:
+				self._pos["color"] = STATECOLOR[state]
+			except KeyError:
+				if self._alarm:
+					self._pos["color"] = STATECOLOR["Alarm"]
+				else:
+					self._pos["color"] = STATECOLORDEF
 			self.state["background"] = self._pos["color"]
 
 			self.xwork["text"] = self._pos["wx"]
