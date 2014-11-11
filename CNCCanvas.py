@@ -320,12 +320,10 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def mouseZoomIn(self, event):
-		#self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.25)
 		self.zoomCanvas(event.x, event.y, 1.25)
 
 	# ----------------------------------------------------------------------
 	def mouseZoomOut(self,event):
-		#self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.0/1.25)
 		self.zoomCanvas(event.x, event.y, 1.0/1.25)
 
 	# ----------------------------------------------------------------------

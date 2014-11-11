@@ -708,6 +708,12 @@ class CNC:
 		y = getValue('Y',new,old)
 		new['X'] = (x-x0)*c - (y-y0)*s + x0
 		new['Y'] = (x-x0)*s + (y-y0)*c + y0
+
+		if 'I' in new or 'J' in new:
+			i = getValue('I',new,old)
+			j = getValue('J',new,old)
+			new['I'] = i*c - j*s
+			new['J'] = i*s + j*c
 		return True
 
 	#----------------------------------------------------------------------
@@ -722,6 +728,37 @@ class CNC:
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
 		return self.modifyLines(lines, self.rotateFunc, c, s, x0, y0)
+
+	#----------------------------------------------------------------------
+	# Mirror Horizontal
+	#----------------------------------------------------------------------
+	def mirrorHFunc(self, new, old, *kw):
+		changed = False
+		for axis in 'XI':
+			if axis in new:
+				new[axis] = -new[axis]
+				changed = True
+		return changed
+
+	#----------------------------------------------------------------------
+	# Mirror Vertical
+	#----------------------------------------------------------------------
+	def mirrorVFunc(self, new, old, *kw):
+		changed = False
+		for axis in 'YJ':
+			if axis in new:
+				new[axis] = -new[axis]
+				changed = True
+		return changed
+
+	#----------------------------------------------------------------------
+	# Mirror horizontally/vertically
+	#----------------------------------------------------------------------
+	def mirrorHLines(self, lines):
+		return self.modifyLines(lines, self.mirrorHFunc)
+
+	def mirrorVLines(self, lines):
+		return self.modifyLines(lines, self.mirrorVFunc)
 
 	#----------------------------------------------------------------------
 	# Round all digits with accuracy

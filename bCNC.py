@@ -1153,6 +1153,20 @@ class Application(Toplevel):
 		self.widgets.append((menu,i))
 		i += 1
 
+		# --- Mirror ---
+		submenu = Menu(menu)
+		menu.add_cascade(label="Mirror", underline=0, menu=submenu)
+		i += 1
+
+		ii = 0
+		submenu.add_command(label="Horizontal (X=-X)", underline=0,
+					command=lambda s=self:s.insertCommand("MIRROR HOR", True))
+		self.widgets.append((submenu,ii))
+		ii += 1
+		submenu.add_command(label="Vertical (Y=-Y)", underline=0,
+					command=lambda s=self:s.insertCommand("MIRROR VER", True))
+		self.widgets.append((submenu,ii))
+
 		# --- Move ---
 		submenu = Menu(menu)
 		menu.add_cascade(label="Move", underline=0, menu=submenu)
@@ -1204,7 +1218,6 @@ class Application(Toplevel):
 		submenu.add_command(label="Rotate FLIP (180)", underline=7,
 					command=lambda s=self:s.insertCommand("ROTATE FLIP", True))
 		self.widgets.append((submenu,ii))
-
 
 		# Control Menu
 		menu = Menu(menubar)
@@ -1705,7 +1718,18 @@ class Application(Toplevel):
 			else:
 				self.loadDialog()
 
-		elif rexx.abbrev("MOVE",cmd):
+		elif rexx.abbrev("MIRROR",cmd,3):
+			if len(line)==1: return
+			line1 = line[1].upper()
+			#if nothing is selected:
+			#self.editor.selectAll()
+			if rexx.abbrev("HORIZONTAL",line1):
+				self._execute("MIRRORH")
+			elif rexx.abbrev("VERTICAL",line1):
+				self._execute("MIRRORV")
+
+		elif rexx.abbrev("MOVE",cmd,2):
+			if len(line)==1: return
 			line1 = line[1].upper()
 			if rexx.abbrev("CENTER",line1,2):
 				dx = -(self.cnc.xmin + self.cnc.xmax)/2.0
@@ -1882,6 +1906,10 @@ class Application(Toplevel):
 				lines = self.cnc.roundLines(lines, *args)
 			elif cmd=="ROTATE":
 				lines = self.cnc.rotateLines(lines, *args)
+			elif cmd=="MIRRORH":
+				lines = self.cnc.mirrorHLines(lines)
+			elif cmd=="MIRRORV":
+				lines = self.cnc.mirrorVLines(lines)
 
 			# Reselect the range in case it was changed
 			self.editor.insert(start,"\n".join(lines))
