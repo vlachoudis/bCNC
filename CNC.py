@@ -558,7 +558,10 @@ class CNC:
 
 			phi  = math.atan2(self.y-yc, self.x-xc)
 			ephi = math.atan2(self.yval-yc, self.xval-xc)
-			sagitta = 1.0-self.accuracy/self.rval
+			try:
+				sagitta = 1.0-self.accuracy/self.rval
+			except ZeroDivisionError:
+				sagitta = 0.0
 			if sagitta>0.0:
 				df = 2.0*math.acos(sagitta)
 				df = min(df, math.pi/4.0)
@@ -738,6 +741,11 @@ class CNC:
 			if axis in new:
 				new[axis] = -new[axis]
 				changed = True
+		g = int(getValue('G',new,old))
+		if g==2:
+			new['G'] = 3
+		elif g==3:
+			new['G'] = 2
 		return changed
 
 	#----------------------------------------------------------------------
@@ -749,6 +757,11 @@ class CNC:
 			if axis in new:
 				new[axis] = -new[axis]
 				changed = True
+		g = int(getValue('G',new,old))
+		if g==2:
+			new['G'] = 3
+		elif g==3:
+			new['G'] = 2
 		return changed
 
 	#----------------------------------------------------------------------
