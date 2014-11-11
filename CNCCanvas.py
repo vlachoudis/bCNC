@@ -270,9 +270,10 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def zoomCanvas(self, x0, y0, zoom):
+		oldZoom = self.zoom
 		self.zoom *= zoom
 		for i in self.find_all():
-			self.scale(i, x0, y0, zoom, zoom)
+			self.scale(i, 0, 0, zoom, zoom)
 
 		# Update last insert
 		if self._lastInsert:
@@ -295,7 +296,15 @@ class CNCCanvas(Canvas):
 			 x+INSERT_WIDTH2, y+INSERT_WIDTH2))
 
 		self._updateScrollBars()
-		self.update_idletasks()
+
+		# Perform pin zoom
+		dx = self.canvasx(x0) * (1.0-zoom)
+		dy = self.canvasy(y0) * (1.0-zoom)
+
+		# Drag to new location to center viewport
+		self.scan_mark(0,0)
+		self.scan_dragto(int(round(dx)), int(round(dy)), 1)
+		#self.update_idletasks()
 
 	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
