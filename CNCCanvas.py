@@ -272,7 +272,7 @@ class CNCCanvas(Canvas):
 	def zoomCanvas(self, x0, y0, zoom):
 		self.zoom *= zoom
 		for i in self.find_all():
-			self.scale(i, 0, 0, zoom, zoom)
+			self.scale(i, x0, y0, zoom, zoom)
 
 		# Update last insert
 		if self._lastInsert:
@@ -311,11 +311,13 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def mouseZoomIn(self, event):
-		self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.25)
+		#self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.25)
+		self.zoomCanvas(event.x, event.y, 1.25)
 
 	# ----------------------------------------------------------------------
 	def mouseZoomOut(self,event):
-		self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.0/1.25)
+		#self.zoomCanvas(self.canvasx(event.x), self.canvasy(event.y), 1.0/1.25)
+		self.zoomCanvas(event.x, event.y, 1.0/1.25)
 
 	# ----------------------------------------------------------------------
 	# Change the insert marker location

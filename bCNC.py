@@ -83,6 +83,7 @@ class Application(Toplevel):
 		global config
 
 		Toplevel.__init__(self, master, **kw)
+		self.iconbitmap("@%s/bCNC.xbm"%(prgpath))
 		self.title(__prg__)
 		self.widgets = []
 
