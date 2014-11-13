@@ -11,8 +11,12 @@ import os
 import sys
 #import cgi
 import json
-import urlparse
 import threading
+
+try:
+	import urlparse
+except ImportError:
+	import urllib.parse as urlparse
 
 try:
 	import BaseHTTPServer as HTTPServer

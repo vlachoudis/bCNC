@@ -1431,11 +1431,11 @@ class Application(Toplevel):
 		config.set("Connection", "port", self.portCombo.get())
 
 		# Canvas
-		config.set("Canvas","axes",    int(self.draw_axes.get()))
-		config.set("Canvas","grid",    int(self.draw_grid.get()))
-		config.set("Canvas","margin",  int(self.draw_margin.get()))
-		config.set("Canvas","probe",   int(self.draw_probe.get()))
-		config.set("Canvas","workarea",int(self.draw_workarea.get()))
+		config.set("Canvas","axes",    str(self.draw_axes.get()))
+		config.set("Canvas","grid",    str(self.draw_grid.get()))
+		config.set("Canvas","margin",  str(self.draw_margin.get()))
+		config.set("Canvas","probe",   str(self.draw_probe.get()))
+		config.set("Canvas","workarea",str(self.draw_workarea.get()))
 
 		# Control
 		config.set("Control", "step", self.step.get())
@@ -2824,7 +2824,7 @@ def loadIcons():
 def delIcons():
 	global icons
 	if len(icons) > 0:
-		for i in icons.itervalues():
+		for i in icons.values():
 			del i
 
 #------------------------------------------------------------------------------

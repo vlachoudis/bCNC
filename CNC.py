@@ -102,7 +102,8 @@ class Probe:
 				for i in range(self.xn):
 					self.add(*read(f))
 		except:
-			print "Error reading probe file",self.filename
+			raise
+			#print "Error reading probe file",self.filename
 		f.close()
 
 	#----------------------------------------------------------------------
