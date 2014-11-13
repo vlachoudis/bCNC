@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3312 2014-10-17 07:25:38Z bnv $
+# $Id: tkExtra.py 3331 2014-11-13 08:01:01Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1563,7 +1563,10 @@ class MultiListbox(Frame):
 		except: active = -1
 
 		self.delete(0, END)
-		elements.sort(lambda x, y: self._sortAssist(column, direction, x, y))
+
+		# XXX VERY nasty hack only for python2
+		if sys.version_info[0]==2:
+			elements.sort(lambda x, y: self._sortAssist(column, direction, x, y))
 		# python v3, check the cmp_to_key
 		# elements.sort(key=lambda x:x[column], reverse=direction)
 
