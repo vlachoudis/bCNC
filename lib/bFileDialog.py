@@ -69,7 +69,7 @@ try:
 	import tkMessageBox as messagebox
 except ImportError:
 	from tkinter import *
-	import tkinter.messagebox
+	import tkinter.messagebox as messagebox
 import tkExtra
 
 _DIR_TYPE     = " <DIR>"
