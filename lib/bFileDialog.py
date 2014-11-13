@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: bFileDialog.py 3298 2014-10-10 13:10:06Z bnv $
+# $Id: bFileDialog.py 3332 2014-11-13 08:52:15Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -281,7 +281,6 @@ class FileDialog(Toplevel):
 			 height=20,
 			 selectmode=selectmode)
 		self.fileList.pack(expand=YES, fill=BOTH)
-		self.fileList.sortCmp = self.fileCmp
 		self.fileList.setPopupMenu(
 			[('Rename', 0, self.rename),
 			 ('Delete', 0, self.delete),
@@ -612,15 +611,6 @@ class FileDialog(Toplevel):
 			self.fileList.see(0)
 			self.fileList.activate(0)
 			self.fileList.selection_set(0)
-
-	# ----------------------------------------------------------------------
-	# File tuple compare
-	# ----------------------------------------------------------------------
-	def fileCmp(self, column, x, y):
-		if column == 2:	# size
-			return cmp(int(x[column]), int(y[column]))
-		else:
-			return cmp(x[column], y[column])
 
 	# ----------------------------------------------------------------------
 	def open(self, fn):

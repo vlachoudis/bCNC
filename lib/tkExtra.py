@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3331 2014-11-13 08:01:01Z bnv $
+# $Id: tkExtra.py 3332 2014-11-13 08:52:15Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,11 +158,15 @@ wYEDCAhMYFBAwJx/Lw50gJCgtGnTOATSAXC6dQIAfAbKEeC6NIA7Cv1sGHB6wIg/ChN+MWIkTPCA
 ADs=
 """
 
-#-------------------------------------------------------------------------------
-# Default sorting function for MultiListbox
-#-------------------------------------------------------------------------------
-def _cmp(column, x, y):
-	return cmp(x[column], y[column])
+#===============================================================================
+# Sort Assist class for MultiListbox
+#===============================================================================
+class SortAssist:
+	def __init__(self, column):
+		self._column = column
+
+	def __call__(self, x):
+		return x[self._column]
 
 #-------------------------------------------------------------------------------
 # Multiple configuration of many widgets given in a list
@@ -1247,11 +1251,11 @@ class MultiListbox(Frame):
 		self.lists[0]['yscrollcommand']=self.scrollbar.set
 		self.activeList = self.lists[0]
 
-		self.sortCmp	   = _cmp
-		self.sortOrder	   = None	# Array containing the previous order of the list after sort
-		self.sortColumn    = -1
-		self.sortDirection =  1
-		self._sashIndex    = -1
+		self.sortAssist   = SortAssist
+		self._sortOrder	  = None	# Array containing the previous order of the list after sort
+		self._sortColumn  = -1
+		self._sashIndex   = -1
+		self._sortReverse = False
 
 	# ----------------------------------------------------------------------
 	# Bind left/right arrow to focusing different list
@@ -1368,10 +1372,10 @@ class MultiListbox(Frame):
 				for l in self.lists[len(e) : len(self.lists)]:
 					l.insert(index, "")
 
-		if self.sortColumn>=0:
-			txt = self._labels[self.sortColumn]["text"]
-			self._labels[self.sortColumn].config(text=txt[:-1])
-			self.sortColumn = -1
+		if self._sortColumn>=0:
+			txt = self._labels[self._sortColumn]["text"]
+			self._labels[self._sortColumn].config(text=txt[:-1])
+			self._sortColumn = -1
 
 	# ----------------------------------------------------------------------
 	# Change the value of a list item
@@ -1527,26 +1531,22 @@ class MultiListbox(Frame):
 			pass
 
 	# ----------------------------------------------------------------------
-	def sort(self, column, dire=None):
+	def sort(self, column, reverse=None):
 		""" Sort by a given column."""
 		if self.lists[0].cget("state") == DISABLED: return
-		if self.sortCmp is None: return
-		if column == self.sortColumn:
-			txt = self._labels[self.sortColumn]["text"][:-1]
-			if dire:
-				direction = dire
-			else:
-				direction = (-1) * self.sortDirection
+		if self.sortAssist is None: return
+		if column == self._sortColumn:
+			txt = self._labels[self._sortColumn]["text"][:-1]
+			if reverse is None:
+				reverse = not self._sortReverse
 		else:
-			if self.sortColumn>=0:
-				txt = self._labels[self.sortColumn]["text"][:-1]
-				self._labels[self.sortColumn].config(text=txt)
-				self.sortColumn = -1
+			if self._sortColumn>=0:
+				txt = self._labels[self._sortColumn]["text"][:-1]
+				self._labels[self._sortColumn].config(text=txt)
+				self._sortColumn = -1
 			txt = self._labels[column]["text"]
-			if dire:
-				direction = dire
-			else:
-				direction = 1
+			if reverse is None:
+				reverse = False
 
 		#elements = self.get(0, END)
 		elements = []
@@ -1564,20 +1564,16 @@ class MultiListbox(Frame):
 
 		self.delete(0, END)
 
-		# XXX VERY nasty hack only for python2
-		if sys.version_info[0]==2:
-			elements.sort(lambda x, y: self._sortAssist(column, direction, x, y))
-		# python v3, check the cmp_to_key
-		# elements.sort(key=lambda x:x[column], reverse=direction)
+		elements.sort(key=self.sortAssist(column), reverse=reverse)
 
 		# get selection status
 		status = []
-		self.sortOrder	= []
+		self._sortOrder	= []
 		newactive = -1
 		for i,item in enumerate(elements):
 			idx = item.pop()
 			if active == idx: newactive = i
-			self.sortOrder.append(idx)
+			self._sortOrder.append(idx)
 			status.append(item.pop())
 
 		self.insert(END, *elements)
@@ -1589,32 +1585,24 @@ class MultiListbox(Frame):
 		if newactive>=0:
 			self.activate(newactive)
 
-		self.sortColumn = column
-		self.sortDirection = direction
+		self._sortColumn  = column
+		self._sortReverse = reverse
 
-		if direction>0:
-			self._labels[column].config(text=txt+Unicode.BLACK_UP_POINTING_TRIANGLE)
-		else:
+		if reverse:
 			self._labels[column].config(text=txt+Unicode.BLACK_DOWN_POINTING_TRIANGLE)
+		else:
+			self._labels[column].config(text=txt+Unicode.BLACK_UP_POINTING_TRIANGLE)
 		self.event_generate("<<ListboxSort>>")
 
 	# ----------------------------------------------------------------------
-	def _sortAssist(self, column, direction, x, y):
-		c = self.sortCmp(column, x, y)
-		if c:
-			return direction * c
-		else:
-			return direction * cmp(x, y)
-
-	# ----------------------------------------------------------------------
 	def saveSort(self):
-		self._saveColumn    = self.sortColumn
-		self._saveDirection = self.sortDirection
+		self._saveColumn  = self._sortColumn
+		self._saveReverse = self._sortReverse
 
 	# ----------------------------------------------------------------------
 	def restoreSort(self):
 		if self._saveColumn>=0:
-			self.sort(self._saveColumn, self._saveDirection)
+			self.sort(self._saveColumn, self._saveReverse)
 
 	# ----------------------------------------------------------------------
 	def yview(self):
