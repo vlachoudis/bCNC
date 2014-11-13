@@ -292,7 +292,7 @@ class CNCEditor(Frame):
 
 			# Update tags
 			foundItems = found.items()
-			for tag,(index,c) in foundItems:
+			for tag,(index,c) in list(foundItems):
 				#print ">>",tag,index
 				if self.text.compare(index,"<",start):
 					index = self.text.search(HIGHLIGHT[tag][0],
