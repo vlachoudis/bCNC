@@ -70,7 +70,8 @@ config = ConfigParser.ConfigParser()
 
 STATECOLOR = {	"Alarm": "Red",
 		"Run"  : "LightGreen",
-		NOT_CONNECTED: "Orange"}
+		"Connected" : "Orange",
+		NOT_CONNECTED: "OrangeRed"}
 STATECOLORDEF = "LightYellow"
 
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -113,9 +114,9 @@ class Application(Toplevel):
 		paned.pack(fill=BOTH, expand=YES)
 
 		# Status bar
-		self.status = Label(self, relief=SUNKEN,
+		self.statusbar = Label(self, relief=SUNKEN,
 			foreground="DarkBlue", justify=LEFT, anchor=W)
-		self.status.pack(side=BOTTOM, fill=X)
+		self.statusbar.pack(side=BOTTOM, fill=X)
 
 		# Command bar
 		self.command = Entry(self, relief=SUNKEN, background="White")
@@ -137,7 +138,8 @@ class Application(Toplevel):
 		col = 0
 		Label(frame,text="Status:").grid(row=row,column=col,sticky=E)
 		col += 1
-		self.state = Label(frame, background="White")
+		self.state = Label(frame, text=NOT_CONNECTED,
+				background=STATECOLOR[NOT_CONNECTED])
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
 		row += 1
@@ -1148,10 +1150,6 @@ class Application(Toplevel):
 					command=lambda s=self:s.insertCommand("INKSCAPE all",True))
 		self.widgets.append((menu,i))
 		i += 1
-		menu.add_command(label="Round", underline=0,
-					command=lambda s=self:s.insertCommand("ROUND all", True))
-		self.widgets.append((menu,i))
-		i += 1
 
 		# --- Mirror ---
 		submenu = Menu(menu)
@@ -1218,6 +1216,12 @@ class Application(Toplevel):
 		submenu.add_command(label="Rotate FLIP (180)", underline=7,
 					command=lambda s=self:s.insertCommand("ROTATE FLIP", True))
 		self.widgets.append((submenu,ii))
+
+		# ---
+		i += 1
+		menu.add_command(label="Round", underline=0,
+					command=lambda s=self:s.insertCommand("ROUND all", True))
+		self.widgets.append((menu,i))
 
 		# Control Menu
 		menu = Menu(menubar)
@@ -1431,11 +1435,11 @@ class Application(Toplevel):
 		config.set("Connection", "port", self.portCombo.get())
 
 		# Canvas
-		config.set("Canvas","axes",    str(self.draw_axes.get()))
-		config.set("Canvas","grid",    str(self.draw_grid.get()))
-		config.set("Canvas","margin",  str(self.draw_margin.get()))
-		config.set("Canvas","probe",   str(self.draw_probe.get()))
-		config.set("Canvas","workarea",str(self.draw_workarea.get()))
+		config.set("Canvas","axes",    str(int(self.draw_axes.get())))
+		config.set("Canvas","grid",    str(int(self.draw_grid.get())))
+		config.set("Canvas","margin",  str(int(self.draw_margin.get())))
+		config.set("Canvas","probe",   str(int(self.draw_probe.get())))
+		config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
 
 		# Control
 		config.set("Control", "step", self.step.get())
@@ -1582,15 +1586,15 @@ class Application(Toplevel):
 		#print x,y,self.canvasx(0), self.canvasy(0)
 		wh = "WxH: %gx%g"% ((self.cnc.xmax-self.cnc.xmin), (self.cnc.ymax-self.cnc.ymin))
 		if self.canvas.view == CNCCanvas.VIEW_XY:
-			self.status["text"] = "X:%.4f  Y:%.4f  %s  Length: %.4f mm   Time: %g min"\
+			self.statusbar["text"] = "X:%.4f  Y:%.4f  %s  Length: %.4f mm   Time: %g min"\
 				%(x,y, wh, self.cnc.totalLength, self.cnc.totalTime)
 
 		elif self.canvas.view == CNCCanvas.VIEW_XZ:
-			self.status["text"] = "X:%.4f  Z:%.4f  %s  Length: %.4f mm   Time: %g min"\
+			self.statusbar["text"] = "X:%.4f  Z:%.4f  %s  Length: %.4f mm   Time: %g min"\
 				%(x,y, wh, self.cnc.totalLength, self.cnc.totalTime)
 
 		elif self.canvas.view == CNCCanvas.VIEW_YZ:
-			self.status["text"] = "Y:%.4f  Z:%.4f  %s  Length: %.4f mm   Time: %g min"\
+			self.statusbar["text"] = "Y:%.4f  Z:%.4f  %s  Length: %.4f mm   Time: %g min"\
 				%(x,y, wh, self.cnc.totalLength, self.cnc.totalTime)
 
 	# ----------------------------------------------------------------------
@@ -1917,7 +1921,7 @@ class Application(Toplevel):
 		self.editor.skipSelection(False)
 		self.selectionChange()
 
-		self.status["text"] = "%s %s"%(cmd," ".join(map(str,args)))
+		self.statusbar["text"] = "%s %s"%(cmd," ".join(map(str,args)))
 
 	#----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
@@ -2135,6 +2139,10 @@ class Application(Toplevel):
 		try:
 			self.serial = serial.Serial(device,baudrate,timeout=0.1)
 			time.sleep(1)
+			self._pos["state"] = "Connected"
+			self._pos["color"] = STATECOLOR[self._pos["state"]]
+			self.state.config(text=self._pos["state"],
+					background=self._pos["color"])
 			self.serial.write("\r\n\r\n")
 			self._gcount = 0
 			self._alarm  = True
@@ -2160,6 +2168,13 @@ class Application(Toplevel):
 			self.serial.close()
 			self.serial = None
 			self._pos["state"] = NOT_CONNECTED
+			self._pos["color"] = STATECOLOR[self._pos["state"]]
+			try:
+				self.state.config(text=self._pos["state"],
+						background=self._pos["color"])
+			except TclError:
+				pass
+			self.state
 
 	#----------------------------------------------------------------------
 	def send(self, cmd):
