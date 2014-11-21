@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3332 2014-11-13 08:52:15Z bnv $
+# $Id: tkExtra.py 3339 2014-11-20 14:36:55Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -963,7 +963,7 @@ class ExListbox(Listbox):
 		for i in sel:
 			items.append(self.get(i))
 		self.clipboard_clear()
-		self.clipboard_append(string.join(items,"\n"))
+		self.clipboard_append("\n".join(items))
 
 #===============================================================================
 # Search Listbox
@@ -1658,9 +1658,11 @@ class ImageListbox(Text):
 		self.bind("<Shift-Button-1>",	self._motion1)
 		self.bind("<B1-Motion>",	self._motion1)
 		self.bind("<Control-B1-Motion>",self._controlMotion1)
-		self.bind("<Delete>",           self._break)
-
 		self.bind("<Key>",              self._key)
+		self.bind("<Delete>",           self._break)
+		self.bind("<Return>",           self._break)
+		self.bind("<KeyRelease>",	self._break)
+
 		self.bind("<<Cut>>",            self.cut)
 		self.bind("<<Copy>>",           self.copy)
 		self.bind("<<Paste>>",          self.paste)
@@ -1782,6 +1784,7 @@ class ImageListbox(Text):
 			else:
 				self._anchor = self._active
 				self._select()
+
 		elif event.keysym == "Down":
 			self._active += 1
 			if self._active >= self.size():
@@ -1792,12 +1795,14 @@ class ImageListbox(Text):
 			else:
 				self._anchor = self._active
 				self._select()
+
 		elif event.keysym in ("Prior", "Next", "Delete"):
 			return
 
 		if event.state & CONTROL_MASK != 0:
 			# Let system handle all Control keys
 			pass
+
 		else:
 			# Ignore all normal keys
 			return "break"
@@ -1824,7 +1829,10 @@ class ImageListbox(Text):
 		elif self._active > self._anchor:
 			for i in range(self._anchor, self._active+1):
 				self._selection[i] = True
-		self._selection[self._anchor] = True
+		try:
+			self._selection[self._anchor] = True
+		except IndexError:
+			pass
 		self._tagSelection()
 		self.event_generate("<<ListboxSelect>>")
 		return "break"
@@ -2013,10 +2021,10 @@ class InPlaceEdit:
 		# Bindings
 		self.frame.bind("<FocusOut>", self.focusOut)
 		# Unmap creates core dump when Fn key is pressed
-		#self.frame.bind("<Unmap>", self.cancel)
 		self.frame.bind("<ButtonRelease-1>", self.clickOk)
 		self.frame.bind("<ButtonRelease-3>", self.clickCancel)
 		self.listbox.bind("<Configure>", self.resize)
+		#self.frame.bind("<Unmap>", self._destroy)
 
 		try:
 			self._grab_window = self.frame.grab_current()
@@ -2034,6 +2042,7 @@ class InPlaceEdit:
 			self.frame.wait_window()
 		except TclError:
 			pass
+		self.listbox.focus_set()
 
 	# ----------------------------------------------------------------------
 	# Override method if another widget is requested
@@ -2133,10 +2142,6 @@ class InPlaceEdit:
 		if event: self.lastkey = event.keysym
 		self.value = self.get()
 		self.frame.unbind('<FocusOut>')
-		self.reset_grab()
-		self.frame.place_forget()
-		self.frame.destroy()
-		self.listbox.focus_set()
 
 		act = self.listbox.index(ACTIVE)
 		sel = self.listbox.selection_includes(self.active)
@@ -2147,6 +2152,10 @@ class InPlaceEdit:
 			self.listbox.selection_set(self.active)
 		self.listbox.activate(act)
 		if self.value == self.old: self.value = None
+
+		self.reset_grab()
+		self.frame.place_forget()
+		self.frame.destroy()
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -2154,7 +2163,6 @@ class InPlaceEdit:
 		self.reset_grab()
 		self.frame.place_forget()
 		self.frame.destroy()
-		self.listbox.focus_set()
 		return "break"
 
 #===============================================================================
@@ -2432,6 +2440,7 @@ class InPlaceText(InPlaceEdit):
 	def cancel(self, event=None):
 		InPlaceEdit.cancel(self, event)
 		self.toplevel.destroy()
+		return "break"
 
 #===============================================================================
 class InPlaceFile(InPlaceEdit):

@@ -1,4 +1,4 @@
-# $Id: log.py 3312 2014-10-17 07:25:38Z bnv $
+# $Id: log.py 3333 2014-11-14 07:56:45Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,7 +68,7 @@ def set(l):
 
 def say(*kw):
 	global _log
-	txt = string.join(map(str,kw))
+	txt = " ".join(map(str,kw))
 	if _log:
 		_log(txt)
 	else:

@@ -1,4 +1,4 @@
-# $Id: bmath.py 3312 2014-10-17 07:25:38Z bnv $
+# $Id: bmath.py 3337 2014-11-19 16:19:07Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -317,6 +317,25 @@ def format(number, length=10, useExp=False, useD=False):
 
 	if sgn: mNum = "-%s"%(mNum)
 	return mNum
+
+#==============================================================================
+# Dangerous dictionary that unknown keys return a user default value
+# Use it with care
+#==============================================================================
+class DefaultDict(dict):
+	def __init__(self, default=None):
+		self._default = default
+
+	# ----------------------------------------------------------------------
+	def __getitem__(self, key):
+		return self.get(key,self._default)
+
+#==============================================================================
+# Unknown keys will return 0.0
+#==============================================================================
+class ZeroDict(DefaultDict):
+	def __init__(self):
+		DefaultDict.__init__(self, 0.0)
 
 #===============================================================================
 # Vector class
