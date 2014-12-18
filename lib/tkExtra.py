@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3339 2014-11-20 14:36:55Z bnv $
+# $Id: tkExtra.py 3364 2014-12-18 09:30:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -559,7 +559,7 @@ class ExListbox(Listbox):
 		Listbox.__init__(self, master, **kw)
 		ExListbox.resetSearch()
 		self._single = kw.get('selectmode','') in [SINGLE, BROWSE]
-		self.bind('<Button-1>', lambda e,s=self:s.focus_set())
+#		self.bind('<Button-1>', lambda e,s=self:s.focus_set())
 		self.bind('<Key>',	self.handleKey)
 		self.bind('<Home>',	lambda e,s=self:s._scrollTo(0))
 		self.bind('<Prior>',	lambda e,s=self:s._scrollTo(-1, PAGES))
@@ -1334,7 +1334,7 @@ class MultiListbox(Frame):
 	# ----------------------------------------------------------------------
 	def _scroll(self, *args):
 		for l in self.lists:
-			apply(l.yview, args)
+			l.yview(*args)
 		return 'break'
 
 	# ----------------------------------------------------------------------
@@ -1653,7 +1653,7 @@ class ImageListbox(Text):
 			takefocus=TRUE,
 			exportselection=0)
 #			state=DISABLED)
-		self.bind("<1>",		self._button1)
+		self.bind("<Button-1>",		self._button1)
 		self.bind("<Control-Button-1>",	self._controlButton1)
 		self.bind("<Shift-Button-1>",	self._motion1)
 		self.bind("<B1-Motion>",	self._motion1)
@@ -2019,12 +2019,12 @@ class InPlaceEdit:
 		self.defaultBinds()
 
 		# Bindings
-		self.frame.bind("<FocusOut>", self.focusOut)
+		self.frame.bind("<FocusOut>",        self.focusOut)
 		# Unmap creates core dump when Fn key is pressed
 		self.frame.bind("<ButtonRelease-1>", self.clickOk)
 		self.frame.bind("<ButtonRelease-3>", self.clickCancel)
-		self.listbox.bind("<Configure>", self.resize)
-		#self.frame.bind("<Unmap>", self._destroy)
+		self.listbox.bind("<Configure>",     self.resize)
+		#self.frame.bind("<Unmap>",          self._destroy)
 
 		try:
 			self._grab_window = self.frame.grab_current()
@@ -2042,7 +2042,7 @@ class InPlaceEdit:
 			self.frame.wait_window()
 		except TclError:
 			pass
-		self.listbox.focus_set()
+		#self.listbox.focus_set()
 
 	# ----------------------------------------------------------------------
 	# Override method if another widget is requested
@@ -2154,6 +2154,7 @@ class InPlaceEdit:
 		if self.value == self.old: self.value = None
 
 		self.reset_grab()
+		self.listbox.focus_set()
 		self.frame.place_forget()
 		self.frame.destroy()
 		return "break"
@@ -2161,6 +2162,7 @@ class InPlaceEdit:
 	# ----------------------------------------------------------------------
 	def cancel(self, event=None):
 		self.reset_grab()
+		self.listbox.focus_set()
 		self.frame.place_forget()
 		self.frame.destroy()
 		return "break"
