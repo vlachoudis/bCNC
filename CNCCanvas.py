@@ -28,9 +28,10 @@ MARGIN_COLOR  = "Magenta"
 SELECT_COLOR  = "Blue"
 BOX_SELECT    = "Cyan"
 
-ACTION_SELECT_SINGLE   = 0
-ACTION_SELECT_AREA     = 1
-ACTION_SELECT_DOUBLE   = 2
+ACTION_NONE            = 0
+ACTION_SELECT_SINGLE   = 1
+ACTION_SELECT_AREA     = 2
+ACTION_SELECT_DOUBLE   = 3
 
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
@@ -100,7 +101,7 @@ class CNCCanvas(Canvas):
 		self.zoom = 1.0
 		self.items = []
 
-		self._action = ACTION_SELECT_SINGLE
+		self._action = ACTION_NONE
 		self._x = self._y = 0
 		self._inParse     = False	# semaphore for parsing
 		self._gantry      = None
@@ -165,6 +166,8 @@ class CNCCanvas(Canvas):
 
 			elif self.view == VIEW_ISO3:
 				self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+
+			self._action = ACTION_NONE
 		else:
 			self._action = ACTION_SELECT_SINGLE
 
