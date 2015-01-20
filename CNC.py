@@ -318,7 +318,7 @@ class CNC:
 		self.travel_z       = 100
 		self.totalLength    = 0.0
 		self.totalTime      = 0.0
-		self.accuracy       = 0.1	# sagitta error during arc conversion
+		self.accuracy       = 0.02	# sagitta error during arc conversion
 		self.safeZ          = 3.0	# mm
 		self.round          = 4
 		self.startup        = "G90"
