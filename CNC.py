@@ -544,8 +544,13 @@ class CNC:
 				try: OC  = math.sqrt(self.rval**2 - AB**2/4.0)
 				except: OC = 0.0
 				if self.gcode==2: OC = -OC
-				xc  = Cx - OC*ABy/AB
-				yc  = Cy + OC*ABx/AB
+				if AB != 0.0:
+					xc  = Cx - OC*ABy/AB
+					yc  = Cy + OC*ABx/AB
+				else:
+					# Error!!!
+					xc = self.x
+					yc = self.y
 				zc  = self.z
 			else:
 				# Center

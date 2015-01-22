@@ -999,6 +999,13 @@ class Application(Toplevel):
 		menu = Menu(menubar)
 		menubar.add_cascade(label="File", underline=0, menu=menu)
 		i = 1
+		menu.add_command(label="New", underline=0,
+					image=icons["new"],
+					compound=LEFT,
+					command=self.newFile)
+		self.widgets.append((menu,i))
+
+		i += 1
 		menu.add_command(label="Open", underline=0,
 					image=icons["load"],
 					compound=LEFT,
@@ -2002,6 +2009,13 @@ class Application(Toplevel):
 		while i < len(sel):
 			self.editor.delete(sel[i], sel[i+1])
 			i += 2
+
+	#----------------------------------------------------------------------
+	def newFile(self, event=None):
+		self.cnc.__init__()
+		self.editor.set("")
+		self.draw()
+		self.title(__prg__)
 
 	#----------------------------------------------------------------------
 	# load dialog

@@ -63,6 +63,8 @@ class CNCEditor(Frame):
 		self._findCase   = None		# Match case
 
 	# ----------------------------------------------------------------------
+	# replace text of editor with txt
+	# ----------------------------------------------------------------------
 	def set(self, txt):
 		self.text.delete("1.0", END)
 		self.text.insert("1.0", txt)
@@ -70,21 +72,37 @@ class CNCEditor(Frame):
 		self.highlight()
 
 	# ----------------------------------------------------------------------
+	# return text from start to end
+	# ----------------------------------------------------------------------
 	def get(self, start="1.0", end=END):
 		return self.text.get(start, end)
 
+	# ----------------------------------------------------------------------
+	# Delete text from start to end
 	# ----------------------------------------------------------------------
 	def delete(self, start, end):
 		return self.text.delete(start, end)
 
 	# ----------------------------------------------------------------------
+	# Insert text txt at position pos
+	# ----------------------------------------------------------------------
 	def insert(self, pos, txt):
 		return self.text.insert(pos, txt)
 
 	# ----------------------------------------------------------------------
+	# Return number of lines in text editor
+	# ----------------------------------------------------------------------
+	def lines(self):
+		return int(self.text.index('end-1c').split('.')[0])
+
+	# ----------------------------------------------------------------------
+	# Set cursor at position pos
+	# ----------------------------------------------------------------------
 	def setInsert(self, pos):
 		self.text.mark_set(INSERT, pos)
 
+	# ----------------------------------------------------------------------
+	# Handle Cut, Copy, Paste messages
 	# ----------------------------------------------------------------------
 	def cut(self, event=None):
 		self.text.event_generate("<<Cut>>")
@@ -97,6 +115,8 @@ class CNCEditor(Frame):
 	def paste(self, event=None):
 		self.text.event_generate("<<Paste>>")
 
+	# ----------------------------------------------------------------------
+	# Undo, redo
 	# ----------------------------------------------------------------------
 	def undo(self, event=None):
 		try:
@@ -128,6 +148,7 @@ class CNCEditor(Frame):
 			found = False
 			if cmd:
 				for c in cmd:
+					# Find M or G0 command
 					if c[0] in ('m','M') or \
 					  (c[0] in ('g','G') and int(c[1:])==0):
 						found = True
