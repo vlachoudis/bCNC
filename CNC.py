@@ -807,7 +807,9 @@ class CNC:
 				self.processPath(cmds)
 				xyz = self.motionPath(True)
 				if not xyz:
-					newlines.append(None)
+					# while autolevelling, do not ignore non-movement lines
+					# so just append the line as-is
+					newlines.append(line)
 					continue
 				if self.gcode in (1,2,3):
 					for c in cmds:
