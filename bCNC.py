@@ -2019,11 +2019,15 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def loadProbeDialog(self, event=None):
+		try:
+			pfilename = config.get("File", "probe")
+		except:
+			pfilename = "probe"
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open Probe file",
 			initialfile=os.path.join(
 					config.get("File", "dir"),
-					config.get("File", "probe")),
+					pfilename),
 			filetypes=[("Probe", ("*.probe")),
 				   ("All","*")])
 		if filename: self.loadProbe(filename)
@@ -2044,11 +2048,15 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def saveProbeDialog(self, event=None):
+		try:
+			pfilename = config.get("File", "probe")
+		except:
+			pfilename = "probe"
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save probe file",
 			initialfile=os.path.join(
 					config.get("File", "dir"),
-					config.get("File", "probe")),
+					pfilename),
 			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
 				   ("Probe", ("*.probe")),
 				   ("All","*")])
