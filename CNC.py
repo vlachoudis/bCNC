@@ -558,7 +558,7 @@ class CNC:
 				yc = self.y + self.jval
 				zc = self.z + self.kval
 				self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
-				r2 = math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2)
+				#r2 = math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2)
 				#if abs((self.rval-r2)/self.rval) > 0.01:
 				#	print>>sys.stderr, "ERROR arc", r2, self.rval
 
@@ -575,7 +575,7 @@ class CNC:
 				df = math.pi/4.0
 
 			if self.gcode==2:
-				if ephi>phi: ephi -= 2.0*math.pi
+				if ephi>=phi-1e-10: ephi -= 2.0*math.pi
 				phi -= df
 				while phi>ephi:
 					self.x = xc + self.rval*math.cos(phi)
@@ -583,7 +583,7 @@ class CNC:
 					phi -= df
 					xyz.append((self.x,self.y,self.z))
 			else:
-				if ephi<phi: ephi += 2.0*math.pi
+				if ephi<=phi+1e-10: ephi += 2.0*math.pi
 				phi += df
 				while phi<ephi:
 					self.x = xc + self.rval*math.cos(phi)
@@ -618,6 +618,23 @@ class CNC:
 			self.z = 0.0
 
 		return xyz
+
+	#----------------------------------------------------------------------
+	# move to end position
+	#----------------------------------------------------------------------
+	def motionPathEnd(self, autolevel=False):
+		if self.gcode in (0,1,2,3):
+			self.x = self.xval
+			self.y = self.yval
+			self.z = self.zval
+
+			if self.gcode >= 2: # reset at the end
+				self.rval = self.ival = self.jval = self.kval = 0.0
+
+		elif self.gcode in (28,30,92):
+			self.x = 0.0
+			self.y = 0.0
+			self.z = 0.0
 
 	#----------------------------------------------------------------------
 	def pathLength(self, xyz):
