@@ -846,10 +846,11 @@ class Application(Toplevel):
 		self.bind('<Control-Key-h>',	self.replace)
 		self.bind("<Control-Key-l>",	self.loadDialog)
 		self.bind("<Control-Key-q>",	self.quit)
+		self.bind("<Control-Key-r>",	self.reload)
 		self.bind("<Control-Key-s>",	self.saveAll)
 		self.bind('<Control-Key-y>',	self.redo)
 		self.bind('<Control-Key-z>',	self.undo)
-#		self.bind('<Control-Key-Z>',	self.redo)
+		self.bind('<Control-Key-Z>',	self.redo)
 		self.canvas.bind('<Key-space>',	self.commandFocus)
 		self.bind('<Control-Key-space>',self.commandFocus)
 
@@ -1026,6 +1027,14 @@ class Application(Toplevel):
 					image=icons["save"],
 					compound=LEFT,
 					command=self.saveDialog)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_command(label="Reload", underline=0,
+					image=icons["load"],
+					compound=LEFT,
+					accelerator="Ctrl-R",
+					command=self.reload)
 		self.widgets.append((menu,i))
 
 		i += 1
@@ -2086,6 +2095,10 @@ class Application(Toplevel):
 			self.loadProbe(filename)
 		else:
 			self.loadGcode(filename)
+
+	#----------------------------------------------------------------------
+	def reload(self, event=None):
+		self.loadGcode(os.path.join(config.get("File", "dir"), self.cnc.filename))
 
 	#----------------------------------------------------------------------
 	def loadGcode(self, filename=None):
