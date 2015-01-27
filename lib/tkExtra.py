@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3364 2014-12-18 09:30:06Z bnv $
+# $Id: tkExtra.py 3376 2015-01-19 16:32:05Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2847,7 +2847,6 @@ class Combobox(Frame):
 	# ----------------------------------------------------------------------
 	def cget(self, key):
 		return self._text.cget(key)
-
 	__getitem__ = cget
 
 	# ----------------------------------------------------------------------

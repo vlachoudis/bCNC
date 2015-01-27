@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: bFileDialog.py 3333 2014-11-14 07:56:45Z bnv $
+# $Id: bFileDialog.py 3385 2015-01-26 12:59:41Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,7 +76,7 @@ _DIR_TYPE     = " <DIR>"
 _FILE_TYPE    = "-file-"
 _LINK_TYPE    = "-link-"
 _BACKUP_TYPE  = "-backup-"
-_TIME_FORMAT  = "%Y.%m.%d %H:%M"
+_TIME_FORMAT  = "%Y.%m.%d %H:%M:%S"
 DISABLE_FILE  = "DarkGray"
 
 COLORS = {
@@ -277,7 +277,7 @@ class FileDialog(Toplevel):
 			(("Name", 30, None),
 			 ("Type", 12, None),
 			 ("Size",  8, None),
-			 ("Date", 15, None)),
+			 ("Date", 17, None)),
 			 height=20,
 			 selectmode=selectmode)
 		self.fileList.pack(expand=YES, fill=BOTH)
