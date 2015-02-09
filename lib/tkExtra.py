@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3376 2015-01-19 16:32:05Z bnv $
+# $Id: tkExtra.py 3395 2015-01-28 13:04:31Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,10 +163,10 @@ ADs=
 #===============================================================================
 class SortAssist:
 	def __init__(self, column):
-		self._column = column
+		self.column = column
 
 	def __call__(self, x):
-		return x[self._column]
+		return x[self.column]
 
 #-------------------------------------------------------------------------------
 # Multiple configuration of many widgets given in a list
@@ -1617,6 +1617,8 @@ class MultiListbox(Frame):
 # A MultiListbox that remembers the color of items
 #===============================================================================
 class ColorMultiListbox(MultiListbox):
+
+	# ----------------------------------------------------------------------
 	def sort(self, column, dir=None):
 		# remember colors
 		colors = {}
