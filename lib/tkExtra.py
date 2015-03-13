@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3395 2015-01-28 13:04:31Z bnv $
+# $Id: tkExtra.py 3376 2015-01-19 16:32:05Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2000,12 +2000,14 @@ class ImageListbox(Text):
 # Class to edit in place the contents of a listbox
 #===============================================================================
 class InPlaceEdit:
-	def __init__(self, listbox, item=ACTIVE, value=None, **kw):
+	def __init__(self, listbox, item=ACTIVE, value=None, x=None, select=True, **kw):
 		# Return value
 		self.value   = None	# Result
 		self.frame   = None
 		self.lastkey = None	# Last key that exited the editbox
 		self.kw      = kw
+		self._x      = x
+		self._select = select
 
 		# Find active
 		try: self.active = listbox.index(item)
@@ -2041,6 +2043,7 @@ class InPlaceEdit:
 		try:
 			self.frame.wait_visibility()
 			self.frame.grab_set()
+			self.icursor()
 			self.frame.wait_window()
 		except TclError:
 			pass
@@ -2053,6 +2056,13 @@ class InPlaceEdit:
 		self.edit = Entry(self.frame, **self.kw)
 		self.edit.pack(expand=YES, fill=BOTH)
 		self.edit.focus_set()
+
+	# ----------------------------------------------------------------------
+	# set insert cursor at location
+	# ----------------------------------------------------------------------
+	def icursor(self):
+		if self._x is not None:
+			self.edit.icursor("@%d"%(self._x))
 
 	# ----------------------------------------------------------------------
 	# Set default bindings
@@ -2091,7 +2101,8 @@ class InPlaceEdit:
 			value = self.listbox.get(self.item)
 		self.edit.delete(0, END)
 		self.edit.insert(0, value)
-		self.edit.selection_range(0, END)
+		if self._select:
+			self.edit.selection_range(0, END)
 		return value
 
 	# ----------------------------------------------------------------------

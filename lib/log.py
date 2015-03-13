@@ -1,4 +1,4 @@
-# $Id: log.py 3397 2015-01-29 15:15:37Z bnv $
+# $Id: log.py 3333 2014-11-14 07:56:45Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,4 +72,4 @@ def say(*kw):
 	if _log:
 		_log(txt)
 	else:
-		sys.stdout.write("%s\n"%(txt))
+		sys.stderr.write("%s\n"%(txt))

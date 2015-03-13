@@ -11,6 +11,8 @@ try:
 except ImportError:
 	from tkinter import *
 
+from CNC import CNC
+
 VIEW_XY      = 0
 VIEW_XZ      = 1
 VIEW_YZ      = 2
@@ -25,23 +27,74 @@ INSERT_WIDTH2 = 3
 GANTRY_COLOR  = "Red"
 GANTRY_WIDTH2 = 4
 MARGIN_COLOR  = "Magenta"
-SELECT_COLOR  = "Blue"
 BOX_SELECT    = "Cyan"
 
-ACTION_NONE            = 0
-ACTION_SELECT_SINGLE   = 1
-ACTION_SELECT_AREA     = 2
-ACTION_SELECT_DOUBLE   = 3
+VISIBLE_COLOR   = "Black"
+SELECT_COLOR    = "Blue"
+HIDDEN_COLOR    = "LightBlue"
+HIDSELECT_COLOR = "Cyan"
+PROCESS_COLOR   = "Green"
+
+MOVE_COLOR      = "DarkCyan"
+RULER_COLOR     = "Green"
+
+ACTION_SELECT        =  0
+ACTION_SELECT_SINGLE =  1
+ACTION_SELECT_AREA   =  2
+ACTION_SELECT_DOUBLE =  3
+
+ACTION_PAN           = 10
+
+ACTION_MOVE          = 20
+ACTION_ROTATE        = 21
+
+ACTION_RULER         = 30
 
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
 
+DEF_CURSOR = ""
+MOUSE_CURSOR = {
+	ACTION_SELECT        : DEF_CURSOR,
+	ACTION_SELECT_AREA   : "right_ptr",
+#	ACTION_ZONE          : "center_ptr",
+#	ACTION_ZONEPAINT     : "spraycan",	# "pencil"
+#	ACTION_PEN           : "pencil",
+#	ACTION_PAINT         : "spraycan",
+#	ACTION_INFO          : "tcross",	# "target"
+#	ACTION_CENTER        : "target",	# "target"
+
+	ACTION_PAN           : "fleur",
+#	ACTION_ORBIT         : "exchange",
+#	ACTION_ZOOM_IN       : "sizing",
+#	ACTION_ZOOM_OUT      : "sizing",
+#	ACTION_ZOOM_ON       : "sizing",
+
+#	ACTION_VIEW_CENTER   : "cross",
+#	ACTION_VIEW_MOVE     : "fleur",
+#	ACTION_VIEW_ROTATE   : "exchange",
+
+#	ACTION_ADD           : "tcross",
+#	ACTION_ADD_NEXT      : "tcross",
+
+	ACTION_MOVE          : "hand1",
+	ACTION_ROTATE        : "exchange",
+
+	ACTION_RULER         : "tcross",
+
+#	ACTION_EDIT          : "pencil",
+}
+
 MAXDIST      = 10000
 
 S60 = math.sin(math.radians(60))
 C60 = math.cos(math.radians(60))
+
+# ------------------------------------------------------------------------------
+def mouseCursor(action):
+	return MOUSE_CURSOR.get(action, DEF_CURSOR)
 
 #==============================================================================
 # Drawing canvas
@@ -54,61 +107,63 @@ class CNCCanvas(Canvas):
 		self.view = 0
 		self.app = app
 		self.cnc = app.cnc
+		self.gcode = app.gcode
 
 		# Canvas binding
+		self.bind('<Motion>',		self.motion)
+
 		self.bind('<Button-1>',		self.click)
 		self.bind('<B1-Motion>',	self.buttonMotion)
 		self.bind('<ButtonRelease-1>',	self.release)
 		self.bind('<Double-1>',		self.double)
 
-		self.bind('<ButtonRelease-2>',	self.panRelease)
 		self.bind('<B2-Motion>',	self.pan)
 		self.bind('<ButtonRelease-2>',	self.panRelease)
 		self.bind("<Button-4>",		self.mouseZoomIn)
 		self.bind("<Button-5>",		self.mouseZoomOut)
-		self.bind('<Shift-Button-4>',	lambda e,s=self: s.xview(SCROLL, -1, UNITS))
-		self.bind('<Shift-Button-5>',	lambda e,s=self: s.xview(SCROLL,  1, UNITS))
-		self.bind('<Control-Button-4>',	lambda e,s=self: s.yview(SCROLL, -1, UNITS))
-		self.bind('<Control-Button-5>',	lambda e,s=self: s.yview(SCROLL,  1, UNITS))
 
-		self.bind('<Delete>',		self.app.delete)
-		self.bind('<BackSpace>',	self.app.delete)
-#		self.bind('<Key-equal>',	self.menuZoomIn)
-#		self.bind('<Key-plus>',		self.menuZoomIn)
-#		self.bind('<Key-minus>',	self.menuZoomOut)
-#		self.bind('<Key-underscore>',	self.menuZoomOut)
-#		self.bind('<KP_plus>',		self.menuZoomIn)
-#		self.bind('<KP_minus>',		self.menuZoomOut)
+		self.bind('<Shift-Button-4>',	self.panLeft)
+		self.bind('<Shift-Button-5>',	self.panRight)
+		self.bind('<Control-Button-4>',	self.panUp)
+		self.bind('<Control-Button-5>',	self.panDown)
+
+		self.bind('<Control-Key-Left>',	self.panLeft)
+		self.bind('<Control-Key-Right>',self.panRight)
+		self.bind('<Control-Key-Up>',	self.panUp)
+		self.bind('<Control-Key-Down>',	self.panDown)
+
+		self.bind('<Escape>',		self.actionCancel)
+		self.bind('<Key-s>',		self.actionSelect)
+		self.bind('<Key-g>',		self.actionMove)
+		self.bind('<Key-m>',		self.actionMove)
+		self.bind('<Key-r>',		self.actionRuler)
+
+		self.bind('<Control-Key-equal>',self.menuZoomIn)
+		self.bind('<Control-Key-minus>',self.menuZoomOut)
 
 #		self.bind('<Control-Key-x>',	self.cut)
 #		self.bind('<Control-Key-c>',	self.copy)
 #		self.bind('<Control-Key-v>',	self.paste)
 
-#		self.bind('<F1>',		lambda e,s=self : s.view.set(VIEW_XY))
-#		self.bind('<F2>',		lambda e,s=self : s.view.set(VIEW_XZ))
-#		self.bind('<F3>',		lambda e,s=self : s.view.set(VIEW_YZ))
-#		self.bind('<F4>',		lambda e,s=self : s.view.set(VIEW_ISO1))
-#		self.bind('<F5>',		lambda e,s=self : s.view.set(VIEW_ISO2))
-#		self.bind('<F6>',		lambda e,s=self : s.view.set(VIEW_ISO3))
-
 #		self.bind('<Key-space>',	self.commandFocus)
 #		self.bind('<Control-Key-space>',self.commandFocus)
 #		self.bind('<Control-Key-a>',	self.selectAll)
 
-		self._pan = False
-		self.x0   = 0.0
-		self.y0   = 0.0
-		self.zoom = 1.0
-		self.items = []
+		self.x0     = 0.0
+		self.y0     = 0.0
+		self.zoom   = 1.0
+		self._items = {}
 
-		self._action = ACTION_NONE
-		self._x = self._y = 0
+		self.action       = ACTION_SELECT
+		self._mouseAction = None
+		self._x  = self._y  = 0
+		self._xp = self._yp = 0
 		self._inParse     = False	# semaphore for parsing
 		self._gantry      = None
 		self._select      = None
-		self._insert      = None
 		self._margin      = None
-		self._lastInsert  = None
+		self._vector      = None
+		self._lastActive  = None
 		self._lastGantry  = None
 
 		self.draw_axes    = True	# Drawing flags
@@ -118,13 +173,12 @@ class CNCCanvas(Canvas):
 		self.draw_workarea= True
 		self._wx = self._wy = self._wz = 0.	# work position
 		self._dx = self._dy = self._dz = 0.	# work-machine position
-		# Highlight variables
-#		self._highAfter  = None
-#		self._highStart  = 0
-#		self._highLast   = 0
-#		self.history     = []
-#		self._historyPos = None
-#		self._skipSelection = False
+
+		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
+		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
+
+		self.msg = ""
+
 		self.initPosition()
 
 	# ----------------------------------------------------------------------
@@ -138,53 +192,91 @@ class CNCCanvas(Canvas):
 		self.configure(scrollregion=(x1+1,y1+1,x2,y2))
 
 	# ----------------------------------------------------------------------
+	def actionCancel(self, event=None):
+		self.action = ACTION_SELECT
+		self._mouseAction = None
+		self.config(cursor=mouseCursor(self.action))
+		self.draw()
+
+	# ----------------------------------------------------------------------
+	def actionSelect(self, event=None):
+		self.action = ACTION_SELECT
+		self._mouseAction = None
+		self.config(cursor=mouseCursor(self.action))
+
+	# ----------------------------------------------------------------------
+	def actionMove(self, event=None):
+		self.action = ACTION_MOVE
+		self.config(cursor=mouseCursor(self.action))
+
+	# ----------------------------------------------------------------------
+	def actionRuler(self, event=None):
+		self.msg = ""
+		self.action = ACTION_RULER
+		self.config(cursor=mouseCursor(self.action))
+
+	# ----------------------------------------------------------------------
 	# Find item selected
 	# ----------------------------------------------------------------------
 	def click(self, event):
 		self.focus_set()
-		self._x = event.x
-		self._y = event.y
+		self._x = self._xp = event.x
+		self._y = self._yp = event.y
 
-		if event.state & CONTROLSHIFT_MASK == CONTROLSHIFT_MASK:
-			u = self.canvasx(self._x) / self.zoom
-			v = self.canvasy(self._y) / self.zoom
+		if self.action == ACTION_SELECT:
+			if event.state & CONTROLSHIFT_MASK == CONTROLSHIFT_MASK:
+				u = self.canvasx(self._x) / self.zoom
+				v = self.canvasy(self._y) / self.zoom
 
-			if self.view == VIEW_XY:
-				self.app.goto(u,-v)
+				if self.view == VIEW_XY:
+					self.app.goto(u,-v)
 
-			elif self.view == VIEW_XZ:
-				self.app.goto(u,None,-v)
+				elif self.view == VIEW_XZ:
+					self.app.goto(u,None,-v)
 
-			elif self.view == VIEW_YZ:
-				self.app.goto(None,u,-v)
+				elif self.view == VIEW_YZ:
+					self.app.goto(None,u,-v)
 
-			elif self.view == VIEW_ISO1:
-				self.app.goto(0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60))
+				elif self.view == VIEW_ISO1:
+					self.app.goto(0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60))
 
-			elif self.view == VIEW_ISO2:
-				self.app.goto(0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60))
+				elif self.view == VIEW_ISO2:
+					self.app.goto(0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60))
 
-			elif self.view == VIEW_ISO3:
-				self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+				elif self.view == VIEW_ISO3:
+					self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+				self._mouseAction = ACTION_SELECT
+			else:
+				self._mouseAction = ACTION_SELECT_SINGLE
 
-			self._action = ACTION_NONE
-		else:
-			self._action = ACTION_SELECT_SINGLE
+		elif self.action in (ACTION_MOVE, ACTION_RULER):
+			if self._vector: self.delete(self._vector)
+			i = self.canvasx(event.x)
+			j = self.canvasy(event.y)
+			if self.action == ACTION_MOVE:
+				fill  = MOVE_COLOR
+				arrow = LAST
+			else:
+				fill  = RULER_COLOR
+				arrow = BOTH
+			self._vector = self.create_line((i,j,i,j), fill=fill, arrow=arrow)
+			self._vx0, self._vy0, self._vz0 = self.canvas2xyz(i,j)
+			self._mouseAction = self.action
 
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
 	# ----------------------------------------------------------------------
 	def buttonMotion(self, event):
-		if self._action == ACTION_SELECT_AREA:
+		if self._mouseAction == ACTION_SELECT_AREA:
 			self.coords(self._select,
 				self.canvasx(self._x),
 				self.canvasy(self._y),
 				self.canvasx(event.x),
 				self.canvasy(event.y))
 
-		elif self._action in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
+		elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
 			if abs(event.x-self._x)>4 or abs(event.y-self._y)>4:
-				self._action = ACTION_SELECT_AREA
+				self._mouseAction = ACTION_SELECT_AREA
 				self._select = self.create_rectangle(
 						self.canvasx(self._x),
 						self.canvasy(self._y),
@@ -192,14 +284,35 @@ class CNCCanvas(Canvas):
 						self.canvasy(event.y),
 						outline=BOX_SELECT)
 
+		elif self._mouseAction in (ACTION_MOVE, ACTION_RULER):
+			coords = self.coords(self._vector)
+			i = self.canvasx(event.x)
+			j = self.canvasy(event.y)
+			coords[-2] = i
+			coords[-1] = j
+			self.coords(self._vector, *coords)
+			if self._mouseAction == ACTION_MOVE:
+				self.move("sel", event.x-self._xp, event.y-self._yp)
+				self._xp = event.x
+				self._yp = event.y
+
+			self._vx1, self._vy1, self._vz1 = self.canvas2xyz(i,j)
+			dx=self._vx1-self._vx0
+			dy=self._vy1-self._vy0
+			dz=self._vz1-self._vz0
+			self.msg = "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
+				% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),math.degrees(math.atan2(dy,dx)))
+
+		self.setStatus(event)
+
 	# ----------------------------------------------------------------------
 	# Canvas release button1. Select area
 	# ----------------------------------------------------------------------
 	def release(self, event):
-		if self._action in (ACTION_SELECT_SINGLE,
+		if self._mouseAction in (ACTION_SELECT_SINGLE,
 				ACTION_SELECT_DOUBLE,
 				ACTION_SELECT_AREA):
-			if self._action == ACTION_SELECT_AREA:
+			if self._mouseAction == ACTION_SELECT_AREA:
 				#if event.state & SHIFT_MASK == 0:
 				if self._x < event.x:	# From left->right enclosed
 					closest = self.find_enclosed(
@@ -219,10 +332,10 @@ class CNCCanvas(Canvas):
 
 				lines = []
 				for i in closest:
-					try: lines.append(self.items.index(i)+1)
+					try: lines.append(self._items[i])
 					except: pass
 
-			elif self._action in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
+			elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
 				closest = self.find_closest(
 						self.canvasx(event.x),
 						self.canvasy(event.y),
@@ -230,27 +343,56 @@ class CNCCanvas(Canvas):
 
 				lines = []
 				for i in closest:
-					#while i is not None:
-						try:
-							lines.append(self.items.index(i)+1)
-							i = None
-						except ValueError:
-							#i = self.find_below(i)
-							pass
+					try:
+						lines.append(self._items[i])
+						#i = None
+					except KeyError:
+						#i = self.find_below(i)
+						pass
 			if not lines: return
 
-			self.app.editor.select(lines, self._action==ACTION_SELECT_DOUBLE,
+			self.app.select(lines, self._mouseAction==ACTION_SELECT_DOUBLE,
 					event.state & CONTROL_MASK==0)
+			self._mouseAction = None
+
+		elif self._mouseAction == ACTION_MOVE:
+			i = self.canvasx(event.x)
+			j = self.canvasy(event.y)
+			self._vx1, self._vy1, self._vz1 = self.canvas2xyz(i,j)
+			dx=self._vx1-self._vx0
+			dy=self._vy1-self._vy0
+			dz=self._vz1-self._vz0
+			self.msg = "Move by %g, %g, %g"%(dx,dy,dz)
+			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
 
 	# ----------------------------------------------------------------------
 	def double(self, event):
-		self._action = ACTION_SELECT_DOUBLE
+		#self.app.selectBlocks()
+		self._mouseAction = ACTION_SELECT_DOUBLE
+
+	# ----------------------------------------------------------------------
+	def setStatus(self, event):
+		x =  self.canvasx(event.x) / self.zoom
+		y = -self.canvasy(event.y) / self.zoom
+
+		if self.view == VIEW_XY:
+			self.app.statusbar["text"] = "X:%.4f  Y:%.4f  %s"%(x,y, self.msg)
+
+		elif self.view == VIEW_XZ:
+			self.app.statusbar["text"] = "X:%.4f  Z:%.4f  %s"%(x,y, self.msg)
+
+		elif self.view == VIEW_YZ:
+			self.app.statusbar["text"] = "Y:%.4f  Z:%.4f  %s"%(x,y, self.msg)
+
+	# ----------------------------------------------------------------------
+	def motion(self, event):
+		self.setStatus(event)
 
 	#----------------------------------------------------------------------
 	# Get margins of selected items
 	#----------------------------------------------------------------------
 	def getMargins(self):
-		bbox = self.bbox(SEL)
+		bbox = self.bbox("sel")
 		if not bbox: return None
 		x1,y1,x2,y2 = bbox
 		dx = (x2-x1-1)/self.zoom
@@ -259,17 +401,30 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def pan(self, event):
-		if self._pan:
+		if self._mouseAction == ACTION_PAN:
 			self.scan_dragto(event.x, event.y, gain=1)
 		else:
-			self.config(cursor="hand2")
+			self.config(cursor=mouseCursor(ACTION_PAN))
 			self.scan_mark(event.x, event.y)
-			self._pan = True
+			self._mouseAction = ACTION_PAN
 
 	# ----------------------------------------------------------------------
 	def panRelease(self, event):
-		self._pan = False
-		self.config(cursor="")
+		self._mouseAction = None
+		self.config(cursor=mouseCursor(self.action))
+
+	# ----------------------------------------------------------------------
+	def panLeft(self, event=None):
+		self.xview(SCROLL, -1, UNITS)
+
+	def panRight(self, event=None):
+		self.xview(SCROLL,  1, UNITS)
+
+	def panUp(self, event=None):
+		self.yview(SCROLL, -1, UNITS)
+
+	def panDown(self, event=None):
+		self.yview(SCROLL,  1, UNITS)
 
 	# ----------------------------------------------------------------------
 	def zoomCanvas(self, x0, y0, zoom):
@@ -277,17 +432,6 @@ class CNCCanvas(Canvas):
 		self.zoom *= zoom
 		for i in self.find_all():
 			self.scale(i, 0, 0, zoom, zoom)
-
-		# Update last insert
-		if self._lastInsert:
-			coords = self.coords(self._lastInsert)
-			x = coords[-2]
-			y = coords[-1]
-		else:
-			x = y = 0
-		self.coords(self._insert,
-			(x-INSERT_WIDTH2, y-INSERT_WIDTH2,
-			 x+INSERT_WIDTH2, y+INSERT_WIDTH2))
 
 		# Update last insert
 		if self._lastGantry:
@@ -332,20 +476,21 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	# Change the insert marker location
 	# ----------------------------------------------------------------------
-	def insertMarker(self, no):
-		try:
-			item = self.items[no]
-		except IndexError:
-			return
-		if item is not None and item != self._lastInsert:
-			self._lastInsert = item
-			coords = self.coords(item)
-			x = coords[-2]
-			y = coords[-1]
-			self.coords(self._insert,
-				(x-INSERT_WIDTH2, y-INSERT_WIDTH2,
-				 x+INSERT_WIDTH2, y+INSERT_WIDTH2))
+	def activeMarker(self, item):
+		if item is None: return
+		b,i = item
+		if i is None: return
+		block = self.gcode[b]
+		item = block._path[i]
 
+		if item is not None and item != self._lastActive:
+			if self._lastActive is not None:
+				self.itemconfig(self._lastActive, arrow=NONE)
+			self._lastActive = item
+			self.itemconfig(self._lastActive, arrow=LAST)
+
+	#----------------------------------------------------------------------
+	# Display gantry
 	#----------------------------------------------------------------------
 	def gantry(self, wx, wy, wz, mx, my, mz):
 		self._lastGantry = (wx,wy,wz)
@@ -365,9 +510,9 @@ class CNCCanvas(Canvas):
 			self._dz = dz
 
 			if not self.draw_workarea: return
-			xmin = self._dx-self.cnc.travel_x
-			ymin = self._dy-self.cnc.travel_y
-			zmin = self._dz-self.cnc.travel_z
+			xmin = self._dx-CNC.travel_x
+			ymin = self._dy-CNC.travel_y
+			zmin = self._dz-CNC.travel_z
 			xmax = self._dx
 			ymax = self._dy
 			zmax = self._dz
@@ -385,21 +530,65 @@ class CNCCanvas(Canvas):
 			self.coords(self._workarea, *coords)
 
 	#----------------------------------------------------------------------
+	# Clear highlight of selection
+	#----------------------------------------------------------------------
+	def clearSelection(self):
+		if self._lastActive is not None:
+			self.itemconfig(self._lastActive, arrow=NONE)
+			self._lastActive = None
+		self.itemconfig("sel",  width=1, fill=VISIBLE_COLOR)
+		self.itemconfig("sel2", width=1, fill=HIDDEN_COLOR)
+		self.dtag("sel")
+		self.dtag("sel2")
+
+	#----------------------------------------------------------------------
+	# Highlight selected items
+	#----------------------------------------------------------------------
+	def select(self, items):
+		for b, i in items:
+			block = self.gcode[b]
+			if block.visible:
+				sel = "sel"
+			else:
+				sel = "sel2"
+			if i is None:
+				for path in block._path:
+					if path is not None:
+						self.addtag_withtag(sel, path)
+			else:
+				path = block._path[i]
+				if path:
+					self.addtag_withtag(sel, path)
+
+		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
+		self.itemconfig("sel2", width=2, fill=HIDSELECT_COLOR)
+
+		margins = self.getMargins()
+		#self.msg = str(margins)
+
+	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
 	#----------------------------------------------------------------------
-	def draw(self, view, lines):
+	def draw(self, view=None): #, lines):
 		if self._inParse: return
-		self.view = view
+		if view is not None: self.view = view
 		self._inParse = True
 		self.initPosition()
 		x0 = self.xview()[0]
 		y0 = self.yview()[0]
-		for no,line in enumerate(lines.splitlines()):
-			cmd = self.cnc.parseLine(line)
-			if cmd is None:
-				self.items.append(None)
-			else:
-				self.items.append(self.drawPath(cmd))
+
+		for i,block in enumerate(self.gcode.blocks):
+			block.resetPath()
+			for j,line in enumerate(block):
+				cmd = self.cnc.parseLine(line)
+				if cmd is None:
+					block.addPath(None)
+				else:
+					path = self.drawPath(cmd, block.visible)
+					self._items[path] = i,j
+					block.addPath(path)
+			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
+
 		self.drawGrid()
 		self.drawAxes()
 		self.drawMargin()
@@ -419,13 +608,11 @@ class CNCCanvas(Canvas):
 					( GANTRY_WIDTH2, GANTRY_WIDTH2),
 					width=2,
 					outline=GANTRY_COLOR)
-		self._lastInsert  = None
-		self._insert = self.create_oval(
-					(-INSERT_WIDTH2,-INSERT_WIDTH2),
-					( INSERT_WIDTH2, INSERT_WIDTH2),
-					fill=INSERT_COLOR)
+		self._lastInsert = None
+		self._lastActive = None
 		self._select = None
-		self.items = []
+		self._vector = None
+		self._items.clear()
 		self.cnc.initPath()
 
 	#----------------------------------------------------------------------
@@ -458,9 +645,9 @@ class CNCCanvas(Canvas):
 	def drawWorkarea(self):
 		if not self.draw_workarea: return
 
-		xmin = self._dx-self.cnc.travel_x
-		ymin = self._dy-self.cnc.travel_y
-		zmin = self._dz-self.cnc.travel_z
+		xmin = self._dx-CNC.travel_x
+		ymin = self._dy-CNC.travel_y
+		zmin = self._dz-CNC.travel_z
 		xmax = self._dx
 		ymax = self._dy
 		zmax = self._dz
@@ -483,7 +670,7 @@ class CNCCanvas(Canvas):
 			xmax = (self.cnc.xmax//10+1)*10
 			ymin = (self.cnc.ymin//10)  *10
 			ymax = (self.cnc.ymax//10+1)*10
-			for i in range(int(self.cnc.ymin//10), int(self.cnc.ymax//10)+1):
+			for i in range(int(self.cnc.ymin//10), int(self.cnc.ymax//10)+2):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
@@ -491,7 +678,7 @@ class CNCCanvas(Canvas):
 							dash=(1,2))
 				self.tag_lower(item)
 
-			for i in range(int(self.cnc.xmin//10), int(self.cnc.xmax//10)+1):
+			for i in range(int(self.cnc.xmin//10), int(self.cnc.xmax//10)+2):
 				x = i*10.0
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),
@@ -500,11 +687,13 @@ class CNCCanvas(Canvas):
 				self.tag_lower(item)
 
 	#----------------------------------------------------------------------
+	# Display probe
+	#----------------------------------------------------------------------
 	def drawProbe(self):
 		if not self.draw_probe: return
 
 		# Draw probe grid
-		probe = self.cnc.probe
+		probe = self.app.gcode.probe
 		for x in bmath.frange(probe.xmin, probe.xmax, probe.xstep()):
 			xyz = [(x,probe.ymin,0.), (x,probe.ymax,0.)]
 			item = self.create_line(self.plotCoords(xyz),
@@ -518,11 +707,13 @@ class CNCCanvas(Canvas):
 			self.tag_lower(item)
 
 		# Draw probe points
-		for i,uv in enumerate(self.plotCoords(self.cnc.probe.points)):
-			item = self.create_text(uv, text="%g"%(self.cnc.probe.points[i][2]),
+		for i,uv in enumerate(self.plotCoords(probe.points)):
+			item = self.create_text(uv, text="%g"%(probe.points[i][2]),
 					justify=CENTER, fill="Green")
 			self.tag_lower(item)
 
+	#----------------------------------------------------------------------
+	# Draw a probe point
 	#----------------------------------------------------------------------
 	def drawProbePoint(self, xyz):
 		if not self.draw_probe: return
@@ -535,19 +726,24 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Create path for one g command
 	#----------------------------------------------------------------------
-	def drawPath(self, cmds):
+	def drawPath(self, cmds, visible=True):
 		self.cnc.processPath(cmds)
 		xyz = self.cnc.motionPath()
+		self.cnc.motionPathEnd()
 		if xyz:
 			length = self.cnc.pathLength(xyz)
 			self.cnc.pathMargins(xyz)
 			coords = self.plotCoords(xyz)
 			if coords:
+				if visible:
+					fill = VISIBLE_COLOR
+				else:
+					fill = HIDDEN_COLOR
 				if self.cnc.gcode == 0:
 					dash = (4,3)
 				else:
 					dash = None
-				return self.create_line(coords, fill="Black", dash=dash)
+				return self.create_line(coords, fill=fill, dash=dash)
 		return None
 
 	#----------------------------------------------------------------------
@@ -589,3 +785,28 @@ class CNCCanvas(Canvas):
 				coords[i] = (x,y)
 
 		return coords
+
+	#----------------------------------------------------------------------
+	# Canvas to real coordinates
+	#----------------------------------------------------------------------
+	def canvas2xyz(self, i, j):
+		coords = None
+		if self.view == VIEW_XY:
+			x =  i / self.zoom
+			y = -j / self.zoom
+			z = 0
+
+		elif self.view == VIEW_XZ:
+			x =  i / self.zoom
+			y = 0
+			z = -j / self.zoom
+
+		elif self.view == VIEW_YZ:
+			x = 0
+			y =  i / self.zoom
+			z = -j / self.zoom
+
+		else:
+			x = y = z = 0
+
+		return x,y,z

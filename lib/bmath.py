@@ -514,18 +514,21 @@ class Vector(list):
 		"""return a vector orthogonal to self"""
 		xx = abs(self.x())
 		yy = abs(self.y())
-		zz = abs(self.z())
 
-		if xx < yy:
-			if xx < zz:
-				return Vector(0.0, self.z(), -self.y())
+		if len(self)>=3:
+			zz = abs(self.z())
+			if xx < yy:
+				if xx < zz:
+					return Vector(0.0, self.z(), -self.y())
+				else:
+					return Vector(self.y(), -self.x(), 0.0)
 			else:
-				return Vector(self.y(), -self.x(), 0.0)
+				if yy < zz:
+					return Vector(-self.z(), 0.0, self.x())
+				else:
+					return Vector(self.y(), -self.x(), 0.0)
 		else:
-			if yy < zz:
-				return Vector(-self.z(), 0.0, self.x())
-			else:
-				return Vector(self.y(), -self.x(), 0.0)
+			return Vector(-self.y(), self.x())
 
 	# ----------------------------------------------------------------------
 	def direction(self, zero=_accuracy):
