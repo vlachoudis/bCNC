@@ -1368,6 +1368,7 @@ class GCode:
 		# ----------------------------------
 		# Mark all intersections in the path
 		# ----------------------------------
+
 		A = path[0][0]
 		for i,(B,arc) in enumerate(path[1:]):
 			C = path[i+1][0]
