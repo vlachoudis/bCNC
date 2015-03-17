@@ -15,6 +15,7 @@ import undo
 import Macros
 import Unicode
 
+from path import Path, Segment
 from dxf import DXF
 from bmath import *
 
@@ -22,8 +23,6 @@ IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 CMDPAT   = re.compile(r"([A-Za-z])")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
-
-FMT = "%.4f"
 
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
@@ -336,8 +335,8 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	def __init__(self):
-		self.accuracy       = 0.02		# sagitta error during arc conversion
-		self.safeZ          = CNC._safeZ	# mm
+		self.accuracy = 0.02		# sagitta error during arc conversion
+		self.safeZ    = CNC._safeZ	# mm
 		self.initPath()
 
 	#----------------------------------------------------------------------
@@ -817,58 +816,11 @@ class GCode:
 			return False
 		dxf.readFile()
 		dxf.close()
-
-		block = None
 		for name in dxf.layers.keys():
-			for entity in dxf.sortLayer(name):	# sort and return new layer
-				#print ">>>",entity
-				if entity.type == "START":
-					if block is not None:
-						block.append("g0 %s"%((self.fmt("z",self.cnc.safeZ))))
-
-					block = Block(entity.name)
-					self.blocks.append(block)
-					x,y = entity.start()
-					block.append("g0 %s %s"%(self.fmt("x",x), self.fmt("y",y)))
-					block.append("g0 %s"%(self.fmt("z",0.0)))
-
-				elif entity.type == "LINE":
-					x,y = entity.end()
-					block.append("g1 %s %s"%(self.fmt("x",x), self.fmt("y",y)))
-
-				elif entity.type == "CIRCLE":
-					x,y = entity.point()
-					r     = entity.radius()
-					x += r
-					block.append("g2 %s %s %s j0"% \
-						(self.fmt("x",x), self.fmt("y",y), self.fmt("i",-r)))
-
-				elif entity.type == "ARC":
-					gcode = entity._invert and 2 or 3
-					xc,yc = entity.point()
-					x1,y1 = entity.start()
-					x2,y2 = entity.end()
-					r  = entity.radius()
-					sp = math.radians(entity.startPhi())
-					ep = math.radians(entity.endPhi())
-
-					iv = xc - x1
-					jv = yc - y1
-
-					block.append("g%d %s %s %s %s"%(gcode,
-						self.fmt("x",x2), self.fmt("y",y2),
-						self.fmt("i",iv), self.fmt("j",jv)))
-
-				elif entity.type == "LWPOLYLINE":
-					xy = zip(entity[10], entity[20])
-					if entity._invert: reverse(xy)
-					xy.pop(0)
-
-					for x,y in xy:
-						block.append("g1 %s %s"%(self.fmt("x",x), self.fmt("y",y)))
-
-		if block:
-			block.append("g0 %s"%((self.fmt("z",self.cnc.safeZ))))
+			layer = dxf.sortLayer(name)
+			path = Path(name)
+			path.fromLayer(layer)
+			self.fromPath(path.order())
 		return True
 
 	#----------------------------------------------------------------------
@@ -888,26 +840,79 @@ class GCode:
 				self.cnc.processPath(cmds)
 				if self.cnc.gcode == 1:	# line
 					dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
-				if self.cnc.gcode in (2,3):	# arc
-					if self.cnc.rval > 0.0:
-						pass
-					else:
-						# Center
-						xc = self.cnc.x + self.cnc.ival
-						yc = self.cnc.y + self.cnc.jval
-						zc = self.cnc.z + self.cnc.kval
-						self.cnc.rval = math.sqrt(self.cnc.ival**2 + self.cnc.jval**2 + self.cnc.kval**2)
-					phi  = math.atan2(self.cnc.y-yc, self.cnc.x-xc)
+				elif self.cnc.gcode in (2,3):	# arc
+					xc,yc,zc = self.cnc.motionCenter()
+					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
 					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
 					if self.cnc.gcode==2:
-						if ephi<=phi+1e-10: ephi += 2.0*math.pi
+						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+						dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
 					else:
-						if ephi<=phi+1e-10: ephi += 2.0*math.pi
-					dxf.arc(xc,yc,self.cnc.rval, math.degrees(phi), math.degrees(ephi),name)
+						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+						dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
 				self.cnc.motionPathEnd()
 		dxf.writeEOF()
 		dxf.close()
 		return True
+
+	#----------------------------------------------------------------------
+	# Import paths as block
+	#----------------------------------------------------------------------
+	def fromPath(self, paths):
+		for path in paths:
+			block = Block(path.name)
+			self.blocks.append(block)
+			x,y = path[0].start
+			block.append("g0 x%.10g y%.10g"%(x,y))
+			block.append("g0 z0")
+			for segment in path:
+				x,y = segment.end
+				if segment.type == 1:
+					x,y = segment.end
+					block.append("g1 x%.10g y%.10g"%(x,y))
+				elif segment.type in (2,3):
+					ij = segment.center - segment.start
+					if abs(ij[0])<1e-5: ij[0] = 0.
+					if abs(ij[1])<1e-5: ij[1] = 0.
+					block.append("g%d x%.10g y%.10g i%.10g j%.10g" % \
+						(segment.type, x,y, ij[0], ij[1]))
+			block.append("g0 z%g"%(self.cnc.safeZ))
+		return True
+
+	#----------------------------------------------------------------------
+	# convert to path
+	#----------------------------------------------------------------------
+	def toPath(self, bid):
+		block = self.blocks[bid]
+		paths = []
+		path = Path(block.name())
+		self.initPath(bid)
+		start = Vector(self.cnc.x, self.cnc.y)
+		for line in block:
+			cmds = self.cnc.parseLine(line)
+			if cmds is None: continue
+			self.cnc.processPath(cmds)
+			end = Vector(self.cnc.xval, self.cnc.yval)
+			if self.cnc.gcode == 0:		# rapid move (new block)
+				if path:
+					paths.append(path)
+					path = Path(block.name())
+			elif self.cnc.gcode == 1:	# line
+				path.append(Segment(1, start, end))
+			elif self.cnc.gcode in (2,3):	# arc
+				xc,yc,zc = self.cnc.motionCenter()
+				center = Vector(xc,yc)
+				phi  = math.atan2(self.cnc.y-yc, self.cnc.x-xc)
+				ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
+				if self.cnc.gcode==2:
+					if ephi<=phi+1e-10: ephi += 2.0*math.pi
+				else:
+					if ephi<=phi+1e-10: ephi += 2.0*math.pi
+				path.append(Segment(self.cnc.gcode, start,end, center, self.cnc.rval, phi, ephi))
+			self.cnc.motionPathEnd()
+			start = end
+		if path: paths.append(path)
+		return paths
 
 	#----------------------------------------------------------------------
 	# Check if a new version exists
@@ -1299,140 +1304,19 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	#----------------------------------------------------------------------
 	def profile(self, bid, offset):
-		block = self.blocks[bid]
-		self.initPath(bid)
-
-		# path with line segments
-		path = []	# (x,y),None|(2|3,xc,yc) arc/center
-
-		new = Block("%s-prof"%(block.name()))
-		self.blocks.insert(bid+1, new)
-		Dp = None
-
-		# ---------------------------------------
-		# FIXME skip the first and last rapid g0
-		# ---------------------------------------
-		for line in block:
-			cmds = self.cnc.parseLine(line)
-			if cmds is None:
-				new.append(line)
-				continue
-			self.cnc.processPath(cmds)
-
-			if self.cnc.gcode not in (1,2,3):
-				#new.append(line)
-				pass
-			else:
-				xyz = self.cnc.motionPath()
-				# Check gcode
-				if self.cnc.gcode == 1:
-					arc = None
-				else:
-					xc,yc,zc = self.cnc.motionCenter()
-					arc = self.cnc.gcode,xc,yc
-
-				# Offset path
-				first = True
-				A = Vector(xyz[0][0], xyz[0][1])
-				for x2,y2,z2 in xyz[1:]:
-					B = Vector(x2,y2)
-					D = B-A
-					O = D.orthogonal()
-					O.norm()		# orthogonal unit vector
-					P = O*offset		# perpendicular distance
-
-					if first:
-						Ao = A + P
-						if Dp is not None:
-							cross = D[0]*Dp[1]-D[1]*Dp[0]
-							if cross>0:
-								# Bo should hold the previous value
-								# Center is A = Bo + IJ => IJ = A-Bo
-								IJ = A - Bo
-								nodearc = (2,A.x(),A.y())
-								path.append((Ao, nodearc))
-							else:
-								path.append((Ao,None))
-						else:
-							# connect with previous point
-							path.append((Ao,None))
-						first = False
-
-					# straight line
-					Bo = B + P
-					path.append((Bo,arc))
-					A  = B
-					Dp = D
-			self.cnc.motionPathEnd()
-
-		# ----------------------------------
-		# Mark all intersections in the path
-		# ----------------------------------
-
-		A = path[0][0]
-		for i,(B,arc) in enumerate(path[1:]):
-			C = path[i+1][0]
-			min1x = min(A[0],B[0])
-			max1x = max(A[0],B[0])
-			min1y = min(A[1],B[1])
-			max1y = max(A[1],B[1])
-			for j,(D,arc2) in enumerate(path[i+2:]):
-				# Check if two segments intersect
-
-				# intersect their bounding boxes
-				min2 = min(C[0],D[0])
-				max2 = max(C[0],D[0])
-				lw = max(min1x,min2)
-				hg = min(max1x,max2)
-				if lw>=hg:
-					# move to next segment
-					C = D
-					continue
-
-				# intersect their bounding boxes
-				min2 = min(C[1],D[1])
-				max2 = max(C[1],D[1])
-				lw = max(min1y,min2)
-				hg = min(max1y,max2)
-				if lw>=hg:
-					# move to next segment
-					C = D
-					continue
-
-				# check for intersection
-				print "***",A,B,"---",C,D
-				pass
-
-				# move to next segment
-				C = D
-
-			# move to next step
-			A = B
-
-		# ----------------------------------
-		# Create g code from path
-		# ----------------------------------
-		p,parc = path[0]
-		new.append("g0 x%g y%g"%(p.x(), p.y()))
-		new.append("g0 z0")
-
-		pa = p	# starting point of arc (if any)
-		ij = None
-		for p,arc in path[1:]:
-			if arc is None:
-				new.append("g1 x%g y%g"%(p.x(), p.y()))
-				pa = p	# starting point of arc
-			else:
-				g,xc,yc = arc
-				line = "g%d x%g y%g "%(g, p.x(),p.y())
-				if arc is parc:
-					# replace the previous entry
-					new[-1] = line+ij
-				else:
-					ij = "i%g j%g"%(xc-pa.x(),yc-pa.y())
-					new.append(line+ij)
-					pa = p	# starting point of arc
-			parc = arc
+		newpath = []
+		for path in self.toPath(bid):
+			print "Path=\n",path
+			opath = path.offset(offset)
+			print "Offset-Path=\n",opath
+			opath.intersect()
+			print "Intersect-Path=\n",opath
+			mindist = path.distance(opath[0].start)
+			include = mindist >= abs(offset)-0.00001
+			print "First included=",include
+			opath.removeExcluded(include)
+			newpath.extend(opath.order())
+		self.fromPath(newpath)
 
 	#----------------------------------------------------------------------
 	# draw a hole (circle with radius)
@@ -1722,7 +1606,7 @@ class GCode:
 						paths.append(None)
 						continue
 
-					if self.gcode in (1,2,3):
+					if self.cnc.gcode in (1,2,3):
 						for c in cmds:
 							if c[0] in ('f','F'):
 								feed = c

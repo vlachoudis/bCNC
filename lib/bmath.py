@@ -368,6 +368,10 @@ class Vector(list):
 		if z: self[2] = z
 
 	# ----------------------------------------------------------------------
+	def __repr__(self):
+		return "[%s]"%(", ".join([(_format%(x)).strip() for x in self]))
+
+	# ----------------------------------------------------------------------
 	def eq(self, v, acc):
 		"""Test for equality with vector v within accuracy"""
 		if len(self) != len(v): return False
@@ -1647,24 +1651,39 @@ def polar(x, y, deg=False):
 # Normally, x^2 + ax + b = 0 is assumed with the 2 coefficients # as
 # arguments; but, if 3 arguments are present, then ax^2 + bx + c = 0 is assumed.
 #-------------------------------------------------------------------------------
-def quadratic(a, b, c=None):
-	"""
-	x^2 + ax + b = 0 (or ax^2 + bx + c = 0)
-	By substituting x = y-t and t = a/2,
-	the equation reduces to y^2 + (b-t^2) = 0
-	which has easy solution
-	y = +/- sqrt(t^2-b)
-	"""
-	if c: # (ax^2 + bx + c = 0)
-		a, b = b / float(a), c / float(a)
-	t = a / 2.0
-	r = t**2 - b
-	if r >= 0: # real roots
-		y1 = sqrt(r)
-	else: # complex roots
-		y1 = cmath.sqrt(r)
-	y2 = -y1
-	return y1 - t, y2 - t
+#def quadratic(a, b, c=None):
+#	"""
+#	x^2 + ax + b = 0 (or ax^2 + bx + c = 0)
+#	By substituting x = y-t and t = a/2,
+#	the equation reduces to y^2 + (b-t^2) = 0
+#	which has easy solution
+#	y = +/- sqrt(t^2-b)
+#	"""
+#	if c: # (ax^2 + bx + c = 0)
+#		a, b = b / float(a), c / float(a)
+#	t = a / 2.0
+#	r = t**2 - b
+#	if r >= 0: # real roots
+#		y1 = sqrt(r)
+#	else: # complex roots
+#		y1 = cmath.sqrt(r)
+#	y2 = -y1
+#	return y1 - t, y2 - t
+
+def quadratic(b, c, eps=_accuracy):
+	D = b*b - 4.0*c
+	if D <= 0.0:
+		x1 = -0.5*b	# Always return this as a solution!!!
+		if D >= -eps*(b*b+abs(c)):
+			return x1,x1
+		else:
+			return None,None
+	else:
+		if b>0.0:
+			bD = -b - sqrt(D)
+		else:
+			bD = -b + sqrt(D)
+		return 0.5 * bD, 2.0 * c / bD
 
 #-------------------------------------------------------------------------------
 # Cubic equation: y^3 + a*y^2 + b*y + c = 0 (or ax^3 + bx^2 + cx + d = 0)

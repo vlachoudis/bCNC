@@ -2,13 +2,63 @@
 # -*- coding: latin1 -*-
 # $Id$
 #
+# Copyright and User License
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Copyright Vasilis.Vlachoudis@cern.ch for the
+# European Organization for Nuclear Research (CERN)
+#
+# All rights not expressly granted under this license are reserved.
+#
+# Installation, use, reproduction, display of the
+# software ("flair"), in source and binary forms, are
+# permitted free of charge on a non-exclusive basis for
+# internal scientific, non-commercial and non-weapon-related
+# use by non-profit organizations only.
+#
+# For commercial use of the software, please contact the main
+# author Vasilis.Vlachoudis@cern.ch for further information.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following
+# conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the
+#    distribution.
+#
+# DISCLAIMER
+# ~~~~~~~~~~
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
+# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
+# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
+# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
+# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
+# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
+#
+# LIMITATION OF LIABILITY
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
+# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
+# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
+# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
+# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
+# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
+# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	10-Mar-2015
-
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import math
+from bmath import Vector
 
 EPS  = 0.0001
 EPS2 = EPS**2
@@ -26,16 +76,17 @@ class Entity(dict):
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
-		return "%s %s %s %s"%(self.type, self.name, (self.start()), (self.end()))
+		return "%s %s %s %s"%(self.type, self.name, self.start(), self.end())
 
 	#----------------------------------------------------------------------
 	def point(self,idx=0):
-		return self.get(10+idx,0), self.get(20+idx,0)
+		return Vector(self.get(10+idx,0), self.get(20+idx,0))
 	point2D = point
+	center  = point
 
 	#----------------------------------------------------------------------
 	def point3D(self,idx=0):
-		return self.get(10+idx), self.get(20+idx), self.get(30+idx)
+		return Vector(self.get(10+idx), self.get(20+idx), self.get(30+idx))
 
 	#----------------------------------------------------------------------
 	def radius(self):
@@ -60,14 +111,14 @@ class Entity(dict):
 		elif self.type == "CIRCLE":
 			x,y = self.point()
 			r = self.radius()
-			self._start = self._end = x+r,y
+			self._start = self._end = Vector(x+r,y)
 		elif self.type == "ARC":
 			x,y = self.point()
 			r = self.radius()
 			s = math.radians(self.startPhi())
-			self._start = x+r*math.cos(s), y + r*math.sin(s)
+			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type == "LWPOLYLINE":
-			self._start = self[10][0], self[20][0]
+			self._start = Vector(self[10][0], self[20][0])
 		#elif self.type == "ELLIPSE":
 		#elif self.type == "SPLINE":
 		else:
@@ -86,14 +137,14 @@ class Entity(dict):
 		elif self.type == "CIRCLE":
 			x,y = self.point()
 			r = self.radius()
-			self._start = self._end = x+r,y
+			self._start = self._end = Vector(x+r,y)
 		elif self.type == "ARC":
 			x,y = self.point()
 			r = self.radius()
 			s = math.radians(self.endPhi())
-			self._end = x+r*math.cos(s), y + r*math.sin(s)
+			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type == "LWPOLYLINE":
-			self._end = self[10][-1], self[20][-1]
+			self._end = Vector(self[10][-1], self[20][-1])
 		else:
 			raise Exception("Cannot handle entity type %s"%(self.type))
 
@@ -115,13 +166,13 @@ class DXF:
 		if filename:
 			self.open(filename,mode)
 		self.title  = "dxf-class"
-		self.layers = {}	# entities per layer diction of lists
-		self._saved = None
 
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
 		self._f = open(filename, mode)
-		self._saved = None
+		#self.layerNames = []
+		self.layers     = {}	# entities per layer diction of lists
+		self._saved     = None
 
 	#----------------------------------------------------------------------
 	def close(self):
@@ -264,7 +315,7 @@ class DXF:
 	#----------------------------------------------------------------------
 	def sortLayer(self, name):
 		layer = self.layers[name]
-		new = []
+		new   = []
 
 		def pushStart():
 			# Find starting point and add it to the new list
@@ -306,7 +357,6 @@ class DXF:
 			else:
 				# Not found push a new start point and
 				pushStart()
-				continue
 
 		self.layers[name] = new
 		return new

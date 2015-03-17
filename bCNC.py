@@ -142,7 +142,7 @@ class Application(Toplevel):
 		# Command bar
 		self.command = Entry(self, relief=SUNKEN, background="White")
 		self.command.pack(side=BOTTOM, fill=X)
-		self.command.bind("<Return>",	self.commandExecute)
+		self.command.bind("<Return>",	self.cmdExecute)
 		self.command.bind("<Up>",	self.commandHistoryUp)
 		self.command.bind("<Down>",	self.commandHistoryDown)
 		tkExtra.Balloon.set(self.command, "Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
@@ -881,7 +881,11 @@ class Application(Toplevel):
 #		self.canvas.bind("<Control-Key-Down>",	self.commandMoveDown)
 		self.canvas.bind("<Delete>",		self.gcodelist.deleteLine)
 		self.canvas.bind("<BackSpace>",		self.gcodelist.deleteLine)
-		self.canvas.bind("<KP_Delete>",		self.gcodelist.deleteLine)
+		try:
+			self.canvas.bind("<KP_Delete>",	self.gcodelist.deleteLine)
+		except:
+			pass
+
 
 		# Global bindings
 		self.bind('<Escape>',		self.unselectAll)
@@ -1838,28 +1842,32 @@ class Application(Toplevel):
 ###		self.editor.replaceDialog()
 		return "break"
 
+	#----------------------------------------------------------------------
+	# Keyboard binding to <Return>
+	#----------------------------------------------------------------------
+	def cmdExecute(self, event):
+		self.commandExecute()
+
 	# ----------------------------------------------------------------------
 	def insertCommand(self, cmd, execute=False):
 		self.command.delete(0,END)
 		self.command.insert(0,cmd)
-		if execute: self.commandExecute()
+		if execute: self.commandExecute(False)
 
 	#----------------------------------------------------------------------
 	# Execute command from command line
 	#----------------------------------------------------------------------
-	def commandExecute(self, event=None):
+	def commandExecute(self, addHistory=True):
 		line = self.command.get().strip()
 		if not line: return
 
 		if self._historyPos is not None:
 			if self.history[self._historyPos] != line:
-				self._historyPos = None
 				self.history.append(line)
-		else:
-			if not self.history or self.history[-1] != line:
-				self._historyPos = None
-				self.history.append(line)
+		elif not self.history or self.history[-1] != line:
+			self.history.append(line)
 
+		self._historyPos = None
 		if len(self.history)>MAX_HISTORY:
 			self.history.pop(0)
 		self.command.delete(0,END)

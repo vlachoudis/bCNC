@@ -32,7 +32,10 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-space>",self.commandFocus)
 		self.bind("<Delete>",		self.deleteLine)
 		self.bind("<BackSpace>",	self.deleteLine)
-		self.bind("<KP_Delete>",	self.deleteLine)
+		try:
+			self.bind("<KP_Delete>",self.deleteLine)
+		except:
+			pass
 
 		self.bind("<Control-Key-b>",	self.insertBlock)
 		self.bind("<Control-Key-r>",	self.fill)
@@ -44,6 +47,7 @@ class CNCListbox(Listbox):
 		self.font      = tkFont.nametofont(self.cget("font"))
 		self._ystart   = 0
 		self._double   = False	# double clicked handled
+		self._hadfocus = False
 
 	# ----------------------------------------------------------------------
 	def commandFocus(self, event=None):
@@ -236,6 +240,7 @@ class CNCListbox(Listbox):
 		sel = self.curselection()
 		if not sel: return
 
+		ypos = self.yview()[0]
 		undoinfo = []
 		for i in reversed(sel):
 			bid, lid = self._items[i]
@@ -247,7 +252,9 @@ class CNCListbox(Listbox):
 
 		self.selection_clear(0,END)
 		self.fill()
+		self.yview_moveto(ypos)
 		self.selection_set(ACTIVE)
+		self.see(ACTIVE)
 		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
@@ -255,6 +262,10 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def button1(self, event):
 		if self._double: return
+
+		# Remember if we had the focus before clicking
+		# to be used later in editing
+		self._hadfocus = self.focus_get() == self
 
 		# from a single click
 		self._ystart = self.nearest(event.y)
@@ -286,7 +297,9 @@ class CNCListbox(Listbox):
 			# Normal line
 			if self.index(ACTIVE)==y:
 				self.activate(y)
-				self.edit(event)
+				# In place edit if we had already the focus
+				if self._hadfocus:
+					self.edit(event)
 		elif loc == 0:
 			self.toggleExpand()
 		elif loc == 1:
