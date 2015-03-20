@@ -457,11 +457,14 @@ class Vector(list):
 	# ----------------------------------------------------------------------
 	def cross(self, v):
 		"""Cross product of 2 vectors"""
-		if len(self) != 3:
+		if len(self)==3:
+			return Vector(	self[1]*v[2]-self[2]*v[1],
+					self[2]*v[0]-self[0]*v[2],
+					self[0]*v[1]-self[1]*v[0])
+		elif len(self)==2:
+			return self[0]*v[1]-self[1]*v[0]
+		else:
 			raise Exception("Cross product needs 3d vectors")
-		return Vector(	self[1]*v[2]-self[2]*v[1],
-				self[2]*v[0]-self[0]*v[2],
-				self[0]*v[1]-self[1]*v[0])
 
 	# ----------------------------------------------------------------------
 	def length2(self):

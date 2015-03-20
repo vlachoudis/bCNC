@@ -1365,11 +1365,13 @@ class GCode:
 		for path in self.toPath(bid):
 			#print "path=",path
 			path.removeZeroLength()
-			opath = path.offset(offset)
+			D = path.direction()
+			if D==0: D=1
+			opath = path.offset(D*offset)
 			#print "opath=",opath
 			opath.intersect()
 			#print "ipath=",opath
-			opath.removeExcluded(path, offset)
+			opath.removeExcluded(path, D*offset)
 			newpath.extend(opath.order())
 		self.fromPath(newpath)
 

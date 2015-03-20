@@ -59,7 +59,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 import time
-from math import atan2, degrees, pi, radians, sqrt
+from math import atan2, asin, degrees, pi, radians, sqrt
 from bmath import Vector, quadratic
 
 EPS  = 0.0001
@@ -456,6 +456,25 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def distance(self, P):
 		return min([x.distance(P) for x in self])
+
+	#----------------------------------------------------------------------
+	# Return:
+	#	-1 for CCW closed path
+	#        0 for open path
+	#	 1 for CW  closed path
+	#----------------------------------------------------------------------
+	def direction(self):
+		if not self.isClosed(): return 0
+		phi = 0.0
+		P  = self[-1].AB
+		PL = P.length()
+		for N in self:
+			NL = N.AB.length()
+			phi += asin((P ^ N.AB) / (PL * NL))
+			P  = N.AB
+			PL = NL
+		if phi < 0: return 1
+		return -1
 
 	#----------------------------------------------------------------------
 	# Split path into order segments

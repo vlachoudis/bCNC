@@ -78,8 +78,31 @@ STATECOLORDEF = "LightYellow"
 
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
 
+_emptyTool    = []
+_boxTool = [
+		("dx"  , "float" , 100.0, "Width Dx"),
+		("dy"  , "float" ,  70.0, "Depth Dy"),
+		("dz"  , "float" ,  50.0, "Height Dz"),
+		("nx"  , "int"   ,    11, "Fingers Nx"),
+		("ny"  , "int"   ,     7, "Fingers Ny"),
+		("nz"  , "int"   ,     5, "Fingers Nz"),
+		("cut" , "bool"  ,     0, "Cut")
+	]
+
+_tools = {
+	"Bit"       : _emptyTool,
+	"Box"       : _boxTool,
+	"Cut"       : _emptyTool,
+	"Hole"      : _emptyTool,
+	"Material"  : _emptyTool,
+	"Profile"   : _emptyTool,
+	"Rectangle" : _emptyTool,
+	"Tab"       : _emptyTool,
+	"Work Area" : _emptyTool
+}
+
 #------------------------------------------------------------------------------
-def getConfig(section, name, default):
+def getStr(section, name, default):
 	global config
 	try: return config.get(section, name)
 	except: return default
@@ -213,9 +236,9 @@ class Application(Toplevel):
 		self.tabPage = tkExtra.TabPageSet(panedframe, pageNames=
 					[("Control",  icons["control"]),
 					 ("Terminal", icons["terminal"]),
-					 ("WCS",      icons["axes"]),
-					 ("Probe",    icons["measure"]),
-					 ("Editor",   icons["edit"])])
+					 ("WCS",      icons["measure"]),
+					 ("Editor",   icons["edit"]),
+					 ("Tools",    icons["tools"])])
 		self.tabPage.pack(fill=BOTH, expand=YES)
 		self.tabPage.bind("<<ChangePage>>", self.changePage)
 
@@ -223,7 +246,7 @@ class Application(Toplevel):
 		frame = self.tabPage["Control"]
 
 		# Control -> Connection
-		lframe = LabelFrame(frame, text="Connection")
+		lframe = LabelFrame(frame, text="Connection", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		Label(lframe,text="Port:").grid(row=0,column=0,sticky=E)
@@ -277,7 +300,7 @@ class Application(Toplevel):
 		lframe.grid_columnconfigure(2, weight=1)
 
 		# Control -> Control
-		lframe = LabelFrame(frame, text="Control")
+		lframe = LabelFrame(frame, text="Control", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		f = Frame(lframe)
@@ -442,7 +465,7 @@ class Application(Toplevel):
 		#f.grid_columnconfigure(6,weight=1)
 
 		# Control -> Spindle
-		lframe = LabelFrame(frame, text="Spindle")
+		lframe = LabelFrame(frame, text="Spindle", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		self.spindle = BooleanVar()
@@ -469,7 +492,7 @@ class Application(Toplevel):
 		self.widgets.append(b)
 
 		# Control -> Run
-		lframe = LabelFrame(frame, text="Run")
+		lframe = LabelFrame(frame, text="Run", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 		f = Frame(lframe)
 		f.pack(side=TOP,fill=X)
@@ -515,7 +538,7 @@ class Application(Toplevel):
 		frame = self.tabPage["WCS"]
 
 		# WorkSpace -> WPS
-		lframe = LabelFrame(frame, text="WCS")
+		lframe = LabelFrame(frame, text="WCS", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		self.wcs = []
@@ -629,10 +652,10 @@ class Application(Toplevel):
 		#lframe.pack(side=TOP, fill=X)
 
 		# ---- WorkSpace ----
-		frame = self.tabPage["Probe"]
+		#frame = self.tabPage["Probe"]
 
 		# WorkSpace -> Probe
-		lframe = LabelFrame(frame, text="Probe")
+		lframe = LabelFrame(frame, text="Probe", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
@@ -684,7 +707,7 @@ class Application(Toplevel):
 		lframe.grid_columnconfigure(3,weight=1)
 
 		# WorkSpace -> Autolevel
-		lframe = LabelFrame(frame, text="Autolevel")
+		lframe = LabelFrame(frame, text="Autolevel", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
@@ -807,7 +830,7 @@ class Application(Toplevel):
 		f = Frame(lframe)
 		f.grid(row=row, column=col, columnspan=5, sticky=EW)
 
-		b = Button(f, text="Scan", command=self.probeScanArea)
+		b = Button(f, text="Scan", foreground="DarkRed", command=self.probeScanArea)
 		b.pack(side=RIGHT)
 		tkExtra.Balloon.set(b, "Scan probed area for level information")
 		self.widgets.append(b)
@@ -856,6 +879,38 @@ class Application(Toplevel):
 		self.gcodelist.config(yscrollcommand=sb.set)
 
 		self.tabPage.changePage()
+
+		# ---- Tools ----
+		frame = self.tabPage["Tools"]
+
+		f = Frame(frame)
+		f.pack(side=TOP, fill=X)
+
+		self.toolCombo = tkExtra.Combobox(f, False, background="White") #, command=self.toolChange)
+		self.toolCombo.pack(side=LEFT, expand=YES, fill=X)
+		self.toolCombo.fill(list(sorted(_tools.keys())))
+
+		self.toolButtons = {}
+		b = Button(f, image=icons["x"])
+		b.pack(side=RIGHT)
+		self.toolButtons["delete"] = b
+
+		b = Button(f, image=icons["clone"])
+		b.pack(side=RIGHT)
+		self.toolButtons["clone"] = b
+
+		b = Button(f, image=icons["add"])
+		b.pack(side=RIGHT)
+		self.toolButtons["add"] = b
+
+		self.toolProperties = tkExtra.MultiListbox(frame,
+					(("Name", 8, None),
+					 ("Value", 16, None)),
+					 header = False,
+					 stretch = "last",
+					 background = "White")
+		self.toolProperties.sortAssist = None
+		self.toolProperties.pack(side=BOTTOM, fill=BOTH, expand=YES)
 
 		# --- Canvas ---
 		frame = Frame(paned)
@@ -1624,20 +1679,31 @@ class Application(Toplevel):
 		if int(config.get("Connection","pendant")):
 			self.startPendant(False)
 
+		# Create tools
+		self.tools = {}
+		for name, tool in _tools.items():
+			toolvars = {}
+			for n, t, d, l in tool:
+				key = "%s.%s"%(name,n)
+				if t == "float":
+					value = getFloat("Tools", key, d)
+				elif t == "int":
+					value = getInt("Tools", key, d)
+				elif t == "bool":
+					value = getInt("Tools", key, d)
+				else:
+					value = getStr("Tools", key, d)
+				toolvars[n] = value
+			self.tools[name] = toolvars
+		print self.tools
+
 		# Other configuration options
-		self.material   = getConfig("Machine","material", "None")
+		self.material   = getStr("Machine","material", "None")
 		self.height     = getFloat("Machine","height",5.0)
 		self.depth_pass = getFloat("Machine","depth_pass", 1.0)
 		self.feed       = getFloat("Machine","feed", 1000.)
 		self.tool       = getFloat("Machine","tool_diameter", 3.175)
 
-		self.box_dx     = getFloat("Machine","box_dx", 100.0)
-		self.box_dy     = getFloat("Machine","box_dy", 50.0)
-		self.box_dz     = getFloat("Machine","box_dz", 30.0)
-
-		self.box_nx     = getFloat("Machine","box_nx", 7)
-		self.box_ny     = getFloat("Machine","box_ny", 5)
-		self.box_nz     = getFloat("Machine","box_nz", 3)
 		self.loadHistory()
 
 	#----------------------------------------------------------------------
@@ -1681,12 +1747,11 @@ class Application(Toplevel):
 		config.set("Machine", "tool_diameter",str(self.tool))
 		config.set("Machine", "feed",        str(self.feed))
 
-		config.set("Machine", "box_dx",      str(self.box_dx))
-		config.set("Machine", "box_dy",      str(self.box_dy))
-		config.set("Machine", "box_dz",      str(self.box_dz))
-		config.set("Machine", "box_nx",      str(self.box_nx))
-		config.set("Machine", "box_ny",      str(self.box_ny))
-		config.set("Machine", "box_nz",      str(self.box_nz))
+		# Tools
+		for name, tool in _tools.items():
+			for n,v in self.tools[name].items():
+				config.set("Tools", "%s.%s"%(name,n), str(v))
+
 		self.saveHistory()
 
 	#----------------------------------------------------------------------
@@ -1941,27 +2006,28 @@ class Application(Toplevel):
 
 		# BOX [dx] [dy] [dz] [nx] [ny] [nz] [tool]: create a finger box
 		elif cmd == "BOX":
-			try:    self.box_dx = float(line[1])
+			tool = self.tools["Box"]
+			try:    tool["dx"] = float(line[1])
 			except: pass
-			try:    self.box_dy = float(line[2])
+			try:    tool["dy"] = float(line[2])
 			except: pass
-			try:    self.box_dz = float(line[3])
-			except: pass
-
-			try:    self.box_nx = float(line[4])
-			except: pass
-			try:    self.box_ny = float(line[5])
-			except: pass
-			try:    self.box_nz = float(line[6])
+			try:    tool["dz"] = float(line[3])
 			except: pass
 
-			try:    tool = float(line[7])
-			except: tool = self.tool
+			try:    tool["nx"] = float(line[4])
+			except: pass
+			try:    tool["ny"] = float(line[5])
+			except: pass
+			try:    tool["nz"] = float(line[6])
+			except: pass
+
+			try:    t = float(line[7])
+			except: t = self.tool
 
 			self.gcode.box(self.gcodelist.activeBlock(),
-					self.box_dx, self.box_dy, self.box_dz,
-					self.box_nx, self.box_ny, self.box_nz,
-					tool, self.height, self.feed)
+					tool["dx"], tool["dy"], tool["dz"],
+					tool["nx"], tool["ny"], tool["nz"],
+					t, self.height, self.feed)
 			self.gcodelist.fill()
 			self.draw()
 			self.statusbar["text"] = "BOX with fingers generated"
@@ -2113,8 +2179,14 @@ class Application(Toplevel):
 
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
-			try:    ofs = float(line[1])/2.0
-			except: ofs = self.tool/2.0
+			try:
+				ofs = float(line[1])/2.0
+			except:
+				try:
+					sign = line[1][0]=="-" and -1.0 or 1.0
+				except:
+					sign = 1.0
+				ofs = sign * self.tool/2.0
 			self.busy()
 			self.gcode.profile(self.gcodelist.activeBlock(), ofs)
 			self.gcodelist.fill()
