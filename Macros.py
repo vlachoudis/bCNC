@@ -334,10 +334,11 @@ if __name__ == "__main__":
 	def dump(filename):
 		try: f = open(filename,"r")
 		except: return
-		for line in f: print line
+		for line in f:
+			sys.stdout.write("%s\n"%(line))
 		f.close()
 	dump("header")
 	for block in blocks:
 		for line in block:
-			print line
+			sys.stdout.write("%s\n"%(line))
 	dump("footer")

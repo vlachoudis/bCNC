@@ -273,7 +273,7 @@ class DXF:
 		while True:
 			entity = self.readEntity()
 			if entity is None: return
-			print ">>>",entity
+			#print ">>>",entity
 			layer = self.layers.setdefault(entity.name,[])
 			layer.append(entity)
 
@@ -464,8 +464,8 @@ if __name__ == "__main__":
 	dxf.open("test2.dxf","r")
 	dxf.readFile()
 	dxf.close()
-	print "-"*80
-	for name in dxf.layers:
-		for entity in dxf.sortLayer(name):
-			print entity
+	#print "-"*80
+	#for name in dxf.layers:
+	#	for entity in dxf.sortLayer(name):
+	#		print entity
 	dxf.close()

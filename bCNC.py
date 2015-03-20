@@ -33,7 +33,7 @@ except ImportError:
 	from queue import *
 	from tkinter import *
 	import configparser as ConfigParser
-	import tkinter.messagebox as TkMessageBox
+	import tkinter.messagebox as tkMessageBox
 
 import rexx
 import tkExtra
@@ -977,99 +977,6 @@ class Application(Toplevel):
 		self.loadConfig()	# load rest of config
 
 	#----------------------------------------------------------------------
-	def loadConfig(self):
-		geom = "%sx%s" % (getInt(__prg__, "width", 800),
-				  getInt(__prg__, "height", 600))
-		try: self.geometry(geom)
-		except: pass
-
-		if int(config.get("Connection","pendant")):
-			self.startPendant(False)
-
-		# Other configuration options
-		self.material   = getConfig("Machine","material", "None")
-		self.height     = getFloat("Machine","height",5.0)
-		self.depth_pass = getFloat("Machine","depth_pass", 1.0)
-		self.feed       = getFloat("Machine","feed", 1000.)
-		self.tool       = getFloat("Machine","tool_diameter", 3.175)
-
-		self.box_dx     = getFloat("Machine","box_dx", 100.0)
-		self.box_dy     = getFloat("Machine","box_dy", 50.0)
-		self.box_dz     = getFloat("Machine","box_dz", 30.0)
-
-		self.box_nx     = getFloat("Machine","box_nx", 7)
-		self.box_ny     = getFloat("Machine","box_ny", 5)
-		self.box_nz     = getFloat("Machine","box_nz", 3)
-		self.loadHistory()
-
-	#----------------------------------------------------------------------
-	def saveConfig(self):
-		# Program
-		config.set(__prg__,  "width",    self.winfo_width())
-		config.set(__prg__,  "height",   self.winfo_height())
-
-		# Connection
-		config.set("Connection", "port", self.portCombo.get())
-
-		# Canvas
-		config.set("Canvas","axes",    str(int(self.draw_axes.get())))
-		config.set("Canvas","grid",    str(int(self.draw_grid.get())))
-		config.set("Canvas","margin",  str(int(self.draw_margin.get())))
-		config.set("Canvas","probe",   str(int(self.draw_probe.get())))
-		config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
-
-		# Control
-		config.set("Control", "step", self.step.get())
-
-		# Probe
-		config.set("Probe", "x",    self.probeXdir.get())
-		config.set("Probe", "y",    self.probeYdir.get())
-		config.set("Probe", "z",    self.probeZdir.get())
-
-		config.set("Probe", "xmin", self.probeXmin.get())
-		config.set("Probe", "xmax", self.probeXmax.get())
-		config.set("Probe", "xn",   self.probeXbins.get())
-		config.set("Probe", "ymin", self.probeYmin.get())
-		config.set("Probe", "ymax", self.probeYmax.get())
-		config.set("Probe", "yn",   self.probeYbins.get())
-		config.set("Probe", "zmin", self.probeZmin.get())
-		config.set("Probe", "zmax", self.probeZmax.get())
-		config.set("Probe", "feed", self.probeFeed.get())
-
-		# Machine
-		config.set("Machine", "material",    self.material)
-		config.set("Machine", "height",      self.height)
-		config.set("Machine", "depth_pass",  self.depth_pass)
-		config.set("Machine", "tool_diameter",self.tool)
-		config.set("Machine", "feed",        self.feed)
-
-		config.set("Machine", "box_dx",      self.box_dx)
-		config.set("Machine", "box_dy",      self.box_dy)
-		config.set("Machine", "box_dz",      self.box_dz)
-		config.set("Machine", "box_nx",      self.box_nx)
-		config.set("Machine", "box_ny",      self.box_ny)
-		config.set("Machine", "box_nz",      self.box_nz)
-		self.saveHistory()
-
-	#----------------------------------------------------------------------
-	def loadHistory(self):
-		try:
-			f = open(hisFile,"r")
-		except:
-			return
-		self.history = [x.strip() for x in f]
-		f.close()
-
-	#----------------------------------------------------------------------
-	def saveHistory(self):
-		try:
-			f = open(hisFile,"w")
-		except:
-			return
-		f.write("\n".join(self.history))
-		f.close()
-
-	#----------------------------------------------------------------------
 	def createToolbar(self):
 		toolbar = Frame(self, relief=RAISED)
 		toolbar.pack(side=TOP, fill=X)
@@ -1272,7 +1179,7 @@ class Application(Toplevel):
 					image=icons["add"],
 					compound=LEFT,
 					accelerator="Ctrl-B",
-					command=self.gcodelist.insertBlock)
+					command=self.insertBlock)
 		self.widgets.append((menu,i))
 
 		i += 1
@@ -1280,7 +1187,7 @@ class Application(Toplevel):
 					image=icons["add"],
 					compound=LEFT,
 					accelerator="Ctrl-Enter",
-					command=self.gcodelist.insertLine)
+					command=self.insertLine)
 		self.widgets.append((menu,i))
 
 		i += 1
@@ -1542,13 +1449,13 @@ class Application(Toplevel):
 		menu.add_command(label="Zoom In", underline=2,
 					image=icons["zoom_in"],
 					compound=LEFT,
-					accelerator="[=]",
+					accelerator="[Ctrl-=]",
 					command=self.canvas.menuZoomIn)
 
 		menu.add_command(label="Zoom Out", underline=2,
 					image=icons["zoom_out"],
 					compound=LEFT,
-					accelerator="[-]",
+					accelerator="[Ctrl--]",
 					command=self.canvas.menuZoomOut)
 
 		# -----------------
@@ -1658,6 +1565,14 @@ class Application(Toplevel):
 			return
 		del self.widgets[:]
 
+		if self.gcode.isModified():
+			# file is modified
+			ans = tkMessageBox.askquestion("File modified",
+				"Gcode was modified do you want to save it first?",
+				parent=self)
+			if ans==tkMessageBox.YES or ans==True:
+				self.saveDialog()
+
 		self.saveConfig()
 
 		CNCPendant.stop()
@@ -1678,11 +1593,119 @@ class Application(Toplevel):
 				w[var] = value
 
 	# ---------------------------------------------------------------------
+	def busy(self):
+		try:
+			self.config(cursor="watch")
+			self.update_idletasks()
+		except TclError:
+			pass
+
+	# ----------------------------------------------------------------------
+	def notBusy(self):
+		try:
+			self.config(cursor="")
+		except TclError:
+			pass
+
+	# ---------------------------------------------------------------------
 	def enable(self):
 		self.configWidgets("state",NORMAL)
 
 	def disable(self):
 		self.configWidgets("state",DISABLED)
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		geom = "%sx%s" % (getInt(__prg__, "width", 800),
+				  getInt(__prg__, "height", 600))
+		try: self.geometry(geom)
+		except: pass
+
+		if int(config.get("Connection","pendant")):
+			self.startPendant(False)
+
+		# Other configuration options
+		self.material   = getConfig("Machine","material", "None")
+		self.height     = getFloat("Machine","height",5.0)
+		self.depth_pass = getFloat("Machine","depth_pass", 1.0)
+		self.feed       = getFloat("Machine","feed", 1000.)
+		self.tool       = getFloat("Machine","tool_diameter", 3.175)
+
+		self.box_dx     = getFloat("Machine","box_dx", 100.0)
+		self.box_dy     = getFloat("Machine","box_dy", 50.0)
+		self.box_dz     = getFloat("Machine","box_dz", 30.0)
+
+		self.box_nx     = getFloat("Machine","box_nx", 7)
+		self.box_ny     = getFloat("Machine","box_ny", 5)
+		self.box_nz     = getFloat("Machine","box_nz", 3)
+		self.loadHistory()
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		# Program
+		config.set(__prg__,  "width",    str(self.winfo_width()))
+		config.set(__prg__,  "height",   str(self.winfo_height()))
+
+		# Connection
+		config.set("Connection", "port", self.portCombo.get())
+
+		# Canvas
+		config.set("Canvas","axes",    str(int(self.draw_axes.get())))
+		config.set("Canvas","grid",    str(int(self.draw_grid.get())))
+		config.set("Canvas","margin",  str(int(self.draw_margin.get())))
+		config.set("Canvas","probe",   str(int(self.draw_probe.get())))
+		config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
+
+		# Control
+		config.set("Control", "step", self.step.get())
+
+		# Probe
+		config.set("Probe", "x",    self.probeXdir.get())
+		config.set("Probe", "y",    self.probeYdir.get())
+		config.set("Probe", "z",    self.probeZdir.get())
+
+		config.set("Probe", "xmin", self.probeXmin.get())
+		config.set("Probe", "xmax", self.probeXmax.get())
+		config.set("Probe", "xn",   self.probeXbins.get())
+		config.set("Probe", "ymin", self.probeYmin.get())
+		config.set("Probe", "ymax", self.probeYmax.get())
+		config.set("Probe", "yn",   self.probeYbins.get())
+		config.set("Probe", "zmin", self.probeZmin.get())
+		config.set("Probe", "zmax", self.probeZmax.get())
+		config.set("Probe", "feed", self.probeFeed.get())
+
+		# Machine
+		config.set("Machine", "material",    self.material)
+		config.set("Machine", "height",      str(self.height))
+		config.set("Machine", "depth_pass",  str(self.depth_pass))
+		config.set("Machine", "tool_diameter",str(self.tool))
+		config.set("Machine", "feed",        str(self.feed))
+
+		config.set("Machine", "box_dx",      str(self.box_dx))
+		config.set("Machine", "box_dy",      str(self.box_dy))
+		config.set("Machine", "box_dz",      str(self.box_dz))
+		config.set("Machine", "box_nx",      str(self.box_nx))
+		config.set("Machine", "box_ny",      str(self.box_ny))
+		config.set("Machine", "box_nz",      str(self.box_nz))
+		self.saveHistory()
+
+	#----------------------------------------------------------------------
+	def loadHistory(self):
+		try:
+			f = open(hisFile,"r")
+		except:
+			return
+		self.history = [x.strip() for x in f]
+		f.close()
+
+	#----------------------------------------------------------------------
+	def saveHistory(self):
+		try:
+			f = open(hisFile,"w")
+		except:
+			return
+		f.write("\n".join(self.history))
+		f.close()
 
 	#----------------------------------------------------------------------
 	def cut(self, event=None):
@@ -1731,6 +1754,16 @@ class Application(Toplevel):
 				"%s\nby %s [%s]\nVersion %s" % \
 				(__prg__, __author__, __email__, __version__),
 				parent=self)
+
+	#----------------------------------------------------------------------
+	def insertBlock(self):
+		self.tabPage.changePage("Editor")
+		self.gcodelist.insertBlock()
+
+	#----------------------------------------------------------------------
+	def insertLine(self):
+		self.tabPage.changePage("Editor")
+		self.gcodelist.insertLine()
 
 	#----------------------------------------------------------------------
 	def toggleDrawFlag(self):
@@ -1915,7 +1948,7 @@ class Application(Toplevel):
 			try:    self.box_dz = float(line[3])
 			except: pass
 
-			try:    self.box_nz = float(line[4])
+			try:    self.box_nx = float(line[4])
 			except: pass
 			try:    self.box_ny = float(line[5])
 			except: pass
@@ -2082,9 +2115,11 @@ class Application(Toplevel):
 		elif rexx.abbrev("PROFILE",cmd,3):
 			try:    ofs = float(line[1])/2.0
 			except: ofs = self.tool/2.0
+			self.busy()
 			self.gcode.profile(self.gcodelist.activeBlock(), ofs)
 			self.gcodelist.fill()
 			self.draw()
+			self.notBusy()
 			self.statusbar["text"] = "Profile block with ofs=%g"%(ofs)
 
 		# REL*ATIVE: switch to relative coordinates
@@ -2265,6 +2300,7 @@ class Application(Toplevel):
 		if not items: return
 		self._cleanUpItems(items)
 
+		self.busy()
 		sel = None
 		if cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
@@ -2289,6 +2325,7 @@ class Application(Toplevel):
 		self.gcodelist.fill()
 		if sel is not None: self.gcodelist.select(sel,clear=True)
 		self.drawAfter()
+		self.notBusy()
 		self.statusbar["text"] = "%s %s"%(cmd," ".join(map(str,args)))
 
 	#----------------------------------------------------------------------
@@ -2442,6 +2479,14 @@ class Application(Toplevel):
 		if filename:
 			config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
 			config.set("File", "file", os.path.basename(filename))
+
+		if self.gcode.isModified():
+			ans = tkMessageBox.askquestion("File modified",
+				"Gcode was modified do you want to save it first?",
+				parent=self)
+			if ans==tkMessageBox.YES or ans==True:
+				self.save()
+
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()

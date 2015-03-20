@@ -11,6 +11,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.font as tkFont
 
+import CNC
 import tkExtra
 #import tkDialogs
 
@@ -177,17 +178,21 @@ class CNCListbox(Listbox):
 		else:
 			bid = 0
 
-		self.gcode.addUndo(self.gcode.insBlockUndo(bid,["G0 X0 Y0","G0 Z3"]))
-		self.gcode.blocks[bid].expand = True
+		block = CNC.Block()
+		block.expand = True
+		block.append("G0 X0 Y0")
+		block.append("G0 Z0")
+		block.append("G0 Z%g"%(self.gcode.cnc.safeZ))
+		self.gcode.addUndo(self.gcode.addBlockUndo(bid,block))
 		self.selection_clear(0,END)
 		self.fill()
 		# find location of new block
 		while active < self.size():
 			if self._items[active][0] == bid:
-				active += 1
 				break
 			active += 1
 		self.selection_set(active)
+		self.see(active)
 		self.activate(active)
 		self.edit()
 		self.event_generate("<<Modified>>")
@@ -237,7 +242,7 @@ class CNCListbox(Listbox):
 	# Delete selected lines
 	# ----------------------------------------------------------------------
 	def deleteLine(self, event=None):
-		sel = self.curselection()
+		sel = list(map(int,self.curselection()))
 		if not sel: return
 
 		ypos = self.yview()[0]
@@ -245,7 +250,7 @@ class CNCListbox(Listbox):
 		for i in reversed(sel):
 			bid, lid = self._items[i]
 			if lid is None:
-				undoinfo.append(self.gcode.delBlockUndo(bid))
+				undoinfo.append(self.gcode.delBlockLinesUndo(bid))
 			else:
 				undoinfo.append(self.gcode.delLineUndo(bid, lid))
 		self.gcode.addUndo(undoinfo)
@@ -339,7 +344,7 @@ class CNCListbox(Listbox):
 	# Toggle expand selection
 	# ----------------------------------------------------------------------
 	def toggleExpand(self, event=None):
-		items   = map(int,self.curselection())
+		items   = list(map(int,self.curselection()))
 		changed = False
 		expand  = None
 		for i in reversed(items):
@@ -359,7 +364,7 @@ class CNCListbox(Listbox):
 	# toggle visibility
 	# ----------------------------------------------------------------------
 	def toggleVisibility(self, event=None):
-		items   = map(int,self.curselection())
+		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
 		changed = False
 		visible = None

@@ -79,6 +79,13 @@ import sys
 
 UNDO_LIMIT = 100
 
+# Check existence of Unicode not in python3
+try:
+	u = unicode
+	del u
+except NameError:
+	unicode = str
+
 # -----------------------------------------------------------------------------
 def undo(info):
 	# execute a single undoinfo
@@ -92,7 +99,8 @@ def undo(info):
 		text = None
 
 	#print " *U*", info
-	redo = apply(func, args)
+	#redo = apply(func, args)
+	redo = func(*args)
 	#print " *R*", redo
 	if text is not None and callable(redo[0]):
 		return (text,) + redo
@@ -106,7 +114,7 @@ def undoList(infos):
 	#pprint.pprint(infos)
 	#print
 
-	undoinfo = map(undo, infos)
+	undoinfo = list(map(undo, infos))
 	undoinfo.reverse()
 
 	#print "----------> RedoList <--------------"

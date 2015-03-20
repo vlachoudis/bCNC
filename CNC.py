@@ -405,8 +405,9 @@ class CNC:
 	#----------------------------------------------------------------------
 	# Number formating
 	#----------------------------------------------------------------------
-	def fmt(self, c, v):
-		return "%s%g"%(c,round(v,self.decimal))
+	def fmt(self, c, v, d=None):
+		if d is None: d = self.decimal
+		return ("%s%*f"%(c,d,v)).rstrip("0")
 
 	#----------------------------------------------------------------------
 	# @return line in broken a list of commands, None if empty or comment
@@ -758,13 +759,17 @@ class GCode:
 		self.cnc      = CNC()
 		self.undoredo = undo.UndoRedo()
 
-		self._modified = 0
+		self._lastModified = 0
+		self._modified = False
 		#self._lastComment = 0
 
 		# Iterator internal variables
 		#self._iter = 0
 		#self._iter_block = None
 		#self._iter_block_i = 0
+
+	#----------------------------------------------------------------------
+	def isModified(self): return self._modified
 
 	#----------------------------------------------------------------------
 	# Load a file into editor
@@ -774,7 +779,8 @@ class GCode:
 		try: f = open(self.filename,"r")
 		except: return False
 
-		self._modified = os.stat(self.filename)[ST_MTIME]
+		self._lastModified = os.stat(self.filename)[ST_MTIME]
+		self._modified = False
 
 		self.probe.init()
 		#self.split2blocks(f.read().replace("\x0d","").splitlines())
@@ -803,7 +809,8 @@ class GCode:
 		for block in self.blocks:
 			block.write(f)
 		f.close()
-		self._modified = os.stat(self.filename)[ST_MTIME]
+		self._lastModified = os.stat(self.filename)[ST_MTIME]
+		self._modified = False
 		return True
 
 	#----------------------------------------------------------------------
@@ -820,7 +827,18 @@ class GCode:
 			layer = dxf.sortLayer(name)
 			path = Path(name)
 			path.fromLayer(layer)
-			self.fromPath(path.order())
+			path.removeZeroLength()
+			opath = path.order()
+			changed = True
+			while changed:
+				longest = opath[0]
+				for p in opath:
+					if longest.length() > p.length():
+						longest = p
+				opath.remove(longest)
+				changed = longest.mergeLoops(opath)
+				self.fromPath(longest)
+			self.fromPath(opath)
 		return True
 
 	#----------------------------------------------------------------------
@@ -859,24 +877,36 @@ class GCode:
 	# Import paths as block
 	#----------------------------------------------------------------------
 	def fromPath(self, paths):
-		for path in paths:
+		undoinfo = []
+
+		def importPath(path):
 			block = Block(path.name)
-			self.blocks.append(block)
+			#self.blocks.append(block)
 			x,y = path[0].start
-			block.append("g0 x%.10g y%.10g"%(x,y))
+			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 			block.append("g0 z0")
 			for segment in path:
 				x,y = segment.end
 				if segment.type == 1:
 					x,y = segment.end
-					block.append("g1 x%.10g y%.10g"%(x,y))
+					block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 				elif segment.type in (2,3):
 					ij = segment.center - segment.start
 					if abs(ij[0])<1e-5: ij[0] = 0.
 					if abs(ij[1])<1e-5: ij[1] = 0.
-					block.append("g%d x%.10g y%.10g i%.10g j%.10g" % \
-						(segment.type, x,y, ij[0], ij[1]))
-			block.append("g0 z%g"%(self.cnc.safeZ))
+					block.append("g%d %s %s %s %s" % \
+						(segment.type,
+						 self.fmt("x",x,7), self.fmt("y",y,7),
+						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+			block.append("g0 %s"%(self.fmt("z",self.cnc.safeZ)))
+			undoinfo.append(self.addBlockUndo(None,block))
+
+		if isinstance(paths,Path):
+			importPath(paths)
+		else:
+			for path in paths:
+				importPath(path)
+		self.addUndo(undoinfo)
 		return True
 
 	#----------------------------------------------------------------------
@@ -898,7 +928,8 @@ class GCode:
 					paths.append(path)
 					path = Path(block.name())
 			elif self.cnc.gcode == 1:	# line
-				path.append(Segment(1, start, end))
+				if self.cnc.dx != 0.0 or self.cnc.dy != 0.0:
+					path.append(Segment(1, start, end))
 			elif self.cnc.gcode in (2,3):	# arc
 				xc,yc,zc = self.cnc.motionCenter()
 				center = Vector(xc,yc)
@@ -919,12 +950,12 @@ class GCode:
 	#----------------------------------------------------------------------
 	def checkFile(self):
 		try:
-			return os.stat(self.filename)[ST_MTIME] > self._modified
+			return os.stat(self.filename)[ST_MTIME] > self._lastModified
 		except:
 			return False
 
 	#----------------------------------------------------------------------
-	def fmt(self, c, v): return self.cnc.fmt(c,v)
+	def fmt(self, c, v, d=None): return self.cnc.fmt(c,v,d)
 
 	#----------------------------------------------------------------------
 	# add new line to list create block if necessary
@@ -1015,12 +1046,15 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
-	def insBlockUndo(self, bid, lines):
+	# Add a block
+	#----------------------------------------------------------------------
+	def addBlockUndo(self, bid, block):
+		if bid is None: bid = len(self.blocks)
 		undoinfo = (self.delBlockUndo, bid)
-		block = Block()
-		for line in lines:
-			block.append(line)
-		self.blocks.insert(bid, block)
+		if bid>=len(self.blocks):
+			self.blocks.append(block)
+		else:
+			self.blocks.insert(bid, block)
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1028,10 +1062,32 @@ class GCode:
 	#----------------------------------------------------------------------
 	def delBlockUndo(self, bid):
 		lines = [x for x in self.blocks[bid]]
-		undoinfo = (self.insBlockUndo, bid, lines) #list(self.blocks[bid])[:])
+		block = self.blocks.pop(bid)
+		undoinfo = (self.addBlockUndo, bid, block) #list(self.blocks[bid])[:])
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Insert block lines
+	#----------------------------------------------------------------------
+	def insBlockLinesUndo(self, bid, lines):
+		undoinfo = (self.delBlockLinesUndo, bid)
+		block = Block()
+		for line in lines:
+			block.append(line)
+		self.blocks.insert(bid, block)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Delete a whole block lines
+	#----------------------------------------------------------------------
+	def delBlockLinesUndo(self, bid):
+		lines = [x for x in self.blocks[bid]]
+		undoinfo = (self.insBlockLinesUndo, bid, lines) #list(self.blocks[bid])[:])
 		del self.blocks[bid]
 		return undoinfo
 
+	#----------------------------------------------------------------------
+	# Set Block name
 	#----------------------------------------------------------------------
 	def setBlockNameUndo(self, bid, name):
 		undoinfo = (self.setBlockNameUndo, bid, self.blocks[bid]._name)
@@ -1105,6 +1161,7 @@ class GCode:
 				self.undoredo.addUndo(undo.createListUndo(undoinfo))
 		elif undoinfo is not undo.NullUndo:
 			self.undoredo.addUndo(undoinfo)
+		self._modified = True
 
 	def canUndo(self):	return self.undoredo.canUndo()
 	def canRedo(self):	return self.undoredo.canRedo()
@@ -1306,15 +1363,13 @@ class GCode:
 	def profile(self, bid, offset):
 		newpath = []
 		for path in self.toPath(bid):
-			print "Path=\n",path
+			#print "path=",path
+			path.removeZeroLength()
 			opath = path.offset(offset)
-			print "Offset-Path=\n",opath
+			#print "opath=",opath
 			opath.intersect()
-			print "Intersect-Path=\n",opath
-			mindist = path.distance(opath[0].start)
-			include = mindist >= abs(offset)-0.00001
-			print "First included=",include
-			opath.removeExcluded(include)
+			#print "ipath=",opath
+			opath.removeExcluded(path, offset)
 			newpath.extend(opath.order())
 		self.fromPath(newpath)
 
@@ -1361,8 +1416,10 @@ class GCode:
 
 		blocks = box.make()
 		undoinfo = []
-		for block in blocks:
-			undoinfo.append(self.insBlockUndo(bid,block))
+		for side in blocks:
+			block = Block()
+			for line in side: block.append(line)
+			undoinfo.append(self.addBlockUndo(bid,block))
 			bid += 1
 		self.addUndo(undoinfo)
 
