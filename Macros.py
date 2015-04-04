@@ -25,17 +25,17 @@ class Box:
 		self.ny = 3
 		self.nz = 3
 
-		self.holes   = 'D'	# Cut additional holes to compensate
+		self.overcut   = 'D'	# Cut additional holes to compensate
 					# round edges from cutter
 					# D=diagonal, V=vertical, H=horizontal(doesn't work)
-		self.holesAdd = 0.1	# Add 10% of the tool diameter
+		self.overcutAdd = 0.1	# Add 10% of the tool diameter
 
 		self.surface = 0.	# location of surface
 		self.thick   = 5.	# thickness of material (and finger)
 		self.tool    = 3.175
 		self.safe    = 3.
-		self.zstep   = 1.0
-		self.zfeed   = 500
+		self.stepz   = 1.0
+		self.feedz   = 500
 		self.feed    = 1200
 		self.digits  = 4
 		self.cut     = True
@@ -101,17 +101,17 @@ class Box:
 		sgn = math.copysign(1.0, n)
 		n   = abs(n)
 
-		# Make additional holes/cuts to compensate for the
+		# Make additional overcut/cuts to compensate for the
 		# round edges in the inner teeths
 		if self.r > 0.0:
-			holes = self.holes
+			overcut = self.overcut
 			#rd = (sqrt(2.)-1.0) * self.r
-			rd = (1.0-1.0/sqrt(2.)) * (1.0+self.holesAdd) * self.r
+			rd = (1.0-1.0/sqrt(2.)) * (1.0+self.overcutAdd) * self.r
 		else:
-			holes = None
+			overcut = None
 
 		for i in range(n):
-#			if sgn<0.0 and holes=="U":
+#			if sgn<0.0 and overcut=="U":
 #				pos -= self.r*U
 #				block.append(self.gline(1, pos, self.feed))
 #				pos += self.r*U
@@ -136,7 +136,7 @@ class Box:
 			else:
 				block.append(self.gline(1, pos))
 
-#			if sgn<0.0 and holes=="U":
+#			if sgn<0.0 and overcut=="U":
 #				pos += self.r*U
 #				block.append(self.gline(1, pos))
 #				pos -= self.r*U
@@ -145,11 +145,11 @@ class Box:
 			if self.r>0.0:
 				if sgn<0.0:
 					if i<n-1:
-						if holes == "V":
+						if overcut == "V":
 							pos -= sgn*self.r*V
 							block.append(self.gline(1, pos))
 							pos += sgn*dv*V
-						elif holes == "D":
+						elif overcut == "D":
 							pos -= sgn*rd*(U+V)
 							block.append(self.gline(1, pos))
 							pos += sgn*rd*(U+V)
@@ -173,13 +173,13 @@ class Box:
 					pos += sgn*self.r*V + self.r*U
 					block.append(self.garc(3, pos, ijk))
 					if i<n-1:
-						if holes == "V":
+						if overcut == "V":
 							pos += sgn*dv*V
 							block.append(self.gline(1, pos))
 							if self.r > 0.0:
 								pos -= sgn*self.r*V
 								block.append(self.gline(1, pos))
-						elif holes == "D":
+						elif overcut == "D":
 							pos += sgn*(dv-self.r)*V
 							block.append(self.gline(1, pos))
 							if self.r > 0.0:
@@ -220,11 +220,11 @@ class Box:
 		block.append(self.gcode(0, zip("XY",pos[:2])))
 
 		z = self.surface
-		#for z in frange(self.surface-self.zstep, self.surface-self.thick, -self.zstep):
+		#for z in frange(self.surface-self.stepz, self.surface-self.thick, -self.stepz):
 		last = False
 		while True:
 			if self.cut:
-				z -= self.zstep
+				z -= self.stepz
 				if z <= self.surface - self.thick:
 					z = self.surface - self.thick
 					last = True
@@ -233,7 +233,7 @@ class Box:
 
 			pos[2] = z
 			# Penetrate
-			block.append(self.gcode(1, [("Z",pos[2]), ("F",self.zfeed)]))
+			block.append(self.gcode(1, [("Z",pos[2]), ("F",self.feedz)]))
 
 			# Bottom
 			pos = self.zigZagLine(block, pos, sx, self.thick, Vector.X, Vector.Y, nx, ex)
@@ -309,7 +309,7 @@ class Box:
 if __name__ == "__main__":
 #	box = Box(90., 60., 30.)
 #	box.thick = 5.0
-#	box.zstep = 5
+#	box.stepz = 5
 #	box.setTool(0.0)
 #	box.setNTeeth(3, 3, 3)
 #	box.make()
@@ -318,15 +318,15 @@ if __name__ == "__main__":
 	box = Box(71.0, 62.0, 52.0)
 	box.thick = 3.0
 	box.feed  = 1000
-	box.zfeed = 500
-	box.zstep = 1.5
+	box.feedz = 500
+	box.stepz = 1.5
 #	box.setNTeeth(7, 5, 3)
 	box.setNTeeth(5, 5, 3)
 
 	box.setTool(3.175)
 	box.setTool(0.0)
-#	box.holes = 'V'
-	box.holes = 'D'
+#	box.overcut = 'V'
+	box.overcut = 'D'
 	blocks = box.make()
 #	d = 0.0; box._rectangle(0.,0.,100., 50., NX, NY)
 #	d = 4.0; box._rectangle(0.,0.,100., 50., NX, NY)

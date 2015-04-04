@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3376 2015-01-19 16:32:05Z bnv $
+# $Id: tkExtra.py 3490 2015-04-01 12:11:17Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1256,6 +1256,7 @@ class MultiListbox(Frame):
 		self._sortColumn  = -1
 		self._sashIndex   = -1
 		self._sortReverse = False
+		self._sashx       = None
 
 	# ----------------------------------------------------------------------
 	# Bind left/right arrow to focusing different list
@@ -1318,7 +1319,7 @@ class MultiListbox(Frame):
 
 	# ----------------------------------------------------------------------
 	def _sashDrag(self, event):
-		if self._sashIndex >= 0:
+		if self._sashx and self._sashIndex >= 0:
 			ddx = event.x - self._sashdx - self._sashx[self._sashIndex]
 			self.paneframe.sash_place(self._sashIndex, event.x-self._sashdx, 1)
 			for i in range(self._sashIndex+1, len(self.lists)-1):
@@ -2071,6 +2072,8 @@ class InPlaceEdit:
 		try:
 			self.edit.bind("<Return>",   self.ok)
 			self.edit.bind("<KP_Enter>", self.ok)
+			self.edit.bind("<Up>",       self.ok)
+			self.edit.bind("<Down>",     self.ok)
 			self.edit.bind("<Escape>",   self.cancel)
 		except AttributeError:
 			pass
@@ -2233,7 +2236,7 @@ class InPlaceList(InPlaceEdit):
 		self.edit = ExListbox(self.frame,
 				selectmode=BROWSE,
 				height=self.height,
-				background="White",
+				#background="White",
 				yscrollcommand=sb.set)
 		sb.config(command=self.edit.yview)
 		self.edit.pack(side=LEFT, fill=BOTH, expand=YES)
@@ -2263,6 +2266,15 @@ class InPlaceList(InPlaceEdit):
 			return self.edit.get(cur[0])
 		else:
 			return ""
+
+	# ----------------------------------------------------------------------
+	def defaultBinds(self):
+		InPlaceEdit.defaultBinds(self)
+		try:
+			self.edit.unbind("<Up>")
+			self.edit.unbind("<Down>")
+		except AttributeError:
+			pass
 
 	# ----------------------------------------------------------------------
 	def resize(self, event=None):
@@ -2482,6 +2494,7 @@ class InPlaceFile(InPlaceEdit):
 	def fileDialog(self):
 		import bFileDialog
 		self.frame.unbind("<FocusOut>")
+		self.frame.grab_release()
 		if self._save:
 			fn = bFileDialog.asksaveasfilename(master=self.listbox,
 				title=self.title,
@@ -2492,7 +2505,8 @@ class InPlaceFile(InPlaceEdit):
 				title=self.title,
 				initialfile=self.value,
 				filetypes=self.filetypes)
-		self.frame.bind("<FocusOut>", self.cancel)
+		self.frame.grab_set()
+		#self.frame.bind("<FocusOut>", self.cancel)
 		self._icon = None
 		if len(fn) > 0:
 			self.edit.delete(0, END)
@@ -2596,8 +2610,16 @@ class Combobox(Frame):
 		self._arrowBtn.pack(side=RIGHT, fill=Y)
 
 		# Bindings
-		self._text.bind('<Up>',        self.postList)
-		self._text.bind('<Down>',      self.postList)
+		self._text.bind('<Up>',       self.postList)
+		self._text.bind('<Down>',     self.postList)
+		self._text.bind('<Return>',   self.postList)
+		self._text.bind('<KP_Enter>', self.postList)
+		self.bind('<Up>',       self.postList)
+		self.bind('<Down>',     self.postList)
+		self.bind('<Return>',   self.postList)
+		self.bind('<KP_Enter>', self.postList)
+		if label:
+			self._text.bind('<Key-space>', self.postList)
 		if isinstance(self._text, Label):
 			self._text.bind('<Button-1>', self._togglePost)
 

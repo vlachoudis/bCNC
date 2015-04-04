@@ -5,7 +5,7 @@
 # Author:       Vasilis.Vlachoudis@cern.ch
 # Date: 24-Aug-2014
 
-__version__ = "0.2"
+__version__ = "0.3"
 __prg__     = "bCNC"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "Vasilis.Vlachoudis@cern.ch"
@@ -44,6 +44,7 @@ import CNC
 import CNCList
 import CNCCanvas
 import CNCPendant
+import CNCTools
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
@@ -79,27 +80,6 @@ STATECOLORDEF = "LightYellow"
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 _emptyTool    = []
-_boxTool = [
-		("dx"  , "float" , 100.0, "Width Dx"),
-		("dy"  , "float" ,  70.0, "Depth Dy"),
-		("dz"  , "float" ,  50.0, "Height Dz"),
-		("nx"  , "int"   ,    11, "Fingers Nx"),
-		("ny"  , "int"   ,     7, "Fingers Ny"),
-		("nz"  , "int"   ,     5, "Fingers Nz"),
-		("cut" , "bool"  ,     0, "Cut")
-	]
-
-_tools = {
-	"Bit"       : _emptyTool,
-	"Box"       : _boxTool,
-	"Cut"       : _emptyTool,
-	"Hole"      : _emptyTool,
-	"Material"  : _emptyTool,
-	"Profile"   : _emptyTool,
-	"Rectangle" : _emptyTool,
-	"Tab"       : _emptyTool,
-	"Work Area" : _emptyTool
-}
 
 #------------------------------------------------------------------------------
 def getStr(section, name, default):
@@ -138,6 +118,7 @@ class Application(Toplevel):
 		self.view  = StringVar()
 		self.view.set(CNCCanvas.VIEWS[0])
 		self.view.trace('w', self.viewChange)
+		self.tools = CNCTools.Tools(self.gcode)
 
 		self.draw_axes   = BooleanVar()
 		self.draw_axes.set(bool(int(config.get("Canvas","axes"))))
@@ -158,9 +139,15 @@ class Application(Toplevel):
 		paned.pack(fill=BOTH, expand=YES)
 
 		# Status bar
-		self.statusbar = Label(self, relief=SUNKEN,
+		f = Frame(self)
+		f.pack(side=BOTTOM, fill=X)
+		self.statusbar = Label(f, relief=SUNKEN,
 			foreground="DarkBlue", justify=LEFT, anchor=W)
-		self.statusbar.pack(side=BOTTOM, fill=X)
+		self.statusbar.pack(side=LEFT, fill=X, expand=TRUE)
+
+		self.canvasbar = Label(f, relief=SUNKEN,
+			foreground="DarkBlue", justify=LEFT, anchor=W)
+		self.canvasbar.pack(side=RIGHT, fill=X, expand=TRUE)
 
 		# Command bar
 		self.command = Entry(self, relief=SUNKEN, background="White")
@@ -886,31 +873,52 @@ class Application(Toplevel):
 		f = Frame(frame)
 		f.pack(side=TOP, fill=X)
 
-		self.toolCombo = tkExtra.Combobox(f, False, background="White") #, command=self.toolChange)
+		self.toolCombo = tkExtra.Combobox(f, True,
+					#foreground="DarkBlue",
+					background="White",
+					command=self.toolChange)
 		self.toolCombo.pack(side=LEFT, expand=YES, fill=X)
-		self.toolCombo.fill(list(sorted(_tools.keys())))
 
-		self.toolButtons = {}
-		b = Button(f, image=icons["x"])
+		b = Button(f, image=icons["x"], command=self.toolDelete)
 		b.pack(side=RIGHT)
-		self.toolButtons["delete"] = b
+		self.tools.addButton("del",b)
 
-		b = Button(f, image=icons["clone"])
+		b = Button(f, image=icons["clone"], command=self.toolClone)
 		b.pack(side=RIGHT)
-		self.toolButtons["clone"] = b
+		self.tools.addButton("clone",b)
 
-		b = Button(f, image=icons["add"])
+		b = Button(f, image=icons["add"], command=self.toolAdd)
 		b.pack(side=RIGHT)
-		self.toolButtons["add"] = b
+		self.tools.addButton("add",b)
 
-		self.toolProperties = tkExtra.MultiListbox(frame,
-					(("Name", 8, None),
-					 ("Value", 16, None)),
+		b = Button(f, image=icons["rename"], command=self.toolRename)
+		b.pack(side=RIGHT)
+		self.tools.addButton("rename",b)
+
+		b = Button(frame, text="Execute",
+				image=icons["gear"],
+				compound=LEFT,
+				foreground="DarkRed",
+				background="LightYellow",
+				command=self.toolExecute)
+		b.pack(side=BOTTOM, fill=X)
+		self.tools.addButton("exe",b)
+
+		self.toolList = tkExtra.MultiListbox(frame,
+					(("Name", 16, None),
+					 ("Value", 24, None)),
 					 header = False,
 					 stretch = "last",
 					 background = "White")
-		self.toolProperties.sortAssist = None
-		self.toolProperties.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.sortAssist = None
+		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.bindList("<Double-1>",	self. toolEdit)
+		self.toolList.bindList("<F2>",		self. toolEdit)
+		self.toolList.bindList("<Return>",	self. toolEdit)
+		self.toolList.bindList("<Key-space>",	self. commandFocus)
+		self.toolList.bindList("<Control-Key-space>",	self. commandFocus)
+		self.toolList.lists[1].bind("<ButtonRelease-1>", self. toolEdit)
+		self.tools.setListbox(self.toolList)
 
 		# --- Canvas ---
 		frame = Frame(paned)
@@ -940,7 +948,6 @@ class Application(Toplevel):
 			self.canvas.bind("<KP_Delete>",	self.gcodelist.deleteLine)
 		except:
 			pass
-
 
 		# Global bindings
 		self.bind('<Escape>',		self.unselectAll)
@@ -1029,6 +1036,9 @@ class Application(Toplevel):
 		self._inFocus    = False
 		self.monitorSerial()
 		self.toggleDrawFlag()
+
+		# Create tools
+		self.toolCombo.fill(self.tools.names())
 		self.loadConfig()	# load rest of config
 
 	#----------------------------------------------------------------------
@@ -1290,7 +1300,69 @@ class Application(Toplevel):
 		menu = Menu(menubar)
 		menubar.add_cascade(label="Tools", underline=0, menu=menu)
 
+		# ---
 		i = 1
+		menu.add_radiobutton(label="Select", underline=0,
+					accelerator="S",
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_SELECT,
+					command=self.canvas.setActionSelect)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_separator()
+
+		# ---
+		i += 1
+		menu.add_radiobutton(label="Move objects", underline=0,
+					accelerator="M",
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_MOVE,
+					command=self.canvas.setActionMove)
+		self.widgets.append((submenu,ii))
+
+		i += 1
+		menu.add_radiobutton(label="Move gantry", underline=5,
+					accelerator="G",
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_GANTRY,
+					command=self.canvas.setActionGantry)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_radiobutton(label="Origin", underline=0,
+					accelerator="O",
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_ORIGIN,
+					command=self.canvas.setActionOrigin)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_radiobutton(label="Ruler", underline=0,
+					accelerator="R",
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_RULER,
+					command=self.canvas.setActionRuler)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_command(label="Toggle Expand", underline=7,
+					accelerator="Ctrl-E",
+					command=self.gcodelist.toggleExpand)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_command(label="Toggle Enable", underline=7,
+					accelerator="Ctrl-L",
+					command=self.gcodelist.toggleVisibility)
+		self.widgets.append((menu,i))
+
+
+		i += 1
+		menu.add_separator()
+
+		# ---
+		i += 1
 		menu.add_command(label="Inkscape", underline=0,
 					command=lambda s=self:s.insertCommand("INKSCAPE all",True))
 		self.widgets.append((menu,i))
@@ -1316,11 +1388,6 @@ class Application(Toplevel):
 		i += 1
 
 		ii = 0
-		submenu.add_command(label="Move mouse", underline=6,
-					accelerator="G",
-					command=self.canvas.actionMove)
-		self.widgets.append((submenu,ii))
-		ii += 1
 		submenu.add_command(label="Move center", underline=6,
 					command=lambda s=self:s.insertCommand("MOVE CENTER", True))
 		self.widgets.append((submenu,ii))
@@ -1383,12 +1450,7 @@ class Application(Toplevel):
 					command=lambda s=self:s.insertCommand("ROUND all", True))
 		self.widgets.append((menu,i))
 
-		# ---
-		i += 1
-		menu.add_command(label="Ruler", underline=1,
-					accelerator="R",
-					command=self.canvas.actionRuler)
-		self.widgets.append((menu,i))
+
 
 		# Machine Menu
 #		menu = Menu(menubar)
@@ -1612,7 +1674,7 @@ class Application(Toplevel):
 	def quit(self, event=None):
 		global config
 
-		if self.running and self._quit<2:
+		if self.running and self._quit<1:
 			tkMessageBox.showinfo("Running",
 				"CNC is currently running, please stop it before.",
 				parent=self)
@@ -1680,29 +1742,11 @@ class Application(Toplevel):
 			self.startPendant(False)
 
 		# Create tools
-		self.tools = {}
-		for name, tool in _tools.items():
-			toolvars = {}
-			for n, t, d, l in tool:
-				key = "%s.%s"%(name,n)
-				if t == "float":
-					value = getFloat("Tools", key, d)
-				elif t == "int":
-					value = getInt("Tools", key, d)
-				elif t == "bool":
-					value = getInt("Tools", key, d)
-				else:
-					value = getStr("Tools", key, d)
-				toolvars[n] = value
-			self.tools[name] = toolvars
-		print self.tools
-
-		# Other configuration options
-		self.material   = getStr("Machine","material", "None")
-		self.height     = getFloat("Machine","height",5.0)
-		self.depth_pass = getFloat("Machine","depth_pass", 1.0)
-		self.feed       = getFloat("Machine","feed", 1000.)
-		self.tool       = getFloat("Machine","tool_diameter", 3.175)
+		self.tools.load(config)
+		try:
+			self.toolCombo.set(config.get(__prg__, "tool"))
+		except:
+			self.toolCombo.set("Box")
 
 		self.loadHistory()
 
@@ -1711,6 +1755,7 @@ class Application(Toplevel):
 		# Program
 		config.set(__prg__,  "width",    str(self.winfo_width()))
 		config.set(__prg__,  "height",   str(self.winfo_height()))
+		config.set(__prg__,  "tool",     self.toolCombo.get())
 
 		# Connection
 		config.set("Connection", "port", self.portCombo.get())
@@ -1740,17 +1785,8 @@ class Application(Toplevel):
 		config.set("Probe", "zmax", self.probeZmax.get())
 		config.set("Probe", "feed", self.probeFeed.get())
 
-		# Machine
-		config.set("Machine", "material",    self.material)
-		config.set("Machine", "height",      str(self.height))
-		config.set("Machine", "depth_pass",  str(self.depth_pass))
-		config.set("Machine", "tool_diameter",str(self.tool))
-		config.set("Machine", "feed",        str(self.feed))
-
 		# Tools
-		for name, tool in _tools.items():
-			for n,v in self.tools[name].items():
-				config.set("Tools", "%s.%s"%(name,n), str(v))
+		self.tools.save(config)
 
 		self.saveHistory()
 
@@ -1819,6 +1855,40 @@ class Application(Toplevel):
 				"%s\nby %s [%s]\nVersion %s" % \
 				(__prg__, __author__, __email__, __version__),
 				parent=self)
+
+	#----------------------------------------------------------------------
+	# Populate listbox with new values
+	#----------------------------------------------------------------------
+	def toolChange(self):
+		tool = self.tools[self.toolCombo.get()]
+		tool.populate()
+		self.tools.activateButtons(tool)
+
+	#----------------------------------------------------------------------
+	# Edit tool listbox
+	#----------------------------------------------------------------------
+	def toolEdit(self, event=None):
+		self.tools[self.toolCombo.get()].edit(event)
+
+	#----------------------------------------------------------------------
+	def toolExecute(self, event=None):
+		self.tools[self.toolCombo.get()].execute(self)
+
+	#----------------------------------------------------------------------
+	def toolAdd(self, event=None):
+		self.tools[self.toolCombo.get()].add()
+
+	#----------------------------------------------------------------------
+	def toolDelete(self, event=None):
+		self.tools[self.toolCombo.get()].delete()
+
+	#----------------------------------------------------------------------
+	def toolClone(self, event=None):
+		self.tools[self.toolCombo.get()].clone()
+
+	#----------------------------------------------------------------------
+	def toolRename(self, event=None):
+		self.tools[self.toolCombo.get()].rename()
 
 	#----------------------------------------------------------------------
 	def insertBlock(self):
@@ -1890,8 +1960,8 @@ class Application(Toplevel):
 		if page == "WCS":
 			self.send("$#\n$G\n")
 			return
-		elif page == "Probe":
-			self.probeChange(False)
+		#elif page == "Probe":
+		#	self.probeChange(False)
 
 		focus = self.focus_get()
 		if focus and focus is self.gcodelist and page != "Editor":
@@ -2021,31 +2091,27 @@ class Application(Toplevel):
 			try:    tool["nz"] = float(line[6])
 			except: pass
 
-			try:    t = float(line[7])
-			except: t = self.tool
-
-			self.gcode.box(self.gcodelist.activeBlock(),
-					tool["dx"], tool["dy"], tool["dz"],
-					tool["nx"], tool["ny"], tool["nz"],
-					t, self.height, self.feed)
-			self.gcodelist.fill()
-			self.draw()
-			self.statusbar["text"] = "BOX with fingers generated"
+			try:
+				tool["profile"] = int(rexx.abbrev("PROFILE",line[7].upper()))
+			except: pass
+			try:
+				tool["cut"] = int(rexx.abbrev("CUT",line[7].upper()))
+			except: pass
+			tool.execute(self)
 
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
 			self.tabPage.changePage("Control")
 
-		# CUT [height] [pass-per-depth] [feed]: replicate selected blocks to cut-height
+		# CUT [height] [pass-per-depth]: replicate selected blocks to cut-height
 		# default values are taken from the active material
 		elif cmd == "CUT":
-			try: h = float(line[1])
-			except: h = self.height
-			try: p = float(line[2])
-			except: p = self.depth_pass
-			try: f = float(line[3])
-			except: f = self.feed
-			self.executeOnSelection("CUT",h, p, f)
+			try:    h = float(line[1])
+			except: h = None
+
+			try:    d = float(line[2])
+			except: d = None
+			self.executeOnSelection("CUT",h, d)
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
@@ -2098,15 +2164,16 @@ class Application(Toplevel):
 				self.loadDialog()
 
 		# MAT*ERIAL [name/height] [pass-per-depth] [feed]: set material from database or parameters
-		elif rexx.abbrev("MATERIAL",cmd,3):
-			# MAT*ERIAL [height] [pass-depth] [feed]
-			try: self.height = float(line[1])
-			except: pass
-			try: self.depth_pass = float(line[2])
-			except: pass
-			try: self.feed = float(line[3])
-			except: pass
-			self.statusbar["text"] = "Height: %g  Depth-per-pass: %g  Feed: %g"%(self.height,self.depth_pass, self.feed)
+#		elif rexx.abbrev("MATERIAL",cmd,3):
+#			tool = self.tools["Material"]
+#			# MAT*ERIAL [height] [pass-depth] [feed]
+#			try: self.height = float(line[1])
+#			except: pass
+#			try: self.depth_pass = float(line[2])
+#			except: pass
+#			try: self.feed = float(line[3])
+#			except: pass
+#			self.statusbar["text"] = "Height: %g  Depth-per-pass: %g  Feed: %g"%(self.height,self.depth_pass, self.feed)
 
 		# MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
 		elif rexx.abbrev("MIRROR",cmd,3):
@@ -2119,11 +2186,20 @@ class Application(Toplevel):
 			elif rexx.abbrev("VERTICAL",line1):
 				self.executeOnSelection("MIRRORV")
 
+		elif rexx.abbrev("ORDER",cmd,2):
+			if len(line)==1:
+				direction = "FIRST"
+			elif line[1] in ("UP","DOWN"):
+				direction = line1
+			else:
+				direction = "UP"
+			self.executeOnSelection("ORDER",direction)
+
 		# MO*VE [|CE*NTER|BL|BR|TL|TR|UP|DOWN|x] [[y [z]]]:
 		# move selected objects either by mouse or by coordinates
 		elif rexx.abbrev("MOVE",cmd,2):
 			if len(line)==1:
-				self.canvas.actionMove()
+				self.canvas.setActionMove()
 				return
 			line1 = line[1].upper()
 			if rexx.abbrev("CENTER",line1,2):
@@ -2163,6 +2239,17 @@ class Application(Toplevel):
 				except: dz = 0.0
 			self.executeOnSelection("MOVE",dx,dy,dz)
 
+		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
+		elif rexx.abbrev("ORIGIN",cmd,3):
+			try:    dx = -float(line[1])
+			except: dx = 0.0
+			try:    dy = -float(line[2])
+			except: dy = 0.0
+			try:    dz = -float(line[3])
+			except: dz = 0.0
+			self.gcodelist.selectAll()
+			self.executeOnSelection("MOVE",dx,dy,dz)
+
 		# OPEN: open serial connection to grbl
 		# CLOSE: close serial connection to grbl
 		elif cmd in ("OPEN","CLOSE"):
@@ -2179,16 +2266,29 @@ class Application(Toplevel):
 
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
+			if len(line)>1:
+				self.profile(line[1])
+			else:
+				self.profile()
 			try:
 				ofs = float(line[1])/2.0
 			except:
-				try:
-					sign = line[1][0]=="-" and -1.0 or 1.0
-				except:
+				if len(line)==1:
 					sign = 1.0
-				ofs = sign * self.tool/2.0
+				elif line[1].upper()[0]=="I":
+					sign = -1.0
+				elif line[1].upper()[0]=="O":
+					sign = 1.0
+				else:
+					try:
+						sign = line[1][0]=="-" and -1.0 or 1.0
+					except:
+						sign = 1.0
+				tool = self.tools["EndMill"]
+				diam = self.tools.fromMm(tool["diameter"])
+				ofs = sign * diam/2.0
 			self.busy()
-			self.gcode.profile(self.gcodelist.activeBlock(), ofs)
+			self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs)
 			self.gcodelist.fill()
 			self.draw()
 			self.notBusy()
@@ -2214,13 +2314,13 @@ class Application(Toplevel):
 			x0 = y0 = 0.0
 			if line1 == "CCW":
 				ang = 90.0
-				self.gcodelist.selectAll()
+				#self.gcodelist.selectAll()
 			elif line1 == "CW":
 				ang = -90.0
-				self.gcodelist.selectAll()
+				#self.gcodelist.selectAll()
 			elif line1=="FLIP":
 				ang = 180.0
-				self.gcodelist.selectAll()
+				#self.gcodelist.selectAll()
 			else:
 				try: ang = float(line[1])
 				except: pass
@@ -2245,7 +2345,7 @@ class Application(Toplevel):
 
 		# RU*LER: measure distances with mouse ruler
 		elif rexx.abbrev("RULER",cmd,2):
-			self.canvas.actionRuler()
+			self.canvas.setActionRuler()
 
 		# SAFE [z]: safe z to move
 		elif cmd=="SAFE":
@@ -2309,10 +2409,17 @@ class Application(Toplevel):
 			self.tabPage.changePage("Terminal")
 
 		# TOOL [diameter]: set diameter of cutting tool
-		elif cmd=="TOOL":
-			try: self.tool = float(line[1])
-			except: pass
-			self.statusbar["text"] = "Tool: %g"%(self.tool)
+		elif cmd in ("BIT","TOOL","MILL"):
+			try:
+				diam = float(line[1])
+			except:
+				tool = self.tools["EndMill"]
+				diam = self.tools.fromMm(tool["diameter"])
+			self.statusbar["text"] = "EndMill: %s %g"%(tool["name"], diam)
+
+		# TOOLS
+		elif cmd=="TOOLS":
+			self.tabPage.changePage("Tools")
 
 		# UNL*OCK: unlock grbl
 		elif rexx.abbrev("UNLOCK",cmd,3):
@@ -2348,33 +2455,19 @@ class Application(Toplevel):
 			return
 
 	#----------------------------------------------------------------------
-	# Remove items that are already selected as block
-	#----------------------------------------------------------------------
-	def _cleanUpItems(self, items):
-		# Filter all items that the block is also selected
-		blocks = {}
-		i = 0
-		while i<len(items):
-			block,line = items[i]
-			if line is None:
-				blocks[block] = True
-				i += 1
-			elif blocks.get(block,False):
-				del items[i]
-			else:
-				i += 1
-
-	#----------------------------------------------------------------------
 	# Execute a command over the selected lines
 	#----------------------------------------------------------------------
 	def executeOnSelection(self, cmd, *args):
-		items = self.gcodelist.getSelection()
+		items = self.gcodelist.getCleanSelection()
 		if not items: return
-		self._cleanUpItems(items)
 
 		self.busy()
 		sel = None
-		if cmd == "INKSCAPE":
+		if cmd == "CUT":
+			sel = self.gcode.cut(items, *args)
+		elif cmd == "ORDER":
+			self.gcode.orderLines(items, *args)
+		elif cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
 		elif cmd == "MOVE":
 			self.gcode.moveLines(items, *args)
@@ -2387,11 +2480,9 @@ class Application(Toplevel):
 		elif cmd == "MIRRORV":
 			self.gcode.mirrorVLines(items)
 		elif cmd == "UP":
-			sel = self.gcode.moveUp(items)
+			sel = self.gcode.orderUp(items)
 		elif cmd == "DOWN":
-			sel = self.gcode.moveDown(items)
-		elif cmd == "CUT":
-			sel = self.gcode.cut(items, *args)
+			sel = self.gcode.orderDown(items)
 
 		# Fill listbox and update selection
 		self.gcodelist.fill()
@@ -2399,6 +2490,31 @@ class Application(Toplevel):
 		self.drawAfter()
 		self.notBusy()
 		self.statusbar["text"] = "%s %s"%(cmd," ".join(map(str,args)))
+
+	#----------------------------------------------------------------------
+	def profile(self, direction=None):
+		tool = self.tools["EndMill"]
+		ofs  = self.tools.fromMm(tool["diameter"])/2.0
+		sign = 1.0
+
+		if direction is None:
+			pass
+		elif rexx.abbrev("INSIDE",direction.upper()):
+			sign = -1.0
+		elif rexx.abbrev("OUTSIDE",direction.upper()):
+			sign = 1.0
+		else:
+			try:
+				ofs = float(direction)/2.0
+			except:
+				pass
+
+		self.busy()
+		self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs*sign)
+		self.gcodelist.fill()
+		self.draw()
+		self.notBusy()
+		self.statusbar["text"] = "Profile block with ofs=%g"%(ofs*sign)
 
 	#----------------------------------------------------------------------
 	def commandMoveUp(self, event=None):
@@ -2435,8 +2551,8 @@ class Application(Toplevel):
 			self.command.insert(0,self.history[self._historyPos])
 
 	#----------------------------------------------------------------------
-	def select(self, lines, double, clear):
-		self.gcodelist.select(lines, double, clear)
+	def select(self, lines, double, clear, toggle=True):
+		self.gcodelist.select(lines, double, clear, toggle)
 		self.selectionChange()
 
 	# ----------------------------------------------------------------------
@@ -2451,7 +2567,9 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def newFile(self, event=None):
-		self.gcode.__init__()
+		self.gcode.init()
+		self.gcode.headerFooter()
+		self.gcodelist.fill()
 		self.draw()
 		self.title(__prg__)
 
@@ -2518,17 +2636,30 @@ class Application(Toplevel):
 	# Load a file into editor
 	#----------------------------------------------------------------------
 	def load(self, filename):
-		global config
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
 			self.loadProbe(filename)
 		elif ext==".dxf":
-			if self.gcode.loadDXF(filename):
+			self.gcode.init()
+			if self.gcode.importDXF(filename):
 				self.gcodelist.fill()
 				self.draw()
 				self.statusbar["text"] = "DXF imported from "+filename
 		else:
 			self.loadGcode(filename)
+
+	#----------------------------------------------------------------------
+#	def import(self, filename):
+#		fn,ext = os.path.splitext(filename)
+#		if ext==".probe":
+#			self.loadProbe(filename)
+#		elif ext==".dxf":
+#			if self.gcode.importDXF(filename):
+#				self.gcodelist.fill()
+#				self.draw()
+#				self.statusbar["text"] = "DXF imported from "+filename
+#		else:
+#			self.loadGcode(filename)
 
 	#----------------------------------------------------------------------
 	def save(self, filename):
@@ -2562,7 +2693,7 @@ class Application(Toplevel):
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
-		self.title("%s: %s"%(__prg__,filename))
+		self.title("%s: %s"%(__prg__,self.gcode.filename))
 
 	#----------------------------------------------------------------------
 	def loadProbe(self, filename):
@@ -3066,11 +3197,11 @@ class Application(Toplevel):
 		self._paths = None
 		self.disable()
 		self.emptyQueue()
-		self.queue.put(CNC.CNC.startup+"\n")
+		self.queue.put(self.tools["CNC"]["startup"]+"\n")
 		time.sleep(1)
 
 	#----------------------------------------------------------------------
-	# Send visible gcode file to the CNC machine
+	# Send enabled gcode file to the CNC machine
 	#----------------------------------------------------------------------
 	def run(self):
 		if self.serial is None or self.running: return
@@ -3144,7 +3275,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopPendant(self):
 		if CNCPendant.stop():
-			tkMessageBox.showinfo("Pendant","Stopped pendant", parent=self)
+			tkMessageBox.showinfo("Pendant","Pendant stopped", parent=self)
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -3335,8 +3466,9 @@ class Application(Toplevel):
 			if self._selectI>=0:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
 					if self._paths[self._selectI]:
-						self.canvas.itemconfig(self._paths[self._selectI],
-							width=2, fill=CNCCanvas.PROCESS_COLOR)
+						i,j = self._paths[self._selectI]
+						path = self.gcode[i].path(j)
+						self.canvas.itemconfig(path, width=2, fill=CNCCanvas.PROCESS_COLOR)
 					self._selectI += 1
 
 			if self._gcount >= self._runLines:

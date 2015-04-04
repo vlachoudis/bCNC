@@ -1,4 +1,4 @@
-# $Id: bmath.py 3337 2014-11-19 16:19:07Z bnv $
+# $Id: bmath.py 3485 2015-03-26 08:27:58Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -464,7 +464,7 @@ class Vector(list):
 		elif len(self)==2:
 			return self[0]*v[1]-self[1]*v[0]
 		else:
-			raise Exception("Cross product needs 3d vectors")
+			raise Exception("Cross product needs 2d or 3d vectors")
 
 	# ----------------------------------------------------------------------
 	def length2(self):

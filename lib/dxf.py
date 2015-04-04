@@ -158,6 +158,26 @@ class Entity(dict):
 		self._start, self._end = self._end, self._start
 
 #==============================================================================
+# DXF layer
+#==============================================================================
+class Layer:
+	def __init__(self, name, tbl=None):
+		self.name  = name
+		if tbl is None:
+			self.table = {}
+		else:
+			self.table = tbl
+		self.entities = []
+
+	#----------------------------------------------------------------------
+	def append(self, item):
+		self.entities.append(item)
+
+	#----------------------------------------------------------------------
+	def isFrozen(self):
+		return self.table.get(70,0) & 1
+
+#==============================================================================
 # DXF importer/exporter class
 #==============================================================================
 class DXF:
@@ -170,9 +190,8 @@ class DXF:
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
 		self._f = open(filename, mode)
-		#self.layerNames = []
-		self.layers     = {}	# entities per layer diction of lists
-		self._saved     = None
+		self.layers = {}	# entities per layer diction of lists
+		self._saved = None
 
 	#----------------------------------------------------------------------
 	def close(self):
@@ -274,8 +293,46 @@ class DXF:
 			entity = self.readEntity()
 			if entity is None: return
 			#print ">>>",entity
-			layer = self.layers.setdefault(entity.name,[])
+			try:
+				layer = self.layers[entity.name]
+			except KeyError:
+				layer = Layer(entity.name)
+				self.layers[entity.name] = layer
 			layer.append(entity)
+
+	#----------------------------------------------------------------------
+	# Read one table
+	#----------------------------------------------------------------------
+	def readTable(self):
+		tag, value = self.read()
+		if value == "ENDSEC":
+			return None
+		else:
+			table = {}
+		table["type"] = value
+
+		while True:
+			tag,value = self.read()
+			if tag is None: return
+			if tag==0:
+				self.push(tag,value)
+				return table
+			elif tag==2:
+				table["name"] = value
+			else:
+				table[tag] = value
+
+	#----------------------------------------------------------------------
+	# Read tables section
+	#----------------------------------------------------------------------
+	def readTables(self):
+		while True:
+			table = self.readTable()
+			if table is None: return
+			if table["type"] == "LAYER":
+				name = table.get("name")
+				if name is not None:
+					self.layers[name] = Layer(name, table)
 
 	#----------------------------------------------------------------------
 	# Read section based on type
@@ -293,6 +350,9 @@ class DXF:
 
 		elif value == "ENTITIES":
 			self.readEntities()
+
+		elif value == "TABLES":
+			self.readTables()
 
 		else:
 			self.skipSection()
@@ -314,34 +374,35 @@ class DXF:
 	# Add an new special marker for starting an entity with TYPE="START"
 	#----------------------------------------------------------------------
 	def sortLayer(self, name):
-		layer = self.layers[name]
+		entities = self.layers[name].entities
 		new   = []
+		if not entities: return new
 
 		def pushStart():
 			# Find starting point and add it to the new list
 			start = Entity("START",name)
-			start._start = start._end = layer[0].start()
+			start._start = start._end = entities[0].start()
 			new.append(start)
 
 		# Push first element as start point
 		pushStart()
 
 		# Repeat until all entities are used
-		while layer:
+		while entities:
 			# End point
 			ex,ey = new[-1].end()
 			#print
 			#print "*-*",new[-1].start(),new[-1].end()
 
 			# Find the entity that starts after the layer
-			for i,entity in enumerate(layer):
+			for i,entity in enumerate(entities):
 				# Try starting point
 				sx,sy = entity.start()
 				d2 = (sx-ex)**2 + (sy-ey)**2
 				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2) + EPS2
 				if d2 < err:
 					new.append(entity)
-					del layer[i]
+					del entities[i]
 					break
 
 				# Try ending point (inverse)
@@ -351,14 +412,14 @@ class DXF:
 				if d2 < err:
 					entity.invert()
 					new.append(entity)
-					del layer[i]
+					del entities[i]
 					break
 
 			else:
 				# Not found push a new start point and
 				pushStart()
 
-		self.layers[name] = new
+		self.layers[name].entities = new
 		return new
 
 	#----------------------------------------------------------------------

@@ -62,7 +62,8 @@ import time
 from math import atan2, asin, degrees, pi, radians, sqrt
 from bmath import Vector, quadratic
 
-EPS  = 0.0001
+EPS0 = 1E-7
+EPS  = 0.00001
 EPS2 = EPS**2
 PI2  = 2.0*pi
 
@@ -78,6 +79,15 @@ def eq(A,B):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
 	err = EPS2 * ((abs(A[0])+abs(B[0]))**2 + \
 		      (abs(A[1])+abs(B[1]))**2) + EPS2
+	return d2<err
+
+#------------------------------------------------------------------------------
+# Compare two Vectors if they are the same
+#------------------------------------------------------------------------------
+def eq2(A,B,acc):
+	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
+	err = acc*acc*((abs(A[0])+abs(B[0]))**2 + \
+		       (abs(A[1])+abs(B[1]))**2) + EPS2
 	return d2<err
 
 #==============================================================================
@@ -148,9 +158,9 @@ class Segment:
 	#----------------------------------------------------------------------
 	def _checkPhi(self):
 		if self.type == CCW:
-			if self.endPhi < self.startPhi: self.endPhi += PI2
+			if self.endPhi <= self.startPhi: self.endPhi += PI2
 		elif self.type == CW:
-			if self.startPhi < self.endPhi: self.startPhi += PI2
+			if self.startPhi <= self.endPhi: self.startPhi += PI2
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -223,15 +233,16 @@ class Segment:
 		phi = atan2(P[1]-self.center[1], P[0]-self.center[0])
 		if self.type==CW:
 			if phi < self.endPhi: phi += PI2
-			if self.endPhi-EPS <= phi <= self.startPhi+EPS:
+			if self.endPhi <= phi <= self.startPhi:
 				return True
 		elif self.type==CCW:
 			if phi < self.startPhi: phi += PI2
-			if self.startPhi-EPS <= phi <= self.endPhi+EPS:
+			if self.startPhi <= phi <= self.endPhi:
 				return True
 
-		if eq(self.start,P) or eq(self.end,P):
+		if eq2(self.start,P,EPS0) or eq2(self.end,P,EPS0):
 			return True
+
 		return False
 
 	#----------------------------------------------------------------------
@@ -267,9 +278,9 @@ class Segment:
 		if t1<-EPS or t1>1.0+EPS:
 			P1 = None
 		elif t1<=EPS:
-			P1 = self.start
+			P1 = Vector(self.start)
 		elif t1>=1.0-EPS:
-			P1 = self.end
+			P1 = Vector(self.end)
 		else:
 			#P1 = AB*t1 + self.start
 			P1 = Vector(self.AB[0]*t1+self.start[0], self.AB[1]*t1+self.start[1])
@@ -278,9 +289,9 @@ class Segment:
 		if t2<-EPS or t2>1.0+EPS:
 			P2 = None
 		elif t2<=EPS:
-			P2 = self.start
+			P2 = Vector(self.start)
 		elif t2>=1.0-EPS:
-			P2 = self.end
+			P2 = Vector(self.end)
 		else:
 			#P2 = AB*t2 + self.start
 			P2 = Vector(self.AB[0]*t2+self.start[0], self.AB[1]*t2+self.start[1])
@@ -325,7 +336,9 @@ class Segment:
 			d = CC.norm()
 			if d<=EPS2 or d>=self.radius+other.radius: return None,None
 			x = (self.radius**2 - other.radius**2 + d**2) / (2.*d)
-			y = sqrt(self.radius**2 - x**2)
+			diff = (self.radius-x)*(self.radius+x)
+			if diff<0.0: return None,None
+			y = sqrt(diff)
 
 			O = CC.orthogonal()
 
@@ -400,11 +413,11 @@ class Segment:
 	# Split segment at point P and return second part
 	#----------------------------------------------------------------------
 	def split(self, P):
-		if eq(P,self.start):
+		if eq2(P,self.start,EPS0):
 			# XXX should flag previous segment as cross
 			return -1
 
-		elif eq(P,self.end):
+		elif eq2(P,self.end,EPS0):
 			self.cross = True
 			return 0
 
@@ -470,7 +483,14 @@ class Path(list):
 		PL = P.length()
 		for N in self:
 			NL = N.AB.length()
-			phi += asin((P ^ N.AB) / (PL * NL))
+			dot = PL * NL
+			if abs(dot)>1e-7:
+				phi += asin((P ^ N.AB) / dot)
+			else:
+				if N.type == CW:
+					phi -= PI2
+				elif N.type == CCW:
+					phi += PI2
 			P  = N.AB
 			PL = NL
 		if phi < 0: return 1
@@ -530,13 +550,16 @@ class Path(list):
 		for segment in self:
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
+			# Join with the previous edge
 			if Op is not None and not eq(Eo,So):
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
 				if abs(cross)>EPS and cross*offset > 0:
+					# either a circle
 					t = offset>0 and CW or CCW
 					path.append(Segment(t, Eo, So, segment.start))
 				else:
+					# or a straight line if inside
 					path.append(Segment(LINE, Eo, So))
 
 			# connect with previous point
@@ -561,13 +584,15 @@ class Path(list):
 			j = i+2
 			while j<len(self):
 				P1,P2 = self[i].intersect(self[j])
-#				print i,j,"P1=",P1,"P2=",P2
-#				if i==6 and j==13:
+#				if P1 is not None or P2 is not None:
+#					print i,j,"P1=",P1,"P2=",P2
+#				if i==0 and j==11:
 #					import pdb; pdb.set_trace()
 #					P1,P2 = self[i].intersect(self[j])
 
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq(P1,P2): P1 = P2 = None
+				if P1 is not None and P2 is not None and eq2(P1,P2,EPS0):
+					P2 = None
 
 				if P1 is not None:
 					# Split the higher segment

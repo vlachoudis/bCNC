@@ -72,7 +72,7 @@ class CNCListbox(Listbox):
 		self.activate(act)
 
 	# ----------------------------------------------------------------------
-	# Fill listbox with visible items
+	# Fill listbox with enable items
 	# ----------------------------------------------------------------------
 	def fill(self, event=None):
 		act = self.index(ACTIVE)
@@ -321,7 +321,7 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	# Return location where we clicked on header
 	#  0 = expand arrow
-	#  1 = visible ballot box
+	#  1 = enable ballot box
 	#  2 = name
 	# ----------------------------------------------------------------------
 	def _headerLocation(self, event):
@@ -360,6 +360,8 @@ class CNCListbox(Listbox):
 			self.activate(active)
 			self.see(active)
 
+		self.app.statusbar["text"] = "Toggled Expand of selected objects"
+
 	# ----------------------------------------------------------------------
 	# toggle visibility
 	# ----------------------------------------------------------------------
@@ -367,13 +369,13 @@ class CNCListbox(Listbox):
 		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
 		changed = False
-		visible = None
+		enable  = None
 		ypos = self.yview()[0]
 		for i in items:
 			block,line = self._items[i]
 			if line is not None: continue
-			if visible is None: visible = not self.gcode[block].visible
-			self.gcode[block].visible = visible
+			if enable is None: enable = not self.gcode[block].enable
+			self.gcode[block].enable = enable
 
 			sel = self.selection_includes(i)
 			self.delete(i)
@@ -387,12 +389,14 @@ class CNCListbox(Listbox):
 			self.yview_moveto(ypos)
 			self.event_generate("<<ListboxSelect>>")
 
+		self.app.statusbar["text"] = "Toggled Visibility of selected objects"
+
 	# ----------------------------------------------------------------------
 	# Select lines in the form of (block, item)
 	# ----------------------------------------------------------------------
-	def select(self, lines, double=False, clear=False):
+	def select(self, lines, double=False, clear=False, toggle=True):
 		if clear: self.selection_clear(0,END)
-		first = True
+		first = None
 		for b,i in lines:
 			block = self.gcode[b]
 			if double:
@@ -407,17 +411,57 @@ class CNCListbox(Listbox):
 				# select whole block
 				y = self._blockPos[b]
 
-			self.selection_set(y)
-			if first:
-				self.activate(y)
-				self.see(y)
-				first = False
+			if toggle:
+				select = not self.selection_includes(y)
+			else:
+				select = True
+
+			if select:
+				self.selection_set(y)
+				if first is None: first = y
+			elif toggle:
+				self.selection_clear(y)
+
+		if first is not None:
+			self.activate(first)
+			self.see(first)
 
 	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
 	# ----------------------------------------------------------------------
 	def getSelection(self):
 		return [self._items[int(i)] for i in self.curselection()]
+
+	# ----------------------------------------------------------------------
+	# Return list of [(blocks,lines),...] currently being selected
+	# Filtering all items that the block is also selected
+	# ----------------------------------------------------------------------
+	def getCleanSelection(self):
+		items = [self._items[int(i)] for i in self.curselection()]
+		if not items: return items
+
+		blocks = {}
+		i = 0
+		while i<len(items):
+			block,line = items[i]
+			if line is None:
+				blocks[block] = True
+				i += 1
+			elif blocks.get(block,False):
+				del items[i]
+			else:
+				i += 1
+		return items
+
+	# ----------------------------------------------------------------------
+	# Return all blocks that at least an item is selected
+	# ----------------------------------------------------------------------
+	def getSelectedBlocks(self):
+		blocks = {}
+		for i in self.curselection():
+			block,line = self._items[int(i)]
+			blocks[block] = True
+		return list(sorted(blocks.keys()))
 
 	# ----------------------------------------------------------------------
 	def getActive(self):

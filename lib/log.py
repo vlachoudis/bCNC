@@ -72,4 +72,7 @@ def say(*kw):
 	if _log:
 		_log(txt)
 	else:
-		sys.stderr.write("%s\n"%(txt))
+		sys.stdout.write("%s\n"%(txt))
+
+def null(*kw):
+	pass
