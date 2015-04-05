@@ -1442,6 +1442,9 @@ class GCode:
 			new.clear()
 			for cmd in cmds:
 				c = cmd[0].upper()
+				if c in ['G', 'T', 'M', 'N']:
+					new[c] = cmd[1:]
+					continue
 				try:
 					new[c] = float(cmd[1:])
 				except:
@@ -1454,7 +1457,10 @@ class GCode:
 				for cmd in cmds:
 					c = cmd[0].upper()
 					old[c] = new[c]
-					newcmd.append(self.fmt(cmd[0],new[c]))
+					if c in ['G', 'T', 'M', 'N']:
+						newcmd.append("%s%s" % (cmd[0],new[c]))
+					else:
+						newcmd.append(self.fmt(cmd[0],new[c]))
 				undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
 		# XXX should I add it here or return it to be added later?
