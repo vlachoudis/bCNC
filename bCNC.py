@@ -3147,16 +3147,28 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def probeOne(self):
 		cmd = "G38.2"
+		ok = False
 		v = self.probeXdir.get()
-		if v != "": cmd += "X"+str(v)
+		if v != "":
+			cmd += "X"+str(v)
+			ok = True
 		v = self.probeYdir.get()
-		if v != "": cmd += "Y"+str(v)
+		if v != "":
+			cmd += "Y"+str(v)
+			ok = True
 		v = self.probeZdir.get()
-		if v != "": cmd += "Z"+str(v)
+		if v != "":
+			cmd += "Z"+str(v)
+			ok = True
 		v = self.probeFeed.get()
-		if v != "": cmd += "F"+str(v)
+		if v != "":
+			cmd += "F"+str(v)
 
-		self.queue.put(cmd+"\n")
+		if ok:
+			self.queue.put(cmd+"\n")
+		else:
+			tkMessageBox.showerror("Probe Error",
+					"At least one probe direction should be specified")
 
 	#----------------------------------------------------------------------
 	# Probe an X-Y area
