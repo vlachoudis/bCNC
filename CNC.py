@@ -849,6 +849,7 @@ class GCode:
 			path.fromLayer(entities)
 			path.removeZeroLength()
 			opath = path.order()
+			if not opath: continue
 			changed = True
 			while changed:
 				longest = opath[0]
@@ -1264,6 +1265,7 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Move blocks/lines up
+	# FIXME Undo/Redo information
 	#----------------------------------------------------------------------
 	def orderUp(self, lines):
 		sel = []	# new selection
@@ -1279,10 +1281,13 @@ class GCode:
 				self[bid]   = before
 				sel.append((bid-1,None))
 			else:
-				# Move up one line
-				pass
+				block = self[bid]
+				if lid>0: # swap with the line above
+					block.insert(lid-1, block.pop(lid))
 		return sel
 
+	#----------------------------------------------------------------------
+	# FIXME Undo/Redo information
 	#----------------------------------------------------------------------
 	def orderDown(self, lines):
 		sel = []	# new selection
@@ -1299,7 +1304,9 @@ class GCode:
 				sel.insert(0,(bid+1,None))
 			else:
 				# Move down one line
-				pass
+				block = self[bid]
+				if lid<len(block)-1:
+					block.insert(lid+1, block.pop(lid))
 		return sel
 
 	#----------------------------------------------------------------------
@@ -1396,14 +1403,14 @@ class GCode:
 		for bid in reversed(blocks):
 			newpath = []
 			for path in self.toPath(bid):
-				#print "path=",path
+#				print "path=",path
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
 				opath = path.offset(D*offset)
-				#print "opath=",opath
+#				print "opath=",opath
 				opath.intersect()
-				#print "ipath=",opath
+#				print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
 				newpath.extend(opath.order())
 			undoinfo.extend(self.fromPath(bid+1, newpath))

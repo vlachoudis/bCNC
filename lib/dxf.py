@@ -57,6 +57,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
+import sys
 import math
 from bmath import Vector
 
@@ -76,7 +77,12 @@ class Entity(dict):
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
-		return "%s %s %s %s"%(self.type, self.name, self.start(), self.end())
+		out = "%s %s %s %s"%(self.type, self.name, self.start(), self.end())
+		if self.type=="ARC":
+			out += " R=%g"%(self.radius())
+			out += " sPhi=%g"%(self.startPhi())
+			out += " ePhi=%g"%(self.endPhi())
+		return out
 
 	#----------------------------------------------------------------------
 	def point(self,idx=0):
@@ -122,7 +128,9 @@ class Entity(dict):
 		#elif self.type == "ELLIPSE":
 		#elif self.type == "SPLINE":
 		else:
-			raise Exception("Cannot handle entity type %s"%(self.type))
+			#raise Exception("Cannot handle entity type %s"%(self.type))
+			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
+			self._start = self.point()
 
 		return self._start
 
@@ -146,7 +154,9 @@ class Entity(dict):
 		elif self.type == "LWPOLYLINE":
 			self._end = Vector(self[10][-1], self[20][-1])
 		else:
-			raise Exception("Cannot handle entity type %s"%(self.type))
+			#raise Exception("Cannot handle entity type %s"%(self.type))
+			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
+			self._end = self.point()
 
 		return self._end
 
@@ -504,29 +514,37 @@ class DXF:
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
-	dxf = DXF("test.dxf","w")
-	dxf.writeHeader()
-	#dxf.line( 0, 0, 20, 0, "line1")
-	#dxf.line(20, 0, 20,10, "line1")
-	#dxf.line(20,10,  0,10, "line1")
-	#dxf.line( 0,10,  0, 0, "line1")
-	#dxf.circle(20,10,5,"circle")
-
-	dxf.arc(0,0,5,30,90,"arc")
-	dxf.arc(0,0,10,90,30,"arc")
-	dxf.line(8.660254037844387, 5, 20,30,"arc")
-	dxf.line(0,5,0,10,"arc")
-	dxf.arc(0,0,20,90,30,"arc")
-
-	#dxf.polyline([(100,0),(200,200),(100,200)],"polyline")
-	dxf.writeEOF()
-	dxf.close()
-
-	dxf.open("test2.dxf","r")
+	dxf = DXF(sys.argv[1],"r")
 	dxf.readFile()
 	dxf.close()
-	#print "-"*80
-	#for name in dxf.layers:
-	#	for entity in dxf.sortLayer(name):
-	#		print entity
-	dxf.close()
+	for name,layer in dxf.layers.items():
+		print "Frozen=",not bool(layer.isFrozen())
+		for entity in dxf.sortLayer(name):
+			print entity, entity._invert
+
+#	dxf = DXF("test.dxf","w")
+#	dxf.writeHeader()
+#	#dxf.line( 0, 0, 20, 0, "line1")
+#	#dxf.line(20, 0, 20,10, "line1")
+#	#dxf.line(20,10,  0,10, "line1")
+#	#dxf.line( 0,10,  0, 0, "line1")
+#	#dxf.circle(20,10,5,"circle")
+#
+#	dxf.arc(0,0,5,30,90,"arc")
+#	dxf.arc(0,0,10,90,30,"arc")
+#	dxf.line(8.660254037844387, 5, 20,30,"arc")
+#	dxf.line(0,5,0,10,"arc")
+#	dxf.arc(0,0,20,90,30,"arc")
+#
+#	#dxf.polyline([(100,0),(200,200),(100,200)],"polyline")
+#	dxf.writeEOF()
+#	dxf.close()
+#
+#	dxf.open("test2.dxf","r")
+#	dxf.readFile()
+#	dxf.close()
+#	#print "-"*80
+#	#for name in dxf.layers:
+#	#	for entity in dxf.sortLayer(name):
+#	#		print entity
+#	dxf.close()

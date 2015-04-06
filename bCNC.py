@@ -224,8 +224,8 @@ class Application(Toplevel):
 					[("Control",  icons["control"]),
 					 ("Terminal", icons["terminal"]),
 					 ("WCS",      icons["measure"]),
-					 ("Editor",   icons["edit"]),
-					 ("Tools",    icons["tools"])])
+					 ("Tools",    icons["tools"]),
+					 ("Editor",   icons["edit"])])
 		self.tabPage.pack(fill=BOTH, expand=YES)
 		self.tabPage.bind("<<ChangePage>>", self.changePage)
 
@@ -856,8 +856,8 @@ class Application(Toplevel):
 
 		self.gcodelist.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.gcodelist.bind("<<Modified>>",		self.drawAfter)
-		self.gcodelist.bind("<Control-Key-Up>",		self.commandMoveUp)
-		self.gcodelist.bind("<Control-Key-Down>",	self.commandMoveDown)
+		self.gcodelist.bind("<Control-Key-Up>",		self.commandOrderUp)
+		self.gcodelist.bind("<Control-Key-Down>",	self.commandOrderDown)
 
 		self.gcodelist.pack(side=LEFT,expand=TRUE, fill=BOTH)
 		self.widgets.append(self.gcodelist)
@@ -940,8 +940,8 @@ class Application(Toplevel):
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
 		self.canvas.bind('<Control-Key-v>',	self.paste)
-#		self.canvas.bind("<Control-Key-Up>",	self.commandMoveUp)
-#		self.canvas.bind("<Control-Key-Down>",	self.commandMoveDown)
+#		self.canvas.bind("<Control-Key-Up>",	self.commandOrderUp)
+#		self.canvas.bind("<Control-Key-Down>",	self.commandOrderDown)
 		self.canvas.bind("<Delete>",		self.gcodelist.deleteLine)
 		self.canvas.bind("<BackSpace>",		self.gcodelist.deleteLine)
 		try:
@@ -1411,15 +1411,19 @@ class Application(Toplevel):
 		submenu.add_command(label="Move command", underline=0,
 					command=lambda s=self:s.insertCommand("MOVE x y z", False))
 		self.widgets.append((submenu,ii))
-		ii += 1
-		submenu.add_separator()
-		ii += 1
-		submenu.add_command(label="Move UP", underline=6, accelerator="Ctrl-Up",
-					command=self.commandMoveUp)
+
+		# --- Order ---
+		submenu = Menu(menu)
+		menu.add_cascade(label="Order", underline=0, menu=submenu)
+		i += 1
+
+		ii = 0
+		submenu.add_command(label="Order UP", underline=6, accelerator="Ctrl-Up",
+					command=self.commandOrderUp)
 		self.widgets.append((submenu,ii))
 		ii += 1
-		submenu.add_command(label="Move DOWN", underline=6, accelerator="Ctrl-Down",
-					command=self.commandMoveDown)
+		submenu.add_command(label="Order DOWN", underline=6, accelerator="Ctrl-Down",
+					command=self.commandOrderDown)
 		self.widgets.append((submenu,ii))
 
 		# --- Rotate ---
@@ -2270,29 +2274,6 @@ class Application(Toplevel):
 				self.profile(line[1])
 			else:
 				self.profile()
-			try:
-				ofs = float(line[1])/2.0
-			except:
-				if len(line)==1:
-					sign = 1.0
-				elif line[1].upper()[0]=="I":
-					sign = -1.0
-				elif line[1].upper()[0]=="O":
-					sign = 1.0
-				else:
-					try:
-						sign = line[1][0]=="-" and -1.0 or 1.0
-					except:
-						sign = 1.0
-				tool = self.tools["EndMill"]
-				diam = self.tools.fromMm(tool["diameter"])
-				ofs = sign * diam/2.0
-			self.busy()
-			self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs)
-			self.gcodelist.fill()
-			self.draw()
-			self.notBusy()
-			self.statusbar["text"] = "Profile block with ofs=%g"%(ofs)
 
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
@@ -2517,12 +2498,12 @@ class Application(Toplevel):
 		self.statusbar["text"] = "Profile block with ofs=%g"%(ofs*sign)
 
 	#----------------------------------------------------------------------
-	def commandMoveUp(self, event=None):
+	def commandOrderUp(self, event=None):
 		self.insertCommand("UP",True)
 		return "break"
 
 	#----------------------------------------------------------------------
-	def commandMoveDown(self, event=None):
+	def commandOrderDown(self, event=None):
 		self.insertCommand("DOWN",True)
 		return "break"
 

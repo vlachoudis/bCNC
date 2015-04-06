@@ -11,12 +11,8 @@ __email__   = "Vasilis.Vlachoudis@cern.ch"
 import Unicode
 try:
 	from Tkinter import *
-#	import ConfigParser
-#	import tkMessageBox
 except ImportError:
 	from tkinter import *
-#	import configparser as ConfigParser
-#	import tkinter.messagebox as tkMessageBox
 
 import tkExtra
 

@@ -160,7 +160,7 @@ class Segment:
 		if self.type == CCW:
 			if self.endPhi <= self.startPhi: self.endPhi += PI2
 		elif self.type == CW:
-			if self.startPhi <= self.endPhi: self.startPhi += PI2
+			if self.startPhi <= self.endPhi: self.endPhi -= PI2
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -383,10 +383,11 @@ class Segment:
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
-			if phi < self.endPhi:
-				#return (P-self.end).length()
-				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
-			elif phi > self.startPhi:
+			if phi < self.endPhi: phi += PI2
+#			if phi < self.endPhi:
+#				#return (P-self.end).length()
+#				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
+			if phi > self.startPhi:
 				#return (P-self.start).length()
 				return sqrt((P[0]-self.start[0])**2 + (P[1]-self.start[1])**2)
 			else:
@@ -399,10 +400,11 @@ class Segment:
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
-			if phi < self.startPhi:
-				#return (P-self.start).length()
-				return sqrt((P[0]-self.start[0])**2 + (P[1]-self.start[1])**2)
-			elif phi > self.endPhi:
+			if phi < self.startPhi: phi += PI2
+#			if phi < self.startPhi:
+#				#return (P-self.start).length()
+#				return sqrt((P[0]-self.start[0])**2 + (P[1]-self.start[1])**2)
+			if phi > self.endPhi:
 				#return (P-self.end).length()
 				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
 			else:
@@ -669,6 +671,7 @@ class Path(list):
 			segment = self[i]
 
 			if not include:
+#				print "remove", self[i]
 				del self[i]
 				i -= 1
 
@@ -676,6 +679,7 @@ class Path(list):
 				include = not include
 				if include:
 					include = path.distance(segment.end) > chkofs
+#					print "+++",i, segment.end, path.distance(segment.end), chkofs, include
 			i += 1
 		self.removeZeroLength()
 		sys.stdout.write("path.removeExcluded: %g\n"%(time.time()-start))
@@ -754,7 +758,7 @@ class Path(list):
 				r    = entity.radius()
 				sPhi = radians(entity.startPhi())
 				ePhi = radians(entity.endPhi())
-				self.append(Segment(t, start, end, center, r, sPhi, ePhi))
+				self.append(Segment(t, start, end, center, r))
 
 			elif entity.type == "LWPOLYLINE":
 				# split it into multiple line segments
