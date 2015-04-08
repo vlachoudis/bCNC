@@ -3524,7 +3524,7 @@ def usage():
 if __name__ == "__main__":
 	tk = Tk()
 	tk.withdraw()
-
+	tkExtra.bindClasses(tk)
 	loadConfiguration()
 
 	try:

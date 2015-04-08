@@ -130,6 +130,7 @@ class Segment:
 		# correct exit point to be numerically correct
 		self.end[0] = self.center[0] + self.radius*cos(self.endPhi)
 		self.end[1] = self.center[1] + self.radius*sin(self.endPhi)
+		self.AB = self.end-self.start
 
 	#----------------------------------------------------------------------
 	# Invert segment
@@ -138,11 +139,11 @@ class Segment:
 		self.start, self.end = self.end, self.start
 		self.AB = -self.AB
 		if self.type != LINE:
-			if self.type == CCW:
-				self.type = CW
-			elif self.type == CW:
+			if self.type == CW:
 				self.type = CCW
-			self.startPhi, self.endPhi = self.endPhi, self.startPhi
+			elif self.type == CCW:
+				self.type = CW
+			#self.startPhi, self.endPhi = self.endPhi, self.startPhi
 			self._correct()
 			self.calcBBox()
 
@@ -230,12 +231,12 @@ class Segment:
 	def _insideArc(self, P):
 		phi = atan2(P[1]-self.center[1], P[0]-self.center[0])
 		if self.type==CW:
-			if phi < self.endPhi: phi += PI2
-			if self.endPhi <= phi <= self.startPhi:
+			if phi < self.endPhi-EPS/self.radius: phi += PI2
+			if phi <= self.startPhi + EPS/self.radius:
 				return True
 		elif self.type==CCW:
-			if phi < self.startPhi: phi += PI2
-			if self.startPhi <= phi <= self.endPhi:
+			if phi < self.startPhi-EPS/self.radius: phi += PI2
+			if phi <= self.endPhi + EPS/self.radius:
 				return True
 
 		if eq2(self.start,P,EPS0) or eq2(self.end,P,EPS0):
@@ -355,58 +356,38 @@ class Segment:
 	#----------------------------------------------------------------------
 	def distance(self, P):
 		if self.type == LINE:
-			#AB2 = self.AB.length2()
-			#AP  = P-self.start
-			#dot = AP*self.AB
 			AB2  = self.AB[0]**2 + self.AB[1]**2
 			APx  = P[0]-self.start[0]
 			APy  = P[1]-self.start[1]
 			dot  = APx*self.AB[0] + APy*self.AB[1]
 			proj = dot / AB2
 			if proj < 0.0:
-				#return AP.length()
 				return sqrt(APx**2+APy**2)
 			elif proj > 1.0:
-				#return (P-self.end).length()
 				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
 			else:
-				#d = AP.length2() - dot*dot/AB2
 				d = (APx**2+APy**2) - dot*proj
 				if abs(d)<EPS: return 0.0
 				return sqrt(d)
 
 		elif self.type == CW:
-			#PC = P - self.center
-			#phi = atan2(PC[1], PC[0])
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
-			if phi < self.endPhi: phi += PI2
-#			if phi < self.endPhi:
-#				#return (P-self.end).length()
-#				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
-			if phi > self.startPhi:
-				#return (P-self.start).length()
+			if phi < self.endPhi-EPS/self.radius: phi += PI2
+			if phi > self.startPhi+EPS/self.radius:
 				return sqrt((P[0]-self.start[0])**2 + (P[1]-self.start[1])**2)
 			else:
-				#return abs(PC.length() - self.radius)
 				return abs(sqrt(PCx**2+PCy**2) - self.radius)
 
 		elif self.type == CCW:
-			#PC = P - self.center
-			#phi = atan2(PC[1], PC[0])
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
-			if phi < self.startPhi: phi += PI2
-#			if phi < self.startPhi:
-#				#return (P-self.start).length()
-#				return sqrt((P[0]-self.start[0])**2 + (P[1]-self.start[1])**2)
-			if phi > self.endPhi:
-				#return (P-self.end).length()
+			if phi < self.startPhi-EPS/self.radius: phi += PI2
+			if phi > self.endPhi+EPS/self.radius:
 				return sqrt((P[0]-self.end[0])**2 + (P[1]-self.end[1])**2)
 			else:
-				#return abs(PC.length() - self.radius)
 				return abs(sqrt(PCx**2+PCy**2) - self.radius)
 
 	#----------------------------------------------------------------------
@@ -484,8 +465,14 @@ class Path(list):
 		for N in self:
 			NL = N.AB.length()
 			dot = PL * NL
-			if abs(dot)>1e-7:
-				phi += asin((P ^ N.AB) / dot)
+			if abs(dot)>EPS0:
+				ang = (P ^ N.AB) / dot
+				if ang<=-1.0:
+					phi -= pi/2.0
+				elif ang >=1.0:
+					phi += pi/2.0
+				else:
+					phi += asin((P ^ N.AB) / dot)
 			else:
 				if N.type == CW:
 					phi -= PI2
@@ -578,6 +565,7 @@ class Path(list):
 			Eo = self[-1].end + Op*offset
 		else:
 			Op = None	# previous orthogonal
+		#import pdb; pdb.set_trace()
 		for segment in self:
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
@@ -586,6 +574,7 @@ class Path(list):
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
 				if abs(cross)>EPS and cross*offset > 0:
+				#if True:
 					# either a circle
 					t = offset>0 and CW or CCW
 					path.append(Segment(t, Eo, So, segment.start))

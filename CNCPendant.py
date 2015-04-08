@@ -122,9 +122,9 @@ index.html page not found.
 def _server(app):
 	global httpd
 	server_class = HTTPServer.HTTPServer
-	httpd = server_class(('', PORT), Pendant)
-	httpd.app = app
 	try:
+		httpd = server_class(('', PORT), Pendant)
+		httpd.app = app
 		httpd.serve_forever()
 	except:
 		httpd = None

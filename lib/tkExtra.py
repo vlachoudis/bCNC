@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3490 2015-04-01 12:11:17Z bnv $
+# $Id: tkExtra.py 3493 2015-04-08 08:52:01Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -208,6 +208,55 @@ def toggleHeight(root, oldHeight):
 	newgeom = "%dx%d+%d+%d" % (width, newheight, x, newy)
 	root.wm_geometry(newgeom)
 	return height
+
+#===============================================================================
+def _entryPaste(event):
+	"""global replacement for the Entry.paste"""
+	try:
+		event.widget.delete('sel.first', 'sel.last')
+	except TclError:
+		pass	# nothing is selected
+
+	# in tk.call() use the widget's string representation event.widget._w
+	# instead of event.widget, which is the widget instance itself
+	try:
+		text = event.widget.tk.call('::tk::GetSelection', event.widget._w, 'CLIPBOARD')
+	except TclError:
+		return
+	event.widget.insert('insert', text)
+	event.widget.tk.call('tk::EntrySeeInsert', event.widget._w)
+	return "break"
+
+#-------------------------------------------------------------------------------
+def _textPaste(event):
+	"""global replacement for the Text.paste"""
+	oldSeparator = event.widget.cget("autoseparators")
+	if oldSeparator:
+		event.widget.config(autoseparators=0)
+		event.widget.edit_separator()
+	try:
+		event.widget.delete('sel.first', 'sel.last')
+	except TclError:
+		pass	# nothing is selected
+
+	# in tk.call() use the widget's string representation event.widget._w
+	# instead of event.widget, which is the widget instance itself
+	try:
+		text = event.widget.tk.call('::tk::GetSelection', event.widget._w, 'CLIPBOARD')
+	except TclError:
+		return
+	event.widget.insert('insert', text)
+	if oldSeparator:
+		event.widget.edit_separator()
+		event.widget.config(autoseparators=1)
+	event.widget.see('insert')
+	return "break"
+
+#-------------------------------------------------------------------------------
+def bindClasses(root):
+	root.bind_class('Entry', '<Control-Key-a>', lambda e: e.widget.selection_range(0,END))
+	root.bind_class('Entry', '<<Paste>>', _entryPaste)
+	root.bind_class('Text',  '<<Paste>>', _textPaste)
 
 #===============================================================================
 # LabelEntry. display a label when entry field is empty

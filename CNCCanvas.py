@@ -184,6 +184,7 @@ class CNCCanvas(Canvas):
 		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
 
+		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.initPosition()
 
 	# ----------------------------------------------------------------------
@@ -194,7 +195,11 @@ class CNCCanvas(Canvas):
 		bb = self.bbox('all')
 		if bb is None: return
 		x1,y1,x2,y2 = bb
-		self.configure(scrollregion=(x1+1,y1+1,x2,y2))
+		dx = x2-x1
+		dy = y2-y1
+		# make it 3 times bigger in each dimension
+		# so when we zoom in/out we don't touch the borders
+		self.configure(scrollregion=(x1-dx,y1-dy,x2+dx,y2+dy))
 
 	# ----------------------------------------------------------------------
 	def setAction(self, action):
@@ -492,31 +497,35 @@ class CNCCanvas(Canvas):
 		self.yview(SCROLL,  1, UNITS)
 
 	# ----------------------------------------------------------------------
-	def zoomCanvas(self, x0, y0, zoom):
-		oldZoom = self.zoom
+	def zoomCanvas(self, x, y, zoom):
 		self.zoom *= zoom
+
+		x0 = self.canvasx(0)
+		y0 = self.canvasy(0)
+
 		for i in self.find_all():
 			self.scale(i, 0, 0, zoom, zoom)
 
 		# Update last insert
 		if self._lastGantry:
-			x,y = self.plotCoords([self._lastGantry])[0]
+			gx,gy = self.plotCoords([self._lastGantry])[0]
 		else:
-			x = y = 0
+			gx = gy = 0
 		self.coords(self._gantry,
-			(x-INSERT_WIDTH2, y-INSERT_WIDTH2,
-			 x+INSERT_WIDTH2, y+INSERT_WIDTH2))
+			(gx-INSERT_WIDTH2, gy-INSERT_WIDTH2,
+			 gx+INSERT_WIDTH2, gy+INSERT_WIDTH2))
 
 		self._updateScrollBars()
+		x0 -= self.canvasx(0)
+		y0 -= self.canvasy(0)
 
 		# Perform pin zoom
-		dx = self.canvasx(x0) * (1.0-zoom)
-		dy = self.canvasy(y0) * (1.0-zoom)
+		dx = self.canvasx(x) * (1.0-zoom)
+		dy = self.canvasy(y) * (1.0-zoom)
 
 		# Drag to new location to center viewport
 		self.scan_mark(0,0)
-		self.scan_dragto(int(round(dx)), int(round(dy)), 1)
-		#self.update_idletasks()
+		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
 
 	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
