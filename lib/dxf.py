@@ -409,7 +409,7 @@ class DXF:
 				# Try starting point
 				sx,sy = entity.start()
 				d2 = (sx-ex)**2 + (sy-ey)**2
-				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2) + EPS2
+				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
 				if d2 < err:
 					new.append(entity)
 					del entities[i]
@@ -418,7 +418,7 @@ class DXF:
 				# Try ending point (inverse)
 				sx,sy = entity.end()
 				d2 = (sx-ex)**2 + (sy-ey)**2
-				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2) + EPS2
+				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
 				if d2 < err:
 					entity.invert()
 					new.append(entity)

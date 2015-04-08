@@ -566,7 +566,8 @@ class Profile(Base):
 			("name",      "db" ,    "", "Name"),
 			("endmill",   "db" ,    "", "End Mill"),
 			("overcut",  "bool",     1, "Overcut"),
-			("direction","inside,outside" , "outside", "Direction")
+			("direction","inside,outside" , "outside", "Direction"),
+			("cut",      "bool",     0, "Cut")
 		]
 		self.buttons  = ("exe",)
 
@@ -576,6 +577,8 @@ class Profile(Base):
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
 		app.profile(direction)
+		#if self["cut"]:
+		#	app.executeOnSelection("CUT")
 		app.statusbar["text"] = "Generate profile path"
 
 #==============================================================================

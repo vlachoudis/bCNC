@@ -848,7 +848,7 @@ class GCode:
 			path = Path(name)
 			path.fromLayer(entities)
 			path.removeZeroLength()
-			opath = path.order()
+			opath = path.contours()
 			if not opath: continue
 			changed = True
 			while changed:
@@ -965,13 +965,13 @@ class GCode:
 			elif self.cnc.gcode in (2,3):	# arc
 				xc,yc,zc = self.cnc.motionCenter()
 				center = Vector(xc,yc)
-				phi  = math.atan2(self.cnc.y-yc, self.cnc.x-xc)
-				ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
-				if self.cnc.gcode==2:
-					if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				else:
-					if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				path.append(Segment(self.cnc.gcode, start,end, center, self.cnc.rval, phi, ephi))
+				#phi  = math.atan2(self.cnc.y-yc, self.cnc.x-xc)
+				#ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
+				#if self.cnc.gcode==2:
+				#	if ephi<=phi+1e-10: ephi += 2.0*math.pi
+				#else:
+				#	if ephi<=phi+1e-10: ephi += 2.0*math.pi
+				path.append(Segment(self.cnc.gcode, start,end, center)) #, self.cnc.rval, phi, ephi))
 			self.cnc.motionPathEnd()
 			start = end
 		if path: paths.append(path)
@@ -1400,22 +1400,29 @@ class GCode:
 	#----------------------------------------------------------------------
 	def profile(self, blocks, offset):
 		undoinfo = []
+		msg = ""
 		for bid in reversed(blocks):
 			newpath = []
 			for path in self.toPath(bid):
-#				print "path=",path
+				if not path.isClosed():
+					m = "Path: '%s' is OPEN"%(path.name)
+					if m not in msg:
+						if msg: msg += "\n"
+						msg += m
+				#print "path=",path
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
 				opath = path.offset(D*offset)
-#				print "opath=",opath
+				#print "opath=",opath
 				opath.intersect()
-#				print "ipath=",opath
+				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
-				newpath.extend(opath.order())
+				newpath.extend(opath.contours())
 			undoinfo.extend(self.fromPath(bid+1, newpath))
 			self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
+		return msg
 
 	#----------------------------------------------------------------------
 	# draw a hole (circle with radius)

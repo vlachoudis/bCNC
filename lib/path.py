@@ -59,7 +59,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 import time
-from math import atan2, asin, degrees, pi, radians, sqrt
+from math import atan2, asin, cos, degrees, pi, radians, sin, sqrt
 from bmath import Vector, quadratic
 
 EPS0 = 1E-7
@@ -78,7 +78,7 @@ _TYPES = ["LINE","CW  ","CCW "]
 def eq(A,B):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
 	err = EPS2 * ((abs(A[0])+abs(B[0]))**2 + \
-		      (abs(A[1])+abs(B[1]))**2) + EPS2
+		      (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
 #------------------------------------------------------------------------------
@@ -87,14 +87,14 @@ def eq(A,B):
 def eq2(A,B,acc):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
 	err = acc*acc*((abs(A[0])+abs(B[0]))**2 + \
-		       (abs(A[1])+abs(B[1]))**2) + EPS2
+		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
 #==============================================================================
 # Segment
 #==============================================================================
 class Segment:
-	def __init__(self, t, s, e, c=None, r=None, sPhi=None, ePhi=None):
+	def __init__(self, t, s, e, c=None): #, r=None): #, sPhi=None, ePhi=None):
 		self.type  = t
 		self.start = s
 		self.end   = e
@@ -103,26 +103,33 @@ class Segment:
 		if self.type==LINE:
 			self.calcBBox()
 		elif self.type!=LINE and c is not None:
-			self.setArc(c, r, sPhi, ePhi)
+			self.setCenter(c)
+			#self.setArc(c, r) #, sPhi, ePhi)
 
 	#----------------------------------------------------------------------
-	def setArc(self, c, r=None, sPhi=None, ePhi=None):
+	def setCenter(self, c):
 		self.center = c
-		if r is not None:
-			self.radius = r
-		else:
-			self.radius = (self.start-self.center).length()
-		if sPhi is not None:
-			self.startPhi = sPhi
-		else:
-			self.startPhi = atan2(self.start[1]-c[1], self.start[0]-c[0])
-		if sPhi is not None:
-			self.endPhi = ePhi
-		else:
-			self.endPhi = atan2(self.end[1]-c[1], self.end[0]-c[0])
-
-		self._checkPhi()
+		self.radius = (self.start-self.center).length()	# based on starting point
+		self.startPhi = atan2(self.start[1]-c[1], self.start[0]-c[0])
+		self.endPhi   = atan2(self.end[1]-c[1], self.end[0]-c[0])
+		self._correct()
 		self.calcBBox()
+
+	#----------------------------------------------------------------------
+	# Check angles in ARC to ensure proper values
+	#----------------------------------------------------------------------
+	def _correct(self):
+		if self.type == CW:	# Inverted: end < start
+			if self.startPhi <= self.endPhi: self.startPhi += PI2
+		elif self.type == CCW:	# Normal: start < end
+			if self.endPhi <= self.startPhi: self.endPhi += PI2
+		self._correctEnd()
+
+	#----------------------------------------------------------------------
+	def _correctEnd(self):
+		# correct exit point to be numerically correct
+		self.end[0] = self.center[0] + self.radius*cos(self.endPhi)
+		self.end[1] = self.center[1] + self.radius*sin(self.endPhi)
 
 	#----------------------------------------------------------------------
 	# Invert segment
@@ -136,7 +143,7 @@ class Segment:
 			elif self.type == CW:
 				self.type = CCW
 			self.startPhi, self.endPhi = self.endPhi, self.startPhi
-			self._checkPhi()
+			self._correct()
 			self.calcBBox()
 
 	#----------------------------------------------------------------------
@@ -152,15 +159,6 @@ class Segment:
 			self.maxx = self.center[0] + self.radius + EPS
 			self.miny = self.center[1] - self.radius - EPS
 			self.maxy = self.center[1] + self.radius + EPS
-
-	#----------------------------------------------------------------------
-	# Check angles in ARC to ensure proper values
-	#----------------------------------------------------------------------
-	def _checkPhi(self):
-		if self.type == CCW:
-			if self.endPhi <= self.startPhi: self.endPhi += PI2
-		elif self.type == CW:
-			if self.startPhi <= self.endPhi: self.endPhi -= PI2
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -430,8 +428,8 @@ class Segment:
 		self.AB    = self.end - self.start
 		self.calcBBox()
 		if self.type>LINE:
-			new.setArc(self.center, self.radius, None, self.endPhi)
-			self.setArc(self.center, self.radius, self.startPhi, new.startPhi)
+			new.setCenter(self.center) #, self.radius, None, self.endPhi)
+			self.setCenter(self.center) #, self.radius, self.startPhi, new.startPhi)
 		return new
 
 #==============================================================================
@@ -499,9 +497,9 @@ class Path(list):
 		return -1
 
 	#----------------------------------------------------------------------
-	# Split path into order segments
+	# Split path into contours
 	#----------------------------------------------------------------------
-	def order(self):
+	def contours(self):
 		if len(self)==0: return []
 
 		path = Path(self.name)
@@ -531,10 +529,41 @@ class Path(list):
 					break
 
 			else:
-				# Not found push a path start point and
-				path = Path(self.name)
-				paths.append(path)
-				path.append(self.pop(0))
+				# Start point
+				start = path[0].start
+
+				# Find the segment that starts after the last one
+				for i,segment in enumerate(self):
+					# Try starting point
+					if eq(start, segment.start):
+						segment.invert()
+						path.insert(0,segment)
+						del self[i]
+						break
+
+					# Try ending point (inverse)
+					if eq(start, segment.end):
+						path.insert(0,segment)
+						del self[i]
+						break
+				else:
+					# Not found push a path start point and
+					path = Path(self.name)
+					paths.append(path)
+					path.append(self.pop(0))
+
+		# Correct ending points of the contours
+		for path in paths:
+			closed = path.isClosed()
+			end = path[0].end
+			for segment in path[1:]:
+				segment.start = Vector(end)	# force points to be the same
+				if segment.type != LINE:
+					segment._correctEnd()
+				end = segment.end
+			if closed:
+				path[0].start = end
+
 		return paths
 
 	#----------------------------------------------------------------------
@@ -586,11 +615,11 @@ class Path(list):
 			j = i+2
 			while j<len(self):
 				P1,P2 = self[i].intersect(self[j])
-#				if P1 is not None or P2 is not None:
-#					print i,j,"P1=",P1,"P2=",P2
-#				if i==0 and j==11:
-#					import pdb; pdb.set_trace()
-#					P1,P2 = self[i].intersect(self[j])
+				#if P1 is not None or P2 is not None:
+				#	print i,j,"P1=",P1,"P2=",P2
+				#if i==2 and j==4:
+				#	import pdb; pdb.set_trace()
+				#	P1,P2 = self[i].intersect(self[j])
 
 				# skip doublet solution
 				if P1 is not None and P2 is not None and eq2(P1,P2,EPS0):
@@ -651,7 +680,7 @@ class Path(list):
 						else:
 							self.insert(i+2, split)
 							self[i+1].cross = True
-#				if P1 or P2: print ">>>",self
+				#if P1 or P2: print ">>>",self
 				# move to next segment
 				j += 1
 			# move to next step
@@ -749,16 +778,16 @@ class Path(list):
 
 			elif entity.type == "CIRCLE":
 				center = entity.center()
-				r  = entity.radius()
-				self.append(Segment(CCW, start, end, center, r, 0.0, PI2))
+				#r  = entity.radius()
+				self.append(Segment(CCW, start, end, center)) #, r, 0.0, PI2))
 
 			elif entity.type == "ARC":
 				t = entity._invert and CW or CCW
 				center = entity.center()
-				r    = entity.radius()
-				sPhi = radians(entity.startPhi())
-				ePhi = radians(entity.endPhi())
-				self.append(Segment(t, start, end, center, r))
+				#r    = entity.radius()
+				#sPhi = radians(entity.startPhi())
+				#ePhi = radians(entity.endPhi())
+				self.append(Segment(t, start, end, center)) #, r))
 
 			elif entity.type == "LWPOLYLINE":
 				# split it into multiple line segments

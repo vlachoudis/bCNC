@@ -2491,7 +2491,11 @@ class Application(Toplevel):
 				pass
 
 		self.busy()
-		self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs*sign)
+		msg = self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs*sign)
+		if msg:
+			tkMessageBox.showwarning("Open paths",
+					"WARNING: %s"%(msg),
+					parent=self)
 		self.gcodelist.fill()
 		self.draw()
 		self.notBusy()
