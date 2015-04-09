@@ -27,12 +27,13 @@ INSERT_WIDTH2 = 3
 GANTRY_COLOR  = "Red"
 GANTRY_WIDTH2 = 4
 MARGIN_COLOR  = "Magenta"
+GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 
 ENABLE_COLOR    = "Black"
 SELECT_COLOR    = "Blue"
 HIDDEN_COLOR    = "LightGray"
-HIDSELECT_COLOR = "Cyan"
+HIDSELECT_COLOR = "DarkCyan"
 PROCESS_COLOR   = "Green"
 
 MOVE_COLOR      = "DarkCyan"
@@ -747,16 +748,16 @@ class CNCCanvas(Canvas):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
-							fill='Gray',
-							dash=(1,2))
+							fill=GRID_COLOR,
+							dash=(1,3))
 				self.tag_lower(item)
 
 			for i in range(int(self.cnc.xmin//10), int(self.cnc.xmax//10)+2):
 				x = i*10.0
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),
-							fill='Gray',
-							dash=(1,2))
+							fill=GRID_COLOR,
+							dash=(1,3))
 				self.tag_lower(item)
 
 	#----------------------------------------------------------------------

@@ -143,7 +143,7 @@ class Segment:
 				self.type = CCW
 			elif self.type == CCW:
 				self.type = CW
-			#self.startPhi, self.endPhi = self.endPhi, self.startPhi
+			self.startPhi, self.endPhi = self.endPhi, self.startPhi
 			self._correct()
 			self.calcBBox()
 
@@ -540,16 +540,16 @@ class Path(list):
 					path.append(self.pop(0))
 
 		# Correct ending points of the contours
-		for path in paths:
-			closed = path.isClosed()
-			end = path[0].end
-			for segment in path[1:]:
-				segment.start = Vector(end)	# force points to be the same
-				if segment.type != LINE:
-					segment._correctEnd()
-				end = segment.end
-			if closed:
-				path[0].start = end
+#		for path in paths:
+#			closed = path.isClosed()
+#			end = path[0].end
+#			for segment in path[1:]:
+#				segment.start = Vector(end)	# force points to be the same
+#				if segment.type != LINE:
+#					segment._correctEnd()
+#				end = segment.end
+#			if closed:
+#				path[0].start = end
 
 		return paths
 
@@ -561,10 +561,12 @@ class Path(list):
 		path = Path("%s[%g]"%(self.name,offset))
 
 		if self.isClosed():
-			Op = self[-1].orthogonalEnd()
-			Eo = self[-1].end + Op*offset
+			prev = self[-1]
+			Op = prev.orthogonalEnd()
+			Eo = prev.end + Op*offset
 		else:
-			Op = None	# previous orthogonal
+			prev = None
+			Op   = None	# previous orthogonal
 		#import pdb; pdb.set_trace()
 		for segment in self:
 			O  = segment.orthogonalStart()
@@ -573,8 +575,7 @@ class Path(list):
 			if Op is not None and not eq(Eo,So):
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if abs(cross)>EPS and cross*offset > 0:
-				#if True:
+				if (prev.type!=LINE and segment.type!=LINE) or (abs(cross)>EPS and cross*offset > 0):
 					# either a circle
 					t = offset>0 and CW or CCW
 					path.append(Segment(t, Eo, So, segment.start))
@@ -591,6 +592,7 @@ class Path(list):
 				# FIXME check for radius + offset > 0.0
 				path.append(Segment(segment.type, So, Eo, segment.center))
 			Op = O
+			prev = segment
 		sys.stdout.write("path.offset: %g\n"%(time.time()-start))
 		return path
 
@@ -757,7 +759,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments
 	#----------------------------------------------------------------------
-	def fromLayer(self, layer):
+	def fromDxfLayer(self, layer):
 		for entity in layer:
 			start = entity.start()
 			end   = entity.end()
@@ -767,16 +769,12 @@ class Path(list):
 
 			elif entity.type == "CIRCLE":
 				center = entity.center()
-				#r  = entity.radius()
-				self.append(Segment(CCW, start, end, center)) #, r, 0.0, PI2))
+				self.append(Segment(CCW, start, end, center))
 
 			elif entity.type == "ARC":
 				t = entity._invert and CW or CCW
 				center = entity.center()
-				#r    = entity.radius()
-				#sPhi = radians(entity.startPhi())
-				#ePhi = radians(entity.endPhi())
-				self.append(Segment(t, start, end, center)) #, r))
+				self.append(Segment(t, start, end, center))
 
 			elif entity.type == "LWPOLYLINE":
 				# split it into multiple line segments

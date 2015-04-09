@@ -127,6 +127,8 @@ class Entity(dict):
 			self._start = Vector(self[10][0], self[20][0])
 		#elif self.type == "ELLIPSE":
 		#elif self.type == "SPLINE":
+		elif self.type == "POINT":
+			self._start = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
 			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
@@ -153,6 +155,8 @@ class Entity(dict):
 			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type == "LWPOLYLINE":
 			self._end = Vector(self[10][-1], self[20][-1])
+		elif self.type == "POINT":
+			self._end = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
 			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
@@ -388,6 +392,16 @@ class DXF:
 		new   = []
 		if not entities: return new
 
+		# Move all points to beginning
+		i = 0
+		while i < len(entities):
+			if entities[i].type == "POINT":
+				new.append(entities[i])
+				del entities[i]
+			else:
+				i += 1
+
+		# ---
 		def pushStart():
 			# Find starting point and add it to the new list
 			start = Entity("START",name)

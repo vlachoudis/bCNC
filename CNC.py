@@ -845,8 +845,9 @@ class GCode:
 			enable = not bool(layer.isFrozen())
 			entities = dxf.sortLayer(name)
 			if not entities: continue
+			self.importEntityPoint(None, entities, name, enable)
 			path = Path(name)
-			path.fromLayer(entities)
+			path.fromDxfLayer(entities)
 			path.removeZeroLength()
 			opath = path.contours()
 			if not opath: continue
@@ -858,8 +859,8 @@ class GCode:
 						longest = p
 				opath.remove(longest)
 				changed = longest.mergeLoops(opath)
-				undoinfo.extend(self.fromPath(None, longest, enable))
-			undoinfo.extend(self.fromPath(None, opath, enable))
+				undoinfo.extend(self.importPath(None, longest, enable))
+			undoinfo.extend(self.importPath(None, opath, enable))
 
 		if empty: self.addBlockFromString("Footer",self.footer)
 
@@ -878,6 +879,7 @@ class GCode:
 		dxf.writeHeader()
 		for block in self.blocks:
 			name = block.name()
+			if ":" in name: name = name.split(":")[0]
 			for line in block:
 				cmds = self.cnc.parseLine(line)
 				if cmds is None: continue
@@ -900,9 +902,34 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
+	# Import POINTS from entities
+	#----------------------------------------------------------------------
+	def importEntityPoint(self, pos, entities, name, enable=True):
+		undoinfo = []
+		i = 0
+		while i<len(entities):
+			if entities[i].type != "POINT":
+				i += 1
+				continue
+
+			block = Block(name)
+			block.enable = enable
+
+			x,y = entities[i].start()
+			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+			block.append("g1 %s %s"%(self.fmt("z",self.surface), self.fmt("f",self.feedz)))
+			block.append("g0 %s"%(self.fmt("z",self.safe)))
+			undoinfo.append(self.addBlockUndo(pos,block))
+			if pos is not None: pos += 1
+
+			del entities[i]
+
+		return undoinfo
+
+	#----------------------------------------------------------------------
 	# Import paths as block
 	#----------------------------------------------------------------------
-	def fromPath(self, pos, paths, enable=True):
+	def importPath(self, pos, paths, enable=True):
 		undoinfo = []
 
 		def importPath(pos,path):
@@ -1336,10 +1363,8 @@ class GCode:
 				if self.cnc.dz<0.0:
 					if start is None:
 						start = i
-						#print "START"
 					elif end is None:
 						end = i
-						#print "END"
 				elif self.cnc.dz>0.0 and exit is None:
 					if end is None: end = i
 					exit = i
@@ -1419,7 +1444,7 @@ class GCode:
 				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
 				newpath.extend(opath.contours())
-			undoinfo.extend(self.fromPath(bid+1, newpath))
+			undoinfo.extend(self.importPath(bid+1, newpath))
 			self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
 		return msg
