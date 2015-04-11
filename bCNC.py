@@ -128,11 +128,14 @@ class Application(Toplevel):
 		self.draw_margin.set(bool(int(config.get("Canvas","margin"))))
 		self.draw_probe  = BooleanVar()
 		self.draw_probe.set(bool(int(config.get("Canvas","probe"))))
+		self.draw_rapid  = BooleanVar()
+		self.draw_rapid.set(bool(int(config.get("Canvas","rapid"))))
 		self.draw_workarea = BooleanVar()
 		self.draw_workarea.set(bool(int(config.get("Canvas","workarea"))))
 
 		# --- Toolbar ---
-		self.createToolbar()
+		toolbar = Frame(self, relief=RAISED)
+		toolbar.pack(side=TOP, fill=X)
 
 		# Main frame
 		paned = PanedWindow(self, orient=HORIZONTAL)
@@ -856,8 +859,6 @@ class Application(Toplevel):
 
 		self.gcodelist.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.gcodelist.bind("<<Modified>>",		self.drawAfter)
-		self.gcodelist.bind("<Control-Key-Up>",		self.commandOrderUp)
-		self.gcodelist.bind("<Control-Key-Down>",	self.commandOrderDown)
 
 		self.gcodelist.pack(side=LEFT,expand=TRUE, fill=BOTH)
 		self.widgets.append(self.gcodelist)
@@ -1004,7 +1005,8 @@ class Application(Toplevel):
 			if isinstance(x,Entry):
 				x.bind("<Escape>", self.canvasFocus)
 
-		# Menu
+		# Tool bar and Menu
+		self.createToolbar(toolbar)
 		self.createMenu()
 
 		self.canvas.focus_set()
@@ -1042,10 +1044,7 @@ class Application(Toplevel):
 		self.loadConfig()	# load rest of config
 
 	#----------------------------------------------------------------------
-	def createToolbar(self):
-		toolbar = Frame(self, relief=RAISED)
-		toolbar.pack(side=TOP, fill=X)
-
+	def createToolbar(self, toolbar):
 		b = Button(toolbar, image=icons["load"], command=self.loadDialog)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
@@ -1100,6 +1099,56 @@ class Application(Toplevel):
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Unlock CNC")
 
+		# -----
+		# Tools
+		# -----
+		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+
+		b = Radiobutton(toolbar, image=icons["select"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_SELECT,
+					command=self.canvas.setActionSelect)
+		tkExtra.Balloon.set(b, "Select tool [S]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=icons["pan"],	# FIXME replace with move
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_MOVE,
+					command=self.canvas.setActionMove)
+		tkExtra.Balloon.set(b, "Move objects [M]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=icons["gantry"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_GANTRY,
+					command=self.canvas.setActionGantry)
+		tkExtra.Balloon.set(b, "Move gantry [G]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=icons["origin"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_ORIGIN,
+					command=self.canvas.setActionOrigin)
+		tkExtra.Balloon.set(b, "Place origin [O]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=icons["ruler"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=CNCCanvas.ACTION_RULER,
+					command=self.canvas.setActionRuler)
+		tkExtra.Balloon.set(b, "Ruler [R]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
 		# ---
 		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
 
@@ -1107,6 +1156,7 @@ class Application(Toplevel):
 		b.config(padx=0, pady=1)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Change viewing angle")
+
 
 	#----------------------------------------------------------------------
 	def createMenu(self):
@@ -1537,6 +1587,12 @@ class Application(Toplevel):
 		i += 1
 		menu.add_separator()
 		i += 1
+		menu.add_command(label="Clear",underline=0,
+					image=icons["empty"],
+					compound=LEFT,
+					command=self.clearTerminal)
+		self.widgets.append((menu,i))
+		i += 1
 		menu.add_command(label="Grbl Help",underline=0,
 					image=icons["info"],
 					compound=LEFT,
@@ -1609,6 +1665,10 @@ class Application(Toplevel):
 
 		menu.add_checkbutton(label="Probe", underline=0,
 					variable=self.draw_probe,
+					command=self.toggleDrawFlag)
+
+		menu.add_checkbutton(label="Rapid Motion (G0)", underline=0,
+					variable=self.draw_rapid,
 					command=self.toggleDrawFlag)
 
 		menu.add_checkbutton(label="WorkArea", underline=0,
@@ -1769,6 +1829,7 @@ class Application(Toplevel):
 		config.set("Canvas","grid",    str(int(self.draw_grid.get())))
 		config.set("Canvas","margin",  str(int(self.draw_margin.get())))
 		config.set("Canvas","probe",   str(int(self.draw_probe.get())))
+		config.set("Canvas","rapid",   str(int(self.draw_rapid.get())))
 		config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
 
 		# Control
@@ -1910,6 +1971,7 @@ class Application(Toplevel):
 		self.canvas.draw_grid     = self.draw_grid.get()
 		self.canvas.draw_margin   = self.draw_margin.get()
 		self.canvas.draw_probe    = self.draw_probe.get()
+		self.canvas.draw_rapid    = self.draw_rapid.get()
 		self.canvas.draw_workarea = self.draw_workarea.get()
 		self.viewChange()
 
@@ -2073,10 +2135,8 @@ class Application(Toplevel):
 			self.send("G90\n")
 
 		# CLE*AR: clear terminal
-		elif rexx.abbrev("CLEAR",cmd,3):
-			self.terminal["state"] = NORMAL
-			self.terminal.delete(0,END)
-			self.terminal["state"] = DISABLED
+		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
+			self.clearTerminal()
 
 		# BOX [dx] [dy] [dz] [nx] [ny] [nz] [tool]: create a finger box
 		elif cmd == "BOX":
@@ -2119,8 +2179,19 @@ class Application(Toplevel):
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
-		elif cmd in ("DOWN", "UP"):
-			self.executeOnSelection(cmd)
+		elif cmd=="DOWN":
+			self.gcodelist.orderDown()
+		elif cmd=="UP":
+			self.gcodelist.orderUp()
+
+		# DRI*LL [depth] [peck]: perform drilling at all penetrations points
+		elif rexx.abbrev("DRILL",cmd,3):
+			try:    h = float(line[1])
+			except: h = None
+
+			try:    p = float(line[2])
+			except: p = None
+			self.executeOnSelection("DRILL",h, p)
 
 		# ED*ITOR: switch to editor tab
 		elif rexx.abbrev("EDITOR",cmd,2):
@@ -2191,13 +2262,10 @@ class Application(Toplevel):
 				self.executeOnSelection("MIRRORV")
 
 		elif rexx.abbrev("ORDER",cmd,2):
-			if len(line)==1:
-				direction = "FIRST"
-			elif line[1] in ("UP","DOWN"):
-				direction = line1
-			else:
-				direction = "UP"
-			self.executeOnSelection("ORDER",direction)
+			if line[1].upper() == "UP":
+				self.gcodelist.orderUp()
+			elif line[1].upper() == "DOWN":
+				self.gcodelist.orderDown()
 
 		# MO*VE [|CE*NTER|BL|BR|TL|TR|UP|DOWN|x] [[y [z]]]:
 		# move selected objects either by mouse or by coordinates
@@ -2330,9 +2398,9 @@ class Application(Toplevel):
 
 		# SAFE [z]: safe z to move
 		elif cmd=="SAFE":
-			try: self.cnc.safeZ = float(line[1])
+			try: self.cnc.safe = float(line[1])
 			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safeZ)
+			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safe)
 
 		# SA*VE [filename]: save to filename or to default name
 		elif rexx.abbrev("SAVE",cmd,2):
@@ -2350,6 +2418,21 @@ class Application(Toplevel):
 			try: z = float(line[3])
 			except: z = ""
 			self._wcsSet(x,y,z)
+
+		elif cmd == "SETX":
+			try: x = float(line[1])
+			except: x = ""
+			self._wcsSet(x,"","")
+
+		elif cmd == "SETY":
+			try: y = float(line[1])
+			except: y = ""
+			self._wcsSet("",y,"")
+
+		elif cmd == "SETZ":
+			try: z = float(line[1])
+			except: z = ""
+			self._wcsSet("","",z)
 
 		# STEP [s]: set motion step size to s
 		elif cmd == "STEP":
@@ -2446,6 +2529,8 @@ class Application(Toplevel):
 		sel = None
 		if cmd == "CUT":
 			sel = self.gcode.cut(items, *args)
+		elif cmd == "DRILL":
+			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":
 			self.gcode.orderLines(items, *args)
 		elif cmd == "INKSCAPE":
@@ -2460,10 +2545,6 @@ class Application(Toplevel):
 			self.gcode.mirrorHLines(items)
 		elif cmd == "MIRRORV":
 			self.gcode.mirrorVLines(items)
-		elif cmd == "UP":
-			sel = self.gcode.orderUp(items)
-		elif cmd == "DOWN":
-			sel = self.gcode.orderDown(items)
 
 		# Fill listbox and update selection
 		self.gcodelist.fill()
@@ -2536,8 +2617,8 @@ class Application(Toplevel):
 			self.command.insert(0,self.history[self._historyPos])
 
 	#----------------------------------------------------------------------
-	def select(self, lines, double, clear, toggle=True):
-		self.gcodelist.select(lines, double, clear, toggle)
+	def select(self, items, double, clear, toggle=True):
+		self.gcodelist.select(items, double, clear, toggle)
 		self.selectionChange()
 
 	# ----------------------------------------------------------------------
@@ -2846,6 +2927,11 @@ class Application(Toplevel):
 	def grblhelp(self):
 		self.send("$\n")
 		self.tabPage.changePage("Terminal")
+
+	def clearTerminal(self):
+		self.terminal["state"] = NORMAL
+		self.terminal.delete("1.0",END)
+		self.terminal["state"] = DISABLED
 
 	#----------------------------------------------------------------------
 	def spindleControl(self, event=None):

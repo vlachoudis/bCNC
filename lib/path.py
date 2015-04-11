@@ -484,6 +484,17 @@ class Path(list):
 		return -1
 
 	#----------------------------------------------------------------------
+	# Invert the whole path
+	#----------------------------------------------------------------------
+	def invert(self):
+		new = []
+		for segment in reversed(self):
+			segment.invert()
+			new.append(segment)
+		del self[:]
+		self.extend(new)
+
+	#----------------------------------------------------------------------
 	# Split path into contours
 	#----------------------------------------------------------------------
 	def contours(self):
@@ -556,9 +567,9 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Return path with offset
 	#----------------------------------------------------------------------
-	def offset(self, offset):
+	def offset(self, offset, name):
 		start = time.time()
-		path = Path("%s[%g]"%(self.name,offset))
+		path = Path(name) #"%s [%g]"%(self.name,offset))
 
 		if self.isClosed():
 			prev = self[-1]
@@ -747,14 +758,35 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# Remove zero length segments
+	# Replace small arcs with lines
 	#----------------------------------------------------------------------
 	def removeZeroLength(self):
 		i = 0
+		#ndel = 0
+		#nline = 0
+		#minlength = 1000.0
+		#minsagitta = 1000.0
 		while i<len(self):
+			#minlength = min(minlength, self[i].length())
 			if self[i].length() < EPS:
 				del self[i]
-			else:
-				i += 1
+				#ndel += 1
+				continue
+
+			if self[i].type == CCW:
+				df = self[i].endPhi - self[i].startPhi
+			elif self[i].type == CW:
+				df = self[i].startPhi - self[i].endPhi
+
+			if self[i].type != LINE:
+				if df<pi/2.0:
+					sagitta = self[i].radius * (1.0 - cos(df/2.0))
+					#minsagitta = min(minsagitta, sagitta)
+					if sagitta < EPS*10:
+						#nline += 1
+						self[i].type = LINE
+
+			i += 1
 
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments

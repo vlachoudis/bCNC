@@ -390,7 +390,6 @@ class DXF:
 	def sortLayer(self, name):
 		entities = self.layers[name].entities
 		new   = []
-		if not entities: return new
 
 		# Move all points to beginning
 		i = 0
@@ -400,6 +399,8 @@ class DXF:
 				del entities[i]
 			else:
 				i += 1
+
+		if not entities: return new
 
 		# ---
 		def pushStart():

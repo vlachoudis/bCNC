@@ -435,7 +435,7 @@ class CNC(Base):
 			("travel_y"      , "mm"  , 200  , "Travel y")         ,
 			("travel_z"      , "mm"  , 100  , "Travel z")         ,
 			("round"         , "int" , 4    , "Decimal digits")   ,
-			("accuracy"      , "mm"  , 0.1  , "Arc accuracy")     ,
+			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy")     ,
 			("startup"       , "str" , "G90", "startup")          ,
 			("spindlemin"    , "int" , 0    , "Spindle min (RPM)"),
 			("spindlemax"    , "int" , 12000, "Spindle max (RPM)"),
@@ -548,12 +548,43 @@ class Cut(Base):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		h = self["depth"]
-		d = self["stepz"]
-		if h=="": h = None
-		if d=="": d = None
-		app.executeOnSelection("CUT",h, d)
+		try:
+			h = self.master.fromMm(float(self["depth"]))
+		except:
+			h = None
+		try:
+			s =  self.master.fromMm(float(self["stepz"]))
+		except:
+			s = None
+		app.executeOnSelection("CUT",h, s)
 		app.statusbar["text"] = "CUT selected paths"
+
+#==============================================================================
+# Drill material
+#==============================================================================
+class Drill(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "Cut"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("depth",     "mm" ,    "", "Target Depth"),
+			("peck",      "mm" ,    "", "Peck depth")
+		]
+		self.buttons  = ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		try:
+			h = self.master.fromMm(float(self["depth"]))
+		except:
+			h = None
+		try:
+			p =  self.master.fromMm(float(self["peck"]))
+		except:
+			p = None
+		app.executeOnSelection("DRILL",h, p)
+		app.statusbar["text"] = "DRILL selected points"
 
 #==============================================================================
 # Profile

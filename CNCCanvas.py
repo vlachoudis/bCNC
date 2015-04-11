@@ -22,22 +22,23 @@ VIEW_ISO3    = 5
 
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
-INSERT_COLOR  = "Blue"
 INSERT_WIDTH2 = 3
-GANTRY_COLOR  = "Red"
 GANTRY_WIDTH2 = 4
+
+INSERT_COLOR  = "Blue"
+GANTRY_COLOR  = "Red"
 MARGIN_COLOR  = "Magenta"
 GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 
-ENABLE_COLOR    = "Black"
-SELECT_COLOR    = "Blue"
-HIDDEN_COLOR    = "LightGray"
-HIDSELECT_COLOR = "DarkCyan"
-PROCESS_COLOR   = "Green"
+ENABLE_COLOR  = "Black"
+DISABLE_COLOR = "Gray"
+SELECT_COLOR  = "Blue"
+SELECT2_COLOR = "DarkCyan"
+PROCESS_COLOR = "Green"
 
-MOVE_COLOR      = "DarkCyan"
-RULER_COLOR     = "Green"
+MOVE_COLOR    = "DarkCyan"
+RULER_COLOR   = "Green"
 
 ACTION_SELECT        =  0
 ACTION_SELECT_SINGLE =  1
@@ -166,7 +167,7 @@ class CNCCanvas(Canvas):
 		self._mouseAction = None
 		self._x  = self._y  = 0
 		self._xp = self._yp = 0
-		self._inParse     = False	# semaphore for parsing
+		self._inParse     = False		# semaphore for parsing
 		self._gantry      = None
 		self._select      = None
 		self._margin      = None
@@ -174,11 +175,12 @@ class CNCCanvas(Canvas):
 		self._lastActive  = None
 		self._lastGantry  = None
 
-		self.draw_axes    = True	# Drawing flags
+		self.draw_axes    = True		# Drawing flags
 		self.draw_grid    = True
 		self.draw_margin  = True
 		self.draw_probe   = True
 		self.draw_workarea= True
+		self.draw_rapid   = True		# draw rapid motions
 		self._wx = self._wy = self._wz = 0.	# work position
 		self._dx = self._dy = self._dz = 0.	# work-machine position
 
@@ -612,7 +614,7 @@ class CNCCanvas(Canvas):
 			self.itemconfig(self._lastActive, arrow=NONE)
 			self._lastActive = None
 		self.itemconfig("sel",  width=1, fill=ENABLE_COLOR)
-		self.itemconfig("sel2", width=1, fill=HIDDEN_COLOR)
+		self.itemconfig("sel2", width=1, fill=DISABLE_COLOR)
 		self.dtag("sel")
 		self.dtag("sel2")
 
@@ -636,7 +638,7 @@ class CNCCanvas(Canvas):
 					self.addtag_withtag(sel, path)
 
 		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
-		self.itemconfig("sel2", width=2, fill=HIDSELECT_COLOR)
+		self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
 
 		margins = self.getMargins()
 
@@ -812,8 +814,9 @@ class CNCCanvas(Canvas):
 				if enable:
 					fill = ENABLE_COLOR
 				else:
-					fill = HIDDEN_COLOR
+					fill = DISABLE_COLOR
 				if self.cnc.gcode == 0:
+					if not self.draw_rapid: return None
 					dash = (4,3)
 				else:
 					dash = None

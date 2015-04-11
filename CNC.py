@@ -6,6 +6,7 @@
 
 import os
 import re
+import pdb
 import sys
 import math
 import string
@@ -234,7 +235,6 @@ class Probe:
 	#----------------------------------------------------------------------
 	def splitLine(self, x1, y1, z1, x2, y2, z2):
 		#print "splitLine:",x1, y1, z1, x2, y2, z2
-		#import pdb
 		#pdb.set_trace()
 		i1 = int(math.floor((x1-self.xmin) / self._xstep))
 		i2 = int(math.floor((x2-self.xmin) / self._xstep))
@@ -329,7 +329,6 @@ class CNC:
 	accuracy       = 0.02	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
-
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -558,33 +557,6 @@ class CNC:
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
 			xc,yc,zc = self.motionCenter()
-#			if self.rval>0.0:
-#				ABx = self.xval-self.x
-#				ABy = self.yval-self.y
-#				Cx  = 0.5*(self.x+self.xval)
-#				Cy  = 0.5*(self.y+self.yval)
-#				AB  = math.sqrt(ABx**2 + ABy**2)
-#				try: OC  = math.sqrt(self.rval**2 - AB**2/4.0)
-#				except: OC = 0.0
-#				if self.gcode==2: OC = -OC
-#				if AB != 0.0:
-#					xc  = Cx - OC*ABy/AB
-#					yc  = Cy + OC*ABx/AB
-#				else:
-#					# Error!!!
-#					xc = self.x
-#					yc = self.y
-#				zc  = self.z
-#			else:
-#				# Center
-#				xc = self.x + self.ival
-#				yc = self.y + self.jval
-#				zc = self.z + self.kval
-#				self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
-#				#r2 = math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2)
-#				#if abs((self.rval-r2)/self.rval) > 0.01:
-#				#	print>>sys.stderr, "ERROR arc", r2, self.rval
-
 			phi  = math.atan2(self.y-yc, self.x-xc)
 			ephi = math.atan2(self.yval-yc, self.xval-xc)
 			try:
@@ -759,7 +731,7 @@ class GCode:
 		self.stepz     = 1.		# depth per pass
 		self.safe      = 3.		# safe height for rapid moves
 		self.surface   = 0.		# surface position
-		self.thickness = 5.		# material thickness
+		self.thickness = 5.		# material thickness (minimum = surface-thickness)
 		self.diameter  = 3.175		# tool diameter
 		self.overcut   = ' '		# overcut strategy
 		self.header    = ""
@@ -791,6 +763,7 @@ class GCode:
 		except: return False
 		self._lastModified = os.stat(self.filename).st_mtime
 		self.cnc.initPath()
+		self._blocksExist = False
 		for line in f:
 			self._addLine(line[:-1].replace("\x0d",""))
 		self._trim()
@@ -917,7 +890,8 @@ class GCode:
 
 			x,y = entities[i].start()
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",self.surface), self.fmt("f",self.feedz)))
+			block.append("g1 %s %s"%(self.fmt("z",self.surface),
+						self.fmt("f",self.feedz)))
 			block.append("g0 %s"%(self.fmt("z",self.safe)))
 			undoinfo.append(self.addBlockUndo(pos,block))
 			if pos is not None: pos += 1
@@ -929,15 +903,17 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Import paths as block
 	#----------------------------------------------------------------------
-	def importPath(self, pos, paths, enable=True):
+	def importPath(self, pos, paths, enable=True, multiblock=True):
 		undoinfo = []
 
-		def importPath(pos,path):
-			block = Block(path.name)
-			block.enable = enable
+#		def _importPath(pos,path):
+		def _importPath(path):
+#			block = Block(path.name)
+#			block.enable = enable
 			x,y = path[0].start
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",self.surface), self.fmt("f",self.feedz)))
+			block.append("g1 %s %s"%(self.fmt("z",self.surface),
+						self.fmt("f",self.feedz)))
 
 			first = True
 			for segment in path:
@@ -957,19 +933,32 @@ class GCode:
 					block[-1] += " %s"%(self.fmt("f",self.feed))
 					first = False
 			block.append("g0 %s"%(self.fmt("z",self.safe)))
-			undoinfo.append(self.addBlockUndo(pos,block))
-			if pos is not None: pos += 1
-			return pos
+#			undoinfo.append(self.addBlockUndo(pos,block))
+#			if pos is not None: pos += 1
+#			return pos
 
 		if isinstance(paths,Path):
-			importPath(pos, paths)
+			block = Block(paths.name)
+			block.enable = enable
+			_importPath(paths)
+			undoinfo.append(self.addBlockUndo(pos,block))
 		else:
+			block = None
 			for path in paths:
-				pos = importPath(pos, path)
+				if block is None:
+					block = Block(path.name)
+					block.enable = enable
+				_importPath(path)
+				if multiblock:
+					undoinfo.append(self.addBlockUndo(pos,block))
+					if pos is not None: pos += 1
+					block = None
+			if not multiblock:
+				undoinfo.append(self.addBlockUndo(pos,block))
 		return undoinfo
 
 	#----------------------------------------------------------------------
-	# convert to path
+	# convert a block to path
 	#----------------------------------------------------------------------
 	def toPath(self, bid):
 		block = self.blocks[bid]
@@ -992,13 +981,7 @@ class GCode:
 			elif self.cnc.gcode in (2,3):	# arc
 				xc,yc,zc = self.cnc.motionCenter()
 				center = Vector(xc,yc)
-				#phi  = math.atan2(self.cnc.y-yc, self.cnc.x-xc)
-				#ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
-				#if self.cnc.gcode==2:
-				#	if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				#else:
-				#	if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				path.append(Segment(self.cnc.gcode, start,end, center)) #, self.cnc.rval, phi, ephi))
+				path.append(Segment(self.cnc.gcode, start,end, center))
 			self.cnc.motionPathEnd()
 			start = end
 		if path: paths.append(path)
@@ -1021,6 +1004,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def _addLine(self, line):
 		if line.startswith("(Block-name:"):
+			self._blocksExist = True
 			pat = BLOCKPAT.match(line)
 			if pat:
 				value = pat.group(2).strip()
@@ -1041,7 +1025,9 @@ class GCode:
 		self.cnc.processPath(cmds)
 
 		# rapid move up = end of block
-		if self.cnc.gcode == 0 and self.cnc.dz > 0.0:
+		if self._blocksExist:
+			self.blocks[-1].append(line)
+		elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
 			self.blocks[-1].append(line)
 			self.blocks.append(Block())
 		elif self.cnc.gcode == 0 and len(self.blocks)==1:
@@ -1068,6 +1054,7 @@ class GCode:
 		# Delete all blocks and create new ones
 		del self.blocks[:]
 		self.cnc.initPath()
+		self._blocksExist = False
 		for line in lines: self._addLine(line)
 		self._trim()
 		return undoinfo
@@ -1123,6 +1110,30 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Move block upwards
+	#----------------------------------------------------------------------
+	def orderUpBlockUndo(self, bid):
+		if bid==0: return undo.NullUndo
+		undoinfo = (self.orderDownBlockUndo, bid-1)
+		# swap with the block above
+		before      = self.blocks[bid-1]
+		self.blocks[bid-1] = self.blocks[bid]
+		self.blocks[bid]   = before
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Move block downwards
+	#----------------------------------------------------------------------
+	def orderDownBlockUndo(self, bid):
+		if bid>=len(self.blocks)-1: return undo.NullUndo
+		undoinfo = (self.orderUpBlockUndo, bid+1)
+		# swap with the block below
+		after       = self[bid+1]
+		self[bid+1] = self[bid]
+		self[bid]   = after
+		return undoinfo
+
+	#----------------------------------------------------------------------
 	# Insert block lines
 	#----------------------------------------------------------------------
 	def insBlockLinesUndo(self, bid, lines):
@@ -1156,6 +1167,26 @@ class GCode:
 		undoinfo = (self.setBlockLinesUndo, bid, block[:])
 		del block[:]
 		block.extend(lines)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Move line upwards
+	#----------------------------------------------------------------------
+	def orderUpLineUndo(self, bid, lid):
+		if lid==0: return undo.NullUndo
+		block = self.blocks[bid]
+		undoinfo = (self.orderDownLineUndo, bid, lid-1)
+		block.insert(lid-1, block.pop(lid))
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Move line downwards
+	#----------------------------------------------------------------------
+	def orderDownLineUndo(self, bid, lid):
+		block = self.blocks[bid]
+		if lid>=len(block)-1: return undo.NullUndo
+		undoinfo = (self.orderUpLineUndo, bid, lid+1)
+		block.insert(lid+1, block.pop(lid))
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1261,10 +1292,10 @@ class GCode:
 		return "\n".join(list(self.lines()))
 
 	#----------------------------------------------------------------------
-	# Iterate over a block of lines
+	# Iterate over the items
 	#----------------------------------------------------------------------
-	def iterate(self, lines):
-		for bid,lid in lines:
+	def iterate(self, items):
+		for bid,lid in items:
 			if lid is None:
 				for i in range(len(self.blocks[bid])):
 					yield bid,i
@@ -1292,58 +1323,118 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Move blocks/lines up
-	# FIXME Undo/Redo information
 	#----------------------------------------------------------------------
-	def orderUp(self, lines):
+	def orderUp(self, items):
 		sel = []	# new selection
-		for bid,lid in lines:
+		undoinfo = []
+		for bid,lid in items:
 			if lid is None:
-				# Move up whole block
+				undoinfo.append(self.orderUpBlockUndo(bid))
 				if bid==0:
 					sel.append((bid,None))
-					continue
-				# swap with the block above
-				before     = self[bid-1]
-				self[bid-1] = self[bid]
-				self[bid]   = before
-				sel.append((bid-1,None))
+				else:
+					sel.append((bid-1,None))
 			else:
-				block = self[bid]
-				if lid>0: # swap with the line above
-					block.insert(lid-1, block.pop(lid))
+				undoinfo.append(self.orderDownLineUndo(bid,lid))
+				sel.append((bid, lid-1))
+		self.addUndo(undoinfo)
 		return sel
 
 	#----------------------------------------------------------------------
-	# FIXME Undo/Redo information
+	# Move blocks/lines down
 	#----------------------------------------------------------------------
-	def orderDown(self, lines):
+	def orderDown(self, items):
 		sel = []	# new selection
-		for bid,lid in reversed(lines):
+		undoinfo = []
+		for bid,lid in reversed(items):
 			if lid is None:
-				# Move down whole block
+				undoinfo.append(self.orderDownBlockUndo(bid))
 				if bid>=len(self.blocks)-1:
-					sel.insert(0,(bid,None))
-					continue
-				# swap with the block below
-				after      = self[bid+1]
-				self[bid+1] = self[bid]
-				self[bid]   = after
-				sel.insert(0,(bid+1,None))
+					sel.append((bid,None))
+				else:
+					sel.append((bid+1,None))
 			else:
-				# Move down one line
-				block = self[bid]
-				if lid<len(block)-1:
-					block.insert(lid+1, block.pop(lid))
+				undoinfo.append(self.orderDownLineUndo(bid,lid))
+				sel.append((bid,lid+1))
+		self.addUndo(undoinfo)
+		sel.reverse()
 		return sel
+
+	#----------------------------------------------------------------------
+	# Peck distance
+	# Target depth
+	# Depth increment
+	# Retract height=safe height
+	#----------------------------------------------------------------------
+	def drill(self, items, depth=None, peck=None, dwell=None):
+		# find the penetration points and drill
+		# skip all g1 movements on the horizontal plane
+		if depth is None: depth = self.surface-self.thickness
+
+		undoinfo = []
+
+		for bid,lid in items:
+			# Operate only on blocks
+			if lid is not None: continue
+			block = self.blocks[bid]
+			if block.name in ("Header", "Footer"): continue
+
+			# 1st detect limits of first pass
+			self.initPath(bid)
+			self.cnc.z = self.cnc.zval = 1000.0
+			lines = []
+			for i,line in enumerate(block):
+				cmds = self.cnc.parseLine(line)
+				if cmds is None:
+					lines.append(line)
+					continue
+				self.cnc.processPath(cmds)
+				if self.cnc.dz<0.0:
+					# drill point
+					if peck is None:
+						lines.append("g1 %s %s"%(
+							self.fmt("z",depth),
+							self.fmt("f",self.feedz)))
+						lines.append("g0 %s"%(self.fmt("z",self.safe)))
+					else:
+						z = self.surface
+						while z>depth: 
+							z = max(z-peck, depth)
+							lines.append("g1 %s %s"%(
+								self.fmt("z",z),
+								self.fmt("f",self.feedz))) 
+							lines.append("g0 %s"%(self.fmt("z",self.safe)))
+							if dwell:
+								lines.append("g4 %s"%(self.fmt("p",dwell)))
+
+				elif self.cnc.dz>0.0:
+					# retract
+					pass
+				#	drill.append(line)
+
+				elif self.cnc.gcode == 0:
+					# add all rapid movements
+					lines.append(line)
+
+				elif self.cnc.gcode == 1:
+					# ignore normal movements
+					pass
+
+				self.cnc.motionPathEnd()
+
+			undoinfo.append(self.setBlockLinesUndo(bid,lines))
+		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, lines, thick=None, stepz=None):
-		if stepz is None: stepz = self.stepz
-		if thick is None: thick = self.thickness
-		for bid,lid in lines:
+	def cut(self, items, depth=None, stepz=None):
+		if stepz is None: stepz =  self.stepz
+		if depth is None: depth = self.surface-self.thickness
+		stepz = abs(stepz)
+		undoinfo = []
+		for bid,lid in items:
 			# Operate only on blocks
 			if lid is not None: continue
 			block = self.blocks[bid]
@@ -1393,14 +1484,16 @@ class GCode:
 			lines = block[:start]
 
 			# 3rd duplicate passes from [start:end]
-			z   = self.surface
-			while z > self.surface-thick:
-				z = max(z-stepz, self.surface-thick)
+			z = self.surface
+			while z > depth:
+				z = max(z-stepz, depth)
 
+				self.initPath(bid)
 				for i in range(start, end):
 					line = block[i]
 					cmds = self.cnc.parseLine(line)
 					if cmds is not None:
+						self.cnc.processPath(cmds)
 						changed = False
 						for j,cmd in enumerate(cmds):
 							c = cmd[0].upper()
@@ -1409,15 +1502,114 @@ class GCode:
 								cmds[j] = self.fmt(cmd[0],z)
 							elif c=="F":
 								changed = True
-								cmds[j] = self.fmt(cmd[0],self.feed)
+								if self.cnc.dz!=0.0:
+									cmds[j] = self.fmt(cmd[0],self.feedz)
+								else:
+									cmds[j] = self.fmt(cmd[0],self.feed)
 						if changed:
 							line = " ".join(cmds)
+						self.cnc.motionPathEnd()
 					lines.append(line)
 
 			# 4th copy remaining lines
 			lines.extend(block[exit:])
+			undoinfo.append(self.setBlockLinesUndo(bid,lines))
+		self.addUndo(undoinfo)
 
-			self.addUndo(self.setBlockLinesUndo(bid,lines))
+	#----------------------------------------------------------------------
+	# Reverse direction of cut
+	#----------------------------------------------------------------------
+	def reverse(self, items):
+		for bid,lid in items:
+			# Operate only on blocks
+			if lid is not None: continue
+			block = self.blocks[bid]
+			if block.name in ("Header", "Footer"): continue
+
+			# reverse a set of lines
+			def _reverse(lines):
+				out = []
+				for line in reversed(lines):
+					cmds = self.cnc.parseLine(line)
+					if cmds is None:
+						out.append(line)
+
+			# 1st detect limits of first pass
+			start = None
+			end   = None
+			exit  = None
+			self.initPath(bid)
+			self.cnc.z = self.cnc.zval = 1000.0
+			lines = []
+			for i,line in enumerate(block):
+				cmds = self.cnc.parseLine(line)
+				if cmds is None:
+					lines.append(line)
+					continue
+				self.cnc.processPath(cmds)
+				#print i,":",self.cnc.dz,self.cnc.z,line
+				if self.cnc.dz!=0.0:
+					if start is None:
+						start = i
+					elif end is None:
+						end = i
+				else:
+					lines.append(line)
+				self.cnc.motionPathEnd()
+
+			if start is None: start = 0
+			if end   is None: end   = len(block)
+			if exit  is None: exit  = len(block)
+
+			#print "len=",len(block)
+			#print "start=",start
+			#print "end=",end
+			#print "exit=",exit
+			#print
+			#print "start: 0 ..",start
+			#print "\n".join(block[:start])
+			#print
+			#print "path:\n",start,"..",end
+			#print "\n".join(block[start:end])
+			#print
+			#print "exit:\n",exit,"..",len(block)
+			#print "\n".join(block[exit:])
+
+			# 2nd copy starting lines
+			lines = block[:start]
+
+			# 3rd duplicate passes from [start:end]
+			z = self.surface
+			while z > depth:
+				z = max(z-stepz, depth)
+
+				self.initPath(bid)
+				for i in range(start, end):
+					line = block[i]
+					cmds = self.cnc.parseLine(line)
+					if cmds is not None:
+						self.cnc.processPath(cmds)
+						changed = False
+						for j,cmd in enumerate(cmds):
+							c = cmd[0].upper()
+							if c=="Z":
+								changed = True
+								cmds[j] = self.fmt(cmd[0],z)
+							elif c=="F":
+								changed = True
+								if self.cnc.dz!=0.0:
+									cmds[j] = self.fmt(cmd[0],self.feedz)
+								else:
+									cmds[j] = self.fmt(cmd[0],self.feed)
+						if changed:
+							line = " ".join(cmds)
+						self.cnc.motionPathEnd()
+					lines.append(line)
+
+			# 4th copy remaining lines
+			lines.extend(block[exit:])
+			undoinfo.append(self.setBlockLinesUndo(bid,lines))
+		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
 	# make a profile on block
@@ -1438,14 +1630,20 @@ class GCode:
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
-				opath = path.offset(D*offset)
+				if offset>0:
+					name = "%s [profile-Out]"%(path.name)
+				else:
+					name = "%s [profile-In]"%(path.name)
+				opath = path.offset(D*offset, name)
 				#print "opath=",opath
 				opath.intersect()
 				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
-				newpath.extend(opath.contours())
-			undoinfo.extend(self.importPath(bid+1, newpath))
-			self.blocks[bid].enable = False
+				opath = opath.contours()
+				if opath: newpath.extend(opath)
+			if newpath:
+				undoinfo.extend(self.importPath(bid+1, newpath, True, False))
+				self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
 		return msg
 
@@ -1467,11 +1665,11 @@ class GCode:
 
 		# New lines to append
 		pos = lid+1
-		block.insert(pos, "G0 %s"%(self.fmt("X",self.cnc.x+radius)))
+		block.insert(pos, "g0 %s"%(self.fmt("x",self.cnc.x+radius)))
 		pos += 1
-		block.insert(pos, "G1 %s"%(self.fmt("Z",-0.001)))
+		block.insert(pos, "g1 %s"%(self.fmt("z",-0.001)))
 		pos += 1
-		block.insert(pos, "G2 %s"%(self.fmt("I",-radius)))
+		block.insert(pos, "g2 %s"%(self.fmt("i",-radius)))
 		pos += 1
 
 	#----------------------------------------------------------------------
@@ -1506,12 +1704,12 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Modify the lines according to the supplied function and arguments
 	#----------------------------------------------------------------------
-	def process(self, lines, func, *args):
+	def process(self, items, func, *args):
 		undoinfo = []
 		old = {}	# Last value
 		new = {}	# New value
 
-		for bid,lid in self.iterate(lines):
+		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
 			cmds = self.cnc.parseLine(block[lid])
 			if cmds is None: continue
@@ -1555,19 +1753,19 @@ class GCode:
 		return changed
 
 	#----------------------------------------------------------------------
-	def orderLines(self, lines, direction):
+	def orderLines(self, items, direction):
 		if direction == "UP":
-			self.orderUp(lines)
+			self.orderUp(items)
 		elif direction == "DOWN":
-			self.orderDown(lines)
+			self.orderDown(items)
 		else:
 			pass
 
 	#----------------------------------------------------------------------
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
-	def moveLines(self, lines, dx, dy, dz):
-		return self.process(lines, self.moveFunc, dx, dy, dz)
+	def moveLines(self, items, dx, dy, dz):
+		return self.process(items, self.moveFunc, dx, dy, dz)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
@@ -1587,17 +1785,17 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
-	# Rotate lines around optional center (on XY plane)
+	# Rotate items around optional center (on XY plane)
 	# ang in degrees (counter-clockwise)
 	#----------------------------------------------------------------------
-	def rotateLines(self, lines, ang, x0=0.0, y0=0.0):
+	def rotateLines(self, items, ang, x0=0.0, y0=0.0):
 		a = math.radians(ang)
 		c = math.cos(a)
 		s = math.sin(a)
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.process(lines, self.rotateFunc, c, s, x0, y0)
+		return self.process(items, self.rotateFunc, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Mirror Horizontal
@@ -1634,11 +1832,11 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Mirror horizontally/vertically
 	#----------------------------------------------------------------------
-	def mirrorHLines(self, lines):
-		return self.process(lines, self.mirrorHFunc)
+	def mirrorHLines(self, items):
+		return self.process(items, self.mirrorHFunc)
 
-	def mirrorVLines(self, lines):
-		return self.process(lines, self.mirrorVFunc)
+	def mirrorVLines(self, items):
+		return self.process(items, self.mirrorVFunc)
 
 	#----------------------------------------------------------------------
 	# Round all digits with accuracy
@@ -1651,9 +1849,9 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Round line by the amount of digits
 	#----------------------------------------------------------------------
-	def roundLines(self, lines, acc=None):
+	def roundLines(self, items, acc=None):
 		if acc is not None: self.digits = acc
-		return self.process(lines, self.roundFunc)
+		return self.process(items, self.roundFunc)
 
 	#----------------------------------------------------------------------
 	# Inkscape g-code tools on slice/slice it raises the tool to the
@@ -1718,7 +1916,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Remove the line number for lines
 	#----------------------------------------------------------------------
-	def removeNlines(self, lines):
+	def removeNlines(self, items):
 		pass
 
 	#----------------------------------------------------------------------
