@@ -901,15 +901,53 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
-	# Import paths as block
+	# convert a block to path
 	#----------------------------------------------------------------------
-	def importPath(self, pos, paths, enable=True, multiblock=True):
-		undoinfo = []
+	def toPath(self, bid):
+		block = self.blocks[bid]
+		paths = []
+		path = Path(block.name())
+		self.initPath(bid)
+		start = Vector(self.cnc.x, self.cnc.y)
 
-#		def _importPath(pos,path):
-		def _importPath(path):
-#			block = Block(path.name)
-#			block.enable = enable
+		# get only first path that enters the surface
+		# ignore the deeper ones
+		z1st = None
+		for line in block:
+			cmds = self.cnc.parseLine(line)
+			if cmds is None: continue
+			self.cnc.processPath(cmds)
+			end = Vector(self.cnc.xval, self.cnc.yval)
+			if self.cnc.gcode == 0:		# rapid move (new block)
+				if path:
+					paths.append(path)
+					path = Path(block.name())
+			elif self.cnc.gcode == 1:	# line
+				if z1st is None: z1st = self.cnc.z
+				if self.cnc.dx != 0.0 or self.cnc.dy != 0.0 and abs(self.cnc.z-z1st)<0.0001:
+					path.append(Segment(1, start, end))
+			elif self.cnc.gcode in (2,3):	# arc
+				if z1st is None: z1st = self.cnc.z
+				if abs(self.cnc.z-z1st)<0.0001:
+					xc,yc,zc = self.cnc.motionCenter()
+					center = Vector(xc,yc)
+					path.append(Segment(self.cnc.gcode, start,end, center))
+			self.cnc.motionPathEnd()
+			start = end
+		if path: paths.append(path)
+		return paths
+
+	#----------------------------------------------------------------------
+	# create a block from Path
+	#----------------------------------------------------------------------
+	def fromPath(self, path, block=None):
+		if block is None:
+			if isinstance(path, Path):
+				block = Block(path.name)
+			else:
+				block = Block(path[0].name)
+
+		if isinstance(path, Path):
 			x,y = path[0].start
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 			block.append("g1 %s %s"%(self.fmt("z",self.surface),
@@ -933,59 +971,36 @@ class GCode:
 					block[-1] += " %s"%(self.fmt("f",self.feed))
 					first = False
 			block.append("g0 %s"%(self.fmt("z",self.safe)))
-#			undoinfo.append(self.addBlockUndo(pos,block))
-#			if pos is not None: pos += 1
-#			return pos
+		else:
+			for p in path:
+				self.fromPath(p, block)
+		return block
+
+	#----------------------------------------------------------------------
+	# Import paths as block
+	#----------------------------------------------------------------------
+	def importPath(self, pos, paths, enable=True, multiblock=True):
+		undoinfo = []
 
 		if isinstance(paths,Path):
-			block = Block(paths.name)
+			block = self.fromPath(paths)
 			block.enable = enable
-			_importPath(paths)
 			undoinfo.append(self.addBlockUndo(pos,block))
 		else:
 			block = None
 			for path in paths:
 				if block is None:
 					block = Block(path.name)
-					block.enable = enable
-				_importPath(path)
+				block = self.fromPath(path, block)
 				if multiblock:
+					block.enable = enable
 					undoinfo.append(self.addBlockUndo(pos,block))
 					if pos is not None: pos += 1
 					block = None
 			if not multiblock:
+				block.enable = enable
 				undoinfo.append(self.addBlockUndo(pos,block))
 		return undoinfo
-
-	#----------------------------------------------------------------------
-	# convert a block to path
-	#----------------------------------------------------------------------
-	def toPath(self, bid):
-		block = self.blocks[bid]
-		paths = []
-		path = Path(block.name())
-		self.initPath(bid)
-		start = Vector(self.cnc.x, self.cnc.y)
-		for line in block:
-			cmds = self.cnc.parseLine(line)
-			if cmds is None: continue
-			self.cnc.processPath(cmds)
-			end = Vector(self.cnc.xval, self.cnc.yval)
-			if self.cnc.gcode == 0:		# rapid move (new block)
-				if path:
-					paths.append(path)
-					path = Path(block.name())
-			elif self.cnc.gcode == 1:	# line
-				if self.cnc.dx != 0.0 or self.cnc.dy != 0.0:
-					path.append(Segment(1, start, end))
-			elif self.cnc.gcode in (2,3):	# arc
-				xc,yc,zc = self.cnc.motionCenter()
-				center = Vector(xc,yc)
-				path.append(Segment(self.cnc.gcode, start,end, center))
-			self.cnc.motionPathEnd()
-			start = end
-		if path: paths.append(path)
-		return paths
 
 	#----------------------------------------------------------------------
 	# Check if a new version exists
@@ -1107,6 +1122,22 @@ class GCode:
 		lines = [x for x in self.blocks[bid]]
 		block = self.blocks.pop(bid)
 		undoinfo = (self.addBlockUndo, bid, block) #list(self.blocks[bid])[:])
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Set block expand
+	#----------------------------------------------------------------------
+	def setBlockExpandUndo(self, bid, expand):
+		undoinfo = (self.setBlockExpandUndo, bid, self.blocks[bid].expand)
+		self.blocks[bid].expand = expand
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Set block state
+	#----------------------------------------------------------------------
+	def setBlockEnableUndo(self, bid, enable):
+		undoinfo = (self.setBlockEnableUndo, bid, self.blocks[bid].enable)
+		self.blocks[bid].enable = enable
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1377,7 +1408,13 @@ class GCode:
 			# Operate only on blocks
 			if lid is not None: continue
 			block = self.blocks[bid]
-			if block.name in ("Header", "Footer"): continue
+			if block.name() in ("Header", "Footer"): continue
+
+			# construct new name
+			name = block.name()
+			if "[" in name:
+				name = name.split("[")[0]
+			undoinfo.append(self.setBlockNameUndo(bid, "%s [drill]"%(name)))
 
 			# 1st detect limits of first pass
 			self.initPath(bid)
@@ -1437,8 +1474,25 @@ class GCode:
 		for bid,lid in items:
 			# Operate only on blocks
 			if lid is not None: continue
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
+			newpath = []
+			for path in self.toPath(bid):
+				closed = path.isClosed()
+
+	#----------------------------------------------------------------------
+	# Create a cut my replicating the initial top-only path multiple times
+	# until the maximum height
+	#----------------------------------------------------------------------
+	def cut_old(self, items, depth=None, stepz=None):
+		if stepz is None: stepz =  self.stepz
+		if depth is None: depth = self.surface-self.thickness
+		stepz = abs(stepz)
+		undoinfo = []
+		for bid,lid in items:
+			# Operate only on blocks
+			if lid is not None: continue
 			block = self.blocks[bid]
-			if block.name in ("Header", "Footer"): continue
+			if block.name() in ("Header", "Footer"): continue
 
 			# 1st detect limits of first pass
 			start = None
@@ -1520,95 +1574,19 @@ class GCode:
 	# Reverse direction of cut
 	#----------------------------------------------------------------------
 	def reverse(self, items):
+		undoinfo = []
 		for bid,lid in items:
 			# Operate only on blocks
 			if lid is not None: continue
-			block = self.blocks[bid]
-			if block.name in ("Header", "Footer"): continue
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
 
-			# reverse a set of lines
-			def _reverse(lines):
-				out = []
-				for line in reversed(lines):
-					cmds = self.cnc.parseLine(line)
-					if cmds is None:
-						out.append(line)
-
-			# 1st detect limits of first pass
-			start = None
-			end   = None
-			exit  = None
-			self.initPath(bid)
-			self.cnc.z = self.cnc.zval = 1000.0
-			lines = []
-			for i,line in enumerate(block):
-				cmds = self.cnc.parseLine(line)
-				if cmds is None:
-					lines.append(line)
-					continue
-				self.cnc.processPath(cmds)
-				#print i,":",self.cnc.dz,self.cnc.z,line
-				if self.cnc.dz!=0.0:
-					if start is None:
-						start = i
-					elif end is None:
-						end = i
-				else:
-					lines.append(line)
-				self.cnc.motionPathEnd()
-
-			if start is None: start = 0
-			if end   is None: end   = len(block)
-			if exit  is None: exit  = len(block)
-
-			#print "len=",len(block)
-			#print "start=",start
-			#print "end=",end
-			#print "exit=",exit
-			#print
-			#print "start: 0 ..",start
-			#print "\n".join(block[:start])
-			#print
-			#print "path:\n",start,"..",end
-			#print "\n".join(block[start:end])
-			#print
-			#print "exit:\n",exit,"..",len(block)
-			#print "\n".join(block[exit:])
-
-			# 2nd copy starting lines
-			lines = block[:start]
-
-			# 3rd duplicate passes from [start:end]
-			z = self.surface
-			while z > depth:
-				z = max(z-stepz, depth)
-
-				self.initPath(bid)
-				for i in range(start, end):
-					line = block[i]
-					cmds = self.cnc.parseLine(line)
-					if cmds is not None:
-						self.cnc.processPath(cmds)
-						changed = False
-						for j,cmd in enumerate(cmds):
-							c = cmd[0].upper()
-							if c=="Z":
-								changed = True
-								cmds[j] = self.fmt(cmd[0],z)
-							elif c=="F":
-								changed = True
-								if self.cnc.dz!=0.0:
-									cmds[j] = self.fmt(cmd[0],self.feedz)
-								else:
-									cmds[j] = self.fmt(cmd[0],self.feed)
-						if changed:
-							line = " ".join(cmds)
-						self.cnc.motionPathEnd()
-					lines.append(line)
-
-			# 4th copy remaining lines
-			lines.extend(block[exit:])
-			undoinfo.append(self.setBlockLinesUndo(bid,lines))
+			newpath = []
+			for path in self.toPath(bid):
+				path.invert()
+				newpath.append(path)
+			if newpath:
+				block = self.fromPath(newpath)
+				undoinfo.append(self.setBlockLinesUndo(bid, block))
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
@@ -1619,6 +1597,7 @@ class GCode:
 		undoinfo = []
 		msg = ""
 		for bid in reversed(blocks):
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
 				if not path.isClosed():
@@ -1631,9 +1610,9 @@ class GCode:
 				D = path.direction()
 				if D==0: D=1
 				if offset>0:
-					name = "%s [profile-Out]"%(path.name)
+					name = "%s [out]"%(path.name)
 				else:
-					name = "%s [profile-In]"%(path.name)
+					name = "%s [in]"%(path.name)
 				opath = path.offset(D*offset, name)
 				#print "opath=",opath
 				opath.intersect()

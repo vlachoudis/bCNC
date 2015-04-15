@@ -493,6 +493,7 @@ class Path(list):
 			new.append(segment)
 		del self[:]
 		self.extend(new)
+	reverse = invert
 
 	#----------------------------------------------------------------------
 	# Split path into contours

@@ -957,7 +957,7 @@ class Application(Toplevel):
 		self.bind('<Control-Key-g>',	self.findNext)
 		self.bind('<Control-Key-h>',	self.replace)
 		self.bind('<Control-Key-e>',	self.gcodelist.toggleExpand)
-		self.bind('<Control-Key-l>',	self.gcodelist.toggleVisibility)
+		self.bind('<Control-Key-l>',	self.gcodelist.toggleEnable)
 		self.bind("<Control-Key-q>",	self.quit)
 		self.bind("<Control-Key-o>",	self.loadDialog)
 		self.bind("<Control-Key-r>",	self.drawAfter)
@@ -1404,7 +1404,7 @@ class Application(Toplevel):
 		i += 1
 		menu.add_command(label="Toggle Enable", underline=7,
 					accelerator="Ctrl-L",
-					command=self.gcodelist.toggleVisibility)
+					command=self.gcodelist.toggleEnable)
 		self.widgets.append((menu,i))
 
 
@@ -1476,6 +1476,12 @@ class Application(Toplevel):
 					command=self.commandOrderDown)
 		self.widgets.append((submenu,ii))
 
+		# ---
+		i += 1
+		menu.add_command(label="Reverse", underline=1,
+					command=lambda s=self:s.insertCommand("REVERSE", True))
+		self.widgets.append((menu,i))
+
 		# --- Rotate ---
 		submenu = Menu(menu)
 		menu.add_cascade(label="Rotate", underline=0, menu=submenu)
@@ -1503,8 +1509,6 @@ class Application(Toplevel):
 		menu.add_command(label="Round", underline=0,
 					command=lambda s=self:s.insertCommand("ROUND all", True))
 		self.widgets.append((menu,i))
-
-
 
 		# Machine Menu
 #		menu = Menu(menubar)
@@ -1623,6 +1627,12 @@ class Application(Toplevel):
 		menu = Menu(menubar)
 		menubar.add_cascade(label="View", underline=0, menu=menu)
 
+		menu.add_command(label="Redraw", underline=2,
+					image=icons["empty"],
+					compound=LEFT,
+					accelerator="[Ctrl-R]",
+					command=self.drawAfter)
+
 		menu.add_command(label="Zoom In", underline=2,
 					image=icons["zoom_in"],
 					compound=LEFT,
@@ -1646,7 +1656,7 @@ class Application(Toplevel):
 					image=icons["empty"],
 					compound=LEFT,
 					accelerator="[Ctrl-L]",
-					command=self.gcodelist.toggleVisibility)
+					command=self.gcodelist.toggleEnable)
 
 		# -----------------
 		menu.add_separator()
@@ -2351,6 +2361,10 @@ class Application(Toplevel):
 		elif cmd == "RESET":
 			self.softReset()
 
+		# REV*ERSE: reverse path direction
+		elif rexx.abbrev("REVERSE", cmd, 3):
+			self.executeOnSelection("REVERSE")
+
 		# RUN: run g-code
 		elif cmd == "RUN":
 			self.run()
@@ -2514,7 +2528,7 @@ class Application(Toplevel):
 
 		else:
 			tkMessageBox.showerror("Unknown command",
-					string.join(line),
+					"Unknown command '%s'"%(string.join(line)),
 					parent=self)
 			return
 
@@ -2537,6 +2551,8 @@ class Application(Toplevel):
 			self.gcode.inkscapeLines()
 		elif cmd == "MOVE":
 			self.gcode.moveLines(items, *args)
+		elif cmd == "REVERSE":
+			self.gcode.reverse(items, *args)
 		elif cmd == "ROUND":
 			self.gcode.roundLines(items, *args)
 		elif cmd == "ROTATE":

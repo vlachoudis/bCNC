@@ -322,7 +322,7 @@ class CNCListbox(Listbox):
 			self.toggleExpand()
 		elif loc == 1:
 			self.activate(y)
-			self.toggleVisibility()
+			self.toggleEnable()
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -360,20 +360,20 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def toggleExpand(self, event=None):
 		items   = list(map(int,self.curselection()))
-		changed = False
 		expand  = None
 		active = self.index(ACTIVE)
 		bactive,lactive = self._items[active]
 		blocks = []
+		undoinfo = []
 		for i in reversed(items):
 			bid,lid = self._items[i]
 			if lid is not None: continue
 			blocks.append(bid)
 			if expand is None: expand = not self.gcode[bid].expand
-			self.gcode[bid].expand = expand
-			changed = True
+			undoinfo.append(self.gcode.setBlockExpandUndo(bid, expand))
 
-		if changed:
+		if undoinfo:
+			self.gcode.addUndo(undoinfo)
 			self.selection_clear(0,END)
 			self.fill()
 			active = self._blockPos[bactive]
@@ -385,20 +385,20 @@ class CNCListbox(Listbox):
 		self.app.statusbar["text"] = "Toggled Expand of selected objects"
 
 	# ----------------------------------------------------------------------
-	# toggle visibility
+	# toggle state enable/disable
 	# ----------------------------------------------------------------------
-	def toggleVisibility(self, event=None):
+	def toggleEnable(self, event=None):
 		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
-		changed = False
 		enable  = None
 		ypos = self.yview()[0]
+		undoinfo = []
 		for i in items:
 			bid,lid = self._items[i]
 			if lid is not None: continue
 			block = self.gcode[bid]
 			if enable is None: enable = not block.enable
-			block.enable = enable
+			undoinfo.append(self.gcode.setBlockEnableUndo(bid, enable))
 
 			sel = self.selection_includes(i)
 			self.delete(i)
@@ -407,9 +407,9 @@ class CNCListbox(Listbox):
 			if not block.enable:
 				self.itemconfig(i, foreground=DISABLE_COLOR)
 			if sel: self.selection_set(i)
-			changed = True
 
-		if changed:
+		if undoinfo:
+			self.gcode.addUndo(undoinfo)
 			self.activate(active)
 			self.yview_moveto(ypos)
 			self.event_generate("<<ListboxSelect>>")

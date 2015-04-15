@@ -186,6 +186,7 @@ class CNCCanvas(Canvas):
 
 		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
+		self._last = (0.,0.,0.)
 
 		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.initPosition()
@@ -653,6 +654,7 @@ class CNCCanvas(Canvas):
 		x0 = self.xview()[0]
 		y0 = self.yview()[0]
 
+		self._last = (0.,0.,0.)
 		for i,block in enumerate(self.gcode.blocks):
 			block.resetPath()
 			for j,line in enumerate(block):
@@ -809,6 +811,13 @@ class CNCCanvas(Canvas):
 		if xyz:
 			length = self.cnc.pathLength(xyz)
 			self.cnc.pathMargins(xyz)
+			if enable:
+				if self.cnc.gcode == 0 and self.draw_rapid:
+					xyz[0] = self._last
+				self._last = xyz[-1]
+			else:
+				if self.cnc.gcode == 0:
+					return None
 			coords = self.plotCoords(xyz)
 			if coords:
 				if enable:

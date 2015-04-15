@@ -565,7 +565,7 @@ class Cut(Base):
 class Drill(Base):
 	def __init__(self, master):
 		Base.__init__(self, master)
-		self.name = "Cut"
+		self.name = "Drill"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("depth",     "mm" ,    "", "Target Depth"),
@@ -626,7 +626,7 @@ class Tools:
 		self.listbox = None
 		# CNC should be first to load the inches
 		#	"Cut"       #	"Hole"      #	"Profile"   #	"Rectangle" #	"Tab"
-		for cls in [ CNC, Box, Cut, EndMill, Material, Profile, Stock]:
+		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
 			tool = cls(self)
 			self.tools[tool.name.upper()] = tool
 
