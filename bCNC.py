@@ -6,9 +6,8 @@
 # Date: 24-Aug-2014
 
 __version__ = "0.3"
-__prg__     = "bCNC"
 __author__  = "Vasilis Vlachoudis"
-__email__   = "Vasilis.Vlachoudis@cern.ch"
+__email__   = "vvlachoudis@gmail.com"
 
 import os
 import re
@@ -41,10 +40,11 @@ import Unicode
 import bFileDialog
 
 import CNC
+import Utils
 import CNCList
+import CNCTools
 import CNCCanvas
 import CNCPendant
-import CNCTools
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
@@ -56,11 +56,11 @@ RX_BUFFER_SIZE = 128
 
 MAX_HISTORY  = 500
 
-GPAT         = re.compile(r"[A-Za-z]\d+.*")
-LINEPAT      = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
-STATUSPAT    = re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
-POSPAT       = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)\]$")
-TLOPAT       = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
+GPAT     = re.compile(r"[A-Za-z]\d+.*")
+LINEPAT  = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
+STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
+POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)\]$")
+TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
@@ -69,50 +69,24 @@ NOT_CONNECTED = "Not connected"
 
 WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"]
 
-config = ConfigParser.ConfigParser()
-
 STATECOLOR = {	"Alarm": "Red",
 		"Run"  : "LightGreen",
 		"Connected" : "Orange",
 		NOT_CONNECTED: "OrangeRed"}
 STATECOLORDEF = "LightYellow"
 
-prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
-
-_emptyTool    = []
-
-#------------------------------------------------------------------------------
-def getStr(section, name, default):
-	global config
-	try: return config.get(section, name)
-	except: return default
-
-#------------------------------------------------------------------------------
-def getInt(section, name, default):
-	global config
-	try: return int(config.get(section, name))
-	except: return default
-
-#------------------------------------------------------------------------------
-def getFloat(section, name, default):
-	global config
-	try: return float(config.get(section, name))
-	except: return default
-
 #==============================================================================
 # Main Application window
 #==============================================================================
 class Application(Toplevel):
 	def __init__(self, master, **kw):
-		global config
-
 		Toplevel.__init__(self, master, **kw)
-		self.iconbitmap("@%s/bCNC.xbm"%(prgpath))
-		self.title(__prg__)
+		self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
+		self.title(Utils.__prg__)
 		self.widgets = []
 
 		# Global variables
-		CNC.CNC.loadConfig(config)
+		CNC.CNC.loadConfig(Utils.config)
 		self.gcode = CNC.GCode()
 		self.cnc   = self.gcode.cnc
 		self.view  = StringVar()
@@ -121,17 +95,17 @@ class Application(Toplevel):
 		self.tools = CNCTools.Tools(self.gcode)
 
 		self.draw_axes   = BooleanVar()
-		self.draw_axes.set(bool(int(config.get("Canvas","axes"))))
+		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
 		self.draw_grid   = BooleanVar()
-		self.draw_grid.set(bool(int(config.get("Canvas","grid"))))
+		self.draw_grid.set(bool(int(Utils.config.get("Canvas","grid"))))
 		self.draw_margin = BooleanVar()
-		self.draw_margin.set(bool(int(config.get("Canvas","margin"))))
+		self.draw_margin.set(bool(int(Utils.config.get("Canvas","margin"))))
 		self.draw_probe  = BooleanVar()
-		self.draw_probe.set(bool(int(config.get("Canvas","probe"))))
+		self.draw_probe.set(bool(int(Utils.config.get("Canvas","probe"))))
 		self.draw_rapid  = BooleanVar()
-		self.draw_rapid.set(bool(int(config.get("Canvas","rapid"))))
+		self.draw_rapid.set(bool(int(Utils.config.get("Canvas","rapid"))))
 		self.draw_workarea = BooleanVar()
-		self.draw_workarea.set(bool(int(config.get("Canvas","workarea"))))
+		self.draw_workarea.set(bool(int(Utils.config.get("Canvas","workarea"))))
 
 		# --- Toolbar ---
 		toolbar = Frame(self, relief=RAISED)
@@ -158,6 +132,9 @@ class Application(Toplevel):
 		self.command.bind("<Return>",	self.cmdExecute)
 		self.command.bind("<Up>",	self.commandHistoryUp)
 		self.command.bind("<Down>",	self.commandHistoryDown)
+		self.command.bind("<Control-Key-z>",	self.undo)
+		self.command.bind("<Control-Key-Z>",	self.redo)
+		self.command.bind("<Control-Key-y>",	self.redo)
 		tkExtra.Balloon.set(self.command, "Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
 		self.widgets.append(self.command)
 
@@ -224,11 +201,11 @@ class Application(Toplevel):
 
 		# Tab page set
 		self.tabPage = tkExtra.TabPageSet(panedframe, pageNames=
-					[("Control",  icons["control"]),
-					 ("Terminal", icons["terminal"]),
-					 ("WCS",      icons["measure"]),
-					 ("Tools",    icons["tools"]),
-					 ("Editor",   icons["edit"])])
+					[("Control",  Utils.icons["control"]),
+					 ("Terminal", Utils.icons["terminal"]),
+					 ("WCS",      Utils.icons["measure"]),
+					 ("Tools",    Utils.icons["tools"]),
+					 ("Editor",   Utils.icons["edit"])])
 		self.tabPage.pack(fill=BOTH, expand=YES)
 		self.tabPage.bind("<<ChangePage>>", self.changePage)
 
@@ -244,11 +221,11 @@ class Application(Toplevel):
 		self.portCombo.grid(row=0, column=1, columnspan=2, sticky=EW)
 		devices = sorted([x[0] for x in serial.tools.list_ports.comports()])
 		self.portCombo.fill(devices)
-		self.portCombo.set(config.get("Connection","port"))
+		self.portCombo.set(Utils.config.get("Connection","port"))
 
 		self.connectBtn = Button(lframe, text="Open",
 					compound=LEFT,
-					image=icons["serial"],
+					image=Utils.icons["serial"],
 					command=self.openClose,
 					background="LightGreen",
 					activebackground="LightGreen",
@@ -258,7 +235,7 @@ class Application(Toplevel):
 
 		b = Button(lframe, text="Home",
 				compound=LEFT,
-				image=icons["home"],
+				image=Utils.icons["home"],
 				command=self.home,
 				padx=2)
 		b.grid(row=1,column=1,sticky=EW)
@@ -267,7 +244,7 @@ class Application(Toplevel):
 
 		b = Button(lframe, text="Unlock",
 				compound=LEFT,
-				image=icons["unlock"],
+				image=Utils.icons["unlock"],
 				command=self.unlock,
 				padx=2)
 		b.grid(row=1,column=2,sticky=EW)
@@ -276,7 +253,7 @@ class Application(Toplevel):
 
 		b = Button(lframe, text="Reset",
 				compound=LEFT,
-				image=icons["reset"],
+				image=Utils.icons["reset"],
 				command=self.softReset,
 				foreground="DarkRed",
 				background="LightYellow",
@@ -389,7 +366,7 @@ class Application(Toplevel):
 		col += 1
 		self.step = tkExtra.Combobox(f, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
-		self.step.set(config.get("Control","step"))
+		self.step.set(Utils.config.get("Control","step"))
 		self.step.fill(["0.001",
 				"0.005",
 				"0.01",
@@ -462,7 +439,7 @@ class Application(Toplevel):
 		self.spindleSpeed = IntVar()
 
 		b = Checkbutton(lframe, text="Spindle",
-				image=icons["spinningtop"],
+				image=Utils.icons["spinningtop"],
 				compound=LEFT,
 				indicatoron=False,
 				variable=self.spindle,
@@ -475,8 +452,8 @@ class Application(Toplevel):
 				variable=self.spindleSpeed,
 				showvalue=True,
 				orient=HORIZONTAL,
-				from_=config.get("CNC","spindlemin"),
-				to_=config.get("CNC","spindlemax"))
+				from_=Utils.config.get("CNC","spindlemin"),
+				to_=Utils.config.get("CNC","spindlemax"))
 		tkExtra.Balloon.set(b, "Set spindle RPM")
 		b.pack(side=RIGHT, expand=YES, fill=X)
 		self.widgets.append(b)
@@ -488,7 +465,7 @@ class Application(Toplevel):
 		f.pack(side=TOP,fill=X)
 		b = Button(f, text="Run",
 				compound=LEFT,
-				image=icons["start"],
+				image=Utils.icons["start"],
 				padx=3, pady=2,
 				command=self.run)
 		b.pack(side=LEFT,expand=YES,fill=X)
@@ -497,7 +474,7 @@ class Application(Toplevel):
 
 		b = Button(f, text="Pause",
 				compound=LEFT,
-				image=icons["pause"],
+				image=Utils.icons["pause"],
 				padx=3, pady=2,
 				command=self.pause)
 		b.pack(side=LEFT,expand=YES,fill=X)
@@ -505,7 +482,7 @@ class Application(Toplevel):
 
 		b = Button(f, text="Stop",
 				compound=LEFT,
-				image=icons["stop"],
+				image=Utils.icons["stop"],
 				padx=3, pady=2,
 				command=self.stopRun)
 		tkExtra.Balloon.set(b, "Stop running program")
@@ -795,23 +772,23 @@ class Application(Toplevel):
 		self.widgets.append(self.probeFeed)
 
 		# Set variables
-		self.probeXdir.set(config.get("Probe","x"))
-		self.probeYdir.set(config.get("Probe","y"))
-		self.probeZdir.set(config.get("Probe","z"))
+		self.probeXdir.set(Utils.config.get("Probe","x"))
+		self.probeYdir.set(Utils.config.get("Probe","y"))
+		self.probeZdir.set(Utils.config.get("Probe","z"))
 
-		self.probeXmin.set(config.get("Probe","xmin"))
-		self.probeXmax.set(config.get("Probe","xmax"))
-		self.probeYmin.set(config.get("Probe","ymin"))
-		self.probeYmax.set(config.get("Probe","ymax"))
-		self.probeZmin.set(config.get("Probe","zmin"))
-		self.probeZmax.set(config.get("Probe","zmax"))
-		self.probeFeed.set(config.get("Probe","feed"))
+		self.probeXmin.set(Utils.config.get("Probe","xmin"))
+		self.probeXmax.set(Utils.config.get("Probe","xmax"))
+		self.probeYmin.set(Utils.config.get("Probe","ymin"))
+		self.probeYmax.set(Utils.config.get("Probe","ymax"))
+		self.probeZmin.set(Utils.config.get("Probe","zmin"))
+		self.probeZmax.set(Utils.config.get("Probe","zmax"))
+		self.probeFeed.set(Utils.config.get("Probe","feed"))
 
 		self.probeXbins.delete(0,END)
-		self.probeXbins.insert(0,config.get("Probe","xn"))
+		self.probeXbins.insert(0,Utils.config.get("Probe","xn"))
 
 		self.probeYbins.delete(0,END)
-		self.probeYbins.insert(0,config.get("Probe","yn"))
+		self.probeYbins.insert(0,Utils.config.get("Probe","yn"))
 		self.probeChange()
 
 		# Buttons
@@ -871,55 +848,8 @@ class Application(Toplevel):
 		# ---- Tools ----
 		frame = self.tabPage["Tools"]
 
-		f = Frame(frame)
-		f.pack(side=TOP, fill=X)
-
-		self.toolCombo = tkExtra.Combobox(f, True,
-					#foreground="DarkBlue",
-					background="White",
-					command=self.toolChange)
-		self.toolCombo.pack(side=LEFT, expand=YES, fill=X)
-
-		b = Button(f, image=icons["x"], command=self.toolDelete)
-		b.pack(side=RIGHT)
-		self.tools.addButton("del",b)
-
-		b = Button(f, image=icons["clone"], command=self.toolClone)
-		b.pack(side=RIGHT)
-		self.tools.addButton("clone",b)
-
-		b = Button(f, image=icons["add"], command=self.toolAdd)
-		b.pack(side=RIGHT)
-		self.tools.addButton("add",b)
-
-		b = Button(f, image=icons["rename"], command=self.toolRename)
-		b.pack(side=RIGHT)
-		self.tools.addButton("rename",b)
-
-		b = Button(frame, text="Execute",
-				image=icons["gear"],
-				compound=LEFT,
-				foreground="DarkRed",
-				background="LightYellow",
-				command=self.toolExecute)
-		b.pack(side=BOTTOM, fill=X)
-		self.tools.addButton("exe",b)
-
-		self.toolList = tkExtra.MultiListbox(frame,
-					(("Name", 16, None),
-					 ("Value", 24, None)),
-					 header = False,
-					 stretch = "last",
-					 background = "White")
-		self.toolList.sortAssist = None
-		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
-		self.toolList.bindList("<Double-1>",	self. toolEdit)
-		self.toolList.bindList("<F2>",		self. toolEdit)
-		self.toolList.bindList("<Return>",	self. toolEdit)
-		self.toolList.bindList("<Key-space>",	self. commandFocus)
-		self.toolList.bindList("<Control-Key-space>",	self. commandFocus)
-		self.toolList.lists[1].bind("<ButtonRelease-1>", self. toolEdit)
-		self.tools.setListbox(self.toolList)
+		self.toolFrame = CNCTools.ToolFrame(frame, self, self.tools)
+		self.toolFrame.pack(fill=BOTH, expand=YES)
 
 		# --- Canvas ---
 		frame = Frame(paned)
@@ -968,12 +898,15 @@ class Application(Toplevel):
 		self.canvas.bind('<Key-space>',	self.commandFocus)
 		self.bind('<Control-Key-space>',self.commandFocus)
 
-		self.bind('<F1>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XY]))
-		self.bind('<F2>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ]))
-		self.bind('<F3>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ]))
-		self.bind('<F4>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1]))
-		self.bind('<F5>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2]))
-		self.bind('<F6>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3]))
+#		self.bind('<F1>',		self.help)
+#		self.bind('<F2>',		self.rename)
+
+		self.bind('<F3>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XY]))
+		self.bind('<F4>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ]))
+		self.bind('<F5>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ]))
+		self.bind('<F6>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1]))
+		self.bind('<F7>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2]))
+		self.bind('<F8>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3]))
 
 		self.bind('<Up>',		self.moveYup)
 		self.bind('<Down>',		self.moveYdown)
@@ -1040,61 +973,61 @@ class Application(Toplevel):
 		self.toggleDrawFlag()
 
 		# Create tools
-		self.toolCombo.fill(self.tools.names())
+		self.toolFrame.fill()
 		self.loadConfig()	# load rest of config
 
 	#----------------------------------------------------------------------
 	def createToolbar(self, toolbar):
-		b = Button(toolbar, image=icons["load"], command=self.loadDialog)
+		b = Button(toolbar, image=Utils.icons["load"], command=self.loadDialog)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Load g-code file")
 
-		b = Button(toolbar, image=icons["save"], command=self.saveAll)
+		b = Button(toolbar, image=Utils.icons["save"], command=self.saveAll)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Save g-code to file")
 
 		# ---
-		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
-		b = Button(toolbar, image=icons["undo"], command=self.undo)
+		b = Button(toolbar, image=Utils.icons["undo"], command=self.undo)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Undo last edit")
 
-		b = Button(toolbar, image=icons["redo"], command=self.redo)
+		b = Button(toolbar, image=Utils.icons["redo"], command=self.redo)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Redo last undo command")
 
 		# ---
-		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
-		b = Button(toolbar, image=icons["cut"], command=self.cut)
+		b = Button(toolbar, image=Utils.icons["cut"], command=self.cut)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Cut to clipboard")
 
-		b = Button(toolbar, image=icons["copy"], command=self.copy)
+		b = Button(toolbar, image=Utils.icons["copy"], command=self.copy)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Copy to clipboard")
 
-		b = Button(toolbar, image=icons["paste"], command=self.paste)
+		b = Button(toolbar, image=Utils.icons["paste"], command=self.paste)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Paste from clipboard")
 
 		# ---
-		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
-		b = Button(toolbar, image=icons["home"], command=self.home)
+		b = Button(toolbar, image=Utils.icons["home"], command=self.home)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Run homing cycle")
 
-		b = Button(toolbar, image=icons["unlock"], command=self.unlock)
+		b = Button(toolbar, image=Utils.icons["unlock"], command=self.unlock)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Unlock CNC")
@@ -1102,9 +1035,9 @@ class Application(Toplevel):
 		# -----
 		# Tools
 		# -----
-		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
-		b = Radiobutton(toolbar, image=icons["select"],
+		b = Radiobutton(toolbar, image=Utils.icons["select"],
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=CNCCanvas.ACTION_SELECT,
@@ -1113,7 +1046,7 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=icons["pan"],	# FIXME replace with move
+		b = Radiobutton(toolbar, image=Utils.icons["pan"],	# FIXME replace with move
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=CNCCanvas.ACTION_MOVE,
@@ -1122,7 +1055,7 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=icons["gantry"],
+		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=CNCCanvas.ACTION_GANTRY,
@@ -1131,7 +1064,7 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=icons["origin"],
+		b = Radiobutton(toolbar, image=Utils.icons["origin"],
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=CNCCanvas.ACTION_ORIGIN,
@@ -1140,7 +1073,7 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=icons["ruler"],
+		b = Radiobutton(toolbar, image=Utils.icons["ruler"],
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=CNCCanvas.ACTION_RULER,
@@ -1150,7 +1083,7 @@ class Application(Toplevel):
 		b.pack(side=LEFT)
 
 		# ---
-		Label(toolbar, image=icons["sep"]).pack(side=LEFT, padx=3)
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
 		b = OptionMenu(toolbar, self.view, *CNCCanvas.VIEWS)
 		b.config(padx=0, pady=1)
@@ -1169,14 +1102,14 @@ class Application(Toplevel):
 		menubar.add_cascade(label="File", underline=0, menu=menu)
 		i = 1
 		menu.add_command(label="New", underline=0,
-					image=icons["new"],
+					image=Utils.icons["new"],
 					compound=LEFT,
 					command=self.newFile)
 		self.widgets.append((menu,i))
 
 		i += 1
 		menu.add_command(label="Open", underline=0,
-					image=icons["load"],
+					image=Utils.icons["load"],
 					compound=LEFT,
 					accelerator="Ctrl-O",
 					command=self.loadDialog)
@@ -1184,7 +1117,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Save", underline=0,
-					image=icons["save"],
+					image=Utils.icons["save"],
 					compound=LEFT,
 					accelerator="Ctrl-S",
 					command=self.saveAll)
@@ -1192,14 +1125,14 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Save As", underline=0,
-					image=icons["save"],
+					image=Utils.icons["save"],
 					compound=LEFT,
 					command=self.saveDialog)
 		self.widgets.append((menu,i))
 
 		i += 1
 		menu.add_command(label="Reload", underline=0,
-					image=icons["load"],
+					image=Utils.icons["load"],
 					compound=LEFT,
 					command=self.reload)
 		self.widgets.append((menu,i))
@@ -1207,34 +1140,34 @@ class Application(Toplevel):
 		i += 1
 		submenu = Menu(menu)
 		menu.add_cascade(label="Probe", underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					menu=submenu)
 
 		ii = 1
 		submenu.add_command(label="Open", underline=0,
-					image=icons["load"],
+					image=Utils.icons["load"],
 					compound=LEFT,
 					command=self.loadProbeDialog)
 		self.widgets.append((submenu,ii))
 
 		ii += 1
 		submenu.add_command(label="Save", underline=0,
-					image=icons["save"],
+					image=Utils.icons["save"],
 					compound=LEFT,
 					command=self.saveProbe)
 		self.widgets.append((submenu,ii))
 
 		ii += 1
 		submenu.add_command(label="Save As", underline=0,
-					image=icons["save"],
+					image=Utils.icons["save"],
 					compound=LEFT,
 					command=self.saveProbeDialog)
 		self.widgets.append((submenu,ii))
 
 		menu.add_separator()
 		menu.add_command(label="Quit", underline=0,
-					image=icons["quit"],
+					image=Utils.icons["quit"],
 					compound=LEFT,
 					accelerator="Ctrl-Q",
 					command=self.quit)
@@ -1245,7 +1178,7 @@ class Application(Toplevel):
 
 		i = 1
 		menu.add_command(label="Undo", underline=0,
-					image=icons["undo"],
+					image=Utils.icons["undo"],
 					compound=LEFT,
 					accelerator="Ctrl-Z",
 					command=self.undo)
@@ -1253,7 +1186,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Redo", underline=0,
-					image=icons["redo"],
+					image=Utils.icons["redo"],
 					compound=LEFT,
 					accelerator="Ctrl-Y",
 					command=self.redo)
@@ -1264,7 +1197,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Cut", underline=2,
-					image=icons["cut"],
+					image=Utils.icons["cut"],
 					compound=LEFT,
 					accelerator="Ctrl-X",
 					command=self.cut)
@@ -1272,7 +1205,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Copy", underline=0,
-					image=icons["copy"],
+					image=Utils.icons["copy"],
 					compound=LEFT,
 					accelerator="Ctrl-C",
 					command=self.copy)
@@ -1280,7 +1213,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Paste", underline=0,
-					image=icons["paste"],
+					image=Utils.icons["paste"],
 					compound=LEFT,
 					accelerator="Ctrl-V",
 					command=self.paste)
@@ -1291,7 +1224,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Insert Block", underline=0,
-					image=icons["add"],
+					image=Utils.icons["add"],
 					compound=LEFT,
 					accelerator="Ctrl-B",
 					command=self.insertBlock)
@@ -1299,7 +1232,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Insert Line", underline=0,
-					image=icons["add"],
+					image=Utils.icons["add"],
 					compound=LEFT,
 					accelerator="Ctrl-Enter",
 					command=self.insertLine)
@@ -1310,7 +1243,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Find", underline=0,
-					image=icons["find"],
+					image=Utils.icons["find"],
 					compound=LEFT,
 					accelerator="Ctrl-F",
 					state=DISABLED,
@@ -1319,7 +1252,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Find Next", underline=0,
-					image=icons["find"],
+					image=Utils.icons["find"],
 					compound=LEFT,
 					accelerator="Ctrl-G",
 					state=DISABLED,
@@ -1328,7 +1261,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Replace", underline=0,
-					image=icons["replace"],
+					image=Utils.icons["replace"],
 					compound=LEFT,
 					accelerator="Ctrl-H",
 					state=DISABLED,
@@ -1340,7 +1273,7 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Select All", underline=8,
-					image=icons["all"],
+					image=Utils.icons["all"],
 					compound=LEFT,
 					accelerator="Ctrl-A",
 					command=self.selectAll)
@@ -1515,7 +1448,7 @@ class Application(Toplevel):
 #		menubar.add_cascade(label="Machine", underline=0, menu=menu)
 #		i = 1
 #		menu.add_command(label="Material", underline=0,
-#					image=icons["material"],
+#					image=Utils.icons["material"],
 #					compound=LEFT,
 #					command=self.material)
 
@@ -1525,12 +1458,12 @@ class Application(Toplevel):
 
 		i = 1
 		menu.add_command(label="Hard Reset", underline=0,
-					image=icons["reset"],
+					image=Utils.icons["reset"],
 					compound=LEFT,
 					command=self.hardReset)
 		i += 1
 		menu.add_command(label="Soft Reset", underline=0,
-					image=icons["reset"],
+					image=Utils.icons["reset"],
 					compound=LEFT,
 					command=self.softReset)
 		self.widgets.append((menu,i))
@@ -1538,13 +1471,13 @@ class Application(Toplevel):
 		menu.add_separator()
 		i += 1
 		menu.add_command(label="Home",       underline=0,
-					image=icons["home"],
+					image=Utils.icons["home"],
 					compound=LEFT,
 					command=self.home)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Unlock",     underline=2,
-					image=icons["unlock"],
+					image=Utils.icons["unlock"],
 					compound=LEFT,
 					command=self.unlock)
 		self.widgets.append((menu,i))
@@ -1553,37 +1486,37 @@ class Application(Toplevel):
 
 		i += 1
 		menu.add_command(label="Settings",   underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.viewSettings)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Parameters", underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.viewParameters)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="State",      underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.viewState)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Build",      underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.viewBuild)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Startup",    underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.viewStartup)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Check gcode",underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.checkGcode)
 		self.widgets.append((menu,i))
@@ -1592,13 +1525,13 @@ class Application(Toplevel):
 		menu.add_separator()
 		i += 1
 		menu.add_command(label="Clear",underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					command=self.clearTerminal)
 		self.widgets.append((menu,i))
 		i += 1
 		menu.add_command(label="Grbl Help",underline=0,
-					image=icons["info"],
+					image=Utils.icons["info"],
 					compound=LEFT,
 					command=self.grblhelp)
 		self.widgets.append((menu,i))
@@ -1609,18 +1542,18 @@ class Application(Toplevel):
 
 		i = 1
 		menu.add_command(label="Run",       underline=0,
-					image=icons["start"],
+					image=Utils.icons["start"],
 					compound=LEFT,
 					command=self.run)
 		self.widgets.append((menu,i))
 
 		menu.add_command(label="Pause", underline=0,
-					image=icons["pause"],
+					image=Utils.icons["pause"],
 					compound=LEFT,
 					accelerator="!/~",
 					command=self.pause)
 		menu.add_command(label="Cancel",    underline=0,
-					image=icons["stop"],
+					image=Utils.icons["stop"],
 					compound=LEFT,
 					command=self.stopRun)
 		# View Menu
@@ -1628,19 +1561,19 @@ class Application(Toplevel):
 		menubar.add_cascade(label="View", underline=0, menu=menu)
 
 		menu.add_command(label="Redraw", underline=2,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					accelerator="[Ctrl-R]",
 					command=self.drawAfter)
 
 		menu.add_command(label="Zoom In", underline=2,
-					image=icons["zoom_in"],
+					image=Utils.icons["zoom_in"],
 					compound=LEFT,
 					accelerator="[Ctrl-=]",
 					command=self.canvas.menuZoomIn)
 
 		menu.add_command(label="Zoom Out", underline=2,
-					image=icons["zoom_out"],
+					image=Utils.icons["zoom_out"],
 					compound=LEFT,
 					accelerator="[Ctrl--]",
 					command=self.canvas.menuZoomOut)
@@ -1648,12 +1581,12 @@ class Application(Toplevel):
 		# -----------------
 		menu.add_separator()
 		menu.add_command(label="Expand", underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					accelerator="[Ctrl-E]",
 					command=self.gcodelist.toggleExpand)
 		menu.add_command(label="Visibility", underline=0,
-					image=icons["empty"],
+					image=Utils.icons["empty"],
 					compound=LEFT,
 					accelerator="[Ctrl-L]",
 					command=self.gcodelist.toggleEnable)
@@ -1692,32 +1625,32 @@ class Application(Toplevel):
 		menu.add_cascade(label="Projection", underline=0, menu=submenu)
 
 		submenu.add_radiobutton(label="X-Y", underline=0,
-					accelerator="[F1]",
+					accelerator="[F3]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_XY],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="X-Z", underline=2,
-					accelerator="[F2]",
+					accelerator="[F4]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="Y-Z", underline=0,
-					accelerator="[F3]",
+					accelerator="[F5]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 1", underline=4,
-					accelerator="[F4]",
+					accelerator="[F6]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 2", underline=4,
-					accelerator="[F5]",
+					accelerator="[F7]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 3", underline=4,
-					accelerator="[F6]",
+					accelerator="[F8]",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3],
 					variable=self.view)
 
@@ -1726,12 +1659,12 @@ class Application(Toplevel):
 		menubar.add_cascade(label="Pendant", underline=0, menu=menu)
 
 		menu.add_command(label="Start", underline=0,
-					image=icons["start"],
+					image=Utils.icons["start"],
 					compound=LEFT,
 					command=self.startPendant)
 
 		menu.add_command(label="Stop", underline=0,
-					image=icons["stop"],
+					image=Utils.icons["stop"],
 					compound=LEFT,
 					command=self.stopPendant)
 
@@ -1740,7 +1673,7 @@ class Application(Toplevel):
 		menubar.add_cascade(label="About", underline=0, menu=menu)
 
 		menu.add_command(label="About", underline=0,
-					image=icons["about"],
+					image=Utils.icons["about"],
 					compound=LEFT,
 					command=self.about)
 
@@ -1807,68 +1740,68 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (getInt(__prg__, "width", 800),
-				  getInt(__prg__, "height", 600))
+		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 800),
+				  Utils.getInt(Utils.__prg__, "height", 600))
 		try: self.geometry(geom)
 		except: pass
 
-		if int(config.get("Connection","pendant")):
+		if int(Utils.config.get("Connection","pendant")):
 			self.startPendant(False)
 
 		# Create tools
-		self.tools.load(config)
+		self.tools.load(Utils.config)
 		try:
-			self.toolCombo.set(config.get(__prg__, "tool"))
+			self.toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
 		except:
-			self.toolCombo.set("Box")
+			self.toolFrame.set("Box")
 
 		self.loadHistory()
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
 		# Program
-		config.set(__prg__,  "width",    str(self.winfo_width()))
-		config.set(__prg__,  "height",   str(self.winfo_height()))
-		config.set(__prg__,  "tool",     self.toolCombo.get())
+		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
+		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
+		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
 
 		# Connection
-		config.set("Connection", "port", self.portCombo.get())
+		Utils.config.set("Connection", "port", self.portCombo.get())
 
 		# Canvas
-		config.set("Canvas","axes",    str(int(self.draw_axes.get())))
-		config.set("Canvas","grid",    str(int(self.draw_grid.get())))
-		config.set("Canvas","margin",  str(int(self.draw_margin.get())))
-		config.set("Canvas","probe",   str(int(self.draw_probe.get())))
-		config.set("Canvas","rapid",   str(int(self.draw_rapid.get())))
-		config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
+		Utils.config.set("Canvas","axes",    str(int(self.draw_axes.get())))
+		Utils.config.set("Canvas","grid",    str(int(self.draw_grid.get())))
+		Utils.config.set("Canvas","margin",  str(int(self.draw_margin.get())))
+		Utils.config.set("Canvas","probe",   str(int(self.draw_probe.get())))
+		Utils.config.set("Canvas","rapid",   str(int(self.draw_rapid.get())))
+		Utils.config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
 
 		# Control
-		config.set("Control", "step", self.step.get())
+		Utils.config.set("Control", "step", self.step.get())
 
 		# Probe
-		config.set("Probe", "x",    self.probeXdir.get())
-		config.set("Probe", "y",    self.probeYdir.get())
-		config.set("Probe", "z",    self.probeZdir.get())
+		Utils.config.set("Probe", "x",    self.probeXdir.get())
+		Utils.config.set("Probe", "y",    self.probeYdir.get())
+		Utils.config.set("Probe", "z",    self.probeZdir.get())
 
-		config.set("Probe", "xmin", self.probeXmin.get())
-		config.set("Probe", "xmax", self.probeXmax.get())
-		config.set("Probe", "xn",   self.probeXbins.get())
-		config.set("Probe", "ymin", self.probeYmin.get())
-		config.set("Probe", "ymax", self.probeYmax.get())
-		config.set("Probe", "yn",   self.probeYbins.get())
-		config.set("Probe", "zmin", self.probeZmin.get())
-		config.set("Probe", "zmax", self.probeZmax.get())
-		config.set("Probe", "feed", self.probeFeed.get())
+		Utils.config.set("Probe", "xmin", self.probeXmin.get())
+		Utils.config.set("Probe", "xmax", self.probeXmax.get())
+		Utils.config.set("Probe", "xn",   self.probeXbins.get())
+		Utils.config.set("Probe", "ymin", self.probeYmin.get())
+		Utils.config.set("Probe", "ymax", self.probeYmax.get())
+		Utils.config.set("Probe", "yn",   self.probeYbins.get())
+		Utils.config.set("Probe", "zmin", self.probeZmin.get())
+		Utils.config.set("Probe", "zmax", self.probeZmax.get())
+		Utils.config.set("Probe", "feed", self.probeFeed.get())
 
 		# Tools
-		self.tools.save(config)
+		self.tools.save(Utils.config)
 
 		self.saveHistory()
 
 	#----------------------------------------------------------------------
 	def loadHistory(self):
 		try:
-			f = open(hisFile,"r")
+			f = open(Utils.hisFile,"r")
 		except:
 			return
 		self.history = [x.strip() for x in f]
@@ -1877,7 +1810,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def saveHistory(self):
 		try:
-			f = open(hisFile,"w")
+			f = open(Utils.hisFile,"w")
 		except:
 			return
 		f.write("\n".join(self.history))
@@ -1916,6 +1849,7 @@ class Application(Toplevel):
 			self.gcode.undo();
 			self.gcodelist.fill()
 			self.drawAfter()
+		return "break"
 
 	#----------------------------------------------------------------------
 	def redo(self, event=None):
@@ -1923,47 +1857,14 @@ class Application(Toplevel):
 			self.gcode.redo();
 			self.gcodelist.fill()
 			self.drawAfter()
+		return "break"
 
 	#----------------------------------------------------------------------
 	def about(self, event=None):
 		tkMessageBox.showinfo("About",
 				"%s\nby %s [%s]\nVersion %s" % \
-				(__prg__, __author__, __email__, __version__),
+				(Utils.__prg__, __author__, __email__, __version__),
 				parent=self)
-
-	#----------------------------------------------------------------------
-	# Populate listbox with new values
-	#----------------------------------------------------------------------
-	def toolChange(self):
-		tool = self.tools[self.toolCombo.get()]
-		tool.populate()
-		self.tools.activateButtons(tool)
-
-	#----------------------------------------------------------------------
-	# Edit tool listbox
-	#----------------------------------------------------------------------
-	def toolEdit(self, event=None):
-		self.tools[self.toolCombo.get()].edit(event)
-
-	#----------------------------------------------------------------------
-	def toolExecute(self, event=None):
-		self.tools[self.toolCombo.get()].execute(self)
-
-	#----------------------------------------------------------------------
-	def toolAdd(self, event=None):
-		self.tools[self.toolCombo.get()].add()
-
-	#----------------------------------------------------------------------
-	def toolDelete(self, event=None):
-		self.tools[self.toolCombo.get()].delete()
-
-	#----------------------------------------------------------------------
-	def toolClone(self, event=None):
-		self.tools[self.toolCombo.get()].clone()
-
-	#----------------------------------------------------------------------
-	def toolRename(self, event=None):
-		self.tools[self.toolCombo.get()].rename()
 
 	#----------------------------------------------------------------------
 	def insertBlock(self):
@@ -2202,6 +2103,14 @@ class Application(Toplevel):
 			try:    p = float(line[2])
 			except: p = None
 			self.executeOnSelection("DRILL",h, p)
+
+		# FIL*TER: filter editor blocks with text
+		elif rexx.abbrev("FILTER",cmd,3) or cmd=="ALL":
+			try:
+				self.gcodelist.filter = line[1]
+			except:
+				self.gcodelist.filter = None
+			self.gcodelist.fill()
 
 		# ED*ITOR: switch to editor tab
 		elif rexx.abbrev("EDITOR",cmd,2):
@@ -2564,10 +2473,14 @@ class Application(Toplevel):
 
 		# Fill listbox and update selection
 		self.gcodelist.fill()
-		if sel is not None: self.gcodelist.select(sel,clear=True)
+		if sel is not None:
+			if isinstance(sel, str):
+				tkMessageBox.showerror("Operation error", sel, parent=self)
+			else:
+				self.gcodelist.select(sel,clear=True)
 		self.drawAfter()
 		self.notBusy()
-		self.statusbar["text"] = "%s %s"%(cmd," ".join(map(str,args)))
+		self.statusbar["text"] = "%s %s"%(cmd," ".join([str(a) for a in args if a is not None]))
 
 	#----------------------------------------------------------------------
 	def profile(self, direction=None):
@@ -2653,7 +2566,7 @@ class Application(Toplevel):
 		self.gcode.headerFooter()
 		self.gcodelist.fill()
 		self.draw()
-		self.title(__prg__)
+		self.title(Utils.__prg__)
 
 	#----------------------------------------------------------------------
 	# load dialog
@@ -2662,8 +2575,8 @@ class Application(Toplevel):
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open file",
 			initialfile=os.path.join(
-					config.get("File", "dir"),
-					config.get("File", "file")),
+					Utils.config.get("File", "dir"),
+					Utils.config.get("File", "file")),
 			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
 				   ("DXF",    "*.dxf"),
 				   ("Probe",  "*.probe"),
@@ -2673,13 +2586,13 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def loadProbeDialog(self, event=None):
 		try:
-			pfilename = config.get("File", "probe")
+			pfilename = Utils.config.get("File", "probe")
 		except:
 			pfilename = "probe"
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open Probe file",
 			initialfile=os.path.join(
-					config.get("File", "dir"),
+					Utils.config.get("File", "dir"),
 					pfilename),
 			filetypes=[("Probe", ("*.probe")),
 				   ("All","*")])
@@ -2701,13 +2614,13 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def saveProbeDialog(self, event=None):
 		try:
-			pfilename = config.get("File", "probe")
+			pfilename = Utils.config.get("File", "probe")
 		except:
 			pfilename = "probe"
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save probe file",
 			initialfile=os.path.join(
-					config.get("File", "dir"),
+					Utils.config.get("File", "dir"),
 					pfilename),
 			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
 				   ("Probe", ("*.probe")),
@@ -2762,8 +2675,8 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def loadGcode(self, filename=None):
 		if filename:
-			config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
-			config.set("File", "file", os.path.basename(filename))
+			Utils.config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
+			Utils.config.set("File", "file", os.path.basename(filename))
 
 		if self.gcode.isModified():
 			ans = tkMessageBox.askquestion("File modified",
@@ -2775,11 +2688,11 @@ class Application(Toplevel):
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
-		self.title("%s: %s"%(__prg__,self.gcode.filename))
+		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#----------------------------------------------------------------------
 	def loadProbe(self, filename):
-		config.set("File", "probe", os.path.basename(filename))
+		Utils.config.set("File", "probe", os.path.basename(filename))
 		self.gcode.probe.load(filename)
 		self.probeSet()
 
@@ -2794,8 +2707,8 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def saveGcode(self, filename=None):
 		if filename is not None:
-			config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
-			config.set("File", "file", os.path.basename(filename))
+			Utils.config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
+			Utils.config.set("File", "file", os.path.basename(filename))
 			self.gcode.filename = filename
 
 		if not self.gcode.save():
@@ -2803,12 +2716,12 @@ class Application(Toplevel):
 					"Error saving file '%s'"%(self.gcode.filename),
 					parent=self)
 			return
-		self.title("%s: %s"%(__prg__,self.gcode.filename))
+		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#----------------------------------------------------------------------
 	def saveProbe(self, filename=None):
 		if filename is not None:
-			config.set("File", "probe", os.path.basename(filename))
+			Utils.config.set("File", "probe", os.path.basename(filename))
 			self.gcode.probe.filename = filename
 
 		# save probe
@@ -2842,7 +2755,7 @@ class Application(Toplevel):
 					activebackground="LightGreen")
 		else:
 			device  = self.portCombo.get()
-			baudrate = int(config.get("Connection","baud"))
+			baudrate = int(Utils.config.get("Connection","baud"))
 			if self.open(device, baudrate):
 				self.connectBtn.config(text="Close",
 						background="Salmon",
@@ -3084,6 +2997,7 @@ class Application(Toplevel):
 		self.serial.write("~")
 		self._pause = True
 
+	#----------------------------------------------------------------------
 	def pause(self, event=None):
 		if self.serial is None: return
 		if self._pause:
@@ -3303,7 +3217,16 @@ class Application(Toplevel):
 	# Send enabled gcode file to the CNC machine
 	#----------------------------------------------------------------------
 	def run(self):
-		if self.serial is None or self.running: return
+		if self.serial is None:
+			tkMessageBox.showerror("Serial Error",
+				"Serial is not connected",
+				parent=self)
+			return
+		if self.running:
+			tkMessageBox.showerror("Already running",
+				"Please stop before",
+				parent=self)
+			return
 		if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
 			tkMessageBox.showerror("Probe is not zeroed",
 				"Please ZERO any location of the probe before starting a run",
@@ -3577,46 +3500,11 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def get(self, section, item):
-		return config.get(section, item)
+		return Utils.config.get(section, item)
 
 	#----------------------------------------------------------------------
 	def set(self, section, item, value):
-		return config.set(section, item, value)
-
-#-----------------------------------------------------------------------------
-def loadIcons():
-	global icons
-	icons = {}
-	for img in glob.glob("%s%sicons%s*.gif"%(prgpath,os.sep,os.sep)):
-		name,ext = os.path.splitext(os.path.basename(img))
-		try:
-			icons[name] = PhotoImage(file=img)
-		except TclError:
-			pass
-
-#-------------------------------------------------------------------------------
-def delIcons():
-	global icons
-	if len(icons) > 0:
-		for i in icons.values():
-			del i
-
-#------------------------------------------------------------------------------
-def loadConfiguration():
-	global iniUser, hisFile, config
-	iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
-	iniUser = os.path.expanduser("~/.%s" % (__prg__))
-	hisFile = os.path.expanduser("~/.%s.history" % (__prg__))
-	config.read([iniSystem, iniUser])
-	loadIcons()
-
-#------------------------------------------------------------------------------
-def saveConfiguration():
-	global iniUser, config
-	f = open(iniUser,"w")
-	config.write(f)
-	f.close()
-	delIcons()
+		return Utils.config.set(section, item, value)
 
 #------------------------------------------------------------------------------
 def usage():
@@ -3627,7 +3515,7 @@ if __name__ == "__main__":
 	tk = Tk()
 	tk.withdraw()
 	tkExtra.bindClasses(tk)
-	loadConfiguration()
+	Utils.loadConfiguration()
 
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
@@ -3645,5 +3533,5 @@ if __name__ == "__main__":
 		application.quit()
 
 	application.close()
-	saveConfiguration()
+	Utils.saveConfiguration()
  #vim:ts=8:sw=8:sts=8:noet

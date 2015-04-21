@@ -289,7 +289,7 @@ class DXF:
 				self.push(tag,value)
 				return entity
 			elif tag==8:
-				entity.name = value
+				entity.name = str(value)
 			else:
 				existing = entity.get(tag)
 				if existing is None:
@@ -332,7 +332,7 @@ class DXF:
 				self.push(tag,value)
 				return table
 			elif tag==2:
-				table["name"] = value
+				table["name"] = str(value)
 			else:
 				table[tag] = value
 
@@ -533,7 +533,7 @@ if __name__ == "__main__":
 	dxf.readFile()
 	dxf.close()
 	for name,layer in dxf.layers.items():
-		print "Frozen=",not bool(layer.isFrozen())
+		#print "Frozen=",not bool(layer.isFrozen())
 		for entity in dxf.sortLayer(name):
 			print entity, entity._invert
 

@@ -14,6 +14,7 @@ try:
 except ImportError:
 	from tkinter import *
 
+import Utils
 import tkExtra
 
 #===============================================================================
@@ -302,7 +303,7 @@ class Base:
 			except ValueError:
 				value = ""
 
-		if n=="name":
+		if n=="name" and not rename:
 			if self.makeCurrent(value):
 				self.populate()
 		else:
@@ -313,7 +314,7 @@ class Base:
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.yview_moveto(ypos)
-		if edit is not None:
+		if edit is not None and not rename:
 			if edit.lastkey == "Up":
 				self._editPrev()
 			elif edit.lastkey in ("Return", "KP_Enter", "Down"):
@@ -365,9 +366,11 @@ class DataBase(Base):
 		for n, t, d, l in self.variables:
 			try:
 				if n=="name":
-					self.values["%s.%d"%(n,self.n)] = self.values["%s.%d"%(n,self.current)] + " clone"
+					self.values["%s.%d"%(n,self.n)] = \
+						self.values["%s.%d"%(n,self.current)] + " clone"
 				else:
-					self.values["%s.%d"%(n,self.n)] = self.values["%s.%d"%(n,self.current)]
+					self.values["%s.%d"%(n,self.n)] = \
+						self.values["%s.%d"%(n,self.current)]
 			except KeyError:
 				pass
 		self.n += 1
@@ -383,7 +386,6 @@ class DataBase(Base):
 		self.master.listbox.activate(0)
 		self.master.listbox.see(0)
 		self.edit(None,True)
-
 
 #==============================================================================
 # Create a BOX
@@ -683,3 +685,110 @@ class Tools:
 		if tool.buttons is None: return
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
+
+#==============================================================================
+class ToolFrame(Frame):
+	def __init__(self, master, app, tools):
+		Frame.__init__(self, master)
+		self.app   = app
+		self.tools = tools
+
+		f = Frame(self)
+		f.pack(side=TOP, fill=X)
+
+		self.combo = tkExtra.Combobox(f, True,
+					#foreground="DarkBlue",
+					background="White",
+					command=self.change)
+		self.combo.pack(side=LEFT, expand=YES, fill=X)
+
+		b = Button(f, image=Utils.icons["x"], command=self.delete)
+		b.pack(side=RIGHT)
+		self.tools.addButton("del",b)
+
+		b = Button(f, image=Utils.icons["clone"], command=self.clone)
+		b.pack(side=RIGHT)
+		self.tools.addButton("clone",b)
+
+		b = Button(f, image=Utils.icons["add"], command=self.add)
+		b.pack(side=RIGHT)
+		self.tools.addButton("add",b)
+
+		b = Button(f, image=Utils.icons["rename"], command=self.rename)
+		b.pack(side=RIGHT)
+		self.tools.addButton("rename",b)
+
+		b = Button(self, text="Execute",
+				image=Utils.icons["gear"],
+				compound=LEFT,
+				foreground="DarkRed",
+				background="LightYellow",
+				command=self.execute)
+		b.pack(side=BOTTOM, fill=X)
+		self.tools.addButton("exe",b)
+
+		self.toolList = tkExtra.MultiListbox(self,
+					(("Name", 16, None),
+					 ("Value", 24, None)),
+					 header = False,
+					 stretch = "last",
+					 background = "White")
+		self.toolList.sortAssist = None
+		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.bindList("<Double-1>",	self.edit)
+		self.toolList.bindList("<F2>",		self.rename)
+		self.toolList.bindList("<Return>",	self.edit)
+#		self.toolList.bindList("<Key-space>",	self.commandFocus)
+#		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
+		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
+		self.tools.setListbox(self.toolList)
+
+	#----------------------------------------------------------------------
+	# Populate listbox with new values
+	#----------------------------------------------------------------------
+	def change(self):
+		tool = self.tools[self.combo.get()]
+		tool.populate()
+		self.tools.activateButtons(tool)
+
+	#----------------------------------------------------------------------
+	# Edit tool listbox
+	#----------------------------------------------------------------------
+	def edit(self, event=None):
+		self.tools[self.combo.get()].edit(event)
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		self.tools[self.combo.get()].edit(event)
+
+	#----------------------------------------------------------------------
+	def execute(self, event=None):
+		self.tools[self.combo.get()].execute(self.app)
+
+	#----------------------------------------------------------------------
+	def add(self, event=None):
+		self.tools[self.combo.get()].add()
+
+	#----------------------------------------------------------------------
+	def delete(self, event=None):
+		self.tools[self.combo.get()].delete()
+
+	#----------------------------------------------------------------------
+	def clone(self, event=None):
+		self.tools[self.combo.get()].clone()
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		self.tools[self.combo.get()].rename()
+
+	#----------------------------------------------------------------------
+	def set(self, tool):
+		self.combo.set(tool)
+
+	#----------------------------------------------------------------------
+	def get(self):
+		return self.combo.get()
+
+	#----------------------------------------------------------------------
+	def fill(self):
+		self.combo.fill(self.tools.names())

@@ -215,7 +215,7 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def actionCancel(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.draw()
+		#self.draw()
 
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
@@ -829,7 +829,7 @@ class CNCCanvas(Canvas):
 					dash = (4,3)
 				else:
 					dash = None
-				return self.create_line(coords, fill=fill, dash=dash)
+				return self.create_line(coords, fill=fill, dash=dash, cap="projecting")
 		return None
 
 	#----------------------------------------------------------------------

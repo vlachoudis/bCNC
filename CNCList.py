@@ -52,6 +52,7 @@ class CNCListbox(Listbox):
 		self._ystart   = 0
 		self._double   = False	# double clicked handled
 		self._hadfocus = False
+		self.filter    = None
 
 	# ----------------------------------------------------------------------
 	def commandFocus(self, event=None):
@@ -88,6 +89,11 @@ class CNCListbox(Listbox):
 		del self._items[:]
 		y = 0
 		for bi,block in enumerate(self.gcode.blocks):
+			if self.filter is not None:
+				if self.filter not in block.name():
+					self._blockPos.append(None)
+					continue
+
 			self._blockPos.append(y)
 			self.insert(END, block.header())
 			y += 1
@@ -304,24 +310,23 @@ class CNCListbox(Listbox):
 			return
 
 		self._double = False
+		active = self.index(ACTIVE)
 
 		# from a single click
 		y = self.nearest(event.y)
+		self.activate(y)
 		if y != self._ystart: return
 
 		loc = self._headerLocation(event)
 		if loc is None:
 			# Normal line
-			if self.index(ACTIVE)==y:
-				self.activate(y)
+			if  active==y:
 				# In place edit if we had already the focus
 				if self._hadfocus:
 					self.edit(event)
 		elif loc == 0:
-			self.activate(y)
 			self.toggleExpand()
 		elif loc == 1:
-			self.activate(y)
 			self.toggleEnable()
 		return "break"
 
@@ -397,6 +402,7 @@ class CNCListbox(Listbox):
 			bid,lid = self._items[i]
 			if lid is not None: continue
 			block = self.gcode[bid]
+			if block.name() in ("Header", "Footer"): continue
 			if enable is None: enable = not block.enable
 			undoinfo.append(self.gcode.setBlockEnableUndo(bid, enable))
 
@@ -435,6 +441,8 @@ class CNCListbox(Listbox):
 			else:
 				# select whole block
 				y = self._blockPos[b]
+
+			if y is None: continue
 
 			if toggle:
 				select = not self.selection_includes(y)

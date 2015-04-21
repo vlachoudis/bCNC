@@ -15,12 +15,13 @@ import undo
 import Macros
 import Unicode
 
-from path import Path, Segment
+from motionpath import Path, Segment
 from dxf import DXF
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
+OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z])")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 
@@ -666,6 +667,30 @@ class Block(list):
 		return self._name is None and "block" or self._name
 
 	#----------------------------------------------------------------------
+	def addOperation(self, operation):
+		n = self.name()
+		pat = OPPAT.match(n)
+		if pat is None:
+			self._name = "%s [%s]"%(n,operation)
+		else:
+			n = pat.group(1)
+			ops = pat.group(2).split(',')
+			if operation in ops:
+				return
+			if ":" in operation:
+				oid = operation.split(":")[0]
+			else:
+				oid = operation
+			for i,o in enumerate(ops):
+				if ":" in o: o = o.split(":")[0]
+				if o==oid:
+					ops[i] = operation
+					break
+			else:
+				ops.append(operation)
+			self._name = "%s [%s]"%(n.strip(),','.join(ops))
+
+	#----------------------------------------------------------------------
 	def header(self):
 		e = self.expand and Unicode.BLACK_DOWN_POINTING_TRIANGLE \
 				or  Unicode.BLACK_RIGHT_POINTING_TRIANGLE
@@ -832,8 +857,26 @@ class GCode:
 						longest = p
 				opath.remove(longest)
 				changed = longest.mergeLoops(opath)
+
 				undoinfo.extend(self.importPath(None, longest, enable))
+#				d = longest.direction()
+#				bid = len(self.blocks)-1
+#				if d==0:
+#					undoinfo.extend(self.addBlockOperationUndo(bid,"O"))
+#				elif d==1:
+#					undoinfo.extend(self.addBlockOperationUndo(bid,"CW"))
+#				elif d==-1:
+#					undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
+
 			undoinfo.extend(self.importPath(None, opath, enable))
+#			d = opath.direction()
+#			bid = len(self.blocks)-1
+#			if d==0:
+#				undoinfo.extend(self.addBlockOperationUndo(bid,"O"))
+#			elif d==1:
+#				undoinfo.extend(self.addBlockOperationUndo(bid,"CW"))
+#			elif d==-1:
+#				undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
 		if empty: self.addBlockFromString("Footer",self.footer)
 
@@ -885,7 +928,7 @@ class GCode:
 				i += 1
 				continue
 
-			block = Block(name)
+			block = Block("%s [P]"%(name))
 			block.enable = enable
 
 			x,y = entities[i].start()
@@ -923,11 +966,11 @@ class GCode:
 					paths.append(path)
 					path = Path(block.name())
 			elif self.cnc.gcode == 1:	# line
-				if z1st is None: z1st = self.cnc.z
-				if self.cnc.dx != 0.0 or self.cnc.dy != 0.0 and abs(self.cnc.z-z1st)<0.0001:
+				if z1st is None: z1st = self.cnc.zval
+				if (self.cnc.dx != 0.0 or self.cnc.dy != 0.0) and abs(self.cnc.zval-z1st)<0.0001:
 					path.append(Segment(1, start, end))
 			elif self.cnc.gcode in (2,3):	# arc
-				if z1st is None: z1st = self.cnc.z
+				if z1st is None: z1st = self.cnc.zval
 				if abs(self.cnc.z-z1st)<0.0001:
 					xc,yc,zc = self.cnc.motionCenter()
 					center = Vector(xc,yc)
@@ -940,7 +983,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# create a block from Path
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None):
+	def fromPath(self, path, block=None, z=None, entry=True, exit=True):
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -949,9 +992,10 @@ class GCode:
 
 		if isinstance(path, Path):
 			x,y = path[0].start
-			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",self.surface),
-						self.fmt("f",self.feedz)))
+			if z is None: z = self.surface
+			if entry:
+				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+			block.append("g1 %s %s"%(self.fmt("z",z), self.fmt("f",self.feedz)))
 
 			first = True
 			for segment in path:
@@ -970,7 +1014,8 @@ class GCode:
 				if first:
 					block[-1] += " %s"%(self.fmt("f",self.feed))
 					first = False
-			block.append("g0 %s"%(self.fmt("z",self.safe)))
+			if exit:
+				block.append("g0 %s"%(self.fmt("z",self.safe)))
 		else:
 			for p in path:
 				self.fromPath(p, block)
@@ -1072,6 +1117,12 @@ class GCode:
 		self._blocksExist = False
 		for line in lines: self._addLine(line)
 		self._trim()
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	def setAllBlocksUndo(self, blocks=[]):
+		undoinfo = [self.setAllBlocksUndo, self.blocks]
+		self.blocks = blocks
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1193,6 +1244,16 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Add an operation code in the name as [drill, cut, in/out...]
+	#----------------------------------------------------------------------
+	def addBlockOperationUndo(self, bid, operation):
+		undoinfo = (self.setBlockNameUndo, bid, self.blocks[bid]._name)
+		self.blocks[bid].addOperation(operation)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Replace the lines of a block
+	#----------------------------------------------------------------------
 	def setBlockLinesUndo(self, bid, lines):
 		block = self.blocks[bid]
 		undoinfo = (self.setBlockLinesUndo, bid, block[:])
@@ -1283,12 +1344,6 @@ class GCode:
 
 	def canUndo(self):	return self.undoredo.canUndo()
 	def canRedo(self):	return self.undoredo.canRedo()
-
-	#----------------------------------------------------------------------
-	def setAllBlocksUndo(self, blocks=[]):
-		undoinfo = [self.setAllBlocksUndo, self.blocks]
-		self.blocks = blocks
-		return undoinfo
 
 	#----------------------------------------------------------------------
 	# Start a new iterator
@@ -1401,6 +1456,14 @@ class GCode:
 		# find the penetration points and drill
 		# skip all g1 movements on the horizontal plane
 		if depth is None: depth = self.surface-self.thickness
+		if depth < self.surface-self.thickness or depth > self.surface:
+			return  "ERROR: Drill depth %g outside stock surface: %g .. %g\n" \
+				"Please change stock surface in Tools->Stock or drill depth." \
+				%(depth, self.surface, self.surface-self.thickness)
+		if abs(depth - (self.surface-self.thickness)) < 1e-7:
+			opname = "drill"
+		else:
+			opname = "drill:%g"%(depth)
 
 		undoinfo = []
 
@@ -1411,10 +1474,7 @@ class GCode:
 			if block.name() in ("Header", "Footer"): continue
 
 			# construct new name
-			name = block.name()
-			if "[" in name:
-				name = name.split("[")[0]
-			undoinfo.append(self.setBlockNameUndo(bid, "%s [drill]"%(name)))
+			undoinfo.append(self.addBlockOperationUndo(bid, opname))
 
 			# 1st detect limits of first pass
 			self.initPath(bid)
@@ -1469,23 +1529,15 @@ class GCode:
 	def cut(self, items, depth=None, stepz=None):
 		if stepz is None: stepz =  self.stepz
 		if depth is None: depth = self.surface-self.thickness
-		stepz = abs(stepz)
-		undoinfo = []
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
-			if self.blocks[bid].name() in ("Header", "Footer"): continue
-			newpath = []
-			for path in self.toPath(bid):
-				closed = path.isClosed()
 
-	#----------------------------------------------------------------------
-	# Create a cut my replicating the initial top-only path multiple times
-	# until the maximum height
-	#----------------------------------------------------------------------
-	def cut_old(self, items, depth=None, stepz=None):
-		if stepz is None: stepz =  self.stepz
-		if depth is None: depth = self.surface-self.thickness
+		if depth < self.surface-self.thickness or depth > self.surface:
+			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
+				"Please change stock surface in Tools->Stock or cut depth." \
+				%(depth, self.surface, self.surface-self.thickness)
+		if abs(depth - (self.surface-self.thickness)) < 1e-7:
+			opname = "cut"
+		else:
+			opname = "cut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
 		for bid,lid in items:
@@ -1493,81 +1545,26 @@ class GCode:
 			if lid is not None: continue
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-
-			# 1st detect limits of first pass
-			start = None
-			end   = None
-			exit  = None
-			self.initPath(bid)
-			self.cnc.z = self.cnc.zval = 1000.0
-			for i,line in enumerate(block):
-				cmds = self.cnc.parseLine(line)
-				if cmds is None: continue
-				self.cnc.processPath(cmds)
-				#print i,":",self.cnc.dz,self.cnc.z,line
-				if self.cnc.dz<0.0:
-					if start is None:
-						start = i
-					elif end is None:
-						end = i
-				elif self.cnc.dz>0.0 and exit is None:
-					if end is None: end = i
-					exit = i
-					#print "EXIT"
-					break
-				self.cnc.motionPathEnd()
-			if start is None: start = 0
-			if end   is None: end   = len(block)
-			if exit  is None: exit  = len(block)
-
-			#print "len=",len(block)
-			#print "start=",start
-			#print "end=",end
-			#print "exit=",exit
-			#print
-			#print "start: 0 ..",start
-			#print "\n".join(block[:start])
-			#print
-			#print "path:\n",start,"..",end
-			#print "\n".join(block[start:end])
-			#print
-			#print "exit:\n",exit,"..",len(block)
-			#print "\n".join(block[exit:])
-
-			# 2nd copy starting lines
-			lines = block[:start]
-
-			# 3rd duplicate passes from [start:end]
-			z = self.surface
-			while z > depth:
-				z = max(z-stepz, depth)
-
-				self.initPath(bid)
-				for i in range(start, end):
-					line = block[i]
-					cmds = self.cnc.parseLine(line)
-					if cmds is not None:
-						self.cnc.processPath(cmds)
-						changed = False
-						for j,cmd in enumerate(cmds):
-							c = cmd[0].upper()
-							if c=="Z":
-								changed = True
-								cmds[j] = self.fmt(cmd[0],z)
-							elif c=="F":
-								changed = True
-								if self.cnc.dz!=0.0:
-									cmds[j] = self.fmt(cmd[0],self.feedz)
-								else:
-									cmds[j] = self.fmt(cmd[0],self.feed)
-						if changed:
-							line = " ".join(cmds)
-						self.cnc.motionPathEnd()
-					lines.append(line)
-
-			# 4th copy remaining lines
-			lines.extend(block[exit:])
-			undoinfo.append(self.setBlockLinesUndo(bid,lines))
+			newpath = []
+			newblock = Block(block.name())
+			for path in self.toPath(bid):
+				closed = path.isClosed()
+				z = self.surface
+				entry = True
+				exit  = False
+				while z > depth:
+					z = max(z-stepz, depth)
+					if not closed:
+						# on open paths always enter exit
+						entry = exit = True
+					elif abs(z-depth)<1e-7:
+						# last pass
+						exit =True
+					self.fromPath(path, newblock, z, entry, exit)
+					entry = False
+			if newblock:
+				undoinfo.append(self.addBlockOperationUndo(bid, opname))
+				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
@@ -1586,6 +1583,7 @@ class GCode:
 				newpath.append(path)
 			if newpath:
 				block = self.fromPath(newpath)
+				undoinfo.append(self.addBlockOperationUndo(bid, "reverse"))
 				undoinfo.append(self.setBlockLinesUndo(bid, block))
 		self.addUndo(undoinfo)
 
