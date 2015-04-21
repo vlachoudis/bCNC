@@ -28,13 +28,18 @@ Please edit the on in the home directory
 - workspace configuration (dialog for G54..G59 commands)
 - auto leveling, Z-probing and auto leveling by altering the g-code during
   sending
+- basic CAM features (profiling, drilling)
+- user configurable database of materials, endmills, stock
+- graphically moving and arranging objects
 - g-code editor
 - web pendant to be used via smart phones
 - graphics display of the g-code, and workspace
+- Goodies:
+-   - finger joint box generator
 
 # Editor functions
-- syntax highlighting
-- move/translate of g-code
+- move, rotate objects
+- reorder cutting sequence, move up/down blocks of gcode
 - rounding digits
 - inkscape gcodetools correction of annoying Z-lifting and lowering on every
   passage
@@ -43,8 +48,6 @@ Please edit the on in the home directory
 # TODO list
 - graphics setup (for the moment it has to be written in the ~/.bCNC.ini file)
 - manual
-- editor rotation of g-code
-- move up/down blocks of gcode
 - tkinter canvas that I use for display can a bit slow sometimes on very big
   g-code files.
 
@@ -53,4 +56,3 @@ Please edit the on in the home directory
   early stage of development, hence there should be plenty of bugs not spotted
   yet. Please use/try it with care, i don't want to be liable if it causes any
   damage :)
-
