@@ -180,6 +180,7 @@ class CNCCanvas(Canvas):
 		self.draw_margin  = True
 		self.draw_probe   = True
 		self.draw_workarea= True
+		self.draw_paths   = True
 		self.draw_rapid   = True		# draw rapid motions
 		self._wx = self._wy = self._wz = 0.	# work position
 		self._dx = self._dy = self._dz = 0.	# work-machine position
@@ -501,6 +502,8 @@ class CNCCanvas(Canvas):
 		self.yview(SCROLL,  1, UNITS)
 
 	# ----------------------------------------------------------------------
+	# Zoom on screen position x,y by a factor zoom
+	# ----------------------------------------------------------------------
 	def zoomCanvas(self, x, y, zoom):
 		self.zoom *= zoom
 
@@ -532,15 +535,44 @@ class CNCCanvas(Canvas):
 		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
 
 	# ----------------------------------------------------------------------
+	# Zoom to Fit to Screen
+	# ----------------------------------------------------------------------
+	def menuZoomFit(self, event=None):
+		bb = self.bbox('all')
+		if bb is None: return
+		x1,y1,x2,y2 = bb
+		try:
+			zx = float(self.winfo_width()) / (x2-x1)
+		except:
+			return
+		try:
+			zy = float(self.winfo_height()) / (y2-y1)
+		except:
+			return
+		if zx > 1.0:
+			z = min(zx,zy)
+		else:
+			z = max(zx,zy)
+		self.zoomCanvas(0,0,z)
+
+		a,b = self.xview()
+		d = (b-a)/2.0
+		self.xview_moveto(0.5-d)
+
+		a,b = self.yview()
+		d = (b-a)/2.0
+		self.yview_moveto(0.5-d)
+
+	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
-		x = int(self.cget("width" ))/2.0
-		y = int(self.cget("height"))/2.0
+		x = self.cget("width" )//2
+		y = self.cget("height")//2
 		self.zoomCanvas(x, y, 2.0)
 
 	# ----------------------------------------------------------------------
 	def menuZoomOut(self, event=None):
-		x = int(self.cget("width" ))/2.0
-		y = int(self.cget("height"))/2.0
+		x = self.cget("width" )//2
+		y = self.cget("height")//2
 		self.zoomCanvas(x, y, 0.5)
 
 	# ----------------------------------------------------------------------
@@ -650,11 +682,11 @@ class CNCCanvas(Canvas):
 		if self._inParse: return
 		if view is not None: self.view = view
 		self._inParse = True
-		self.initPosition()
-		x0 = self.xview()[0]
+		x0 = self.xview()[0]	# remember position
 		y0 = self.yview()[0]
 
 		self._last = (0.,0.,0.)
+		self.initPosition()
 		for i,block in enumerate(self.gcode.blocks):
 			block.resetPath()
 			for j,line in enumerate(block):
@@ -825,11 +857,10 @@ class CNCCanvas(Canvas):
 				else:
 					fill = DISABLE_COLOR
 				if self.cnc.gcode == 0:
-					if not self.draw_rapid: return None
-					dash = (4,3)
-				else:
-					dash = None
-				return self.create_line(coords, fill=fill, dash=dash, cap="projecting")
+					if self.draw_rapid:
+						return self.create_line(coords, fill=fill, dash=(4,3))
+				elif self.draw_paths:
+					return self.create_line(coords, fill=fill, cap="projecting")
 		return None
 
 	#----------------------------------------------------------------------

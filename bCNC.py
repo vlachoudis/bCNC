@@ -102,6 +102,8 @@ class Application(Toplevel):
 		self.draw_margin.set(bool(int(Utils.config.get("Canvas","margin"))))
 		self.draw_probe  = BooleanVar()
 		self.draw_probe.set(bool(int(Utils.config.get("Canvas","probe"))))
+		self.draw_paths  = BooleanVar()
+		self.draw_paths.set(bool(int(Utils.config.get("Canvas","paths"))))
 		self.draw_rapid  = BooleanVar()
 		self.draw_rapid.set(bool(int(Utils.config.get("Canvas","rapid"))))
 		self.draw_workarea = BooleanVar()
@@ -1578,6 +1580,11 @@ class Application(Toplevel):
 					accelerator="[Ctrl--]",
 					command=self.canvas.menuZoomOut)
 
+		menu.add_command(label="Fit to screen", underline=0,
+					image=Utils.icons["zoom_on"],
+					compound=LEFT,
+					command=self.canvas.menuZoomFit)
+
 		# -----------------
 		menu.add_separator()
 		menu.add_command(label="Expand", underline=0,
@@ -1604,6 +1611,10 @@ class Application(Toplevel):
 
 		menu.add_checkbutton(label="Margin", underline=0,
 					variable=self.draw_margin,
+					command=self.toggleDrawFlag)
+
+		menu.add_checkbutton(label="Paths (G1,G2,G3)", underline=0,
+					variable=self.draw_paths,
 					command=self.toggleDrawFlag)
 
 		menu.add_checkbutton(label="Probe", underline=0,
@@ -1772,6 +1783,7 @@ class Application(Toplevel):
 		Utils.config.set("Canvas","grid",    str(int(self.draw_grid.get())))
 		Utils.config.set("Canvas","margin",  str(int(self.draw_margin.get())))
 		Utils.config.set("Canvas","probe",   str(int(self.draw_probe.get())))
+		Utils.config.set("Canvas","paths",   str(int(self.draw_paths.get())))
 		Utils.config.set("Canvas","rapid",   str(int(self.draw_rapid.get())))
 		Utils.config.set("Canvas","workarea",str(int(self.draw_workarea.get())))
 
@@ -1882,6 +1894,7 @@ class Application(Toplevel):
 		self.canvas.draw_grid     = self.draw_grid.get()
 		self.canvas.draw_margin   = self.draw_margin.get()
 		self.canvas.draw_probe    = self.draw_probe.get()
+		self.canvas.draw_paths    = self.draw_paths.get()
 		self.canvas.draw_rapid    = self.draw_rapid.get()
 		self.canvas.draw_workarea = self.draw_workarea.get()
 		self.viewChange()

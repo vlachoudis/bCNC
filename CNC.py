@@ -333,7 +333,6 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	def __init__(self):
-		self.accuracy = 0.02		# sagitta error during arc conversion
 		self.initPath()
 
 	#----------------------------------------------------------------------
@@ -561,7 +560,7 @@ class CNC:
 			phi  = math.atan2(self.y-yc, self.x-xc)
 			ephi = math.atan2(self.yval-yc, self.xval-xc)
 			try:
-				sagitta = 1.0-self.accuracy/self.rval
+				sagitta = 1.0-CNC.accuracy/self.rval
 			except ZeroDivisionError:
 				sagitta = 0.0
 			if sagitta>0.0:
