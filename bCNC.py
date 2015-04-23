@@ -3002,12 +3002,14 @@ class Application(Toplevel):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
 		self.serial.write("!")
+		self.serial.flush()
 		self._pause = False
 
 	def resume(self, event=None):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
 		self.serial.write("~")
+		self.serial.flush()
 		self._pause = True
 
 	#----------------------------------------------------------------------
