@@ -585,6 +585,32 @@ class Application(Toplevel):
 		b.grid(row=row, column=col, sticky=EW)
 		self.widgets.append(b)
 
+		# set zero
+		row += 1
+		col  = 1
+		b = Button(lframe, text="X=0",
+				command=self.wcsSetX0,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Set X coordinate to zero")
+		self.widgets.append(b)
+
+		col += 1
+		b = Button(lframe, text="Y=0",
+				command=self.wcsSetY0,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Set Y coordinate to zero")
+		self.widgets.append(b)
+
+		col += 1
+		b = Button(lframe, text="Z=0",
+				command=self.wcsSetZ0,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Set Z coordinate to zero")
+		self.widgets.append(b)
+
 		# Tool offset
 		row += 1
 		col =  0
@@ -2355,6 +2381,9 @@ class Application(Toplevel):
 			except: z = ""
 			self._wcsSet(x,y,z)
 
+		elif cmd == "SET0":
+			self._wcsSet(0.,0.,0.)
+
 		elif cmd == "SETX":
 			try: x = float(line[1])
 			except: x = ""
@@ -3026,6 +3055,11 @@ class Application(Toplevel):
 		self.wcsX.delete(0,END)
 		self.wcsY.delete(0,END)
 		self.wcsZ.delete(0,END)
+
+	#----------------------------------------------------------------------
+	def wcsSetX0(self): self._wcsSet(0.0,"","")
+	def wcsSetY0(self): self._wcsSet("",0.0,"")
+	def wcsSetZ0(self): self._wcsSet("","",0.0)
 
 	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
