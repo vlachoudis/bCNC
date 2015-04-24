@@ -75,3 +75,23 @@ def getFloat(section, name, default):
 	global config
 	try: return float(config.get(section, name))
 	except: return default
+
+#------------------------------------------------------------------------------
+# Return all comports when serial.tools.list_ports is not available!
+#------------------------------------------------------------------------------
+def comports():
+	locations=[	'/dev/ttyACM',
+			'/dev/ttyUSB',
+			'/dev/ttyS',
+			'com']
+
+	comports = []
+	for prefix in locations:
+		for i in range(32):
+			device = "%s%d"%(prefix,i)
+			try:
+				os.stat(device)
+				comports.append((device,None,None))
+			except OSError:
+				pass
+	return comports

@@ -565,14 +565,14 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
-		x = self.cget("width" )//2
-		y = self.cget("height")//2
+		x = int(self.cget("width" ))//2
+		y = int(self.cget("height"))//2
 		self.zoomCanvas(x, y, 2.0)
 
 	# ----------------------------------------------------------------------
 	def menuZoomOut(self, event=None):
-		x = self.cget("width" )//2
-		y = self.cget("height")//2
+		x = int(self.cget("width" ))//2
+		y = int(self.cget("height"))//2
 		self.zoomCanvas(x, y, 0.5)
 
 	# ----------------------------------------------------------------------

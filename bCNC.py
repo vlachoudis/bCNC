@@ -21,7 +21,10 @@ import string
 import serial
 import socket
 import threading
-import serial.tools.list_ports
+try:
+	from serial.tools.list_ports import comports
+except:
+	from Utils import comports
 
 try:
 	from Queue import *
@@ -221,7 +224,7 @@ class Application(Toplevel):
 		Label(lframe,text="Port:").grid(row=0,column=0,sticky=E)
 		self.portCombo = tkExtra.Combobox(lframe, False, background="White", width=8)
 		self.portCombo.grid(row=0, column=1, columnspan=2, sticky=EW)
-		devices = sorted([x[0] for x in serial.tools.list_ports.comports()])
+		devices = sorted([x[0] for x in comports()])
 		self.portCombo.fill(devices)
 		self.portCombo.set(Utils.config.get("Connection","port"))
 
@@ -1065,6 +1068,29 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Unlock CNC")
+
+		# -----
+		# Zoom
+		# -----
+		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
+
+		b = Button(toolbar, image=Utils.icons["zoom_in"],
+				command=self.canvas.menuZoomIn)
+		tkExtra.Balloon.set(b, "Zoom In [Ctrl-=]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_out"],
+				command=self.canvas.menuZoomOut)
+		tkExtra.Balloon.set(b, "Zoom Out [Ctrl--]")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_on"],
+				command=self.canvas.menuZoomFit)
+		tkExtra.Balloon.set(b, "Fit to screen")
+		self.widgets.append(b)
+		b.pack(side=LEFT)
 
 		# -----
 		# Tools
