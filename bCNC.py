@@ -715,8 +715,6 @@ class Application(Toplevel):
 		self.probeXbins = Spinbox(lframe, from_=2, to_=1000, command=self.probeChange,
 					background="White", width=3)
 		self.probeXbins.grid(row=row, column=col, sticky=EW)
-		self.probeXbins.delete(0,END)
-		self.probeXbins.insert(0,"5")
 		tkExtra.Balloon.set(self.probeXbins, "X bins")
 		self.widgets.append(self.probeXbins)
 
@@ -787,10 +785,10 @@ class Application(Toplevel):
 		self.probeFeed.set(Utils.config.get("Probe","feed"))
 
 		self.probeXbins.delete(0,END)
-		self.probeXbins.insert(0,Utils.config.get("Probe","xn"))
+		self.probeXbins.insert(0,max(2,Utils.getInt("Probe","xn",5)))
 
 		self.probeYbins.delete(0,END)
-		self.probeYbins.insert(0,Utils.config.get("Probe","yn"))
+		self.probeYbins.insert(0,max(2,Utils.getInt("Probe","yn",5)))
 		self.probeChange()
 
 		# Buttons
@@ -3080,7 +3078,7 @@ class Application(Toplevel):
 		try:
 			probe.xmin = float(self.probeXmin.get())
 			probe.xmax = float(self.probeXmax.get())
-			probe.xn   = int(self.probeXbins.get())
+			probe.xn   = max(2,int(self.probeXbins.get()))
 			self.probeXstep["text"] = "%.5g"%(probe.xstep())
 		except ValueError:
 			self.probeXstep["text"] = ""
@@ -3093,7 +3091,7 @@ class Application(Toplevel):
 		try:
 			probe.ymin = float(self.probeYmin.get())
 			probe.ymax = float(self.probeYmax.get())
-			probe.yn   = int(self.probeYbins.get())
+			probe.yn   = max(2,int(self.probeYbins.get()))
 			self.probeYstep["text"] = "%.5g"%(probe.ystep())
 		except ValueError:
 			self.probeYstep["text"] = ""

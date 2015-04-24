@@ -101,8 +101,8 @@ class Probe:
 		self.ymin, self.ymax, self.yn   = read(f)
 		self.zmin, self.zmax, self.feed = read(f)
 
-		self.xn = int(self.xn)
-		self.yn = int(self.yn)
+		self.xn = max(2,int(self.xn))
+		self.yn = max(2,int(self.yn))
 
 		self.makeMatrix()
 		self.xstep()
