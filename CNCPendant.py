@@ -24,7 +24,7 @@ except ImportError:
 	import http.server as HTTPServer
 
 HOSTNAME = "localhost"
-PORT = 8080
+port = 8080
 
 httpd = None
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -123,7 +123,7 @@ def _server(app):
 	global httpd
 	server_class = HTTPServer.HTTPServer
 	try:
-		httpd = server_class(('', PORT), Pendant)
+		httpd = server_class(('', port), Pendant)
 		httpd.app = app
 		httpd.serve_forever()
 	except:

@@ -1756,6 +1756,8 @@ class Application(Toplevel):
 		try: self.geometry(geom)
 		except: pass
 
+		CNCPendant.port = Utils.getInt("Connection","pendantport",CNCPendant.port)
+
 		if int(Utils.config.get("Connection","pendant")):
 			self.startPendant(False)
 
@@ -3305,7 +3307,7 @@ class Application(Toplevel):
 		if showInfo:
 			tkMessageBox.showinfo("Pendant",
 				"Pendant started:\n"\
-				"http://%s:8080"%(socket.gethostname()), parent=self)
+				"http://%s:%d"%(socket.gethostname(),CNCPendant.port), parent=self)
 
 	#----------------------------------------------------------------------
 	# Stop the web pendant
