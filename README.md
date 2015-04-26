@@ -21,7 +21,7 @@ There is a global ini file in the installation directory.
 DO NOT CHANGE THIS ONE
 The first time you run bCNC will make a copy in the home
 directory typically ${HOME}/.bCNC  or ~/.bCNC
-Please edit the on in the home directory
+Please edit the one in the home directory
 
 # Features
 - g-code sender
@@ -33,9 +33,9 @@ Please edit the on in the home directory
 - graphically moving and arranging objects
 - g-code editor
 - web pendant to be used via smart phones
-- graphics display of the g-code, and workspace
+- graphical display of the g-code, and workspace
 - Goodies:
--   - finger joint box generator
+  - finger joint box generator
 
 # Editor functions
 - move, rotate objects
@@ -43,16 +43,16 @@ Please edit the on in the home directory
 - rounding digits
 - inkscape gcodetools correction of annoying Z-lifting and lowering on every
   passage
-- Graphical block selection for reordering the cut process.
+- graphical block selection for reordering the cut process.
 
 # TODO list
-- graphics setup (for the moment it has to be written in the ~/.bCNC.ini file)
+- graphical setup (for the moment it has to be written in the ~/.bCNC.ini file)
 - manual
-- tkinter canvas that I use for display can a bit slow sometimes on very big
-  g-code files.
+- tkinter canvas that I use for display can be a bit slow sometimes on very
+  big g-code files.
 
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in
-  early stage of development, hence there should be plenty of bugs not spotted
-  yet. Please use/try it with care, i don't want to be liable if it causes any
-  damage :)
+  an early stage of development.  Hence there should be plenty of bugs not yet
+  spotted. Please use/try it with care, I don't want to be liable if it causes
+  any damage :)
