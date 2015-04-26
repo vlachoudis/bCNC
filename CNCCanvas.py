@@ -535,12 +535,37 @@ class CNCCanvas(Canvas):
 		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
 
 	# ----------------------------------------------------------------------
+	# Return selected objects bounding box
+	# ----------------------------------------------------------------------
+	def selBbox(self):
+		x1 = None
+		bb = self.bbox('sel')
+		if bb is not None:
+			x1,y1,x2,y2 = bb
+
+		bb = self.bbox('sel2')
+		if bb is not None:
+			if x1 is not None:
+				x1 = min(x1,bb[0])
+				y1 = min(y1,bb[1])
+				x2 = max(x2,bb[2])
+				y2 = max(y2,bb[3])
+				return x1,y1,x2,y2
+			else:
+				return bb
+
+		if x1 is None:
+			return self.bbox('all')
+		return x1,y1,x2,y2
+
+	# ----------------------------------------------------------------------
 	# Zoom to Fit to Screen
 	# ----------------------------------------------------------------------
 	def menuZoomFit(self, event=None):
-		bb = self.bbox('all')
+		bb = self.selBbox()
 		if bb is None: return
 		x1,y1,x2,y2 = bb
+
 		try:
 			zx = float(self.winfo_width()) / (x2-x1)
 		except:
@@ -555,13 +580,21 @@ class CNCCanvas(Canvas):
 			z = max(zx,zy)
 		self.zoomCanvas(0,0,z)
 
+		# Find position of new selection
+		x1,y1,x2,y2 = self.selBbox()
+		xm = (x1+x2)//2
+		ym = (y1+y2)//2
+		sx1,sy1,sx2,sy2 = map(float,self.cget("scrollregion").split())
+		midx = float(xm-sx1) / (sx2-sx1)
+		midy = float(ym-sy1) / (sy2-sy1)
+
 		a,b = self.xview()
 		d = (b-a)/2.0
-		self.xview_moveto(0.5-d)
+		self.xview_moveto(midx-d)
 
 		a,b = self.yview()
 		d = (b-a)/2.0
-		self.yview_moveto(0.5-d)
+		self.yview_moveto(midy-d)
 
 	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
