@@ -189,6 +189,9 @@ class CNCCanvas(Canvas):
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
 		self._last = (0.,0.,0.)
 
+		self._tzoom  = 1.0
+		self._tafter = None
+
 		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.initPosition()
 
@@ -502,9 +505,25 @@ class CNCCanvas(Canvas):
 		self.yview(SCROLL,  1, UNITS)
 
 	# ----------------------------------------------------------------------
+	def zoomCanvas(self, x, y, zoom):
+		self._tx = x
+		self._ty = y
+		self._tzoom *= zoom
+		if self._tafter:
+			self.after_cancel(self._tafter)
+		self._tafter = self.after(100, self._zoomCanvas)
+
+	# ----------------------------------------------------------------------
 	# Zoom on screen position x,y by a factor zoom
 	# ----------------------------------------------------------------------
-	def zoomCanvas(self, x, y, zoom):
+	def _zoomCanvas(self, event=None): #x, y, zoom):
+		self._tafter = None
+		x = self._tx
+		y = self._ty
+		zoom = self._tzoom
+#	def zoomCanvas(self, x, y, zoom):
+		self._tzoom = 1.0
+
 		self.zoom *= zoom
 
 		x0 = self.canvasx(0)
@@ -714,6 +733,9 @@ class CNCCanvas(Canvas):
 	def draw(self, view=None): #, lines):
 		if self._inParse: return
 		if view is not None: self.view = view
+		self._tzoom  = 1.0
+		self._tafter = None
+
 		self._inParse = True
 		x0 = self.xview()[0]	# remember position
 		y0 = self.yview()[0]
@@ -891,9 +913,9 @@ class CNCCanvas(Canvas):
 					fill = DISABLE_COLOR
 				if self.cnc.gcode == 0:
 					if self.draw_rapid:
-						return self.create_line(coords, fill=fill, dash=(4,3))
+						return self.create_line(coords, fill=fill, width=0, dash=(4,3))
 				elif self.draw_paths:
-					return self.create_line(coords, fill=fill, cap="projecting")
+					return self.create_line(coords, fill=fill, width=0, cap="projecting")
 		return None
 
 	#----------------------------------------------------------------------
