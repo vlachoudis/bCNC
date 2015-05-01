@@ -2895,7 +2895,8 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def softReset(self):
-		if self.serial: self.serial.write("\030")
+		if self.serial:
+			self.serial.write("\030")
 
 	def unlock(self):
 		self._alarm = False
@@ -3360,6 +3361,8 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
+		time.sleep(1);
+		self.softReset()
 		self.emptyQueue()
 		self._runLines = 0
 		self._quit     = 0

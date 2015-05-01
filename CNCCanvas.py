@@ -511,7 +511,7 @@ class CNCCanvas(Canvas):
 		self._tzoom *= zoom
 		if self._tafter:
 			self.after_cancel(self._tafter)
-		self._tafter = self.after(100, self._zoomCanvas)
+		self._tafter = self.after(50, self._zoomCanvas)
 
 	# ----------------------------------------------------------------------
 	# Zoom on screen position x,y by a factor zoom
@@ -742,11 +742,12 @@ class CNCCanvas(Canvas):
 
 		self._last = (0.,0.,0.)
 		self.initPosition()
+		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
 			block.resetPath()
 			for j,line in enumerate(block):
 				cmd = self.cnc.parseLine(line)
-				if cmd is None:
+				if cmd is None or not drawG:
 					block.addPath(None)
 				else:
 					path = self.drawPath(cmd, block.enable)

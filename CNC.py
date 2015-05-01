@@ -339,7 +339,7 @@ class CNC:
 	@staticmethod
 	def loadConfig(config):
 		section = "CNC"
-		CNC.inch           = not bool( config.get(section, "units"))
+		CNC.inch           = bool(int(config.get(section, "units")))
 		CNC.acceleration_x = float(config.get(section, "acceleration_x"))
 		CNC.acceleration_y = float(config.get(section, "acceleration_y"))
 		CNC.acceleration_z = float(config.get(section, "acceleration_z"))
@@ -487,13 +487,13 @@ class CNC:
 
 				# Execute immediately
 				if self.gcode==20:	# Switch to inches
-					if self.inch:
+					if CNC.inch:
 						self.unit = 1.0
 					else:
 						self.unit = 25.4
 
 				elif self.gcode==21:	# Switch to mm
-					if self.inch:
+					if CNC.inch:
 						self.unit = 1.0/25.4
 					else:
 						self.unit = 1.0
@@ -535,9 +535,6 @@ class CNC:
 			yc = self.y + self.jval
 			zc = self.z + self.kval
 			self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
-			#r2 = math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2)
-			#if abs((self.rval-r2)/self.rval) > 0.01:
-			#	print>>sys.stderr, "ERROR arc", r2, self.rval
 		return xc,yc,zc
 
 	#----------------------------------------------------------------------
@@ -1915,8 +1912,8 @@ class GCode:
 					xyz = self.cnc.motionPath()
 					self.cnc.motionPathEnd()
 					if not xyz:
-						# while auto-levelling, do not ignore non-movement lines
-						# so just append the line as-is
+						# while auto-levelling, do not ignore non-movement
+						# commands, just append the line as-is
 						lines.append(line)
 						paths.append(None)
 						continue
