@@ -1819,6 +1819,9 @@ class Application(Toplevel):
 		if int(Utils.config.get("Connection","pendant")):
 			self.startPendant(False)
 
+		if int(Utils.config.get("Connection","openserial")):
+			self.openClose()
+
 		# Create tools
 		self.tools.load(Utils.config)
 		try:
@@ -3594,22 +3597,11 @@ class Application(Toplevel):
 		return Utils.config.set(section, item, value)
 
 #------------------------------------------------------------------------------
-def usage():
-	sys.exit(0)
-
-#------------------------------------------------------------------------------
 if __name__ == "__main__":
 	tk = Tk()
 	tk.withdraw()
 	tkExtra.bindClasses(tk)
 	Utils.loadConfiguration()
-
-	try:
-		optlist, args = getopt.getopt(sys.argv[1:],
-			'?hwp:b:',
-			['help', 'pendant', 'port=', 'baud='])
-	except getopt.GetoptError:
-		usage(1)
 
 	application = Application(tk)
 	if len(sys.argv)>1:
