@@ -62,7 +62,7 @@ MAX_HISTORY  = 500
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 LINEPAT  = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
 STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
-POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)\]$")
+POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 
 _LOWSTEP   = 0.0001
@@ -2796,7 +2796,7 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def saveProbe(self, filename=None):
-		if filename is not None:
+		if filename is not None or not self.gcode.probe.filename:
 			Utils.config.set("File", "probe", os.path.basename(filename))
 			self.gcode.probe.filename = filename
 
@@ -3572,7 +3572,7 @@ class Application(Toplevel):
 			self.progress.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
 
-			if self._selectI>=0:
+			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
 					if self._paths[self._selectI]:
 						i,j = self._paths[self._selectI]
