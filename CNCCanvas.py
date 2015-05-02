@@ -594,10 +594,12 @@ class CNCCanvas(Canvas):
 		except:
 			return
 		if zx > 1.0:
-			z = min(zx,zy)
+			self._tzoom = min(zx,zy)
 		else:
-			z = max(zx,zy)
-		self.zoomCanvas(0,0,z)
+			self._tzoom = max(zx,zy)
+
+		self._tx = self._ty = 0	
+		self._zoomCanvas()
 
 		# Find position of new selection
 		x1,y1,x2,y2 = self.selBbox()
