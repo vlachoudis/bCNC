@@ -141,8 +141,9 @@ class CNCCanvas(Canvas):
 		self.bind('<Control-Key-Down>',	self.panDown)
 
 		self.bind('<Escape>',		self.actionCancel)
-		self.bind('<Key-m>',		self.setActionMove)
+		self.bind('<Key-f>',		self.menuZoomFit)
 		self.bind('<Key-g>',		self.setActionGantry)
+		self.bind('<Key-m>',		self.setActionMove)
 		self.bind('<Key-o>',		self.setActionOrigin)
 		self.bind('<Key-r>',		self.setActionRuler)
 		self.bind('<Key-s>',		self.setActionSelect)

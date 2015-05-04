@@ -70,7 +70,8 @@ _HIGHSTEP  = 1000.0
 
 NOT_CONNECTED = "Not connected"
 
-WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"]
+WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
+ZERO = ["G28", "G30", "G92"]
 
 STATECOLOR = {	"Alarm": "Red",
 		"Run"  : "LightGreen",
@@ -513,22 +514,16 @@ class Application(Toplevel):
 		lframe = LabelFrame(frame, text="WCS", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
-		self.wcs = []
 		self.wcsvar = IntVar()
 		self.wcsvar.set(0)
 
 		row=0
-		col=1
-		Label(lframe, text="X").grid(row=row, column=col)
-		col += 1
-		Label(lframe, text="Y").grid(row=row, column=col)
-		col += 1
-		Label(lframe, text="Z").grid(row=row, column=col)
 
-		for p in range(9):
-			row += 1
-			col=0
-			b = Radiobutton(lframe, text=WCS[p],
+		row += 1
+		col  = 0
+		for p,w in enumerate(WCS):
+			col += 1
+			b = Radiobutton(lframe, text=w,
 					foreground="DarkRed",
 					font = "Helvetica,14",
 					padx=2, pady=2,
@@ -538,22 +533,32 @@ class Application(Toplevel):
 					command=self.wcsChange)
 			b.grid(row=row, column=col,  sticky=NSEW)
 			self.widgets.append(b)
+			if col%3==0:
+				row += 1
+				col  = 0
 
-			col += 1
-			x = Label(lframe, foreground="DarkBlue", background="gray95")
-			x.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
+		row += 1
+		col=1
+		Label(lframe, text="X").grid(row=row, column=col)
+		col += 1
+		Label(lframe, text="Y").grid(row=row, column=col)
+		col += 1
+		Label(lframe, text="Z").grid(row=row, column=col)
 
-			col += 1
-			y = Label(lframe, foreground="DarkBlue", background="gray95")
-			y.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
+		row += 1
+		col = 1
+		x = Label(lframe, foreground="DarkBlue", background="gray95")
+		x.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
 
-			col += 1
-			z = Label(lframe, foreground="DarkBlue", background="gray95")
-			z.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
+		col += 1
+		y = Label(lframe, foreground="DarkBlue", background="gray95")
+		y.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
 
-			self.wcs.append((x,y,z))
+		col += 1
+		z = Label(lframe, foreground="DarkBlue", background="gray95")
+		z.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
 
-			row += 1
+		self.wcs = (x,y,z)
 
 		# Set workspace
 		row += 1
@@ -645,17 +650,29 @@ class Application(Toplevel):
 		b.grid(row=row, column=col, sticky=EW)
 		self.widgets.append(b)
 
+		# Zero system
+		row += 1
+		col  = 1
+		b = Button(lframe, text="G28", padx=2, pady=2, command=self.g28Command)
+		b.grid(row=row, column=col,  sticky=NSEW)
+		self.widgets.append(b)
+		tkExtra.Balloon.set(b, "G28: Go to zero via point")
+
+		col += 1
+		b = Button(lframe, text="G30", padx=2, pady=2, command=self.g30Command)
+		b.grid(row=row, column=col,  sticky=NSEW)
+		self.widgets.append(b)
+		tkExtra.Balloon.set(b, "G30: Go to zero via point")
+
+		col += 1
+		b = Button(lframe, text="G92", padx=2, pady=2, command=self.g92Command)
+		b.grid(row=row, column=col,  sticky=NSEW)
+		self.widgets.append(b)
+		tkExtra.Balloon.set(b, "G92: Set zero system (LEGACY)")
+
 		lframe.grid_columnconfigure(1,weight=1)
 		lframe.grid_columnconfigure(2,weight=1)
 		lframe.grid_columnconfigure(3,weight=1)
-
-		# WorkSpace -> Probing
-
-		#lframe = LabelFrame(frame, text="Probing")
-		#lframe.pack(side=TOP, fill=X)
-
-		#lframe = LabelFrame(frame, text="AutoLevel")
-		#lframe.pack(side=TOP, fill=X)
 
 		# ---- WorkSpace ----
 		#frame = self.tabPage["Probe"]
@@ -1088,7 +1105,7 @@ class Application(Toplevel):
 
 		b = Button(toolbar, image=Utils.icons["zoom_on"],
 				command=self.canvas.menuZoomFit)
-		tkExtra.Balloon.set(b, "Fit to screen")
+		tkExtra.Balloon.set(b, "Fit to screen [F]")
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 
@@ -1623,24 +1640,25 @@ class Application(Toplevel):
 		menu.add_command(label="Redraw", underline=2,
 					image=Utils.icons["empty"],
 					compound=LEFT,
-					accelerator="[Ctrl-R]",
+					accelerator="Ctrl-R",
 					command=self.drawAfter)
 
 		menu.add_command(label="Zoom In", underline=2,
 					image=Utils.icons["zoom_in"],
 					compound=LEFT,
-					accelerator="[Ctrl-=]",
+					accelerator="Ctrl-=",
 					command=self.canvas.menuZoomIn)
 
 		menu.add_command(label="Zoom Out", underline=2,
 					image=Utils.icons["zoom_out"],
 					compound=LEFT,
-					accelerator="[Ctrl--]",
+					accelerator="Ctrl--",
 					command=self.canvas.menuZoomOut)
 
 		menu.add_command(label="Fit to screen", underline=0,
 					image=Utils.icons["zoom_on"],
 					compound=LEFT,
+					accelerator="F",
 					command=self.canvas.menuZoomFit)
 
 		# -----------------
@@ -1648,12 +1666,12 @@ class Application(Toplevel):
 		menu.add_command(label="Expand", underline=0,
 					image=Utils.icons["empty"],
 					compound=LEFT,
-					accelerator="[Ctrl-E]",
+					accelerator="Ctrl-E",
 					command=self.gcodelist.toggleExpand)
 		menu.add_command(label="Visibility", underline=0,
 					image=Utils.icons["empty"],
 					compound=LEFT,
-					accelerator="[Ctrl-L]",
+					accelerator="Ctrl-L",
 					command=self.gcodelist.toggleEnable)
 
 		# -----------------
@@ -1694,32 +1712,32 @@ class Application(Toplevel):
 		menu.add_cascade(label="Projection", underline=0, menu=submenu)
 
 		submenu.add_radiobutton(label="X-Y", underline=0,
-					accelerator="[F3]",
+					accelerator="F3",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_XY],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="X-Z", underline=2,
-					accelerator="[F4]",
+					accelerator="F4",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="Y-Z", underline=0,
-					accelerator="[F5]",
+					accelerator="F5",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 1", underline=4,
-					accelerator="[F6]",
+					accelerator="F6",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 2", underline=4,
-					accelerator="[F7]",
+					accelerator="F7",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2],
 					variable=self.view)
 
 		submenu.add_radiobutton(label="ISO 3", underline=4,
-					accelerator="[F8]",
+					accelerator="F8",
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3],
 					variable=self.view)
 
@@ -1809,8 +1827,10 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 800),
-				  Utils.getInt(Utils.__prg__, "height", 600))
+		geom = "%sx%s+%s+%s" % (Utils.getInt(Utils.__prg__, "width", 800),
+				        Utils.getInt(Utils.__prg__, "height", 600),
+				        Utils.getInt(Utils.__prg__, "x", 0),
+				        Utils.getInt(Utils.__prg__, "y", 0))
 		try: self.geometry(geom)
 		except: pass
 
@@ -1836,6 +1856,8 @@ class Application(Toplevel):
 		# Program
 		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
 		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
+		Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
+		Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
 		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
 
 		# Connection
@@ -3101,6 +3123,22 @@ class Application(Toplevel):
 	def wcsSetZ0(self): self._wcsSet("","",0.0)
 
 	#----------------------------------------------------------------------
+	def wcsChange(self):
+		idx = self.wcsvar.get()
+		self.send(WCS[idx]+"\n$G\n")
+		self._posUpdate2 = True
+
+	#----------------------------------------------------------------------
+	# Return the X%g Y%g Z%g from user input
+	#----------------------------------------------------------------------
+	def _wcsXYZ(self, x, y, z):
+		cmd = ""
+		if x!="": cmd += "X"+str(x)
+		if y!="": cmd += "Y"+str(y)
+		if z!="": cmd += "Z"+str(z)
+		return cmd
+
+	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
 		p = self.wcsvar.get()
 		if p<6:
@@ -3112,29 +3150,34 @@ class Application(Toplevel):
 		elif p==8:
 			cmd = "G92"
 
-		if x!="": cmd += "X"+str(x)
-		if y!="": cmd += "Y"+str(y)
-		if z!="": cmd += "Z"+str(z)
+		cmd += self._wcsXYZ(x,y,z)
 
 		self.send(cmd+"\n$#\n")
+		self.statusbar["text"] = "Set workspace %s to X%s Y%s Z%s"% \
+					(WCS[p],str(x),str(y),str(z))
+
+	#----------------------------------------------------------------------
+	# FIXME ????
+	#----------------------------------------------------------------------
+	def g28Command(self):
+		self.send("G28.1\n")
+
+	#----------------------------------------------------------------------
+	# FIXME ????
+	#----------------------------------------------------------------------
+	def g30Command(self):
+		self.send("G30.1\n")
+
+	#----------------------------------------------------------------------
+	def g92Command(self):
+		cmd = "G92"+self._wcsXYZ(self.wcsX.get(), self.wcsY.get(), self.wcsZ.get())
+		self.send(cmd+"\n$#\n")
+		self.statusbar["text"] = "Set legacy zero location"
 
 	#----------------------------------------------------------------------
 	def tloSet(self, event=None):
 		cmd = "G43.1Z"+(self._tloin.get())
 		self.send(cmd+"\n$#\n")
-
-	#----------------------------------------------------------------------
-	def wcsChange(self):
-		idx = self.wcsvar.get()
-		for i,(x,y,z) in enumerate(self.wcs):
-			if i == idx:
-				color = "LightYellow"
-			else:
-				color = "gray95"
-			x["background"] = color
-			y["background"] = color
-			z["background"] = color
-		self.send(WCS[idx]+"\n")
 
 	#----------------------------------------------------------------------
 	def probeGetMargins(self):
@@ -3533,15 +3576,12 @@ class Application(Toplevel):
 
 		# Update parameters if needed
 		if self._posUpdate2:
-			for p in range(9):
-				g = WCS[p]
-				try:
-					value = self._pos[g]
-					lbl   = self.wcs[p]
-					for i in range(3):
-						lbl[i]["text"] = value[i]
-				except KeyError:
-					pass
+			try:
+				value = self._pos[WCS[self.wcsvar.get()]]
+				for i in range(3):
+					self.wcs[i]["text"] = value[i]
+			except KeyError:
+				pass
 
 			self._tlo["text"] = self._pos.get("TLO","")
 
