@@ -133,15 +133,21 @@ class Application(Toplevel):
 		self.canvasbar.pack(side=RIGHT, fill=X, expand=TRUE)
 
 		# Command bar
-		self.command = Entry(self, relief=SUNKEN, background="White")
-		self.command.pack(side=BOTTOM, fill=X)
+		f = Frame(self)
+		f.pack(side=BOTTOM, fill=X)
+		self.cmdlabel = Label(f, text="Command:")
+		self.cmdlabel.pack(side=LEFT)
+		self.command = Entry(f, relief=SUNKEN, background="White")
+		self.command.pack(side=RIGHT, fill=X, expand=YES)
 		self.command.bind("<Return>",	self.cmdExecute)
 		self.command.bind("<Up>",	self.commandHistoryUp)
 		self.command.bind("<Down>",	self.commandHistoryDown)
+		self.command.bind("<FocusIn>",	self.commandFocusIn)
+		self.command.bind("<FocusOut>",	self.commandFocusOut)
 		self.command.bind("<Control-Key-z>",	self.undo)
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
-		tkExtra.Balloon.set(self.command, "Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
+		tkExtra.Balloon.set(self.command, "MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
 		self.widgets.append(self.command)
 
 		# --- Editor ---
@@ -2047,6 +2053,14 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def commandFocus(self, event=None):
 		self.command.focus_set()
+
+	#----------------------------------------------------------------------
+	def commandFocusIn(self, event=None):
+		self.cmdlabel["foreground"] = "Blue"
+
+	#----------------------------------------------------------------------
+	def commandFocusOut(self, event=None):
+		self.cmdlabel["foreground"] = "Black"
 
 	#----------------------------------------------------------------------
 	def canvasFocus(self, event=None):
