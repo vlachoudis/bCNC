@@ -23,7 +23,10 @@ VIEW_ISO3    = 5
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
 INSERT_WIDTH2 = 3
-GANTRY_WIDTH2 = 4
+GANTRY_R      = 4
+GANTRY_X      = 10
+GANTRY_Y      =  5
+GANTRY_H      = 20
 
 INSERT_COLOR  = "Blue"
 GANTRY_COLOR  = "Red"
@@ -169,7 +172,8 @@ class CNCCanvas(Canvas):
 		self._x  = self._y  = 0
 		self._xp = self._yp = 0
 		self._inParse     = False		# semaphore for parsing
-		self._gantry      = None
+		self._gantry1     = None
+		self._gantry2     = None
 		self._select      = None
 		self._margin      = None
 		self._vector      = None
@@ -522,7 +526,8 @@ class CNCCanvas(Canvas):
 		x = self._tx
 		y = self._ty
 		zoom = self._tzoom
-#	def zoomCanvas(self, x, y, zoom):
+
+		#def zoomCanvas(self, x, y, zoom):
 		self._tzoom = 1.0
 
 		self.zoom *= zoom
@@ -535,12 +540,9 @@ class CNCCanvas(Canvas):
 
 		# Update last insert
 		if self._lastGantry:
-			gx,gy = self.plotCoords([self._lastGantry])[0]
+			self._drawGantry(*self.plotCoords([self._lastGantry])[0])
 		else:
-			gx = gy = 0
-		self.coords(self._gantry,
-			(gx-INSERT_WIDTH2, gy-INSERT_WIDTH2,
-			 gx+INSERT_WIDTH2, gy+INSERT_WIDTH2))
+			self._drawGantry(0,0)
 
 		self._updateScrollBars()
 		x0 -= self.canvasx(0)
@@ -659,10 +661,7 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def gantry(self, wx, wy, wz, mx, my, mz):
 		self._lastGantry = (wx,wy,wz)
-		x,y = self.plotCoords([(wx,wy,wz)])[0]
-		self.coords(self._gantry,
-			(x-GANTRY_WIDTH2, y-GANTRY_WIDTH2,
-			 x+GANTRY_WIDTH2, y+GANTRY_WIDTH2))
+		self._drawGantry(*self.plotCoords([(wx,wy,wz)])[0])
 
 		dx = wx-mx
 		dy = wy-my
@@ -772,17 +771,45 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def initPosition(self):
 		self.delete(ALL)
-		self._gantry = self.create_oval(
-					(-GANTRY_WIDTH2,-GANTRY_WIDTH2),
-					( GANTRY_WIDTH2, GANTRY_WIDTH2),
+		if self.view in (VIEW_XY, VIEW_XZ, VIEW_YZ):
+			# FIXME should be done as a triangle for XZ and YZ
+			self._gantry1 = self.create_oval(
+					(-GANTRY_R,-GANTRY_R),
+					( GANTRY_R, GANTRY_R),
 					width=2,
 					outline=GANTRY_COLOR)
+			self._gantry2 = None
+		else:
+			self._gantry1 = self.create_oval(
+					(-GANTRY_X, -GANTRY_H-GANTRY_Y, GANTRY_X, -GANTRY_H+GANTRY_Y),
+					width=2,
+					outline=GANTRY_COLOR)
+			self._gantry2 = self.create_line(
+					(-GANTRY_X, -GANTRY_H, 0, 0, GANTRY_X, -GANTRY_H),
+					width=2,
+					fill=GANTRY_COLOR)
+
 		self._lastInsert = None
 		self._lastActive = None
 		self._select = None
 		self._vector = None
 		self._items.clear()
 		self.cnc.initPath()
+
+	#----------------------------------------------------------------------
+	def _drawGantry(self, x, y):
+		if self._gantry2 is None:
+			self.coords(self._gantry1,
+				(x-GANTRY_R, y-GANTRY_R,
+				 x+GANTRY_R, y+GANTRY_R))
+		else:
+			self.coords(self._gantry1,
+					(x-GANTRY_X, y-GANTRY_H-GANTRY_Y,
+					 x+GANTRY_X, y-GANTRY_H+GANTRY_Y))
+			self.coords(self._gantry2,
+					(x-GANTRY_X, y-GANTRY_H,
+					 x, y,
+					 x+GANTRY_X, y-GANTRY_H))
 
 	#----------------------------------------------------------------------
 	def drawAxes(self):

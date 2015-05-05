@@ -1833,12 +1833,20 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s+%s+%s" % (Utils.getInt(Utils.__prg__, "width", 800),
-				        Utils.getInt(Utils.__prg__, "height", 600),
-				        Utils.getInt(Utils.__prg__, "x", 0),
-				        Utils.getInt(Utils.__prg__, "y", 0))
+		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 800),
+				  Utils.getInt(Utils.__prg__, "height", 600))
+		#geom = "%sx%s+%s+%s" % (Utils.getInt(Utils.__prg__, "width", 800),
+		#		        Utils.getInt(Utils.__prg__, "height", 600),
+		#		        Utils.getInt(Utils.__prg__, "x", 0),
+		#		        Utils.getInt(Utils.__prg__, "y", 0))
 		try: self.geometry(geom)
 		except: pass
+
+		#restore windowsState
+		try:
+			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
+		except:
+			pass
 
 		CNCPendant.port = Utils.getInt("Connection","pendantport",CNCPendant.port)
 
@@ -1862,8 +1870,12 @@ class Application(Toplevel):
 		# Program
 		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
 		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
-		Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
-		Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		#Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
+		#Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+
+		#save windowState
+		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
+
 		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
 
 		# Connection
