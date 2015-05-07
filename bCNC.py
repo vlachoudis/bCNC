@@ -173,22 +173,19 @@ class Application(Toplevel):
 		col += 1
 		self.xwork = Label(frame, background="White",anchor=E)
 		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
-		self.xwork.bind("<1>", self.resetX)
-		tkExtra.Balloon.set(self.xwork, "X work position. Click to set to ZERO")
+		tkExtra.Balloon.set(self.xwork, "X work position")
 
 		# ---
 		col += 1
 		self.ywork = Label(frame, background="White",anchor=E)
 		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
-		self.ywork.bind("<1>", self.resetY)
-		tkExtra.Balloon.set(self.ywork, "Y work position. Click to set to ZERO")
+		tkExtra.Balloon.set(self.ywork, "Y work position")
 
 		# ---
 		col += 1
 		self.zwork = Label(frame, background="White", anchor=E)
 		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
-		self.zwork.bind("<1>", self.resetZ)
-		tkExtra.Balloon.set(self.zwork, "Z work position. Click to set to ZERO")
+		tkExtra.Balloon.set(self.zwork, "Z work position")
 
 		# Machine
 		row += 1

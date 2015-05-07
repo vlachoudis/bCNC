@@ -552,7 +552,13 @@ class ProgressBar(Canvas):
 			tot = dt/p*(self.high-self.low)
 		else:
 			tot = 0.0
-		self.tmsg = "[%d:%d | %d:%d]"%(dt//60,dt%60,tot//60,tot%60)
+		th,s  = divmod(tot,3600)
+		tm,ts = divmod(s,60)
+
+		dh,s  = divmod(dt,3600)
+		dm,ds = divmod(s,60)
+
+		self.tmsg = "[%d:%02d:%02d | %d:%02d:%02d]"%(dh,dm,ds, th,tm,ts)
 
 		self.draw()
 		if txt is not None:
