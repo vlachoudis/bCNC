@@ -147,7 +147,7 @@ class Application(Toplevel):
 		self.command.bind("<Control-Key-z>",	self.undo)
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
-		tkExtra.Balloon.set(self.command, "MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...)")
+		tkExtra.Balloon.set(self.command, "MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
 
 		# --- Editor ---
@@ -3390,7 +3390,6 @@ class Application(Toplevel):
 				parent=self)
 			return
 
-		self.initRun()
 		lines,paths = self.gcode.prepare2Run()
 		if not lines:
 			tkMessageBox.showerror("Empty gcode",
@@ -3398,6 +3397,7 @@ class Application(Toplevel):
 				parent=self)
 			return
 
+		self.initRun()
 		# the buffer of the machine should be empty?
 		self._runLines = len(lines)
 		#self._runLines = 0
