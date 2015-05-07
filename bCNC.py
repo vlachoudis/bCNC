@@ -3064,39 +3064,39 @@ class Application(Toplevel):
 
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0X%s\n"%(self.step.get()))
+		self.send("G91G0X%s\nG90\n"%(self.step.get()))
 
 	def moveXdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0X-%s\n"%(self.step.get()))
+		self.send("G91G0X-%s\nG90\n"%(self.step.get()))
 
 	def moveYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Y%s\n"%(self.step.get()))
+		self.send("G91G0Y%s\nG90\n"%(self.step.get()))
 
 	def moveYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Y-%s\n"%(self.step.get()))
+		self.send("G91G0Y-%s\nG90\n"%(self.step.get()))
 
 	def moveXdownYup(self, event=None):
-		self.send("G91G0X-%sY%s\n"%(self.step.get(),self.step.get()))
+		self.send("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYup(self, event=None):
-		self.send("G91G0X%sY%s\n"%(self.step.get(),self.step.get()))
+		self.send("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXdownYdown(self, event=None):
-		self.send("G91G0X-%sY-%s\n"%(self.step.get(),self.step.get()))
+		self.send("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYdown(self, event=None):
-		self.send("G91G0X%sY-%s\n"%(self.step.get(),self.step.get()))
+		self.send("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Z%s\n"%(self.step.get()))
+		self.send("G91G0Z%s\nG90\n"%(self.step.get()))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Z-%s\n"%(self.step.get()))
+		self.send("G91G0Z-%s\nG90\n"%(self.step.get()))
 
 	def go2origin(self, event=None):
 		self.send("G90G0X0Y0Z0\n")
@@ -3392,6 +3392,11 @@ class Application(Toplevel):
 
 		self.initRun()
 		lines,paths = self.gcode.prepare2Run()
+		if not lines:
+			tkMessageBox.showerror("Empty gcode",
+				"Not gcode file was loaded",
+				parent=self)
+			return
 
 		# the buffer of the machine should be empty?
 		self._runLines = len(lines)
