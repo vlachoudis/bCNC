@@ -269,7 +269,7 @@ class Application(Toplevel):
 				activebackground="LightYellow",
 				padx=2,pady=1)
 		b.grid(row=1,column=3,sticky=EW)
-		tkExtra.Balloon.set(b, "Soft reset close/re-open")
+		tkExtra.Balloon.set(b, "Software reset of controller")
 		self.widgets.append(b)
 
 		lframe.grid_columnconfigure(1, weight=1)
@@ -1079,15 +1079,20 @@ class Application(Toplevel):
 		# ---
 		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
 
-		b = Button(toolbar, image=Utils.icons["home"], command=self.home)
+		b = Button(toolbar, image=Utils.icons["reset"], command=self.softReset)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Run homing cycle")
+		tkExtra.Balloon.set(b, "Software reset of controller")
 
 		b = Button(toolbar, image=Utils.icons["unlock"], command=self.unlock)
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Unlock CNC")
+
+		b = Button(toolbar, image=Utils.icons["home"], command=self.home)
+		self.widgets.append(b)
+		b.pack(side=LEFT)
+		tkExtra.Balloon.set(b, "Run homing cycle")
 
 		# -----
 		# Zoom
