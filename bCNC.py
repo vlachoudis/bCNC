@@ -79,6 +79,14 @@ STATECOLOR = {	"Alarm": "Red",
 		NOT_CONNECTED: "OrangeRed"}
 STATECOLORDEF = "LightYellow"
 
+DISTANCE_MODE = { "G90" : "Abs.",
+		  "G91" : "Inc." }
+FEED_MODE     = { "G93" : "1/Time",
+		  "G94" : "unit/min",
+		  "G95" : "unit/rev"}
+UNITS         = { "G20" : "inch",
+		  "G21" : "mm" }
+
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -147,7 +155,10 @@ class Application(Toplevel):
 		self.command.bind("<Control-Key-z>",	self.undo)
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
-		tkExtra.Balloon.set(self.command, "MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) or editor commands (move,inkscape, round...) [Space or Ctrl-Space]")
+		tkExtra.Balloon.set(self.command,
+			"MDI Command line: Accept g-code commands or macro "
+			"commands (RESET/HOME...) or editor commands "
+			"(move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
 
 		# --- Editor ---
@@ -279,8 +290,9 @@ class Application(Toplevel):
 		lframe = LabelFrame(frame, text="Control", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
+		# Jog
 		f = Frame(lframe)
-		f.pack()
+		f.pack(expand=YES, fill=BOTH)
 
 		row,col = 0,0
 		Label(f, text="Z").grid(row=row, column=col)
@@ -440,9 +452,40 @@ class Application(Toplevel):
 
 		#f.grid_columnconfigure(6,weight=1)
 
-		# Control -> Spindle
-		lframe = LabelFrame(frame, text="Spindle", foreground="DarkBlue")
+		# Control -> State
+		lframe = LabelFrame(frame, text="State", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
+
+#		# State
+#		f = Frame(lframe)
+#		f.pack(fill=X)
+#
+#		# Absolute or relative mode
+#		self.distanceMode = tkExtra.Combobox(f, True,
+#					width=5,
+#					background="White")
+#					#command=self.modeChange)
+#		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
+#		self.distanceMode.pack(side=LEFT)
+#		tkExtra.Balloon.set(self.distanceMode, "Distance Mode")
+#
+#		# Feed mode
+#		self.feedMode = tkExtra.Combobox(f, True,
+#					width=8,
+#					background="White")
+#					#command=self.modeChange)
+#		self.feedMode.fill(sorted(FEED_MODE.values()))
+#		self.feedMode.pack(side=LEFT)
+#		tkExtra.Balloon.set(self.feedMode, "Feed Mode")
+#
+#		# Feed mode
+#		self.units = tkExtra.Combobox(f, True,
+#					width=6,
+#					background="White")
+#					#command=self.modeChange)
+#		self.units.fill(sorted(UNITS.values()))
+#		self.units.pack(side=LEFT)
+#		tkExtra.Balloon.set(self.units, "Units")
 
 		self.spindle = BooleanVar()
 		self.spindleSpeed = IntVar()
@@ -1112,7 +1155,7 @@ class Application(Toplevel):
 		b.pack(side=LEFT)
 
 		b = Button(toolbar, image=Utils.icons["zoom_on"],
-				command=self.canvas.menuZoomFit)
+				command=self.canvas.fit2Screen)
 		tkExtra.Balloon.set(b, "Fit to screen [F]")
 		self.widgets.append(b)
 		b.pack(side=LEFT)
@@ -1667,7 +1710,7 @@ class Application(Toplevel):
 					image=Utils.icons["zoom_on"],
 					compound=LEFT,
 					accelerator="F",
-					command=self.canvas.menuZoomFit)
+					command=self.canvas.fit2Screen)
 
 		# -----------------
 		menu.add_separator()
@@ -2817,6 +2860,7 @@ class Application(Toplevel):
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
+		self.canvas.fit2Screen()
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#----------------------------------------------------------------------
@@ -3294,6 +3338,8 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def probeDraw(self):
+		self.draw_probe.set(True)
+		self.canvas.draw_probe = self.draw_probe.get()
 		self.probeChange(False)
 		self.draw()
 

@@ -144,7 +144,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Control-Key-Down>',	self.panDown)
 
 		self.bind('<Escape>',		self.actionCancel)
-		self.bind('<Key-f>',		self.menuZoomFit)
+		self.bind('<Key-f>',		self.fit2Screen)
 		self.bind('<Key-g>',		self.setActionGantry)
 		self.bind('<Key-m>',		self.setActionMove)
 		self.bind('<Key-o>',		self.setActionOrigin)
@@ -583,7 +583,7 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	# Zoom to Fit to Screen
 	# ----------------------------------------------------------------------
-	def menuZoomFit(self, event=None):
+	def fit2Screen(self, event=None):
 		bb = self.selBbox()
 		if bb is None: return
 		x1,y1,x2,y2 = bb

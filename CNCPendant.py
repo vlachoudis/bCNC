@@ -63,7 +63,8 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			if arg is None: return
 			for key,value in arg.items():
 				if key=="gcode":
-					httpd.app.queue.put(value+"\n")
+					for line in value.split(';'):
+						httpd.app.queue.put(line+"\n")
 				elif key=="cmd":
 					httpd.app.pendant.put(value)
 
