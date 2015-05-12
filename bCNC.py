@@ -3024,8 +3024,7 @@ class Application(Toplevel):
 		self.tabPage.changePage("Terminal")
 
 	def checkGcode(self):
-		self.send("$C\n")
-		self.tabPage.changePage("Terminal")
+		self.send("$C\n")		
 
 	def grblhelp(self):
 		self.send("$\n")
