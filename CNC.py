@@ -1,7 +1,7 @@
 # -*- coding: latin1 -*-
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
-# Author:       Vasilis.Vlachoudis@cern.ch
+# Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
 import os

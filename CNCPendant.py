@@ -95,13 +95,13 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				pass
 
 		else:
-			self.mainPage(page)
+			self.mainPage(page[1:])
 
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):
 		global prgpath
 		self.do_HEAD()
-		if page == "/": page = "index.html"
+		if page == "": page = "index.html"
 		try:
 			f = open(os.path.join(prgpath,page),"r")
 			self.wfile.write(f.read())
@@ -114,7 +114,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=yes" />
 </head>
 <body>
-index.html page not found.
+Page not found.
 </body>
 </html>
 """)

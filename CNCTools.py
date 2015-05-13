@@ -2,7 +2,7 @@
 # -*- coding: latin1 -*-
 # $Id$
 #
-# Author:       Vasilis.Vlachoudis@cern.ch
+# Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
 __author__  = "Vasilis Vlachoudis"

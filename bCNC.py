@@ -2,7 +2,7 @@
 # -*- coding: latin1 -*-
 # $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
 #
-# Author:       Vasilis.Vlachoudis@cern.ch
+# Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
 __version__ = "0.3"

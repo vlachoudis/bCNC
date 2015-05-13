@@ -1,7 +1,7 @@
 # -*- coding: latin1 -*-
 # $Id: CNCCanvas.py,v 1.7 2014/10/15 15:04:06 bnv Exp $
 #
-# Author:       Vasilis.Vlachoudis@cern.ch
+# Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
 import math
@@ -734,13 +734,19 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def draw(self, view=None): #, lines):
 		if self._inParse: return
-		if view is not None: self.view = view
 		self._tzoom  = 1.0
 		self._tafter = None
 
 		self._inParse = True
+
 		x0 = self.xview()[0]	# remember position
 		y0 = self.yview()[0]
+
+#		x1 = self.canvasx(self.winfo_width()/2)
+#		y1 = self.canvasy(self.winfo_height()/2)
+#		print "<<<",x1,y1,self.canvas2xyz(x1,y1)
+
+		if view is not None: self.view = view
 
 		self._last = (0.,0.,0.)
 		self.initPosition()
