@@ -596,7 +596,7 @@ class FileDialog(Toplevel):
 				parent=self)
 
 		self.fileList.sort(0, True)		# First short by name
-		self.fileList.sort(1, True)		# then by type
+		self.fileList.sort(1, False)		# then by type
 
 		# Find item to select
 		fn = self.filename.get()

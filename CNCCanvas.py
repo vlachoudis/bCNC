@@ -171,7 +171,7 @@ class CNCCanvas(Canvas):
 		self._mouseAction = None
 		self._x  = self._y  = 0
 		self._xp = self._yp = 0
-		self._inParse     = False		# semaphore for parsing
+		self._inDraw      = False		# semaphore for parsing
 		self._gantry1     = None
 		self._gantry2     = None
 		self._select      = None
@@ -455,17 +455,8 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
-		x =  self.canvasx(event.x) / self.zoom
-		y = -self.canvasy(event.y) / self.zoom
-
-		if self.view == VIEW_XY:
-			self.app.canvasbar["text"] = "X:%.4f  Y:%.4f"%(x,y)
-
-		elif self.view == VIEW_XZ:
-			self.app.canvasbar["text"] = "X:%.4f  Z:%.4f"%(x,y)
-
-		elif self.view == VIEW_YZ:
-			self.app.canvasbar["text"] = "Y:%.4f  Z:%.4f"%(x,y)
+		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		self.app.canvasbar["text"] = "X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
@@ -733,18 +724,14 @@ class CNCCanvas(Canvas):
 	# Parse and draw the file from the editor to g-code commands
 	#----------------------------------------------------------------------
 	def draw(self, view=None): #, lines):
-		if self._inParse: return
+		if self._inDraw : return
+		self._inDraw  = True
+
 		self._tzoom  = 1.0
 		self._tafter = None
-
-		self._inParse = True
-
-		x0 = self.xview()[0]	# remember position
-		y0 = self.yview()[0]
-
-#		x1 = self.canvasx(self.winfo_width()/2)
-#		y1 = self.canvasy(self.winfo_height()/2)
-#		print "<<<",x1,y1,self.canvas2xyz(x1,y1)
+		xyz = self.canvas2xyz(
+				self.canvasx(self.winfo_width()/2),
+				self.canvasy(self.winfo_height()/2))
 
 		if view is not None: self.view = view
 
@@ -770,9 +757,14 @@ class CNCCanvas(Canvas):
 		self.drawAxes()
 #		self.tag_lower(self._workarea)
 		self._updateScrollBars()
-		self.xview_moveto(x0)
-		self.yview_moveto(y0)
-		self._inParse = False
+
+		ij = self.plotCoords([xyz])[0]
+		dx = int(round(self.canvasx(self.winfo_width()/2)  - ij[0]))
+		dy = int(round(self.canvasy(self.winfo_height()/2) - ij[1]))
+		self.scan_mark(0,0)
+		self.scan_dragto(int(round(dx)), int(round(dy)), 1)
+
+		self._inDraw  = False
 
 	#----------------------------------------------------------------------
 	def initPosition(self):
@@ -1015,7 +1007,19 @@ class CNCCanvas(Canvas):
 			y =  i / self.zoom
 			z = -j / self.zoom
 
-		else:
-			x = y = z = 0
+		elif self.view == VIEW_ISO1:
+			x = (i/S60 + j/C60) / self.zoom / 2
+			y = (i/S60 - j/C60) / self.zoom / 2
+			z = 0
+
+		elif self.view == VIEW_ISO2:
+			x =  (i/S60 - j/C60) / self.zoom / 2
+			y = -(i/S60 + j/C60) / self.zoom / 2
+			z = 0
+
+		elif self.view == VIEW_ISO3:
+			x = -(i/S60 + j/C60) / self.zoom / 2
+			y = -(i/S60 - j/C60) / self.zoom / 2
+			z = 0
 
 		return x,y,z
