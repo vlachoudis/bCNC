@@ -25,6 +25,12 @@ OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z])")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 
+STOP = 0
+SKIP = 1
+ASK  = 2
+
+ERROR_HANDLING = {}
+
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
 #------------------------------------------------------------------------------
@@ -356,6 +362,13 @@ class CNC:
 		CNC.header         =       config.get(section, "header")
 		CNC.footer         =       config.get(section, "footer")
 
+		section = "Error"
+		for cmd,value in config.items(section):
+			try:
+				ERROR_HANDLING[cmd.upper()] = int(value)
+			except:
+				pass
+
 	#----------------------------------------------------------------------
 	@staticmethod
 	def saveConfig(config):
@@ -386,6 +399,7 @@ class CNC:
 		self.xmax = self.ymax = self.zmax = -1000000.0
 
 		self.absolute    = True
+		self.arcabsolute = False
 		self.gcode       = None
 		self.feed        = 0
 		self.totalLength = 0.0
@@ -446,7 +460,7 @@ class CNC:
 			if   c == "X":
 				self.xval = value*self.unit
 				if not self.absolute:
-					self.xval += x
+					self.xval += self.x
 
 			elif c == "Y":
 				self.yval = value*self.unit
@@ -460,12 +474,18 @@ class CNC:
 
 			elif c == "I":
 				self.ival = value*self.unit
+				if self.arcabsolute:
+					self.ival -= self.x
 
 			elif c == "J":
 				self.jval = value*self.unit
+				if self.arcabsolute:
+					self.jval -= self.y
 
 			elif c == "K":
 				self.kval = value*self.unit
+				if self.arcabsolute:
+					self.kval -= self.z
 
 			elif c == "R":
 				self.rval = value*self.unit
@@ -484,6 +504,7 @@ class CNC:
 
 			elif c == "G":
 				self.gcode = int(value)
+				decimal = int(round((value - self.gcode)*10))
 
 				# Execute immediately
 				if self.gcode==20:	# Switch to inches
@@ -499,10 +520,16 @@ class CNC:
 						self.unit = 1.0
 
 				elif self.gcode==90:
-					self.absolute = True
+					if decimal == 0:
+						self.absolute = True
+					elif decimal == 1:
+						self.arcabsolute = True
 
 				elif self.gcode==91:
-					self.absolute = False
+					if decimal == 0:
+						self.absolute = False
+					elif decimal == 1:
+						self.arcabsolute = False
 
 		self.dx = self.xval - self.x
 		self.dy = self.yval - self.y
@@ -1946,7 +1973,13 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P",):
 						cmd = self.fmt(c,value)
-					newcmd.append(cmd)
+					else:
+						opt = ERROR_HANDLING.get(cmd.upper(),0)
+						if opt == SKIP:
+							cmd = None
+
+					if cmd is not None:
+						newcmd.append(cmd)
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths

@@ -284,6 +284,7 @@ class DXF:
 
 		while True:
 			tag,value = self.read()
+			#print tag,value
 			if tag is None: return
 			if tag==0:
 				self.push(tag,value)
@@ -307,6 +308,7 @@ class DXF:
 			entity = self.readEntity()
 			if entity is None: return
 			#print ">>>",entity
+			if entity.type in ("SPLINE","ELLIPSE"): continue
 			try:
 				layer = self.layers[entity.name]
 			except KeyError:
@@ -532,10 +534,10 @@ if __name__ == "__main__":
 	dxf = DXF(sys.argv[1],"r")
 	dxf.readFile()
 	dxf.close()
-	for name,layer in dxf.layers.items():
-		#print "Frozen=",not bool(layer.isFrozen())
-		for entity in dxf.sortLayer(name):
-			print entity, entity._invert
+#	for name,layer in dxf.layers.items():
+#		#print "Frozen=",not bool(layer.isFrozen())
+#		for entity in dxf.sortLayer(name):
+#			print entity, entity._invert
 
 #	dxf = DXF("test.dxf","w")
 #	dxf.writeHeader()
