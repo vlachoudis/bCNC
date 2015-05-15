@@ -5,7 +5,7 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.3"
+__version__ = "0.4"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -27,11 +27,13 @@ except:
 	from Utils import comports
 
 try:
+	import Tkinter
 	from Queue import *
 	from Tkinter import *
 	import ConfigParser
 	import tkMessageBox
 except ImportError:
+	import tkinter
 	from queue import *
 	from tkinter import *
 	import configparser as ConfigParser
@@ -1145,19 +1147,16 @@ class Application(Toplevel):
 		b = Button(toolbar, image=Utils.icons["zoom_in"],
 				command=self.canvas.menuZoomIn)
 		tkExtra.Balloon.set(b, "Zoom In [Ctrl-=]")
-		self.widgets.append(b)
 		b.pack(side=LEFT)
 
 		b = Button(toolbar, image=Utils.icons["zoom_out"],
 				command=self.canvas.menuZoomOut)
 		tkExtra.Balloon.set(b, "Zoom Out [Ctrl--]")
-		self.widgets.append(b)
 		b.pack(side=LEFT)
 
 		b = Button(toolbar, image=Utils.icons["zoom_on"],
 				command=self.canvas.fit2Screen)
 		tkExtra.Balloon.set(b, "Fit to screen [F]")
-		self.widgets.append(b)
 		b.pack(side=LEFT)
 
 		# -----
@@ -1207,7 +1206,6 @@ class Application(Toplevel):
 					value=CNCCanvas.ACTION_RULER,
 					command=self.canvas.setActionRuler)
 		tkExtra.Balloon.set(b, "Ruler [R]")
-		self.widgets.append(b)
 		b.pack(side=LEFT)
 
 		# ---
@@ -1839,6 +1837,8 @@ class Application(Toplevel):
 
 		CNCPendant.stop()
 		self.destroy()
+		if Utils.errors and _errorReport:
+			Utils.ReportDialog.sendErrorReport()
 		tk.destroy()
 
 	# ---------------------------------------------------------------------
@@ -1880,10 +1880,6 @@ class Application(Toplevel):
 	def loadConfig(self):
 		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 800),
 				  Utils.getInt(Utils.__prg__, "height", 600))
-		#geom = "%sx%s+%s+%s" % (Utils.getInt(Utils.__prg__, "width", 800),
-		#		        Utils.getInt(Utils.__prg__, "height", 600),
-		#		        Utils.getInt(Utils.__prg__, "x", 0),
-		#		        Utils.getInt(Utils.__prg__, "y", 0))
 		try: self.geometry(geom)
 		except: pass
 
@@ -2893,7 +2889,7 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def saveProbe(self, filename=None):
-		if filename is not None or not self.gcode.probe.filename:
+		if filename is not None:
 			Utils.config.set("File", "probe", os.path.basename(filename))
 			self.gcode.probe.filename = filename
 
@@ -3718,6 +3714,11 @@ class Application(Toplevel):
 if __name__ == "__main__":
 	tk = Tk()
 	tk.withdraw()
+	try:
+		Tkinter.CallWrapper = Utils.CallWrapper
+	except:
+		tkinter.CallWrapper = Utils.CallWrapper
+
 	tkExtra.bindClasses(tk)
 	Utils.loadConfiguration()
 
