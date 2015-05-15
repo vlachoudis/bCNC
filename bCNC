@@ -1,6 +1,0 @@
-#!/bin/bash
-DIR=`dirname $0`
-export PYTHONPATH=${DIR}/lib:${DIR}
-python ${DIR}/bCNC.py $*
-#python3 ${DIR}/bCNC.py $*
-#python -m cProfile -o bCNC.out ${DIR}/bCNC.py $*
