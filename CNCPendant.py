@@ -67,6 +67,9 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 						httpd.app.queue.put(line+"\n")
 				elif key=="cmd":
 					httpd.app.pendant.put(value)
+			#send empty response so browser does not generate errors
+			self.do_HEAD(200, "text/text")
+			self.wfile.write("")
 
 		elif page == "/state":
 			self.do_HEAD(200, "text/text")
@@ -100,7 +103,13 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):
 		global prgpath
-		self.do_HEAD()
+
+		#handle certain filetypes
+		filetype = page.rpartition('.')[2]
+		if filetype == "css": self.do_HEAD(content="text/css")
+		elif filetype == "js": self.do_HEAD(content="text/javascript")
+		else: self.do_HEAD()
+
 		if page == "": page = "index.html"
 		try:
 			f = open(os.path.join(prgpath,page),"r")
