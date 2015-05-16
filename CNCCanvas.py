@@ -456,9 +456,11 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
 		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		um = "mm"
 		if (self.cnc.inch):
-			[i * (1.0/25.4) for i in (x,y,z)] 		
-		self.app.canvasbar["text"] ="X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
+			[i * (1.0/25.4) for i in (x,y,z)]
+			um = "inch"
+		self.app.canvasbar["text"] ="X:%.4f  Y:%.4f  Z:%.4f [%s]" %(x,y,z,um)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
@@ -594,7 +596,7 @@ class CNCCanvas(Canvas):
 		else:
 			self._tzoom = max(zx,zy)
 
-		self._tx = self._ty = 0	
+		self._tx = self._ty = 0
 		self._zoomCanvas()
 
 		# Find position of new selection
