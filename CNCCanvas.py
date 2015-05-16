@@ -456,7 +456,9 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
 		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
-		self.app.canvasbar["text"] = "X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
+		if (self.cnc.inch):
+			[i * (1.0/25.4) for i in (x,y,z)] 		
+		self.app.canvasbar["text"] ="X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
