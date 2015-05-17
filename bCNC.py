@@ -1837,7 +1837,7 @@ class Application(Toplevel):
 
 		CNCPendant.stop()
 		self.destroy()
-		if Utils.errors and _errorReport:
+		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
 		tk.destroy()
 
