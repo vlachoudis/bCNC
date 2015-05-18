@@ -456,7 +456,11 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
 		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
-		self.app.canvasbar["text"] = "X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
+		um = "mm"
+		if (self.cnc.inch):
+			[i * (1.0/25.4) for i in (x,y,z)]
+			um = "inch"
+		self.app.canvasbar["text"] ="X:%.4f  Y:%.4f  Z:%.4f [%s]" %(x,y,z,um)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
@@ -592,7 +596,7 @@ class CNCCanvas(Canvas):
 		else:
 			self._tzoom = max(zx,zy)
 
-		self._tx = self._ty = 0	
+		self._tx = self._ty = 0
 		self._zoomCanvas()
 
 		# Find position of new selection
@@ -665,9 +669,9 @@ class CNCCanvas(Canvas):
 			self._dz = dz
 
 			if not self.draw_workarea: return
-			xmin = self._dx-CNC.travel_x
-			ymin = self._dy-CNC.travel_y
-			zmin = self._dz-CNC.travel_z
+			xmin = self._dx+CNC.travel_x
+			ymin = self._dy+CNC.travel_y
+			zmin = self._dz+CNC.travel_z
 			xmax = self._dx
 			ymax = self._dy
 			zmax = self._dz
@@ -839,9 +843,9 @@ class CNCCanvas(Canvas):
 	def drawWorkarea(self):
 		if not self.draw_workarea: return
 
-		xmin = self._dx-CNC.travel_x
-		ymin = self._dy-CNC.travel_y
-		zmin = self._dz-CNC.travel_z
+		xmin = self._dx+CNC.travel_x
+		ymin = self._dy+CNC.travel_y
+		zmin = self._dz+CNC.travel_z
 		xmax = self._dx
 		ymax = self._dy
 		zmax = self._dz

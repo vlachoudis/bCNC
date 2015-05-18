@@ -1837,7 +1837,7 @@ class Application(Toplevel):
 
 		CNCPendant.stop()
 		self.destroy()
-		if Utils.errors and _errorReport:
+		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
 		tk.destroy()
 
@@ -2856,6 +2856,7 @@ class Application(Toplevel):
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
+		self.unselectAll()
 		self.canvas.fit2Screen()
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
@@ -3020,7 +3021,7 @@ class Application(Toplevel):
 		self.tabPage.changePage("Terminal")
 
 	def checkGcode(self):
-		self.send("$C\n")		
+		self.send("$C\n")
 
 	def grblhelp(self):
 		self.send("$\n")
