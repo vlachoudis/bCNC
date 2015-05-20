@@ -3442,11 +3442,10 @@ class Application(Toplevel):
 
 		# reset colors
 		for ij in paths:
-			if ij:
-				self.canvas.itemconfig(
-						self.gcode[ij[0]].path(ij[1]),
-						width=1,
-						fill=CNCCanvas.ENABLE_COLOR)
+			if ij: self.canvas.itemconfig(
+					self.gcode[ij[0]].path(ij[1]),
+					width=1,
+					fill=CNCCanvas.ENABLE_COLOR)
 
 		self.initRun()
 		# the buffer of the machine should be empty?
