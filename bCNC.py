@@ -1837,7 +1837,7 @@ class Application(Toplevel):
 
 		CNCPendant.stop()
 		self.destroy()
-		if Utils.errors and _errorReport:
+		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
 		tk.destroy()
 
@@ -3439,6 +3439,14 @@ class Application(Toplevel):
 				"Not gcode file was loaded",
 				parent=self)
 			return
+
+		# reset colors
+		for ij in paths:
+			if ij:
+				self.canvas.itemconfig(
+						self.gcode[ij[0]].path(ij[1]),
+						width=1,
+						fill=CNCCanvas.ENABLE_COLOR)
 
 		self.initRun()
 		# the buffer of the machine should be empty?
