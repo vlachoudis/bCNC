@@ -5,7 +5,8 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4"
+__version__ = "0.4.1"
+__date__    = "20 May 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -2018,8 +2019,8 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def about(self, event=None):
 		tkMessageBox.showinfo("About",
-				"%s\nby %s [%s]\nVersion %s" % \
-				(Utils.__prg__, __author__, __email__, __version__),
+				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
+				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
 
 	#----------------------------------------------------------------------
