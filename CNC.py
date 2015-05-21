@@ -415,7 +415,7 @@ class CNC:
 	# Number formating
 	#----------------------------------------------------------------------
 	def fmt(self, c, v, d=None):
-		if d is None: d = self.digits
+		if d is None: d = CNC.digits
 		return ("%s%*f"%(c,d,v)).rstrip("0").rstrip(".")
 
 	#----------------------------------------------------------------------
@@ -1538,11 +1538,11 @@ class GCode:
 						lines.append("g0 %s"%(self.fmt("z",self.safe)))
 					else:
 						z = self.surface
-						while z>depth: 
+						while z>depth:
 							z = max(z-peck, depth)
 							lines.append("g1 %s %s"%(
 								self.fmt("z",z),
-								self.fmt("f",self.feedz))) 
+								self.fmt("f",self.feedz)))
 							lines.append("g0 %s"%(self.fmt("z",self.safe)))
 							if dwell:
 								lines.append("g4 %s"%(self.fmt("p",dwell)))
@@ -1863,14 +1863,14 @@ class GCode:
 	#----------------------------------------------------------------------
 	def roundFunc(self, new, old):
 		for name,value in new.items():
-			new[name] = round(value,self.digits)
+			new[name] = round(value,CNC.digits)
 		return bool(new)
 
 	#----------------------------------------------------------------------
 	# Round line by the amount of digits
 	#----------------------------------------------------------------------
 	def roundLines(self, items, acc=None):
-		if acc is not None: self.digits = acc
+		if acc is not None: CNC.digits = acc
 		return self.process(items, self.roundFunc)
 
 	#----------------------------------------------------------------------
