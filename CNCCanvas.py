@@ -457,8 +457,7 @@ class CNCCanvas(Canvas):
 	def setStatus(self, event):
 		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
 		um = "mm"
-		if (self.cnc.inch):
-			[i * (1.0/25.4) for i in (x,y,z)]
+		if (self.cnc.inch):			
 			um = "inch"
 		self.app.canvasbar["text"] ="X:%.4f  Y:%.4f  Z:%.4f [%s]" %(x,y,z,um)
 
@@ -669,9 +668,9 @@ class CNCCanvas(Canvas):
 			self._dz = dz
 
 			if not self.draw_workarea: return
-			xmin = self._dx+CNC.travel_x
-			ymin = self._dy+CNC.travel_y
-			zmin = self._dz+CNC.travel_z
+			xmin = self._dx-CNC.travel_x
+			ymin = self._dy-CNC.travel_y
+			zmin = self._dz-CNC.travel_z
 			xmax = self._dx
 			ymax = self._dy
 			zmax = self._dz
@@ -843,9 +842,9 @@ class CNCCanvas(Canvas):
 	def drawWorkarea(self):
 		if not self.draw_workarea: return
 
-		xmin = self._dx+CNC.travel_x
-		ymin = self._dy+CNC.travel_y
-		zmin = self._dz+CNC.travel_z
+		xmin = self._dx-CNC.travel_x
+		ymin = self._dy-CNC.travel_y
+		zmin = self._dz-CNC.travel_z
 		xmax = self._dx
 		ymax = self._dy
 		zmax = self._dz
