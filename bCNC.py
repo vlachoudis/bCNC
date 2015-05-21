@@ -5,8 +5,8 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.1"
-__date__    = "20 May 2015"
+__version__ = "0.4.2"
+__date__    = "21 May 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -1265,6 +1265,19 @@ class Application(Toplevel):
 		self.widgets.append((menu,i))
 
 		i += 1
+		menu.add_separator()
+
+		i += 1
+		menu.add_command(label="Import", underline=0,
+					image=Utils.icons["empty"],
+					compound=LEFT,
+					command=self.importFile)
+		self.widgets.append((menu,i))
+
+		i += 1
+		menu.add_separator()
+
+		i += 1
 		submenu = Menu(menu)
 		menu.add_cascade(label="Probe", underline=0,
 					image=Utils.icons["empty"],
@@ -2286,7 +2299,7 @@ class Application(Toplevel):
 		elif cmd == "HOME":
 			self.home()
 
-		# HOLE: perform a homing cycle
+		# HOLE: create a hole
 		elif cmd == "HOLE":
 			try: radius = float(line[1])
 			except: return
@@ -2299,6 +2312,15 @@ class Application(Toplevel):
 			self.gcodelist.fill()
 			self.draw()
 			self.statusbar["text"] = "BOX with fingers generated"
+
+
+		# IM*PORT <filename>: import filename with gcode or dxf at cursor location
+		# or at the end of the file
+		elif rexx.abbrev("IMPORT",cmd,2):
+			try:
+				self.importFile(line[1])
+			except:
+				pass
 
 		# INK*SCAPE: remove uneccessary Z motion as a result of inkscape gcodetools
 		elif rexx.abbrev("INKSCAPE",cmd,3):
@@ -2813,17 +2835,29 @@ class Application(Toplevel):
 			self.loadGcode(filename)
 
 	#----------------------------------------------------------------------
-#	def import(self, filename):
-#		fn,ext = os.path.splitext(filename)
-#		if ext==".probe":
-#			self.loadProbe(filename)
-#		elif ext==".dxf":
-#			if self.gcode.importDXF(filename):
-#				self.gcodelist.fill()
-#				self.draw()
-#				self.statusbar["text"] = "DXF imported from "+filename
-#		else:
-#			self.loadGcode(filename)
+	def importFile(self, filename=None):
+		if filename is None:
+			filename = bFileDialog.askopenfilename(master=self,
+				title="Import Gcode/DXF file",
+				initialfile=os.path.join(
+						Utils.config.get("File", "dir"),
+						Utils.config.get("File", "file")),
+				filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
+					   ("DXF",    "*.dxf"),
+					   ("All","*")])
+		if filename:
+			gcode = CNC.GCode()
+			gcode.load(filename)
+			sel = self.gcodelist.getSelectedBlocks()
+			if not sel:
+				pos = None
+			else:
+				pos = sel[-1]
+			self.gcode.addUndo(self.gcode.insBlocksUndo(pos, gcode.blocks))
+			del gcode
+			self.gcodelist.fill()
+			self.draw()
+			self.canvas.fit2Screen()
 
 	#----------------------------------------------------------------------
 	def save(self, filename):

@@ -805,8 +805,9 @@ class GCode:
 	# Load a file into editor
 	#----------------------------------------------------------------------
 	def load(self, filename=None):
+		if filename is None: filename = self.filename
 		self.init()
-		if filename is not None: self.filename = filename
+		self.filename = filename
 		try: f = open(self.filename,"r")
 		except: return False
 		self._lastModified = os.stat(self.filename).st_mtime
@@ -1195,7 +1196,26 @@ class GCode:
 	def delBlockUndo(self, bid):
 		lines = [x for x in self.blocks[bid]]
 		block = self.blocks.pop(bid)
-		undoinfo = (self.addBlockUndo, bid, block) #list(self.blocks[bid])[:])
+		undoinfo = (self.addBlockUndo, bid, block)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Insert a list of other blocks from another gcode file probably
+	#----------------------------------------------------------------------
+	def insBlocksUndo(self, bid, blocks):
+		if bid is None or bid >= len(self.blocks):
+			bid = len(blocks)
+		undoinfo = (self.delBlocksUndo,bid, bid+len(blocks))
+		self.blocks[bid:bid] = blocks
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Delete a range of blocks
+	#----------------------------------------------------------------------
+	def delBlocksUndo(self, from_, to_):
+		blocks = self.blocks[from_:to_]
+		undoinfo = (self.insBlocksUndo, from_, blocks)
+		del self.blocks[from_:to_]
 		return undoinfo
 
 	#----------------------------------------------------------------------
