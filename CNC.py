@@ -802,6 +802,9 @@ class GCode:
 	def isModified(self): return self._modified
 
 	#----------------------------------------------------------------------
+	def resetModified(self): self._modified = False
+
+	#----------------------------------------------------------------------
 	# Load a file into editor
 	#----------------------------------------------------------------------
 	def load(self, filename=None):

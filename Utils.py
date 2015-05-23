@@ -21,6 +21,8 @@ except ImportError:
 	import configparser as ConfigParser
 	import tkinter.messagebox as tkMessageBox
 
+import tkExtra
+
 __prg__     = "bCNC"
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -326,3 +328,172 @@ class ReportDialog(Toplevel):
 	@staticmethod
 	def sendErrorReport():
 		ReportDialog(None)
+
+#===============================================================================
+# User Button
+#===============================================================================
+class UserButton(Button):
+	TOOLTIP  = "User configurable button.\n<RightClick> to configure"
+
+	def __init__(self, master, cnc, button, *args, **kwargs):
+		Button.__init__(self, master, *args, **kwargs)
+		self.cnc = cnc
+		self.button = button
+		self.get()
+		#self.bind("<Control-Button-1>", self.edit)
+		self.bind("<Button-3>", self.edit)
+		self["command"] = self.execute
+
+	# ----------------------------------------------------------------------
+	# get information from configuration
+	# ----------------------------------------------------------------------
+	def get(self):
+		if self.button == 0: return
+		name = self.name()
+		self["text"] = name
+		self["image"] = icons.get(self.icon(),"")
+		self["compound"] = LEFT
+		tooltip = self.tooltip()
+		if not tooltip: tooltip = UserButton.TOOLTIP
+		tkExtra.Balloon.set(self, tooltip)
+
+	# ----------------------------------------------------------------------
+	def name(self):
+		try:
+			return config.get("Buttons","name.%d"%(self.button))
+		except:
+			return str(self.button)
+
+	# ----------------------------------------------------------------------
+	def icon(self):
+		try:
+			return config.get("Buttons","icon.%d"%(self.button))
+		except:
+			return None
+
+	# ----------------------------------------------------------------------
+	def tooltip(self):
+		try:
+			return config.get("Buttons","tooltip.%d"%(self.button))
+		except:
+			return ""
+
+	# ----------------------------------------------------------------------
+	def command(self):
+		try:
+			return config.get("Buttons","command.%d"%(self.button))
+		except:
+			return ""
+
+	# ----------------------------------------------------------------------
+	# Edit button
+	# ----------------------------------------------------------------------
+	def edit(self, event=None):
+		UserButtonDialog(self, self)
+		self.get()
+
+	# ----------------------------------------------------------------------
+	# Execute command
+	# ----------------------------------------------------------------------
+	def execute(self):
+		cmd = self.command()
+		if not cmd:
+			self.edit()
+			return
+		for line in cmd.splitlines():
+			self.cnc.execute(line)
+
+#===============================================================================
+# User Configurable Buttons
+#===============================================================================
+class UserButtonDialog(Toplevel):
+	NONE = "<none>"
+	def __init__(self, master, button):
+		Toplevel.__init__(self, master)
+		self.title("User configurable button")
+		self.transient(master)
+		self.button = button
+
+		# Name
+		row,col = 0,0
+		Label(self, text="Name:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.name = Entry(self, background="White")
+		self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.name, "Name to appear on button")
+
+		# Icon
+		row,col = row+1,0
+		Label(self, text="Icon:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.icon = Label(self, relief=RAISED)
+		self.icon.grid(row=row, column=col, sticky=EW)
+		col += 1
+		self.iconCombo = tkExtra.Combobox(self, True,
+					width=5,
+					command=self.iconChange)
+		lst = list(sorted(icons.keys()))
+		lst.insert(0,UserButtonDialog.NONE)
+		self.iconCombo.fill(lst)
+		self.iconCombo.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.iconCombo, "Icon to appear on button")
+
+		# Tooltip
+		row,col = row+1,0
+		Label(self, text="Tool Tip:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.tooltip = Entry(self, background="White")
+		self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.tooltip, "Tooltip for button")
+
+		# Tooltip
+		row,col = row+1,0
+		Label(self, text="Command:").grid(row=row, column=col, sticky=N+E)
+		col += 1
+		self.command = Text(self, background="White", width=40, height=10)
+		self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
+
+		self.grid_columnconfigure(2,weight=1)
+		self.grid_rowconfigure(row,weight=1)
+
+		# Actions
+		row += 1
+		f = Frame(self)
+		f.grid(row=row, column=0, columnspan=2, sticky=EW)
+		Button(f, text="Cancel", command=self.cancel).pack(side=RIGHT)
+		Button(f, text="Ok",     command=self.ok).pack(side=RIGHT)
+
+		# Set variables
+		self.name.insert(0,self.button.name())
+		icon = self.button.icon()
+		if icon is None:
+			self.iconCombo.set(UserButtonDialog.NONE)
+		else:
+			self.iconCombo.set(icon)
+		self.icon["image"] = icons.get(icon,"")
+		self.command.insert("1.0", self.button.command())
+
+		# Wait action
+		self.wait_visibility()
+		self.grab_set()
+		self.focus_set()
+		self.wait_window()
+
+	# ----------------------------------------------------------------------
+	def ok(self, event=None):
+		n = self.button.button
+		config.set("Buttons", "name.%d"%(n), self.name.get().strip())
+		icon = self.iconCombo.get()
+		if icon == UserButtonDialog.NONE: icon = ""
+		config.set("Buttons", "icon.%d"%(n), icon)
+		config.set("Buttons", "tooltip.%d"%(n), self.tooltip.get().strip())
+		config.set("Buttons", "command.%d"%(n), self.command.get("1.0",END).strip())
+		self.destroy()
+
+	# ----------------------------------------------------------------------
+	def cancel(self):
+		self.destroy()
+
+	# ----------------------------------------------------------------------
+	def iconChange(self):
+		self.icon["image"] = icons.get(self.iconCombo.get(),"")
