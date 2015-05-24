@@ -3219,7 +3219,7 @@ class Application(Toplevel):
 		if self.serial is None: return
 		self.serial.write("!")
 		self.serial.flush()
-		self._pause = False
+		self._pause = True
 
 	#----------------------------------------------------------------------
 	def resume(self, event=None):
@@ -3227,19 +3227,15 @@ class Application(Toplevel):
 		if self.serial is None: return
 		self.serial.write("~")
 		self.serial.flush()
-		self._pause = True
+		self._pause = False
 
 	#----------------------------------------------------------------------
 	def pause(self, event=None):
 		if self.serial is None: return
 		if self._pause:
-			self.feedHold()
-		else:
 			self.resume()
-
-	#----------------------------------------------------------------------
-	def userCommand(self, button):
-		pass
+		else:
+			self.feedHold()
 
 	#----------------------------------------------------------------------
 	def wcsSet(self, event=None):
@@ -3488,6 +3484,9 @@ class Application(Toplevel):
 				parent=self)
 			return
 		if self.running:
+			if self._pause:
+				self.resume()
+				return
 			tkMessageBox.showerror("Already running",
 				"Please stop before",
 				parent=self)
