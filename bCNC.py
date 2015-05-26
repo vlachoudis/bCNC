@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.3"
-__date__    = "23 May 2015"
+__version__ = "0.4.5"
+__date__    = "26 May 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -54,9 +54,10 @@ import CNCPendant
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
-SERIAL_POLL   = 0.250 # s
-MONITOR_AFTER =  250 # ms
-DRAW_AFTER    =  300 # ms
+SERIAL_POLL   = 0.250	# s
+G_POLL        = 40	# G_POLL* SERIAL_POLL = ms
+MONITOR_AFTER =  250	# ms
+DRAW_AFTER    =  300	# ms
 
 RX_BUFFER_SIZE = 128
 
@@ -82,13 +83,16 @@ STATECOLOR = {	"Alarm": "Red",
 		NOT_CONNECTED: "OrangeRed"}
 STATECOLORDEF = "LightYellow"
 
-DISTANCE_MODE = { "G90" : "Abs.",
-		  "G91" : "Inc." }
+DISTANCE_MODE = { "G90" : "Absolute",
+		  "G91" : "Incremental" }
 FEED_MODE     = { "G93" : "1/Time",
 		  "G94" : "unit/min",
 		  "G95" : "unit/rev"}
 UNITS         = { "G20" : "inch",
 		  "G21" : "mm" }
+PLANE         = { "G17" : "XY",
+		  "G18" : "ZX",
+		  "G19" : "YZ" }
 
 #==============================================================================
 # Main Application window
@@ -109,6 +113,7 @@ class Application(Toplevel):
 		self.view.trace('w', self.viewChange)
 		self.tools = CNCTools.Tools(self.gcode)
 		self.loadConfig()	# load rest of config
+		self.gstate = {}	# $G state results widget dictionary
 
 		self.draw_axes   = BooleanVar()
 		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
@@ -350,10 +355,11 @@ class Application(Toplevel):
 				    "mx":0.0, "my":0.0, "mz":0.0,
 				    "state": NOT_CONNECTED,
 				    "color": STATECOLOR[NOT_CONNECTED],
-				    "G": ["G54"]}
+				    "G": ["G20","G54"]}
 		self._posUpdate  = False
-		self._posUpdate2 = False
-		self._posUpdate3 = False
+		self._wcsUpdate  = False
+		self._probeUpdate= False
+		self._gUpdate    = False
 		self.running     = False
 		self._runLines   = 0
 		#self._runLineMap = []
@@ -602,12 +608,10 @@ class Application(Toplevel):
 		lframe = LabelFrame(frame, text="User", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
-		self.nUserButtons = 6
-		for i in range(1,self.nUserButtons):
-			#b = Button(lframe, text=str(i))
+		n = Utils.getInt("Buttons","n",6)
+		for i in range(1,n):
 			b = Utils.UserButton(lframe, self, i)
 			b.grid(row=0, column=i-1, sticky=NSEW)
-			# FIXME ...tooltip...
 			lframe.grid_columnconfigure(i-1, weight=1)
 			self.widgets.append(b)
 
@@ -615,41 +619,108 @@ class Application(Toplevel):
 		lframe = LabelFrame(frame, text="State", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
-#		# State
-#		f = Frame(lframe)
-#		f.pack(fill=X)
-#
-#		# Absolute or relative mode
-#		self.distanceMode = tkExtra.Combobox(f, True,
-#					width=5,
-#					background="White")
-#					#command=self.modeChange)
-#		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
-#		self.distanceMode.pack(side=LEFT)
-#		tkExtra.Balloon.set(self.distanceMode, "Distance Mode")
-#
-#		# Feed mode
-#		self.feedMode = tkExtra.Combobox(f, True,
-#					width=8,
-#					background="White")
-#					#command=self.modeChange)
-#		self.feedMode.fill(sorted(FEED_MODE.values()))
-#		self.feedMode.pack(side=LEFT)
-#		tkExtra.Balloon.set(self.feedMode, "Feed Mode")
-#
-#		# Feed mode
-#		self.units = tkExtra.Combobox(f, True,
-#					width=6,
-#					background="White")
-#					#command=self.modeChange)
-#		self.units.fill(sorted(UNITS.values()))
-#		self.units.pack(side=LEFT)
-#		tkExtra.Balloon.set(self.units, "Units")
+		# State
+		f = Frame(lframe)
+		f.pack(side=TOP, fill=X)
 
+		# Absolute or relative mode
+		row, col = 0, 0
+		Label(f, text="Distance:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.distanceMode = tkExtra.Combobox(f, True,
+					width=5,
+					background="White",
+					command=self.distanceChange)
+		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
+		self.distanceMode.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.distanceMode, "Distance Mode [G90,G91]")
+
+		# populate gstate dictionary
+		for k,v in DISTANCE_MODE.items(): self.gstate[k] = (self.distanceMode, v)
+
+		# Units mode
+		col += 2
+		Label(f, text="Units:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.units = tkExtra.Combobox(f, True,
+					width=5,
+					background="White",
+					command=self.unitsChange)
+		self.units.fill(sorted(UNITS.values()))
+		self.units.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.units, "Units [G20, G21]")
+		for k,v in UNITS.items(): self.gstate[k] = (self.units, v)
+
+		# Feed mode
+		row += 1
+		col = 0
+		Label(f, text="Feed:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
+		self.feedRate.grid(row=row, column=col, sticky=EW)
+		self.feedRate.bind('<Return>',   self.setFeedRate)
+		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
+		tkExtra.Balloon.set(self.feedRate, "Feed Rate [F#]")
+
+		col += 1
+		b = Button(f, text="set",
+				command=self.setFeedRate,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, columnspan=2, sticky=W)
+
+		col += 1
+		Label(f, text="Mode:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.feedMode = tkExtra.Combobox(f, True,
+					width=5,
+					background="White",
+					command=self.feedModeChange)
+		self.feedMode.fill(sorted(FEED_MODE.values()))
+		self.feedMode.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.feedMode, "Feed Mode [G93, G94, G95]")
+		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
+
+		# Tool
+		row += 1
+		col = 0
+		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
+		self.toolEntry.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.feedRate, "Tool number [T#]")
+
+		col += 1
+		b = Button(f, text="set",
+				command=self.setTool,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=W)
+
+		# Plane
+		col += 1
+		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.plane = tkExtra.Combobox(f, True,
+					width=5,
+					background="White",
+					command=self.planeChange)
+		self.plane.fill(sorted(PLANE.values()))
+		self.plane.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
+		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
+
+		f.grid_columnconfigure(1, weight=1)
+		f.grid_columnconfigure(4, weight=1)
+
+		# Spindle
+		f = Frame(lframe)
+		f.pack(side=BOTTOM, fill=X)
 		self.spindle = BooleanVar()
 		self.spindleSpeed = IntVar()
 
-		b = Checkbutton(lframe, text="Spindle",
+		b = Checkbutton(f, text="Spindle",
 				image=Utils.icons["spinningtop"],
 				compound=LEFT,
 				indicatoron=False,
@@ -659,7 +730,7 @@ class Application(Toplevel):
 		b.pack(side=LEFT, fill=Y)
 		self.widgets.append(b)
 
-		b = Scale(lframe, command=self.spindleControl,
+		b = Scale(f, command=self.spindleControl,
 				variable=self.spindleSpeed,
 				showvalue=True,
 				orient=HORIZONTAL,
@@ -707,7 +778,11 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def _terminalTab(self):
 		frame = self.tabPage["Terminal"]
-		self.terminal = Text(frame, background="White", width=20, wrap=NONE, state=DISABLED)
+		self.terminal = Text(frame,
+					background="White",
+					width=20,
+					wrap=NONE,
+					state=DISABLED)
 		self.terminal.pack(side=LEFT, fill=BOTH, expand=YES)
 		sb = Scrollbar(frame, orient=VERTICAL, command=self.terminal.yview)
 		sb.pack(side=RIGHT, fill=Y)
@@ -1856,6 +1931,11 @@ class Application(Toplevel):
 		menu = Menu(menubar)
 		menubar.add_cascade(label="About", underline=0, menu=menu)
 
+		menu.add_command(label="Report", underline=0,
+					image=Utils.icons["empty"],
+					compound=LEFT,
+					command=self.reportDialog)
+
 		menu.add_command(label="About", underline=0,
 					image=Utils.icons["about"],
 					compound=LEFT,
@@ -1926,8 +2006,8 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 800),
-				  Utils.getInt(Utils.__prg__, "height", 600))
+		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
+				  Utils.getInt(Utils.__prg__, "height", 650))
 		try: self.geometry(geom)
 		except: pass
 
@@ -2058,6 +2138,10 @@ class Application(Toplevel):
 				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
 				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
+
+	#----------------------------------------------------------------------
+	def reportDialog(self, event=None):
+		Utils.ReportDialog(self)
 
 	#----------------------------------------------------------------------
 	def insertBlock(self):
@@ -2626,6 +2710,27 @@ class Application(Toplevel):
 		elif rexx.abbrev("UNLOCK",cmd,3):
 			self.unlock()
 
+		# US*ER cmd: execute user command, cmd=number or name
+		elif rexx.abbrev("USER",cmd,2):
+			n = Utils.getInt("Buttons","n",6)
+			try:
+				idx = int(line[1])
+			except:
+				try:
+					name = line[1].upper()
+					for i in range(n):
+						if name == Utils.getStr("Buttons","name.%d"%(i),"").upper():
+							idx = i
+							break
+				except:
+					return
+			if idx<0 or idx>=n:
+				self.statusbar["text"] = "Invalid user command %s"%(line[1])
+				return
+			cmd = Utils.getStr("Buttons","command.%d"%(idx),"")
+			for line in cmd.splitlines():
+				self.execute(line)
+
 		# WCS [n]: switch to workspace index n
 		elif rexx.abbrev("WORKSPACE",cmd,4) or cmd=="WCS":
 			self.tabPage.changePage("WCS")
@@ -3092,6 +3197,47 @@ class Application(Toplevel):
 		self.terminal["state"] = DISABLED
 
 	#----------------------------------------------------------------------
+	def _gChange(self, value, dictionary):
+		for k,v in dictionary.items():
+			if v==value:
+				self.send("%s\n"%(k))
+				return
+
+	#----------------------------------------------------------------------
+	def distanceChange(self):
+		if self._gUpdate: return
+		self._gChange(self.distanceMode.get(), DISTANCE_MODE)
+
+	#----------------------------------------------------------------------
+	def unitsChange(self):
+		if self._gUpdate: return
+		self._gChange(self.units.get(), UNITS)
+
+	#----------------------------------------------------------------------
+	def feedModeChange(self):
+		if self._gUpdate: return
+		self._gChange(self.feedMode.get(), FEED_MODE)
+
+	#----------------------------------------------------------------------
+	def planeChange(self):
+		if self._gUpdate: return
+		self._gChange(self.plane.get(), PLANE)
+
+	#----------------------------------------------------------------------
+	def setFeedRate(self, event=None):
+		if self._gUpdate: return
+		try:
+			feed = float(self.feedRate.get())
+			self.send("F%g\n"%(feed))
+			self.canvasFocus()
+		except ValueError:
+			pass
+
+	#----------------------------------------------------------------------
+	def setTool(self, event=None):
+		pass
+
+	#----------------------------------------------------------------------
 	def spindleControl(self, event=None):
 		if self.spindle.get():
 			self.send("M3 S%d\n"%(self.spindleSpeed.get()))
@@ -3259,7 +3405,6 @@ class Application(Toplevel):
 	def wcsChange(self):
 		idx = self.wcsvar.get()
 		self.send(WCS[idx]+"\n$G\n")
-		self._posUpdate2 = True
 
 	#----------------------------------------------------------------------
 	# Return the X%g Y%g Z%g from user input
@@ -3579,10 +3724,16 @@ class Application(Toplevel):
 		# Send one ?
 		tosend = None
 		t = time.time()
+		g = G_POLL
 		while self.thread:
 			if time.time()-t > SERIAL_POLL:
 				self.serial.write("?")
 				t = time.time()
+				if not self.running:
+					g += 1
+					if g>G_POLL:
+						self.serial.write("$G\n")
+						g = 0
 
 			if tosend is None and self.queue.qsize()>0:
 				try:
@@ -3621,9 +3772,9 @@ class Application(Toplevel):
 										 float(pat.group(2))+self._pos["wx"]-self._pos["mx"],
 										 float(pat.group(3))+self._pos["wy"]-self._pos["my"],
 										 float(pat.group(4))+self._pos["wz"]-self._pos["mz"])
-								self._posUpdate3 = True
+								self._probeUpdate = True
 							else:
-								self._posUpdate2 = True
+								self._wcsUpdate = True
 							self._pos[pat.group(1)] = \
 								[float(pat.group(2)),
 								 float(pat.group(3)),
@@ -3634,6 +3785,7 @@ class Application(Toplevel):
 								self._pos[pat.group(1)] = pat.group(2)
 							else:
 								self._pos["G"] = line[1:-1].split()
+								self._gUpdate = True
 
 					else:
 						self.log.put((False, line+"\n"))
@@ -3715,7 +3867,7 @@ class Application(Toplevel):
 			self._posUpdate = False
 
 		# Update parameters if needed
-		if self._posUpdate2:
+		if self._wcsUpdate:
 			try:
 				value = self._pos[WCS[self.wcsvar.get()]]
 				for i in range(3):
@@ -3724,19 +3876,36 @@ class Application(Toplevel):
 				pass
 
 			self._tlo["text"] = self._pos.get("TLO","")
+			self._wcsUpdate = False
 
-			try:
-				for g in self._pos["G"]:
+		# Update status string
+		if self._gUpdate:
+			for g in self._pos["G"]:
+				if g[0]=='G':
 					try:
-						self.wcsvar.set(WCS.index(g))
-					except ValueError:
-						pass
-			except KeyError:
-				pass
-			self._posUpdate2 = False
+						w, v = self.gstate[g]
+						w.set(v)
+					except KeyError:
+						try:
+							self.wcsvar.set(WCS.index(g))
+						except ValueError:
+							pass
+				elif g[0] == 'F':
+					if self.focus_get() is not self.feedRate:
+						self.feedRate.delete(0,END)
+						self.feedRate.insert(0,g[1:])
+
+				elif g[0] == 'T':
+					if self.focus_get() is not self.toolEntry:
+						self.toolEntry.delete(0,END)
+						self.toolEntry.insert(0,g[1:])
+
+				elif g[0] == 'S':
+					self.spindleSpeed.set(int(float(g[1:])))
+			self._gUpdate = False
 
 		# Update probe and draw point
-		if self._posUpdate3:
+		if self._probeUpdate:
 			try:
 				probe = self._pos.get("PRB")
 				self._probeX["text"] = probe[0]
@@ -3745,7 +3914,7 @@ class Application(Toplevel):
 			except:
 				pass
 			self.canvas.drawProbePoint(probe)
-			self._posUpdate3 = False
+			self._probeUpdate = False
 
 		if inserted:
 			self.terminal.see(END)
