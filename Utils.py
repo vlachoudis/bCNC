@@ -459,7 +459,7 @@ class UserButtonDialog(Toplevel):
 		# Actions
 		row += 1
 		f = Frame(self)
-		f.grid(row=row, column=0, columnspan=2, sticky=EW)
+		f.grid(row=row, column=0, columnspan=3, sticky=EW)
 		Button(f, text="Cancel", command=self.cancel).pack(side=RIGHT)
 		Button(f, text="Ok",     command=self.ok).pack(side=RIGHT)
 
