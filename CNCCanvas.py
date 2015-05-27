@@ -812,13 +812,17 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def drawAxes(self):
 		if not self.draw_axes: return
-		xyz = [(0.,0.,0.), (10.0, 0., 0.)]
+		if CNC.inch:
+			s = 1.0
+		else:
+			s = 10.0
+		xyz = [(0.,0.,0.), (s, 0., 0.)]
 		self.create_line(self.plotCoords(xyz), fill="Red",   dash=(3,1))
 
-		xyz = [(0.,0.,0.), (0., 10.0, 0.)]
+		xyz = [(0.,0.,0.), (0., s, 0.)]
 		self.create_line(self.plotCoords(xyz), fill="Green", dash=(3,1))
 
-		xyz = [(0.,0.,0.), (0., 0., 10.0)]
+		xyz = [(0.,0.,0.), (0., 0., s)]
 		self.create_line(self.plotCoords(xyz), fill="Blue",  dash=(3,1))
 
 	#----------------------------------------------------------------------

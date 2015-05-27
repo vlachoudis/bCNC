@@ -330,9 +330,9 @@ class CNC:
 	feedmax_x      = 3000
 	feedmax_y      = 3000
 	feedmax_z      = 2000
-	travel_x       = 370
-	travel_y       = 205
-	travel_z       = 100
+	travel_x       = 300
+	travel_y       = 300
+	travel_z       = 60
 	accuracy       = 0.02	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
@@ -361,6 +361,17 @@ class CNC:
 		CNC.startup        =       config.get(section, "startup")
 		CNC.header         =       config.get(section, "header")
 		CNC.footer         =       config.get(section, "footer")
+
+		if CNC.inch:
+			CNC.acceleration_x  /= 25.4
+			CNC.acceleration_y  /= 25.4
+			CNC.acceleration_z  /= 25.4
+			CNC.feedmax_x       /= 25.4
+			CNC.feedmax_y       /= 25.4
+			CNC.feedmax_z       /= 25.4
+			CNC.travel_x        /= 25.4
+			CNC.travel_y        /= 25.4
+			CNC.travel_z        /= 25.4
 
 		section = "Error"
 		for cmd,value in config.items(section):
