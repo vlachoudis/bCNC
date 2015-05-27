@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.5"
-__date__    = "26 May 2015"
+__version__ = "0.4.6"
+__date__    = "27 May 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -55,7 +55,7 @@ import CNCPendant
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
 SERIAL_POLL   = 0.250	# s
-G_POLL        = 40	# G_POLL* SERIAL_POLL = ms
+G_POLL        = 10	# s
 MONITOR_AFTER =  250	# ms
 DRAW_AFTER    =  300	# ms
 
@@ -3107,7 +3107,6 @@ class Application(Toplevel):
 			self.serial.write("\r\n\r\n")
 			self._gcount = 0
 			self._alarm  = True
-			self._cline  = []
 			self.thread  = threading.Thread(target=self.serialIO)
 			self.thread.start()
 			return True
@@ -3727,24 +3726,20 @@ class Application(Toplevel):
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
-		# Send one ?
 		tosend = None
-		t = time.time()
-		g = G_POLL
+		_cline = []
+		tr = tg = time.time()
 		while self.thread:
-			if time.time()-t > SERIAL_POLL:
+			t = time.time()
+			if t-tr > SERIAL_POLL:
+				# Send one ?
 				self.serial.write("?")
-				t = time.time()
-				if not self.running:
-					g += 1
-					if g>G_POLL:
-						self.serial.write("$G\n")
-						g = 0
+				tr = t
 
 			if tosend is None and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					self._cline.append(len(tosend))
+					_cline.append(len(tosend))
 					self.log.put((True,tosend))
 				except Empty:
 					break
@@ -3797,7 +3792,7 @@ class Application(Toplevel):
 						self.log.put((False, line+"\n"))
 						if line.find("error")>=0 or line.find("ALARM")>=0:
 							self._gcount += 1
-							if self._cline: del self._cline[0]
+							if _cline: del _cline[0]
 							if not self._alarm:
 								self._posUpdate = True
 							self._alarm = True
@@ -3806,14 +3801,18 @@ class Application(Toplevel):
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
-							if self._cline: del self._cline[0]
+							if _cline: del _cline[0]
 
-			if tosend is not None and sum(self._cline) <= RX_BUFFER_SIZE-2:
+			if tosend is not None and sum(_cline) <= RX_BUFFER_SIZE-2:
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
 					self.serial.write(str(tosend))
 				tosend = None
+
+				if not self.running and t-tg > G_POLL:
+					self.serial.write("$G\n")
+					tg = t
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
