@@ -465,6 +465,7 @@ class UserButtonDialog(Toplevel):
 
 		# Set variables
 		self.name.insert(0,self.button.name())
+		self.tooltip.insert(0,self.button.tooltip())
 		icon = self.button.icon()
 		if icon is None:
 			self.iconCombo.set(UserButtonDialog.NONE)
