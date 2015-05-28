@@ -690,7 +690,7 @@ class Application(Toplevel):
 		col += 1
 		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
 		self.toolEntry.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.feedRate, "Tool number [T#]")
+		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
 
 		col += 1
 		b = Button(f, text="set",
