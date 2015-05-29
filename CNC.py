@@ -1552,11 +1552,11 @@ class GCode:
 						lines.append("g0 %s"%(self.fmt("z",self.safe)))
 					else:
 						z = self.surface
-						while z>depth: 
+						while z>depth:
 							z = max(z-peck, depth)
 							lines.append("g1 %s %s"%(
 								self.fmt("z",z),
-								self.fmt("f",self.feedz))) 
+								self.fmt("f",self.feedz)))
 							lines.append("g0 %s"%(self.fmt("z",self.safe)))
 							if dwell:
 								lines.append("g4 %s"%(self.fmt("p",dwell)))
@@ -1877,7 +1877,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def roundFunc(self, new, old):
 		for name,value in new.items():
-			new[name] = round(value,self.digits)
+			new[name] = round(value,CNC.digits)
 		return bool(new)
 
 	#----------------------------------------------------------------------
