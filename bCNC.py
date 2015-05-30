@@ -79,6 +79,7 @@ ZERO = ["G28", "G30", "G92"]
 
 STATECOLOR = {	"Alarm": "Red",
 		"Run"  : "LightGreen",
+		"Hold" : "Orange",
 		"Connected" : "Orange",
 		NOT_CONNECTED: "OrangeRed"}
 STATECOLORDEF = "LightYellow"
@@ -105,6 +106,8 @@ class Application(Toplevel):
 		self.widgets = []
 
 		# Global variables
+		self.history     = []
+		self._historyPos = None
 		CNC.CNC.loadConfig(Utils.config)
 		self.gcode = CNC.GCode()
 		self.cnc   = self.gcode.cnc
@@ -343,8 +346,6 @@ class Application(Toplevel):
 		self.canvas.focus_set()
 
 		# Highlight variables
-		self.history     = []
-		self._historyPos = None
 		self.queue       = Queue()	# Command queue to send to GRBL
 		self.log         = Queue()	# Log queue returned from GRBL
 		self.pendant     = Queue()	# Command queue to be executed from Pendant
@@ -760,7 +761,7 @@ class Application(Toplevel):
 				padx=3, pady=2,
 				command=self.pause)
 		b.pack(side=LEFT,expand=YES,fill=X)
-		tkExtra.Balloon.set(b, "Pause running program")
+		tkExtra.Balloon.set(b, "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~")
 
 		b = Button(f, text="Stop",
 				compound=LEFT,
@@ -2308,15 +2309,14 @@ class Application(Toplevel):
 	# Execute a single command
 	#----------------------------------------------------------------------
 	def execute(self, line):
-		ch = line[0]
-		if ch in ("$","!","~","?","(") or GPAT.match(line):
+		if line[0] in ("$","!","~","?","(") or GPAT.match(line):
 			self.send(line+"\n")
 			return
 
-###		elif ch == "/":
+###		elif line[0] == "/":
 ###			self.editor.find(line[1:])
 ###			return
-###		elif ch == ":":
+###		elif line[0] == ":":
 ###			self.editor.setInsert("%s.0"%(line[1:]))
 ###			return
 
@@ -3726,8 +3726,8 @@ class Application(Toplevel):
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
+		cline = []
 		tosend = None
-		_cline = []
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3739,7 +3739,7 @@ class Application(Toplevel):
 			if tosend is None and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					_cline.append(len(tosend))
+					cline.append(len(tosend))
 					self.log.put((True,tosend))
 				except Empty:
 					break
@@ -3747,8 +3747,7 @@ class Application(Toplevel):
 			if tosend is None or self.serial.inWaiting():
 				line = self.serial.readline().strip()
 				if line:
-					ch = line[0]
-					if ch=="<":
+					if line[0]=="<":
 						pat = STATUSPAT.match(line)
 						if pat:
 							if not self._alarm:
@@ -3763,7 +3762,7 @@ class Application(Toplevel):
 						else:
 							self.log.put((False, line+"\n"))
 
-					elif ch=="[":
+					elif line[0]=="[":
 						self.log.put((False, line+"\n"))
 						pat = POSPAT.match(line)
 						if pat:
@@ -3790,9 +3789,10 @@ class Application(Toplevel):
 
 					else:
 						self.log.put((False, line+"\n"))
-						if line.find("error")>=0 or line.find("ALARM")>=0:
+						uline = line.upper()
+						if uline.find("ERROR")>=0 or uline.find("ALARM")>=0:
 							self._gcount += 1
-							if _cline: del _cline[0]
+							if cline: del cline[0]
 							if not self._alarm:
 								self._posUpdate = True
 							self._alarm = True
@@ -3801,9 +3801,9 @@ class Application(Toplevel):
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
-							if _cline: del _cline[0]
+							if cline: del cline[0]
 
-			if tosend is not None and sum(_cline) <= RX_BUFFER_SIZE-2:
+			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
@@ -3815,7 +3815,8 @@ class Application(Toplevel):
 					tg = t
 
 	#----------------------------------------------------------------------
-	# thread performing I/O on serial line
+	# "thread" timed function looking for messages in the serial thread
+	# and reporting back in the terminal
 	#----------------------------------------------------------------------
 	def monitorSerial(self):
 		inserted = False
@@ -3853,6 +3854,8 @@ class Application(Toplevel):
 					self._pos["color"] = STATECOLOR["Alarm"]
 				else:
 					self._pos["color"] = STATECOLORDEF
+			if state == "Hold": self._pause = True
+
 			self.state["background"] = self._pos["color"]
 
 			self.xwork["text"] = self._pos["wx"]
