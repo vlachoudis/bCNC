@@ -12,6 +12,7 @@ import sys
 #import cgi
 import json
 import threading
+import urllib
 
 try:
 	import urlparse
@@ -66,7 +67,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 					for line in value.split('\n'):
 						httpd.app.queue.put(line+"\n")
 				elif key=="cmd":
-					httpd.app.pendant.put(value)
+					httpd.app.pendant.put(urllib.unquote(value))
 			#send empty response so browser does not generate errors
 			self.do_HEAD(200, "text/text")
 			self.wfile.write("")
