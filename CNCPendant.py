@@ -14,6 +14,8 @@ import json
 import threading
 import urllib
 
+from CNC import CNC
+
 try:
 	import urlparse
 except ImportError:
@@ -74,7 +76,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/state":
 			self.do_HEAD(200, "text/text")
-			self.wfile.write(json.dumps(httpd.app._pos))
+			self.wfile.write(json.dumps(CNC.vars))
 
 		elif page == "/config":
 			self.do_HEAD(200, "text/text")
@@ -97,7 +99,6 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				f.close()
 			except:
 				pass
-
 		else:
 			self.mainPage(page[1:])
 

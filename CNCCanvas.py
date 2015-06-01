@@ -741,7 +741,13 @@ class CNCCanvas(Canvas):
 		for i,block in enumerate(self.gcode.blocks):
 			block.resetPath()
 			for j,line in enumerate(block):
-				cmd = self.cnc.parseLine(line)
+				#cmd = self.cnc.parseLine(line)
+				try:
+					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
+				except:
+					print ">>> ERROR:",sys.exc_info()[1]
+					cmd = None
+
 				if cmd is None or not drawG:
 					block.addPath(None)
 				else:
@@ -828,12 +834,12 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def drawMargin(self):
 		if not self.draw_margin: return
-		if not self.cnc.isMarginValid(): return
-		xyz = [(self.cnc.xmin, self.cnc.ymin, 0.),
-		       (self.cnc.xmax, self.cnc.ymin, 0.),
-		       (self.cnc.xmax, self.cnc.ymax, 0.),
-		       (self.cnc.xmin, self.cnc.ymax, 0.),
-		       (self.cnc.xmin, self.cnc.ymin, 0.)]
+		if not CNC.isMarginValid(): return
+		xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
+		       (CNC.vars["xmax"], CNC.vars["ymin"], 0.),
+		       (CNC.vars["xmax"], CNC.vars["ymax"], 0.),
+		       (CNC.vars["xmin"], CNC.vars["ymax"], 0.),
+		       (CNC.vars["xmin"], CNC.vars["ymin"], 0.)]
 		self._margin = self.create_line(
 					self.plotCoords(xyz),
 					fill=MARGIN_COLOR)
@@ -864,11 +870,11 @@ class CNCCanvas(Canvas):
 	def drawGrid(self):
 		if not self.draw_grid: return
 		if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
-			xmin = (self.cnc.xmin//10)  *10
-			xmax = (self.cnc.xmax//10+1)*10
-			ymin = (self.cnc.ymin//10)  *10
-			ymax = (self.cnc.ymax//10+1)*10
-			for i in range(int(self.cnc.ymin//10), int(self.cnc.ymax//10)+2):
+			xmin = (CNC.vars["xmin"]//10)  *10
+			xmax = (CNC.vars["xmax"]//10+1)*10
+			ymin = (CNC.vars["ymin"]//10)  *10
+			ymax = (CNC.vars["ymax"]//10+1)*10
+			for i in range(int(CNC.vars["ymin"]//10), int(CNC.vars["ymax"]//10)+2):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
@@ -876,7 +882,7 @@ class CNCCanvas(Canvas):
 							dash=(1,3))
 				self.tag_lower(item)
 
-			for i in range(int(self.cnc.xmin//10), int(self.cnc.xmax//10)+2):
+			for i in range(int(CNC.vars["xmin"]//10), int(CNC.vars["xmax"]//10)+2):
 				x = i*10.0
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),

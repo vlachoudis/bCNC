@@ -45,7 +45,7 @@ import tkExtra
 import Unicode
 import bFileDialog
 
-import CNC
+from CNC import CNC, GCode
 import Utils
 import CNCList
 import CNCTools
@@ -108,8 +108,8 @@ class Application(Toplevel):
 		# Global variables
 		self.history     = []
 		self._historyPos = None
-		CNC.CNC.loadConfig(Utils.config)
-		self.gcode = CNC.GCode()
+		CNC.loadConfig(Utils.config)
+		self.gcode = GCode()
 		self.cnc   = self.gcode.cnc
 		self.view  = StringVar()
 		self.view.set(CNCCanvas.VIEWS[0])
@@ -352,11 +352,24 @@ class Application(Toplevel):
 		self.serial      = None
 		self.thread      = None
 		self._dx = self._dy = self._dz = 0.0
-		self._pos        = {"wx":0.0, "wy":0.0, "wz":0.0,
-				    "mx":0.0, "my":0.0, "mz":0.0,
-				    "state": NOT_CONNECTED,
-				    "color": STATECOLOR[NOT_CONNECTED],
-				    "G": ["G20","G54"]}
+
+		# Fill basic global variables
+		CNC.vars["wx"] = 0.0
+		CNC.vars["wy"] = 0.0
+		CNC.vars["wz"] = 0.0
+
+		CNC.vars["mx"] = 0.0
+		CNC.vars["my"] = 0.0
+		CNC.vars["mz"] = 0.0
+
+		CNC.vars["state"] = NOT_CONNECTED
+		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
+		CNC.vars["G"] = ["G20","G54"]
+#		self._pos        = {"wx":0.0, "wy":0.0, "wz":0.0,
+#				    "mx":0.0, "my":0.0, "mz":0.0,
+#				    "state": NOT_CONNECTED,
+#				    "color": STATECOLOR[NOT_CONNECTED],
+#				    "G": ["G20","G54"]}
 		self._posUpdate  = False
 		self._wcsUpdate  = False
 		self._probeUpdate= False
@@ -2309,6 +2322,11 @@ class Application(Toplevel):
 	# Execute a single command
 	#----------------------------------------------------------------------
 	def execute(self, line):
+		#print "<<<",line
+		line = self.gcode.evaluate(CNC.parseLine2(line,True))
+		#print ">>>",line
+		if line is None: return
+
 		if line[0] in ("$","!","~","?","(") or GPAT.match(line):
 			self.send(line+"\n")
 			return
@@ -2320,8 +2338,9 @@ class Application(Toplevel):
 ###			self.editor.setInsert("%s.0"%(line[1:]))
 ###			return
 
-		line = line.replace(","," ").split()
-		cmd = line[0].upper()
+		oline = line.strip()
+		line  = oline.replace(","," ").split()
+		cmd   = line[0].upper()
 
 		# ABO*UT: About dialog
 		if rexx.abbrev("ABOUT",cmd,3):
@@ -2389,6 +2408,14 @@ class Application(Toplevel):
 			try:    p = float(line[2])
 			except: p = None
 			self.executeOnSelection("DRILL",h, p)
+
+		# ECHO <msg>: echo message
+		elif cmd=="ECHO":
+			self.statusbar["text"] = oline[5:].strip()
+
+		# MSG|MESSAGE <msg>: echo message
+		elif cmd in ("MSG","MESSAGE"):
+			tkMessageBox.showinfo("Message",oline[oline.find(" ")+1:].strip(), parent=self)
 
 		# FIL*TER: filter editor blocks with text
 		elif rexx.abbrev("FILTER",cmd,3) or cmd=="ALL":
@@ -2974,7 +3001,7 @@ class Application(Toplevel):
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
 		if filename:
-			gcode = CNC.GCode()
+			gcode = GCode()
 			gcode.load(filename)
 			sel = self.gcodelist.getSelectedBlocks()
 			if not sel:
@@ -3100,10 +3127,10 @@ class Application(Toplevel):
 		try:
 			self.serial = serial.Serial(device,baudrate,timeout=0.1)
 			time.sleep(1)
-			self._pos["state"] = "Connected"
-			self._pos["color"] = STATECOLOR[self._pos["state"]]
-			self.state.config(text=self._pos["state"],
-					background=self._pos["color"])
+			CNC.vars["state"] = "Connected"
+			CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
+			self.state.config(text=CNC.vars["state"],
+					background=CNC.vars["color"])
 			self.serial.write("\r\n\r\n")
 			self._gcount = 0
 			self._alarm  = True
@@ -3130,11 +3157,11 @@ class Application(Toplevel):
 		time.sleep(1)
 		self.serial.close()
 		self.serial = None
-		self._pos["state"] = NOT_CONNECTED
-		self._pos["color"] = STATECOLOR[self._pos["state"]]
+		CNC.vars["state"] = NOT_CONNECTED
+		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
 		try:
-			self.state.config(text=self._pos["state"],
-					background=self._pos["color"])
+			self.state.config(text=CNC.vars["state"],
+					background=CNC.vars["color"])
 		except TclError:
 			pass
 
@@ -3531,8 +3558,8 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def probeSetZero(self):
-		x = self._pos["wx"]
-		y = self._pos["wy"]
+		x = CNC.vars["wx"]
+		y = CNC.vars["wy"]
 		self.gcode.probe.setZero(x,y)
 		self.draw()
 
@@ -3739,8 +3766,15 @@ class Application(Toplevel):
 			if tosend is None and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					cline.append(len(tosend))
-					self.log.put((True,tosend))
+					if not isinstance(tosend, str):
+						try:
+							tosend = self.gcode.evaluate(tosend)
+						except:
+							self.log.put((True,sys.exc_info()[1]))
+							tosend = None
+					if tosend is not None:
+						cline.append(len(tosend))
+						self.log.put((True,tosend))
 				except Empty:
 					break
 
@@ -3751,13 +3785,13 @@ class Application(Toplevel):
 						pat = STATUSPAT.match(line)
 						if pat:
 							if not self._alarm:
-								self._pos["state"] = pat.group(1)
-							self._pos["mx"] = float(pat.group(2))
-							self._pos["my"] = float(pat.group(3))
-							self._pos["mz"] = float(pat.group(4))
-							self._pos["wx"] = float(pat.group(5))
-							self._pos["wy"] = float(pat.group(6))
-							self._pos["wz"] = float(pat.group(7))
+								CNC.vars["state"] = pat.group(1)
+							CNC.vars["mx"] = float(pat.group(2))
+							CNC.vars["my"] = float(pat.group(3))
+							CNC.vars["mz"] = float(pat.group(4))
+							CNC.vars["wx"] = float(pat.group(5))
+							CNC.vars["wy"] = float(pat.group(6))
+							CNC.vars["wz"] = float(pat.group(7))
 							self._posUpdate = True
 						else:
 							self.log.put((False, line+"\n"))
@@ -3768,23 +3802,32 @@ class Application(Toplevel):
 						if pat:
 							if pat.group(1) == "PRB":
 								if self.running:
+									CNC.vars["prbx"] = float(pat.group(2))
+									CNC.vars["prby"] = float(pat.group(3))
+									CNC.vars["prbz"] = float(pat.group(4))
 									self.gcode.probe.add(
-										 float(pat.group(2))+self._pos["wx"]-self._pos["mx"],
-										 float(pat.group(3))+self._pos["wy"]-self._pos["my"],
-										 float(pat.group(4))+self._pos["wz"]-self._pos["mz"])
+										 float(pat.group(2))
+											+CNC.vars["wx"]
+											-CNC.vars["mx"],
+										 float(pat.group(3))
+											+CNC.vars["wy"]
+											-CNC.vars["my"],
+										 float(pat.group(4))
+											+CNC.vars["wz"]
+											-CNC.vars["mz"])
 								self._probeUpdate = True
 							else:
 								self._wcsUpdate = True
-							self._pos[pat.group(1)] = \
+							CNC.vars[pat.group(1)] = \
 								[float(pat.group(2)),
 								 float(pat.group(3)),
 								 float(pat.group(4))]
 						else:
 							pat = TLOPAT.match(line)
 							if pat:
-								self._pos[pat.group(1)] = pat.group(2)
+								CNC.vars[pat.group(1)] = pat.group(2)
 							else:
-								self._pos["G"] = line[1:-1].split()
+								CNC.vars["G"] = line[1:-1].split()
 								self._gUpdate = True
 
 					else:
@@ -3796,7 +3839,7 @@ class Application(Toplevel):
 							if not self._alarm:
 								self._posUpdate = True
 							self._alarm = True
-							self._pos["state"] = line
+							CNC.vars["state"] = line
 							if self.running: self.stopRun()
 
 						elif line.find("ok")>=0:
@@ -3845,50 +3888,50 @@ class Application(Toplevel):
 
 		# Update position if needed
 		if self._posUpdate:
-			state = self._pos["state"]
+			state = CNC.vars["state"]
 			self.state["text"] = state
 			try:
-				self._pos["color"] = STATECOLOR[state]
+				CNC.vars["color"] = STATECOLOR[state]
 			except KeyError:
 				if self._alarm:
-					self._pos["color"] = STATECOLOR["Alarm"]
+					CNC.vars["color"] = STATECOLOR["Alarm"]
 				else:
-					self._pos["color"] = STATECOLORDEF
+					CNC.vars["color"] = STATECOLORDEF
 			if state == "Hold": self._pause = True
 
-			self.state["background"] = self._pos["color"]
+			self.state["background"] = CNC.vars["color"]
 
-			self.xwork["text"] = self._pos["wx"]
-			self.ywork["text"] = self._pos["wy"]
-			self.zwork["text"] = self._pos["wz"]
+			self.xwork["text"] = CNC.vars["wx"]
+			self.ywork["text"] = CNC.vars["wy"]
+			self.zwork["text"] = CNC.vars["wz"]
 
-			self.xmachine["text"] = self._pos["mx"]
-			self.ymachine["text"] = self._pos["my"]
-			self.zmachine["text"] = self._pos["mz"]
+			self.xmachine["text"] = CNC.vars["mx"]
+			self.ymachine["text"] = CNC.vars["my"]
+			self.zmachine["text"] = CNC.vars["mz"]
 
-			self.canvas.gantry(self._pos["wx"],
-					   self._pos["wy"],
-					   self._pos["wz"],
-					   self._pos["mx"],
-					   self._pos["my"],
-					   self._pos["mz"])
+			self.canvas.gantry(CNC.vars["wx"],
+					   CNC.vars["wy"],
+					   CNC.vars["wz"],
+					   CNC.vars["mx"],
+					   CNC.vars["my"],
+					   CNC.vars["mz"])
 			self._posUpdate = False
 
 		# Update parameters if needed
 		if self._wcsUpdate:
 			try:
-				value = self._pos[WCS[self.wcsvar.get()]]
+				value = CNC.vars[WCS[self.wcsvar.get()]]
 				for i in range(3):
 					self.wcs[i]["text"] = value[i]
 			except KeyError:
 				pass
 
-			self._tlo["text"] = self._pos.get("TLO","")
+			self._tlo["text"] = CNC.vars.get("TLO","")
 			self._wcsUpdate = False
 
 		# Update status string
 		if self._gUpdate:
-			for g in self._pos["G"]:
+			for g in CNC.vars["G"]:
 				if g[0]=='G':
 					try:
 						w, v = self.gstate[g]
@@ -3915,7 +3958,7 @@ class Application(Toplevel):
 		# Update probe and draw point
 		if self._probeUpdate:
 			try:
-				probe = self._pos.get("PRB")
+				probe = CNC.vars.get("PRB")
 				self._probeX["text"] = probe[0]
 				self._probeY["text"] = probe[1]
 				self._probeZ["text"] = probe[2]

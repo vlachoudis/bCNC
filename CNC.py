@@ -9,6 +9,7 @@ import re
 import pdb
 import sys
 import math
+import types
 import string
 
 import undo
@@ -22,7 +23,7 @@ from bmath import *
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
-CMDPAT   = re.compile(r"([A-Za-z])")
+CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 
 STOP = 0
@@ -336,9 +337,11 @@ class CNC:
 	accuracy       = 0.02	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
+	stdexpr        = False	# standard way of defining expressions with []
 
 	#----------------------------------------------------------------------
 	def __init__(self):
+		CNC.vars = {}
 		self.initPath()
 
 	#----------------------------------------------------------------------
@@ -406,8 +409,8 @@ class CNC:
 		self.pval = 0.0
 		self.unit = 1.0
 
-		self.xmin = self.ymin = self.zmin =  1000000.0
-		self.xmax = self.ymax = self.zmax = -1000000.0
+		CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] =  1000000.0
+		CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
 
 		self.absolute    = True
 		self.arcabsolute = False
@@ -417,10 +420,11 @@ class CNC:
 		self.totalTime   = 0.0
 
 	#----------------------------------------------------------------------
-	def isMarginValid(self):
-		return	self.xmin < self.xmax and \
-			self.ymin < self.ymax and \
-			self.zmin < self.zmax
+	@staticmethod
+	def isMarginValid():
+		return	CNC.vars["xmin"] <= CNC.vars["xmax"] and \
+			CNC.vars["ymin"] <= CNC.vars["ymax"] and \
+			CNC.vars["zmin"] <= CNC.vars["zmax"]
 
 	#----------------------------------------------------------------------
 	# Number formating
@@ -432,7 +436,8 @@ class CNC:
 	#----------------------------------------------------------------------
 	# @return line in broken a list of commands, None if empty or comment
 	#----------------------------------------------------------------------
-	def parseLine(self, line):
+	@staticmethod
+	def parseLine(line):
 		while True:	# repeatedly remove parenthesis
 			pat = PARENPAT.match(line)
 			if pat:
@@ -454,7 +459,131 @@ class CNC:
 		#
 
 		# Insert space before each command
-		line = re.sub(CMDPAT,r" \1",line).lstrip()
+		line = CMDPAT.sub(r" \1",line).lstrip()
+		return line.split()
+
+	# -----------------------------------------------------------------------------
+	# @return line in broken a list of commands, None if empty or comment
+	#         compile expressions
+	#----------------------------------------------------------------------
+	@staticmethod
+	def parseLine2(line, space=False):
+		line = line.strip()
+		if not line: return None
+
+		# to accept #nnn variables as _nnn internally
+		line = line.replace('#','_')
+
+		# execute literally the line after the first character
+		if line[0]=='%':
+			try:
+				return compile(line[1:],"","exec")
+			except:
+				# FIXME show the error!!!!
+				return None
+
+		# most probably an assignment like  #nnn = expr
+		if line[0]=='_':
+			try:
+				return compile(line,"","exec")
+			except:
+				# FIXME show the error!!!!
+				return None
+
+		# commented line
+		if line[0] == ';':
+			return None
+
+		out = []	# output list of commands
+		braket  = 0	# bracket count []
+		paren   = 0	# parenthesis count ()
+		comment = False	# inside comment
+		expr = ""	# expression string
+		cmd  = ""	# cmd string
+		for ch in line:
+			if ch == '(':
+				# comment start?
+				paren += 1
+				comment = (braket==0)
+				if not comment: expr += ch
+			elif ch == ')':
+				# comment end?
+				paren -= 1
+				if not comment: expr += ch
+				if paren==0 and comment: comment=False
+			elif ch == '[':
+				# expression start?
+				if not comment:
+					if CNC.stdexpr: ch='('
+					braket += 1
+					if braket==1:
+						if cmd:
+							out.append(cmd)
+							cmd = ""
+					else:
+						expr += ch
+			elif ch == ']':
+				# expression end?
+				if not comment:
+					if CNC.stdexpr: ch=')'
+					braket -= 1
+					if braket==0:
+						try:
+							out.append(compile(expr,"","eval"))
+						except:
+							# FIXME show the error!!!!
+							pass
+						#out.append("<<"+expr+">>")
+						expr = ""
+					else:
+						expr += ch
+			elif ch=='=':
+				# check for assignments (FIXME very bad)
+				if not out and braket==0 and paren==0:
+					for i in " ()-+*/^":
+						if i in cmd:
+							cmd += ch
+							break
+					else:
+						try:
+							return compile(line,"","exec")
+						except:
+							# FIXME show the error!!!!
+							return None
+			elif ch == ';':
+				# Skip everything after the semicolon on normal lines
+				if not comment and paren==0 and braket==0:
+					break
+				else:
+					expr += ch
+
+			elif braket>0:
+				expr += ch
+
+			elif not comment:
+				if ch == ' ':
+					if space:
+						cmd += ch
+				else:
+					cmd += ch
+
+		if cmd: out.append(cmd)
+
+		# return output commands
+		if len(out)==0:
+			return None
+		if len(out)>1:
+			return out
+		return out[0]
+
+	#----------------------------------------------------------------------
+	# Break line into commands
+	#----------------------------------------------------------------------
+	@staticmethod
+	def breakLine(line):
+		if line is None: return None
+		# Insert space before each command
+		line = CMDPAT.sub(r" \1",line).lstrip()
 		return line.split()
 
 	#----------------------------------------------------------------------
@@ -668,12 +797,12 @@ class CNC:
 	#----------------------------------------------------------------------
 	def pathMargins(self, xyz):
 		if self.gcode in (1,2,3):
-			self.xmin = min(self.xmin,min([i[0] for i in xyz]))
-			self.ymin = min(self.ymin,min([i[1] for i in xyz]))
-			self.zmin = min(self.zmin,min([i[2] for i in xyz]))
-			self.xmax = max(self.xmax,max([i[0] for i in xyz]))
-			self.ymax = max(self.ymax,max([i[1] for i in xyz]))
-			self.zmax = max(self.zmax,max([i[2] for i in xyz]))
+			CNC.vars["xmin"] = min(CNC.vars["xmin"], min([i[0] for i in xyz]))
+			CNC.vars["ymin"] = min(CNC.vars["ymin"], min([i[1] for i in xyz]))
+			CNC.vars["zmin"] = min(CNC.vars["zmin"], min([i[2] for i in xyz]))
+			CNC.vars["xmax"] = max(CNC.vars["xmax"], max([i[0] for i in xyz]))
+			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
+			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -797,15 +926,16 @@ class GCode:
 		self.footer    = ""
 		self.undoredo  = undo.UndoRedo()
 		self.probe     = Probe()
+		self.vars      = {}		# local variables
 		self.init()
 
 	#----------------------------------------------------------------------
 	def init(self):
 		self.filename = ""
 		self.blocks   = []		# list of blocks
+		self.vars.clear()
 		self.undoredo.reset()
 		self.probe.init()
-
 		self._lastModified = 0
 		self._modified = False
 
@@ -814,6 +944,23 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def resetModified(self): self._modified = False
+
+	#----------------------------------------------------------------------
+	# Evaluate code expressions if any and return line
+	#----------------------------------------------------------------------
+	def evaluate(self, line):
+		if isinstance(line,list):
+			for i,expr in enumerate(line):
+				if isinstance(expr, types.CodeType):
+					line[i] = str(round(eval(expr,CNC.vars,self.vars),CNC.digits))
+			return "".join(line)
+
+		elif isinstance(line, types.CodeType):
+			eval(line,CNC.vars,self.vars)
+			return None
+
+		else:
+			return line
 
 	#----------------------------------------------------------------------
 	# Load a file into editor
@@ -935,7 +1082,7 @@ class GCode:
 			name = block.name()
 			if ":" in name: name = name.split(":")[0]
 			for line in block:
-				cmds = self.cnc.parseLine(line)
+				cmds = CNC.parseLine(line)
 				if cmds is None: continue
 				self.cnc.processPath(cmds)
 				if self.cnc.gcode == 1:	# line
@@ -995,7 +1142,7 @@ class GCode:
 		# ignore the deeper ones
 		z1st = None
 		for line in block:
-			cmds = self.cnc.parseLine(line)
+			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.processPath(cmds)
 			end = Vector(self.cnc.xval, self.cnc.yval)
@@ -1115,7 +1262,7 @@ class GCode:
 		if not self.blocks:
 			self.blocks.append(Block("Header"))
 
-		cmds = self.cnc.parseLine(line)
+		cmds = CNC.parseLine(line)
 		if cmds is None:
 			self.blocks[-1].append(line)
 			return
@@ -1354,7 +1501,7 @@ class GCode:
 #			lastg0 = None
 #			while li < len(block):
 #				line = block[li]
-#				cmds = self.cnc.parseLine(line)
+#				cmds = CNC.parseLine(line)
 #				if cmds is None:
 #					li += 1
 #					continue
@@ -1538,7 +1685,7 @@ class GCode:
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
 			for i,line in enumerate(block):
-				cmds = self.cnc.parseLine(line)
+				cmds = CNC.parseLine(line)
 				if cmds is None:
 					lines.append(line)
 					continue
@@ -1690,7 +1837,7 @@ class GCode:
 		# Find starting location
 		self.initPath(bid)
 		for i,line in enumerate(block):
-			cmds = self.cnc.parseLine(line)
+			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.processPath(cmds)
 			self.cnc.motionPathEnd()
@@ -1745,7 +1892,7 @@ class GCode:
 
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
-			cmds = self.cnc.parseLine(block[lid])
+			cmds = CNC.parseLine(block[lid])
 			if cmds is None: continue
 
 			# Collect all values
@@ -1909,7 +2056,7 @@ class GCode:
 			# 0 - normal cutting z<0
 			# 1 - z>0 raised  with dx=dy=0.0
 			# 2 - z<0 plunged with dx=dy=0.0
-			cmd = self.cnc.parseLine(line)
+			cmd = CNC.parseLine(line)
 			if cmd is None:
 				newlines.append(line)
 				continue
@@ -1965,8 +2112,19 @@ class GCode:
 			if not block.enable: continue
 			for j,line in enumerate(block):
 				newcmd = []
-				cmds = self.cnc.parseLine(line)
+				#cmds = CNC.parseLine(line)
+				cmds = CNC.parseLine2(line)
 				if cmds is None: continue
+				if isinstance(cmds,str):
+					cmds = CNC.breakLine(cmds)
+				else:
+					# either CodeType or list[] append
+					lines.append(cmds)
+					if isinstance(cmds,types.CodeType):
+						paths.append(None)
+					else:
+						paths.append((i,j))
+					continue
 
 				if autolevel:
 					self.cnc.processPath(cmds)
@@ -2005,7 +2163,7 @@ class GCode:
 					c = cmd[0]
 					try: value = float(cmd[1:])
 					except: value = 0.0
-					if c.upper() in ("F","X","Y","Z","I","J","K","R","P",):
+					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
 					else:
 						opt = ERROR_HANDLING.get(cmd.upper(),0)
