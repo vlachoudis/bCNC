@@ -2322,8 +2322,14 @@ class Application(Toplevel):
 	# Execute a single command
 	#----------------------------------------------------------------------
 	def execute(self, line):
+		#print
 		#print "<<<",line
-		line = self.gcode.evaluate(CNC.parseLine2(line,True))
+		try:
+			line = self.gcode.evaluate(CNC.parseLine2(line,True))
+		except:
+			tkMessageBox.showerror("Evaluation error",
+				sys.exc_info()[1], parent=self)
+			return
 		#print ">>>",line
 		if line is None: return
 

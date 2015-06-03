@@ -952,7 +952,11 @@ class GCode:
 		if isinstance(line,list):
 			for i,expr in enumerate(line):
 				if isinstance(expr, types.CodeType):
-					line[i] = str(round(eval(expr,CNC.vars,self.vars),CNC.digits))
+					result = eval(expr,CNC.vars,self.vars)
+					if isinstance(result,float):
+						line[i] = str(round(result,CNC.digits))
+					else:
+						line[i] = str(result)
 			return "".join(line)
 
 		elif isinstance(line, types.CodeType):
