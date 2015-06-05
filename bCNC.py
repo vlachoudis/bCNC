@@ -3016,6 +3016,7 @@ class Application(Toplevel):
 			if ans==tkMessageBox.YES or ans==True:
 				self.save()
 
+		self.gcodelist.selectClear()
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
