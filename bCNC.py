@@ -22,6 +22,7 @@ import string
 import serial
 import socket
 import threading
+import webbrowser
 try:
 	from serial.tools.list_ports import comports
 except:
@@ -3710,11 +3711,18 @@ class Application(Toplevel):
 	# Start the web pendant
 	#----------------------------------------------------------------------
 	def startPendant(self, showInfo=True):
-		CNCPendant.start(self)
+		started=CNCPendant.start(self)
 		if showInfo:
-			tkMessageBox.showinfo("Pendant",
-				"Pendant started:\n"\
-				"http://%s:%d"%(socket.gethostname(),CNCPendant.port), parent=self)
+			hostName="http://%s:%d"%(socket.gethostname(),CNCPendant.port)
+			if started:
+				tkMessageBox.showinfo("Pendant",
+				"Pendant started:\n"+hostName,
+				parent=self)
+			else:
+				dr=tkMessageBox.askquestion("Pendant",
+				"Pendant already started:\n"+hostName+"\nWould you like open it locally?")
+				if dr=="yes":
+					webbrowser.open(hostName,new=2)
 
 	#----------------------------------------------------------------------
 	# Stop the web pendant
