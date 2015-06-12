@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.5.0"
-__date__    = "1 Jun 2015"
+__version__ = "0.4.8"
+__date__    = "30 May 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -117,6 +117,7 @@ class Application(Toplevel):
 		self.tools = CNCTools.Tools(self.gcode)
 		self.loadConfig()	# load rest of config
 		self.gstate = {}	# $G state results widget dictionary
+		self.wait = False	# wait for commands to complete
 
 		self.draw_axes   = BooleanVar()
 		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
@@ -521,6 +522,25 @@ class Application(Toplevel):
 
 		# ---
 		row += 1
+
+#		# -- Addition --
+#		col = 0
+#		self.zstep = tkExtra.Combobox(lframe, width=1, background="White")
+#		self.zstep.grid(row=row, column=col, columnspan=1, sticky=EW)
+##		self.zstep.set(Utils.config.get("Control","zstep"))
+#		self.zstep.fill(["0.001",
+#				"0.005",
+#				"0.01",
+#				"0.05",
+#				"0.1",
+#				"0.5",
+#				"1",
+#				"5",
+#				"10"])
+#		tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
+#		self.widgets.append(self.zstep)
+#		# -- end addition --
+
 		col = 1
 		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
@@ -2331,18 +2351,24 @@ class Application(Toplevel):
 				sys.exc_info()[1], parent=self)
 			return
 		#print ">>>",line
-		if line is None: return
 
-		if line[0] in ("$","!","~","?","(") or GPAT.match(line):
+		if line is None:
+			return
+
+		if isinstance(line, int):
+			self.send(line)
+			return
+
+		elif line[0] in ("$","!","~","?","(") or GPAT.match(line):
 			self.send(line+"\n")
 			return
 
-###		elif line[0] == "/":
-###			self.editor.find(line[1:])
-###			return
-###		elif line[0] == ":":
-###			self.editor.setInsert("%s.0"%(line[1:]))
-###			return
+#		elif line[0] == "/":
+#			self.editor.find(line[1:])
+#			return
+#		elif line[0] == ":":
+#			self.editor.setInsert("%s.0"%(line[1:]))
+#			return
 
 		oline = line.strip()
 		line  = oline.replace(","," ").split()
@@ -3049,6 +3075,7 @@ class Application(Toplevel):
 			if ans==tkMessageBox.YES or ans==True:
 				self.save()
 
+		self.gcodelist.selectClear()
 		self.gcode.load(filename)
 		self.gcodelist.fill()
 		self.draw()
@@ -3713,7 +3740,10 @@ class Application(Toplevel):
 		self.running = True
 		for line in lines:
 			if line is not None:
-				self.queue.put(line+"\n")
+				if isinstance(line,str):
+					self.queue.put(line+"\n")
+				else:
+					self.queue.put(line)
 
 	#----------------------------------------------------------------------
 	# Called when run is finished
@@ -3742,11 +3772,18 @@ class Application(Toplevel):
 	# Start the web pendant
 	#----------------------------------------------------------------------
 	def startPendant(self, showInfo=True):
-		CNCPendant.start(self)
+		started=CNCPendant.start(self)
 		if showInfo:
-			tkMessageBox.showinfo("Pendant",
-				"Pendant started:\n"\
-				"http://%s:%d"%(socket.gethostname(),CNCPendant.port), parent=self)
+			hostName="http://%s:%d"%(socket.gethostname(),CNCPendant.port)
+			if started:
+				tkMessageBox.showinfo("Pendant",
+				"Pendant started:\n"+hostName,
+				parent=self)
+			else:
+				dr=tkMessageBox.askquestion("Pendant",
+				"Pendant already started:\n"+hostName+"\nWould you like open it locally?")
+				if dr=="yes":
+					webbrowser.open(hostName,new=2)
 
 	#----------------------------------------------------------------------
 	# Stop the web pendant
@@ -3759,8 +3796,11 @@ class Application(Toplevel):
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
+		from CNC import WAIT
+
 		cline = []
 		tosend = None
+		self.wait = False
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3769,12 +3809,24 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and self.queue.qsize()>0:
+			if tosend is None and not self.wait and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					if not isinstance(tosend, str):
+					if isinstance(tosend, int):
+						if tosend == WAIT: # wait to empty the grbl buffer
+							self.wait = True
+						tosend = None
+					elif not isinstance(tosend, str):
 						try:
 							tosend = self.gcode.evaluate(tosend)
+#							if isinstance(tosend, list):
+#								cline.append(len(tosend[0]))
+#								self.log.put((True,tosend[0]))
+							if isinstance(tosend,str):
+								tosend += "\n"
+							else:
+								# Count commands as well
+								self._gcount += 1
 						except:
 							self.log.put((True,sys.exc_info()[1]))
 							tosend = None
@@ -3807,10 +3859,10 @@ class Application(Toplevel):
 						pat = POSPAT.match(line)
 						if pat:
 							if pat.group(1) == "PRB":
+								CNC.vars["prbx"] = float(pat.group(2))
+								CNC.vars["prby"] = float(pat.group(3))
+								CNC.vars["prbz"] = float(pat.group(4))
 								if self.running:
-									CNC.vars["prbx"] = float(pat.group(2))
-									CNC.vars["prby"] = float(pat.group(3))
-									CNC.vars["prbz"] = float(pat.group(4))
 									self.gcode.probe.add(
 										 float(pat.group(2))
 											+CNC.vars["wx"]
@@ -3852,7 +3904,15 @@ class Application(Toplevel):
 							self._gcount += 1
 							if cline: del cline[0]
 
+						if self.wait and not cline:
+							# buffer is empty go one
+							self._gcount += 1
+							self.wait = False
+
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+#				if isinstance(tosend, list):
+#					self.serial.write(str(tosend.pop(0)))
+#					if not tosend: tosend = None
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:

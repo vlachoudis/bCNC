@@ -29,6 +29,7 @@ BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 STOP = 0
 SKIP = 1
 ASK  = 2
+WAIT = 9
 
 ERROR_HANDLING = {}
 
@@ -341,7 +342,11 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	def __init__(self):
-		CNC.vars = {}
+		CNC.vars = {
+			"prbx" : 0.0,
+			"prby" : 0.0,
+			"prbz" : 0.0
+			}
 		self.initPath()
 
 	#----------------------------------------------------------------------
@@ -476,6 +481,9 @@ class CNC:
 
 		# execute literally the line after the first character
 		if line[0]=='%':
+			# special command
+			if line.strip()=="%wait":
+				return WAIT
 			try:
 				return compile(line[1:],"","exec")
 			except:
@@ -949,7 +957,10 @@ class GCode:
 	# Evaluate code expressions if any and return line
 	#----------------------------------------------------------------------
 	def evaluate(self, line):
-		if isinstance(line,list):
+		if isinstance(line,int):
+			return None
+
+		elif isinstance(line,list):
 			for i,expr in enumerate(line):
 				if isinstance(expr, types.CodeType):
 					result = eval(expr,CNC.vars,self.vars)
@@ -2116,7 +2127,6 @@ class GCode:
 			if not block.enable: continue
 			for j,line in enumerate(block):
 				newcmd = []
-				#cmds = CNC.parseLine(line)
 				cmds = CNC.parseLine2(line)
 				if cmds is None: continue
 				if isinstance(cmds,str):
@@ -2124,7 +2134,7 @@ class GCode:
 				else:
 					# either CodeType or list[] append
 					lines.append(cmds)
-					if isinstance(cmds,types.CodeType):
+					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
 						paths.append(None)
 					else:
 						paths.append((i,j))

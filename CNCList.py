@@ -16,6 +16,7 @@ import tkExtra
 #import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
+COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
 
 #==============================================================================
@@ -107,7 +108,7 @@ class CNCListbox(Listbox):
 				self.insert(END, line)
 				y += 1
 				if line and line[0] in ("(","%"):
-					self.itemconfig(END, foreground="Blue")
+					self.itemconfig(END, foreground=COMMENT_COLOR)
 				self._items.append((bi, lj))
 
 		for i in sel: self.selection_set(i)
@@ -158,7 +159,7 @@ class CNCListbox(Listbox):
 			self.set(active, edit.value)
 
 		if edit.value and edit.value[0] in ("(","%"):
-			self.itemconfig(active, foreground="Blue")
+			self.itemconfig(active, foreground=COMMENT_COLOR)
 
 		self.yview_moveto(ypos)
 		self.event_generate("<<Modified>>")
@@ -245,7 +246,7 @@ class CNCListbox(Listbox):
 		self.selection_set(active)
 		self.activate(active)
 		if edit.value and edit.value[0] in ("(","%"):
-			self.itemconfig(active, foreground="Blue")
+			self.itemconfig(active, foreground=COMMENT_COLOR)
 		self.yview_moveto(ypos)
 
 		# Correct pointers

@@ -745,7 +745,8 @@ class CNCCanvas(Canvas):
 				try:
 					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
 				except:
-					print ">>> ERROR:",sys.exc_info()[1]
+					sys.stderr.write(">>> ERROR: %s\n"%(str(sys.exc_info()[1])))
+					sys.stderr.write("     line: %s\n"%(line))
 					cmd = None
 
 				if cmd is None or not drawG:
