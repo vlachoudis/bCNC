@@ -523,23 +523,44 @@ class Application(Toplevel):
 		# ---
 		row += 1
 
-#		# -- Addition --
-#		col = 0
-#		self.zstep = tkExtra.Combobox(lframe, width=1, background="White")
-#		self.zstep.grid(row=row, column=col, columnspan=1, sticky=EW)
-##		self.zstep.set(Utils.config.get("Control","zstep"))
-#		self.zstep.fill(["0.001",
-#				"0.005",
-#				"0.01",
-#				"0.05",
-#				"0.1",
-#				"0.5",
-#				"1",
-#				"5",
-#				"10"])
-#		tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
-#		self.widgets.append(self.zstep)
-#		# -- end addition --
+ 		# --------------------------------------------------------------
+		# Additional z step combobox between the two Z jogging buttons
+		#---------------------------------------------------------------
+		# To use this functionally you have to:
+		#
+		# 1) uncomment the line between START-CODE and END-CODE 
+		#
+		# 2) put in your bCNC.ini file under the [Control] section
+		#    a line with zstep = 0.1
+		#
+		# 3) tune the step in self.ztep.fill to your needs
+		# 
+		# 4) modify the line in the "moveZup" and "moveZdown" functions
+		#    around line 3411 to read zstep instead of step as in 
+		#    self.send("G91G0Z%s\nG90\n"%(self.zstep.get()))
+		#
+		# You can now use a step for Z-Axis different from the one of 
+		# the XY axis   
+
+		# START-CODE
+
+		#col = 0
+		#self.zstep = tkExtra.Combobox(lframe, width=1, background="White")
+		#self.zstep.grid(row=row, column=col, columnspan=1, sticky=EW)
+		#self.zstep.set(Utils.config.get("Control","zstep"))
+		#self.zstep.fill(["0.001",
+		#		"0.005",
+		#		"0.01",
+		#		"0.05",
+		#		"0.1",
+		#		"0.5",
+		#		"1",
+		#		"5",
+		#		"10"])
+		#tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
+		#self.widgets.append(self.zstep)
+
+		#END-CODE
 
 		col = 1
 		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
