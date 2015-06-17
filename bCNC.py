@@ -2310,7 +2310,7 @@ class Application(Toplevel):
 	# Execute a single command
 	#----------------------------------------------------------------------
 	def execute(self, line):
-		if line[0] in ("$","!","~","?","(") or GPAT.match(line):
+		if line[0] in ("$","!","~","?","(","@") or GPAT.match(line):
 			self.send(line+"\n")
 			return
 
