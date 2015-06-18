@@ -311,23 +311,27 @@ class Box:
 class Spirograph:
 
 	def __init__(self, RExt=100., RInt=50., ROff=40. , Depth=0, Zsafe=10, Feed=100.0):
-		if(RExt> RInt):
-			self.RExt = RExt
-			self.RInt = RInt
-		else:
-			self.RExt = RInt
-			self.RInt = RExt
+
+		self.RExt = RExt
+		self.RInt = RInt
+		self.ROff = ROff
 
 		self.ROff = ROff
-		if (RExt / RInt) % 1.0 == 0:
-			self.Spins = 1
-		else:
-			self.Spins = math.ceil( 1.0 / ((RExt / RInt) % 1.0) )
+
+		self.Spins = self.lcm(RExt,RInt) / min(RExt,RInt)
+		#print "Spins:%f" %(self.Spins)
+
 		self.Depth = Depth
 		self.Zsafe = Zsafe
 		self.Feed = Feed
 		self.PI = math.pi
 		self.theta = 0.0
+
+
+	#----------------------------------------------------------------------
+	def lcm(self,x,y):
+		from fractions import gcd
+		return (x*y)/gcd(x,y)
 
 	#----------------------------------------------------------------------
 	def calc_dots(self,resolution=2*math.pi/360):
