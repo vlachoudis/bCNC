@@ -2215,7 +2215,7 @@ class Application(Toplevel):
 	def changePage(self, event=None):
 		page = self.tabPage.getActivePage()
 		if page == "WCS":
-			self.send("$#\n$G\n")
+			self.sendGrbl("$#\n$G\n")
 			return
 		#elif page == "Probe":
 		#	self.probeChange(False)
@@ -2311,7 +2311,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def execute(self, line):
 		if line[0] in ("$","!","~","?","(","@") or GPAT.match(line):
-			self.send(line+"\n")
+			self.sendGrbl(line+"\n")
 			return
 
 ###		elif line[0] == "/":
@@ -2330,7 +2330,7 @@ class Application(Toplevel):
 
 		# ABS*OLUTE: Set absolute coordinates
 		elif rexx.abbrev("ABSOLUTE",cmd,3):
-			self.send("G90\n")
+			self.sendGrbl("G90\n")
 
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
@@ -2560,7 +2560,7 @@ class Application(Toplevel):
 
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
-			self.send("G91\n")
+			self.sendGrbl("G91\n")
 
 		# RESET: perform a soft reset to grbl
 		elif cmd == "RESET":
@@ -3141,7 +3141,9 @@ class Application(Toplevel):
 			pass
 
 	#----------------------------------------------------------------------
-	def send(self, cmd):
+	# Send to grbl
+	#----------------------------------------------------------------------
+	def sendGrbl(self, cmd):
 		if self.serial and not self.running:
 			self.queue.put(cmd)
 
@@ -3158,37 +3160,37 @@ class Application(Toplevel):
 
 	def unlock(self):
 		self._alarm = False
-		self.send("$X\n")
+		self.sendGrbl("$X\n")
 
 	def home(self):
 		self._alarm = False
-		self.send("$H\n")
+		self.sendGrbl("$H\n")
 
 	def viewSettings(self):
-		self.send("$$\n")
+		self.sendGrbl("$$\n")
 		self.tabPage.changePage("Terminal")
 
 	def viewParameters(self):
-		self.send("$#\n$G\n")
+		self.sendGrbl("$#\n$G\n")
 		self.tabPage.changePage("WCS")
 
 	def viewState(self):
-		self.send("$G\n")
+		self.sendGrbl("$G\n")
 		self.tabPage.changePage("Terminal")
 
 	def viewBuild(self):
-		self.send("$I\n")
+		self.sendGrbl("$I\n")
 		self.tabPage.changePage("Terminal")
 
 	def viewStartup(self):
-		self.send("$N\n")
+		self.sendGrbl("$N\n")
 		self.tabPage.changePage("Terminal")
 
 	def checkGcode(self):
-		self.send("$C\n")
+		self.sendGrbl("$C\n")
 
 	def grblhelp(self):
-		self.send("$\n")
+		self.sendGrbl("$\n")
 		self.tabPage.changePage("Terminal")
 
 	def clearTerminal(self):
@@ -3200,7 +3202,7 @@ class Application(Toplevel):
 	def _gChange(self, value, dictionary):
 		for k,v in dictionary.items():
 			if v==value:
-				self.send("%s\n"%(k))
+				self.sendGrbl("%s\n"%(k))
 				return
 
 	#----------------------------------------------------------------------
@@ -3228,7 +3230,7 @@ class Application(Toplevel):
 		if self._gUpdate: return
 		try:
 			feed = float(self.feedRate.get())
-			self.send("F%g\n"%(feed))
+			self.sendGrbl("F%g\n"%(feed))
 			self.canvasFocus()
 		except ValueError:
 			pass
@@ -3240,9 +3242,9 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def spindleControl(self, event=None):
 		if self.spindle.get():
-			self.send("M3 S%d\n"%(self.spindleSpeed.get()))
+			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
-			self.send("M5\n")
+			self.sendGrbl("M5\n")
 
 	#----------------------------------------------------------------------
 	def acceptKey(self, skipRun=False):
@@ -3307,58 +3309,58 @@ class Application(Toplevel):
 		if x is not None: cmd += "X%g"%(x)
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
-		self.send("%s\n"%(cmd))
+		self.sendGrbl("%s\n"%(cmd))
 
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0X%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0X%s\nG90\n"%(self.step.get()))
 
 	def moveXdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0X-%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0X-%s\nG90\n"%(self.step.get()))
 
 	def moveYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Y%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0Y%s\nG90\n"%(self.step.get()))
 
 	def moveYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Y-%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0Y-%s\nG90\n"%(self.step.get()))
 
 	def moveXdownYup(self, event=None):
-		self.send("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGrbl("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYup(self, event=None):
-		self.send("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGrbl("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXdownYdown(self, event=None):
-		self.send("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGrbl("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYdown(self, event=None):
-		self.send("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGrbl("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Z%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0Z%s\nG90\n"%(self.step.get()))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.send("G91G0Z-%s\nG90\n"%(self.step.get()))
+		self.sendGrbl("G91G0Z-%s\nG90\n"%(self.step.get()))
 
 	def go2origin(self, event=None):
-		self.send("G90G0X0Y0Z0\n")
+		self.sendGrbl("G90G0X0Y0Z0\n")
 
 	def resetCoords(self, event):
-		if not self.running: self.send("G10P0L20X0Y0Z0\n")
+		if not self.running: self.sendGrbl("G10P0L20X0Y0Z0\n")
 
 	def resetX(self, event):
-		if not self.running: self.send("G10P0L20X0\n")
+		if not self.running: self.sendGrbl("G10P0L20X0\n")
 
 	def resetY(self, event):
-		if not self.running: self.send("G10P0L20Y0\n")
+		if not self.running: self.sendGrbl("G10P0L20Y0\n")
 
 	def resetZ(self, event):
-		if not self.running: self.send("G10P0L20Z0\n")
+		if not self.running: self.sendGrbl("G10P0L20Z0\n")
 
 	#----------------------------------------------------------------------
 	def feedHold(self, event=None):
@@ -3400,7 +3402,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def wcsChange(self):
 		idx = self.wcsvar.get()
-		self.send(WCS[idx]+"\n$G\n")
+		self.sendGrbl(WCS[idx]+"\n$G\n")
 
 	#----------------------------------------------------------------------
 	# Return the X%g Y%g Z%g from user input
@@ -3426,7 +3428,7 @@ class Application(Toplevel):
 
 		cmd += self._wcsXYZ(x,y,z)
 
-		self.send(cmd+"\n$#\n")
+		self.sendGrbl(cmd+"\n$#\n")
 		self.statusbar["text"] = "Set workspace %s to X%s Y%s Z%s"% \
 					(WCS[p],str(x),str(y),str(z))
 
@@ -3434,24 +3436,24 @@ class Application(Toplevel):
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g28Command(self):
-		self.send("G28.1\n")
+		self.sendGrbl("G28.1\n")
 
 	#----------------------------------------------------------------------
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g30Command(self):
-		self.send("G30.1\n")
+		self.sendGrbl("G30.1\n")
 
 	#----------------------------------------------------------------------
 	def g92Command(self):
 		cmd = "G92"+self._wcsXYZ(self.wcsX.get(), self.wcsY.get(), self.wcsZ.get())
-		self.send(cmd+"\n$#\n")
+		self.sendGrbl(cmd+"\n$#\n")
 		self.statusbar["text"] = "Set legacy zero location"
 
 	#----------------------------------------------------------------------
 	def tloSet(self, event=None):
 		cmd = "G43.1Z"+(self._tloin.get())
-		self.send(cmd+"\n$#\n")
+		self.sendGrbl(cmd+"\n$#\n")
 
 	#----------------------------------------------------------------------
 	def probeGetMargins(self):
