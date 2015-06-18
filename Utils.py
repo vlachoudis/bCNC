@@ -52,6 +52,7 @@ def delIcons():
 	if len(icons) > 0:
 		for i in icons.values():
 			del i
+		icons = {}	# needed otherwise it complains on deleting the icons
 
 #------------------------------------------------------------------------------
 # Load configuration
