@@ -343,9 +343,16 @@ class CNC:
 	#----------------------------------------------------------------------
 	def __init__(self):
 		CNC.vars = {
-			"prbx" : 0.0,
-			"prby" : 0.0,
-			"prbz" : 0.0
+				"prbx" : 0.0,
+				"prby" : 0.0,
+				"prbz" : 0.0,
+				"wx"   : 0.0,
+				"wy"   : 0.0,
+				"wz"   : 0.0,
+				"mx"   : 0.0,
+				"my"   : 0.0,
+				"mz"   : 0.0,
+				"G"    : ["G20","G54"],
 			}
 		self.initPath()
 
@@ -794,6 +801,7 @@ class CNC:
 		self.totalLength += length
 		if self.gcode == 0:
 			# FIXME calculate the correct time with the feed direction
+			# and acceleration
 			self.totalTime += length / self.feedmax_x
 		else:
 			try:
@@ -1746,7 +1754,7 @@ class GCode:
 	# until the maximum height
 	#----------------------------------------------------------------------
 	def cut(self, items, depth=None, stepz=None):
-		if stepz is None: stepz =  self.stepz
+		if stepz is None: stepz = self.stepz
 		if depth is None: depth = self.surface-self.thickness
 
 		if depth < self.surface-self.thickness or depth > self.surface:

@@ -763,6 +763,8 @@ class CNCCanvas(Canvas):
 		self.drawProbe()
 		self.drawAxes()
 #		self.tag_lower(self._workarea)
+		if self._gantry1: self.tag_raise(self._gantry1)
+		if self._gantry2: self.tag_raise(self._gantry2)
 		self._updateScrollBars()
 
 		ij = self.plotCoords([xyz])[0]

@@ -52,6 +52,7 @@ def delIcons():
 	if len(icons) > 0:
 		for i in icons.values():
 			del i
+		icons = {}	# needed otherwise it complains on deleting the icons
 
 #------------------------------------------------------------------------------
 # Load configuration
@@ -74,7 +75,6 @@ def saveConfiguration():
 	f = open(iniUser,"w")
 	config.write(f)
 	f.close()
-	delIcons()
 
 #----------------------------------------------------------------------
 # Remove items that are the same as in the default ini
@@ -402,7 +402,7 @@ class UserButton(Button):
 			self.edit()
 			return
 		for line in cmd.splitlines():
-			self.cnc.execute(line)
+			self.cnc.pendant.put(line)
 
 #===============================================================================
 # User Configurable Buttons

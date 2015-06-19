@@ -5,7 +5,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.5.0"
+__version__ = "0.4.9"
 __date__    = "15 Jun 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
@@ -16,14 +16,8 @@ import sys
 import pdb
 import math
 import time
-import string
 import serial
 import socket
-import threading
-try:
-	from serial.tools.list_ports import comports
-except:
-	from Utils import comports
 
 try:
 	import Tkinter
@@ -44,14 +38,21 @@ import Unicode
 import bFileDialog
 
 from CNC import CNC, GCode
-import Tools
 import Utils
+import Tools
+import Ribbon
 import Pendant
+from Control import Control, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
 
 import CNCList
 import CNCCanvas
 
-BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
+from FilePage      import FilePage
+from ControlPage   import ControlPage
+from TerminalPage  import TerminalPage
+from WorkspacePage import WorkspacePage
+from ToolsPage     import ToolsPage
+from EditorPage    import EditorPage
 
 SERIAL_POLL   = 0.250	# s
 G_POLL        = 10	# s
@@ -62,60 +63,30 @@ RX_BUFFER_SIZE = 128
 
 MAX_HISTORY  = 500
 
-GPAT     = re.compile(r"[A-Za-z]\d+.*")
-STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
-POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
-TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
-
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 
-NOT_CONNECTED = "Not connected"
 
-WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
-ZERO = ["G28", "G30", "G92"]
-
-STATECOLOR = {	"Alarm": "Red",
-		"Run"  : "LightGreen",
-		"Hold" : "Orange",
-		"Connected" : "Orange",
-		NOT_CONNECTED: "OrangeRed"}
-STATECOLORDEF = "LightYellow"
-
-DISTANCE_MODE = { "G90" : "Absolute",
-		  "G91" : "Incremental" }
-FEED_MODE     = { "G93" : "1/Time",
-		  "G94" : "unit/min",
-		  "G95" : "unit/rev"}
-UNITS         = { "G20" : "inch",
-		  "G21" : "mm" }
-PLANE         = { "G17" : "XY",
-		  "G18" : "ZX",
-		  "G19" : "YZ" }
+#ZERO = ["G28", "G30", "G92"]
 
 #==============================================================================
 # Main Application window
 #==============================================================================
-class Application(Toplevel):
+class Application(Toplevel,Control):
 	def __init__(self, master, **kw):
 		Toplevel.__init__(self, master, **kw)
+		Control.__init__(self)
+
 		self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
 		self.title(Utils.__prg__)
 		self.widgets = []
 
 		# Global variables
-		self.history     = []
-		self._historyPos = None
-		CNC.loadConfig(Utils.config)
-		self.gcode = GCode()
-		self.cnc   = self.gcode.cnc
 		self.view  = StringVar()
 		self.view.set(CNCCanvas.VIEWS[0])
 		self.view.trace('w', self.viewChange)
 		self.tools = Tools.Tools(self.gcode)
-		self.loadConfig()	# load rest of config
-		self.gstate = {}	# $G state results widget dictionary
-		self.wait = False	# wait for commands to complete
+		self.loadConfig()
 
 		self.draw_axes   = BooleanVar()
 		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
@@ -131,6 +102,10 @@ class Application(Toplevel):
 		self.draw_rapid.set(bool(int(Utils.config.get("Canvas","rapid"))))
 		self.draw_workarea = BooleanVar()
 		self.draw_workarea.set(bool(int(Utils.config.get("Canvas","workarea"))))
+
+		# --- Ribbon ---
+		self.ribbon = Ribbon.TabRibbonFrame(self)
+		self.ribbon.pack(side=TOP, fill=X)
 
 		# --- Toolbar ---
 		toolbar = Frame(self, relief=RAISED)
@@ -172,9 +147,9 @@ class Application(Toplevel):
 			"(move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
 
-		# --- Editor ---
+		# --- Control ---
 		panedframe = Frame(paned)
-		paned.add(panedframe, minsize=240)
+		paned.add(panedframe, minsize=340)
 
 		frame = Frame(panedframe, relief=RAISED)
 		frame.pack(side=TOP, fill=X, pady=1)
@@ -226,30 +201,22 @@ class Application(Toplevel):
 		self.zmachine = Label(frame, background="White", anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
+		# progress
+		row += 1
+		col = 0
+		Label(frame,text="Run:").grid(row=row,column=col,sticky=E)
+		col += 1
+		self.progress = tkExtra.ProgressBar(frame, height=24)
+		self.progress.grid(row=row, column=1, columnspan=3, sticky=EW)
+
 		frame.grid_columnconfigure(1, weight=1)
 		frame.grid_columnconfigure(2, weight=1)
 		frame.grid_columnconfigure(3, weight=1)
 
 		# Tab page set
-		self.tabPage = tkExtra.TabPageSet(panedframe, pageNames=
-					[("Control",  Utils.icons["control"]),
-					 ("Terminal", Utils.icons["terminal"]),
-					 ("WCS",      Utils.icons["measure"]),
-					 ("Tools",    Utils.icons["tools"]),
-					 ("Editor",   Utils.icons["edit"])])
-		self.tabPage.pack(fill=BOTH, expand=YES)
-		self.tabPage.bind("<<ChangePage>>", self.changePage)
-
-		self._controlTab()
-		self._terminalTab()
-		self._wcsTab()
-		self._editorTab()
-
-		# ---- Tools ----
-		frame = self.tabPage["Tools"]
-
-		self.toolFrame = Tools.ToolFrame(frame, self, self.tools)
-		self.toolFrame.pack(fill=BOTH, expand=YES)
+		pageframe = Frame(panedframe, relief=GROOVE)
+		pageframe.pack(fill=BOTH, expand=YES)
+		self.ribbon.setPageFrame(pageframe)
 
 		# --- Canvas ---
 		frame = Frame(paned)
@@ -267,6 +234,23 @@ class Application(Toplevel):
 		frame.grid_rowconfigure(0, weight=1)
 		frame.grid_columnconfigure(0, weight=1)
 
+		# Create Pages
+		self._file     = FilePage(self.ribbon, self)
+		self._control  = ControlPage(self.ribbon, self)
+		self._terminal = TerminalPage(self.ribbon, self)
+		self._wcs      = WorkspacePage(self.ribbon, self)
+		self._tools    = ToolsPage(self.ribbon, self)
+		self._editor   = EditorPage(self.ribbon, self)
+
+		for page in (	self._file,
+				self._control,
+				self._terminal,
+				self._wcs,
+				self._tools,
+				self._editor):
+			self.ribbon.addPage(page)
+		self.ribbon.changePage("Control")
+
 		# Canvas bindings
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
@@ -281,6 +265,12 @@ class Application(Toplevel):
 			pass
 
 		# Global bindings
+		self.bind('<<Undo>>',           self.undo)
+		self.bind('<<Redo>>',           self.redo)
+		self.bind('<<Copy>>',           self.copy)
+		self.bind('<<Cut>>',            self.cut)
+		self.bind('<<Paste>>',          self.paste)
+
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
 		self.bind('<Control-Key-f>',	self.find)
@@ -308,12 +298,12 @@ class Application(Toplevel):
 		self.bind('<F7>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2]))
 		self.bind('<F8>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3]))
 
-		self.bind('<Up>',		self.moveYup)
-		self.bind('<Down>',		self.moveYdown)
-		self.bind('<Right>',		self.moveXup)
-		self.bind('<Left>',		self.moveXdown)
-		self.bind('<Prior>',		self.moveZup)
-		self.bind('<Next>',		self.moveZdown)
+		self.bind('<Up>',		self._control.moveYup)
+		self.bind('<Down>',		self._control.moveYdown)
+		self.bind('<Right>',		self._control.moveXup)
+		self.bind('<Left>',		self._control.moveXdown)
+		self.bind('<Prior>',		self._control.moveZup)
+		self.bind('<Next>',		self._control.moveZdown)
 
 		self.bind('<Key-plus>',		self.incStep)
 		self.bind('<Key-equal>',	self.incStep)
@@ -339,18 +329,10 @@ class Application(Toplevel):
 				x.bind("<Escape>", self.canvasFocus)
 
 		# Tool bar and Menu
-		self.createToolbar(toolbar)
-		self.createMenu()
+#		self.createToolbar(toolbar)
+#		self.createMenu()
 
 		self.canvas.focus_set()
-
-		# Highlight variables
-		self.queue       = Queue()	# Command queue to send to GRBL
-		self.log         = Queue()	# Log queue returned from GRBL
-		self.pendant     = Queue()	# Command queue to be executed from Pendant
-		self.serial      = None
-		self.thread      = None
-		self._dx = self._dy = self._dz = 0.0
 
 		# Fill basic global variables
 		CNC.vars["state"] = NOT_CONNECTED
@@ -361,850 +343,20 @@ class Application(Toplevel):
 		self._gUpdate    = False
 		self.running     = False
 		self._runLines   = 0
-		#self._runLineMap = []
 		self._quit       = 0
-		self._pause      = False
 		self._drawAfter  = None	# after handle for modification
-		self._alarm      = True
 		self._inFocus    = False
 		self.monitorSerial()
 		self.toggleDrawFlag()
 
 		# Create tools
-		self.toolFrame.fill()
-		try:
-			self.toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
-		except:
-			self.toolFrame.set("Box")
+		self._tools.fill()
 
 		if int(Utils.config.get("Connection","pendant")):
 			self.startPendant(False)
 
 		if int(Utils.config.get("Connection","openserial")):
 			self.openClose()
-
-	#----------------------------------------------------------------------
-	# Control
-	#----------------------------------------------------------------------
-	def _controlTab(self):
-		frame = self.tabPage["Control"]
-
-		# Control -> Connection
-		lframe = LabelFrame(frame, text="Connection", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		Label(lframe,text="Port:").grid(row=0,column=0,sticky=E)
-		self.portCombo = tkExtra.Combobox(lframe, False, background="White", width=8)
-		self.portCombo.grid(row=0, column=1, columnspan=2, sticky=EW)
-		devices = sorted([x[0] for x in comports()])
-		self.portCombo.fill(devices)
-		self.portCombo.set(Utils.config.get("Connection","port"))
-
-		self.connectBtn = Button(lframe, text="Open",
-					compound=LEFT,
-					image=Utils.icons["serial"],
-					command=self.openClose,
-					background="LightGreen",
-					activebackground="LightGreen",
-					padx=2, pady=2)
-		self.connectBtn.grid(row=0,column=3,sticky=EW)
-		tkExtra.Balloon.set(self.connectBtn, "Open/Close serial port")
-
-		b = Button(lframe, text="Home",
-				compound=LEFT,
-				image=Utils.icons["home"],
-				command=self.home,
-				padx=2)
-		b.grid(row=1,column=1,sticky=EW)
-		tkExtra.Balloon.set(b, "Perform a homing cycle")
-		self.widgets.append(b)
-
-		b = Button(lframe, text="Unlock",
-				compound=LEFT,
-				image=Utils.icons["unlock"],
-				command=self.unlock,
-				padx=2)
-		b.grid(row=1,column=2,sticky=EW)
-		tkExtra.Balloon.set(b, "Unlock device")
-		self.widgets.append(b)
-
-		b = Button(lframe, text="Reset",
-				compound=LEFT,
-				image=Utils.icons["reset"],
-				command=self.softReset,
-				foreground="DarkRed",
-				background="LightYellow",
-				activebackground="LightYellow",
-				padx=2,pady=1)
-		b.grid(row=1,column=3,sticky=EW)
-		tkExtra.Balloon.set(b, "Software reset of controller")
-		self.widgets.append(b)
-
-		lframe.grid_columnconfigure(1, weight=1)
-		lframe.grid_columnconfigure(2, weight=1)
-
-		# Control -> Control
-		lframe = LabelFrame(frame, text="Control", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		row,col = 0,0
-		Label(lframe, text="Z").grid(row=row, column=col)
-
-		col += 3
-		Label(lframe, text="Y").grid(row=row, column=col)
-
-		# ---
-		row += 1
-		col = 0
-
-		width=3
-		height=2
-
-		b = Button(lframe, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveZup)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move +Z")
-		self.widgets.append(b)
-
-		col += 2
-		b = Button(lframe, text=Unicode.UPPER_LEFT_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXdownYup)
-
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move -X +Y")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveYup)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move +Y")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text=Unicode.UPPER_RIGHT_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXupYup)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move +X +Y")
-		self.widgets.append(b)
-
-		col += 2
-		b = Button(lframe, text=u"\u00D710", width=3, padx=1, pady=1, command=self.mulStep)
-		b.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(b, "Multiply step by 10")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text="+", width=3, padx=1, pady=1, command=self.incStep)
-		b.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(b, "Increase step by 1 unit")
-		self.widgets.append(b)
-
-		# ---
-		row += 1
-
-#		# -- Addition --
-#		col = 0
-#		self.zstep = tkExtra.Combobox(lframe, width=1, background="White")
-#		self.zstep.grid(row=row, column=col, columnspan=1, sticky=EW)
-##		self.zstep.set(Utils.config.get("Control","zstep"))
-#		self.zstep.fill(["0.001",
-#				"0.005",
-#				"0.01",
-#				"0.05",
-#				"0.1",
-#				"0.5",
-#				"1",
-#				"5",
-#				"10"])
-#		tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
-#		self.widgets.append(self.zstep)
-#		# -- end addition --
-
-		col = 1
-		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
-
-		col += 1
-		b = Button(lframe, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXdown)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move -X")
-		self.widgets.append(b)
-
-		col += 1
-		b = Utils.UserButton(lframe, self, 0, text=Unicode.LARGE_CIRCLE,
-					width=width, height=height,
-					command=self.go2origin)
-		b.grid(row=row, column=col, sticky=EW)
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXup)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move +X")
-		self.widgets.append(b)
-
-		# --
-		col += 1
-		Label(lframe,"",width=2).grid(row=row,column=col)
-
-		col += 1
-		self.step = tkExtra.Combobox(lframe, width=6, background="White")
-		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
-		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(["0.001",
-				"0.005",
-				"0.01",
-				"0.05",
-				"0.1",
-				"0.5",
-				"1",
-				"5",
-				"10",
-				"50",
-				"100",
-				"500"])
-		tkExtra.Balloon.set(self.step, "Step for every move operation")
-		self.widgets.append(self.step)
-
-		# ---
-		row += 1
-		col = 0
-
-		b = Button(lframe, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveZdown)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move -Z")
-		self.widgets.append(b)
-
-		col += 2
-		b = Button(lframe, text=Unicode.LOWER_LEFT_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXdownYdown)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move -X -Y")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-					width=width, height=height,
-					command=self.moveYdown)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move -Y")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text=Unicode.LOWER_RIGHT_TRIANGLE,
-					width=width, height=height,
-					command=self.moveXupYdown)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Move +X -Y")
-		self.widgets.append(b)
-
-		col += 2
-		b = Button(lframe, text=u"\u00F710", padx=1, pady=1, command=self.divStep)
-		b.grid(row=row, column=col, sticky=EW+N)
-		tkExtra.Balloon.set(b, "Divide step by 10")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text="-", padx=1, pady=1, command=self.decStep)
-		b.grid(row=row, column=col, sticky=EW+N)
-		tkExtra.Balloon.set(b, "Decrease step by 1 unit")
-		self.widgets.append(b)
-
-		#lframe.grid_columnconfigure(6,weight=1)
-
-		lframe = LabelFrame(frame, text="User", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		n = Utils.getInt("Buttons","n",6)
-		for i in range(1,n):
-			b = Utils.UserButton(lframe, self, i)
-			b.grid(row=0, column=i-1, sticky=NSEW)
-			lframe.grid_columnconfigure(i-1, weight=1)
-			self.widgets.append(b)
-
-		# Control -> State
-		lframe = LabelFrame(frame, text="State", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		# State
-		f = Frame(lframe)
-		f.pack(side=TOP, fill=X)
-
-		# Absolute or relative mode
-		row, col = 0, 0
-		Label(f, text="Distance:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.distanceMode = tkExtra.Combobox(f, True,
-					width=5,
-					background="White",
-					command=self.distanceChange)
-		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
-		self.distanceMode.grid(row=row, column=col, columnspan=2, sticky=EW)
-		tkExtra.Balloon.set(self.distanceMode, "Distance Mode [G90,G91]")
-
-		# populate gstate dictionary
-		for k,v in DISTANCE_MODE.items(): self.gstate[k] = (self.distanceMode, v)
-
-		# Units mode
-		col += 2
-		Label(f, text="Units:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.units = tkExtra.Combobox(f, True,
-					width=5,
-					background="White",
-					command=self.unitsChange)
-		self.units.fill(sorted(UNITS.values()))
-		self.units.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.units, "Units [G20, G21]")
-		for k,v in UNITS.items(): self.gstate[k] = (self.units, v)
-
-		# Feed mode
-		row += 1
-		col = 0
-		Label(f, text="Feed:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
-		self.feedRate.grid(row=row, column=col, sticky=EW)
-		self.feedRate.bind('<Return>',   self.setFeedRate)
-		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
-		tkExtra.Balloon.set(self.feedRate, "Feed Rate [F#]")
-
-		col += 1
-		b = Button(f, text="set",
-				command=self.setFeedRate,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, columnspan=2, sticky=W)
-
-		col += 1
-		Label(f, text="Mode:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.feedMode = tkExtra.Combobox(f, True,
-					width=5,
-					background="White",
-					command=self.feedModeChange)
-		self.feedMode.fill(sorted(FEED_MODE.values()))
-		self.feedMode.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.feedMode, "Feed Mode [G93, G94, G95]")
-		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
-
-		# Tool
-		row += 1
-		col = 0
-		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
-		self.toolEntry.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
-
-		col += 1
-		b = Button(f, text="set",
-				command=self.setTool,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=W)
-
-		# Plane
-		col += 1
-		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.plane = tkExtra.Combobox(f, True,
-					width=5,
-					background="White",
-					command=self.planeChange)
-		self.plane.fill(sorted(PLANE.values()))
-		self.plane.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
-		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
-
-		f.grid_columnconfigure(1, weight=1)
-		f.grid_columnconfigure(4, weight=1)
-
-		# Spindle
-		f = Frame(lframe)
-		f.pack(side=BOTTOM, fill=X)
-		self.spindle = BooleanVar()
-		self.spindleSpeed = IntVar()
-
-		b = Checkbutton(f, text="Spindle",
-				image=Utils.icons["spinningtop"],
-				compound=LEFT,
-				indicatoron=False,
-				variable=self.spindle,
-				command=self.spindleControl)
-		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
-		b.pack(side=LEFT, fill=Y)
-		self.widgets.append(b)
-
-		b = Scale(f, command=self.spindleControl,
-				variable=self.spindleSpeed,
-				showvalue=True,
-				orient=HORIZONTAL,
-				from_=Utils.config.get("CNC","spindlemin"),
-				to_=Utils.config.get("CNC","spindlemax"))
-		tkExtra.Balloon.set(b, "Set spindle RPM")
-		b.pack(side=RIGHT, expand=YES, fill=X)
-		self.widgets.append(b)
-
-		# Control -> Run
-		lframe = LabelFrame(frame, text="Run", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-		f = Frame(lframe)
-		f.pack(side=TOP,fill=X)
-		b = Button(f, text="Run",
-				compound=LEFT,
-				image=Utils.icons["start"],
-				padx=3, pady=2,
-				command=self.run)
-		b.pack(side=LEFT,expand=YES,fill=X)
-		tkExtra.Balloon.set(b, "Send g-code commands from editor to CNC")
-		self.widgets.append(b)
-
-		b = Button(f, text="Pause",
-				compound=LEFT,
-				image=Utils.icons["pause"],
-				padx=3, pady=2,
-				command=self.pause)
-		b.pack(side=LEFT,expand=YES,fill=X)
-		tkExtra.Balloon.set(b, "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~")
-
-		b = Button(f, text="Stop",
-				compound=LEFT,
-				image=Utils.icons["stop"],
-				padx=3, pady=2,
-				command=self.stopRun)
-		tkExtra.Balloon.set(b, "Stop running program")
-		b.pack(side=LEFT,expand=YES,fill=X)
-
-		self.progress = tkExtra.ProgressBar(lframe, height=24)
-		self.progress.pack(fill=X)
-
-	#----------------------------------------------------------------------
-	# Terminal
-	#----------------------------------------------------------------------
-	def _terminalTab(self):
-		frame = self.tabPage["Terminal"]
-		self.terminal = Text(frame,
-					background="White",
-					width=20,
-					wrap=NONE,
-					state=DISABLED)
-		self.terminal.pack(side=LEFT, fill=BOTH, expand=YES)
-		sb = Scrollbar(frame, orient=VERTICAL, command=self.terminal.yview)
-		sb.pack(side=RIGHT, fill=Y)
-		self.terminal.config(yscrollcommand=sb.set)
-		self.terminal.tag_config("SEND",  foreground="Blue")
-		self.terminal.tag_config("ERROR", foreground="Red")
-
-	#----------------------------------------------------------------------
-	# WorkSpace
-	#----------------------------------------------------------------------
-	def _wcsTab(self):
-		frame = self.tabPage["WCS"]
-
-		# WorkSpace -> WPS
-		lframe = LabelFrame(frame, text="WCS", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		self.wcsvar = IntVar()
-		self.wcsvar.set(0)
-
-		row=0
-
-		row += 1
-		col  = 0
-		for p,w in enumerate(WCS):
-			col += 1
-			b = Radiobutton(lframe, text=w,
-					foreground="DarkRed",
-					font = "Helvetica,14",
-					padx=2, pady=2,
-					variable=self.wcsvar,
-					value=p,
-					indicatoron=FALSE,
-					command=self.wcsChange)
-			b.grid(row=row, column=col,  sticky=NSEW)
-			self.widgets.append(b)
-			if col%3==0:
-				row += 1
-				col  = 0
-
-		row += 1
-		col=1
-		Label(lframe, text="X").grid(row=row, column=col)
-		col += 1
-		Label(lframe, text="Y").grid(row=row, column=col)
-		col += 1
-		Label(lframe, text="Z").grid(row=row, column=col)
-
-		row += 1
-		col = 1
-		x = Label(lframe, foreground="DarkBlue", background="gray95")
-		x.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
-
-		col += 1
-		y = Label(lframe, foreground="DarkBlue", background="gray95")
-		y.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
-
-		col += 1
-		z = Label(lframe, foreground="DarkBlue", background="gray95")
-		z.grid(row=row, column=col, padx=1, pady=1, sticky=NSEW)
-
-		self.wcs = (x,y,z)
-
-		# Set workspace
-		row += 1
-		col  = 1
-		self.wcsX = tkExtra.FloatEntry(lframe, background="White")
-		self.wcsX.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.wcsX, "If not empty set the X workspace")
-		self.wcsX.bind("<Return>",   self.wcsSet)
-		self.wcsX.bind("<KP_Enter>", self.wcsSet)
-		self.widgets.append(self.wcsX)
-
-		col += 1
-		self.wcsY = tkExtra.FloatEntry(lframe, background="White")
-		self.wcsY.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.wcsY, "If not empty set the Y workspace")
-		self.widgets.append(self.wcsY)
-		self.wcsY.bind("<Return>",   self.wcsSet)
-		self.wcsY.bind("<KP_Enter>", self.wcsSet)
-
-		col += 1
-		self.wcsZ = tkExtra.FloatEntry(lframe, background="White")
-		self.wcsZ.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.wcsZ, "If not empty set the Z workspace")
-		self.widgets.append(self.wcsZ)
-		self.wcsZ.bind("<Return>",   self.wcsSet)
-		self.wcsZ.bind("<KP_Enter>", self.wcsSet)
-
-		col += 1
-		b = Button(lframe, text="set",
-				command=self.wcsSet,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		self.widgets.append(b)
-
-		# set zero
-		row += 1
-		col  = 1
-		b = Button(lframe, text="X=0",
-				command=self.wcsSetX0,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Set X coordinate to zero")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text="Y=0",
-				command=self.wcsSetY0,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Set Y coordinate to zero")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text="Z=0",
-				command=self.wcsSetZ0,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Set Z coordinate to zero")
-		self.widgets.append(b)
-
-		col += 1
-		b = Button(lframe, text="Zero",
-				command=self.wcsSet0,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Zero all coordinates")
-		self.widgets.append(b)
-
-		# Tool offset
-		row += 1
-		col =  0
-		Label(lframe, text="TLO", foreground="DarkRed").grid(
-				row=row, rowspan=2, column=col, sticky=EW)
-		col += 2
-		self._tlo = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._tlo.grid(row=row, column=col, sticky=EW)
-
-		col += 1
-		self._tloin = tkExtra.FloatEntry(lframe, background="White")
-		self._tloin.grid(row=row, column=col, sticky=EW)
-		self.widgets.append(self._tloin)
-		self._tloin.bind("<Return>",   self.tloSet)
-		self._tloin.bind("<KP_Enter>", self.tloSet)
-
-		col += 1
-		b = Button(lframe, text="set",
-				command=self.tloSet,
-				padx=2, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		self.widgets.append(b)
-
-		# Zero system
-		row += 1
-		col  = 1
-		b = Button(lframe, text="G28", padx=2, pady=2, command=self.g28Command)
-		b.grid(row=row, column=col,  sticky=NSEW)
-		self.widgets.append(b)
-		tkExtra.Balloon.set(b, "G28: Go to zero via point")
-
-		col += 1
-		b = Button(lframe, text="G30", padx=2, pady=2, command=self.g30Command)
-		b.grid(row=row, column=col,  sticky=NSEW)
-		self.widgets.append(b)
-		tkExtra.Balloon.set(b, "G30: Go to zero via point")
-
-		col += 1
-		b = Button(lframe, text="G92", padx=2, pady=2, command=self.g92Command)
-		b.grid(row=row, column=col,  sticky=NSEW)
-		self.widgets.append(b)
-		tkExtra.Balloon.set(b, "G92: Set zero system (LEGACY)")
-
-		lframe.grid_columnconfigure(1,weight=1)
-		lframe.grid_columnconfigure(2,weight=1)
-		lframe.grid_columnconfigure(3,weight=1)
-
-		# ---- WorkSpace ----
-		#frame = self.tabPage["Probe"]
-
-		# WorkSpace -> Probe
-		lframe = LabelFrame(frame, text="Probe", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		row,col = 0,0
-		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self._probeX = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		col += 1
-		self._probeY = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		col += 1
-		self._probeZ = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		# ---
-		row,col = row+1,0
-		Label(lframe, text="Pos:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.probeXdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeXdir, "Probe along X direction")
-		self.widgets.append(self.probeXdir)
-
-		col += 1
-		self.probeYdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeYdir, "Probe along Y direction")
-		self.widgets.append(self.probeYdir)
-
-		col += 1
-		self.probeZdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeZdir, "Probe along Z direction")
-		self.widgets.append(self.probeZdir)
-
-		# ---
-		row += 1
-		b = Button(lframe, text="Probe", command=self.probeOne)
-		b.grid(row=row, column=col, sticky=E)
-		tkExtra.Balloon.set(b, "Probe one point. Using the feed below")
-		self.widgets.append(b)
-
-		lframe.grid_columnconfigure(1,weight=1)
-		lframe.grid_columnconfigure(2,weight=1)
-		lframe.grid_columnconfigure(3,weight=1)
-
-		# WorkSpace -> Autolevel
-		lframe = LabelFrame(frame, text="Autolevel", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		row,col = 0,0
-		# Empty
-		col += 1
-		Label(lframe, text="Min").grid(row=row, column=col, sticky=EW)
-		col += 1
-		Label(lframe, text="Max").grid(row=row, column=col, sticky=EW)
-		col += 1
-		Label(lframe, text="Step").grid(row=row, column=col, sticky=EW)
-		col += 1
-		Label(lframe, text="N").grid(row=row, column=col, sticky=EW)
-
-		# --- X ---
-		row += 1
-		col = 0
-		Label(lframe, text="X:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.probeXmin = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeXmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXmin, "X minimum")
-		self.widgets.append(self.probeXmin)
-
-		col += 1
-		self.probeXmax = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeXmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXmax, "X maximum")
-		self.widgets.append(self.probeXmax)
-
-		col += 1
-		self.probeXstep = Label(lframe, foreground="DarkBlue", background="gray95", width=5)
-		self.probeXstep.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXstep, "X step")
-
-		col += 1
-		self.probeXbins = Spinbox(lframe, from_=2, to_=1000, command=self.probeChange,
-					background="White", width=3)
-		self.probeXbins.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXbins, "X bins")
-		self.widgets.append(self.probeXbins)
-
-		# --- Y ---
-		row += 1
-		col  = 0
-		Label(lframe, text="Y:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.probeYmin = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeYmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYmin, "Y minimum")
-		self.widgets.append(self.probeYmin)
-
-		col += 1
-		self.probeYmax = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeYmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYmax, "Y maximum")
-		self.widgets.append(self.probeYmax)
-
-		col += 1
-		self.probeYstep = Label(lframe,  foreground="DarkBlue", background="gray95", width=5)
-		self.probeYstep.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYstep, "Y step")
-
-		col += 1
-		self.probeYbins = Spinbox(lframe, from_=2, to_=1000, command=self.probeChange,
-					background="White", width=3)
-		self.probeYbins.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYbins, "Y bins")
-		self.widgets.append(self.probeYbins)
-
-		# Max Z
-		row += 1
-		col  = 0
-
-		Label(lframe, text="Z:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.probeZmin = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeZmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeZmin, "Z Minimum depth to scan")
-		self.widgets.append(self.probeZmin)
-
-		col += 1
-		self.probeZmax = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeZmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeZmax, "Z safe to move")
-		self.widgets.append(self.probeZmax)
-
-		col += 1
-		Label(lframe, text="Feed:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.probeFeed = tkExtra.FloatEntry(lframe, background="White", width=5)
-		self.probeFeed.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeFeed, "Probe feed rate")
-		self.widgets.append(self.probeFeed)
-
-		# Set variables
-		self.probeXdir.set(Utils.config.get("Probe","x"))
-		self.probeYdir.set(Utils.config.get("Probe","y"))
-		self.probeZdir.set(Utils.config.get("Probe","z"))
-
-		self.probeXmin.set(Utils.config.get("Probe","xmin"))
-		self.probeXmax.set(Utils.config.get("Probe","xmax"))
-		self.probeYmin.set(Utils.config.get("Probe","ymin"))
-		self.probeYmax.set(Utils.config.get("Probe","ymax"))
-		self.probeZmin.set(Utils.config.get("Probe","zmin"))
-		self.probeZmax.set(Utils.config.get("Probe","zmax"))
-		self.probeFeed.set(Utils.config.get("Probe","feed"))
-
-		self.probeXbins.delete(0,END)
-		self.probeXbins.insert(0,max(2,Utils.getInt("Probe","xn",5)))
-
-		self.probeYbins.delete(0,END)
-		self.probeYbins.insert(0,max(2,Utils.getInt("Probe","yn",5)))
-		self.probeChange()
-
-		# Buttons
-		row += 1
-		col  = 0
-		f = Frame(lframe)
-		f.grid(row=row, column=col, columnspan=5, sticky=EW)
-
-		b = Button(f, text="Scan", foreground="DarkRed", command=self.probeScanArea)
-		b.pack(side=RIGHT)
-		tkExtra.Balloon.set(b, "Scan probed area for level information")
-		self.widgets.append(b)
-
-		b = Button(f, text="Draw", command=self.probeDraw)
-		b.pack(side=RIGHT)
-		tkExtra.Balloon.set(b, "Draw probe points on canvas")
-		self.widgets.append(b)
-
-		b = Button(f, text="Set Zero", command=self.probeSetZero)
-		b.pack(side=RIGHT)
-		tkExtra.Balloon.set(b, "Set current location as Z-zero for leveling")
-		self.widgets.append(b)
-
-		b = Button(f, text="Get Margins", command=self.probeGetMargins)
-		b.pack(side=RIGHT)
-		tkExtra.Balloon.set(b, "Get margins from gcode file")
-		self.widgets.append(b)
-
-		b = Button(f, text="Clear", command=self.probeClear)
-		b.pack(side=RIGHT)
-		tkExtra.Balloon.set(b, "Clear probe points")
-		self.widgets.append(b)
-
-		lframe.grid_columnconfigure(1,weight=2)
-		lframe.grid_columnconfigure(2,weight=2)
-		lframe.grid_columnconfigure(3,weight=1)
-
-	#----------------------------------------------------------------------
-	# GCode Editor
-	#----------------------------------------------------------------------
-	def _editorTab(self):
-		frame = self.tabPage["Editor"]
-
-		self.gcodelist = CNCList.CNCListbox(frame, self,
-						selectmode=EXTENDED,
-						exportselection=0,
-						background="White")
-
-		self.gcodelist.bind("<<ListboxSelect>>",	self.selectionChange)
-		self.gcodelist.bind("<<Modified>>",		self.drawAfter)
-
-		self.gcodelist.pack(side=LEFT,expand=TRUE, fill=BOTH)
-		self.widgets.append(self.gcodelist)
-		sb = Scrollbar(frame, orient=VERTICAL, command=self.gcodelist.yview)
-		sb.pack(side=RIGHT, fill=Y)
-		self.gcodelist.config(yscrollcommand=sb.set)
-
-		self.tabPage.changePage()
 
 	#----------------------------------------------------------------------
 	def createToolbar(self, toolbar):
@@ -1217,37 +369,6 @@ class Application(Toplevel):
 		self.widgets.append(b)
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Save g-code to file")
-
-		# ---
-		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
-
-		b = Button(toolbar, image=Utils.icons["undo"], command=self.undo)
-		self.widgets.append(b)
-		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Undo last edit")
-
-		b = Button(toolbar, image=Utils.icons["redo"], command=self.redo)
-		self.widgets.append(b)
-		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Redo last undo command")
-
-		# ---
-		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
-
-		b = Button(toolbar, image=Utils.icons["cut"], command=self.cut)
-		self.widgets.append(b)
-		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Cut to clipboard")
-
-		b = Button(toolbar, image=Utils.icons["copy"], command=self.copy)
-		self.widgets.append(b)
-		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Copy to clipboard")
-
-		b = Button(toolbar, image=Utils.icons["paste"], command=self.paste)
-		self.widgets.append(b)
-		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Paste from clipboard")
 
 		# ---
 		Label(toolbar, image=Utils.icons["sep"]).pack(side=LEFT, padx=3)
@@ -1444,52 +565,6 @@ class Application(Toplevel):
 		menubar.add_cascade(label="Edit", underline=0, menu=menu)
 
 		i = 1
-		menu.add_command(label="Undo", underline=0,
-					image=Utils.icons["undo"],
-					compound=LEFT,
-					accelerator="Ctrl-Z",
-					command=self.undo)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_command(label="Redo", underline=0,
-					image=Utils.icons["redo"],
-					compound=LEFT,
-					accelerator="Ctrl-Y",
-					command=self.redo)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_separator()
-
-		i += 1
-		menu.add_command(label="Cut", underline=2,
-					image=Utils.icons["cut"],
-					compound=LEFT,
-					accelerator="Ctrl-X",
-					command=self.cut)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_command(label="Copy", underline=0,
-					image=Utils.icons["copy"],
-					compound=LEFT,
-					accelerator="Ctrl-C",
-					command=self.copy)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_command(label="Paste", underline=0,
-					image=Utils.icons["paste"],
-					compound=LEFT,
-					accelerator="Ctrl-V",
-					command=self.paste)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_separator()
-
-		i += 1
 		menu.add_command(label="Insert Block", underline=0,
 					image=Utils.icons["add"],
 					compound=LEFT,
@@ -1727,110 +802,6 @@ class Application(Toplevel):
 #					compound=LEFT,
 #					command=self.material)
 
-		# Control Menu
-		menu = Menu(menubar)
-		menubar.add_cascade(label="Control", underline=0, menu=menu)
-
-		i = 1
-		menu.add_command(label="Hard Reset", underline=0,
-					image=Utils.icons["reset"],
-					compound=LEFT,
-					command=self.hardReset)
-		i += 1
-		menu.add_command(label="Soft Reset", underline=0,
-					image=Utils.icons["reset"],
-					compound=LEFT,
-					command=self.softReset)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_separator()
-		i += 1
-		menu.add_command(label="Home",       underline=0,
-					image=Utils.icons["home"],
-					compound=LEFT,
-					command=self.home)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Unlock",     underline=2,
-					image=Utils.icons["unlock"],
-					compound=LEFT,
-					command=self.unlock)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_separator()
-
-		i += 1
-		menu.add_command(label="Settings",   underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.viewSettings)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Parameters", underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.viewParameters)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="State",      underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.viewState)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Build",      underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.viewBuild)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Startup",    underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.viewStartup)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Check gcode",underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.checkGcode)
-		self.widgets.append((menu,i))
-
-		i += 1
-		menu.add_separator()
-		i += 1
-		menu.add_command(label="Clear",underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.clearTerminal)
-		self.widgets.append((menu,i))
-		i += 1
-		menu.add_command(label="Grbl Help",underline=0,
-					image=Utils.icons["info"],
-					compound=LEFT,
-					command=self.grblhelp)
-		self.widgets.append((menu,i))
-
-		# Run Menu
-		menu = Menu(menubar)
-		menubar.add_cascade(label="Run", underline=0, menu=menu)
-
-		i = 1
-		menu.add_command(label="Run",       underline=0,
-					image=Utils.icons["start"],
-					compound=LEFT,
-					command=self.run)
-		self.widgets.append((menu,i))
-
-		menu.add_command(label="Pause", underline=0,
-					image=Utils.icons["pause"],
-					compound=LEFT,
-					accelerator="!/~",
-					command=self.pause)
-		menu.add_command(label="Cancel",    underline=0,
-					image=Utils.icons["stop"],
-					compound=LEFT,
-					command=self.stopRun)
 		# View Menu
 		menu = Menu(menubar)
 		menubar.add_cascade(label="View", underline=0, menu=menu)
@@ -1939,34 +910,6 @@ class Application(Toplevel):
 					value=CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3],
 					variable=self.view)
 
-		# About menu
-		menu = Menu(menubar)
-		menubar.add_cascade(label="Pendant", underline=0, menu=menu)
-
-		menu.add_command(label="Start", underline=0,
-					image=Utils.icons["start"],
-					compound=LEFT,
-					command=self.startPendant)
-
-		menu.add_command(label="Stop", underline=0,
-					image=Utils.icons["stop"],
-					compound=LEFT,
-					command=self.stopPendant)
-
-		# About menu
-		menu = Menu(menubar)
-		menubar.add_cascade(label="About", underline=0, menu=menu)
-
-		menu.add_command(label="Report", underline=0,
-					image=Utils.icons["empty"],
-					compound=LEFT,
-					command=self.reportDialog)
-
-		menu.add_command(label="About", underline=0,
-					image=Utils.icons["about"],
-					compound=LEFT,
-					command=self.about)
-
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
 		if self.running and self._quit<1:
@@ -1985,8 +928,8 @@ class Application(Toplevel):
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveDialog()
 
+		Control.quit(self)
 		self.saveConfig()
-		Pendant.stop()
 		self.destroy()
 		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
@@ -2041,14 +984,14 @@ class Application(Toplevel):
 		except:
 			pass
 
-		Pendant.port = Utils.getInt("Connection","pendantport",Pendant.port)
-
-		# Create tools
 		self.tools.load(Utils.config)
-		self.loadHistory()
+
+		Control.loadConfig(self)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
+		return
+
 		# Program
 		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
 		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
@@ -2090,10 +1033,9 @@ class Application(Toplevel):
 		Utils.config.set("Probe", "zmax", self.probeZmax.get())
 		Utils.config.set("Probe", "feed", self.probeFeed.get())
 
-		# Tools
 		self.tools.save(Utils.config)
 
-		self.saveHistory()
+		Control.saveConfig(self)
 
 	#----------------------------------------------------------------------
 	def loadHistory(self):
@@ -2184,12 +1126,12 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def insertBlock(self):
-		self.tabPage.changePage("Editor")
+		self.ribbon.changePage("Editor")
 		self.gcodelist.insertBlock()
 
 	#----------------------------------------------------------------------
 	def insertLine(self):
-		self.tabPage.changePage("Editor")
+		self.ribbon.changePage("Editor")
 		self.gcodelist.insertLine()
 
 	#----------------------------------------------------------------------
@@ -2350,30 +1292,16 @@ class Application(Toplevel):
 		#print
 		#print "<<<",line
 		try:
-			line = self.gcode.evaluate(CNC.parseLine2(line,True))
+			line = self.evaluate(line)
 		except:
 			tkMessageBox.showerror("Evaluation error",
 				sys.exc_info()[1], parent=self)
 			return
 		#print ">>>",line
 
-		if line is None:
-			return
+		if line is None: return
 
-		if isinstance(line, int):
-			self.sendGrbl(line)
-			return
-
-		elif line[0] in ("$","!","~","?","(") or GPAT.match(line):
-			self.sendGrbl(line+"\n")
-			return
-
-#		elif line[0] == "/":
-#			self.editor.find(line[1:])
-#			return
-#		elif line[0] == ":":
-#			self.editor.setInsert("%s.0"%(line[1:]))
-#			return
+		if self.executeGcode(line): return
 
 		oline = line.strip()
 		line  = oline.replace(","," ").split()
@@ -2383,13 +1311,9 @@ class Application(Toplevel):
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
 
-		# ABS*OLUTE: Set absolute coordinates
-		elif rexx.abbrev("ABSOLUTE",cmd,3):
-			self.sendGrbl("G90\n")
-
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
-			self.clearTerminal()
+			self._terminal.clear()
 
 		# BOX [dx] [dy] [dz] [nx] [ny] [nz] [tool]: create a finger box
 		elif cmd == "BOX":
@@ -2466,10 +1390,6 @@ class Application(Toplevel):
 		elif rexx.abbrev("EDITOR",cmd,2):
 			self.tabPage.changePage("Editor")
 
-		# HOME: perform a homing cycle
-		elif cmd == "HOME":
-			self.home()
-
 		# HOLE: create a hole
 		elif cmd == "HOLE":
 			try: radius = float(line[1])
@@ -2510,11 +1430,8 @@ class Application(Toplevel):
 			self.viewISO3()
 
 		# LO*AD [filename]: load filename containing g-code
-		elif rexx.abbrev("LOAD",cmd,2):
-			if len(line)>1:
-				self.load(line[1])
-			else:
-				self.loadDialog()
+		elif rexx.abbrev("LOAD",cmd,2) and len(line)==0:
+			self.loadDialog()
 
 		# MAT*ERIAL [name/height] [pass-per-depth] [feed]: set material from database or parameters
 #		elif rexx.abbrev("MATERIAL",cmd,3):
@@ -2600,20 +1517,6 @@ class Application(Toplevel):
 			self.gcodelist.selectAll()
 			self.executeOnSelection("MOVE",dx,dy,dz)
 
-		# OPEN: open serial connection to grbl
-		# CLOSE: close serial connection to grbl
-		elif cmd in ("OPEN","CLOSE"):
-			self.openClose()
-
-		# QU*IT: quit program
-		# EX*IT: exit program
-		elif rexx.abbrev("QUIT",cmd,2) or rexx.abbrev("EXIT",cmd,2):
-			self.quit()
-
-		# PAUSE: pause cycle
-		elif cmd == "PAUSE":
-			self.pause()
-
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
 			if len(line)>1:
@@ -2621,21 +1524,9 @@ class Application(Toplevel):
 			else:
 				self.profile()
 
-		# REL*ATIVE: switch to relative coordinates
-		elif rexx.abbrev("RELATIVE",cmd,3):
-			self.sendGrbl("G91\n")
-
-		# RESET: perform a soft reset to grbl
-		elif cmd == "RESET":
-			self.softReset()
-
 		# REV*ERSE: reverse path direction
 		elif rexx.abbrev("REVERSE", cmd, 3):
 			self.executeOnSelection("REVERSE")
-
-		# RUN: run g-code
-		elif cmd == "RUN":
-			self.run()
 
 		# ROT*ATE [CCW|CW|FLIP|ang] [x0 [y0]]: rotate selected blocks
 		# counter-clockwise(90) / clockwise(-90) / flip(180)
@@ -2677,19 +1568,6 @@ class Application(Toplevel):
 		# RU*LER: measure distances with mouse ruler
 		elif rexx.abbrev("RULER",cmd,2):
 			self.canvas.setActionRuler()
-
-		# SAFE [z]: safe z to move
-		elif cmd=="SAFE":
-			try: self.cnc.safe = float(line[1])
-			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safe)
-
-		# SA*VE [filename]: save to filename or to default name
-		elif rexx.abbrev("SAVE",cmd,2):
-			if len(line)>1:
-				self.save(line[1])
-			else:
-				self.saveAll()
 
 		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
 		elif cmd == "SET":
@@ -2819,9 +1697,9 @@ class Application(Toplevel):
 			self.viewYZ()
 
 		else:
-			tkMessageBox.showerror("Unknown command",
-					"Unknown command '%s'"%(oline),
-					parent=self)
+			rc = self.executeCommand(oline)
+			if rc:
+				tkMessageBox.showerror(rc[0],rc[1], parent=self)
 			return
 
 	#----------------------------------------------------------------------
@@ -3064,10 +1942,6 @@ class Application(Toplevel):
 			self.saveGcode(filename)
 
 	#----------------------------------------------------------------------
-	def reload(self, event=None):
-		self.loadGcode(self.gcode.filename)
-
-	#----------------------------------------------------------------------
 	def loadGcode(self, filename=None):
 		if filename:
 			Utils.config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
@@ -3094,14 +1968,6 @@ class Application(Toplevel):
 		self.probeSet()
 
 	#----------------------------------------------------------------------
-	def saveAll(self, event=None):
-		if self.gcode.filename:
-			self.saveGcode()
-			self.saveProbe()
-		else:
-			self.saveDialog()
-
-	#----------------------------------------------------------------------
 	def saveGcode(self, filename=None):
 		if filename is not None:
 			Utils.config.set("File", "dir",  os.path.dirname(os.path.abspath(filename)))
@@ -3114,16 +1980,6 @@ class Application(Toplevel):
 					parent=self)
 			return
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
-
-	#----------------------------------------------------------------------
-	def saveProbe(self, filename=None):
-		if filename is not None:
-			Utils.config.set("File", "probe", os.path.basename(filename))
-			self.gcode.probe.filename = filename
-
-		# save probe
-		if not self.gcode.probe.isEmpty():
-			self.gcode.probe.save()
 
 	#----------------------------------------------------------------------
 	def focusIn(self, event):
@@ -3203,63 +2059,6 @@ class Application(Toplevel):
 		except TclError:
 			pass
 
-	#----------------------------------------------------------------------
-	# Send to grbl
-	#----------------------------------------------------------------------
-	def sendGrbl(self, cmd):
-		if self.serial and not self.running:
-			self.queue.put(cmd)
-
-	#----------------------------------------------------------------------
-	def hardReset(self):
-		if self.serial is not None:
-			self.openClose()
-		self.openClose()
-
-	#----------------------------------------------------------------------
-	def softReset(self):
-		if self.serial:
-			self.serial.write("\030")
-
-	def unlock(self):
-		self._alarm = False
-		self.sendGrbl("$X\n")
-
-	def home(self):
-		self._alarm = False
-		self.sendGrbl("$H\n")
-
-	def viewSettings(self):
-		self.sendGrbl("$$\n")
-		self.tabPage.changePage("Terminal")
-
-	def viewParameters(self):
-		self.sendGrbl("$#\n$G\n")
-		self.tabPage.changePage("WCS")
-
-	def viewState(self):
-		self.sendGrbl("$G\n")
-		self.tabPage.changePage("Terminal")
-
-	def viewBuild(self):
-		self.sendGrbl("$I\n")
-		self.tabPage.changePage("Terminal")
-
-	def viewStartup(self):
-		self.sendGrbl("$N\n")
-		self.tabPage.changePage("Terminal")
-
-	def checkGcode(self):
-		self.sendGrbl("$C\n")
-
-	def grblhelp(self):
-		self.sendGrbl("$\n")
-		self.tabPage.changePage("Terminal")
-
-	def clearTerminal(self):
-		self.terminal["state"] = NORMAL
-		self.terminal.delete("1.0",END)
-		self.terminal["state"] = DISABLED
 
 	#----------------------------------------------------------------------
 	def _gChange(self, value, dictionary):
@@ -3308,16 +2107,6 @@ class Application(Toplevel):
 			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
 			self.sendGrbl("M5\n")
-
-	#----------------------------------------------------------------------
-	def acceptKey(self, skipRun=False):
-		if self.tabPage.getActivePage() == "Editor": return False
-		if not skipRun and self.running: return False
-		focus = self.focus_get()
-		if isinstance(focus, Entry) or \
-		   isinstance(focus, Spinbox) or \
-		   isinstance(focus, Text): return False
-		return True
 
 	#----------------------------------------------------------------------
 	def setStep(self, value):
@@ -3373,57 +2162,6 @@ class Application(Toplevel):
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
 		self.sendGrbl("%s\n"%(cmd))
-
-	def moveXup(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X%s\nG90\n"%(self.step.get()))
-
-	def moveXdown(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X-%s\nG90\n"%(self.step.get()))
-
-	def moveYup(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Y%s\nG90\n"%(self.step.get()))
-
-	def moveYdown(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Y-%s\nG90\n"%(self.step.get()))
-
-	def moveXdownYup(self, event=None):
-		self.sendGrbl("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
-
-	def moveXupYup(self, event=None):
-		self.sendGrbl("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
-
-	def moveXdownYdown(self, event=None):
-		self.sendGrbl("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
-
-	def moveXupYdown(self, event=None):
-		self.sendGrbl("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
-
-	def moveZup(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Z%s\nG90\n"%(self.step.get()))
-
-	def moveZdown(self, event=None):
-		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Z-%s\nG90\n"%(self.step.get()))
-
-	def go2origin(self, event=None):
-		self.sendGrbl("G90G0X0Y0Z0\n")
-
-	def resetCoords(self, event):
-		if not self.running: self.sendGrbl("G10P0L20X0Y0Z0\n")
-
-	def resetX(self, event):
-		if not self.running: self.sendGrbl("G10P0L20X0\n")
-
-	def resetY(self, event):
-		if not self.running: self.sendGrbl("G10P0L20Y0\n")
-
-	def resetZ(self, event):
-		if not self.running: self.sendGrbl("G10P0L20Z0\n")
 
 	#----------------------------------------------------------------------
 	def feedHold(self, event=None):
@@ -3528,6 +2266,7 @@ class Application(Toplevel):
 
 	#----------------------------------------------------------------------
 	def probeChange(self, verbose=True):
+		return
 		probe = self.gcode.probe
 		error = False
 		try:
@@ -3943,12 +2682,12 @@ class Application(Toplevel):
 			try:
 				io, line = self.log.get_nowait()
 				if not inserted:
-					self.terminal["state"] = NORMAL
+					self._terminal.terminal["state"] = NORMAL
 					inserted = True
 				if io:
-					self.terminal.insert(END, line, "SEND")
+					self._terminal.terminal.insert(END, line, "SEND")
 				else:
-					self.terminal.insert(END, line)
+					self._terminal.terminal.insert(END, line)
 			except Empty:
 				break
 
@@ -4041,8 +2780,8 @@ class Application(Toplevel):
 			self._probeUpdate = False
 
 		if inserted:
-			self.terminal.see(END)
-			self.terminal["state"] = DISABLED
+			self._terminal.terminal.see(END)
+			self._terminal.terminal["state"] = DISABLED
 
 		if self.running:
 			self.progress.setProgress(self._runLines-self.queue.qsize(),
@@ -4085,7 +2824,7 @@ if __name__ == "__main__":
 	if len(sys.argv)>1:
 		application.load(sys.argv[1])
 	try:
-		application.mainloop()
+		tk.mainloop()
 	except KeyboardInterrupt:
 		application.quit()
 
