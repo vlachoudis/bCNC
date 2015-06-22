@@ -475,7 +475,8 @@ class Material(DataBase):
 	# ----------------------------------------------------------------------
 	def update(self):
 		# update ONLY if stock material is empty:
-		if self.master["stock"]["material"] == "":
+		stockmat = self.master["stock"]["material"]
+		if stockmat=="" or stockmat==self["name"]:
 			self.master.gcode.feed  = self.master.fromMm(self["feed"])
 			self.master.gcode.feedz = self.master.fromMm(self["feedz"])
 			self.master.gcode.stepz = self.master.fromMm(self["stepz"])
@@ -778,6 +779,7 @@ class ToolFrame(Frame):
 	def change(self):
 		tool = self.tools[self.combo.get()]
 		tool.populate()
+		tool.update()
 		self.tools.activateButtons(tool)
 
 	#----------------------------------------------------------------------

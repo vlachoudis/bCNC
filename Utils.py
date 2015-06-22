@@ -52,6 +52,7 @@ def delIcons():
 	if len(icons) > 0:
 		for i in icons.values():
 			del i
+		icons = {}	# needed otherwise it complains on deleting the icons
 
 #------------------------------------------------------------------------------
 # Load configuration
@@ -238,11 +239,12 @@ class ReportDialog(Toplevel):
 				command=self.send)
 		b.pack(side=RIGHT)
 
+		from bCNC import __version__, __date__
+
 		# Fill report
 		txt = [ "Program     : %s"%(__prg__),
-#			"Version     : %s"%(__version__),
-#			"Revision    : %s"%(__revision__),
-#			"Last Change : %s"%(__lastchange__),
+			"Version     : %s"%(__version__),
+			"Last Change : %s"%(__date__),
 			"Platform    : %s"%(sys.platform),
 			"Python      : %s"%(sys.version),
 			"TkVersion   : %s"%(TkVersion),
@@ -401,7 +403,7 @@ class UserButton(Button):
 			self.edit()
 			return
 		for line in cmd.splitlines():
-			self.cnc.execute(line)
+			self.cnc.pendant.put(line)
 
 #===============================================================================
 # User Configurable Buttons
