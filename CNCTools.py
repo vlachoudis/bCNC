@@ -623,10 +623,10 @@ class Spirograph(Base):
 		self.variables = [
 			("Name",      "db" ,    "Spirograph", "Name"),
 			("Depth"  ,   "mm" ,    0, "Target Depth"),
-            ("ZSafe"  ,   "mm" ,    5, "Z safe height"),
+            ("ZSafe"  ,   "mm" ,    10, "Z safe height"),
 			("RadiusExternal"  ,   "mm" ,    100, "External Radius"),
-			("RadiusInternal"  ,   "mm" ,    65, "Internal Radius"),
-			("RadiusOffset"  ,   "mm" ,    40, "Offset radius"),
+			("RadiusInternal"  ,   "mm" ,    45, "Internal Radius"),
+			("RadiusOffset"  ,   "mm" ,    35, "Offset radius"),
             ("Feed"  ,   "int" ,    100, "Feed"),
 		]
 		self.buttons  = ("exe",)

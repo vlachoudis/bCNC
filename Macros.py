@@ -310,7 +310,7 @@ class Box:
 #==============================================================================
 class Spirograph:
 
-	def __init__(self, RExt=100., RInt=50., ROff=40. , Depth=0, Zsafe=10, Feed=100.0):
+	def __init__(self, RExt=100., RInt=45., ROff=35. , Depth=0, Zsafe=10, Feed=100.0):
 
 		self.RExt = RExt
 		self.RInt = RInt
@@ -318,7 +318,7 @@ class Spirograph:
 
 		self.ROff = ROff
 
-		self.Spins = self.lcm(RExt,RInt) / min(RExt,RInt)
+		self.Spins = self.lcm(RExt,RInt) / max(RExt,RInt)
 		#print "Spins:%f" %(self.Spins)
 
 		self.Depth = Depth
@@ -361,7 +361,11 @@ class Spirograph:
 		block.append("G1 Z%f F%f" % (self.Depth,self.Feed))
 
 		for x,y in zip(x,y):
-			block.append("G1 X%f Y%f"% (x , y) )
+			block.append("G1 X%f Y%f"% (x , y))
+
+		block.append("G0 Z%f" % (self.Zsafe))
+		block.append("G0 X0 Y0")
+		block.append("M2")
 
 		blocks.append(block)
 		return blocks
