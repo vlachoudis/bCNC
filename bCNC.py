@@ -509,7 +509,15 @@ class Application(Toplevel):
 
 		# ---
 		row += 1
-		col = 1
+		col = 0
+		b = Button(lframe, text=Unicode.LARGE_CIRCLE,
+					width=width, height=height,
+					command=self.go2originZ)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Move to Z0")
+		self.widgets.append(b)
+
+		col += 1
 		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
@@ -523,8 +531,9 @@ class Application(Toplevel):
 		col += 1
 		b = Utils.UserButton(lframe, self, 0, text=Unicode.LARGE_CIRCLE,
 					width=width, height=height,
-					command=self.go2origin)
+					command=self.go2originXY)
 		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Move to X0, Y0")
 		self.widgets.append(b)
 
 		col += 1
@@ -3347,8 +3356,11 @@ class Application(Toplevel):
 		if event is not None and not self.acceptKey(): return
 		self.sendGrbl("G91G0Z-%s\nG90\n"%(self.step.get()))
 
-	def go2origin(self, event=None):
-		self.sendGrbl("G90G0X0Y0Z0\n")
+	def go2originXY(self, event=None):
+		self.sendGrbl("G90G0X0Y0\n")
+
+	def go2originZ(self, event=None):
+		self.sendGrbl("G90G0Z0\n")
 
 	def resetCoords(self, event):
 		if not self.running: self.sendGrbl("G10P0L20X0Y0Z0\n")
