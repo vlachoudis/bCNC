@@ -157,13 +157,17 @@ class Probe:
 	def scan(self):
 		lines = []
 		self.makeMatrix()
+		x = self.xmin
+		dir = 1
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
-				x = self.xmin + self._xstep*i
 				lines.append("G0Z%.4f\n"%(self.zmax))
 				lines.append("G0X%.4fY%.4f\n"%(x,y))
 				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
+				x += dir * self.xstep
+			x -= dir * self.xstep
+			dir *= -1
 		lines.append("G0Z%.4f\n"%(self.zmax))
 		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
 		return lines
