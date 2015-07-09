@@ -67,7 +67,7 @@ MAX_HISTORY  = 500
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 LINEPAT  = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
 STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
-POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
+POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)[\:]?[0-9]*\]$")
 TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 
 _LOWSTEP   = 0.0001
