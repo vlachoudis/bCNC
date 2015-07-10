@@ -3100,8 +3100,14 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		try:
-			self.serial = serial.Serial(device,baudrate,timeout=0.1)
+			self.serial = serial.Serial(device,baudrate,timeout=0.1,bytesize=serial.EIGHTBITS,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,xonxoff=0,rtscts=0)
+			# Toggle DTR to reset Arduino
+			self.serial.setDTR(False)
 			time.sleep(1)
+			# toss any data already received, see
+			# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
+			self.serial.flushInput()
+			self.serial.setDTR(True)
 			self._pos["state"] = "Connected"
 			self._pos["color"] = STATECOLOR[self._pos["state"]]
 			self.state.config(text=self._pos["state"],
