@@ -158,16 +158,16 @@ class Probe:
 		lines = []
 		self.makeMatrix()
 		x = self.xmin
-		dir = 1
+		xstep = self._xstep
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
 				lines.append("G0Z%.4f\n"%(self.zmax))
 				lines.append("G0X%.4fY%.4f\n"%(x,y))
 				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
-				x += dir * self.xstep
-			x -= dir * self.xstep
-			dir *= -1
+				x += xstep
+			x -= xstep
+			xstep = -xstep
 		lines.append("G0Z%.4f\n"%(self.zmax))
 		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
 		return lines
