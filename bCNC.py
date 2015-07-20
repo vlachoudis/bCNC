@@ -5,7 +5,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.9"
+__version__ = "0.4.10"
 __date__    = "18 Jun 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
@@ -510,6 +510,14 @@ class Application(Toplevel):
 
 		# ---
 		row += 1
+		col = 0
+		b = Button(lframe, text=Unicode.LARGE_CIRCLE,
+					width=width, height=height)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Move to Z0")
+		self.widgets.append(b)
+
+		col += 1
 		col = 1
 		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
@@ -3101,14 +3109,21 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		try:
-			self.serial = serial.Serial(device,baudrate,timeout=0.1,bytesize=serial.EIGHTBITS,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,xonxoff=0,rtscts=0)
+			self.serial = serial.Serial(	device,
+							baudrate,
+							bytesize=serial.EIGHTBITS,
+							parity=serial.PARITY_NONE,
+							stopbits=serial.STOPBITS_ONE,
+							timeout=0.1,
+							xonxoff=False,
+							rtscts=False)
 			# Toggle DTR to reset Arduino
-			self.serial.setDTR(False)
+			self.serial.setDTR(0)
 			time.sleep(1)
 			# toss any data already received, see
 			# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
 			self.serial.flushInput()
-			self.serial.setDTR(True)
+			self.serial.setDTR(1)
 			self._pos["state"] = "Connected"
 			self._pos["color"] = STATECOLOR[self._pos["state"]]
 			self.state.config(text=self._pos["state"],
