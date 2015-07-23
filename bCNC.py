@@ -1962,7 +1962,7 @@ class Application(Toplevel):
 				parent=self)
 			self._quit += 1
 			return
-		application.close()#del self.widgets[:]
+		del self.widgets[:]
 
 		if self.gcode.isModified():
 			# file is modified
