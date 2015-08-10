@@ -3723,8 +3723,8 @@ class Application(Toplevel):
 	def stopRun(self):
 		self.feedHold()
 		time.sleep(1);
-		self.softReset()
 		self.emptyQueue()
+		self.softReset()
 		self._runLines = 0
 		self._quit     = 0
 		self._pause    = False
@@ -3768,7 +3768,7 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and self.queue.qsize()>0:
+			if tosend is None and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					cline.append(len(tosend))
