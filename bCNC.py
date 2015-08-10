@@ -3772,7 +3772,6 @@ class Application(Toplevel):
 					self.log.put((True,tosend))
 				except Empty:
 					break
-				print "tosend=",tosend
 
 			if tosend is None or self.serial.inWaiting():
 				line = self.serial.readline().strip()
