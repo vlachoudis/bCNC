@@ -4006,4 +4006,5 @@ if __name__ == "__main__":
 
 	application.close()
 	Utils.saveConfiguration()
+	sys.exit()		# <--- for Mac to exit from the menu?
  #vim:ts=8:sw=8:sts=8:noet
