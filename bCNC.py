@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.10"
-__date__    = "18 Jun 2015"
+__version__ = "0.4.11"
+__date__    = "10 Aug 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -3722,13 +3722,10 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
-		time.sleep(1);
+		time.sleep(1)
 		self.emptyQueue()
 		self.softReset()
-		self._runLines = 0
-		self._quit     = 0
-		self._pause    = False
-		self.enable()
+		self.runEnded()
 
 	#----------------------------------------------------------------------
 	# Start the web pendant
@@ -3775,6 +3772,7 @@ class Application(Toplevel):
 					self.log.put((True,tosend))
 				except Empty:
 					break
+				print "tosend=",tosend
 
 			if tosend is None or self.serial.inWaiting():
 				line = self.serial.readline().strip()
@@ -3829,7 +3827,9 @@ class Application(Toplevel):
 								self._posUpdate = True
 							self._alarm = True
 							self._pos["state"] = line
-							if self.running: self.stopRun()
+							if self.running:
+								self.emptyQueue()
+								self.runEnded()
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
