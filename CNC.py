@@ -577,6 +577,11 @@ class CNC:
 			yc = self.y + self.jval
 			zc = self.z + self.kval
 			self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
+
+		# Error checking
+		#err = abs(self.rval - math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2))
+		#if err/self.rval>0.001:
+		#	print "Error invalid arc", self.xval, self.yval, self.zval, err
 		return xc,yc,zc
 
 	#----------------------------------------------------------------------

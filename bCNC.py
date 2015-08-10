@@ -367,6 +367,7 @@ class Application(Toplevel):
 		#self._runLineMap = []
 		self._quit       = 0
 		self._pause      = False
+		self.tosend      = None
 		self._drawAfter  = None	# after handle for modification
 		self._alarm      = True
 		self._inFocus    = False
@@ -3722,6 +3723,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
+		self.tosend = None
 		time.sleep(1)
 		self.emptyQueue()
 		self.softReset()
@@ -3756,7 +3758,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def serialIO(self):
 		cline = []
-		tosend = None
+		self.tosend = None
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3765,15 +3767,15 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and not self._pause and self.queue.qsize()>0:
+			if self.tosend is None and not self._pause and self.queue.qsize()>0:
 				try:
-					tosend = self.queue.get_nowait()
-					cline.append(len(tosend))
-					self.log.put((True,tosend))
+					self.tosend = self.queue.get_nowait()
+					cline.append(len(self.tosend))
+					self.log.put((True,self.tosend))
 				except Empty:
 					break
 
-			if tosend is None or self.serial.inWaiting():
+			if self.tosend is None or self.serial.inWaiting():
 				line = self.serial.readline().strip()
 				if line:
 					if line[0]=="<":
@@ -3834,12 +3836,12 @@ class Application(Toplevel):
 							self._gcount += 1
 							if cline: del cline[0]
 
-			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
-				if isinstance(tosend, unicode):
-					self.serial.write(tosend.encode("ascii","replace"))
+			if self.tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+				if isinstance(self.tosend, unicode):
+					self.serial.write(self.tosend.encode("ascii","replace"))
 				else:
-					self.serial.write(str(tosend))
-				tosend = None
+					self.serial.write(str(self.tosend))
+				self.tosend = None
 
 				if not self.running and t-tg > G_POLL:
 					self.serial.write("$G\n")
