@@ -29,6 +29,10 @@ STOP = 0
 SKIP = 1
 ASK  = 2
 
+XY   = 0
+XZ   = 1
+YZ   = 2
+
 ERROR_HANDLING = {}
 
 #------------------------------------------------------------------------------
@@ -416,6 +420,7 @@ class CNC:
 		self.absolute    = True
 		self.arcabsolute = False
 		self.gcode       = None
+		self.plane       = XY
 		self.feed        = 0
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
@@ -522,7 +527,16 @@ class CNC:
 				decimal = int(round((value - self.gcode)*10))
 
 				# Execute immediately
-				if self.gcode==20:	# Switch to inches
+				if self.gcode==17:
+					self.plane = XY
+
+				elif self.gcode==18:
+					self.plane = XZ
+
+				elif self.gcode==19:
+					self.plane = YZ
+
+				elif self.gcode==20:	# Switch to inches
 					if CNC.inch:
 						self.unit = 1.0
 					else:
@@ -555,22 +569,35 @@ class CNC:
 	#----------------------------------------------------------------------
 	def motionCenter(self):
 		if self.rval>0.0:
-			ABx = self.xval-self.x
-			ABy = self.yval-self.y
-			Cx  = 0.5*(self.x+self.xval)
-			Cy  = 0.5*(self.y+self.yval)
+			if self.plane == XY:
+				x  = self.x
+				y  = self.y
+				xv = self.xval
+				yv = self.yval
+			elif self.plane == XZ:
+				x  = self.x
+				y  = self.z
+				xv = self.xval
+				yv = self.zval
+			else:
+				x  = self.y
+				y  = self.z
+				xv = self.yval
+				yv = self.zval
+
+			ABx = xv-x
+			ABy = yv-y
+			Cx  = 0.5*(x+xv)
+			Cy  = 0.5*(y+yv)
 			AB  = math.sqrt(ABx**2 + ABy**2)
 			try: OC  = math.sqrt(self.rval**2 - AB**2/4.0)
 			except: OC = 0.0
 			if self.gcode==2: OC = -OC
 			if AB != 0.0:
-				xc  = Cx - OC*ABy/AB
-				yc  = Cy + OC*ABx/AB
+				return Cx-OC*ABy/AB, Cy + OC*ABx/AB
 			else:
 				# Error!!!
-				xc = self.x
-				yc = self.y
-			zc  = self.z
+				return x,y
 		else:
 			# Center
 			xc = self.x + self.ival
@@ -578,11 +605,18 @@ class CNC:
 			zc = self.z + self.kval
 			self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
 
+			if self.plane == XY:
+				return xc,yc
+			elif self.plane == XZ:
+				return xc,zc
+			else:
+				return yc,zc
+
 		# Error checking
 		#err = abs(self.rval - math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2))
 		#if err/self.rval>0.001:
 		#	print "Error invalid arc", self.xval, self.yval, self.zval, err
-		return xc,yc,zc
+		#return xc,yc,zc
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
@@ -600,9 +634,30 @@ class CNC:
 
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
-			xc,yc,zc = self.motionCenter()
-			phi  = math.atan2(self.y-yc, self.x-xc)
-			ephi = math.atan2(self.yval-yc, self.xval-xc)
+			if self.plane == XY:
+				x  = self.x
+				y  = self.y
+				z0 = self.z
+				xv = self.xval
+				yv = self.yval
+				zv = self.zval
+			elif self.plane == XZ:
+				x  = self.x
+				y  = self.z
+				z0 = self.y
+				xv = self.xval
+				yv = self.zval
+				zv = self.yval
+			else:
+				x  = self.y
+				y  = self.z
+				z0 = self.x
+				xv = self.yval
+				yv = self.zval
+				zv = self.xval
+			xc,yc = self.motionCenter()
+			sphi = math.atan2(y-yc,  x-xc)
+			ephi = math.atan2(yv-yc, xv-xc)
 			try:
 				sagitta = 1.0-CNC.accuracy/self.rval
 			except ZeroDivisionError:
@@ -614,21 +669,35 @@ class CNC:
 				df = math.pi/4.0
 
 			if self.gcode==2:
-				if ephi>=phi-1e-10: ephi -= 2.0*math.pi
-				phi -= df
+				if ephi>=sphi-1e-10: ephi -= 2.0*math.pi
+				sz  = (zv-z0)/(ephi-sphi)
+				phi = sphi - df
 				while phi>ephi:
-					self.x = xc + self.rval*math.cos(phi)
-					self.y = yc + self.rval*math.sin(phi)
+					x = xc + self.rval*math.cos(phi)
+					y = yc + self.rval*math.sin(phi)
+					z = z0 + (phi-sphi)*sz
 					phi -= df
-					xyz.append((self.x,self.y,self.z))
+					if self.plane == XY:
+						xyz.append((x,y,z))
+					elif self.plane == XZ:
+						xyz.append((x,z,y))
+					else:
+						xyz.append((z,x,y))
 			else:
-				if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				phi += df
+				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+				sz  = (zv-z0)/(ephi-sphi)
+				phi = sphi + df
 				while phi<ephi:
-					self.x = xc + self.rval*math.cos(phi)
-					self.y = yc + self.rval*math.sin(phi)
+					x = xc + self.rval*math.cos(phi)
+					y = yc + self.rval*math.sin(phi)
+					z = z0 + (phi-sphi)*sz
 					phi += df
-					xyz.append((self.x,self.y,self.z))
+					if self.plane == XY:
+						xyz.append((x,y,z))
+					elif self.plane == XZ:
+						xyz.append((x,z,y))
+					else:
+						xyz.append((z,x,y))
 
 			xyz.append((self.xval,self.yval,self.zval))
 
@@ -950,7 +1019,7 @@ class GCode:
 				if self.cnc.gcode == 1:	# line
 					dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
 				elif self.cnc.gcode in (2,3):	# arc
-					xc,yc,zc = self.cnc.motionCenter()
+					xc,yc = self.cnc.motionCenter()
 					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
 					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
 					if self.cnc.gcode==2:
@@ -1019,7 +1088,7 @@ class GCode:
 			elif self.cnc.gcode in (2,3):	# arc
 				if z1st is None: z1st = self.cnc.zval
 				if abs(self.cnc.z-z1st)<0.0001:
-					xc,yc,zc = self.cnc.motionCenter()
+					xc,yc = self.cnc.motionCenter()
 					center = Vector(xc,yc)
 					path.append(Segment(self.cnc.gcode, start,end, center))
 			self.cnc.motionPathEnd()
@@ -2014,7 +2083,7 @@ class GCode:
 					c = cmd[0]
 					try: value = float(cmd[1:])
 					except: value = 0.0
-					if c.upper() in ("F","X","Y","Z","I","J","K","R","P",):
+					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
 					else:
 						opt = ERROR_HANDLING.get(cmd.upper(),0)

@@ -363,11 +363,11 @@ class Application(Toplevel):
 		self._probeUpdate= False
 		self._gUpdate    = False
 		self.running     = False
+		self._stop       = False	# Raise to stop current run
 		self._runLines   = 0
 		#self._runLineMap = []
 		self._quit       = 0
 		self._pause      = False
-		self.tosend      = None
 		self._drawAfter  = None	# after handle for modification
 		self._alarm      = True
 		self._inFocus    = False
@@ -3179,6 +3179,7 @@ class Application(Toplevel):
 	def softReset(self):
 		if self.serial:
 			self.serial.write("\030")
+			self._alarm = True
 
 	def unlock(self):
 		self._alarm = False
@@ -3723,10 +3724,11 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
-		self.tosend = None
+		self._stop = True
 		time.sleep(1)
-		self.emptyQueue()
 		self.softReset()
+		time.sleep(1)
+		self.unlock()
 		self.runEnded()
 
 	#----------------------------------------------------------------------
@@ -3738,8 +3740,8 @@ class Application(Toplevel):
 			hostName="http://%s:%d"%(socket.gethostname(),CNCPendant.port)
 			if started:
 				tkMessageBox.showinfo("Pendant",
-				"Pendant started:\n"+hostName,
-				parent=self)
+					"Pendant started:\n"+hostName,
+					parent=self)
 			else:
 				dr=tkMessageBox.askquestion("Pendant",
 				"Pendant already started:\n"+hostName+"\nWould you like open it locally?")
@@ -3758,7 +3760,7 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def serialIO(self):
 		cline = []
-		self.tosend = None
+		tosend = None
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3767,15 +3769,15 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if self.tosend is None and not self._pause and self.queue.qsize()>0:
+			if tosend is None and not self._pause and self.queue.qsize()>0:
 				try:
-					self.tosend = self.queue.get_nowait()
-					cline.append(len(self.tosend))
-					self.log.put((True,self.tosend))
+					tosend = self.queue.get_nowait()
+					cline.append(len(tosend))
+					self.log.put((True,tosend))
 				except Empty:
 					break
 
-			if self.tosend is None or self.serial.inWaiting():
+			if tosend is None or self.serial.inWaiting():
 				line = self.serial.readline().strip()
 				if line:
 					if line[0]=="<":
@@ -3830,18 +3832,28 @@ class Application(Toplevel):
 							self._pos["state"] = line
 							if self.running:
 								self.emptyQueue()
+								# Dangerous calling state of Tk if not reentrant
 								self.runEnded()
+								tosend = None
+								del cline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
 							if cline: del cline[0]
 
-			if self.tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
-				if isinstance(self.tosend, unicode):
-					self.serial.write(self.tosend.encode("ascii","replace"))
+			# Message came to stop
+			if self._stop:
+				self.emptyQueue()
+				tosend = None
+				del cline[:]
+				self._stop = False
+
+			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+				if isinstance(tosend, unicode):
+					self.serial.write(tosend.encode("ascii","replace"))
 				else:
-					self.serial.write(str(self.tosend))
-				self.tosend = None
+					self.serial.write(str(tosend))
+				tosend = None
 
 				if not self.running and t-tg > G_POLL:
 					self.serial.write("$G\n")
@@ -3887,7 +3899,7 @@ class Application(Toplevel):
 					self._pos["color"] = STATECOLOR["Alarm"]
 				else:
 					self._pos["color"] = STATECOLORDEF
-			if state == "Hold": self._pause = True
+			self._pause = (state=="Hold")
 
 			self.state["background"] = self._pos["color"]
 
