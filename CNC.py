@@ -22,12 +22,13 @@ from bmath import *
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
-CMDPAT   = re.compile(r"([A-Za-z])")
+CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 
 STOP = 0
 SKIP = 1
 ASK  = 2
+WAIT = 9
 
 XY   = 0
 XZ   = 1
@@ -344,6 +345,7 @@ class CNC:
 	accuracy       = 0.02	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
+	stdexpr        = False	# standard way of defining expressions with []
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -634,30 +636,30 @@ class CNC:
 
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
+			uc,vc = self.motionCenter()
 			if self.plane == XY:
-				x  = self.x
-				y  = self.y
-				z0 = self.z
-				xv = self.xval
-				yv = self.yval
-				zv = self.zval
+				u0 = self.x
+				v0 = self.y
+				w0 = self.z
+				u1 = self.xval
+				v1 = self.yval
+				w1 = self.zval
 			elif self.plane == XZ:
-				x  = self.x
-				y  = self.z
-				z0 = self.y
-				xv = self.xval
-				yv = self.zval
-				zv = self.yval
+				u0 = self.x
+				v0 = self.z
+				w0 = self.y
+				u1 = self.xval
+				v1 = self.zval
+				w1 = self.yval
 			else:
-				x  = self.y
-				y  = self.z
-				z0 = self.x
-				xv = self.yval
-				yv = self.zval
-				zv = self.xval
-			xc,yc = self.motionCenter()
-			sphi = math.atan2(y-yc,  x-xc)
-			ephi = math.atan2(yv-yc, xv-xc)
+				u0 = self.y
+				v0 = self.z
+				w0 = self.x
+				u1 = self.yval
+				v1 = self.zval
+				w1 = self.xval
+			phi0 = math.atan2(v0-vc, u0-uc)
+			phi1 = math.atan2(v1-vc, u1-uc)
 			try:
 				sagitta = 1.0-CNC.accuracy/self.rval
 			except ZeroDivisionError:
@@ -669,35 +671,35 @@ class CNC:
 				df = math.pi/4.0
 
 			if self.gcode==2:
-				if ephi>=sphi-1e-10: ephi -= 2.0*math.pi
-				sz  = (zv-z0)/(ephi-sphi)
-				phi = sphi - df
-				while phi>ephi:
-					x = xc + self.rval*math.cos(phi)
-					y = yc + self.rval*math.sin(phi)
-					z = z0 + (phi-sphi)*sz
+				if phi1>=phi0-1e-10: phi1 -= 2.0*math.pi
+				ws  = (w1-w0)/(phi1-phi0)
+				phi = phi0 - df
+				while phi>phi1:
+					u = uc + self.rval*math.cos(phi)
+					v = vc + self.rval*math.sin(phi)
+					w = w0 + (phi-phi0)*ws
 					phi -= df
 					if self.plane == XY:
-						xyz.append((x,y,z))
+						xyz.append((u,v,w))
 					elif self.plane == XZ:
-						xyz.append((x,z,y))
+						xyz.append((u,w,v))
 					else:
-						xyz.append((z,x,y))
+						xyz.append((w,u,v))
 			else:
-				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
-				sz  = (zv-z0)/(ephi-sphi)
-				phi = sphi + df
-				while phi<ephi:
-					x = xc + self.rval*math.cos(phi)
-					y = yc + self.rval*math.sin(phi)
-					z = z0 + (phi-sphi)*sz
+				if phi1<=phi0+1e-10: phi1 += 2.0*math.pi
+				ws  = (w1-w0)/(phi1-phi0)
+				phi = phi0 + df
+				while phi<phi1:
+					u = uc + self.rval*math.cos(phi)
+					v = vc + self.rval*math.sin(phi)
+					w = w0 + (phi-phi0)*ws
 					phi += df
 					if self.plane == XY:
-						xyz.append((x,y,z))
+						xyz.append((u,v,w))
 					elif self.plane == XZ:
-						xyz.append((x,z,y))
+						xyz.append((u,w,v))
 					else:
-						xyz.append((z,x,y))
+						xyz.append((w,u,v))
 
 			xyz.append((self.xval,self.yval,self.zval))
 

@@ -14,12 +14,14 @@ import traceback
 from log import say
 try:
 	from Tkinter import *
-	import ConfigParser
+	import tkFont
 	import tkMessageBox
+	import ConfigParser
 except ImportError:
 	from tkinter import *
-	import configparser as ConfigParser
+	import tkinter.font as tkFont
 	import tkinter.messagebox as tkMessageBox
+	import configparser as ConfigParser
 
 import tkExtra
 
@@ -34,6 +36,8 @@ config    = ConfigParser.ConfigParser()
 
 _errorReport = True
 errors    = []
+
+_FONT_SECTION = "Font"
 
 #-----------------------------------------------------------------------------
 def loadIcons():
@@ -116,6 +120,45 @@ def getFloat(section, name, default):
 	try: return float(config.get(section, name))
 	except: return default
 
+#-------------------------------------------------------------------------------
+def getFont(name, default):
+	global config
+	try:
+		font = config.get(_FONT_SECTION, name)
+	except:
+		try:
+			font = tkFont.Font(name=name, font=default, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=default)
+			font.delete_font = False
+		except AttributeError:
+			return default
+		setFont(name, font)
+
+	if isinstance(font, str):
+		font = tuple(font.split(','))
+
+	if isinstance(font, tuple):
+		try:
+			return tkFont.Font(name=name, font=font, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=font)
+			font.delete_font = False
+		except AttributeError:
+			return default
+	return font
+
+#-------------------------------------------------------------------------------
+def setFont(name, font):
+	global config
+	if isinstance(font,str):
+		config.set(_FONT_SECTION, name, font)
+	elif isinstance(font,tuple):
+		config.set(_FONT_SECTION, name, ",".join(map(str,font)))
+	else:
+		config.set(_FONT_SECTION, name, "%s,%s,%s" % \
+			(font.cget("family"),font.cget("size"),font.cget("weight")))
+
 #------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
 #------------------------------------------------------------------------------
@@ -191,8 +234,8 @@ class ReportDialog(Toplevel):
 		ReportDialog._shown = True
 
 		Toplevel.__init__(self, master)
+		if master is not None: self.transient(master)
 		self.title("%s Error Reporting"%(__name__))
-		#self.transient(master)
 
 		# Label Frame
 		frame = LabelFrame(self, text="Report")
@@ -353,6 +396,8 @@ class UserButton(Button):
 		if self.button == 0: return
 		name = self.name()
 		self["text"] = name
+		#if icon == "":
+		#	icon = icons.get("empty","")
 		self["image"] = icons.get(self.icon(),"")
 		self["compound"] = LEFT
 		tooltip = self.tooltip()

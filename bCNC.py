@@ -185,7 +185,9 @@ class Application(Toplevel):
 		col = 0
 		Label(frame,text="Status:").grid(row=row,column=col,sticky=E)
 		col += 1
-		self.state = Label(frame, text=NOT_CONNECTED,
+		self.state = Label(frame,
+				text=NOT_CONNECTED,
+				font=self.drofont,
 				background=STATECOLOR[NOT_CONNECTED])
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
@@ -195,19 +197,19 @@ class Application(Toplevel):
 
 		# work
 		col += 1
-		self.xwork = Label(frame, background="White",anchor=E)
+		self.xwork = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.xwork, "X work position")
 
 		# ---
 		col += 1
-		self.ywork = Label(frame, background="White",anchor=E)
+		self.ywork = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.ywork, "Y work position")
 
 		# ---
 		col += 1
-		self.zwork = Label(frame, background="White", anchor=E)
+		self.zwork = Label(frame, font=self.drofont, background="White", anchor=E)
 		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.zwork, "Z work position")
 
@@ -217,15 +219,15 @@ class Application(Toplevel):
 		Label(frame,text="MPos:").grid(row=row,column=col,sticky=E)
 
 		col += 1
-		self.xmachine = Label(frame, background="White",anchor=E)
+		self.xmachine = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.ymachine = Label(frame, background="White",anchor=E)
+		self.ymachine = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.zmachine = Label(frame, background="White", anchor=E)
+		self.zmachine = Label(frame, font=self.drofont, background="White", anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		frame.grid_columnconfigure(1, weight=1)
@@ -2022,6 +2024,8 @@ class Application(Toplevel):
 		try: self.geometry(geom)
 		except: pass
 
+		self.drofont = Utils.getFont("DRO",('Helvetica',12))
+
 		#restore windowsState
 		try:
 			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
@@ -3189,6 +3193,7 @@ class Application(Toplevel):
 		self._alarm = False
 		self.sendGrbl("$H\n")
 
+	#----------------------------------------------------------------------
 	def viewSettings(self):
 		self.sendGrbl("$$\n")
 		self.tabPage.changePage("Terminal")
@@ -3759,8 +3764,10 @@ class Application(Toplevel):
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
+		from CNC import WAIT
 		cline = []
 		tosend = None
+		self.wait = False
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3769,7 +3776,7 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and not self._pause and self.queue.qsize()>0:
+			if tosend is None and not self.wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					cline.append(len(tosend))
@@ -3841,6 +3848,10 @@ class Application(Toplevel):
 							self._gcount += 1
 							if cline: del cline[0]
 
+						if self.wait and not cline:
+							# buffer is empty go one
+							self._gcount += 1
+							self.wait = False
 			# Message came to stop
 			if self._stop:
 				self.emptyQueue()
@@ -3849,6 +3860,9 @@ class Application(Toplevel):
 				self._stop = False
 
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+#				if isinstance(tosend, list):
+#					self.serial.write(str(tosend.pop(0)))
+#					if not tosend: tosend = None
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
