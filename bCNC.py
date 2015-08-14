@@ -113,10 +113,9 @@ class Application(Toplevel):
 		self.gcode = CNC.GCode()
 		self.cnc   = self.gcode.cnc
 		self.view  = StringVar()
-		self.view.set(CNCCanvas.VIEWS[0])
-		self.view.trace('w', self.viewChange)
 		self.tools = CNCTools.Tools(self.gcode)
 		self.loadConfig()	# load rest of config
+		self.view.trace('w', self.viewChange)
 		self.gstate = {}	# $G state results widget dictionary
 
 		self.draw_axes   = BooleanVar()
@@ -2025,6 +2024,7 @@ class Application(Toplevel):
 		except: pass
 
 		self.drofont = Utils.getFont("DRO",('Helvetica',12))
+		self.view.set(Utils.getStr(Utils.__prg__, "view", CNCCanvas.VIEWS[0]))
 
 		#restore windowsState
 		try:
@@ -2045,6 +2045,7 @@ class Application(Toplevel):
 		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
 		#Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
 		#Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		Utils.config.set(Utils.__prg__,  "view",     self.view.get())
 
 		#save windowState
 		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
