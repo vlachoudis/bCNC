@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.4.10"
-__date__    = "18 Jun 2015"
+__version__ = "0.4.13"
+__date__    = "12 Aug 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -66,7 +66,7 @@ MAX_HISTORY  = 500
 
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 LINEPAT  = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
-STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
+STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 
@@ -185,7 +185,9 @@ class Application(Toplevel):
 		col = 0
 		Label(frame,text="Status:").grid(row=row,column=col,sticky=E)
 		col += 1
-		self.state = Label(frame, text=NOT_CONNECTED,
+		self.state = Label(frame,
+				text=NOT_CONNECTED,
+				font=self.drofont,
 				background=STATECOLOR[NOT_CONNECTED])
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
@@ -195,19 +197,19 @@ class Application(Toplevel):
 
 		# work
 		col += 1
-		self.xwork = Label(frame, background="White",anchor=E)
+		self.xwork = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.xwork, "X work position")
 
 		# ---
 		col += 1
-		self.ywork = Label(frame, background="White",anchor=E)
+		self.ywork = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.ywork, "Y work position")
 
 		# ---
 		col += 1
-		self.zwork = Label(frame, background="White", anchor=E)
+		self.zwork = Label(frame, font=self.drofont, background="White", anchor=E)
 		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.zwork, "Z work position")
 
@@ -217,15 +219,15 @@ class Application(Toplevel):
 		Label(frame,text="MPos:").grid(row=row,column=col,sticky=E)
 
 		col += 1
-		self.xmachine = Label(frame, background="White",anchor=E)
+		self.xmachine = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.ymachine = Label(frame, background="White",anchor=E)
+		self.ymachine = Label(frame, font=self.drofont, background="White",anchor=E)
 		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.zmachine = Label(frame, background="White", anchor=E)
+		self.zmachine = Label(frame, font=self.drofont, background="White", anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		frame.grid_columnconfigure(1, weight=1)
@@ -364,6 +366,7 @@ class Application(Toplevel):
 		self._gUpdate    = False
 		self._pendantFileUploaded = None
 		self.running     = False
+		self._stop       = False	# Raise to stop current run
 		self._runLines   = 0
 		#self._runLineMap = []
 		self._quit       = 0
@@ -2022,6 +2025,8 @@ class Application(Toplevel):
 		try: self.geometry(geom)
 		except: pass
 
+		self.drofont = Utils.getFont("DRO",('Helvetica',12))
+
 		#restore windowsState
 		try:
 			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
@@ -3179,6 +3184,7 @@ class Application(Toplevel):
 	def softReset(self):
 		if self.serial:
 			self.serial.write("\030")
+			self._alarm = True
 
 	def unlock(self):
 		self._alarm = False
@@ -3188,6 +3194,7 @@ class Application(Toplevel):
 		self._alarm = False
 		self.sendGrbl("$H\n")
 
+	#----------------------------------------------------------------------
 	def viewSettings(self):
 		self.sendGrbl("$$\n")
 		self.tabPage.changePage("Terminal")
@@ -3723,13 +3730,12 @@ class Application(Toplevel):
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
-		time.sleep(1);
+		self._stop = True
+		time.sleep(1)
 		self.softReset()
-		self.emptyQueue()
-		self._runLines = 0
-		self._quit     = 0
-		self._pause    = False
-		self.enable()
+		time.sleep(1)
+		self.unlock()
+		self.runEnded()
 
 	#----------------------------------------------------------------------
 	# Start the web pendant
@@ -3740,8 +3746,8 @@ class Application(Toplevel):
 			hostName="http://%s:%d"%(socket.gethostname(),CNCPendant.port)
 			if started:
 				tkMessageBox.showinfo("Pendant",
-				"Pendant started:\n"+hostName,
-				parent=self)
+					"Pendant started:\n"+hostName,
+					parent=self)
 			else:
 				dr=tkMessageBox.askquestion("Pendant",
 				"Pendant already started:\n"+hostName+"\nWould you like open it locally?")
@@ -3759,8 +3765,10 @@ class Application(Toplevel):
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
+		from CNC import WAIT
 		cline = []
 		tosend = None
+		self.wait = False
 		tr = tg = time.time()
 		while self.thread:
 			t = time.time()
@@ -3769,7 +3777,7 @@ class Application(Toplevel):
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and self.queue.qsize()>0:
+			if tosend is None and not self.wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					cline.append(len(tosend))
@@ -3830,13 +3838,32 @@ class Application(Toplevel):
 								self._posUpdate = True
 							self._alarm = True
 							self._pos["state"] = line
-							if self.running: self.stopRun()
+							if self.running:
+								self.emptyQueue()
+								# Dangerous calling state of Tk if not reentrant
+								self.runEnded()
+								tosend = None
+								del cline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
 							if cline: del cline[0]
 
+						if self.wait and not cline:
+							# buffer is empty go one
+							self._gcount += 1
+							self.wait = False
+			# Message came to stop
+			if self._stop:
+				self.emptyQueue()
+				tosend = None
+				del cline[:]
+				self._stop = False
+
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+#				if isinstance(tosend, list):
+#					self.serial.write(str(tosend.pop(0)))
+#					if not tosend: tosend = None
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
@@ -3887,7 +3914,7 @@ class Application(Toplevel):
 					self._pos["color"] = STATECOLOR["Alarm"]
 				else:
 					self._pos["color"] = STATECOLORDEF
-			if state == "Hold": self._pause = True
+			self._pause = (state=="Hold")
 
 			self.state["background"] = self._pos["color"]
 
@@ -4013,4 +4040,5 @@ if __name__ == "__main__":
 
 	application.close()
 	Utils.saveConfiguration()
+	sys.exit()		# <--- for Mac to exit from the menu?
  #vim:ts=8:sw=8:sts=8:noet
