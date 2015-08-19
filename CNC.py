@@ -9,6 +9,7 @@ import re
 import pdb
 import sys
 import math
+import types
 import string
 
 import undo
@@ -349,6 +350,18 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	def __init__(self):
+		CNC.vars = {
+				"prbx" : 0.0,
+				"prby" : 0.0,
+				"prbz" : 0.0,
+				"wx"   : 0.0,
+				"wy"   : 0.0,
+				"wz"   : 0.0,
+				"mx"   : 0.0,
+				"my"   : 0.0,
+				"mz"   : 0.0,
+				"G"    : ["G20","G54"],
+			}
 		self.initPath()
 
 	#----------------------------------------------------------------------
@@ -416,8 +429,8 @@ class CNC:
 		self.pval = 0.0
 		self.unit = 1.0
 
-		self.xmin = self.ymin = self.zmin =  1000000.0
-		self.xmax = self.ymax = self.zmax = -1000000.0
+		CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] =  1000000.0
+		CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
 
 		self.absolute    = True
 		self.arcabsolute = False
@@ -428,10 +441,11 @@ class CNC:
 		self.totalTime   = 0.0
 
 	#----------------------------------------------------------------------
-	def isMarginValid(self):
-		return	self.xmin < self.xmax and \
-			self.ymin < self.ymax and \
-			self.zmin < self.zmax
+	@staticmethod
+	def isMarginValid():
+		return	CNC.vars["xmin"] <= CNC.vars["xmax"] and \
+			CNC.vars["ymin"] <= CNC.vars["ymax"] and \
+			CNC.vars["zmin"] <= CNC.vars["zmax"]
 
 	#----------------------------------------------------------------------
 	# Number formating
@@ -443,7 +457,8 @@ class CNC:
 	#----------------------------------------------------------------------
 	# @return line in broken a list of commands, None if empty or comment
 	#----------------------------------------------------------------------
-	def parseLine(self, line):
+	@staticmethod
+	def parseLine(line):
 		while True:	# repeatedly remove parenthesis
 			pat = PARENPAT.match(line)
 			if pat:
@@ -465,7 +480,135 @@ class CNC:
 		#
 
 		# Insert space before each command
-		line = re.sub(CMDPAT,r" \1",line).lstrip()
+		line = CMDPAT.sub(r" \1",line).lstrip()
+		return line.split()
+
+	# -----------------------------------------------------------------------------
+	# @return line in broken a list of commands,
+	#         None if empty or comment
+	#         else compiled expressions
+	#----------------------------------------------------------------------
+	@staticmethod
+	def parseLine2(line, space=False):
+		line = line.strip()
+		if not line: return None
+
+		# to accept #nnn variables as _nnn internally
+		line = line.replace('#','_')
+
+		# execute literally the line after the first character
+		if line[0]=='%':
+			# special command
+			if line.strip()=="%wait":
+				return WAIT
+			try:
+				return compile(line[1:],"","exec")
+			except:
+				# FIXME show the error!!!!
+				return None
+
+		# most probably an assignment like  #nnn = expr
+		if line[0]=='_':
+			try:
+				return compile(line,"","exec")
+			except:
+				# FIXME show the error!!!!
+				return None
+
+		# commented line
+		if line[0] == ';':
+			return None
+
+		out = []	# output list of commands
+		braket  = 0	# bracket count []
+		paren   = 0	# parenthesis count ()
+		comment = False	# inside comment
+		expr = ""	# expression string
+		cmd  = ""	# cmd string
+		for ch in line:
+			if ch == '(':
+				# comment start?
+				paren += 1
+				comment = (braket==0)
+				if not comment: expr += ch
+			elif ch == ')':
+				# comment end?
+				paren -= 1
+				if not comment: expr += ch
+				if paren==0 and comment: comment=False
+			elif ch == '[':
+				# expression start?
+				if not comment:
+					if CNC.stdexpr: ch='('
+					braket += 1
+					if braket==1:
+						if cmd:
+							out.append(cmd)
+							cmd = ""
+					else:
+						expr += ch
+			elif ch == ']':
+				# expression end?
+				if not comment:
+					if CNC.stdexpr: ch=')'
+					braket -= 1
+					if braket==0:
+						try:
+							out.append(compile(expr,"","eval"))
+						except:
+							# FIXME show the error!!!!
+							pass
+						#out.append("<<"+expr+">>")
+						expr = ""
+					else:
+						expr += ch
+			elif ch=='=':
+				# check for assignments (FIXME very bad)
+				if not out and braket==0 and paren==0:
+					for i in " ()-+*/^$":
+						if i in cmd:
+							cmd += ch
+							break
+					else:
+						try:
+							return compile(line,"","exec")
+						except:
+							# FIXME show the error!!!!
+							return None
+			elif ch == ';':
+				# Skip everything after the semicolon on normal lines
+				if not comment and paren==0 and braket==0:
+					break
+				else:
+					expr += ch
+
+			elif braket>0:
+				expr += ch
+
+			elif not comment:
+				if ch == ' ':
+					if space:
+						cmd += ch
+				else:
+					cmd += ch
+
+		if cmd: out.append(cmd)
+
+		# return output commands
+		if len(out)==0:
+			return None
+		if len(out)>1:
+			return out
+		return out[0]
+
+	#----------------------------------------------------------------------
+	# Break line into commands
+	#----------------------------------------------------------------------
+	@staticmethod
+	def breakLine(line):
+		if line is None: return None
+		# Insert space before each command
+		line = CMDPAT.sub(r" \1",line).lstrip()
 		return line.split()
 
 	#----------------------------------------------------------------------
@@ -737,6 +880,7 @@ class CNC:
 		self.totalLength += length
 		if self.gcode == 0:
 			# FIXME calculate the correct time with the feed direction
+			# and acceleration
 			self.totalTime += length / self.feedmax_x
 		else:
 			try:
@@ -748,12 +892,12 @@ class CNC:
 	#----------------------------------------------------------------------
 	def pathMargins(self, xyz):
 		if self.gcode in (1,2,3):
-			self.xmin = min(self.xmin,min([i[0] for i in xyz]))
-			self.ymin = min(self.ymin,min([i[1] for i in xyz]))
-			self.zmin = min(self.zmin,min([i[2] for i in xyz]))
-			self.xmax = max(self.xmax,max([i[0] for i in xyz]))
-			self.ymax = max(self.ymax,max([i[1] for i in xyz]))
-			self.zmax = max(self.zmax,max([i[2] for i in xyz]))
+			CNC.vars["xmin"] = min(CNC.vars["xmin"], min([i[0] for i in xyz]))
+			CNC.vars["ymin"] = min(CNC.vars["ymin"], min([i[1] for i in xyz]))
+			CNC.vars["zmin"] = min(CNC.vars["zmin"], min([i[2] for i in xyz]))
+			CNC.vars["xmax"] = max(CNC.vars["xmax"], max([i[0] for i in xyz]))
+			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
+			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -877,12 +1021,14 @@ class GCode:
 		self.footer    = ""
 		self.undoredo  = undo.UndoRedo()
 		self.probe     = Probe()
+		self.vars      = {}		# local variables
 		self.init()
 
 	#----------------------------------------------------------------------
 	def init(self):
 		self.filename = ""
 		self.blocks   = []		# list of blocks
+		self.vars.clear()
 		self.undoredo.reset()
 		self.probe.init()
 
@@ -894,6 +1040,30 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def resetModified(self): self._modified = False
+
+	#----------------------------------------------------------------------
+	# Evaluate code expressions if any and return line
+	#----------------------------------------------------------------------
+	def evaluate(self, line):
+		if isinstance(line,int):
+			return None
+
+		elif isinstance(line,list):
+			for i,expr in enumerate(line):
+				if isinstance(expr, types.CodeType):
+					result = eval(expr,CNC.vars,self.vars)
+					if isinstance(result,float):
+						line[i] = str(round(result,CNC.digits))
+					else:
+						line[i] = str(result)
+			return "".join(line)
+
+		elif isinstance(line, types.CodeType):
+			eval(line,CNC.vars,self.vars)
+			return None
+
+		else:
+			return line
 
 	#----------------------------------------------------------------------
 	# Load a file into editor
@@ -961,20 +1131,21 @@ class GCode:
 			enable = not bool(layer.isFrozen())
 			entities = dxf.sortLayer(name)
 			if not entities: continue
-			self.importEntityPoint(None, entities, name, enable)
+			self.importEntityPoints(None, entities, name, enable)
 			path = Path(name)
 			path.fromDxfLayer(entities)
 			path.removeZeroLength()
-			opath = path.contours()
+			opath = path.split2contours()
 			if not opath: continue
-			changed = True
-			while changed:
-				longest = opath[0]
-				for p in opath:
-					if longest.length() > p.length():
-						longest = p
-				opath.remove(longest)
-				changed = longest.mergeLoops(opath)
+			while opath:
+				li = 0
+				llen = 0.0
+				for i,p in enumerate(opath):
+					if p.length()>llen:
+						li = i
+						llen = p.length()
+				longest = opath.pop(li)
+				longest.mergeLoops(opath)
 
 				undoinfo.extend(self.importPath(None, longest, enable))
 #				d = longest.direction()
@@ -1015,7 +1186,7 @@ class GCode:
 			name = block.name()
 			if ":" in name: name = name.split(":")[0]
 			for line in block:
-				cmds = self.cnc.parseLine(line)
+				cmds = CNC.parseLine(line)
 				if cmds is None: continue
 				self.cnc.processPath(cmds)
 				if self.cnc.gcode == 1:	# line
@@ -1038,7 +1209,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Import POINTS from entities
 	#----------------------------------------------------------------------
-	def importEntityPoint(self, pos, entities, name, enable=True):
+	def importEntityPoints(self, pos, entities, name, enable=True):
 		undoinfo = []
 		i = 0
 		while i<len(entities):
@@ -1075,7 +1246,7 @@ class GCode:
 		# ignore the deeper ones
 		z1st = None
 		for line in block:
-			cmds = self.cnc.parseLine(line)
+			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.processPath(cmds)
 			end = Vector(self.cnc.xval, self.cnc.yval)
@@ -1195,7 +1366,7 @@ class GCode:
 		if not self.blocks:
 			self.blocks.append(Block("Header"))
 
-		cmds = self.cnc.parseLine(line)
+		cmds = CNC.parseLine(line)
 		if cmds is None:
 			self.blocks[-1].append(line)
 			return
@@ -1434,7 +1605,7 @@ class GCode:
 #			lastg0 = None
 #			while li < len(block):
 #				line = block[li]
-#				cmds = self.cnc.parseLine(line)
+#				cmds = CNC.parseLine(line)
 #				if cmds is None:
 #					li += 1
 #					continue
@@ -1618,7 +1789,7 @@ class GCode:
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
 			for i,line in enumerate(block):
-				cmds = self.cnc.parseLine(line)
+				cmds = CNC.parseLine(line)
 				if cmds is None:
 					lines.append(line)
 					continue
@@ -1664,7 +1835,7 @@ class GCode:
 	# until the maximum height
 	#----------------------------------------------------------------------
 	def cut(self, items, depth=None, stepz=None):
-		if stepz is None: stepz =  self.stepz
+		if stepz is None: stepz = self.stepz
 		if depth is None: depth = self.surface-self.thickness
 
 		if depth < self.surface-self.thickness or depth > self.surface:
@@ -1770,7 +1941,7 @@ class GCode:
 		# Find starting location
 		self.initPath(bid)
 		for i,line in enumerate(block):
-			cmds = self.cnc.parseLine(line)
+			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.processPath(cmds)
 			self.cnc.motionPathEnd()
@@ -1825,7 +1996,7 @@ class GCode:
 
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
-			cmds = self.cnc.parseLine(block[lid])
+			cmds = CNC.parseLine(block[lid])
 			if cmds is None: continue
 
 			# Collect all values
@@ -1989,7 +2160,7 @@ class GCode:
 			# 0 - normal cutting z<0
 			# 1 - z>0 raised  with dx=dy=0.0
 			# 2 - z<0 plunged with dx=dy=0.0
-			cmd = self.cnc.parseLine(line)
+			cmd = CNC.parseLine(line)
 			if cmd is None:
 				newlines.append(line)
 				continue
@@ -2045,8 +2216,18 @@ class GCode:
 			if not block.enable: continue
 			for j,line in enumerate(block):
 				newcmd = []
-				cmds = self.cnc.parseLine(line)
+				cmds = CNC.parseLine2(line)
 				if cmds is None: continue
+				if isinstance(cmds,str):
+					cmds = CNC.breakLine(cmds)
+				else:
+					# either CodeType or list[] append
+					lines.append(cmds)
+					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
+						paths.append(None)
+					else:
+						paths.append((i,j))
+					continue
 
 				if autolevel:
 					self.cnc.processPath(cmds)
