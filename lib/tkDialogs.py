@@ -1,4 +1,4 @@
-# $Id: tkDialogs.py 3302 2014-10-13 14:53:52Z bnv $
+# $Id: tkDialogs.py 3515 2015-06-11 11:58:14Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -529,8 +529,12 @@ class Printer(Toplevel):
 		return self.hnd
 
 	# --------------------------------------------------------------------
-	def write(self, str):
-		self.hnd.write(str)
+	def write(self, s):
+		try:
+			self.hnd.write(s)
+			return True
+		except:
+			return False
 
 	# --------------------------------------------------------------------
 	def close(self):

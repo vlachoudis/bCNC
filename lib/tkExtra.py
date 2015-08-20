@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3493 2015-04-08 08:52:01Z bnv $
+# $Id: tkExtra.py 3537 2015-08-11 08:56:39Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -4032,6 +4032,9 @@ class ExLabelFrame(LabelFrame):
 	# ----------------------------------------------------------------------
 	def isexpanded(self):
 		return self.frame.winfo_ismapped()
+
+	# ----------------------------------------------------------------------
+	def __call__(self): return self.frame
 
 #================================================================================
 # ScrolledFrame by Bruno
