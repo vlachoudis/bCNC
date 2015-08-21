@@ -1119,6 +1119,8 @@ class GCode:
 			dxf = DXF(filename,"r")
 		except:
 			return False
+		name,ext = os.path.splitext(filename)
+		self.filename = "%s.ngc"%(name)
 
 		dxf.readFile()
 		dxf.close()

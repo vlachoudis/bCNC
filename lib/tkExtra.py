@@ -704,7 +704,12 @@ class ExListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def handleKey(self, event):
 		"""handle key events for quick searching"""
-		if len(event.char)==0:
+
+		# Shift key -> ignore them
+		if event.keysym in ("Shift_L","Shift_R"):
+			return
+
+		elif len(event.char)==0:
 			ExListbox._time = 0
 			return
 
@@ -730,6 +735,7 @@ class ExListbox(Listbox):
 		elif event.keysym == "BackSpace":
 			ExListbox._search     = ExListbox._search[:-1]
 			ExListbox._searchOrig = ExListbox._searchOrig[:-1]
+
 		# Ignore non-printable characters
 		elif self.ignoreNonAlpha and \
 		     not (ch.isalnum() or \
