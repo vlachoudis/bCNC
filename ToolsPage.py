@@ -2,21 +2,1029 @@
 # -*- coding: latin1 -*-
 # $Id$
 #
-# Author: vvlachoudis@gmail.com
-# Date: 18-Jun-2015
+# Author:       vvlachoudis@gmail.com
+# Date: 24-Aug-2014
 
-__author__ = "Vasilis Vlachoudis"
-__email__  = "vvlachoudis@gmail.com"
+__author__  = "Vasilis Vlachoudis"
+__email__   = "Vasilis.Vlachoudis@cern.ch"
 
+import Unicode
 try:
 	from Tkinter import *
 except ImportError:
 	from tkinter import *
 
-import Tools
+import os
+import glob
 import Utils
 import Ribbon
+import tkExtra
 import CNCRibbon
+
+#===============================================================================
+class InPlaceText(tkExtra.InPlaceText):
+	def defaultBinds(self):
+		tkExtra.InPlaceText.defaultBinds(self)
+		self.edit.bind("<Escape>", self.ok)
+
+#==============================================================================
+# Tools
+#==============================================================================
+class Base:
+	def __init__(self, master):
+		self.master    = master
+		self.name      = None
+		self.variables = []		# name, type, default, label
+		self.values    = {}		# database of values
+		self.listdb    = {}		# lists database
+		self.current   = None		# currently editing index
+		self.n         = 0
+		self.buttons   = None
+
+	# ----------------------------------------------------------------------
+	def __setitem__(self, name, value):
+		if self.current is None:
+			self.values[name] = value
+		else:
+			self.values["%s.%d"%(name,self.current)] = value
+
+       # ----------------------------------------------------------------------
+	def __getitem__(self, name):
+		if self.current is None:
+			return self.values.get(name,"")
+		else:
+			return self.values.get("%s.%d"%(name,self.current),"")
+
+	# ----------------------------------------------------------------------
+	# Return a sorted list of all names
+	# ----------------------------------------------------------------------
+	def names(self):
+		lst = []
+		for i in range(1000):
+			key = "name.%d"%(i)
+			value = self.values.get(key)
+			if value is None: break
+			lst.append(value)
+		lst.sort()
+		return lst
+
+	# ----------------------------------------------------------------------
+	def _get(self, config, key, t, default):
+		try:
+			value = config.get(self.name, key)
+			if t in ("float","mm"):
+				return float(value)
+			elif t == "int":
+				return int(value)
+			elif t == "bool":
+				return int(value)
+			else:
+				return value
+		except:
+			return default
+
+	# ----------------------------------------------------------------------
+	# Load from a configuration file
+	# ----------------------------------------------------------------------
+	def load(self, config):
+		# Load lists
+		lists = []
+		for n, t, d, l in self.variables:
+			if t=="list":
+				lists.append(n)
+		if lists:
+			for p in lists:
+				self.listdb[p] = []
+				for i in range(1000):
+					key = "_%s.%d"%(p, i)
+					try:
+						self.listdb[p].append(config.get(self.name, key))
+					except:
+						break
+
+			for lst in self.listdb.values():
+				lst.sort()
+
+		# Check if there is a current
+		try:
+			self.current = int(config.get(self.name, "current"))
+		except:
+			self.current = None
+
+		# Load values
+		if self.current is not None:
+			self.n = self._get(config, "n", "int", 0)
+			for i in range(self.n):
+				key = "name.%d"%(i)
+				self.values[key] = config.get(self.name, key)
+				for n, t, d, l in self.variables:
+					key = "%s.%d"%(n,i)
+					self.values[key] = self._get(config, key, t, d)
+		else:
+			for n, t, d, l in self.variables:
+				self.values[n] = self._get(config, n, t, d)
+		self.update()
+
+	# ----------------------------------------------------------------------
+	# Save to a configuration file
+	# ----------------------------------------------------------------------
+	def save(self, config):
+		if self.listdb:
+			for name,lst in self.listdb.items():
+				for i,value in enumerate(lst):
+					config.set(self.name, "_%s.%d"%(name,i), value)
+
+		# Save values
+		if self.current is not None:
+			config.set(self.name, "current", str(self.current))
+			config.set(self.name, "n", str(self.n))
+
+			for i in range(self.n):
+				key = "name.%d"%(i)
+				value = self.values.get(key)
+				if value is None: break
+				config.set(self.name, key, value)
+
+				for n, t, d, l in self.variables:
+					key = "%s.%d"%(n,i)
+					config.set(self.name, key, str(self.values.get(key,d)))
+		else:
+			for n, t, d, l in self.variables:
+				config.set(self.name, n, str(self.values.get(n,d)))
+
+	# ----------------------------------------------------------------------
+	# Override with execute command
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		pass
+
+	# ----------------------------------------------------------------------
+	# Update variables after edit command
+	# ----------------------------------------------------------------------
+	def update(self):
+		return False
+
+	# ----------------------------------------------------------------------
+	def populate(self):
+		self.master.listbox.delete(0,END)
+		for n, t, d, l in self.variables:
+			value = self[n]
+			if t == "bool":
+				if value:
+					value = Unicode.BALLOT_BOX_WITH_X
+				else:
+					value = Unicode.BALLOT_BOX
+			elif t == "mm" and self.master.inches:
+				try:
+					value /= 25.4
+					value = round(value, self.master.digits)
+				except:
+					value = ""
+			elif t == "float":
+				try:
+					value = round(value, self.master.digits)
+				except:
+					value = ""
+			#elif t == "list":
+			#	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
+			self.master.listbox.insert(END, (l, value))
+
+	#----------------------------------------------------------------------
+	def _sendReturn(self, active):
+		self.master.listbox.selection_clear(0,END)
+		self.master.listbox.selection_set(active)
+		self.master.listbox.activate(active)
+		self.master.listbox.see(active)
+		self.master.listbox.event_generate("<Return>")
+
+	#----------------------------------------------------------------------
+	def _editPrev(self):
+		active = self.master.listbox.index(ACTIVE)-1
+		if active<0: return
+		self._sendReturn(active)
+
+	#----------------------------------------------------------------------
+	def _editNext(self):
+		active = self.master.listbox.index(ACTIVE)+1
+		if active>=self.master.listbox.size(): return
+		self._sendReturn(active)
+
+	#----------------------------------------------------------------------
+	# Make current "name" from the database
+	#----------------------------------------------------------------------
+	def makeCurrent(self, name):
+		if not name: return
+		# special handling
+		for i in range(1000):
+			if name==self.values.get("name.%d"%(i)):
+				self.current = i
+				self.update()
+				return True
+		return False
+
+	#----------------------------------------------------------------------
+	# Edit tool listbox
+	#----------------------------------------------------------------------
+	def edit(self, event=None, rename=False):
+		lb = self.master.listbox.lists[1]
+		if event is None or event.type=="2":
+			keyboard = True
+		else:
+			keyboard = False
+		if keyboard:
+			# keyboard event
+			active = lb.index(ACTIVE)
+		else:
+			active = lb.nearest(event.y)
+			self.master.listbox.activate(active)
+
+		ypos = lb.yview()[0]	# remember y position
+		save = lb.get(ACTIVE)
+
+		n, t, d, l = self.variables[active]
+
+		if t == "int":
+			edit = tkExtra.InPlaceInteger(lb)
+		elif t in ("float", "mm"):
+			edit = tkExtra.InPlaceFloat(lb)
+		elif t == "bool":
+			edit = None
+			value = int(lb.get(active) == Unicode.BALLOT_BOX)
+			if value:
+				lb.set(active, Unicode.BALLOT_BOX_WITH_X)
+			else:
+				lb.set(active, Unicode.BALLOT_BOX)
+		elif t == "list":
+			edit = tkExtra.InPlaceList(lb, values=self.listdb[n])
+		elif t == "db":
+			if n=="name":
+				# Current database
+				if rename:
+					edit = tkExtra.InPlaceEdit(lb)
+				else:
+					edit = tkExtra.InPlaceList(lb, values=self.names())
+			else:
+				# Refers to names from another database
+				tool = self.master[n]
+				names = tool.names()
+				names.insert(0,"")
+				edit = tkExtra.InPlaceList(lb, values=names)
+		elif t == "text":
+			edit = InPlaceText(lb)
+		elif "," in t:
+			choices = [""]
+			choices.extend(t.split(","))
+			edit = tkExtra.InPlaceList(lb, values=choices)
+		elif t == "file":
+			edit = tkExtra.InPlaceFile(lb, save=False)
+		elif t == "output":
+			edit = tkExtra.InPlaceFile(lb, save=True)
+		else:
+			edit = tkExtra.InPlaceEdit(lb)
+
+		if edit is not None:
+			value = edit.value
+			if value is None:
+				return
+
+		if value == save:
+			if edit.lastkey == "Up":
+				self._editPrev()
+			elif edit.lastkey in ("Return", "KP_Enter", "Down"):
+				self._editNext()
+			return
+
+		if t == "int":
+			try:
+				value = int(value)
+			except ValueError:
+				value = ""
+		elif t in ("float","mm"):
+			try:
+				value = float(value)
+				if t=="mm" and self.master.inches:
+					value *= 25.4
+			except ValueError:
+				value = ""
+
+		if n=="name" and not rename:
+			if self.makeCurrent(value):
+				self.populate()
+		else:
+			self[n] = value
+			if self.update():
+				self.populate()
+
+		self.master.listbox.selection_set(active)
+		self.master.listbox.activate(active)
+		self.master.listbox.yview_moveto(ypos)
+		if edit is not None and not rename:
+			if edit.lastkey == "Up":
+				self._editPrev()
+			elif edit.lastkey in ("Return", "KP_Enter", "Down"):
+				self._editNext()
+
+#==============================================================================
+# Base class of all databases
+#==============================================================================
+class DataBase(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.buttons  = ("add","delete","clone","rename")
+
+	# ----------------------------------------------------------------------
+	# Add a new item
+	# ----------------------------------------------------------------------
+	def add(self):
+		self.current = self.n
+		self.values["name.%d"%(self.n)] = self.name
+		self.n += 1
+		self.populate()
+		self.rename()
+
+	# ----------------------------------------------------------------------
+	# Delete selected item
+	# ----------------------------------------------------------------------
+	def delete(self):
+		if self.n==0: return
+		for n, t, d, l in self.variables:
+			for i in range(self.current, self.n):
+				try:
+					self.values["%s.%d"%(n,i)] = self.values["%s.%d"%(n,i+1)]
+				except KeyError:
+					try:
+						del self.values["%s.%d"%(n,i)]
+					except KeyError:
+						pass
+
+		self.n -= 1
+		if self.current >= self.n:
+			self.current = self.n - 1
+		self.populate()
+
+	# ----------------------------------------------------------------------
+	# Clone selected item
+	# ----------------------------------------------------------------------
+	def clone(self):
+		if self.n==0: return
+		for n, t, d, l in self.variables:
+			try:
+				if n=="name":
+					self.values["%s.%d"%(n,self.n)] = \
+						self.values["%s.%d"%(n,self.current)] + " clone"
+				else:
+					self.values["%s.%d"%(n,self.n)] = \
+						self.values["%s.%d"%(n,self.current)]
+			except KeyError:
+				pass
+		self.n += 1
+		self.current = self.n - 1
+		self.populate()
+
+	# ----------------------------------------------------------------------
+	# Rename current item
+	# ----------------------------------------------------------------------
+	def rename(self):
+		self.master.listbox.selection_clear(0,END)
+		self.master.listbox.selection_set(0)
+		self.master.listbox.activate(0)
+		self.master.listbox.see(0)
+		self.edit(None,True)
+
+#==============================================================================
+# Create a BOX
+#==============================================================================
+class Box(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "Box"
+		self.variables = [
+			("name",      "db",    "", "Name"),
+			("dx",        "mm", 100.0, "Width Dx"),
+			("dy",        "mm",  70.0, "Depth Dy"),
+			("dz",        "mm",  50.0, "Height Dz"),
+			("nx",       "int",    11, "Fingers Nx"),
+			("ny",       "int",     7, "Fingers Ny"),
+			("nz",       "int",     5, "Fingers Nz"),
+			("profile", "bool",     0, "Profile"),
+			("overcut", "bool",     1, "Overcut"),
+			("cut",     "bool",     0, "Cut")
+		]
+		self.buttons  = self.buttons + ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		app.gcode.box(app.gcodelist.activeBlock(),
+				self["dx"], self["dy"], self["dz"],
+				self["nx"], self["ny"], self["nz"],
+				self["profile"], self["cut"], self["overcut"])
+		app.gcodelist.fill()
+		app.draw()
+		app.setStatus("BOX with fingers generated")
+
+#==============================================================================
+# CNC machine configuration
+#==============================================================================
+class CNC(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "CNC"
+		self.variables = [
+			("units"         , "bool", 0    , "Units (inches)")   ,
+			("acceleration_x", "mm"  , 25.0 , "Acceleration x")   ,
+			("acceleration_y", "mm"  , 25.0 , "Acceleration y")   ,
+			("acceleration_z", "mm"  , 5.0  , "Acceleration z")   ,
+			("feedmax_x"     , "mm"  , 3000., "Feed max x")       ,
+			("feedmax_y"     , "mm"  , 3000., "Feed max y")       ,
+			("feedmax_z"     , "mm"  , 2000., "Feed max z")       ,
+			("travel_x"      , "mm"  , 200  , "Travel x")         ,
+			("travel_y"      , "mm"  , 200  , "Travel y")         ,
+			("travel_z"      , "mm"  , 100  , "Travel z")         ,
+			("round"         , "int" , 4    , "Decimal digits")   ,
+			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy")     ,
+			("startup"       , "str" , "G90", "startup")          ,
+			("spindlemin"    , "int" , 0    , "Spindle min (RPM)"),
+			("spindlemax"    , "int" , 12000, "Spindle max (RPM)"),
+			("header"        , "text" ,   "", "Header gcode"),
+			("footer"        , "text" ,   "", "Footer gcode")
+		]
+
+	# ----------------------------------------------------------------------
+	# Update variables after edit command
+	# ----------------------------------------------------------------------
+	def update(self):
+		self.master.inches = self["units"]
+		self.master.digits = int(self["round"])
+		self.master.cnc().decimal = self.master.digits
+		self.master.gcode.header = self["header"]
+		self.master.gcode.footer = self["footer"]
+		return False
+
+#==============================================================================
+# Material database
+#==============================================================================
+class Material(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "Material"
+		self.variables = [
+			("name",    "db",    "", "Name"),
+			("feed",    "mm"  , 10., "Feed"),
+			("feedz",   "mm"  ,  1., "Plunge Feed"),
+			("stepz",   "mm"  ,  1., "Depth Increment")
+		 ]
+
+	# ----------------------------------------------------------------------
+	# Update variables after edit command
+	# ----------------------------------------------------------------------
+	def update(self):
+		# update ONLY if stock material is empty:
+		stockmat = self.master["stock"]["material"]
+		if stockmat=="" or stockmat==self["name"]:
+			self.master.gcode.feed  = self.master.fromMm(self["feed"])
+			self.master.gcode.feedz = self.master.fromMm(self["feedz"])
+			self.master.gcode.stepz = self.master.fromMm(self["stepz"])
+		return False
+
+#==============================================================================
+# EndMill Bit database
+#==============================================================================
+class EndMill(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "EndMill"
+		self.variables = [
+			("name",       "db",     "", "Name"),
+			("type",     "list",     "", "Type"),
+			("shape",    "list",     "", "Shape"),
+			("material", "list",     "", "Material"),
+			("coating",  "list",     "", "Coating"),
+			("diameter",   "mm",  3.175, "Diameter"),
+			("axis",       "mm",  3.175, "Mount Axis"),
+			("flutes",    "int",      2, "Flutes"),
+			("length",     "mm",   20.0, "Length"),
+			("angle",   "float",     "", "Angle")
+		]
+
+	# ----------------------------------------------------------------------
+	# Update variables after edit command
+	# ----------------------------------------------------------------------
+	def update(self):
+		self.master.gcode.diameter  = self.master.fromMm(self["diameter"])
+		return False
+
+#==============================================================================
+# Stock material on worksurface
+#==============================================================================
+class Stock(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "Stock"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("material",  "db" ,    "", "Material"),
+			("safe"  ,    "mm" ,   3.0, "Safe Z"),
+			("surface",   "mm" ,   0.0, "Surface Z"),
+			("thickness", "mm" ,   5.0, "Thickness")
+		]
+
+	# ----------------------------------------------------------------------
+	# Update variables after edit command
+	# ----------------------------------------------------------------------
+	def update(self):
+		self.master.gcode.safe      = self.master.fromMm(self["safe"])
+		self.master.gcode.surface   = self.master.fromMm(self["surface"])
+		self.master.gcode.thickness = self.master.fromMm(self["thickness"])
+		if self["material"]:
+			self.master["material"].makeCurrent(self["material"])
+		return False
+
+#==============================================================================
+# Cut material
+#==============================================================================
+class Cut(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "Cut"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("depth"  ,   "mm" ,    "", "Target Depth"),
+			("stepz"  ,   "mm" ,    "", "Depth Increment")
+		]
+		self.buttons  = ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		try:
+			h = self.master.fromMm(float(self["depth"]))
+		except:
+			h = None
+		try:
+			s =  self.master.fromMm(float(self["stepz"]))
+		except:
+			s = None
+		app.executeOnSelection("CUT",h, s)
+		app.setStatus("CUT selected paths")
+
+#==============================================================================
+# Drill material
+#==============================================================================
+class Drill(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "Drill"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("depth",     "mm" ,    "", "Target Depth"),
+			("peck",      "mm" ,    "", "Peck depth")
+		]
+		self.buttons  = ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		try:
+			h = self.master.fromMm(float(self["depth"]))
+		except:
+			h = None
+		try:
+			p =  self.master.fromMm(float(self["peck"]))
+		except:
+			p = None
+		app.executeOnSelection("DRILL",h, p)
+		app.setStatus("DRILL selected points")
+
+#==============================================================================
+# Profile
+#==============================================================================
+class Profile(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "Profile"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("endmill",   "db" ,    "", "End Mill"),
+			("overcut",  "bool",     1, "Overcut"),
+			("direction","inside,outside" , "outside", "Direction"),
+			("cut",      "bool",     0, "Cut")
+		]
+		self.buttons  = ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		if self["endmill"]:
+			self.master["endmill"].makeCurrent(self["endmill"])
+		direction = self["direction"]
+		app.profile(direction)
+		#if self["cut"]:
+		#	app.executeOnSelection("CUT")
+		app.setStatus("Generate profile path")
+
+#==============================================================================
+# Tools container class
+#==============================================================================
+class Tools:
+	def __init__(self, gcode):
+		self.gcode  = gcode
+		self.inches = False
+		self.digits = 4
+
+		self.tools   = {}
+		self.buttons = {}
+		self.listbox = None
+		# CNC should be first to load the inches
+		#	"Cut"       #	"Hole"      #	"Profile"   #	"Rectangle" #	"Tab"
+		#                      XX     XX    XX       XX         XX       XX
+		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
+			tool = cls(self)
+			self.tools[tool.name.upper()] = tool
+
+	# ----------------------------------------------------------------------
+	def setListbox(self, listbox):
+		self.listbox = listbox
+
+	# ----------------------------------------------------------------------
+	def toMm(self, value):
+		if self.inches:
+			return value*25.4
+		else:
+			return value
+
+	# ----------------------------------------------------------------------
+	def fromMm(self, value):
+		if self.inches:
+			return value/25.4
+		else:
+			return value
+
+	# ----------------------------------------------------------------------
+	def names(self):
+		lst = [x.name for x in self.tools.values()]
+		lst.sort()
+		return lst
+
+	# ----------------------------------------------------------------------
+	def load(self, config):
+		for tool in self.tools.values():
+			tool.load(config)
+
+	# ----------------------------------------------------------------------
+	def save(self, config):
+		for tool in self.tools.values():
+			tool.save(config)
+
+	# ----------------------------------------------------------------------
+	def __getitem__(self, name):
+		return self.tools[name.upper()]
+
+	# ----------------------------------------------------------------------
+	def cnc(self):
+		return self.gcode.cnc
+
+	# ----------------------------------------------------------------------
+	def addButton(self, name, button):
+		self.buttons[name] = button
+
+	# ----------------------------------------------------------------------
+	def activateButtons(self, tool):
+		for btn in self.buttons.values():
+			btn.config(state=DISABLED)
+		if tool.buttons is None: return
+		for name in tool.buttons:
+			self.buttons[name].config(state=NORMAL)
+
+#===============================================================================
+# DataBase Group
+#===============================================================================
+class DataBaseGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Database", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["stock32"],
+				text="Stock",
+				compound=TOP,
+				anchor=W,
+				variable=selectedTool,
+				value="Stock",
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Stock material currently on machine")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["material"],
+				text="Material",
+				compound=LEFT,
+				anchor=W,
+				variable=selectedTool,
+				value="Material",
+#				command=app.editor.toggleEnable,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Editable database of material properties")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["endmill"],
+				text="End Mill",
+				compound=LEFT,
+				anchor=W,
+				variable=selectedTool,
+				value="EndMill",
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Editable database of EndMills properties")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolRename>>",
+				image=Utils.icons["rename"],
+				text="Rename",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Edit name of current operation/object")
+		self.addWidget(b)
+		app.tools.addButton("rename",b)
+
+		# ===
+		col,row=2,0
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolAdd>>",
+				image=Utils.icons["add"],
+				text="Add",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Add a new operation/object")
+		self.addWidget(b)
+		app.tools.addButton("add",b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolClone>>",
+				image=Utils.icons["clone"],
+				text="Clone",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Clone selected operation/object")
+		self.addWidget(b)
+		app.tools.addButton("clone",b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolDelete>>",
+				image=Utils.icons["x"],
+				text="Delete",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Delete selected operation/object")
+		self.addWidget(b)
+		app.tools.addButton("delete",b)
+
+#===============================================================================
+# CAM Group
+#===============================================================================
+class CAMGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "CAM", app)
+		self.grid3rows()
+
+		# ===
+		col,row=0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["cut32"],
+				text="Cut",
+				compound=TOP,
+				anchor=W,
+				variable=selectedTool,
+				value="Cut",
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Cut for the full stock thickness selected code")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["profile32"],
+				text="Profile",
+				compound=TOP,
+				anchor=W,
+				variable=selectedTool,
+				value="Profile",
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Perform a profile operation on selected code")
+		self.addWidget(b)
+
+		# ===
+		col,row=2,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["pocket"],
+				text="Pocket",
+				compound=LEFT,
+				anchor=W,
+				variable=selectedTool,
+				value="Pocket",
+				state=DISABLED,
+#				command=app.editor.toggleEnable,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Perform a pocket operation on selected code")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["drill"],
+				text="Drill",
+				compound=LEFT,
+				anchor=W,
+				variable=selectedTool,
+				value="Drill",
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Insert a drill cycle on current objects/location")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["tab"],
+				text="Tabs",
+				compound=LEFT,
+				anchor=W,
+				variable=selectedTool,
+				value="Tabs",
+				state=DISABLED,
+#				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Insert holding tabs")
+		self.addWidget(b)
+
+#===============================================================================
+# Macros Group
+#===============================================================================
+class MacrosGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Macros", app)
+		self.grid3rows()
+
+		col,row=0,0
+		# Find plugins in the plugins directory and load them
+		for f in sorted(glob.glob("%s/plugins/*.py"%(Utils.prgpath))):
+			name,ext = os.path.splitext(os.path.basename(f))
+			exec("import %s"%(name))
+			cls = eval("%s.Plugin(self)"%(name))
+
+			# ===
+			b = Ribbon.LabelRadiobutton(self.frame,
+					image=Utils.icons[cls.icon],
+					text=cls.name,
+					compound=LEFT,
+					anchor=W,
+					variable=selectedTool,
+					value=cls.name,
+					state=DISABLED,
+					background=Ribbon._BACKGROUND)
+			b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+			tkExtra.Balloon.set(b, cls.__doc__)
+			self.addWidget(b)
+
+			row += 1
+			if row==3:
+				col += 1
+				row  = 0
+
+#===============================================================================
+# Config
+#===============================================================================
+class ConfigGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Config", app)
+
+		# ===
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["config32"],
+				text="Config",
+				compound=TOP,
+				anchor=W,
+				variable=selectedTool,
+				value="CNC",
+				background=Ribbon._BACKGROUND)
+		b.pack(fill=BOTH, expand=YES)
+		tkExtra.Balloon.set(b, "Configuration for bCNC")
+		self.addWidget(b)
+
+#==============================================================================
+# Tools Frame
+#==============================================================================
+class ToolsFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
+		self.tools = app.tools
+
+		b = Button(self, text="Execute",
+				image=Utils.icons["gear"],
+				compound=LEFT,
+				foreground="DarkRed",
+				background="LightYellow",
+				command=self.execute)
+		b.pack(side=BOTTOM, fill=X)
+		self.tools.addButton("exe",b)
+
+		self.toolList = tkExtra.MultiListbox(self,
+					(("Name", 16, None),
+					 ("Value", 24, None)),
+					 header = False,
+					 stretch = "last",
+					 background = "White")
+		self.toolList.sortAssist = None
+		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.bindList("<Double-1>",	self.edit)
+		self.toolList.bindList("<F2>",		self.rename)
+		self.toolList.bindList("<Return>",	self.edit)
+#		self.toolList.bindList("<Key-space>",	self.commandFocus)
+#		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
+		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
+		self.tools.setListbox(self.toolList)
+
+		global selectedTool
+		selectedTool.trace('w',self.change)
+
+	#----------------------------------------------------------------------
+	def getActiveTool(self):
+		global selectedTool
+		return self.tools[selectedTool.get()]
+
+	#----------------------------------------------------------------------
+	def get(self):
+		global selectedTool
+		return selectedTool.get()
+
+	#----------------------------------------------------------------------
+	def set(self, tool):
+		global selectedTool
+		selectedTool.set(tool)
+
+	#----------------------------------------------------------------------
+	# Populate listbox with new values
+	#----------------------------------------------------------------------
+	def change(self, a=None, b=None, c=None):
+		tool = self.getActiveTool()
+		tool.populate()
+		tool.update()
+		self.tools.activateButtons(tool)
+
+	#----------------------------------------------------------------------
+	# Edit tool listbox
+	#----------------------------------------------------------------------
+	def edit(self, event=None):
+		self.getActiveTool().edit(event)
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		self.getActiveTool().edit(event)
+
+	#----------------------------------------------------------------------
+	def execute(self, event=None):
+		self.getActiveTool().execute(self.app)
+
+	#----------------------------------------------------------------------
+	def add(self, event=None):
+		self.getActiveTool().add()
+
+	#----------------------------------------------------------------------
+	def delete(self, event=None):
+		self.getActiveTool().delete()
+
+	#----------------------------------------------------------------------
+	def clone(self, event=None):
+		self.getActiveTool().clone()
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		self.getActiveTool().rename()
 
 #===============================================================================
 # Tools Page
@@ -28,302 +1036,32 @@ class ToolsPage(CNCRibbon.Page):
 	_icon_ = "tools"
 
 	#----------------------------------------------------------------------
-	def createRibbon(self):
-		CNCRibbon.Page.createRibbon(self)
-
-		# ========== Project ===========
-		group = Ribbon.LabelGroup(self.ribbon, "Control")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
-
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["newflair32"],
-#				#command=self.flair.newProject,
-#				command=self.openTemplate,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "New project with the basic template as input")
-#
-#		col,row=0,2
-#		b = Ribbon._TemplateMenuButton(group.frame, self,
-#				text="New",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "New project + input from template")
-#
-#		# ---
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["openflair32"],
-#				command=self.flair.openProject,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Open project")
-#
-#		col,row=1,2
-#		b = _RecentMenuButton(group.frame, self,
-#				text="Open",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Open recent project")
-#
-#		# ---
-#		col,row=2,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["saveflair32"],
-#				command=self.flair.saveProject,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Save project")
-#
-#		col,row=2,2
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Save",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				command=self.flair.saveProjectAs,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Save project as")
-#
-#		# ========== Edit ==============
-#		group = _EditGroup(self.ribbon, self, "Edit")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		col,row = 0,0
-#		self.styleCombo = Ribbon.LabelCombobox(group.frame,
-#					width=12,
-#					command=self.setStyleFromCombo)
-#		self.styleCombo.grid(row=row, column=col, columnspan=5, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(self.styleCombo, "Set editing style")
-#		self.styleCombo.fill(self.notes.styleList())
-#
-#		# ---
-#		col,row = 0,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["alignleft"],
-#				variable=self._style,
-#				value="Left")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align left text")
-#
-#		# ---
-#		col,row = 1,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["aligncenter"],
-#				variable=self._style,
-#				value="Center")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align center text")
-#
-#		# ---
-#		col,row = 2,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["alignright"],
-#				variable=self._style,
-#				value="Right")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align right text")
-#
-#		# ---
-#		col,row = 3,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["hyperlink"],
-#				variable=self._style,
-#				value="Link")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Bold font [Ctrl-B]")
-#
-#		# ---
-#		col,row = 4,1
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["image"],
-#				command=self.insertImage,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Insert image")
-#
-#		# ---
-#		col,row = 0,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["bold"],
-#				variable=self._style,
-#				value="Bold")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Bold font [Ctrl-B]")
-#
-#		# ---
-#		col,row = 1,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["italic"],
-#				variable=self._style,
-#				value="Italic")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Italics font [Ctrl-I]")
-#
-#		# ---
-#		col,row = 2,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["underline"],
-#				variable=self._style,
-#				value="Underline")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Underline font [Ctrl-U]")
-#
-#		# ---
-#		col,row = 3,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["overstrike"],
-#				variable=self._style,
-#				value="Overstrike")
-#		b.grid(row=row,  column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Overstrike font [Ctrl-O]")
-#
-#		# ========== Publish ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Publish")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame, self.page, "<<Document>>",
-#				text="Document",
-#				image=tkFlair.icons["new32"],
-#				#anchor=S,
-#				compound=TOP,
-#				state=DISABLED,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Create document from project")
-#
-#		# ---
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Print",
-#				command=self.hardcopy,
-#				image=tkFlair.icons["print32"],
-#				compound=TOP,
-#				#anchor=S,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Print input")
-#
-#		# ---
-#		col,row=2,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Refresh",
-#				command=self.refreshButton,
-#				image=tkFlair.icons["refresh32"],
-#				compound=TOP,
-#				#anchor=S,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Refresh document")
-#
-#		# ========== Tools ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Tools")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame, #self.page, "<<Config>>",
-#				text="Config",
-#				image=tkFlair.icons["config32"],
-#				command=self.flair.preferences,
-#				compound=TOP,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Open configuration dialog")
-#
-#		# ===
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Report",
-#				image=tkFlair.icons["debug"],
-#				compound=LEFT,
-#				command=tkFlair.ReportDialog.sendErrorReport,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Send Error Report")
-#
-#		# ---
-#		col,row=1,1
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Updates",
-#				image=tkFlair.icons["GLOBAL"],
-#				compound=LEFT,
-#				command=self.flair.checkUpdates,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Check Updates")
-#
-#		col,row=1,2
-#		b = Ribbon.LabelButton(group.frame,
-#				text="About",
-#				image=tkFlair.icons["about"],
-#				compound=LEFT,
-#				command=lambda s=self: tkFlair.aboutDialog(s.page),
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "About flair")
-#
-#		# ========== Tools ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Close")
-#		group.pack(side=RIGHT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Exit",
-#				image=tkFlair.icons["exit32"],
-#				compound=TOP,
-#				command=self.flair.quit,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Close program")
-
+	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
-	# Create Project page
-	#----------------------------------------------------------------------
-	def createPage(self):
-		CNCRibbon.Page.createPage(self)
+	def register(self):
+		global selectedTool
+		selectedTool = StringVar()
+		selectedTool.set("Stock")
+		self._register((DataBaseGroup,CAMGroup,MacrosGroup,ConfigGroup), (ToolsFrame,))
 
-		self.toolFrame = Tools.ToolFrame(self.page, self.app, self.app.tools)
-		self.toolFrame.pack(fill=BOTH, expand=YES)
-
-
-	#----------------------------------------------------------------------
-	def fill(self):
-		# Create tools
-		self.toolFrame.fill()
+		toolFrame = CNCRibbon.Page.frames["Tools"]
 		try:
-			self.toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
+			toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
 		except:
-			self.toolFrame.set("Box")
+			toolFrame.set("Box")
+
+	#----------------------------------------------------------------------
+	def add(self, event=None):
+		CNCRibbon.Page.frames["Tools"].add()
+
+	#----------------------------------------------------------------------
+	def clone(self, event=None):
+		CNCRibbon.Page.frames["Tools"].clone()
+
+	#----------------------------------------------------------------------
+	def delete(self, event=None):
+		CNCRibbon.Page.frames["Tools"].delete()
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		CNCRibbon.Page.frames["Tools"].rename()

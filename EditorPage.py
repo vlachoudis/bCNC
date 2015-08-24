@@ -13,9 +13,393 @@ try:
 except ImportError:
 	from tkinter import *
 
+import tkExtra
+
+import Utils
 import Ribbon
 import CNCList
 import CNCRibbon
+
+#===============================================================================
+# Edit Group
+#===============================================================================
+class EditGroup(CNCRibbon.ButtonMenuGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame, app, "<<Add>>",
+				image=Utils.icons["add"],
+				text="Add",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Insert a new block or line of code [Ins or Ctrl-Enter]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<Clone>>",
+				image=Utils.icons["clone"],
+				text="Clone",
+				compound=LEFT,
+				anchor=W,
+				state=DISABLED,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Clone selected lines or blocks [Ctrl-D]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<Delete>>",
+				image=Utils.icons["x"],
+				text="Delete",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Delete selected lines or blocks [Del]")
+		self.addWidget(b)
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame, self.app, "<<Enable>>",
+				image=Utils.icons["toggle"],
+				text="Toggle",
+				compound=LEFT,
+				anchor=W,
+#				command=app.editor.toggleEnable,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Toggle enable/disable block of g-code [Ctrl-L]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["reverse"],
+				text="Reverse",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Reverse direction of selected gcode blocks")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["digits"],
+				text="Round",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Round precision of numbers for selected lines")
+		self.addWidget(b)
+
+		# ---
+		col,row=2,0
+		b = Ribbon.LabelButton(self.frame, self.app, "<<Expand>>",
+				image=Utils.icons["expand"],
+				text="Expand",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Toggle expand/collapse blocks of gcode [Ctrl-E]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["comment"],
+				text="Comment",
+				compound=LEFT,
+				anchor=W,
+				state=DISABLED,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "(Un)Comment selected lines")
+		self.addWidget(b)
+
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0, activebackground=Ribbon._ACTIVE_COLOR)
+
+		menu.add_command(label="Import",
+				image=Utils.icons["load"], compound=LEFT,
+				command=lambda s=self.app:s.insertCommand("IMPORT",True))
+
+		menu.add_command(label="Inkscape",
+				image=Utils.icons["inkscape"], compound=LEFT,
+				command=lambda s=self.app:s.insertCommand("INKSCAPE all",True))
+
+		menu.add_command(label="Statistics",
+				image=Utils.icons["stats"], compound=LEFT,
+				command=self.app.showStats)
+		return menu
+
+#===============================================================================
+# Move Group
+#===============================================================================
+class MoveGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Move", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["TL"],
+				text="Top Left",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE TL",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Top-Left corner")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["LC"],
+				text="Left",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE LC",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Left side")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["BL"],
+				text="Bottom-Left",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE BL",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Bottom-Left corner")
+		self.addWidget(b)
+
+		# ====
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["TC"],
+				text="Top",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE TC",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Top side")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["center"],
+				text="Center",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE CENTER",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to center")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["BC"],
+				text="Bottom",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE BC",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Bottom side")
+		self.addWidget(b)
+
+		# ===
+		col,row=2,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["TR"],
+				text="Top Right",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE TR",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Top-Right corner")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["RC"],
+				text="Right",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE RC",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Right side")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["BR"],
+				text="Bottom-Right",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MOVE BR",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move origin of g-code to Bottom-Right corner")
+		self.addWidget(b)
+
+#===============================================================================
+# Order Group
+#===============================================================================
+class OrderGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Order", app)
+		self.grid2rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["up"],
+				text="Up",
+				compound=LEFT,
+				anchor=W,
+				command=app.commandOrderUp,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move selected g-code up [Ctrl-Up]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["down"],
+				text="Down",
+				compound=LEFT,
+				anchor=W,
+				command=app.commandOrderDown,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move selected g-code down [Ctrl-Down]")
+		self.addWidget(b)
+
+#===============================================================================
+# Transform Group
+#===============================================================================
+class TransformGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Transform", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate90"],
+				text="CW",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("ROTATE CW",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Rotate selected gcode clock-wise (-90deg)")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate180"],
+				text="Flip",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("ROTATE FLIP",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Rotate selected gcode by 180deg")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate270"],
+				text="CCW",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("ROTATE CCW",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Rotate selected gcode counter-clock-wise (90deg)")
+		self.addWidget(b)
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["flip-horizontal"],
+				text="Horizontal",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MIRROR horizontal",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Mirror horizontally X=-X selected gcode")
+		self.addWidget(b)
+
+		# ---
+		row += 2
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["flip-vertical"],
+				text="Vertical",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("MIRROR vertical",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Mirror vertically Y=-Y selected gcode")
+		self.addWidget(b)
+
+
+#		submenu.add_command(label="Rotate command", underline=0,
+#					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
+
+#===============================================================================
+class EditorFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Editor", app)
+		self.editor = CNCList.CNCListbox(self, app,
+						selectmode=EXTENDED,
+						exportselection=0,
+						background="White")
+		self.editor.pack(side=LEFT,expand=TRUE, fill=BOTH)
+		self.addWidget(self.editor)
+
+		# FIXME XXX MOVE TO app
+		self.editor.bind("<<ListboxSelect>>",	app.selectionChange)
+		self.editor.bind("<<Modified>>",	app.drawAfter)
+
+		sb = Scrollbar(self, orient=VERTICAL, command=self.editor.yview)
+		sb.pack(side=RIGHT, fill=Y)
+		self.editor.config(yscrollcommand=sb.set)
 
 #===============================================================================
 # Editor Page
@@ -27,307 +411,8 @@ class EditorPage(CNCRibbon.Page):
 	_icon_ = "edit"
 
 	#----------------------------------------------------------------------
-	def createRibbon(self):
-		CNCRibbon.Page.createRibbon(self)
-
-		# ========== Project ===========
-		group = Ribbon.LabelGroup(self.ribbon, "Control")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
-
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["newflair32"],
-#				#command=self.flair.newProject,
-#				command=self.openTemplate,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "New project with the basic template as input")
-#
-#		col,row=0,2
-#		b = Ribbon._TemplateMenuButton(group.frame, self,
-#				text="New",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "New project + input from template")
-#
-#		# ---
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["openflair32"],
-#				command=self.flair.openProject,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Open project")
-#
-#		col,row=1,2
-#		b = _RecentMenuButton(group.frame, self,
-#				text="Open",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Open recent project")
-#
-#		# ---
-#		col,row=2,0
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["saveflair32"],
-#				command=self.flair.saveProject,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Save project")
-#
-#		col,row=2,2
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Save",
-#				image=tkFlair.icons["triangle_down"],
-#				compound=RIGHT,
-#				command=self.flair.saveProjectAs,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Save project as")
-#
-#		# ========== Edit ==============
-#		group = _EditGroup(self.ribbon, self, "Edit")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		col,row = 0,0
-#		self.styleCombo = Ribbon.LabelCombobox(group.frame,
-#					width=12,
-#					command=self.setStyleFromCombo)
-#		self.styleCombo.grid(row=row, column=col, columnspan=5, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(self.styleCombo, "Set editing style")
-#		self.styleCombo.fill(self.notes.styleList())
-#
-#		# ---
-#		col,row = 0,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["alignleft"],
-#				variable=self._style,
-#				value="Left")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align left text")
-#
-#		# ---
-#		col,row = 1,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["aligncenter"],
-#				variable=self._style,
-#				value="Center")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align center text")
-#
-#		# ---
-#		col,row = 2,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["alignright"],
-#				variable=self._style,
-#				value="Right")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Align right text")
-#
-#		# ---
-#		col,row = 3,1
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["hyperlink"],
-#				variable=self._style,
-#				value="Link")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Bold font [Ctrl-B]")
-#
-#		# ---
-#		col,row = 4,1
-#		b = Ribbon.LabelButton(group.frame,
-#				image=tkFlair.icons["image"],
-#				command=self.insertImage,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Insert image")
-#
-#		# ---
-#		col,row = 0,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["bold"],
-#				variable=self._style,
-#				value="Bold")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Bold font [Ctrl-B]")
-#
-#		# ---
-#		col,row = 1,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["italic"],
-#				variable=self._style,
-#				value="Italic")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Italics font [Ctrl-I]")
-#
-#		# ---
-#		col,row = 2,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["underline"],
-#				variable=self._style,
-#				value="Underline")
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Underline font [Ctrl-U]")
-#
-#		# ---
-#		col,row = 3,2
-#		b = Ribbon.LabelRadiobutton(group.frame,
-#				image=tkFlair.icons["overstrike"],
-#				variable=self._style,
-#				value="Overstrike")
-#		b.grid(row=row,  column=col, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, "Overstrike font [Ctrl-O]")
-#
-#		# ========== Publish ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Publish")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame, self.page, "<<Document>>",
-#				text="Document",
-#				image=tkFlair.icons["new32"],
-#				#anchor=S,
-#				compound=TOP,
-#				state=DISABLED,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Create document from project")
-#
-#		# ---
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Print",
-#				command=self.hardcopy,
-#				image=tkFlair.icons["print32"],
-#				compound=TOP,
-#				#anchor=S,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Print input")
-#
-#		# ---
-#		col,row=2,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Refresh",
-#				command=self.refreshButton,
-#				image=tkFlair.icons["refresh32"],
-#				compound=TOP,
-#				#anchor=S,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Refresh document")
-#
-#		# ========== Tools ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Tools")
-#		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#		group.frame.grid_rowconfigure(1, weight=1)
-#		group.frame.grid_rowconfigure(2, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame, #self.page, "<<Config>>",
-#				text="Config",
-#				image=tkFlair.icons["config32"],
-#				command=self.flair.preferences,
-#				compound=TOP,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Open configuration dialog")
-#
-#		# ===
-#		col,row=1,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Report",
-#				image=tkFlair.icons["debug"],
-#				compound=LEFT,
-#				command=tkFlair.ReportDialog.sendErrorReport,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Send Error Report")
-#
-#		# ---
-#		col,row=1,1
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Updates",
-#				image=tkFlair.icons["GLOBAL"],
-#				compound=LEFT,
-#				command=self.flair.checkUpdates,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Check Updates")
-#
-#		col,row=1,2
-#		b = Ribbon.LabelButton(group.frame,
-#				text="About",
-#				image=tkFlair.icons["about"],
-#				compound=LEFT,
-#				command=lambda s=self: tkFlair.aboutDialog(s.page),
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "About flair")
-#
-#		# ========== Tools ==============
-#		group = Ribbon.LabelGroup(self.ribbon, "Close")
-#		group.pack(side=RIGHT, fill=Y, padx=0, pady=0)
-#
-#		group.frame.grid_rowconfigure(0, weight=1)
-#
-#		# ---
-#		col,row=0,0
-#		b = Ribbon.LabelButton(group.frame,
-#				text="Exit",
-#				image=tkFlair.icons["exit32"],
-#				compound=TOP,
-#				command=self.flair.quit,
-#				anchor=W,
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-#		tkExtra.Balloon.set(b, "Close program")
-
+	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
-	# Create Project page
-	#----------------------------------------------------------------------
-	def createPage(self):
-		CNCRibbon.Page.createPage(self)
-
-		#l = Label(self.page, text="Editor Page")
-		#l.pack()
-
-		# XXX XXX XXX
-		# FIXME nasty hack pushing to app
-		# XXX XXX XXX
-		self.app.gcodelist = CNCList.CNCListbox(self.page, self.app,
-						selectmode=EXTENDED,
-						exportselection=0,
-						background="White")
-		self.app.gcodelist.bind("<<ListboxSelect>>",	self.app.selectionChange)
-		self.app.gcodelist.bind("<<Modified>>",		self.app.drawAfter)
-		self.app.gcodelist.pack(side=LEFT,expand=TRUE, fill=BOTH)
-		self.addWidget(self.app.gcodelist)
-		sb = Scrollbar(self.page, orient=VERTICAL, command=self.app.gcodelist.yview)
-		sb.pack(side=RIGHT, fill=Y)
-		self.app.gcodelist.config(yscrollcommand=sb.set)
+	def register(self):
+		self._register((EditGroup, MoveGroup, OrderGroup, TransformGroup),
+			(EditorFrame,))

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: motionpath.py 3501 2015-05-05 14:46:44Z bnv $
+# $Id: motionpath.py 3510 2015-05-21 08:40:19Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -498,7 +498,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Split path into contours
 	#----------------------------------------------------------------------
-	def contours(self):
+	def split2contours(self):
 		if len(self)==0: return []
 
 		path = Path(self.name)

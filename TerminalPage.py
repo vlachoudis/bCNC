@@ -19,27 +19,32 @@ import tkExtra
 import CNCRibbon
 
 #===============================================================================
-# Terminal Page
+# Terminal Group
 #===============================================================================
-class TerminalPage(CNCRibbon.Page):
-	_name_ = "Terminal"
-	_icon_ = "terminal"
+class TerminalGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Terminal", app)
 
-	#----------------------------------------------------------------------
-	def createRibbon(self):
-		CNCRibbon.Page.createRibbon(self)
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["clean32"],
+				text="Clear",
+				compound=TOP,
+#				command=self.clear,
+				background=Ribbon._BACKGROUND)
+		b.pack(fill=BOTH, expand=YES)
+		tkExtra.Balloon.set(b, "Clear terminal")
 
-		# ========== Project ===========
-		group = Ribbon.LabelGroup(self.ribbon, "Grbl")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
+#===============================================================================
+# Commands Group
+#===============================================================================
+class CommandsGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Commands", app)
+		self.grid3rows()
 
 		# ---
 		col,row=0,0
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_settings"],
 				text="Settings",
 				compound=LEFT,
@@ -50,7 +55,7 @@ class TerminalPage(CNCRibbon.Page):
 		tkExtra.Balloon.set(b, "$$ Display settings of Grbl")
 
 		row += 1
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_params"],
 				text="Parameters",
 				compound=LEFT,
@@ -61,7 +66,7 @@ class TerminalPage(CNCRibbon.Page):
 		tkExtra.Balloon.set(b, "$# Display parameters of Grbl")
 
 		row += 1
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_state"],
 				text="State",
 				compound=LEFT,
@@ -74,7 +79,7 @@ class TerminalPage(CNCRibbon.Page):
 		# ---
 		col += 1
 		row  = 0
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_build"],
 				text="Build",
 				compound=LEFT,
@@ -85,7 +90,7 @@ class TerminalPage(CNCRibbon.Page):
 		tkExtra.Balloon.set(b, "$I Display build information of Grbl")
 
 		row += 1
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_startup"],
 				text="Startup",
 				compound=LEFT,
@@ -97,7 +102,7 @@ class TerminalPage(CNCRibbon.Page):
 
 		row += 1
 		# FIXME Checkbutton!!!!!
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_check"],
 				text="Check gcode",
 				compound=LEFT,
@@ -110,7 +115,7 @@ class TerminalPage(CNCRibbon.Page):
 		# ---
 		col += 1
 		row  = 1
-		b = Ribbon.LabelButton(group.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_help"],
 				text="Help",
 				compound=LEFT,
@@ -120,36 +125,17 @@ class TerminalPage(CNCRibbon.Page):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$ Display build information of Grbl")
 
-		# ========== Terminal ===========
-		group = Ribbon.LabelGroup(self.ribbon, "Term")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
-
-		b = Ribbon.LabelButton(group.frame,
-				image=Utils.icons["clean32"],
-				text="Clear",
-				compound=TOP,
-				command=self.clear,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Clear terminal")
-
-	#----------------------------------------------------------------------
-	# Create Project page
-	#----------------------------------------------------------------------
-	def createPage(self):
-		CNCRibbon.Page.createPage(self)
-
-		self.terminal = Text(self.page,
+#===============================================================================
+class TerminalFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Terminal", app)
+		self.terminal = Text(self,
 					background="White",
 					width=20,
 					wrap=NONE,
 					state=DISABLED)
 		self.terminal.pack(side=LEFT, fill=BOTH, expand=YES)
-		sb = Scrollbar(self.page, orient=VERTICAL, command=self.terminal.yview)
+		sb = Scrollbar(self, orient=VERTICAL, command=self.terminal.yview)
 		sb.pack(side=RIGHT, fill=Y)
 		self.terminal.config(yscrollcommand=sb.set)
 		self.terminal.tag_config("SEND",  foreground="Blue")
@@ -160,3 +146,17 @@ class TerminalPage(CNCRibbon.Page):
 		self.terminal["state"] = NORMAL
 		self.terminal.delete("1.0",END)
 		self.terminal["state"] = DISABLED
+
+#===============================================================================
+# Terminal Page
+#===============================================================================
+class TerminalPage(CNCRibbon.Page):
+	_name_ = "Terminal"
+	_icon_ = "terminal"
+
+	#----------------------------------------------------------------------
+	# Add a widget in the widgets list to enable disable during the run
+	#----------------------------------------------------------------------
+	def register(self):
+		self._register((CommandsGroup,TerminalGroup),
+				(TerminalFrame,))

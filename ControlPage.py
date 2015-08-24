@@ -13,18 +13,28 @@ try:
 except ImportError:
 	from tkinter import *
 
+import math
+
+from CNC import CNC
 import Utils
 import Ribbon
+import Control
 import tkExtra
 import Unicode
 import CNCRibbon
 
-try:
-	from serial.tools.list_ports import comports
-except:
-	from Utils import comports
+_LOWSTEP   = 0.0001
+_HIGHSTEP  = 1000.0
+_HIGHZSTEP = 10.0
+ZSEPARATE  = True
 
-BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
+#try:
+#	from serial.tools.list_ports import comports
+#except:
+#	from Utils import comports
+#BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
+
+WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
 
 DISTANCE_MODE = { "G90" : "Absolute",
 		  "G91" : "Incremental" }
@@ -38,18 +48,128 @@ PLANE         = { "G17" : "XY",
 		  "G19" : "YZ" }
 
 #===============================================================================
-class RunLabelGroup(Ribbon.LabelGroup):
+# Connection Group
+#===============================================================================
+class ConnectionGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		Ribbon.LabelGroup.__init__(self, master, "Run")
+		CNCRibbon.ButtonGroup.__init__(self, master, "Connection", app)
+		self.grid2rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["home32"],
+				text="Home",
+				compound=TOP,
+				anchor=W,
+				command=app.home,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Perform a homing cycle [$H]")
+		self.addWidget(b)
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["unlock"],
+				text="Unlock",
+				compound=LEFT,
+				anchor=W,
+				command=app.unlock,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Unlock controller [$X]")
+		self.addWidget(b)
+
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["reset"],
+				text="Reset",
+				compound=LEFT,
+				anchor=W,
+				command=app.softReset,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Software reset of controller [ctrl-x]")
+		self.addWidget(b)
+
+##===============================================================================
+## Serial Group
+##===============================================================================
+#class SerialGroup(CNCRibbon.ButtonGroup):
+#	def __init__(self, master, app):
+#		CNCRibbon.ButtonGroup.__init__(self, master, "Serial", app)
+#		self.grid3rows()
+#
+#		col,row=0,0
+#		b = Label(self.frame, text="Port:", background=Ribbon._BACKGROUND)
+#		b.grid(row=row,column=col,sticky=E)
+#		self.addWidget(b)
+#
+#		app.portCombo = tkExtra.Combobox(self.frame, False, background="White", width=16)
+#		app.portCombo.grid(row=row, column=col+1, sticky=EW)
+#		devices = sorted([x[0] for x in comports()])
+#		app.portCombo.fill(devices)
+#		app.portCombo.set(Utils.config.get("Connection","port"))
+#		self.addWidget(app.portCombo)
+#
+#		row += 1
+#		b = Label(self.frame, text="Baud:", background=Ribbon._BACKGROUND)
+#		b.grid(row=row,column=col,sticky=E)
+#
+#		app.baudCombo = tkExtra.Combobox(self.frame, True, background="White")
+#		app.baudCombo.grid(row=row, column=col+1, sticky=EW)
+#		app.baudCombo.fill(BAUDS)
+#		app.baudCombo.set(Utils.config.get("Connection","baud"))
+#		self.addWidget(app.baudCombo)
+#
+#		# ---
+#		col += 2
+#		row  = 0
+#
+#		app.connectBtn = Ribbon.LabelButton(self.frame,
+#				image=Utils.icons["serial32"],
+#				text="Open",
+#				compound=TOP,
+#				command=app.openClose,
+#				background=Ribbon._BACKGROUND)
+#		app.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
+#		tkExtra.Balloon.set(app.connectBtn, "Open/Close serial port")
+#		self.addWidget(app.connectBtn)
+
+#===============================================================================
+# User Group
+#===============================================================================
+class UserGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "User", app)
+		self.grid3rows()
+
+		n = Utils.getInt("Buttons","n",6)
+		for i in range(1,n):
+			b = Utils.UserButton(self.frame, self.app, i,
+					anchor=W,
+					background=Ribbon._BACKGROUND)
+			col,row = divmod(i-1,3)
+			b.grid(row=row, column=col, sticky=NSEW)
+			self.addWidget(b)
+
+#===============================================================================
+# Run Group
+#===============================================================================
+class RunGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
 
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["start32"],
-				text="Run",
+				text="Start",
 				compound=TOP,
 				command=app.run,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, "Run g-code commands from editor to controller")
+		self.addWidget(b)
 
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["pause32"],
@@ -70,119 +190,195 @@ class RunLabelGroup(Ribbon.LabelGroup):
 		tkExtra.Balloon.set(b, "Pause running program and soft reset controller to empty the buffer.")
 
 #===============================================================================
-# Control Page
+# DRO Frame
 #===============================================================================
-class ControlPage(CNCRibbon.Page):
-	"""CNC communication and control"""
+class DROFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "DRO", app)
 
-	_name_ = "Control"
-	_icon_ = "control"
+		row = 0
+		col = 0
+		Label(self,text="Status:").grid(row=row,column=col,sticky=E)
+		col += 1
+		self.state = Label(self,
+				text=Control.NOT_CONNECTED,
+				font=app.drofont,
+				background=Control.STATECOLOR[Control.NOT_CONNECTED])
+		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
-	#----------------------------------------------------------------------
-	def createRibbon(self):
-		CNCRibbon.Page.createRibbon(self)
+		row += 1
+		col = 0
+		Label(self,text="WPos:").grid(row=row,column=col,sticky=E)
 
-		# ==========
-		group = Ribbon.LabelGroup(self.ribbon, "Connection")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
+		# work
+		col += 1
+		#self.xwork = Label(self, font=app.drofont, background="White",anchor=E)
+		self.xwork = tkExtra.FloatEntry(self,
+					font=app.drofont,
+					background="White",
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
+		tkExtra.Balloon.set(self.xwork, "X work position (click to set)")
+		self.xwork.bind('<Return>',   self.setX)
+		self.xwork.bind('<KP_Enter>', self.setX)
 
 		# ---
-		col,row=0,0
-		b = Ribbon.LabelButton(group.frame,
-				image=Utils.icons["home"],
-				text="Home",
-				compound=LEFT,
-				anchor=W,
-				command=self.app.home,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Perform a homing cycle")
-
-		row += 1
-		b = Ribbon.LabelButton(group.frame,
-				image=Utils.icons["unlock"],
-				text="Unlock",
-				compound=LEFT,
-				anchor=W,
-				command=self.app.unlock,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Unlock controller")
-
-		row += 1
-		b = Ribbon.LabelButton(group.frame,
-				image=Utils.icons["reset"],
-				text="Reset",
-				compound=LEFT,
-				anchor=W,
-				command=self.app.softReset,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Software reset of controller")
-
-		# ==========
-		group = Ribbon.LabelGroup(self.ribbon, "Serial")
-		group.pack(side=LEFT, fill=Y, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-		group.frame.grid_rowconfigure(2, weight=1)
-
-		col,row=0,0
-		b = Label(group.frame, text="Port:", background=Ribbon._BACKGROUND)
-		b.grid(row=row,column=col,sticky=E)
-
-		self.app.portCombo = tkExtra.Combobox(group.frame, False, background="White", width=16)
-		self.app.portCombo.grid(row=row, column=col+1, sticky=EW)
-		devices = sorted([x[0] for x in comports()])
-		self.app.portCombo.fill(devices)
-		self.app.portCombo.set(Utils.config.get("Connection","port"))
-
-		row += 1
-		b = Label(group.frame, text="Baud:", background=Ribbon._BACKGROUND)
-		b.grid(row=row,column=col,sticky=E)
-
-		self.app.baudCombo = tkExtra.Combobox(group.frame, True, background="White")
-		self.app.baudCombo.grid(row=row, column=col+1, sticky=EW)
-		self.app.baudCombo.fill(BAUDS)
-		self.app.baudCombo.set(Utils.config.get("Connection","baud"))
+		col += 1
+		#self.ywork = Label(self, font=app.drofont, background="White",anchor=E)
+		self.ywork = tkExtra.FloatEntry(self,
+					font=app.drofont,
+					background="White",
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
+		tkExtra.Balloon.set(self.ywork, "Y work position (click to set)")
+		self.ywork.bind('<Return>',   self.setY)
+		self.ywork.bind('<KP_Enter>', self.setY)
 
 		# ---
-		col += 2
-		row  = 0
+		col += 1
+		#self.zwork = Label(self, font=app.drofont, background="White", anchor=E)
+		self.zwork = tkExtra.FloatEntry(self,
+					font=app.drofont,
+					background="White",
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
+		tkExtra.Balloon.set(self.zwork, "Z work position (click to set)")
+		self.zwork.bind('<Return>',   self.setZ)
+		self.zwork.bind('<KP_Enter>', self.setZ)
 
-		self.app.connectBtn = Ribbon.LabelButton(group.frame,
-				image=Utils.icons["serial32"],
-				text="Open",
-				compound=TOP,
-				command=self.app.openClose,
-				background=Ribbon._BACKGROUND)
-		self.app.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(self.app.connectBtn, "Open/Close serial port")
+		# Machine
+		row += 1
+		col = 0
+		Label(self,text="MPos:").grid(row=row,column=col,sticky=E)
 
-		# ==========
-		self.runGroup = RunLabelGroup(self.ribbon, self.app)
-		self.runGroup.pack(side=LEFT, fill=Y, padx=0, pady=0)
+		col += 1
+		self.xmachine = Label(self, font=app.drofont, background="White",anchor=E)
+		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
+		self.ymachine = Label(self, font=app.drofont, background="White",anchor=E)
+		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
+		self.zmachine = Label(self, font=app.drofont, background="White", anchor=E)
+		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		# Set buttons
+		row += 1
+		col = 1
+
+		self.xzero = Button(self, text="X=0",
+				command=self.setX0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.xzero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.xzero, "Set X coordinate to zero (or to typed coordinate in WPos)")
+		self.addWidget(self.xzero)
+
+		col += 1
+		self.yzero = Button(self, text="Y=0",
+				command=self.setY0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.yzero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.yzero, "Set Y coordinate to zero (or to typed coordinate in WPos)")
+		self.addWidget(self.yzero)
+
+		col += 1
+		self.zzero = Button(self, text="Y=0",
+				command=self.setZ0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.zzero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.zzero, "Set Z coordinate to zero (or to typed coordinate in WPos)")
+		self.addWidget(self.zzero)
+
+		self.grid_columnconfigure(1, weight=1)
+		self.grid_columnconfigure(2, weight=1)
+		self.grid_columnconfigure(3, weight=1)
 
 	#----------------------------------------------------------------------
-	# Create Project page
-	#----------------------------------------------------------------------
-	def createPage(self):
-		CNCRibbon.Page.createPage(self)
+	def updateState(self):
+		self.state.config(text=CNC.vars["state"],
+				background=CNC.vars["color"])
 
-		# Control -> Control
-		lframe = LabelFrame(self.page, text="Control", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
+	#----------------------------------------------------------------------
+	def updateCoords(self):
+		focus = self.focus_get()
+		if focus is not self.xwork: self.xwork.set(CNC.vars["wx"])
+		if focus is not self.ywork: self.ywork.set(CNC.vars["wy"])
+		if focus is not self.zwork: self.zwork.set(CNC.vars["wz"])
+
+		self.xmachine["text"] = CNC.vars["mx"]
+		self.ymachine["text"] = CNC.vars["my"]
+		self.zmachine["text"] = CNC.vars["mz"]
+
+	#----------------------------------------------------------------------
+	def setX0(self, event=None):
+		self._wcsSet("0",None,None)
+
+	#----------------------------------------------------------------------
+	def setY0(self, event=None):
+		self._wcsSet(None,"0",None)
+
+	#----------------------------------------------------------------------
+	def setZ0(self, event=None):
+		self._wcsSet(None,None,"0")
+
+	#----------------------------------------------------------------------
+	def setX(self, event=None):
+		if self.app.running: return
+		self._wcsSet(self.xwork.get(),None,None)
+
+	#----------------------------------------------------------------------
+	def setY(self, event=None):
+		if self.app.running: return
+		self._wcsSet(None,self.ywork.get(),None)
+
+	#----------------------------------------------------------------------
+	def setZ(self, event=None):
+		if self.app.running: return
+		self._wcsSet(None,None,self.zwork.get())
+
+	#----------------------------------------------------------------------
+	def _wcsSet(self, x, y, z):
+		global wcsvar
+		p = wcsvar.get()
+		if p<6:
+			cmd = "G10L20P%d"%(p+1)
+		elif p==6:
+			cmd = "G28.1"
+		elif p==7:
+			cmd = "G30.1"
+		elif p==8:
+			cmd = "G92"
+
+		if x is not None: cmd += "X"+str(x)
+		if y is not None: cmd += "Y"+str(y)
+		if z is not None: cmd += "Z"+str(z)
+		self.sendGrbl(cmd+"\n$#\n")
+		self.event_generate("<<Status>>",
+			data="Set workspace %s to X%s Y%s Z%s"%(WCS[p],str(x),str(y),str(z)))
+		self.event_generate("<<CanvasFocus>>")
+
+#===============================================================================
+# ControlFrame
+#===============================================================================
+class ControlFrame(CNCRibbon.PageLabelFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
 		row,col = 0,0
-		Label(lframe, text="Z").grid(row=row, column=col)
+		Label(self, text="Z").grid(row=row, column=col)
 
 		col += 3
-		Label(lframe, text="Y").grid(row=row, column=col)
+		Label(self, text="Y").grid(row=row, column=col)
 
 		# ---
 		row += 1
@@ -191,8 +387,8 @@ class ControlPage(CNCRibbon.Page):
 		width=3
 		height=2
 
-		b = Button(lframe, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-#					command=self.moveZup,
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveZup,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -200,8 +396,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(lframe, text=Unicode.UPPER_LEFT_TRIANGLE,
-#					command=self.moveXdownYup,
+		b = Button(self, text=Unicode.UPPER_LEFT_TRIANGLE,
+					command=self.moveXdownYup,
 					width=width, height=height,
 					activebackground="LightYellow")
 
@@ -210,8 +406,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-#					command=self.moveYup,
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveYup,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -219,8 +415,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text=Unicode.UPPER_RIGHT_TRIANGLE,
-#					command=self.moveXupYup,
+		b = Button(self, text=Unicode.UPPER_RIGHT_TRIANGLE,
+					command=self.moveXupYup,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -228,8 +424,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(lframe, text=u"\u00D710",
-#				command=self.mulStep,
+		b = Button(self, text=u"\u00D710",
+				command=self.mulStep,
 				width=3,
 				padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+S)
@@ -237,8 +433,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text="+",
-#				command=self.incStep,
+		b = Button(self, text="+",
+				command=self.incStep,
 				width=3,
 				padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+S)
@@ -248,32 +444,12 @@ class ControlPage(CNCRibbon.Page):
 		# ---
 		row += 1
 
-		# -- Addition --
-		col = 0
-#		if Utils.config.get("Control","zstep"):
-#			self.zstep = tkExtra.Combobox(lframe, width=1, background="White")
-#			self.zstep.grid(row=row, column=col, columnspan=1, sticky=EW)
-#			self.zstep.set(Utils.config.get("Control","zstep"))
-#			self.zstep.fill(["0.001",
-#					"0.005",
-#					"0.01",
-#					"0.05",
-#					"0.1",
-#					"0.5",
-#					"1",
-#					"5",
-#					"10"])
-#			tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
-#			self.addWidget(self.zstep)
-#		else:
-#			self.zstep = self.step
-
 		col = 1
-		Label(lframe, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		b = Button(lframe, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
-#					command=self.moveXdown,
+		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
+					command=self.moveXdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -281,8 +457,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Utils.UserButton(lframe, self.app, 0, text=Unicode.LARGE_CIRCLE,
-#					command=self.go2origin,
+		b = Utils.UserButton(self, self.app, 0, text=Unicode.LARGE_CIRCLE,
+					command=self.go2origin,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -290,8 +466,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
-#					command=self.moveXup,
+		b = Button(self, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+					command=self.moveXup,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -300,10 +476,10 @@ class ControlPage(CNCRibbon.Page):
 
 		# --
 		col += 1
-		Label(lframe,"",width=2).grid(row=row,column=col)
+		Label(self,"",width=2).grid(row=row,column=col)
 
 		col += 1
-		self.step = tkExtra.Combobox(lframe, width=6, background="White")
+		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
 		self.step.fill(["0.001",
@@ -321,15 +497,32 @@ class ControlPage(CNCRibbon.Page):
 		tkExtra.Balloon.set(self.step, "Step for every move operation")
 		self.addWidget(self.step)
 
-		# Onekk request
-		self.zstep = self.step
+		# -- Separate zstep --
+		try:
+			zstep = Utils.config.get("Control","zstep")
+			self.zstep = tkExtra.Combobox(self, width=1, background="White")
+			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
+			self.zstep.set(zstep)
+			self.zstep.fill(["0.001",
+					"0.005",
+					"0.01",
+					"0.05",
+					"0.1",
+					"0.5",
+					"1",
+					"5",
+					"10"])
+			tkExtra.Balloon.set(self.zstep, "Step for Z move operation")
+			self.addWidget(self.zstep)
+		except:
+			self.zstep = self.step
 
 		# ---
 		row += 1
 		col = 0
 
-		b = Button(lframe, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-#					command=self.moveZdown,
+		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveZdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -337,8 +530,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(lframe, text=Unicode.LOWER_LEFT_TRIANGLE,
-#					command=self.moveXdownYdown,
+		b = Button(self, text=Unicode.LOWER_LEFT_TRIANGLE,
+					command=self.moveXdownYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -346,8 +539,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-#					command=self.moveYdown,
+		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -355,8 +548,8 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text=Unicode.LOWER_RIGHT_TRIANGLE,
-#					command=self.moveXupYdown,
+		b = Button(self, text=Unicode.LOWER_RIGHT_TRIANGLE,
+					command=self.moveXupYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
@@ -364,157 +557,33 @@ class ControlPage(CNCRibbon.Page):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(lframe, text=u"\u00F710",
-#					command=self.divStep,
+		b = Button(self, text=u"\u00F710",
+					command=self.divStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)
 		tkExtra.Balloon.set(b, "Divide step by 10")
 		self.addWidget(b)
 
 		col += 1
-		b = Button(lframe, text="-",
-#					command=self.decStep,
+		b = Button(self, text="-",
+					command=self.decStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)
 		tkExtra.Balloon.set(b, "Decrease step by 1 unit")
 		self.addWidget(b)
 
-		#lframe.grid_columnconfigure(6,weight=1)
+		#self.grid_columnconfigure(6,weight=1)
+		try:
+#			self.grid_anchor(CENTER)
+			self.tk.call("grid","anchor",self,CENTER)
+		except TclError:
+			pass
 
-		lframe = LabelFrame(self.page, text="User", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		n = Utils.getInt("Buttons","n",6)
-		for i in range(1,n):
-			b = Utils.UserButton(lframe, self.app, i)
-			b.grid(row=0, column=i-1, sticky=NSEW)
-			lframe.grid_columnconfigure(i-1, weight=1)
-			self.addWidget(b)
-
-		# Control -> State
-		lframe = LabelFrame(self.page, text="State", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		# State
-		f = Frame(lframe)
-		f.pack(side=TOP, fill=X)
-
-		# Absolute or relative mode
-		row, col = 0, 0
-		Label(f, text="Distance:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.distanceMode = tkExtra.Combobox(f, True,
-#					command=self.distanceChange,
-					width=5,
-					background="White")
-		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
-		self.distanceMode.grid(row=row, column=col, columnspan=2, sticky=EW)
-		tkExtra.Balloon.set(self.distanceMode, "Distance Mode [G90,G91]")
-
-		# populate gstate dictionary
-		for k,v in DISTANCE_MODE.items(): self.app.gstate[k] = (self.distanceMode, v)
-
-		# Units mode
-		col += 2
-		Label(f, text="Units:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.units = tkExtra.Combobox(f, True,
-#					command=self.unitsChange,
-					width=5,
-					background="White")
-		self.units.fill(sorted(UNITS.values()))
-		self.units.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.units, "Units [G20, G21]")
-		for k,v in UNITS.items(): self.app.gstate[k] = (self.units, v)
-
-		# Feed mode
-		row += 1
-		col = 0
-		Label(f, text="Feed:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
-		self.feedRate.grid(row=row, column=col, sticky=EW)
-#		self.feedRate.bind('<Return>',   self.setFeedRate)
-#		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
-		tkExtra.Balloon.set(self.feedRate, "Feed Rate [F#]")
-
-		col += 1
-		b = Button(f, text="set",
-#				command=self.setFeedRate,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, columnspan=2, sticky=W)
-
-		col += 1
-		Label(f, text="Mode:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.feedMode = tkExtra.Combobox(f, True,
-#					command=self.feedModeChange,
-					width=5,
-					background="White")
-		self.feedMode.fill(sorted(FEED_MODE.values()))
-		self.feedMode.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.feedMode, "Feed Mode [G93, G94, G95]")
-		for k,v in FEED_MODE.items(): self.app.gstate[k] = (self.feedMode, v)
-
-		# Tool
-		row += 1
-		col = 0
-		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
-		self.toolEntry.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
-
-		col += 1
-		b = Button(f, text="set",
-#				command=self.setTool,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=W)
-
-		# Plane
-		col += 1
-		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.plane = tkExtra.Combobox(f, True,
-#					command=self.planeChange,
-					width=5,
-					background="White")
-		self.plane.fill(sorted(PLANE.values()))
-		self.plane.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
-		for k,v in PLANE.items(): self.app.gstate[k] = (self.plane, v)
-
-		f.grid_columnconfigure(1, weight=1)
-		f.grid_columnconfigure(4, weight=1)
-
-		# Spindle
-		f = Frame(lframe)
-		f.pack(side=BOTTOM, fill=X)
-		self.spindle = BooleanVar()
-		self.spindleSpeed = IntVar()
-
-		b = Checkbutton(f, text="Spindle",
-				image=Utils.icons["spinningtop"],
-#				command=self.spindleControl,
-				compound=LEFT,
-				indicatoron=False,
-				variable=self.spindle)
-		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
-		b.pack(side=LEFT, fill=Y)
-		self.addWidget(b)
-
-		b = Scale(f,	variable=self.spindleSpeed,
-#				command=self.spindleControl,
-				showvalue=True,
-				orient=HORIZONTAL,
-				from_=Utils.config.get("CNC","spindlemin"),
-				to_=Utils.config.get("CNC","spindlemax"))
-		tkExtra.Balloon.set(b, "Set spindle RPM")
-		b.pack(side=RIGHT, expand=YES, fill=X)
-		self.addWidget(b)
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("Control", "step", self.step.get())
+		if self.zstep is not self.step:
+			Utils.setFloat("Control", "zstep", self.zstep.get())
 
 	#----------------------------------------------------------------------
 	# Jogging
@@ -561,6 +630,348 @@ class ControlPage(CNCRibbon.Page):
 
 	def go2origin(self, event=None):
 		self.sendGrbl("G90G0X0Y0Z0\n")
+
+	#----------------------------------------------------------------------
+	def setStep(self, s, zs=None):
+		self.step.set("%.4g"%(s))
+		if self.zstep is self.step or zs is None:
+			self.event_generate("<<Status>>",data="Step: %g"%(s))
+		else:
+			self.zstep.set("%.4g"%(zs))
+			self.event_generate("<<Status>>",data="Step: %g    Zstep:%g "%(s,zs))
+
+	@staticmethod
+	def _stepPower(step):
+		try:
+			step = float(step)
+			if step <= 0.0: step = 1.0
+		except:
+			step = 1.0
+		power = math.pow(10.0,math.floor(math.log10(step)))
+		return round(step/power)*power, power
+
+	def incStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.step.get())
+		s = step+power
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.zstep is not self.step:
+			step, power = ControlFrame._stepPower(self.zstep.get())
+			zs = step+power
+			if zs<_LOWSTEP: zs = _LOWSTEP
+			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		else:
+			zs=None
+		self.setStep(s, zs)
+
+	def decStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.step.get())
+		s = step-power
+		if s<=0.0: s = step-power/10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.zstep is not self.step:
+			step, power = ControlFrame._stepPower(self.zstep.get())
+			zs = step-power
+			if zs<=0.0: zs = step-power/10.0
+			if zs<_LOWSTEP: zs = _LOWSTEP
+			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		else:
+			zs=None
+		self.setStep(s, zs)
+
+	def mulStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.step.get())
+		s = step*10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.zstep is not self.step:
+			step, power = ControlFrame._stepPower(self.zstep.get())
+			zs = step*10.0
+			if zs<_LOWSTEP: zs = _LOWSTEP
+			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		else:
+			zs=None
+		self.setStep(s, zs)
+
+	def divStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.step.get())
+		s = step/10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.zstep is not self.step:
+			step, power = ControlFrame._stepPower(self.zstep.get())
+			zs = step/10.0
+			if zs<_LOWSTEP: zs = _LOWSTEP
+			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		else:
+			zs=None
+		self.setStep(s, zs)
+
+#===============================================================================
+# StateFrame
+#===============================================================================
+class StateFrame(CNCRibbon.PageExLabelFrame):
+	def __init__(self, master, app):
+		global wcsvar
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "State", app)
+		self._gUpdate = False
+
+		# State
+		f = Frame(self())
+		f.pack(side=TOP, fill=X)
+
+		# ===
+		row, col = 0, 0
+		f2 = Frame(f)
+		f2.grid(row=row, column=col, columnspan=5,sticky=EW)
+		for p,w in enumerate(WCS):
+			col += 1
+			b = Radiobutton(f2, text=w,
+					foreground="DarkRed",
+					font = "Helvetica,14",
+					padx=1, pady=1,
+					variable=wcsvar,
+					value=p,
+					indicatoron=FALSE,
+					activebackground="LightYellow",
+					command=self.wcsChange)
+			b.pack(side=LEFT, fill=X, expand=YES)
+			tkExtra.Balloon.set(b, "Switch to workspace %s"%(w))
+			self.addWidget(b)
+
+		# Absolute or relative mode
+		row += 1
+		col = 0
+		Label(f, text="Distance:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.distanceMode = tkExtra.Combobox(f, True,
+					command=self.distanceChange,
+					width=5,
+					background="White")
+		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
+		self.distanceMode.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.distanceMode, "Distance Mode [G90,G91]")
+		self.addWidget(self.distanceMode)
+
+		# populate gstate dictionary
+		self.gstate = {}	# $G state results widget dictionary
+		for k,v in DISTANCE_MODE.items():
+			self.gstate[k] = (self.distanceMode, v)
+
+		# Units mode
+		col += 2
+		Label(f, text="Units:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.units = tkExtra.Combobox(f, True,
+					command=self.unitsChange,
+					width=5,
+					background="White")
+		self.units.fill(sorted(UNITS.values()))
+		self.units.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.units, "Units [G20, G21]")
+		for k,v in UNITS.items(): self.gstate[k] = (self.units, v)
+		self.addWidget(self.units)
+
+		# Feed mode
+		row += 1
+		col = 0
+		Label(f, text="Feed:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
+		self.feedRate.grid(row=row, column=col, sticky=EW)
+		self.feedRate.bind('<Return>',   self.setFeedRate)
+		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
+		tkExtra.Balloon.set(self.feedRate, "Feed Rate [F#]")
+		self.addWidget(self.feedRate)
+
+		col += 1
+		b = Button(f, text="set",
+				command=self.setFeedRate,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, columnspan=2, sticky=W)
+		self.addWidget(b)
+
+		col += 1
+		Label(f, text="Mode:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.feedMode = tkExtra.Combobox(f, True,
+					command=self.feedModeChange,
+					width=5,
+					background="White")
+		self.feedMode.fill(sorted(FEED_MODE.values()))
+		self.feedMode.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.feedMode, "Feed Mode [G93, G94, G95]")
+		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
+		self.addWidget(self.feedMode)
+
+		# Tool
+		row += 1
+		col = 0
+		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
+		self.toolEntry.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
+		self.addWidget(self.toolEntry)
+
+		col += 1
+		b = Button(f, text="set",
+				command=self.setTool,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=W)
+		self.addWidget(b)
+
+		# Plane
+		col += 1
+		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.plane = tkExtra.Combobox(f, True,
+					command=self.planeChange,
+					width=5,
+					background="White")
+		self.plane.fill(sorted(PLANE.values()))
+		self.plane.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
+		self.addWidget(self.plane)
+
+		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
+
+		f.grid_columnconfigure(1, weight=1)
+		f.grid_columnconfigure(4, weight=1)
+
+		# Spindle
+		f = Frame(self())
+		f.pack(side=BOTTOM, fill=X)
+		self.spindle = BooleanVar()
+		self.spindleSpeed = IntVar()
+
+		b = Checkbutton(f, text="Spindle",
+				image=Utils.icons["spinningtop"],
+				command=self.spindleControl,
+				compound=LEFT,
+				indicatoron=False,
+				variable=self.spindle)
+		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
+		b.pack(side=LEFT, fill=Y)
+		self.addWidget(b)
+
+		b = Scale(f,	variable=self.spindleSpeed,
+				command=self.spindleControl,
+				showvalue=True,
+				orient=HORIZONTAL,
+				from_=Utils.config.get("CNC","spindlemin"),
+				to_=Utils.config.get("CNC","spindlemax"))
+		tkExtra.Balloon.set(b, "Set spindle RPM")
+		b.pack(side=RIGHT, expand=YES, fill=X)
+		self.addWidget(b)
+
+	#----------------------------------------------------------------------
+	def _gChange(self, value, dictionary):
+		for k,v in dictionary.items():
+			if v==value:
+				self.sendGrbl("%s\n"%(k))
+				return
+
+	#----------------------------------------------------------------------
+	def distanceChange(self):
+		if self._gUpdate: return
+		self._gChange(self.distanceMode.get(), DISTANCE_MODE)
+
+	#----------------------------------------------------------------------
+	def unitsChange(self):
+		if self._gUpdate: return
+		self._gChange(self.units.get(), UNITS)
+
+	#----------------------------------------------------------------------
+	def feedModeChange(self):
+		if self._gUpdate: return
+		self._gChange(self.feedMode.get(), FEED_MODE)
+
+	#----------------------------------------------------------------------
+	def planeChange(self):
+		if self._gUpdate: return
+		self._gChange(self.plane.get(), PLANE)
+
+	#----------------------------------------------------------------------
+	def setFeedRate(self, event=None):
+		if self._gUpdate: return
+		try:
+			feed = float(self.feedRate.get())
+			self.sendGrbl("F%g\n"%(feed))
+			self.event_generate("<<CanvasFocus>>")
+		except ValueError:
+			pass
+
+	#----------------------------------------------------------------------
+	def setTool(self, event=None):
+		pass
+
+	#----------------------------------------------------------------------
+	def spindleControl(self, event=None):
+		if self.spindle.get():
+			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
+		else:
+			self.sendGrbl("M5\n")
+
+	#----------------------------------------------------------------------
+	def updateG(self):
+		global wcsvar
+		self._gUpdate = True
+		for g in CNC.vars["G"]:
+			if g[0]=='G':
+				try:
+					w, v = self.gstate[g]
+					w.set(v)
+				except KeyError:
+					try:
+						wcsvar.set(WCS.index(g))
+					except ValueError:
+						pass
+			elif g[0] == 'F':
+				if self.focus_get() is not self.feedRate:
+					self.feedRate.set(g[1:])
+
+			elif g[0] == 'T':
+				if self.focus_get() is not self.toolEntry:
+					self.toolEntry.set(g[1:])
+
+			elif g[0] == 'S':
+				print "Update spindle speed"
+				self.spindleSpeed.set(int(float(g[1:])))
+		self._gUpdate = False
+
+	#----------------------------------------------------------------------
+	def wcsChange(self):
+		global wcsvar
+		self.sendGrbl(WCS[wcsvar.get()]+"\n$G\n")
+
+#===============================================================================
+# Control Page
+#===============================================================================
+class ControlPage(CNCRibbon.Page):
+	"""CNC communication and control"""
+
+	_name_ = "Control"
+	_icon_ = "control"
+
+	#----------------------------------------------------------------------
+	# Add a widget in the widgets list to enable disable during the run
+	#----------------------------------------------------------------------
+	def register(self):
+		global wcsvar
+		wcsvar = IntVar()
+		wcsvar.set(0)
+
+		self._register((ConnectionGroup, UserGroup, RunGroup),
+			(DROFrame, ControlFrame, StateFrame))
 
 	def resetCoords(self, event):
 		if not self.app.running: self.sendGrbl("G10P0L20X0Y0Z0\n")

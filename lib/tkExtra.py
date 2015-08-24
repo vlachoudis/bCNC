@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3493 2015-04-08 08:52:01Z bnv $
+# $Id: tkExtra.py 3563 2015-08-20 09:17:39Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,6 +157,47 @@ kDJGjRsWOY4kUiQIChYwCQLoqUODyZQtPYjsCVRFSRczB+wQMrSDwocMPrg0SXLlxpJ/A5AgKuQg
 wYEDCAhMYFBAwJx/Lw50gJCgtGnTOATSAXC6dQIAfAbKEeC6NIA7Cv1sGHB6wIg/ChN+MWIkTPCA
 ADs=
 """
+
+#-------------------------------------------------------------------------------
+# bind event with data as a replacement of the Tkinter bind for virtual
+# events to send data <<...>>
+#
+# Example, instead of binding like
+#	widget.bind("<<VirtualEvent>>", function)
+# use it as
+#	bindEventData(widget, "<<VirtualEvent>>", function)
+#
+# def function(event):
+#	print event.serial, event.widget, event.data
+#
+# Send message as
+#	widget.event_generate("<<VirtualEvent>>", data="Hello")
+#	widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
+#	widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
+#
+# WARNING: Unfortunatelly it will convert data to STRING!!!
+#-------------------------------------------------------------------------------
+def bindEventData(widget, sequence, func, add = None):
+	def _substitute(*args):
+		e = Event()
+		nsign, b, t, T, d, W = args
+		try:    e.serial = int(nsign)
+		except: e.serial = nsign
+		try:    e.num    = int(b)
+		except: e.num    = b
+		try:    e.time   = int(t)
+		except: e.time   = t
+		e.type = T
+		e.data = d
+		try:
+			e.widget = widget._nametowidget(W)
+		except KeyError:
+			e.widget = W
+		return (e,)
+
+	funcid = widget._register(func, _substitute, needcleanup=1)
+	cmd = '{0}if {{"[{1} %# %b %t %T %d %W]" == "break"}} break\n'.format('+' if add else '', funcid)
+	widget.tk.call('bind', widget._w, sequence, cmd)
 
 #===============================================================================
 # Sort Assist class for MultiListbox
@@ -504,13 +545,18 @@ class AutoScrollbar(Scrollbar):
 class ProgressBar(Canvas):
 	def __init__(self, master=None, **kw):
 		Canvas.__init__(self, master, **kw)
-		self.config(background="DarkGray")
+		#self.config(background="DarkGray")
 		self.currBox = self.create_rectangle(0, 0, 0, 0,
-					fill='Orange', width=0)
+					fill='Orange',
+					width=0)
 		self.doneBox = self.create_rectangle(0, 0, 0, 0,
-					fill='DarkGreen', width=0)
-		self.text = self.create_text(0,0,text="",
-			fill="White",justify=CENTER)
+					fill='DarkGreen',
+					width=0)
+		self.text = self.create_text(0,0,
+					text="",
+					fill="White",
+					anchor=CENTER,
+					justify=CENTER)
 		self.auto = True
 
 		self.bind('<Configure>', self.draw)
@@ -568,7 +614,11 @@ class ProgressBar(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setText(self, txt):
-		self.itemconfig(self.text,text=txt)
+		self.itemconfig(self.text, text=txt)
+
+	# ----------------------------------------------------------------------
+	def configText(self, **args):
+		self.itemconfig(self.text, **args)
 
 	# ----------------------------------------------------------------------
 	def autoText(self):
@@ -595,7 +645,11 @@ class ProgressBar(Canvas):
 
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)
-		self.coords(self.text, width/2, height/2)
+
+		if self.itemcget(self.text, "justify") == CENTER:
+			self.coords(self.text, width/2, height/2)
+		else:
+			self.coords(self.text, 1,height/2)
 
 #===============================================================================
 # Extended Listbox
@@ -704,7 +758,12 @@ class ExListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def handleKey(self, event):
 		"""handle key events for quick searching"""
-		if len(event.char)==0:
+
+		# Shift key -> ignore them
+		if event.keysym in ("Shift_L","Shift_R"):
+			return
+
+		elif len(event.char)==0:
 			ExListbox._time = 0
 			return
 
@@ -730,6 +789,7 @@ class ExListbox(Listbox):
 		elif event.keysym == "BackSpace":
 			ExListbox._search     = ExListbox._search[:-1]
 			ExListbox._searchOrig = ExListbox._searchOrig[:-1]
+
 		# Ignore non-printable characters
 		elif self.ignoreNonAlpha and \
 		     not (ch.isalnum() or \
@@ -4032,6 +4092,9 @@ class ExLabelFrame(LabelFrame):
 	# ----------------------------------------------------------------------
 	def isexpanded(self):
 		return self.frame.winfo_ismapped()
+
+	# ----------------------------------------------------------------------
+	def __call__(self): return self.frame
 
 #================================================================================
 # ScrolledFrame by Bruno

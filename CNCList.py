@@ -222,6 +222,9 @@ class CNCListbox(Listbox):
 	def insertLine(self, event=None):
 		active = self.index(ACTIVE)
 		if active is None: return
+		if len(self._items)==0:
+			self.insertBlock()
+			return
 		bid, lid = self._items[active]
 		active += 1
 		self.insert(active,"")
@@ -388,7 +391,7 @@ class CNCListbox(Listbox):
 			self.activate(active)
 			self.see(active)
 
-		self.app.statusbar["text"] = "Toggled Expand of selected objects"
+		self.event_generate("<<Status>>",data="Toggled Expand of selected objects")
 
 	# ----------------------------------------------------------------------
 	# toggle state enable/disable
@@ -421,7 +424,7 @@ class CNCListbox(Listbox):
 			self.yview_moveto(ypos)
 			self.event_generate("<<ListboxSelect>>")
 
-		self.app.statusbar["text"] = "Toggled Visibility of selected objects"
+		self.event_generate("<<Status>>",data="Toggled Visibility of selected objects")
 
 	# ----------------------------------------------------------------------
 	# Select items in the form of (block, item)

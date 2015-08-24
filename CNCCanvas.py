@@ -12,6 +12,8 @@ except ImportError:
 	from tkinter import *
 
 from CNC import CNC
+import tkExtra
+import Utils
 
 VIEW_XY      = 0
 VIEW_XZ      = 1
@@ -229,27 +231,27 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.app.statusbar["text"] = "Select objects with mouse"
+		self.event_generate("<<Status>>",data="Select objects with mouse")
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
 		self.setAction(ACTION_ORIGIN)
-		self.app.statusbar["text"] = "Click to set the origin (zero)"
+		self.event_generate("<<Status>>",data="Click to set the origin (zero)")
 
 	# ----------------------------------------------------------------------
 	def setActionMove(self, event=None):
 		self.setAction(ACTION_MOVE)
-		self.app.statusbar["text"] = "Move graphically objects"
+		self.event_generate("<<Status>>",data="Move graphically objects")
 
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
-		self.app.statusbar["text"] = "Move CNC gantry to mouse location"
+		self.event_generate("<<Status>>",data="Move CNC gantry to mouse location")
 
 	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
-		self.app.statusbar["text"] = "Drag a ruler to measure distances"
+		self.event_generate("<<Status>>",data="Drag a ruler to measure distances")
 
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
@@ -381,10 +383,10 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.app.statusbar["text"] = \
-				"dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
+			self.event_generate("<<Status>>",
+				data="dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
-					math.degrees(math.atan2(dy,dx)))
+					math.degrees(math.atan2(dy,dx))))
 
 		self.setStatus(event)
 
@@ -445,7 +447,7 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.app.statusbar["text"] = "Move by %g, %g, %g"%(dx,dy,dz)
+			self.event_generate("<<Status>>", data="Move by %g, %g, %g"%(dx,dy,dz))
 			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
 
 	# ----------------------------------------------------------------------
@@ -455,8 +457,8 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
-		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
-		self.app.canvasbar["text"] = "X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
+		data="%.4f %.4f %.4f" % self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		self.event_generate("<<Coords>>", data=data)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
@@ -1036,3 +1038,236 @@ class CNCCanvas(Canvas):
 			z = 0
 
 		return x,y,z
+
+#==============================================================================
+# Canvas Frame with toolbar
+#==============================================================================
+class CanvasFrame(Frame):
+	def __init__(self, master, app, *kw, **kwargs):
+		Frame.__init__(self, master, *kw, **kwargs)
+		self.app = app
+
+		self.draw_axes   = BooleanVar()
+		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
+		self.draw_grid   = BooleanVar()
+		self.draw_grid.set(bool(int(Utils.config.get("Canvas","grid"))))
+		self.draw_margin = BooleanVar()
+		self.draw_margin.set(bool(int(Utils.config.get("Canvas","margin"))))
+		self.draw_probe  = BooleanVar()
+		self.draw_probe.set(bool(int(Utils.config.get("Canvas","probe"))))
+		self.draw_paths  = BooleanVar()
+		self.draw_paths.set(bool(int(Utils.config.get("Canvas","paths"))))
+		self.draw_rapid  = BooleanVar()
+		self.draw_rapid.set(bool(int(Utils.config.get("Canvas","rapid"))))
+		self.draw_workarea = BooleanVar()
+		self.draw_workarea.set(bool(int(Utils.config.get("Canvas","workarea"))))
+
+		self.view  = StringVar()
+		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
+		self.view.trace('w', self.viewChange)
+
+		toolbar = Frame(self, relief=RAISED)
+		toolbar.grid(row=0, column=0, columnspan=2, sticky=EW)
+
+		self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
+		self.canvas.grid(row=1, column=0, sticky=NSEW)
+		sb = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
+		sb.grid(row=1, column=1, sticky=NS)
+		self.canvas.config(yscrollcommand=sb.set)
+		sb = Scrollbar(self, orient=HORIZONTAL, command=self.canvas.xview)
+		sb.grid(row=2, column=0, sticky=EW)
+		self.canvas.config(xscrollcommand=sb.set)
+
+		self.createCanvasToolbar(toolbar)
+
+		self.grid_rowconfigure(1, weight=1)
+		self.grid_columnconfigure(0, weight=1)
+
+	#----------------------------------------------------------------------
+	def addWidget(self, widget):
+		self.app.widgets.append(widget)
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setStr( "Canvas","view",    self.view.get())
+		Utils.setBool("Canvas","axes",    self.draw_axes.get())
+		Utils.setBool("Canvas","grid",    self.draw_grid.get())
+		Utils.setBool("Canvas","margin",  self.draw_margin.get())
+		Utils.setBool("Canvas","probe",   self.draw_probe.get())
+		Utils.setBool("Canvas","paths",   self.draw_paths.get())
+		Utils.setBool("Canvas","rapid",   self.draw_rapid.get())
+		Utils.setBool("Canvas","workarea",self.draw_workarea.get())
+
+	#----------------------------------------------------------------------
+	# Canvas toolbar FIXME XXX should be moved to CNCCanvas
+	#----------------------------------------------------------------------
+	def createCanvasToolbar(self, toolbar):
+		b = OptionMenu(toolbar, self.view, *VIEWS)
+		b.config(padx=0, pady=1)
+		b.pack(side=LEFT)
+		tkExtra.Balloon.set(b, "Change viewing angle")
+
+		b = Button(toolbar, image=Utils.icons["zoom_in"],
+				command=self.canvas.menuZoomIn)
+		tkExtra.Balloon.set(b, "Zoom In [Ctrl-=]")
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_out"],
+				command=self.canvas.menuZoomOut)
+		tkExtra.Balloon.set(b, "Zoom Out [Ctrl--]")
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_on"],
+				command=self.canvas.fit2Screen)
+		tkExtra.Balloon.set(b, "Fit to screen [F]")
+		b.pack(side=LEFT)
+
+
+		Label(toolbar, text="Tool:", image=Utils.icons["sep"], compound=LEFT).pack(side=LEFT, padx=2)
+		# -----
+		# Tools
+		# -----
+		b = Radiobutton(toolbar, image=Utils.icons["select"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_SELECT,
+					command=self.canvas.setActionSelect)
+		tkExtra.Balloon.set(b, "Select tool [S]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["pan"],	# FIXME replace with move
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_MOVE,
+					command=self.canvas.setActionMove)
+		tkExtra.Balloon.set(b, "Move objects [M]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_GANTRY,
+					command=self.canvas.setActionGantry)
+		tkExtra.Balloon.set(b, "Move gantry [G]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["origin"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_ORIGIN,
+					command=self.canvas.setActionOrigin)
+		tkExtra.Balloon.set(b, "Place origin [O]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["ruler"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_RULER,
+					command=self.canvas.setActionRuler)
+		tkExtra.Balloon.set(b, "Ruler [R]")
+		b.pack(side=LEFT)
+
+		# -----------
+		# Draw flags
+		# -----------
+		Label(toolbar, text="Draw:", image=Utils.icons["sep"], compound=LEFT).pack(side=LEFT, padx=2)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["axes"],
+				indicatoron=False,
+				variable=self.draw_axes,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of axes")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["grid"],
+				indicatoron=False,
+				variable=self.draw_grid,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of grid lines")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["margins"],
+				indicatoron=False,
+				variable=self.draw_margin,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of margins")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				text="P",
+				image=Utils.icons["measure"],
+				indicatoron=False,
+				variable=self.draw_probe,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of probe")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["endmill"],
+				indicatoron=False,
+				variable=self.draw_paths,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of paths (G1,G2,G3)")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["rapid"],
+				indicatoron=False,
+				variable=self.draw_rapid,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of rapid motion (G0)")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["workspace"],
+				indicatoron=False,
+				variable=self.draw_workarea,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of workarea")
+		b.pack(side=LEFT)
+
+	#----------------------------------------------------------------------
+	def viewChange(self, a=None, b=None, c=None):
+		self.event_generate("<<ViewChange>>")
+
+	# ----------------------------------------------------------------------
+	def viewXY(self, event=None):
+		self.view.set(VIEWS[VIEW_XY])
+
+	# ----------------------------------------------------------------------
+	def viewXZ(self, event=None):
+		self.view.set(VIEWS[VIEW_XZ])
+
+	# ----------------------------------------------------------------------
+	def viewYZ(self, event=None):
+		self.view.set(VIEWS[VIEW_YZ])
+
+	# ----------------------------------------------------------------------
+	def viewISO1(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO1])
+
+	# ----------------------------------------------------------------------
+	def viewISO2(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO2])
+
+	# ----------------------------------------------------------------------
+	def viewISO3(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO3])
+
+	#----------------------------------------------------------------------
+	def toggleDrawFlag(self):
+		self.canvas.draw_axes     = self.draw_axes.get()
+		self.canvas.draw_grid     = self.draw_grid.get()
+		self.canvas.draw_margin   = self.draw_margin.get()
+		self.canvas.draw_probe    = self.draw_probe.get()
+		self.canvas.draw_paths    = self.draw_paths.get()
+		self.canvas.draw_rapid    = self.draw_rapid.get()
+		self.canvas.draw_workarea = self.draw_workarea.get()
+		self.event_generate("<<ViewChange>>")

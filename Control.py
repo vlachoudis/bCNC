@@ -13,6 +13,7 @@ __email__   = "vvlachoudis@gmail.com"
 import os
 import re
 import sys
+import rexx
 import time
 import serial
 import threading
@@ -31,7 +32,7 @@ G_POLL        = 10	# s
 RX_BUFFER_SIZE = 128
 
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
-STATUSPAT= re.compile(r"^<(.*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)>$")
+STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 
@@ -55,8 +56,7 @@ class Control:
 		self._historyPos = None
 		CNC.loadConfig(Utils.config)
 		self.gcode = GCode()
-		self.cnc   = self.gcode.cnc
-		self.gstate = {}	# $G state results widget dictionary
+		self.cnc  = self.gcode.cnc
 		self.wait = False	# wait for commands to complete
 
 		self.log         = Queue()	# Log queue returned from GRBL
@@ -69,8 +69,8 @@ class Control:
 		self._wcsUpdate  = False
 		self._probeUpdate= False
 		self._gUpdate    = False
-
 		self.running     = False
+		self._stop       = False	# Raise to stop current run
 		self._runLines   = 0
 		self._pause      = False
 		self._alarm      = True
@@ -157,8 +157,7 @@ class Control:
 
 		# LO*AD [filename]: load filename containing g-code
 		elif rexx.abbrev("LOAD",cmd,2):
-			if len(line)>1:
-				self.load(line[1])
+			self.load(line[1])
 
 		# OPEN: open serial connection to grbl
 		# CLOSE: close serial connection to grbl
@@ -211,36 +210,65 @@ class Control:
 			return "unknown command","Invalid command %s"%(oline)
 
 	#----------------------------------------------------------------------
-	# Load a file into editor
-	#----------------------------------------------------------------------
-#	def load(self, filename):
-#		fn,ext = os.path.splitext(filename)
-#		if ext==".probe":
-#			self.loadProbe(filename)
-#		elif ext==".dxf":
-#			self.gcode.init()
-#			if self.gcode.importDXF(filename):
-#				self.gcodelist.fill()
-#				self.draw()
-#				self.statusbar["text"] = "DXF imported from "+filename
-#		else:
-#			self.loadGcode(filename)
-#
-#	#----------------------------------------------------------------------
-#	def save(self, filename):
-#		global config
-#		fn,ext = os.path.splitext(filename)
-#		if ext == ".probe":
-#			self.gcode.probe.save(filename)
-#		elif ext == ".dxf":
-#			if self.gcode.saveDXF(filename):
-#				self.statusbar["text"] = "DXF exported to "+filename
-#		else:
-#			self.saveGcode(filename)
+	def loadRecent(self, recent):
+		filename = Utils.getRecent(recent)
+		if filename is None: return
+		self.load(filename)
 
 	#----------------------------------------------------------------------
-	def reload(self, event=None):
-		self.loadGcode(self.gcode.filename)
+	def _loadRecent0(self,event): self.loadRecent(0)
+	def _loadRecent1(self,event): self.loadRecent(1)
+	def _loadRecent2(self,event): self.loadRecent(2)
+	def _loadRecent3(self,event): self.loadRecent(3)
+	def _loadRecent4(self,event): self.loadRecent(4)
+	def _loadRecent5(self,event): self.loadRecent(5)
+	def _loadRecent6(self,event): self.loadRecent(6)
+	def _loadRecent7(self,event): self.loadRecent(7)
+	def _loadRecent8(self,event): self.loadRecent(8)
+	def _loadRecent9(self,event): self.loadRecent(9)
+
+	#----------------------------------------------------------------------
+	def _saveConfigFile(self):
+		Utils.setStr("File", "dir",   os.path.dirname(os.path.abspath(self.gcode.filename)))
+		Utils.setStr("File", "file",  os.path.basename(self.gcode.filename))
+		Utils.setStr("File", "probe", os.path.basename(self.gcode.probe.filename))
+
+	#----------------------------------------------------------------------
+	# Load a file into editor
+	#----------------------------------------------------------------------
+	def load(self, filename):
+		fn,ext = os.path.splitext(filename)
+		if ext==".probe":
+			if filename is not None:
+				self.gcode.probe.filename = filename
+				self._saveConfigFile()
+			self.gcode.probe.load(filename)
+		elif ext==".dxf":
+			self.gcode.init()
+			self.gcode.importDXF(filename)
+			self._saveConfigFile()
+		else:
+			self.gcode.load(filename)
+			self._saveConfigFile()
+		Utils.addRecent(filename)
+
+	#----------------------------------------------------------------------
+	def save(self, filename):
+		fn,ext = os.path.splitext(filename)
+		if ext == ".probe":
+			# save probe
+			if filename is not None:
+				self.gcode.probe.filename = filename
+				self._saveConfigFile()
+			if not self.gcode.probe.isEmpty():
+				self.gcode.probe.save()
+		elif ext == ".dxf":
+			return self.gcode.saveDXF(filename)
+		else:
+			if filename is not None:
+				self.gcode.filename = filename
+				self._saveConfigFile()
+			return self.gcode.save()
 
 	#----------------------------------------------------------------------
 	def saveAll(self, event=None):
@@ -251,37 +279,34 @@ class Control:
 			self.saveDialog()
 
 	#----------------------------------------------------------------------
-	def saveProbe(self, filename=None):
-		if filename is not None:
-			Utils.config.set("File", "probe", os.path.basename(filename))
-			self.gcode.probe.filename = filename
-
-		# save probe
-		if not self.gcode.probe.isEmpty():
-			self.gcode.probe.save()
-
-#	#----------------------------------------------------------------------
-#	def open(self, device, baudrate):
-#		try:
-#			self.serial = serial.Serial(device,baudrate,timeout=0.1)
-#			time.sleep(1)
-#			CNC.vars["state"] = "Connected"
-#			CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-#			self.state.config(text=CNC.vars["state"],
-#					background=CNC.vars["color"])
-#			self.serial.write("\r\n\r\n")
-#			self._gcount = 0
-#			self._alarm  = True
-#			self.thread  = threading.Thread(target=self.serialIO)
-#			self.thread.start()
-#			return True
-#		except:
-#			self.serial = None
-#			self.thread = None
-#			tkMessageBox.showerror("Error opening serial",
-#					sys.exc_info()[1],
-#					parent=self)
-#		return False
+	# Open serial port
+	#----------------------------------------------------------------------
+	def open(self, device, baudrate):
+		self.serial = serial.Serial(	device,
+						baudrate,
+						bytesize=serial.EIGHTBITS,
+						parity=serial.PARITY_NONE,
+						stopbits=serial.STOPBITS_ONE,
+						timeout=0.1,
+						xonxoff=False,
+						rtscts=False)
+		# Toggle DTR to reset Arduino
+		self.serial.setDTR(0)
+		time.sleep(1)
+		CNC.vars["state"] = "Connected"
+		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
+		#self.state.config(text=CNC.vars["state"],
+		#		background=CNC.vars["color"])
+		# toss any data already received, see
+		# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
+		self.serial.flushInput()
+		self.serial.setDTR(1)
+		self.serial.write("\r\n\r\n")
+		self._gcount = 0
+		self._alarm  = True
+		self.thread  = threading.Thread(target=self.serialIO)
+		self.thread.start()
+		return True
 
 #	#----------------------------------------------------------------------
 #	def close(self):
@@ -307,6 +332,10 @@ class Control:
 	# Send to grbl
 	#----------------------------------------------------------------------
 	def sendGrbl(self, cmd):
+		print
+		print ">>>",cmd
+		import traceback
+		traceback.print_stack()
 		if self.serial and not self.running:
 			self.queue.put(cmd)
 
@@ -523,20 +552,19 @@ class Control:
 	#----------------------------------------------------------------------
 	def stopRun(self):
 		self.feedHold()
-		time.sleep(1);
+		self._stop = True
+		time.sleep(1)
 		self.softReset()
-		self.emptyQueue()
-		self._runLines = 0
-		self._quit     = 0
-		self._pause    = False
-		self.enable()
+		time.sleep(1)
+		self.unlock()
+		self.runEnded()
+
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
 		from CNC import WAIT
-
 		cline = []
 		tosend = None
 		self.wait = False
@@ -548,7 +576,7 @@ class Control:
 				self.serial.write("?")
 				tr = t
 
-			if tosend is None and not self.wait and self.queue.qsize()>0:
+			if tosend is None and not self.wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					if isinstance(tosend, int):
@@ -637,7 +665,12 @@ class Control:
 								self._posUpdate = True
 							self._alarm = True
 							CNC.vars["state"] = line
-							if self.running: self.stopRun()
+							if self.running:
+								self.emptyQueue()
+								# Dangerous calling state of Tk if not reentrant
+								self.runEnded()
+								tosend = None
+								del cline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
@@ -647,6 +680,12 @@ class Control:
 							# buffer is empty go one
 							self._gcount += 1
 							self.wait = False
+			# Message came to stop
+			if self._stop:
+				self.emptyQueue()
+				tosend = None
+				del cline[:]
+				self._stop = False
 
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
 #				if isinstance(tosend, list):

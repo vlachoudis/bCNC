@@ -14,13 +14,16 @@ import traceback
 from log import say
 try:
 	from Tkinter import *
-	import ConfigParser
+	import tkFont
 	import tkMessageBox
+	import ConfigParser
 except ImportError:
 	from tkinter import *
-	import configparser as ConfigParser
+	import tkinter.font as tkFont
 	import tkinter.messagebox as tkMessageBox
+	import configparser as ConfigParser
 
+import Ribbon
 import tkExtra
 
 __prg__     = "bCNC"
@@ -33,7 +36,10 @@ icons     = {}
 config    = ConfigParser.ConfigParser()
 
 _errorReport = True
-errors    = []
+errors       = []
+_maxRecent   = 10
+
+_FONT_SECTION = "Font"
 
 #-----------------------------------------------------------------------------
 def loadIcons():
@@ -75,6 +81,7 @@ def saveConfiguration():
 	f = open(iniUser,"w")
 	config.write(f)
 	f.close()
+	delIcons()
 
 #----------------------------------------------------------------------
 # Remove items that are the same as in the default ini
@@ -114,6 +121,95 @@ def getFloat(section, name, default):
 	global config
 	try: return float(config.get(section, name))
 	except: return default
+
+#------------------------------------------------------------------------------
+def getBool(section, name, default=False):
+	global config
+	try: return bool(int(config.get(section, name)))
+	except: return default
+
+#-------------------------------------------------------------------------------
+def getFont(name, default):
+	global config
+	try:
+		font = config.get(_FONT_SECTION, name)
+	except:
+		try:
+			font = tkFont.Font(name=name, font=default, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=default)
+			font.delete_font = False
+		except AttributeError:
+			return default
+		setFont(name, font)
+
+	if isinstance(font, str):
+		font = tuple(font.split(','))
+
+	if isinstance(font, tuple):
+		try:
+			return tkFont.Font(name=name, font=font, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=font)
+			font.delete_font = False
+		except AttributeError:
+			return default
+	return font
+
+#-------------------------------------------------------------------------------
+def setFont(name, font):
+	global config
+	if isinstance(font,str):
+		config.set(_FONT_SECTION, name, font)
+	elif isinstance(font,tuple):
+		config.set(_FONT_SECTION, name, ",".join(map(str,font)))
+	else:
+		config.set(_FONT_SECTION, name, "%s,%s,%s" % \
+			(font.cget("family"),font.cget("size"),font.cget("weight")))
+
+#------------------------------------------------------------------------------
+def setBool(section, name, value):
+	global config
+	config.set(section, name, str(int(value)))
+
+#------------------------------------------------------------------------------
+def setStr(section, name, value):
+	global config
+	config.set(section, name, str(value))
+
+setInt   = setStr
+setFloat = setStr
+
+#-------------------------------------------------------------------------------
+# Add Recent
+#-------------------------------------------------------------------------------
+def addRecent(filename):
+	try:
+		sfn = str(filename)
+	except UnicodeEncodeError:
+		sfn = filename.encode("utf-8")
+
+	for i in range(_maxRecent):
+		rfn = getRecent(i)
+		if rfn is None:
+			last = i-1
+			break
+		if rfn == sfn:
+			if i==0: return
+			last = i-1
+			break
+
+	# Shift everything by one
+	for i in range(last, -1, -1):
+		config.set(__prg__, "recent.%d"%(i+1), getRecent(i))
+	config.set(__prg__, "recent.0", sfn)
+
+#-------------------------------------------------------------------------------
+def getRecent(recent):
+	try:
+		return config.get(__prg__,"recent.%d"%(recent))
+	except ConfigParser.NoOptionError:
+		return None
 
 #------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
@@ -190,8 +286,8 @@ class ReportDialog(Toplevel):
 		ReportDialog._shown = True
 
 		Toplevel.__init__(self, master)
+		if master is not None: self.transient(master)
 		self.title("%s Error Reporting"%(__name__))
-		#self.transient(master)
 
 		# Label Frame
 		frame = LabelFrame(self, text="Report")
@@ -333,11 +429,15 @@ class ReportDialog(Toplevel):
 #===============================================================================
 # User Button
 #===============================================================================
-class UserButton(Button):
+class UserButton(Ribbon.LabelButton):
 	TOOLTIP  = "User configurable button.\n<RightClick> to configure"
 
 	def __init__(self, master, cnc, button, *args, **kwargs):
-		Button.__init__(self, master, *args, **kwargs)
+		if button == 0:
+			Button.__init__(self, master, *args, **kwargs)
+		else:
+			Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
+			self["width"] = 60
 		self.cnc = cnc
 		self.button = button
 		self.get()
@@ -352,7 +452,9 @@ class UserButton(Button):
 		if self.button == 0: return
 		name = self.name()
 		self["text"] = name
-		self["image"] = icons.get(self.icon(),"")
+		#if icon == "":
+		#	icon = icons.get("empty","")
+		self["image"] = icons.get(self.icon(),icons["material"])
 		self["compound"] = LEFT
 		tooltip = self.tooltip()
 		if not tooltip: tooltip = UserButton.TOOLTIP

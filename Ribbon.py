@@ -44,6 +44,7 @@ _LABEL_SELECT_COLOR = "#C0FFC0"
 class LabelGroup(Frame):
 	def __init__(self, master, name, command=None, **kw):
 		Frame.__init__(self, master, **kw)
+		self.name = name
 		self.config(	#bg="Green",
 				background=_BACKGROUND,
 				borderwidth=0,
@@ -63,8 +64,8 @@ class LabelGroup(Frame):
 		self.frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=0, pady=0)
 
 		if command:
-			self.name = LabelButton(self, self, "<<%s>>"%(name), text=name)
-			self.name.config(command=command,
+			self.label = LabelButton(self, self, "<<%s>>"%(name), text=name)
+			self.label.config(command=command,
 				image=Utils.icons["triangle_down"],
 				foreground=_FOREGROUND_GROUP,
 				background=_BACKGROUND_GROUP,
@@ -73,13 +74,23 @@ class LabelGroup(Frame):
 				pady=0,
 				compound=RIGHT)
 		else:
-			self.name = Label(self, text=name,
+			self.label = Label(self, text=name,
 					font       = _FONT,
 					foreground = _FOREGROUND_GROUP,
 					background = _BACKGROUND_GROUP,
 					padx=2,
 					pady=0)	# Button takes 1px for border width
-		self.name.pack(side=BOTTOM, fill=X, pady=0)
+		self.label.pack(side=BOTTOM, fill=X, pady=0)
+
+	#-----------------------------------------------------------------------
+	def grid2rows(self):
+		self.frame.grid_rowconfigure(0, weight=1)
+		self.frame.grid_rowconfigure(1, weight=1)
+
+	#-----------------------------------------------------------------------
+	def grid3rows(self):
+		self.grid2rows()
+		self.frame.grid_rowconfigure(2, weight=1)
 
 #===============================================================================
 class _KeyboardFocus:
@@ -299,12 +310,12 @@ class Page:		# <--- should be possible to be a toplevel as well
 	_doc_  = "Tooltip"
 
 	def __init__(self, master, **kw):
-		self.master    = master
-		self.name      = self._name_
-		self._icon     = Utils.icons[self._icon_]
-		self._tab      = None	# Tab button
-		self.ribbon    = None	# Ribbon frame
-		self.page      = None	# Page frame
+		self.master = master
+		self.name   = self._name_
+		self._icon  = Utils.icons[self._icon_]
+		self._tab   = None	# Tab button
+		self.ribbons = []
+		self.frames  = []
 		self.init()
 		self.create()
 
@@ -317,23 +328,19 @@ class Page:		# <--- should be possible to be a toplevel as well
 	#----------------------------------------------------------------------
 	# The tab page can change master if undocked
 	#----------------------------------------------------------------------
+	# FIXME XXX SHOULD BE REMOVED
+	#----------------------------------------------------------------------
 	def create(self):
 		self.createPage()
-		self.createRibbon()
-#		self.createStatus()
-#		self.createContextGroups()
 #		self.ribbonBindMotion()
-		self.refresh()
+#		self.refresh()
 
+	#----------------------------------------------------------------------
+	# FIXME XXX SHOULD BE REMOVED
 	#----------------------------------------------------------------------
 	def createPage(self):
 		self.page = Frame(self.master._pageFrame)
 		return self.page
-
-	#----------------------------------------------------------------------
-	def createRibbon(self):
-		self.ribbon = Frame(self.master, pady=0, background=_BACKGROUND)
-		return self.ribbon
 
 	#----------------------------------------------------------------------
 	# Called when a page is activated
@@ -464,10 +471,16 @@ class TabRibbonFrame(Frame):
 		frame.pack(side=TOP, fill=X)
 
 		# --- Basic buttons ---
+		b = LabelButton(frame, self, "<<Open>>",
+				image=Utils.icons["load"],
+				background=_BACKGROUND_DISABLE)
+		tkExtra.Balloon.set(b, "Open file [Ctrl-O]")
+		b.pack(side=LEFT)
+
 		b = LabelButton(frame, self, "<<Save>>",
 				image=Utils.icons["save"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Save project [Ctrl-S]")
+		tkExtra.Balloon.set(b, "Save all [Ctrl-S]")
 		b.pack(side=LEFT)
 
 		b = LabelButton(frame, self, "<<Undo>>",
@@ -519,7 +532,7 @@ class TabRibbonFrame(Frame):
 						#bg="Yellow",
 						background=_BACKGROUND,
 						relief=RAISED)
-		self._ribbonFrame.pack(side=LEFT, fill=BOTH, padx=0, pady=0)
+		self._ribbonFrame.pack(side=LEFT, fill=BOTH, expand=YES, padx=0, pady=0)
 
 		# ==== RibbonRight Frame ====
 		self._ribbonRight = Frame(self._allRibbons, background=_BACKGROUND, pady=0)
@@ -582,7 +595,7 @@ class TabRibbonFrame(Frame):
 	#----------------------------------------------------------------------
 	# Add page to the tabs
 	#----------------------------------------------------------------------
-	def addPage(self, page):
+	def addPage(self, page, side=LEFT):
 		self.pages[page.name] = page
 		page._tab = TabButton(self._tabFrame,
 				image    = page._icon,
@@ -593,7 +606,7 @@ class TabRibbonFrame(Frame):
 				command  = self.changePage)
 		tkExtra.Balloon.set(page._tab, page.__doc__)
 
-		page._tab.pack(side=LEFT, fill=Y, padx=5)
+		page._tab.pack(side=side, fill=Y, padx=5)
 
 	# ----------------------------------------------------------------------
 	# Change ribbon and page
@@ -618,15 +631,20 @@ class TabRibbonFrame(Frame):
 		if page is self.oldActive: return
 
 		if self.oldActive:
-			self.oldActive.ribbon.pack_forget()
-			if self.oldActive.page: self.oldActive.page.pack_forget()
+			for frame,args in self.oldActive.ribbons:
+				frame.pack_forget()
+			for frame,args in self.oldActive.frames:
+				frame.pack_forget()
 
-		page.ribbon.pack(in_=self._ribbonFrame, fill=BOTH, expand=YES)
-		if page.page:
-			page.page.pack(fill=BOTH, expand=YES)
+		for frame,args in page.ribbons:
+			frame.pack(in_=self._ribbonFrame, **args)
+
+		for frame,args in page.frames:
+			frame.pack(in_=self._pageFrame, **args)
+
 		self.oldActive = page
 		page.activate()
-		self.event_generate("<<ChangePage>>") #, data=pageName)
+		self.event_generate("<<ChangePage>>", data=page.name)
 
 #	#----------------------------------------------------------------------
 #	# Mouse is clicked => hide ribbon if temporary is active

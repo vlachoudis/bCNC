@@ -31,6 +31,8 @@ port = 8080
 
 httpd = None
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
+webpath = "%s/pendant"%(prgpath)
+iconpath = "%s/icon/"%(prgpath)
 
 #==============================================================================
 # Simple Pendant controller for CNC
@@ -88,11 +90,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			if arg is None: return
 			self.do_HEAD(200, "image/gif")
 
-			filename = os.path.join(
-					os.path.abspath(
-						os.path.dirname(sys.argv[0])),
-					"icons",
-					arg["name"]+".gif")
+			filename = os.path.join(iconpath, arg["name"]+".gif")
 			try:
 				f = open(filename,"rb")
 				self.wfile.write(f.read())
@@ -104,7 +102,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):
-		global prgpath
+		global webpath
 
 		#handle certain filetypes
 		filetype = page.rpartition('.')[2]
@@ -114,7 +112,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		if page == "": page = "index.html"
 		try:
-			f = open(os.path.join(prgpath,page),"r")
+			f = open(os.path.join(webpath,page),"r")
 			self.wfile.write(f.read())
 			f.close()
 		except IOError:

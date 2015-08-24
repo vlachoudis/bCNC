@@ -31,6 +31,10 @@ SKIP = 1
 ASK  = 2
 WAIT = 9
 
+XY   = 0
+XZ   = 1
+YZ   = 2
+
 ERROR_HANDLING = {}
 
 #------------------------------------------------------------------------------
@@ -159,13 +163,17 @@ class Probe:
 	def scan(self):
 		lines = []
 		self.makeMatrix()
+		x = self.xmin
+		xstep = self._xstep
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
-				x = self.xmin + self._xstep*i
 				lines.append("G0Z%.4f\n"%(self.zmax))
 				lines.append("G0X%.4fY%.4f\n"%(x,y))
 				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
+				x += xstep
+			x -= xstep
+			xstep = -xstep
 		lines.append("G0Z%.4f\n"%(self.zmax))
 		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
 		return lines
@@ -427,6 +435,7 @@ class CNC:
 		self.absolute    = True
 		self.arcabsolute = False
 		self.gcode       = None
+		self.plane       = XY
 		self.feed        = 0
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
@@ -475,8 +484,9 @@ class CNC:
 		return line.split()
 
 	# -----------------------------------------------------------------------------
-	# @return line in broken a list of commands, None if empty or comment
-	#         compile expressions
+	# @return line in broken a list of commands,
+	#         None if empty or comment
+	#         else compiled expressions
 	#----------------------------------------------------------------------
 	@staticmethod
 	def parseLine2(line, space=False):
@@ -555,7 +565,7 @@ class CNC:
 			elif ch=='=':
 				# check for assignments (FIXME very bad)
 				if not out and braket==0 and paren==0:
-					for i in " ()-+*/^":
+					for i in " ()-+*/^$":
 						if i in cmd:
 							cmd += ch
 							break
@@ -662,7 +672,16 @@ class CNC:
 				decimal = int(round((value - self.gcode)*10))
 
 				# Execute immediately
-				if self.gcode==20:	# Switch to inches
+				if self.gcode==17:
+					self.plane = XY
+
+				elif self.gcode==18:
+					self.plane = XZ
+
+				elif self.gcode==19:
+					self.plane = YZ
+
+				elif self.gcode==20:	# Switch to inches
 					if CNC.inch:
 						self.unit = 1.0
 					else:
@@ -695,29 +714,54 @@ class CNC:
 	#----------------------------------------------------------------------
 	def motionCenter(self):
 		if self.rval>0.0:
-			ABx = self.xval-self.x
-			ABy = self.yval-self.y
-			Cx  = 0.5*(self.x+self.xval)
-			Cy  = 0.5*(self.y+self.yval)
+			if self.plane == XY:
+				x  = self.x
+				y  = self.y
+				xv = self.xval
+				yv = self.yval
+			elif self.plane == XZ:
+				x  = self.x
+				y  = self.z
+				xv = self.xval
+				yv = self.zval
+			else:
+				x  = self.y
+				y  = self.z
+				xv = self.yval
+				yv = self.zval
+
+			ABx = xv-x
+			ABy = yv-y
+			Cx  = 0.5*(x+xv)
+			Cy  = 0.5*(y+yv)
 			AB  = math.sqrt(ABx**2 + ABy**2)
 			try: OC  = math.sqrt(self.rval**2 - AB**2/4.0)
 			except: OC = 0.0
 			if self.gcode==2: OC = -OC
 			if AB != 0.0:
-				xc  = Cx - OC*ABy/AB
-				yc  = Cy + OC*ABx/AB
+				return Cx-OC*ABy/AB, Cy + OC*ABx/AB
 			else:
 				# Error!!!
-				xc = self.x
-				yc = self.y
-			zc  = self.z
+				return x,y
 		else:
 			# Center
 			xc = self.x + self.ival
 			yc = self.y + self.jval
 			zc = self.z + self.kval
 			self.rval = math.sqrt(self.ival**2 + self.jval**2 + self.kval**2)
-		return xc,yc,zc
+
+			if self.plane == XY:
+				return xc,yc
+			elif self.plane == XZ:
+				return xc,zc
+			else:
+				return yc,zc
+
+		# Error checking
+		#err = abs(self.rval - math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2))
+		#if err/self.rval>0.001:
+		#	print "Error invalid arc", self.xval, self.yval, self.zval, err
+		#return xc,yc,zc
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
@@ -735,9 +779,30 @@ class CNC:
 
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
-			xc,yc,zc = self.motionCenter()
-			phi  = math.atan2(self.y-yc, self.x-xc)
-			ephi = math.atan2(self.yval-yc, self.xval-xc)
+			uc,vc = self.motionCenter()
+			if self.plane == XY:
+				u0 = self.x
+				v0 = self.y
+				w0 = self.z
+				u1 = self.xval
+				v1 = self.yval
+				w1 = self.zval
+			elif self.plane == XZ:
+				u0 = self.x
+				v0 = self.z
+				w0 = self.y
+				u1 = self.xval
+				v1 = self.zval
+				w1 = self.yval
+			else:
+				u0 = self.y
+				v0 = self.z
+				w0 = self.x
+				u1 = self.yval
+				v1 = self.zval
+				w1 = self.xval
+			phi0 = math.atan2(v0-vc, u0-uc)
+			phi1 = math.atan2(v1-vc, u1-uc)
 			try:
 				sagitta = 1.0-CNC.accuracy/self.rval
 			except ZeroDivisionError:
@@ -749,21 +814,35 @@ class CNC:
 				df = math.pi/4.0
 
 			if self.gcode==2:
-				if ephi>=phi-1e-10: ephi -= 2.0*math.pi
-				phi -= df
-				while phi>ephi:
-					self.x = xc + self.rval*math.cos(phi)
-					self.y = yc + self.rval*math.sin(phi)
+				if phi1>=phi0-1e-10: phi1 -= 2.0*math.pi
+				ws  = (w1-w0)/(phi1-phi0)
+				phi = phi0 - df
+				while phi>phi1:
+					u = uc + self.rval*math.cos(phi)
+					v = vc + self.rval*math.sin(phi)
+					w = w0 + (phi-phi0)*ws
 					phi -= df
-					xyz.append((self.x,self.y,self.z))
+					if self.plane == XY:
+						xyz.append((u,v,w))
+					elif self.plane == XZ:
+						xyz.append((u,w,v))
+					else:
+						xyz.append((w,u,v))
 			else:
-				if ephi<=phi+1e-10: ephi += 2.0*math.pi
-				phi += df
-				while phi<ephi:
-					self.x = xc + self.rval*math.cos(phi)
-					self.y = yc + self.rval*math.sin(phi)
+				if phi1<=phi0+1e-10: phi1 += 2.0*math.pi
+				ws  = (w1-w0)/(phi1-phi0)
+				phi = phi0 + df
+				while phi<phi1:
+					u = uc + self.rval*math.cos(phi)
+					v = vc + self.rval*math.sin(phi)
+					w = w0 + (phi-phi0)*ws
 					phi += df
-					xyz.append((self.x,self.y,self.z))
+					if self.plane == XY:
+						xyz.append((u,v,w))
+					elif self.plane == XZ:
+						xyz.append((u,w,v))
+					else:
+						xyz.append((w,u,v))
 
 			xyz.append((self.xval,self.yval,self.zval))
 
@@ -952,6 +1031,7 @@ class GCode:
 		self.vars.clear()
 		self.undoredo.reset()
 		self.probe.init()
+
 		self._lastModified = 0
 		self._modified = False
 
@@ -1039,6 +1119,8 @@ class GCode:
 			dxf = DXF(filename,"r")
 		except:
 			return False
+		name,ext = os.path.splitext(filename)
+		self.filename = "%s.ngc"%(name)
 
 		dxf.readFile()
 		dxf.close()
@@ -1051,20 +1133,21 @@ class GCode:
 			enable = not bool(layer.isFrozen())
 			entities = dxf.sortLayer(name)
 			if not entities: continue
-			self.importEntityPoint(None, entities, name, enable)
+			self.importEntityPoints(None, entities, name, enable)
 			path = Path(name)
 			path.fromDxfLayer(entities)
 			path.removeZeroLength()
-			opath = path.contours()
+			opath = path.split2contours()
 			if not opath: continue
-			changed = True
-			while changed:
-				longest = opath[0]
-				for p in opath:
-					if longest.length() > p.length():
-						longest = p
-				opath.remove(longest)
-				changed = longest.mergeLoops(opath)
+			while opath:
+				li = 0
+				llen = 0.0
+				for i,p in enumerate(opath):
+					if p.length()>llen:
+						li = i
+						llen = p.length()
+				longest = opath.pop(li)
+				longest.mergeLoops(opath)
 
 				undoinfo.extend(self.importPath(None, longest, enable))
 #				d = longest.direction()
@@ -1111,7 +1194,7 @@ class GCode:
 				if self.cnc.gcode == 1:	# line
 					dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
 				elif self.cnc.gcode in (2,3):	# arc
-					xc,yc,zc = self.cnc.motionCenter()
+					xc,yc = self.cnc.motionCenter()
 					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
 					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
 					if self.cnc.gcode==2:
@@ -1128,7 +1211,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Import POINTS from entities
 	#----------------------------------------------------------------------
-	def importEntityPoint(self, pos, entities, name, enable=True):
+	def importEntityPoints(self, pos, entities, name, enable=True):
 		undoinfo = []
 		i = 0
 		while i<len(entities):
@@ -1180,7 +1263,7 @@ class GCode:
 			elif self.cnc.gcode in (2,3):	# arc
 				if z1st is None: z1st = self.cnc.zval
 				if abs(self.cnc.z-z1st)<0.0001:
-					xc,yc,zc = self.cnc.motionCenter()
+					xc,yc = self.cnc.motionCenter()
 					center = Vector(xc,yc)
 					path.append(Segment(self.cnc.gcode, start,end, center))
 			self.cnc.motionPathEnd()
@@ -1843,7 +1926,7 @@ class GCode:
 				opath.intersect()
 				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
-				opath = opath.contours()
+				opath = opath.split2contours()
 				if opath: newpath.extend(opath)
 			if newpath:
 				undoinfo.extend(self.importPath(bid+1, newpath, True, False))
