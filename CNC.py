@@ -1926,7 +1926,7 @@ class GCode:
 				opath.intersect()
 				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
-				opath = opath.contours()
+				opath = opath.split2contours()
 				if opath: newpath.extend(opath)
 			if newpath:
 				undoinfo.extend(self.importPath(bid+1, newpath, True, False))

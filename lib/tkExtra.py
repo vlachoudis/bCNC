@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3537 2015-08-11 08:56:39Z bnv $
+# $Id: tkExtra.py 3563 2015-08-20 09:17:39Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,6 +157,45 @@ kDJGjRsWOY4kUiQIChYwCQLoqUODyZQtPYjsCVRFSRczB+wQMrSDwocMPrg0SXLlxpJ/A5AgKuQg
 wYEDCAhMYFBAwJx/Lw50gJCgtGnTOATSAXC6dQIAfAbKEeC6NIA7Cv1sGHB6wIg/ChN+MWIkTPCA
 ADs=
 """
+
+#-------------------------------------------------------------------------------
+# bind event with data as a replacement of the Tkinter bind for virtual
+# events to send data <<...>>
+#
+# Example, instead of binding like
+#	widget.bind("<<VirtualEvent>>", function)
+# use it as
+#	bindEventData(widget, "<<VirtualEvent>>", function)
+#
+# def function(event):
+#	print event.serial, event.widget, event.data
+#
+# Send message as
+#	widget.event_generate("<<VirtualEvent>>", data="Hello")
+#	widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
+#	widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
+#-------------------------------------------------------------------------------
+def bindEventData(widget, sequence, func, add = None):
+	def _substitute(*args):
+		e = Event()
+		nsign, b, t, T, d, W = args
+		try:    e.serial = int(nsign)
+		except: e.serial = nsign
+		try:    e.num    = int(b)
+		except: e.num    = b
+		try:    e.time   = int(t)
+		except: e.time   = t
+		e.type = T
+		e.data = d
+		try:
+			e.widget = widget._nametowidget(W)
+		except KeyError:
+			e.widget = W
+		return (e,)
+
+	funcid = widget._register(func, _substitute, needcleanup=1)
+	cmd = '{0}if {{"[{1} %# %b %t %T %d %W]" == "break"}} break\n'.format('+' if add else '', funcid)
+	widget.tk.call('bind', widget._w, sequence, cmd)
 
 #===============================================================================
 # Sort Assist class for MultiListbox

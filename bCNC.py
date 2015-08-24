@@ -2046,7 +2046,7 @@ class Application(Toplevel):
 		except: pass
 
 		self.drofont = Utils.getFont("DRO",('Helvetica',12))
-		self.view.set(Utils.getStr(Utils.__prg__, "view", CNCCanvas.VIEWS[0]))
+		self.view.set(Utils.getStr("Canvas", "view", CNCCanvas.VIEWS[0]))
 
 		#restore windowsState
 		try:
@@ -2067,7 +2067,6 @@ class Application(Toplevel):
 		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
 		#Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
 		#Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
-		Utils.config.set(Utils.__prg__,  "view",     self.view.get())
 
 		#save windowState
 		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
@@ -2078,6 +2077,7 @@ class Application(Toplevel):
 		Utils.config.set("Connection", "port", self.portCombo.get())
 
 		# Canvas
+		Utils.config.set("Canvas","view",    self.view.get())
 		Utils.config.set("Canvas","axes",    str(int(self.draw_axes.get())))
 		Utils.config.set("Canvas","grid",    str(int(self.draw_grid.get())))
 		Utils.config.set("Canvas","margin",  str(int(self.draw_margin.get())))
