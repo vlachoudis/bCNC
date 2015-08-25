@@ -305,6 +305,71 @@ class Box:
 		blocks.append(block)
 		return blocks
 
+#==============================================================================
+# Create a Spirograph
+#==============================================================================
+class Spirograph:
+
+	def __init__(self, RExt=100., RInt=45., ROff=35. , Depth=0, Zsafe=10, Feed=100.0):
+
+		self.RExt = RExt
+		self.RInt = RInt
+		self.ROff = ROff
+
+		self.ROff = ROff
+
+		self.Spins = self.lcm(RExt,RInt) / max(RExt,RInt)
+		#print "Spins:%f" %(self.Spins)
+
+		self.Depth = Depth
+		self.Zsafe = Zsafe
+		self.Feed = Feed
+		self.PI = math.pi
+		self.theta = 0.0
+
+
+	#----------------------------------------------------------------------
+	def lcm(self,x,y):
+		from fractions import gcd
+		return (x*y)/gcd(x,y)
+
+	#----------------------------------------------------------------------
+	def calc_dots(self,resolution=2*math.pi/360):
+
+		def x():
+			return (self.RExt - self.RInt) * math.cos( self.theta ) +\
+         self.ROff * math.cos( (self.RExt - self.RInt) / self.RInt * self.theta )
+
+		def y():
+			return (self.RExt - self.RInt) * math.sin( self.theta ) -\
+         self.ROff * math.sin( (self.RExt - self.RInt) / self.RInt * self.theta )
+
+		while self.theta < (2*self.PI * self.Spins):
+			yield (x(), y())
+			self.theta += resolution
+
+	#----------------------------------------------------------------------
+	def make(self):
+		blocks = []
+
+		dots = self.calc_dots()
+		x,y = zip(*(dots))
+
+		block=["(Block-name: Spirograph)"]
+		block.append("G0 Z%f" % (self.Zsafe))
+		block.append("G0 X%f Y%f" % (x[0],y[0]))
+		block.append("G1 Z%f F%f" % (self.Depth,self.Feed))
+
+		for x,y in zip(x,y):
+			block.append("G1 X%f Y%f"% (x , y))
+
+		block.append("G0 Z%f" % (self.Zsafe))
+		block.append("G0 X0 Y0")
+		block.append("M2")
+
+		blocks.append(block)
+		return blocks
+
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 #	box = Box(90., 60., 30.)

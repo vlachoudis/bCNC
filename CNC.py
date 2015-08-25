@@ -1989,6 +1989,22 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
+	# Generate a spirograph
+	#----------------------------------------------------------------------
+	def spirograph(self, bid, RExt, RInt, ROff,Depth,Zsafe,Feed):
+		spirograph = Macros.Spirograph(RExt,RInt,ROff,Depth,Zsafe,Feed)
+		blocks = spirograph.make()
+
+		undoinfo = []
+		for b in blocks:
+			block = Block()
+			for line in b: block.append(line)
+			undoinfo.append(self.addBlockUndo(bid,block))
+			bid += 1
+		self.addUndo(undoinfo)
+
+
+	#----------------------------------------------------------------------
 	# Modify the lines according to the supplied function and arguments
 	#----------------------------------------------------------------------
 	def process(self, items, func, *args):

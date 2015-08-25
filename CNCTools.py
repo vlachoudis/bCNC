@@ -616,6 +616,35 @@ class Profile(Base):
 		app.statusbar["text"] = "Generate profile path"
 
 #==============================================================================
+class Spirograph(Base):
+	def __init__(self, master):
+		Base.__init__(self, master)
+		self.name = "Spirograph"
+		self.variables = [
+			("Name",      "db" ,    "Spirograph", "Name"),
+			("Depth"  ,   "mm" ,    0, "Target Depth"),
+            ("ZSafe"  ,   "mm" ,    10, "Z safe height"),
+			("RadiusExternal"  ,   "mm" ,    100, "External Radius"),
+			("RadiusInternal"  ,   "mm" ,    45, "Internal Radius"),
+			("RadiusOffset"  ,   "mm" ,    35, "Offset radius"),
+            ("Feed"  ,   "int" ,    100, "Feed"),
+		]
+		self.buttons  = ("exe",)
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		app.gcode.spirograph(app.gcodelist.activeBlock(),
+				self["RadiusExternal"],
+				self["RadiusInternal"],
+				self["RadiusOffset"],
+                self["Depth"],
+                self["ZSafe"],
+                self["Feed"])
+		app.gcodelist.fill()
+		app.draw()
+		app.statusbar["text"] = "Spirograph generated"
+
+#==============================================================================
 # Tools container class
 #==============================================================================
 class Tools:
@@ -629,7 +658,7 @@ class Tools:
 		self.listbox = None
 		# CNC should be first to load the inches
 		#	"Cut"       #	"Hole"      #	"Profile"   #	"Rectangle" #	"Tab"
-		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
+		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock, Spirograph]:
 			tool = cls(self)
 			self.tools[tool.name.upper()] = tool
 
