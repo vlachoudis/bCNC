@@ -47,9 +47,9 @@ STATECOLOR = {	"Alarm"       : "Red",
 STATECOLORDEF = "LightYellow"
 
 #==============================================================================
-# bCNC Control class
+# bCNC Sender class
 #==============================================================================
-class Control:
+class Sender:
 	def __init__(self):
 		# Global variables
 		self.history     = []
@@ -273,8 +273,8 @@ class Control:
 	#----------------------------------------------------------------------
 	def saveAll(self, event=None):
 		if self.gcode.filename:
-			self.saveGcode()
-			self.saveProbe()
+			self.save(self.gcode.filename)
+			self.save(self.gcode.probe.filename)
 		else:
 			self.saveDialog()
 
@@ -332,10 +332,10 @@ class Control:
 	# Send to grbl
 	#----------------------------------------------------------------------
 	def sendGrbl(self, cmd):
-		print
-		print ">>>",cmd
-		import traceback
-		traceback.print_stack()
+#		print
+#		print ">>>",cmd
+#		import traceback
+#		traceback.print_stack()
 		if self.serial and not self.running:
 			self.queue.put(cmd)
 
@@ -484,59 +484,60 @@ class Control:
 	#----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#----------------------------------------------------------------------
-	def run(self):
-		if self.serial is None:
-			return ("Serial Error", "Serial is not connected")
-		if self.running:
-			if self._pause:
-				self.resume()
-				return
-			return ("Already running", "Please stop before")
-		if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
-			return ("Probe is not zeroed",
-				"Please ZERO any location of the probe before starting a run")
-
-		lines,paths = self.gcode.prepare2Run()
-		if not lines:
-			return ("Empty gcode", "Not gcode file was loaded")
-
-		# reset colors
-#		for ij in paths:
-#			if ij:
-#				self.canvas.itemconfig(
-#					self.gcode[ij[0]].path(ij[1]),
-#					width=1,
-#					fill=CNCCanvas.ENABLE_COLOR)
-
-		self.initRun()
-		# the buffer of the machine should be empty?
-		self._runLines = len(lines)
-		#self._runLines = 0
-		#del self._runLineMap[:]
-		#lineno = 0
-		#for line in lines:
-		#	#print "***",lineno,line
-		#	if line is not None:
-		#		self._runLines += 1
-		#		self._runLineMap.append(lineno)
-		#		if line and line[0]!=' ': lineno += 1	# ignore expanded lines
-		#	else:
-		#		lineno += 1			# count commented lines
-
-		self.canvas.clearSelection()
-		self._gcount  = 0
-		self._selectI = 0	# last selection pointer in items
-		self._paths   = paths	# drawing paths for canvas
-		self.progress.setLimits(0, self._runLines)
-
-		self.running = True
-		for line in lines:
-			if line is not None:
-				if isinstance(line,str):
-					self.queue.put(line+"\n")
-				else:
-					self.queue.put(line)
-
+# FIXME To be cleaned up from bCNC.py
+#	def run(self):
+#		if self.serial is None:
+#			return ("Serial Error", "Serial is not connected")
+#		if self.running:
+#			if self._pause:
+#				self.resume()
+#				return
+#			return ("Already running", "Please stop before")
+#		if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
+#			return ("Probe is not zeroed",
+#				"Please ZERO any location of the probe before starting a run")
+#
+#		lines,paths = self.gcode.prepare2Run()
+#		if not lines:
+#			return ("Empty gcode", "Not gcode file was loaded")
+#
+#		# reset colors
+##		for ij in paths:
+##			if ij:
+##				self.canvas.itemconfig(
+##					self.gcode[ij[0]].path(ij[1]),
+##					width=1,
+##					fill=CNCCanvas.ENABLE_COLOR)
+#
+#		self.initRun()
+#		# the buffer of the machine should be empty?
+#		self._runLines = len(lines)
+#		#self._runLines = 0
+#		#del self._runLineMap[:]
+#		#lineno = 0
+#		#for line in lines:
+#		#	#print "***",lineno,line
+#		#	if line is not None:
+#		#		self._runLines += 1
+#		#		self._runLineMap.append(lineno)
+#		#		if line and line[0]!=' ': lineno += 1	# ignore expanded lines
+#		#	else:
+#		#		lineno += 1			# count commented lines
+#
+#		self.canvas.clearSelection()
+#		self._gcount  = 0
+#		self._selectI = 0	# last selection pointer in items
+#		self._paths   = paths	# drawing paths for canvas
+#		self.progress.setLimits(0, self._runLines)
+#
+#		self.running = True
+#		for line in lines:
+#			if line is not None:
+#				if isinstance(line,str):
+#					self.queue.put(line+"\n")
+#				else:
+#					self.queue.put(line)
+#
 	#----------------------------------------------------------------------
 	# Called when run is finished
 	#----------------------------------------------------------------------
