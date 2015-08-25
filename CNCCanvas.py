@@ -178,6 +178,7 @@ class CNCCanvas(Canvas):
 		self._gantry2     = None
 		self._select      = None
 		self._margin      = None
+		self._workarea    = None
 		self._vector      = None
 		self._lastActive  = None
 		self._lastGantry  = None
@@ -822,22 +823,24 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawAxes(self):
+		self.delete("Axes")
 		if not self.draw_axes: return
 		if CNC.inch:
 			s = 1.0
 		else:
 			s = 10.0
 		xyz = [(0.,0.,0.), (s, 0., 0.)]
-		self.create_line(self.plotCoords(xyz), fill="Red",   dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1))
 
 		xyz = [(0.,0.,0.), (0., s, 0.)]
-		self.create_line(self.plotCoords(xyz), fill="Green", dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1))
 
 		xyz = [(0.,0.,0.), (0., 0., s)]
-		self.create_line(self.plotCoords(xyz), fill="Blue",  dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1))
 
 	#----------------------------------------------------------------------
 	def drawMargin(self):
+		if self._margin: self.delete(self._margin)
 		if not self.draw_margin: return
 		if not CNC.isMarginValid(): return
 		xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
@@ -852,6 +855,7 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
+		if self._workarea: self.delete(self._workarea)
 		if not self.draw_workarea: return
 
 		xmin = self._dx-CNC.travel_x
@@ -873,6 +877,7 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawGrid(self):
+		self.delete("Grid")
 		if not self.draw_grid: return
 		if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
 			xmin = (CNC.vars["xmin"]//10)  *10
@@ -883,6 +888,7 @@ class CNCCanvas(Canvas):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
+							tag="Grid",
 							fill=GRID_COLOR,
 							dash=(1,3))
 				self.tag_lower(item)
@@ -892,6 +898,7 @@ class CNCCanvas(Canvas):
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),
 							fill=GRID_COLOR,
+							tag="Grid",
 							dash=(1,3))
 				self.tag_lower(item)
 
@@ -899,26 +906,31 @@ class CNCCanvas(Canvas):
 	# Display probe
 	#----------------------------------------------------------------------
 	def drawProbe(self):
+		self.delete("Probe")
 		if not self.draw_probe: return
 
 		# Draw probe grid
-		probe = self.app.gcode.probe
-		for x in bmath.frange(probe.xmin, probe.xmax, probe.xstep()):
+		probe = self.gcode.probe
+		for x in bmath.frange(probe.xmin, probe.xmax+0.00001, probe.xstep()):
 			xyz = [(x,probe.ymin,0.), (x,probe.ymax,0.)]
 			item = self.create_line(self.plotCoords(xyz),
+						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
 
-		for y in bmath.frange(probe.ymin, probe.ymax, probe.ystep()):
+		for y in bmath.frange(probe.ymin, probe.ymax+0.00001, probe.ystep()):
 			xyz = [(probe.xmin,y,0.), (probe.xmax,y,0.)]
 			item = self.create_line(self.plotCoords(xyz),
+						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
 
 		# Draw probe points
 		for i,uv in enumerate(self.plotCoords(probe.points)):
 			item = self.create_text(uv, text="%g"%(probe.points[i][2]),
-					justify=CENTER, fill="Green")
+						tag="Probe",
+						justify=CENTER,
+						fill="Green")
 			self.tag_lower(item)
 
 	#----------------------------------------------------------------------
@@ -1123,7 +1135,9 @@ class CanvasFrame(Frame):
 		b.pack(side=LEFT)
 
 
-		Label(toolbar, text="Tool:", image=Utils.icons["sep"], compound=LEFT).pack(side=LEFT, padx=2)
+		Label(toolbar, text="Tool:",
+				image=Utils.icons["sep"],
+				compound=LEFT).pack(side=LEFT, padx=2)
 		# -----
 		# Tools
 		# -----
@@ -1174,13 +1188,15 @@ class CanvasFrame(Frame):
 		# -----------
 		# Draw flags
 		# -----------
-		Label(toolbar, text="Draw:", image=Utils.icons["sep"], compound=LEFT).pack(side=LEFT, padx=2)
+		Label(toolbar, text="Draw:",
+				image=Utils.icons["sep"],
+				compound=LEFT).pack(side=LEFT, padx=2)
 
 		b = Checkbutton(toolbar,
 				image=Utils.icons["axes"],
 				indicatoron=False,
 				variable=self.draw_axes,
-				command=self.toggleDrawFlag)
+				command=self.drawAxes)
 		tkExtra.Balloon.set(b, "Toggle display of axes")
 		b.pack(side=LEFT)
 
@@ -1188,7 +1204,7 @@ class CanvasFrame(Frame):
 				image=Utils.icons["grid"],
 				indicatoron=False,
 				variable=self.draw_grid,
-				command=self.toggleDrawFlag)
+				command=self.drawGrid)
 		tkExtra.Balloon.set(b, "Toggle display of grid lines")
 		b.pack(side=LEFT)
 
@@ -1196,7 +1212,7 @@ class CanvasFrame(Frame):
 				image=Utils.icons["margins"],
 				indicatoron=False,
 				variable=self.draw_margin,
-				command=self.toggleDrawFlag)
+				command=self.drawMargin)
 		tkExtra.Balloon.set(b, "Toggle display of margins")
 		b.pack(side=LEFT)
 
@@ -1205,7 +1221,7 @@ class CanvasFrame(Frame):
 				image=Utils.icons["measure"],
 				indicatoron=False,
 				variable=self.draw_probe,
-				command=self.toggleDrawFlag)
+				command=self.drawProbe)
 		tkExtra.Balloon.set(b, "Toggle display of probe")
 		b.pack(side=LEFT)
 
@@ -1229,7 +1245,7 @@ class CanvasFrame(Frame):
 				image=Utils.icons["workspace"],
 				indicatoron=False,
 				variable=self.draw_workarea,
-				command=self.toggleDrawFlag)
+				command=self.drawWorkarea)
 		tkExtra.Balloon.set(b, "Toggle display of workarea")
 		b.pack(side=LEFT)
 
@@ -1271,3 +1287,33 @@ class CanvasFrame(Frame):
 		self.canvas.draw_rapid    = self.draw_rapid.get()
 		self.canvas.draw_workarea = self.draw_workarea.get()
 		self.event_generate("<<ViewChange>>")
+
+	#----------------------------------------------------------------------
+	def drawAxes(self, value=None):
+		if value is not None: self.draw_axes.set(value)
+		self.canvas.draw_axes = self.draw_axes.get()
+		self.canvas.drawAxes()
+
+	#----------------------------------------------------------------------
+	def drawGrid(self, value=None):
+		if value is not None: self.draw_grid.set(value)
+		self.canvas.draw_grid = self.draw_grid.get()
+		self.canvas.drawGrid()
+
+	#----------------------------------------------------------------------
+	def drawMargin(self, value=None):
+		if value is not None: self.draw_margin.set(value)
+		self.canvas.draw_margin = self.draw_margin.get()
+		self.canvas.drawMargin()
+
+	#----------------------------------------------------------------------
+	def drawProbe(self, value=None):
+		if value is not None: self.draw_probe.set(value)
+		self.canvas.draw_probe = self.draw_probe.get()
+		self.canvas.drawProbe()
+
+	#----------------------------------------------------------------------
+	def drawWorkarea(self, value=None):
+		if value is not None: self.draw_workarea.set(value)
+		self.canvas.draw_workarea = self.draw_workarea.get()
+		self.canvas.drawWorkarea()

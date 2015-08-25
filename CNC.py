@@ -74,7 +74,7 @@ class Probe:
 		self.yn = 5
 
 		self.feed = 100
-		self.points  = []	# probe points
+		self.points = []	# probe points
 		self.matrix = []	# 2D matrix with Z coordinates
 		self.zeroed = False	# if probe was zeroed at any location
 

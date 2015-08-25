@@ -105,19 +105,19 @@ def cleanConfiguration():
 	config = newconfig
 
 #------------------------------------------------------------------------------
-def getStr(section, name, default):
+def getStr(section, name, default=""):
 	global config
 	try: return config.get(section, name)
 	except: return default
 
 #------------------------------------------------------------------------------
-def getInt(section, name, default):
+def getInt(section, name, default=0):
 	global config
 	try: return int(config.get(section, name))
 	except: return default
 
 #------------------------------------------------------------------------------
-def getFloat(section, name, default):
+def getFloat(section, name, default=0.0):
 	global config
 	try: return float(config.get(section, name))
 	except: return default
@@ -245,7 +245,7 @@ def addException():
 			# If too many errors are found send the error report
 			ReportDialog(self.widget)
 	except:
-		say(sys.exc_info())
+		say(str(sys.exc_info()))
 
 #===============================================================================
 class CallWrapper:

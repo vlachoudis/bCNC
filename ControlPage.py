@@ -18,7 +18,7 @@ import math
 from CNC import CNC
 import Utils
 import Ribbon
-import Control
+import Sender
 import tkExtra
 import Unicode
 import CNCRibbon
@@ -201,9 +201,9 @@ class DROFrame(CNCRibbon.PageFrame):
 		Label(self,text="Status:").grid(row=row,column=col,sticky=E)
 		col += 1
 		self.state = Label(self,
-				text=Control.NOT_CONNECTED,
+				text=Sender.NOT_CONNECTED,
 				font=app.drofont,
-				background=Control.STATECOLOR[Control.NOT_CONNECTED])
+				background=Sender.STATECOLOR[Sender.NOT_CONNECTED])
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
 		row += 1
@@ -916,6 +916,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
 	#----------------------------------------------------------------------
 	def spindleControl(self, event=None):
+		if self._gUpdate: return
 		if self.spindle.get():
 			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
@@ -944,8 +945,13 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 					self.toolEntry.set(g[1:])
 
 			elif g[0] == 'S':
-				print "Update spindle speed"
 				self.spindleSpeed.set(int(float(g[1:])))
+
+			elif g == "M3":
+				self.spindle.set(True)
+
+			elif g == "M5":
+				self.spindle.set(False)
 		self._gUpdate = False
 
 	#----------------------------------------------------------------------

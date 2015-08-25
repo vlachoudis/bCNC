@@ -40,7 +40,7 @@ from CNC import CNC, GCode
 import Utils
 import Ribbon
 import Pendant
-from Control import Control, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
+from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
 
 import CNCList
 import CNCCanvas
@@ -67,10 +67,10 @@ WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 #==============================================================================
 # Main Application window
 #==============================================================================
-class Application(Toplevel,Control):
+class Application(Toplevel,Sender):
 	def __init__(self, master, **kw):
 		Toplevel.__init__(self, master, **kw)
-		Control.__init__(self)
+		Sender.__init__(self)
 
 		self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
 		self.title(Utils.__prg__)
@@ -134,76 +134,48 @@ class Application(Toplevel,Control):
 # XXX FIXME do I need the self.canvas?
 		self.canvas = self.canvasFrame.canvas
 
-		# Create Pages
-		self._file     = FilePage(self.ribbon, self)
-		self._control  = ControlPage(self.ribbon, self)
-		self._terminal = TerminalPage(self.ribbon, self)
-		self._probe    = ProbePage(self.ribbon, self)
-		self._tools    = ToolsPage(self.ribbon, self)
-		self._editor   = EditorPage(self.ribbon, self)
+		# fist create Pages
+		pages = {}
+		for cls in (	ControlPage,
+				EditorPage,
+				FilePage,
+				ProbePage,
+				TerminalPage,
+				ToolsPage):
+			page = cls(self.ribbon, self)
+			pages[page.name] = page
+
+		# then add their properties (in separate loop)
+		for name,page in pages.items():
+			for n in Utils.getStr(Utils.__prg__,"%s.ribbon"%(page.name)).split():
+				page.addRibbonGroup(n)
+
+			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
+				last = n[-1]
+				if last == "*":
+					page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+				else:
+					page.addPageFrame(n)
 
 		# remember the editor list widget
-		self.dro      = CNCRibbon.Page.frames["DRO"]
-		self.gstate   = CNCRibbon.Page.frames["State"]
-		self.control  = CNCRibbon.Page.frames["Control"]
-		self.editor   = CNCRibbon.Page.frames["Editor"].editor
-		self.terminal = CNCRibbon.Page.frames["Terminal"].terminal
+		self.dro       = CNCRibbon.Page.frames["DRO"]
+		self.gstate    = CNCRibbon.Page.frames["State"]
+		self.control   = CNCRibbon.Page.frames["Control"]
+		self.editor    = CNCRibbon.Page.frames["Editor"].editor
+		self.terminal  = CNCRibbon.Page.frames["Terminal"].terminal
 
-		self._file.addRibbonGroup("File")
-#		self._file.addRibbonGroup("Serial")
-		self._file.addRibbonGroup("Pendant")
-		self._file.addRibbonGroup("Options")
-		self._file.addRibbonGroup("Close")
-		self._file.addPageFrame(self.dro)
-		self._file.addPageFrame("Serial")
-
-		#self._control.addRibbonGroup("File")
-		self._control.addRibbonGroup("Connection")
-		self._control.addRibbonGroup("User")
-		self._control.addRibbonGroup("Run") #,side=RIGHT, fill=BOTH)
-		#self._control.addRibbonGroup("Pendant")
-		#self._control.addRibbonGroup("Options")
-		self._control.addRibbonGroup("Close")
-
-		self._control.addPageFrame(self.dro)
-		self._control.addPageFrame(self.gstate)
-		self._control.addPageFrame("Control")
-
-		#self._terminal.addRibbonGroup("Serial")
-		self._terminal.addRibbonGroup("Commands")
-		self._terminal.addRibbonGroup("Terminal")
-		#self._terminal.addRibbonGroup("Run") #, side=RIGHT, fill=BOTH)
-		self._terminal.addPageFrame(self.dro)
-		self._terminal.addPageFrame("Terminal", expand=YES, fill=BOTH)
-
-		self._probe.addRibbonGroup("Probe")
-		self._probe.addRibbonGroup("Run") #, side=RIGHT)
-		self._probe.addPageFrame(self.dro)
-		self._probe.addPageFrame("Probe")
-		self._probe.addPageFrame("Autolevel")
-
-		self._tools.addRibbonGroup("Database")
-		self._tools.addRibbonGroup("CAM")
-		self._tools.addRibbonGroup("Macros")
-		self._tools.addRibbonGroup("Config")
-		self._tools.addPageFrame("Tools", expand=YES, fill=BOTH)
-
-		self._editor.addRibbonGroup("Edit")
-		self._editor.addRibbonGroup("Order")
-		self._editor.addRibbonGroup("Move")
-		self._editor.addRibbonGroup("Transform")
-		self._editor.addPageFrame("Editor", expand=YES, fill=BOTH)
+		# XXX FIXME Do we need it or I can takes from Page every time?
+		self.autolevel = CNCRibbon.Page.frames["Autolevel"]
 
 		# Left side
-		for page in (	self._file,
-				self._control,
-				self._probe,
-				self._tools,
-				self._editor):
-			self.ribbon.addPage(page)
-
-		# Right side
-		self.ribbon.addPage(self._terminal, RIGHT)
+		for name in Utils.getStr(Utils.__prg__,"ribbon").split():
+			last = name[-1]
+			if last == '>':
+				name = name[:-1]
+				side = RIGHT
+			else:
+				side = LEFT
+			self.ribbon.addPage(pages[name],side)
 
 		self.ribbon.changePage("File")
 
@@ -212,7 +184,7 @@ class Application(Toplevel,Control):
 		self.bind("<<Delete>>",			self.editor.deleteLine)
 
 		# Canvas X-bindings
-		self.canvasFrame.bind("<<ViewChange>>", self.viewChange)
+		self.bind("<<ViewChange>>",		self.viewChange)
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
 		self.canvas.bind('<Control-Key-v>',	self.paste)
@@ -272,10 +244,12 @@ class Application(Toplevel,Control):
 
 		self.bind('<<Expand>>',		self.editor.toggleExpand)
 		self.bind('<<Enable>>',		self.editor.toggleEnable)
-		self.bind('<<ToolAdd>>',	self._tools.add)
-		self.bind('<<ToolDelete>>',	self._tools.delete)
-		self.bind('<<ToolClone>>',	self._tools.clone)
-		self.bind('<<ToolRename>>',	self._tools.rename)
+
+		tools = pages["Tools"]
+		self.bind('<<ToolAdd>>',	tools.add)
+		self.bind('<<ToolDelete>>',	tools.delete)
+		self.bind('<<ToolClone>>',	tools.clone)
+		self.bind('<<ToolRename>>',	tools.rename)
 
 #		self.bind('<F1>',		self.help)
 #		self.bind('<F2>',		self.rename)
@@ -309,14 +283,22 @@ class Application(Toplevel,Control):
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
-		self.bind('<FocusIn>',		self.focusIn)
+		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
 
-		self.protocol("WM_DELETE_WINDOW", self.quit)
 
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
+		self.bind('<<Draw>>',	        self.draw)
+		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 		for x in self.widgets:
 			if isinstance(x,Entry):
 				x.bind("<Escape>", self.canvasFocus)
+
+		self.bind('<FocusIn>',		self.focusIn)
+		self.protocol("WM_DELETE_WINDOW", self.quit)
+
 
 		self.canvas.focus_set()
 
@@ -343,7 +325,8 @@ class Application(Toplevel,Control):
 
 	#----------------------------------------------------------------------
 	def setStatus(self, msg):
-		self.statusbar.setText(msg)
+		self.statusbar.configText(text=msg, fill="DarkBlue")
+		self.statusbar.config(background="LightGray")
 
 	#----------------------------------------------------------------------
 	# Set a status message from an event
@@ -378,7 +361,7 @@ class Application(Toplevel,Control):
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveDialog()
 
-		Control.quit(self)
+		Sender.quit(self)
 		self.saveConfig()
 		self.destroy()
 		if Utils.errors and Utils._errorReport:
@@ -438,7 +421,7 @@ class Application(Toplevel,Control):
 
 		self.tools.load(Utils.config)
 
-		Control.loadConfig(self)
+		Sender.loadConfig(self)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
@@ -459,22 +442,13 @@ class Application(Toplevel,Control):
 		self.control.saveConfig()
 
 		# Probe
-#		Utils.config.set("Probe", "x",    self.probeXdir.get())
-#		Utils.config.set("Probe", "y",    self.probeYdir.get())
-#		Utils.config.set("Probe", "z",    self.probeZdir.get())
+		Utils.config.set("Probe", "x",    self.probeXdir.get())
+		Utils.config.set("Probe", "y",    self.probeYdir.get())
+		Utils.config.set("Probe", "z",    self.probeZdir.get())
 
-#		Utils.config.set("Probe", "xmin", self.probeXmin.get())
-#		Utils.config.set("Probe", "xmax", self.probeXmax.get())
-#		Utils.config.set("Probe", "xn",   self.probeXbins.get())
-#		Utils.config.set("Probe", "ymin", self.probeYmin.get())
-#		Utils.config.set("Probe", "ymax", self.probeYmax.get())
-#		Utils.config.set("Probe", "yn",   self.probeYbins.get())
-#		Utils.config.set("Probe", "zmin", self.probeZmin.get())
-#		Utils.config.set("Probe", "zmax", self.probeZmax.get())
-#		Utils.config.set("Probe", "feed", self.probeFeed.get())
-
+		self.autolevel.saveConfig()
+		Sender.saveConfig(self)
 		self.tools.save(Utils.config)
-		Control.saveConfig(self)
 
 	#----------------------------------------------------------------------
 	def loadHistory(self):
@@ -597,21 +571,6 @@ class Application(Toplevel,Control):
 	def drawAfter(self, event=None):
 		if self._drawAfter is not None: self.after_cancel(self._drawAfter)
 		self._drawAfter = self.after(DRAW_AFTER, self.draw)
-
-#	# ----------------------------------------------------------------------
-#	def changePage(self, event=None):
-#		page = self.tabPage.getActivePage()
-#		if page == "WCS":
-#			self.sendGrbl("$#\n$G\n")
-#			return
-#		#elif page == "Probe":
-#		#	self.probeChange(False)
-#
-#		focus = self.focus_get()
-#		if focus and focus is self.editor and page != "Editor":
-#			# if the focus was on the editor, but the Editor page is not active
-#			# set the focus to the canvas
-#			self.canvas.focus_set()
 
 	#----------------------------------------------------------------------
 	def commandFocus(self, event=None):
@@ -1319,10 +1278,10 @@ class Application(Toplevel,Control):
 			if ans==tkMessageBox.YES or ans==True:
 				self.save()
 
-		Control.load(self,filename)
+		Sender.load(self,filename)
 
 		if ext==".probe":
-			self.probeSet()
+			self.autolevel.setValues()
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
@@ -1334,7 +1293,7 @@ class Application(Toplevel,Control):
 
 	#----------------------------------------------------------------------
 	def save(self, filename):
-		print "Save returnc code:", Control.save(self,filename)
+		Sender.save(self,filename)
 		self.setStatus("'%s' saved"%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
@@ -1405,7 +1364,7 @@ class Application(Toplevel,Control):
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		try:
-			return Control.open(self, device, baudrate)
+			return Sender.open(self, device, baudrate)
 		except:
 			self.serial = None
 			self.thread = None
@@ -1471,104 +1430,6 @@ class Application(Toplevel,Control):
 		self.sendGrbl(cmd+"\n$#\n")
 
 	#----------------------------------------------------------------------
-	def probeGetMargins(self):
-		self.probeXmin.set(str(CNC.vars["xmin"]))
-		self.probeXmax.set(str(CNC.vars["xmax"]))
-		self.probeYmin.set(str(CNC.vars["ymin"]))
-		self.probeYmax.set(str(CNC.vars["ymax"]))
-		self.probeChange()
-
-	#----------------------------------------------------------------------
-	def probeChange(self, verbose=True):
-		return
-		probe = self.gcode.probe
-		error = False
-		try:
-			probe.xmin = float(self.probeXmin.get())
-			probe.xmax = float(self.probeXmax.get())
-			probe.xn   = max(2,int(self.probeXbins.get()))
-			self.probeXstep["text"] = "%.5g"%(probe.xstep())
-		except ValueError:
-			self.probeXstep["text"] = ""
-			if verbose:
-				tkMessageBox.showerror("Probe Error",
-						"Invalid X probing region",
-						parent=self)
-			error = True
-
-		try:
-			probe.ymin = float(self.probeYmin.get())
-			probe.ymax = float(self.probeYmax.get())
-			probe.yn   = max(2,int(self.probeYbins.get()))
-			self.probeYstep["text"] = "%.5g"%(probe.ystep())
-		except ValueError:
-			self.probeYstep["text"] = ""
-			if verbose:
-				tkMessageBox.showerror("Probe Error",
-						"Invalid Y probing region",
-						parent=self)
-			error = True
-
-		try:
-			probe.zmin  = float(self.probeZmin.get())
-			probe.zmax  = float(self.probeZmax.get())
-		except ValueError:
-			if verbose:
-				tkMessageBox.showerror("Probe Error",
-					"Invalid Z probing region",
-					parent=self)
-			error = True
-
-		try:
-			probe.feed  = float(self.probeFeed.get())
-		except:
-			if verbose:
-				tkMessageBox.showerror("Probe Error",
-					"Invalid probe feed rate",
-					parent=self)
-			error = True
-
-		return error
-
-	#----------------------------------------------------------------------
-	def probeSet(self):
-		probe = self.gcode.probe
-		self.probeXmin.set(str(probe.xmin))
-		self.probeXmax.set(str(probe.xmax))
-		self.probeXbins.delete(0,END)
-		self.probeXbins.insert(0,probe.xn)
-		self.probeXstep["text"] = str(probe.xstep())
-
-		self.probeYmin.set(str(probe.ymin))
-		self.probeYmax.set(str(probe.ymax))
-		self.probeYbins.delete(0,END)
-		self.probeYbins.insert(0,probe.yn)
-		self.probeYstep["text"] = str(probe.ystep())
-
-		self.probeZmin.set(str(probe.zmin))
-		self.probeZmax.set(str(probe.zmax))
-		self.probeFeed.set(str(probe.feed))
-
-	#----------------------------------------------------------------------
-	def probeSetZero(self):
-		x = CNC.vars["wx"]
-		y = CNC.vars["wy"]
-		self.gcode.probe.setZero(x,y)
-		self.draw()
-
-	#----------------------------------------------------------------------
-	def probeDraw(self):
-		self.draw_probe.set(True)
-		self.canvas.draw_probe = self.draw_probe.get()
-		self.probeChange(False)
-		self.draw()
-
-	#----------------------------------------------------------------------
-	def probeClear(self):
-		self.gcode.probe.clear()
-		self.draw()
-
-	#----------------------------------------------------------------------
 	# Probe one Point
 	#----------------------------------------------------------------------
 	def probeOne(self):
@@ -1597,30 +1458,6 @@ class Application(Toplevel,Control):
 					"At least one probe direction should be specified")
 
 	#----------------------------------------------------------------------
-	# Probe an X-Y area
-	#----------------------------------------------------------------------
-	def probeScanArea(self):
-		if self.probeChange(): return
-
-		if self.serial is None or self.running: return
-		probe = self.gcode.probe
-		self.initRun()
-
-		# absolute
-		probe.clear()
-		lines = probe.scan()
-		self._runLines = len(lines)
-		self._gcount   = 0
-		self._selectI  = -1		# do not show any lines selected
-
-		self.statusbar.setLimits(0, self._runLines)
-
-		self.running = True
-		# Push commands
-		for line in lines:
-			self.queue.put(line)
-
-	#----------------------------------------------------------------------
 	def emptyQueue(self):
 		while self.queue.qsize()>0:
 			try:
@@ -1641,7 +1478,7 @@ class Application(Toplevel,Control):
 	#----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#----------------------------------------------------------------------
-	def run(self):
+	def run(self, lines=None):
 		if self.serial is None:
 			tkMessageBox.showerror("Serial Error",
 				"Serial is not connected",
@@ -1661,20 +1498,23 @@ class Application(Toplevel,Control):
 				parent=self)
 			return
 
-		lines,paths = self.gcode.prepare2Run()
-		if not lines:
-			tkMessageBox.showerror("Empty gcode",
-				"Not gcode file was loaded",
-				parent=self)
-			return
+		if lines is None:
+			lines,paths = self.gcode.prepare2Run()
+			if not lines:
+				tkMessageBox.showerror("Empty gcode",
+					"Not gcode file was loaded",
+					parent=self)
+				return
 
-		# reset colors
-		for ij in paths:
-			if ij:
-				self.canvas.itemconfig(
-					self.gcode[ij[0]].path(ij[1]),
-					width=1,
-					fill=CNCCanvas.ENABLE_COLOR)
+			# reset colors
+			for ij in paths:
+				if ij:
+					self.canvas.itemconfig(
+						self.gcode[ij[0]].path(ij[1]),
+						width=1,
+						fill=CNCCanvas.ENABLE_COLOR)
+		else:
+			paths = None
 
 		self.initRun()
 		# the buffer of the machine should be empty?
@@ -1695,7 +1535,8 @@ class Application(Toplevel,Control):
 		self._gcount  = 0
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
-		self.statusbar.setLimits(0, self._runLines)
+		self.statusbar.configText(fill="White")
+		self.statusbar.config(background="DarkGray")
 
 		self.running = True
 		for line in lines:
@@ -1814,7 +1655,8 @@ class Application(Toplevel,Control):
 			self.terminal["state"] = DISABLED
 
 		if self.running:
-			self.statusbar.setProgress(self._runLines-self.queue.qsize(), self._gcount)
+			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
+						self._gcount)
 
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
