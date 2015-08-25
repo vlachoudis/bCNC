@@ -771,6 +771,22 @@ class Application(Toplevel):
 				padx=3, pady=2,
 				command=self.stopRun)
 		tkExtra.Balloon.set(b, "Stop running program")
+		# Override
+		#f = Frame(lframe)
+		#f.pack(side=BOTTOM, fill=X)
+		self.override = IntVar()
+		self.override.set(100)
+
+		b = Scale(f,
+				command=self.overrideControl,
+				variable=self.override,
+				showvalue=True,
+				orient=HORIZONTAL,
+				from_=25,
+				to_=200)
+		b.pack(side=BOTTOM, expand=YES, fill=X)
+		tkExtra.Balloon.set(b, "Set Override")
+		#self.widgets.append(b)
 		b.pack(side=LEFT,expand=YES,fill=X)
 
 		self.progress = tkExtra.ProgressBar(lframe, height=24)
@@ -3248,6 +3264,10 @@ class Application(Toplevel):
 			self.sendGrbl("M5\n")
 
 	#----------------------------------------------------------------------
+	def overrideControl(self, event=None):
+		pass
+
+	#----------------------------------------------------------------------
 	def acceptKey(self, skipRun=False):
 		if self.tabPage.getActivePage() == "Editor": return False
 		if not skipRun and self.running: return False
@@ -3816,6 +3836,12 @@ class Application(Toplevel):
 							if cline: del cline[0]
 
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+				if ('F' in tosend):
+					print tosend
+					f = tosend[tosend.find('F')+1:]
+					fi = (int(f) * self.override.get() / 100 )
+					tosend = tosend[:tosend.find('F')+1] +  str(fi) + '\n'
+					print tosend
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
