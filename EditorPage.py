@@ -47,7 +47,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				text="Clone",
 				compound=LEFT,
 				anchor=W,
-				state=DISABLED,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Clone selected lines or blocks [Ctrl-D]")

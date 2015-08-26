@@ -189,6 +189,7 @@ def addRecent(filename):
 	except UnicodeEncodeError:
 		sfn = filename.encode("utf-8")
 
+	last = _maxRecent-1
 	for i in range(_maxRecent):
 		rfn = getRecent(i)
 		if rfn is None:

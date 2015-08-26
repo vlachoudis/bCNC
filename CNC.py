@@ -94,7 +94,7 @@ class Probe:
 			self.matrix.append([0.0]*(self.xn))
 
 	#----------------------------------------------------------------------
-	# Load level information from file
+	# Load autolevel information from file
 	#----------------------------------------------------------------------
 	def load(self, filename=None):
 		if filename is not None:
@@ -334,6 +334,7 @@ class Probe:
 #==============================================================================
 class CNC:
 	inch           = False
+	lasercutter    = False
 	acceleration_x = 25.0	# mm/s^2
 	acceleration_y = 25.0	# mm/s^2
 	acceleration_z = 25.0	# mm/s^2
@@ -369,6 +370,7 @@ class CNC:
 	def loadConfig(config):
 		section = "CNC"
 		CNC.inch           = bool(int(config.get(section, "units")))
+		CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
 		CNC.acceleration_x = float(config.get(section, "acceleration_x"))
 		CNC.acceleration_y = float(config.get(section, "acceleration_y"))
 		CNC.acceleration_z = float(config.get(section, "acceleration_z"))
@@ -911,14 +913,26 @@ class CNC:
 #==============================================================================
 class Block(list):
 	def __init__(self, name=None):
+		# Copy constructor
+		if isinstance(name, Block):
+			self.copy(name)
+			return
 		self._name   = name
 		self.enable  = True	# Enabled/Visible in drawing
 		self.expand  = False	# Expand in editor
-#		self.start   = None	# starting coordinates
-#		self.stop    = None	# exit coordinates
-
 		self._path   = []	# canvas drawing paths
 		self.x = self.y = self.z = 0	# ending coordinates
+
+	#----------------------------------------------------------------------
+	def copy(self, src):
+		self._name   = src._name
+		self.enable  = src.enable
+		self.expand  = src.expand
+		self[:]    = src[:]
+		self._path = []
+		self.x     = src.x
+		self.y     = src.y
+		self.z     = src.z
 
 	#----------------------------------------------------------------------
 	def name(self):
@@ -1112,6 +1126,25 @@ class GCode:
 		self.addBlockFromString("Footer",self.footer)
 
 	#----------------------------------------------------------------------
+	# Enter to material or start the laser
+	#----------------------------------------------------------------------
+	def zenter(self, z):
+		if CNC.lasercutter:
+			return "m3"
+		else:
+			return "g1 %s %s"%(self.fmt("z",z), self.fmt("f",self.feedz))
+
+	#----------------------------------------------------------------------
+	# gcode to go to z-safe
+	# Exit from material or stop the laser
+	#----------------------------------------------------------------------
+	def zsafe(self):
+		if CNC.lasercutter:
+			return "m5"
+		else:
+			return "g0 %s"%(self.fmt("z",self.safe))
+
+	#----------------------------------------------------------------------
 	# Load DXF file into gcode
 	#----------------------------------------------------------------------
 	def importDXF(self, filename):
@@ -1119,8 +1152,7 @@ class GCode:
 			dxf = DXF(filename,"r")
 		except:
 			return False
-		name,ext = os.path.splitext(filename)
-		self.filename = "%s.ngc"%(name)
+		self.filename = ""
 
 		dxf.readFile()
 		dxf.close()
@@ -1224,9 +1256,8 @@ class GCode:
 
 			x,y = entities[i].start()
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",self.surface),
-						self.fmt("f",self.feedz)))
-			block.append("g0 %s"%(self.fmt("z",self.safe)))
+			block.append(self.zenter(self.surface))
+			block.append(self.zsafe())
 			undoinfo.append(self.addBlockUndo(pos,block))
 			if pos is not None: pos += 1
 
@@ -1286,8 +1317,7 @@ class GCode:
 			if z is None: z = self.surface
 			if entry:
 				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",z), self.fmt("f",self.feedz)))
-
+			block.append(self.zenter(z))
 			first = True
 			for segment in path:
 				x,y = segment.end
@@ -1306,7 +1336,7 @@ class GCode:
 					block[-1] += " %s"%(self.fmt("f",self.feed))
 					first = False
 			if exit:
-				block.append("g0 %s"%(self.fmt("z",self.safe)))
+				block.append(self.zsafe())
 		else:
 			for p in path:
 				self.fromPath(p, block)
@@ -1437,6 +1467,12 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Clone line inside a block
+	#----------------------------------------------------------------------
+	def cloneLineUndo(self, bid, lid):
+		return self.insLineUndo(bid, lid, self.blocks[bid][lid])
+
+	#----------------------------------------------------------------------
 	# Delete line from block
 	#----------------------------------------------------------------------
 	def delLineUndo(self, bid, lid):
@@ -1456,6 +1492,12 @@ class GCode:
 		else:
 			self.blocks.insert(bid, block)
 		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Clone a block
+	#----------------------------------------------------------------------
+	def cloneBlockUndo(self, bid):
+		return self.addBlockUndo(bid, Block(self.blocks[bid]))
 
 	#----------------------------------------------------------------------
 	# Delete a whole block
@@ -1799,18 +1841,14 @@ class GCode:
 				if self.cnc.dz<0.0:
 					# drill point
 					if peck is None:
-						lines.append("g1 %s %s"%(
-							self.fmt("z",depth),
-							self.fmt("f",self.feedz)))
-						lines.append("g0 %s"%(self.fmt("z",self.safe)))
+						lines.append(self.zenter(depth))
+						lines.append(self.zsafe())
 					else:
 						z = self.surface
 						while z>depth:
 							z = max(z-peck, depth)
-							lines.append("g1 %s %s"%(
-								self.fmt("z",z),
-								self.fmt("f",self.feedz)))
-							lines.append("g0 %s"%(self.fmt("z",self.safe)))
+							lines.append(self.zenter(z))
+							lines.append(self.zsafe())
 							if dwell:
 								lines.append("g4 %s"%(self.fmt("p",dwell)))
 

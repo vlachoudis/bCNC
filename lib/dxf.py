@@ -220,7 +220,11 @@ class DXF:
 
 		line = self._f.readline()
 		if not line: return None, None
-		tag   = int(line.strip())
+		try:
+			tag = int(line.strip())
+		except:
+			sys.stderr.write("Error reading line %s\n"%(line))
+			return None,None
 		value = self._f.readline().strip()
 		try:
 			value = int(value)

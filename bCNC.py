@@ -184,10 +184,11 @@ class Application(Toplevel,Sender):
 				side = LEFT
 			self.ribbon.addPage(pages[name],side)
 
-		self.ribbon.changePage("File")
+		# Restore last page
+		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
-		self.bind("<<Add>>",			self.editor.insertLine)
-#		self.bind("<<Clone>>",			self.editor.insertLine)
+		self.bind("<<Add>>",			self.editor.insertItem)
+		self.bind("<<Clone>>",			self.editor.clone)
 		self.bind("<<Delete>>",			self.editor.deleteLine)
 
 		# Canvas X-bindings
@@ -440,6 +441,7 @@ class Application(Toplevel,Sender):
 
 		#save windowState
 		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
+		Utils.config.set(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
 #		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
 
 		# Connection

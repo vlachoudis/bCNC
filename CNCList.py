@@ -285,6 +285,27 @@ class CNCListbox(Listbox):
 		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
+	def clone(self, event=None):
+		sel = list(map(int,self.curselection()))
+		if not sel: return
+
+		ypos = self.yview()[0]
+		undoinfo = []
+		for i in reversed(sel):
+			bid, lid = self._items[i]
+			if lid is None:
+				undoinfo.append(self.gcode.cloneBlockUndo(bid))
+			else:
+				undoinfo.append(self.gcode.cloneLineUndo(bid, lid))
+		self.gcode.addUndo(undoinfo)
+		self.selection_clear(0,END)
+		self.fill()
+		self.yview_moveto(ypos)
+		self.selection_set(ACTIVE)
+		self.see(ACTIVE)
+		self.event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
 	# Button1 clicked
 	# ----------------------------------------------------------------------
 	def button1(self, event):

@@ -431,6 +431,7 @@ class CNC(Base):
 		self.name = "CNC"
 		self.variables = [
 			("units"         , "bool", 0    , "Units (inches)")   ,
+			("lasercutter"   , "bool", 0    , "Lasercutter")   ,
 			("acceleration_x", "mm"  , 25.0 , "Acceleration x")   ,
 			("acceleration_y", "mm"  , 25.0 , "Acceleration y")   ,
 			("acceleration_z", "mm"  , 5.0  , "Acceleration z")   ,

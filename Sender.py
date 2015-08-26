@@ -228,9 +228,11 @@ class Sender:
 	def _loadRecent9(self,event): self.loadRecent(9)
 
 	#----------------------------------------------------------------------
-	def _saveConfigFile(self):
-		Utils.setStr("File", "dir",   os.path.dirname(os.path.abspath(self.gcode.filename)))
-		Utils.setStr("File", "file",  os.path.basename(self.gcode.filename))
+	def _saveConfigFile(self, filename=None):
+		if filename is None:
+			filename = self.gcode.filename
+		Utils.setStr("File", "dir",   os.path.dirname(os.path.abspath(filename)))
+		Utils.setStr("File", "file",  os.path.basename(filename))
 		Utils.setStr("File", "probe", os.path.basename(self.gcode.probe.filename))
 
 	#----------------------------------------------------------------------
@@ -246,7 +248,7 @@ class Sender:
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
-			self._saveConfigFile()
+			self._saveConfigFile(filename)
 		else:
 			self.gcode.load(filename)
 			self._saveConfigFile()
