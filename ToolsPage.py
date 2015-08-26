@@ -628,13 +628,13 @@ class Tools:
 		self.gcode  = gcode
 		self.inches = False
 		self.digits = 4
+		self.active = StringVar()
 
 		self.tools   = {}
 		self.buttons = {}
 		self.listbox = None
+
 		# CNC should be first to load the inches
-		#	"Cut"       #	"Hole"      #	"Profile"   #	"Rectangle" #	"Tab"
-		#                      XX     XX    XX       XX         XX       XX
 		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
 			tool = cls(self)
 			self.tools[tool.name.upper()] = tool
@@ -642,6 +642,14 @@ class Tools:
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):
 		self.listbox = listbox
+
+	# ----------------------------------------------------------------------
+	def __getitem__(self, name):
+		return self.tools[name.upper()]
+
+	# ----------------------------------------------------------------------
+	def getActive(self):
+		return self.tools[self.active.get().upper()]
 
 	# ----------------------------------------------------------------------
 	def toMm(self, value):
@@ -665,17 +673,15 @@ class Tools:
 
 	# ----------------------------------------------------------------------
 	def load(self, config):
+		self.active.set(Utils.getStr(Utils.__prg__, "tool", "CNC"))
 		for tool in self.tools.values():
 			tool.load(config)
 
 	# ----------------------------------------------------------------------
 	def save(self, config):
+		Utils.setStr(Utils.__prg__, "tool", self.active.get())
 		for tool in self.tools.values():
 			tool.save(config)
-
-	# ----------------------------------------------------------------------
-	def __getitem__(self, name):
-		return self.tools[name.upper()]
 
 	# ----------------------------------------------------------------------
 	def cnc(self):
@@ -708,7 +714,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				text="Stock",
 				compound=TOP,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Stock",
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
@@ -723,7 +729,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				text="Material",
 				compound=LEFT,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Material",
 #				command=app.editor.toggleEnable,
 				background=Ribbon._BACKGROUND)
@@ -738,7 +744,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				text="End Mill",
 				compound=LEFT,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="EndMill",
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
@@ -813,7 +819,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				text="Cut",
 				compound=TOP,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Cut",
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
@@ -828,7 +834,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				text="Profile",
 				compound=TOP,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Profile",
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
@@ -843,7 +849,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				text="Pocket",
 				compound=LEFT,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Pocket",
 				state=DISABLED,
 #				command=app.editor.toggleEnable,
@@ -859,7 +865,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				text="Drill",
 				compound=LEFT,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Drill",
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
@@ -874,7 +880,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				text="Tabs",
 				compound=LEFT,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="Tabs",
 				state=DISABLED,
 #				command=lambda s=app:s.insertCommand("REVERSE", True),
@@ -904,7 +910,7 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 					text=cls.name,
 					compound=LEFT,
 					anchor=W,
-					variable=selectedTool,
+					variable=app.tools.active,
 					value=cls.name,
 					state=DISABLED,
 					background=Ribbon._BACKGROUND)
@@ -930,7 +936,7 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 				text="Config",
 				compound=TOP,
 				anchor=W,
-				variable=selectedTool,
+				variable=app.tools.active,
 				value="CNC",
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
@@ -970,29 +976,14 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
 
-		global selectedTool
-		selectedTool.trace('w',self.change)
-
-	#----------------------------------------------------------------------
-	def getActiveTool(self):
-		global selectedTool
-		return self.tools[selectedTool.get()]
-
-	#----------------------------------------------------------------------
-	def get(self):
-		global selectedTool
-		return selectedTool.get()
-
-	#----------------------------------------------------------------------
-	def set(self, tool):
-		global selectedTool
-		selectedTool.set(tool)
+		app.tools.active.trace('w',self.change)
+		self.change()
 
 	#----------------------------------------------------------------------
 	# Populate listbox with new values
 	#----------------------------------------------------------------------
 	def change(self, a=None, b=None, c=None):
-		tool = self.getActiveTool()
+		tool = self.tools.getActive()
 		tool.populate()
 		tool.update()
 		self.tools.activateButtons(tool)
@@ -1001,31 +992,31 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	# Edit tool listbox
 	#----------------------------------------------------------------------
 	def edit(self, event=None):
-		self.getActiveTool().edit(event)
+		self.tools.getActive().edit(event)
 
 	#----------------------------------------------------------------------
 	def rename(self, event=None):
-		self.getActiveTool().edit(event)
+		self.tools.getActive().edit(event)
 
 	#----------------------------------------------------------------------
 	def execute(self, event=None):
-		self.getActiveTool().execute(self.app)
+		self.tools.getActive().execute(self.app)
 
 	#----------------------------------------------------------------------
 	def add(self, event=None):
-		self.getActiveTool().add()
+		self.tools.getActive().add()
 
 	#----------------------------------------------------------------------
 	def delete(self, event=None):
-		self.getActiveTool().delete()
+		self.tools.getActive().delete()
 
 	#----------------------------------------------------------------------
 	def clone(self, event=None):
-		self.getActiveTool().clone()
+		self.tools.getActive().clone()
 
 	#----------------------------------------------------------------------
 	def rename(self, event=None):
-		self.getActiveTool().rename()
+		self.tools.getActive().rename()
 
 #===============================================================================
 # Tools Page
@@ -1040,16 +1031,7 @@ class ToolsPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		global selectedTool
-		selectedTool = StringVar()
-		selectedTool.set("Stock")
 		self._register((DataBaseGroup,CAMGroup,MacrosGroup,ConfigGroup), (ToolsFrame,))
-
-		toolFrame = CNCRibbon.Page.frames["Tools"]
-		try:
-			toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
-		except:
-			toolFrame.set("Box")
 
 	#----------------------------------------------------------------------
 	def add(self, event=None):

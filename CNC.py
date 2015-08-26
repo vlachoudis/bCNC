@@ -1181,7 +1181,7 @@ class GCode:
 				longest = opath.pop(li)
 				longest.mergeLoops(opath)
 
-				undoinfo.extend(self.importPath(None, longest, enable))
+				undoinfo.extend(self.importPath(None, longest, None, enable))
 #				d = longest.direction()
 #				bid = len(self.blocks)-1
 #				if d==0:
@@ -1191,7 +1191,7 @@ class GCode:
 #				elif d==-1:
 #					undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
-			undoinfo.extend(self.importPath(None, opath, enable))
+			undoinfo.extend(self.importPath(None, opath, None, enable))
 #			d = opath.direction()
 #			bid = len(self.blocks)-1
 #			if d==0:
@@ -1202,9 +1202,7 @@ class GCode:
 #				undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
 		if empty: self.addBlockFromString("Footer",self.footer)
-
 		#self.addUndo(undoinfo)
-
 		return True
 
 	#----------------------------------------------------------------------
@@ -1344,14 +1342,15 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Import paths as block
+	# return ids of blocks added in newblocks list if declared
 	#----------------------------------------------------------------------
-	def importPath(self, pos, paths, enable=True, multiblock=True):
+	def importPath(self, pos, paths, newblocks=None, enable=True, multiblock=True):
 		undoinfo = []
-
 		if isinstance(paths,Path):
 			block = self.fromPath(paths)
 			block.enable = enable
 			undoinfo.append(self.addBlockUndo(pos,block))
+			if newblocks is not None: newblocks.append(pos)
 		else:
 			block = None
 			for path in paths:
@@ -1361,11 +1360,13 @@ class GCode:
 				if multiblock:
 					block.enable = enable
 					undoinfo.append(self.addBlockUndo(pos,block))
+					if newblocks is not None: newblocks.append(pos)
 					if pos is not None: pos += 1
 					block = None
 			if not multiblock:
 				block.enable = enable
 				undoinfo.append(self.addBlockUndo(pos,block))
+				if newblocks is not None: newblocks.append(pos)
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1938,11 +1939,14 @@ class GCode:
 	#----------------------------------------------------------------------
 	# make a profile on block
 	# offset +/- defines direction = tool/2
+	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
 	def profile(self, blocks, offset):
 		undoinfo = []
 		msg = ""
+		newblocks = []
 		for bid in reversed(blocks):
+			print "<<<bid=",bid
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
@@ -1967,9 +1971,17 @@ class GCode:
 				opath = opath.split2contours()
 				if opath: newpath.extend(opath)
 			if newpath:
-				undoinfo.extend(self.importPath(bid+1, newpath, True, False))
+				before = len(newblocks)	# remember length to shift all new blocks the are inserted in-front
+				undoinfo.extend(self.importPath(bid+1, newpath, newblocks, True, False))
+				new = len(newblocks)-before
+				for i in range(before):
+					newblocks[i] += new
 				self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
+
+		# return new blocks inside the blocks list
+		del blocks[:]
+		blocks.extend(newblocks)
 		return msg
 
 	#----------------------------------------------------------------------

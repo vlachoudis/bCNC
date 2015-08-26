@@ -428,32 +428,30 @@ class Application(Toplevel,Sender):
 			pass
 
 		self.tools.load(Utils.config)
-
 		Sender.loadConfig(self)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
 		# Program
-		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
-		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
-		#Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
-		#Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		Utils.setInt(Utils.__prg__,  "width",    str(self.winfo_width()))
+		Utils.setInt(Utils.__prg__,  "height",   str(self.winfo_height()))
+		#Utils.setInt(Utils.__prg__,  "x",        str(self.winfo_rootx()))
+		#Utils.setInt(Utils.__prg__,  "y",        str(self.winfo_rooty()))
 
 		#save windowState
-		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
-		Utils.config.set(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
-#		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
+		Utils.setStr(Utils.__prg__,  "windowstate", str(self.wm_state()))
+		Utils.setStr(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
 
 		# Connection
-		Utils.config.set("Connection", "port", self.portCombo.get())
+		Utils.setStr("Connection", "port", self.portCombo.get())
 
 		self.canvasFrame.saveConfig()
 		self.control.saveConfig()
 
 		# Probe
-		Utils.config.set("Probe", "x",    self.probeXdir.get())
-		Utils.config.set("Probe", "y",    self.probeYdir.get())
-		Utils.config.set("Probe", "z",    self.probeZdir.get())
+		Utils.setFloat("Probe", "x",    self.probeXdir.get())
+		Utils.setFloat("Probe", "y",    self.probeYdir.get())
+		Utils.setFloat("Probe", "z",    self.probeZdir.get())
 
 		self.autolevel.saveConfig()
 		Sender.saveConfig(self)
@@ -1147,12 +1145,15 @@ class Application(Toplevel,Sender):
 				pass
 
 		self.busy()
-		msg = self.gcode.profile(self.editor.getSelectedBlocks(), ofs*sign)
+		blocks = self.editor.getSelectedBlocks()
+		# on return we have the blocks with the new blocks to select
+		msg = self.gcode.profile(blocks, ofs*sign)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
 					parent=self)
 		self.editor.fill()
+		self.editor.selectBlocks(blocks)
 		self.draw()
 		self.notBusy()
 		self.setStatus("Profile block with ofs=%g"%(ofs*sign))

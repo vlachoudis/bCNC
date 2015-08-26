@@ -497,6 +497,12 @@ class CNCListbox(Listbox):
 		self.selection_set(start,end)
 
 	# ----------------------------------------------------------------------
+	def selectBlocks(self, blocks):
+		self.selection_clear(0,END)
+		for bid in blocks:
+			self.selectBlock(bid)
+
+	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
 	# ----------------------------------------------------------------------
 	def getSelection(self):
