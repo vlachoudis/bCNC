@@ -64,6 +64,13 @@ MAX_HISTORY  = 500
 WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 #ZERO = ["G28", "G30", "G92"]
 
+FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe")),
+		("G-Code",("*.ngc","*.nc", "*.gcode")),
+		("DXF",    "*.dxf"),
+		("SVG",    "*.svg"),
+		("Probe",  "*.probe"),
+		("All",    "*")]
+
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -1214,26 +1221,8 @@ class Application(Toplevel,Sender):
 			initialfile=os.path.join(
 					Utils.config.get("File", "dir"),
 					Utils.config.get("File", "file")),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("DXF",    "*.dxf"),
-				   ("Probe",  "*.probe"),
-				   ("All","*")])
+			filetypes=FILETYPES)
 		if filename: self.load(filename)
-
-	#----------------------------------------------------------------------
-	def loadProbeDialog(self, event=None):
-		try:
-			pfilename = Utils.config.get("File", "probe")
-		except:
-			pfilename = "probe"
-		filename = bFileDialog.askopenfilename(master=self,
-			title="Open Probe file",
-			initialfile=os.path.join(
-					Utils.config.get("File", "dir"),
-					pfilename),
-			filetypes=[("Probe", ("*.probe")),
-				   ("All","*")])
-		if filename: self.loadProbe(filename)
 
 	#----------------------------------------------------------------------
 	# save dialog
@@ -1242,26 +1231,7 @@ class Application(Toplevel,Sender):
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save file",
 			initialfile=os.path.join(self.gcode.filename),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("DXF",    "*.dxf"),
-				   ("Probe", ("*.probe")),
-				   ("All","*")])
-		if filename: self.save(filename)
-
-	#----------------------------------------------------------------------
-	def saveProbeDialog(self, event=None):
-		try:
-			pfilename = Utils.config.get("File", "probe")
-		except:
-			pfilename = "probe"
-		filename = bFileDialog.asksaveasfilename(master=self,
-			title="Save probe file",
-			initialfile=os.path.join(
-					Utils.config.get("File", "dir"),
-					pfilename),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("Probe", ("*.probe")),
-				   ("All","*")])
+			filetypes=FILETYPES)
 		if filename: self.save(filename)
 
 	#----------------------------------------------------------------------
@@ -1282,6 +1252,7 @@ class Application(Toplevel,Sender):
 
 		if ext==".probe":
 			self.autolevel.setValues()
+			self.event_generate("<<DrawProbe>>")
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
@@ -1702,8 +1673,10 @@ if __name__ == "__main__":
 	Utils.loadConfiguration()
 
 	application = Application(tk)
-	if len(sys.argv)>1:
-		application.load(sys.argv[1])
+
+	# Load all files as arguments
+	for fn in sys.argv[1:]:
+		application.load(fn)
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:

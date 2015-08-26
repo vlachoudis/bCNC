@@ -15,6 +15,13 @@ from CNC import CNC
 import tkExtra
 import Utils
 
+# Probe mapping we need PIL and numpy
+try:
+	from PIL import Image, ImageTk
+	import numpy
+except:
+	numpy = None
+
 VIEW_XY      = 0
 VIEW_XZ      = 1
 VIEW_YZ      = 2
@@ -182,6 +189,10 @@ class CNCCanvas(Canvas):
 		self._vector      = None
 		self._lastActive  = None
 		self._lastGantry  = None
+
+		self._image       = None
+		self._tkimage     = None
+		self._probeImage  = None
 
 		self.draw_axes    = True		# Drawing flags
 		self.draw_grid    = True
@@ -550,6 +561,17 @@ class CNCCanvas(Canvas):
 		self.scan_mark(0,0)
 		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
 
+		# Resize probe image if any
+		if self._probeImage:
+			probe = self.gcode.probe
+			size = (int((probe.xmax-probe.xmin)*self.zoom),
+				int((probe.ymax-probe.ymin)*self.zoom))
+
+			self._tkimage = ImageTk.PhotoImage(
+					self._image.resize((size),
+					resample=Image.BILINEAR).convert("RGB"))
+			self.itemconfig(self._probeImage, image=self._tkimage)
+
 	# ----------------------------------------------------------------------
 	# Return selected objects bounding box
 	# ----------------------------------------------------------------------
@@ -907,7 +929,11 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def drawProbe(self):
 		self.delete("Probe")
+		if self._probeImage:
+			self.delete(self._probeImage)
+			self._probeImage = None
 		if not self.draw_probe: return
+		if self.view in (VIEW_XZ, VIEW_YZ): return
 
 		# Draw probe grid
 		probe = self.gcode.probe
@@ -932,6 +958,67 @@ class CNCCanvas(Canvas):
 						justify=CENTER,
 						fill="Green")
 			self.tag_lower(item)
+
+		# Draw image map if numpy exists
+		if numpy is not None and probe.matrix and self.view == VIEW_XY:
+			avg = []
+			for j in range(probe.yn-1):
+				RU = probe.matrix[j]
+				RD = probe.matrix[j+1]
+				row = []
+				for i in range(probe.xn-1):
+					row.append((RU[i]+RU[i+1]+RD[i]+RD[i+1])/4.)
+				avg.append(row)
+
+			array = numpy.array(avg, numpy.float32)
+			lw = array.min()
+			hg = array.max()
+			mx = max(abs(hg),abs(lw))
+			#print "matrix=",probe.matrix
+			#print "size=",array.size
+			#print "array=",array
+			#print "Limits:", lw, hg, mx
+			# scale should be:
+			#  -mx   .. 0 .. mx
+			#  -127     0    127
+			# -127 = light-blue
+			#    0 = white
+			#  127 = light-red
+			dc = mx/127.		# step in colors
+			palette = []
+			for x in bmath.frange(lw, hg+1e-10, (hg-lw)/255.):
+				i = int(math.floor(x / dc))
+				if i<0:
+					palette.append(0xff+i)
+					palette.append(0xff+i)
+					palette.append(0xff)
+				elif i>0:
+					palette.append(0xff)
+					palette.append(0xff-i)
+					palette.append(0xff-i)
+				else:
+					palette.append(0xff)
+					palette.append(0xff)
+					palette.append(0xff)
+				#print ">>", x,i,palette[-3], palette[-2], palette[-1]
+			#print "palette size=",len(palette)/3
+			array = numpy.floor((array-lw)/(hg-lw)*255)
+			self._image = Image.fromarray(array.astype(numpy.int16)).convert('L')
+			self._image.putpalette(palette)
+			#print "zoom=",self.zoom
+
+			# Resampling image based on PIL library and converting to RGB.
+			# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
+
+			size = (int((probe.xmax-probe.xmin)*self.zoom),
+				int((probe.ymax-probe.ymin)*self.zoom))
+
+			self._tkimage = ImageTk.PhotoImage(
+					self._image.resize((size),
+					resample=Image.BILINEAR).convert("RGB"))
+
+			self._probeImage = self.create_image(0,0, image=self._tkimage, anchor='sw')
+			self.tag_lower(self._probeImage)
 
 	#----------------------------------------------------------------------
 	# Draw a probe point
