@@ -158,7 +158,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["TL"],
-				text="Top Left",
+				text="T-L",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE TL",True),
@@ -171,7 +171,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["LC"],
-				text="Left",
+				text="L",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE LC",True),
@@ -184,7 +184,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["BL"],
-				text="Bottom-Left",
+				text="B-L",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE BL",True),
@@ -236,7 +236,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		col,row=2,0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["TR"],
-				text="Top Right",
+				text="T-R",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE TR",True),
@@ -249,7 +249,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["RC"],
-				text="Right",
+				text="R",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE RC",True),
@@ -262,7 +262,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["BR"],
-				text="Bottom-Right",
+				text="B-R",
 				compound=LEFT,
 				anchor=W,
 				command=lambda s=app:s.insertCommand("MOVE BR",True),

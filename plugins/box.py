@@ -21,7 +21,7 @@ class Plugin(DataBase):
 		""
 		DataBase.__init__(self, master)
 		self.name = "Box"
-		self.icon = "empty"
+		self.icon = "box"
 		self.variables = [
 			("name",      "db",    "", "Name"),
 			("dx",        "mm", 100.0, "Width Dx"),

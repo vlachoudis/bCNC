@@ -8,7 +8,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-__name__ = "Box"
+__name__ = "Gear"
 
 from ToolsPage import DataBase
 
@@ -21,7 +21,7 @@ class Plugin(DataBase):
 		""
 		DataBase.__init__(self, master)
 		self.name = "Gear"
-		self.icon = "empty"
+		self.icon = "gear"
 		self.variables = [
 			("name",      "db",    "", "Name"),
 			("dx",        "mm", 100.0, "Width Dx"),

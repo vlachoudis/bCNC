@@ -1017,6 +1017,15 @@ class CNCCanvas(Canvas):
 					self._image.resize((size),
 					resample=Image.BILINEAR).convert("RGB"))
 
+#			if self.view == VIEW_ISO1:
+#				w, h = size
+#				size2 = (int(S60*(w+h)),
+#					 int(C60*(w+h)))
+#				image2 = self._image.transform(size2, Image.AFFINE,
+#					( 0.5/S60, 0.5/C60, -h/2,
+#					 -0.5/S60, 0.5/C60,  h/2),
+#					 resample=Image.BILINEAR)
+
 			self._probeImage = self.create_image(0,0, image=self._tkimage, anchor='sw')
 			self.tag_lower(self._probeImage)
 

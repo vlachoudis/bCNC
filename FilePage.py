@@ -30,59 +30,6 @@ except:
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
-#	#----------------------------------------------------------------------
-#	def createMenu(self):
-#		# Menu bar
-#		menubar = Menu(self)
-#		self.config(menu=menubar)
-#
-#		menu.add_command(label="Reload", underline=0,
-#					image=Utils.icons["load"],
-#					compound=LEFT,
-#					command=self.reload)
-#		self.widgets.append((menu,i))
-#
-#		i += 1
-#		menu.add_separator()
-#
-#		i += 1
-#		menu.add_command(label="Import", underline=0,
-#					image=Utils.icons["empty"],
-#					compound=LEFT,
-#					command=self.importFile)
-#		self.widgets.append((menu,i))
-#
-#		i += 1
-#		menu.add_separator()
-#
-#		i += 1
-#		submenu = Menu(menu)
-#		menu.add_cascade(label="Probe", underline=0,
-#					image=Utils.icons["empty"],
-#					compound=LEFT,
-#					menu=submenu)
-#
-#		ii = 1
-#		submenu.add_command(label="Open", underline=0,
-#					image=Utils.icons["load"],
-#					compound=LEFT,
-#					command=self.loadProbeDialog)
-#		self.widgets.append((submenu,ii))
-#
-#		ii += 1
-#		submenu.add_command(label="Save", underline=0,
-#					image=Utils.icons["save"],
-#					compound=LEFT,
-#					command=self.saveProbe)
-#		self.widgets.append((submenu,ii))
-#
-#		ii += 1
-#		submenu.add_command(label="Save As", underline=0,
-#					image=Utils.icons["save"],
-#					compound=LEFT,
-#					command=self.saveProbeDialog)
-#		self.widgets.append((submenu,ii))
-
 #===============================================================================
 # Recent Menu button
 #===============================================================================
