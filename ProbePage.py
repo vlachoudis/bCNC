@@ -416,27 +416,6 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		probe.clear()
 		self.app.run(lines=probe.scan())
 
-# FIXME to be deleted...
-#		if self.serial is None or self.running: return
-#		probe = self.gcode.probe
-#		self.initRun()
-#
-#		# absolute
-#		probe.clear()
-#		lines = probe.scan()
-#		self._runLines = len(lines)
-#		self._gcount   = 0
-#		self._selectI  = -1		# do not show any lines selected
-#
-#		self.statusbar.setLimits(0, self._runLines)
-#		self.statusbar.configText(fill="White")
-#		self.statusbar.config(background="DarkGray")
-#
-#		self.running = True
-#		# Push commands
-#		for line in lines:
-#			self.queue.put(line)
-
 #===============================================================================
 # Probe Page
 #===============================================================================

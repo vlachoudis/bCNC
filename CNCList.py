@@ -36,7 +36,9 @@ class CNCListbox(Listbox):
 		self.bind("<Delete>",		self.deleteLine)
 		self.bind("<BackSpace>",	self.deleteLine)
 		self.bind("<Control-Key-Up>",	self.orderUp)
+		self.bind("<Control-Key-Prior>",self.orderUp)
 		self.bind("<Control-Key-Down>",	self.orderDown)
+		self.bind("<Control-Key-Next>",	self.orderDown)
 		try:
 			self.bind("<KP_Delete>",self.deleteLine)
 		except:
@@ -556,6 +558,8 @@ class CNCListbox(Listbox):
 		self.selection_clear(0,END)
 
 	# ----------------------------------------------------------------------
+	# Move selected items upwards
+	# ----------------------------------------------------------------------
 	def orderUp(self, event=None):
 		items = self.getCleanSelection()
 		if not items: return
@@ -566,6 +570,8 @@ class CNCListbox(Listbox):
 		return "break"
 
 	# ----------------------------------------------------------------------
+	# Move selected items downwards
+	# ----------------------------------------------------------------------
 	def orderDown(self, event=None):
 		items = self.getCleanSelection()
 		if not items: return
@@ -573,4 +579,15 @@ class CNCListbox(Listbox):
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
 		self.event_generate("<<Modified>>")
+		return "break"
+
+	# ----------------------------------------------------------------------
+	# Invert selected blocks
+	# ----------------------------------------------------------------------
+	def invertBlocks(self, event=None):
+		blocks = self.getSelectedBlocks()
+		if not blocks: return
+		self.gcode.addUndo(self.gcode.invertBlocksUndo(blocks))
+		self.fill()
+		# do not send a modified message, no need to redraw
 		return "break"

@@ -168,14 +168,14 @@ class Probe:
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
-				lines.append("G0Z%.4f\n"%(self.zmax))
-				lines.append("G0X%.4fY%.4f\n"%(x,y))
-				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
+				lines.append("G0Z%.4f"%(self.zmax))
+				lines.append("G0X%.4fY%.4f"%(x,y))
+				lines.append("G38.2Z%.4fF%g"%(self.zmin, self.feed))
 				x += xstep
 			x -= xstep
 			xstep = -xstep
-		lines.append("G0Z%.4f\n"%(self.zmax))
-		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
+		lines.append("G0Z%.4f"%(self.zmax))
+		lines.append("G0X%.4fY%.4f"%(self.xmin,self.ymin))
 		return lines
 
 	#----------------------------------------------------------------------
@@ -939,28 +939,46 @@ class Block(list):
 		return self._name is None and "block" or self._name
 
 	#----------------------------------------------------------------------
-	def addOperation(self, operation):
-		n = self.name()
-		pat = OPPAT.match(n)
+	# @return the new name with an operation (static)
+	#----------------------------------------------------------------------
+	@staticmethod
+	def operationName(name, operation):
+		pat = OPPAT.match(name)
 		if pat is None:
-			self._name = "%s [%s]"%(n,operation)
+			return "%s [%s]"%(name,operation)
 		else:
-			n = pat.group(1)
+			name = pat.group(1).strip()
 			ops = pat.group(2).split(',')
-			if operation in ops:
-				return
 			if ":" in operation:
-				oid = operation.split(":")[0]
+				oid,opt = operation.split(":")
 			else:
 				oid = operation
+				opt = None
 			for i,o in enumerate(ops):
-				if ":" in o: o = o.split(":")[0]
+				if ":" in o:
+					o,c = o.split(":")
+					try:
+						c = int(c)
+					except:
+						c = 1
+				else:
+					c = 1
 				if o==oid:
-					ops[i] = operation
+					if opt is not None or c is None:
+						ops[i] = operation
+					else:
+						ops[i] = "%s:%d"%(oid,c+1)
 					break
 			else:
 				ops.append(operation)
-			self._name = "%s [%s]"%(n.strip(),','.join(ops))
+			return "%s [%s]"%(name,','.join(ops))
+
+	#----------------------------------------------------------------------
+	# Add a new operation to the block's name
+	#----------------------------------------------------------------------
+	def addOperation(self, operation):
+		n = self.name()
+		self._name = Block.operationName(self.name(), operation)
 
 	#----------------------------------------------------------------------
 	def header(self):
@@ -1545,6 +1563,29 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Swap two blocks
+	#----------------------------------------------------------------------
+	def swapBlockUndo(self, a, b):
+		undoinfo = (self.swapBlockUndo, a, b)
+		tmp = self.blocks[a]
+		self.blocks[a] = self.blocks[b]
+		self.blocks[b] = tmp
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Invert selected blocks
+	#----------------------------------------------------------------------
+	def invertBlocksUndo(self, blocks):
+		undoinfo = []
+		first = 0
+		last  = len(blocks)-1
+		while first < last:
+			undoinfo.append(self.swapBlockUndo(blocks[first],blocks[last]))
+			first += 1
+			last  -= 1
+		return undoinfo
+
+	#----------------------------------------------------------------------
 	# Move block upwards
 	#----------------------------------------------------------------------
 	def orderUpBlockUndo(self, bid):
@@ -1770,7 +1811,8 @@ class GCode:
 			if lid is None:
 				undoinfo.append(self.orderUpBlockUndo(bid))
 				if bid==0:
-					sel.append((bid,None))
+					return items
+					#sel.append((bid,None))
 				else:
 					sel.append((bid-1,None))
 			else:
@@ -1789,7 +1831,8 @@ class GCode:
 			if lid is None:
 				undoinfo.append(self.orderDownBlockUndo(bid))
 				if bid>=len(self.blocks)-1:
-					sel.append((bid,None))
+					return items
+					#sel.append((bid,None))
 				else:
 					sel.append((bid+1,None))
 			else:
@@ -1946,7 +1989,6 @@ class GCode:
 		msg = ""
 		newblocks = []
 		for bid in reversed(blocks):
-			print "<<<bid=",bid
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
@@ -1960,9 +2002,9 @@ class GCode:
 				D = path.direction()
 				if D==0: D=1
 				if offset>0:
-					name = "%s [out]"%(path.name)
+					name = Block.operationName(path.name, "out")
 				else:
-					name = "%s [in]"%(path.name)
+					name = Block.operationName(path.name, "in")
 				opath = path.offset(D*offset, name)
 				#print "opath=",opath
 				opath.intersect()
@@ -2330,3 +2372,10 @@ class GCode:
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths
+
+
+#if __name__=="__main__":
+#	import pdb; pdb.set_trace()
+#	#print Block.operationName("door","in")
+#	print Block.operationName("door [in:2,cut:0.1]","cut:0.5")
+#	print Block.operationName("door [in:2,cut:0.1]","in")

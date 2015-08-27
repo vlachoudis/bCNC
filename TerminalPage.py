@@ -25,11 +25,10 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Terminal", app)
 
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<<TerminalClear>>",
 				image=Utils.icons["clean32"],
 				text="Clear",
 				compound=TOP,
-#				command=self.clear,
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
 		tkExtra.Balloon.set(b, "Clear terminal")
@@ -142,7 +141,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
 		self.terminal.tag_config("ERROR", foreground="Red")
 
 	#----------------------------------------------------------------------
-	def clear(self):
+	def clear(self, event=None):
 		self.terminal["state"] = NORMAL
 		self.terminal.delete("1.0",END)
 		self.terminal["state"] = DISABLED

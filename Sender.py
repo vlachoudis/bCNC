@@ -276,9 +276,9 @@ class Sender:
 	def saveAll(self, event=None):
 		if self.gcode.filename:
 			self.save(self.gcode.filename)
-			self.save(self.gcode.probe.filename)
-		else:
-			self.saveDialog()
+			if self.gcode.probe.filename:
+				self.save(self.gcode.probe.filename)
+		return "break"
 
 	#----------------------------------------------------------------------
 	# Open serial port

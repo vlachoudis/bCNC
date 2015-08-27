@@ -17,6 +17,7 @@ import pdb
 import time
 import serial
 import socket
+import traceback
 
 try:
 	import Tkinter
@@ -196,8 +197,8 @@ class Application(Toplevel,Sender):
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
 		self.canvas.bind('<Control-Key-v>',	self.paste)
-#		self.canvas.bind("<Control-Key-Up>",	self.commandOrderUp)
-#		self.canvas.bind("<Control-Key-Down>",	self.commandOrderDown)
+		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
+		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
 		self.canvas.bind("<Delete>",		self.editor.deleteLine)
 		self.canvas.bind("<BackSpace>",		self.editor.deleteLine)
 		try:
@@ -231,7 +232,9 @@ class Application(Toplevel,Sender):
 		self.bind('<<Recent8>>',        self._loadRecent8)
 		self.bind('<<Recent9>>',        self._loadRecent9)
 
+		self.bind('<<TerminalClear>>',  CNCRibbon.Page.frames["Terminal"].clear)
 		self.bind('<<Help>>',           self.help)
+		self.bind('<<Invert>>',		self.editor.invertBlocks)
 
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
@@ -748,6 +751,10 @@ class Application(Toplevel,Sender):
 		elif cmd=="ECHO":
 			self.setStatus(oline[5:].strip())
 
+		# INV*ERT: invert selected blocks
+		elif rexx.abbrev("INVERT",cmd,3):
+			self.editor.invertBlocks()
+
 		# MSG|MESSAGE <msg>: echo message
 		elif cmd in ("MSG","MESSAGE"):
 			tkMessageBox.showinfo("Message",oline[oline.find(" ")+1:].strip(), parent=self)
@@ -1159,16 +1166,6 @@ class Application(Toplevel,Sender):
 		self.setStatus("Profile block with ofs=%g"%(ofs*sign))
 
 	#----------------------------------------------------------------------
-	def commandOrderUp(self, event=None):
-		self.insertCommand("UP",True)
-		return "break"
-
-	#----------------------------------------------------------------------
-	def commandOrderDown(self, event=None):
-		self.insertCommand("DOWN",True)
-		return "break"
-
-	#----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
 		if self._historyPos is None:
 			if self.history:
@@ -1267,9 +1264,17 @@ class Application(Toplevel,Sender):
 
 	#----------------------------------------------------------------------
 	def save(self, filename):
-		Sender.save(self,filename)
+		Sender.save(self, filename)
 		self.setStatus("'%s' saved"%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
+
+	#----------------------------------------------------------------------
+	def saveAll(self, event=None):
+		if self.gcode.filename:
+			Sender.saveAll(self)
+		else:
+			self.saveDialog()
+		return "break"
 
 	#----------------------------------------------------------------------
 	def reload(self, event=None):
@@ -1466,13 +1471,14 @@ class Application(Toplevel,Sender):
 				"Please stop before",
 				parent=self)
 			return
-		if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
-			tkMessageBox.showerror("Probe is not zeroed",
-				"Please ZERO any location of the probe before starting a run",
-				parent=self)
-			return
 
 		if lines is None:
+			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
+				tkMessageBox.showerror("Probe is not zeroed",
+					"Please ZERO any location of the probe before starting a run",
+					parent=self)
+				return
+
 			lines,paths = self.gcode.prepare2Run()
 			if not lines:
 				tkMessageBox.showerror("Empty gcode",
@@ -1509,6 +1515,8 @@ class Application(Toplevel,Sender):
 		self._gcount  = 0
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
+
+		self.statusbar.setLimits(0, self._runLines)
 		self.statusbar.configText(fill="White")
 		self.statusbar.config(background="DarkGray")
 
@@ -1621,7 +1629,7 @@ class Application(Toplevel,Sender):
 				self._probeZ["text"] = probe[2]
 			except:
 				pass
-			self.canvas.drawProbePoint(probe)
+			self.canvas.drawProbe()
 			self._probeUpdate = False
 
 		if inserted:
@@ -1652,7 +1660,8 @@ class Application(Toplevel,Sender):
 			self._monitorSerial()
 		except:
 			print "Exception in monitor serial"
-			print sys.exc_info()
+			typ, val, tb = sys.exc_info()
+			traceback.print_exception(typ, val, tb)
 		self.after(MONITOR_AFTER, self.monitorSerial)
 
 	#----------------------------------------------------------------------

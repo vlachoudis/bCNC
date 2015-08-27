@@ -80,19 +80,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["reverse"],
-				text="Reverse",
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("REVERSE", True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Reverse direction of selected gcode blocks")
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["digits"],
 				text="Round",
 				compound=LEFT,
@@ -280,28 +267,38 @@ class OrderGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		col,row=0,0
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<Control-Key-Prior>",
 				image=Utils.icons["up"],
 				text="Up",
 				compound=LEFT,
 				anchor=W,
-				command=app.commandOrderUp,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Move selected g-code up [Ctrl-Up]")
+		tkExtra.Balloon.set(b, "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]")
 		self.addWidget(b)
 
 		# ---
 		row += 1
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<Control-Key-Next>",
 				image=Utils.icons["down"],
 				text="Down",
 				compound=LEFT,
 				anchor=W,
-				command=app.commandOrderDown,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Move selected g-code down [Ctrl-Down]")
+		tkExtra.Balloon.set(b, "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, self, "<<Invert>>",
+				image=Utils.icons["swap"],
+				text="Invert",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Invert cutting order of selected blocks")
 		self.addWidget(b)
 
 #===============================================================================
@@ -365,7 +362,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ---
-		row += 2
+		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["flip-vertical"],
 				text="Vertical",
@@ -377,6 +374,18 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, "Mirror vertically Y=-Y selected gcode")
 		self.addWidget(b)
 
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["reverse"],
+				text="Reverse",
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("REVERSE", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Reverse direction of selected gcode blocks")
+		self.addWidget(b)
 
 #		submenu.add_command(label="Rotate command", underline=0,
 #					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))

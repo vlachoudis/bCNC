@@ -310,7 +310,10 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def updateCoords(self):
-		focus = self.focus_get()
+		try:
+			focus = self.focus_get()
+		except:
+			focus = None
 		if focus is not self.xwork: self.xwork.set(CNC.vars["wx"])
 		if focus is not self.ywork: self.ywork.set(CNC.vars["wy"])
 		if focus is not self.zwork: self.zwork.set(CNC.vars["wz"])
@@ -926,6 +929,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def updateG(self):
 		global wcsvar
 		self._gUpdate = True
+		try:
+			focus = self.focus_get()
+		except:
+			focus = None
 		for g in CNC.vars["G"]:
 			if g[0]=='G':
 				try:
@@ -937,11 +944,11 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 					except ValueError:
 						pass
 			elif g[0] == 'F':
-				if self.focus_get() is not self.feedRate:
+				if focus is not self.feedRate:
 					self.feedRate.set(g[1:])
 
 			elif g[0] == 'T':
-				if self.focus_get() is not self.toolEntry:
+				if focus is not self.toolEntry:
 					self.toolEntry.set(g[1:])
 
 			elif g[0] == 'S':

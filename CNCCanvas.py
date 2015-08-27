@@ -70,8 +70,15 @@ SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
-
 CLOSE_DISTANCE = 5
+MAXDIST      = 10000
+
+# Resampling image based on PIL library and converting to RGB.
+# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
+RESAMPLE    = Image.NEAREST	# resize type
+
+S60 = math.sin(math.radians(60))
+C60 = math.cos(math.radians(60))
 
 DEF_CURSOR = ""
 MOUSE_CURSOR = {
@@ -105,11 +112,6 @@ MOUSE_CURSOR = {
 
 #	ACTION_EDIT          : "pencil",
 }
-
-MAXDIST      = 10000
-
-S60 = math.sin(math.radians(60))
-C60 = math.cos(math.radians(60))
 
 # ------------------------------------------------------------------------------
 def mouseCursor(action):
@@ -563,13 +565,7 @@ class CNCCanvas(Canvas):
 
 		# Resize probe image if any
 		if self._probeImage:
-			probe = self.gcode.probe
-			size = (int((probe.xmax-probe.xmin)*self.zoom),
-				int((probe.ymax-probe.ymin)*self.zoom))
-
-			self._tkimage = ImageTk.PhotoImage(
-					self._image.resize((size),
-					resample=Image.BILINEAR).convert("RGB"))
+			self._projectProbeImage()
 			self.itemconfig(self._probeImage, image=self._tkimage)
 
 	# ----------------------------------------------------------------------
@@ -961,16 +957,8 @@ class CNCCanvas(Canvas):
 
 		# Draw image map if numpy exists
 		if numpy is not None and probe.matrix and self.view == VIEW_XY:
-			avg = []
-			for j in range(probe.yn-1):
-				RU = probe.matrix[j]
-				RD = probe.matrix[j+1]
-				row = []
-				for i in range(probe.xn-1):
-					row.append((RU[i]+RU[i+1]+RD[i]+RD[i+1])/4.)
-				avg.append(row)
+			array = numpy.array(list(reversed(probe.matrix)), numpy.float32)
 
-			array = numpy.array(avg, numpy.float32)
 			lw = array.min()
 			hg = array.max()
 			mx = max(abs(hg),abs(lw))
@@ -1005,17 +993,25 @@ class CNCCanvas(Canvas):
 			array = numpy.floor((array-lw)/(hg-lw)*255)
 			self._image = Image.fromarray(array.astype(numpy.int16)).convert('L')
 			self._image.putpalette(palette)
-			#print "zoom=",self.zoom
+			self._image = self._image.convert("RGB")
 
-			# Resampling image based on PIL library and converting to RGB.
-			# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
+			self._projectProbeImage()
+			self._probeImage = self.create_image(0,0, image=self._tkimage, anchor='sw')
+			self.tag_lower(self._probeImage)
 
-			size = (int((probe.xmax-probe.xmin)*self.zoom),
-				int((probe.ymax-probe.ymin)*self.zoom))
+	#----------------------------------------------------------------------
+	# Create the tkimage for the current projection
+	#----------------------------------------------------------------------
+	def _projectProbeImage(self):
+		probe = self.gcode.probe
+		size = (int((probe.xmax-probe.xmin + probe._xstep)*self.zoom),
+			int((probe.ymax-probe.ymin + probe._ystep)*self.zoom))
+		marginx = int(probe._xstep/2. * self.zoom)
+		marginy = int(probe._ystep/2. * self.zoom)
+		crop = (marginx, marginy, size[0]-marginx, size[1]-marginy)
 
-			self._tkimage = ImageTk.PhotoImage(
-					self._image.resize((size),
-					resample=Image.BILINEAR).convert("RGB"))
+		image = self._image.resize((size), resample=RESAMPLE).crop(crop)
+		self._tkimage = ImageTk.PhotoImage(image)
 
 #			if self.view == VIEW_ISO1:
 #				w, h = size
@@ -1024,21 +1020,7 @@ class CNCCanvas(Canvas):
 #				image2 = self._image.transform(size2, Image.AFFINE,
 #					( 0.5/S60, 0.5/C60, -h/2,
 #					 -0.5/S60, 0.5/C60,  h/2),
-#					 resample=Image.BILINEAR)
-
-			self._probeImage = self.create_image(0,0, image=self._tkimage, anchor='sw')
-			self.tag_lower(self._probeImage)
-
-	#----------------------------------------------------------------------
-	# Draw a probe point
-	#----------------------------------------------------------------------
-	def drawProbePoint(self, xyz):
-		if not self.draw_probe: return
-		xyz[0] += self._dx
-		xyz[1] += self._dy
-		xyz[2] += self._dz
-		uv = self.plotCoords([xyz])
-		item = self.create_text(uv, text="%g"%(xyz[2]), justify=CENTER, fill="Green")
+#					 resample=RESAMPLE)
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
