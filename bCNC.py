@@ -691,31 +691,6 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
 			self.terminal.clear()
 
-		# BOX [dx] [dy] [dz] [nx] [ny] [nz] [tool]: create a finger box
-		elif cmd == "BOX":
-			tool = self.tools["Box"]
-			try:    tool["dx"] = float(line[1])
-			except: pass
-			try:    tool["dy"] = float(line[2])
-			except: pass
-			try:    tool["dz"] = float(line[3])
-			except: pass
-
-			try:    tool["nx"] = float(line[4])
-			except: pass
-			try:    tool["ny"] = float(line[5])
-			except: pass
-			try:    tool["nz"] = float(line[6])
-			except: pass
-
-			try:
-				tool["profile"] = int(rexx.abbrev("PROFILE",line[7].upper()))
-			except: pass
-			try:
-				tool["cut"] = int(rexx.abbrev("CUT",line[7].upper()))
-			except: pass
-			tool.execute(self)
-
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
 			self.ribbon.changePage("Control")
@@ -1133,7 +1108,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#----------------------------------------------------------------------
-	def profile(self, direction=None):
+	def profile(self, direction=None, cut=False):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1153,7 +1128,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.profile(blocks, ofs*sign)
+		msg = self.gcode.profile(blocks, ofs*sign, cut)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),

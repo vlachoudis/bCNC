@@ -592,9 +592,7 @@ class Profile(Base):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
-		app.profile(direction)
-		#if self["cut"]:
-		#	app.executeOnSelection("CUT")
+		app.profile(direction, self["cut"])
 		app.setStatus("Generate profile path")
 
 #==============================================================================

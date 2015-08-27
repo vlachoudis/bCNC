@@ -1937,6 +1937,30 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
+	# Perform a cut on a path an add it to block
+	# @param block	I/O	block to add the cut paths
+	# @param path	I	path to cut
+	# @param z	I	starting z surface
+	# @param depth	I	ending depth
+	# @param stepz	I	stepping in z
+	#----------------------------------------------------------------------
+	def cutPath(self, block,path, z, depth, stepz):
+		closed = path.isClosed()
+		entry  = True
+		exit   = False
+		while z > depth:
+			z = max(z-stepz, depth)
+			if not closed:
+				# on open paths always enter exit
+				entry = exit = True
+			elif abs(z-depth)<1e-7:
+				# last pass
+				exit =True
+			self.fromPath(path, block, z, entry, exit)
+			entry = False
+		return block
+
+	#----------------------------------------------------------------------
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
@@ -1962,20 +1986,7 @@ class GCode:
 			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
-				closed = path.isClosed()
-				z = self.cnc["surface"]
-				entry = True
-				exit  = False
-				while z > depth:
-					z = max(z-stepz, depth)
-					if not closed:
-						# on open paths always enter exit
-						entry = exit = True
-					elif abs(z-depth)<1e-7:
-						# last pass
-						exit =True
-					self.fromPath(path, newblock, z, entry, exit)
-					entry = False
+				self.cutPath(newblock, path, self.cnc["surface"], depth, stepz)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
@@ -2006,7 +2017,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset):
+	def profile(self, blocks, offset, cut=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
