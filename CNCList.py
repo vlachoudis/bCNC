@@ -227,8 +227,10 @@ class CNCListbox(Listbox):
 		if len(self._items)==0:
 			self.insertBlock()
 			return
+
 		bid, lid = self._items[active]
 		active += 1
+
 		self.insert(active,"")
 		self.selection_clear(0,END)
 		self.activate(active)
@@ -241,6 +243,7 @@ class CNCListbox(Listbox):
 
 		if edit.value is None:
 			# Cancel and leave
+			self.delete(active)
 			active -= 1
 			self.activate(active)
 			self.selection_set(active)

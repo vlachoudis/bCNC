@@ -34,6 +34,8 @@ class Base:
 	def __init__(self, master):
 		self.master    = master
 		self.name      = None
+		self.icon      = None
+		self.plugin    = False
 		self.variables = []		# name, type, default, label
 		self.values    = {}		# database of values
 		self.listdb    = {}		# lists database
@@ -392,35 +394,10 @@ class DataBase(Base):
 		self.edit(None,True)
 
 #==============================================================================
-# Create a BOX
-#==============================================================================
-class Box(DataBase):
+class Plugin(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master)
-		self.name = "Box"
-		self.variables = [
-			("name",      "db",    "", "Name"),
-			("dx",        "mm", 100.0, "Width Dx"),
-			("dy",        "mm",  70.0, "Depth Dy"),
-			("dz",        "mm",  50.0, "Height Dz"),
-			("nx",       "int",    11, "Fingers Nx"),
-			("ny",       "int",     7, "Fingers Ny"),
-			("nz",       "int",     5, "Fingers Nz"),
-			("profile", "bool",     0, "Profile"),
-			("overcut", "bool",     1, "Overcut"),
-			("cut",     "bool",     0, "Cut")
-		]
-		self.buttons  = self.buttons + ("exe",)
-
-	# ----------------------------------------------------------------------
-	def execute(self, app):
-		app.gcode.box(app.gcodelist.activeBlock(),
-				self["dx"], self["dy"], self["dz"],
-				self["nx"], self["ny"], self["nz"],
-				self["profile"], self["cut"], self["overcut"])
-		app.gcodelist.fill()
-		app.draw()
-		app.setStatus("BOX with fingers generated")
+		self.plugin = True
 
 #==============================================================================
 # CNC machine configuration
@@ -482,9 +459,9 @@ class Material(DataBase):
 		# update ONLY if stock material is empty:
 		stockmat = self.master["stock"]["material"]
 		if stockmat=="" or stockmat==self["name"]:
-			self.master.gcode.feed  = self.master.fromMm(self["feed"])
-			self.master.gcode.feedz = self.master.fromMm(self["feedz"])
-			self.master.gcode.stepz = self.master.fromMm(self["stepz"])
+			self.master.cnc()["cutfeed"]  = self.master.fromMm(self["feed"])
+			self.master.cnc()["cutfeedz"] = self.master.fromMm(self["feedz"])
+			self.master.cnc()["stepz"]    = self.master.fromMm(self["stepz"])
 		return False
 
 #==============================================================================
@@ -511,7 +488,7 @@ class EndMill(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.gcode.diameter  = self.master.fromMm(self["diameter"])
+		self.master.cnc()["diameter"] = self.master.fromMm(self["diameter"])
 		return False
 
 #==============================================================================
@@ -533,9 +510,9 @@ class Stock(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.gcode.safe      = self.master.fromMm(self["safe"])
-		self.master.gcode.surface   = self.master.fromMm(self["surface"])
-		self.master.gcode.thickness = self.master.fromMm(self["thickness"])
+		self.master.cnc()["safe"]      = self.master.fromMm(self["safe"])
+		self.master.cnc()["surface"]   = self.master.fromMm(self["surface"])
+		self.master.cnc()["thickness"] = self.master.fromMm(self["thickness"])
 		if self["material"]:
 			self.master["material"].makeCurrent(self["material"])
 		return False
@@ -635,9 +612,29 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
+		for cls in [ CNC, Cut, Drill, EndMill, Material, Profile, Stock]:
 			tool = cls(self)
-			self.tools[tool.name.upper()] = tool
+			self.addTool(tool)
+
+		# Find plugins in the plugins directory and load them
+		for f in sorted(glob.glob("%s/plugins/*.py"%(Utils.prgpath))):
+			name,ext = os.path.splitext(os.path.basename(f))
+			try:
+				exec("import %s"%(name))
+				tool = eval("%s.Tool(self)"%(name))
+				self.addTool(tool)
+			except:
+				pass
+
+	# ----------------------------------------------------------------------
+	def addTool(self, tool):
+		self.tools[tool.name.upper()] = tool
+
+	# ----------------------------------------------------------------------
+	# Return a list of plugins
+	# ----------------------------------------------------------------------
+	def pluginList(self):
+		return [x for x in self.tools.values() if x.plugin]
 
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):
@@ -649,7 +646,11 @@ class Tools:
 
 	# ----------------------------------------------------------------------
 	def getActive(self):
-		return self.tools[self.active.get().upper()]
+		try:
+			return self.tools[self.active.get().upper()]
+		except:
+			self.active.set("CNC")
+			return self.tools["CNC"]
 
 	# ----------------------------------------------------------------------
 	def toMm(self, value):
@@ -899,23 +900,18 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 
 		col,row=0,0
 		# Find plugins in the plugins directory and load them
-		for f in sorted(glob.glob("%s/plugins/*.py"%(Utils.prgpath))):
-			name,ext = os.path.splitext(os.path.basename(f))
-			exec("import %s"%(name))
-			cls = eval("%s.Plugin(self)"%(name))
-
+		for tool in app.tools.pluginList():
 			# ===
 			b = Ribbon.LabelRadiobutton(self.frame,
-					image=Utils.icons[cls.icon],
-					text=cls.name,
+					image=Utils.icons[tool.icon],
+					text=tool.name,
 					compound=LEFT,
 					anchor=W,
 					variable=app.tools.active,
-					value=cls.name,
-					state=DISABLED,
+					value=tool.name,
 					background=Ribbon._BACKGROUND)
 			b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-			tkExtra.Balloon.set(b, cls.__doc__)
+			tkExtra.Balloon.set(b, tool.__doc__)
 			self.addWidget(b)
 
 			row += 1

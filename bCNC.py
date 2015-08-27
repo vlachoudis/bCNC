@@ -554,19 +554,14 @@ class Application(Toplevel,Sender):
 		Utils.ReportDialog(self)
 
 	#----------------------------------------------------------------------
-	def insertBlock(self):
-#		self.ribbon.changePage("Editor")
-		self.editor.insertBlock()
-
-	#----------------------------------------------------------------------
-	def insertLine(self):
-#		self.ribbon.changePage("Editor")
-		self.editor.insertLine()
-
-	#----------------------------------------------------------------------
 	def viewChange(self, event=None):
 		if self.running:
 			self._selectI = 0	# last selection pointer in items
+		self.draw()
+
+	# ----------------------------------------------------------------------
+	def refresh(self, event=None):
+		self.editor.fill()
 		self.draw()
 
 	# ----------------------------------------------------------------------
@@ -601,35 +596,39 @@ class Application(Toplevel,Sender):
 
 	#----------------------------------------------------------------------
 	def selectAll(self, event=None):
-		#self.tabPage.changePage("Editor")
+		self.ribbon.changePage("Editor")
 		self.editor.selectAll()
 		self.selectionChange()
 		return "break"
 
 	#----------------------------------------------------------------------
 	def unselectAll(self, event=None):
-		#self.tabPage.changePage("Editor")
+		self.ribbon.changePage("Editor")
 		self.editor.selectClear()
 		self.selectionChange()
 		return "break"
 
 	#----------------------------------------------------------------------
-#	def find(self, event=None):
-#		self.tabPage.changePage("Editor")
+	def find(self, event=None):
+		self.ribbon.changePage("Editor")
 ####		self.editor.findDialog()
 #		return "break"
 #
 #	#----------------------------------------------------------------------
-#	def findNext(self, event=None):
-#		self.tabPage.changePage("Editor")
+	def findNext(self, event=None):
+		self.ribbon.changePage("Editor")
 ####		self.editor.findNext()
 #		return "break"
 #
 #	#----------------------------------------------------------------------
-#	def replace(self, event=None):
-#		self.tabPage.changePage("Editor")
+	def replace(self, event=None):
+		self.ribbon.changePage("Editor")
 ####		self.editor.replaceDialog()
 #		return "break"
+
+	#----------------------------------------------------------------------
+	def activeBlock(self):
+		return self.editor.activeBlock()
 
 	#----------------------------------------------------------------------
 	# Keyboard binding to <Return>
@@ -718,8 +717,8 @@ class Application(Toplevel,Sender):
 			tool.execute(self)
 
 		# CONT*ROL: switch to control tab
-#		elif rexx.abbrev("CONTROL",cmd,4):
-#			self.tabPage.changePage("Control")
+		elif rexx.abbrev("CONTROL",cmd,4):
+			self.ribbon.changePage("Control")
 
 		# CUT [height] [pass-per-depth]: replicate selected blocks to cut-height
 		# default values are taken from the active material
@@ -768,8 +767,8 @@ class Application(Toplevel,Sender):
 			self.editor.fill()
 
 		# ED*ITOR: switch to editor tab
-#		elif rexx.abbrev("EDITOR",cmd,2):
-#			self.tabPage.changePage("Editor")
+		elif rexx.abbrev("EDITOR",cmd,2):
+			self.ribbon.changePage("Editor")
 
 		# HOLE: create a hole
 		elif cmd == "HOLE":
@@ -1022,8 +1021,8 @@ class Application(Toplevel,Sender):
 			self.stopRun()
 
 		# TERM*INAL: switch to terminal tab
-#		elif rexx.abbrev("TERMINAL",cmd,4):
-#			self.tabPage.changePage("Terminal")
+		elif rexx.abbrev("TERMINAL",cmd,4):
+			self.ribbon.changePage("Terminal")
 
 		# TOOL [diameter]: set diameter of cutting tool
 		elif cmd in ("BIT","TOOL","MILL"):
@@ -1035,8 +1034,8 @@ class Application(Toplevel,Sender):
 			self.setStatus("EndMill: %s %g"%(tool["name"], diam))
 
 		# TOOLS
-#		elif cmd=="TOOLS":
-#			self.tabPage.changePage("Tools")
+		elif cmd=="TOOLS":
+			self.ribbon.changePage("Tools")
 
 		# UNL*OCK: unlock grbl
 		elif rexx.abbrev("UNLOCK",cmd,3):
