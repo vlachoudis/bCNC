@@ -59,7 +59,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 import time
-from math import atan2, asin, cos, degrees, pi, radians, sin, sqrt
+from math import *
 from bmath import Vector, quadratic
 
 EPS0 = 1E-7
@@ -464,15 +464,20 @@ class Path(list):
 		PL = P.length()
 		for N in self:
 			NL = N.AB.length()
-			dot = PL * NL
-			if abs(dot)>EPS0:
-				ang = (P ^ N.AB) / dot
-				if ang<=-1.0:
+			prod = PL * NL
+			if abs(prod)>EPS0:
+				cross = (P ^ N.AB) / prod
+				if   cross <= -0.9999999999:
 					phi -= pi/2.0
-				elif ang >=1.0:
+				elif cross >=  0.9999999999:
 					phi += pi/2.0
 				else:
-					phi += asin((P ^ N.AB) / dot)
+					# WARNING Don't use the angle from the asin(cross)
+					# since it can fail when ang > 90deg then it will return
+					# the ang-90deg
+					#phi += asin(cross)
+					dot = (N.AB * P) / prod
+					phi += copysign(acos(dot), prod)
 			else:
 				if N.type == CW:
 					phi -= PI2
@@ -605,7 +610,7 @@ class Path(list):
 				path.append(Segment(segment.type, So, Eo, segment.center))
 			Op = O
 			prev = segment
-		sys.stdout.write("path.offset: %g\n"%(time.time()-start))
+		sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
@@ -688,7 +693,7 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-		sys.stdout.write("path.intersect: %g\n"%(time.time()-start))
+		sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -714,7 +719,7 @@ class Path(list):
 #					print "+++",i, segment.end, path.distance(segment.end), chkofs, include
 			i += 1
 		self.removeZeroLength()
-		sys.stdout.write("path.removeExcluded: %g\n"%(time.time()-start))
+		sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P

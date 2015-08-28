@@ -15,8 +15,8 @@ import string
 import undo
 import Unicode
 
-from motionpath import Path, Segment
-from dxf import DXF
+from dxf   import DXF
+from bpath import Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
@@ -470,6 +470,53 @@ class CNC:
 	def fmt(c, v, d=None):
 		if d is None: d = CNC.digits
 		return ("%s%*f"%(c,d,v)).rstrip("0").rstrip(".")
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def gcode(g, pairs):
+		s = "g%d"%(g)
+		for c,v in pairs:
+			s += " %c%g"%(c, round(v,CNC.digits))
+		return s
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def gline(g, x=None, y=None, z=None):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		return s
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def grapid(x=None, y=None, z=None):
+		return CNC.gline(0,x,y,z)
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def glinev(g, v, feed=None):
+		pairs = zip("xyz",v)
+		if feed is not None:
+			pairs.append(("f",feed))
+		return CNC.gcode(g, pairs)
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def garcv(g, v, ijk):
+		return CNC.gcode(g, zip("xyz",v) + zip("ij",ijk[:2]))
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def garc(g, x=None, y=None, z=None, i=None, j=None, k=None):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		if i is not None: s += ' '+CNC.fmt('i',i)
+		if j is not None: s += ' '+CNC.fmt('j',j)
+		if k is not None: s += ' '+CNC.fmt('k',k)
+		return s
 
 	#----------------------------------------------------------------------
 	# Enter to material or start the laser
@@ -1743,11 +1790,11 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def undo(self):
-		print ">u>",self.undoredo.undoText()
+		#print ">u>",self.undoredo.undoText()
 		self.undoredo.undo()
 
 	def redo(self):
-		print ">r>",self.undoredo.redoText()
+		#print ">r>",self.undoredo.redoText()
 		self.undoredo.redo()
 
 	def addUndo(self, undoinfo, msg=""):
@@ -2039,9 +2086,7 @@ class GCode:
 				else:
 					name = Block.operationName(path.name, "in")
 				opath = path.offset(D*offset, name)
-				#print "opath=",opath
 				opath.intersect()
-				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
 				if opath: newpath.extend(opath)

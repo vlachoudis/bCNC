@@ -130,29 +130,33 @@ class Base:
 	# ----------------------------------------------------------------------
 	# Save to a configuration file
 	# ----------------------------------------------------------------------
-	def save(self, config):
+	def saveConfig(self):
+		# if section do not exist add it
+		Utils.addSection(self.name)
+
 		if self.listdb:
 			for name,lst in self.listdb.items():
 				for i,value in enumerate(lst):
-					config.set(self.name, "_%s.%d"%(name,i), value)
+					Utils.setStr(self.name, "_%s.%d"%(name,i), value)
 
 		# Save values
 		if self.current is not None:
-			config.set(self.name, "current", str(self.current))
-			config.set(self.name, "n", str(self.n))
+			Utils.setStr(self.name, "current", str(self.current))
+			Utils.setStr(self.name, "n", str(self.n))
 
 			for i in range(self.n):
 				key = "name.%d"%(i)
 				value = self.values.get(key)
 				if value is None: break
-				config.set(self.name, key, value)
+				Utils.setStr(self.name, key, value)
 
 				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
-					config.set(self.name, key, str(self.values.get(key,d)))
+					Utils.setStr(self.name, key,
+						str(self.values.get(key,d)))
 		else:
 			for n, t, d, l in self.variables:
-				config.set(self.name, n, str(self.values.get(n,d)))
+				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
 	# Override with execute command
@@ -619,10 +623,13 @@ class Tools:
 			name,ext = os.path.splitext(os.path.basename(f))
 			try:
 				exec("import %s"%(name))
+			except ImportError:
+				continue
+			try:
 				tool = eval("%s.Tool(self)"%(name))
 				self.addTool(tool)
-			except:
-				pass
+			except AttributeError:
+				continue
 
 	# ----------------------------------------------------------------------
 	def addTool(self, tool):
@@ -677,10 +684,10 @@ class Tools:
 			tool.load(config)
 
 	# ----------------------------------------------------------------------
-	def save(self, config):
+	def saveConfig(self):
 		Utils.setStr(Utils.__prg__, "tool", self.active.get())
 		for tool in self.tools.values():
-			tool.save(config)
+			tool.saveConfig()
 
 	# ----------------------------------------------------------------------
 	def cnc(self):

@@ -458,7 +458,7 @@ class Application(Toplevel,Sender):
 
 		self.autolevel.saveConfig()
 		Sender.saveConfig(self)
-		self.tools.save(Utils.config)
+		self.tools.saveConfig()
 
 	#----------------------------------------------------------------------
 	def loadHistory(self):

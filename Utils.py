@@ -105,6 +105,14 @@ def cleanConfiguration():
 	config = newconfig
 
 #------------------------------------------------------------------------------
+# add section if it doesn't exist
+#------------------------------------------------------------------------------
+def addSection(section):
+	global config
+	if not config.has_section(section):
+		config.add_section(section)
+
+#------------------------------------------------------------------------------
 def getStr(section, name, default=""):
 	global config
 	try: return config.get(section, name)
