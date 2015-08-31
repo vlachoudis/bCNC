@@ -173,6 +173,7 @@ class Application(Toplevel,Sender):
 		self.terminal  = CNCRibbon.Page.frames["Terminal"].terminal
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
+		self.probe     = CNCRibbon.Page.frames["Probe"]
 		self.autolevel = CNCRibbon.Page.frames["Autolevel"]
 
 		# Left side
@@ -430,7 +431,7 @@ class Application(Toplevel,Sender):
 		except:
 			pass
 
-		self.tools.load(Utils.config)
+		self.tools.loadConfig()
 		Sender.loadConfig(self)
 
 	#----------------------------------------------------------------------
@@ -450,12 +451,7 @@ class Application(Toplevel,Sender):
 
 		self.canvasFrame.saveConfig()
 		self.control.saveConfig()
-
-		# Probe
-		Utils.setFloat("Probe", "x",    self.probeXdir.get())
-		Utils.setFloat("Probe", "y",    self.probeYdir.get())
-		Utils.setFloat("Probe", "z",    self.probeZdir.get())
-
+		self.probe.saveConfig()
 		self.autolevel.saveConfig()
 		Sender.saveConfig(self)
 		self.tools.saveConfig()
@@ -1378,39 +1374,6 @@ class Application(Toplevel,Sender):
 			self.feedHold()
 
 	#----------------------------------------------------------------------
-	def tloSet(self, event=None):
-		cmd = "G43.1Z"+(self._tloin.get())
-		self.sendGrbl(cmd+"\n$#\n")
-
-	#----------------------------------------------------------------------
-	# Probe one Point
-	#----------------------------------------------------------------------
-	def probeOne(self):
-		cmd = "G38.2"
-		ok = False
-		v = self.probeXdir.get()
-		if v != "":
-			cmd += "X"+str(v)
-			ok = True
-		v = self.probeYdir.get()
-		if v != "":
-			cmd += "Y"+str(v)
-			ok = True
-		v = self.probeZdir.get()
-		if v != "":
-			cmd += "Z"+str(v)
-			ok = True
-		v = self.probeFeed.get()
-		if v != "":
-			cmd += "F"+str(v)
-
-		if ok:
-			self.queue.put(cmd+"\n")
-		else:
-			tkMessageBox.showerror("Probe Error",
-					"At least one probe direction should be specified")
-
-	#----------------------------------------------------------------------
 	def emptyQueue(self):
 		while self.queue.qsize()>0:
 			try:
@@ -1633,7 +1596,6 @@ class Application(Toplevel,Sender):
 		try:
 			self._monitorSerial()
 		except:
-			print "Exception in monitor serial"
 			typ, val, tb = sys.exc_info()
 			traceback.print_exception(typ, val, tb)
 		self.after(MONITOR_AFTER, self.monitorSerial)

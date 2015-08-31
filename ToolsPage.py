@@ -71,24 +71,20 @@ class Base:
 		return lst
 
 	# ----------------------------------------------------------------------
-	def _get(self, config, key, t, default):
-		try:
-			value = config.get(self.name, key)
-			if t in ("float","mm"):
-				return float(value)
-			elif t == "int":
-				return int(value)
-			elif t == "bool":
-				return int(value)
-			else:
-				return value
-		except:
-			return default
+	def _get(self, key, t, default):
+		if t in ("float","mm"):
+			return Utils.getFloat(self.name, key, default)
+		elif t == "int":
+			return Utils.getInt(self.name, key, default)
+		elif t == "bool":
+			return Utils.getInt(self.name, key, default)
+		else:
+			return Utils.getStr(self.name, key, default)
 
 	# ----------------------------------------------------------------------
 	# Load from a configuration file
 	# ----------------------------------------------------------------------
-	def load(self, config):
+	def loadConfig(self):
 		# Load lists
 		lists = []
 		for n, t, d, l in self.variables:
@@ -99,32 +95,29 @@ class Base:
 				self.listdb[p] = []
 				for i in range(1000):
 					key = "_%s.%d"%(p, i)
-					try:
-						self.listdb[p].append(config.get(self.name, key))
-					except:
-						break
+					self.listdb[p].append(Utils.getStr(self.name, key))
 
 			for lst in self.listdb.values():
 				lst.sort()
 
 		# Check if there is a current
 		try:
-			self.current = int(config.get(self.name, "current"))
+			self.current = int(Utils.config.get(self.name, "current"))
 		except:
 			self.current = None
 
 		# Load values
 		if self.current is not None:
-			self.n = self._get(config, "n", "int", 0)
+			self.n = self._get("n", "int", 0)
 			for i in range(self.n):
 				key = "name.%d"%(i)
-				self.values[key] = config.get(self.name, key)
+				self.values[key] = Utils.getStr(self.name, key)
 				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
-					self.values[key] = self._get(config, key, t, d)
+					self.values[key] = self._get(key, t, d)
 		else:
 			for n, t, d, l in self.variables:
-				self.values[n] = self._get(config, n, t, d)
+				self.values[n] = self._get(n, t, d)
 		self.update()
 
 	# ----------------------------------------------------------------------
@@ -578,7 +571,7 @@ class Drill(Base):
 #==============================================================================
 # Profile
 #==============================================================================
-class Profile(Base):
+class Profile(DataBase):
 	def __init__(self, master):
 		Base.__init__(self, master)
 		self.name = "Profile"
@@ -589,7 +582,7 @@ class Profile(Base):
 			("direction","inside,outside" , "outside", "Direction"),
 			("cut",      "bool",     0, "Cut")
 		]
-		self.buttons  = ("exe",)
+		self.buttons  = ("add","delete","clone","rename","exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -678,10 +671,10 @@ class Tools:
 		return lst
 
 	# ----------------------------------------------------------------------
-	def load(self, config):
+	def loadConfig(self):
 		self.active.set(Utils.getStr(Utils.__prg__, "tool", "CNC"))
 		for tool in self.tools.values():
-			tool.load(config)
+			tool.loadConfig()
 
 	# ----------------------------------------------------------------------
 	def saveConfig(self):
