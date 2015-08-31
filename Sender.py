@@ -35,6 +35,7 @@ GPAT     = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
+FEEDPAT  = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 
 NOT_CONNECTED = "Not connected"
 
@@ -56,8 +57,8 @@ class Sender:
 		self._historyPos = None
 		CNC.loadConfig(Utils.config)
 		self.gcode = GCode()
-		self.cnc  = self.gcode.cnc
-		self.wait = False	# wait for commands to complete
+		self.cnc   = self.gcode.cnc
+		self.wait  = False	# wait for commands to complete
 
 		self.log         = Queue()	# Log queue returned from GRBL
 		self.queue       = Queue()	# Command queue to send to GRBL
@@ -695,9 +696,19 @@ class Sender:
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
 				if isinstance(tosend, unicode):
-					self.serial.write(tosend.encode("ascii","replace"))
-				else:
-					self.serial.write(str(tosend))
+					tosend = tosend.encode("ascii","replace")
+
+				if CNC.vars["override"] != 100:
+					pat = FEEDPAT.match(tosend)
+					if pat is not None:
+						try:
+							tosend = "%sf%g%s"%(pat.group(0),
+									float(pat.group(1))*CNC.vars["override"]/100.0,
+									pat.group(2))
+						except:
+							pass
+
+				self.serial.write(str(tosend))
 				tosend = None
 
 				if not self.running and t-tg > G_POLL:

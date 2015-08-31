@@ -423,8 +423,6 @@ class Application(Toplevel,Sender):
 		try: self.geometry(geom)
 		except: pass
 
-		self.drofont = Utils.getFont("DRO",('Helvetica',12))
-
 		#restore windowsState
 		try:
 			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))

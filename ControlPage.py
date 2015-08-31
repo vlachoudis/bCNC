@@ -193,8 +193,16 @@ class RunGroup(CNCRibbon.ButtonGroup):
 # DRO Frame
 #===============================================================================
 class DROFrame(CNCRibbon.PageFrame):
+	dro_status = ('Helvetica',12,'bold')
+	dro_wpos   = ('Helvetica',12,'bold')
+	dro_mpos   = ('Helvetica',12)
+
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "DRO", app)
+
+		DROFrame.dro_status = Utils.getFont("dro_status", DROFrame.dro_status)
+		DROFrame.dro_wpos   = Utils.getFont("dro_wpos",   DROFrame.dro_wpos)
+		DROFrame.dro_mpos   = Utils.getFont("dro_mpos",   DROFrame.dro_mpos)
 
 		row = 0
 		col = 0
@@ -202,7 +210,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.state = Label(self,
 				text=Sender.NOT_CONNECTED,
-				font=app.drofont,
+				font=DROFrame.dro_status,
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED])
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 
@@ -212,9 +220,8 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# work
 		col += 1
-		#self.xwork = Label(self, font=app.drofont, background="White",anchor=E)
 		self.xwork = tkExtra.FloatEntry(self,
-					font=app.drofont,
+					font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -226,9 +233,8 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		#self.ywork = Label(self, font=app.drofont, background="White",anchor=E)
 		self.ywork = tkExtra.FloatEntry(self,
-					font=app.drofont,
+					font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -240,9 +246,8 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		#self.zwork = Label(self, font=app.drofont, background="White", anchor=E)
 		self.zwork = tkExtra.FloatEntry(self,
-					font=app.drofont,
+					font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -258,15 +263,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		Label(self,text="MPos:").grid(row=row,column=col,sticky=E)
 
 		col += 1
-		self.xmachine = Label(self, font=app.drofont, background="White",anchor=E)
+		self.xmachine = Label(self, font=DROFrame.dro_mpos, background="White",anchor=E)
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.ymachine = Label(self, font=app.drofont, background="White",anchor=E)
+		self.ymachine = Label(self, font=DROFrame.dro_mpos, background="White",anchor=E)
 		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.zmachine = Label(self, font=app.drofont, background="White", anchor=E)
+		self.zmachine = Label(self, font=DROFrame.dro_mpos, background="White", anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		# Set buttons
@@ -847,6 +852,25 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
 		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
 
+		# Feed override
+		row += 1
+		col = 0
+		Label(f, text="Override:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.override = IntVar()
+		self.override.set(100)
+		b = Scale(f,
+				command=self.overrideControl,
+				variable=self.override,
+				showvalue=True,
+				orient=HORIZONTAL,
+				from_=25,
+				to_=200,
+				resolution=5)
+		b.grid(row=row, column=col, columnspan=4, sticky=EW)
+		tkExtra.Balloon.set(b, "Set Feed Override")
+
+		# ---
 		f.grid_columnconfigure(1, weight=1)
 		f.grid_columnconfigure(4, weight=1)
 
@@ -875,6 +899,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, "Set spindle RPM")
 		b.pack(side=RIGHT, expand=YES, fill=X)
 		self.addWidget(b)
+
+	#----------------------------------------------------------------------
+	def overrideControl(self, event=None):
+		CNC.vars["override"] = self.override.get()
 
 	#----------------------------------------------------------------------
 	def _gChange(self, value, dictionary):

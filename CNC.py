@@ -361,6 +361,7 @@ class CNC:
 				"my"        : 0.0,
 				"mz"        : 0.0,
 				"G"         : ["G20","G54"],
+				"override"  : 100,
 				"diameter"  : 3.175,	# Tool diameter
 				"cutfeed"   : 1000.,	# Material feed for cutting
 				"cutfeedz"  : 500.,	# Material feed for cutting
