@@ -796,6 +796,19 @@ class Application(Toplevel):
 				command=self.stopRun)
 		tkExtra.Balloon.set(b, "Stop running program")
 		b.pack(side=LEFT,expand=YES,fill=X)
+		
+		# Override
+		self.override = IntVar()
+		self.override.set(100)
+
+		b = Scale(f,
+				command=self.overrideControl,
+				showvalue=True,
+				orient=HORIZONTAL,
+				from_=25,
+				to_=200)
+		b.pack(side=BOTTOM, expand=YES, fill=X)
+		tkExtra.Balloon.set(b, "Set Override")
 
 		self.progress = tkExtra.ProgressBar(lframe, height=24)
 		self.progress.pack(fill=X)
@@ -3960,6 +3973,18 @@ class Application(Toplevel):
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
+				if ('F' in tosend):					
+					fIndx = tosend.find('F') + 1
+					fEnd = fIndx
+					for c in tosend[fIndx:]:
+						if c.isdigit() or c == ',' or c =='.':
+							fEnd = fEnd + 1
+						else:
+							break
+					f = tosend[fIndx:fEnd]
+					fi = (int(f) * self.override.get() / 100.0 )
+					tosend = tosend[:fIndx] +  str(fi) + tosend[fEnd:]
+
 				if isinstance(tosend, unicode):
 					self.serial.write(tosend.encode("ascii","replace"))
 				else:
