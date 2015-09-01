@@ -796,13 +796,12 @@ class Application(Toplevel):
 				command=self.stopRun)
 		tkExtra.Balloon.set(b, "Stop running program")
 		b.pack(side=LEFT,expand=YES,fill=X)
-		
+
 		# Override
 		self.override = IntVar()
 		self.override.set(100)
 
-		b = Scale(f,
-				command=self.overrideControl,
+		b = Scale(f,	#command=self.overrideControl,
 				showvalue=True,
 				orient=HORIZONTAL,
 				from_=25,
