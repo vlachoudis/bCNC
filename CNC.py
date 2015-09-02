@@ -2065,7 +2065,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset, cut=False):
+	def profile(self, blocks, offset, cut=False, overcut=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -2090,9 +2090,14 @@ class GCode:
 				opath.intersect()
 				opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
-				if opath: newpath.extend(opath)
+				if opath:
+					if overcut:
+						for p in opath:
+							p.overcut(D*offset)
+					newpath.extend(opath)
 			if newpath:
-				before = len(newblocks)	# remember length to shift all new blocks the are inserted in-front
+				# remember length to shift all new blocks the are inserted before
+				before = len(newblocks)
 				undoinfo.extend(self.importPath(bid+1, newpath, newblocks, True, False))
 				new = len(newblocks)-before
 				for i in range(before):

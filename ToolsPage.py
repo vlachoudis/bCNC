@@ -578,8 +578,9 @@ class Profile(DataBase):
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("endmill",   "db" ,    "", "End Mill"),
-			("overcut",  "bool",     1, "Overcut"),
 			("direction","inside,outside" , "outside", "Direction"),
+			("scale",   "float",   1.0, "Scale tool diameter"),
+			("overcut",  "bool",     1, "Overcut"),
 			("cut",      "bool",     0, "Cut")
 		]
 		self.buttons  = ("add","delete","clone","rename","exe")
@@ -589,7 +590,7 @@ class Profile(DataBase):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
-		app.profile(direction, self["cut"])
+		app.profile(direction, self["scale"], self["cut"], self["overcut"])
 		app.setStatus("Generate profile path")
 
 #==============================================================================

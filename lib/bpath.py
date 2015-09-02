@@ -477,6 +477,8 @@ class Path(list):
 					# the ang-90deg
 					#phi += asin(cross)
 					dot = (N.AB * P) / prod
+					if   dot<-1.0: dot=-1.0
+					elif dot> 1.0: dot= 1.0
 					phi += copysign(acos(dot), prod)
 			else:
 				if N.type == CW:
@@ -575,7 +577,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def offset(self, offset, name):
 		start = time.time()
-		path = Path(name) #"%s [%g]"%(self.name,offset))
+		path = Path(name)
 
 		if self.isClosed():
 			prev = self[-1]
@@ -610,7 +612,7 @@ class Path(list):
 				path.append(Segment(segment.type, So, Eo, segment.center))
 			Op = O
 			prev = segment
-		sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
@@ -693,7 +695,7 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-		sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -719,7 +721,42 @@ class Path(list):
 #					print "+++",i, segment.end, path.distance(segment.end), chkofs, include
 			i += 1
 		self.removeZeroLength()
-		sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+
+	#----------------------------------------------------------------------
+	# Perform overcut movements on corners, moving at half angle by
+	# a certain distance
+	#----------------------------------------------------------------------
+	def overcut(self, offset):
+		if self.isClosed():
+			prev = self[-1]
+			Op = prev.orthogonalEnd()
+		else:
+			prev = None
+			Op   = None	# previous orthogonal
+		i = 0
+		while i<len(self):
+			segment = self[i]
+			O  = segment.orthogonalStart()
+			if Op is not None:
+				cross = O[0]*Op[1]-O[1]*Op[0]
+				if prev.type==LINE and segment.type==LINE and cross*offset < -EPS:
+					# find direction
+					D = O+Op
+					D.normalize()
+					if offset>0.0: D = -D
+
+					costheta = O*Op
+					costheta2 = sqrt((1.0+costheta)/2.0)
+					distance = abs(offset)*(1.0/costheta2-1.0)
+					D *= distance
+
+					self.insert(i,Segment(LINE, segment.start, segment.start + D))
+					self.insert(i+1, Segment(LINE, segment.start+D, segment.start))
+					i += 2
+			prev = segment
+			Op = prev.orthogonalEnd()
+			i += 1
 
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P
