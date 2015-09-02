@@ -609,6 +609,17 @@ class TabRibbonFrame(Frame):
 		page._tab.pack(side=side, fill=Y, padx=5)
 
 	# ----------------------------------------------------------------------
+	# Unpack the old page
+	# ----------------------------------------------------------------------
+	def _forgetPage(self):
+		if self.oldActive:
+			for frame,args in self.oldActive.ribbons:
+				frame.pack_forget()
+			for frame,args in self.oldActive.frames:
+				frame.pack_forget()
+			self.oldActive = None
+
+	# ----------------------------------------------------------------------
 	# Change ribbon and page
 	# ----------------------------------------------------------------------
 	def changePage(self, page=None):
@@ -630,11 +641,7 @@ class TabRibbonFrame(Frame):
 
 		if page is self.oldActive: return
 
-		if self.oldActive:
-			for frame,args in self.oldActive.ribbons:
-				frame.pack_forget()
-			for frame,args in self.oldActive.frames:
-				frame.pack_forget()
+		self._forgetPage()
 
 		for frame,args in page.ribbons:
 			frame.pack(in_=self._ribbonFrame, **args)

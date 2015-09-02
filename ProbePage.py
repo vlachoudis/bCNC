@@ -30,6 +30,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		self.grid3rows()
 
 		self.tab = StringVar()
+		self.tab.set("Probe")
 
 		# ---
 		col,row=0,0
@@ -39,8 +40,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				compound=TOP,
 				variable=self.tab,
 				value="Probe",
-				state=DISABLED,
-				command=self.changeTab,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Simple probing along a direction")
@@ -53,8 +52,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				compound=TOP,
 				variable=self.tab,
 				value="Center",
-				command=self.changeTab,
-				state=DISABLED,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Center probing using a ring")
@@ -67,22 +64,50 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				compound=TOP,
 				variable=self.tab,
 				value="Autolevel",
-				state=DISABLED,
-				command=self.changeTab,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Autolevel Z surface")
 
-	# ----------------------------------------------------------------------
-	def changeTab(self):
-		pass
+#===============================================================================
+# Probe Group
+#===============================================================================
+class ProbeGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Probe", app)
+
+		b = Ribbon.LabelButton(self.frame, self, "<<Probe>>",
+				image=Utils.icons["gear32"],
+				text="Probe",
+				compound=TOP,
+				width=48,
+				background=Ribbon._BACKGROUND)
+		b.pack(fill=BOTH, expand=YES)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, "Perform a single probe cycle")
+
+#===============================================================================
+# Center Group
+#===============================================================================
+class CenterGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Center", app)
+
+		b = Ribbon.LabelButton(self.frame, self, "<<ProbeCenter>>",
+				image=Utils.icons["gear32"],
+				text="Center",
+				compound=TOP,
+				width=48,
+				background=Ribbon._BACKGROUND)
+		b.pack(fill=BOTH, expand=YES)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, "Perform a center probe cycle")
 
 #===============================================================================
 # Autolevel Group
 #===============================================================================
 class AutolevelGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Autolevel", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Autolevel", app)
 		self.grid3rows()
 
 		# ---
@@ -121,11 +146,14 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScan>>",
-				image=Utils.icons["level32"],
+				image=Utils.icons["gear32"],
 				text="Scan",
 				compound=TOP,
+				justify=CENTER,
+				width=48,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		self.addWidget(b)
 		tkExtra.Balloon.set(b, "Scan probed area for level information on Z plane")
 
 #===============================================================================
@@ -133,7 +161,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class ProbeFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe", app)
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
 		# WorkSpace -> Probe
 		lframe = LabelFrame(self, text="Probe", foreground="DarkBlue")
@@ -176,13 +204,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.probeZdir, "Probe along Z direction")
 		self.addWidget(self.probeZdir)
 
-		# ---
-		row += 1
-		b = Button(lframe, text="Probe", command=self.probe)
-		b.grid(row=row, column=col, sticky=E)
-		tkExtra.Balloon.set(b, "Probe one point. Using the feed below")
-		self.addWidget(b)
-
 		lframe.grid_columnconfigure(1,weight=1)
 		lframe.grid_columnconfigure(2,weight=1)
 		lframe.grid_columnconfigure(3,weight=1)
@@ -205,7 +226,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	# Probe one Point
 	#----------------------------------------------------------------------
-	def probe(self):
+	def probe(self, event=None):
 		cmd = "G38.2"
 		ok = False
 		v = self.probeXdir.get()
@@ -238,7 +259,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	tlo       = None
 
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe-Common", app)
+		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
 		lframe = LabelFrame(self, text="Common", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
@@ -314,7 +335,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class AutolevelFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Autolevel", app)
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
 
 		lframe = LabelFrame(self, text="Autolevel", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
@@ -561,5 +582,28 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup),
+		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup),
 			(ProbeCommonFrame, ProbeFrame, AutolevelFrame))
+
+		self.tabGroup = CNCRibbon.Page.groups["Probe"]
+		self.tabGroup.tab.trace('w', self.tabChange)
+		#self.tabGroup.tab.set("Probe")
+
+	#----------------------------------------------------------------------
+	def tabChange(self, a, b, c):
+		tab = self.tabGroup.tab.get()
+		self.master._forgetPage()
+		# remove all page tabs with ":" and add the new ones
+		self.ribbons = [ x for x in self.ribbons if ":" not in x[0].name ]
+		self.frames  = [ x for x in self.frames  if ":" not in x[0].name ]
+
+		try:
+			self.addRibbonGroup("Probe:%s"%(tab))
+		except KeyError:
+			pass
+		try:
+			self.addPageFrame("Probe:%s"%(tab))
+		except KeyError:
+			pass
+
+		self.master.changePage(self)

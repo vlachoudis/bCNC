@@ -62,6 +62,8 @@ class ButtonGroup(Ribbon.LabelGroup, _LinkApp):
 	def __init__(self, master, name, app):
 		Ribbon.LabelGroup.__init__(self, master, name)
 		_LinkApp.__init__(self, app)
+		if ":" in name:
+			self.label["text"] = name.split(":")[1]
 
 #===============================================================================
 # Button Group, a group of widgets that will be placed in the ribbon

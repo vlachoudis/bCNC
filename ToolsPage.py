@@ -716,7 +716,6 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Stock",
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Stock material currently on machine")
@@ -731,7 +730,6 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Material",
-#				command=app.editor.toggleEnable,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Editable database of material properties")
@@ -746,7 +744,6 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="EndMill",
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Editable database of EndMills properties")
@@ -821,7 +818,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Cut",
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Cut for the full stock thickness selected code")
@@ -836,7 +832,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Profile",
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Perform a profile operation on selected code")
@@ -852,7 +847,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				variable=app.tools.active,
 				value="Pocket",
 				state=DISABLED,
-#				command=app.editor.toggleEnable,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Perform a pocket operation on selected code")
@@ -867,7 +861,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Drill",
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Insert a drill cycle on current objects/location")
@@ -883,7 +876,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				variable=app.tools.active,
 				value="Tabs",
 				state=DISABLED,
-#				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Insert holding tabs")

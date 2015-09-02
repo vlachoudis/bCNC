@@ -44,7 +44,7 @@ GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 
 ENABLE_COLOR  = "Black"
-DISABLE_COLOR = "Gray"
+DISABLE_COLOR = "LightGray"
 SELECT_COLOR  = "Blue"
 SELECT2_COLOR = "DarkCyan"
 PROCESS_COLOR = "Green"

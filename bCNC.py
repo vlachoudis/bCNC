@@ -173,7 +173,7 @@ class Application(Toplevel,Sender):
 		self.terminal  = CNCRibbon.Page.frames["Terminal"].terminal
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
-		self.autolevel = CNCRibbon.Page.frames["Autolevel"]
+		self.autolevel = CNCRibbon.Page.frames["Probe:Autolevel"]
 
 		# Left side
 		for name in Utils.getStr(Utils.__prg__,"ribbon").split():
@@ -205,8 +205,8 @@ class Application(Toplevel,Sender):
 			self.canvas.bind("<KP_Delete>",	self.editor.deleteLine)
 		except:
 			pass
-		tkExtra.bindEventData(self, "<<Status>>", self.updateStatus)
-		tkExtra.bindEventData(self, "<<Coords>>", self.updateCanvasCoords)
+		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
 
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
@@ -294,6 +294,12 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
+		frame = CNCRibbon.Page.frames["Probe:Probe"]
+		self.bind('<<Probe>>',            frame.probe)
+
+#		frame = CNCRibbon.Page.frames["Probe:Center"]
+#		self.bind('<<ProbeCenter>>',      frame.probe)
+
 		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
 		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
 		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
@@ -309,7 +315,6 @@ class Application(Toplevel,Sender):
 
 		self.bind('<FocusIn>',		self.focusIn)
 		self.protocol("WM_DELETE_WINDOW", self.quit)
-
 
 		self.canvas.focus_set()
 
@@ -449,6 +454,7 @@ class Application(Toplevel,Sender):
 		CNCRibbon.Page.saveConfig()
 		Sender.saveConfig(self)
 		self.tools.saveConfig()
+		self.canvasFrame.saveConfig()
 
 	#----------------------------------------------------------------------
 	def loadHistory(self):
@@ -593,6 +599,10 @@ class Application(Toplevel,Sender):
 
 	#----------------------------------------------------------------------
 	def unselectAll(self, event=None):
+		focus = self.focus_get()
+		if isinstance(focus, Entry) or \
+		   isinstance(focus, Spinbox) or \
+		   isinstance(focus, Listbox): return
 		self.ribbon.changePage("Editor")
 		self.editor.selectClear()
 		self.selectionChange()

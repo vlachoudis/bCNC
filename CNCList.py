@@ -394,6 +394,7 @@ class CNCListbox(Listbox):
 	# Toggle expand selection
 	# ----------------------------------------------------------------------
 	def toggleExpand(self, event=None):
+		if not self._items: return None
 		items   = list(map(int,self.curselection()))
 		expand  = None
 		active = self.index(ACTIVE)
@@ -423,6 +424,7 @@ class CNCListbox(Listbox):
 	# toggle state enable/disable
 	# ----------------------------------------------------------------------
 	def toggleEnable(self, event=None):
+		if not self._items: return None
 		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
 		enable  = None
