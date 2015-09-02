@@ -173,7 +173,6 @@ class Application(Toplevel,Sender):
 		self.terminal  = CNCRibbon.Page.frames["Terminal"].terminal
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
-		self.probe     = CNCRibbon.Page.frames["Probe"]
 		self.autolevel = CNCRibbon.Page.frames["Autolevel"]
 
 		# Left side
@@ -447,10 +446,7 @@ class Application(Toplevel,Sender):
 		# Connection
 		Utils.setStr("Connection", "port", self.portCombo.get())
 
-		self.canvasFrame.saveConfig()
-		self.control.saveConfig()
-		self.probe.saveConfig()
-		self.autolevel.saveConfig()
+		CNCRibbon.Page.saveConfig()
 		Sender.saveConfig(self)
 		self.tools.saveConfig()
 

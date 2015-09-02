@@ -734,7 +734,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		f.pack(side=TOP, fill=X)
 
 		# ===
-		row, col = 0, 0
+		col,row=0,0
 		f2 = Frame(f)
 		f2.grid(row=row, column=col, columnspan=5,sticky=EW)
 		for p,w in enumerate(WCS):
@@ -852,13 +852,29 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
 		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
 
-		# Feed override
-		row += 1
-		col = 0
-		Label(f, text="Override:").grid(row=row, column=col, sticky=E)
-		col += 1
+		# ---
+		f.grid_columnconfigure(1, weight=1)
+		f.grid_columnconfigure(4, weight=1)
+
+		# Spindle
+		f = Frame(self())
+		f.pack(side=BOTTOM, fill=X)
+
 		self.override = IntVar()
 		self.override.set(100)
+		self.spindle = BooleanVar()
+		self.spindleSpeed = IntVar()
+
+		col,row=0,0
+		b = Button(f,	text="Override:",
+				command=self.resetOverride,
+				padx=2,
+				pady=0,
+				justify=RIGHT)
+		b.grid(row=row, column=col, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Reset Feed Override to 100%")
+
+		col += 1
 		b = Scale(f,
 				command=self.overrideControl,
 				variable=self.override,
@@ -871,25 +887,21 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, "Set Feed Override")
 
 		# ---
-		f.grid_columnconfigure(1, weight=1)
-		f.grid_columnconfigure(4, weight=1)
-
-		# Spindle
-		f = Frame(self())
-		f.pack(side=BOTTOM, fill=X)
-		self.spindle = BooleanVar()
-		self.spindleSpeed = IntVar()
-
+		row += 1
+		col = 0
 		b = Checkbutton(f, text="Spindle",
 				image=Utils.icons["spinningtop"],
 				command=self.spindleControl,
 				compound=LEFT,
 				indicatoron=False,
-				variable=self.spindle)
+				variable=self.spindle,
+				padx=2,
+				pady=0)
 		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
-		b.pack(side=LEFT, fill=Y)
+		b.grid(row=row, column=col, sticky=NSEW)
 		self.addWidget(b)
 
+		col += 1
 		b = Scale(f,	variable=self.spindleSpeed,
 				command=self.spindleControl,
 				showvalue=True,
@@ -897,12 +909,19 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				from_=Utils.config.get("CNC","spindlemin"),
 				to_=Utils.config.get("CNC","spindlemax"))
 		tkExtra.Balloon.set(b, "Set spindle RPM")
-		b.pack(side=RIGHT, expand=YES, fill=X)
+		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
+
+		f.grid_columnconfigure(1, weight=1)
 
 	#----------------------------------------------------------------------
 	def overrideControl(self, event=None):
 		CNC.vars["override"] = self.override.get()
+
+	#----------------------------------------------------------------------
+	def resetOverride(self, event=None):
+		self.override.set(100)
+		self.overrideControl()
 
 	#----------------------------------------------------------------------
 	def _gChange(self, value, dictionary):

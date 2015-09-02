@@ -47,6 +47,14 @@ class _LinkApp:
 		   isinstance(focus, Text): return False
 		return True
 
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		pass
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		pass
+
 #===============================================================================
 # Button Group, a group of widgets that will be placed in the ribbon
 #===============================================================================
@@ -146,3 +154,15 @@ class Page(Ribbon.Page):
 			self.frames.append((Page.frames[name], args))
 		else:
 			self.frames.append((name, args))
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def saveConfig():
+		for frame in Page.frames.values():
+			frame.saveConfig()
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def loadConfig():
+		for frame in Page.frames.values():
+			frame.loadConfig()

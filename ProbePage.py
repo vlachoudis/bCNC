@@ -284,7 +284,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def feedSet():
+	def feedSet(probe):
 		try:
 			probe.feed  = float(ProbeCommonFrame.probeFeed.get())
 			return False
@@ -511,7 +511,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 					parent=self)
 			error = True
 
-		if ProbeCommonFrame.feedSet():
+		if ProbeCommonFrame.feedSet(probe):
 			if verbose:
 				tkMessageBox.showerror("Probe Error",
 					"Invalid probe feed rate",
