@@ -157,101 +157,6 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, "Scan probed area for level information on Z plane")
 
 #===============================================================================
-# Probe Frame
-#===============================================================================
-class ProbeFrame(CNCRibbon.PageFrame):
-	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
-
-		# WorkSpace -> Probe
-		lframe = LabelFrame(self, text="Probe", foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		row,col = 0,0
-		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self._probeX = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		col += 1
-		self._probeY = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		col += 1
-		self._probeZ = Label(lframe, foreground="DarkBlue", background="gray95")
-		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
-
-		# ---
-		row,col = row+1,0
-		Label(lframe, text="Pos:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.probeXdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeXdir, "Probe along X direction")
-		self.addWidget(self.probeXdir)
-
-		col += 1
-		self.probeYdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeYdir, "Probe along Y direction")
-		self.addWidget(self.probeYdir)
-
-		col += 1
-		self.probeZdir = tkExtra.FloatEntry(lframe, background="White")
-		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeZdir, "Probe along Z direction")
-		self.addWidget(self.probeZdir)
-
-		lframe.grid_columnconfigure(1,weight=1)
-		lframe.grid_columnconfigure(2,weight=1)
-		lframe.grid_columnconfigure(3,weight=1)
-
-		self.loadConfig()
-
-	#----------------------------------------------------------------------
-	def loadConfig(self):
-		# Set variables
-		self.probeXdir.set(Utils.getStr("Probe","x"))
-		self.probeYdir.set(Utils.getStr("Probe","y"))
-		self.probeZdir.set(Utils.getStr("Probe","z"))
-
-	#----------------------------------------------------------------------
-	def saveConfig(self):
-		Utils.setFloat("Probe", "x",    self.probeXdir.get())
-		Utils.setFloat("Probe", "y",    self.probeYdir.get())
-		Utils.setFloat("Probe", "z",    self.probeZdir.get())
-
-	#----------------------------------------------------------------------
-	# Probe one Point
-	#----------------------------------------------------------------------
-	def probe(self, event=None):
-		cmd = "G38.2"
-		ok = False
-		v = self.probeXdir.get()
-		if v != "":
-			cmd += "X"+str(v)
-			ok = True
-		v = self.probeYdir.get()
-		if v != "":
-			cmd += "Y"+str(v)
-			ok = True
-		v = self.probeZdir.get()
-		if v != "":
-			cmd += "Z"+str(v)
-			ok = True
-		v = ProbeCommonFrame.probeFeed.get()
-		if v != "":
-			cmd += "F"+str(v)
-
-		if ok:
-			self.sendGrbl(cmd)
-		else:
-			tkMessageBox.showerror("Probe Error",
-					"At least one probe direction should be specified")
-
-#===============================================================================
 # Probe Common Offset
 #===============================================================================
 class ProbeCommonFrame(CNCRibbon.PageFrame):
@@ -307,7 +212,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	@staticmethod
 	def feedSet(probe):
 		try:
-			probe.feed  = float(ProbeCommonFrame.probeFeed.get())
+			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
 			return False
 		except:
 			return True
@@ -329,6 +234,163 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def loadConfig(self):
 		ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe","feed"))
 		ProbeCommonFrame.tlo.set(      Utils.getFloat("Probe","tlo"))
+
+#===============================================================================
+# Probe Frame
+#===============================================================================
+class ProbeFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
+
+		# WorkSpace -> Probe
+		lframe = LabelFrame(self, text="Probe", foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X)
+
+		row,col = 0,0
+		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self._probeX = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
+
+		col += 1
+		self._probeY = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
+
+		col += 1
+		self._probeZ = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
+
+		# ---
+		row,col = row+1,0
+		Label(lframe, text="Pos:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.probeXdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(self.probeXdir, "Probe along X direction")
+		self.addWidget(self.probeXdir)
+
+		col += 1
+		self.probeYdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(self.probeYdir, "Probe along Y direction")
+		self.addWidget(self.probeYdir)
+
+		col += 1
+		self.probeZdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(self.probeZdir, "Probe along Z direction")
+		self.addWidget(self.probeZdir)
+
+		lframe.grid_columnconfigure(1,weight=1)
+		lframe.grid_columnconfigure(2,weight=1)
+		lframe.grid_columnconfigure(3,weight=1)
+
+		self.loadConfig()
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		self.probeXdir.set(Utils.getStr("Probe","x"))
+		self.probeYdir.set(Utils.getStr("Probe","y"))
+		self.probeZdir.set(Utils.getStr("Probe","z"))
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("Probe", "x",    self.probeXdir.get())
+		Utils.setFloat("Probe", "y",    self.probeYdir.get())
+		Utils.setFloat("Probe", "z",    self.probeZdir.get())
+
+	#----------------------------------------------------------------------
+	# Probe one Point
+	#----------------------------------------------------------------------
+	def probe(self, event=None):
+		cmd = CNC.vars["prbcmd"]
+		if ProbeCommonFrame.feedSet(probe):
+			tkMessageBox.showerror("Probe Error",
+				"Invalid probe feed rate",
+				parent=self)
+			return
+		ok = False
+		v = self.probeXdir.get()
+		if v != "":
+			cmd += "X"+str(v)
+			ok = True
+		v = self.probeYdir.get()
+		if v != "":
+			cmd += "Y"+str(v)
+			ok = True
+		v = self.probeZdir.get()
+		if v != "":
+			cmd += "Z"+str(v)
+			ok = True
+		if v != "":
+			cmd += "F"+str(CNC.vars["prbfeed"])
+
+		if ok:
+			self.sendGrbl(cmd)
+		else:
+			tkMessageBox.showerror("Probe Error",
+					"At least one probe direction should be specified")
+
+#===============================================================================
+# Center Frame
+#===============================================================================
+class ProbeCenterFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Center", app)
+
+		# WorkSpace -> Probe
+		lframe = LabelFrame(self, text="Center", foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X)
+
+		Label(lframe, text="Diameter:").pack(side=LEFT)
+		self.diameter = tkExtra.FloatEntry(lframe, background="White")
+		self.diameter.pack(side=LEFT, fill=X)
+		tkExtra.Balloon.set(self.diameter, "Probing ring internal diameter")
+		self.addWidget(self.diameter)
+
+		self.loadConfig()
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		self.diameter.set(Utils.getStr("Probe", "center"))
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("Probe", "center",  self.diameter.get())
+
+	#----------------------------------------------------------------------
+	# Probe one Point
+	#----------------------------------------------------------------------
+	def probe(self, event=None):
+		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+		try:
+			diameter = abs(float(self.diameter.get()))
+		except:
+			diameter = 0.0
+
+		if diameter < 0.001:
+			tkMessageBox.showerror("Probe Center Error",
+					"Invalid diameter entered",
+					parent=self)
+			return
+
+		lines = []
+		lines.append("%s x-%s"%(cmd,diameter))
+		lines.append("%wait")
+		lines.append("low=prbx")
+		lines.append("%s x%s"%(cmd,diameter))
+		lines.append("%wait")
+		lines.append("g53 g0 x[0.5*(low+high)]")
+		lines.append("%s y-%s"%(cmd,diameter))
+		lines.append("%wait")
+		lines.append("low=prby")
+		lines.append("%s y%s"%(cmd,diameter))
+		lines.append("%wait")
+		lines.append("g53 g0 y[0.5*(low+high)]")
+		lines.append("g90")
+		self.app.run(lines=lines)
 
 #===============================================================================
 # Autolevel Frame
@@ -469,7 +531,6 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		# Set variables
 		self.probeXmin.set(Utils.getFloat("Probe","xmin"))
 		self.probeXmax.set(Utils.getFloat("Probe","xmax"))
 		self.probeYmin.set(Utils.getFloat("Probe","ymin"))
@@ -583,7 +644,7 @@ class ProbePage(CNCRibbon.Page):
 	#----------------------------------------------------------------------
 	def register(self):
 		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup),
-			(ProbeCommonFrame, ProbeFrame, AutolevelFrame))
+			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.trace('w', self.tabChange)

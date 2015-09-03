@@ -72,7 +72,6 @@ class Probe:
 		self.xn = 5
 		self.yn = 5
 
-		self.feed = 100
 		self.points = []	# probe points
 		self.matrix = []	# 2D matrix with Z coordinates
 		self.zeroed = False	# if probe was zeroed at any location
@@ -108,9 +107,10 @@ class Probe:
 				if line: return map(float, line.split())
 
 		f = open(self.filename,"r")
-		self.xmin, self.xmax, self.xn   = read(f)
-		self.ymin, self.ymax, self.yn   = read(f)
-		self.zmin, self.zmax, self.feed = read(f)
+		self.xmin, self.xmax, self.xn = read(f)
+		self.ymin, self.ymax, self.yn = read(f)
+		self.zmin, self.zmax, feed    = read(f)
+		CNC.vars["prbfeed"] = feed
 
 		self.xn = max(2,int(self.xn))
 		self.yn = max(2,int(self.yn))
@@ -137,7 +137,7 @@ class Probe:
 		f = open(self.filename,"w")
 		f.write("%g %g %d\n"%(self.xmin, self.xmax, self.xn))
 		f.write("%g %g %d\n"%(self.ymin, self.ymax, self.yn))
-		f.write("%g %g %g\n"%(self.zmin, self.zmax, self.feed))
+		f.write("%g %g %g\n"%(self.zmin, self.zmax, CNC.vars["prbfeed"]))
 		f.write("\n\n")
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
@@ -169,7 +169,7 @@ class Probe:
 			for i in range(self.xn):
 				lines.append("G0Z%.4f"%(self.zmax))
 				lines.append("G0X%.4fY%.4f"%(x,y))
-				lines.append("G38.2Z%.4fF%g"%(self.zmin, self.feed))
+				lines.append("%sZ%.4fF%g"%(CNC.vars["prbcmd"], self.zmin, CNC.vars["prbfeed"]))
 				x += xstep
 			x -= xstep
 			xstep = -xstep
@@ -354,6 +354,7 @@ class CNC:
 				"prbx"      : 0.0,
 				"prby"      : 0.0,
 				"prbz"      : 0.0,
+				"prbcmd"    : "G38.2",
 				"wx"        : 0.0,
 				"wy"        : 0.0,
 				"wz"        : 0.0,

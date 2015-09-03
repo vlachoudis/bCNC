@@ -301,9 +301,8 @@ class Application(Toplevel,Sender):
 
 		frame = CNCRibbon.Page.frames["Probe:Probe"]
 		self.bind('<<Probe>>',            frame.probe)
-
-#		frame = CNCRibbon.Page.frames["Probe:Center"]
-#		self.bind('<<ProbeCenter>>',      frame.probe)
+		frame = CNCRibbon.Page.frames["Probe:Center"]
+		self.bind('<<ProbeCenter>>',      frame.probe)
 
 		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
 		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
