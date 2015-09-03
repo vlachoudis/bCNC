@@ -15,6 +15,7 @@ import re
 import sys
 import pdb
 import time
+import getopt
 import serial
 import socket
 import traceback
@@ -54,6 +55,10 @@ from ControlPage  import ControlPage
 from TerminalPage import TerminalPage
 from ProbePage    import ProbePage
 from EditorPage   import EditorPage
+
+_openserial = True	# override ini parameters
+_device     = None
+_baud       = None
 
 MONITOR_AFTER =  250	# ms
 DRAW_AFTER    =  300	# ms
@@ -305,7 +310,6 @@ class Application(Toplevel,Sender):
 		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
 		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
 
-
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)
 		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
@@ -336,7 +340,7 @@ class Application(Toplevel,Sender):
 		if int(Utils.config.get("Connection","pendant")):
 			self.startPendant(False)
 
-		if int(Utils.config.get("Connection","openserial")):
+		if _openserial and int(Utils.config.get("Connection","openserial")):
 			self.openClose()
 
 	#----------------------------------------------------------------------
@@ -1309,8 +1313,8 @@ class Application(Toplevel,Sender):
 					background="LightGreen",
 					activebackground="LightGreen")
 		else:
-			device  = self.portCombo.get()
-			baudrate = int(Utils.config.get("Connection","baud"))
+			device   = _device or self.portCombo.get()
+			baudrate = _baud or int(Utils.config.get("Connection","baud"))
 			if self.open(device, baudrate):
 				self.connectBtn.config(text="Close",
 						background="Salmon",
@@ -1616,6 +1620,12 @@ class Application(Toplevel,Sender):
 		return Utils.config.set(section, item, value)
 
 #------------------------------------------------------------------------------
+def usage(rc):
+	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
+	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
+	sys.exit(rc)
+
+#------------------------------------------------------------------------------
 if __name__ == "__main__":
 	tk = Tk()
 	tk.withdraw()
@@ -1627,11 +1637,87 @@ if __name__ == "__main__":
 	tkExtra.bindClasses(tk)
 	Utils.loadConfiguration()
 
+	# Parse arguments
+	try:
+		optlist, args = getopt.getopt(sys.argv[1:],
+			'?hi:rldDpPSs:b:',
+			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
+	except getopt.GetoptError:
+		usage(1)
+
+	recent = None
+	for opt, val in optlist:
+		if opt in ("-h", "-?", "--help"):
+			usage(0)
+		elif opt in ("-i", "--ini"):
+			Utils.iniUser = val
+		elif opt == "-d":
+			Utils.developer = True
+		elif opt == "-D":
+			Utils.developer = False
+		elif opt in ("-r", "-R", "--recent", "-l", "--list"):
+			if opt in ("-r","--recent"):
+				r = 0
+			elif opt in ("--list","-l"):
+				r = -1
+			else:
+				try:
+					r = int(val)-1
+				except:
+					# Scan in names
+					for r in range(Utils._maxRecent):
+						filename = Utils.getRecent(r)
+						if filename is None: break
+						fn, ext = os.path.splitext(os.path.basename(filename))
+						if fn == val:
+							break
+					else:
+						r = 0
+			if r<0:
+				# display list of recent files
+				sys.stdout.write("Recent files:\n")
+				for i in range(Utils._maxRecent):
+					filename = Utils.getRecent(i)
+					if filename is None: break
+					d  = os.path.dirname(filename)
+					fn = os.path.basename(filename)
+					sys.stdout.write("  %2d: %-10s\t%s\n"%(i+1,fn,d))
+
+				try:
+					sys.stdout.write("Select one: ")
+					r = int(sys.stdin.readline())-1
+				except:
+					pass
+			try: recent = Utils.getRecent(r)
+			except: pass
+
+		elif opt == "-S":
+			_openserial = False
+
+		elif opt in ("-s", "--serial"):
+			_openserial = True
+			_device = val
+
+		elif opt in ("-b", "--baud"):
+			_baud = val
+
+		elif opt == "-p":
+			pass #startPendant()
+
+		elif opt == "-P":
+			pass #stopPendant()
+
+		elif opt == "--pendant":
+			pass #startPendant on port
+
+	# Start application
 	application = Application(tk)
 
-	# Load all files as arguments
-	for fn in sys.argv[1:]:
+	# Parse remaining arguments except files
+	if recent: args.append(recent)
+	for fn in args:
 		application.load(fn)
+
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
@@ -1640,3 +1726,4 @@ if __name__ == "__main__":
 	application.close()
 	Utils.saveConfiguration()
  #vim:ts=8:sw=8:sts=8:noet
+

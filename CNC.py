@@ -2086,6 +2086,7 @@ class GCode:
 					name = Block.operationName(path.name, "out")
 				else:
 					name = Block.operationName(path.name, "in")
+
 				opath = path.offset(D*offset, name)
 				opath.intersect()
 				opath.removeExcluded(path, D*offset)

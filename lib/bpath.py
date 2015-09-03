@@ -462,7 +462,7 @@ class Path(list):
 		phi = 0.0
 		P  = self[-1].AB
 		PL = P.length()
-		for N in self:
+		for i,N in enumerate(self):
 			NL = N.AB.length()
 			prod = PL * NL
 			if abs(prod)>EPS0:
@@ -479,7 +479,7 @@ class Path(list):
 					dot = (N.AB * P) / prod
 					if   dot<-1.0: dot=-1.0
 					elif dot> 1.0: dot= 1.0
-					phi += copysign(acos(dot), prod)
+					phi += copysign(acos(dot), cross)
 			else:
 				if N.type == CW:
 					phi -= PI2

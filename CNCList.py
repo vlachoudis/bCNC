@@ -35,6 +35,8 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-space>",self.commandFocus)
 		self.bind("<Delete>",		self.deleteLine)
 		self.bind("<BackSpace>",	self.deleteLine)
+		self.bind("<Left>",		self.toggleKey)
+		self.bind("<Right>",		self.toggleKey)
 		self.bind("<Control-Key-Up>",	self.orderUp)
 		self.bind("<Control-Key-Prior>",self.orderUp)
 		self.bind("<Control-Key-Down>",	self.orderDown)
@@ -311,6 +313,14 @@ class CNCListbox(Listbox):
 		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
+	def toggleKey(self,event=None):
+		if not self._items: return
+		active = self.index(ACTIVE)
+		bid,lid = self._items[active]
+		if lid is not None: return
+		self.toggleExpand()
+
+	# ----------------------------------------------------------------------
 	# Button1 clicked
 	# ----------------------------------------------------------------------
 	def button1(self, event):
@@ -458,7 +468,9 @@ class CNCListbox(Listbox):
 	# Select items in the form of (block, item)
 	# ----------------------------------------------------------------------
 	def select(self, items, double=False, clear=False, toggle=True):
-		if clear: self.selection_clear(0,END)
+		if clear:
+			self.selection_clear(0,END)
+			toggle = False
 		first = None
 		for b,i in items:
 			block = self.gcode[b]

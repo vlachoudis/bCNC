@@ -429,9 +429,9 @@ class CNCCanvas(Canvas):
 				self.delete(self._select)
 				self._select = None
 
-				lines = []
+				items = []
 				for i in closest:
-					try: lines.append(self._items[i])
+					try: items.append(self._items[i])
 					except: pass
 
 			elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
@@ -440,17 +440,17 @@ class CNCCanvas(Canvas):
 						self.canvasy(event.y),
 						CLOSE_DISTANCE)
 
-				lines = []
+				items = []
 				for i in closest:
 					try:
-						lines.append(self._items[i])
+						items.append(self._items[i])
 						#i = None
 					except KeyError:
 						#i = self.find_below(i)
 						pass
-			if not lines: return
+			if not items: return
 
-			self.app.select(lines, self._mouseAction==ACTION_SELECT_DOUBLE,
+			self.app.select(items, self._mouseAction==ACTION_SELECT_DOUBLE,
 					event.state&CONTROL_MASK==0)
 			self._mouseAction = None
 
@@ -1138,22 +1138,16 @@ class CanvasFrame(Frame):
 		self.app = app
 
 		self.draw_axes   = BooleanVar()
-		self.draw_axes.set(bool(int(Utils.config.get("Canvas","axes"))))
 		self.draw_grid   = BooleanVar()
-		self.draw_grid.set(bool(int(Utils.config.get("Canvas","grid"))))
 		self.draw_margin = BooleanVar()
-		self.draw_margin.set(bool(int(Utils.config.get("Canvas","margin"))))
 		self.draw_probe  = BooleanVar()
-		self.draw_probe.set(bool(int(Utils.config.get("Canvas","probe"))))
 		self.draw_paths  = BooleanVar()
-		self.draw_paths.set(bool(int(Utils.config.get("Canvas","paths"))))
 		self.draw_rapid  = BooleanVar()
-		self.draw_rapid.set(bool(int(Utils.config.get("Canvas","rapid"))))
 		self.draw_workarea = BooleanVar()
-		self.draw_workarea.set(bool(int(Utils.config.get("Canvas","workarea"))))
-
 		self.view  = StringVar()
-		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
+
+		self.loadConfig()
+
 		self.view.trace('w', self.viewChange)
 
 		toolbar = Frame(self, relief=RAISED)
@@ -1178,15 +1172,44 @@ class CanvasFrame(Frame):
 		self.app.widgets.append(widget)
 
 	#----------------------------------------------------------------------
+	def loadConfig(self):
+		global INSERT_COLOR, GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
+		global BOX_SELECT, ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
+		global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
+
+		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
+		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
+		self.draw_margin.set(  bool(int(Utils.getBool("Canvas", "margin",  True))))
+		self.draw_probe.set(   bool(int(Utils.getBool("Canvas", "probe",   False))))
+		self.draw_paths.set(   bool(int(Utils.getBool("Canvas", "paths",   True))))
+		self.draw_rapid.set(   bool(int(Utils.getBool("Canvas", "rapid",   True))))
+		self.draw_workarea.set(bool(int(Utils.getBool("Canvas", "workarea",True))))
+
+		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
+
+		INSERT_COLOR  = Utils.getStr("Color", "canvas.insert", INSERT_COLOR)
+		GANTRY_COLOR  = Utils.getStr("Color", "canvas.gantry", GANTRY_COLOR)
+		MARGIN_COLOR  = Utils.getStr("Color", "canvas.margin", MARGIN_COLOR)
+		GRID_COLOR    = Utils.getStr("Color", "canvas.grid",   GRID_COLOR)
+		BOX_SELECT    = Utils.getStr("Color", "canvas.box",    BOX_SELECT)
+		ENABLE_COLOR  = Utils.getStr("Color", "canvas.enable", ENABLE_COLOR)
+		DISABLE_COLOR = Utils.getStr("Color", "canvas.disable",DISABLE_COLOR)
+		SELECT_COLOR  = Utils.getStr("Color", "canvas.select", SELECT_COLOR)
+		SELECT2_COLOR = Utils.getStr("Color", "canvas.select2",SELECT2_COLOR)
+		PROCESS_COLOR = Utils.getStr("Color", "canvas.process",PROCESS_COLOR)
+		MOVE_COLOR    = Utils.getStr("Color", "canvas.move",   MOVE_COLOR)
+		RULER_COLOR   = Utils.getStr("Color", "canvas.ruler",  RULER_COLOR)
+
+	#----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setStr( "Canvas","view",    self.view.get())
-		Utils.setBool("Canvas","axes",    self.draw_axes.get())
-		Utils.setBool("Canvas","grid",    self.draw_grid.get())
-		Utils.setBool("Canvas","margin",  self.draw_margin.get())
-		Utils.setBool("Canvas","probe",   self.draw_probe.get())
-		Utils.setBool("Canvas","paths",   self.draw_paths.get())
-		Utils.setBool("Canvas","rapid",   self.draw_rapid.get())
-		Utils.setBool("Canvas","workarea",self.draw_workarea.get())
+		Utils.setStr( "Canvas", "view",    self.view.get())
+		Utils.setBool("Canvas", "axes",    self.draw_axes.get())
+		Utils.setBool("Canvas", "grid",    self.draw_grid.get())
+		Utils.setBool("Canvas", "margin",  self.draw_margin.get())
+		Utils.setBool("Canvas", "probe",   self.draw_probe.get())
+		Utils.setBool("Canvas", "paths",   self.draw_paths.get())
+		Utils.setBool("Canvas", "rapid",   self.draw_rapid.get())
+		Utils.setBool("Canvas", "workarea",self.draw_workarea.get())
 
 	#----------------------------------------------------------------------
 	# Canvas toolbar FIXME XXX should be moved to CNCCanvas

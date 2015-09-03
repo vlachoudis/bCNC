@@ -27,6 +27,7 @@ import Ribbon
 import tkExtra
 
 __prg__     = "bCNC"
+developer   = False
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
@@ -193,7 +194,7 @@ setFloat = setStr
 #-------------------------------------------------------------------------------
 def addRecent(filename):
 	try:
-		sfn = str(filename)
+		sfn = str(os.path.abspath(filename))
 	except UnicodeEncodeError:
 		sfn = filename.encode("utf-8")
 
