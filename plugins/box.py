@@ -314,7 +314,7 @@ class Tool(Plugin):
 			("overcut", "bool",     1, "Overcut"),
 			("cut",     "bool",     0, "Cut")
 		]
-		self.buttons  = self.buttons + ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):

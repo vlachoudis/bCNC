@@ -483,8 +483,8 @@ class Application(Toplevel,Sender):
 		if focus is self.canvas:
 ###			self.editor.cut()
 			pass
-		elif focus:
-			focus.event_generate("<<Cut>>")
+#		elif focus:
+#			focus.event_generate("<<Cut>>")
 
 	#----------------------------------------------------------------------
 	def copy(self, event=None):
@@ -492,8 +492,8 @@ class Application(Toplevel,Sender):
 		if focus is self.canvas:
 ###			self.editor.copy()
 			pass
-		elif focus:
-			focus.event_generate("<<Copy>>")
+#		elif focus:
+#			focus.event_generate("<<Copy>>")
 
 	#----------------------------------------------------------------------
 	def paste(self, event=None):
@@ -501,8 +501,8 @@ class Application(Toplevel,Sender):
 		if focus is self.canvas:
 ###			self.editor.paste()
 			pass
-		elif focus:
-			focus.event_generate("<<Paste>>")
+#		elif focus:
+#			focus.event_generate("<<Paste>>")
 
 	#----------------------------------------------------------------------
 	def undo(self, event=None):

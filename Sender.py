@@ -289,6 +289,7 @@ class Sender:
 			if filename is not None:
 				self.gcode.filename = filename
 				self._saveConfigFile()
+			Utils.addRecent(self.gcode.filename)
 			return self.gcode.save()
 
 	#----------------------------------------------------------------------

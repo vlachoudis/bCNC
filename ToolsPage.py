@@ -329,7 +329,7 @@ class Base:
 class DataBase(Base):
 	def __init__(self, master):
 		Base.__init__(self, master)
-		self.buttons  = ("add","delete","clone","rename")
+		self.buttons  = ["add","delete","clone","rename"]
 
 	# ----------------------------------------------------------------------
 	# Add a new item
@@ -517,16 +517,16 @@ class Stock(DataBase):
 #==============================================================================
 # Cut material
 #==============================================================================
-class Cut(Base):
+class Cut(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Cut"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("depth"  ,   "mm" ,    "", "Target Depth"),
 			("stepz"  ,   "mm" ,    "", "Depth Increment")
 		]
-		self.buttons  = ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -544,16 +544,16 @@ class Cut(Base):
 #==============================================================================
 # Drill material
 #==============================================================================
-class Drill(Base):
+class Drill(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Drill"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("depth",     "mm" ,    "", "Target Depth"),
 			("peck",      "mm" ,    "", "Peck depth")
 		]
-		self.buttons  = ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -573,7 +573,7 @@ class Drill(Base):
 #==============================================================================
 class Profile(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Profile"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
@@ -583,7 +583,7 @@ class Profile(DataBase):
 			("overcut",  "bool",     1, "Overcut"),
 			("cut",      "bool",     0, "Cut")
 		]
-		self.buttons  = ("add","delete","clone","rename","exe")
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):

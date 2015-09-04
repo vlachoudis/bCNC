@@ -613,6 +613,12 @@ class ProgressBar(Canvas):
 			self.autoText()
 
 	# ----------------------------------------------------------------------
+	def clear(self):
+		if self.wn != 0 or self.wd != 0:
+			self.wn = self.wd = 0
+			self.draw()
+
+	# ----------------------------------------------------------------------
 	def setText(self, txt):
 		self.itemconfig(self.text, text=txt)
 
@@ -639,9 +645,9 @@ class ProgressBar(Canvas):
 		width  = self.winfo_width()
 		height = self.winfo_height()
 
-		wn = int(width * (self.now - self.low) / self.length)
+		wn = int(width * (self.now  - self.low) / self.length)
 		wd = int(width * (self.done - self.low) / self.length)
-		if wn == wd: wd = wn - 1
+		if wn >= wd: wd = wn - 1
 
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)

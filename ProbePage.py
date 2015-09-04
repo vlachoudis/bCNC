@@ -21,6 +21,12 @@ import Ribbon
 import tkExtra
 import CNCRibbon
 
+PROBE_CMD = [	"G38.2 - stop on contact else error",
+		"G38.3 - stop on contact",
+		"G38.4 - stop on loss contact else error",
+		"G38.5 - stop on loss contact"
+	]
+
 #===============================================================================
 # Probe Tab Group
 #===============================================================================
@@ -74,6 +80,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 class ProbeGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Probe", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Probe>>",
 				image=Utils.icons["gear32"],
@@ -91,6 +98,7 @@ class ProbeGroup(CNCRibbon.ButtonGroup):
 class CenterGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Center", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ProbeCenter>>",
 				image=Utils.icons["gear32"],
@@ -108,6 +116,7 @@ class CenterGroup(CNCRibbon.ButtonGroup):
 class AutolevelGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Autolevel", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 		self.grid3rows()
 
 		# ---
@@ -162,6 +171,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 class ProbeCommonFrame(CNCRibbon.PageFrame):
 	probeFeed = None
 	tlo       = None
+	feedCmd   = "38.2"
 
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
@@ -189,7 +199,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		ProbeCommonFrame.tlo = tkExtra.FloatEntry(lframe, background="White")
 		ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.tlo, "Set tool offset for probing")
-		self.addWidget(self.tlo)
+		self.addWidget(ProbeCommonFrame.tlo)
 		self.tlo.bind("<Return>",   self.tloSet)
 		self.tlo.bind("<KP_Enter>", self.tloSet)
 
@@ -199,6 +209,18 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
+
+		# ---
+		# feed command
+		row += 1
+		col  = 0
+		Label(lframe, text="Feed Command").grid(row=row, column=col, sticky=E)
+		col += 1
+		ProbeCommonFrame.feedCmd = tkExtra.Combobox(lframe, False,
+					background="White", width=16)
+		ProbeCommonFrame.feedCmd.grid(row=row, column=col, sticky=EW)
+		ProbeCommonFrame.feedCmd.fill(PROBE_CMD)
+		self.addWidget(ProbeCommonFrame.feedCmd)
 
 		lframe.grid_columnconfigure(1,weight=1)
 		self.loadConfig()

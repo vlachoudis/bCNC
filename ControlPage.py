@@ -296,7 +296,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.yzero)
 
 		col += 1
-		self.zzero = Button(self, text="Y=0",
+		self.zzero = Button(self, text="Z=0",
 				command=self.setZ0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -785,6 +785,39 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		for k,v in UNITS.items(): self.gstate[k] = (self.units, v)
 		self.addWidget(self.units)
 
+		# Tool
+		row += 1
+		col = 0
+		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
+		self.toolEntry.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
+		self.addWidget(self.toolEntry)
+
+		col += 1
+		b = Button(f, text="set",
+				command=self.setTool,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=W)
+		self.addWidget(b)
+
+		# Plane
+		col += 1
+		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.plane = tkExtra.Combobox(f, True,
+					command=self.planeChange,
+					width=5,
+					background="White")
+		self.plane.fill(sorted(PLANE.values()))
+		self.plane.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
+		self.addWidget(self.plane)
+
+		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
+
 		# Feed mode
 		row += 1
 		col = 0
@@ -819,39 +852,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
 		self.addWidget(self.feedMode)
 
-		# Tool
-		row += 1
-		col = 0
-		Label(f, text="Tool:").grid(row=row, column=col, sticky=E)
-
-		col += 1
-		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
-		self.toolEntry.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.toolEntry, "Tool number [T#]")
-		self.addWidget(self.toolEntry)
-
-		col += 1
-		b = Button(f, text="set",
-				command=self.setTool,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=W)
-		self.addWidget(b)
-
-		# Plane
-		col += 1
-		Label(f, text="Plane:").grid(row=row, column=col, sticky=E)
-		col += 1
-		self.plane = tkExtra.Combobox(f, True,
-					command=self.planeChange,
-					width=5,
-					background="White")
-		self.plane.fill(sorted(PLANE.values()))
-		self.plane.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.plane, "Plane [G17,G18,G19]")
-		self.addWidget(self.plane)
-
-		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
-
 		# ---
 		f.grid_columnconfigure(1, weight=1)
 		f.grid_columnconfigure(4, weight=1)
@@ -866,11 +866,11 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.spindleSpeed = IntVar()
 
 		col,row=0,0
-		b = Button(f,	text="Override:",
+		b = Button(f,	text="Feed\nOverride:",
 				command=self.resetOverride,
 				padx=2,
 				pady=0,
-				justify=RIGHT)
+				justify=CENTER)
 		b.grid(row=row, column=col, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Reset Feed Override to 100%")
 

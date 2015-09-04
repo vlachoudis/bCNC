@@ -165,7 +165,7 @@ class Tool(Plugin):
 			("phi",    "float",  17.0, "Pressure angle"),
 			("pc",        "mm",   5.0, "Circular Pitch")
 		]
-		self.buttons  = self.buttons + ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
