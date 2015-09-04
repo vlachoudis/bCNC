@@ -614,9 +614,7 @@ class ProgressBar(Canvas):
 
 	# ----------------------------------------------------------------------
 	def clear(self):
-		if self.wn != 0 or self.wd != 0:
-			self.wn = self.wd = 0
-			self.draw()
+		self.setProgress(0, 0);
 
 	# ----------------------------------------------------------------------
 	def setText(self, txt):

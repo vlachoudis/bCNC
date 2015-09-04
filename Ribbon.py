@@ -203,7 +203,7 @@ class MenuButton(Button, _KeyboardFocus):
 		_KeyboardFocus._bind(self)
 		self.bind("<Return>", self.showMenu)
 		if menulist is not None:
-			self._menu = self.createMenuFromList(menulist)
+			self._menu = MenuButton.createMenuFromList(self, menulist)
 		else:
 			self._menu = None
 
@@ -226,8 +226,9 @@ class MenuButton(Button, _KeyboardFocus):
 		return None
 
 	#-----------------------------------------------------------------------
-	def createMenuFromList(self, menulist):
-		menu = Menu(self, tearoff=0, activebackground=_ACTIVE_COLOR)
+	@staticmethod
+	def createMenuFromList(master, menulist):
+		menu = Menu(master, tearoff=0, activebackground=_ACTIVE_COLOR)
 		for item in menulist:
 			if item is None:
 				menu.add_separator()
@@ -244,12 +245,16 @@ class MenuButton(Button, _KeyboardFocus):
 # A label group with a drop down menu
 #===============================================================================
 class MenuGroup(LabelGroup):
-	def __init__(self, master, name, **kw):
+	def __init__(self, master, name, menulist=None, **kw):
 		LabelGroup.__init__(self, master, name, command=self._showMenu, **kw)
+		self._menulist = menulist
 
 	#-----------------------------------------------------------------------
 	def createMenu(self):
-		return None
+		if self._menulist is not None:
+			return MenuButton.createMenuFromList(self, self._menulist)
+		else:
+			return None
 
 	#-----------------------------------------------------------------------
 	def _showMenu(self):

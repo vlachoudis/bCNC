@@ -249,7 +249,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 				background=Ribbon._BACKGROUND)
 		app.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(app.connectBtn, "Open/Close serial port")
-		self.addWidget(app.connectBtn)
 
 		self.grid_columnconfigure(1, weight=1)
 

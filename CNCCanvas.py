@@ -1251,30 +1251,12 @@ class CanvasFrame(Frame):
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=Utils.icons["pan"],	# FIXME replace with move
-					indicatoron=FALSE,
-					variable=self.canvas.actionVar,
-					value=ACTION_MOVE,
-					command=self.canvas.setActionMove)
-		tkExtra.Balloon.set(b, "Move objects [M]")
-		self.addWidget(b)
-		b.pack(side=LEFT)
-
 		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
 					indicatoron=FALSE,
 					variable=self.canvas.actionVar,
 					value=ACTION_GANTRY,
 					command=self.canvas.setActionGantry)
 		tkExtra.Balloon.set(b, "Move gantry [G]")
-		self.addWidget(b)
-		b.pack(side=LEFT)
-
-		b = Radiobutton(toolbar, image=Utils.icons["origin"],
-					indicatoron=FALSE,
-					variable=self.canvas.actionVar,
-					value=ACTION_ORIGIN,
-					command=self.canvas.setActionOrigin)
-		tkExtra.Balloon.set(b, "Place origin [O]")
 		self.addWidget(b)
 		b.pack(side=LEFT)
 

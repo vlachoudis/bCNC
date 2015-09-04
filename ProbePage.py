@@ -171,7 +171,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 class ProbeCommonFrame(CNCRibbon.PageFrame):
 	probeFeed = None
 	tlo       = None
-	feedCmd   = "38.2"
+	probeCmd  = None
 
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
@@ -214,13 +214,13 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# feed command
 		row += 1
 		col  = 0
-		Label(lframe, text="Feed Command").grid(row=row, column=col, sticky=E)
+		Label(lframe, text="Probe Command").grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.feedCmd = tkExtra.Combobox(lframe, False,
+		ProbeCommonFrame.probeCmd = tkExtra.Combobox(lframe, True,
 					background="White", width=16)
-		ProbeCommonFrame.feedCmd.grid(row=row, column=col, sticky=EW)
-		ProbeCommonFrame.feedCmd.fill(PROBE_CMD)
-		self.addWidget(ProbeCommonFrame.feedCmd)
+		ProbeCommonFrame.probeCmd.grid(row=row, column=col, sticky=EW)
+		ProbeCommonFrame.probeCmd.fill(PROBE_CMD)
+		self.addWidget(ProbeCommonFrame.probeCmd)
 
 		lframe.grid_columnconfigure(1,weight=1)
 		self.loadConfig()
@@ -232,9 +232,10 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def feedSet(probe):
+	def probeUpdate(probe):
 		try:
 			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
+			CNC.vars["prbcmd"]  = ProbeCommonFrame.probeCmd.get().split()[0]
 			return False
 		except:
 			return True
@@ -251,11 +252,17 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def saveConfig(self):
 		Utils.setFloat("Probe", "feed", ProbeCommonFrame.probeFeed.get())
 		Utils.setFloat("Probe", "tlo",  ProbeCommonFrame.tlo.get())
+		Utils.setFloat("Probe", "cmd",  ProbeCommonFrame.probeCmd.get().split()[0])
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
 		ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe","feed"))
 		ProbeCommonFrame.tlo.set(      Utils.getFloat("Probe","tlo"))
+		cmd = Utils.getStr("Probe","cmd")
+		for p in PROBE_CMD:
+			if p.split()[0] == cmd:
+				ProbeCommonFrame.probeCmd.set(p)
+				break
 
 #===============================================================================
 # Probe Frame
@@ -327,12 +334,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	# Probe one Point
 	#----------------------------------------------------------------------
 	def probe(self, event=None):
-		cmd = CNC.vars["prbcmd"]
-		if ProbeCommonFrame.feedSet(probe):
+		if ProbeCommonFrame.probeUpdate(self.app.gcode.probe):
 			tkMessageBox.showerror("Probe Error",
 				"Invalid probe feed rate",
 				parent=self)
 			return
+		cmd = CNC.vars["prbcmd"]
 		ok = False
 		v = self.probeXdir.get()
 		if v != "":
@@ -350,7 +357,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			cmd += "F"+str(CNC.vars["prbfeed"])
 
 		if ok:
-			self.sendGrbl(cmd)
+			self.sendGrbl(cmd+"\n")
 		else:
 			tkMessageBox.showerror("Probe Error",
 					"At least one probe direction should be specified")
@@ -401,16 +408,16 @@ class ProbeCenterFrame(CNCRibbon.PageFrame):
 		lines = []
 		lines.append("%s x-%s"%(cmd,diameter))
 		lines.append("%wait")
-		lines.append("low=prbx")
+		lines.append("tmp=prbx")
 		lines.append("%s x%s"%(cmd,diameter))
 		lines.append("%wait")
-		lines.append("g53 g0 x[0.5*(low+high)]")
+		lines.append("g53 g0 x[0.5*(tmp+prbx)]")
 		lines.append("%s y-%s"%(cmd,diameter))
 		lines.append("%wait")
-		lines.append("low=prby")
+		lines.append("tmp=prby")
 		lines.append("%s y%s"%(cmd,diameter))
 		lines.append("%wait")
-		lines.append("g53 g0 y[0.5*(low+high)]")
+		lines.append("g53 g0 y[0.5*(tmp+prby)]")
 		lines.append("g90")
 		self.app.run(lines=lines)
 
@@ -615,7 +622,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 					parent=self)
 			error = True
 
-		if ProbeCommonFrame.feedSet(probe):
+		if ProbeCommonFrame.probeUpdate(probe):
 			if verbose:
 				tkMessageBox.showerror("Probe Error",
 					"Invalid probe feed rate",

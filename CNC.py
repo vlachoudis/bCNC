@@ -986,6 +986,41 @@ class CNC:
 			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
 			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
 
+	#----------------------------------------------------------------------
+	# Instead of the current code, override with the custom user lines
+	# @param program a list of lines to execute
+	# @return the new list of lines
+	#----------------------------------------------------------------------
+	@staticmethod
+	def compile(program):
+		lines = []
+		for j,line in enumerate(program):
+			newcmd = []
+			cmds = CNC.parseLine2(line)
+			if cmds is None: continue
+			if isinstance(cmds,str):
+				cmds = CNC.breakLine(cmds)
+			else:
+				# either CodeType or list[] append
+				lines.append(cmds)
+				continue
+
+			for cmd in cmds:
+				c = cmd[0]
+				try: value = float(cmd[1:])
+				except: value = 0.0
+				if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
+					cmd = CNC.fmt(c,value)
+				else:
+					opt = ERROR_HANDLING.get(cmd.upper(),0)
+					if opt == SKIP:
+						cmd = None
+
+				if cmd is not None:
+					newcmd.append(cmd)
+			lines.append("".join(newcmd))
+		return lines
+
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
@@ -2358,7 +2393,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def prepare2Run(self):
+	def compile(self):
 		autolevel = not self.probe.isEmpty()
 
 		lines = []
@@ -2429,7 +2464,6 @@ class GCode:
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths
-
 
 #if __name__=="__main__":
 #	import pdb; pdb.set_trace()

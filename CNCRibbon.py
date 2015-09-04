@@ -69,8 +69,8 @@ class ButtonGroup(Ribbon.LabelGroup, _LinkApp):
 # Button Group, a group of widgets that will be placed in the ribbon
 #===============================================================================
 class ButtonMenuGroup(Ribbon.MenuGroup, _LinkApp):
-	def __init__(self, master, name, app):
-		Ribbon.MenuGroup.__init__(self, master, name)
+	def __init__(self, master, name, app, menulist=None):
+		Ribbon.MenuGroup.__init__(self, master, name, menulist)
 		_LinkApp.__init__(self, app)
 
 #===============================================================================

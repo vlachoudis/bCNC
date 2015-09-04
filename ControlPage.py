@@ -53,9 +53,11 @@ PLANE         = { "G17" : "XY",
 #===============================================================================
 # Connection Group
 #===============================================================================
-class ConnectionGroup(CNCRibbon.ButtonGroup):
+class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Connection", app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Connection", app,
+			[("Hard Reset",  "reset",     app.hardReset)
+			])
 		self.grid2rows()
 
 		# ---
@@ -385,7 +387,8 @@ class DROFrame(CNCRibbon.PageFrame):
 	def showState(self):
 		state = CNC.vars["state"]
 		tkMessageBox.showinfo("State: %s"%(state),
-				ERROR_CODES.get(state,"No info available.\n.Please contact the author."),
+				ERROR_CODES.get(state,
+					"No info available.\nPlease contact the author."),
 				parent=self)
 
 #===============================================================================

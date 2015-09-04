@@ -1386,7 +1386,8 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def runEnded(self):
 		Sender.runEnded(self)
-		self.status.clear()
+		self.statusbar.clear()
+		self.setStatus("Run ended")
 
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
@@ -1413,7 +1414,7 @@ class Application(Toplevel,Sender):
 					parent=self)
 				return
 
-			lines,paths = self.gcode.prepare2Run()
+			lines,paths = self.gcode.compile()
 			if not lines:
 				tkMessageBox.showerror("Empty gcode",
 					"Not gcode file was loaded",
@@ -1428,22 +1429,12 @@ class Application(Toplevel,Sender):
 						width=1,
 						fill=CNCCanvas.ENABLE_COLOR)
 		else:
+			lines = CNC.compile(lines)
 			paths = None
 
 		self.initRun()
 		# the buffer of the machine should be empty?
 		self._runLines = len(lines)
-		#self._runLines = 0
-		#del self._runLineMap[:]
-		#lineno = 0
-		#for line in lines:
-		#	#print "***",lineno,line
-		#	if line is not None:
-		#		self._runLines += 1
-		#		self._runLineMap.append(lineno)
-		#		if line and line[0]!=' ': lineno += 1	# ignore expanded lines
-		#	else:
-		#		lineno += 1			# count commented lines
 
 		self.canvas.clearSelection()
 		self._gcount  = 0

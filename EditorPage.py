@@ -20,12 +20,18 @@ import Ribbon
 import CNCList
 import CNCRibbon
 
+from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
+
 #===============================================================================
 # Edit Group
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app,
+			[("Import",    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
+			 ("Inkscape",  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
+			 ("Statistics","stats",    app.showStats)
+			])
 		self.grid3rows()
 
 		# ---
@@ -115,23 +121,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, "(Un)Comment selected lines")
 		self.addWidget(b)
 
-	#----------------------------------------------------------------------
-	def createMenu(self):
-		menu = Menu(self, tearoff=0, activebackground=Ribbon._ACTIVE_COLOR)
-
-		menu.add_command(label="Import",
-				image=Utils.icons["load"], compound=LEFT,
-				command=lambda s=self.app:s.insertCommand("IMPORT",True))
-
-		menu.add_command(label="Inkscape",
-				image=Utils.icons["inkscape"], compound=LEFT,
-				command=lambda s=self.app:s.insertCommand("INKSCAPE all",True))
-
-		menu.add_command(label="Statistics",
-				image=Utils.icons["stats"], compound=LEFT,
-				command=self.app.showStats)
-		return menu
-
 #===============================================================================
 # Move Group
 #===============================================================================
@@ -140,8 +129,39 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Move", app)
 		self.grid3rows()
 
+		# ===
+		col,row = 0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["pan"],
+				text="Move",
+				compound=LEFT,
+				anchor=W,
+				variable=app.canvas.actionVar,
+				value=ACTION_MOVE,
+				command=app.canvas.setActionMove,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Move objects [M]")
+		self.addWidget(b)
+
 		# ---
-		col,row=0,0
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["origin"],
+				text="Origin",
+				compound=LEFT,
+				anchor=W,
+				variable=app.canvas.actionVar,
+				value=ACTION_ORIGIN,
+				command=app.canvas.setActionOrigin,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Place origin with the mouse on canvas [O]")
+		self.addWidget(b)
+
+		# ===
+		col += 1
+		row = 0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["TL"],
 				text="T-L",
@@ -180,7 +200,8 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ====
-		col,row=1,0
+		col += 1
+		row = 0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["TC"],
 				text="Top",
@@ -219,7 +240,8 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ===
-		col,row=2,0
+		col += 1
+		row = 0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["TR"],
 				text="T-R",
