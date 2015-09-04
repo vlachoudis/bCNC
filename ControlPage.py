@@ -10,8 +10,10 @@ __email__  = "vvlachoudis@gmail.com"
 
 try:
 	from Tkinter import *
+	import tkMessageBox
 except ImportError:
 	from tkinter import *
+	import tkinter.messagebox as tkMessageBox
 
 import math
 
@@ -22,6 +24,7 @@ import Sender
 import tkExtra
 import Unicode
 import CNCRibbon
+from Sender import ERROR_CODES
 
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
@@ -208,11 +211,14 @@ class DROFrame(CNCRibbon.PageFrame):
 		col = 0
 		Label(self,text="Status:").grid(row=row,column=col,sticky=E)
 		col += 1
-		self.state = Label(self,
+		self.state = Button(self,
 				text=Sender.NOT_CONNECTED,
 				font=DROFrame.dro_status,
-				background=Sender.STATECOLOR[Sender.NOT_CONNECTED])
+				command=self.showState,
+				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
+				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
+		tkExtra.Balloon.set(self.state, "Show current state of the machine")
 
 		row += 1
 		col = 0
@@ -374,6 +380,13 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.event_generate("<<Status>>",
 			data="Set workspace %s to X%s Y%s Z%s"%(WCS[p],str(x),str(y),str(z)))
 		self.event_generate("<<CanvasFocus>>")
+
+	#----------------------------------------------------------------------
+	def showState(self):
+		state = CNC.vars["state"]
+		tkMessageBox.showinfo("State: %s"%(state),
+				ERROR_CODES.get(state,"No info available.\n.Please contact the author."),
+				parent=self)
 
 #===============================================================================
 # ControlFrame

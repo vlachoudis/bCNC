@@ -41,7 +41,7 @@ class Base:
 		self.listdb    = {}		# lists database
 		self.current   = None		# currently editing index
 		self.n         = 0
-		self.buttons   = None
+		self.buttons   = []
 
 	# ----------------------------------------------------------------------
 	def __setitem__(self, name, value):
@@ -431,6 +431,12 @@ class Color(Ini):
 class Shortcut(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Shortcut", "str")
+		self.buttons.append("exe")
+
+	#----------------------------------------------------------------------
+	def execute(self, app):
+		print "Loading shortcuts"
+		app.loadShortcuts()
 
 #==============================================================================
 # CNC machine configuration
@@ -731,7 +737,6 @@ class Tools:
 	def activateButtons(self, tool):
 		for btn in self.buttons.values():
 			btn.config(state=DISABLED)
-		if tool.buttons is None: return
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
 

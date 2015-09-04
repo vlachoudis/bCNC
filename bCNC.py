@@ -426,9 +426,8 @@ class Application(Toplevel,Sender):
 		for name, value in Utils.config.items("Shortcut"):
 			# Convert to uppercase
 			key = name.title()
-			if not value:
-				self.unbind("<%s>"%(key))
-			else:
+			self.unbind("<%s>"%(key))	# unbind any possible old value
+			if value:
 				self.bind("<%s>"%(key), lambda e,s=self,c=value : s.execute(c))
 
 	#-----------------------------------------------------------------------
@@ -1519,6 +1518,8 @@ class Application(Toplevel,Sender):
 		# Update position if needed
 		if self._posUpdate:
 			state = CNC.vars["state"]
+			#print state
+			#print Sender.ERROR_CODES[state]
 			try:
 				CNC.vars["color"] = STATECOLOR[state]
 			except KeyError:
