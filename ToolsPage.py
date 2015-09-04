@@ -188,6 +188,12 @@ class Base:
 			#	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
 			self.master.listbox.insert(END, (l, value))
 
+			if t=="color":
+				try:
+					self.master.listbox.lists[1].itemconfig(END, background=value)
+				except TclError:
+					pass
+
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
 		self.master.listbox.selection_clear(0,END)
@@ -278,6 +284,8 @@ class Base:
 			edit = tkExtra.InPlaceFile(lb, save=False)
 		elif t == "output":
 			edit = tkExtra.InPlaceFile(lb, save=True)
+		elif t == "color":
+			edit = tkExtra.InPlaceColor(lb)
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
 
@@ -397,6 +405,34 @@ class Plugin(DataBase):
 		self.plugin = True
 
 #==============================================================================
+# Generic ini configuration
+#==============================================================================
+class Ini(Base):
+	def __init__(self, master, name, vartype):
+		Base.__init__(self, master)
+		self.name = name
+
+		# detect variables from ini file
+		self.variables = []
+		for name,value in Utils.config.items(self.name):
+			self.variables.append((name, vartype, value, name))
+
+#------------------------------------------------------------------------------
+class Font(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Font", "str")
+
+#------------------------------------------------------------------------------
+class Color(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Color", "color")
+
+#------------------------------------------------------------------------------
+class Shortcut(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Shortcut", "str")
+
+#==============================================================================
 # CNC machine configuration
 #==============================================================================
 class CNC(Base):
@@ -416,7 +452,7 @@ class CNC(Base):
 			("travel_y"      , "mm"  , 200  , "Travel y")         ,
 			("travel_z"      , "mm"  , 100  , "Travel z")         ,
 			("round"         , "int" , 4    , "Decimal digits")   ,
-			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy")     ,
+			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy"),
 			("startup"       , "str" , "G90", "startup")          ,
 			("spindlemin"    , "int" , 0    , "Spindle min (RPM)"),
 			("spindlemax"    , "int" , 12000, "Spindle max (RPM)"),
@@ -608,7 +644,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Cut, Drill, EndMill, Material, Profile, Stock]:
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Material, Profile, Shortcut, Stock]:
 			tool = cls(self)
 			self.addTool(tool)
 
@@ -916,18 +952,62 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 class ConfigGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Config", app)
+		self.grid3rows()
 
 		# ===
+		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config32"],
-				text="Config",
-				compound=TOP,
+				image=Utils.icons["config"],
+				text="Machine",
+				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="CNC",
 				background=Ribbon._BACKGROUND)
-		b.pack(fill=BOTH, expand=YES)
-		tkExtra.Balloon.set(b, "Configuration for bCNC")
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Machine configuration for bCNC")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["font"],
+				text="Fonts",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Font",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Font configuration")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["color"],
+				text="Colors",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Color",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Color configuration")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text="Shortcuts",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Shortcuts")
 		self.addWidget(b)
 
 #==============================================================================
@@ -956,7 +1036,6 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.sortAssist = None
 		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.edit)
-		self.toolList.bindList("<F2>",		self.rename)
 		self.toolList.bindList("<Return>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
@@ -979,11 +1058,12 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	# Edit tool listbox
 	#----------------------------------------------------------------------
 	def edit(self, event=None):
-		self.tools.getActive().edit(event)
-
-	#----------------------------------------------------------------------
-	def rename(self, event=None):
-		self.tools.getActive().edit(event)
+		sel = self.toolList.curselection()
+		if not sel: return
+		if sel[0] == 0:
+			self.tools.getActive().rename()
+		else:
+			self.tools.getActive().edit(event)
 
 	#----------------------------------------------------------------------
 	def execute(self, event=None):
@@ -1019,6 +1099,10 @@ class ToolsPage(CNCRibbon.Page):
 	#----------------------------------------------------------------------
 	def register(self):
 		self._register((DataBaseGroup,CAMGroup,MacrosGroup,ConfigGroup), (ToolsFrame,))
+
+	#----------------------------------------------------------------------
+	def edit(self, event=None):
+		CNCRibbon.Page.frames["Tools"].edit()
 
 	#----------------------------------------------------------------------
 	def add(self, event=None):

@@ -844,17 +844,17 @@ class CNCCanvas(Canvas):
 		self.delete("Axes")
 		if not self.draw_axes: return
 		if CNC.inch:
-			s = 1.0
-		else:
 			s = 10.0
+		else:
+			s = 100.0
 		xyz = [(0.,0.,0.), (s, 0., 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
 
 		xyz = [(0.,0.,0.), (0., s, 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1), arrow=LAST)
 
 		xyz = [(0.,0.,0.), (0., 0., s)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
 
 	#----------------------------------------------------------------------
 	def drawMargin(self):

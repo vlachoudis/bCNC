@@ -67,7 +67,6 @@ RX_BUFFER_SIZE = 128
 
 MAX_HISTORY  = 500
 
-WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 #ZERO = ["G28", "G30", "G92"]
 
 FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe")),
@@ -148,7 +147,7 @@ class Application(Toplevel,Sender):
 		self.canvas = self.canvasFrame.canvas
 
 		# fist create Pages
-		pages = {}
+		self.pages = {}
 		for cls in (	ControlPage,
 				EditorPage,
 				FilePage,
@@ -156,10 +155,10 @@ class Application(Toplevel,Sender):
 				TerminalPage,
 				ToolsPage):
 			page = cls(self.ribbon, self)
-			pages[page.name] = page
+			self.pages[page.name] = page
 
 		# then add their properties (in separate loop)
-		for name,page in pages.items():
+		for name,page in self.pages.items():
 			for n in Utils.getStr(Utils.__prg__,"%s.ribbon"%(page.name)).split():
 				page.addRibbonGroup(n)
 
@@ -188,30 +187,10 @@ class Application(Toplevel,Sender):
 				side = RIGHT
 			else:
 				side = LEFT
-			self.ribbon.addPage(pages[name],side)
+			self.ribbon.addPage(self.pages[name],side)
 
 		# Restore last page
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
-
-		self.bind("<<Add>>",			self.editor.insertItem)
-		self.bind("<<Clone>>",			self.editor.clone)
-		self.bind("<<Delete>>",			self.editor.deleteLine)
-
-		# Canvas X-bindings
-		self.bind("<<ViewChange>>",		self.viewChange)
-		self.canvas.bind('<Control-Key-c>',	self.copy)
-		self.canvas.bind('<Control-Key-x>',	self.cut)
-		self.canvas.bind('<Control-Key-v>',	self.paste)
-		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
-		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
-		self.canvas.bind("<Delete>",		self.editor.deleteLine)
-		self.canvas.bind("<BackSpace>",		self.editor.deleteLine)
-		try:
-			self.canvas.bind("<KP_Delete>",	self.editor.deleteLine)
-		except:
-			pass
-		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
-		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
 
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
@@ -239,7 +218,31 @@ class Application(Toplevel,Sender):
 
 		self.bind('<<TerminalClear>>',  CNCRibbon.Page.frames["Terminal"].clear)
 		self.bind('<<Help>>',           self.help)
+
+		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
+
+		# Editor bindings
+		self.bind("<<Add>>",			self.editor.insertItem)
+		self.bind("<<Clone>>",			self.editor.clone)
+		self.bind("<<Delete>>",			self.editor.deleteLine)
+		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
+		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
+		self.canvas.bind("<Delete>",		self.editor.deleteLine)
+		self.canvas.bind("<BackSpace>",		self.editor.deleteLine)
+		self.canvas.bind('<Control-Key-c>',	self.copy)
+		self.canvas.bind('<Control-Key-x>',	self.cut)
+		self.canvas.bind('<Control-Key-v>',	self.paste)
+		try:
+			self.canvas.bind("<KP_Delete>",	self.editor.deleteLine)
+		except:
+			pass
 		self.bind('<<Invert>>',		self.editor.invertBlocks)
+		self.bind('<<Expand>>',		self.editor.toggleExpand)
+		self.bind('<<Enable>>',		self.editor.toggleEnable)
+
+		# Canvas X-bindings
+		self.bind("<<ViewChange>>",		self.viewChange)
 
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
@@ -258,10 +261,7 @@ class Application(Toplevel,Sender):
 		self.canvas.bind('<Key-space>',	self.commandFocus)
 		self.bind('<Control-Key-space>',self.commandFocus)
 
-		self.bind('<<Expand>>',		self.editor.toggleExpand)
-		self.bind('<<Enable>>',		self.editor.toggleEnable)
-
-		tools = pages["Tools"]
+		tools = self.pages["Tools"]
 		self.bind('<<ToolAdd>>',	tools.add)
 		self.bind('<<ToolDelete>>',	tools.delete)
 		self.bind('<<ToolClone>>',	tools.clone)
@@ -269,13 +269,12 @@ class Application(Toplevel,Sender):
 
 #		self.bind('<F1>',		self.help)
 #		self.bind('<F2>',		self.rename)
-
-		self.bind('<F3>',		self.canvasFrame.viewXY)
-		self.bind('<F4>',		self.canvasFrame.viewXZ)
-		self.bind('<F5>',		self.canvasFrame.viewYZ)
-		self.bind('<F6>',		self.canvasFrame.viewISO1)
-		self.bind('<F7>',		self.canvasFrame.viewISO2)
-		self.bind('<F8>',		self.canvasFrame.viewISO3)
+#		self.bind('<F3>',		self.canvasFrame.viewXY)
+#		self.bind('<F4>',		self.canvasFrame.viewXZ)
+#		self.bind('<F5>',		self.canvasFrame.viewYZ)
+#		self.bind('<F6>',		self.canvasFrame.viewISO1)
+#		self.bind('<F7>',		self.canvasFrame.viewISO2)
+#		self.bind('<F8>',		self.canvasFrame.viewISO3)
 
 		self.bind('<Up>',		self.control.moveYup)
 		self.bind('<Down>',		self.control.moveYdown)
@@ -342,27 +341,27 @@ class Application(Toplevel,Sender):
 		if _openserial and int(Utils.config.get("Connection","openserial")):
 			self.openClose()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setStatus(self, msg):
 		self.statusbar.configText(text=msg, fill="DarkBlue")
 		self.statusbar.config(background="LightGray")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Set a status message from an event
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateStatus(self, event):
 		self.setStatus(event.data)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Update canvas coordinates
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateCanvasCoords(self, event):
 		x,y,z = event.data.split()
 		self.statusx["text"] = "X: "+x
 		self.statusy["text"] = "Y: "+y
 		self.statusz["text"] = "Z: "+z
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def quit(self, event=None):
 		if self.running and self._quit<1:
 			tkMessageBox.showinfo("Running",
@@ -422,7 +421,17 @@ class Application(Toplevel,Sender):
 	def disable(self):
 		self.configWidgets("state",DISABLED)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	def loadShortcuts(self):
+		for name, value in Utils.config.items("Shortcut"):
+			# Convert to uppercase
+			key = name.title()
+			if not value:
+				self.unbind("<%s>"%(key))
+			else:
+				self.bind("<%s>"%(key), lambda e,s=self,c=value : s.execute(c))
+
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
 				  Utils.getInt(Utils.__prg__, "height", 650))
@@ -438,8 +447,9 @@ class Application(Toplevel,Sender):
 
 		self.tools.loadConfig()
 		Sender.loadConfig(self)
+		self.loadShortcuts()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Program
 		Utils.setInt(Utils.__prg__,  "width",    str(self.winfo_width()))
@@ -459,7 +469,7 @@ class Application(Toplevel,Sender):
 		self.tools.saveConfig()
 		self.canvasFrame.saveConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadHistory(self):
 		try:
 			f = open(Utils.hisFile,"r")
@@ -468,7 +478,7 @@ class Application(Toplevel,Sender):
 		self.history = [x.strip() for x in f]
 		f.close()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveHistory(self):
 		try:
 			f = open(Utils.hisFile,"w")
@@ -477,7 +487,7 @@ class Application(Toplevel,Sender):
 		f.write("\n".join(self.history))
 		f.close()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def cut(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
@@ -486,7 +496,7 @@ class Application(Toplevel,Sender):
 #		elif focus:
 #			focus.event_generate("<<Cut>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def copy(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
@@ -495,7 +505,7 @@ class Application(Toplevel,Sender):
 #		elif focus:
 #			focus.event_generate("<<Copy>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def paste(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
@@ -504,7 +514,7 @@ class Application(Toplevel,Sender):
 #		elif focus:
 #			focus.event_generate("<<Paste>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def undo(self, event=None):
 		if self.gcode.canUndo():
 			self.gcode.undo();
@@ -512,7 +522,7 @@ class Application(Toplevel,Sender):
 			self.drawAfter()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def redo(self, event=None):
 		if self.gcode.canRedo():
 			self.gcode.redo();
@@ -520,20 +530,16 @@ class Application(Toplevel,Sender):
 			self.drawAfter()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def about(self, event=None):
 		tkMessageBox.showinfo("About",
 				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
 				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
 
-	#----------------------------------------------------------------------
-	def help(self, event=None):
-		webbrowser.open(WIKI,new=2)
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# FIXME Very primitive
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def showStats(self, event=None):
 		msg  = "GCode: %s\n"%(self.gcode.filename)
 		if not self.gcode.probe.isEmpty():
@@ -548,11 +554,11 @@ class Application(Toplevel,Sender):
 		msg += "Total Time: ~%.2g min\n"%(self.cnc.totalTime)
 		tkMessageBox.showinfo("Statistics", msg, parent=self)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def reportDialog(self, event=None):
 		Utils.ReportDialog(self)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def viewChange(self, event=None):
 		if self.running:
 			self._selectI = 0	# last selection pointer in items
@@ -576,31 +582,31 @@ class Application(Toplevel,Sender):
 		if self._drawAfter is not None: self.after_cancel(self._drawAfter)
 		self._drawAfter = self.after(DRAW_AFTER, self.draw)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandFocus(self, event=None):
 		self.command.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandFocusIn(self, event=None):
 		self.cmdlabel["foreground"] = "Blue"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandFocusOut(self, event=None):
 		self.cmdlabel["foreground"] = "Black"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def canvasFocus(self, event=None):
 		self.canvas.focus_set()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def selectAll(self, event=None):
 		self.ribbon.changePage("Editor")
 		self.editor.selectAll()
 		self.selectionChange()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def unselectAll(self, event=None):
 		focus = self.focus_get()
 		if isinstance(focus, Entry) or \
@@ -611,31 +617,31 @@ class Application(Toplevel,Sender):
 		self.selectionChange()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def find(self, event=None):
 		self.ribbon.changePage("Editor")
 ####		self.editor.findDialog()
 #		return "break"
 #
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 	def findNext(self, event=None):
 		self.ribbon.changePage("Editor")
 ####		self.editor.findNext()
 #		return "break"
 #
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 	def replace(self, event=None):
 		self.ribbon.changePage("Editor")
 ####		self.editor.replaceDialog()
 #		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def activeBlock(self):
 		return self.editor.activeBlock()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Keyboard binding to <Return>
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def cmdExecute(self, event):
 		self.commandExecute()
 
@@ -645,9 +651,9 @@ class Application(Toplevel,Sender):
 		self.command.insert(0,cmd)
 		if execute: self.commandExecute(False)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute command from command line
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandExecute(self, addHistory=True):
 		line = self.command.get().strip()
 		if not line: return
@@ -664,9 +670,9 @@ class Application(Toplevel,Sender):
 		self.command.delete(0,END)
 		self.execute(line)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute a single command
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def execute(self, line):
 		#print
 		#print "<<<",line
@@ -692,7 +698,8 @@ class Application(Toplevel,Sender):
 
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
-			self.terminal.clear()
+			self.ribbon.changePage("Terminal")
+			CNCRibbon.Page.frames["Terminal"].clear()
 
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
@@ -744,23 +751,9 @@ class Application(Toplevel,Sender):
 				self.editor.filter = None
 			self.editor.fill()
 
-		# ED*ITOR: switch to editor tab
-		elif rexx.abbrev("EDITOR",cmd,2):
-			self.ribbon.changePage("Editor")
-
-		# HOLE: create a hole
-		elif cmd == "HOLE":
-			try: radius = float(line[1])
-			except: return
-			if radius<0:
-				radius = self.tool/2 - radius
-			else:
-				radius += self.tool/2
-
-			self.gcode.box(self.editor.activeBlock(), radius)
-			self.editor.fill()
-			self.draw()
-
+		# ED*IT: edit current line or item
+		elif rexx.abbrev("EDIT",cmd,2):
+			self.edit()
 
 		# IM*PORT <filename>: import filename with gcode or dxf at cursor location
 		# or at the end of the file
@@ -1069,9 +1062,9 @@ class Application(Toplevel,Sender):
 				tkMessageBox.showerror(rc[0],rc[1], parent=self)
 			return
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute a command over the selected lines
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def executeOnSelection(self, cmd, *args):
 		items = self.editor.getCleanSelection()
 		if not items: return
@@ -1110,7 +1103,7 @@ class Application(Toplevel,Sender):
 		self.notBusy()
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def profile(self, direction=None, scale=1.0, cut=False, overcut=False):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
@@ -1145,7 +1138,15 @@ class Application(Toplevel,Sender):
 		self.notBusy()
 		self.setStatus("Profile block with ofs=%g"%(ofs*sign))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	def edit(self, event=None):
+		page = self.ribbon.getActivePage()
+		if page.name == "Editor":
+			self.editor.edit()
+		elif page.name == "Tools":
+			page.edit()
+
+	#-----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
 		if self._historyPos is None:
 			if self.history:
@@ -1157,7 +1158,7 @@ class Application(Toplevel,Sender):
 		self.command.delete(0,END)
 		self.command.insert(0,self.history[self._historyPos])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandHistoryDown(self, event=None):
 		if self._historyPos is None:
 			return
@@ -1169,7 +1170,7 @@ class Application(Toplevel,Sender):
 		if self._historyPos is not None:
 			self.command.insert(0,self.history[self._historyPos])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def select(self, items, double, clear, toggle=True):
 		self.editor.select(items, double, clear, toggle)
 		self.selectionChange()
@@ -1184,7 +1185,7 @@ class Application(Toplevel,Sender):
 		self.canvas.select(items)
 		self.canvas.activeMarker(self.editor.getActive())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def newFile(self, event=None):
 		self.gcode.init()
 		self.gcode.headerFooter()
@@ -1192,9 +1193,9 @@ class Application(Toplevel,Sender):
 		self.draw()
 		self.title(Utils.__prg__)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# load dialog
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadDialog(self, event=None):
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open file",
@@ -1204,9 +1205,9 @@ class Application(Toplevel,Sender):
 			filetypes=FILETYPES)
 		if filename: self.load(filename)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# save dialog
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save file",
@@ -1214,9 +1215,9 @@ class Application(Toplevel,Sender):
 			filetypes=FILETYPES)
 		if filename: self.save(filename)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Load a file into editor
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def load(self, filename):
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
@@ -1242,13 +1243,13 @@ class Application(Toplevel,Sender):
 		self.setStatus("'%s' loaded"%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
 		self.setStatus("'%s' saved"%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveAll(self, event=None):
 		if self.gcode.filename:
 			Sender.saveAll(self)
@@ -1256,11 +1257,11 @@ class Application(Toplevel,Sender):
 			self.saveDialog()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def reload(self, event=None):
 		self.load(self.gcode.filename)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def importFile(self, filename=None):
 		if filename is None:
 			filename = bFileDialog.askopenfilename(master=self,
@@ -1285,7 +1286,7 @@ class Application(Toplevel,Sender):
 			self.draw()
 			self.canvas.fit2Screen()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def focusIn(self, event):
 		if self._inFocus: return
 		# FocusIn is generated for all sub-windows, handle only the main window
@@ -1304,7 +1305,7 @@ class Application(Toplevel,Sender):
 				self.load(self.gcode.filename)
 		self._inFocus = False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def openClose(self):
 		if self.serial is not None:
 			self.close()
@@ -1320,7 +1321,7 @@ class Application(Toplevel,Sender):
 						activebackground="Salmon")
 				self.enable()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		try:
 			return Sender.open(self, device, baudrate)
@@ -1332,7 +1333,7 @@ class Application(Toplevel,Sender):
 					parent=self)
 		return False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def close(self):
 		if self.serial is None: return
 		try:
@@ -1351,7 +1352,7 @@ class Application(Toplevel,Sender):
 		except TclError:
 			pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
 		cmd = "G90G0"
 		if x is not None: cmd += "X%g"%(x)
@@ -1359,7 +1360,7 @@ class Application(Toplevel,Sender):
 		if z is not None: cmd += "Z%g"%(z)
 		self.sendGrbl("%s\n"%(cmd))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def feedHold(self, event=None):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
@@ -1367,7 +1368,7 @@ class Application(Toplevel,Sender):
 		self.serial.flush()
 		self._pause = True
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def resume(self, event=None):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
@@ -1375,7 +1376,7 @@ class Application(Toplevel,Sender):
 		self.serial.flush()
 		self._pause = False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def pause(self, event=None):
 		if self.serial is None: return
 		if self._pause:
@@ -1383,27 +1384,14 @@ class Application(Toplevel,Sender):
 		else:
 			self.feedHold()
 
-	#----------------------------------------------------------------------
-	def emptyQueue(self):
-		while self.queue.qsize()>0:
-			try:
-				self.queue.get_nowait()
-			except Empty:
-				break
+	#-----------------------------------------------------------------------
+	def runEnded(self):
+		Sender.runEnded(self)
+		self.status.clear()
 
-	#----------------------------------------------------------------------
-	def initRun(self):
-		self._quit  = 0
-		self._pause = False
-		self._paths = None
-		self.disable()
-		self.emptyQueue()
-		self.queue.put(self.tools["CNC"]["startup"]+"\n")
-		time.sleep(1)
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def run(self, lines=None):
 		if self.serial is None:
 			tkMessageBox.showerror("Serial Error",
@@ -1475,9 +1463,9 @@ class Application(Toplevel,Sender):
 				else:
 					self.queue.put(line)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Start the web pendant
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def startPendant(self, showInfo=True):
 		started=Pendant.start(self)
 		if showInfo:
@@ -1493,16 +1481,16 @@ class Application(Toplevel,Sender):
 				if dr=="yes":
 					webbrowser.open(hostName,new=2)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Stop the web pendant
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def stopPendant(self):
 		if Pendant.stop():
 			tkMessageBox.showinfo("Pendant","Pendant stopped", parent=self)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Inner loop to catch any generic exception
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _monitorSerial(self):
 		inserted = False
 
@@ -1598,10 +1586,10 @@ class Application(Toplevel,Sender):
 			if self._gcount >= self._runLines:
 				self.runEnded()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# "thread" timed function looking for messages in the serial thread
 	# and reporting back in the terminal
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def monitorSerial(self):
 		try:
 			self._monitorSerial()
@@ -1610,11 +1598,11 @@ class Application(Toplevel,Sender):
 			traceback.print_exception(typ, val, tb)
 		self.after(MONITOR_AFTER, self.monitorSerial)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def get(self, section, item):
 		return Utils.config.get(section, item)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def set(self, section, item, value):
 		return Utils.config.set(section, item, value)
 

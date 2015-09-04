@@ -94,22 +94,22 @@ class LabelGroup(Frame):
 
 #===============================================================================
 class _KeyboardFocus:
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _bind(self):
 		self.bind("<Return>",		self._invoke)
 		self.bind("<FocusIn>",		self._focusIn)
 		self.bind("<FocusOut>",		self._focusOut)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _focusIn(self, event):
 		self.__backgroundColor = self.cget("background")
 		self.config(background = _ACTIVE_COLOR)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _focusOut(self, event):
 		self.config(background = self.__backgroundColor)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _invoke(self, event):
 		self.invoke()
 
@@ -135,7 +135,7 @@ class LabelButton(Button, _KeyboardFocus):
 			self._recipient = None
 			self._event     = None
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def sendEvent(self):
 		self._recipient.event_generate(self._event)
 
@@ -180,7 +180,7 @@ class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 		Frame.config(self, background=_BACKGROUND, padx=0, pady=0)
 		_KeyboardFocus._bind(self)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _focusOut(self, event):
 		self.config(background = _BACKGROUND) #self.__backgroundColor)
 		Frame.config(self, background= _BACKGROUND) #self.__backgroundColor)
@@ -207,25 +207,25 @@ class MenuButton(Button, _KeyboardFocus):
 		else:
 			self._menu = None
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def showMenu(self, event=None):
 		if self._menu is not None:
 			self._showMenu(self._menu)
 		else:
 			self._showMenu(self.createMenu())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _showMenu(self, menu):
 		if menu is not None:
 			menu.tk_popup(
 				self.winfo_rootx(),
 				self.winfo_rooty() + self.winfo_height())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def createMenu(self):
 		return None
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def createMenuFromList(self, menulist):
 		menu = Menu(self, tearoff=0, activebackground=_ACTIVE_COLOR)
 		for item in menulist:
@@ -247,11 +247,11 @@ class MenuGroup(LabelGroup):
 	def __init__(self, master, name, **kw):
 		LabelGroup.__init__(self, master, name, command=self._showMenu, **kw)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def createMenu(self):
 		return None
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _showMenu(self):
 		menu = self.createMenu()
 		if menu is not None:
@@ -278,9 +278,9 @@ class TabButton(Radiobutton):
 		self.bind("<FocusIn>",		self._focusIn)
 		self.bind("<FocusOut>",		self._focusOut)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Bind events on TabFrame
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def bindClicks(self, tabframe):
 		self.bind("<Double-1>",         tabframe.double)
 		self.bind("<Button-1>",         tabframe.dragStart)
@@ -292,11 +292,11 @@ class TabButton(Radiobutton):
 		self.bind("<Right>",		tabframe._tabRight)
 		self.bind("<Down>",		tabframe._tabDown)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _focusIn(self, evenl=None):
 		self.config(selectcolor = _ACTIVE_COLOR)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _focusOut(self, evenl=None):
 		self.config(selectcolor = _BACKGROUND)
 
@@ -319,36 +319,36 @@ class Page:		# <--- should be possible to be a toplevel as well
 		self.init()
 		self.create()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Override initialization
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def init(self):
 		pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# The tab page can change master if undocked
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# FIXME XXX SHOULD BE REMOVED
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def create(self):
 		self.createPage()
 #		self.ribbonBindMotion()
 #		self.refresh()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# FIXME XXX SHOULD BE REMOVED
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def createPage(self):
 		self.page = Frame(self.master._pageFrame)
 		return self.page
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Called when a page is activated
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def activate(self):
 		pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def refresh(self):
 		pass
 
@@ -378,13 +378,13 @@ class Page:		# <--- should be possible to be a toplevel as well
 			state = DISABLED
 		self.master.tool["redo"].config(state=state)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def keyboardFocus(self):
 		self._tab.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Return the closest widget along a direction
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	@staticmethod
 	def __compareDown(x,y,xw,yw):	return yw>y+1
 	@staticmethod
@@ -394,7 +394,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 	@staticmethod
 	def __compareLeft(x,y,xw,yw):	return xw<x-1
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	@staticmethod
 	def __closest(widget, compare, x, y):
 		closest = None
@@ -419,9 +419,9 @@ class Page:		# <--- should be possible to be a toplevel as well
 					dc2 = d2
 		return closest, dc2
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Select/Focus the closest element
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _ribbonUp(self, event=None):
 		x = event.widget.winfo_rootx()
 		y = event.widget.winfo_rooty()
@@ -429,7 +429,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 		if closest is not None:
 			closest.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _ribbonDown(self, event=None):
 		x = event.widget.winfo_rootx()
 		y = event.widget.winfo_rooty()
@@ -437,7 +437,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 		if closest is not None:
 			closest.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _ribbonLeft(self, event=None):
 		x = event.widget.winfo_rootx()
 		y = event.widget.winfo_rooty()
@@ -445,7 +445,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 		if closest is not None:
 			closest.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def _ribbonRight(self, event=None):
 		x = event.widget.winfo_rootx()
 		y = event.widget.winfo_rooty()
@@ -540,7 +540,7 @@ class TabRibbonFrame(Frame):
 
 		self.setPageFrame(None)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def createClipboardGroup(self, frame):
 		group = LabelGroup(frame, "Clipboard")
 		group.pack(side=LEFT, fill=BOTH, padx=0, pady=0)
@@ -581,20 +581,20 @@ class TabRibbonFrame(Frame):
 		tkExtra.Balloon.set(b, "Copy [Ctrl-C]")
 		b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setPageFrame(self, frame):
 		self._pageFrame = frame
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def undolist(self, event=None): self.event_generate("<<UndoList>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getActivePage(self):
 		return self.pages[self.activePage.get()]
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Add page to the tabs
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def addPage(self, page, side=LEFT):
 		self.pages[page.name] = page
 		page._tab = TabButton(self._tabFrame,
@@ -653,9 +653,9 @@ class TabRibbonFrame(Frame):
 		page.activate()
 		self.event_generate("<<ChangePage>>", data=page.name)
 
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 #	# Mouse is clicked => hide ribbon if temporary is active
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 ##	def release(self, event):
 ##		if self._ribbonFrameStatus == RIBBON_HIDDEN:
 ##			if not isinstance(event.widget, TabButton): return
@@ -670,9 +670,9 @@ class TabRibbonFrame(Frame):
 ##			self._ribbonFrameStatus = RIBBON_HIDDEN
 ##			self._allRibbons.pack_forget()
 #
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 #	# Give focus to the tab on the left
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 #	def _tabLeft(self, event=None):
 #		slaves = self._tabFrame.pack_slaves()
 #		try:
@@ -687,9 +687,9 @@ class TabRibbonFrame(Frame):
 #		#self.changePage()
 #		slaves[pos].focus_set()
 #
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 #	# Give focus to the tab on the right
-#	#----------------------------------------------------------------------
+#	#-----------------------------------------------------------------------
 #	def _tabRight(self, event=None):
 #		slaves = self._tabFrame.pack_slaves()
 #		try:

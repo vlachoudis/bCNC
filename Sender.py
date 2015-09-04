@@ -17,6 +17,7 @@ import rexx
 import time
 import serial
 import threading
+import webbrowser
 try:
 	from Queue import *
 except ImportError:
@@ -25,6 +26,8 @@ except ImportError:
 from CNC import CNC, GCode
 import Utils
 import Pendant
+
+WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 
 SERIAL_POLL   = 0.250	# s
 G_POLL        = 10	# s
@@ -170,6 +173,10 @@ class Sender:
 		if rexx.abbrev("ABSOLUTE",cmd,3):
 			self.sendGrbl("G90\n")
 
+		# HELP: open browser to display help
+		elif cmd == "HELP":
+			self.help()
+
 		# HOME: perform a homing cycle
 		elif cmd == "HOME":
 			self.home()
@@ -227,6 +234,10 @@ class Sender:
 
 		else:
 			return "unknown command","Invalid command %s"%(oline)
+
+	#----------------------------------------------------------------------
+	def help(self, event=None):
+		webbrowser.open(WIKI,new=2)
 
 	#----------------------------------------------------------------------
 	def loadRecent(self, recent):
@@ -581,7 +592,6 @@ class Sender:
 		time.sleep(1)
 		self.unlock()
 		self.runEnded()
-
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
