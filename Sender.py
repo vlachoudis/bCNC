@@ -53,8 +53,10 @@ STATECOLORDEF = "LightYellow"
 
 # From https://github.com/grbl/grbl/wiki/Interfacing-with-Grbl
 ERROR_CODES = {
-	"Idle"        : "Grbl is waiting for commands",
+	"Run"         : "bCNC is currently sending a gcode program to Grbl",
+	"Idle"        : "Grbl is in idle state and waiting for user commands",
 	"Hold"        : "Grbl is on hold state. Click on resume (pause) to continue",
+	"Alarm"       : "Alarm is an emergency state. Something has gone terribly wrong when these occur. Typically, they are caused by limit error when the machine has moved or wants to move outside the machine space and crash into something. They also report problems if Grbl is lost and can't guarantee positioning or a probe command has failed. Once in alarm-mode, Grbl will lock out and shut down everything until the user issues a reset. Even after a reset, Grbl will remain in alarm-mode, block all G-code from being executed, but allows the user to override the alarm manually. This is to ensure the user knows and acknowledges the problem and has taken steps to fix or account for it.",
 	NOT_CONNECTED : "Grbl is not connected. Please specify the correct port and click Open.",
 	CONNECTED     : "Connection is established with Grbl",
 
@@ -568,6 +570,7 @@ class Sender:
 	def serialIO(self):
 		from CNC import WAIT
 		cline = []
+		sline = []
 		tosend = None
 		self.wait = False
 		tr = tg = time.time()
@@ -590,6 +593,7 @@ class Sender:
 							tosend = self.gcode.evaluate(tosend)
 #							if isinstance(tosend, list):
 #								cline.append(len(tosend[0]))
+#								sline.append(tosend[0])
 #								self.log.put((True,tosend[0]))
 							if isinstance(tosend,str):
 								tosend += "\n"
@@ -601,6 +605,7 @@ class Sender:
 							tosend = None
 					if tosend is not None:
 						cline.append(len(tosend))
+						sline.append(tosend)
 						self.log.put((True,tosend))
 				except Empty:
 					break
@@ -663,6 +668,7 @@ class Sender:
 						if uline.find("ERROR")>=0 or uline.find("ALARM")>=0:
 							self._gcount += 1
 							if cline: del cline[0]
+							if sline: CNC.vars["errline"] = sline.pop(0)
 							if not self._alarm:
 								self._posUpdate = True
 							self._alarm = True
@@ -673,10 +679,12 @@ class Sender:
 								self.runEnded()
 								tosend = None
 								del cline[:]
+								del sline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
 							if cline: del cline[0]
+							if sline: del sline[0]
 
 						if self.wait and not cline:
 							# buffer is empty go one
@@ -687,6 +695,7 @@ class Sender:
 				self.emptyQueue()
 				tosend = None
 				del cline[:]
+				del sline[:]
 				self._stop = False
 
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
@@ -705,12 +714,12 @@ class Sender:
 					pat = FEEDPAT.match(tosend)
 					if pat is not None:
 						try:
-							tosend = "%sf%g%s"%(pat.group(0),
-									float(pat.group(1))*CNC.vars["override"]/100.0,
-									pat.group(2))
+							tosend = "%sf%g%s\n" % \
+								(pat.group(1),
+								 float(pat.group(2))*CNC.vars["override"]/100.0,
+								 pat.group(3))
 						except:
 							pass
-
 				self.serial.write(str(tosend))
 				tosend = None
 

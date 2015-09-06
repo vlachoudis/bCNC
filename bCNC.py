@@ -1406,7 +1406,10 @@ class Application(Toplevel,Sender):
 				"Please stop before",
 				parent=self)
 			return
-		self.unselectAll()
+
+		self.editor.selectClear()
+		self.selectionChange()
+		CNC.vars["errline"] = ""
 
 		if lines is None:
 			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:

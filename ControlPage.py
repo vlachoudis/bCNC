@@ -385,11 +385,16 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def showState(self):
+		err = CNC.vars["errline"]
+		if err:
+			msg  = "Last error: %s\n"%(CNC.vars["errline"])
+		else:
+			msg = ""
+
 		state = CNC.vars["state"]
-		tkMessageBox.showinfo("State: %s"%(state),
-				ERROR_CODES.get(state,
-					"No info available.\nPlease contact the author."),
-				parent=self)
+		msg += ERROR_CODES.get(state,
+				"No info available.\nPlease contact the author.")
+		tkMessageBox.showinfo("State: %s"%(state), msg, parent=self)
 
 #===============================================================================
 # ControlFrame
@@ -983,9 +988,12 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def spindleControl(self, event=None):
 		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
 		if self.spindle.get():
 			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
+			print ">>>> Sending M5"
 			self.sendGrbl("M5\n")
 
 	#----------------------------------------------------------------------

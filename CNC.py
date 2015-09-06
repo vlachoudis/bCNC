@@ -355,6 +355,7 @@ class CNC:
 				"prby"      : 0.0,
 				"prbz"      : 0.0,
 				"prbcmd"    : "G38.2",
+				"errline"   : "",
 				"wx"        : 0.0,
 				"wy"        : 0.0,
 				"wz"        : 0.0,
@@ -367,6 +368,7 @@ class CNC:
 				"cutfeed"   : 1000.,	# Material feed for cutting
 				"cutfeedz"  : 500.,	# Material feed for cutting
 				"safe"      : 3.,
+				"state"     : "",
 				"stepz"     : 1.,
 				"surface"   : 0.,
 				"thickness" : 5.,
