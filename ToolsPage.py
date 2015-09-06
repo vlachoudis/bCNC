@@ -621,7 +621,7 @@ class Profile(DataBase):
 			("name",      "db" ,    "", "Name"),
 			("endmill",   "db" ,    "", "End Mill"),
 			("direction","inside,outside" , "outside", "Direction"),
-			("scale",   "float",   1.0, "Scale tool diameter"),
+			("offset",   "float",  0.0, "Additional offset distance"),
 			("overcut",  "bool",     1, "Overcut"),
 			("cut",      "bool",     0, "Cut")
 		]
@@ -632,7 +632,7 @@ class Profile(DataBase):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
-		app.profile(direction, self["scale"], self["cut"], self["overcut"])
+		app.profile(direction, self["offset"], self["cut"], self["overcut"])
 		app.setStatus("Generate profile path")
 
 #==============================================================================
@@ -1065,7 +1065,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	def edit(self, event=None):
 		sel = self.toolList.curselection()
 		if not sel: return
-		if sel[0] == 0:
+		if sel[0] == 0 and (event is None or event.keysym==0):
 			self.tools.getActive().rename()
 		else:
 			self.tools.getActive().edit(event)

@@ -525,66 +525,14 @@ class TabRibbonFrame(Frame):
 		self._tabFrame = Frame(frame, background=_BACKGROUND_DISABLE)
 		self._tabFrame.pack(side=LEFT, fill=BOTH, expand=YES)
 
-		# === Ribbon Frame with permanent and dynamic ribbons ===
-		self._allRibbons = Frame(self, background=_BACKGROUND, pady=0)
-		self._allRibbons.pack(side=TOP, fill=BOTH, pady=0)
-
-		# --- Permanent Groups ---
-		self.createClipboardGroup(self._allRibbons)
-
 		# ==== Ribbon Frame ====
-		self._ribbonFrame = Frame(self._allRibbons,
-						#bg="Yellow",
+		self._ribbonFrame = Frame(self,
 						background=_BACKGROUND,
+						pady=0,
 						relief=RAISED)
-		self._ribbonFrame.pack(side=LEFT, fill=BOTH, expand=YES, padx=0, pady=0)
-
-		# ==== RibbonRight Frame ====
-		self._ribbonRight = Frame(self._allRibbons, background=_BACKGROUND, pady=0)
-		self._ribbonRight.pack(side=RIGHT, fill=BOTH, pady=0)
+		self._ribbonFrame.pack(fill=BOTH, expand=YES, padx=0, pady=0)
 
 		self.setPageFrame(None)
-
-	#-----------------------------------------------------------------------
-	def createClipboardGroup(self, frame):
-		group = LabelGroup(frame, "Clipboard")
-		group.pack(side=LEFT, fill=BOTH, padx=0, pady=0)
-
-		group.frame.grid_rowconfigure(0, weight=1)
-		group.frame.grid_rowconfigure(1, weight=1)
-
-		# ---
-		b = LabelButton(group.frame, self, "<<Paste>>",
-				image=Utils.icons["paste32"],
-				text="Paste",
-				compound=TOP,
-				takefocus=FALSE,
-				background=_BACKGROUND)
-		b.grid(row=0, column=0, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Paste [Ctrl-V]")
-		#self.tool["paste"] = b
-
-		# ---
-		b = LabelButton(group.frame, self, "<<Cut>>",
-				image=Utils.icons["cut"],
-				text="Cut",
-				compound=LEFT,
-				anchor=W,
-				takefocus=FALSE,
-				background=_BACKGROUND)
-		tkExtra.Balloon.set(b, "Cut [Ctrl-X]")
-		b.grid(row=0, column=1, padx=0, pady=1, sticky=NSEW)
-
-		# ---
-		b = LabelButton(group.frame, self, "<<Copy>>",
-				image=Utils.icons["copy"],
-				text="Copy",
-				compound=LEFT,
-				anchor=W,
-				takefocus=FALSE,
-				background=_BACKGROUND)
-		tkExtra.Balloon.set(b, "Copy [Ctrl-C]")
-		b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
 
 	#-----------------------------------------------------------------------
 	def setPageFrame(self, frame):
@@ -658,23 +606,6 @@ class TabRibbonFrame(Frame):
 		page.activate()
 		self.event_generate("<<ChangePage>>", data=page.name)
 
-#	#-----------------------------------------------------------------------
-#	# Mouse is clicked => hide ribbon if temporary is active
-#	#-----------------------------------------------------------------------
-##	def release(self, event):
-##		if self._ribbonFrameStatus == RIBBON_HIDDEN:
-##			if not isinstance(event.widget, TabButton): return
-##			if time.time() - self.hideTime > 1.0:
-##				self._ribbonFrameStatus = RIBBON_TEMP
-##				self._allRibbons.pack(side=TOP, fill=BOTH)
-##				self.hideTime = time.time()
-##
-##		elif self._ribbonFrameStatus == RIBBON_TEMP and \
-##		     self._allRibbons.winfo_ismapped():
-##			if isinstance(event.widget, TabButton): return
-##			self._ribbonFrameStatus = RIBBON_HIDDEN
-##			self._allRibbons.pack_forget()
-#
 #	#-----------------------------------------------------------------------
 #	# Give focus to the tab on the left
 #	#-----------------------------------------------------------------------

@@ -23,6 +23,49 @@ import CNCRibbon
 from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 
 #===============================================================================
+# Clipboard Group
+#===============================================================================
+class ClipboardGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Clipboard", app)
+		self.grid2rows()
+
+		# ---
+		b = Ribbon.LabelButton(self.frame, self, "<<Paste>>",
+				image=Utils.icons["paste32"],
+				text="Paste",
+				compound=TOP,
+				takefocus=FALSE,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=0, column=0, rowspan=2, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Paste [Ctrl-V]")
+		self.addWidget(b)
+
+		# ---
+		b = Ribbon.LabelButton(self.frame, self, "<<Cut>>",
+				image=Utils.icons["cut"],
+				text="Cut",
+				compound=LEFT,
+				anchor=W,
+				takefocus=FALSE,
+				background=Ribbon._BACKGROUND)
+		tkExtra.Balloon.set(b, "Cut [Ctrl-X]")
+		b.grid(row=0, column=1, padx=0, pady=1, sticky=NSEW)
+		self.addWidget(b)
+
+		# ---
+		b = Ribbon.LabelButton(self.frame, self, "<<Copy>>",
+				image=Utils.icons["copy"],
+				text="Copy",
+				compound=LEFT,
+				anchor=W,
+				takefocus=FALSE,
+				background=Ribbon._BACKGROUND)
+		tkExtra.Balloon.set(b, "Copy [Ctrl-C]")
+		b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
+		self.addWidget(b)
+
+#===============================================================================
 # Edit Group
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
@@ -444,5 +487,5 @@ class EditorPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((EditGroup, MoveGroup, OrderGroup, TransformGroup),
+		self._register((ClipboardGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
 			(EditorFrame,))

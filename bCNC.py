@@ -344,7 +344,6 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def setStatus(self, msg):
 		self.statusbar.configText(text=msg, fill="DarkBlue")
-		self.statusbar.config(background="LightGray")
 
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
@@ -1103,7 +1102,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#-----------------------------------------------------------------------
-	def profile(self, direction=None, scale=1.0, cut=False, overcut=False):
+	def profile(self, direction=None, offset=0.0, cut=False, overcut=False):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1120,8 +1119,8 @@ class Application(Toplevel,Sender):
 			except:
 				pass
 
-		# scale tool
-		ofs *= scale
+		# additional offset
+		ofs += offset
 
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
@@ -1135,7 +1134,7 @@ class Application(Toplevel,Sender):
 		self.editor.selectBlocks(blocks)
 		self.draw()
 		self.notBusy()
-		self.setStatus("Profile block with ofs=%g"%(ofs*sign))
+		self.setStatus("Profile block distance=%g"%(ofs*sign))
 
 	#-----------------------------------------------------------------------
 	def edit(self, event=None):
@@ -1387,6 +1386,7 @@ class Application(Toplevel,Sender):
 	def runEnded(self):
 		Sender.runEnded(self)
 		self.statusbar.clear()
+		self.statusbar.config(background="LightGray")
 		self.setStatus("Run ended")
 
 	#-----------------------------------------------------------------------
@@ -1406,6 +1406,7 @@ class Application(Toplevel,Sender):
 				"Please stop before",
 				parent=self)
 			return
+		self.unselectAll()
 
 		if lines is None:
 			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
