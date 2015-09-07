@@ -1493,7 +1493,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Inner loop to catch any generic exception
 	#-----------------------------------------------------------------------
-	def monitorSerial(self):
+	def _monitorSerial(self):
 		inserted = False
 
 		# Check serial output
@@ -1590,11 +1590,16 @@ class Application(Toplevel,Sender):
 			if self._gcount >= self._runLines:
 				self.runEnded()
 
-		# Load file from pendant
-		if self._pendantFileUploaded!=None:
-			self.load(self._pendantFileUploaded)
-			self._pendantFileUploaded=None
-
+	#-----------------------------------------------------------------------
+	# "thread" timed function looking for messages in the serial thread
+	# and reporting back in the terminal
+	#-----------------------------------------------------------------------
+	def monitorSerial(self):
+		try:
+			self._monitorSerial()
+		except:
+			typ, val, tb = sys.exc_info()
+			traceback.print_exception(typ, val, tb)
 		self.after(MONITOR_AFTER, self.monitorSerial)
 
 	#-----------------------------------------------------------------------
