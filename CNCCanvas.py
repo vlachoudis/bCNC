@@ -760,7 +760,7 @@ class CNCCanvas(Canvas):
 		self.initPosition()
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
-			block.resetPath()
+			block.resetPath(self.cnc.x, self.cnc.y, self.cnc.z)
 			for j,line in enumerate(block):
 				#cmd = self.cnc.parseLine(line)
 				try:

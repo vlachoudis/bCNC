@@ -460,8 +460,6 @@ class Application(Toplevel,Sender):
 		Utils.setStr(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
 
 		# Connection
-		Utils.setStr("Connection", "port", self.portCombo.get())
-
 		CNCRibbon.Page.saveConfig()
 		Sender.saveConfig(self)
 		self.tools.saveConfig()
@@ -711,7 +709,7 @@ class Application(Toplevel,Sender):
 
 			try:    d = float(line[2])
 			except: d = None
-			self.executeOnSelection("CUT",h, d)
+			self.executeOnSelection("CUT", True, h, d)
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
@@ -727,7 +725,7 @@ class Application(Toplevel,Sender):
 
 			try:    p = float(line[2])
 			except: p = None
-			self.executeOnSelection("DRILL",h, p)
+			self.executeOnSelection("DRILL", True, h, p)
 
 		# ECHO <msg>: echo message
 		elif cmd=="ECHO":
@@ -763,7 +761,7 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("INKSCAPE",cmd,3):
 			if len(line)>1 and rexx.abbrev("ALL",line[1].upper()):
 				self.editor.selectAll()
-			self.executeOnSelection("INKSCAPE")
+			self.executeOnSelection("INKSCAPE", True)
 
 		# ISO1: switch to ISO1 projection
 		elif cmd=="ISO1":
@@ -798,9 +796,9 @@ class Application(Toplevel,Sender):
 			#if nothing is selected:
 			self.editor.selectAll()
 			if rexx.abbrev("HORIZONTAL",line1):
-				self.executeOnSelection("MIRRORH")
+				self.executeOnSelection("MIRRORH", False)
 			elif rexx.abbrev("VERTICAL",line1):
-				self.executeOnSelection("MIRRORV")
+				self.executeOnSelection("MIRRORV", False)
 
 		elif rexx.abbrev("ORDER",cmd,2):
 			if line[1].upper() == "UP":
@@ -862,7 +860,11 @@ class Application(Toplevel,Sender):
 				except: dy = 0.0
 				try:    dz = float(line[3])
 				except: dz = 0.0
-			self.executeOnSelection("MOVE",dx,dy,dz)
+			self.executeOnSelection("MOVE", False, dx,dy,dz)
+
+		# OPT*IIMZE: reorder selected blocks to minimize rapid motions
+		elif rexx.abbrev("OPTIMIZE",cmd,3):
+			self.executeOnSelection("OPTIMIZE", True)
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
@@ -873,7 +875,7 @@ class Application(Toplevel,Sender):
 			try:    dz = -float(line[3])
 			except: dz = 0.0
 			self.editor.selectAll()
-			self.executeOnSelection("MOVE",dx,dy,dz)
+			self.executeOnSelection("MOVE", False, dx,dy,dz)
 
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
@@ -884,7 +886,7 @@ class Application(Toplevel,Sender):
 
 		# REV*ERSE: reverse path direction
 		elif rexx.abbrev("REVERSE", cmd, 3):
-			self.executeOnSelection("REVERSE")
+			self.executeOnSelection("REVERSE", True)
 
 		# ROT*ATE [CCW|CW|FLIP|ang] [x0 [y0]]: rotate selected blocks
 		# counter-clockwise(90) / clockwise(-90) / flip(180)
@@ -908,7 +910,7 @@ class Application(Toplevel,Sender):
 				except: pass
 				try: y0 = float(line[3])
 				except: pass
-			self.executeOnSelection("ROTATE",ang,x0,y0)
+			self.executeOnSelection("ROTATE", False, ang,x0,y0)
 
 		# ROU*ND [n]: round all digits to n fractional digits
 		elif rexx.abbrev("ROUND",cmd,3):
@@ -921,7 +923,7 @@ class Application(Toplevel,Sender):
 						acc = int(line[1])
 					except:
 						pass
-			self.executeOnSelection("ROUND",acc)
+			self.executeOnSelection("ROUND", False, acc)
 
 		# RU*LER: measure distances with mouse ruler
 		elif rexx.abbrev("RULER",cmd,2):
@@ -1063,8 +1065,11 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Execute a command over the selected lines
 	#-----------------------------------------------------------------------
-	def executeOnSelection(self, cmd, *args):
-		items = self.editor.getCleanSelection()
+	def executeOnSelection(self, cmd, blocksonly, *args):
+		if blocksonly:
+			items = self.editor.getSelectedBlocks()
+		else:
+			items = self.editor.getCleanSelection()
 		if not items: return
 
 		self.busy()
@@ -1079,6 +1084,8 @@ class Application(Toplevel,Sender):
 			self.gcode.inkscapeLines()
 		elif cmd == "MOVE":
 			self.gcode.moveLines(items, *args)
+		elif cmd == "OPTIMIZE":
+			self.gcode.optimize(items)
 		elif cmd == "REVERSE":
 			self.gcode.reverse(items, *args)
 		elif cmd == "ROUND":

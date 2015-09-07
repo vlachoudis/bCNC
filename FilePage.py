@@ -215,6 +215,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Serial", app)
 
+		self.autostart = BooleanVar()
+
+		# ---
 		col,row=0,0
 		b = Label(self, text="Port:", background=Ribbon._BACKGROUND)
 		b.grid(row=row,column=col,sticky=E)
@@ -222,20 +225,32 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		app.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
 		app.portCombo.grid(row=row, column=col+1, sticky=EW)
+		tkExtra.Balloon.set(app.portCombo, "Select (or manual enter) port to connect")
 		devices = sorted([x[0] for x in comports()])
 		app.portCombo.fill(devices)
-		app.portCombo.set(Utils.config.get("Connection","port"))
+		app.portCombo.set(Utils.getStr("Connection","port"))
 		self.addWidget(app.portCombo)
 
+		# ---
 		row += 1
 		b = Label(self, text="Baud:", background=Ribbon._BACKGROUND)
 		b.grid(row=row,column=col,sticky=E)
 
 		app.baudCombo = tkExtra.Combobox(self, True, background="White")
 		app.baudCombo.grid(row=row, column=col+1, sticky=EW)
+		tkExtra.Balloon.set(app.baudCombo, "Select connection baud rate")
 		app.baudCombo.fill(BAUDS)
-		app.baudCombo.set(Utils.config.get("Connection","baud"))
+		app.baudCombo.set(Utils.getStr("Connection","baud","115200"))
 		self.addWidget(app.baudCombo)
+
+		# ---
+		row += 1
+		b= Checkbutton(self,	text="Connect on startup",
+					variable=self.autostart)
+		b.grid(row=row, column=col, columnspan=2, sticky=W)
+		tkExtra.Balloon.set(b, "Connect to serial on startup of the program")
+		self.autostart.set(Utils.getBool("Connection","openserial"))
+		self.addWidget(b)
 
 		# ---
 		col += 2
@@ -251,6 +266,13 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(app.connectBtn, "Open/Close serial port")
 
 		self.grid_columnconfigure(1, weight=1)
+
+	#-----------------------------------------------------------------------
+	def saveConfig(self):
+		# Connection
+		Utils.setStr("Connection", "port",        self.app.portCombo.get())
+		Utils.setStr("Connection", "baud",        self.app.baudCombo.get())
+		Utils.setBool("Connection", "openserial", self.autostart.get())
 
 #===============================================================================
 # File Page

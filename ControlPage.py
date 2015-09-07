@@ -993,7 +993,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		if self.spindle.get():
 			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
-			print ">>>> Sending M5"
 			self.sendGrbl("M5\n")
 
 	#----------------------------------------------------------------------

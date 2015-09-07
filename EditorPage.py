@@ -73,6 +73,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app,
 			[("Import",    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 ("Inkscape",  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
+			 ("Round",     "digits",   lambda s=app:s.insertCommand("ROUND", True)),
 			 ("Statistics","stats",    app.showStats)
 			])
 		self.grid3rows()
@@ -128,19 +129,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ---
 		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["digits"],
-				text="Round",
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("REVERSE", True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Round precision of numbers for selected lines")
-		self.addWidget(b)
-
-		# ---
-		col,row=2,0
 		b = Ribbon.LabelButton(self.frame, self.app, "<<Expand>>",
 				image=Utils.icons["expand"],
 				text="Expand",
@@ -325,12 +313,14 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 # Order Group
 #===============================================================================
-class OrderGroup(CNCRibbon.ButtonGroup):
+class OrderGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Order", app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Order", app,
+			[("Optimize",  "optimize", lambda a=app:a.insertCommand("OPTIMIZE",True)),
+			])
 		self.grid2rows()
 
-		# ---
+		# ===
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame, self, "<Control-Key-Prior>",
 				image=Utils.icons["up"],

@@ -10,6 +10,7 @@ import pdb
 import sys
 import math
 import types
+import random
 import string
 
 import undo
@@ -18,6 +19,9 @@ import Unicode
 from dxf   import DXF
 from bpath import Path, Segment
 from bmath import *
+
+import Genetic
+from tsp import TSPIndividual
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
@@ -1043,7 +1047,8 @@ class Block(list):
 		self.enable  = True	# Enabled/Visible in drawing
 		self.expand  = False	# Expand in editor
 		self._path   = []	# canvas drawing paths
-		self.x = self.y = self.z = 0	# ending coordinates
+		self.sx = self.sy = self.sz = 0	# start  coordinates
+		self.ex = self.ey = self.ez = 0	# ending coordinates
 
 	#----------------------------------------------------------------------
 	def copy(self, src):
@@ -1052,9 +1057,12 @@ class Block(list):
 		self.expand  = src.expand
 		self[:]    = src[:]
 		self._path = []
-		self.x     = src.x
-		self.y     = src.y
-		self.z     = src.z
+		self.sx = src.sx
+		self.sy = src.sy
+		self.sz = src.sz
+		self.ex = src.ex
+		self.ey = src.ey
+		self.ez = src.ez
 
 	#----------------------------------------------------------------------
 	def name(self):
@@ -1147,14 +1155,17 @@ class Block(list):
 		return self._path[i]
 
 	#----------------------------------------------------------------------
-	def endPath(self, x, y, z):
-		self.x = x
-		self.y = y
-		self.z = z
+	def resetPath(self, x, y, z):
+		del self._path[:]
+		self.sx = x
+		self.sy = y
+		self.sz = z
 
 	#----------------------------------------------------------------------
-	def resetPath(self):
-		del self._path[:]
+	def endPath(self, x, y, z):
+		self.ex = x
+		self.ey = y
+		self.ez = z
 
 #==============================================================================
 # Gcode file
@@ -1907,9 +1918,8 @@ class GCode:
 		if bid == 0:
 			self.cnc.initPath()
 		else:
-			block = self.blocks[bid-1]
-			# Use exiting coords from previous block
-			self.cnc.initPath(block.x, block.y, block.z)
+			block = self.blocks[bid]
+			self.cnc.initPath(block.sx, block.sy, block.sz)
 
 	#----------------------------------------------------------------------
 	# Move blocks/lines up
@@ -1971,9 +1981,7 @@ class GCode:
 
 		undoinfo = []
 
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
@@ -2064,9 +2072,7 @@ class GCode:
 			opname = "cut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 			newpath = []
@@ -2083,9 +2089,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def reverse(self, items):
 		undoinfo = []
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 
 			newpath = []
@@ -2330,6 +2334,8 @@ class GCode:
 	# Inkscape g-code tools on slice/slice it raises the tool to the
 	# safe height then plunges again.
 	# Comment out all these patterns
+	#
+	# FIXME needs re-working...
 	#----------------------------------------------------------------------
 	def inkscapeLines(self):
 		undoinfo = []
@@ -2391,6 +2397,42 @@ class GCode:
 	#----------------------------------------------------------------------
 	def removeNlines(self, items):
 		pass
+
+	#----------------------------------------------------------------------
+	# Re-arrange using genetic algorithms a set of blocks to minimize
+	# rapid movements.
+	#----------------------------------------------------------------------
+	def optimize(self, items):
+		# create a list of blocks and their entry and exit coordinates
+
+		blocks = []
+		del TSPIndividual.coords[:]
+
+		for bid in items:
+			blocks.append(bid)
+			block = self.blocks[bid]
+			TSPIndividual.coords.append(((block.sx,block.sy), (block.ex,block.ey)))
+
+		sys.stdout.write("optimize=%s\n"%(str(blocks)))
+		sys.stdout.write("coords=%s\n"%(str(TSPIndividual.coords)))
+
+		TSPIndividual.prepareMatrix()
+
+		# FIXME Do I need the same random seed all the time?
+		random.seed(1234)	# ???
+
+		env = Genetic.Environment(TSPIndividual,
+					size=80,
+					maxgenerations=100,
+					parallel=0,
+					optimum=0.,
+					crossover_rate=1.0,
+					mutation_rate=0.03)
+		env.random = 1
+		env.reportEvery(100)
+		env.run()
+		sys.stdout.write("Best=%s\n"%(str(env.best())))
+		#write_tour_to_img(TSPIndividual.coords, env.best(), "tsp_result.png")
 
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
