@@ -1486,7 +1486,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Inner loop to catch any generic exception
 	#-----------------------------------------------------------------------
-	def _monitorSerial(self):
+	def monitorSerial(self):
 		inserted = False
 
 		# Check serial output
