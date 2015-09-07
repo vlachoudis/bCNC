@@ -182,6 +182,20 @@
 	    sendGcode("G90");
     } // sendMove
 
+	function fileChange()
+	{
+	 var formData = new FormData($('#upload-file')[0]);
+	 $.ajax({
+        url: '/upload',  //Server script to process data
+		data: formData,
+		type: 'POST',
+		cache: false,
+        contentType: false,
+        processData: false
+		});
+	}
+	
+
     /* PERFORM THESE ACTIONS ONCE THE PAGE HAS LOADED */
     $(document).ready(function () {
     	//set up fast click to handle mobile browser delay
@@ -287,10 +301,16 @@
     <br />
 
     <div class="pure-g">
-        <div class="pure-u-1">
+        <div class="pure-u-1-2">
             <span style="padding-top:2px;">Command:</span> 
-            <input id="cmd" size="50" style="width:50%"/>
-            <button onclick="sendCmd(encodeURIComponent($('#cmd').val())); $('#cmd').val('');" class="button">Send</button>
+            <input id="cmd" style="width:75%"/>
+            <button onclick="sendCmd(encodeURIComponent($('#cmd').val())); $('#cmd').val('');" class="button">Send</button>			
+		</div>
+		<div class="pure-u-1-2">
+			<form id="upload-file" style="width:75%" enctype="multipart/form-data">
+			Select file to upload:
+			<input name="file" type="file" onchange="fileChange();" />
+			</form>	
         </div>
     </div>
 
