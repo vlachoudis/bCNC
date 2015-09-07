@@ -13,6 +13,7 @@ import sys
 import json
 import threading
 import urllib
+import re
 
 from CNC import CNC
 
@@ -99,6 +100,60 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				pass
 		else:
 			self.mainPage(page[1:])
+
+    #----------------------------------------------------------------------
+	def deal_post_data(self):
+		boundary = self.headers.plisttext.split("=")[1]
+		remainbytes = int(self.headers['content-length'])
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		if not boundary in line:
+			return (False, "Content NOT begin with boundary")
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		fn = re.findall(r'Content-Disposition.*name="file"; filename="(.*)"', line)
+		if not fn:
+			return (False, "Can't find out file name...")
+		path = os.path.expanduser("~")
+		path = os.path.join(path, "bCNCUploads")
+		if not os.path.exists(path):
+		    os.makedirs(path)
+		fn = os.path.join(path, fn[0])
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		try:
+			out = open(fn, 'wb')
+		except IOError:
+			return (False, "Can't create file to write, do you have permission to write?")
+
+		preline = self.rfile.readline()
+		remainbytes -= len(preline)
+		while remainbytes > 0:
+			line = self.rfile.readline()
+			remainbytes -= len(line)
+			if boundary in line:
+				preline = preline[0:-1]
+				if preline.endswith('\r'):
+					preline = preline[0:-1]
+				out.write(preline)
+				out.close()
+				return (True, "%s" % fn)
+			else:
+				out.write(preline)
+				preline = line
+		return (False, "Unexpected Ends of data.")
+
+
+    #----------------------------------------------------------------------
+	def do_POST(self):
+		result,fMsg=self.deal_post_data()
+		if(result):
+			httpd.app._pendantFileUploaded=fMsg
+		#send empty response so browser does not generate errors
+		self.do_HEAD(200, "text/text")
+
 
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):

@@ -327,6 +327,7 @@ class Application(Toplevel,Sender):
 		self._wcsUpdate  = False
 		self._probeUpdate= False
 		self._gUpdate    = False
+		self._pendantFileUploaded = None
 		self.running     = False
 		self._runLines   = 0
 		self._quit       = 0
@@ -1582,16 +1583,11 @@ class Application(Toplevel,Sender):
 			if self._gcount >= self._runLines:
 				self.runEnded()
 
-	#-----------------------------------------------------------------------
-	# "thread" timed function looking for messages in the serial thread
-	# and reporting back in the terminal
-	#-----------------------------------------------------------------------
-	def monitorSerial(self):
-		try:
-			self._monitorSerial()
-		except:
-			typ, val, tb = sys.exc_info()
-			traceback.print_exception(typ, val, tb)
+		# Load file from pendant
+		if self._pendantFileUploaded!=None:
+			self.load(self._pendantFileUploaded)
+			self._pendantFileUploaded=None
+
 		self.after(MONITOR_AFTER, self.monitorSerial)
 
 	#-----------------------------------------------------------------------
