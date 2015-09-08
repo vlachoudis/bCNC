@@ -33,7 +33,6 @@ PROBE_CMD = [	"G38.2 - stop on contact else error",
 class ProbeTabGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe", app)
-		self.grid3rows()
 
 		self.tab = StringVar()
 		self.tab.set("Probe")
@@ -47,7 +46,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				variable=self.tab,
 				value="Probe",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Simple probing along a direction")
 
 		# ---
@@ -59,8 +58,21 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				variable=self.tab,
 				value="Center",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Center probing using a ring")
+
+		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["setsquare32"],
+				text="Square",
+				compound=TOP,
+				variable=self.tab,
+#				state=DISABLED,
+				value="Square",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Probe X/Y axis by using a set square probe")
 
 		# ---
 		col += 1
@@ -71,8 +83,21 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				variable=self.tab,
 				value="Autolevel",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Autolevel Z surface")
+
+		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["endmill32"],
+				text="Tool",
+				compound=TOP,
+				variable=self.tab,
+#				state=DISABLED,
+				value="Tool",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Setup probing for tool manual change")
 
 #===============================================================================
 # Probe Group
