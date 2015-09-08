@@ -579,7 +579,7 @@ class Cut(DataBase):
 			s =  self.master.fromMm(float(self["stepz"]))
 		except:
 			s = None
-		app.executeOnSelection("CUT",h, s)
+		app.executeOnSelection("CUT", True, h, s)
 		app.setStatus("CUT selected paths")
 
 #==============================================================================
