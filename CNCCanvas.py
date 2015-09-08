@@ -761,7 +761,8 @@ class CNCCanvas(Canvas):
 		self.initPosition()
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
-			block.resetPath(self.cnc.x, self.cnc.y, self.cnc.z)
+			block.resetPath()
+			start = True	# start location found
 			for j,line in enumerate(block):
 				#cmd = self.cnc.parseLine(line)
 				try:
@@ -777,6 +778,10 @@ class CNCCanvas(Canvas):
 					path = self.drawPath(cmd, block.enable)
 					self._items[path] = i,j
 					block.addPath(path)
+					if start and self.cnc.gcode in (1,2,3):
+						# Mark as start the first non-rapid motion
+						block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
+						start = False
 			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
 
 		self.drawGrid()

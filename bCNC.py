@@ -48,7 +48,7 @@ import CNCList
 import CNCCanvas
 import webbrowser
 
-import CNCRibbon
+from CNCRibbon    import Page
 from ToolsPage	  import Tools, ToolsPage
 from FilePage     import FilePage
 from ControlPage  import ControlPage
@@ -97,25 +97,40 @@ class Application(Toplevel,Sender):
 		self.ribbon.pack(side=TOP, fill=X)
 
 		# Main frame
-		paned = PanedWindow(self, orient=HORIZONTAL)
-		paned.pack(fill=BOTH, expand=YES)
+		self.paned = PanedWindow(self, orient=HORIZONTAL)
+		self.paned.pack(fill=BOTH, expand=YES)
 
 		# Status bar
-		f = Frame(self)
-		f.pack(side=BOTTOM, fill=X)
-		self.statusbar = tkExtra.ProgressBar(f, height=20, relief=SUNKEN)
+		frame = Frame(self)
+		frame.pack(side=BOTTOM, fill=X)
+		self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
 		self.statusbar.pack(side=LEFT, fill=X, expand=YES)
 		self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
 
-		self.statusz = Label(f, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusz = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
 		self.statusz.pack(side=RIGHT)
-		self.statusy = Label(f, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusy = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
 		self.statusy.pack(side=RIGHT)
-		self.statusx = Label(f, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusx = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
 		self.statusx.pack(side=RIGHT)
 
+		# --- Control ---
+		frame = Frame(self.paned)
+		self.paned.add(frame) #, minsize=340)
+		self.ribbon.setPageFrame(frame)
+
+		frame = Frame(self.paned)
+		self.paned.add(frame)
+
+		# --- Canvas ---
+		self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
+		self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
+		#self.paned.add(self.canvasFrame)
+# XXX FIXME do I need the self.canvas?
+		self.canvas = self.canvasFrame.canvas
+
 		# Command bar
-		f = Frame(self)
+		f = Frame(frame)
 		f.pack(side=BOTTOM, fill=X)
 		self.cmdlabel = Label(f, text="Command:")
 		self.cmdlabel.pack(side=LEFT)
@@ -134,17 +149,6 @@ class Application(Toplevel,Sender):
 			"commands (RESET/HOME...) or editor commands "
 			"(move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
-
-		# --- Control ---
-		panedframe = Frame(paned)
-		paned.add(panedframe, minsize=340)
-		self.ribbon.setPageFrame(panedframe)
-
-		# --- Canvas ---
-		self.canvasFrame = CNCCanvas.CanvasFrame(paned, self)
-		paned.add(self.canvasFrame)
-# XXX FIXME do I need the self.canvas?
-		self.canvas = self.canvasFrame.canvas
 
 		# fist create Pages
 		self.pages = {}
@@ -170,14 +174,14 @@ class Application(Toplevel,Sender):
 					page.addPageFrame(n)
 
 		# remember the editor list widget
-		self.dro       = CNCRibbon.Page.frames["DRO"]
-		self.gstate    = CNCRibbon.Page.frames["State"]
-		self.control   = CNCRibbon.Page.frames["Control"]
-		self.editor    = CNCRibbon.Page.frames["Editor"].editor
-		self.terminal  = CNCRibbon.Page.frames["Terminal"].terminal
+		self.dro       = Page.frames["DRO"]
+		self.gstate    = Page.frames["State"]
+		self.control   = Page.frames["Control"]
+		self.editor    = Page.frames["Editor"].editor
+		self.terminal  = Page.frames["Terminal"].terminal
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
-		self.autolevel = CNCRibbon.Page.frames["Probe:Autolevel"]
+		self.autolevel = Page.frames["Probe:Autolevel"]
 
 		# Left side
 		for name in Utils.getStr(Utils.__prg__,"ribbon").split():
@@ -199,6 +203,8 @@ class Application(Toplevel,Sender):
 		self.bind('<<Cut>>',            self.cut)
 		self.bind('<<Paste>>',          self.paste)
 
+		self.bind('<<Connect>>',	self.openClose)
+
 		self.bind('<<New>>',            self.newFile)
 		self.bind('<<Open>>',           self.loadDialog)
 		self.bind('<<Save>>',           self.saveAll)
@@ -216,7 +222,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<Recent8>>',        self._loadRecent8)
 		self.bind('<<Recent9>>',        self._loadRecent9)
 
-		self.bind('<<TerminalClear>>',  CNCRibbon.Page.frames["Terminal"].clear)
+		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
 		self.bind('<<Help>>',           self.help)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
@@ -298,9 +304,9 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
-		frame = CNCRibbon.Page.frames["Probe:Probe"]
+		frame = Page.frames["Probe:Probe"]
 		self.bind('<<Probe>>',            frame.probe)
-		frame = CNCRibbon.Page.frames["Probe:Center"]
+		frame = Page.frames["Probe:Center"]
 		self.bind('<<ProbeCenter>>',      frame.probe)
 
 		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
@@ -336,10 +342,13 @@ class Application(Toplevel,Sender):
 		self.monitorSerial()
 		self.canvasFrame.toggleDrawFlag()
 
-		if int(Utils.config.get("Connection","pendant")):
+		self.paned.sash_place(0, Utils.getInt(Utils.__prg__, "sash", 340), 0)
+
+		# Auto start pendant and serial
+		if Utils.getBool("Connection","pendant"):
 			self.startPendant(False)
 
-		if _openserial and int(Utils.config.get("Connection","openserial")):
+		if _openserial and Utils.getBool("Connection","openserial"):
 			self.openClose()
 
 	#-----------------------------------------------------------------------
@@ -455,13 +464,14 @@ class Application(Toplevel,Sender):
 		Utils.setInt(Utils.__prg__,  "height",   str(self.winfo_height()))
 		#Utils.setInt(Utils.__prg__,  "x",        str(self.winfo_rootx()))
 		#Utils.setInt(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		Utils.setInt(Utils.__prg__,  "sash",      str(self.paned.sash_coord(0)[0]))
 
 		#save windowState
 		Utils.setStr(Utils.__prg__,  "windowstate", str(self.wm_state()))
 		Utils.setStr(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
 
 		# Connection
-		CNCRibbon.Page.saveConfig()
+		Page.saveConfig()
 		Sender.saveConfig(self)
 		self.tools.saveConfig()
 		self.canvasFrame.saveConfig()
@@ -696,7 +706,7 @@ class Application(Toplevel,Sender):
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
 			self.ribbon.changePage("Terminal")
-			CNCRibbon.Page.frames["Terminal"].clear()
+			Page.frames["Terminal"].clear()
 
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
@@ -1312,19 +1322,21 @@ class Application(Toplevel,Sender):
 		self._inFocus = False
 
 	#-----------------------------------------------------------------------
-	def openClose(self):
+	def openClose(self, event=None):
+		serialPage = Page.frames["Serial"]
 		if self.serial is not None:
 			self.close()
-			self.connectBtn.config(text="Open",
-					background="LightGreen",
-					activebackground="LightGreen")
+			serialPage.connectBtn.config(text="Open",
+						background="LightGreen",
+						activebackground="LightGreen")
 		else:
-			device   = _device or self.portCombo.get()
-			baudrate = _baud or int(Utils.config.get("Connection","baud"))
+			serialPage = Page.frames["Serial"]
+			device   = _device or serialPage.portCombo.get()
+			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
-				self.connectBtn.config(text="Close",
-						background="Salmon",
-						activebackground="Salmon")
+				serialPage.connectBtn.config(text="Close",
+							background="Salmon",
+							activebackground="Salmon")
 				self.enable()
 
 	#-----------------------------------------------------------------------

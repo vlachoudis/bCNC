@@ -20,9 +20,6 @@ from dxf   import DXF
 from bpath import Path, Segment
 from bmath import *
 
-import Genetic
-from tsp import TSPIndividual
-
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
@@ -1047,7 +1044,7 @@ class Block(list):
 		self.enable  = True	# Enabled/Visible in drawing
 		self.expand  = False	# Expand in editor
 		self._path   = []	# canvas drawing paths
-		self.sx = self.sy = self.sz = 0	# start  coordinates
+		self.sx = self.sy = self.sz = 0	# start  coordinates (entry point first non rapid motion)
 		self.ex = self.ey = self.ez = 0	# ending coordinates
 
 	#----------------------------------------------------------------------
@@ -1155,8 +1152,11 @@ class Block(list):
 		return self._path[i]
 
 	#----------------------------------------------------------------------
-	def resetPath(self, x, y, z):
+	def resetPath(self):
 		del self._path[:]
+
+	#----------------------------------------------------------------------
+	def startPath(self, x, y, z):
 		self.sx = x
 		self.sy = y
 		self.sz = z
@@ -1692,6 +1692,18 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Move block from location src to location dst
+	#----------------------------------------------------------------------
+	def moveBlockUndo(self, src, dst):
+		if src == dst: return undo.NullUndo
+		undoinfo = (self.moveBlockUndo, dst, src)
+		if dst > src:
+			self.blocks.insert(dst-1, self.blocks.pop(src))
+		else:
+			self.blocks.insert(dst, self.blocks.pop(src))
+		return undoinfo
+
+	#----------------------------------------------------------------------
 	# Invert selected blocks
 	#----------------------------------------------------------------------
 	def invertBlocksUndo(self, blocks):
@@ -1918,8 +1930,10 @@ class GCode:
 		if bid == 0:
 			self.cnc.initPath()
 		else:
-			block = self.blocks[bid]
-			self.cnc.initPath(block.sx, block.sy, block.sz)
+			# Use the ending point of the previous block
+			# since the starting (sxyz is after the rapid motion)
+			block = self.blocks[bid-1]
+			self.cnc.initPath(block.ex, block.ey, block.ez)
 
 	#----------------------------------------------------------------------
 	# Move blocks/lines up
@@ -2403,43 +2417,59 @@ class GCode:
 	# rapid movements.
 	#----------------------------------------------------------------------
 	def optimize(self, items):
-		# create a list of blocks and their entry and exit coordinates
+		n = len(items)
 
-		blocks = []
-		del TSPIndividual.coords[:]
+		matrix = []
+		for i in range(n):
+			matrix.append([0.0] * n)
 
-		for bid in items:
-			blocks.append(bid)
-			block = self.blocks[bid]
-			TSPIndividual.coords.append(((block.sx,block.sy), (block.ex,block.ey)))
+		# Find distances between blocks (end to start)
+		for i in range(n):
+			block = self.blocks[items[i]]
+			x1 = block.ex
+			y1 = block.ey
+			for j in range(n):
+				if i==j: continue
+				block = self.blocks[items[j]]
+				x2 = block.sx
+				y2 = block.sy
+				dx = x1-x2
+				dy = y1-y2
+				matrix[i][j] = sqrt(dx*dx + dy*dy)
+		#from pprint import pprint
+		#pprint(matrix)
 
-		sys.stdout.write("optimize=%s\n"%(str(blocks)))
-		sys.stdout.write("coords=%s\n"%(str(TSPIndividual.coords)))
+		best = [0]
+		unvisited = range(1,n)
+		while unvisited:
+			last = best[-1]
+			row = matrix[last]
+			# from all the unvisited places search the closest one
+			mindist = 1e30
+			for i,u in enumerate(unvisited):
+				d = row[u]
+				if d < mindist:
+					mindist = d
+					si = i
+			best.append(unvisited.pop(si))
+		#print "best=",best
 
-		TSPIndividual.prepareMatrix()
-
-		# FIXME Do I need the same random seed all the time?
-		random.seed(1234)	# ???
-
-		env = Genetic.Environment(TSPIndividual,
-					size=80,
-					maxgenerations=100,
-					parallel=0,
-					optimum=0.,
-					crossover_rate=1.0,
-					mutation_rate=0.03)
-		env.random = 1
-		env.reportEvery(100)
-		env.run()
-		sys.stdout.write("Best=%s\n"%(str(env.best())))
-		#write_tour_to_img(TSPIndividual.coords, env.best(), "tsp_result.png")
+		undoinfo = []
+		for i in range(len(best)):
+			b = best[i]
+			if i==b: continue
+			ptr = best.index(i)
+			# swap i,b in items
+			undoinfo.append(self.swapBlockUndo(items[i], items[b]))
+			# swap i,ptr in best
+			best[i], best[ptr] = best[ptr], best[i]
+		self.addUndo(undoinfo, "Optimize")
 
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
 	def compile(self):
 		autolevel = not self.probe.isEmpty()
-
 		lines = []
 		paths = []
 		for i,block in enumerate(self.blocks):

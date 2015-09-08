@@ -223,25 +223,25 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		b.grid(row=row,column=col,sticky=E)
 		self.addWidget(b)
 
-		app.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
-		app.portCombo.grid(row=row, column=col+1, sticky=EW)
-		tkExtra.Balloon.set(app.portCombo, "Select (or manual enter) port to connect")
+		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
+		self.portCombo.grid(row=row, column=col+1, sticky=EW)
+		tkExtra.Balloon.set(self.portCombo, "Select (or manual enter) port to connect")
 		devices = sorted([x[0] for x in comports()])
-		app.portCombo.fill(devices)
-		app.portCombo.set(Utils.getStr("Connection","port"))
-		self.addWidget(app.portCombo)
+		self.portCombo.fill(devices)
+		self.portCombo.set(Utils.getStr("Connection","port"))
+		self.addWidget(self.portCombo)
 
 		# ---
 		row += 1
 		b = Label(self, text="Baud:", background=Ribbon._BACKGROUND)
 		b.grid(row=row,column=col,sticky=E)
 
-		app.baudCombo = tkExtra.Combobox(self, True, background="White")
-		app.baudCombo.grid(row=row, column=col+1, sticky=EW)
-		tkExtra.Balloon.set(app.baudCombo, "Select connection baud rate")
-		app.baudCombo.fill(BAUDS)
-		app.baudCombo.set(Utils.getStr("Connection","baud","115200"))
-		self.addWidget(app.baudCombo)
+		self.baudCombo = tkExtra.Combobox(self, True, background="White")
+		self.baudCombo.grid(row=row, column=col+1, sticky=EW)
+		tkExtra.Balloon.set(self.baudCombo, "Select connection baud rate")
+		self.baudCombo.fill(BAUDS)
+		self.baudCombo.set(Utils.getStr("Connection","baud","115200"))
+		self.addWidget(self.baudCombo)
 
 		# ---
 		row += 1
@@ -256,22 +256,21 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		col += 2
 		row  = 0
 
-		app.connectBtn = Ribbon.LabelButton(self,
+		self.connectBtn = Ribbon.LabelButton(self,
 				image=Utils.icons["serial32"],
 				text="Open",
 				compound=TOP,
-				command=app.openClose,
+				command=lambda s=self : s.event_generate("<<Connect>>"),
 				background=Ribbon._BACKGROUND)
-		app.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(app.connectBtn, "Open/Close serial port")
-
+		self.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.connectBtn, "Open/Close serial port")
 		self.grid_columnconfigure(1, weight=1)
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Connection
-		Utils.setStr("Connection", "port",        self.app.portCombo.get())
-		Utils.setStr("Connection", "baud",        self.app.baudCombo.get())
+		Utils.setStr("Connection", "port",        self.portCombo.get())
+		Utils.setStr("Connection", "baud",        self.baudCombo.get())
 		Utils.setBool("Connection", "openserial", self.autostart.get())
 
 #===============================================================================

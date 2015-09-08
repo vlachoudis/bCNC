@@ -98,50 +98,6 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, "Software reset of controller [ctrl-x]")
 		self.addWidget(b)
 
-##===============================================================================
-## Serial Group
-##===============================================================================
-#class SerialGroup(CNCRibbon.ButtonGroup):
-#	def __init__(self, master, app):
-#		CNCRibbon.ButtonGroup.__init__(self, master, "Serial", app)
-#		self.grid3rows()
-#
-#		col,row=0,0
-#		b = Label(self.frame, text="Port:", background=Ribbon._BACKGROUND)
-#		b.grid(row=row,column=col,sticky=E)
-#		self.addWidget(b)
-#
-#		app.portCombo = tkExtra.Combobox(self.frame, False, background="White", width=16)
-#		app.portCombo.grid(row=row, column=col+1, sticky=EW)
-#		devices = sorted([x[0] for x in comports()])
-#		app.portCombo.fill(devices)
-#		app.portCombo.set(Utils.config.get("Connection","port"))
-#		self.addWidget(app.portCombo)
-#
-#		row += 1
-#		b = Label(self.frame, text="Baud:", background=Ribbon._BACKGROUND)
-#		b.grid(row=row,column=col,sticky=E)
-#
-#		app.baudCombo = tkExtra.Combobox(self.frame, True, background="White")
-#		app.baudCombo.grid(row=row, column=col+1, sticky=EW)
-#		app.baudCombo.fill(BAUDS)
-#		app.baudCombo.set(Utils.config.get("Connection","baud"))
-#		self.addWidget(app.baudCombo)
-#
-#		# ---
-#		col += 2
-#		row  = 0
-#
-#		app.connectBtn = Ribbon.LabelButton(self.frame,
-#				image=Utils.icons["serial32"],
-#				text="Open",
-#				compound=TOP,
-#				command=app.openClose,
-#				background=Ribbon._BACKGROUND)
-#		app.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(app.connectBtn, "Open/Close serial port")
-#		self.addWidget(app.connectBtn)
-
 #===============================================================================
 # User Group
 #===============================================================================
