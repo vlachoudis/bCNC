@@ -1518,6 +1518,11 @@ class Application(Toplevel,Sender):
 		except Empty:
 			pass
 
+		# Load file from pendant
+		if self._pendantFileUploaded!=None:
+			self.load(self._pendantFileUploaded)
+			self._pendantFileUploaded=None
+
 		# Update position if needed
 		if self._posUpdate:
 			state = CNC.vars["state"]
