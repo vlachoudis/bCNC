@@ -19,8 +19,13 @@ import Utils
 try:
 	from PIL import Image, ImageTk
 	import numpy
+
+	# Resampling image based on PIL library and converting to RGB.
+	# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
+	RESAMPLE = Image.NEAREST	# resize type
 except:
 	numpy = None
+	RESAMPLE = None
 
 VIEW_XY      = 0
 VIEW_XZ      = 1
@@ -72,10 +77,6 @@ ALT_MASK     = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
 CLOSE_DISTANCE = 5
 MAXDIST      = 10000
-
-# Resampling image based on PIL library and converting to RGB.
-# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
-RESAMPLE    = Image.NEAREST	# resize type
 
 S60 = math.sin(math.radians(60))
 C60 = math.cos(math.radians(60))
@@ -949,7 +950,8 @@ class CNCCanvas(Canvas):
 
 		# Draw probe points
 		for i,uv in enumerate(self.plotCoords(probe.points)):
-			item = self.create_text(uv, text="%g"%(probe.points[i][2]),
+			item = self.create_text(uv,
+						text="%.*f"%(CNC.digits,probe.points[i][2]),
 						tag="Probe",
 						justify=CENTER,
 						fill="Green")
@@ -996,7 +998,8 @@ class CNCCanvas(Canvas):
 			self._image = self._image.convert("RGB")
 
 			self._projectProbeImage()
-			self._probeImage = self.create_image(0,0, image=self._tkimage, anchor='sw')
+			x,y = self.plotCoords([(probe.xmin, probe.ymin, 0.)])[0]
+			self._probeImage = self.create_image(x,y, image=self._tkimage, anchor='sw')
 			self.tag_lower(self._probeImage)
 
 	#----------------------------------------------------------------------
