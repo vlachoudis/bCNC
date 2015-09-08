@@ -97,7 +97,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				value="Tool",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Setup probing for tool manual change")
+		tkExtra.Balloon.set(b, "Setup probing for manual tool change")
 
 #===============================================================================
 # Probe Group
