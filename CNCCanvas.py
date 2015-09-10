@@ -849,10 +849,17 @@ class CNCCanvas(Canvas):
 	def drawAxes(self):
 		self.delete("Axes")
 		if not self.draw_axes: return
-		if CNC.inch:
-			s = 10.0
-		else:
-			s = 100.0
+
+		dx = CNC.vars["xmax"] - CNC.vars["xmin"]
+		dy = CNC.vars["ymax"] - CNC.vars["ymin"]
+		d = min(dx,dy)
+		try:
+			s = math.pow(10.0, int(math.log10(d)))
+		except:
+			if CNC.inch:
+				s = 10.0
+			else:
+				s = 100.0
 		xyz = [(0.,0.,0.), (s, 0., 0.)]
 		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
 

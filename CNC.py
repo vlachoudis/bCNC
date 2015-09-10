@@ -26,14 +26,83 @@ OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
 
-STOP = 0
-SKIP = 1
-ASK  = 2
-WAIT = 9
+STOP  = 0
+SKIP  = 1
+ASK   = 2
+PAUSE = 8
+WAIT  = 9
 
 XY   = 0
 XZ   = 1
 YZ   = 2
+
+WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
+
+DISTANCE_MODE = { "G90" : "Absolute",
+		  "G91" : "Incremental" }
+FEED_MODE     = { "G93" : "1/Time",
+		  "G94" : "unit/min",
+		  "G95" : "unit/rev"}
+UNITS         = { "G20" : "inch",
+		  "G21" : "mm" }
+PLANE         = { "G17" : "XY",
+		  "G18" : "ZX",
+		  "G19" : "YZ" }
+
+# Modal Mode from $G and variable set 
+MODAL_MODES = {
+	"G0"	: "motion",
+	"G1"	: "motion",
+	"G2"	: "motion",
+	"G3"	: "motion",
+	"G38.2"	: "motion",
+	"G38.3"	: "motion",
+	"G38.4"	: "motion",
+	"G38.5"	: "motion",
+	"G80"	: "motion",
+
+	"G54"   : "WCS",
+	"G55"   : "WCS",
+	"G56"   : "WCS",
+	"G57"   : "WCS",
+	"G58"   : "WCS",
+	"G59"   : "WCS",
+
+	"G17"   : "plane",
+	"G18"   : "plane",
+	"G19"   : "plane",
+
+	"G90"	: "distance",
+	"G91"	: "distance",
+
+	"G91.1" : "arc",
+
+	"G93"   : "feedmode",
+	"G94"   : "feedmode",
+	"G95"   : "feedmode",
+
+	"G20"	: "units",
+	"G21"	: "units",
+
+	"G40"	: "cutter",
+
+	"G43.1" : "tlo",
+	"G49"   : "tlo",
+
+	"M0"	: "program",
+	"M1"	: "program",
+	"M2"	: "program",
+	"M30"	: "program",
+
+	"M3"    : "spindle",
+	"M4"    : "spindle",
+	"M5"    : "spindle",
+
+	"M7"    : "coolant",
+	"M8"    : "coolant",
+	"M9"    : "coolant",
+}
+
 
 ERROR_HANDLING = {}
 
@@ -356,6 +425,7 @@ class CNC:
 				"prby"      : 0.0,
 				"prbz"      : 0.0,
 				"prbcmd"    : "G38.2",
+				"prbfeed"   : 10.,
 				"errline"   : "",
 				"wx"        : 0.0,
 				"wy"        : 0.0,
@@ -364,6 +434,23 @@ class CNC:
 				"my"        : 0.0,
 				"mz"        : 0.0,
 				"G"         : ["G20","G54"],
+				"motion"    : "G0",
+				"WCS"       : "G54",
+				"plane"     : "G17",
+				"feedmode"  : "G94",
+				"distance"  : "G90",
+				"arc"       : "G91.1",
+				"units"     : "G20",
+				"cutter"    : "",
+				"tlo"       : "",
+				"program"   : "M0",
+				"spindle"   : "M5",
+				"coolant"   : "M9",
+
+				"tool"      : 0,
+				"feed"      : 0.0,
+				"rpm"       : 0.0,
+
 				"override"  : 100,
 				"diameter"  : 3.175,	# Tool diameter
 				"cutfeed"   : 1000.,	# Material feed for cutting
@@ -375,6 +462,23 @@ class CNC:
 				"thickness" : 5.,
 			}
 		self.initPath()
+
+	#----------------------------------------------------------------------
+	# Update G variables from "G" string
+	#----------------------------------------------------------------------
+	@staticmethod
+	def updateG():
+		for g in CNC.vars["G"]:
+			if g[0] == "F":
+				CNC.vars["feed"] = float(g[1:])
+			elif g[0] == "S":
+				CNC.vars["rpm"] = float(g[1:])
+			elif g[0] == "T":
+				CNC.vars["tool"] = int(g[1:])
+			else:
+				var = MODAL_MODES.get(g)
+				if var is not None:
+					CNC.vars[var] = g
 
 	#----------------------------------------------------------------------
 	def __getitem__(self, name):
@@ -589,8 +693,14 @@ class CNC:
 		# execute literally the line after the first character
 		if line[0]=='%':
 			# special command
-			if line.strip()=="%wait":
-				return WAIT
+			line = line.strip()
+			cmd = line.split()[0]
+			if cmd=="%wait":
+				return (WAIT,)
+			elif cmd=="%pause":
+				msg = line[7:].strip()
+				if not msg: msg = None
+				return (PAUSE, msg)
 			try:
 				return compile(line[1:],"","exec")
 			except:
@@ -1023,6 +1133,55 @@ class CNC:
 					newcmd.append(cmd)
 			lines.append("".join(newcmd))
 		return lines
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def initTool():
+		CNC._lastTool = None
+
+	#----------------------------------------------------------------------
+	# code to change manually tool
+	#----------------------------------------------------------------------
+	@staticmethod
+	def toolChange(cmds):
+		# find tool
+		tool = CNC._lastTool
+		for cmd in cmds:
+			cmd = cmd.upper()
+			if cmd[0]=="T":
+				tool = int(cmd[1:])
+				break
+
+		# check if it is the same tool
+		if tool == CNC._lastTool: return []
+		CNC._lastTool = tool
+
+		# create the necessary code
+		lines = []
+		lines.append("m5")
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+
+		lines.append("%wait")
+		lines.append("%%pause Tool change T%02d"%(tool))
+
+		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+		lines.append("g53 g0 z[toolprobez]")
+
+		# fixed WCS
+		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		# FIXME could be done dynamically in the code
+		p = WCS.index(CNC.vars["WCS"])+1
+		lines.append("G10L20P%d z[toolheight]"%(p))
+
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+
+		lines.append("g90")
+		# FIXME maybe I should remember the last state and restore it m3 or m4
+		lines.append("m3")
+
+		return CNC.compile(lines)
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -2121,7 +2280,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset, cut=False, overcut=False):
+	def profile(self, blocks, offset, cut=False, overcut=False, name=None):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -2138,12 +2297,14 @@ class GCode:
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
-				if offset>0:
-					name = Block.operationName(path.name, "out")
+				if name is not None:
+					newname = Block.operationName(path.name, name)
+				elif offset>0:
+					newname = Block.operationName(path.name, "out")
 				else:
-					name = Block.operationName(path.name, "in")
+					newname = Block.operationName(path.name, "in")
 
-				opath = path.offset(D*offset, name)
+				opath = path.offset(D*offset, newname)
 				opath.intersect()
 				opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
@@ -2469,6 +2630,7 @@ class GCode:
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
 	def compile(self):
+		CNC.initTool()
 		autolevel = not self.probe.isEmpty()
 		lines = []
 		paths = []
@@ -2529,9 +2691,16 @@ class GCode:
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
 					else:
-						opt = ERROR_HANDLING.get(cmd.upper(),0)
-						if opt == SKIP:
+						# Tool change
+						if cmd[0] in ("m","M") and int(cmd[1:])==6:
+							toollines = CNC.toolChange(cmds)
+							lines.extend(toollines)
+							paths.extend([None]*len(toollines))
 							cmd = None
+						else:
+							opt = ERROR_HANDLING.get(cmd.upper(),0)
+							if opt == SKIP:
+								cmd = None
 
 					if cmd is not None:
 						newcmd.append(cmd)

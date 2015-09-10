@@ -631,7 +631,9 @@ class Profile(DataBase):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
-		app.profile(direction, self["offset"], self["cut"], self["overcut"])
+		name = self["name"]
+		if name=="default" or name=="": name=None
+		app.profile(direction, self["offset"], self["cut"], self["overcut"], name)
 		app.setStatus("Generate profile path")
 
 #==============================================================================

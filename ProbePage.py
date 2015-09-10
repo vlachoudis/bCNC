@@ -68,7 +68,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				text="Square",
 				compound=TOP,
 				variable=self.tab,
-#				state=DISABLED,
+				state=DISABLED,
 				value="Square",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
@@ -93,7 +93,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				text="Tool",
 				compound=TOP,
 				variable=self.tab,
-#				state=DISABLED,
 				value="Tool",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
@@ -154,6 +153,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Get margins from gcode file")
+		self.addWidget(b)
 
 		# ---
 		row += 1
@@ -165,6 +165,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Set current location as Z-zero for leveling")
+		self.addWidget(b)
 
 		# ---
 		row += 1
@@ -176,6 +177,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Clear probe data")
+		self.addWidget(b)
 
 		# ---
 		col,row=1,0
@@ -685,6 +687,217 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=probe.scan())
 
 #===============================================================================
+# Tool Frame
+#===============================================================================
+class ToolFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Tool", app)
+
+		lframe = LabelFrame(self, text="Manual Tool Change", foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X)
+
+		row,col = 0,0
+		# Empty
+		col += 1
+		Label(lframe, text="MX").grid(row=row, column=col, sticky=EW)
+		col += 1
+		Label(lframe, text="MY").grid(row=row, column=col, sticky=EW)
+		col += 1
+		Label(lframe, text="MZ").grid(row=row, column=col, sticky=EW)
+
+		# --- Tool Change position ---
+		row += 1
+		col = 0
+		Label(lframe, text="Change:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.changeX = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.changeX.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.changeX, "Manual tool change Machine X location")
+		self.addWidget(self.changeX)
+
+		col += 1
+		self.changeY = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.changeY.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.changeY, "Manual tool change Machine Y location")
+		self.addWidget(self.changeY)
+
+		col += 1
+		self.changeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.changeZ.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.changeZ, "Manual tool change Machine Z location")
+		self.addWidget(self.changeZ)
+
+		col += 1
+		b = Button(lframe, text="get",
+				command=self.getChange,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Get current gantry position as machine tool change location")
+		self.addWidget(b)
+
+		# --- Tool Probe position ---
+		row += 1
+		col = 0
+		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.probeX = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.probeX.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.probeX, "Manual tool change Probing MX location")
+		self.addWidget(self.probeX)
+
+		col += 1
+		self.probeY = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.probeY.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.probeY, "Manual tool change Probing MY location")
+		self.addWidget(self.probeY)
+
+		col += 1
+		self.probeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.probeZ.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.probeZ, "Manual tool change Probing MZ location")
+		self.addWidget(self.probeZ)
+
+		col += 1
+		b = Button(lframe, text="get",
+				command=self.getProbe,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Get current gantry position as machine tool probe location")
+		self.addWidget(b)
+
+		# --- Probe Distance ---
+		row += 1
+		col = 0
+		Label(lframe, text="Distance:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.probeDistance = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.probeDistance.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.probeDistance,
+				"After a tool change distance to scan starting from ProbeZ")
+		self.addWidget(self.probeDistance)
+
+		# --- Calibration ---
+		row += 1
+		col = 0
+		Label(lframe, text="Calibration:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.toolHeight = tkExtra.FloatEntry(lframe, background="White", width=5)
+		self.toolHeight.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(self.toolHeight, "Tool probe height")
+		self.addWidget(self.toolHeight)
+
+		col += 1
+		b = Button(lframe, text="Probe",
+				command=self.probe,
+				padx=2, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, "Perform a calibration probing to determine the height")
+		self.addWidget(b)
+
+		lframe.grid_columnconfigure(1,weight=1)
+		lframe.grid_columnconfigure(2,weight=1)
+		lframe.grid_columnconfigure(3,weight=1)
+
+		self.loadConfig()
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
+		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
+		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
+
+		Utils.setFloat("Probe", "toolprobex", self.probeX.get())
+		Utils.setFloat("Probe", "toolprobey", self.probeY.get())
+		Utils.setFloat("Probe", "toolprobez", self.probeZ.get())
+
+		Utils.setFloat("Probe", "tooldistance",self.probeDistance.get())
+		Utils.setFloat("Probe", "toolheight",  self.toolHeight.get())
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		self.changeX.set(Utils.getFloat("Probe","toolchangex"))
+		self.changeY.set(Utils.getFloat("Probe","toolchangey"))
+		self.changeZ.set(Utils.getFloat("Probe","toolchangez"))
+
+		self.probeX.set(Utils.getFloat("Probe","toolprobex"))
+		self.probeY.set(Utils.getFloat("Probe","toolprobey"))
+		self.probeZ.set(Utils.getFloat("Probe","toolprobez"))
+
+		self.probeDistance.set(Utils.getFloat("Probe","tooldistance"))
+		self.toolHeight.set(   Utils.getFloat("Probe","toolheight"))
+		self.set()
+
+	#----------------------------------------------------------------------
+	def set(self):
+		CNC.vars["toolchangex"]  = float(self.changeX.get())
+		CNC.vars["toolchangey"]  = float(self.changeY.get())
+		CNC.vars["toolchangez"]  = float(self.changeZ.get())
+		CNC.vars["toolprobex"]   = float(self.probeX.get())
+		CNC.vars["toolprobey"]   = float(self.probeY.get())
+		CNC.vars["toolprobez"]   = float(self.probeZ.get())
+		CNC.vars["tooldistance"] = float(self.probeDistance.get())
+		CNC.vars["toolheight"]   = float(self.toolHeight.get())
+
+	#----------------------------------------------------------------------
+	def getChange(self):
+		self.changeX.set(CNC.vars["mx"])
+		self.changeY.set(CNC.vars["my"])
+		self.changeZ.set(CNC.vars["mz"])
+
+	#----------------------------------------------------------------------
+	def getProbe(self):
+		self.probeX.set(CNC.vars["mx"])
+		self.probeY.set(CNC.vars["my"])
+		self.probeZ.set(CNC.vars["mz"])
+
+	#----------------------------------------------------------------------
+	def probe(self):
+		self.set()
+
+		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+
+		lines = []
+		lines.append("g53 g0 z%s"%(self.changeZ.get()))
+		lines.append("g53 g0 x%s y%s"%(self.changeX.get(), self.changeY.get()))
+
+		lines.append("%wait")
+		lines.append("%pause Tool change")
+
+		lines.append("g53 g0 x%s y%s"%(self.probeX.get(), self.probeY.get()))
+		lines.append("g53 g0 z%s"%(self.probeZ.get()))
+
+		lines.append("g91 %s f%s z-%s"%(CNC.vars["prbcmd"],
+					CNC.vars["prbfeed"],
+					self.probeDistance.get()))
+		lines.append("%wait")
+		lines.append("toolheight=wx")
+
+		lines.append("g53 g0 z%s"%(self.changeZ.get()))
+		lines.append("g53 g0 x%s y%s"%(self.changeX.get(), self.changeY.get()))
+
+		lines.append("g90")
+		self.app.run(lines=lines)
+
+##===============================================================================
+## Help Frame
+##===============================================================================
+#class HelpFrame(CNCRibbon.PageFrame):
+#	def __init__(self, master, app):
+#		CNCRibbon.PageFrame.__init__(self, master, "Help", app)
+#
+#		lframe = tkExtra.ExLabelFrame(self, text="Help", foreground="DarkBlue")
+#		lframe.pack(side=TOP, fill=X)
+#		frame = lframe.frame
+#
+#		self.text = Label(frame,
+#				text="One\nTwo\nThree",
+#				image=Utils.icons["gear32"],
+#				compound=TOP,
+#				anchor=W,
+#				justify=LEFT)
+#		self.text.pack(fill=BOTH, expand=YES)
+
+#===============================================================================
 # Probe Page
 #===============================================================================
 class ProbePage(CNCRibbon.Page):
@@ -698,7 +911,7 @@ class ProbePage(CNCRibbon.Page):
 	#----------------------------------------------------------------------
 	def register(self):
 		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup),
-			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame))
+			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.trace('w', self.tabChange)
@@ -708,6 +921,7 @@ class ProbePage(CNCRibbon.Page):
 	def tabChange(self, a, b, c):
 		tab = self.tabGroup.tab.get()
 		self.master._forgetPage()
+
 		# remove all page tabs with ":" and add the new ones
 		self.ribbons = [ x for x in self.ribbons if ":" not in x[0].name ]
 		self.frames  = [ x for x in self.frames  if ":" not in x[0].name ]

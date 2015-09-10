@@ -23,16 +23,16 @@ try:
 except ImportError:
 	from queue import *
 
-from CNC import CNC, GCode
+from CNC import WAIT, PAUSE, WCS, CNC, GCode
 import Utils
 import Pendant
 
 WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 
-SERIAL_POLL   = 0.250	# s
+SERIAL_POLL   = 0.125	# s
 G_POLL        = 10	# s
 
-RX_BUFFER_SIZE = 128
+RX_BUFFER_SIZE = 127
 
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -116,14 +116,14 @@ class Sender:
 		self.thread      = None
 
 		self._posUpdate  = False
-		self._wcsUpdate  = False
 		self._probeUpdate= False
 		self._gUpdate    = False
 		self.running     = False
 		self._stop       = False	# Raise to stop current run
 		self._runLines   = 0
-		self._pause      = False
+		self._pause      = False	# machine is on Hold
 		self._alarm      = True
+		self._msg        = None
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -362,7 +362,7 @@ class Sender:
 		# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
 		self.serial.flushInput()
 		self.serial.setDTR(1)
-		self.serial.write("\r\n\r\n")
+		self.serial.write(b"\r\n\r\n")
 		self._gcount = 0
 		self._alarm  = True
 		self.thread  = threading.Thread(target=self.serialIO)
@@ -393,8 +393,7 @@ class Sender:
 	# Send to grbl
 	#----------------------------------------------------------------------
 	def sendGrbl(self, cmd):
-#		print
-#		print ">>>",cmd
+#		sys.stdout.write(">>> %s"%(cmd))
 #		import traceback
 #		traceback.print_stack()
 		if self.serial and not self.running:
@@ -409,7 +408,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def softReset(self):
 		if self.serial:
-			self.serial.write("\030")
+			self.serial.write(b"\030")
 
 	def unlock(self):
 		self._alarm = False
@@ -449,26 +448,31 @@ class Sender:
 		if z is not None: cmd += "Z%g"%(z)
 		self.sendGrbl("%s\n"%(cmd))
 
-	def go2origin(self, event=None):
-		self.sendGrbl("G90G0X0Y0Z0\n")
+	#----------------------------------------------------------------------
+	def _wcsSet(self, x, y, z):
+		p = WCS.index(CNC.vars["WCS"])
+		if p<6:
+			cmd = "G10L20P%d"%(p+1)
+		elif p==6:
+			cmd = "G28.1"
+		elif p==7:
+			cmd = "G30.1"
+		elif p==8:
+			cmd = "G92"
 
-	def resetCoords(self, event):
-		if not self.running: self.sendGrbl("G10P0L20X0Y0Z0\n")
-
-	def resetX(self, event):
-		if not self.running: self.sendGrbl("G10P0L20X0\n")
-
-	def resetY(self, event):
-		if not self.running: self.sendGrbl("G10P0L20Y0\n")
-
-	def resetZ(self, event):
-		if not self.running: self.sendGrbl("G10P0L20Z0\n")
+		if x is not None: cmd += "X"+str(x)
+		if y is not None: cmd += "Y"+str(y)
+		if z is not None: cmd += "Z"+str(z)
+		self.sendGrbl(cmd+"\n$#\n")
+		self.event_generate("<<Status>>",
+			data="Set workspace %s to X%s Y%s Z%s"%(WCS[p],str(x),str(y),str(z)))
+		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
 	def feedHold(self, event=None):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
-		self.serial.write("!")
+		self.serial.write(b"!")
 		self.serial.flush()
 		self._pause = True
 
@@ -476,8 +480,10 @@ class Sender:
 	def resume(self, event=None):
 		if event is not None and not self.acceptKey(True): return
 		if self.serial is None: return
-		self.serial.write("~")
+		self.serial.write(b"~")
 		self.serial.flush()
+		self._msg = None
+		self._alarm = False
 		self._pause = False
 
 	#----------------------------------------------------------------------
@@ -501,30 +507,6 @@ class Sender:
 		self.sendGrbl("G30.1\n")
 
 	#----------------------------------------------------------------------
-	# Probe an X-Y area
-	#----------------------------------------------------------------------
-	def probeScanArea(self):
-		if self.probeChange(): return
-
-		if self.serial is None or self.running: return
-		probe = self.gcode.probe
-		self.initRun()
-
-		# absolute
-		probe.clear()
-		lines = probe.scan()
-		self._runLines = len(lines)
-		self._gcount   = 0
-		self._selectI  = -1		# do not show any lines selected
-
-		self.progress.setLimits(0, self._runLines)
-
-		self.running = True
-		# Push commands
-		for line in lines:
-			self.queue.put(line)
-
-	#----------------------------------------------------------------------
 	def emptyQueue(self):
 		while self.queue.qsize()>0:
 			try:
@@ -534,9 +516,10 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def initRun(self):
-		self._quit  = 0
-		self._pause = False
-		self._paths = None
+		self._quit   = 0
+		self._pause  = False
+		self._paths  = None
+		self.running = True
 		self.disable()
 		self.emptyQueue()
 		self.queue.put(self.tools["CNC"]["startup"]+"\n")
@@ -550,6 +533,7 @@ class Sender:
 		self._quit     = 0
 		self._pause    = False
 		self.running   = False
+		self._msg      = None
 		self.enable()
 
 	#----------------------------------------------------------------------
@@ -568,7 +552,6 @@ class Sender:
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
-		from CNC import WAIT
 		cline = []
 		sline = []
 		tosend = None
@@ -578,16 +561,24 @@ class Sender:
 			t = time.time()
 			if t-tr > SERIAL_POLL:
 				# Send one ?
-				self.serial.write("?")
+				self.serial.write(b"?")
 				tr = t
 
 			if tosend is None and not self.wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					if isinstance(tosend, int):
-						if tosend == WAIT: # wait to empty the grbl buffer
+
+					if isinstance(tosend, tuple):
+						# Count commands as well
+						self._gcount += 1
+						if tosend[0] == WAIT: # wait to empty the grbl buffer
 							self.wait = True
+						elif tosend[0] == PAUSE:
+							if tosend[1] is not None:
+								self._msg = tosend[1]
+							self.serial.write(b"!")	# Feed hold
 						tosend = None
+
 					elif not isinstance(tosend, str):
 						try:
 							tosend = self.gcode.evaluate(tosend)
@@ -603,15 +594,39 @@ class Sender:
 						except:
 							self.log.put((True,sys.exc_info()[1]))
 							tosend = None
-					if tosend is not None:
-						cline.append(len(tosend))
-						sline.append(tosend)
-						self.log.put((True,tosend))
 				except Empty:
 					break
 
+				if tosend is not None:
+					# All modification in tosend should be
+					# done before adding it to cline
+					if isinstance(tosend, unicode):
+						tosend = tosend.encode("ascii","replace")
+
+					# FIXME should be smarter and apply the feed override
+					# also on cards with out feed (the first time only)
+					# I should track the feed rate for every card
+					# and when it is changed apply a F### command
+					# even if it is not there
+					if CNC.vars["override"] != 100:
+						pat = FEEDPAT.match(tosend)
+						if pat is not None:
+							try:
+								tosend = "%sf%g%s\n" % \
+									(pat.group(1),
+									 float(pat.group(2))*CNC.vars["override"]/100.0,
+									 pat.group(3))
+							except:
+								pass
+
+					# Bookkeeping of the buffers
+					sline.append(tosend)
+					cline.append(len(tosend))
+					self.log.put((True,tosend))
+
+			# Anything to receive?
 			if tosend is None or self.serial.inWaiting():
-				line = self.serial.readline().strip()
+				line = str(self.serial.readline()).strip()
 				if line:
 					if line[0]=="<":
 						pat = STATUSPAT.match(line)
@@ -625,6 +640,11 @@ class Sender:
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
 							self._posUpdate = True
+
+							# Machine is Idle buffer is empty
+							# stop waiting and go on
+							if self.wait and not cline and pat.group(1)=="Idle":
+								self.wait = False
 						else:
 							self.log.put((False, line+"\n"))
 
@@ -648,8 +668,6 @@ class Sender:
 											+CNC.vars["wz"]
 											-CNC.vars["mz"])
 								self._probeUpdate = True
-							else:
-								self._wcsUpdate = True
 							CNC.vars[pat.group(1)] = \
 								[float(pat.group(2)),
 								 float(pat.group(3)),
@@ -660,17 +678,17 @@ class Sender:
 								CNC.vars[pat.group(1)] = pat.group(2)
 							else:
 								CNC.vars["G"] = line[1:-1].split()
+								CNC.updateG()
 								self._gUpdate = True
 
 					else:
 						self.log.put((False, line+"\n"))
 						uline = line.upper()
-						if uline.find("ERROR")>=0 or uline.find("ALARM")>=0:
+						if uline.find("ERROR")==0 or uline.find("ALARM")==0:
 							self._gcount += 1
 							if cline: del cline[0]
 							if sline: CNC.vars["errline"] = sline.pop(0)
-							if not self._alarm:
-								self._posUpdate = True
+							if not self._alarm: self._posUpdate = True
 							self._alarm = True
 							CNC.vars["state"] = line
 							if self.running:
@@ -686,10 +704,6 @@ class Sender:
 							if cline: del cline[0]
 							if sline: del sline[0]
 
-						if self.wait and not cline:
-							# buffer is empty go one
-							self._gcount += 1
-							self.wait = False
 			# Message came to stop
 			if self._stop:
 				self.emptyQueue()
@@ -702,35 +716,11 @@ class Sender:
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
-				if isinstance(tosend, unicode):
-					tosend = tosend.encode("ascii","replace")
 
-				# FIXME should be smarter and apply the feed override
-				# also on cards with out feed (the first time only)
-				# I should track the feed rate for every card
-				# and when it is changed apply a F### command
-				# even if it is not there
-				if CNC.vars["override"] != 100:
-					pat = FEEDPAT.match(tosend)
-					if pat is not None:
-						try:
-							tosend = "%sf%g%s\n" % \
-								(pat.group(1),
-								 float(pat.group(2))*CNC.vars["override"]/100.0,
-								 pat.group(3))
-						except:
-							pass
-				self.serial.write(str(tosend))
+				self.serial.write(bytes(tosend))
 				tosend = None
-
 				if not self.running and t-tg > G_POLL:
-					self.serial.write("$G\n")
+					tosend = b"$G\n"
+					sline.append(tosend)
+					cline.append(len(tosend))
 					tg = t
-
-	#----------------------------------------------------------------------
-	def get(self, section, item):
-		return Utils.config.get(section, item)
-
-	#----------------------------------------------------------------------
-	def set(self, section, item, value):
-		return Utils.config.set(section, item, value)

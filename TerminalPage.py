@@ -52,6 +52,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$$ Display settings of Grbl")
+		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
@@ -63,6 +64,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$# Display parameters of Grbl")
+		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
@@ -74,6 +76,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$G Display state of Grbl")
+		self.addWidget(b)
 
 		# ---
 		col += 1
@@ -87,6 +90,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$I Display build information of Grbl")
+		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
@@ -98,6 +102,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$N Display startup configuration of Grbl")
+		self.addWidget(b)
 
 		row += 1
 		# FIXME Checkbutton!!!!!
@@ -110,6 +115,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$C Enable/Disable checking of gcode")
+		self.addWidget(b)
 
 		# ---
 		col += 1
@@ -123,6 +129,7 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "$ Display build information of Grbl")
+		self.addWidget(b)
 
 #===============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):

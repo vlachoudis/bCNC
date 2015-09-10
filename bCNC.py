@@ -60,7 +60,7 @@ _openserial = True	# override ini parameters
 _device     = None
 _baud       = None
 
-MONITOR_AFTER =  250	# ms
+MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
 
 RX_BUFFER_SIZE = 128
@@ -107,27 +107,20 @@ class Application(Toplevel,Sender):
 		self.statusbar.pack(side=LEFT, fill=X, expand=YES)
 		self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
 
-		self.statusz = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusz = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusz.pack(side=RIGHT)
-		self.statusy = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusy = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusy.pack(side=RIGHT)
-		self.statusx = Label(frame, foreground="DarkBlue", relief=SUNKEN, anchor=W, width=10)
+		self.statusx = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusx.pack(side=RIGHT)
 
-		# --- Control ---
+		# --- Left side ---
 		frame = Frame(self.paned)
 		self.paned.add(frame) #, minsize=340)
-		self.ribbon.setPageFrame(frame)
 
-		frame = Frame(self.paned)
-		self.paned.add(frame)
-
-		# --- Canvas ---
-		self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
-		self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
-		#self.paned.add(self.canvasFrame)
-# XXX FIXME do I need the self.canvas?
-		self.canvas = self.canvasFrame.canvas
+		pageframe = Frame(frame)
+		pageframe.pack(side=TOP, expand=YES, fill=BOTH)
+		self.ribbon.setPageFrame(pageframe)
 
 		# Command bar
 		f = Frame(frame)
@@ -149,6 +142,17 @@ class Application(Toplevel,Sender):
 			"commands (RESET/HOME...) or editor commands "
 			"(move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
+
+		# --- Right side ---
+		frame = Frame(self.paned)
+		self.paned.add(frame)
+
+		# --- Canvas ---
+		self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
+		self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
+		#self.paned.add(self.canvasFrame)
+# XXX FIXME do I need the self.canvas?
+		self.canvas = self.canvasFrame.canvas
 
 		# fist create Pages
 		self.pages = {}
@@ -330,7 +334,6 @@ class Application(Toplevel,Sender):
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
 		self._posUpdate  = False
-		self._wcsUpdate  = False
 		self._probeUpdate= False
 		self._gUpdate    = False
 		self._pendantFileUploaded = None
@@ -443,6 +446,7 @@ class Application(Toplevel,Sender):
 	def loadConfig(self):
 		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
 				  Utils.getInt(Utils.__prg__, "height", 650))
+		geom = "800x480"
 		geom = "800x600"	# FIXME temporary to force size
 		try: self.geometry(geom)
 		except: pass
@@ -523,6 +527,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def undo(self, event=None):
+		if self.running: return
 		if self.gcode.canUndo():
 			self.gcode.undo();
 			self.editor.fill()
@@ -531,6 +536,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def redo(self, event=None):
+		if self.running: return
 		if self.gcode.canRedo():
 			self.gcode.redo();
 			self.editor.fill()
@@ -943,30 +949,30 @@ class Application(Toplevel,Sender):
 		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
 		elif cmd == "SET":
 			try: x = float(line[1])
-			except: x = ""
+			except: x = None
 			try: y = float(line[2])
-			except: y = ""
+			except: y = None
 			try: z = float(line[3])
-			except: z = ""
+			except: z = None
 			self._wcsSet(x,y,z)
 
 		elif cmd == "SET0":
-			self.wcsSet0()
+			self._wcsSet(0.,0.,0.)
 
 		elif cmd == "SETX":
 			try: x = float(line[1])
 			except: x = ""
-			self._wcsSet(x,"","")
+			self._wcsSet(x,None,None)
 
 		elif cmd == "SETY":
 			try: y = float(line[1])
 			except: y = ""
-			self._wcsSet("",y,"")
+			self._wcsSet(None,y,None)
 
 		elif cmd == "SETZ":
 			try: z = float(line[1])
 			except: z = ""
-			self._wcsSet("","",z)
+			self._wcsSet(None,None,z)
 
 		# STEP [s]: set motion step size to s
 		elif cmd == "STEP":
@@ -1120,7 +1126,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#-----------------------------------------------------------------------
-	def profile(self, direction=None, offset=0.0, cut=False, overcut=False):
+	def profile(self, direction=None, offset=0.0, cut=False, overcut=False, name=None):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1143,7 +1149,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.profile(blocks, ofs*sign, cut, overcut)
+		msg = self.gcode.profile(blocks, ofs*sign, cut, overcut, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
@@ -1213,6 +1219,7 @@ class Application(Toplevel,Sender):
 	# load dialog
 	#-----------------------------------------------------------------------
 	def loadDialog(self, event=None):
+		if self.running: return
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open file",
 			initialfile=os.path.join(
@@ -1225,6 +1232,7 @@ class Application(Toplevel,Sender):
 	# save dialog
 	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
+		if self.running: return
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save file",
 			initialfile=os.path.join(self.gcode.filename),
@@ -1371,38 +1379,6 @@ class Application(Toplevel,Sender):
 			pass
 
 	#-----------------------------------------------------------------------
-	def goto(self, x=None, y=None, z=None):
-		cmd = "G90G0"
-		if x is not None: cmd += "X%g"%(x)
-		if y is not None: cmd += "Y%g"%(y)
-		if z is not None: cmd += "Z%g"%(z)
-		self.sendGrbl("%s\n"%(cmd))
-
-	#-----------------------------------------------------------------------
-	def feedHold(self, event=None):
-		if event is not None and not self.acceptKey(True): return
-		if self.serial is None: return
-		self.serial.write("!")
-		self.serial.flush()
-		self._pause = True
-
-	#-----------------------------------------------------------------------
-	def resume(self, event=None):
-		if event is not None and not self.acceptKey(True): return
-		if self.serial is None: return
-		self.serial.write("~")
-		self.serial.flush()
-		self._pause = False
-
-	#-----------------------------------------------------------------------
-	def pause(self, event=None):
-		if self.serial is None: return
-		if self._pause:
-			self.resume()
-		else:
-			self.feedHold()
-
-	#-----------------------------------------------------------------------
 	def runEnded(self):
 		Sender.runEnded(self)
 		self.statusbar.clear()
@@ -1458,9 +1434,8 @@ class Application(Toplevel,Sender):
 
 		self.initRun()
 		# the buffer of the machine should be empty?
-		self._runLines = len(lines)
-
 		self.canvas.clearSelection()
+		self._runLines = len(lines)
 		self._gcount  = 0
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
@@ -1469,7 +1444,6 @@ class Application(Toplevel,Sender):
 		self.statusbar.configText(fill="White")
 		self.statusbar.config(background="DarkGray")
 
-		self.running = True
 		for line in lines:
 			if line is not None:
 				if isinstance(line,str):
@@ -1548,7 +1522,6 @@ class Application(Toplevel,Sender):
 				else:
 					CNC.vars["color"] = STATECOLORDEF
 			self._pause = (state=="Hold")
-
 			self.dro.updateState()
 			self.dro.updateCoords()
 			self.canvas.gantry(CNC.vars["wx"],
@@ -1558,18 +1531,6 @@ class Application(Toplevel,Sender):
 					   CNC.vars["my"],
 					   CNC.vars["mz"])
 			self._posUpdate = False
-
-		# Update parameters if needed
-#		if self._wcsUpdate:
-#			try:
-#				value = CNC.vars[WCS[self.wcsvar.get()]]
-#				for i in range(3):
-#					self.wcs[i]["text"] = value[i]
-#			except KeyError:
-#				pass
-#
-#			self._tlo["text"] = CNC.vars.get("TLO","")
-#			self._wcsUpdate = False
 
 		# Update status string
 		if self._gUpdate:
@@ -1631,6 +1592,21 @@ class Application(Toplevel,Sender):
 def usage(rc):
 	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
+	sys.stdout.write("Usage: [options] [filename...]\n\n")
+	sys.stdout.write("Options:\n")
+	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
+	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
+	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
+	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
+	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
+	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
+	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
+	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
+	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
+	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
+	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
+	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
+	sys.stdout.write("\n")
 	sys.exit(rc)
 
 #------------------------------------------------------------------------------

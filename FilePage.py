@@ -23,10 +23,10 @@ import Utils
 import Ribbon
 import CNCRibbon
 
-try:
-	from serial.tools.list_ports import comports
-except:
-	from Utils import comports
+#try:
+#	from serial.tools.list_ports import comports
+#except:
+from Utils import comports
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
@@ -67,6 +67,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "New gcode/dxf file")
+		self.addWidget(b)
 
 		# ---
 		col,row=1,0
@@ -75,6 +76,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Open existing gcode/dxf file [Ctrl-O]")
+		self.addWidget(b)
 
 		col,row=1,2
 		b = _RecentMenuButton(self.frame, None,
@@ -84,6 +86,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Open recent file")
+		self.addWidget(b)
 
 		# ---
 		col,row=2,0
@@ -93,6 +96,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Save gcode/dxf file [Ctrl-S]")
+		self.addWidget(b)
 
 		col,row=2,2
 		b = Ribbon.LabelButton(self.frame, self, "<<SaveAs>>",
@@ -102,6 +106,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Save gcode/dxf AS")
+		self.addWidget(b)
 
 #===============================================================================
 # Options Group
@@ -226,6 +231,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
 		self.portCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.portCombo, "Select (or manual enter) port to connect")
+#		sys.stdout.write(comports())
 		devices = sorted([x[0] for x in comports()])
 		self.portCombo.fill(devices)
 		self.portCombo.set(Utils.getStr("Connection","port"))
