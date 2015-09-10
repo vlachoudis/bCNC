@@ -1158,6 +1158,7 @@ class CNC:
 
 		# create the necessary code
 		lines = []
+		lines.append("m5")
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
@@ -1177,6 +1178,8 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		lines.append("g90")
+		# FIXME maybe I should remember the last state and restore it m3 or m4
+		lines.append("m3")
 
 		return CNC.compile(lines)
 
