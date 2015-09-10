@@ -605,11 +605,12 @@ class Path(list):
 			# connect with previous point
 			O  = segment.orthogonalEnd()
 			Eo = segment.end + O*offset
-			if segment.type == LINE:
-				path.append(Segment(LINE, So, Eo))
-			else:
-				# FIXME check for radius + offset > 0.0
-				path.append(Segment(segment.type, So, Eo, segment.center))
+			if (So-Eo).length2() > EPS:
+				if segment.type == LINE:
+					path.append(Segment(LINE, So, Eo))
+				else:
+					# FIXME check for radius + offset > 0.0
+					path.append(Segment(segment.type, So, Eo, segment.center))
 			Op = O
 			prev = segment
 		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))

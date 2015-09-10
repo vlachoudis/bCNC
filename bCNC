@@ -1,6 +1,8 @@
 #!/bin/bash
 DIR=`dirname $0`
 export PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
-python ${DIR}/bCNC.py $*
-#python3 ${DIR}/bCNC.py $*
+if [ .$PYTHON = . ]; then
+	PYTHON=python
+fi
+${PYTHON} ${DIR}/bCNC.py $*
 #python -m cProfile -o bCNC.out ${DIR}/bCNC.py $*

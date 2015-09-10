@@ -11,7 +11,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.font as tkFont
 
-import CNC
+from CNC import Block, CNC
 import tkExtra
 #import tkDialogs
 
@@ -201,11 +201,11 @@ class CNCListbox(Listbox):
 		else:
 			bid = 0
 
-		block = CNC.Block()
+		block = Block()
 		block.expand = True
 		block.append("G0 X0 Y0")
 		block.append("G1 Z0")
-		block.append("G0 Z%g"%(self.gcode.safe))
+		block.append(CNC.zsafe())
 		self.gcode.addUndo(self.gcode.addBlockUndo(bid,block))
 		self.selection_clear(0,END)
 		self.fill()

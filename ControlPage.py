@@ -25,30 +25,11 @@ import tkExtra
 import Unicode
 import CNCRibbon
 from Sender import ERROR_CODES
+from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
-ZSEPARATE  = True
-
-#try:
-#	from serial.tools.list_ports import comports
-#except:
-#	from Utils import comports
-#BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
-
-WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
-
-DISTANCE_MODE = { "G90" : "Absolute",
-		  "G91" : "Incremental" }
-FEED_MODE     = { "G93" : "1/Time",
-		  "G94" : "unit/min",
-		  "G95" : "unit/rev"}
-UNITS         = { "G20" : "inch",
-		  "G21" : "mm" }
-PLANE         = { "G17" : "XY",
-		  "G18" : "ZX",
-		  "G19" : "YZ" }
 
 #===============================================================================
 # Connection Group
@@ -192,6 +173,7 @@ class DROFrame(CNCRibbon.PageFrame):
 					justify=RIGHT)
 		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.xwork, "X work position (click to set)")
+		self.xwork.bind('<FocusIn>',  self.workFocus)
 		self.xwork.bind('<Return>',   self.setX)
 		self.xwork.bind('<KP_Enter>', self.setX)
 
@@ -205,6 +187,7 @@ class DROFrame(CNCRibbon.PageFrame):
 					justify=RIGHT)
 		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.ywork, "Y work position (click to set)")
+		self.ywork.bind('<FocusIn>',  self.workFocus)
 		self.ywork.bind('<Return>',   self.setY)
 		self.ywork.bind('<KP_Enter>', self.setY)
 
@@ -218,6 +201,7 @@ class DROFrame(CNCRibbon.PageFrame):
 					justify=RIGHT)
 		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.zwork, "Z work position (click to set)")
+		self.zwork.bind('<FocusIn>',  self.workFocus)
 		self.zwork.bind('<Return>',   self.setZ)
 		self.zwork.bind('<KP_Enter>', self.setZ)
 
@@ -274,8 +258,8 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def updateState(self):
-		self.state.config(text=CNC.vars["state"],
-				background=CNC.vars["color"])
+		msg = self.app._msg or CNC.vars["state"]
+		self.state.config(text=msg, background=CNC.vars["color"])
 
 	#----------------------------------------------------------------------
 	def updateCoords(self):
@@ -290,6 +274,13 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.xmachine["text"] = CNC.vars["mx"]
 		self.ymachine["text"] = CNC.vars["my"]
 		self.zmachine["text"] = CNC.vars["mz"]
+
+	#----------------------------------------------------------------------
+	# Do not give the focus while we are running
+	#----------------------------------------------------------------------
+	def workFocus(self, event=None):
+		if self.app.running:
+			self.app.focus_set()
 
 	#----------------------------------------------------------------------
 	def setX0(self, event=None):
@@ -734,19 +725,19 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		col = 0
 		Label(f, text="Distance:").grid(row=row, column=col, sticky=E)
 		col += 1
-		self.distanceMode = tkExtra.Combobox(f, True,
+		self.distance = tkExtra.Combobox(f, True,
 					command=self.distanceChange,
 					width=5,
 					background="White")
-		self.distanceMode.fill(sorted(DISTANCE_MODE.values()))
-		self.distanceMode.grid(row=row, column=col, columnspan=2, sticky=EW)
-		tkExtra.Balloon.set(self.distanceMode, "Distance Mode [G90,G91]")
-		self.addWidget(self.distanceMode)
+		self.distance.fill(sorted(DISTANCE_MODE.values()))
+		self.distance.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.distance, "Distance Mode [G90,G91]")
+		self.addWidget(self.distance)
 
 		# populate gstate dictionary
 		self.gstate = {}	# $G state results widget dictionary
 		for k,v in DISTANCE_MODE.items():
-			self.gstate[k] = (self.distanceMode, v)
+			self.gstate[k] = (self.distance, v)
 
 		# Units mode
 		col += 2
@@ -845,10 +836,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		col,row=0,0
 		b = Button(f,	text="Feed\nOverride:",
 				command=self.resetOverride,
-				padx=2,
+				padx=1,
 				pady=0,
 				justify=CENTER)
-		b.grid(row=row, column=col, sticky=NSEW)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Reset Feed Override to 100%")
 
 		col += 1
@@ -872,10 +863,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				compound=LEFT,
 				indicatoron=False,
 				variable=self.spindle,
-				padx=2,
+				padx=1,
 				pady=0)
 		tkExtra.Balloon.set(b, "Start/Stop spindle (M3/M5)")
-		b.grid(row=row, column=col, sticky=NSEW)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
 		self.addWidget(b)
 
 		col += 1
@@ -910,7 +901,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def distanceChange(self):
 		if self._gUpdate: return
-		self._gChange(self.distanceMode.get(), DISTANCE_MODE)
+		self._gChange(self.distance.get(), DISTANCE_MODE)
 
 	#----------------------------------------------------------------------
 	def unitsChange(self):
@@ -959,32 +950,17 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			focus = self.focus_get()
 		except:
 			focus = None
-		for g in CNC.vars["G"]:
-			if g[0]=='G':
-				try:
-					w, v = self.gstate[g]
-					w.set(v)
-				except KeyError:
-					try:
-						wcsvar.set(WCS.index(g))
-					except ValueError:
-						pass
-			elif g[0] == 'F':
-				if focus is not self.feedRate:
-					self.feedRate.set(g[1:])
 
-			elif g[0] == 'T':
-				if focus is not self.toolEntry:
-					self.toolEntry.set(g[1:])
+		wcsvar.set(WCS.index(CNC.vars["WCS"]))
+		self.feedRate.set(str(CNC.vars["feed"]))
+		self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
+		self.spindle.set(CNC.vars["spindle"]=="M3")
+		self.spindleSpeed.set(int(CNC.vars["rpm"]))
+		self.toolEntry.set(CNC.vars["tool"])
+		self.units.set(UNITS[CNC.vars["units"]])
+		self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
+		self.plane.set(PLANE[CNC.vars["plane"]])
 
-			elif g[0] == 'S':
-				self.spindleSpeed.set(int(float(g[1:])))
-
-			elif g == "M3":
-				self.spindle.set(True)
-
-			elif g == "M5":
-				self.spindle.set(False)
 		self._gUpdate = False
 
 	#----------------------------------------------------------------------
@@ -1011,15 +987,3 @@ class ControlPage(CNCRibbon.Page):
 
 		self._register((ConnectionGroup, UserGroup, RunGroup),
 			(DROFrame, ControlFrame, StateFrame))
-
-	def resetCoords(self, event):
-		if not self.app.running: self.sendGrbl("G10P0L20X0Y0Z0\n")
-
-	def resetX(self, event):
-		if not self.app.running: self.sendGrbl("G10P0L20X0\n")
-
-	def resetY(self, event):
-		if not self.app.running: self.sendGrbl("G10P0L20Y0\n")
-
-	def resetZ(self, event):
-		if not self.app.running: self.sendGrbl("G10P0L20Z0\n")
