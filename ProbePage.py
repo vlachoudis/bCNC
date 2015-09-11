@@ -259,7 +259,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def probeUpdate(probe):
+	def probeUpdate():
 		try:
 			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
 			CNC.vars["prbcmd"]  = ProbeCommonFrame.probeCmd.get().split()[0]
@@ -361,7 +361,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	# Probe one Point
 	#----------------------------------------------------------------------
 	def probe(self, event=None):
-		if ProbeCommonFrame.probeUpdate(self.app.gcode.probe):
+		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror("Probe Error",
 				"Invalid probe feed rate",
 				parent=self)
@@ -649,7 +649,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 					parent=self)
 			error = True
 
-		if ProbeCommonFrame.probeUpdate(probe):
+		if ProbeCommonFrame.probeUpdate():
 			if verbose:
 				tkMessageBox.showerror("Probe Error",
 					"Invalid probe feed rate",
@@ -851,30 +851,30 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.probeZ.set(CNC.vars["mz"])
 
 	#----------------------------------------------------------------------
+	def updateTool(self):
+		state = self.toolHeight.cget("state")
+		self.toolHeight.config(state=NORMAL)
+		self.toolHeight.set(CNC.vars["toolheight"])
+		self.toolHeight.config(state=state)
+
+	#----------------------------------------------------------------------
 	def probe(self):
+		ProbeCommonFrame.probeUpdate()
 		self.set()
 
 		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
 
 		lines = []
-		lines.append("g53 g0 z%s"%(self.changeZ.get()))
-		lines.append("g53 g0 x%s y%s"%(self.changeX.get(), self.changeY.get()))
-
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+		lines.append("g53 g0 z[toolprobez]")
+		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 		lines.append("%wait")
-		lines.append("%pause Tool change")
-
-		lines.append("g53 g0 x%s y%s"%(self.probeX.get(), self.probeY.get()))
-		lines.append("g53 g0 z%s"%(self.probeZ.get()))
-
-		lines.append("g91 %s f%s z-%s"%(CNC.vars["prbcmd"],
-					CNC.vars["prbfeed"],
-					self.probeDistance.get()))
-		lines.append("%wait")
-		lines.append("toolheight=wx")
-
-		lines.append("g53 g0 z%s"%(self.changeZ.get()))
-		lines.append("g53 g0 x%s y%s"%(self.changeX.get(), self.changeY.get()))
-
+		lines.append("%global toolheight; toolheight=wz")
+		lines.append("%update toolheight")
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("g90")
 		self.app.run(lines=lines)
 

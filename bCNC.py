@@ -76,6 +76,8 @@ FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe")),
 		("Probe",  "*.probe"),
 		("All",    "*")]
 
+geometry = None
+
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -333,15 +335,9 @@ class Application(Toplevel,Sender):
 		# Fill basic global variables
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
-		self._posUpdate  = False
-		self._probeUpdate= False
-		self._gUpdate    = False
 		self._pendantFileUploaded = None
-		self.running     = False
-		self._runLines   = 0
-		self._quit       = 0
-		self._drawAfter  = None	# after handle for modification
-		self._inFocus    = False
+		self._drawAfter = None	# after handle for modification
+		self._inFocus   = False
 		self.monitorSerial()
 		self.canvasFrame.toggleDrawFlag()
 
@@ -444,11 +440,11 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
-				  Utils.getInt(Utils.__prg__, "height", 650))
-		geom = "800x480"
-		geom = "800x600"	# FIXME temporary to force size
-		try: self.geometry(geom)
+		global geometry
+		if geometry is None:
+			geometry = "%sx%s" % (Utils.getInt(Utils.__prg__, "width",  900),
+					      Utils.getInt(Utils.__prg__, "height", 650))
+		try: self.geometry(geometry)
 		except: pass
 
 		#restore windowsState
@@ -1549,6 +1545,12 @@ class Application(Toplevel,Sender):
 			self.canvas.drawProbe()
 			self._probeUpdate = False
 
+		# Update any possible variable?
+		if self._update:
+			if self._update == "toolheight":
+				Page.frames["Probe:Tool"].updateTool()
+			self._update = None
+
 		if inserted:
 			self.terminal.see(END)
 			self.terminal["state"] = DISABLED
@@ -1594,18 +1596,19 @@ def usage(rc):
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
 	sys.stdout.write("Usage: [options] [filename...]\n\n")
 	sys.stdout.write("Options:\n")
-	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
-	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
-	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
-	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
-	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
+	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
 	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
 	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
-	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
-	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
-	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
+	sys.stdout.write("\t-g #\t\tSet the default geometry\n")
+	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
+	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
+	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
 	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
 	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
+	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
+	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
+	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
+	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
@@ -1624,12 +1627,12 @@ if __name__ == "__main__":
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
-			'?hi:rldDpPSs:b:',
+			'?b:dDhi:g:rlpPSs:',
 			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
 	except getopt.GetoptError:
 		usage(1)
 
-	recent = None
+	recent   = None
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -1639,6 +1642,8 @@ if __name__ == "__main__":
 			Utils.developer = True
 		elif opt == "-D":
 			Utils.developer = False
+		elif opt == "-g":
+			geometry = val
 		elif opt in ("-r", "-R", "--recent", "-l", "--list"):
 			if opt in ("-r","--recent"):
 				r = 0

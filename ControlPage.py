@@ -154,6 +154,7 @@ class DROFrame(CNCRibbon.PageFrame):
 				text=Sender.NOT_CONNECTED,
 				font=DROFrame.dro_status,
 				command=self.showState,
+				cursor="hand1",
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)

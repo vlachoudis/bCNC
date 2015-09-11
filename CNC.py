@@ -25,12 +25,14 @@ PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
+AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 
-STOP  = 0
-SKIP  = 1
-ASK   = 2
-PAUSE = 8
-WAIT  = 9
+STOP   = 0
+SKIP   = 1
+ASK    = 2
+PAUSE  = 3
+WAIT   = 4
+UPDATE = 5
 
 XY   = 0
 XZ   = 1
@@ -693,19 +695,26 @@ class CNC:
 		# execute literally the line after the first character
 		if line[0]=='%':
 			# special command
-			line = line.strip()
-			cmd = line.split()[0]
+			pat = AUXPAT.match(line.strip())
+			if pat:
+				cmd  = pat.group(1)
+				args = pat.group(2)
+			else:
+				cmd  = None
+				args = None
 			if cmd=="%wait":
 				return (WAIT,)
 			elif cmd=="%pause":
-				msg = line[7:].strip()
-				if not msg: msg = None
-				return (PAUSE, msg)
-			try:
-				return compile(line[1:],"","exec")
-			except:
-				# FIXME show the error!!!!
-				return None
+				if not args: args = None
+				return (PAUSE, args)
+			elif cmd=="%update":
+				return (UPDATE, args)
+			else:
+				try:
+					return compile(line[1:],"","exec")
+				except:
+					# FIXME show the error!!!!
+					return None
 
 		# most probably an assignment like  #nnn = expr
 		if line[0]=='_':
