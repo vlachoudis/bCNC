@@ -229,6 +229,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<Recent9>>',        self._loadRecent9)
 
 		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
+		self.bind('<<AlarmClear>>',     self.alarmClear)
 		self.bind('<<Help>>',           self.help)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
@@ -254,7 +255,24 @@ class Application(Toplevel,Sender):
 		self.bind('<<Enable>>',		self.editor.toggleEnable)
 
 		# Canvas X-bindings
-		self.bind("<<ViewChange>>",		self.viewChange)
+		self.bind("<<ViewChange>>",	self.viewChange)
+
+		frame = Page.frames["Probe:Probe"]
+		self.bind('<<Probe>>',            frame.probe)
+		frame = Page.frames["Probe:Center"]
+		self.bind('<<ProbeCenter>>',      frame.probe)
+		frame = Page.frames["Probe:Tool"]
+		self.bind('<<ToolCalibrate>>',    frame.probe)
+		self.bind('<<ToolChange>>',       frame.change)
+
+		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+
+		self.bind('<<CanvasFocus>>',	self.canvasFocus)
+		self.bind('<<Draw>>',	        self.draw)
+		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
@@ -310,19 +328,6 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
-		frame = Page.frames["Probe:Probe"]
-		self.bind('<<Probe>>',            frame.probe)
-		frame = Page.frames["Probe:Center"]
-		self.bind('<<ProbeCenter>>',      frame.probe)
-
-		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
-		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
-		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
-		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
-
-		self.bind('<<CanvasFocus>>',	self.canvasFocus)
-		self.bind('<<Draw>>',	        self.draw)
-		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 		for x in self.widgets:
 			if isinstance(x,Entry):
 				x.bind("<Escape>", self.canvasFocus)
@@ -545,6 +550,10 @@ class Application(Toplevel,Sender):
 				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
 				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
+
+	#-----------------------------------------------------------------------
+	def alarmClear(self, event=None):
+		self._alarm = False
 
 	#-----------------------------------------------------------------------
 	# FIXME Very primitive

@@ -15,7 +15,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
-from CNC import CNC
+from CNC import WCS,CNC
 import Utils
 import Ribbon
 import tkExtra
@@ -26,6 +26,11 @@ PROBE_CMD = [	"G38.2 - stop on contact else error",
 		"G38.4 - stop on loss contact else error",
 		"G38.5 - stop on loss contact"
 	]
+
+TOOL_POLICY = [ "Send M6 commands",	# 0
+		"Ignore M6 commands",	# 1
+		"Manual Tool Change"	# 2
+		]
 
 #===============================================================================
 # Probe Tab Group
@@ -244,7 +249,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		Label(lframe, text="Probe Command").grid(row=row, column=col, sticky=E)
 		col += 1
 		ProbeCommonFrame.probeCmd = tkExtra.Combobox(lframe, True,
-					background="White", width=16)
+						background="White",
+						width=16)
 		ProbeCommonFrame.probeCmd.grid(row=row, column=col, sticky=EW)
 		ProbeCommonFrame.probeCmd.fill(PROBE_CMD)
 		self.addWidget(ProbeCommonFrame.probeCmd)
@@ -687,6 +693,34 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=probe.scan())
 
 #===============================================================================
+# Tool Group
+#===============================================================================
+class ToolGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Tool", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+
+		b = Ribbon.LabelButton(self.frame, self, "<<ToolCalibrate>>",
+				image=Utils.icons["probe32"],
+				text="Calibrate",
+				compound=TOP,
+				width=48,
+				background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH, expand=YES)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, "Perform a single a tool change cycle to set the calibration field")
+
+		b = Ribbon.LabelButton(self.frame, self, "<<ToolChange>>",
+				image=Utils.icons["endmill32"],
+				text="Change",
+				compound=TOP,
+				width=48,
+				background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH, expand=YES)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, "Perform a tool change cycle")
+
+#===============================================================================
 # Tool Frame
 #===============================================================================
 class ToolFrame(CNCRibbon.PageFrame):
@@ -696,9 +730,21 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lframe = LabelFrame(self, text="Manual Tool Change", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
+		# --- Tool policy ---
 		row,col = 0,0
-		# Empty
+		Label(lframe, text="Policy:").grid(row=row, column=col, sticky=E)
 		col += 1
+		self.toolPolicy = tkExtra.Combobox(lframe, True,
+					background="White",
+					command=self.policyChange,
+					width=16)
+		self.toolPolicy.grid(row=row, column=col, columnspan=3, sticky=EW)
+		self.toolPolicy.fill(TOOL_POLICY)
+		self.addWidget(self.toolPolicy)
+
+		# ----
+		row += 1
+		col  = 1
 		Label(lframe, text="MX").grid(row=row, column=col, sticky=EW)
 		col += 1
 		Label(lframe, text="MY").grid(row=row, column=col, sticky=EW)
@@ -787,7 +833,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.toolHeight)
 
 		col += 1
-		b = Button(lframe, text="Probe",
+		b = Button(lframe, text="Calibrate",
 				command=self.probe,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
@@ -802,6 +848,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -825,10 +872,12 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 		self.probeDistance.set(Utils.getFloat("Probe","tooldistance"))
 		self.toolHeight.set(   Utils.getFloat("Probe","toolheight"))
+		self.toolPolicy.set(TOOL_POLICY[Utils.getInt("Probe","toolpolicy",0)])
 		self.set()
 
 	#----------------------------------------------------------------------
 	def set(self):
+		self.policyChange()
 		CNC.vars["toolchangex"]  = float(self.changeX.get())
 		CNC.vars["toolchangey"]  = float(self.changeY.get())
 		CNC.vars["toolchangez"]  = float(self.changeZ.get())
@@ -837,6 +886,10 @@ class ToolFrame(CNCRibbon.PageFrame):
 		CNC.vars["toolprobez"]   = float(self.probeZ.get())
 		CNC.vars["tooldistance"] = float(self.probeDistance.get())
 		CNC.vars["toolheight"]   = float(self.toolHeight.get())
+
+	#----------------------------------------------------------------------
+	def policyChange(self):
+		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
 
 	#----------------------------------------------------------------------
 	def getChange(self):
@@ -858,7 +911,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.toolHeight.config(state=state)
 
 	#----------------------------------------------------------------------
-	def probe(self):
+	def probe(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
 
@@ -873,6 +926,29 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lines.append("%wait")
 		lines.append("%global toolheight; toolheight=wz")
 		lines.append("%update toolheight")
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+		lines.append("g90")
+		self.app.run(lines=lines)
+
+	#----------------------------------------------------------------------
+	def change(self, event=None):
+		ProbeCommonFrame.probeUpdate()
+		self.set()
+
+		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+
+		lines = []
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+		lines.append("%wait")
+		lines.append("%pause Manual Tool change")
+		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+		lines.append("g53 g0 z[toolprobez]")
+		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		lines.append("%wait")
+		p = WCS.index(CNC.vars["WCS"])+1
+		lines.append("G10L20P%d z[toolheight]"%(p))
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("g90")
@@ -910,7 +986,7 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup),
+		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup, ToolGroup),
 			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]

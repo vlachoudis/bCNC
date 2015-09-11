@@ -105,7 +105,6 @@ MODAL_MODES = {
 	"M9"    : "coolant",
 }
 
-
 ERROR_HANDLING = {}
 
 #------------------------------------------------------------------------------
@@ -419,6 +418,10 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
+	toolPolicy     = 0	# Should be in sync with ProbePage
+				# 0 - send to grbl
+				# 1 - skip those lines
+				# 2 - manual tool change
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -1172,7 +1175,7 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		lines.append("%wait")
-		lines.append("%%pause Tool change T%02d"%(tool))
+		lines.append("%pause Tool change T%02d"%(tool))
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
@@ -2702,17 +2705,22 @@ class GCode:
 					else:
 						# Tool change
 						if cmd[0] in ("m","M") and int(cmd[1:])==6:
-							toollines = CNC.toolChange(cmds)
-							lines.extend(toollines)
-							paths.extend([None]*len(toollines))
-							cmd = None
+							if CNC.toolPolicy == 0:
+								pass	# send to grbl
+							elif CNC.toolPolicy == 1:
+								cmd = None	# skip whole line
+							elif CNC.toolPolicy == 2:
+								toollines = CNC.toolChange(cmds)
+								lines.extend(toollines)
+								paths.extend([None]*len(toollines))
+								cmd = None
 						else:
 							opt = ERROR_HANDLING.get(cmd.upper(),0)
 							if opt == SKIP:
 								cmd = None
-
 					if cmd is not None:
 						newcmd.append(cmd)
+
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths
