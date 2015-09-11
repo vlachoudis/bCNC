@@ -212,7 +212,7 @@ def addRecent(filename):
 	# Shift everything by one
 	for i in range(last, -1, -1):
 		config.set("File", "recent.%d"%(i+1), getRecent(i))
-	config.set(__prg__, "recent.0", sfn)
+	config.set("File", "recent.0", sfn)
 
 #-------------------------------------------------------------------------------
 def getRecent(recent):

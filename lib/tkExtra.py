@@ -2989,9 +2989,12 @@ class Combobox(Frame):
 			self.set(self._listbox.get(index))
 
 	# ----------------------------------------------------------------------
-	def configure(self, **kw):
-		self._text.configure(**kw)
-		self._arrowBtn.configure(**kw)
+	def configure(self, **kwargs):
+		if "command" in kwargs:
+			self.command = kwargs.get("command")
+			del kwargs["command"]
+		self._text.configure(**kwargs)
+		self._arrowBtn.configure(**kwargs)
 	config = configure
 
 	# ----------------------------------------------------------------------

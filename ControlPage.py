@@ -154,10 +154,12 @@ class DROFrame(CNCRibbon.PageFrame):
 				text=Sender.NOT_CONNECTED,
 				font=DROFrame.dro_status,
 				command=self.showState,
+				cursor="hand1",
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
-		tkExtra.Balloon.set(self.state, "Show current state of the machine")
+		tkExtra.Balloon.set(self.state, "Show current state of the machine\nClick to see details\nRight-Click to clear alarm/errors")
+		self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
 
 		row += 1
 		col = 0

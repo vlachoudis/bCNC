@@ -25,12 +25,14 @@ PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
+AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 
-STOP  = 0
-SKIP  = 1
-ASK   = 2
-PAUSE = 8
-WAIT  = 9
+STOP   = 0
+SKIP   = 1
+ASK    = 2
+PAUSE  = 3
+WAIT   = 4
+UPDATE = 5
 
 XY   = 0
 XZ   = 1
@@ -102,7 +104,6 @@ MODAL_MODES = {
 	"M8"    : "coolant",
 	"M9"    : "coolant",
 }
-
 
 ERROR_HANDLING = {}
 
@@ -417,6 +418,10 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
+	toolPolicy     = 0	# Should be in sync with ProbePage
+				# 0 - send to grbl
+				# 1 - skip those lines
+				# 2 - manual tool change
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -693,19 +698,26 @@ class CNC:
 		# execute literally the line after the first character
 		if line[0]=='%':
 			# special command
-			line = line.strip()
-			cmd = line.split()[0]
+			pat = AUXPAT.match(line.strip())
+			if pat:
+				cmd  = pat.group(1)
+				args = pat.group(2)
+			else:
+				cmd  = None
+				args = None
 			if cmd=="%wait":
 				return (WAIT,)
 			elif cmd=="%pause":
-				msg = line[7:].strip()
-				if not msg: msg = None
-				return (PAUSE, msg)
-			try:
-				return compile(line[1:],"","exec")
-			except:
-				# FIXME show the error!!!!
-				return None
+				if not args: args = None
+				return (PAUSE, args)
+			elif cmd=="%update":
+				return (UPDATE, args)
+			else:
+				try:
+					return compile(line[1:],"","exec")
+				except:
+					# FIXME show the error!!!!
+					return None
 
 		# most probably an assignment like  #nnn = expr
 		if line[0]=='_':
@@ -1163,7 +1175,7 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		lines.append("%wait")
-		lines.append("%%pause Tool change T%02d"%(tool))
+		lines.append("%pause Tool change T%02d"%(tool))
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
@@ -2693,17 +2705,22 @@ class GCode:
 					else:
 						# Tool change
 						if cmd[0] in ("m","M") and int(cmd[1:])==6:
-							toollines = CNC.toolChange(cmds)
-							lines.extend(toollines)
-							paths.extend([None]*len(toollines))
-							cmd = None
+							if CNC.toolPolicy == 0:
+								pass	# send to grbl
+							elif CNC.toolPolicy == 1:
+								cmd = None	# skip whole line
+							elif CNC.toolPolicy == 2:
+								toollines = CNC.toolChange(cmds)
+								lines.extend(toollines)
+								paths.extend([None]*len(toollines))
+								cmd = None
 						else:
 							opt = ERROR_HANDLING.get(cmd.upper(),0)
 							if opt == SKIP:
 								cmd = None
-
 					if cmd is not None:
 						newcmd.append(cmd)
+
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths

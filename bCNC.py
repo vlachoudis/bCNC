@@ -76,6 +76,8 @@ FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe")),
 		("Probe",  "*.probe"),
 		("All",    "*")]
 
+geometry = None
+
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -227,6 +229,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<Recent9>>',        self._loadRecent9)
 
 		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
+		self.bind('<<AlarmClear>>',     self.alarmClear)
 		self.bind('<<Help>>',           self.help)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
@@ -252,7 +255,24 @@ class Application(Toplevel,Sender):
 		self.bind('<<Enable>>',		self.editor.toggleEnable)
 
 		# Canvas X-bindings
-		self.bind("<<ViewChange>>",		self.viewChange)
+		self.bind("<<ViewChange>>",	self.viewChange)
+
+		frame = Page.frames["Probe:Probe"]
+		self.bind('<<Probe>>',            frame.probe)
+		frame = Page.frames["Probe:Center"]
+		self.bind('<<ProbeCenter>>',      frame.probe)
+		frame = Page.frames["Probe:Tool"]
+		self.bind('<<ToolCalibrate>>',    frame.probe)
+		self.bind('<<ToolChange>>',       frame.change)
+
+		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+
+		self.bind('<<CanvasFocus>>',	self.canvasFocus)
+		self.bind('<<Draw>>',	        self.draw)
+		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
@@ -308,19 +328,6 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
-		frame = Page.frames["Probe:Probe"]
-		self.bind('<<Probe>>',            frame.probe)
-		frame = Page.frames["Probe:Center"]
-		self.bind('<<ProbeCenter>>',      frame.probe)
-
-		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
-		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
-		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
-		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
-
-		self.bind('<<CanvasFocus>>',	self.canvasFocus)
-		self.bind('<<Draw>>',	        self.draw)
-		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 		for x in self.widgets:
 			if isinstance(x,Entry):
 				x.bind("<Escape>", self.canvasFocus)
@@ -333,15 +340,9 @@ class Application(Toplevel,Sender):
 		# Fill basic global variables
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
-		self._posUpdate  = False
-		self._probeUpdate= False
-		self._gUpdate    = False
 		self._pendantFileUploaded = None
-		self.running     = False
-		self._runLines   = 0
-		self._quit       = 0
-		self._drawAfter  = None	# after handle for modification
-		self._inFocus    = False
+		self._drawAfter = None	# after handle for modification
+		self._inFocus   = False
 		self.monitorSerial()
 		self.canvasFrame.toggleDrawFlag()
 
@@ -444,11 +445,11 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
-				  Utils.getInt(Utils.__prg__, "height", 650))
-		geom = "800x480"
-		geom = "800x600"	# FIXME temporary to force size
-		try: self.geometry(geom)
+		global geometry
+		if geometry is None:
+			geometry = "%sx%s" % (Utils.getInt(Utils.__prg__, "width",  900),
+					      Utils.getInt(Utils.__prg__, "height", 650))
+		try: self.geometry(geometry)
 		except: pass
 
 		#restore windowsState
@@ -549,6 +550,10 @@ class Application(Toplevel,Sender):
 				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
 				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
+
+	#-----------------------------------------------------------------------
+	def alarmClear(self, event=None):
+		self._alarm = False
 
 	#-----------------------------------------------------------------------
 	# FIXME Very primitive
@@ -1549,6 +1554,12 @@ class Application(Toplevel,Sender):
 			self.canvas.drawProbe()
 			self._probeUpdate = False
 
+		# Update any possible variable?
+		if self._update:
+			if self._update == "toolheight":
+				Page.frames["Probe:Tool"].updateTool()
+			self._update = None
+
 		if inserted:
 			self.terminal.see(END)
 			self.terminal["state"] = DISABLED
@@ -1594,18 +1605,19 @@ def usage(rc):
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
 	sys.stdout.write("Usage: [options] [filename...]\n\n")
 	sys.stdout.write("Options:\n")
-	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
-	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
-	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
-	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
-	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
+	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
 	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
 	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
-	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
-	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
-	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
+	sys.stdout.write("\t-g #\t\tSet the default geometry\n")
+	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
+	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
+	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
 	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
 	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
+	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
+	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
+	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
+	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
@@ -1624,12 +1636,12 @@ if __name__ == "__main__":
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
-			'?hi:rldDpPSs:b:',
+			'?b:dDhi:g:rlpPSs:',
 			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
 	except getopt.GetoptError:
 		usage(1)
 
-	recent = None
+	recent   = None
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -1639,6 +1651,8 @@ if __name__ == "__main__":
 			Utils.developer = True
 		elif opt == "-D":
 			Utils.developer = False
+		elif opt == "-g":
+			geometry = val
 		elif opt in ("-r", "-R", "--recent", "-l", "--list"):
 			if opt in ("-r","--recent"):
 				r = 0

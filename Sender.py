@@ -23,7 +23,7 @@ try:
 except ImportError:
 	from queue import *
 
-from CNC import WAIT, PAUSE, WCS, CNC, GCode
+from CNC import WAIT, PAUSE, UPDATE, WCS, CNC, GCode
 import Utils
 import Pendant
 
@@ -119,11 +119,13 @@ class Sender:
 		self._probeUpdate= False
 		self._gUpdate    = False
 		self.running     = False
-		self._stop       = False	# Raise to stop current run
 		self._runLines   = 0
+		self._stop       = False	# Raise to stop current run
+		self._quit       = 0
 		self._pause      = False	# machine is on Hold
 		self._alarm      = True
 		self._msg        = None
+		self._update     = None
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -170,13 +172,14 @@ class Sender:
 	#         False otherwise
 	#----------------------------------------------------------------------
 	def executeGcode(self, line):
-		if isinstance(line, int):
+		if isinstance(line, tuple):
 			self.sendGrbl(line)
 			return True
 
 		elif line[0] in ("$","!","~","?","(","@") or GPAT.match(line):
 			self.sendGrbl(line+"\n")
 			return True
+
 		return False
 
 	#----------------------------------------------------------------------
@@ -482,7 +485,7 @@ class Sender:
 		if self.serial is None: return
 		self.serial.write(b"~")
 		self.serial.flush()
-		self._msg = None
+		self._msg   = None
 		self._alarm = False
 		self._pause = False
 
@@ -571,12 +574,16 @@ class Sender:
 					if isinstance(tosend, tuple):
 						# Count commands as well
 						self._gcount += 1
-						if tosend[0] == WAIT: # wait to empty the grbl buffer
+						# wait to empty the grbl buffer
+						if tosend[0] == WAIT:
 							self.wait = True
 						elif tosend[0] == PAUSE:
 							if tosend[1] is not None:
 								self._msg = tosend[1]
-							self.serial.write(b"!")	# Feed hold
+							# Feed hold
+							self.serial.write(b"!")
+						elif tosend[0] == UPDATE:
+							self._update = tosend[1]
 						tosend = None
 
 					elif not isinstance(tosend, str):
@@ -640,6 +647,9 @@ class Sender:
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
 							self._posUpdate = True
+
+							if pat.group(1) != "Hold" and self._msg:
+								self._msg = None
 
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
