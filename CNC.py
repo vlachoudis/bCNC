@@ -1175,7 +1175,7 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		lines.append("%wait")
-		lines.append("%pause Tool change T%02d"%(tool))
+		lines.append("%%pause Tool change T%02d"%(tool))
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
