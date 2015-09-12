@@ -190,6 +190,8 @@ class CNCCanvas(Canvas):
 		self._margin      = None
 		self._workarea    = None
 		self._vector      = None
+		self._quoteText   = None
+		self._quoteLabel  = None
 		self._lastActive  = None
 		self._lastGantry  = None
 
@@ -329,6 +331,9 @@ class CNCCanvas(Canvas):
 					return
 
 			if self._vector: self.delete(self._vector)
+			if self._quoteText: self.delete(self._quoteText)
+			if self._quoteLabel: self.delete(self._quoteLabel)
+
 			if self.action == ACTION_MOVE:
 				# Check if we clicked on a selected item
 				try:
@@ -344,7 +349,13 @@ class CNCCanvas(Canvas):
 			else:
 				fill  = RULER_COLOR
 				arrow = BOTH
+				self._quoteText = self.create_text(i,j,text="")
+				self._quoteLabel = self.create_rectangle(self.bbox(self._quoteText),fill="white")
+
 			self._vector = self.create_line((i,j,i,j), fill=fill, arrow=arrow)
+			if 	self._vector and self._quoteLabel and self._quoteText:
+				self.tag_lower(self._quoteLabel,self._quoteText)
+				self.tag_lower(self._vector,self._quoteLabel)
 			self._vx0, self._vy0, self._vz0 = self.canvas2xyz(i,j)
 			self._mouseAction = self.action
 
@@ -398,10 +409,14 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.event_generate("<<Status>>",
-				data="dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
+			msg="dx=%g  dy=%g  dz=%g \n length=%g angle=%g"\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
-					math.degrees(math.atan2(dy,dx))))
+					math.degrees(math.atan2(dy,dx)))
+			#self.event_generate("<<Status>>",data=msg)
+			self.coords(self._quoteText,coords[0]+(coords[-2]-coords[0])/2,
+			coords[1]+(coords[-1]-coords[1])/2)
+			self.itemconfig(self._quoteText, text=msg)
+			self.coords(self._quoteLabel, self.bbox(self._quoteText))
 
 		self.setStatus(event)
 
@@ -614,7 +629,7 @@ class CNCCanvas(Canvas):
 		else:
 			self._tzoom = max(zx,zy)
 
-		self._tx = self._ty = 0	
+		self._tx = self._ty = 0
 		self._zoomCanvas()
 
 		# Find position of new selection
@@ -827,6 +842,8 @@ class CNCCanvas(Canvas):
 		self._lastActive = None
 		self._select = None
 		self._vector = None
+		self._quoteText = None
+		self._quoteLabel = None
 		self._items.clear()
 		self.cnc.initPath()
 
