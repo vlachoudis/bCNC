@@ -878,14 +878,41 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def set(self):
 		self.policyChange()
-		CNC.vars["toolchangex"]  = float(self.changeX.get())
-		CNC.vars["toolchangey"]  = float(self.changeY.get())
-		CNC.vars["toolchangez"]  = float(self.changeZ.get())
-		CNC.vars["toolprobex"]   = float(self.probeX.get())
-		CNC.vars["toolprobey"]   = float(self.probeY.get())
-		CNC.vars["toolprobez"]   = float(self.probeZ.get())
-		CNC.vars["tooldistance"] = float(self.probeDistance.get())
-		CNC.vars["toolheight"]   = float(self.toolHeight.get())
+		try:
+			CNC.vars["toolchangex"]  = float(self.changeX.get())
+			CNC.vars["toolchangey"]  = float(self.changeY.get())
+			CNC.vars["toolchangez"]  = float(self.changeZ.get())
+		except:
+			tkMessageBox.showerror("Probe Tool Change Error",
+					"Invalid tool change position",
+					parent=self)
+			return
+
+		try:
+			CNC.vars["toolprobex"]   = float(self.probeX.get())
+			CNC.vars["toolprobey"]   = float(self.probeY.get())
+			CNC.vars["toolprobez"]   = float(self.probeZ.get())
+		except:
+			tkMessageBox.showerror("Probe Tool Change Error",
+					"Invalid tool probe location",
+					parent=self)
+			return
+
+		try:
+			CNC.vars["tooldistance"] = abs(float(self.probeDistance.get()))
+		except:
+			tkMessageBox.showerror("Probe Tool Change Error",
+					"Invalid tool scanning distance entered",
+					parent=self)
+			return
+
+		try:
+			CNC.vars["toolheight"]   = float(self.toolHeight.get())
+		except:
+			tkMessageBox.showerror("Probe Tool Change Error",
+					"Invalid tool height or not calibrated",
+					parent=self)
+			return
 
 	#----------------------------------------------------------------------
 	def policyChange(self):

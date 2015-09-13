@@ -566,8 +566,11 @@ class Application(Toplevel,Sender):
 			unit = "in"
 		else:
 			unit = "mm"
-		msg += "Margins\tX:[%g .. %g]\n\tY:[%g .. %g]\n" % \
-			(CNC.vars["xmin"], CNC.vars["xmax"], CNC.vars["ymin"], CNC.vars["ymax"])
+		msg += "Margins:\tX[%g .. %g]\n" % (CNC.vars["xmin"], CNC.vars["xmax"])
+		msg += "\tY:[%g .. %g]\n" % (CNC.vars["ymin"], CNC.vars["ymax"])
+		msg += "Dim:\t%g x %g\n" % \
+				(CNC.vars["xmax"]-CNC.vars["xmin"],
+				 CNC.vars["ymax"]-CNC.vars["ymin"])
 		msg += "Movement Length: %g %s\n"%(self.cnc.totalLength, unit)
 		msg += "Total Time: ~%.2g min\n"%(self.cnc.totalTime)
 		tkMessageBox.showinfo("Statistics", msg, parent=self)

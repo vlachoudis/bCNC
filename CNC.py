@@ -418,6 +418,7 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
+	comment        = ""	# Last parsed comment
 	toolPolicy     = 0	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
@@ -729,20 +730,23 @@ class CNC:
 
 		# commented line
 		if line[0] == ';':
+			CNC.comment = line[1:].strip()
 			return None
 
 		out = []	# output list of commands
 		braket  = 0	# bracket count []
 		paren   = 0	# parenthesis count ()
+		expr    = ""	# expression string
+		cmd     = ""	# cmd string
 		comment = False	# inside comment
-		expr = ""	# expression string
-		cmd  = ""	# cmd string
-		for ch in line:
+		CNC.comment = ""
+		for i,ch in enumerate(line):
 			if ch == '(':
 				# comment start?
 				paren += 1
 				comment = (braket==0)
-				if not comment: expr += ch
+				if not comment:
+					expr += ch
 			elif ch == ')':
 				# comment end?
 				paren -= 1
@@ -759,6 +763,8 @@ class CNC:
 							cmd = ""
 					else:
 						expr += ch
+				else:
+					CNC.comment += ch
 			elif ch == ']':
 				# expression end?
 				if not comment:
@@ -774,6 +780,8 @@ class CNC:
 						expr = ""
 					else:
 						expr += ch
+				else:
+					CNC.comment += ch
 			elif ch=='=':
 				# check for assignments (FIXME very bad)
 				if not out and braket==0 and paren==0:
@@ -790,6 +798,7 @@ class CNC:
 			elif ch == ';':
 				# Skip everything after the semicolon on normal lines
 				if not comment and paren==0 and braket==0:
+					CNC.comment += line[i+1:]
 					break
 				else:
 					expr += ch
@@ -803,6 +812,9 @@ class CNC:
 						cmd += ch
 				else:
 					cmd += ch
+
+			elif comment:
+				CNC.comment += ch
 
 		if cmd: out.append(cmd)
 
@@ -1126,7 +1138,7 @@ class CNC:
 			if isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
-				# either CodeType or list[] append
+				# either CodeType or tuple, list[] append at it as is
 				lines.append(cmds)
 				continue
 
@@ -1161,7 +1173,11 @@ class CNC:
 		for cmd in cmds:
 			cmd = cmd.upper()
 			if cmd[0]=="T":
-				tool = int(cmd[1:])
+				try:
+					tool = int(cmd[1:])
+				except:
+					sys.stdout.write("Invalid tool number T%s\n"%(cmd[1:]))
+					tool = 0
 				break
 
 		# check if it is the same tool
@@ -1175,7 +1191,10 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		lines.append("%wait")
-		lines.append("%%pause Tool change T%02d"%(tool))
+		if CNC.comment:
+			lines.append("%%pause Tool change T%02d (%s)"%(tool,CNC.comment))
+		else:
+			lines.append("%%pause Tool change T%02d"%(tool))
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
@@ -2655,7 +2674,7 @@ class GCode:
 				if isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
-					# either CodeType or list[] append
+					# either CodeType or tuple, list[] append at it as is
 					lines.append(cmds)
 					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
 						paths.append(None)

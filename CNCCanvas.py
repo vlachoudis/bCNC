@@ -987,6 +987,7 @@ class CNCCanvas(Canvas):
 			#    0 = white
 			#  127 = light-red
 			dc = mx/127.		# step in colors
+			if abs(dc)<1e-8: return
 			palette = []
 			for x in bmath.frange(lw, hg+1e-10, (hg-lw)/255.):
 				i = int(math.floor(x / dc))
