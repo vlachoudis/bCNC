@@ -14,8 +14,12 @@ try:
 except ImportError:
 	from tkinter import *
 
+import os
+import glob
 import Utils
+import Ribbon
 import tkExtra
+import CNCRibbon
 
 #===============================================================================
 class InPlaceText(tkExtra.InPlaceText):
@@ -30,12 +34,14 @@ class Base:
 	def __init__(self, master):
 		self.master    = master
 		self.name      = None
+		self.icon      = None
+		self.plugin    = False
 		self.variables = []		# name, type, default, label
 		self.values    = {}		# database of values
 		self.listdb    = {}		# lists database
 		self.current   = None		# currently editing index
 		self.n         = 0
-		self.buttons   = None
+		self.buttons   = []
 
 	# ----------------------------------------------------------------------
 	def __setitem__(self, name, value):
@@ -65,24 +71,20 @@ class Base:
 		return lst
 
 	# ----------------------------------------------------------------------
-	def _get(self, config, key, t, default):
-		try:
-			value = config.get(self.name, key)
-			if t in ("float","mm"):
-				return float(value)
-			elif t == "int":
-				return int(value)
-			elif t == "bool":
-				return int(value)
-			else:
-				return value
-		except:
-			return default
+	def _get(self, key, t, default):
+		if t in ("float","mm"):
+			return Utils.getFloat(self.name, key, default)
+		elif t == "int":
+			return Utils.getInt(self.name, key, default)
+		elif t == "bool":
+			return Utils.getInt(self.name, key, default)
+		else:
+			return Utils.getStr(self.name, key, default)
 
 	# ----------------------------------------------------------------------
 	# Load from a configuration file
 	# ----------------------------------------------------------------------
-	def load(self, config):
+	def loadConfig(self):
 		# Load lists
 		lists = []
 		for n, t, d, l in self.variables:
@@ -93,60 +95,61 @@ class Base:
 				self.listdb[p] = []
 				for i in range(1000):
 					key = "_%s.%d"%(p, i)
-					try:
-						self.listdb[p].append(config.get(self.name, key))
-					except:
-						break
+					self.listdb[p].append(Utils.getStr(self.name, key))
 
 			for lst in self.listdb.values():
 				lst.sort()
 
 		# Check if there is a current
 		try:
-			self.current = int(config.get(self.name, "current"))
+			self.current = int(Utils.config.get(self.name, "current"))
 		except:
 			self.current = None
 
 		# Load values
 		if self.current is not None:
-			self.n = self._get(config, "n", "int", 0)
+			self.n = self._get("n", "int", 0)
 			for i in range(self.n):
 				key = "name.%d"%(i)
-				self.values[key] = config.get(self.name, key)
+				self.values[key] = Utils.getStr(self.name, key)
 				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
-					self.values[key] = self._get(config, key, t, d)
+					self.values[key] = self._get(key, t, d)
 		else:
 			for n, t, d, l in self.variables:
-				self.values[n] = self._get(config, n, t, d)
+				self.values[n] = self._get(n, t, d)
 		self.update()
 
 	# ----------------------------------------------------------------------
 	# Save to a configuration file
 	# ----------------------------------------------------------------------
-	def save(self, config):
+	def saveConfig(self):
+		# if section do not exist add it
+		Utils.addSection(self.name)
+
 		if self.listdb:
 			for name,lst in self.listdb.items():
 				for i,value in enumerate(lst):
-					config.set(self.name, "_%s.%d"%(name,i), value)
+					Utils.setStr(self.name, "_%s.%d"%(name,i), value)
 
 		# Save values
 		if self.current is not None:
-			config.set(self.name, "current", str(self.current))
-			config.set(self.name, "n", str(self.n))
+			Utils.setStr(self.name, "current", str(self.current))
+			Utils.setStr(self.name, "n", str(self.n))
 
 			for i in range(self.n):
 				key = "name.%d"%(i)
 				value = self.values.get(key)
 				if value is None: break
-				config.set(self.name, key, value)
+				Utils.setStr(self.name, key, value)
 
 				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
-					config.set(self.name, key, str(self.values.get(key,d)))
+					Utils.setStr(self.name, key,
+						str(self.values.get(key,d)))
 		else:
 			for n, t, d, l in self.variables:
-				config.set(self.name, n, str(self.values.get(n,d)))
+				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
 	# Override with execute command
@@ -184,6 +187,12 @@ class Base:
 			#elif t == "list":
 			#	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
 			self.master.listbox.insert(END, (l, value))
+
+			if t=="color":
+				try:
+					self.master.listbox.lists[1].itemconfig(END, background=value)
+				except TclError:
+					pass
 
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
@@ -275,6 +284,8 @@ class Base:
 			edit = tkExtra.InPlaceFile(lb, save=False)
 		elif t == "output":
 			edit = tkExtra.InPlaceFile(lb, save=True)
+		elif t == "color":
+			edit = tkExtra.InPlaceColor(lb)
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
 
@@ -326,7 +337,7 @@ class Base:
 class DataBase(Base):
 	def __init__(self, master):
 		Base.__init__(self, master)
-		self.buttons  = ("add","del","clone","rename")
+		self.buttons  = ["add","delete","clone","rename"]
 
 	# ----------------------------------------------------------------------
 	# Add a new item
@@ -388,35 +399,43 @@ class DataBase(Base):
 		self.edit(None,True)
 
 #==============================================================================
-# Create a BOX
-#==============================================================================
-class Box(DataBase):
+class Plugin(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master)
-		self.name = "Box"
-		self.variables = [
-			("name",      "db",    "", "Name"),
-			("dx",        "mm", 100.0, "Width Dx"),
-			("dy",        "mm",  70.0, "Depth Dy"),
-			("dz",        "mm",  50.0, "Height Dz"),
-			("nx",       "int",    11, "Fingers Nx"),
-			("ny",       "int",     7, "Fingers Ny"),
-			("nz",       "int",     5, "Fingers Nz"),
-			("profile", "bool",     0, "Profile"),
-			("overcut", "bool",     1, "Overcut"),
-			("cut",     "bool",     0, "Cut")
-		]
-		self.buttons  = self.buttons + ("exe",)
+		self.plugin = True
 
-	# ----------------------------------------------------------------------
+#==============================================================================
+# Generic ini configuration
+#==============================================================================
+class Ini(Base):
+	def __init__(self, master, name, vartype):
+		Base.__init__(self, master)
+		self.name = name
+
+		# detect variables from ini file
+		self.variables = []
+		for name,value in Utils.config.items(self.name):
+			self.variables.append((name, vartype, value, name))
+
+#------------------------------------------------------------------------------
+class Font(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Font", "str")
+
+#------------------------------------------------------------------------------
+class Color(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Color", "color")
+
+#------------------------------------------------------------------------------
+class Shortcut(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Shortcut", "str")
+		self.buttons.append("exe")
+
+	#----------------------------------------------------------------------
 	def execute(self, app):
-		app.gcode.box(app.gcodelist.activeBlock(),
-				self["dx"], self["dy"], self["dz"],
-				self["nx"], self["ny"], self["nz"],
-				self["profile"], self["cut"], self["overcut"])
-		app.gcodelist.fill()
-		app.draw()
-		app.statusbar["text"] = "BOX with fingers generated"
+		app.loadShortcuts()
 
 #==============================================================================
 # CNC machine configuration
@@ -427,6 +446,7 @@ class CNC(Base):
 		self.name = "CNC"
 		self.variables = [
 			("units"         , "bool", 0    , "Units (inches)")   ,
+			("lasercutter"   , "bool", 0    , "Lasercutter")   ,
 			("acceleration_x", "mm"  , 25.0 , "Acceleration x")   ,
 			("acceleration_y", "mm"  , 25.0 , "Acceleration y")   ,
 			("acceleration_z", "mm"  , 5.0  , "Acceleration z")   ,
@@ -437,7 +457,7 @@ class CNC(Base):
 			("travel_y"      , "mm"  , 200  , "Travel y")         ,
 			("travel_z"      , "mm"  , 100  , "Travel z")         ,
 			("round"         , "int" , 4    , "Decimal digits")   ,
-			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy")     ,
+			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy"),
 			("startup"       , "str" , "G90", "startup")          ,
 			("spindlemin"    , "int" , 0    , "Spindle min (RPM)"),
 			("spindlemax"    , "int" , 12000, "Spindle max (RPM)"),
@@ -477,9 +497,15 @@ class Material(DataBase):
 		# update ONLY if stock material is empty:
 		stockmat = self.master["stock"]["material"]
 		if stockmat=="" or stockmat==self["name"]:
+<<<<<<< HEAD:ToolsPage.py
+			self.master.cnc()["cutfeed"]  = self.master.fromMm(self["feed"])
+			self.master.cnc()["cutfeedz"] = self.master.fromMm(self["feedz"])
+			self.master.cnc()["stepz"]    = self.master.fromMm(self["stepz"])
+=======
 			self.master.gcode.feed  = self.master.fromMm(self["feed"])
 			self.master.gcode.feedz = self.master.fromMm(self["feedz"])
 			self.master.gcode.stepz = self.master.fromMm(self["stepz"])
+>>>>>>> master:CNCTools.py
 		return False
 
 #==============================================================================
@@ -506,7 +532,7 @@ class EndMill(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.gcode.diameter  = self.master.fromMm(self["diameter"])
+		self.master.cnc()["diameter"] = self.master.fromMm(self["diameter"])
 		return False
 
 #==============================================================================
@@ -528,9 +554,9 @@ class Stock(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.gcode.safe      = self.master.fromMm(self["safe"])
-		self.master.gcode.surface   = self.master.fromMm(self["surface"])
-		self.master.gcode.thickness = self.master.fromMm(self["thickness"])
+		self.master.cnc()["safe"]      = self.master.fromMm(self["safe"])
+		self.master.cnc()["surface"]   = self.master.fromMm(self["surface"])
+		self.master.cnc()["thickness"] = self.master.fromMm(self["thickness"])
 		if self["material"]:
 			self.master["material"].makeCurrent(self["material"])
 		return False
@@ -538,16 +564,16 @@ class Stock(DataBase):
 #==============================================================================
 # Cut material
 #==============================================================================
-class Cut(Base):
+class Cut(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Cut"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("depth"  ,   "mm" ,    "", "Target Depth"),
 			("stepz"  ,   "mm" ,    "", "Depth Increment")
 		]
-		self.buttons  = ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -559,22 +585,22 @@ class Cut(Base):
 			s =  self.master.fromMm(float(self["stepz"]))
 		except:
 			s = None
-		app.executeOnSelection("CUT",h, s)
-		app.statusbar["text"] = "CUT selected paths"
+		app.executeOnSelection("CUT", True, h, s)
+		app.setStatus("CUT selected paths")
 
 #==============================================================================
 # Drill material
 #==============================================================================
-class Drill(Base):
+class Drill(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Drill"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("depth",     "mm" ,    "", "Target Depth"),
 			("peck",      "mm" ,    "", "Peck depth")
 		]
-		self.buttons  = ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -587,33 +613,34 @@ class Drill(Base):
 		except:
 			p = None
 		app.executeOnSelection("DRILL",h, p)
-		app.statusbar["text"] = "DRILL selected points"
+		app.setStatus("DRILL selected points")
 
 #==============================================================================
 # Profile
 #==============================================================================
-class Profile(Base):
+class Profile(DataBase):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		DataBase.__init__(self, master)
 		self.name = "Profile"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
 			("endmill",   "db" ,    "", "End Mill"),
-			("overcut",  "bool",     1, "Overcut"),
 			("direction","inside,outside" , "outside", "Direction"),
+			("offset",   "float",  0.0, "Additional offset distance"),
+			("overcut",  "bool",     1, "Overcut"),
 			("cut",      "bool",     0, "Cut")
 		]
-		self.buttons  = ("exe",)
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
-		app.profile(direction)
-		#if self["cut"]:
-		#	app.executeOnSelection("CUT")
-		app.statusbar["text"] = "Generate profile path"
+		name = self["name"]
+		if name=="default" or name=="": name=None
+		app.profile(direction, self["offset"], self["cut"], self["overcut"], name)
+		app.setStatus("Generate profile path")
 
 #==============================================================================
 # Tools container class
@@ -623,19 +650,55 @@ class Tools:
 		self.gcode  = gcode
 		self.inches = False
 		self.digits = 4
+		self.active = StringVar()
 
 		self.tools   = {}
 		self.buttons = {}
 		self.listbox = None
+
 		# CNC should be first to load the inches
-		#	"Cut"       #	"Hole"      #	"Profile"   #	"Rectangle" #	"Tab"
-		for cls in [ CNC, Box, Cut, Drill, EndMill, Material, Profile, Stock]:
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Material, Profile, Shortcut, Stock]:
 			tool = cls(self)
-			self.tools[tool.name.upper()] = tool
+			self.addTool(tool)
+
+		# Find plugins in the plugins directory and load them
+		for f in sorted(glob.glob("%s/plugins/*.py"%(Utils.prgpath))):
+			name,ext = os.path.splitext(os.path.basename(f))
+			try:
+				exec("import %s"%(name))
+			except ImportError:
+				continue
+			try:
+				tool = eval("%s.Tool(self)"%(name))
+				self.addTool(tool)
+			except AttributeError:
+				continue
+
+	# ----------------------------------------------------------------------
+	def addTool(self, tool):
+		self.tools[tool.name.upper()] = tool
+
+	# ----------------------------------------------------------------------
+	# Return a list of plugins
+	# ----------------------------------------------------------------------
+	def pluginList(self):
+		return [x for x in self.tools.values() if x.plugin]
 
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):
 		self.listbox = listbox
+
+	# ----------------------------------------------------------------------
+	def __getitem__(self, name):
+		return self.tools[name.upper()]
+
+	# ----------------------------------------------------------------------
+	def getActive(self):
+		try:
+			return self.tools[self.active.get().upper()]
+		except:
+			self.active.set("CNC")
+			return self.tools["CNC"]
 
 	# ----------------------------------------------------------------------
 	def toMm(self, value):
@@ -658,18 +721,16 @@ class Tools:
 		return lst
 
 	# ----------------------------------------------------------------------
-	def load(self, config):
+	def loadConfig(self):
+		self.active.set(Utils.getStr(Utils.__prg__, "tool", "CNC"))
 		for tool in self.tools.values():
-			tool.load(config)
+			tool.loadConfig()
 
 	# ----------------------------------------------------------------------
-	def save(self, config):
+	def saveConfig(self):
+		Utils.setStr(Utils.__prg__, "tool", self.active.get())
 		for tool in self.tools.values():
-			tool.save(config)
-
-	# ----------------------------------------------------------------------
-	def __getitem__(self, name):
-		return self.tools[name.upper()]
+			tool.saveConfig()
 
 	# ----------------------------------------------------------------------
 	def cnc(self):
@@ -683,41 +744,291 @@ class Tools:
 	def activateButtons(self, tool):
 		for btn in self.buttons.values():
 			btn.config(state=DISABLED)
-		if tool.buttons is None: return
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
 
+#===============================================================================
+# DataBase Group
+#===============================================================================
+class DataBaseGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Database", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["stock32"],
+				text="Stock",
+				compound=TOP,
+				anchor=W,
+				variable=app.tools.active,
+				value="Stock",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Stock material currently on machine")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["material"],
+				text="Material",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Material",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Editable database of material properties")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["endmill"],
+				text="End Mill",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="EndMill",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Editable database of EndMills properties")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolRename>>",
+				image=Utils.icons["rename"],
+				text="Rename",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Edit name of current operation/object")
+		self.addWidget(b)
+		app.tools.addButton("rename",b)
+
+		# ===
+		col,row=2,0
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolAdd>>",
+				image=Utils.icons["add"],
+				text="Add",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Add a new operation/object")
+		self.addWidget(b)
+		app.tools.addButton("add",b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolClone>>",
+				image=Utils.icons["clone"],
+				text="Clone",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Clone selected operation/object")
+		self.addWidget(b)
+		app.tools.addButton("clone",b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<ToolDelete>>",
+				image=Utils.icons["x"],
+				text="Delete",
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Delete selected operation/object")
+		self.addWidget(b)
+		app.tools.addButton("delete",b)
+
+#===============================================================================
+# CAM Group
+#===============================================================================
+class CAMGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "CAM", app)
+		self.grid3rows()
+
+		# ===
+		col,row=0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["cut32"],
+				text="Cut",
+				compound=TOP,
+				anchor=W,
+				variable=app.tools.active,
+				value="Cut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Cut for the full stock thickness selected code")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["profile32"],
+				text="Profile",
+				compound=TOP,
+				anchor=W,
+				variable=app.tools.active,
+				value="Profile",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Perform a profile operation on selected code")
+		self.addWidget(b)
+
+		# ===
+		col,row=2,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["pocket"],
+				text="Pocket",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Pocket",
+				state=DISABLED,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Perform a pocket operation on selected code")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["drill"],
+				text="Drill",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Drill",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Insert a drill cycle on current objects/location")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["tab"],
+				text="Tabs",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Tabs",
+				state=DISABLED,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Insert holding tabs")
+		self.addWidget(b)
+
+#===============================================================================
+# Macros Group
+#===============================================================================
+class MacrosGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Macros", app)
+		self.grid3rows()
+
+		col,row=0,0
+		# Find plugins in the plugins directory and load them
+		for tool in app.tools.pluginList():
+			# ===
+			b = Ribbon.LabelRadiobutton(self.frame,
+					image=Utils.icons[tool.icon],
+					text=tool.name,
+					compound=LEFT,
+					anchor=W,
+					variable=app.tools.active,
+					value=tool.name,
+					background=Ribbon._BACKGROUND)
+			b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+			tkExtra.Balloon.set(b, tool.__doc__)
+			self.addWidget(b)
+
+			row += 1
+			if row==3:
+				col += 1
+				row  = 0
+
+#===============================================================================
+# Config
+#===============================================================================
+class ConfigGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Config", app)
+		self.grid3rows()
+
+		# ===
+		col,row=0,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["config"],
+				text="Machine",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="CNC",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Machine configuration for bCNC")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["font"],
+				text="Fonts",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Font",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Font configuration")
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["color"],
+				text="Colors",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Color",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Color configuration")
+		self.addWidget(b)
+
+		# ===
+		col,row=1,0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text="Shortcuts",
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Shortcuts")
+		self.addWidget(b)
+
 #==============================================================================
-class ToolFrame(Frame):
-	def __init__(self, master, app, tools):
-		Frame.__init__(self, master)
-		self.app   = app
-		self.tools = tools
-
-		f = Frame(self)
-		f.pack(side=TOP, fill=X)
-
-		self.combo = tkExtra.Combobox(f, True,
-					#foreground="DarkBlue",
-					background="White",
-					command=self.change)
-		self.combo.pack(side=LEFT, expand=YES, fill=X)
-
-		b = Button(f, image=Utils.icons["x"], command=self.delete)
-		b.pack(side=RIGHT)
-		self.tools.addButton("del",b)
-
-		b = Button(f, image=Utils.icons["clone"], command=self.clone)
-		b.pack(side=RIGHT)
-		self.tools.addButton("clone",b)
-
-		b = Button(f, image=Utils.icons["add"], command=self.add)
-		b.pack(side=RIGHT)
-		self.tools.addButton("add",b)
-
-		b = Button(f, image=Utils.icons["rename"], command=self.rename)
-		b.pack(side=RIGHT)
-		self.tools.addButton("rename",b)
+# Tools Frame
+#==============================================================================
+class ToolsFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
+		self.tools = app.tools
 
 		b = Button(self, text="Execute",
 				image=Utils.icons["gear"],
@@ -737,18 +1048,20 @@ class ToolFrame(Frame):
 		self.toolList.sortAssist = None
 		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.edit)
-		self.toolList.bindList("<F2>",		self.rename)
 		self.toolList.bindList("<Return>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
 
+		app.tools.active.trace('w',self.change)
+		self.change()
+
 	#----------------------------------------------------------------------
 	# Populate listbox with new values
 	#----------------------------------------------------------------------
-	def change(self):
-		tool = self.tools[self.combo.get()]
+	def change(self, a=None, b=None, c=None):
+		tool = self.tools.getActive()
 		tool.populate()
 		tool.update()
 		self.tools.activateButtons(tool)
@@ -757,40 +1070,64 @@ class ToolFrame(Frame):
 	# Edit tool listbox
 	#----------------------------------------------------------------------
 	def edit(self, event=None):
-		self.tools[self.combo.get()].edit(event)
-
-	#----------------------------------------------------------------------
-	def rename(self, event=None):
-		self.tools[self.combo.get()].edit(event)
+		sel = self.toolList.curselection()
+		if not sel: return
+		if sel[0] == 0 and (event is None or event.keysym==0):
+			self.tools.getActive().rename()
+		else:
+			self.tools.getActive().edit(event)
 
 	#----------------------------------------------------------------------
 	def execute(self, event=None):
-		self.tools[self.combo.get()].execute(self.app)
+		self.tools.getActive().execute(self.app)
 
 	#----------------------------------------------------------------------
 	def add(self, event=None):
-		self.tools[self.combo.get()].add()
+		self.tools.getActive().add()
 
 	#----------------------------------------------------------------------
 	def delete(self, event=None):
-		self.tools[self.combo.get()].delete()
+		self.tools.getActive().delete()
 
 	#----------------------------------------------------------------------
 	def clone(self, event=None):
-		self.tools[self.combo.get()].clone()
+		self.tools.getActive().clone()
 
 	#----------------------------------------------------------------------
 	def rename(self, event=None):
-		self.tools[self.combo.get()].rename()
+		self.tools.getActive().rename()
+
+#===============================================================================
+# Tools Page
+#===============================================================================
+class ToolsPage(CNCRibbon.Page):
+	"""GCode manipulation tools and user plugins"""
+
+	_name_ = "Tools"
+	_icon_ = "tools"
 
 	#----------------------------------------------------------------------
-	def set(self, tool):
-		self.combo.set(tool)
+	# Add a widget in the widgets list to enable disable during the run
+	#----------------------------------------------------------------------
+	def register(self):
+		self._register((DataBaseGroup,CAMGroup,MacrosGroup,ConfigGroup), (ToolsFrame,))
 
 	#----------------------------------------------------------------------
-	def get(self):
-		return self.combo.get()
+	def edit(self, event=None):
+		CNCRibbon.Page.frames["Tools"].edit()
 
 	#----------------------------------------------------------------------
-	def fill(self):
-		self.combo.fill(self.tools.names())
+	def add(self, event=None):
+		CNCRibbon.Page.frames["Tools"].add()
+
+	#----------------------------------------------------------------------
+	def clone(self, event=None):
+		CNCRibbon.Page.frames["Tools"].clone()
+
+	#----------------------------------------------------------------------
+	def delete(self, event=None):
+		CNCRibbon.Page.frames["Tools"].delete()
+
+	#----------------------------------------------------------------------
+	def rename(self, event=None):
+		CNCRibbon.Page.frames["Tools"].rename()

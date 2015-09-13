@@ -174,6 +174,11 @@ ADs=
 #	widget.event_generate("<<VirtualEvent>>", data="Hello")
 #	widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
 #	widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
+<<<<<<< HEAD
+#
+# WARNING: Unfortunatelly it will convert data to STRING!!!
+=======
+>>>>>>> master
 #-------------------------------------------------------------------------------
 def bindEventData(widget, sequence, func, add = None):
 	def _substitute(*args):
@@ -543,13 +548,18 @@ class AutoScrollbar(Scrollbar):
 class ProgressBar(Canvas):
 	def __init__(self, master=None, **kw):
 		Canvas.__init__(self, master, **kw)
-		self.config(background="DarkGray")
+		#self.config(background="DarkGray")
 		self.currBox = self.create_rectangle(0, 0, 0, 0,
-					fill='Orange', width=0)
+					fill='Orange',
+					width=0)
 		self.doneBox = self.create_rectangle(0, 0, 0, 0,
-					fill='DarkGreen', width=0)
-		self.text = self.create_text(0,0,text="",
-			fill="White",justify=CENTER)
+					fill='DarkGreen',
+					width=0)
+		self.text = self.create_text(0,0,
+					text="",
+					fill="White",
+					anchor=CENTER,
+					justify=CENTER)
 		self.auto = True
 
 		self.bind('<Configure>', self.draw)
@@ -606,8 +616,16 @@ class ProgressBar(Canvas):
 			self.autoText()
 
 	# ----------------------------------------------------------------------
+	def clear(self):
+		self.setProgress(0, 0);
+
+	# ----------------------------------------------------------------------
 	def setText(self, txt):
-		self.itemconfig(self.text,text=txt)
+		self.itemconfig(self.text, text=txt)
+
+	# ----------------------------------------------------------------------
+	def configText(self, **args):
+		self.itemconfig(self.text, **args)
 
 	# ----------------------------------------------------------------------
 	def autoText(self):
@@ -628,13 +646,17 @@ class ProgressBar(Canvas):
 		width  = self.winfo_width()
 		height = self.winfo_height()
 
-		wn = int(width * (self.now - self.low) / self.length)
+		wn = int(width * (self.now  - self.low) / self.length)
 		wd = int(width * (self.done - self.low) / self.length)
-		if wn == wd: wd = wn - 1
+		if wn >= wd: wd = wn - 1
 
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)
-		self.coords(self.text, width/2, height/2)
+
+		if self.itemcget(self.text, "justify") == CENTER:
+			self.coords(self.text, width/2, height/2)
+		else:
+			self.coords(self.text, 1,height/2)
 
 #===============================================================================
 # Extended Listbox
@@ -2970,9 +2992,12 @@ class Combobox(Frame):
 			self.set(self._listbox.get(index))
 
 	# ----------------------------------------------------------------------
-	def configure(self, **kw):
-		self._text.configure(**kw)
-		self._arrowBtn.configure(**kw)
+	def configure(self, **kwargs):
+		if "command" in kwargs:
+			self.command = kwargs.get("command")
+			del kwargs["command"]
+		self._text.configure(**kwargs)
+		self._arrowBtn.configure(**kwargs)
 	config = configure
 
 	# ----------------------------------------------------------------------

@@ -5,8 +5,13 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+<<<<<<< HEAD
+__version__ = "0.6.0"
+__date__    = "3 Sep 2015"
+=======
 __version__ = "0.5.0"
 __date__    = "19 Aug 2015"
+>>>>>>> master
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -14,6 +19,13 @@ import os
 import re
 import sys
 import pdb
+<<<<<<< HEAD
+import time
+import getopt
+import serial
+import socket
+import traceback
+=======
 import math
 import time
 import string
@@ -25,6 +37,7 @@ try:
 	from serial.tools.list_ports import comports
 except:
 	from Utils import comports
+>>>>>>> master
 
 try:
 	import Tkinter
@@ -46,22 +59,45 @@ import bFileDialog
 
 from CNC import CNC, GCode
 import Utils
+import Ribbon
+import Pendant
+from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
+
 import CNCList
-import CNCTools
 import CNCCanvas
-import CNCPendant
+import webbrowser
 
-BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
+from CNCRibbon    import Page
+from ToolsPage	  import Tools, ToolsPage
+from FilePage     import FilePage
+from ControlPage  import ControlPage
+from TerminalPage import TerminalPage
+from ProbePage    import ProbePage
+from EditorPage   import EditorPage
 
-SERIAL_POLL   = 0.250	# s
-G_POLL        = 10	# s
-MONITOR_AFTER =  250	# ms
+_openserial = True	# override ini parameters
+_device     = None
+_baud       = None
+
+MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
 
 RX_BUFFER_SIZE = 128
 
 MAX_HISTORY  = 500
 
+<<<<<<< HEAD
+#ZERO = ["G28", "G30", "G92"]
+
+FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe")),
+		("G-Code",("*.ngc","*.nc", "*.gcode")),
+		("DXF",    "*.dxf"),
+		("SVG",    "*.svg"),
+		("Probe",  "*.probe"),
+		("All",    "*")]
+
+geometry = None
+=======
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 LINEPAT  = re.compile(r"^(.*?)\n(.*)", re.DOTALL|re.MULTILINE)
 STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -93,18 +129,29 @@ UNITS         = { "G20" : "inch",
 PLANE         = { "G17" : "XY",
 		  "G18" : "ZX",
 		  "G19" : "YZ" }
+>>>>>>> master
 
 #==============================================================================
 # Main Application window
 #==============================================================================
-class Application(Toplevel):
+class Application(Toplevel,Sender):
 	def __init__(self, master, **kw):
 		Toplevel.__init__(self, master, **kw)
+		Sender.__init__(self)
+
 		self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
 		self.title(Utils.__prg__)
 		self.widgets = []
 
 		# Global variables
+<<<<<<< HEAD
+		self.tools = Tools(self.gcode)
+		self.loadConfig()
+
+		# --- Ribbon ---
+		self.ribbon = Ribbon.TabRibbonFrame(self)
+		self.ribbon.pack(side=TOP, fill=X)
+=======
 		self.history     = []
 		self._historyPos = None
 		CNC.loadConfig(Utils.config)
@@ -134,24 +181,36 @@ class Application(Toplevel):
 		# --- Toolbar ---
 		toolbar = Frame(self, relief=RAISED)
 		toolbar.pack(side=TOP, fill=X)
+>>>>>>> master
 
 		# Main frame
-		paned = PanedWindow(self, orient=HORIZONTAL)
-		paned.pack(fill=BOTH, expand=YES)
+		self.paned = PanedWindow(self, orient=HORIZONTAL)
+		self.paned.pack(fill=BOTH, expand=YES)
 
 		# Status bar
-		f = Frame(self)
-		f.pack(side=BOTTOM, fill=X)
-		self.statusbar = Label(f, relief=SUNKEN,
-			foreground="DarkBlue", justify=LEFT, anchor=W)
-		self.statusbar.pack(side=LEFT, fill=X, expand=TRUE)
+		frame = Frame(self)
+		frame.pack(side=BOTTOM, fill=X)
+		self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
+		self.statusbar.pack(side=LEFT, fill=X, expand=YES)
+		self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
 
-		self.canvasbar = Label(f, relief=SUNKEN,
-			foreground="DarkBlue", justify=LEFT, anchor=W)
-		self.canvasbar.pack(side=RIGHT, fill=X, expand=TRUE)
+		self.statusz = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
+		self.statusz.pack(side=RIGHT)
+		self.statusy = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
+		self.statusy.pack(side=RIGHT)
+		self.statusx = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
+		self.statusx.pack(side=RIGHT)
+
+		# --- Left side ---
+		frame = Frame(self.paned)
+		self.paned.add(frame) #, minsize=340)
+
+		pageframe = Frame(frame)
+		pageframe.pack(side=TOP, expand=YES, fill=BOTH)
+		self.ribbon.setPageFrame(pageframe)
 
 		# Command bar
-		f = Frame(self)
+		f = Frame(frame)
 		f.pack(side=BOTTOM, fill=X)
 		self.cmdlabel = Label(f, text="Command:")
 		self.cmdlabel.pack(side=LEFT)
@@ -171,6 +230,11 @@ class Application(Toplevel):
 			"(move,inkscape, round...) [Space or Ctrl-Space]")
 		self.widgets.append(self.command)
 
+<<<<<<< HEAD
+		# --- Right side ---
+		frame = Frame(self.paned)
+		self.paned.add(frame)
+=======
 		# --- Editor ---
 		panedframe = Frame(paned)
 		paned.add(panedframe, minsize=240)
@@ -251,47 +315,143 @@ class Application(Toplevel):
 
 		self.toolFrame = CNCTools.ToolFrame(frame, self, self.tools)
 		self.toolFrame.pack(fill=BOTH, expand=YES)
+>>>>>>> master
 
 		# --- Canvas ---
-		frame = Frame(paned)
-		paned.add(frame)
+		self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
+		self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
+		#self.paned.add(self.canvasFrame)
+# XXX FIXME do I need the self.canvas?
+		self.canvas = self.canvasFrame.canvas
 
-		self.canvas = CNCCanvas.CNCCanvas(frame, self, takefocus=True, background="White")
-		self.canvas.grid(row=0, column=0, sticky=NSEW)
-		sb = Scrollbar(frame, orient=VERTICAL, command=self.canvas.yview)
-		sb.grid(row=0, column=1, sticky=NS)
-		self.canvas.config(yscrollcommand=sb.set)
-		sb = Scrollbar(frame, orient=HORIZONTAL, command=self.canvas.xview)
-		sb.grid(row=1, column=0, sticky=EW)
-		self.canvas.config(xscrollcommand=sb.set)
+		# fist create Pages
+		self.pages = {}
+		for cls in (	ControlPage,
+				EditorPage,
+				FilePage,
+				ProbePage,
+				TerminalPage,
+				ToolsPage):
+			page = cls(self.ribbon, self)
+			self.pages[page.name] = page
 
-		frame.grid_rowconfigure(0, weight=1)
-		frame.grid_columnconfigure(0, weight=1)
+		# then add their properties (in separate loop)
+		for name,page in self.pages.items():
+			for n in Utils.getStr(Utils.__prg__,"%s.ribbon"%(page.name)).split():
+				page.addRibbonGroup(n)
 
-		# Canvas bindings
+			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
+				last = n[-1]
+				if last == "*":
+					page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+				else:
+					page.addPageFrame(n)
+
+		# remember the editor list widget
+		self.dro       = Page.frames["DRO"]
+		self.gstate    = Page.frames["State"]
+		self.control   = Page.frames["Control"]
+		self.editor    = Page.frames["Editor"].editor
+		self.terminal  = Page.frames["Terminal"].terminal
+
+		# XXX FIXME Do we need it or I can takes from Page every time?
+		self.autolevel = Page.frames["Probe:Autolevel"]
+
+		# Left side
+		for name in Utils.getStr(Utils.__prg__,"ribbon").split():
+			last = name[-1]
+			if last == '>':
+				name = name[:-1]
+				side = RIGHT
+			else:
+				side = LEFT
+			self.ribbon.addPage(self.pages[name],side)
+
+		# Restore last page
+		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
+
+		# Global bindings
+		self.bind('<<Undo>>',           self.undo)
+		self.bind('<<Redo>>',           self.redo)
+		self.bind('<<Copy>>',           self.copy)
+		self.bind('<<Cut>>',            self.cut)
+		self.bind('<<Paste>>',          self.paste)
+
+		self.bind('<<Connect>>',	self.openClose)
+
+		self.bind('<<New>>',            self.newFile)
+		self.bind('<<Open>>',           self.loadDialog)
+		self.bind('<<Save>>',           self.saveAll)
+		self.bind('<<SaveAs>>',         self.saveDialog)
+		self.bind('<<Reload>>',         self.reload)
+
+		self.bind('<<Recent0>>',        self._loadRecent0)
+		self.bind('<<Recent1>>',        self._loadRecent1)
+		self.bind('<<Recent2>>',        self._loadRecent2)
+		self.bind('<<Recent3>>',        self._loadRecent3)
+		self.bind('<<Recent4>>',        self._loadRecent4)
+		self.bind('<<Recent5>>',        self._loadRecent5)
+		self.bind('<<Recent6>>',        self._loadRecent6)
+		self.bind('<<Recent7>>',        self._loadRecent7)
+		self.bind('<<Recent8>>',        self._loadRecent8)
+		self.bind('<<Recent9>>',        self._loadRecent9)
+
+		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
+		self.bind('<<AlarmClear>>',     self.alarmClear)
+		self.bind('<<Help>>',           self.help)
+
+		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
+
+		# Editor bindings
+		self.bind("<<Add>>",			self.editor.insertItem)
+		self.bind("<<Clone>>",			self.editor.clone)
+		self.bind("<<Delete>>",			self.editor.deleteLine)
+		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
+		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
+		self.canvas.bind("<Delete>",		self.editor.deleteLine)
+		self.canvas.bind("<BackSpace>",		self.editor.deleteLine)
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
 		self.canvas.bind('<Control-Key-v>',	self.paste)
-#		self.canvas.bind("<Control-Key-Up>",	self.commandOrderUp)
-#		self.canvas.bind("<Control-Key-Down>",	self.commandOrderDown)
-		self.canvas.bind("<Delete>",		self.gcodelist.deleteLine)
-		self.canvas.bind("<BackSpace>",		self.gcodelist.deleteLine)
 		try:
-			self.canvas.bind("<KP_Delete>",	self.gcodelist.deleteLine)
+			self.canvas.bind("<KP_Delete>",	self.editor.deleteLine)
 		except:
 			pass
+		self.bind('<<Invert>>',		self.editor.invertBlocks)
+		self.bind('<<Expand>>',		self.editor.toggleExpand)
+		self.bind('<<Enable>>',		self.editor.toggleEnable)
 
-		# Global bindings
+		# Canvas X-bindings
+		self.bind("<<ViewChange>>",	self.viewChange)
+
+		frame = Page.frames["Probe:Probe"]
+		self.bind('<<Probe>>',            frame.probe)
+		frame = Page.frames["Probe:Center"]
+		self.bind('<<ProbeCenter>>',      frame.probe)
+		frame = Page.frames["Probe:Tool"]
+		self.bind('<<ToolCalibrate>>',    frame.probe)
+		self.bind('<<ToolChange>>',       frame.change)
+
+		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+
+		self.bind('<<CanvasFocus>>',	self.canvasFocus)
+		self.bind('<<Draw>>',	        self.draw)
+		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
+
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
-		self.bind('<Control-Key-f>',	self.find)
-		self.bind('<Control-Key-g>',	self.findNext)
-		self.bind('<Control-Key-h>',	self.replace)
-		self.bind('<Control-Key-e>',	self.gcodelist.toggleExpand)
-		self.bind('<Control-Key-l>',	self.gcodelist.toggleEnable)
-		self.bind("<Control-Key-q>",	self.quit)
-		self.bind("<Control-Key-o>",	self.loadDialog)
-		self.bind("<Control-Key-r>",	self.drawAfter)
+#		self.bind('<Control-Key-f>',	self.find)
+#		self.bind('<Control-Key-g>',	self.findNext)
+#		self.bind('<Control-Key-h>',	self.replace)
+		self.bind('<Control-Key-e>',	self.editor.toggleExpand)
+		self.bind('<Control-Key-l>',	self.editor.toggleEnable)
+		self.bind('<Control-Key-q>',	self.quit)
+		self.bind('<Control-Key-o>',	self.loadDialog)
+		self.bind('<Control-Key-r>',	self.drawAfter)
 		self.bind("<Control-Key-s>",	self.saveAll)
 		self.bind('<Control-Key-y>',	self.redo)
 		self.bind('<Control-Key-z>',	self.undo)
@@ -299,52 +459,60 @@ class Application(Toplevel):
 		self.canvas.bind('<Key-space>',	self.commandFocus)
 		self.bind('<Control-Key-space>',self.commandFocus)
 
+		tools = self.pages["Tools"]
+		self.bind('<<ToolAdd>>',	tools.add)
+		self.bind('<<ToolDelete>>',	tools.delete)
+		self.bind('<<ToolClone>>',	tools.clone)
+		self.bind('<<ToolRename>>',	tools.rename)
+
 #		self.bind('<F1>',		self.help)
 #		self.bind('<F2>',		self.rename)
+#		self.bind('<F3>',		self.canvasFrame.viewXY)
+#		self.bind('<F4>',		self.canvasFrame.viewXZ)
+#		self.bind('<F5>',		self.canvasFrame.viewYZ)
+#		self.bind('<F6>',		self.canvasFrame.viewISO1)
+#		self.bind('<F7>',		self.canvasFrame.viewISO2)
+#		self.bind('<F8>',		self.canvasFrame.viewISO3)
 
-		self.bind('<F3>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XY]))
-		self.bind('<F4>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ]))
-		self.bind('<F5>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ]))
-		self.bind('<F6>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1]))
-		self.bind('<F7>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2]))
-		self.bind('<F8>',		lambda e,s=self : s.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3]))
+		self.bind('<Up>',		self.control.moveYup)
+		self.bind('<Down>',		self.control.moveYdown)
+		self.bind('<Right>',		self.control.moveXup)
+		self.bind('<Left>',		self.control.moveXdown)
+		self.bind('<Prior>',		self.control.moveZup)
+		self.bind('<Next>',		self.control.moveZdown)
 
-		self.bind('<Up>',		self.moveYup)
-		self.bind('<Down>',		self.moveYdown)
-		self.bind('<Right>',		self.moveXup)
-		self.bind('<Left>',		self.moveXdown)
-		self.bind('<Prior>',		self.moveZup)
-		self.bind('<Next>',		self.moveZdown)
+		self.bind('<Key-plus>',		self.control.incStep)
+		self.bind('<Key-equal>',	self.control.incStep)
+		self.bind('<KP_Add>',		self.control.incStep)
+		self.bind('<Key-minus>',	self.control.decStep)
+		self.bind('<Key-underscore>',	self.control.decStep)
+		self.bind('<KP_Subtract>',	self.control.decStep)
 
-		self.bind('<Key-plus>',		self.incStep)
-		self.bind('<Key-equal>',	self.incStep)
-		self.bind('<KP_Add>',		self.incStep)
-		self.bind('<Key-minus>',	self.decStep)
-		self.bind('<Key-underscore>',	self.decStep)
-		self.bind('<KP_Subtract>',	self.decStep)
-
-		self.bind('<Key-asterisk>',	self.mulStep)
-		self.bind('<KP_Multiply>',	self.mulStep)
-		self.bind('<Key-slash>',	self.divStep)
-		self.bind('<KP_Divide>',	self.divStep)
+		self.bind('<Key-asterisk>',	self.control.mulStep)
+		self.bind('<KP_Multiply>',	self.control.mulStep)
+		self.bind('<Key-slash>',	self.control.divStep)
+		self.bind('<KP_Divide>',	self.control.divStep)
 
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
-
-		self.bind('<FocusIn>',		self.focusIn)
-
-		self.protocol("WM_DELETE_WINDOW", self.quit)
 
 		for x in self.widgets:
 			if isinstance(x,Entry):
 				x.bind("<Escape>", self.canvasFocus)
 
-		# Tool bar and Menu
-		self.createToolbar(toolbar)
-		self.createMenu()
+		self.bind('<FocusIn>',		self.focusIn)
+		self.protocol("WM_DELETE_WINDOW", self.quit)
 
 		self.canvas.focus_set()
 
+<<<<<<< HEAD
+		# Fill basic global variables
+		CNC.vars["state"] = NOT_CONNECTED
+		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
+		self._pendantFileUploaded = None
+		self._drawAfter = None	# after handle for modification
+		self._inFocus   = False
+=======
 		# Highlight variables
 		# Fill basic global variables
 		CNC.vars["state"] = NOT_CONNECTED
@@ -370,22 +538,41 @@ class Application(Toplevel):
 		self._drawAfter  = None	# after handle for modification
 		self._alarm      = True
 		self._inFocus    = False
+>>>>>>> master
 		self.monitorSerial()
-		self.toggleDrawFlag()
+		self.canvasFrame.toggleDrawFlag()
 
-		# Create tools
-		self.toolFrame.fill()
-		try:
-			self.toolFrame.set(Utils.config.get(Utils.__prg__, "tool"))
-		except:
-			self.toolFrame.set("Box")
+		self.paned.sash_place(0, Utils.getInt(Utils.__prg__, "sash", 340), 0)
 
-		if int(Utils.config.get("Connection","pendant")):
+		# Auto start pendant and serial
+		if Utils.getBool("Connection","pendant"):
 			self.startPendant(False)
 
-		if int(Utils.config.get("Connection","openserial")):
+		if _openserial and Utils.getBool("Connection","openserial"):
 			self.openClose()
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+	def setStatus(self, msg):
+		self.statusbar.configText(text=msg, fill="DarkBlue")
+
+	#-----------------------------------------------------------------------
+	# Set a status message from an event
+	#-----------------------------------------------------------------------
+	def updateStatus(self, event):
+		self.setStatus(event.data)
+
+	#-----------------------------------------------------------------------
+	# Update canvas coordinates
+	#-----------------------------------------------------------------------
+	def updateCanvasCoords(self, event):
+		x,y,z = event.data.split()
+		self.statusx["text"] = "X: "+x
+		self.statusy["text"] = "Y: "+y
+		self.statusz["text"] = "Z: "+z
+
+	#-----------------------------------------------------------------------
+=======
 	#----------------------------------------------------------------------
 	# Control
 	#----------------------------------------------------------------------
@@ -1989,9 +2176,8 @@ class Application(Toplevel):
 					command=self.about)
 
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def quit(self, event=None):
-		global config
-
 		if self.running and self._quit<1:
 			tkMessageBox.showinfo("Running",
 				"CNC is currently running, please stop it before.",
@@ -2008,8 +2194,12 @@ class Application(Toplevel):
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveDialog()
 
+		Sender.quit(self)
 		self.saveConfig()
+<<<<<<< HEAD
+=======
 		CNCPendant.stop()
+>>>>>>> master
 		self.destroy()
 		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
@@ -2050,11 +2240,22 @@ class Application(Toplevel):
 	def disable(self):
 		self.configWidgets("state",DISABLED)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	def loadShortcuts(self):
+		for name, value in Utils.config.items("Shortcut"):
+			# Convert to uppercase
+			key = name.title()
+			self.unbind("<%s>"%(key))	# unbind any possible old value
+			if value:
+				self.bind("<%s>"%(key), lambda e,s=self,c=value : s.execute(c))
+
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		geom = "%sx%s" % (Utils.getInt(Utils.__prg__, "width", 900),
-				  Utils.getInt(Utils.__prg__, "height", 650))
-		try: self.geometry(geom)
+		global geometry
+		if geometry is None:
+			geometry = "%sx%s" % (Utils.getInt(Utils.__prg__, "width",  900),
+					      Utils.getInt(Utils.__prg__, "height", 650))
+		try: self.geometry(geometry)
 		except: pass
 
 		self.drofont = Utils.getFont("DRO",('Helvetica',12))
@@ -2066,26 +2267,32 @@ class Application(Toplevel):
 		except:
 			pass
 
-		CNCPendant.port = Utils.getInt("Connection","pendantport",CNCPendant.port)
+		self.tools.loadConfig()
+		Sender.loadConfig(self)
+		self.loadShortcuts()
 
-		# Create tools
-		self.tools.load(Utils.config)
-		self.loadHistory()
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Program
-		Utils.config.set(Utils.__prg__,  "width",    str(self.winfo_width()))
-		Utils.config.set(Utils.__prg__,  "height",   str(self.winfo_height()))
-		#Utils.config.set(Utils.__prg__,  "x",        str(self.winfo_rootx()))
-		#Utils.config.set(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		Utils.setInt(Utils.__prg__,  "width",    str(self.winfo_width()))
+		Utils.setInt(Utils.__prg__,  "height",   str(self.winfo_height()))
+		#Utils.setInt(Utils.__prg__,  "x",        str(self.winfo_rootx()))
+		#Utils.setInt(Utils.__prg__,  "y",        str(self.winfo_rooty()))
+		Utils.setInt(Utils.__prg__,  "sash",      str(self.paned.sash_coord(0)[0]))
 
 		#save windowState
-		Utils.config.set(Utils.__prg__,  "windowstate", str(self.wm_state()))
-
-		Utils.config.set(Utils.__prg__,  "tool",     self.toolFrame.get())
+		Utils.setStr(Utils.__prg__,  "windowstate", str(self.wm_state()))
+		Utils.setStr(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
 
 		# Connection
+<<<<<<< HEAD
+		Page.saveConfig()
+		Sender.saveConfig(self)
+		self.tools.saveConfig()
+		self.canvasFrame.saveConfig()
+
+	#-----------------------------------------------------------------------
+=======
 		Utils.config.set("Connection", "port", self.portCombo.get())
 
 		# Canvas
@@ -2122,6 +2329,7 @@ class Application(Toplevel):
 		self.saveHistory()
 
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def loadHistory(self):
 		try:
 			f = open(Utils.hisFile,"r")
@@ -2130,7 +2338,7 @@ class Application(Toplevel):
 		self.history = [x.strip() for x in f]
 		f.close()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveHistory(self):
 		try:
 			f = open(Utils.hisFile,"w")
@@ -2139,59 +2347,71 @@ class Application(Toplevel):
 		f.write("\n".join(self.history))
 		f.close()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def cut(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
 ###			self.editor.cut()
 			pass
-		elif focus:
-			focus.event_generate("<<Cut>>")
+#		elif focus:
+#			focus.event_generate("<<Cut>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def copy(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
 ###			self.editor.copy()
 			pass
-		elif focus:
-			focus.event_generate("<<Copy>>")
+#		elif focus:
+#			focus.event_generate("<<Copy>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def paste(self, event=None):
 		focus = self.focus_get()
 		if focus is self.canvas:
 ###			self.editor.paste()
 			pass
-		elif focus:
-			focus.event_generate("<<Paste>>")
+#		elif focus:
+#			focus.event_generate("<<Paste>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def undo(self, event=None):
+		if self.running: return
 		if self.gcode.canUndo():
 			self.gcode.undo();
-			self.gcodelist.fill()
+			self.editor.fill()
 			self.drawAfter()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def redo(self, event=None):
+		if self.running: return
 		if self.gcode.canRedo():
 			self.gcode.redo();
-			self.gcodelist.fill()
+			self.editor.fill()
 			self.drawAfter()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def about(self, event=None):
 		tkMessageBox.showinfo("About",
 				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
 				(Utils.__prg__, __author__, __email__, __version__, __date__),
 				parent=self)
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+	def alarmClear(self, event=None):
+		self._alarm = False
+
+	#-----------------------------------------------------------------------
+	# FIXME Very primitive
+	#-----------------------------------------------------------------------
+=======
 	#----------------------------------------------------------------------
 	# FIXME Very primitive
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def showStats(self, event=None):
 		msg  = "GCode: %s\n"%(self.gcode.filename)
 		if not self.gcode.probe.isEmpty():
@@ -2200,72 +2420,42 @@ class Application(Toplevel):
 			unit = "in"
 		else:
 			unit = "mm"
+<<<<<<< HEAD
+		msg += "Margins:\tX[%g .. %g]\n" % (CNC.vars["xmin"], CNC.vars["xmax"])
+		msg += "\tY:[%g .. %g]\n" % (CNC.vars["ymin"], CNC.vars["ymax"])
+		msg += "Dim:\t%g x %g\n" % \
+				(CNC.vars["xmax"]-CNC.vars["xmin"],
+				 CNC.vars["ymax"]-CNC.vars["ymin"])
+=======
 		msg += "Margins\tX:[%g .. %g]\n\tY:[%g .. %g]\n" % \
 			(CNC.vars["xmin"], CNC.vars["xmax"], CNC.vars["ymin"], CNC.vars["ymax"])
+>>>>>>> master
 		msg += "Movement Length: %g %s\n"%(self.cnc.totalLength, unit)
 		msg += "Total Time: ~%.2g min\n"%(self.cnc.totalTime)
 		tkMessageBox.showinfo("Statistics", msg, parent=self)
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+=======
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def reportDialog(self, event=None):
 		Utils.ReportDialog(self)
 
-	#----------------------------------------------------------------------
-	def insertBlock(self):
-		self.tabPage.changePage("Editor")
-		self.gcodelist.insertBlock()
-
-	#----------------------------------------------------------------------
-	def insertLine(self):
-		self.tabPage.changePage("Editor")
-		self.gcodelist.insertLine()
-
-	#----------------------------------------------------------------------
-	def toggleDrawFlag(self):
-		self.canvas.draw_axes     = self.draw_axes.get()
-		self.canvas.draw_grid     = self.draw_grid.get()
-		self.canvas.draw_margin   = self.draw_margin.get()
-		self.canvas.draw_probe    = self.draw_probe.get()
-		self.canvas.draw_paths    = self.draw_paths.get()
-		self.canvas.draw_rapid    = self.draw_rapid.get()
-		self.canvas.draw_workarea = self.draw_workarea.get()
-		self.viewChange()
-
-	#----------------------------------------------------------------------
-	def viewChange(self, a=None, b=None, c=None):
-		self.draw()
+	#-----------------------------------------------------------------------
+	def viewChange(self, event=None):
 		if self.running:
 			self._selectI = 0	# last selection pointer in items
-		else:
-			self.selectionChange()
+		self.draw()
 
 	# ----------------------------------------------------------------------
-	def viewXY(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XY])
-
-	# ----------------------------------------------------------------------
-	def viewXZ(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_XZ])
-
-	# ----------------------------------------------------------------------
-	def viewYZ(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_YZ])
-
-	# ----------------------------------------------------------------------
-	def viewISO1(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO1])
-
-	# ----------------------------------------------------------------------
-	def viewISO2(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO2])
-
-	# ----------------------------------------------------------------------
-	def viewISO3(self, event=None):
-		self.view.set(CNCCanvas.VIEWS[CNCCanvas.VIEW_ISO3])
+	def refresh(self, event=None):
+		self.editor.fill()
+		self.draw()
 
 	# ----------------------------------------------------------------------
 	def draw(self):
-		view = CNCCanvas.VIEWS.index(self.view.get())
+		view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
 		self.canvas.draw(view)
 		self.selectionChange()
 
@@ -2276,6 +2466,9 @@ class Application(Toplevel):
 		if self._drawAfter is not None: self.after_cancel(self._drawAfter)
 		self._drawAfter = self.after(DRAW_AFTER, self.draw)
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+=======
 	# ----------------------------------------------------------------------
 	def changePage(self, event=None):
 		page = self.tabPage.getActivePage()
@@ -2292,57 +2485,66 @@ class Application(Toplevel):
 			self.canvas.focus_set()
 
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def commandFocus(self, event=None):
 		self.command.focus_set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandFocusIn(self, event=None):
 		self.cmdlabel["foreground"] = "Blue"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandFocusOut(self, event=None):
 		self.cmdlabel["foreground"] = "Black"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def canvasFocus(self, event=None):
 		self.canvas.focus_set()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def selectAll(self, event=None):
-		#self.tabPage.changePage("Editor")
-		self.gcodelist.selectAll()
+		self.ribbon.changePage("Editor")
+		self.editor.selectAll()
 		self.selectionChange()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def unselectAll(self, event=None):
-		#self.tabPage.changePage("Editor")
-		self.gcodelist.selectClear()
+		focus = self.focus_get()
+		if isinstance(focus, Entry) or \
+		   isinstance(focus, Spinbox) or \
+		   isinstance(focus, Listbox): return
+		self.ribbon.changePage("Editor")
+		self.editor.selectClear()
 		self.selectionChange()
 		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def find(self, event=None):
-		self.tabPage.changePage("Editor")
-###		self.editor.findDialog()
-		return "break"
-
-	#----------------------------------------------------------------------
+		self.ribbon.changePage("Editor")
+####		self.editor.findDialog()
+#		return "break"
+#
+#	#-----------------------------------------------------------------------
 	def findNext(self, event=None):
-		self.tabPage.changePage("Editor")
-###		self.editor.findNext()
-		return "break"
-
-	#----------------------------------------------------------------------
+		self.ribbon.changePage("Editor")
+####		self.editor.findNext()
+#		return "break"
+#
+#	#-----------------------------------------------------------------------
 	def replace(self, event=None):
-		self.tabPage.changePage("Editor")
-###		self.editor.replaceDialog()
-		return "break"
+		self.ribbon.changePage("Editor")
+####		self.editor.replaceDialog()
+#		return "break"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	def activeBlock(self):
+		return self.editor.activeBlock()
+
+	#-----------------------------------------------------------------------
 	# Keyboard binding to <Return>
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def cmdExecute(self, event):
 		self.commandExecute()
 
@@ -2352,9 +2554,9 @@ class Application(Toplevel):
 		self.command.insert(0,cmd)
 		if execute: self.commandExecute(False)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute command from command line
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandExecute(self, addHistory=True):
 		line = self.command.get().strip()
 		if not line: return
@@ -2371,13 +2573,19 @@ class Application(Toplevel):
 		self.command.delete(0,END)
 		self.execute(line)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute a single command
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def execute(self, line):
 		#print
 		#print "<<<",line
 		try:
+<<<<<<< HEAD
+			line = self.evaluate(line)
+		except:
+			tkMessageBox.showerror("Evaluation error",
+				sys.exc_info()[1], parent=self)
+=======
 			line = self.gcode.evaluate(CNC.parseLine2(line,True))
 		except:
 			tkMessageBox.showerror("Evaluation error",
@@ -2394,8 +2602,16 @@ class Application(Toplevel):
 
 		elif line[0] in ("$","!","~","?","(") or GPAT.match(line):
 			self.sendGrbl(line+"\n")
+>>>>>>> master
 			return
+		#print ">>>",line
 
+<<<<<<< HEAD
+		if line is None: return
+
+		if self.executeGcode(line): return
+
+=======
 #		elif line[0] == "/":
 #			self.editor.find(line[1:])
 #			return
@@ -2403,6 +2619,7 @@ class Application(Toplevel):
 #			self.editor.setInsert("%s.0"%(line[1:]))
 #			return
 
+>>>>>>> master
 		oline = line.strip()
 		line  = oline.replace(","," ").split()
 		cmd   = line[0].upper()
@@ -2411,42 +2628,21 @@ class Application(Toplevel):
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
 
+<<<<<<< HEAD
+=======
 		# ABS*OLUTE: Set absolute coordinates
 		elif rexx.abbrev("ABSOLUTE",cmd,3):
 			self.sendGrbl("G90\n")
 
+>>>>>>> master
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
-			self.clearTerminal()
-
-		# BOX [dx] [dy] [dz] [nx] [ny] [nz] [tool]: create a finger box
-		elif cmd == "BOX":
-			tool = self.tools["Box"]
-			try:    tool["dx"] = float(line[1])
-			except: pass
-			try:    tool["dy"] = float(line[2])
-			except: pass
-			try:    tool["dz"] = float(line[3])
-			except: pass
-
-			try:    tool["nx"] = float(line[4])
-			except: pass
-			try:    tool["ny"] = float(line[5])
-			except: pass
-			try:    tool["nz"] = float(line[6])
-			except: pass
-
-			try:
-				tool["profile"] = int(rexx.abbrev("PROFILE",line[7].upper()))
-			except: pass
-			try:
-				tool["cut"] = int(rexx.abbrev("CUT",line[7].upper()))
-			except: pass
-			tool.execute(self)
+			self.ribbon.changePage("Terminal")
+			Page.frames["Terminal"].clear()
 
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
-			self.tabPage.changePage("Control")
+			self.ribbon.changePage("Control")
 
 		# CUT [height] [pass-per-depth]: replicate selected blocks to cut-height
 		# default values are taken from the active material
@@ -2456,14 +2652,14 @@ class Application(Toplevel):
 
 			try:    d = float(line[2])
 			except: d = None
-			self.executeOnSelection("CUT",h, d)
+			self.executeOnSelection("CUT", True, h, d)
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
 		elif cmd=="DOWN":
-			self.gcodelist.orderDown()
+			self.editor.orderDown()
 		elif cmd=="UP":
-			self.gcodelist.orderUp()
+			self.editor.orderUp()
 
 		# DRI*LL [depth] [peck]: perform drilling at all penetrations points
 		elif rexx.abbrev("DRILL",cmd,3):
@@ -2472,7 +2668,19 @@ class Application(Toplevel):
 
 			try:    p = float(line[2])
 			except: p = None
-			self.executeOnSelection("DRILL",h, p)
+			self.executeOnSelection("DRILL", True, h, p)
+
+		# ECHO <msg>: echo message
+		elif cmd=="ECHO":
+			self.setStatus(oline[5:].strip())
+
+		# INV*ERT: invert selected blocks
+		elif rexx.abbrev("INVERT",cmd,3):
+			self.editor.invertBlocks()
+
+		# MSG|MESSAGE <msg>: echo message
+		elif cmd in ("MSG","MESSAGE"):
+			tkMessageBox.showinfo("Message",oline[oline.find(" ")+1:].strip(), parent=self)
 
 		# ECHO <msg>: echo message
 		elif cmd=="ECHO":
@@ -2485,64 +2693,40 @@ class Application(Toplevel):
 		# FIL*TER: filter editor blocks with text
 		elif rexx.abbrev("FILTER",cmd,3) or cmd=="ALL":
 			try:
-				self.gcodelist.filter = line[1]
+				self.editor.filter = line[1]
 			except:
-				self.gcodelist.filter = None
-			self.gcodelist.fill()
+				self.editor.filter = None
+			self.editor.fill()
 
-		# ED*ITOR: switch to editor tab
-		elif rexx.abbrev("EDITOR",cmd,2):
-			self.tabPage.changePage("Editor")
-
-		# HOME: perform a homing cycle
-		elif cmd == "HOME":
-			self.home()
-
-		# HOLE: create a hole
-		elif cmd == "HOLE":
-			try: radius = float(line[1])
-			except: return
-			if radius<0:
-				radius = self.tool/2 - radius
-			else:
-				radius += self.tool/2
-
-			self.gcode.box(self.gcodelist.activeBlock(), radius)
-			self.gcodelist.fill()
-			self.draw()
-			self.statusbar["text"] = "BOX with fingers generated"
-
+		# ED*IT: edit current line or item
+		elif rexx.abbrev("EDIT",cmd,2):
+			self.edit()
 
 		# IM*PORT <filename>: import filename with gcode or dxf at cursor location
 		# or at the end of the file
 		elif rexx.abbrev("IMPORT",cmd,2):
-			try:
-				self.importFile(line[1])
-			except:
-				pass
+			try:    self.importFile(line[1])
+			except: self.importFile()
 
 		# INK*SCAPE: remove uneccessary Z motion as a result of inkscape gcodetools
 		elif rexx.abbrev("INKSCAPE",cmd,3):
 			if len(line)>1 and rexx.abbrev("ALL",line[1].upper()):
-				self.gcodelist.selectAll()
-			self.executeOnSelection("INKSCAPE")
+				self.editor.selectAll()
+			self.executeOnSelection("INKSCAPE", True)
 
 		# ISO1: switch to ISO1 projection
 		elif cmd=="ISO1":
-			self.viewISO1()
+			self.canvasFrame.viewISO1()
 		# ISO2: switch to ISO2 projection
 		elif cmd=="ISO2":
-			self.viewISO2()
+			self.canvasFrame.viewISO2()
 		# ISO3: switch to ISO3 projection
 		elif cmd=="ISO3":
-			self.viewISO3()
+			self.canvasFrame.viewISO3()
 
 		# LO*AD [filename]: load filename containing g-code
-		elif rexx.abbrev("LOAD",cmd,2):
-			if len(line)>1:
-				self.load(line[1])
-			else:
-				self.loadDialog()
+		elif rexx.abbrev("LOAD",cmd,2) and len(line)==1:
+			self.loadDialog()
 
 		# MAT*ERIAL [name/height] [pass-per-depth] [feed]: set material from database or parameters
 #		elif rexx.abbrev("MATERIAL",cmd,3):
@@ -2554,24 +2738,24 @@ class Application(Toplevel):
 #			except: pass
 #			try: self.feed = float(line[3])
 #			except: pass
-#			self.statusbar["text"] = "Height: %g  Depth-per-pass: %g  Feed: %g"%(self.height,self.depth_pass, self.feed)
+#			self.setStatus("Height: %g  Depth-per-pass: %g  Feed: %g"%(self.height,self.depth_pass, self.feed))
 
 		# MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
 		elif rexx.abbrev("MIRROR",cmd,3):
 			if len(line)==1: return
 			line1 = line[1].upper()
 			#if nothing is selected:
-			self.gcodelist.selectAll()
+			self.editor.selectAll()
 			if rexx.abbrev("HORIZONTAL",line1):
-				self.executeOnSelection("MIRRORH")
+				self.executeOnSelection("MIRRORH", False)
 			elif rexx.abbrev("VERTICAL",line1):
-				self.executeOnSelection("MIRRORV")
+				self.executeOnSelection("MIRRORV", False)
 
 		elif rexx.abbrev("ORDER",cmd,2):
 			if line[1].upper() == "UP":
-				self.gcodelist.orderUp()
+				self.editor.orderUp()
 			elif line[1].upper() == "DOWN":
-				self.gcodelist.orderDown()
+				self.editor.orderDown()
 
 		# MO*VE [|CE*NTER|BL|BR|TL|TR|UP|DOWN|x] [[y [z]]]:
 		# move selected objects either by mouse or by coordinates
@@ -2580,9 +2764,45 @@ class Application(Toplevel):
 				self.canvas.setActionMove()
 				return
 			line1 = line[1].upper()
+			dz = 0.0
 			if rexx.abbrev("CENTER",line1,2):
 				dx = -(CNC.vars["xmin"] + CNC.vars["xmax"])/2.0
 				dy = -(CNC.vars["ymin"] + CNC.vars["ymax"])/2.0
+<<<<<<< HEAD
+				self.editor.selectAll()
+			elif line1=="BL":
+				dx = -CNC.vars["xmin"]
+				dy = -CNC.vars["ymin"]
+				self.editor.selectAll()
+			elif line1=="BC":
+				dx = -(CNC.vars["xmin"] + CNC.vars["xmax"])/2.0
+				dy = -CNC.vars["ymin"]
+				self.editor.selectAll()
+			elif line1=="BR":
+				dx = -CNC.vars["xmax"]
+				dy = -CNC.vars["ymin"]
+				self.editor.selectAll()
+			elif line1=="TL":
+				dx = -CNC.vars["xmin"]
+				dy = -CNC.vars["ymax"]
+				self.editor.selectAll()
+			elif line1=="TC":
+				dx = -(CNC.vars["xmin"] + CNC.vars["xmax"])/2.0
+				dy = -CNC.vars["ymax"]
+				self.editor.selectAll()
+			elif line1=="TR":
+				dx = -CNC.vars["xmax"]
+				dy = -CNC.vars["ymax"]
+				self.editor.selectAll()
+			elif line1=="LC":
+				dx = -CNC.vars["xmin"]
+				dy = -(CNC.vars["ymin"] + CNC.vars["ymax"])/2.0
+				self.editor.selectAll()
+			elif line1=="RC":
+				dx = -CNC.vars["xmax"]
+				dy = -(CNC.vars["ymin"] + CNC.vars["ymax"])/2.0
+				self.editor.selectAll()
+=======
 				dz = 0.0
 				self.gcodelist.selectAll()
 			elif line1=="BL":
@@ -2605,6 +2825,7 @@ class Application(Toplevel):
 				dy = -CNC.vars["ymax"]
 				dz = 0.0
 				self.gcodelist.selectAll()
+>>>>>>> master
 			elif line1 in ("UP","DOWN"):
 				dx = line1
 				dy = dz = line1
@@ -2615,7 +2836,11 @@ class Application(Toplevel):
 				except: dy = 0.0
 				try:    dz = float(line[3])
 				except: dz = 0.0
-			self.executeOnSelection("MOVE",dx,dy,dz)
+			self.executeOnSelection("MOVE", False, dx,dy,dz)
+
+		# OPT*IIMZE: reorder selected blocks to minimize rapid motions
+		elif rexx.abbrev("OPTIMIZE",cmd,3):
+			self.executeOnSelection("OPTIMIZE", True)
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
@@ -2625,22 +2850,8 @@ class Application(Toplevel):
 			except: dy = 0.0
 			try:    dz = -float(line[3])
 			except: dz = 0.0
-			self.gcodelist.selectAll()
-			self.executeOnSelection("MOVE",dx,dy,dz)
-
-		# OPEN: open serial connection to grbl
-		# CLOSE: close serial connection to grbl
-		elif cmd in ("OPEN","CLOSE"):
-			self.openClose()
-
-		# QU*IT: quit program
-		# EX*IT: exit program
-		elif rexx.abbrev("QUIT",cmd,2) or rexx.abbrev("EXIT",cmd,2):
-			self.quit()
-
-		# PAUSE: pause cycle
-		elif cmd == "PAUSE":
-			self.pause()
+			self.editor.selectAll()
+			self.executeOnSelection("MOVE", False, dx,dy,dz)
 
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
@@ -2649,6 +2860,8 @@ class Application(Toplevel):
 			else:
 				self.profile()
 
+<<<<<<< HEAD
+=======
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
 			self.sendGrbl("G91\n")
@@ -2657,13 +2870,10 @@ class Application(Toplevel):
 		elif cmd == "RESET":
 			self.softReset()
 
+>>>>>>> master
 		# REV*ERSE: reverse path direction
 		elif rexx.abbrev("REVERSE", cmd, 3):
-			self.executeOnSelection("REVERSE")
-
-		# RUN: run g-code
-		elif cmd == "RUN":
-			self.run()
+			self.executeOnSelection("REVERSE", True)
 
 		# ROT*ATE [CCW|CW|FLIP|ang] [x0 [y0]]: rotate selected blocks
 		# counter-clockwise(90) / clockwise(-90) / flip(180)
@@ -2673,13 +2883,13 @@ class Application(Toplevel):
 			x0 = y0 = 0.0
 			if line1 == "CCW":
 				ang = 90.0
-				#self.gcodelist.selectAll()
+				#self.editor.selectAll()
 			elif line1 == "CW":
 				ang = -90.0
-				#self.gcodelist.selectAll()
+				#self.editor.selectAll()
 			elif line1=="FLIP":
 				ang = 180.0
-				#self.gcodelist.selectAll()
+				#self.editor.selectAll()
 			else:
 				try: ang = float(line[1])
 				except: pass
@@ -2687,65 +2897,52 @@ class Application(Toplevel):
 				except: pass
 				try: y0 = float(line[3])
 				except: pass
-			self.executeOnSelection("ROTATE",ang,x0,y0)
+			self.executeOnSelection("ROTATE", False, ang,x0,y0)
 
 		# ROU*ND [n]: round all digits to n fractional digits
 		elif rexx.abbrev("ROUND",cmd,3):
 			acc = None
 			if len(line)>1:
 				if rexx.abbrev("ALL",line[1].upper()):
-					self.gcodelist.selectAll()
+					self.editor.selectAll()
 				else:
 					try:
 						acc = int(line[1])
 					except:
 						pass
-			self.executeOnSelection("ROUND",acc)
+			self.executeOnSelection("ROUND", False, acc)
 
 		# RU*LER: measure distances with mouse ruler
 		elif rexx.abbrev("RULER",cmd,2):
 			self.canvas.setActionRuler()
 
-		# SAFE [z]: safe z to move
-		elif cmd=="SAFE":
-			try: self.cnc.safe = float(line[1])
-			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safe)
-
-		# SA*VE [filename]: save to filename or to default name
-		elif rexx.abbrev("SAVE",cmd,2):
-			if len(line)>1:
-				self.save(line[1])
-			else:
-				self.saveAll()
-
 		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
 		elif cmd == "SET":
 			try: x = float(line[1])
-			except: x = ""
+			except: x = None
 			try: y = float(line[2])
-			except: y = ""
+			except: y = None
 			try: z = float(line[3])
-			except: z = ""
+			except: z = None
 			self._wcsSet(x,y,z)
 
 		elif cmd == "SET0":
-			self.wcsSet0()
+			self._wcsSet(0.,0.,0.)
 
 		elif cmd == "SETX":
 			try: x = float(line[1])
 			except: x = ""
-			self._wcsSet(x,"","")
+			self._wcsSet(x,None,None)
 
 		elif cmd == "SETY":
 			try: y = float(line[1])
 			except: y = ""
-			self._wcsSet("",y,"")
+			self._wcsSet(None,y,None)
 
 		elif cmd == "SETZ":
 			try: z = float(line[1])
 			except: z = ""
-			self._wcsSet("","",z)
+			self._wcsSet(None,None,z)
 
 		# STEP [s]: set motion step size to s
 		elif cmd == "STEP":
@@ -2783,7 +2980,7 @@ class Application(Toplevel):
 
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):
-			self.tabPage.changePage("Terminal")
+			self.ribbon.changePage("Terminal")
 
 		# TOOL [diameter]: set diameter of cutting tool
 		elif cmd in ("BIT","TOOL","MILL"):
@@ -2792,11 +2989,11 @@ class Application(Toplevel):
 			except:
 				tool = self.tools["EndMill"]
 				diam = self.tools.fromMm(tool["diameter"])
-			self.statusbar["text"] = "EndMill: %s %g"%(tool["name"], diam)
+			self.setStatus("EndMill: %s %g"%(tool["name"], diam))
 
 		# TOOLS
 		elif cmd=="TOOLS":
-			self.tabPage.changePage("Tools")
+			self.ribbon.changePage("Tools")
 
 		# UNL*OCK: unlock grbl
 		elif rexx.abbrev("UNLOCK",cmd,3):
@@ -2817,46 +3014,55 @@ class Application(Toplevel):
 				except:
 					return
 			if idx<0 or idx>=n:
-				self.statusbar["text"] = "Invalid user command %s"%(line[1])
+				self.setStatus("Invalid user command %s"%(line[1]))
 				return
 			cmd = Utils.getStr("Buttons","command.%d"%(idx),"")
 			for line in cmd.splitlines():
 				self.execute(line)
 
 		# WCS [n]: switch to workspace index n
-		elif rexx.abbrev("WORKSPACE",cmd,4) or cmd=="WCS":
-			self.tabPage.changePage("WCS")
-			try:
-				self.wcsvar.set(WCS.index(line[1].upper()))
-			except:
-				pass
+#		elif rexx.abbrev("WORKSPACE",cmd,4) or cmd=="WCS":
+#			self.tabPage.changePage("WCS")
+#			try:
+#				self.wcsvar.set(WCS.index(line[1].upper()))
+#			except:
+#				pass
 
 		# XY: switch to XY view
 		# YX: switch to XY view
 		elif cmd in ("XY","YX"):
-			self.viewXY()
+			self.canvasFrame.viewXY()
 
 		# XZ: switch to XZ view
 		# ZX: switch to XZ view
 		elif cmd in ("XZ","ZX"):
-			self.viewXZ()
+			self.canvasFrame.viewXZ()
 
 		# YZ: switch to YZ view
 		# ZY: switch to YZ view
 		elif cmd in ("YZ","ZY"):
-			self.viewYZ()
+			self.canvasFrame.viewYZ()
 
 		else:
+<<<<<<< HEAD
+			rc = self.executeCommand(oline)
+			if rc:
+				tkMessageBox.showerror(rc[0],rc[1], parent=self)
+=======
 			tkMessageBox.showerror("Unknown command",
 					"Unknown command '%s'"%(oline),
 					parent=self)
+>>>>>>> master
 			return
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Execute a command over the selected lines
-	#----------------------------------------------------------------------
-	def executeOnSelection(self, cmd, *args):
-		items = self.gcodelist.getCleanSelection()
+	#-----------------------------------------------------------------------
+	def executeOnSelection(self, cmd, blocksonly, *args):
+		if blocksonly:
+			items = self.editor.getSelectedBlocks()
+		else:
+			items = self.editor.getCleanSelection()
 		if not items: return
 
 		self.busy()
@@ -2871,6 +3077,8 @@ class Application(Toplevel):
 			self.gcode.inkscapeLines()
 		elif cmd == "MOVE":
 			self.gcode.moveLines(items, *args)
+		elif cmd == "OPTIMIZE":
+			self.gcode.optimize(items)
 		elif cmd == "REVERSE":
 			self.gcode.reverse(items, *args)
 		elif cmd == "ROUND":
@@ -2883,18 +3091,18 @@ class Application(Toplevel):
 			self.gcode.mirrorVLines(items)
 
 		# Fill listbox and update selection
-		self.gcodelist.fill()
+		self.editor.fill()
 		if sel is not None:
 			if isinstance(sel, str):
 				tkMessageBox.showerror("Operation error", sel, parent=self)
 			else:
-				self.gcodelist.select(sel,clear=True)
+				self.editor.select(sel,clear=True)
 		self.drawAfter()
 		self.notBusy()
-		self.statusbar["text"] = "%s %s"%(cmd," ".join([str(a) for a in args if a is not None]))
+		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
-	#----------------------------------------------------------------------
-	def profile(self, direction=None):
+	#-----------------------------------------------------------------------
+	def profile(self, direction=None, offset=0.0, cut=False, overcut=False, name=None):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -2911,28 +3119,32 @@ class Application(Toplevel):
 			except:
 				pass
 
+		# additional offset
+		ofs += offset
+
 		self.busy()
-		msg = self.gcode.profile(self.gcodelist.getSelectedBlocks(), ofs*sign)
+		blocks = self.editor.getSelectedBlocks()
+		# on return we have the blocks with the new blocks to select
+		msg = self.gcode.profile(blocks, ofs*sign, cut, overcut, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
 					parent=self)
-		self.gcodelist.fill()
+		self.editor.fill()
+		self.editor.selectBlocks(blocks)
 		self.draw()
 		self.notBusy()
-		self.statusbar["text"] = "Profile block with ofs=%g"%(ofs*sign)
+		self.setStatus("Profile block distance=%g"%(ofs*sign))
 
-	#----------------------------------------------------------------------
-	def commandOrderUp(self, event=None):
-		self.insertCommand("UP",True)
-		return "break"
+	#-----------------------------------------------------------------------
+	def edit(self, event=None):
+		page = self.ribbon.getActivePage()
+		if page.name == "Editor":
+			self.editor.edit()
+		elif page.name == "Tools":
+			page.edit()
 
-	#----------------------------------------------------------------------
-	def commandOrderDown(self, event=None):
-		self.insertCommand("DOWN",True)
-		return "break"
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
 		if self._historyPos is None:
 			if self.history:
@@ -2944,7 +3156,7 @@ class Application(Toplevel):
 		self.command.delete(0,END)
 		self.command.insert(0,self.history[self._historyPos])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def commandHistoryDown(self, event=None):
 		if self._historyPos is None:
 			return
@@ -2956,105 +3168,100 @@ class Application(Toplevel):
 		if self._historyPos is not None:
 			self.command.insert(0,self.history[self._historyPos])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def select(self, items, double, clear, toggle=True):
-		self.gcodelist.select(items, double, clear, toggle)
+		self.editor.select(items, double, clear, toggle)
 		self.selectionChange()
 
 	# ----------------------------------------------------------------------
 	# Selection has changed highlight the canvas
 	# ----------------------------------------------------------------------
 	def selectionChange(self, event=None):
-		items = self.gcodelist.getSelection()
+		items = self.editor.getSelection()
 		self.canvas.clearSelection()
 		if not items: return
 		self.canvas.select(items)
-		self.canvas.activeMarker(self.gcodelist.getActive())
+		self.canvas.activeMarker(self.editor.getActive())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def newFile(self, event=None):
 		self.gcode.init()
 		self.gcode.headerFooter()
-		self.gcodelist.fill()
+		self.editor.fill()
 		self.draw()
 		self.title(Utils.__prg__)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# load dialog
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadDialog(self, event=None):
+		if self.running: return
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open file",
 			initialfile=os.path.join(
 					Utils.config.get("File", "dir"),
 					Utils.config.get("File", "file")),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("DXF",    "*.dxf"),
-				   ("Probe",  "*.probe"),
-				   ("All","*")])
+			filetypes=FILETYPES)
 		if filename: self.load(filename)
 
-	#----------------------------------------------------------------------
-	def loadProbeDialog(self, event=None):
-		try:
-			pfilename = Utils.config.get("File", "probe")
-		except:
-			pfilename = "probe"
-		filename = bFileDialog.askopenfilename(master=self,
-			title="Open Probe file",
-			initialfile=os.path.join(
-					Utils.config.get("File", "dir"),
-					pfilename),
-			filetypes=[("Probe", ("*.probe")),
-				   ("All","*")])
-		if filename: self.loadProbe(filename)
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# save dialog
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
+		if self.running: return
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title="Save file",
 			initialfile=os.path.join(self.gcode.filename),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("DXF",    "*.dxf"),
-				   ("Probe", ("*.probe")),
-				   ("All","*")])
+			filetypes=FILETYPES)
 		if filename: self.save(filename)
 
-	#----------------------------------------------------------------------
-	def saveProbeDialog(self, event=None):
-		try:
-			pfilename = Utils.config.get("File", "probe")
-		except:
-			pfilename = "probe"
-		filename = bFileDialog.asksaveasfilename(master=self,
-			title="Save probe file",
-			initialfile=os.path.join(
-					Utils.config.get("File", "dir"),
-					pfilename),
-			filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
-				   ("Probe", ("*.probe")),
-				   ("All","*")])
-		if filename: self.saveProbe(filename)
-
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Load a file into editor
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def load(self, filename):
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
-			self.loadProbe(filename)
-		elif ext==".dxf":
-			self.gcode.init()
-			if self.gcode.importDXF(filename):
-				self.gcodelist.fill()
-				self.draw()
-				self.statusbar["text"] = "DXF imported from "+filename
-		else:
-			self.loadGcode(filename)
+			pass
+		elif self.gcode.isModified():
+			ans = tkMessageBox.askquestion("File modified",
+				"Gcode was modified do you want to save it first?",
+				parent=self)
+			if ans==tkMessageBox.YES or ans==True:
+				self.save()
 
-	#----------------------------------------------------------------------
+		Sender.load(self,filename)
+
+		if ext==".probe":
+			self.autolevel.setValues()
+			self.event_generate("<<DrawProbe>>")
+		else:
+			self.editor.selectClear()
+			self.editor.fill()
+			self.draw()
+			self.canvas.fit2Screen()
+
+		self.setStatus("'%s' loaded"%(filename))
+		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
+
+	#-----------------------------------------------------------------------
+	def save(self, filename):
+		Sender.save(self, filename)
+		self.setStatus("'%s' saved"%(filename))
+		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
+
+	#-----------------------------------------------------------------------
+	def saveAll(self, event=None):
+		if self.gcode.filename:
+			Sender.saveAll(self)
+		else:
+			self.saveDialog()
+		return "break"
+
+	#-----------------------------------------------------------------------
+	def reload(self, event=None):
+		self.load(self.gcode.filename)
+
+	#-----------------------------------------------------------------------
 	def importFile(self, filename=None):
 		if filename is None:
 			filename = bFileDialog.askopenfilename(master=self,
@@ -3066,19 +3273,22 @@ class Application(Toplevel):
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
 		if filename:
-			gcode = CNC.GCode()
+			gcode = GCode()
 			gcode.load(filename)
-			sel = self.gcodelist.getSelectedBlocks()
+			sel = self.editor.getSelectedBlocks()
 			if not sel:
 				pos = None
 			else:
 				pos = sel[-1]
 			self.gcode.addUndo(self.gcode.insBlocksUndo(pos, gcode.blocks))
 			del gcode
-			self.gcodelist.fill()
+			self.editor.fill()
 			self.draw()
 			self.canvas.fit2Screen()
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+=======
 	#----------------------------------------------------------------------
 	def save(self, filename):
 		global config
@@ -3154,6 +3364,7 @@ class Application(Toplevel):
 			self.gcode.probe.save()
 
 	#----------------------------------------------------------------------
+>>>>>>> master
 	def focusIn(self, event):
 		if self._inFocus: return
 		# FocusIn is generated for all sub-windows, handle only the main window
@@ -3167,30 +3378,35 @@ class Application(Toplevel):
 					parent=self)
 				if ans==tkMessageBox.YES or ans==True:
 					self.gcode.resetModified()
-					self.loadGcode()
+					self.load(self.gcode.filename)
 			else:
-				self.loadGcode()
+				self.load(self.gcode.filename)
 		self._inFocus = False
 
-	#----------------------------------------------------------------------
-	def openClose(self):
+	#-----------------------------------------------------------------------
+	def openClose(self, event=None):
+		serialPage = Page.frames["Serial"]
 		if self.serial is not None:
 			self.close()
-			self.connectBtn.config(text="Open",
-					background="LightGreen",
-					activebackground="LightGreen")
+			serialPage.connectBtn.config(text="Open",
+						background="LightGreen",
+						activebackground="LightGreen")
 		else:
-			device  = self.portCombo.get()
-			baudrate = int(Utils.config.get("Connection","baud"))
+			serialPage = Page.frames["Serial"]
+			device   = _device or serialPage.portCombo.get()
+			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
-				self.connectBtn.config(text="Close",
-						background="Salmon",
-						activebackground="Salmon")
+				serialPage.connectBtn.config(text="Close",
+							background="Salmon",
+							activebackground="Salmon")
 				self.enable()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		try:
+<<<<<<< HEAD
+			return Sender.open(self, device, baudrate)
+=======
 			self.serial = serial.Serial(	device,
 							baudrate,
 							bytesize=serial.EIGHTBITS,
@@ -3216,6 +3432,7 @@ class Application(Toplevel):
 			self.thread  = threading.Thread(target=self.serialIO)
 			self.thread.start()
 			return True
+>>>>>>> master
 		except:
 			self.serial = None
 			self.thread = None
@@ -3224,7 +3441,7 @@ class Application(Toplevel):
 					parent=self)
 		return False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def close(self):
 		if self.serial is None: return
 		try:
@@ -3236,6 +3453,21 @@ class Application(Toplevel):
 		time.sleep(1)
 		self.serial.close()
 		self.serial = None
+<<<<<<< HEAD
+		try:
+			CNC.vars["state"] = NOT_CONNECTED
+			CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
+			self.dro.updateState()
+		except TclError:
+			pass
+
+	#-----------------------------------------------------------------------
+	def runEnded(self):
+		Sender.runEnded(self)
+		self.statusbar.clear()
+		self.statusbar.config(background="LightGray")
+		self.setStatus("Run ended")
+=======
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
 		try:
@@ -3727,11 +3959,12 @@ class Application(Toplevel):
 		self.emptyQueue()
 		self.queue.put(self.tools["CNC"]["startup"]+"\n")
 		time.sleep(1)
+>>>>>>> master
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
-	#----------------------------------------------------------------------
-	def run(self):
+	#-----------------------------------------------------------------------
+	def run(self, lines=None):
 		if self.serial is None:
 			tkMessageBox.showerror("Serial Error",
 				"Serial is not connected",
@@ -3745,55 +3978,56 @@ class Application(Toplevel):
 				"Please stop before",
 				parent=self)
 			return
-		if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
-			tkMessageBox.showerror("Probe is not zeroed",
-				"Please ZERO any location of the probe before starting a run",
-				parent=self)
-			return
 
-		lines,paths = self.gcode.prepare2Run()
-		if not lines:
-			tkMessageBox.showerror("Empty gcode",
-				"Not gcode file was loaded",
-				parent=self)
-			return
+		self.editor.selectClear()
+		self.selectionChange()
+		CNC.vars["errline"] = ""
 
-		# reset colors
-		for ij in paths:
-			if ij:
-				self.canvas.itemconfig(
-					self.gcode[ij[0]].path(ij[1]),
-					width=1,
-					fill=CNCCanvas.ENABLE_COLOR)
+		if lines is None:
+			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
+				tkMessageBox.showerror("Probe is not zeroed",
+					"Please ZERO any location of the probe before starting a run",
+					parent=self)
+				return
+
+			lines,paths = self.gcode.compile()
+			if not lines:
+				tkMessageBox.showerror("Empty gcode",
+					"Not gcode file was loaded",
+					parent=self)
+				return
+
+			# reset colors
+			for ij in paths:
+				if ij:
+					self.canvas.itemconfig(
+						self.gcode[ij[0]].path(ij[1]),
+						width=1,
+						fill=CNCCanvas.ENABLE_COLOR)
+		else:
+			lines = CNC.compile(lines)
+			paths = None
 
 		self.initRun()
 		# the buffer of the machine should be empty?
-		self._runLines = len(lines)
-		#self._runLines = 0
-		#del self._runLineMap[:]
-		#lineno = 0
-		#for line in lines:
-		#	#print "***",lineno,line
-		#	if line is not None:
-		#		self._runLines += 1
-		#		self._runLineMap.append(lineno)
-		#		if line and line[0]!=' ': lineno += 1	# ignore expanded lines
-		#	else:
-		#		lineno += 1			# count commented lines
-
 		self.canvas.clearSelection()
+		self._runLines = len(lines)
 		self._gcount  = 0
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
-		self.progress.setLimits(0, self._runLines)
 
-		self.running = True
+		self.statusbar.setLimits(0, self._runLines)
+		self.statusbar.configText(fill="White")
+		self.statusbar.config(background="DarkGray")
+
 		for line in lines:
 			if line is not None:
 				if isinstance(line,str):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
+<<<<<<< HEAD
+=======
 
 	#----------------------------------------------------------------------
 	# Called when run is finished
@@ -3816,31 +4050,49 @@ class Application(Toplevel):
 		time.sleep(1)
 		self.unlock()
 		self.runEnded()
+>>>>>>> master
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Start the web pendant
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def startPendant(self, showInfo=True):
+<<<<<<< HEAD
+		started=Pendant.start(self)
+		if showInfo:
+			hostName="http://%s:%d"%(socket.gethostname(),Pendant.port)
+=======
 		started=CNCPendant.start(self)
 		if showInfo:
 			hostName="http://%s:%d"%(socket.gethostname(),CNCPendant.port)
+>>>>>>> master
 			if started:
 				tkMessageBox.showinfo("Pendant",
 					"Pendant started:\n"+hostName,
 					parent=self)
 			else:
 				dr=tkMessageBox.askquestion("Pendant",
+<<<<<<< HEAD
+					"Pendant already started:\n"+hostName+"\nWould you like open it locally?",
+					parent=self)
+=======
 				"Pendant already started:\n"+hostName+"\nWould you like open it locally?")
+>>>>>>> master
 				if dr=="yes":
 					webbrowser.open(hostName,new=2)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Stop the web pendant
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def stopPendant(self):
-		if CNCPendant.stop():
+		if Pendant.stop():
 			tkMessageBox.showinfo("Pendant","Pendant stopped", parent=self)
 
+<<<<<<< HEAD
+	#-----------------------------------------------------------------------
+	# Inner loop to catch any generic exception
+	#-----------------------------------------------------------------------
+	def _monitorSerial(self):
+=======
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
@@ -3999,6 +4251,7 @@ class Application(Toplevel):
 	# and reporting back in the terminal
 	#----------------------------------------------------------------------
 	def monitorSerial(self):
+>>>>>>> master
 		inserted = False
 
 		# Check serial output
@@ -4023,10 +4276,20 @@ class Application(Toplevel):
 		except Empty:
 			pass
 
+		# Load file from pendant
+		if self._pendantFileUploaded!=None:
+			self.load(self._pendantFileUploaded)
+			self._pendantFileUploaded=None
+
 		# Update position if needed
 		if self._posUpdate:
 			state = CNC.vars["state"]
+<<<<<<< HEAD
+			#print state
+			#print Sender.ERROR_CODES[state]
+=======
 			self.state["text"] = state
+>>>>>>> master
 			try:
 				CNC.vars["color"] = STATECOLOR[state]
 			except KeyError:
@@ -4035,6 +4298,10 @@ class Application(Toplevel):
 				else:
 					CNC.vars["color"] = STATECOLORDEF
 			self._pause = (state=="Hold")
+<<<<<<< HEAD
+			self.dro.updateState()
+			self.dro.updateCoords()
+=======
 
 			self.state["background"] = CNC.vars["color"]
 
@@ -4046,6 +4313,7 @@ class Application(Toplevel):
 			self.ymachine["text"] = CNC.vars["my"]
 			self.zmachine["text"] = CNC.vars["mz"]
 
+>>>>>>> master
 			self.canvas.gantry(CNC.vars["wx"],
 					   CNC.vars["wy"],
 					   CNC.vars["wz"],
@@ -4054,6 +4322,11 @@ class Application(Toplevel):
 					   CNC.vars["mz"])
 			self._posUpdate = False
 
+<<<<<<< HEAD
+		# Update status string
+		if self._gUpdate:
+			self.gstate.updateG()
+=======
 		# Update parameters if needed
 		if self._wcsUpdate:
 			try:
@@ -4090,6 +4363,7 @@ class Application(Toplevel):
 
 				elif g[0] == 'S':
 					self.spindleSpeed.set(int(float(g[1:])))
+>>>>>>> master
 			self._gUpdate = False
 
 		# Update probe and draw point
@@ -4101,15 +4375,21 @@ class Application(Toplevel):
 				self._probeZ["text"] = probe[2]
 			except:
 				pass
-			self.canvas.drawProbePoint(probe)
+			self.canvas.drawProbe()
 			self._probeUpdate = False
+
+		# Update any possible variable?
+		if self._update:
+			if self._update == "toolheight":
+				Page.frames["Probe:Tool"].updateTool()
+			self._update = None
 
 		if inserted:
 			self.terminal.see(END)
 			self.terminal["state"] = DISABLED
 
 		if self.running:
-			self.progress.setProgress(self._runLines-self.queue.qsize(),
+			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
 
 			if self._selectI>=0 and self._paths:
@@ -4123,15 +4403,47 @@ class Application(Toplevel):
 			if self._gcount >= self._runLines:
 				self.runEnded()
 
+	#-----------------------------------------------------------------------
+	# "thread" timed function looking for messages in the serial thread
+	# and reporting back in the terminal
+	#-----------------------------------------------------------------------
+	def monitorSerial(self):
+		try:
+			self._monitorSerial()
+		except:
+			typ, val, tb = sys.exc_info()
+			traceback.print_exception(typ, val, tb)
 		self.after(MONITOR_AFTER, self.monitorSerial)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def get(self, section, item):
 		return Utils.config.get(section, item)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def set(self, section, item, value):
 		return Utils.config.set(section, item, value)
+
+#------------------------------------------------------------------------------
+def usage(rc):
+	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
+	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
+	sys.stdout.write("Usage: [options] [filename...]\n\n")
+	sys.stdout.write("Options:\n")
+	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
+	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
+	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
+	sys.stdout.write("\t-g #\t\tSet the default geometry\n")
+	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
+	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
+	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
+	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
+	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
+	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
+	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
+	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
+	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
+	sys.stdout.write("\n")
+	sys.exit(rc)
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -4145,9 +4457,89 @@ if __name__ == "__main__":
 	tkExtra.bindClasses(tk)
 	Utils.loadConfiguration()
 
+	# Parse arguments
+	try:
+		optlist, args = getopt.getopt(sys.argv[1:],
+			'?b:dDhi:g:rlpPSs:',
+			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
+	except getopt.GetoptError:
+		usage(1)
+
+	recent   = None
+	for opt, val in optlist:
+		if opt in ("-h", "-?", "--help"):
+			usage(0)
+		elif opt in ("-i", "--ini"):
+			Utils.iniUser = val
+		elif opt == "-d":
+			Utils.developer = True
+		elif opt == "-D":
+			Utils.developer = False
+		elif opt == "-g":
+			geometry = val
+		elif opt in ("-r", "-R", "--recent", "-l", "--list"):
+			if opt in ("-r","--recent"):
+				r = 0
+			elif opt in ("--list","-l"):
+				r = -1
+			else:
+				try:
+					r = int(val)-1
+				except:
+					# Scan in names
+					for r in range(Utils._maxRecent):
+						filename = Utils.getRecent(r)
+						if filename is None: break
+						fn, ext = os.path.splitext(os.path.basename(filename))
+						if fn == val:
+							break
+					else:
+						r = 0
+			if r<0:
+				# display list of recent files
+				sys.stdout.write("Recent files:\n")
+				for i in range(Utils._maxRecent):
+					filename = Utils.getRecent(i)
+					if filename is None: break
+					d  = os.path.dirname(filename)
+					fn = os.path.basename(filename)
+					sys.stdout.write("  %2d: %-10s\t%s\n"%(i+1,fn,d))
+
+				try:
+					sys.stdout.write("Select one: ")
+					r = int(sys.stdin.readline())-1
+				except:
+					pass
+			try: recent = Utils.getRecent(r)
+			except: pass
+
+		elif opt == "-S":
+			_openserial = False
+
+		elif opt in ("-s", "--serial"):
+			_openserial = True
+			_device = val
+
+		elif opt in ("-b", "--baud"):
+			_baud = val
+
+		elif opt == "-p":
+			pass #startPendant()
+
+		elif opt == "-P":
+			pass #stopPendant()
+
+		elif opt == "--pendant":
+			pass #startPendant on port
+
+	# Start application
 	application = Application(tk)
-	if len(sys.argv)>1:
-		application.load(sys.argv[1])
+
+	# Parse remaining arguments except files
+	if recent: args.append(recent)
+	for fn in args:
+		application.load(fn)
+
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
@@ -4156,3 +4548,4 @@ if __name__ == "__main__":
 	application.close()
 	Utils.saveConfiguration()
  #vim:ts=8:sw=8:sts=8:noet
+

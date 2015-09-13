@@ -3,20 +3,25 @@
 # $Id$
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	05-Nov-2014
+# Date:	20-Aug-2015
 
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import sys
+__name__ = "Box"
+
 import math
 from bmath import *
+
+from CNC import CNC,Block
+from ToolsPage import Plugin
 
 #==============================================================================
 # Create a box with finger joints
 #==============================================================================
 class Box:
 	def __init__(self, dx=100., dy=50., dz=25.):
+		self.name = "Box"
 		self.dx = dx
 		self.dy = dy
 		self.dz = dz
@@ -50,7 +55,7 @@ class Box:
 		self.init()
 
 	#----------------------------------------------------------------------
-	# Set number of teeths (use odd values)
+	# Set number of tooths (use odd values)
 	#----------------------------------------------------------------------
 	def setNTeeth(self, nx, ny, nz):
 		if nx > 0:
@@ -71,24 +76,6 @@ class Box:
 		if self.nx&1==0: self.nx += 1	# Works only with odd numbers for the moment
 		if self.ny&1==0: self.ny += 1
 		if self.nz&1==0: self.nz += 1
-
-	#----------------------------------------------------------------------
-	def gcode(self, g, pairs):
-		s = "G%d"%(g)
-		for c,v in pairs:
-			s += " %c%g"%(c, round(v,self.digits))
-		return s
-
-	#----------------------------------------------------------------------
-	def gline(self, g, v, feed=None):
-		pairs = zip("XYZ",v)
-		if feed is not None:
-			pairs.append(("F",feed))
-		return self.gcode(g, pairs)
-
-	#----------------------------------------------------------------------
-	def garc(self, g, v, ijk):
-		return self.gcode(g, zip("XYZ",v) + zip("IJ",ijk[:2]))
 
 	#----------------------------------------------------------------------
 	# Draw a zig zag line
@@ -113,9 +100,9 @@ class Box:
 		for i in range(n):
 #			if sgn<0.0 and overcut=="U":
 #				pos -= self.r*U
-#				block.append(self.gline(1, pos, self.feed))
+#				block.append(CNC.glinev(1, pos, self.feed))
 #				pos += self.r*U
-#				block.append(self.gline(1, pos))
+#				block.append(CNC.glinev(1, pos))
 
 			x = du
 			if sgn<0.0 and n>1:
@@ -132,68 +119,68 @@ class Box:
 
 
 			if i==0:
-				block.append(self.gline(1, pos, self.feed))
+				block.append(CNC.glinev(1, pos, self.feed))
 			else:
-				block.append(self.gline(1, pos))
+				block.append(CNC.glinev(1, pos))
 
 #			if sgn<0.0 and overcut=="U":
 #				pos += self.r*U
-#				block.append(self.gline(1, pos))
+#				block.append(CNC.glinev(1, pos))
 #				pos -= self.r*U
-#				block.append(self.gline(1, pos))
+#				block.append(CNC.glinev(1, pos))
 
 			if self.r>0.0:
 				if sgn<0.0:
 					if i<n-1:
 						if overcut == "V":
 							pos -= sgn*self.r*V
-							block.append(self.gline(1, pos))
+							block.append(CNC.glinev(1, pos))
 							pos += sgn*dv*V
 						elif overcut == "D":
 							pos -= sgn*rd*(U+V)
-							block.append(self.gline(1, pos))
+							block.append(CNC.glinev(1, pos))
 							pos += sgn*rd*(U+V)
-							block.append(self.gline(1, pos))
+							block.append(CNC.glinev(1, pos))
 							pos += sgn*(dv-self.r)*V
 
 #						else:
 #							pos += sgn*(dv-self.r)*V
-						block.append(self.gline(1, pos))
+						block.append(CNC.glinev(1, pos))
 						ijk = self.r*U
 						pos += sgn*self.r*V + self.r*U
-						block.append(self.garc(3, pos, ijk))
+						block.append(CNC.garcv(3, pos, ijk))
 					else:
 						# ending
 						ijk = self.r*V
 						pos += self.r*V + self.r*U
-						block.append(self.garc(3, pos, ijk))
+						block.append(CNC.garcv(3, pos, ijk))
 
 				elif sgn>0.0:
 					ijk = sgn*self.r*V
 					pos += sgn*self.r*V + self.r*U
-					block.append(self.garc(3, pos, ijk))
+					block.append(CNC.garcv(3, pos, ijk))
 					if i<n-1:
 						if overcut == "V":
 							pos += sgn*dv*V
-							block.append(self.gline(1, pos))
+							block.append(CNC.glinev(1, pos))
 							if self.r > 0.0:
 								pos -= sgn*self.r*V
-								block.append(self.gline(1, pos))
+								block.append(CNC.glinev(1, pos))
 						elif overcut == "D":
 							pos += sgn*(dv-self.r)*V
-							block.append(self.gline(1, pos))
+							block.append(CNC.glinev(1, pos))
 							if self.r > 0.0:
 								pos -= sgn*rd*(U-V)
-								block.append(self.gline(1, pos))
+								block.append(CNC.glinev(1, pos))
 								pos += sgn*rd*(U-V)
-								block.append(self.gline(1, pos))
+								block.append(CNC.glinev(1, pos))
 #						else:
 #							pos += sgn*(dv-self.r)*V
-#							block.append(self.gline(1, pos))
+#							block.append(CNC.glinev(1, pos))
 
 			elif i<n-1:
 				pos += sgn*dv*V
-				block.append(self.gline(1, pos))
+				block.append(CNC.glinev(1, pos))
 			sgn = -sgn
 
 		return pos
@@ -217,7 +204,7 @@ class Box:
 		# Bottom
 		pos = Vector(x0, y0, self.surface)
 		pos -= self.r*Vector.Y	# r*V
-		block.append(self.gcode(0, zip("XY",pos[:2])))
+		block.append(CNC.gcode(0, zip("XY",pos[:2])))
 
 		z = self.surface
 		#for z in frange(self.surface-self.stepz, self.surface-self.thick, -self.stepz):
@@ -232,8 +219,9 @@ class Box:
 				last = True
 
 			pos[2] = z
+
 			# Penetrate
-			block.append(self.gcode(1, [("Z",pos[2]), ("F",self.feedz)]))
+			block.append(CNC.zenter(pos[2]))
 
 			# Bottom
 			pos = self.zigZagLine(block, pos, sx, self.thick, Vector.X, Vector.Y, nx, ex)
@@ -253,7 +241,7 @@ class Box:
 			if last: break
 
 		# Bring to safe height
-		block.append(self.gcode(0, [("Z",self.safe)]))
+		block.append(CNC.zsafe())
 
 	#----------------------------------------------------------------------
 	# create all 6 sides of box
@@ -278,35 +266,83 @@ class Box:
 			dz = self.dz
 
 		blocks = []
-		block = ["(Block-name: Bottom)"]
+		block = Block("%s-Bottom"%(self.name))
 		block.append("(Box: %g x %g x %g)"%(self.dx,self.dy,self.dz))
 		block.append("(Fingers: %d x %d x %d)"%(self.nx,self.ny,self.nz))
 		self._rectangle(block, 0.,-d, dx,dy, self.nx,-self.ny, 0,d)
 		blocks.append(block)
 
-		block = ["(Block-name: Left)"]
+		block = Block("%s-Left"%(self.name))
 		self._rectangle(block, -(dz+5*d),-d, dz,dy, self.nz,self.ny, d,d)
 		blocks.append(block)
 
-		block = ["(Block-name: Right)"]
+		block = Block("%s-Right"%(self.name))
 		self._rectangle(block, dx+3*d,-d, dz,dy, self.nz,self.ny, d,d)
 		blocks.append(block)
 
-		block = ["(Block-name: Front)"]
+		block = Block("%s-Front"%(self.name))
 		self._rectangle(block, 0,-(dz+4*d), dx,dz, -self.nx,-self.nz, 0,0)
 		blocks.append(block)
 
-		block = ["(Block-name: Back)"]
+		block = Block("%s-Back"%(self.name))
 		self._rectangle(block, 0,dy+4*d, dx,dz, -self.nx,-self.nz, 0,0)
 		blocks.append(block)
 
-		block = ["(Block-name: Top)"]
+		block = Block("%s-Top"%(self.name))
 		self._rectangle(block, dx+dz+8*d,-d, dx,dy, self.nx,-self.ny, 0,d)
 		blocks.append(block)
 		return blocks
 
+#==============================================================================
+# Create a BOX
+#==============================================================================
+class Tool(Plugin):
+	"""Generate a finger box"""
+	def __init__(self, master):
+		Plugin.__init__(self, master)
+		self.name = "Box"
+		self.icon = "box"
+		self.variables = [
+			("name",      "db",    "", "Name"),
+			("dx",        "mm", 100.0, "Width Dx"),
+			("dy",        "mm",  70.0, "Depth Dy"),
+			("dz",        "mm",  50.0, "Height Dz"),
+			("nx",       "int",    11, "Fingers Nx"),
+			("ny",       "int",     7, "Fingers Ny"),
+			("nz",       "int",     5, "Fingers Nz"),
+			("profile", "bool",     0, "Profile"),
+			("overcut", "bool",     1, "Overcut"),
+			("cut",     "bool",     0, "Cut")
+		]
+		self.buttons.append("exe")
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		box = Box(self["dx"],self["dy"],self["dz"])
+		box.name  = self["name"]
+		if box.name == "default": box.name = "Box"
+		box.thick = app.cnc["thickness"]
+		box.feed  = app.cnc["cutfeed"]
+		box.feedz = app.cnc["cutfeedz"]
+		box.safe  = app.cnc["safe"]
+		box.stepz = app.cnc["stepz"]
+		box.setNTeeth(self["nx"],self["ny"],self["nz"])
+		if self["profile"]:
+			box.setTool(app.cnc["diameter"])
+		else:
+			box.setTool(0.0)
+
+		box.cut = self["cut"]	# create multiple layers or only one
+		if self["overcut"]: box.overcut = 'D'
+
+		active = app.activeBlock()
+		app.gcode.insBlocks(active, box.make(), "Create finger BOX")
+		app.refresh()
+		app.setStatus("Generated: BOX with fingers")
+
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
+	import sys
 #	box = Box(90., 60., 30.)
 #	box.thick = 5.0
 #	box.stepz = 5

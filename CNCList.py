@@ -11,11 +11,12 @@ except ImportError:
 	from tkinter import *
 	import tkinter.font as tkFont
 
-import CNC
+from CNC import Block, CNC
 import tkExtra
 #import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
+COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
 
 #==============================================================================
@@ -34,8 +35,12 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-space>",self.commandFocus)
 		self.bind("<Delete>",		self.deleteLine)
 		self.bind("<BackSpace>",	self.deleteLine)
+		self.bind("<Left>",		self.toggleKey)
+		self.bind("<Right>",		self.toggleKey)
 		self.bind("<Control-Key-Up>",	self.orderUp)
+		self.bind("<Control-Key-Prior>",self.orderUp)
 		self.bind("<Control-Key-Down>",	self.orderDown)
+		self.bind("<Control-Key-Next>",	self.orderDown)
 		try:
 			self.bind("<KP_Delete>",self.deleteLine)
 		except:
@@ -107,7 +112,7 @@ class CNCListbox(Listbox):
 				self.insert(END, line)
 				y += 1
 				if line and line[0] in ("(","%"):
-					self.itemconfig(END, foreground="Blue")
+					self.itemconfig(END, foreground=COMMENT_COLOR)
 				self._items.append((bi, lj))
 
 		for i in sel: self.selection_set(i)
@@ -158,7 +163,7 @@ class CNCListbox(Listbox):
 			self.set(active, edit.value)
 
 		if edit.value and edit.value[0] in ("(","%"):
-			self.itemconfig(active, foreground="Blue")
+			self.itemconfig(active, foreground=COMMENT_COLOR)
 
 		self.yview_moveto(ypos)
 		self.event_generate("<<Modified>>")
@@ -196,11 +201,11 @@ class CNCListbox(Listbox):
 		else:
 			bid = 0
 
-		block = CNC.Block()
+		block = Block()
 		block.expand = True
 		block.append("G0 X0 Y0")
 		block.append("G1 Z0")
-		block.append("G0 Z%g"%(self.gcode.safe))
+		block.append(CNC.zsafe())
 		self.gcode.addUndo(self.gcode.addBlockUndo(bid,block))
 		self.selection_clear(0,END)
 		self.fill()
@@ -221,8 +226,13 @@ class CNCListbox(Listbox):
 	def insertLine(self, event=None):
 		active = self.index(ACTIVE)
 		if active is None: return
+		if len(self._items)==0:
+			self.insertBlock()
+			return
+
 		bid, lid = self._items[active]
 		active += 1
+
 		self.insert(active,"")
 		self.selection_clear(0,END)
 		self.activate(active)
@@ -235,6 +245,7 @@ class CNCListbox(Listbox):
 
 		if edit.value is None:
 			# Cancel and leave
+			self.delete(active)
 			active -= 1
 			self.activate(active)
 			self.selection_set(active)
@@ -245,7 +256,7 @@ class CNCListbox(Listbox):
 		self.selection_set(active)
 		self.activate(active)
 		if edit.value and edit.value[0] in ("(","%"):
-			self.itemconfig(active, foreground="Blue")
+			self.itemconfig(active, foreground=COMMENT_COLOR)
 		self.yview_moveto(ypos)
 
 		# Correct pointers
@@ -279,6 +290,35 @@ class CNCListbox(Listbox):
 		self.selection_set(ACTIVE)
 		self.see(ACTIVE)
 		self.event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
+	def clone(self, event=None):
+		sel = list(map(int,self.curselection()))
+		if not sel: return
+
+		ypos = self.yview()[0]
+		undoinfo = []
+		for i in reversed(sel):
+			bid, lid = self._items[i]
+			if lid is None:
+				undoinfo.append(self.gcode.cloneBlockUndo(bid))
+			else:
+				undoinfo.append(self.gcode.cloneLineUndo(bid, lid))
+		self.gcode.addUndo(undoinfo)
+		self.selection_clear(0,END)
+		self.fill()
+		self.yview_moveto(ypos)
+		self.selection_set(ACTIVE)
+		self.see(ACTIVE)
+		self.event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
+	def toggleKey(self,event=None):
+		if not self._items: return
+		active = self.index(ACTIVE)
+		bid,lid = self._items[active]
+		if lid is not None: return
+		self.toggleExpand()
 
 	# ----------------------------------------------------------------------
 	# Button1 clicked
@@ -364,6 +404,7 @@ class CNCListbox(Listbox):
 	# Toggle expand selection
 	# ----------------------------------------------------------------------
 	def toggleExpand(self, event=None):
+		if not self._items: return None
 		items   = list(map(int,self.curselection()))
 		expand  = None
 		active = self.index(ACTIVE)
@@ -387,12 +428,13 @@ class CNCListbox(Listbox):
 			self.activate(active)
 			self.see(active)
 
-		self.app.statusbar["text"] = "Toggled Expand of selected objects"
+		self.event_generate("<<Status>>",data="Toggled Expand of selected objects")
 
 	# ----------------------------------------------------------------------
 	# toggle state enable/disable
 	# ----------------------------------------------------------------------
 	def toggleEnable(self, event=None):
+		if not self._items: return None
 		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
 		enable  = None
@@ -420,13 +462,15 @@ class CNCListbox(Listbox):
 			self.yview_moveto(ypos)
 			self.event_generate("<<ListboxSelect>>")
 
-		self.app.statusbar["text"] = "Toggled Visibility of selected objects"
+		self.event_generate("<<Status>>",data="Toggled Visibility of selected objects")
 
 	# ----------------------------------------------------------------------
 	# Select items in the form of (block, item)
 	# ----------------------------------------------------------------------
 	def select(self, items, double=False, clear=False, toggle=True):
-		if clear: self.selection_clear(0,END)
+		if clear:
+			self.selection_clear(0,END)
+			toggle = False
 		first = None
 		for b,i in items:
 			block = self.gcode[b]
@@ -470,6 +514,12 @@ class CNCListbox(Listbox):
 		else:
 			end = self._blockPos[bid]-1
 		self.selection_set(start,end)
+
+	# ----------------------------------------------------------------------
+	def selectBlocks(self, blocks):
+		self.selection_clear(0,END)
+		for bid in blocks:
+			self.selectBlock(bid)
 
 	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
@@ -525,6 +575,8 @@ class CNCListbox(Listbox):
 		self.selection_clear(0,END)
 
 	# ----------------------------------------------------------------------
+	# Move selected items upwards
+	# ----------------------------------------------------------------------
 	def orderUp(self, event=None):
 		items = self.getCleanSelection()
 		if not items: return
@@ -535,6 +587,8 @@ class CNCListbox(Listbox):
 		return "break"
 
 	# ----------------------------------------------------------------------
+	# Move selected items downwards
+	# ----------------------------------------------------------------------
 	def orderDown(self, event=None):
 		items = self.getCleanSelection()
 		if not items: return
@@ -542,4 +596,15 @@ class CNCListbox(Listbox):
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
 		self.event_generate("<<Modified>>")
+		return "break"
+
+	# ----------------------------------------------------------------------
+	# Invert selected blocks
+	# ----------------------------------------------------------------------
+	def invertBlocks(self, event=None):
+		blocks = self.getSelectedBlocks()
+		if not blocks: return
+		self.gcode.addUndo(self.gcode.invertBlocksUndo(blocks))
+		self.fill()
+		# do not send a modified message, no need to redraw
 		return "break"

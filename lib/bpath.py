@@ -59,7 +59,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 import time
-from math import atan2, asin, cos, degrees, pi, radians, sin, sqrt
+from math import *
 from bmath import Vector, quadratic
 
 EPS0 = 1E-7
@@ -462,17 +462,24 @@ class Path(list):
 		phi = 0.0
 		P  = self[-1].AB
 		PL = P.length()
-		for N in self:
+		for i,N in enumerate(self):
 			NL = N.AB.length()
-			dot = PL * NL
-			if abs(dot)>EPS0:
-				ang = (P ^ N.AB) / dot
-				if ang<=-1.0:
+			prod = PL * NL
+			if abs(prod)>EPS0:
+				cross = (P ^ N.AB) / prod
+				if   cross <= -0.9999999999:
 					phi -= pi/2.0
-				elif ang >=1.0:
+				elif cross >=  0.9999999999:
 					phi += pi/2.0
 				else:
-					phi += asin((P ^ N.AB) / dot)
+					# WARNING Don't use the angle from the asin(cross)
+					# since it can fail when ang > 90deg then it will return
+					# the ang-90deg
+					#phi += asin(cross)
+					dot = (N.AB * P) / prod
+					if   dot<-1.0: dot=-1.0
+					elif dot> 1.0: dot= 1.0
+					phi += copysign(acos(dot), cross)
 			else:
 				if N.type == CW:
 					phi -= PI2
@@ -570,7 +577,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def offset(self, offset, name):
 		start = time.time()
-		path = Path(name) #"%s [%g]"%(self.name,offset))
+		path = Path(name)
 
 		if self.isClosed():
 			prev = self[-1]
@@ -598,14 +605,15 @@ class Path(list):
 			# connect with previous point
 			O  = segment.orthogonalEnd()
 			Eo = segment.end + O*offset
-			if segment.type == LINE:
-				path.append(Segment(LINE, So, Eo))
-			else:
-				# FIXME check for radius + offset > 0.0
-				path.append(Segment(segment.type, So, Eo, segment.center))
+			if (So-Eo).length2() > EPS:
+				if segment.type == LINE:
+					path.append(Segment(LINE, So, Eo))
+				else:
+					# FIXME check for radius + offset > 0.0
+					path.append(Segment(segment.type, So, Eo, segment.center))
 			Op = O
 			prev = segment
-		sys.stdout.write("path.offset: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
@@ -688,7 +696,7 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-		sys.stdout.write("path.intersect: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -714,7 +722,42 @@ class Path(list):
 #					print "+++",i, segment.end, path.distance(segment.end), chkofs, include
 			i += 1
 		self.removeZeroLength()
-		sys.stdout.write("path.removeExcluded: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+
+	#----------------------------------------------------------------------
+	# Perform overcut movements on corners, moving at half angle by
+	# a certain distance
+	#----------------------------------------------------------------------
+	def overcut(self, offset):
+		if self.isClosed():
+			prev = self[-1]
+			Op = prev.orthogonalEnd()
+		else:
+			prev = None
+			Op   = None	# previous orthogonal
+		i = 0
+		while i<len(self):
+			segment = self[i]
+			O  = segment.orthogonalStart()
+			if Op is not None:
+				cross = O[0]*Op[1]-O[1]*Op[0]
+				if prev.type==LINE and segment.type==LINE and cross*offset < -EPS:
+					# find direction
+					D = O+Op
+					D.normalize()
+					if offset>0.0: D = -D
+
+					costheta = O*Op
+					costheta2 = sqrt((1.0+costheta)/2.0)
+					distance = abs(offset)*(1.0/costheta2-1.0)
+					D *= distance
+
+					self.insert(i,Segment(LINE, segment.start, segment.start + D))
+					self.insert(i+1, Segment(LINE, segment.start+D, segment.start))
+					i += 2
+			prev = segment
+			Op = prev.orthogonalEnd()
+			i += 1
 
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P

@@ -1,5 +1,5 @@
 # -*- coding: latin1 -*-
-# $Id: CNCPendant.py,v 1.3 2014/10/15 15:04:48 bnv Exp bnv $
+# $Id: Pendant.py,v 1.3 2014/10/15 15:04:48 bnv Exp bnv $
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	06-Oct-2014
@@ -13,6 +13,9 @@ import sys
 import json
 import threading
 import urllib
+import re
+
+from CNC import CNC
 
 try:
 	import urlparse
@@ -29,6 +32,8 @@ port = 8080
 
 httpd = None
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
+webpath = "%s/pendant"%(prgpath)
+iconpath = "%s/icon/"%(prgpath)
 
 #==============================================================================
 # Simple Pendant controller for CNC
@@ -74,7 +79,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/state":
 			self.do_HEAD(200, "text/text")
-			self.wfile.write(json.dumps(httpd.app._pos))
+			self.wfile.write(json.dumps(CNC.vars))
 
 		elif page == "/config":
 			self.do_HEAD(200, "text/text")
@@ -86,24 +91,73 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			if arg is None: return
 			self.do_HEAD(200, "image/gif")
 
-			filename = os.path.join(
-					os.path.abspath(
-						os.path.dirname(sys.argv[0])),
-					"icons",
-					arg["name"]+".gif")
+			filename = os.path.join(iconpath, arg["name"]+".gif")
 			try:
 				f = open(filename,"rb")
 				self.wfile.write(f.read())
 				f.close()
 			except:
 				pass
-
 		else:
 			self.mainPage(page[1:])
 
+    #----------------------------------------------------------------------
+	def deal_post_data(self):
+		boundary = self.headers.plisttext.split("=")[1]
+		remainbytes = int(self.headers['content-length'])
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		if not boundary in line:
+			return (False, "Content NOT begin with boundary")
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		fn = re.findall(r'Content-Disposition.*name="file"; filename="(.*)"', line)
+		if not fn:
+			return (False, "Can't find out file name...")
+		path = os.path.expanduser("~")
+		path = os.path.join(path, "bCNCUploads")
+		if not os.path.exists(path):
+		    os.makedirs(path)
+		fn = os.path.join(path, fn[0])
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		line = self.rfile.readline()
+		remainbytes -= len(line)
+		try:
+			out = open(fn, 'wb')
+		except IOError:
+			return (False, "Can't create file to write, do you have permission to write?")
+
+		preline = self.rfile.readline()
+		remainbytes -= len(preline)
+		while remainbytes > 0:
+			line = self.rfile.readline()
+			remainbytes -= len(line)
+			if boundary in line:
+				preline = preline[0:-1]
+				if preline.endswith('\r'):
+					preline = preline[0:-1]
+				out.write(preline)
+				out.close()
+				return (True, "%s" % fn)
+			else:
+				out.write(preline)
+				preline = line
+		return (False, "Unexpected Ends of data.")
+
+
+    #----------------------------------------------------------------------
+	def do_POST(self):
+		result,fMsg=self.deal_post_data()
+		if(result):
+			httpd.app._pendantFileUploaded=fMsg
+		#send empty response so browser does not generate errors
+		self.do_HEAD(200, "text/text")
+
+
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):
-		global prgpath
+		global webpath
 
 		#handle certain filetypes
 		filetype = page.rpartition('.')[2]
@@ -113,7 +167,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		if page == "": page = "index.html"
 		try:
-			f = open(os.path.join(prgpath,page),"r")
+			f = open(os.path.join(webpath,page),"r")
 			self.wfile.write(f.read())
 			f.close()
 		except IOError:

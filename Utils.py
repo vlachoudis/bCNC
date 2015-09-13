@@ -23,9 +23,11 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 	import configparser as ConfigParser
 
+import Ribbon
 import tkExtra
 
 __prg__     = "bCNC"
+developer   = False
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
@@ -35,11 +37,18 @@ icons     = {}
 config    = ConfigParser.ConfigParser()
 
 _errorReport = True
-errors    = []
+errors       = []
+_maxRecent   = 10
 
 _FONT_SECTION = "Font"
 
+<<<<<<< HEAD
+#------------------------------------------------------------------------------
+=======
+_FONT_SECTION = "Font"
+
 #-----------------------------------------------------------------------------
+>>>>>>> master
 def loadIcons():
 	global icons
 	icons = {}
@@ -50,7 +59,7 @@ def loadIcons():
 		except TclError:
 			pass
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def delIcons():
 	global icons
 	if len(icons) > 0:
@@ -103,19 +112,27 @@ def cleanConfiguration():
 	config = newconfig
 
 #------------------------------------------------------------------------------
-def getStr(section, name, default):
+# add section if it doesn't exist
+#------------------------------------------------------------------------------
+def addSection(section):
+	global config
+	if not config.has_section(section):
+		config.add_section(section)
+
+#------------------------------------------------------------------------------
+def getStr(section, name, default=""):
 	global config
 	try: return config.get(section, name)
 	except: return default
 
 #------------------------------------------------------------------------------
-def getInt(section, name, default):
+def getInt(section, name, default=0):
 	global config
 	try: return int(config.get(section, name))
 	except: return default
 
 #------------------------------------------------------------------------------
-def getFloat(section, name, default):
+def getFloat(section, name, default=0.0):
 	global config
 	try: return float(config.get(section, name))
 	except: return default
@@ -160,6 +177,96 @@ def setFont(name, font):
 			(font.cget("family"),font.cget("size"),font.cget("weight")))
 
 #------------------------------------------------------------------------------
+def getBool(section, name, default=False):
+	global config
+	try: return bool(int(config.get(section, name)))
+	except: return default
+
+#-------------------------------------------------------------------------------
+def getFont(name, default):
+	global config
+	try:
+		font = config.get(_FONT_SECTION, name)
+	except:
+		try:
+			font = tkFont.Font(name=name, font=default, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=default)
+			font.delete_font = False
+		except AttributeError:
+			return default
+		setFont(name, font)
+
+	if isinstance(font, str):
+		font = tuple(font.split(','))
+
+	if isinstance(font, tuple):
+		try:
+			return tkFont.Font(name=name, font=font, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=font)
+			font.delete_font = False
+		except AttributeError:
+			return default
+	return font
+
+#-------------------------------------------------------------------------------
+def setFont(name, font):
+	global config
+	if isinstance(font,str):
+		config.set(_FONT_SECTION, name, font)
+	elif isinstance(font,tuple):
+		config.set(_FONT_SECTION, name, ",".join(map(str,font)))
+	else:
+		config.set(_FONT_SECTION, name, "%s,%s,%s" % \
+			(font.cget("family"),font.cget("size"),font.cget("weight")))
+
+#------------------------------------------------------------------------------
+def setBool(section, name, value):
+	global config
+	config.set(section, name, str(int(value)))
+
+#------------------------------------------------------------------------------
+def setStr(section, name, value):
+	global config
+	config.set(section, name, str(value))
+
+setInt   = setStr
+setFloat = setStr
+
+#-------------------------------------------------------------------------------
+# Add Recent
+#-------------------------------------------------------------------------------
+def addRecent(filename):
+	try:
+		sfn = str(os.path.abspath(filename))
+	except UnicodeEncodeError:
+		sfn = filename.encode("utf-8")
+
+	last = _maxRecent-1
+	for i in range(_maxRecent):
+		rfn = getRecent(i)
+		if rfn is None:
+			last = i-1
+			break
+		if rfn == sfn:
+			if i==0: return
+			last = i-1
+			break
+
+	# Shift everything by one
+	for i in range(last, -1, -1):
+		config.set("File", "recent.%d"%(i+1), getRecent(i))
+	config.set("File", "recent.0", sfn)
+
+#-------------------------------------------------------------------------------
+def getRecent(recent):
+	try:
+		return config.get("File","recent.%d"%(recent))
+	except ConfigParser.NoOptionError:
+		return None
+
+#------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
 #------------------------------------------------------------------------------
 def comports():
@@ -193,7 +300,7 @@ def addException():
 			# If too many errors are found send the error report
 			ReportDialog(self.widget)
 	except:
-		say(sys.exc_info())
+		say(str(sys.exc_info()))
 
 #===============================================================================
 class CallWrapper:
@@ -377,11 +484,15 @@ class ReportDialog(Toplevel):
 #===============================================================================
 # User Button
 #===============================================================================
-class UserButton(Button):
+class UserButton(Ribbon.LabelButton):
 	TOOLTIP  = "User configurable button.\n<RightClick> to configure"
 
 	def __init__(self, master, cnc, button, *args, **kwargs):
-		Button.__init__(self, master, *args, **kwargs)
+		if button == 0:
+			Button.__init__(self, master, *args, **kwargs)
+		else:
+			Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
+			self["width"] = 60
 		self.cnc = cnc
 		self.button = button
 		self.get()
@@ -398,7 +509,11 @@ class UserButton(Button):
 		self["text"] = name
 		#if icon == "":
 		#	icon = icons.get("empty","")
+<<<<<<< HEAD
+		self["image"] = icons.get(self.icon(),icons["material"])
+=======
 		self["image"] = icons.get(self.icon(),"")
+>>>>>>> master
 		self["compound"] = LEFT
 		tooltip = self.tooltip()
 		if not tooltip: tooltip = UserButton.TOOLTIP

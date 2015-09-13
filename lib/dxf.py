@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
+<<<<<<< HEAD
+# $Id: dxf.py 3510 2015-05-21 08:40:19Z bnv $
+=======
 # $Id: dxf.py 3537 2015-08-11 08:56:39Z bnv $
+>>>>>>> master
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -220,7 +224,11 @@ class DXF:
 
 		line = self._f.readline()
 		if not line: return None, None
-		tag   = int(line.strip())
+		try:
+			tag = int(line.strip())
+		except:
+			sys.stderr.write("Error reading line %s\n"%(line))
+			return None,None
 		value = self._f.readline().strip()
 		try:
 			value = int(value)

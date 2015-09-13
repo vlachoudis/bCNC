@@ -12,6 +12,20 @@ except ImportError:
 	from tkinter import *
 
 from CNC import CNC
+import tkExtra
+import Utils
+
+# Probe mapping we need PIL and numpy
+try:
+	from PIL import Image, ImageTk
+	import numpy
+
+	# Resampling image based on PIL library and converting to RGB.
+	# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
+	RESAMPLE = Image.NEAREST	# resize type
+except:
+	numpy = None
+	RESAMPLE = None
 
 VIEW_XY      = 0
 VIEW_XZ      = 1
@@ -35,7 +49,7 @@ GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 
 ENABLE_COLOR  = "Black"
-DISABLE_COLOR = "Gray"
+DISABLE_COLOR = "LightGray"
 SELECT_COLOR  = "Blue"
 SELECT2_COLOR = "DarkCyan"
 PROCESS_COLOR = "Green"
@@ -61,8 +75,11 @@ SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
-
 CLOSE_DISTANCE = 5
+MAXDIST      = 10000
+
+S60 = math.sin(math.radians(60))
+C60 = math.cos(math.radians(60))
 
 DEF_CURSOR = ""
 MOUSE_CURSOR = {
@@ -96,11 +113,6 @@ MOUSE_CURSOR = {
 
 #	ACTION_EDIT          : "pencil",
 }
-
-MAXDIST      = 10000
-
-S60 = math.sin(math.radians(60))
-C60 = math.cos(math.radians(60))
 
 # ------------------------------------------------------------------------------
 def mouseCursor(action):
@@ -176,9 +188,14 @@ class CNCCanvas(Canvas):
 		self._gantry2     = None
 		self._select      = None
 		self._margin      = None
+		self._workarea    = None
 		self._vector      = None
 		self._lastActive  = None
 		self._lastGantry  = None
+
+		self._image       = None
+		self._tkimage     = None
+		self._probeImage  = None
 
 		self.draw_axes    = True		# Drawing flags
 		self.draw_grid    = True
@@ -229,27 +246,27 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.app.statusbar["text"] = "Select objects with mouse"
+		self.event_generate("<<Status>>",data="Select objects with mouse")
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
 		self.setAction(ACTION_ORIGIN)
-		self.app.statusbar["text"] = "Click to set the origin (zero)"
+		self.event_generate("<<Status>>",data="Click to set the origin (zero)")
 
 	# ----------------------------------------------------------------------
 	def setActionMove(self, event=None):
 		self.setAction(ACTION_MOVE)
-		self.app.statusbar["text"] = "Move graphically objects"
+		self.event_generate("<<Status>>",data="Move graphically objects")
 
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
-		self.app.statusbar["text"] = "Move CNC gantry to mouse location"
+		self.event_generate("<<Status>>",data="Move CNC gantry to mouse location")
 
 	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
-		self.app.statusbar["text"] = "Drag a ruler to measure distances"
+		self.event_generate("<<Status>>",data="Drag a ruler to measure distances")
 
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
@@ -381,10 +398,10 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.app.statusbar["text"] = \
-				"dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
+			self.event_generate("<<Status>>",
+				data="dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
-					math.degrees(math.atan2(dy,dx)))
+					math.degrees(math.atan2(dy,dx))))
 
 		self.setStatus(event)
 
@@ -413,9 +430,9 @@ class CNCCanvas(Canvas):
 				self.delete(self._select)
 				self._select = None
 
-				lines = []
+				items = []
 				for i in closest:
-					try: lines.append(self._items[i])
+					try: items.append(self._items[i])
 					except: pass
 
 			elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
@@ -424,17 +441,17 @@ class CNCCanvas(Canvas):
 						self.canvasy(event.y),
 						CLOSE_DISTANCE)
 
-				lines = []
+				items = []
 				for i in closest:
 					try:
-						lines.append(self._items[i])
+						items.append(self._items[i])
 						#i = None
 					except KeyError:
 						#i = self.find_below(i)
 						pass
-			if not lines: return
+			if not items: return
 
-			self.app.select(lines, self._mouseAction==ACTION_SELECT_DOUBLE,
+			self.app.select(items, self._mouseAction==ACTION_SELECT_DOUBLE,
 					event.state&CONTROL_MASK==0)
 			self._mouseAction = None
 
@@ -445,7 +462,7 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.app.statusbar["text"] = "Move by %g, %g, %g"%(dx,dy,dz)
+			self.event_generate("<<Status>>", data="Move by %g, %g, %g"%(dx,dy,dz))
 			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
 
 	# ----------------------------------------------------------------------
@@ -455,8 +472,8 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setStatus(self, event):
-		x,y,z = self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
-		self.app.canvasbar["text"] = "X:%.4f  Y:%.4f  Z:%.4f"%(x,y,z)
+		data="%.4f %.4f %.4f" % self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		self.event_generate("<<Coords>>", data=data)
 
 	# ----------------------------------------------------------------------
 	def motion(self, event):
@@ -546,6 +563,11 @@ class CNCCanvas(Canvas):
 		# Drag to new location to center viewport
 		self.scan_mark(0,0)
 		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
+
+		# Resize probe image if any
+		if self._probeImage:
+			self._projectProbeImage()
+			self.itemconfig(self._probeImage, image=self._tkimage)
 
 	# ----------------------------------------------------------------------
 	# Return selected objects bounding box
@@ -740,6 +762,7 @@ class CNCCanvas(Canvas):
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
 			block.resetPath()
+			start = True	# start location found
 			for j,line in enumerate(block):
 				#cmd = self.cnc.parseLine(line)
 				try:
@@ -755,6 +778,10 @@ class CNCCanvas(Canvas):
 					path = self.drawPath(cmd, block.enable)
 					self._items[path] = i,j
 					block.addPath(path)
+					if start and self.cnc.gcode in (1,2,3):
+						# Mark as start the first non-rapid motion
+						block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
+						start = False
 			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
 
 		self.drawGrid()
@@ -820,22 +847,31 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawAxes(self):
+		self.delete("Axes")
 		if not self.draw_axes: return
-		if CNC.inch:
-			s = 1.0
-		else:
-			s = 10.0
+
+		dx = CNC.vars["xmax"] - CNC.vars["xmin"]
+		dy = CNC.vars["ymax"] - CNC.vars["ymin"]
+		d = min(dx,dy)
+		try:
+			s = math.pow(10.0, int(math.log10(d)))
+		except:
+			if CNC.inch:
+				s = 10.0
+			else:
+				s = 100.0
 		xyz = [(0.,0.,0.), (s, 0., 0.)]
-		self.create_line(self.plotCoords(xyz), fill="Red",   dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
 
 		xyz = [(0.,0.,0.), (0., s, 0.)]
-		self.create_line(self.plotCoords(xyz), fill="Green", dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1), arrow=LAST)
 
 		xyz = [(0.,0.,0.), (0., 0., s)]
-		self.create_line(self.plotCoords(xyz), fill="Blue",  dash=(3,1))
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
 
 	#----------------------------------------------------------------------
 	def drawMargin(self):
+		if self._margin: self.delete(self._margin)
 		if not self.draw_margin: return
 		if not CNC.isMarginValid(): return
 		xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
@@ -850,6 +886,7 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
+		if self._workarea: self.delete(self._workarea)
 		if not self.draw_workarea: return
 
 		xmin = self._dx-CNC.travel_x
@@ -871,6 +908,7 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawGrid(self):
+		self.delete("Grid")
 		if not self.draw_grid: return
 		if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
 			xmin = (CNC.vars["xmin"]//10)  *10
@@ -881,6 +919,7 @@ class CNCCanvas(Canvas):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
+							tag="Grid",
 							fill=GRID_COLOR,
 							dash=(1,3))
 				self.tag_lower(item)
@@ -890,6 +929,7 @@ class CNCCanvas(Canvas):
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),
 							fill=GRID_COLOR,
+							tag="Grid",
 							dash=(1,3))
 				self.tag_lower(item)
 
@@ -897,38 +937,106 @@ class CNCCanvas(Canvas):
 	# Display probe
 	#----------------------------------------------------------------------
 	def drawProbe(self):
+		self.delete("Probe")
+		if self._probeImage:
+			self.delete(self._probeImage)
+			self._probeImage = None
 		if not self.draw_probe: return
+		if self.view in (VIEW_XZ, VIEW_YZ): return
 
 		# Draw probe grid
-		probe = self.app.gcode.probe
-		for x in bmath.frange(probe.xmin, probe.xmax, probe.xstep()):
+		probe = self.gcode.probe
+		for x in bmath.frange(probe.xmin, probe.xmax+0.00001, probe.xstep()):
 			xyz = [(x,probe.ymin,0.), (x,probe.ymax,0.)]
 			item = self.create_line(self.plotCoords(xyz),
+						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
 
-		for y in bmath.frange(probe.ymin, probe.ymax, probe.ystep()):
+		for y in bmath.frange(probe.ymin, probe.ymax+0.00001, probe.ystep()):
 			xyz = [(probe.xmin,y,0.), (probe.xmax,y,0.)]
 			item = self.create_line(self.plotCoords(xyz),
+						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
 
 		# Draw probe points
 		for i,uv in enumerate(self.plotCoords(probe.points)):
-			item = self.create_text(uv, text="%g"%(probe.points[i][2]),
-					justify=CENTER, fill="Green")
+			item = self.create_text(uv,
+						text="%.*f"%(CNC.digits,probe.points[i][2]),
+						tag="Probe",
+						justify=CENTER,
+						fill="Green")
 			self.tag_lower(item)
 
+		# Draw image map if numpy exists
+		if numpy is not None and probe.matrix and self.view == VIEW_XY:
+			array = numpy.array(list(reversed(probe.matrix)), numpy.float32)
+
+			lw = array.min()
+			hg = array.max()
+			mx = max(abs(hg),abs(lw))
+			#print "matrix=",probe.matrix
+			#print "size=",array.size
+			#print "array=",array
+			#print "Limits:", lw, hg, mx
+			# scale should be:
+			#  -mx   .. 0 .. mx
+			#  -127     0    127
+			# -127 = light-blue
+			#    0 = white
+			#  127 = light-red
+			dc = mx/127.		# step in colors
+			if abs(dc)<1e-8: return
+			palette = []
+			for x in bmath.frange(lw, hg+1e-10, (hg-lw)/255.):
+				i = int(math.floor(x / dc))
+				if i<0:
+					palette.append(0xff+i)
+					palette.append(0xff+i)
+					palette.append(0xff)
+				elif i>0:
+					palette.append(0xff)
+					palette.append(0xff-i)
+					palette.append(0xff-i)
+				else:
+					palette.append(0xff)
+					palette.append(0xff)
+					palette.append(0xff)
+				#print ">>", x,i,palette[-3], palette[-2], palette[-1]
+			#print "palette size=",len(palette)/3
+			array = numpy.floor((array-lw)/(hg-lw)*255)
+			self._image = Image.fromarray(array.astype(numpy.int16)).convert('L')
+			self._image.putpalette(palette)
+			self._image = self._image.convert("RGB")
+
+			self._projectProbeImage()
+			x,y = self.plotCoords([(probe.xmin, probe.ymin, 0.)])[0]
+			self._probeImage = self.create_image(x,y, image=self._tkimage, anchor='sw')
+			self.tag_lower(self._probeImage)
+
 	#----------------------------------------------------------------------
-	# Draw a probe point
+	# Create the tkimage for the current projection
 	#----------------------------------------------------------------------
-	def drawProbePoint(self, xyz):
-		if not self.draw_probe: return
-		xyz[0] += self._dx
-		xyz[1] += self._dy
-		xyz[2] += self._dz
-		uv = self.plotCoords([xyz])
-		item = self.create_text(uv, text="%g"%(xyz[2]), justify=CENTER, fill="Green")
+	def _projectProbeImage(self):
+		probe = self.gcode.probe
+		size = (int((probe.xmax-probe.xmin + probe._xstep)*self.zoom),
+			int((probe.ymax-probe.ymin + probe._ystep)*self.zoom))
+		marginx = int(probe._xstep/2. * self.zoom)
+		marginy = int(probe._ystep/2. * self.zoom)
+		crop = (marginx, marginy, size[0]-marginx, size[1]-marginy)
+
+		image = self._image.resize((size), resample=RESAMPLE).crop(crop)
+		self._tkimage = ImageTk.PhotoImage(image)
+
+#			if self.view == VIEW_ISO1:
+#				w, h = size
+#				size2 = (int(S60*(w+h)),
+#					 int(C60*(w+h)))
+#				image2 = self._image.transform(size2, Image.AFFINE,
+#					( 0.5/S60, 0.5/C60, -h/2,
+#					 -0.5/S60, 0.5/C60,  h/2),
+#					 resample=RESAMPLE)
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
@@ -1036,3 +1144,275 @@ class CNCCanvas(Canvas):
 			z = 0
 
 		return x,y,z
+
+#==============================================================================
+# Canvas Frame with toolbar
+#==============================================================================
+class CanvasFrame(Frame):
+	def __init__(self, master, app, *kw, **kwargs):
+		Frame.__init__(self, master, *kw, **kwargs)
+		self.app = app
+
+		self.draw_axes   = BooleanVar()
+		self.draw_grid   = BooleanVar()
+		self.draw_margin = BooleanVar()
+		self.draw_probe  = BooleanVar()
+		self.draw_paths  = BooleanVar()
+		self.draw_rapid  = BooleanVar()
+		self.draw_workarea = BooleanVar()
+		self.view  = StringVar()
+
+		self.loadConfig()
+
+		self.view.trace('w', self.viewChange)
+
+		toolbar = Frame(self, relief=RAISED)
+		toolbar.grid(row=0, column=0, columnspan=2, sticky=EW)
+
+		self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
+		self.canvas.grid(row=1, column=0, sticky=NSEW)
+		sb = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
+		sb.grid(row=1, column=1, sticky=NS)
+		self.canvas.config(yscrollcommand=sb.set)
+		sb = Scrollbar(self, orient=HORIZONTAL, command=self.canvas.xview)
+		sb.grid(row=2, column=0, sticky=EW)
+		self.canvas.config(xscrollcommand=sb.set)
+
+		self.createCanvasToolbar(toolbar)
+
+		self.grid_rowconfigure(1, weight=1)
+		self.grid_columnconfigure(0, weight=1)
+
+	#----------------------------------------------------------------------
+	def addWidget(self, widget):
+		self.app.widgets.append(widget)
+
+	#----------------------------------------------------------------------
+	def loadConfig(self):
+		global INSERT_COLOR, GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
+		global BOX_SELECT, ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
+		global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
+
+		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
+		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
+		self.draw_margin.set(  bool(int(Utils.getBool("Canvas", "margin",  True))))
+		self.draw_probe.set(   bool(int(Utils.getBool("Canvas", "probe",   False))))
+		self.draw_paths.set(   bool(int(Utils.getBool("Canvas", "paths",   True))))
+		self.draw_rapid.set(   bool(int(Utils.getBool("Canvas", "rapid",   True))))
+		self.draw_workarea.set(bool(int(Utils.getBool("Canvas", "workarea",True))))
+
+		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
+
+		INSERT_COLOR  = Utils.getStr("Color", "canvas.insert", INSERT_COLOR)
+		GANTRY_COLOR  = Utils.getStr("Color", "canvas.gantry", GANTRY_COLOR)
+		MARGIN_COLOR  = Utils.getStr("Color", "canvas.margin", MARGIN_COLOR)
+		GRID_COLOR    = Utils.getStr("Color", "canvas.grid",   GRID_COLOR)
+		BOX_SELECT    = Utils.getStr("Color", "canvas.box",    BOX_SELECT)
+		ENABLE_COLOR  = Utils.getStr("Color", "canvas.enable", ENABLE_COLOR)
+		DISABLE_COLOR = Utils.getStr("Color", "canvas.disable",DISABLE_COLOR)
+		SELECT_COLOR  = Utils.getStr("Color", "canvas.select", SELECT_COLOR)
+		SELECT2_COLOR = Utils.getStr("Color", "canvas.select2",SELECT2_COLOR)
+		PROCESS_COLOR = Utils.getStr("Color", "canvas.process",PROCESS_COLOR)
+		MOVE_COLOR    = Utils.getStr("Color", "canvas.move",   MOVE_COLOR)
+		RULER_COLOR   = Utils.getStr("Color", "canvas.ruler",  RULER_COLOR)
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setStr( "Canvas", "view",    self.view.get())
+		Utils.setBool("Canvas", "axes",    self.draw_axes.get())
+		Utils.setBool("Canvas", "grid",    self.draw_grid.get())
+		Utils.setBool("Canvas", "margin",  self.draw_margin.get())
+		Utils.setBool("Canvas", "probe",   self.draw_probe.get())
+		Utils.setBool("Canvas", "paths",   self.draw_paths.get())
+		Utils.setBool("Canvas", "rapid",   self.draw_rapid.get())
+		Utils.setBool("Canvas", "workarea",self.draw_workarea.get())
+
+	#----------------------------------------------------------------------
+	# Canvas toolbar FIXME XXX should be moved to CNCCanvas
+	#----------------------------------------------------------------------
+	def createCanvasToolbar(self, toolbar):
+		b = OptionMenu(toolbar, self.view, *VIEWS)
+		b.config(padx=0, pady=1)
+		b.pack(side=LEFT)
+		tkExtra.Balloon.set(b, "Change viewing angle")
+
+		b = Button(toolbar, image=Utils.icons["zoom_in"],
+				command=self.canvas.menuZoomIn)
+		tkExtra.Balloon.set(b, "Zoom In [Ctrl-=]")
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_out"],
+				command=self.canvas.menuZoomOut)
+		tkExtra.Balloon.set(b, "Zoom Out [Ctrl--]")
+		b.pack(side=LEFT)
+
+		b = Button(toolbar, image=Utils.icons["zoom_on"],
+				command=self.canvas.fit2Screen)
+		tkExtra.Balloon.set(b, "Fit to screen [F]")
+		b.pack(side=LEFT)
+
+
+		Label(toolbar, text="Tool:",
+				image=Utils.icons["sep"],
+				compound=LEFT).pack(side=LEFT, padx=2)
+		# -----
+		# Tools
+		# -----
+		b = Radiobutton(toolbar, image=Utils.icons["select"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_SELECT,
+					command=self.canvas.setActionSelect)
+		tkExtra.Balloon.set(b, "Select tool [S]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_GANTRY,
+					command=self.canvas.setActionGantry)
+		tkExtra.Balloon.set(b, "Move gantry [G]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["ruler"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_RULER,
+					command=self.canvas.setActionRuler)
+		tkExtra.Balloon.set(b, "Ruler [R]")
+		b.pack(side=LEFT)
+
+		# -----------
+		# Draw flags
+		# -----------
+		Label(toolbar, text="Draw:",
+				image=Utils.icons["sep"],
+				compound=LEFT).pack(side=LEFT, padx=2)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["axes"],
+				indicatoron=False,
+				variable=self.draw_axes,
+				command=self.drawAxes)
+		tkExtra.Balloon.set(b, "Toggle display of axes")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["grid"],
+				indicatoron=False,
+				variable=self.draw_grid,
+				command=self.drawGrid)
+		tkExtra.Balloon.set(b, "Toggle display of grid lines")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["margins"],
+				indicatoron=False,
+				variable=self.draw_margin,
+				command=self.drawMargin)
+		tkExtra.Balloon.set(b, "Toggle display of margins")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				text="P",
+				image=Utils.icons["measure"],
+				indicatoron=False,
+				variable=self.draw_probe,
+				command=self.drawProbe)
+		tkExtra.Balloon.set(b, "Toggle display of probe")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["endmill"],
+				indicatoron=False,
+				variable=self.draw_paths,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of paths (G1,G2,G3)")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["rapid"],
+				indicatoron=False,
+				variable=self.draw_rapid,
+				command=self.toggleDrawFlag)
+		tkExtra.Balloon.set(b, "Toggle display of rapid motion (G0)")
+		b.pack(side=LEFT)
+
+		b = Checkbutton(toolbar,
+				image=Utils.icons["workspace"],
+				indicatoron=False,
+				variable=self.draw_workarea,
+				command=self.drawWorkarea)
+		tkExtra.Balloon.set(b, "Toggle display of workarea")
+		b.pack(side=LEFT)
+
+	#----------------------------------------------------------------------
+	def viewChange(self, a=None, b=None, c=None):
+		self.event_generate("<<ViewChange>>")
+
+	# ----------------------------------------------------------------------
+	def viewXY(self, event=None):
+		self.view.set(VIEWS[VIEW_XY])
+
+	# ----------------------------------------------------------------------
+	def viewXZ(self, event=None):
+		self.view.set(VIEWS[VIEW_XZ])
+
+	# ----------------------------------------------------------------------
+	def viewYZ(self, event=None):
+		self.view.set(VIEWS[VIEW_YZ])
+
+	# ----------------------------------------------------------------------
+	def viewISO1(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO1])
+
+	# ----------------------------------------------------------------------
+	def viewISO2(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO2])
+
+	# ----------------------------------------------------------------------
+	def viewISO3(self, event=None):
+		self.view.set(VIEWS[VIEW_ISO3])
+
+	#----------------------------------------------------------------------
+	def toggleDrawFlag(self):
+		self.canvas.draw_axes     = self.draw_axes.get()
+		self.canvas.draw_grid     = self.draw_grid.get()
+		self.canvas.draw_margin   = self.draw_margin.get()
+		self.canvas.draw_probe    = self.draw_probe.get()
+		self.canvas.draw_paths    = self.draw_paths.get()
+		self.canvas.draw_rapid    = self.draw_rapid.get()
+		self.canvas.draw_workarea = self.draw_workarea.get()
+		self.event_generate("<<ViewChange>>")
+
+	#----------------------------------------------------------------------
+	def drawAxes(self, value=None):
+		if value is not None: self.draw_axes.set(value)
+		self.canvas.draw_axes = self.draw_axes.get()
+		self.canvas.drawAxes()
+
+	#----------------------------------------------------------------------
+	def drawGrid(self, value=None):
+		if value is not None: self.draw_grid.set(value)
+		self.canvas.draw_grid = self.draw_grid.get()
+		self.canvas.drawGrid()
+
+	#----------------------------------------------------------------------
+	def drawMargin(self, value=None):
+		if value is not None: self.draw_margin.set(value)
+		self.canvas.draw_margin = self.draw_margin.get()
+		self.canvas.drawMargin()
+
+	#----------------------------------------------------------------------
+	def drawProbe(self, value=None):
+		if value is not None: self.draw_probe.set(value)
+		self.canvas.draw_probe = self.draw_probe.get()
+		self.canvas.drawProbe()
+
+	#----------------------------------------------------------------------
+	def drawWorkarea(self, value=None):
+		if value is not None: self.draw_workarea.set(value)
+		self.canvas.draw_workarea = self.draw_workarea.get()
+		self.canvas.drawWorkarea()

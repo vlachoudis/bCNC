@@ -10,14 +10,17 @@ import pdb
 import sys
 import math
 import types
+<<<<<<< HEAD
+import random
+=======
+>>>>>>> master
 import string
 
 import undo
-import Macros
 import Unicode
 
-from motionpath import Path, Segment
-from dxf import DXF
+from dxf   import DXF
+from bpath import Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
@@ -25,15 +28,96 @@ PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
+<<<<<<< HEAD
+AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
+
+STOP   = 0
+SKIP   = 1
+ASK    = 2
+PAUSE  = 3
+WAIT   = 4
+UPDATE = 5
+=======
 
 STOP = 0
 SKIP = 1
 ASK  = 2
 WAIT = 9
+>>>>>>> master
 
 XY   = 0
 XZ   = 1
 YZ   = 2
+<<<<<<< HEAD
+
+WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
+
+DISTANCE_MODE = { "G90" : "Absolute",
+		  "G91" : "Incremental" }
+FEED_MODE     = { "G93" : "1/Time",
+		  "G94" : "unit/min",
+		  "G95" : "unit/rev"}
+UNITS         = { "G20" : "inch",
+		  "G21" : "mm" }
+PLANE         = { "G17" : "XY",
+		  "G18" : "ZX",
+		  "G19" : "YZ" }
+
+# Modal Mode from $G and variable set 
+MODAL_MODES = {
+	"G0"	: "motion",
+	"G1"	: "motion",
+	"G2"	: "motion",
+	"G3"	: "motion",
+	"G38.2"	: "motion",
+	"G38.3"	: "motion",
+	"G38.4"	: "motion",
+	"G38.5"	: "motion",
+	"G80"	: "motion",
+
+	"G54"   : "WCS",
+	"G55"   : "WCS",
+	"G56"   : "WCS",
+	"G57"   : "WCS",
+	"G58"   : "WCS",
+	"G59"   : "WCS",
+
+	"G17"   : "plane",
+	"G18"   : "plane",
+	"G19"   : "plane",
+
+	"G90"	: "distance",
+	"G91"	: "distance",
+
+	"G91.1" : "arc",
+
+	"G93"   : "feedmode",
+	"G94"   : "feedmode",
+	"G95"   : "feedmode",
+
+	"G20"	: "units",
+	"G21"	: "units",
+
+	"G40"	: "cutter",
+
+	"G43.1" : "tlo",
+	"G49"   : "tlo",
+
+	"M0"	: "program",
+	"M1"	: "program",
+	"M2"	: "program",
+	"M30"	: "program",
+
+	"M3"    : "spindle",
+	"M4"    : "spindle",
+	"M5"    : "spindle",
+
+	"M7"    : "coolant",
+	"M8"    : "coolant",
+	"M9"    : "coolant",
+}
+=======
+>>>>>>> master
 
 ERROR_HANDLING = {}
 
@@ -73,8 +157,7 @@ class Probe:
 		self.xn = 5
 		self.yn = 5
 
-		self.feed = 100
-		self.points  = []	# probe points
+		self.points = []	# probe points
 		self.matrix = []	# 2D matrix with Z coordinates
 		self.zeroed = False	# if probe was zeroed at any location
 
@@ -94,7 +177,7 @@ class Probe:
 			self.matrix.append([0.0]*(self.xn))
 
 	#----------------------------------------------------------------------
-	# Load level information from file
+	# Load autolevel information from file
 	#----------------------------------------------------------------------
 	def load(self, filename=None):
 		if filename is not None:
@@ -109,9 +192,10 @@ class Probe:
 				if line: return map(float, line.split())
 
 		f = open(self.filename,"r")
-		self.xmin, self.xmax, self.xn   = read(f)
-		self.ymin, self.ymax, self.yn   = read(f)
-		self.zmin, self.zmax, self.feed = read(f)
+		self.xmin, self.xmax, self.xn = read(f)
+		self.ymin, self.ymax, self.yn = read(f)
+		self.zmin, self.zmax, feed    = read(f)
+		CNC.vars["prbfeed"] = feed
 
 		self.xn = max(2,int(self.xn))
 		self.yn = max(2,int(self.yn))
@@ -138,7 +222,7 @@ class Probe:
 		f = open(self.filename,"w")
 		f.write("%g %g %d\n"%(self.xmin, self.xmax, self.xn))
 		f.write("%g %g %d\n"%(self.ymin, self.ymax, self.yn))
-		f.write("%g %g %g\n"%(self.zmin, self.zmax, self.feed))
+		f.write("%g %g %g\n"%(self.zmin, self.zmax, CNC.vars["prbfeed"]))
 		f.write("\n\n")
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
@@ -168,6 +252,16 @@ class Probe:
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
+<<<<<<< HEAD
+				lines.append("G0Z%.4f"%(self.zmax))
+				lines.append("G0X%.4fY%.4f"%(x,y))
+				lines.append("%sZ%.4fF%g"%(CNC.vars["prbcmd"], self.zmin, CNC.vars["prbfeed"]))
+				x += xstep
+			x -= xstep
+			xstep = -xstep
+		lines.append("G0Z%.4f"%(self.zmax))
+		lines.append("G0X%.4fY%.4f"%(self.xmin,self.ymin))
+=======
 				lines.append("G0Z%.4f\n"%(self.zmax))
 				lines.append("G0X%.4fY%.4f\n"%(x,y))
 				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
@@ -176,6 +270,7 @@ class Probe:
 			xstep = -xstep
 		lines.append("G0Z%.4f\n"%(self.zmax))
 		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
+>>>>>>> master
 		return lines
 
 	#----------------------------------------------------------------------
@@ -334,6 +429,7 @@ class Probe:
 #==============================================================================
 class CNC:
 	inch           = False
+	lasercutter    = False
 	acceleration_x = 25.0	# mm/s^2
 	acceleration_y = 25.0	# mm/s^2
 	acceleration_z = 25.0	# mm/s^2
@@ -347,10 +443,59 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
+<<<<<<< HEAD
+	comment        = ""	# Last parsed comment
+	toolPolicy     = 0	# Should be in sync with ProbePage
+				# 0 - send to grbl
+				# 1 - skip those lines
+				# 2 - manual tool change
+=======
+>>>>>>> master
 
 	#----------------------------------------------------------------------
 	def __init__(self):
 		CNC.vars = {
+<<<<<<< HEAD
+				"prbx"      : 0.0,
+				"prby"      : 0.0,
+				"prbz"      : 0.0,
+				"prbcmd"    : "G38.2",
+				"prbfeed"   : 10.,
+				"errline"   : "",
+				"wx"        : 0.0,
+				"wy"        : 0.0,
+				"wz"        : 0.0,
+				"mx"        : 0.0,
+				"my"        : 0.0,
+				"mz"        : 0.0,
+				"G"         : ["G20","G54"],
+				"motion"    : "G0",
+				"WCS"       : "G54",
+				"plane"     : "G17",
+				"feedmode"  : "G94",
+				"distance"  : "G90",
+				"arc"       : "G91.1",
+				"units"     : "G20",
+				"cutter"    : "",
+				"tlo"       : "",
+				"program"   : "M0",
+				"spindle"   : "M5",
+				"coolant"   : "M9",
+
+				"tool"      : 0,
+				"feed"      : 0.0,
+				"rpm"       : 0.0,
+
+				"override"  : 100,
+				"diameter"  : 3.175,	# Tool diameter
+				"cutfeed"   : 1000.,	# Material feed for cutting
+				"cutfeedz"  : 500.,	# Material feed for cutting
+				"safe"      : 3.,
+				"state"     : "",
+				"stepz"     : 1.,
+				"surface"   : 0.,
+				"thickness" : 5.,
+=======
 				"prbx" : 0.0,
 				"prby" : 0.0,
 				"prbz" : 0.0,
@@ -361,14 +506,41 @@ class CNC:
 				"my"   : 0.0,
 				"mz"   : 0.0,
 				"G"    : ["G20","G54"],
+>>>>>>> master
 			}
 		self.initPath()
+
+	#----------------------------------------------------------------------
+	# Update G variables from "G" string
+	#----------------------------------------------------------------------
+	@staticmethod
+	def updateG():
+		for g in CNC.vars["G"]:
+			if g[0] == "F":
+				CNC.vars["feed"] = float(g[1:])
+			elif g[0] == "S":
+				CNC.vars["rpm"] = float(g[1:])
+			elif g[0] == "T":
+				CNC.vars["tool"] = int(g[1:])
+			else:
+				var = MODAL_MODES.get(g)
+				if var is not None:
+					CNC.vars[var] = g
+
+	#----------------------------------------------------------------------
+	def __getitem__(self, name):
+		return CNC.vars[name]
+
+	#----------------------------------------------------------------------
+	def __setitem__(self, name, value):
+		CNC.vars[name] = value
 
 	#----------------------------------------------------------------------
 	@staticmethod
 	def loadConfig(config):
 		section = "CNC"
 		CNC.inch           = bool(int(config.get(section, "units")))
+		CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
 		CNC.acceleration_x = float(config.get(section, "acceleration_x"))
 		CNC.acceleration_y = float(config.get(section, "acceleration_y"))
 		CNC.acceleration_z = float(config.get(section, "acceleration_z"))
@@ -436,7 +608,11 @@ class CNC:
 		self.arcabsolute = False
 		self.gcode       = None
 		self.plane       = XY
+<<<<<<< HEAD
+		self.feed        = 0		# Actual gcode feed rate (not to confuse with cutfeed
+=======
 		self.feed        = 0
+>>>>>>> master
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
 
@@ -450,9 +626,78 @@ class CNC:
 	#----------------------------------------------------------------------
 	# Number formating
 	#----------------------------------------------------------------------
-	def fmt(self, c, v, d=None):
-		if d is None: d = self.digits
+	@staticmethod
+	def fmt(c, v, d=None):
+		if d is None: d = CNC.digits
 		return ("%s%*f"%(c,d,v)).rstrip("0").rstrip(".")
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def gcode(g, pairs):
+		s = "g%d"%(g)
+		for c,v in pairs:
+			s += " %c%g"%(c, round(v,CNC.digits))
+		return s
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def gline(g, x=None, y=None, z=None):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		return s
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def grapid(x=None, y=None, z=None):
+		return CNC.gline(0,x,y,z)
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def glinev(g, v, feed=None):
+		pairs = zip("xyz",v)
+		if feed is not None:
+			pairs.append(("f",feed))
+		return CNC.gcode(g, pairs)
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def garcv(g, v, ijk):
+		return CNC.gcode(g, zip("xyz",v) + zip("ij",ijk[:2]))
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def garc(g, x=None, y=None, z=None, i=None, j=None, k=None):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		if i is not None: s += ' '+CNC.fmt('i',i)
+		if j is not None: s += ' '+CNC.fmt('j',j)
+		if k is not None: s += ' '+CNC.fmt('k',k)
+		return s
+
+	#----------------------------------------------------------------------
+	# Enter to material or start the laser
+	#----------------------------------------------------------------------
+	@staticmethod
+	def zenter(z):
+		if CNC.lasercutter:
+			return "m3"
+		else:
+			return "g1 %s %s"%(CNC.fmt("z",z), CNC.fmt("f",CNC.vars["cutfeedz"]))
+
+	#----------------------------------------------------------------------
+	# gcode to go to z-safe
+	# Exit from material or stop the laser
+	#----------------------------------------------------------------------
+	@staticmethod
+	def zsafe():
+		if CNC.lasercutter:
+			return "m5"
+		else:
+			return "g0 %s"%(CNC.fmt("z",CNC.vars["safe"]))
 
 	#----------------------------------------------------------------------
 	# @return line in broken a list of commands, None if empty or comment
@@ -499,6 +744,28 @@ class CNC:
 		# execute literally the line after the first character
 		if line[0]=='%':
 			# special command
+<<<<<<< HEAD
+			pat = AUXPAT.match(line.strip())
+			if pat:
+				cmd  = pat.group(1)
+				args = pat.group(2)
+			else:
+				cmd  = None
+				args = None
+			if cmd=="%wait":
+				return (WAIT,)
+			elif cmd=="%pause":
+				if not args: args = None
+				return (PAUSE, args)
+			elif cmd=="%update":
+				return (UPDATE, args)
+			else:
+				try:
+					return compile(line[1:],"","exec")
+				except:
+					# FIXME show the error!!!!
+					return None
+=======
 			if line.strip()=="%wait":
 				return WAIT
 			try:
@@ -506,6 +773,7 @@ class CNC:
 			except:
 				# FIXME show the error!!!!
 				return None
+>>>>>>> master
 
 		# most probably an assignment like  #nnn = expr
 		if line[0]=='_':
@@ -517,20 +785,37 @@ class CNC:
 
 		# commented line
 		if line[0] == ';':
+<<<<<<< HEAD
+			CNC.comment = line[1:].strip()
+=======
+>>>>>>> master
 			return None
 
 		out = []	# output list of commands
 		braket  = 0	# bracket count []
 		paren   = 0	# parenthesis count ()
+<<<<<<< HEAD
+		expr    = ""	# expression string
+		cmd     = ""	# cmd string
+		comment = False	# inside comment
+		CNC.comment = ""
+		for i,ch in enumerate(line):
+=======
 		comment = False	# inside comment
 		expr = ""	# expression string
 		cmd  = ""	# cmd string
 		for ch in line:
+>>>>>>> master
 			if ch == '(':
 				# comment start?
 				paren += 1
 				comment = (braket==0)
+<<<<<<< HEAD
+				if not comment:
+					expr += ch
+=======
 				if not comment: expr += ch
+>>>>>>> master
 			elif ch == ')':
 				# comment end?
 				paren -= 1
@@ -547,6 +832,11 @@ class CNC:
 							cmd = ""
 					else:
 						expr += ch
+<<<<<<< HEAD
+				else:
+					CNC.comment += ch
+=======
+>>>>>>> master
 			elif ch == ']':
 				# expression end?
 				if not comment:
@@ -562,6 +852,11 @@ class CNC:
 						expr = ""
 					else:
 						expr += ch
+<<<<<<< HEAD
+				else:
+					CNC.comment += ch
+=======
+>>>>>>> master
 			elif ch=='=':
 				# check for assignments (FIXME very bad)
 				if not out and braket==0 and paren==0:
@@ -578,6 +873,10 @@ class CNC:
 			elif ch == ';':
 				# Skip everything after the semicolon on normal lines
 				if not comment and paren==0 and braket==0:
+<<<<<<< HEAD
+					CNC.comment += line[i+1:]
+=======
+>>>>>>> master
 					break
 				else:
 					expr += ch
@@ -592,6 +891,12 @@ class CNC:
 				else:
 					cmd += ch
 
+<<<<<<< HEAD
+			elif comment:
+				CNC.comment += ch
+
+=======
+>>>>>>> master
 		if cmd: out.append(cmd)
 
 		# return output commands
@@ -898,6 +1203,100 @@ class CNC:
 			CNC.vars["xmax"] = max(CNC.vars["xmax"], max([i[0] for i in xyz]))
 			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
 			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
+<<<<<<< HEAD
+
+	#----------------------------------------------------------------------
+	# Instead of the current code, override with the custom user lines
+	# @param program a list of lines to execute
+	# @return the new list of lines
+	#----------------------------------------------------------------------
+	@staticmethod
+	def compile(program):
+		lines = []
+		for j,line in enumerate(program):
+			newcmd = []
+			cmds = CNC.parseLine2(line)
+			if cmds is None: continue
+			if isinstance(cmds,str):
+				cmds = CNC.breakLine(cmds)
+			else:
+				# either CodeType or tuple, list[] append at it as is
+				lines.append(cmds)
+				continue
+
+			for cmd in cmds:
+				c = cmd[0]
+				try: value = float(cmd[1:])
+				except: value = 0.0
+				if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
+					cmd = CNC.fmt(c,value)
+				else:
+					opt = ERROR_HANDLING.get(cmd.upper(),0)
+					if opt == SKIP:
+						cmd = None
+
+				if cmd is not None:
+					newcmd.append(cmd)
+			lines.append("".join(newcmd))
+		return lines
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def initTool():
+		CNC._lastTool = None
+
+	#----------------------------------------------------------------------
+	# code to change manually tool
+	#----------------------------------------------------------------------
+	@staticmethod
+	def toolChange(cmds):
+		# find tool
+		tool = CNC._lastTool
+		for cmd in cmds:
+			cmd = cmd.upper()
+			if cmd[0]=="T":
+				try:
+					tool = int(cmd[1:])
+				except:
+					sys.stdout.write("Invalid tool number T%s\n"%(cmd[1:]))
+					tool = 0
+				break
+
+		# check if it is the same tool
+		if tool == CNC._lastTool: return []
+		CNC._lastTool = tool
+
+		# create the necessary code
+		lines = []
+		lines.append("m5")
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+
+		lines.append("%wait")
+		if CNC.comment:
+			lines.append("%%pause Tool change T%02d (%s)"%(tool,CNC.comment))
+		else:
+			lines.append("%%pause Tool change T%02d"%(tool))
+
+		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+		lines.append("g53 g0 z[toolprobez]")
+
+		# fixed WCS
+		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		# FIXME could be done dynamically in the code
+		p = WCS.index(CNC.vars["WCS"])+1
+		lines.append("G10L20P%d z[toolheight]"%(p))
+
+		lines.append("g53 g0 z[toolchangez]")
+		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+
+		lines.append("g90")
+		# FIXME maybe I should remember the last state and restore it m3 or m4
+		lines.append("m3")
+
+		return CNC.compile(lines)
+=======
+>>>>>>> master
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -911,42 +1310,76 @@ class CNC:
 #==============================================================================
 class Block(list):
 	def __init__(self, name=None):
+		# Copy constructor
+		if isinstance(name, Block):
+			self.copy(name)
+			return
 		self._name   = name
 		self.enable  = True	# Enabled/Visible in drawing
 		self.expand  = False	# Expand in editor
-#		self.start   = None	# starting coordinates
-#		self.stop    = None	# exit coordinates
-
 		self._path   = []	# canvas drawing paths
-		self.x = self.y = self.z = 0	# ending coordinates
+		self.sx = self.sy = self.sz = 0	# start  coordinates (entry point first non rapid motion)
+		self.ex = self.ey = self.ez = 0	# ending coordinates
+
+	#----------------------------------------------------------------------
+	def copy(self, src):
+		self._name   = src._name
+		self.enable  = src.enable
+		self.expand  = src.expand
+		self[:]    = src[:]
+		self._path = []
+		self.sx = src.sx
+		self.sy = src.sy
+		self.sz = src.sz
+		self.ex = src.ex
+		self.ey = src.ey
+		self.ez = src.ez
 
 	#----------------------------------------------------------------------
 	def name(self):
 		return self._name is None and "block" or self._name
 
 	#----------------------------------------------------------------------
-	def addOperation(self, operation):
-		n = self.name()
-		pat = OPPAT.match(n)
+	# @return the new name with an operation (static)
+	#----------------------------------------------------------------------
+	@staticmethod
+	def operationName(name, operation):
+		pat = OPPAT.match(name)
 		if pat is None:
-			self._name = "%s [%s]"%(n,operation)
+			return "%s [%s]"%(name,operation)
 		else:
-			n = pat.group(1)
+			name = pat.group(1).strip()
 			ops = pat.group(2).split(',')
-			if operation in ops:
-				return
 			if ":" in operation:
-				oid = operation.split(":")[0]
+				oid,opt = operation.split(":")
 			else:
 				oid = operation
+				opt = None
 			for i,o in enumerate(ops):
-				if ":" in o: o = o.split(":")[0]
+				if ":" in o:
+					o,c = o.split(":")
+					try:
+						c = int(c)
+					except:
+						c = 1
+				else:
+					c = 1
 				if o==oid:
-					ops[i] = operation
+					if opt is not None or c is None:
+						ops[i] = operation
+					else:
+						ops[i] = "%s:%d"%(oid,c+1)
 					break
 			else:
 				ops.append(operation)
-			self._name = "%s [%s]"%(n.strip(),','.join(ops))
+			return "%s [%s]"%(name,','.join(ops))
+
+	#----------------------------------------------------------------------
+	# Add a new operation to the block's name
+	#----------------------------------------------------------------------
+	def addOperation(self, operation):
+		n = self.name()
+		self._name = Block.operationName(self.name(), operation)
 
 	#----------------------------------------------------------------------
 	def header(self):
@@ -993,14 +1426,20 @@ class Block(list):
 		return self._path[i]
 
 	#----------------------------------------------------------------------
-	def endPath(self, x, y, z):
-		self.x = x
-		self.y = y
-		self.z = z
-
-	#----------------------------------------------------------------------
 	def resetPath(self):
 		del self._path[:]
+
+	#----------------------------------------------------------------------
+	def startPath(self, x, y, z):
+		self.sx = x
+		self.sy = y
+		self.sz = z
+
+	#----------------------------------------------------------------------
+	def endPath(self, x, y, z):
+		self.ex = x
+		self.ey = y
+		self.ez = z
 
 #==============================================================================
 # Gcode file
@@ -1008,15 +1447,7 @@ class Block(list):
 class GCode:
 	#----------------------------------------------------------------------
 	def __init__(self):
-		self.cnc   = CNC()
-		self.feed      = 1000
-		self.feedz     =  500
-		self.stepz     = 1.		# depth per pass
-		self.safe      = 3.		# safe height for rapid moves
-		self.surface   = 0.		# surface position
-		self.thickness = 5.		# material thickness (minimum = surface-thickness)
-		self.diameter  = 3.175		# tool diameter
-		self.overcut   = ' '		# overcut strategy
+		self.cnc = CNC()
 		self.header    = ""
 		self.footer    = ""
 		self.undoredo  = undo.UndoRedo()
@@ -1107,9 +1538,14 @@ class GCode:
 		self.blocks.append(block)
 
 	#----------------------------------------------------------------------
+	# If empty insert a header and a footer
+	#----------------------------------------------------------------------
 	def headerFooter(self):
-		self.addBlockFromString("Header",self.header)
-		self.addBlockFromString("Footer",self.footer)
+		if not self.blocks:
+			self.addBlockFromString("Header",self.header)
+			self.addBlockFromString("Footer",self.footer)
+			return True
+		return False
 
 	#----------------------------------------------------------------------
 	# Load DXF file into gcode
@@ -1119,8 +1555,12 @@ class GCode:
 			dxf = DXF(filename,"r")
 		except:
 			return False
+<<<<<<< HEAD
+		self.filename = ""
+=======
 		name,ext = os.path.splitext(filename)
 		self.filename = "%s.ngc"%(name)
+>>>>>>> master
 
 		dxf.readFile()
 		dxf.close()
@@ -1149,7 +1589,11 @@ class GCode:
 				longest = opath.pop(li)
 				longest.mergeLoops(opath)
 
+<<<<<<< HEAD
+				undoinfo.extend(self.importPath(None, longest, None, enable))
+=======
 				undoinfo.extend(self.importPath(None, longest, enable))
+>>>>>>> master
 #				d = longest.direction()
 #				bid = len(self.blocks)-1
 #				if d==0:
@@ -1159,7 +1603,7 @@ class GCode:
 #				elif d==-1:
 #					undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
-			undoinfo.extend(self.importPath(None, opath, enable))
+			undoinfo.extend(self.importPath(None, opath, None, enable))
 #			d = opath.direction()
 #			bid = len(self.blocks)-1
 #			if d==0:
@@ -1170,9 +1614,7 @@ class GCode:
 #				undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
 		if empty: self.addBlockFromString("Footer",self.footer)
-
 		#self.addUndo(undoinfo)
-
 		return True
 
 	#----------------------------------------------------------------------
@@ -1224,9 +1666,8 @@ class GCode:
 
 			x,y = entities[i].start()
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",self.surface),
-						self.fmt("f",self.feedz)))
-			block.append("g0 %s"%(self.fmt("z",self.safe)))
+			block.append(CNC.zenter(self.cnc["surface"]))
+			block.append(CNC.zsafe())
 			undoinfo.append(self.addBlockUndo(pos,block))
 			if pos is not None: pos += 1
 
@@ -1283,11 +1724,10 @@ class GCode:
 
 		if isinstance(path, Path):
 			x,y = path[0].start
-			if z is None: z = self.surface
+			if z is None: z = self.cnc["surface"]
 			if entry:
 				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append("g1 %s %s"%(self.fmt("z",z), self.fmt("f",self.feedz)))
-
+			block.append(CNC.zenter(z))
 			first = True
 			for segment in path:
 				x,y = segment.end
@@ -1303,10 +1743,10 @@ class GCode:
 						 self.fmt("x",x,7), self.fmt("y",y,7),
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
 				if first:
-					block[-1] += " %s"%(self.fmt("f",self.feed))
+					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
 					first = False
 			if exit:
-				block.append("g0 %s"%(self.fmt("z",self.safe)))
+				block.append(CNC.zsafe())
 		else:
 			for p in path:
 				self.fromPath(p, block)
@@ -1314,14 +1754,15 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Import paths as block
+	# return ids of blocks added in newblocks list if declared
 	#----------------------------------------------------------------------
-	def importPath(self, pos, paths, enable=True, multiblock=True):
+	def importPath(self, pos, paths, newblocks=None, enable=True, multiblock=True):
 		undoinfo = []
-
 		if isinstance(paths,Path):
 			block = self.fromPath(paths)
 			block.enable = enable
 			undoinfo.append(self.addBlockUndo(pos,block))
+			if newblocks is not None: newblocks.append(pos)
 		else:
 			block = None
 			for path in paths:
@@ -1331,11 +1772,13 @@ class GCode:
 				if multiblock:
 					block.enable = enable
 					undoinfo.append(self.addBlockUndo(pos,block))
+					if newblocks is not None: newblocks.append(pos)
 					if pos is not None: pos += 1
 					block = None
 			if not multiblock:
 				block.enable = enable
 				undoinfo.append(self.addBlockUndo(pos,block))
+				if newblocks is not None: newblocks.append(pos)
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1437,6 +1880,12 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Clone line inside a block
+	#----------------------------------------------------------------------
+	def cloneLineUndo(self, bid, lid):
+		return self.insLineUndo(bid, lid, self.blocks[bid][lid])
+
+	#----------------------------------------------------------------------
 	# Delete line from block
 	#----------------------------------------------------------------------
 	def delLineUndo(self, bid, lid):
@@ -1458,6 +1907,12 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Clone a block
+	#----------------------------------------------------------------------
+	def cloneBlockUndo(self, bid):
+		return self.addBlockUndo(bid, Block(self.blocks[bid]))
+
+	#----------------------------------------------------------------------
 	# Delete a whole block
 	#----------------------------------------------------------------------
 	def delBlockUndo(self, bid):
@@ -1471,8 +1926,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def insBlocksUndo(self, bid, blocks):
 		if bid is None or bid >= len(self.blocks):
-			bid = len(blocks)
-		undoinfo = (self.delBlocksUndo,bid, bid+len(blocks))
+			bid = len(self.blocks)
+		undoinfo = ("Insert blocks", self.delBlocksUndo, bid, bid+len(blocks))
 		self.blocks[bid:bid] = blocks
 		return undoinfo
 
@@ -1481,9 +1936,17 @@ class GCode:
 	#----------------------------------------------------------------------
 	def delBlocksUndo(self, from_, to_):
 		blocks = self.blocks[from_:to_]
-		undoinfo = (self.insBlocksUndo, from_, blocks)
+		undoinfo = ("Delete blocks", self.insBlocksUndo, from_, blocks)
 		del self.blocks[from_:to_]
 		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Insert blocks and push the undo info
+	#----------------------------------------------------------------------
+	def insBlocks(self, bid, blocks, msg=""):
+		if self.headerFooter():	# just in case
+			bid = 1
+		self.addUndo(self.insBlocksUndo(bid, blocks), msg)
 
 	#----------------------------------------------------------------------
 	# Set block expand
@@ -1499,6 +1962,41 @@ class GCode:
 	def setBlockEnableUndo(self, bid, enable):
 		undoinfo = (self.setBlockEnableUndo, bid, self.blocks[bid].enable)
 		self.blocks[bid].enable = enable
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Swap two blocks
+	#----------------------------------------------------------------------
+	def swapBlockUndo(self, a, b):
+		undoinfo = (self.swapBlockUndo, a, b)
+		tmp = self.blocks[a]
+		self.blocks[a] = self.blocks[b]
+		self.blocks[b] = tmp
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Move block from location src to location dst
+	#----------------------------------------------------------------------
+	def moveBlockUndo(self, src, dst):
+		if src == dst: return undo.NullUndo
+		undoinfo = (self.moveBlockUndo, dst, src)
+		if dst > src:
+			self.blocks.insert(dst-1, self.blocks.pop(src))
+		else:
+			self.blocks.insert(dst, self.blocks.pop(src))
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	# Invert selected blocks
+	#----------------------------------------------------------------------
+	def invertBlocksUndo(self, blocks):
+		undoinfo = []
+		first = 0
+		last  = len(blocks)-1
+		while first < last:
+			undoinfo.append(self.swapBlockUndo(blocks[first],blocks[last]))
+			first += 1
+			last  -= 1
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -1637,17 +2135,19 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def undo(self):
+		#print ">u>",self.undoredo.undoText()
 		self.undoredo.undo()
 
 	def redo(self):
+		#print ">r>",self.undoredo.redoText()
 		self.undoredo.redo()
 
-	def addUndo(self, undoinfo):
+	def addUndo(self, undoinfo, msg=""):
 		if isinstance(undoinfo,list):
 			if len(undoinfo)==1:
 				self.undoredo.addUndo(undoinfo[0])
 			else:
-				self.undoredo.addUndo(undo.createListUndo(undoinfo))
+				self.undoredo.addUndo(undo.createListUndo(undoinfo,msg))
 		elif undoinfo is not undo.NullUndo:
 			self.undoredo.addUndo(undoinfo)
 		self._modified = True
@@ -1713,9 +2213,10 @@ class GCode:
 		if bid == 0:
 			self.cnc.initPath()
 		else:
+			# Use the ending point of the previous block
+			# since the starting (sxyz is after the rapid motion)
 			block = self.blocks[bid-1]
-			# Use exiting coords from previous block
-			self.cnc.initPath(block.x, block.y, block.z)
+			self.cnc.initPath(block.ex, block.ey, block.ez)
 
 	#----------------------------------------------------------------------
 	# Move blocks/lines up
@@ -1727,13 +2228,13 @@ class GCode:
 			if lid is None:
 				undoinfo.append(self.orderUpBlockUndo(bid))
 				if bid==0:
-					sel.append((bid,None))
+					return items
 				else:
 					sel.append((bid-1,None))
 			else:
 				undoinfo.append(self.orderDownLineUndo(bid,lid))
 				sel.append((bid, lid-1))
-		self.addUndo(undoinfo)
+		self.addUndo(undoinfo,"Move Up")
 		return sel
 
 	#----------------------------------------------------------------------
@@ -1746,13 +2247,13 @@ class GCode:
 			if lid is None:
 				undoinfo.append(self.orderDownBlockUndo(bid))
 				if bid>=len(self.blocks)-1:
-					sel.append((bid,None))
+					return items
 				else:
 					sel.append((bid+1,None))
 			else:
 				undoinfo.append(self.orderDownLineUndo(bid,lid))
 				sel.append((bid,lid+1))
-		self.addUndo(undoinfo)
+		self.addUndo(undoinfo,"Move Down")
 		sel.reverse()
 		return sel
 
@@ -1765,21 +2266,19 @@ class GCode:
 	def drill(self, items, depth=None, peck=None, dwell=None):
 		# find the penetration points and drill
 		# skip all g1 movements on the horizontal plane
-		if depth is None: depth = self.surface-self.thickness
-		if depth < self.surface-self.thickness or depth > self.surface:
+		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
+		if depth < self.cnc["surface"]-self.cnc["thickness"] or depth > self.cnc["surface"]:
 			return  "ERROR: Drill depth %g outside stock surface: %g .. %g\n" \
 				"Please change stock surface in Tools->Stock or drill depth." \
-				%(depth, self.surface, self.surface-self.thickness)
-		if abs(depth - (self.surface-self.thickness)) < 1e-7:
+				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
+		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "drill"
 		else:
 			opname = "drill:%g"%(depth)
 
 		undoinfo = []
 
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
@@ -1799,18 +2298,14 @@ class GCode:
 				if self.cnc.dz<0.0:
 					# drill point
 					if peck is None:
-						lines.append("g1 %s %s"%(
-							self.fmt("z",depth),
-							self.fmt("f",self.feedz)))
-						lines.append("g0 %s"%(self.fmt("z",self.safe)))
+						lines.append(CNC.zenter(depth))
+						lines.append(CNC.zsafe())
 					else:
-						z = self.surface
+						z = self.cnc["surface"]
 						while z>depth:
 							z = max(z-peck, depth)
-							lines.append("g1 %s %s"%(
-								self.fmt("z",z),
-								self.fmt("f",self.feedz)))
-							lines.append("g0 %s"%(self.fmt("z",self.safe)))
+							lines.append(CNC.zenter(z))
+							lines.append(CNC.zsafe())
 							if dwell:
 								lines.append("g4 %s"%(self.fmt("p",dwell)))
 
@@ -1833,45 +2328,59 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
+	# Perform a cut on a path an add it to block
+	# @param block	I/O	block to add the cut paths
+	# @param path	I	path to cut
+	# @param z	I	starting z surface
+	# @param depth	I	ending depth
+	# @param stepz	I	stepping in z
+	#----------------------------------------------------------------------
+	def cutPath(self, block,path, z, depth, stepz):
+		closed = path.isClosed()
+		entry  = True
+		exit   = False
+		while z > depth:
+			z = max(z-stepz, depth)
+			if not closed:
+				# on open paths always enter exit
+				entry = exit = True
+			elif abs(z-depth)<1e-7:
+				# last pass
+				exit =True
+			self.fromPath(path, block, z, entry, exit)
+			entry = False
+		return block
+
+	#----------------------------------------------------------------------
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
 	def cut(self, items, depth=None, stepz=None):
+<<<<<<< HEAD
+		if stepz is None: stepz = self.cnc["stepz"]
+		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
+=======
 		if stepz is None: stepz = self.stepz
 		if depth is None: depth = self.surface-self.thickness
+>>>>>>> master
 
-		if depth < self.surface-self.thickness or depth > self.surface:
+		if depth < self.cnc["surface"]-self.cnc["thickness"] or depth > self.cnc["surface"]:
 			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
 				"Please change stock surface in Tools->Stock or cut depth." \
-				%(depth, self.surface, self.surface-self.thickness)
-		if abs(depth - (self.surface-self.thickness)) < 1e-7:
+				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
+		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "cut"
 		else:
 			opname = "cut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
-				closed = path.isClosed()
-				z = self.surface
-				entry = True
-				exit  = False
-				while z > depth:
-					z = max(z-stepz, depth)
-					if not closed:
-						# on open paths always enter exit
-						entry = exit = True
-					elif abs(z-depth)<1e-7:
-						# last pass
-						exit =True
-					self.fromPath(path, newblock, z, entry, exit)
-					entry = False
+				self.cutPath(newblock, path, self.cnc["surface"], depth, stepz)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
@@ -1882,9 +2391,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def reverse(self, items):
 		undoinfo = []
-		for bid,lid in items:
-			# Operate only on blocks
-			if lid is not None: continue
+		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 
 			newpath = []
@@ -1900,10 +2407,12 @@ class GCode:
 	#----------------------------------------------------------------------
 	# make a profile on block
 	# offset +/- defines direction = tool/2
+	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset):
+	def profile(self, blocks, offset, cut=False, overcut=False, name=None):
 		undoinfo = []
 		msg = ""
+		newblocks = []
 		for bid in reversed(blocks):
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -1917,21 +2426,39 @@ class GCode:
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
-				if offset>0:
-					name = "%s [out]"%(path.name)
+				if name is not None:
+					newname = Block.operationName(path.name, name)
+				elif offset>0:
+					newname = Block.operationName(path.name, "out")
 				else:
-					name = "%s [in]"%(path.name)
-				opath = path.offset(D*offset, name)
-				#print "opath=",opath
+					newname = Block.operationName(path.name, "in")
+
+				opath = path.offset(D*offset, newname)
 				opath.intersect()
-				#print "ipath=",opath
 				opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
+<<<<<<< HEAD
+				if opath:
+					if overcut:
+						for p in opath:
+							p.overcut(D*offset)
+					newpath.extend(opath)
+=======
 				if opath: newpath.extend(opath)
+>>>>>>> master
 			if newpath:
-				undoinfo.extend(self.importPath(bid+1, newpath, True, False))
+				# remember length to shift all new blocks the are inserted before
+				before = len(newblocks)
+				undoinfo.extend(self.importPath(bid+1, newpath, newblocks, True, False))
+				new = len(newblocks)-before
+				for i in range(before):
+					newblocks[i] += new
 				self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
+
+		# return new blocks inside the blocks list
+		del blocks[:]
+		blocks.extend(newblocks)
 		return msg
 
 	#----------------------------------------------------------------------
@@ -1958,35 +2485,6 @@ class GCode:
 		pos += 1
 		block.insert(pos, "g2 %s"%(self.fmt("i",-radius)))
 		pos += 1
-
-	#----------------------------------------------------------------------
-	# insert a new box
-	#----------------------------------------------------------------------
-	def box(self, bid, dx, dy, dz, nx, ny, nz, profile, cut, overcut=True):
-		box = Macros.Box(dx,dy,dz)
-		box.thick = self.thickness
-		box.feed  = self.feed
-		box.feedz = self.feedz
-		box.safe  = self.safe
-		box.stepz = self.stepz
-		box.setNTeeth(nx,ny,nz)
-		if profile:
-			box.setTool(self.diameter)
-		else:
-			box.setTool(0.0)
-	#	box.overcut = 'V'
-		box.overcut = self.overcut
-		if overcut: box.overcut = 'D'
-		box.cut   = cut	# create multiple layers or only one
-
-		blocks = box.make()
-		undoinfo = []
-		for side in blocks:
-			block = Block()
-			for line in side: block.append(line)
-			undoinfo.append(self.addBlockUndo(bid,block))
-			bid += 1
-		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
 	# Modify the lines according to the supplied function and arguments
@@ -2137,13 +2635,15 @@ class GCode:
 	# Round line by the amount of digits
 	#----------------------------------------------------------------------
 	def roundLines(self, items, acc=None):
-		if acc is not None: self.digits = acc
+		if acc is not None: CNC.digits = acc
 		return self.process(items, self.roundFunc)
 
 	#----------------------------------------------------------------------
 	# Inkscape g-code tools on slice/slice it raises the tool to the
 	# safe height then plunges again.
 	# Comment out all these patterns
+	#
+	# FIXME needs re-working...
 	#----------------------------------------------------------------------
 	def inkscapeLines(self):
 		undoinfo = []
@@ -2207,11 +2707,64 @@ class GCode:
 		pass
 
 	#----------------------------------------------------------------------
+	# Re-arrange using genetic algorithms a set of blocks to minimize
+	# rapid movements.
+	#----------------------------------------------------------------------
+	def optimize(self, items):
+		n = len(items)
+
+		matrix = []
+		for i in range(n):
+			matrix.append([0.0] * n)
+
+		# Find distances between blocks (end to start)
+		for i in range(n):
+			block = self.blocks[items[i]]
+			x1 = block.ex
+			y1 = block.ey
+			for j in range(n):
+				if i==j: continue
+				block = self.blocks[items[j]]
+				x2 = block.sx
+				y2 = block.sy
+				dx = x1-x2
+				dy = y1-y2
+				matrix[i][j] = sqrt(dx*dx + dy*dy)
+		#from pprint import pprint
+		#pprint(matrix)
+
+		best = [0]
+		unvisited = range(1,n)
+		while unvisited:
+			last = best[-1]
+			row = matrix[last]
+			# from all the unvisited places search the closest one
+			mindist = 1e30
+			for i,u in enumerate(unvisited):
+				d = row[u]
+				if d < mindist:
+					mindist = d
+					si = i
+			best.append(unvisited.pop(si))
+		#print "best=",best
+
+		undoinfo = []
+		for i in range(len(best)):
+			b = best[i]
+			if i==b: continue
+			ptr = best.index(i)
+			# swap i,b in items
+			undoinfo.append(self.swapBlockUndo(items[i], items[b]))
+			# swap i,ptr in best
+			best[i], best[ptr] = best[ptr], best[i]
+		self.addUndo(undoinfo, "Optimize")
+
+	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def prepare2Run(self):
+	def compile(self):
+		CNC.initTool()
 		autolevel = not self.probe.isEmpty()
-
 		lines = []
 		paths = []
 		for i,block in enumerate(self.blocks):
@@ -2223,7 +2776,11 @@ class GCode:
 				if isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
+<<<<<<< HEAD
+					# either CodeType or tuple, list[] append at it as is
+=======
 					# either CodeType or list[] append
+>>>>>>> master
 					lines.append(cmds)
 					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
 						paths.append(None)
@@ -2271,12 +2828,30 @@ class GCode:
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
 					else:
-						opt = ERROR_HANDLING.get(cmd.upper(),0)
-						if opt == SKIP:
-							cmd = None
-
+						# Tool change
+						if cmd[0] in ("m","M") and int(cmd[1:])==6:
+							if CNC.toolPolicy == 0:
+								pass	# send to grbl
+							elif CNC.toolPolicy == 1:
+								cmd = None	# skip whole line
+							elif CNC.toolPolicy == 2:
+								toollines = CNC.toolChange(cmds)
+								lines.extend(toollines)
+								paths.extend([None]*len(toollines))
+								cmd = None
+						else:
+							opt = ERROR_HANDLING.get(cmd.upper(),0)
+							if opt == SKIP:
+								cmd = None
 					if cmd is not None:
 						newcmd.append(cmd)
+
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 		return lines,paths
+
+#if __name__=="__main__":
+#	import pdb; pdb.set_trace()
+#	#print Block.operationName("door","in")
+#	print Block.operationName("door [in:2,cut:0.1]","cut:0.5")
+#	print Block.operationName("door [in:2,cut:0.1]","in")
