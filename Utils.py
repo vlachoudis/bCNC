@@ -42,7 +42,13 @@ _maxRecent   = 10
 
 _FONT_SECTION = "Font"
 
+<<<<<<< HEAD
 #------------------------------------------------------------------------------
+=======
+_FONT_SECTION = "Font"
+
+#-----------------------------------------------------------------------------
+>>>>>>> master
 def loadIcons():
 	global icons
 	icons = {}
@@ -130,6 +136,45 @@ def getFloat(section, name, default=0.0):
 	global config
 	try: return float(config.get(section, name))
 	except: return default
+
+#-------------------------------------------------------------------------------
+def getFont(name, default):
+	global config
+	try:
+		font = config.get(_FONT_SECTION, name)
+	except:
+		try:
+			font = tkFont.Font(name=name, font=default, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=default)
+			font.delete_font = False
+		except AttributeError:
+			return default
+		setFont(name, font)
+
+	if isinstance(font, str):
+		font = tuple(font.split(','))
+
+	if isinstance(font, tuple):
+		try:
+			return tkFont.Font(name=name, font=font, exists=True)
+		except TclError:
+			font = tkFont.Font(name=name, font=font)
+			font.delete_font = False
+		except AttributeError:
+			return default
+	return font
+
+#-------------------------------------------------------------------------------
+def setFont(name, font):
+	global config
+	if isinstance(font,str):
+		config.set(_FONT_SECTION, name, font)
+	elif isinstance(font,tuple):
+		config.set(_FONT_SECTION, name, ",".join(map(str,font)))
+	else:
+		config.set(_FONT_SECTION, name, "%s,%s,%s" % \
+			(font.cget("family"),font.cget("size"),font.cget("weight")))
 
 #------------------------------------------------------------------------------
 def getBool(section, name, default=False):
@@ -464,7 +509,11 @@ class UserButton(Ribbon.LabelButton):
 		self["text"] = name
 		#if icon == "":
 		#	icon = icons.get("empty","")
+<<<<<<< HEAD
 		self["image"] = icons.get(self.icon(),icons["material"])
+=======
+		self["image"] = icons.get(self.icon(),"")
+>>>>>>> master
 		self["compound"] = LEFT
 		tooltip = self.tooltip()
 		if not tooltip: tooltip = UserButton.TOOLTIP

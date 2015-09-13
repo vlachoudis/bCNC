@@ -497,9 +497,15 @@ class Material(DataBase):
 		# update ONLY if stock material is empty:
 		stockmat = self.master["stock"]["material"]
 		if stockmat=="" or stockmat==self["name"]:
+<<<<<<< HEAD:ToolsPage.py
 			self.master.cnc()["cutfeed"]  = self.master.fromMm(self["feed"])
 			self.master.cnc()["cutfeedz"] = self.master.fromMm(self["feedz"])
 			self.master.cnc()["stepz"]    = self.master.fromMm(self["stepz"])
+=======
+			self.master.gcode.feed  = self.master.fromMm(self["feed"])
+			self.master.gcode.feedz = self.master.fromMm(self["feedz"])
+			self.master.gcode.stepz = self.master.fromMm(self["stepz"])
+>>>>>>> master:CNCTools.py
 		return False
 
 #==============================================================================

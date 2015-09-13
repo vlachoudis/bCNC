@@ -10,7 +10,10 @@ import pdb
 import sys
 import math
 import types
+<<<<<<< HEAD
 import random
+=======
+>>>>>>> master
 import string
 
 import undo
@@ -25,6 +28,7 @@ PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
+<<<<<<< HEAD
 AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 
 STOP   = 0
@@ -33,10 +37,18 @@ ASK    = 2
 PAUSE  = 3
 WAIT   = 4
 UPDATE = 5
+=======
+
+STOP = 0
+SKIP = 1
+ASK  = 2
+WAIT = 9
+>>>>>>> master
 
 XY   = 0
 XZ   = 1
 YZ   = 2
+<<<<<<< HEAD
 
 WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
 
@@ -104,6 +116,8 @@ MODAL_MODES = {
 	"M8"    : "coolant",
 	"M9"    : "coolant",
 }
+=======
+>>>>>>> master
 
 ERROR_HANDLING = {}
 
@@ -238,6 +252,7 @@ class Probe:
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
+<<<<<<< HEAD
 				lines.append("G0Z%.4f"%(self.zmax))
 				lines.append("G0X%.4fY%.4f"%(x,y))
 				lines.append("%sZ%.4fF%g"%(CNC.vars["prbcmd"], self.zmin, CNC.vars["prbfeed"]))
@@ -246,6 +261,16 @@ class Probe:
 			xstep = -xstep
 		lines.append("G0Z%.4f"%(self.zmax))
 		lines.append("G0X%.4fY%.4f"%(self.xmin,self.ymin))
+=======
+				lines.append("G0Z%.4f\n"%(self.zmax))
+				lines.append("G0X%.4fY%.4f\n"%(x,y))
+				lines.append("G38.2Z%.4fF%g\n"%(self.zmin, self.feed))
+				x += xstep
+			x -= xstep
+			xstep = -xstep
+		lines.append("G0Z%.4f\n"%(self.zmax))
+		lines.append("G0X%.4fY%.4f\n"%(self.xmin,self.ymin))
+>>>>>>> master
 		return lines
 
 	#----------------------------------------------------------------------
@@ -418,15 +443,19 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
+<<<<<<< HEAD
 	comment        = ""	# Last parsed comment
 	toolPolicy     = 0	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
 				# 2 - manual tool change
+=======
+>>>>>>> master
 
 	#----------------------------------------------------------------------
 	def __init__(self):
 		CNC.vars = {
+<<<<<<< HEAD
 				"prbx"      : 0.0,
 				"prby"      : 0.0,
 				"prbz"      : 0.0,
@@ -466,6 +495,18 @@ class CNC:
 				"stepz"     : 1.,
 				"surface"   : 0.,
 				"thickness" : 5.,
+=======
+				"prbx" : 0.0,
+				"prby" : 0.0,
+				"prbz" : 0.0,
+				"wx"   : 0.0,
+				"wy"   : 0.0,
+				"wz"   : 0.0,
+				"mx"   : 0.0,
+				"my"   : 0.0,
+				"mz"   : 0.0,
+				"G"    : ["G20","G54"],
+>>>>>>> master
 			}
 		self.initPath()
 
@@ -567,7 +608,11 @@ class CNC:
 		self.arcabsolute = False
 		self.gcode       = None
 		self.plane       = XY
+<<<<<<< HEAD
 		self.feed        = 0		# Actual gcode feed rate (not to confuse with cutfeed
+=======
+		self.feed        = 0
+>>>>>>> master
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
 
@@ -699,6 +744,7 @@ class CNC:
 		# execute literally the line after the first character
 		if line[0]=='%':
 			# special command
+<<<<<<< HEAD
 			pat = AUXPAT.match(line.strip())
 			if pat:
 				cmd  = pat.group(1)
@@ -719,6 +765,15 @@ class CNC:
 				except:
 					# FIXME show the error!!!!
 					return None
+=======
+			if line.strip()=="%wait":
+				return WAIT
+			try:
+				return compile(line[1:],"","exec")
+			except:
+				# FIXME show the error!!!!
+				return None
+>>>>>>> master
 
 		# most probably an assignment like  #nnn = expr
 		if line[0]=='_':
@@ -730,23 +785,37 @@ class CNC:
 
 		# commented line
 		if line[0] == ';':
+<<<<<<< HEAD
 			CNC.comment = line[1:].strip()
+=======
+>>>>>>> master
 			return None
 
 		out = []	# output list of commands
 		braket  = 0	# bracket count []
 		paren   = 0	# parenthesis count ()
+<<<<<<< HEAD
 		expr    = ""	# expression string
 		cmd     = ""	# cmd string
 		comment = False	# inside comment
 		CNC.comment = ""
 		for i,ch in enumerate(line):
+=======
+		comment = False	# inside comment
+		expr = ""	# expression string
+		cmd  = ""	# cmd string
+		for ch in line:
+>>>>>>> master
 			if ch == '(':
 				# comment start?
 				paren += 1
 				comment = (braket==0)
+<<<<<<< HEAD
 				if not comment:
 					expr += ch
+=======
+				if not comment: expr += ch
+>>>>>>> master
 			elif ch == ')':
 				# comment end?
 				paren -= 1
@@ -763,8 +832,11 @@ class CNC:
 							cmd = ""
 					else:
 						expr += ch
+<<<<<<< HEAD
 				else:
 					CNC.comment += ch
+=======
+>>>>>>> master
 			elif ch == ']':
 				# expression end?
 				if not comment:
@@ -780,8 +852,11 @@ class CNC:
 						expr = ""
 					else:
 						expr += ch
+<<<<<<< HEAD
 				else:
 					CNC.comment += ch
+=======
+>>>>>>> master
 			elif ch=='=':
 				# check for assignments (FIXME very bad)
 				if not out and braket==0 and paren==0:
@@ -798,7 +873,10 @@ class CNC:
 			elif ch == ';':
 				# Skip everything after the semicolon on normal lines
 				if not comment and paren==0 and braket==0:
+<<<<<<< HEAD
 					CNC.comment += line[i+1:]
+=======
+>>>>>>> master
 					break
 				else:
 					expr += ch
@@ -813,9 +891,12 @@ class CNC:
 				else:
 					cmd += ch
 
+<<<<<<< HEAD
 			elif comment:
 				CNC.comment += ch
 
+=======
+>>>>>>> master
 		if cmd: out.append(cmd)
 
 		# return output commands
@@ -1122,6 +1203,7 @@ class CNC:
 			CNC.vars["xmax"] = max(CNC.vars["xmax"], max([i[0] for i in xyz]))
 			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
 			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
+<<<<<<< HEAD
 
 	#----------------------------------------------------------------------
 	# Instead of the current code, override with the custom user lines
@@ -1213,6 +1295,8 @@ class CNC:
 		lines.append("m3")
 
 		return CNC.compile(lines)
+=======
+>>>>>>> master
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -1471,7 +1555,12 @@ class GCode:
 			dxf = DXF(filename,"r")
 		except:
 			return False
+<<<<<<< HEAD
 		self.filename = ""
+=======
+		name,ext = os.path.splitext(filename)
+		self.filename = "%s.ngc"%(name)
+>>>>>>> master
 
 		dxf.readFile()
 		dxf.close()
@@ -1500,7 +1589,11 @@ class GCode:
 				longest = opath.pop(li)
 				longest.mergeLoops(opath)
 
+<<<<<<< HEAD
 				undoinfo.extend(self.importPath(None, longest, None, enable))
+=======
+				undoinfo.extend(self.importPath(None, longest, enable))
+>>>>>>> master
 #				d = longest.direction()
 #				bid = len(self.blocks)-1
 #				if d==0:
@@ -2263,8 +2356,13 @@ class GCode:
 	# until the maximum height
 	#----------------------------------------------------------------------
 	def cut(self, items, depth=None, stepz=None):
+<<<<<<< HEAD
 		if stepz is None: stepz = self.cnc["stepz"]
 		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
+=======
+		if stepz is None: stepz = self.stepz
+		if depth is None: depth = self.surface-self.thickness
+>>>>>>> master
 
 		if depth < self.cnc["surface"]-self.cnc["thickness"] or depth > self.cnc["surface"]:
 			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
@@ -2339,11 +2437,15 @@ class GCode:
 				opath.intersect()
 				opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
+<<<<<<< HEAD
 				if opath:
 					if overcut:
 						for p in opath:
 							p.overcut(D*offset)
 					newpath.extend(opath)
+=======
+				if opath: newpath.extend(opath)
+>>>>>>> master
 			if newpath:
 				# remember length to shift all new blocks the are inserted before
 				before = len(newblocks)
@@ -2674,7 +2776,11 @@ class GCode:
 				if isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
+<<<<<<< HEAD
 					# either CodeType or tuple, list[] append at it as is
+=======
+					# either CodeType or list[] append
+>>>>>>> master
 					lines.append(cmds)
 					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
 						paths.append(None)
