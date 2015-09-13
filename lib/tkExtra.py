@@ -174,11 +174,8 @@ ADs=
 #	widget.event_generate("<<VirtualEvent>>", data="Hello")
 #	widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
 #	widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
-<<<<<<< HEAD
 #
 # WARNING: Unfortunatelly it will convert data to STRING!!!
-=======
->>>>>>> master
 #-------------------------------------------------------------------------------
 def bindEventData(widget, sequence, func, add = None):
 	def _substitute(*args):
