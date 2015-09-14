@@ -365,6 +365,7 @@ class Sender:
 		# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
 		self.serial.flushInput()
 		self.serial.setDTR(1)
+		time.sleep(1)
 		self.serial.write(b"\r\n\r\n")
 		self._gcount = 0
 		self._alarm  = True

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: motionpath.py 3510 2015-05-21 08:40:19Z bnv $
+# $Id: bpath.py 3575 2015-09-14 07:20:22Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
