@@ -96,7 +96,11 @@ class Base:
 				self.listdb[p] = []
 				for i in range(1000):
 					key = "_%s.%d"%(p, i)
-					self.listdb[p].append(Utils.getStr(self.name, key))
+					value = Utils.getStr(self.name, key)
+					if value:
+						self.listdb[p].append(value)
+					else:
+						break
 
 			for lst in self.listdb.values():
 				lst.sort()
