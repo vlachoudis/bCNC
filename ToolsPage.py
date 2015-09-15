@@ -13,6 +13,7 @@ try:
 	from Tkinter import *
 except ImportError:
 	from tkinter import *
+from operator import attrgetter
 
 import os
 import glob
@@ -656,7 +657,7 @@ class Tools:
 			self.addTool(tool)
 
 		# Find plugins in the plugins directory and load them
-		for f in sorted(glob.glob("%s/plugins/*.py"%(Utils.prgpath))):
+		for f in glob.glob("%s/plugins/*.py"%(Utils.prgpath)):
 			name,ext = os.path.splitext(os.path.basename(f))
 			try:
 				exec("import %s"%(name))
@@ -676,7 +677,8 @@ class Tools:
 	# Return a list of plugins
 	# ----------------------------------------------------------------------
 	def pluginList(self):
-		return [x for x in self.tools.values() if x.plugin]
+		plugins = [x for x in self.tools.values() if x.plugin]
+		return sorted(plugins, key=attrgetter('name'))
 
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):

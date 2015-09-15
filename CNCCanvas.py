@@ -1196,7 +1196,7 @@ class CanvasFrame(Frame):
 		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
 		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
 		self.draw_margin.set(  bool(int(Utils.getBool("Canvas", "margin",  True))))
-		self.draw_probe.set(   bool(int(Utils.getBool("Canvas", "probe",   False))))
+		#self.draw_probe.set(   bool(int(Utils.getBool("Canvas", "probe",   False))))
 		self.draw_paths.set(   bool(int(Utils.getBool("Canvas", "paths",   True))))
 		self.draw_rapid.set(   bool(int(Utils.getBool("Canvas", "rapid",   True))))
 		self.draw_workarea.set(bool(int(Utils.getBool("Canvas", "workarea",True))))

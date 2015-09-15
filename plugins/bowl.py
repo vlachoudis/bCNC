@@ -7,7 +7,6 @@
 
 __author__ = "Carlos Garcia Saura"
 __email__  = ""
-
 __name__ = "Bowl"
 
 from ToolsPage import DataBase
@@ -15,8 +14,6 @@ from ToolsPage import DataBase
 import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
-from pprint import pprint
 
 #==============================================================================
 # Bowl class
@@ -122,5 +119,3 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Create BOWL")
 		app.refresh()
 		app.setStatus("Generated: BOWL")
-
-
