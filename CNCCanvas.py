@@ -23,6 +23,7 @@ try:
 	# Resampling image based on PIL library and converting to RGB.
 	# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
 	RESAMPLE = Image.NEAREST	# resize type
+	#RESAMPLE = Image.BILINEAR	# resize type
 except:
 	numpy = None
 	RESAMPLE = None
@@ -970,7 +971,8 @@ class CNCCanvas(Canvas):
 			self.tag_lower(item)
 
 		# Draw image map if numpy exists
-		if numpy is not None and probe.matrix and self.view == VIEW_XY:
+		#if numpy is not None and probe.matrix and self.view == VIEW_XY:
+		if numpy is not None and probe.matrix and self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
 			array = numpy.array(list(reversed(probe.matrix)), numpy.float32)
 
 			lw = array.min()
@@ -991,14 +993,15 @@ class CNCCanvas(Canvas):
 			palette = []
 			for x in bmath.frange(lw, hg+1e-10, (hg-lw)/255.):
 				i = int(math.floor(x / dc))
+				j = i + i>>1	# 1.5*i
 				if i<0:
-					palette.append(0xff+i)
-					palette.append(0xff+i)
+					palette.append(0xff+j)
+					palette.append(0xff+j)
 					palette.append(0xff)
 				elif i>0:
 					palette.append(0xff)
-					palette.append(0xff-i)
-					palette.append(0xff-i)
+					palette.append(0xff-j)
+					palette.append(0xff-j)
 				else:
 					palette.append(0xff)
 					palette.append(0xff)
@@ -1008,10 +1011,12 @@ class CNCCanvas(Canvas):
 			array = numpy.floor((array-lw)/(hg-lw)*255)
 			self._image = Image.fromarray(array.astype(numpy.int16)).convert('L')
 			self._image.putpalette(palette)
-			self._image = self._image.convert("RGB")
 
-			self._projectProbeImage()
-			x,y = self.plotCoords([(probe.xmin, probe.ymin, 0.)])[0]
+			# Add transparency for a possible composite operation latter on ISO*
+			self._image = self._image.convert("RGBA")
+
+			x,y = self._projectProbeImage()
+
 			self._probeImage = self.create_image(x,y, image=self._tkimage, anchor='sw')
 			self.tag_lower(self._probeImage)
 
@@ -1027,16 +1032,50 @@ class CNCCanvas(Canvas):
 		crop = (marginx, marginy, size[0]-marginx, size[1]-marginy)
 
 		image = self._image.resize((size), resample=RESAMPLE).crop(crop)
-		self._tkimage = ImageTk.PhotoImage(image)
 
-#			if self.view == VIEW_ISO1:
-#				w, h = size
-#				size2 = (int(S60*(w+h)),
-#					 int(C60*(w+h)))
-#				image2 = self._image.transform(size2, Image.AFFINE,
-#					( 0.5/S60, 0.5/C60, -h/2,
-#					 -0.5/S60, 0.5/C60,  h/2),
-#					 resample=RESAMPLE)
+		if self.view in (VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
+			w, h = image.size
+			size2 = (int(S60*(w+h)),
+				 int(C60*(w+h)))
+
+			if self.view == VIEW_ISO1:
+				transform = ( 0.5/S60, 0.5/C60, -h/2,
+					     -0.5/S60, 0.5/C60,  h/2)
+				xy = self.plotCoords([(probe.xmin, probe.ymin, 0.),
+						      (probe.xmax, probe.ymin, 0.)])
+				x = xy[0][0]
+				y = xy[1][1]
+
+			elif self.view == VIEW_ISO2:
+				transform = ( 0.5/S60,-0.5/C60,  w/2,
+					      0.5/S60, 0.5/C60, -w/2)
+
+				xy = self.plotCoords([(probe.xmin, probe.ymax, 0.),
+						      (probe.xmin, probe.ymin, 0.)])
+				x = xy[0][0]
+				y = xy[1][1]
+			else:
+				transform = (-0.5/S60,-0.5/C60, w+h/2,
+					      0.5/S60,-0.5/C60, h/2)
+				xy = self.plotCoords([(probe.xmax, probe.ymax, 0.),
+						      (probe.xmin, probe.ymax, 0.)])
+				x = xy[0][0]
+				y = xy[1][1]
+
+			affine = image.transform(size2, Image.AFFINE,
+						transform,
+						resample=RESAMPLE)
+			# Super impose a white image
+			white = Image.new('RGBA', affine.size, (255,)*4)
+			# compose the two images affine and white with mask the affine
+			image = Image.composite(affine, white, affine)
+			del white
+
+		else:
+			x,y = self.plotCoords([(probe.xmin, probe.ymin, 0.)])[0]
+
+		self._tkimage = ImageTk.PhotoImage(image)
+		return x,y
 
 	#----------------------------------------------------------------------
 	# Create path for one g command

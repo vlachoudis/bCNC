@@ -354,6 +354,7 @@ class Application(Toplevel,Sender):
 
 		if _openserial and Utils.getBool("Connection","openserial"):
 			self.openClose()
+		self.canvas.fit2Screen()
 
 	#-----------------------------------------------------------------------
 	def setStatus(self, msg):
