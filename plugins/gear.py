@@ -170,7 +170,7 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if n=="default": n="Gear"
+		if not n or n=="default": n="Gear"
 		gear = Gear(n)
 		blocks = gear.calc(self["n"], math.radians(self["phi"]), self["pc"])
 		active = app.activeBlock()

@@ -112,7 +112,7 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if n=="default": n="Bowl"
+		if not n or n=="default": n="Bowl"
 		bowl = Bowl(n)
 		blocks = bowl.calc(self["D"], math.radians(self["res"]), self["pocket"])
 		active = app.activeBlock()

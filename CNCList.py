@@ -4,6 +4,15 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import sys
+try:
+	from cStringIO import StringIO
+except ImportError:
+	from io import StringIO
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 try:
 	from Tkinter import *
 	import tkFont
@@ -33,16 +42,17 @@ class CNCListbox(Listbox):
 		self.bind("<Insert>",		self.insertItem)
 		self.bind("<Control-Key-Return>",self.insertItem)
 		self.bind("<Control-Key-space>",self.commandFocus)
-		self.bind("<Delete>",		self.deleteLine)
-		self.bind("<BackSpace>",	self.deleteLine)
 		self.bind("<Left>",		self.toggleKey)
 		self.bind("<Right>",		self.toggleKey)
+		self.bind("<Control-Key-d>",	self.clone)
 		self.bind("<Control-Key-Up>",	self.orderUp)
 		self.bind("<Control-Key-Prior>",self.orderUp)
 		self.bind("<Control-Key-Down>",	self.orderDown)
 		self.bind("<Control-Key-Next>",	self.orderDown)
+		self.bind("<Delete>",		self.deleteBlock)
+		self.bind("<BackSpace>",	self.deleteBlock)
 		try:
-			self.bind("<KP_Delete>",self.deleteLine)
+			self.bind("<KP_Delete>",self.deleteBlock)
 		except:
 			pass
 
@@ -119,6 +129,145 @@ class CNCListbox(Listbox):
 		self.yview_moveto(ypos)
 		self.activate(act)
 		self.see(act)
+
+	# ----------------------------------------------------------------------
+	# Copy selected items to clipboard
+	# ----------------------------------------------------------------------
+	def copy(self, event=None):
+		sio = StringIO()
+		pickler = pickle.Pickler(sio)
+		#sio.write(_PLOT_CLIP)
+		for block,line in self.getCleanSelection():
+			if line is None:
+				pickler.dump(self.gcode.blocks[block].dump())
+			else:
+				pickler.dump(self.gcode.blocks[block][line])
+		self.clipboard_clear()
+		self.clipboard_append(sio.getvalue())
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def cut(self, event=None):
+		self.copy()
+		self.deleteBlock()
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def paste(self, event=None):
+		try: clipboard = self.selection_get(selection='CLIPBOARD')
+		except: return
+
+		ypos = self.yview()[0]
+		# paste them after the last selected item
+		# bid,lid push them to self so it can be accessed from addLines()
+		# python3 might fix this with the inner scope
+		try:
+			self.__bid, self.__lid = self._items[self.curselection()[-1]]
+		except:
+			self.__bid, self.__lid = self._items[-1]
+
+		selitems = []
+		undoinfo = []
+
+		def addLines(lines):
+			for line in lines.splitlines():
+				# Create a new block
+				if self.__lid is None:
+					self.__bid += 1
+					self.__lid = sys.maxint
+					block = Block()
+					undoinfo.append(self.gcode.addBlockUndo(self.__bid,block))
+					selitems.append((self.__bid, None))
+				else:
+					block = self.gcode.blocks[self.__bid]
+
+				if self.__lid == sys.maxint:
+					selitems.append((self.__bid, len(block)))
+				else:
+					self.__lid += 1
+					selitems.append((self.__bid, self.__lid))
+				undoinfo.append(self.gcode.insLineUndo(self.__bid, self.__lid, line))
+
+		try:
+			# try to unpickle it
+			unpickler = pickle.Unpickler(StringIO(clipboard))
+			try:
+				while True:
+					obj = unpickler.load()
+					if isinstance(obj,tuple):
+						block = Block.load(obj)
+						self.__bid += 1
+						undoinfo.append(self.gcode.addBlockUndo(self.__bid, block))
+						selitems.append((self.__bid,None))
+						self.__lid = None
+					else:
+						addLines(obj)
+			except EOFError:
+				pass
+		except pickle.UnpicklingError:
+			# Paste as text
+			addLines(clipboard)
+
+		if not undoinfo: return
+
+		self.gcode.addUndo(undoinfo)
+
+		self.selection_clear(0,END)
+		self.fill()
+		self.yview_moveto(ypos)
+		self.select(selitems, clear=True)
+
+		#self.selection_set(ACTIVE)
+		#self.see(ACTIVE)
+		self.event_generate("<<Modified>>")
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def clone(self, event=None):
+		sel = list(map(int,self.curselection()))
+		if not sel: return
+
+		ypos = self.yview()[0]
+		undoinfo = []
+		for i in reversed(sel):
+			bid, lid = self._items[i]
+			if lid is None:
+				undoinfo.append(self.gcode.cloneBlockUndo(bid))
+			else:
+				undoinfo.append(self.gcode.cloneLineUndo(bid, lid))
+		self.gcode.addUndo(undoinfo)
+
+		self.selection_clear(0,END)
+		self.fill()
+		self.yview_moveto(ypos)
+		self.selection_set(ACTIVE)
+		self.see(ACTIVE)
+		self.event_generate("<<Modified>>")
+		return "break"
+
+	# ----------------------------------------------------------------------
+	# Delete selected blocks of code
+	# ----------------------------------------------------------------------
+	def deleteBlock(self, event=None):
+		sel = list(map(int,self.curselection()))
+		if not sel: return
+
+		ypos = self.yview()[0]
+		undoinfo = []
+		for i in reversed(sel):
+			bid, lid = self._items[i]
+			if lid is None:
+				undoinfo.append(self.gcode.delBlockUndo(bid))
+			else:
+				undoinfo.append(self.gcode.delLineUndo(bid, lid))
+		self.gcode.addUndo(undoinfo)
+
+		self.selection_clear(0,END)
+		self.fill()
+		self.yview_moveto(ypos)
+		self.selection_set(ACTIVE)
+		self.see(ACTIVE)
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Edit active item
@@ -265,51 +414,6 @@ class CNCListbox(Listbox):
 			self._blockPos[i] += 1	# shift all blocks below by one
 
 		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
-		self.event_generate("<<Modified>>")
-
-	# ----------------------------------------------------------------------
-	# Delete selected lines
-	# ----------------------------------------------------------------------
-	def deleteLine(self, event=None):
-		sel = list(map(int,self.curselection()))
-		if not sel: return
-
-		ypos = self.yview()[0]
-		undoinfo = []
-		for i in reversed(sel):
-			bid, lid = self._items[i]
-			if lid is None:
-				undoinfo.append(self.gcode.delBlockUndo(bid))
-			else:
-				undoinfo.append(self.gcode.delLineUndo(bid, lid))
-		self.gcode.addUndo(undoinfo)
-
-		self.selection_clear(0,END)
-		self.fill()
-		self.yview_moveto(ypos)
-		self.selection_set(ACTIVE)
-		self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
-
-	# ----------------------------------------------------------------------
-	def clone(self, event=None):
-		sel = list(map(int,self.curselection()))
-		if not sel: return
-
-		ypos = self.yview()[0]
-		undoinfo = []
-		for i in reversed(sel):
-			bid, lid = self._items[i]
-			if lid is None:
-				undoinfo.append(self.gcode.cloneBlockUndo(bid))
-			else:
-				undoinfo.append(self.gcode.cloneLineUndo(bid, lid))
-		self.gcode.addUndo(undoinfo)
-		self.selection_clear(0,END)
-		self.fill()
-		self.yview_moveto(ypos)
-		self.selection_set(ACTIVE)
-		self.see(ACTIVE)
 		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
@@ -522,10 +626,28 @@ class CNCListbox(Listbox):
 			self.selectBlock(bid)
 
 	# ----------------------------------------------------------------------
+	def selectAll(self):
+		self.selection_set(0,END)
+
+	# ----------------------------------------------------------------------
+	def selectClear(self):
+		self.selection_clear(0,END)
+
+	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
 	# ----------------------------------------------------------------------
 	def getSelection(self):
 		return [self._items[int(i)] for i in self.curselection()]
+
+	# ----------------------------------------------------------------------
+	# Return all blocks that at least an item is selected
+	# ----------------------------------------------------------------------
+	def getSelectedBlocks(self):
+		blocks = {}
+		for i in self.curselection():
+			block,line = self._items[int(i)]
+			blocks[block] = True
+		return list(sorted(blocks.keys()))
 
 	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
@@ -549,30 +671,15 @@ class CNCListbox(Listbox):
 		return items
 
 	# ----------------------------------------------------------------------
-	# Return all blocks that at least an item is selected
-	# ----------------------------------------------------------------------
-	def getSelectedBlocks(self):
-		blocks = {}
-		for i in self.curselection():
-			block,line = self._items[int(i)]
-			blocks[block] = True
-		return list(sorted(blocks.keys()))
-
-	# ----------------------------------------------------------------------
 	def getActive(self):
 		active = self.index(ACTIVE)
 		if active is None: return None
 		if not self.selection_includes(active):
-			active = self.curselection()[0]
+			try:
+				active = self.curselection()[0]
+			except:
+				return (0,None)
 		return self._items[int(active)]
-
-	# ----------------------------------------------------------------------
-	def selectAll(self):
-		self.selection_set(0,END)
-
-	# ----------------------------------------------------------------------
-	def selectClear(self):
-		self.selection_clear(0,END)
 
 	# ----------------------------------------------------------------------
 	# Move selected items upwards

@@ -238,16 +238,17 @@ class Application(Toplevel,Sender):
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
 		self.bind("<<Clone>>",			self.editor.clone)
-		self.bind("<<Delete>>",			self.editor.deleteLine)
 		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
 		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
-		self.canvas.bind("<Delete>",		self.editor.deleteLine)
-		self.canvas.bind("<BackSpace>",		self.editor.deleteLine)
+		self.canvas.bind('<Control-Key-d>',	self.editor.clone)
 		self.canvas.bind('<Control-Key-c>',	self.copy)
 		self.canvas.bind('<Control-Key-x>',	self.cut)
 		self.canvas.bind('<Control-Key-v>',	self.paste)
+		self.bind("<<Delete>>",			self.editor.deleteBlock)
+		self.canvas.bind("<Delete>",		self.editor.deleteBlock)
+		self.canvas.bind("<BackSpace>",		self.editor.deleteBlock)
 		try:
-			self.canvas.bind("<KP_Delete>",	self.editor.deleteLine)
+			self.canvas.bind("<KP_Delete>",	self.editor.deleteBlock)
 		except:
 			pass
 		self.bind('<<Invert>>',		self.editor.invertBlocks)
@@ -503,29 +504,29 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def cut(self, event=None):
 		focus = self.focus_get()
-		if focus is self.canvas:
-###			self.editor.cut()
-			pass
-#		elif focus:
-#			focus.event_generate("<<Cut>>")
+		if focus in (self.canvas, self.editor):
+			self.editor.cut()
+			return "break"
+		elif focus:
+			focus.event_generate("<<Cut>>")
 
 	#-----------------------------------------------------------------------
 	def copy(self, event=None):
 		focus = self.focus_get()
-		if focus is self.canvas:
-###			self.editor.copy()
-			pass
-#		elif focus:
-#			focus.event_generate("<<Copy>>")
+		if focus in (self.canvas, self.editor):
+			self.editor.copy()
+			return "break"
+		elif focus:
+			focus.event_generate("<<Copy>>")
 
 	#-----------------------------------------------------------------------
 	def paste(self, event=None):
 		focus = self.focus_get()
-		if focus is self.canvas:
-###			self.editor.paste()
-			pass
-#		elif focus:
-#			focus.event_generate("<<Paste>>")
+		if focus in (self.canvas, self.editor):
+			self.editor.paste()
+			return "break"
+		elif focus:
+			focus.event_generate("<<Paste>>")
 
 	#-----------------------------------------------------------------------
 	def undo(self, event=None):
@@ -623,21 +624,25 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def selectAll(self, event=None):
-		self.ribbon.changePage("Editor")
-		self.editor.selectAll()
-		self.selectionChange()
-		return "break"
+		focus = self.focus_get()
+		if focus in (self.canvas, self.editor):
+			self.editor.copy()
+			self.ribbon.changePage("Editor")
+			self.editor.selectAll()
+			self.selectionChange()
+			return "break"
 
 	#-----------------------------------------------------------------------
 	def unselectAll(self, event=None):
 		focus = self.focus_get()
-		if isinstance(focus, Entry) or \
-		   isinstance(focus, Spinbox) or \
-		   isinstance(focus, Listbox): return
-		self.ribbon.changePage("Editor")
-		self.editor.selectClear()
-		self.selectionChange()
-		return "break"
+		if focus in (self.canvas, self.editor):
+			self.ribbon.changePage("Editor")
+			self.editor.selectClear()
+			self.selectionChange()
+			return "break"
+#		if isinstance(focus, Entry) or \
+#		   isinstance(focus, Spinbox) or \
+#		   isinstance(focus, Listbox): return
 
 	#-----------------------------------------------------------------------
 	def find(self, event=None):

@@ -333,8 +333,12 @@ class CNCCanvas(Canvas):
 			if self.action == ACTION_MOVE:
 				# Check if we clicked on a selected item
 				try:
-					closest = self.gettags(self.find_closest(i,j,CLOSE_DISTANCE))
-					if "sel" not in closest and "sel2" not in closest:
+					for item in self.find_overlapping(i-CLOSE_DISTANCE, j-CLOSE_DISTANCE,
+								i+CLOSE_DISTANCE, j+CLOSE_DISTANCE):
+						tags = self.gettags(item)
+						if "sel" in tags or "sel2" in tags:
+							break
+					else:
 						self._mouseAction = ACTION_SELECT_SINGLE
 						return
 					fill  = MOVE_COLOR
