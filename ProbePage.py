@@ -973,9 +973,10 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
-		lines.append("%wait")
+#		lines.append("%wait")
 		p = WCS.index(CNC.vars["WCS"])+1
 		lines.append("G10L20P%d z[toolheight]"%(p))
+#		lines.append("%wait")
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("g90")

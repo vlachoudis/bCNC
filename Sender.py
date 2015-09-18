@@ -230,6 +230,14 @@ class Sender:
 		elif cmd == "PAUSE":
 			self.pause()
 
+		# RESUME: resume
+		elif cmd == "RESUME":
+			self.resume()
+
+		# FEEDHOLD: feedhold
+		elif cmd == "FEEDHOLD":
+			self.feedhold()
+
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
 			self.sendGrbl("G91\n")
@@ -693,6 +701,7 @@ class Sender:
 								self._gUpdate = True
 
 					else:
+						#print "<R<",line
 						self.log.put((False, line+"\n"))
 						uline = line.upper()
 						if uline.find("ERROR")==0 or uline.find("ALARM")==0:
@@ -728,7 +737,10 @@ class Sender:
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
 
+				#print ">S>",tosend
 				self.serial.write(bytes(tosend))
+				self.serial.flush()
+
 				tosend = None
 				if not self.running and t-tg > G_POLL:
 					tosend = b"$G\n"
