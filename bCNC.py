@@ -313,6 +313,15 @@ class Application(Toplevel,Sender):
 		self.bind('<Left>',		self.control.moveXdown)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
+		try:
+			self.bind('<KP_Up>',		self.control.moveYup)
+			self.bind('<KP_Down>',		self.control.moveYdown)
+			self.bind('<KP_Right>',		self.control.moveXup)
+			self.bind('<KP_Left>',		self.control.moveXdown)
+			self.bind('<KP_Prior>',		self.control.moveZup)
+			self.bind('<KP_Next>',		self.control.moveZdown)
+		except TclError:
+			pass
 
 		self.bind('<Key-plus>',		self.control.incStep)
 		self.bind('<Key-equal>',	self.control.incStep)

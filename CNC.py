@@ -1162,6 +1162,12 @@ class CNC:
 	@staticmethod
 	def initTool():
 		CNC._lastTool = None
+		CNC._newTool  = None
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def setTool(t):
+		CNC._newTool  = t
 
 	#----------------------------------------------------------------------
 	# code to change manually tool
@@ -1169,24 +1175,27 @@ class CNC:
 	@staticmethod
 	def toolChange(cmds):
 		# find tool
-		tool = CNC._lastTool
-		for cmd in cmds:
-			cmd = cmd.upper()
-			if cmd[0]=="T":
-				try:
-					tool = int(cmd[1:])
-				except:
-					sys.stdout.write("Invalid tool number T%s\n"%(cmd[1:]))
-					tool = 0
-				break
+		tool = CNC._newTool
+		if tool is None:
+			for cmd in cmds:
+				cmd = cmd.upper()
+				if cmd[0]=="T":
+					try:
+						tool = int(cmd[1:])
+					except:
+						sys.stdout.write("Invalid tool number T%s\n"%(cmd[1:]))
+						tool = 0
+					break
 
 		# check if it is the same tool
-		if tool == CNC._lastTool: return []
+		if tool is None or tool == CNC._lastTool: return []
 		CNC._lastTool = tool
+		CNC._newTool = None
 
 		# create the necessary code
 		lines = []
 		lines.append("m5")
+		lines.append("$g")
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
@@ -1200,6 +1209,7 @@ class CNC:
 		lines.append("g53 g0 z[toolprobez]")
 
 		# fixed WCS
+		lines.append("_oldfeed=feed")	# remember feed
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 		# FIXME could be done dynamically in the code
 		p = WCS.index(CNC.vars["WCS"])+1
@@ -1208,7 +1218,7 @@ class CNC:
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
-		lines.append("g90")
+		lines.append("g90 f[_oldfeed]")	# restore mode and feed
 		# FIXME maybe I should remember the last state and restore it m3 or m4
 		lines.append("m3")
 
@@ -2739,9 +2749,11 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
+					elif c in ("t","T"):
+						CNC.setTool(int(cmd[1:]))
 					else:
 						# Tool change
-						if cmd[0] in ("m","M") and int(cmd[1:])==6:
+						if c in ("m","M") and int(cmd[1:])==6:
 							if CNC.toolPolicy == 0:
 								pass	# send to grbl
 							elif CNC.toolPolicy == 1:

@@ -107,7 +107,6 @@ class Sender:
 		CNC.loadConfig(Utils.config)
 		self.gcode = GCode()
 		self.cnc   = self.gcode.cnc
-		self.wait  = False	# wait for commands to complete
 
 		self.log         = Queue()	# Log queue returned from GRBL
 		self.queue       = Queue()	# Command queue to send to GRBL
@@ -564,33 +563,43 @@ class Sender:
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
-		cline = []
-		sline = []
-		tosend = None
-		self.wait = False
-		tr = tg = time.time()
+		cline  = []		# length of pipeline commands
+		sline  = []		# pipeline commands
+		wait   = False		# wait for commands to complete
+		tosend = None		# next string to send
+		tr = tg = time.time()	# last time a ? or $G was send to grbl
+
 		while self.thread:
 			t = time.time()
+
+			# refresh machine position?
 			if t-tr > SERIAL_POLL:
 				# Send one ?
 				self.serial.write(b"?")
+				#print ">S> ?"
 				tr = t
 
-			if tosend is None and not self.wait and not self._pause and self.queue.qsize()>0:
+			# Fetch new command to send if...
+			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
+					#print "+++",tosend
 
 					if isinstance(tosend, tuple):
-						# Count commands as well
+						# Count executed commands as well
 						self._gcount += 1
 						# wait to empty the grbl buffer
 						if tosend[0] == WAIT:
-							self.wait = True
+							wait = True
+							#print "WAIT ON"
 						elif tosend[0] == PAUSE:
 							if tosend[1] is not None:
+								# show our message on machine status
 								self._msg = tosend[1]
 							# Feed hold
+							# Maybe a M0 would be better?
 							self.serial.write(b"!")
+							#print ">S> !"
 						elif tosend[0] == UPDATE:
 							self._update = tosend[1]
 						tosend = None
@@ -605,8 +614,9 @@ class Sender:
 							if isinstance(tosend,str):
 								tosend += "\n"
 							else:
-								# Count commands as well
+								# Count executed commands as well
 								self._gcount += 1
+							#print "Eval=",str(tosend),type(tosend)
 						except:
 							self.log.put((True,sys.exc_info()[1]))
 							tosend = None
@@ -641,8 +651,9 @@ class Sender:
 					self.log.put((True,tosend))
 
 			# Anything to receive?
-			if tosend is None or self.serial.inWaiting():
+			if self.serial.inWaiting() or tosend is None:
 				line = str(self.serial.readline()).strip()
+				#print "<R<",str(line)
 				if line:
 					if line[0]=="<":
 						pat = STATUSPAT.match(line)
@@ -662,8 +673,10 @@ class Sender:
 
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
-							if self.wait and not cline and pat.group(1)=="Idle":
-								self.wait = False
+							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
+							if wait and not cline and pat.group(1)=="Idle":
+								wait = False
+								#print "<<< NO MORE WAIT"
 						else:
 							self.log.put((False, line+"\n"))
 
@@ -701,7 +714,7 @@ class Sender:
 								self._gUpdate = True
 
 					else:
-						#print "<R<",line
+						#print "<R<",str(line)
 						self.log.put((False, line+"\n"))
 						uline = line.upper()
 						if uline.find("ERROR")==0 or uline.find("ALARM")==0:
@@ -724,7 +737,7 @@ class Sender:
 							if cline: del cline[0]
 							if sline: del sline[0]
 
-			# Message came to stop
+			# Received external message to stop
 			if self._stop:
 				self.emptyQueue()
 				tosend = None
@@ -732,14 +745,15 @@ class Sender:
 				del sline[:]
 				self._stop = False
 
+			#print "tosend='%s'"%(str(tosend)),"sline=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
 
-				#print ">S>",tosend
+				#print ">S>",str(tosend)
 				self.serial.write(bytes(tosend))
-				self.serial.flush()
+#				self.serial.flush()
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:
