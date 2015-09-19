@@ -441,6 +441,12 @@ class Vector(list):
 			return Vector([x*v for x in self])
 
 	# ----------------------------------------------------------------------
+	# Divide by floating point
+	# ----------------------------------------------------------------------
+	def __div__(self, b):
+		return Vector([x/b for x in self])
+
+	# ----------------------------------------------------------------------
 	def __xor__(self, v):
 		"""Cross product"""
 		return self.cross(v)

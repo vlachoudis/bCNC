@@ -855,9 +855,38 @@ class Path(list):
 			elif entity.type == "LWPOLYLINE":
 				# split it into multiple line segments
 				xy = list(zip(entity[10], entity[20]))
-				if entity._invert: reverse(xy)
-				for x,y in xy[1:]:
+				bulge = entity.bulge()
+				if not isinstance(bulge,list): bulge = [bulge]
+				if entity._invert:
+					xy.reverse()
+					# reverse and negate bulge
+					bulge = [-x for x in bulge[::-1]]
+
+				for i,(x,y) in enumerate(xy[1:]):
+					b = bulge[i]
 					end = Vector(x,y)
-					if not eq(start,end):
+					if eq(start,end): continue
+					if abs(b)<EPS0:
 						self.append(Segment(LINE, start, end))
-						start = end
+					else:
+						# arc with bulge = b
+						# b = tan(theta/4)
+						theta = 4.0*atan(abs(b))
+						AB = start-end
+						ABlen = AB.length()
+						d = ABlen / 2.0
+						r = d / sin(theta/2.0)
+						C = (start+end)/2.0
+						try:
+							OC = sqrt((r-d)*(r+d))
+							if b<0.0:
+								t  = CW
+							else:
+								t  = CCW
+								OC = -OC
+							center = Vector(C[0] - OC*AB[1]/ABlen,
+									C[1] + OC*AB[0]/ABlen)
+							self.append(Segment(t, start, end, center))
+						except:
+							self.append(Segment(LINE, start, end))
+					start = end

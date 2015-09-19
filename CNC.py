@@ -961,7 +961,7 @@ class CNC:
 			AB  = math.sqrt(ABx**2 + ABy**2)
 			try: OC  = math.sqrt(self.rval**2 - AB**2/4.0)
 			except: OC = 0.0
-			if self.gcode==2: OC = -OC
+			if self.gcode==2: OC = -OC	# CW
 			if AB != 0.0:
 				return Cx-OC*ABy/AB, Cy + OC*ABx/AB
 			else:
