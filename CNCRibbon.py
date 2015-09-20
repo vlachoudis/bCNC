@@ -39,13 +39,7 @@ class _LinkApp:
 	# Accept the user key if not editing any text
 	#----------------------------------------------------------------------
 	def acceptKey(self, skipRun=False):
-		if not skipRun and self.app.running: return False
-		focus = self.focus_get()
-		if isinstance(focus, Entry) or \
-		   isinstance(focus, Spinbox) or \
-		   isinstance(focus, Listbox) or \
-		   isinstance(focus, Text): return False
-		return True
+		return self.app.acceptKey(skipRun)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):

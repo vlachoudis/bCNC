@@ -550,7 +550,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	# Stop the current run
 	#----------------------------------------------------------------------
-	def stopRun(self):
+	def stopRun(self, event=None):
 		self.feedHold()
 		self._stop = True
 		time.sleep(1)
@@ -583,7 +583,7 @@ class Sender:
 			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					#print "+++",tosend
+					#print "+++",repr(tosend)
 
 					if isinstance(tosend, tuple):
 						# Count executed commands as well
@@ -591,7 +591,7 @@ class Sender:
 						# wait to empty the grbl buffer
 						if tosend[0] == WAIT:
 							wait = True
-							#print "WAIT ON"
+							#print "+++ WAIT ON"
 						elif tosend[0] == PAUSE:
 							if tosend[1] is not None:
 								# show our message on machine status
@@ -616,7 +616,7 @@ class Sender:
 							else:
 								# Count executed commands as well
 								self._gcount += 1
-							#print "Eval=",str(tosend),type(tosend)
+							#print "+++ eval=",repr(tosend),type(tosend)
 						except:
 							self.log.put((True,sys.exc_info()[1]))
 							tosend = None
@@ -653,7 +653,8 @@ class Sender:
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
 				line = str(self.serial.readline()).strip()
-				#print "<R<",str(line)
+				#print "<R<",repr(line)
+				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if line:
 					if line[0]=="<":
 						pat = STATUSPAT.match(line)
@@ -714,7 +715,7 @@ class Sender:
 								self._gUpdate = True
 
 					else:
-						#print "<R<",str(line)
+						#print "<r<",repr(line)
 						self.log.put((False, line+"\n"))
 						uline = line.upper()
 						if uline.find("ERROR")==0 or uline.find("ALARM")==0:
@@ -745,13 +746,13 @@ class Sender:
 				del sline[:]
 				self._stop = False
 
-			#print "tosend='%s'"%(str(tosend)),"sline=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
+			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
 
-				#print ">S>",str(tosend)
+				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				self.serial.write(bytes(tosend))
 #				self.serial.flush()
 

@@ -959,6 +959,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=lines)
 
 	#----------------------------------------------------------------------
+	# FIXME should be replaced with the CNC.tolChange()
+	#----------------------------------------------------------------------
 	def change(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()

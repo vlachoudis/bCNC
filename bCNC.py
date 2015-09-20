@@ -231,6 +231,11 @@ class Application(Toplevel,Sender):
 		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
 		self.bind('<<AlarmClear>>',     self.alarmClear)
 		self.bind('<<Help>>',           self.help)
+		self.bind('<<FeedHold>>',       self.feedHold)
+		self.bind('<<Resume>>',         self.resume)
+		self.bind('<<Run>>',            lambda e,s=self: s.run())
+		self.bind('<<Stop>>',           self.stopRun)
+		self.bind('<<Pause>>',          self.pause)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
 		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
@@ -384,6 +389,18 @@ class Application(Toplevel,Sender):
 		self.statusx["text"] = "X: "+x
 		self.statusy["text"] = "Y: "+y
 		self.statusz["text"] = "Z: "+z
+
+	#----------------------------------------------------------------------
+	# Accept the user key if not editing any text
+	#----------------------------------------------------------------------
+	def acceptKey(self, skipRun=False):
+		if not skipRun and self.running: return False
+		focus = self.focus_get()
+		if isinstance(focus, Entry) or \
+		   isinstance(focus, Spinbox) or \
+		   isinstance(focus, Listbox) or \
+		   isinstance(focus, Text): return False
+		return True
 
 	#-----------------------------------------------------------------------
 	def quit(self, event=None):

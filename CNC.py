@@ -1194,12 +1194,15 @@ class CNC:
 
 		# create the necessary code
 		lines = []
-		lines.append("m5")
-		lines.append("$g")
+		lines.append("$g")	# remember state and populate variables
+		lines.append("m5")	# stop spindle
+		lines.append("%wait")
+		lines.append("%_x,_y,_z = wx,wy,wz")	# remember position
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-
 		lines.append("%wait")
+
+		# FIXME Could be placed with m0?
 		if CNC.comment:
 			lines.append("%%pause Tool change T%02d (%s)"%(tool,CNC.comment))
 		else:
@@ -1209,8 +1212,8 @@ class CNC:
 		lines.append("g53 g0 z[toolprobez]")
 
 		# fixed WCS
-		lines.append("_oldfeed=feed")	# remember feed
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+
 		# FIXME could be done dynamically in the code
 		p = WCS.index(CNC.vars["WCS"])+1
 		lines.append("G10L20P%d z[toolheight]"%(p))
@@ -1218,9 +1221,12 @@ class CNC:
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
-		lines.append("g90 f[_oldfeed]")	# restore mode and feed
-		# FIXME maybe I should remember the last state and restore it m3 or m4
-		lines.append("m3")
+		# restore state
+		lines.append("g90")		# restore mode
+		lines.append("g0 x[_x] y[_y]")	# ... x,y position
+		lines.append("g0 z[_z]")	# ... z position
+		lines.append("f[feed]")		# ... feed
+		lines.append("[spindle]")	# ... spindle
 
 		return CNC.compile(lines)
 

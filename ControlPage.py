@@ -103,30 +103,27 @@ class RunGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
 
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<<Run>>",
 				image=Utils.icons["start32"],
 				text="Start",
 				compound=TOP,
-				command=app.run,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, "Run g-code commands from editor to controller")
 		self.addWidget(b)
 
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<<Pause>>",
 				image=Utils.icons["pause32"],
 				text="Pause",
 				compound=TOP,
-				command=app.pause,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~")
 
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self, "<<Stop>>",
 				image=Utils.icons["stop32"],
 				text="Stop",
 				compound=TOP,
-				command=app.stopRun,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, "Pause running program and soft reset controller to empty the buffer.")
@@ -159,7 +156,8 @@ class DROFrame(CNCRibbon.PageFrame):
 				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
 		tkExtra.Balloon.set(self.state, "Show current state of the machine\nClick to see details\nRight-Click to clear alarm/errors")
-		self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
+		#self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
+		self.state.bind("<Button-3>", self.stateMenu)
 
 		row += 1
 		col = 0
@@ -257,6 +255,31 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
 		self.grid_columnconfigure(3, weight=1)
+
+	#----------------------------------------------------------------------
+	def stateMenu(self, event=None):
+		menu = Menu(self, tearoff=0)
+
+		menu.add_command(label="Show Info", image=Utils.icons["info"], compound=LEFT,
+					command=self.showState)
+		menu.add_command(label="Clear Message", image=Utils.icons["clear"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<AlarmClear>>"))
+		menu.add_separator()
+
+		menu.add_command(label="Feed hold", image=Utils.icons["pause"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<FeedHold>>"))
+		menu.add_command(label="Resume", image=Utils.icons["start"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<Resume>>"))
+		menu.add_separator()
+
+		menu.add_command(label="Start", image=Utils.icons["start"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<Start>>"))
+		menu.add_command(label="Pause", image=Utils.icons["pause"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<Pause>>"))
+		menu.add_command(label="Stop", image=Utils.icons["stop"], compound=LEFT,
+					command=lambda s=self: s.event_generate("<<Stop>>"))
+
+		menu.tk_popup(event.x_root, event.y_root)
 
 	#----------------------------------------------------------------------
 	def updateState(self):
