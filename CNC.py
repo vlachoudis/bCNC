@@ -1447,6 +1447,45 @@ class GCode:
 			return line
 
 	#----------------------------------------------------------------------
+	# add new line to list create block if necessary
+	#----------------------------------------------------------------------
+	def _addLine(self, line):
+		if line.startswith("(Block-name:"):
+			self._blocksExist = True
+			pat = BLOCKPAT.match(line)
+			if pat:
+				value = pat.group(2).strip()
+				if not self.blocks or len(self.blocks[-1]):
+					self.blocks.append(Block(value))
+				else:
+					self.blocks[-1]._name = value
+				return
+
+		if not self.blocks:
+			self.blocks.append(Block("Header"))
+
+		cmds = CNC.parseLine(line)
+		if cmds is None:
+			self.blocks[-1].append(line)
+			return
+
+		self.cnc.processPath(cmds)
+
+		# rapid move up = end of block
+		if self._blocksExist:
+			self.blocks[-1].append(line)
+		elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
+			self.blocks[-1].append(line)
+			self.blocks.append(Block())
+		elif self.cnc.gcode == 0 and len(self.blocks)==1:
+			self.blocks.append(Block())
+			self.blocks[-1].append(line)
+		else:
+			self.blocks[-1].append(line)
+
+		self.cnc.motionPathEnd()
+
+	#----------------------------------------------------------------------
 	# Load a file into editor
 	#----------------------------------------------------------------------
 	def load(self, filename=None):
@@ -1733,45 +1772,6 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def fmt(self, c, v, d=None): return self.cnc.fmt(c,v,d)
-
-	#----------------------------------------------------------------------
-	# add new line to list create block if necessary
-	#----------------------------------------------------------------------
-	def _addLine(self, line):
-		if line.startswith("(Block-name:"):
-			self._blocksExist = True
-			pat = BLOCKPAT.match(line)
-			if pat:
-				value = pat.group(2).strip()
-				if not self.blocks or len(self.blocks[-1]):
-					self.blocks.append(Block(value))
-				else:
-					self.blocks[-1]._name = value
-				return
-
-		if not self.blocks:
-			self.blocks.append(Block("Header"))
-
-		cmds = CNC.parseLine(line)
-		if cmds is None:
-			self.blocks[-1].append(line)
-			return
-
-		self.cnc.processPath(cmds)
-
-		# rapid move up = end of block
-		if self._blocksExist:
-			self.blocks[-1].append(line)
-		elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
-			self.blocks[-1].append(line)
-			self.blocks.append(Block())
-		elif self.cnc.gcode == 0 and len(self.blocks)==1:
-			self.blocks.append(Block())
-			self.blocks[-1].append(line)
-		else:
-			self.blocks[-1].append(line)
-
-		self.cnc.motionPathEnd()
 
 	#----------------------------------------------------------------------
 	def _trim(self):

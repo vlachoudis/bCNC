@@ -235,7 +235,7 @@ class Sender:
 
 		# FEEDHOLD: feedhold
 		elif cmd == "FEEDHOLD":
-			self.feedhold()
+			self.feedHold()
 
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
