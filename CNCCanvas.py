@@ -210,7 +210,6 @@ class CNCCanvas(Canvas):
 
 		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
-		self._last = (0.,0.,0.)
 
 		self._tzoom  = 1.0
 		self._tafter = None
@@ -666,7 +665,7 @@ class CNCCanvas(Canvas):
 		b,i = item
 		if i is None: return
 		block = self.gcode[b]
-		item = block._path[i]
+		item = block.path(i)
 
 		if item is not None and item != self._lastActive:
 			if self._lastActive is not None:
@@ -738,7 +737,7 @@ class CNCCanvas(Canvas):
 					if path is not None:
 						self.addtag_withtag(sel, path)
 			else:
-				path = block._path[i]
+				path = block.path(i)
 				if path:
 					self.addtag_withtag(sel, path)
 
@@ -762,33 +761,7 @@ class CNCCanvas(Canvas):
 
 		if view is not None: self.view = view
 
-		self._last = (0.,0.,0.)
-		self.initPosition()
-		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
-		for i,block in enumerate(self.gcode.blocks):
-			block.resetPath()
-			start = True	# start location found
-			for j,line in enumerate(block):
-				#cmd = self.cnc.parseLine(line)
-				try:
-					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
-				except:
-					sys.stderr.write(">>> ERROR: %s\n"%(str(sys.exc_info()[1])))
-					sys.stderr.write("     line: %s\n"%(line))
-					cmd = None
-
-				if cmd is None or not drawG:
-					block.addPath(None)
-				else:
-					path = self.drawPath(cmd, block.enable)
-					self._items[path] = i,j
-					block.addPath(path)
-					if start and self.cnc.gcode in (1,2,3):
-						# Mark as start the first non-rapid motion
-						block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
-						start = False
-			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
-
+		self.drawPaths()
 		self.drawGrid()
 		self.drawMargin()
 		self.drawWorkarea()
@@ -1082,6 +1055,42 @@ class CNCCanvas(Canvas):
 		return x,y
 
 	#----------------------------------------------------------------------
+	# Draw the paths for the whole gcode file
+	#----------------------------------------------------------------------
+	def drawPaths(self):
+		if not self.draw_paths:
+			for block in self.gcode.blocks:
+				block.resetPath()
+			return
+
+		self._last = (0.,0.,0.)
+		self.initPosition()
+		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
+		for i,block in enumerate(self.gcode.blocks):
+			block.resetPath()
+			start = True	# start location found
+			for j,line in enumerate(block):
+				#cmd = self.cnc.parseLine(line)
+				try:
+					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
+				except:
+					sys.stderr.write(">>> ERROR: %s\n"%(str(sys.exc_info()[1])))
+					sys.stderr.write("     line: %s\n"%(line))
+					cmd = None
+
+				if cmd is None or not drawG:
+					block.addPath(None)
+				else:
+					path = self.drawPath(cmd, block.enable)
+					self._items[path] = i,j
+					block.addPath(path)
+					if start and self.cnc.gcode in (1,2,3):
+						# Mark as start the first non-rapid motion
+						block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
+						start = False
+			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
+
+	#----------------------------------------------------------------------
 	# Create path for one g command
 	#----------------------------------------------------------------------
 	def drawPath(self, cmds, enable=True):
@@ -1106,9 +1115,11 @@ class CNCCanvas(Canvas):
 					fill = DISABLE_COLOR
 				if self.cnc.gcode == 0:
 					if self.draw_rapid:
-						return self.create_line(coords, fill=fill, width=0, dash=(4,3))
+						return self.create_line(coords,
+							fill=fill, width=0, dash=(4,3))
 				elif self.draw_paths:
-					return self.create_line(coords, fill=fill, width=0, cap="projecting")
+					return self.create_line(coords, fill=fill,
+							width=0, cap="projecting")
 		return None
 
 	#----------------------------------------------------------------------

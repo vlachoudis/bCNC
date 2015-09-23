@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.0"
-__date__    = "3 Sep 2015"
+__version__ = "0.6.1"
+__date__    = "23 Sep 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -372,8 +372,10 @@ class Application(Toplevel,Sender):
 		self.canvas.fit2Screen()
 
 	#-----------------------------------------------------------------------
-	def setStatus(self, msg):
+	def setStatus(self, msg, force_update=False):
 		self.statusbar.configText(text=msg, fill="DarkBlue")
+		if force_update:
+			self.statusbar.update_idletasks()
 
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
@@ -1293,6 +1295,7 @@ class Application(Toplevel,Sender):
 			if ans==tkMessageBox.YES or ans==True:
 				self.save()
 
+		self.setStatus("Loading: %s ..."%(filename), True)
 		Sender.load(self,filename)
 
 		if ext==".probe":
@@ -1443,6 +1446,7 @@ class Application(Toplevel,Sender):
 				parent=self)
 			return
 
+		self.setStatus("Preparing to run ...", True)
 		self.editor.selectClear()
 		self.selectionChange()
 		CNC.vars["errline"] = ""
@@ -1463,9 +1467,11 @@ class Application(Toplevel,Sender):
 
 			# reset colors
 			for ij in paths:
-				if ij:
+				if not ij: continue
+				path = self.gcode[ij[0]].path(ij[1])
+				if path:
 					self.canvas.itemconfig(
-						self.gcode[ij[0]].path(ij[1]),
+						block.path(ij[1]),
 						width=1,
 						fill=CNCCanvas.ENABLE_COLOR)
 		else:
@@ -1480,6 +1486,7 @@ class Application(Toplevel,Sender):
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
 
+		self.setStatus("Running...")
 		self.statusbar.setLimits(0, self._runLines)
 		self.statusbar.configText(fill="White")
 		self.statusbar.config(background="DarkGray")
@@ -1608,7 +1615,10 @@ class Application(Toplevel,Sender):
 					if self._paths[self._selectI]:
 						i,j = self._paths[self._selectI]
 						path = self.gcode[i].path(j)
-						self.canvas.itemconfig(path, width=2, fill=CNCCanvas.PROCESS_COLOR)
+						if path:
+							self.canvas.itemconfig(path,
+								width=2,
+								fill=CNCCanvas.PROCESS_COLOR)
 					self._selectI += 1
 
 			if self._gcount >= self._runLines:

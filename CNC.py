@@ -1368,16 +1368,23 @@ class Block(list):
 		list.append(self, line)
 
 	#----------------------------------------------------------------------
+	def resetPath(self):
+		del self._path[:]
+
+	#----------------------------------------------------------------------
+	def hasPath(self):
+		return bool(self._path)
+
+	#----------------------------------------------------------------------
 	def addPath(self, p):
 		self._path.append(p)
 
 	#----------------------------------------------------------------------
 	def path(self, i):
-		return self._path[i]
-
-	#----------------------------------------------------------------------
-	def resetPath(self):
-		del self._path[:]
+		try:
+			return self._path[i]
+		except:
+			return None
 
 	#----------------------------------------------------------------------
 	def startPath(self, x, y, z):
