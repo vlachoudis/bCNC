@@ -1471,7 +1471,7 @@ class Application(Toplevel,Sender):
 				path = self.gcode[ij[0]].path(ij[1])
 				if path:
 					self.canvas.itemconfig(
-						block.path(ij[1]),
+						path,
 						width=1,
 						fill=CNCCanvas.ENABLE_COLOR)
 		else:

@@ -21,6 +21,7 @@ from bpath import Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
+PARENPAT = re.compile(r"\(.*?\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
@@ -659,12 +660,13 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def parseLine(line):
-		while True:	# repeatedly remove parenthesis
-			pat = PARENPAT.match(line)
-			if pat:
-				line = pat.group(1) + pat.group(3)
-			else:
-				break
+		line = PARENPAT.sub("",line)
+#		while True:	# repeatedly remove parenthesis
+#			pat = PARENPAT.match(line)
+#			if pat:
+#				line = pat.group(1) + pat.group(3)
+#			else:
+#				break
 
 		# skip empty lines
 		if len(line)==0 or line[0] in ("%","(","#",";"):
