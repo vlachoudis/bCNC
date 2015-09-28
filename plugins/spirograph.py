@@ -101,9 +101,9 @@ class Tool(Plugin):
 		self.icon = "spirograph"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
-			("RadiusExternal"  ,   "mm" ,    50, "External Radius"),
-			("RadiusInternal"  ,   "mm" ,    33, "Internal Radius"),
-			("RadiusOffset"  ,   "mm" ,    13, "Offset radius"),
+			("RadiusExternal"  ,   "mm" ,    50.0, "External Radius"),
+			("RadiusInternal"  ,   "mm" ,    33.0, "Internal Radius"),
+			("RadiusOffset"  ,   "mm" ,    13.0, "Offset radius"),
 			("Depth"  ,   "mm" ,    0, "Target Depth")
 		]
 		self.buttons.append("exe")
