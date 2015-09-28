@@ -25,7 +25,7 @@ Please edit the one in the home directory
 
 # Features
 - simple interface for small screens
-- fast g-code sender (works nicely on RPi)
+- fast g-code sender (works nicely on RPi and old hardware)
 - workspace configuration (dialog for G54..G59 commands)
 - user configurable buttons
 - g-code function evaluation with run time expansion
