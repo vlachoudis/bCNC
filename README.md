@@ -18,7 +18,9 @@ and run the bCNC command
 # Configuration
 Currently the configuration is only via the bCNC.ini file.
 There is a global ini file in the installation directory.
-DO NOT CHANGE THIS ONE
+
+*DO NOT CHANGE THIS ONE*
+
 The first time you run bCNC will make a copy in the home
 directory typically ${HOME}/.bCNC  or ~/.bCNC
 Please edit the one in the home directory
