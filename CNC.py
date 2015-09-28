@@ -1219,6 +1219,7 @@ class CNC:
 		# FIXME could be done dynamically in the code
 		p = WCS.index(CNC.vars["WCS"])+1
 		lines.append("G10L20P%d z[toolheight]"%(p))
+		lines.append("%wait")
 
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
