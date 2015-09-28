@@ -24,32 +24,34 @@ directory typically ${HOME}/.bCNC  or ~/.bCNC
 Please edit the one in the home directory
 
 # Features
-- g-code sender
+- simple interface for small screens
+- fast g-code sender (works nicely on RPi)
 - workspace configuration (dialog for G54..G59 commands)
-- auto leveling, Z-probing and auto leveling by altering the g-code during
-  sending
-- basic CAM features (profiling, drilling)
-- user configurable database of materials, endmills, stock
-- graphically moving and arranging objects
-- g-code editor
+- user configurable buttons
+- g-code function evaluation with run time expansion
+- Easy probing:
+  - simple probing
+  - center finder with a probing ring
+  - auto leveling, Z-probing and auto leveling by altering the g-code during
+    sending.
+  - height color map display
+  - manual tool change expansion and automatic tool length probing
+- Various Tools:
+  - user configurable database of materials, endmills, stock
+  - properties database of materials, stock, end mills etc..
+  - basic CAM features (profiling, drilling)
+  - User g-code plugins:
+    - bowl generator
+    - finger joint box generator
+    - simple spur gear generator
+    - spirograph generator
+    - ...
+- G-Code editor and display
+    - graphical display of the g-code, and workspace
+    - graphically moving
+    - reordering code and rapid motion optimization
+    - moving, rotating, mirroring the g-code
 - web pendant to be used via smart phones
-- graphical display of the g-code, and workspace
-- Goodies:
-  - finger joint box generator
-
-# Editor functions
-- move, rotate objects
-- reorder cutting sequence, move up/down blocks of gcode
-- rounding digits
-- inkscape gcodetools correction of annoying Z-lifting and lowering on every
-  passage
-- graphical block selection for reordering the cut process.
-
-# TODO list
-- graphical setup (for the moment it has to be written in the ~/.bCNC.ini file)
-- manual
-- tkinter canvas that I use for display can be a bit slow sometimes on very
-  big g-code files.
 
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in
