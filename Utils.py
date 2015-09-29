@@ -27,6 +27,15 @@ import Ribbon
 import tkExtra
 
 __prg__     = "bCNC"
+__www__     = "https://github.com/vlachoudis/bCNC"
+__contribute__ = \
+		"@effer Fillipo\n" \
+		"@carlosgs Carlos Garcia Saura"
+__credits__ = \
+		"@1bigpig\n" \
+		"@chamnit Sonny Jeon\n" \
+		"@onekk Carlo\n" \
+		"@willadams William Adams"
 developer   = False
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))

@@ -15,9 +15,12 @@ import re
 import sys
 import rexx
 import time
-import serial
 import threading
 import webbrowser
+try:
+	import serial
+except:
+	serial = None
 try:
 	from Queue import *
 except ImportError:
@@ -114,9 +117,11 @@ class Sender:
 		self.serial      = None
 		self.thread      = None
 
-		self._posUpdate  = False
-		self._probeUpdate= False
-		self._gUpdate    = False
+		self._posUpdate  = False	# Update position
+		self._probeUpdate= False	# Update probe
+		self._gUpdate    = False	# Update $G
+		self._update     = None		# Generic update
+
 		self.running     = False
 		self._runLines   = 0
 		self._stop       = False	# Raise to stop current run
@@ -124,7 +129,6 @@ class Sender:
 		self._pause      = False	# machine is on Hold
 		self._alarm      = True
 		self._msg        = None
-		self._update     = None
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -691,15 +695,17 @@ class Sender:
 								CNC.vars["prbz"] = float(pat.group(4))
 								if self.running:
 									self.gcode.probe.add(
-										 float(pat.group(2))
-											+CNC.vars["wx"]
-											-CNC.vars["mx"],
-										 float(pat.group(3))
-											+CNC.vars["wy"]
-											-CNC.vars["my"],
-										 float(pat.group(4))
-											+CNC.vars["wz"]
-											-CNC.vars["mz"])
+										 CNC.vars["prbx"]
+										+CNC.vars["wx"]
+										-CNC.vars["mx"],
+
+										 CNC.vars["prby"]
+										+CNC.vars["wy"]
+										-CNC.vars["my"],
+
+										 CNC.vars["prbz"]
+										+CNC.vars["wz"]
+										-CNC.vars["mz"])
 								self._probeUpdate = True
 							CNC.vars[pat.group(1)] = \
 								[float(pat.group(2)),
@@ -709,6 +715,7 @@ class Sender:
 							pat = TLOPAT.match(line)
 							if pat:
 								CNC.vars[pat.group(1)] = pat.group(2)
+								self._probeUpdate = True
 							else:
 								CNC.vars["G"] = line[1:-1].split()
 								CNC.updateG()

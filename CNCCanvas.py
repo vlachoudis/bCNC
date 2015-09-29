@@ -78,6 +78,7 @@ ALT_MASK     = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
 CLOSE_DISTANCE = 5
 MAXDIST      = 10000
+ZOOM         = 1.25
 
 S60 = math.sin(math.radians(60))
 C60 = math.cos(math.radians(60))
@@ -145,6 +146,7 @@ class CNCCanvas(Canvas):
 		self.bind('<ButtonRelease-2>',	self.panRelease)
 		self.bind("<Button-4>",		self.mouseZoomIn)
 		self.bind("<Button-5>",		self.mouseZoomOut)
+		self.bind("<MouseWheel>",	self.wheel)
 
 		self.bind('<Shift-Button-4>',	self.panLeft)
 		self.bind('<Shift-Button-5>',	self.panRight)
@@ -651,11 +653,15 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def mouseZoomIn(self, event):
-		self.zoomCanvas(event.x, event.y, 1.25)
+		self.zoomCanvas(event.x, event.y, ZOOM)
 
 	# ----------------------------------------------------------------------
-	def mouseZoomOut(self,event):
-		self.zoomCanvas(event.x, event.y, 1.0/1.25)
+	def mouseZoomOut(self, event):
+		self.zoomCanvas(event.x, event.y, 1.0/ZOOM)
+
+	# ----------------------------------------------------------------------
+	def wheel(self, event):
+		self.zoomCanvas(event.x, event.y, pow(ZOOM,(event.delta//120)))
 
 	# ----------------------------------------------------------------------
 	# Change the insert marker location

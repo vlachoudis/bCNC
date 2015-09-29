@@ -3,6 +3,8 @@ bCNC
 
 GRBL CNC command sender, autoleveler and g-code editor
 
+An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
+
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
 # Installation
@@ -25,23 +27,27 @@ The first time you run bCNC will make a copy in the home
 directory typically ${HOME}/.bCNC  or ~/.bCNC
 Please edit the one in the home directory
 
-# Features
-- simple interface for small screens
+An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
+
+# Features:
+- simple and intuitive interface for small screens
+- importing g-code and **dxf** files
 - fast g-code sender (works nicely on RPi and old hardware)
-- workspace configuration (dialog for G54..G59 commands)
+- workspace configuration (G54..G59 commands)
 - user configurable buttons
-- g-code function evaluation with run time expansion
+- g-code **function evaluation** with run time expansion
+- feed override during the running for fine tuning
 - Easy probing:
   - simple probing
   - center finder with a probing ring
-  - auto leveling, Z-probing and auto leveling by altering the g-code during
+  - **auto leveling**, Z-probing and auto leveling by altering the g-code during
     sending.
   - height color map display
-  - manual tool change expansion and automatic tool length probing
+  - **manual tool change** expansion and automatic tool length probing
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
-  - basic CAM features (profiling, drilling)
+  - basic **CAM** features (profiling, drilling)
   - User g-code plugins:
     - bowl generator
     - finger joint box generator
@@ -50,10 +56,10 @@ Please edit the one in the home directory
     - ...
 - G-Code editor and display
     - graphical display of the g-code, and workspace
-    - graphically moving
-    - reordering code and rapid motion optimization
+    - graphically moving and editing g-code
+    - reordering code and **rapid motion optimization**
     - moving, rotating, mirroring the g-code
-- web pendant to be used via smart phones
+- Web pendant to be used via smart phones
 
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in

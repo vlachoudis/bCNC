@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.1"
-__date__    = "23 Sep 2015"
+__version__ = "0.6.2"
+__date__    = "29 Sep 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -16,9 +16,13 @@ import sys
 import pdb
 import time
 import getopt
-import serial
 import socket
 import traceback
+
+try:
+	import serial
+except:
+	serial = None
 
 try:
 	import Tkinter
@@ -575,11 +579,155 @@ class Application(Toplevel,Sender):
 		return "break"
 
 	#-----------------------------------------------------------------------
-	def about(self, event=None):
-		tkMessageBox.showinfo("About",
-				"%s\nby %s [%s]\nVersion: %s\nLast Change: %s" % \
-				(Utils.__prg__, __author__, __email__, __version__, __date__),
-				parent=self)
+	def about(self, event=None, timer=None):
+		toplevel = Toplevel(self)
+		toplevel.transient(self)
+		toplevel.title("About %s" % (Utils.__prg__))
+
+		bg = "#707070"
+		fg = "#ffffff"
+
+		font1 = 'Helvetica -32 bold'
+		font2 = 'Helvetica -12'
+		font3 = 'Helvetica -10'
+
+		frame = Frame(toplevel, borderwidth=2,
+				relief=SUNKEN, background=bg)
+		frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
+
+		# -----
+		row = 0
+		l = Label(frame, image=Utils.icons["bCNC"],
+				foreground=fg, background=bg,
+				relief=RAISED,
+				padx=0, pady=0)
+		l.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
+
+		# -----
+		#row += 1
+		#l = Label(frame, text=Utils.__prg__,
+		#		foreground=fg, background=bg,
+		#		font=font1)
+		#l.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=5)
+
+		# -----
+		row += 1
+		l = Label(frame, text="bCNC/\tAn advanced fully featured\n" \
+				"\tg-code sender for GRBL.",
+				font = font3,
+				foreground=fg, background=bg, justify=LEFT)
+		l.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
+
+		# -----
+		row += 1
+		f = Frame(frame, borderwidth=1, relief=SUNKEN,
+			height=2, background=bg)
+		f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
+
+		# -----
+		row += 1
+		l = Label(frame, text='www:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+
+		l = Label(frame, text=Utils.__www__,
+				foreground=fg, background=bg, justify=LEFT,
+				activeforeground="Blue",
+				font=font2, cursor="hand1")
+		l.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+		l.bind('<Button-1>', lambda e : webbrowser.open(Utils.__www__))
+
+		# -----
+		row += 1
+		l = Label(frame, text='email:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+
+		l = Label(frame, text=__email__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='author:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+
+		l = Label(frame, text=__author__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='contributors:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+
+		l = Label(frame, text=Utils.__contribute__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='credits:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+
+		l = Label(frame, text=Utils.__credits__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='version:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+
+		l = Label(frame, text=__version__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='last change:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+
+		l = Label(frame, text=__date__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		closeFunc = lambda e=None,t=toplevel: t.destroy()
+		b = Button(toplevel, text="Close", command=closeFunc)
+		b.pack(pady=5)
+		frame.grid_columnconfigure(1, weight=1)
+
+		toplevel.bind('<Escape>',   closeFunc)
+		toplevel.bind('<Return>',   closeFunc)
+		toplevel.bind('<KP_Enter>', closeFunc)
+
+		toplevel.deiconify()
+		toplevel.wait_visibility()
+		toplevel.resizable(False, False)
+		try: toplevel.grab_set()
+		except: pass
+		b.focus_set()
+		toplevel.lift()
+		if timer: toplevel.after(timer, closeFunc)
+		toplevel.wait_window()
 
 	#-----------------------------------------------------------------------
 	def alarmClear(self, event=None):
@@ -1586,13 +1734,8 @@ class Application(Toplevel,Sender):
 
 		# Update probe and draw point
 		if self._probeUpdate:
-			try:
-				probe = CNC.vars.get("PRB")
-				self._probeX["text"] = probe[0]
-				self._probeY["text"] = probe[1]
-				self._probeZ["text"] = probe[2]
-			except:
-				pass
+			Page.frames["Probe:Probe"].updateProbe()
+			Page.frames["ProbeCommon"].updateTlo()
 			self.canvas.drawProbe()
 			self._probeUpdate = False
 
@@ -1761,6 +1904,12 @@ if __name__ == "__main__":
 	for fn in args:
 		application.load(fn)
 
+	if serial is None:
+		tkMessageBox.showerror("python serial missing",
+			"ERROR: Please install the python pyserial module\n" \
+			"Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
+			"Linux: sudo apt-get or yum install python-serial")
+
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
@@ -1769,4 +1918,3 @@ if __name__ == "__main__":
 	application.close()
 	Utils.saveConfiguration()
  #vim:ts=8:sw=8:sts=8:noet
-
