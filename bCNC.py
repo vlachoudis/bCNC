@@ -583,6 +583,7 @@ class Application(Toplevel,Sender):
 		toplevel = Toplevel(self)
 		toplevel.transient(self)
 		toplevel.title("About %s" % (Utils.__prg__))
+		toplevel.iconbitmap("bCNC.ico")
 
 		bg = "#707070"
 		fg = "#ffffff"
@@ -719,9 +720,19 @@ class Application(Toplevel,Sender):
 		toplevel.bind('<Return>',   closeFunc)
 		toplevel.bind('<KP_Enter>', closeFunc)
 
+		#Center to the screen
+		toplevel.update_idletasks()
+		w = toplevel.winfo_screenwidth()
+		h = toplevel.winfo_screenheight()
+		size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
+		x = w/2 - size[0]/2
+		y = h/2 - size[1]/2
+		toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
+
 		toplevel.deiconify()
 		toplevel.wait_visibility()
 		toplevel.resizable(False, False)
+
 		try: toplevel.grab_set()
 		except: pass
 		b.focus_set()
