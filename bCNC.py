@@ -90,7 +90,7 @@ class Application(Toplevel,Sender):
 		Toplevel.__init__(self, master, **kw)
 		Sender.__init__(self)
 
-		self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
+		self.iconbitmap("bCNC.ico")
 		self.title(Utils.__prg__)
 		self.widgets = []
 
