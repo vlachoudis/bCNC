@@ -29,7 +29,7 @@ import tkExtra
 __prg__     = "bCNC"
 __www__     = "https://github.com/vlachoudis/bCNC"
 __contribute__ = \
-		"@effer Fillipo\n" \
+		"@effer Filippo Rivato\n" \
 		"@carlosgs Carlos Garcia Saura"
 __credits__ = \
 		"@1bigpig\n" \
