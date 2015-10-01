@@ -521,7 +521,8 @@ class EndMill(DataBase):
 			("axis",       "mm",  3.175, "Mount Axis"),
 			("flutes",    "int",      2, "Flutes"),
 			("length",     "mm",   20.0, "Length"),
-			("angle",   "float",     "", "Angle")
+			("angle",   "float",     "", "Angle"),
+			("stepover",   "float",     40.0, "Stepover %")
 		]
 
 	# ----------------------------------------------------------------------
