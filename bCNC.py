@@ -138,11 +138,11 @@ class Application(Toplevel,Sender):
 		self.cmdlabel.pack(side=LEFT)
 		self.command = Entry(f, relief=SUNKEN, background="White")
 		self.command.pack(side=RIGHT, fill=X, expand=YES)
-		self.command.bind("<Return>",	self.cmdExecute)
-		self.command.bind("<Up>",	self.commandHistoryUp)
-		self.command.bind("<Down>",	self.commandHistoryDown)
-		self.command.bind("<FocusIn>",	self.commandFocusIn)
-		self.command.bind("<FocusOut>",	self.commandFocusOut)
+		self.command.bind("<Return>",		self.cmdExecute)
+		self.command.bind("<Up>",		self.commandHistoryUp)
+		self.command.bind("<Down>",		self.commandHistoryDown)
+		self.command.bind("<FocusIn>",		self.commandFocusIn)
+		self.command.bind("<FocusOut>",		self.commandFocusOut)
 		self.command.bind("<Control-Key-z>",	self.undo)
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
@@ -542,8 +542,6 @@ class Application(Toplevel,Sender):
 		if focus in (self.canvas, self.editor):
 			self.editor.cut()
 			return "break"
-		elif focus:
-			focus.event_generate("<<Cut>>")
 
 	#-----------------------------------------------------------------------
 	def copy(self, event=None):
@@ -551,8 +549,6 @@ class Application(Toplevel,Sender):
 		if focus in (self.canvas, self.editor):
 			self.editor.copy()
 			return "break"
-		elif focus:
-			focus.event_generate("<<Copy>>")
 
 	#-----------------------------------------------------------------------
 	def paste(self, event=None):
@@ -560,13 +556,10 @@ class Application(Toplevel,Sender):
 		if focus in (self.canvas, self.editor):
 			self.editor.paste()
 			return "break"
-		elif focus:
-			focus.event_generate("<<Paste>>")
 
 	#-----------------------------------------------------------------------
 	def undo(self, event=None):
-		if self.running: return
-		if self.gcode.canUndo():
+		if not self.running and self.gcode.canUndo():
 			self.gcode.undo();
 			self.editor.fill()
 			self.drawAfter()
@@ -574,8 +567,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def redo(self, event=None):
-		if self.running: return
-		if self.gcode.canRedo():
+		if not self.running and self.gcode.canRedo():
 			self.gcode.redo();
 			self.editor.fill()
 			self.drawAfter()
