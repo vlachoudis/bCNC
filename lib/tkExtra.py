@@ -571,7 +571,7 @@ class ProgressBar(Canvas):
 		self.done   = float(low)
 		self.now    = float(low)
 		self.t0     = time.time()
-		self.tmsg   = ""
+		self.msg    = ""
 
 	# ----------------------------------------------------------------------
 	def setProgress(self, now, done=None, txt=None):
@@ -604,13 +604,11 @@ class ProgressBar(Canvas):
 		dh,s  = divmod(dt,3600)
 		dm,ds = divmod(s,60)
 
-		self.tmsg = "[%d:%02d:%02d | %d:%02d:%02d]"%(dh,dm,ds, th,tm,ts)
-
 		self.draw()
 		if txt is not None:
 			self.setText(txt)
 		elif self.auto:
-			self.autoText()
+			self.autoText("[%d:%02d:%02d | %d:%02d:%02d]"%(dh,dm,ds, th,tm,ts))
 
 	# ----------------------------------------------------------------------
 	def clear(self):
@@ -625,14 +623,17 @@ class ProgressBar(Canvas):
 		self.itemconfig(self.text, **args)
 
 	# ----------------------------------------------------------------------
-	def autoText(self):
+	def autoText(self, tmsg):
 		completed = self.done - self.low
 		if self.low != 0:
 			low = "%d - "%(self.low)
 		else:
 			low = ""
-		self.setText("Current: %d [%s%d]  Completed: %d%% %s" % \
-			(self.now, low, self.high, int((100*completed)/self.length),self.tmsg))
+		self.msg = "Current: %d [%s%d]  Completed: %d%% %s" % \
+			(self.now, low, self.high,
+			 int((100*completed)/self.length),
+			 tmsg)
+		self.setText(self.msg)
 
 	# ----------------------------------------------------------------------
 	def getProgress(self):

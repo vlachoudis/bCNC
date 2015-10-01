@@ -79,7 +79,10 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/state":
 			self.do_HEAD(200, "text/text")
-			self.wfile.write(json.dumps(CNC.vars))
+			tmp = {}
+			for name in ["state", "color", "msg", "wx", "wy", "wz", "G"]:
+				tmp[name] = CNC.vars[name]
+			self.wfile.write(json.dumps(tmp))
 
 		elif page == "/config":
 			self.do_HEAD(200, "text/text")

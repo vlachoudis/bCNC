@@ -29,17 +29,18 @@
 		    success: function(result,status,xhr){
 			    $('#state').html(result.state);
 			    $('#state').bgColor = result.color;
+			    $('#msg').html(result.msg);
 			    $('#x').html(result.wx);
 			    $('#y').html(result.wy);
 			    $('#z').html(result.wz);
-			    //parse $G response			    
+			    //parse $G response
 			    for (k=0; k<result.G.length; k++) {
-			    	if (WCS.indexOf(result.G[k]) > -1)
-			    		$('#wcs').val(result.G[k]);
+				if (WCS.indexOf(result.G[k]) > -1)
+					$('#wcs').val(result.G[k]);
 				    else if (result.G[k] == "M8")
-				    	$('#coolant').val("On");
+					$('#coolant').val("On");
 				    else if (result.G[k] == "M3")
-				    	$('#spindle').val("100%");
+					$('#spindle').val("100%");
 			    }
 		    }
 	    });
@@ -71,7 +72,7 @@
 	        url: '/send',
 	        data: { cmd: command }
 	    });
-    
+
         vibrate(500);
     }
 
@@ -121,7 +122,7 @@
 	    if (rpm=="Off")
 		    sendGcode("M5");
 	    else {
-	    	getConfig();
+		getConfig();
 		    rpm = (parseInt(rpm) * rpmmax)/100;
 		    sendGcode("M3 S"+rpm);
 	    }
@@ -133,7 +134,7 @@
 	    if (coolant=="Off")
 		    sendGcode("M9");
 	    else if (coolant == "On")
-	    	sendGcode("M8");
+		sendGcode("M8");
     } // spindleChange
 
     function sendMove(command)
@@ -194,14 +195,14 @@
         processData: false
 		});
 	}
-	
+
 
     /* PERFORM THESE ACTIONS ONCE THE PAGE HAS LOADED */
     $(document).ready(function () {
-    	//set up fast click to handle mobile browser delay
-    	FastClick.attach(document.body);
+	//set up fast click to handle mobile browser delay
+	FastClick.attach(document.body);
 
-    	sendGcode("$#\n$G\n");
+	sendGcode("$#\n$G\n");
         getConfig();
         setInterval(getState, 1000);
 
@@ -210,46 +211,52 @@
 
 </script>
 <style type="text/css">
-    .command 
-    {
-        width:100%;
-        height:32px;
-    }
-    .fullwide
-    {
-        width:100%;
-    }
-    .large 
-    {
+	.command {
+		width:100%;
+		height:32px;
+	}
+	.fullwide {
+		width:100%;
+	}
+	.large {
 		text-align: center;
 		font-size: 22px;
 		color: DarkBlue;
 	}
+	.medium {
+		text-align: center;
+		font-size: 18px;
+		color: DarkGreen;
+	}
 	.border > div {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        border:1px solid #999;
-    } 
-    .hdr
-    {
-        font-weight:bold;
-        font-size: 1.1em;
-        height:30px;
-    }
-    .direction {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		border:1px solid #999;
+	}
+	.hdr {
+		font-weight:bold;
+		font-size: 1.1em;
+		height:30px;
+	}
+	.direction {
 		width: 100%;
 		height: 64px;
 	}
-	.bold
-	{
+	.bold {
 	    font-weight:bold;
+	}
+	input[type="number"] {
+		width: 15%;
+		box-sizing: border-box;
+		-webkit-box-sizing:border-box;
+		-moz-box-sizing: border-box;
 	}
 </style>
 </head>
 
 <body>
-    <h1>bCNC Pendant</h1>
+    <h1><center>bCNC Pendant</center></h1>
 
     <!-- CONTROL BUTTONS & STATUS INFO -->
     <div class="pure-g">
@@ -259,7 +266,10 @@
     </div>
     <br />
     <div class="pure-g border">
-        <div class="pure-u-1 large border" id="state" style="border-bottom:0px;"><span>Status: </span>&nbsp;</div>
+        <div class="pure-u-1 large border" id="state" style="border-bottom:0px;"><span>Status</span>&nbsp;</div>
+    </div>
+    <div class="pure-g border">
+        <div class="pure-u-1 medium border" id="msg" style="border-bottom:0px;"><span>Message</span>&nbsp;</div>
     </div>
 
     <div class="pure-g border">
@@ -280,7 +290,7 @@
 
     <div class="pure-g">
         <div class="pure-u-1-4">
-            Spindle: 
+            Spindle:
             <select id="spindle" onchange="spindleChange();">
 		        <option value="Off" selected>Off</option>
 		        <option value="25%">25%</option>
@@ -302,15 +312,15 @@
 
     <div class="pure-g">
         <div class="pure-u-1-2">
-            <span style="padding-top:2px;">Command:</span> 
+            <span style="padding-top:2px;">Command:</span>
             <input id="cmd" style="width:75%"/>
-            <button onclick="sendCmd(encodeURIComponent($('#cmd').val())); $('#cmd').val('');" class="button">Send</button>			
+            <button onclick="sendCmd(encodeURIComponent($('#cmd').val())); $('#cmd').val('');" class="button">Send</button>
 		</div>
 		<div class="pure-u-1-2">
 			<form id="upload-file" style="width:75%" enctype="multipart/form-data">
 			Select file to upload:
 			<input name="file" type="file" onchange="fileChange();" />
-			</form>	
+			</form>
         </div>
     </div>
 
@@ -331,9 +341,9 @@
 			    <option value="G92">G92</option>
 		    </select>
 
-            <span style="padding-left: 10px; padding-top:2px;">X: </span><input id="wcsx" size="5" width="100%"/>
-            <span style="padding-left: 10px; padding-top:2px;">Y: </span><input id="wcsy" size="5" width="100%"/>
-            <span style="padding-left: 10px; padding-top:2px;">Z: </span><input id="wcsz" size="5" width="100%"/>
+            <span style="padding-left: 10px; padding-top:2px;">X: </span><input id="wcsx" type="number" size="1"/>
+            <span style="padding-left: 10px; padding-top:2px;">Y: </span><input id="wcsy" type="number" size="1"/>
+            <span style="padding-left: 10px; padding-top:2px;">Z: </span><input id="wcsz" type="number" size="1"/>
             <button onclick="setWcs();" class="button">Set</button>
         </div>
     </div>

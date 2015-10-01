@@ -464,6 +464,7 @@ class CNC:
 				"cutfeedz"  : 500.,	# Material feed for cutting
 				"safe"      : 3.,
 				"state"     : "",
+				"msg"       : "",
 				"stepz"     : 1.,
 				"surface"   : 0.,
 				"thickness" : 5.,
@@ -1217,6 +1218,7 @@ class CNC:
 			lines.append("%wait")
 			lines.append("%global TLO; TLO=prbz-toolmz")
 			lines.append("g43.1z[TLO]")
+			lines.append("%update TLO")
 
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")

@@ -270,14 +270,6 @@ class DROFrame(CNCRibbon.PageFrame):
 					command=lambda s=self: s.event_generate("<<FeedHold>>"))
 		menu.add_command(label="Resume", image=Utils.icons["start"], compound=LEFT,
 					command=lambda s=self: s.event_generate("<<Resume>>"))
-		menu.add_separator()
-
-		menu.add_command(label="Start", image=Utils.icons["start"], compound=LEFT,
-					command=lambda s=self: s.event_generate("<<Start>>"))
-		menu.add_command(label="Pause", image=Utils.icons["pause"], compound=LEFT,
-					command=lambda s=self: s.event_generate("<<Pause>>"))
-		menu.add_command(label="Stop", image=Utils.icons["stop"], compound=LEFT,
-					command=lambda s=self: s.event_generate("<<Stop>>"))
 
 		menu.tk_popup(event.x_root, event.y_root)
 

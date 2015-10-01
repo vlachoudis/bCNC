@@ -282,7 +282,10 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def updateTlo(self):
 		try:
 			if self.focus_get() is not ProbeCommonFrame.tlo:
-				ProbeCommonFrame.tlo.set(CNC.vars.get("TLO",""))
+				state = ProbeCommonFrame.tlo.cget("state")
+				state = ProbeCommonFrame.tlo["state"] = NORMAL
+				ProbeCommonFrame.tlo.set(str(CNC.vars.get("TLO","")))
+				state = ProbeCommonFrame.tlo["state"] = state
 		except:
 			pass
 
@@ -873,6 +876,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 		Utils.setFloat("Probe", "tooldistance",self.probeDistance.get())
 		Utils.setFloat("Probe", "toolheight",  self.toolHeight.get())
+		Utils.setFloat("Probe", "toolmz",      CNC.vars.get("toolmz",0.))
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
@@ -887,6 +891,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.probeDistance.set(Utils.getFloat("Probe","tooldistance"))
 		self.toolHeight.set(   Utils.getFloat("Probe","toolheight"))
 		self.toolPolicy.set(TOOL_POLICY[Utils.getInt("Probe","toolpolicy",0)])
+		CNC.vars["toolmz"] = Utils.getFloat("Probe","toolmz")
 		self.set()
 
 	#----------------------------------------------------------------------

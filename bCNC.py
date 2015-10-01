@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.2"
-__date__    = "29 Sep 2015"
+__version__ = "0.6.3"
+__date__    = "1 Oct 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -238,8 +238,9 @@ class Application(Toplevel,Sender):
 		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
 		self.bind('<<AlarmClear>>',     self.alarmClear)
 		self.bind('<<Help>>',           self.help)
-		self.bind('<<FeedHold>>',       self.feedHold)
-		self.bind('<<Resume>>',         self.resume)
+						# Do not send the event otherwise it will skip the feedHold/resume
+		self.bind('<<FeedHold>>',       lambda e,s=self: s.feedHold())
+		self.bind('<<Resume>>',         lambda e,s=self: s.resume())
 		self.bind('<<Run>>',            lambda e,s=self: s.run())
 		self.bind('<<Stop>>',           self.stopRun)
 		self.bind('<<Pause>>',          self.pause)
@@ -1752,6 +1753,8 @@ class Application(Toplevel,Sender):
 		if self._update:
 			if self._update == "toolheight":
 				Page.frames["Probe:Tool"].updateTool()
+			elif self._update == "TLO":
+				Page.frames["ProbeCommon"].updateTlo()
 			self._update = None
 
 		if inserted:
@@ -1761,7 +1764,7 @@ class Application(Toplevel,Sender):
 		if self.running:
 			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
-
+			CNC.vars["msg"] = self.statusbar.msg
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
 					if self._paths[self._selectI]:
