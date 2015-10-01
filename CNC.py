@@ -1,7 +1,7 @@
 # -*- coding: latin1 -*-
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
-# Author:       vvlachoudis@gmail.com
+# Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
 import os
@@ -419,7 +419,7 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
-	comment        = ""	# Last parsed comment
+	comment        = ""	# last comment parsed
 	toolPolicy     = 0	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
@@ -467,6 +467,9 @@ class CNC:
 				"stepz"     : 1.,
 				"surface"   : 0.,
 				"thickness" : 5.,
+
+				"PRB"
+				"TLO"       : 0.,
 			}
 		self.initPath()
 
@@ -560,6 +563,8 @@ class CNC:
 		self.rval = 0.0
 		self.pval = 0.0
 		self.unit = 1.0
+		self.tool = 0
+		self._lastTool = None
 
 		CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] =  1000000.0
 		CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
@@ -686,17 +691,20 @@ class CNC:
 		return line.split()
 
 	# -----------------------------------------------------------------------------
-	# @return line in broken a list of commands,
-	#         None if empty or comment
-	#         else compiled expressions
+	# @return line,comment
+	#	line broken in a list of commands,
+	#       None,"" if empty or comment
+	#       else compiled expressions,""
 	#----------------------------------------------------------------------
 	@staticmethod
 	def parseLine2(line, space=False):
 		line = line.strip()
 		if not line: return None
+		if line[0] == "$": return line
 
 		# to accept #nnn variables as _nnn internally
 		line = line.replace('#','_')
+		CNC.comment = ""
 
 		# execute literally the line after the first character
 		if line[0]=='%':
@@ -735,28 +743,27 @@ class CNC:
 			CNC.comment = line[1:].strip()
 			return None
 
-		out = []	# output list of commands
-		braket  = 0	# bracket count []
-		paren   = 0	# parenthesis count ()
-		expr    = ""	# expression string
-		cmd     = ""	# cmd string
-		comment = False	# inside comment
-		CNC.comment = ""
+		out = []		# output list of commands
+		braket    = 0		# bracket count []
+		paren     = 0		# parenthesis count ()
+		expr      = ""		# expression string
+		cmd       = ""		# cmd string
+		inComment = False	# inside inComment
 		for i,ch in enumerate(line):
 			if ch == '(':
 				# comment start?
 				paren += 1
-				comment = (braket==0)
-				if not comment:
+				inComment = (braket==0)
+				if not inComment:
 					expr += ch
 			elif ch == ')':
 				# comment end?
 				paren -= 1
-				if not comment: expr += ch
-				if paren==0 and comment: comment=False
+				if not inComment: expr += ch
+				if paren==0 and inComment: inComment=False
 			elif ch == '[':
 				# expression start?
-				if not comment:
+				if not inComment:
 					if CNC.stdexpr: ch='('
 					braket += 1
 					if braket==1:
@@ -769,7 +776,7 @@ class CNC:
 					CNC.comment += ch
 			elif ch == ']':
 				# expression end?
-				if not comment:
+				if not inComment:
 					if CNC.stdexpr: ch=')'
 					braket -= 1
 					if braket==0:
@@ -799,7 +806,7 @@ class CNC:
 							return None
 			elif ch == ';':
 				# Skip everything after the semicolon on normal lines
-				if not comment and paren==0 and braket==0:
+				if not inComment and paren==0 and braket==0:
 					CNC.comment += line[i+1:]
 					break
 				else:
@@ -808,14 +815,14 @@ class CNC:
 			elif braket>0:
 				expr += ch
 
-			elif not comment:
+			elif not inComment:
 				if ch == ' ':
 					if space:
 						cmd += ch
 				else:
 					cmd += ch
 
-			elif comment:
+			elif inComment:
 				CNC.comment += ch
 
 		if cmd: out.append(cmd)
@@ -892,6 +899,9 @@ class CNC:
 
 			elif c == "N":
 				pass
+
+			elif c == "T":
+				self.tool = int(value)
 
 			elif c == "G":
 				self.gcode = int(value)
@@ -1161,38 +1171,16 @@ class CNC:
 		return lines
 
 	#----------------------------------------------------------------------
-	@staticmethod
-	def initTool():
-		CNC._lastTool = None
-		CNC._newTool  = None
-
-	#----------------------------------------------------------------------
-	@staticmethod
-	def setTool(t):
-		CNC._newTool  = t
-
-	#----------------------------------------------------------------------
 	# code to change manually tool
 	#----------------------------------------------------------------------
-	@staticmethod
-	def toolChange(cmds):
-		# find tool
-		tool = CNC._newTool
-		if tool is None:
-			for cmd in cmds:
-				cmd = cmd.upper()
-				if cmd[0]=="T":
-					try:
-						tool = int(cmd[1:])
-					except:
-						sys.stdout.write("Invalid tool number T%s\n"%(cmd[1:]))
-						tool = 0
-					break
+	def toolChange(self, tool=None):
+		if tool is not None:
+			# Force a change
+			self.tool = tool
+			self._lastTool = None
 
 		# check if it is the same tool
-		if tool is None or tool == CNC._lastTool: return []
-		CNC._lastTool = tool
-		CNC._newTool = None
+		if self.tool is None or self.tool == self._lastTool: return []
 
 		# create the necessary code
 		lines = []
@@ -1206,9 +1194,9 @@ class CNC:
 
 		# FIXME Could be placed with m0?
 		if CNC.comment:
-			lines.append("%%pause Tool change T%02d (%s)"%(tool,CNC.comment))
+			lines.append("%%pause Tool change T%02d (%s)"%(self.tool,CNC.comment))
 		else:
-			lines.append("%%pause Tool change T%02d"%(tool))
+			lines.append("%%pause Tool change T%02d"%(self.tool))
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
@@ -1216,10 +1204,19 @@ class CNC:
 		# fixed WCS
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
-		# FIXME could be done dynamically in the code
-		p = WCS.index(CNC.vars["WCS"])+1
-		lines.append("G10L20P%d z[toolheight]"%(p))
-		lines.append("%wait")
+		if CNC.toolPolicy==2:
+			# Adjust the current WCS to fit to the tool
+			# FIXME could be done dynamically in the code
+			p = WCS.index(CNC.vars["WCS"])+1
+			lines.append("G10L20P%d z[toolheight]"%(p))
+			lines.append("%wait")
+
+		elif CNC.toolPolicy==3:
+			# Modify the tool length, update the TLO
+			lines.append("g4 p1")	# wait a sec to get the probe info
+			lines.append("%wait")
+			lines.append("%global TLO; TLO=prbz-toolmz")
+			lines.append("g43.1z[TLO]")
 
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
@@ -1231,7 +1228,10 @@ class CNC:
 		lines.append("f[feed]")		# ... feed
 		lines.append("[spindle]")	# ... spindle
 
-		return CNC.compile(lines)
+		# remember present tool
+		self._lastTool = self.tool
+
+		return lines
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -2160,7 +2160,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# initialize cnc path based on block bid
 	#----------------------------------------------------------------------
-	def initPath(self, bid):
+	def initPath(self, bid=0):
 		if bid == 0:
 			self.cnc.initPath()
 		else:
@@ -2591,7 +2591,7 @@ class GCode:
 		undoinfo = []
 
 		# Loop over all blocks
-		self.cnc.initPath()
+		self.initPath()
 		newlines = []
 		#last = None
 		last = -1	# line location when it was last raised with dx=dy=0.0
@@ -2705,10 +2705,10 @@ class GCode:
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
 	def compile(self):
-		CNC.initTool()
 		autolevel = not self.probe.isEmpty()
 		lines = []
 		paths = []
+		self.initPath()
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
 			for j,line in enumerate(block):
@@ -2758,6 +2758,9 @@ class GCode:
 							x1,y1,z1 = x2,y2,z2
 						lines[-1] = lines[-1].strip()
 						continue
+				else:
+					self.cnc.processPath(cmds)
+					self.cnc.motionPathEnd()
 
 				for cmd in cmds:
 					c = cmd[0]
@@ -2765,8 +2768,6 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
-					elif c in ("t","T"):
-						CNC.setTool(int(cmd[1:]))
 					else:
 						# Tool change
 						if c in ("m","M") and int(cmd[1:])==6:
@@ -2774,8 +2775,8 @@ class GCode:
 								pass	# send to grbl
 							elif CNC.toolPolicy == 1:
 								cmd = None	# skip whole line
-							elif CNC.toolPolicy == 2:
-								toollines = CNC.toolChange(cmds)
+							elif CNC.toolPolicy >= 2:
+								toollines = CNC.compile(self.cnc.toolChange())
 								lines.extend(toollines)
 								paths.extend([None]*len(toollines))
 								cmd = None

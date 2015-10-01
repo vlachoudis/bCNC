@@ -575,7 +575,7 @@ class ProgressBar(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setProgress(self, now, done=None, txt=None):
-		self.now  = now
+		self.now = now
 		if self.now < self.low:
 			self.now = self.low
 		elif self.now > self.high:
@@ -645,7 +645,7 @@ class ProgressBar(Canvas):
 
 		wn = int(width * (self.now  - self.low) / self.length)
 		wd = int(width * (self.done - self.low) / self.length)
-		if wn >= wd: wd = wn - 1
+		if wd >= wn: wd = wn - 1
 
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)

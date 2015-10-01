@@ -21,15 +21,16 @@ import Ribbon
 import tkExtra
 import CNCRibbon
 
-PROBE_CMD = [	"G38.2 - stop on contact else error",
-		"G38.3 - stop on contact",
-		"G38.4 - stop on loss contact else error",
-		"G38.5 - stop on loss contact"
+PROBE_CMD = [	"G38.2 stop on contact else error",
+		"G38.3 stop on contact",
+		"G38.4 stop on loss contact else error",
+		"G38.5 stop on loss contact"
 	]
 
-TOOL_POLICY = [ "Send M6 commands",	# 0
-		"Ignore M6 commands",	# 1
-		"Manual Tool Change"	# 2
+TOOL_POLICY = [ "Send M6 commands",		# 0
+		"Ignore M6 commands",		# 1
+		"Manual Tool Change (WCS)",	# 2
+		"Manual Tool Change (TLO)"	# 3
 		]
 
 #===============================================================================
@@ -260,8 +261,12 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def tloSet(self, event=None):
-		cmd = "G43.1Z"+(ProbeCommonFrame.tlo.get())
-		self.sendGrbl(cmd+"\n$#\n")
+		try:
+			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
+			cmd = "g43.1z"+(ProbeCommonFrame.tlo.get())
+			self.sendGrbl(cmd+"\n")
+		except:
+			pass
 
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -362,6 +367,15 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "x",    self.probeXdir.get())
 		Utils.setFloat("Probe", "y",    self.probeYdir.get())
 		Utils.setFloat("Probe", "z",    self.probeZdir.get())
+
+	#----------------------------------------------------------------------
+	def updateProbe(self):
+		try:
+			self._probeX["text"] = CNC.vars.get("prbx")
+			self._probeY["text"] = CNC.vars.get("prby")
+			self._probeZ["text"] = CNC.vars.get("prbz")
+		except:
+			pass
 
 	#----------------------------------------------------------------------
 	# Probe one Point
@@ -950,8 +964,10 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		lines.append("g4 p1")	# wait a sec
 		lines.append("%wait")
 		lines.append("%global toolheight; toolheight=wz")
+		lines.append("%global toolmz; toolmz=prbz")
 		lines.append("%update toolheight")
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
@@ -964,26 +980,25 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def change(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
-
-		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
-
-		lines = []
-		lines.append("g53 g0 z[toolchangez]")
-		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-		lines.append("%wait")
-		lines.append("%pause Manual Tool change")
-		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
-		lines.append("g53 g0 z[toolprobez]")
-		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		lines = self.app.cnc.toolChange(0)
+#		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+#		lines = []
+#		lines.append("g53 g0 z[toolchangez]")
+#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 #		lines.append("%wait")
-		p = WCS.index(CNC.vars["WCS"])+1
-		lines.append("G10L20P%d z[toolheight]"%(p))
-		lines.append("%wait")
-#		lines.append("g53g0z-2.0")
-#		lines.append("g53g0x-200.0y-100.0")
-		lines.append("g53 g0 z[toolchangez]")
-		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-		lines.append("g90")
+#		lines.append("%pause Manual Tool change")
+#		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+#		lines.append("g53 g0 z[toolprobez]")
+#		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+##		lines.append("%wait")
+#		p = WCS.index(CNC.vars["WCS"])+1
+#		lines.append("G10L20P%d z[toolheight]"%(p))
+#		lines.append("%wait")
+##		lines.append("g53g0z-2.0")
+##		lines.append("g53g0x-200.0y-100.0")
+#		lines.append("g53 g0 z[toolchangez]")
+#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+#		lines.append("g90")
 		self.app.run(lines=lines)
 
 ##===============================================================================

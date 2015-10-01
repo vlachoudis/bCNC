@@ -153,6 +153,10 @@ class TerminalFrame(CNCRibbon.PageFrame):
 		self.terminal.delete("1.0",END)
 		self.terminal["state"] = DISABLED
 
+	#----------------------------------------------------------------------
+	def copy(self, event=None):
+		return "break"
+
 #===============================================================================
 # Terminal Page
 #===============================================================================
