@@ -34,7 +34,11 @@ class Bowl:
 		# Load tool and material settings
 		toolDiam = CNC.vars['diameter']
 		toolRadius = toolDiam/2.
-		stepz = CNC.vars['stepz']
+		stepz  = CNC.vars['stepz']
+		stepxy = toolDiam*(CNC.vars['stepover']/100.)
+
+		if toolDiam <= 0 or stepxy <= 0 or stepz <= 0 or D <= 0 or res <= 0:
+			return blocks
 
 		currDepth = 0.
 
@@ -51,8 +55,8 @@ class Bowl:
 				block.append(CNC.zenter(depth))
 				setCutFeedrate()
 				currRadius = 0.
-				while radius > currRadius+toolDiam:
-					currRadius += toolDiam
+				while radius > currRadius+stepxy:
+					currRadius += stepxy
 					block.append(CNC.gline(1,currRadius, 0))
 					addCircumference(currRadius)
 				if radius-currRadius > 0:
@@ -115,7 +119,10 @@ class Tool(Plugin):
 		if not n or n=="default": n="Bowl"
 		bowl = Bowl(n)
 		blocks = bowl.calc(self["D"], math.radians(self["res"]), self["pocket"])
-		active = app.activeBlock()
-		app.gcode.insBlocks(active, blocks, "Create BOWL")
-		app.refresh()
-		app.setStatus("Generated: BOWL")
+		if len(blocks) > 0:
+			active = app.activeBlock()
+			app.gcode.insBlocks(active, blocks, "Create BOWL")
+			app.refresh()
+			app.setStatus("Generated: BOWL")
+		else:
+			app.setStatus("Error: Check the Bowl and End Mill parameters")
