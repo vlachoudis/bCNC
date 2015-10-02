@@ -468,6 +468,7 @@ class CNC:
 				"stepz"     : 1.,
 				"surface"   : 0.,
 				"thickness" : 5.,
+				"stepover"  : 40.,
 
 				"PRB"
 				"TLO"       : 0.,

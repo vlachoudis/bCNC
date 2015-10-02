@@ -521,7 +521,8 @@ class EndMill(DataBase):
 			("axis",       "mm",  3.175, "Mount Axis"),
 			("flutes",    "int",      2, "Flutes"),
 			("length",     "mm",   20.0, "Length"),
-			("angle",   "float",     "", "Angle")
+			("angle",   "float",     "", "Angle"),
+			("stepover","float",   40.0, "Stepover %")
 		]
 
 	# ----------------------------------------------------------------------
@@ -529,6 +530,7 @@ class EndMill(DataBase):
 	# ----------------------------------------------------------------------
 	def update(self):
 		self.master.cnc()["diameter"] = self.master.fromMm(self["diameter"])
+		self.master.cnc()["stepover"] = self.master.fromMm(self["stepover"])
 		return False
 
 #==============================================================================
