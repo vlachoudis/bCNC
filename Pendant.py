@@ -33,7 +33,7 @@ port = 8080
 httpd = None
 prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
 webpath = "%s/pendant"%(prgpath)
-iconpath = "%s/icon/"%(prgpath)
+iconpath = "%s/icons/"%(prgpath)
 
 #==============================================================================
 # Simple Pendant controller for CNC
