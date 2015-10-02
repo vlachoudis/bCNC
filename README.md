@@ -18,20 +18,18 @@ Expand the directory or download it from github
 and run the bCNC command
 
 # Configuration
-Currently the configuration is only via the bCNC.ini file.
-There is a global ini file in the installation directory.
+You can modify most of the parameters from the "Tools -> Machine"
+page. Only the changes/differences from the default configuration
+file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 
-*DO NOT CHANGE THIS ONE*
+The default configuration is stored on bCNC.ini in the
+installation directory.
 
-The first time you run bCNC will make a copy in the home
-directory typically ${HOME}/.bCNC  or ~/.bCNC
-Please edit the one in the home directory
-
-An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
+*PLEASE DO NOT CHANGE THIS ONE*
 
 # Features:
 - simple and intuitive interface for small screens
-- importing g-code and **dxf** files
+- import/export **g-code** and **dxf** files
 - fast g-code sender (works nicely on RPi and old hardware)
 - workspace configuration (G54..G59 commands)
 - user configurable buttons
@@ -47,7 +45,7 @@ An advanced fully featured g-code sender for GRBL. bCNC is a cross platform prog
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
-  - basic **CAM** features (profiling, drilling)
+  - basic **CAM** features (profiling, cutting, drilling)
   - User g-code plugins:
     - bowl generator
     - finger joint box generator
