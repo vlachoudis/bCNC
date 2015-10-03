@@ -128,9 +128,9 @@ class CNCCanvas(Canvas):
 		Canvas.__init__(self, master, *kw, **kwargs)
 
 		# Global variables
-		self.view = 0
-		self.app = app
-		self.cnc = app.cnc
+		self.view  = 0
+		self.app   = app
+		self.cnc   = app.cnc
 		self.gcode = app.gcode
 		self.actionVar = IntVar()
 

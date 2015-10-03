@@ -872,38 +872,11 @@ class CNC:
 				if not self.absolute:
 					self.zval += self.z
 
-			elif c == "I":
-				self.ival = value*self.unit
-				if self.arcabsolute:
-					self.ival -= self.x
-
-			elif c == "J":
-				self.jval = value*self.unit
-				if self.arcabsolute:
-					self.jval -= self.y
-
-			elif c == "K":
-				self.kval = value*self.unit
-				if self.arcabsolute:
-					self.kval -= self.z
-
-			elif c == "R":
-				self.rval = value*self.unit
-
-			elif c == "P":
-				self.pval = value
+			elif c == "A":
+				self.aval = value*self.unit
 
 			elif c == "F":
 				self.feed = value*self.unit
-
-			elif c == "M":
-				self.gcode = None
-
-			elif c == "N":
-				pass
-
-			elif c == "T":
-				self.tool = int(value)
 
 			elif c == "G":
 				self.gcode = int(value)
@@ -942,6 +915,42 @@ class CNC:
 						self.absolute = False
 					elif decimal == 1:
 						self.arcabsolute = False
+
+			elif c == "I":
+				self.ival = value*self.unit
+				if self.arcabsolute:
+					self.ival -= self.x
+
+			elif c == "J":
+				self.jval = value*self.unit
+				if self.arcabsolute:
+					self.jval -= self.y
+
+			elif c == "K":
+				self.kval = value*self.unit
+				if self.arcabsolute:
+					self.kval -= self.z
+
+			elif c == "L":
+				self.lval = value*self.unit
+
+			elif c == "M":
+				self.gcode = None
+
+			elif c == "N":
+				pass
+
+			elif c == "P":
+				self.pval = value
+
+			elif c == "Q":
+				self.qval = value*self.unit
+
+			elif c == "R":
+				self.rval = value*self.unit
+
+			elif c == "T":
+				self.tool = int(value)
 
 		self.dx = self.xval - self.x
 		self.dy = self.yval - self.y
@@ -1087,6 +1096,15 @@ class CNC:
 		elif self.gcode==4:	# Dwell
 			self.totalTime = self.pval
 
+		# FIXME needs to show the drill paths
+		# Also L is not taken into account for repetitions!!!
+		elif self.gcode in (81,82,83):
+			if self.xval-self.x != 0.0 or \
+			   self.yval-self.y != 0.0 or \
+			   self.zval-self.z != 0.0:
+				xyz.append((self.x,self.y,self.z))
+				xyz.append((self.xval,self.yval,self.zval))
+
 		return xyz
 
 	#----------------------------------------------------------------------
@@ -1105,6 +1123,12 @@ class CNC:
 			self.x = 0.0
 			self.y = 0.0
 			self.z = 0.0
+
+		# FIXME L is not taken into account for repetitions!!!
+		elif self.gcode in (81,82,83):
+			self.x = self.xval
+			self.y = self.yval
+			self.z = self.zval
 
 	#----------------------------------------------------------------------
 	def pathLength(self, xyz):
