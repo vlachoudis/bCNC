@@ -530,7 +530,7 @@ class EndMill(DataBase):
 	# ----------------------------------------------------------------------
 	def update(self):
 		self.master.cnc()["diameter"] = self.master.fromMm(self["diameter"])
-		self.master.cnc()["stepover"] = self.master.fromMm(self["stepover"])
+		self.master.cnc()["stepover"] = self["stepover"]
 		return False
 
 #==============================================================================
