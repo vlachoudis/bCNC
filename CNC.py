@@ -916,6 +916,8 @@ class CNC:
 				elif gcode==80:
 					# turn off canned cycles
 					self.gcode = None
+					self.dz    = 0
+					self.zval  = self.z
 
 				elif gcode==90:
 					if decimal == 0:
@@ -1170,7 +1172,7 @@ class CNC:
 				z = retract
 				xyz.append((x,y,z))	# ???
 
-			#for a in xyz: print a
+		#for a in xyz: print a
 
 		return xyz
 
@@ -1178,6 +1180,14 @@ class CNC:
 	# move to end position
 	#----------------------------------------------------------------------
 	def motionEnd(self):
+		#print "x=",self.x
+		#print "y=",self.y
+		#print "z=",self.z
+		#print "dx=",self.dx
+		#print "dy=",self.dy
+		#print "dz=",self.dz
+		#print "abs=",self.absolute,"retract=",self.retractz
+
 		if self.gcode in (0,1,2,3):
 			self.x = self.xval
 			self.y = self.yval
@@ -1215,13 +1225,11 @@ class CNC:
 			self.y += self.dy*self.lval
 			self.z  = retract
 
-			if self.absolute:	# ??? not sure
-				self.dx = 0
-				self.dy = 0
+			self.xval = self.x
+			self.yval = self.y
+			self.dx = 0
+			self.dy = 0
 			self.dz = drill - retract
-			#print "retract=",retract
-			#print "drill=",drill
-			#print "new dz=",self.dz
 
 	#----------------------------------------------------------------------
 	# Doesn't work correctly for G83 (peck drilling)
