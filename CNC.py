@@ -560,19 +560,24 @@ class CNC:
 		else:
 			self.z = self.zval = z
 		self.ival = self.jval = self.kval = 0.0
+		self.uval = self.vval = self.wval = 0.0
 		self.dx   = self.dy   = self.dz   = 0.0
 		self.di   = self.dj   = self.dk   = 0.0
 		self.rval = 0.0
 		self.pval = 0.0
+		self.qval = 0.0
 		self.unit = 1.0
+		self.mval = 0
+		self.lval = 1
 		self.tool = 0
 		self._lastTool = None
 
 		CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] =  1000000.0
 		CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
 
-		self.absolute    = True
-		self.arcabsolute = False
+		self.absolute    = True		# G90/G91     absolute/relative motion
+		self.arcabsolute = False	# G90.1/G91.1 absolute/relative arc
+		self.retractz    = True		# G98/G99     retract to Z or R
 		self.gcode       = None
 		self.plane       = XY
 		self.feed        = 0		# Actual gcode feed rate (not to confuse with cutfeed
@@ -849,7 +854,8 @@ class CNC:
 	#----------------------------------------------------------------------
 	# Create path for one g command
 	#----------------------------------------------------------------------
-	def processPath(self, cmds):
+	def motionStart(self, cmds):
+		#print "\n<<<",cmds
 		for cmd in cmds:
 			c = cmd[0].upper()
 			try:
@@ -861,16 +867,19 @@ class CNC:
 				self.xval = value*self.unit
 				if not self.absolute:
 					self.xval += self.x
+				self.dx = self.xval - self.x
 
 			elif c == "Y":
 				self.yval = value*self.unit
 				if not self.absolute:
 					self.yval += self.y
+				self.dy = self.yval - self.y
 
 			elif c == "Z":
 				self.zval = value*self.unit
 				if not self.absolute:
 					self.zval += self.z
+				self.dz = self.zval - self.z
 
 			elif c == "A":
 				self.aval = value*self.unit
@@ -879,42 +888,55 @@ class CNC:
 				self.feed = value*self.unit
 
 			elif c == "G":
-				self.gcode = int(value)
-				decimal = int(round((value - self.gcode)*10))
+				gcode = int(value)
+				decimal = int(round((value - gcode)*10))
 
 				# Execute immediately
-				if self.gcode==17:
+				if gcode==17:
 					self.plane = XY
 
-				elif self.gcode==18:
+				elif gcode==18:
 					self.plane = XZ
 
-				elif self.gcode==19:
+				elif gcode==19:
 					self.plane = YZ
 
-				elif self.gcode==20:	# Switch to inches
+				elif gcode==20:	# Switch to inches
 					if CNC.inch:
 						self.unit = 1.0
 					else:
 						self.unit = 25.4
 
-				elif self.gcode==21:	# Switch to mm
+				elif gcode==21:	# Switch to mm
 					if CNC.inch:
 						self.unit = 1.0/25.4
 					else:
 						self.unit = 1.0
 
-				elif self.gcode==90:
+				elif gcode==80:
+					# turn off canned cycles
+					self.gcode = None
+
+				elif gcode==90:
 					if decimal == 0:
 						self.absolute = True
 					elif decimal == 1:
 						self.arcabsolute = True
 
-				elif self.gcode==91:
+				elif gcode==91:
 					if decimal == 0:
 						self.absolute = False
 					elif decimal == 1:
 						self.arcabsolute = False
+
+				elif gcode==98:
+					self.retractz = True
+
+				elif gcode==99:
+					self.retractz = False
+
+				else:
+					self.gcode = gcode
 
 			elif c == "I":
 				self.ival = value*self.unit
@@ -932,10 +954,11 @@ class CNC:
 					self.kval -= self.z
 
 			elif c == "L":
-				self.lval = value*self.unit
+				self.lval = int(value)
 
 			elif c == "M":
-				self.gcode = None
+				self.mval = int(value)
+				self.gcode = None	# Why????
 
 			elif c == "N":
 				pass
@@ -952,9 +975,14 @@ class CNC:
 			elif c == "T":
 				self.tool = int(value)
 
-		self.dx = self.xval - self.x
-		self.dy = self.yval - self.y
-		self.dz = self.zval - self.z
+			elif c == "U":
+				self.uval = value*self.unit
+
+			elif c == "V":
+				self.vval = value*self.unit
+
+			elif c == "W":
+				self.wval = value*self.unit
 
 	#----------------------------------------------------------------------
 	# Return center x,y,z,r for arc motions 2,3 and set self.rval
@@ -1093,24 +1121,65 @@ class CNC:
 
 			xyz.append((self.xval,self.yval,self.zval))
 
-		elif self.gcode==4:	# Dwell
+		elif self.gcode==4:		# Dwell
 			self.totalTime = self.pval
 
-		# FIXME needs to show the drill paths
-		# Also L is not taken into account for repetitions!!!
-		elif self.gcode in (81,82,83):
-			if self.xval-self.x != 0.0 or \
-			   self.yval-self.y != 0.0 or \
-			   self.zval-self.z != 0.0:
-				xyz.append((self.x,self.y,self.z))
-				xyz.append((self.xval,self.yval,self.zval))
+		elif self.gcode in (81,82,83):	# Drill display
+			#print "x=",self.x
+			#print "y=",self.y
+			#print "z=",self.z
+			#print "dx=",self.dx
+			#print "dy=",self.dy
+			#print "dz=",self.dz
+			#print "abs=",self.absolute,"retract=",self.retractz
+
+			# FIXME Assuming only on plane XY
+			if self.absolute:
+				# FIXME is it correct?
+				self.lval = 1
+				if self.retractz:
+					retract = max(self.rval, self.z)
+				else:
+					retract = self.rval
+				drill = self.zval
+			else:
+				retract = self.z + self.rval
+				drill   = retract + self.dz
+			#print "retract=",retract
+			#print "drill=",drill
+
+			x,y,z = self.x, self.y, self.z
+			xyz.append((x,y,z))
+			if z != retract:
+				z = retract
+				xyz.append((x,y,z))
+			for l in range(self.lval):
+				# Rapid move parallel to XY
+				x += self.dx
+				y += self.dy
+				xyz.append((x,y,z))
+
+				# Rapid move parallel to retract
+				if z > retract:
+					xyz.append((x,y,retract))
+
+				# Drill to z
+				xyz.append((x,y,drill))
+
+				# Move to original position
+				z = retract
+				xyz.append((x,y,z))	# ???
+			self.xval = x
+			self.yval = y
+			self.zval = z
+			#for a in xyz: print a
 
 		return xyz
 
 	#----------------------------------------------------------------------
 	# move to end position
 	#----------------------------------------------------------------------
-	def motionPathEnd(self):
+	def motionEnd(self):
 		if self.gcode in (0,1,2,3):
 			self.x = self.xval
 			self.y = self.yval
@@ -1126,10 +1195,22 @@ class CNC:
 
 		# FIXME L is not taken into account for repetitions!!!
 		elif self.gcode in (81,82,83):
-			self.x = self.xval
-			self.y = self.yval
-			self.z = self.zval
+			# FIXME Assuming only on plane XY
+			if self.absolute:
+				self.lval = 1
+				if self.retractz:
+					retract = max(self.rval, self.z)
+				else:
+					retract = self.rval
+			else:
+				retract = self.z + self.rval
 
+			self.x += self.dx*self.lval
+			self.y += self.dy*self.lval
+			self.z  = retract
+
+	#----------------------------------------------------------------------
+	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
 	def pathLength(self, xyz):
 		# For XY plan
@@ -1506,7 +1587,7 @@ class GCode:
 			self.blocks[-1].append(line)
 			return
 
-		self.cnc.processPath(cmds)
+		self.cnc.motionStart(cmds)
 
 		# rapid move up = end of block
 		if self._blocksExist:
@@ -1520,7 +1601,7 @@ class GCode:
 		else:
 			self.blocks[-1].append(line)
 
-		self.cnc.motionPathEnd()
+		self.cnc.motionEnd()
 
 	#----------------------------------------------------------------------
 	# Load a file into editor
@@ -1649,7 +1730,7 @@ class GCode:
 			for line in block:
 				cmds = CNC.parseLine(line)
 				if cmds is None: continue
-				self.cnc.processPath(cmds)
+				self.cnc.motionStart(cmds)
 				if self.cnc.gcode == 1:	# line
 					dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
 				elif self.cnc.gcode in (2,3):	# arc
@@ -1662,7 +1743,7 @@ class GCode:
 					else:
 						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 						dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
-				self.cnc.motionPathEnd()
+				self.cnc.motionEnd()
 		dxf.writeEOF()
 		dxf.close()
 		return True
@@ -1708,7 +1789,7 @@ class GCode:
 		for line in block:
 			cmds = CNC.parseLine(line)
 			if cmds is None: continue
-			self.cnc.processPath(cmds)
+			self.cnc.motionStart(cmds)
 			end = Vector(self.cnc.xval, self.cnc.yval)
 			if self.cnc.gcode == 0:		# rapid move (new block)
 				if path:
@@ -1724,7 +1805,7 @@ class GCode:
 					xc,yc = self.cnc.motionCenter()
 					center = Vector(xc,yc)
 					path.append(Segment(self.cnc.gcode, start,end, center))
-			self.cnc.motionPathEnd()
+			self.cnc.motionEnd()
 			start = end
 		if path: paths.append(path)
 		return paths
@@ -2088,7 +2169,7 @@ class GCode:
 #					li += 1
 #					continue
 #
-#				self.cnc.processPath(cmds)
+#				self.cnc.motionStart(cmds)
 #
 #				# move
 #				if self.gcode in (1,2,3):
@@ -2105,7 +2186,7 @@ class GCode:
 #							# Move all subsequent lines to a new block
 #							#self.blocks.append(Block())
 #							pass
-#				self.cnc.motionPathEnd()
+#				self.cnc.motionEnd()
 
 	#----------------------------------------------------------------------
 	def __getitem__(self, item):		return self.blocks[item]
@@ -2272,7 +2353,7 @@ class GCode:
 				if cmds is None:
 					lines.append(line)
 					continue
-				self.cnc.processPath(cmds)
+				self.cnc.motionStart(cmds)
 				if self.cnc.dz<0.0:
 					# drill point
 					if peck is None:
@@ -2300,7 +2381,7 @@ class GCode:
 					# ignore normal movements
 					pass
 
-				self.cnc.motionPathEnd()
+				self.cnc.motionEnd()
 
 			undoinfo.append(self.setBlockLinesUndo(bid,lines))
 		self.addUndo(undoinfo)
@@ -2441,8 +2522,8 @@ class GCode:
 		for i,line in enumerate(block):
 			cmds = CNC.parseLine(line)
 			if cmds is None: continue
-			self.cnc.processPath(cmds)
-			self.cnc.motionPathEnd()
+			self.cnc.motionStart(cmds)
+			self.cnc.motionEnd()
 
 		# FIXME doesn't work
 
@@ -2635,7 +2716,7 @@ class GCode:
 			if cmd is None:
 				newlines.append(line)
 				continue
-			self.cnc.processPath(cmd)
+			self.cnc.motionStart(cmd)
 			xyz = self.cnc.motionPath()
 			if self.cnc.dx==0.0 and self.cnc.dy==0.0:
 				if self.cnc.z>0.0 and self.cnc.dz>0.0:
@@ -2665,7 +2746,7 @@ class GCode:
 				#last = None
 				last = -1
 			newlines.append(line)
-			self.cnc.motionPathEnd()
+			self.cnc.motionEnd()
 
 		self.addUndo(self.setLinesUndo(newlines))
 
@@ -2753,10 +2834,10 @@ class GCode:
 						paths.append((i,j))
 					continue
 
+				self.cnc.motionStart(cmds)
 				if autolevel:
-					self.cnc.processPath(cmds)
 					xyz = self.cnc.motionPath()
-					self.cnc.motionPathEnd()
+					self.cnc.motionEnd()
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement
 						# commands, just append the line as-is
@@ -2786,8 +2867,8 @@ class GCode:
 						lines[-1] = lines[-1].strip()
 						continue
 				else:
-					self.cnc.processPath(cmds)
-					self.cnc.motionPathEnd()
+					# Canned cycles should come here
+					self.cnc.motionEnd()
 
 				for cmd in cmds:
 					c = cmd[0]

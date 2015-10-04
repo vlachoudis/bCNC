@@ -1100,9 +1100,9 @@ class CNCCanvas(Canvas):
 	# Create path for one g command
 	#----------------------------------------------------------------------
 	def drawPath(self, cmds, enable=True):
-		self.cnc.processPath(cmds)
+		self.cnc.motionStart(cmds)
 		xyz = self.cnc.motionPath()
-		self.cnc.motionPathEnd()
+		self.cnc.motionEnd()
 		if xyz:
 			length = self.cnc.pathLength(xyz)
 			self.cnc.pathMargins(xyz)
