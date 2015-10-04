@@ -1035,7 +1035,7 @@ class CNC:
 		# Error checking
 		#err = abs(self.rval - math.sqrt((self.xval-xc)**2 + (self.yval-yc)**2 + (self.zval-zc)**2))
 		#if err/self.rval>0.001:
-		#	print "Error invalid arc", self.xval, self.yval, self.zval, err
+			#print "Error invalid arc", self.xval, self.yval, self.zval, err
 		#return xc,yc,zc
 
 	#----------------------------------------------------------------------
@@ -1169,9 +1169,7 @@ class CNC:
 				# Move to original position
 				z = retract
 				xyz.append((x,y,z))	# ???
-			self.xval = x
-			self.yval = y
-			self.zval = z
+
 			#for a in xyz: print a
 
 		return xyz
@@ -1184,6 +1182,9 @@ class CNC:
 			self.x = self.xval
 			self.y = self.yval
 			self.z = self.zval
+			self.dx = 0
+			self.dy = 0
+			self.dz = 0
 
 			if self.gcode >= 2: # reset at the end
 				self.rval = self.ival = self.jval = self.kval = 0.0
@@ -1192,6 +1193,9 @@ class CNC:
 			self.x = 0.0
 			self.y = 0.0
 			self.z = 0.0
+			self.dx = 0
+			self.dy = 0
+			self.dz = 0
 
 		# FIXME L is not taken into account for repetitions!!!
 		elif self.gcode in (81,82,83):
@@ -1202,12 +1206,22 @@ class CNC:
 					retract = max(self.rval, self.z)
 				else:
 					retract = self.rval
+				drill = self.zval
 			else:
 				retract = self.z + self.rval
+				drill   = retract + self.dz
 
 			self.x += self.dx*self.lval
 			self.y += self.dy*self.lval
 			self.z  = retract
+
+			if self.absolute:	# ??? not sure
+				self.dx = 0
+				self.dy = 0
+			self.dz = drill - retract
+			#print "retract=",retract
+			#print "drill=",drill
+			#print "new dz=",self.dz
 
 	#----------------------------------------------------------------------
 	# Doesn't work correctly for G83 (peck drilling)
