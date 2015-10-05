@@ -39,6 +39,9 @@ XY   = 0
 XZ   = 1
 YZ   = 2
 
+CW   = 2
+CCW  = 3
+
 WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
 
 DISTANCE_MODE = { "G90" : "Absolute",

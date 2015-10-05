@@ -14,7 +14,7 @@ from ToolsPage import DataBase
 
 import math
 from bmath import Vector
-from CNC import CNC,Block
+from CNC import CW,CCW,CNC,Block
 from ToolsPage import Plugin
 
 #==============================================================================
@@ -143,11 +143,12 @@ class Gear:
 
 		#block = Block("%s-center"%(self.name))
 		block = Block("%s-basecircle"%(self.name))
-		blocks.append(block)
+		block.enable = False
 		block.append(CNC.grapid(Db/2, 0.))
 		block.append(CNC.zenter(0.0))
-		block.append(CNC.garc(2,Db/2, 0., i=-Db/2))
+		block.append(CNC.garc(CW, Db/2, 0., i=-Db/2))
 		block.append(CNC.zsafe())
+		blocks.append(block)
 		return blocks
 
 #==============================================================================
