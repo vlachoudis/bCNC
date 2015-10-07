@@ -135,10 +135,10 @@ class Gear:
 		block.append(CNC.zenter(0.0))
 		#print first.x(), first.y()
 		for v in points:
-			block.append(CNC.gline(1,v.x(), v.y()))
+			block.append(CNC.gline(v.x(), v.y()))
 			#print v.x(), v.y()
 		#print first.x(), first.y()
-		block.append(CNC.gline(1,first.x(), first.y()))
+		block.append(CNC.gline(first.x(), first.y()))
 		block.append(CNC.zsafe())
 
 		#block = Block("%s-center"%(self.name))

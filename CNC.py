@@ -21,7 +21,6 @@ from bpath import Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
-PARENPAT = re.compile(r"\(.*?\)")
 PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
@@ -422,7 +421,9 @@ class CNC:
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
-	comment        = ""	# last comment parsed
+	comment        = ""	# last parsed comment
+
+	drillPolicy    = 1	# Expand Canned cycles
 	toolPolicy     = 0	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
@@ -612,17 +613,32 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def gline(g, x=None, y=None, z=None):
+	def _gcode(g, **args):
 		s = "g%d"%(g)
-		if x is not None: s += ' '+CNC.fmt('x',x)
-		if y is not None: s += ' '+CNC.fmt('y',y)
-		if z is not None: s += ' '+CNC.fmt('z',z)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
 		return s
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def grapid(x=None, y=None, z=None):
-		return CNC.gline(0,x,y,z)
+	def _goto(g, x=None, y=None, z=None, **args):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
+		return s
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def grapid(x=None, y=None, z=None, **args):
+		return CNC._goto(0,x,y,z,**args)
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def gline(x=None, y=None, z=None, **args):
+		return CNC._goto(1,x,y,z,**args)
 
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -639,7 +655,7 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def garc(g, x=None, y=None, z=None, i=None, j=None, k=None):
+	def garc(g, x=None, y=None, z=None, i=None, j=None, k=None, **args):
 		s = "g%d"%(g)
 		if x is not None: s += ' '+CNC.fmt('x',x)
 		if y is not None: s += ' '+CNC.fmt('y',y)
@@ -647,6 +663,8 @@ class CNC:
 		if i is not None: s += ' '+CNC.fmt('i',i)
 		if j is not None: s += ' '+CNC.fmt('j',j)
 		if k is not None: s += ' '+CNC.fmt('k',k)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
 		return s
 
 	#----------------------------------------------------------------------
@@ -1129,7 +1147,7 @@ class CNC:
 		elif self.gcode==4:		# Dwell
 			self.totalTime = self.pval
 
-		elif self.gcode in (81,82,83):	# Drill display
+		elif self.gcode in (81,82,83,85,86,89): # Canned cycles
 			#print "x=",self.x
 			#print "y=",self.y
 			#print "z=",self.z
@@ -1143,20 +1161,20 @@ class CNC:
 				# FIXME is it correct?
 				self.lval = 1
 				if self.retractz:
-					retract = max(self.rval, self.z)
+					clearz = max(self.rval, self.z)
 				else:
-					retract = self.rval
-				drill = self.zval
+					clearz = self.rval
+				drill  = self.zval
 			else:
-				retract = self.z + self.rval
-				drill   = retract + self.dz
-			#print "retract=",retract
+				clearz = self.z + self.rval
+				drill  = clearz + self.dz
+			#print "clearz=",clearz
 			#print "drill=",drill
 
 			x,y,z = self.x, self.y, self.z
 			xyz.append((x,y,z))
-			if z != retract:
-				z = retract
+			if z != clearz:
+				z = clearz
 				xyz.append((x,y,z))
 			for l in range(self.lval):
 				# Rapid move parallel to XY
@@ -1164,15 +1182,15 @@ class CNC:
 				y += self.dy
 				xyz.append((x,y,z))
 
-				# Rapid move parallel to retract
-				if z > retract:
-					xyz.append((x,y,retract))
+				# Rapid move parallel to clearz
+				if self.z > clearz:
+					xyz.append((x,y,clearz))
 
 				# Drill to z
 				xyz.append((x,y,drill))
 
 				# Move to original position
-				z = retract
+				z = clearz
 				xyz.append((x,y,z))	# ???
 
 		#for a in xyz: print a
@@ -1363,7 +1381,95 @@ class CNC:
 
 		# remember present tool
 		self._lastTool = self.tool
+		return lines
 
+	#----------------------------------------------------------------------
+	# code to expand G80-G89 macro code - canned cycles
+	# example:
+	# code to expand G83 code - peck drilling cycle
+	# format:	(G98 / G99 opt.) G83 X~ Y~ Z~ A~ R~ L~ Q~
+	# example:	N150 G98 G83 Z-1.202 R18. Q10. F50.
+	#			...
+	#			G80
+	# Notes: G98, G99, Z, R, Q, F are unordered parameters
+	#----------------------------------------------------------------------
+	def macroGroupG8X(self):
+		lines = []
+
+		#print "x=",self.x
+		#print "y=",self.y
+		#print "z=",self.z
+		#print "dx=",self.dx
+		#print "dy=",self.dy
+		#print "dz=",self.dz
+		#print "abs=",self.absolute,"retract=",self.retractz
+
+		# FIXME Assuming only on plane XY
+		if self.absolute:
+			# FIXME is it correct?
+			self.lval = 1
+			if self.retractz:
+				clearz = max(self.rval, self.z)
+			else:
+				clearz = self.rval
+			drill   = self.zval
+			retract = self.rval
+		else:
+			clearz  = self.z + self.rval
+			retract = clearz
+			drill   = clearz + self.dz
+		#print "clearz=",clearz
+		#print "drill=",drill
+
+		if self.gcode == 83:	# peck drilling
+			peck = self.qval
+		else:
+			peck = 100000.0	# a large value
+
+		x,y,z = self.x, self.y, self.z
+		if z < clearz:
+			z = clearz
+			lines.append(CNC.grapid(z=z))
+
+		for l in range(self.lval):
+			# Rapid move parallel to XY
+			x += self.dx
+			y += self.dy
+			lines.append(CNC.grapid(x,y))
+
+			# Rapid move parallel to retract
+			zstep = max(drill, retract - peck)
+			while z > drill:
+				if z != retract:
+					z = retract
+					lines.append(CNC.grapid(z=z))
+
+				z = max(drill, zstep)
+				zstep -= peck
+
+				# Drill to z
+				lines.append(CNC.gline(z=z,f=self.feed))
+
+			# 82=dwell, 86=boring-stop, 89=boring-dwell
+			if self.gcode in (82,86,89):
+				lines.append(CNC._gcode(4,p=self.pval))
+
+				if self.gcode == 86:
+					lines.append("M5")	# stop spindle???
+
+			# Move to original position
+			if self.gcode in (85,89):	# boring cycle
+				z = retract
+				lines.append(CNC.gline(z=z,f=self.feed))
+
+			z = clearz
+			lines.append(CNC.grapid(z=z))
+
+			if self.gcode == 86:
+				lines.append("M3")	# restart spindle???
+		#print "-"*50
+		#for a in lines: print a
+		#print "-"*50
 		return lines
 
 #==============================================================================
@@ -2839,8 +2945,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def compile(self):
 		autolevel = not self.probe.isEmpty()
-		lines = []
-		paths = []
+		lines  = []
+		paths  = []
 		self.initPath()
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
@@ -2859,10 +2965,11 @@ class GCode:
 						paths.append((i,j))
 					continue
 
+				skip   = False
+				expand = None
 				self.cnc.motionStart(cmds)
 				if autolevel:
 					xyz = self.cnc.motionPath()
-					self.cnc.motionEnd()
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement
 						# commands, just append the line as-is
@@ -2890,10 +2997,36 @@ class GCode:
 								feed = ""
 							x1,y1,z1 = x2,y2,z2
 						lines[-1] = lines[-1].strip()
+						self.cnc.motionEnd()
 						continue
+
 				else:
-					# Canned cycles should come here
-					self.cnc.motionEnd()
+					# FIXME expansion policy here variable needed
+					# Canned cycles
+					if CNC.drillPolicy==1 and \
+					   self.cnc.gcode in (81,82,83,85,86,89):
+						expand = self.cnc.macroGroupG8X()
+
+					# Tool change
+					elif self.cnc.mval == 6:
+						if CNC.toolPolicy == 0:
+							pass	# send to grbl
+						elif CNC.toolPolicy == 1:
+							skip = True	# skip whole line
+						elif CNC.toolPolicy >= 2:
+							expand = CNC.compile(self.cnc.toolChange())
+
+				self.cnc.motionEnd()
+
+				if expand:
+					lines.extend(expand)
+					paths.extend([None]*len(expand))
+					expand = None
+					continue
+
+				elif skip:
+					skip = False
+					continue
 
 				for cmd in cmds:
 					c = cmd[0]
@@ -2901,22 +3034,8 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
-					else:
-						# Tool change
-						if c in ("m","M") and int(cmd[1:])==6:
-							if CNC.toolPolicy == 0:
-								pass	# send to grbl
-							elif CNC.toolPolicy == 1:
-								cmd = None	# skip whole line
-							elif CNC.toolPolicy >= 2:
-								toollines = CNC.compile(self.cnc.toolChange())
-								lines.extend(toollines)
-								paths.extend([None]*len(toollines))
-								cmd = None
-						else:
-							opt = ERROR_HANDLING.get(cmd.upper(),0)
-							if opt == SKIP:
-								cmd = None
+					#else:
+					#	opt = ERROR_HANDLING.get(cmd.upper(),0)
 					if cmd is not None:
 						newcmd.append(cmd)
 

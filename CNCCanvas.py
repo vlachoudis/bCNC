@@ -1073,8 +1073,8 @@ class CNCCanvas(Canvas):
 		self.initPosition()
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
-			block.resetPath()
 			start = True	# start location found
+			block.resetPath()
 			for j,line in enumerate(block):
 				#cmd = self.cnc.parseLine(line)
 				try:

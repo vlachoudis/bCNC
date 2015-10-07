@@ -57,10 +57,10 @@ class Bowl:
 				currRadius = 0.
 				while radius > currRadius+stepxy:
 					currRadius += stepxy
-					block.append(CNC.gline(1,currRadius, 0))
+					block.append(CNC.gline(currRadius, 0))
 					addCircumference(currRadius)
 				if radius-currRadius > 0:
-					block.append(CNC.gline(1,radius, 0))
+					block.append(CNC.gline(radius, 0))
 					addCircumference(radius)
 			else:
 				block.append(CNC.grapid(radius, 0.))
