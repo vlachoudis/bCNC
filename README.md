@@ -42,6 +42,7 @@ installation directory.
     sending.
   - height color map display
   - **manual tool change** expansion and automatic tool length probing
+  - **canned cycles** expansion
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
