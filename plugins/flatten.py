@@ -20,7 +20,7 @@ from ToolsPage import Plugin
 from fractions import gcd
 
 #==============================================================================
-#Spirograph class
+#Flatten class
 #==============================================================================
 class Flatten:
 	def __init__(self,name="Flatten"):
@@ -33,21 +33,20 @@ class Flatten:
 		#GCode Blocks
 		blocks = []
 
-		#Add Region (disabled?)
-		block = Block("Region "+self.name)
+		#Add Region disabled to show worked area
+		block = Block(self.name + " Outline")
 		block.enable = False
 		block.append(CNC.zsafe())
 		xR,yR = self.RectPath(XStart,YStart,FlatWidth,FlatHeight)
 		for x,y in zip(xR,yR):
-			block.append(CNC.grapid(x,y))
-
+			block.append(CNC.gline(x,y))
 		blocks.append(block)
 
 		# Load tool and material settings
 		toolDiam = CNC.vars['diameter']
 		toolRadius = toolDiam / 2.
 
-		#Calc tool diameter with Maximum Step Over
+		#Calc tool diameter with Maximum Step Over allowed
 		StepOverInUnitMax = toolDiam * CNC.vars['stepover'] / 100.0
 
 		#Offset for Border Cut
@@ -62,11 +61,11 @@ class Flatten:
 		PocketYStart = BorderYStart
 		PocketXEnd = BorderXEnd
 		PocketYEnd = BorderYEnd
-
-		#Calc space to work without/with border cut
+		
+		#Calc space to work with/without border cut
 		WToWork = FlatWidth - toolDiam
 		HToWork = FlatHeight - toolDiam
-
+		
 		if(BorderPass and PocketType == "Raster"):
 			PocketXStart += StepOverInUnitMax
 			PocketYStart += StepOverInUnitMax
@@ -75,11 +74,15 @@ class Flatten:
 			WToWork -= (StepOverInUnitMax)
 			HToWork -= (StepOverInUnitMax)
 
-		#Calc points for pocketing
+		#Prepare points for pocketing 
 		xP=[]
 		yP=[]
+        #and border
+		xB=[]
+		yB=[]
 
-		#Raster approach
+        #---------------------------------------------------------------------
+        #Raster approach
 		if PocketType == "Raster":
 			#Calc number of pass
 			VerticalCount = (int)(HToWork / StepOverInUnitMax)
@@ -103,7 +106,7 @@ class Flatten:
 				ActualY += StepOverInUnit
 				xP.append(self.ZigZag(flip,PocketXStart,PocketXEnd))
 				yP.append(ActualY)
-
+				
 			#Points for border cut depends on Zig/Zag end
 			if(BorderPass):
 				if flip:
@@ -116,13 +119,12 @@ class Flatten:
 					xB = xB[::-1]
 					yB = yB[::-1]
 
-		#Offset approach
+		#---------------------------------------------------------------------
+        #Offset approach
 		if PocketType == "Offset":
 			#Calc number of even pass
 			VerticalCount = (int)(HToWork / StepOverInUnitMax)
-			HorrizontalCount = (int)(WToWork / StepOverInUnitMax)
-			#if (VerticalCount % 2 != 0):VerticalCount += 1
-			#if (HorrizontalCount % 2 != 0):HorrizontalCount += 1
+			HorrizontalCount = (int)(WToWork / StepOverInUnitMax)			
 			#Calc step minor of Max step
 			StepOverInUnitH = HToWork / (VerticalCount)
 			StepOverInUnitW = WToWork / (HorrizontalCount)
@@ -136,23 +138,24 @@ class Flatten:
 			yC = 0
 			count = 0
 			while (xC<HorrizontalCount/2 and yC<VerticalCount/2):
-				xT,yT = self.RectPath(xS, yS, wS, hS)
+                #Pocket offset points
+				xO,yO = self.RectPath(xS, yS, wS, hS)
 				if CutDirection == "Conventional":
-					xT = xT[::-1]
-					yT = yT[::-1]
-				xP = xP + xT
-				yP = yP + yT
+					xO = xO[::-1]
+					yO = yO[::-1] 
+
+				xP = xP + xO
+				yP = yP + yO
 				xS+=StepOverInUnitH
 				yS+=StepOverInUnitW
 				hS-=2.0*StepOverInUnitH
 				wS-=2.0*StepOverInUnitW
 				xC += 1
 				yC += 1
-
-			#Reverse point to start from internal (less stres tool)
+			
+			#Reverse point to start from inside (less stres on the tool)
 			xP = xP[::-1]
 			yP = yP[::-1]
-
 
 		#Blocks for pocketing
 		block = Block(self.name)
@@ -167,6 +170,7 @@ class Flatten:
 		stepz = CNC.vars['stepz']
 		if stepz==0 : stepz=0.001  #avoid infinite while loop
 
+        #Create GCode from points
 		while True:
 			currDepth -= stepz
 			if currDepth < FlatDepth : currDepth = FlatDepth
@@ -174,16 +178,15 @@ class Flatten:
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
 
 			for x,y in zip(xP,yP):
-				block.append(CNC.gline(1,x,y))
+				block.append(CNC.gline(x,y))
 
 			#Border cut if request
-			if(BorderPass and PocketType == "Raster"):
-				for x,y in zip(xB,yB):
-					block.append(CNC.gline(1,x,y))
+			for x,y in zip(xB,yB):
+				block.append(CNC.gline(x,y))
 
 			#Verify exit condition
 			if currDepth <= FlatDepth : break
-
+			
 			#Move to the begin in a safe way
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xP[0],yP[0]))
@@ -217,7 +220,7 @@ class Flatten:
 			return zag
 
 #==============================================================================
-# Create a sphirograph plot
+# Create a flatten surface
 #==============================================================================
 class Tool(Plugin):
 	"""Create a flattening path"""
@@ -225,14 +228,12 @@ class Tool(Plugin):
 		Plugin.__init__(self, master)
 		self.name = "Flatten"
 		self.icon = "flatten"
-		w = CNC.travel_x
-		h = CNC.travel_y
 		self.variables = [
 			("name",           "db",    "", "Name"),
 			("XStart"  ,       "mm",   0.0, "X start"),
 			("YStart"  ,       "mm",   0.0, "Y start"),
 			("FlatWidth" ,     "mm",   30.0, "Width to flatten"),
-			("FlatHeight"  ,   "mm",   25.0, "Height to flatten"),
+			("FlatHeight"  ,   "mm",   20.0, "Height to flatten"),
 			("FlatDepth"  ,    "mm",    0.0, "Depth to flatten"),
 			("BorderPass"  , "bool",  True , "Raster border"),
 			("CutDirection", "Climb,Conventional","Climb", "Cut Direction"),
@@ -260,9 +261,4 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Flatten")
 		app.refresh()
 		app.setStatus("Generated flatten surface")
-
-if __name__=="__main__":
-	spirograph = Spirograph()
-	spirograph.make()
-
 
