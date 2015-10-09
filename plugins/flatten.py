@@ -55,26 +55,18 @@ class Flatten:
 		BorderWidth = FlatWidth - toolDiam
 		BorderHeight = FlatHeight - toolDiam
 		BorderXEnd = XStart + FlatWidth - toolRadius
-		BorderYEnd = XStart + FlatHeight - toolRadius
+		BorderYEnd = YStart + FlatHeight - toolRadius
 
 		PocketXStart = BorderXStart
 		PocketYStart = BorderYStart
 		PocketXEnd = BorderXEnd
 		PocketYEnd = BorderYEnd
-		
+
 		#Calc space to work with/without border cut
 		WToWork = FlatWidth - toolDiam
 		HToWork = FlatHeight - toolDiam
-		
-		if(BorderPass and PocketType == "Raster"):
-			PocketXStart += StepOverInUnitMax
-			PocketYStart += StepOverInUnitMax
-			PocketXEnd -= StepOverInUnitMax
-			PocketYEnd -= StepOverInUnitMax
-			WToWork -= (StepOverInUnitMax)
-			HToWork -= (StepOverInUnitMax)
 
-		#Prepare points for pocketing 
+		#Prepare points for pocketing
 		xP=[]
 		yP=[]
         #and border
@@ -84,12 +76,21 @@ class Flatten:
         #---------------------------------------------------------------------
         #Raster approach
 		if PocketType == "Raster":
+			#Correct sizes if border is used
+			if(BorderPass):
+				PocketXStart += StepOverInUnitMax
+				PocketYStart += StepOverInUnitMax
+				PocketXEnd -= StepOverInUnitMax
+				PocketYEnd -= StepOverInUnitMax
+				WToWork -= (StepOverInUnitMax)
+				HToWork -= (StepOverInUnitMax)
+
 			#Calc number of pass
 			VerticalCount = (int)(HToWork / StepOverInUnitMax)
 			#Calc step minor of Max step
 			StepOverInUnit = HToWork / (VerticalCount +1)
 			flip = False
-			ActualY = PocketXStart
+			ActualY = PocketYStart
 			#Zig zag
 			if StepOverInUnit==0 : StepOverInUnit=0.001  #avoid infinite while loop
 			while (True):
@@ -106,7 +107,7 @@ class Flatten:
 				ActualY += StepOverInUnit
 				xP.append(self.ZigZag(flip,PocketXStart,PocketXEnd))
 				yP.append(ActualY)
-				
+
 			#Points for border cut depends on Zig/Zag end
 			if(BorderPass):
 				if flip:
@@ -122,9 +123,12 @@ class Flatten:
 		#---------------------------------------------------------------------
         #Offset approach
 		if PocketType == "Offset":
-			#Calc number of even pass
+			#Calc number of pass
 			VerticalCount = (int)(HToWork / StepOverInUnitMax)
-			HorrizontalCount = (int)(WToWork / StepOverInUnitMax)			
+			HorrizontalCount = (int)(WToWork / StepOverInUnitMax)
+			#Make them odd
+			if VerticalCount%2 == 0 : VerticalCount += 1
+			if HorrizontalCount%2 == 0 : HorrizontalCount += 1
 			#Calc step minor of Max step
 			StepOverInUnitH = HToWork / (VerticalCount)
 			StepOverInUnitW = WToWork / (HorrizontalCount)
@@ -136,13 +140,12 @@ class Flatten:
 			hS = HToWork
 			xC = 0
 			yC = 0
-			count = 0
-			while (xC<HorrizontalCount/2 and yC<VerticalCount/2):
-                #Pocket offset points
+			while (xC<=HorrizontalCount/2 and yC<=VerticalCount/2):
+				#Pocket offset points
 				xO,yO = self.RectPath(xS, yS, wS, hS)
 				if CutDirection == "Conventional":
 					xO = xO[::-1]
-					yO = yO[::-1] 
+					yO = yO[::-1]
 
 				xP = xP + xO
 				yP = yP + yO
@@ -152,15 +155,17 @@ class Flatten:
 				wS-=2.0*StepOverInUnitW
 				xC += 1
 				yC += 1
-			
+
 			#Reverse point to start from inside (less stres on the tool)
 			xP = xP[::-1]
 			yP = yP[::-1]
 
 		#Blocks for pocketing
 		block = Block(self.name)
-		block.append("(Flat Surface from X=%g Y=%g)"%(XStart,YStart))
+		block.append("(Flatten from X=%g Y=%g)"%(XStart,YStart))
 		block.append("(W=%g x H=%g x D=%g)"%(FlatWidth,FlatHeight,FlatDepth))
+		block.append("(Approach: %s %s)" % (PocketType,CutDirection))
+		if BorderPass : block.append("(with border)")
 
 		#Move safe to first point
 		block.append(CNC.zsafe())
@@ -170,13 +175,14 @@ class Flatten:
 		stepz = CNC.vars['stepz']
 		if stepz==0 : stepz=0.001  #avoid infinite while loop
 
-        #Create GCode from points
+		#Create GCode from points
 		while True:
 			currDepth -= stepz
 			if currDepth < FlatDepth : currDepth = FlatDepth
 			block.append(CNC.zenter(currDepth))
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
 
+			#Pocketing
 			for x,y in zip(xP,yP):
 				block.append(CNC.gline(x,y))
 
@@ -186,7 +192,7 @@ class Flatten:
 
 			#Verify exit condition
 			if currDepth <= FlatDepth : break
-			
+
 			#Move to the begin in a safe way
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xP[0],yP[0]))
