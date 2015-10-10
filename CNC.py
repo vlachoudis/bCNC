@@ -2607,7 +2607,6 @@ class GCode:
 					if m not in msg:
 						if msg: msg += "\n"
 						msg += m
-				#print "path=",path
 				path.removeZeroLength()
 				D = path.direction()
 				if D==0: D=1
@@ -2619,8 +2618,9 @@ class GCode:
 					newname = Block.operationName(path.name, "in")
 
 				opath = path.offset(D*offset, newname)
-				opath.intersect()
-				opath.removeExcluded(path, D*offset)
+				if opath:
+					opath.intersect()
+					opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
 				if opath:
 					if overcut:

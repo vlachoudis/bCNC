@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.5"
-__date__    = "7 Oct 2015"
+__version__ = "0.6.6"
+__date__    = "10 Oct 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -1451,7 +1451,7 @@ class Application(Toplevel,Sender):
 				"Gcode was modified do you want to save it first?",
 				parent=self)
 			if ans==tkMessageBox.YES or ans==True:
-				self.save()
+				self.saveAll()
 
 		self.setStatus("Loading: %s ..."%(filename), True)
 		Sender.load(self,filename)

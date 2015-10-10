@@ -109,9 +109,11 @@ class Segment:
 	#----------------------------------------------------------------------
 	def setCenter(self, c):
 		self.center = c
-		self.radius = (self.start-self.center).length()	# based on starting point
+		self.radius   = (self.start-self.center).length()	# based on starting point
 		self.startPhi = atan2(self.start[1]-c[1], self.start[0]-c[0])
-		self.endPhi   = atan2(self.end[1]-c[1], self.end[0]-c[0])
+		self.endPhi   = atan2(self.end[1]  -c[1], self.end[0]  -c[0])
+		if abs(self.startPhi)<EPS0: self.startPhi = 0.0
+		if abs(self.endPhi)  <EPS0: self.endPhi   = 0.0
 		self._correct()
 		self.calcBBox()
 
@@ -586,15 +588,20 @@ class Path(list):
 		else:
 			prev = None
 			Op   = None	# previous orthogonal
-		#import pdb; pdb.set_trace()
 		for segment in self:
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
 			# Join with the previous edge
-			if Op is not None and not eq(Eo,So):
+			if eq(Eo,So):
+				# possibly a full circle
+				if segment.type != LINE:
+					path.append(Segment(segment.type, Eo, So, segment.center))
+
+			elif Op is not None:
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if (prev.type!=LINE and segment.type!=LINE) or (abs(cross)>EPS and cross*offset > 0):
+				if (prev.type!=LINE and segment.type!=LINE) or \
+				   (abs(cross)>EPS and cross*offset > 0):
 					# either a circle
 					t = offset>0 and CW or CCW
 					path.append(Segment(t, Eo, So, segment.start))
