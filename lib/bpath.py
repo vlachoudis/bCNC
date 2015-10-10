@@ -594,7 +594,7 @@ class Path(list):
 			# Join with the previous edge
 			if eq(Eo,So):
 				# possibly a full circle
-				if segment.type != LINE:
+				if segment.type != LINE and len(self)==1:
 					path.append(Segment(segment.type, Eo, So, segment.center))
 
 			elif Op is not None:
