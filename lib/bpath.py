@@ -438,6 +438,12 @@ class Path(list):
 		return self and eq(self[0].start, self[-1].end)
 
 	#----------------------------------------------------------------------
+	# Close path by connecting the with a line segment
+	#----------------------------------------------------------------------
+	def close(self):
+		self.append(Segment(LINE, self[-1].end, self[0].start))
+
+	#----------------------------------------------------------------------
 	# @return total length of path
 	#----------------------------------------------------------------------
 	def length(self):
@@ -577,8 +583,9 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Return path with offset
 	#----------------------------------------------------------------------
-	def offset(self, offset, name):
+	def offset(self, offset, name=None):
 		start = time.time()
+		if name is None: name = self.name
 		path = Path(name)
 
 		if self.isClosed():
@@ -863,7 +870,7 @@ class Path(list):
 				# split it into multiple line segments
 				xy = list(zip(entity[10], entity[20]))
 				bulge = entity.bulge()
-				if not isinstance(bulge,list): bulge = [bulge]
+				if not isinstance(bulge,list): bulge = [bulge]*len(xy)
 				if entity._invert:
 					xy.reverse()
 					# reverse and negate bulge
