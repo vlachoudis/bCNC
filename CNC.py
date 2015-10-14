@@ -2644,6 +2644,8 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def _pocket(self, path, diameter, stepover, depth):
+		#print "_pocket",depth
+		#if depth>10: return None
 		if depth == 0:
 			offset = diameter / 2.0
 		else:

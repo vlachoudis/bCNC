@@ -604,11 +604,12 @@ class Path(list):
 		else:
 			prev = None
 			Op   = None	# previous orthogonal
+			Eo   = None
 		for segment in self:
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
 			# Join with the previous edge
-			if eq(Eo,So):
+			if Eo is not None and eq(Eo,So):
 				# possibly a full circle
 				if segment.type != LINE and len(self)==1:
 					path.append(Segment(segment.type, Eo, So, segment.center))
