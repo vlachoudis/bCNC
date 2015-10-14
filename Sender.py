@@ -5,8 +5,6 @@
 # Author: vvlachoudis@gmail.com
 # Date: 17-Jun-2015
 
-__version__ = "0.4.9"
-__date__    = "15 Jun 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -35,7 +33,7 @@ WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
 SERIAL_POLL   = 0.125	# s
 G_POLL        = 10	# s
 
-RX_BUFFER_SIZE = 127
+RX_BUFFER_SIZE = 128
 
 GPAT     = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -580,6 +578,7 @@ class Sender:
 		sline  = []		# pipeline commands
 		wait   = False		# wait for commands to complete
 		tosend = None		# next string to send
+		status = False		# waiting for status <...> report
 		tr = tg = time.time()	# last time a ? or $G was send to grbl
 
 		while self.thread:
@@ -589,6 +588,7 @@ class Sender:
 			if t-tr > SERIAL_POLL:
 				# Send one ?
 				self.serial.write(b"?")
+				status = True
 				#print ">S> ?"
 				tr = t
 
@@ -672,6 +672,8 @@ class Sender:
 					if line[0]=="<":
 						pat = STATUSPAT.match(line)
 						if pat:
+							if not status: self.log.put((False, line+"\n"))
+							status = False
 							if not self._alarm:
 								CNC.vars["state"] = pat.group(1)
 							CNC.vars["mx"] = float(pat.group(2))
@@ -763,7 +765,7 @@ class Sender:
 				self._stop = False
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
-			if tosend is not None and sum(cline) <= RX_BUFFER_SIZE-2:
+			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
