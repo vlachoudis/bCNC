@@ -1358,13 +1358,13 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def pocket(self, name=None):
 		tool = self.tools["EndMill"]
-		ofs  = -self.tools.fromMm(tool["diameter"]) * \
-		        self.tools.fromMm(tool["stepover"]) / 100.0
+		diameter = self.tools.fromMm(tool["diameter"])
+		stepover = self.tools.fromMm(tool["stepover"]) / 100.0
 
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.pocket(blocks, ofs, name)
+		msg = self.gcode.pocket(blocks, diameter, stepover, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),

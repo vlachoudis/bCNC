@@ -2643,7 +2643,11 @@ class GCode:
 		return msg
 
 	#----------------------------------------------------------------------
-	def _pocket(self, path, offset):
+	def _pocket(self, path, diameter, stepover, depth):
+		if depth == 0:
+			offset = diameter / 2.0
+		else:
+			offset = diameter*stepover
 		opath = path.offset(offset)
 		if not opath: return None
 
@@ -2654,30 +2658,37 @@ class GCode:
 		if not opath: return None
 
 		newpath = []
-		for p in opath:
-			pin = self._pocket(p, offset)
+		for pout in opath:
+			pin = self._pocket(pout, diameter, stepover, depth+1)
 			if not pin:
-				newpath.append(p)
+				newpath.append(pout)
 
+			#else:	# FIXME
+				# 1. Find closest node that we can move with
+				#    a straight line without intersecting the path
+				# 2. rotate the pout to start from this node
+				# 3. join with a normal line
+				# else
+				# join with a rapid move as a separate path
 			elif len(pin)==1:
 				# FIXME maybe it is dangerous!!
 				# Have to check before making a straight move
-				pin[0].join(p)
+				pin[0].join(pout)
 				newpath.append(pin[0])
 
 			else:
 				# FIXME needs to check if we can go in normal move
 				# needs to find the closest segment and rotate
-				#pin[-1].join(p)
+				#pin[-1].join(pout)
 				newpath.extend(pin)
-				newpath.append(p)
+				newpath.append(pout)
 		return newpath
 
 	#----------------------------------------------------------------------
 	# make a pocket on block
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def pocket(self, blocks, diameter, name):
+	def pocket(self, blocks, diameter, stepover, name):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -2699,7 +2710,7 @@ class GCode:
 				else:
 					path.name = Block.operationName(path.name, name)
 
-				newpath.extend(self._pocket(path, D*diameter))
+				newpath.extend(self._pocket(path, -D*diameter, stepover, 0))
 
 			if newpath:
 				# remember length to shift all new blocks
