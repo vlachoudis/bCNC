@@ -209,16 +209,17 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
-		lframe = LabelFrame(self, text="Common", foreground="DarkBlue")
+		lframe = tkExtra.ExLabelFrame(self, text="Common", foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
+		frame = lframe.frame
 
 		# ----
 		row = 0
 		col = 0
 
-		Label(lframe, text="Probe Feed:").grid(row=row, column=col, sticky=E)
+		Label(frame, text="Probe Feed:").grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(lframe, background="White", width=5)
+		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
 		ProbeCommonFrame.probeFeed.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.probeFeed, "Set probe feed rate")
 		self.addWidget(ProbeCommonFrame.probeFeed)
@@ -227,9 +228,9 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# Tool offset
 		row += 1
 		col  = 0
-		Label(lframe, text="TLO").grid(row=row, column=col, sticky=E)
+		Label(frame, text="TLO").grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.tlo = tkExtra.FloatEntry(lframe, background="White")
+		ProbeCommonFrame.tlo = tkExtra.FloatEntry(frame, background="White")
 		ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.tlo, "Set tool offset for probing")
 		self.addWidget(ProbeCommonFrame.tlo)
@@ -237,7 +238,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		self.tlo.bind("<KP_Enter>", self.tloSet)
 
 		col += 1
-		b = Button(lframe, text="set",
+		b = Button(frame, text="set",
 				command=self.tloSet,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
@@ -247,16 +248,16 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# feed command
 		row += 1
 		col  = 0
-		Label(lframe, text="Probe Command").grid(row=row, column=col, sticky=E)
+		Label(frame, text="Probe Command").grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.probeCmd = tkExtra.Combobox(lframe, True,
+		ProbeCommonFrame.probeCmd = tkExtra.Combobox(frame, True,
 						background="White",
 						width=16)
 		ProbeCommonFrame.probeCmd.grid(row=row, column=col, sticky=EW)
 		ProbeCommonFrame.probeCmd.fill(PROBE_CMD)
 		self.addWidget(ProbeCommonFrame.probeCmd)
 
-		lframe.grid_columnconfigure(1,weight=1)
+		frame.grid_columnconfigure(1,weight=1)
 		self.loadConfig()
 
 	#----------------------------------------------------------------------

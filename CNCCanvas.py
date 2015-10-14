@@ -1293,6 +1293,7 @@ class CanvasFrame(Frame):
 	def createCanvasToolbar(self, toolbar):
 		b = OptionMenu(toolbar, self.view, *VIEWS)
 		b.config(padx=0, pady=1)
+		b.unbind("F10")
 		b.pack(side=LEFT)
 		tkExtra.Balloon.set(b, "Change viewing angle")
 

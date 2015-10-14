@@ -2594,7 +2594,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset, cut=False, overcut=False, name=None):
+	def profile(self, blocks, offset, overcut=False, name=None):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -2619,7 +2619,7 @@ class GCode:
 
 				opath = path.offset(D*offset, newname)
 				if opath:
-					opath.intersect()
+					opath.intersectSelf()
 					opath.removeExcluded(path, D*offset)
 				opath = opath.split2contours()
 				if opath:
@@ -2631,6 +2631,82 @@ class GCode:
 				# remember length to shift all new blocks the are inserted before
 				before = len(newblocks)
 				undoinfo.extend(self.importPath(bid+1, newpath, newblocks, True, False))
+				new = len(newblocks)-before
+				for i in range(before):
+					newblocks[i] += new
+				self.blocks[bid].enable = False
+		self.addUndo(undoinfo)
+
+		# return new blocks inside the blocks list
+		del blocks[:]
+		blocks.extend(newblocks)
+		return msg
+
+	#----------------------------------------------------------------------
+	def _pocket(self, path, offset):
+		opath = path.offset(offset)
+		if not opath: return None
+
+		opath.intersectSelf()
+		opath.removeExcluded(path, offset)
+		opath = opath.split2contours()
+
+		if not opath: return None
+
+		newpath = []
+		for p in opath:
+			pin = self._pocket(p, offset)
+			if not pin:
+				newpath.append(p)
+
+			elif len(pin)==1:
+				# FIXME maybe it is dangerous!!
+				# Have to check before making a straight move
+				pin[0].join(p)
+				newpath.append(pin[0])
+
+			else:
+				# FIXME needs to check if we can go in normal move
+				# needs to find the closest segment and rotate
+				#pin[-1].join(p)
+				newpath.extend(pin)
+				newpath.append(p)
+		return newpath
+
+	#----------------------------------------------------------------------
+	# make a pocket on block
+	# return new blocks inside the blocks list
+	#----------------------------------------------------------------------
+	def pocket(self, blocks, diameter, name):
+		undoinfo = []
+		msg = ""
+		newblocks = []
+		for bid in reversed(blocks):
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
+			newpath = []
+			for path in self.toPath(bid):
+				if not path.isClosed():
+					m = "Path: '%s' is OPEN"%(path.name)
+					if m not in msg:
+						if msg: msg += "\n"
+						msg += m
+					path.close()
+				path.removeZeroLength()
+				D = path.direction()
+				if D==0: D=1
+				if name is None:
+					path.name = Block.operationName(path.name, "pocket")
+				else:
+					path.name = Block.operationName(path.name, name)
+
+				newpath.extend(self._pocket(path, D*diameter))
+
+			if newpath:
+				# remember length to shift all new blocks
+				# the are inserted before
+				before = len(newblocks)
+				undoinfo.extend(self.importPath(bid+1, newpath,
+					newblocks, True, False))
 				new = len(newblocks)-before
 				for i in range(before):
 					newblocks[i] += new

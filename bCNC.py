@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.6"
-__date__    = "10 Oct 2015"
+__version__ = "0.6.7"
+__date__    = "14 Oct 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -310,15 +310,6 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolDelete>>',	tools.delete)
 		self.bind('<<ToolClone>>',	tools.clone)
 		self.bind('<<ToolRename>>',	tools.rename)
-
-#		self.bind('<F1>',		self.help)
-#		self.bind('<F2>',		self.rename)
-#		self.bind('<F3>',		self.canvasFrame.viewXY)
-#		self.bind('<F4>',		self.canvasFrame.viewXZ)
-#		self.bind('<F5>',		self.canvasFrame.viewYZ)
-#		self.bind('<F6>',		self.canvasFrame.viewISO1)
-#		self.bind('<F7>',		self.canvasFrame.viewISO2)
-#		self.bind('<F8>',		self.canvasFrame.viewISO3)
 
 		self.bind('<Up>',		self.control.moveYup)
 		self.bind('<Down>',		self.control.moveYdown)
@@ -894,12 +885,12 @@ class Application(Toplevel,Sender):
 		except:
 			tkMessageBox.showerror("Evaluation error",
 				sys.exc_info()[1], parent=self)
-			return
+			return "break"
 		#print ">>>",line
 
-		if line is None: return
+		if line is None: return "break"
 
-		if self.executeGcode(line): return
+		if self.executeGcode(line): return "break"
 
 		oline = line.strip()
 		line  = oline.replace(","," ").split()
@@ -1008,7 +999,7 @@ class Application(Toplevel,Sender):
 
 		# MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
 		elif rexx.abbrev("MIRROR",cmd,3):
-			if len(line)==1: return
+			if len(line)==1: return "break"
 			line1 = line[1].upper()
 			#if nothing is selected:
 			self.editor.selectAll()
@@ -1028,7 +1019,7 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("MOVE",cmd,2):
 			if len(line)==1:
 				self.canvas.setActionMove()
-				return
+				return "break"
 			line1 = line[1].upper()
 			dz = 0.0
 			if rexx.abbrev("CENTER",line1,2):
@@ -1093,6 +1084,10 @@ class Application(Toplevel,Sender):
 			except: dz = 0.0
 			self.editor.selectAll()
 			self.executeOnSelection("MOVE", False, dx,dy,dz)
+
+		# POC*KET: create pocket path
+		elif rexx.abbrev("POCKET",cmd,3):
+			self.pocket()
 
 		# PROF*ILE [offset]: create profile path
 		elif rexx.abbrev("PROFILE",cmd,3):
@@ -1242,10 +1237,10 @@ class Application(Toplevel,Sender):
 							idx = i
 							break
 				except:
-					return
+					return "break"
 			if idx<0 or idx>=n:
 				self.setStatus("Invalid user command %s"%(line[1]))
-				return
+				return "break"
 			cmd = Utils.getStr("Buttons","command.%d"%(idx),"")
 			for line in cmd.splitlines():
 				self.execute(line)
@@ -1277,7 +1272,7 @@ class Application(Toplevel,Sender):
 			rc = self.executeCommand(oline)
 			if rc:
 				tkMessageBox.showerror(rc[0],rc[1], parent=self)
-			return
+			return "break"
 
 	#-----------------------------------------------------------------------
 	# Execute a command over the selected lines
@@ -1326,7 +1321,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#-----------------------------------------------------------------------
-	def profile(self, direction=None, offset=0.0, cut=False, overcut=False, name=None):
+	def profile(self, direction=None, offset=0.0, overcut=False, name=None):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1349,7 +1344,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.profile(blocks, ofs*sign, cut, overcut, name)
+		msg = self.gcode.profile(blocks, ofs*sign, overcut, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
@@ -1359,6 +1354,26 @@ class Application(Toplevel,Sender):
 		self.draw()
 		self.notBusy()
 		self.setStatus("Profile block distance=%g"%(ofs*sign))
+
+	#-----------------------------------------------------------------------
+	def pocket(self, name=None):
+		tool = self.tools["EndMill"]
+		ofs  = -self.tools.fromMm(tool["diameter"]) * \
+		        self.tools.fromMm(tool["stepover"]) / 100.0
+
+		self.busy()
+		blocks = self.editor.getSelectedBlocks()
+		# on return we have the blocks with the new blocks to select
+		msg = self.gcode.pocket(blocks, ofs, name)
+		if msg:
+			tkMessageBox.showwarning("Open paths",
+					"WARNING: %s"%(msg),
+					parent=self)
+		self.editor.fill()
+		self.editor.selectBlocks(blocks)
+		self.draw()
+		self.notBusy()
+#		self.setStatus("Pocket block distance=%g"%(ofs*sign))
 
 	#-----------------------------------------------------------------------
 	def edit(self, event=None):

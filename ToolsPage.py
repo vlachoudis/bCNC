@@ -625,8 +625,7 @@ class Profile(DataBase):
 			("endmill",   "db" ,    "", "End Mill"),
 			("direction","inside,outside" , "outside", "Direction"),
 			("offset",   "float",  0.0, "Additional offset distance"),
-			("overcut",  "bool",     1, "Overcut"),
-			("cut",      "bool",     0, "Cut")
+			("overcut",  "bool",     1, "Overcut")
 		]
 		self.buttons.append("exe")
 
@@ -637,8 +636,30 @@ class Profile(DataBase):
 		direction = self["direction"]
 		name = self["name"]
 		if name=="default" or name=="": name=None
-		app.profile(direction, self["offset"], self["cut"], self["overcut"], name)
+		app.profile(direction, self["offset"], self["overcut"], name)
 		app.setStatus("Generate profile path")
+
+#==============================================================================
+# Pocket
+#==============================================================================
+class Pocket(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "Pocket"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("endmill",   "db" ,    "", "End Mill"),
+		]
+		self.buttons.append("exe")
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		if self["endmill"]:
+			self.master["endmill"].makeCurrent(self["endmill"])
+		name = self["name"]
+		if name=="default" or name=="": name=None
+		app.pocket(name)
+		app.setStatus("Generate pocket path")
 
 #==============================================================================
 # Tools container class
@@ -655,7 +676,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Material, Profile, Shortcut, Stock]:
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Material, Pocket, Profile, Shortcut, Stock]:
 			tool = cls(self)
 			self.addTool(tool)
 
@@ -893,7 +914,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Pocket",
-				state=DISABLED,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Perform a pocket operation on selected code")

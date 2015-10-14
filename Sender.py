@@ -266,6 +266,10 @@ class Sender:
 			else:
 				self.saveAll()
 
+		# SENDHEX: send a hex-char in grbl
+		elif cmd == "SENDHEX":
+			self.sendHex(line[1])
+
 		# STOP: stop current run
 		elif cmd == "STOP":
 			self.stopRun()
@@ -413,6 +417,11 @@ class Sender:
 #		traceback.print_stack()
 		if self.serial and not self.running:
 			self.queue.put(cmd)
+
+	#----------------------------------------------------------------------
+	def sendHex(self, hexcode):
+		self.serial.write(chr(int(hexcode,16)))
+		self.serial.flush()
 
 	#----------------------------------------------------------------------
 	def hardReset(self):

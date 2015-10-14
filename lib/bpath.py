@@ -441,7 +441,16 @@ class Path(list):
 	# Close path by connecting the with a line segment
 	#----------------------------------------------------------------------
 	def close(self):
+		self._length = None
 		self.append(Segment(LINE, self[-1].end, self[0].start))
+
+	#----------------------------------------------------------------------
+	# Join path at the end
+	#----------------------------------------------------------------------
+	def join(self, path):
+		self._length = None
+		self.append(Segment(LINE, self[-1].end, path[0].start))
+		self.extend(path)
 
 	#----------------------------------------------------------------------
 	# @return total length of path
@@ -633,7 +642,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
-	def intersect(self):
+	def intersectSelf(self):
 		start = time.time()
 		i = 0
 		while i<len(self)-2:
