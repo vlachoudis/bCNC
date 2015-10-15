@@ -21,7 +21,7 @@ from bpath import Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
-PARENPAT = re.compile(r"(.*)(\(.*?\))(.*)")
+PARENPAT = re.compile(r"(\(.*?\))")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
@@ -694,12 +694,6 @@ class CNC:
 	@staticmethod
 	def parseLine(line):
 		line = PARENPAT.sub("",line)
-#		while True:	# repeatedly remove parenthesis
-#			pat = PARENPAT.match(line)
-#			if pat:
-#				line = pat.group(1) + pat.group(3)
-#			else:
-#				break
 
 		# skip empty lines
 		if len(line)==0 or line[0] in ("%","(","#",";"):
@@ -2542,6 +2536,18 @@ class GCode:
 		return block
 
 	#----------------------------------------------------------------------
+	# Close paths by joining end with start with a line segment
+	#----------------------------------------------------------------------
+	def close(self, items):
+		undoinfo = []
+		for bid in items:
+			block = self.blocks[bid]
+			if block.name() in ("Header", "Footer"): continue
+			undoinfo.append(self.insLineUndo(bid, sys.maxint,
+					self.cnc.gline(block.sx, block.sy)))
+		self.addUndo(undoinfo)
+
+	#----------------------------------------------------------------------
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
@@ -2602,14 +2608,6 @@ class GCode:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
-				if not path.isClosed():
-					m = "Path: '%s' is OPEN"%(path.name)
-					if m not in msg:
-						if msg: msg += "\n"
-						msg += m
-				path.removeZeroLength()
-				D = path.direction()
-				if D==0: D=1
 				if name is not None:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
@@ -2617,10 +2615,29 @@ class GCode:
 				else:
 					newname = Block.operationName(path.name, "in")
 
+				if not path.isClosed():
+					m = "Path: '%s' is OPEN"%(path.name)
+					if m not in msg:
+						if msg: msg += "\n"
+						msg += m
+
+#				print "ORIGINAL\n",path
+				# Remove tiny segments
+				path.removeZeroLength(abs(offset)/100.)
+				# Convert very small arcs to lines
+				path.convert2Lines(abs(offset)/10.)
+				D = path.direction()
+				if D==0: D=1
+#				print "ZERO\n",path
 				opath = path.offset(D*offset, newname)
+#				print "OFFSET\n",opath
 				if opath:
 					opath.intersectSelf()
+#					print "INTERSECT\n",opath
 					opath.removeExcluded(path, D*offset)
+#					print "EXCLUDE\n",opath
+					opath.removeZeroLength(abs(offset)/100.)
+#					print "REMOVE\n",opath
 				opath = opath.split2contours()
 				if opath:
 					if overcut:
@@ -2645,16 +2662,23 @@ class GCode:
 	#----------------------------------------------------------------------
 	def _pocket(self, path, diameter, stepover, depth):
 		#print "_pocket",depth
-		#if depth>10: return None
+		if depth>10000: return None
 		if depth == 0:
 			offset = diameter / 2.0
 		else:
 			offset = diameter*stepover
+
+#		print
+#		print "PATH=",path
 		opath = path.offset(offset)
+
 		if not opath: return None
 
 		opath.intersectSelf()
+#		print
+#		print "INTERSECT=",opath
 		opath.removeExcluded(path, offset)
+		opath.removeZeroLength(abs(offset)/100.)
 		opath = opath.split2contours()
 
 		if not opath: return None
@@ -2704,7 +2728,12 @@ class GCode:
 						if msg: msg += "\n"
 						msg += m
 					path.close()
-				path.removeZeroLength()
+
+				# Remove tiny segments
+				path.removeZeroLength(abs(diameter)/100.)
+				# Convert very small arcs to lines
+				path.convert2Lines(abs(diameter)/10.)
+
 				D = path.direction()
 				if D==0: D=1
 				if name is None:

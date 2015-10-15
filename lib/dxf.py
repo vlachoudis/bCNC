@@ -64,6 +64,18 @@ from bmath import Vector
 EPS  = 0.0001
 EPS2 = EPS**2
 
+# Just to avoid repeating errors
+errors = {}
+
+#------------------------------------------------------------------------------
+def error(msg):
+	global errors
+	if msg in errors:
+		errors[msg] += 1
+	else:
+		sys.stderr.write(msg)
+		errors[msg] = 1
+
 #==============================================================================
 # Entity holder
 #==============================================================================
@@ -135,7 +147,7 @@ class Entity(dict):
 			self._start = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
-			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
+			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
 			self._start = self.point()
 
 		return self._start
@@ -163,7 +175,7 @@ class Entity(dict):
 			self._end = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
-			sys.stderr.write("Cannot handle entity type %s: %s\n"%(self.type, self.name))
+			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
 			self._end = self.point()
 
 		return self._end
@@ -204,6 +216,7 @@ class DXF:
 		if filename:
 			self.open(filename,mode)
 		self.title  = "dxf-class"
+		errors.clear()
 
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
@@ -227,7 +240,7 @@ class DXF:
 		try:
 			tag = int(line.strip())
 		except:
-			sys.stderr.write("Error reading line %s\n"%(line))
+			error("Error reading line %s\n"%(line))
 			return None,None
 		value = self._f.readline().strip()
 		try:

@@ -781,6 +781,7 @@ class Application(Toplevel,Sender):
 	def drawAfter(self, event=None):
 		if self._drawAfter is not None: self.after_cancel(self._drawAfter)
 		self._drawAfter = self.after(DRAW_AFTER, self.draw)
+		return "break"
 
 	#-----------------------------------------------------------------------
 	def commandFocus(self, event=None):
@@ -904,6 +905,10 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
 			self.ribbon.changePage("Terminal")
 			Page.frames["Terminal"].clear()
+
+		# CLOSE: close path - join end with start with a line segment
+		elif rexx.abbrev("CLOSE",cmd,4):
+			self.executeOnSelection("CLOSE", True)
 
 		# CONT*ROL: switch to control tab
 		elif rexx.abbrev("CONTROL",cmd,4):
@@ -1286,8 +1291,10 @@ class Application(Toplevel,Sender):
 
 		self.busy()
 		sel = None
-		if cmd == "CUT":
+		if   cmd == "CUT":
 			sel = self.gcode.cut(items, *args)
+		elif cmd == "CLOSE":
+			sel = self.gcode.close(items)
 		elif cmd == "DRILL":
 			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":

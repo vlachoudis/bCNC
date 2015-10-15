@@ -62,10 +62,11 @@ import time
 from math import *
 from bmath import Vector, quadratic
 
-EPS0 = 1E-7
-EPS  = 0.00001
-EPS2 = EPS**2
-PI2  = 2.0*pi
+EPS   = 1E-7
+EPS2  = EPS*EPS
+EPSV  = 0.00001
+EPSV2 = EPSV**2
+PI2   = 2.0*pi
 
 LINE = 1
 CW   = 2
@@ -77,8 +78,8 @@ _TYPES = ["LINE","CW  ","CCW "]
 #------------------------------------------------------------------------------
 def eq(A,B):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
-	err = EPS2 * ((abs(A[0])+abs(B[0]))**2 + \
-		      (abs(A[1])+abs(B[1]))**2 + 1.0)
+	err = EPSV2 * ((abs(A[0])+abs(B[0]))**2 + \
+		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
 #------------------------------------------------------------------------------
@@ -102,37 +103,113 @@ class Segment:
 		self.AB = self.end-self.start
 		if self.type==LINE:
 			self.calcBBox()
-		elif self.type!=LINE and c is not None:
+		elif c is not None:
 			self.setCenter(c)
-			#self.setArc(c, r) #, sPhi, ePhi)
+
+	#----------------------------------------------------------------------
+	def setStart(self, s):
+		self.start = s
+		self.AB = self.end-self.start
+		if self.type==LINE:
+			self.calcBBox()
+		else:
+			self.correct()
+
+	#----------------------------------------------------------------------
+	def setEnd(self, e):
+		self.end = e
+		self.AB = self.end-self.start
+		if self.type==LINE:
+			self.calcBBox()
+		else:
+			self.correct()
 
 	#----------------------------------------------------------------------
 	def setCenter(self, c):
 		self.center = c
-		self.radius   = (self.start-self.center).length()	# based on starting point
-		self.startPhi = atan2(self.start[1]-c[1], self.start[0]-c[0])
-		self.endPhi   = atan2(self.end[1]  -c[1], self.end[0]  -c[0])
-		if abs(self.startPhi)<EPS0: self.startPhi = 0.0
-		if abs(self.endPhi)  <EPS0: self.endPhi   = 0.0
-		self._correct()
-		self.calcBBox()
+		self.correct()
 
 	#----------------------------------------------------------------------
-	# Check angles in ARC to ensure proper values
+	# Correct arc so radius, center, start and end point to match
 	#----------------------------------------------------------------------
-	def _correct(self):
+	def correct(self):
+		if self.AB.length2()>EPS:
+			# Correct center by finding the intersection of the
+			# orthogonal line from the middle of the start-end segment
+			# and the line in the direction start-existing.center
+
+			# First line is   R = M + P*r
+			# Mid point
+			M = 0.5*(self.start + self.end)
+			# perpendicular vector
+			P = self.AB.orthogonal()
+
+			# Second line is  R = S + CS*t
+			# S=start, C=center
+			CS = self.center - self.start
+
+			#    R = S + CS*t = M + P*r
+			# =>  CS*t - P*r = M - S = MS
+			MS = M - self.start
+
+			# linear system
+			#    CSx*t - Px*r = MSx
+			#    CSy*t - Py*r = MSy
+
+			#      | CSx  -Px |
+			# Dt = |          |
+			#      | CSy  -Py |
+			D = -CS[0]*P[1] + CS[1]*P[0]
+			if abs(D)<EPS2:
+				self.change2Line()
+				return
+
+			#      | MSx  -Px |
+			# Dt = |          |
+			#      | MSy  -Py |
+			Dt = -MS[0]*P[1] + MS[1]*P[0]
+
+			t = Dt/D
+
+			# C = R(t) = S + CS*t
+			#C = self.center
+			self.center = self.start + CS*t
+			if t < 0.0:
+				# change type
+				if self.type == CW:
+					self.type = CCW
+				else:
+					self.type = CW
+			#if (self.center-C).length()>EPS:
+			#	print self
+			#	print (self.center-C).length()
+			# make a check for both radius
+			#r1 = (self.start-self.center).length()
+			#r2 = (self.end-self.center).length()
+			#if abs(r1-r2)>EPS:
+			#	print "ERROR r1=",r1,"r2=",r2
+			#	print self
+
+		# -------------------------------------------------------------
+		# Check angles in ARC to ensure proper values
+		# -------------------------------------------------------------
+		self.radius   = (self.start-self.center).length()	# based on starting point
+		self.startPhi = atan2(self.start[1]-self.center[1], self.start[0]-self.center[0])
+		self.endPhi   = atan2(self.end[1]  -self.center[1], self.end[0]  -self.center[0])
+		if abs(self.startPhi)<EPS: self.startPhi = 0.0
+		if abs(self.endPhi)  <EPS: self.endPhi   = 0.0
+
 		if self.type == CW:	# Inverted: end < start
 			if self.startPhi <= self.endPhi: self.startPhi += PI2
 		elif self.type == CCW:	# Normal: start < end
 			if self.endPhi <= self.startPhi: self.endPhi += PI2
-		self._correctEnd()
+
+		self.calcBBox()
 
 	#----------------------------------------------------------------------
-	def _correctEnd(self):
-		# correct exit point to be numerically correct
-		self.end[0] = self.center[0] + self.radius*cos(self.endPhi)
-		self.end[1] = self.center[1] + self.radius*sin(self.endPhi)
-		self.AB = self.end-self.start
+	def change2Line(self):
+		self.type = LINE
+		self.calcBBox()
 
 	#----------------------------------------------------------------------
 	# Invert segment
@@ -146,22 +223,21 @@ class Segment:
 			elif self.type == CCW:
 				self.type = CW
 			self.startPhi, self.endPhi = self.endPhi, self.startPhi
-			self._correct()
-			self.calcBBox()
+			self.correct()
 
 	#----------------------------------------------------------------------
 	def calcBBox(self):
 		if self.type == LINE:
-			self.minx = min(self.start[0], self.end[0]) - EPS
-			self.maxx = max(self.start[0], self.end[0]) + EPS
-			self.miny = min(self.start[1], self.end[1]) - EPS
-			self.maxy = max(self.start[1], self.end[1]) + EPS
+			self.minx = min(self.start[0], self.end[0]) - EPSV
+			self.maxx = max(self.start[0], self.end[0]) + EPSV
+			self.miny = min(self.start[1], self.end[1]) - EPSV
+			self.maxy = max(self.start[1], self.end[1]) + EPSV
 		else:
 			# FIXME very bad
-			self.minx = self.center[0] - self.radius - EPS
-			self.maxx = self.center[0] + self.radius + EPS
-			self.miny = self.center[1] - self.radius - EPS
-			self.maxy = self.center[1] + self.radius + EPS
+			self.minx = self.center[0] - self.radius - EPSV
+			self.maxx = self.center[0] + self.radius + EPSV
+			self.miny = self.center[1] - self.radius - EPSV
+			self.maxy = self.center[1] + self.radius + EPSV
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -170,13 +246,25 @@ class Segment:
 		else:
 			c = ""
 		if self.type == LINE:
-			return "%s %s %s%s"%(_TYPES[self.type-1], self.start, self.end, c)
+			return "%s %s %s%s L:%g"%(_TYPES[self.type-1], self.start, self.end, c, self.length())
 		else:
-			return "%s %s %s%s %s %g [%g..%g]"%(_TYPES[self.type-1], \
+			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g"%(_TYPES[self.type-1], \
 				self.start, self.end, c, \
 				self.center, self.radius, \
 				degrees(self.startPhi), \
-				degrees(self.endPhi))
+				degrees(self.endPhi),
+				self.length())
+
+	#----------------------------------------------------------------------
+	# Return a point ON the segment in the middle
+	#----------------------------------------------------------------------
+	def midPoint(self):
+		if self.type == LINE:
+			return 0.5*(self.start + self.end)
+		else:
+			phi = 0.5*(self.startPhi + self.endPhi)
+			return Vector(	self.center[0] + self.radius*cos(phi),
+					self.center[1] + self.radius*sin(phi))
 
 	#----------------------------------------------------------------------
 	# return segment length
@@ -184,15 +272,15 @@ class Segment:
 	def length(self):
 		if self.type == LINE:
 			return self.AB.length()
-		else:
-			if self.type == CW:
-				phi = self.startPhi - self.endPhi
 
-			elif self.type == CCW:
-				phi = self.endPhi - self.startPhi
+		elif self.type == CW:
+			phi = self.startPhi - self.endPhi
 
-			if phi < 0.0: phi += PI2
-			return self.radius * phi
+		elif self.type == CCW:
+			phi = self.endPhi - self.startPhi
+
+		if phi < 0.0: phi += PI2
+		return self.radius * phi
 
 	#----------------------------------------------------------------------
 	# Orthogonal vector at start
@@ -241,7 +329,7 @@ class Segment:
 			if phi <= self.endPhi + EPS/self.radius:
 				return True
 
-		if eq2(self.start,P,EPS0) or eq2(self.end,P,EPS0):
+		if eq2(self.start,P,EPS) or eq2(self.end,P,EPS):
 			return True
 
 		return False
@@ -271,8 +359,13 @@ class Segment:
 		#c  = CA.length2() - arc.radius**2
 		CAx = self.start[0] - arc.center[0]
 		CAy = self.start[1] - arc.center[1]
-		b = 2.0*(self.AB[0]*CAx + self.AB[1]*CAy)
-		c  = CAx**2 + CAy**2 - arc.radius**2
+		b   = 2.0*(self.AB[0]*CAx + self.AB[1]*CAy)
+
+		#c  = CAx**2 + CAy**2 - arc.radius**2
+		if abs(CAx) < abs(CAy):
+			c = CAy**2 + (CAx+arc.radius)*(CAx-arc.radius)
+		else:
+			c = CAx**2 + (CAy+arc.radius)*(CAy-arc.radius)
 
 		t1,t2 = quadratic(b/a,c/a)
 		if t1 is None: return None,None
@@ -311,15 +404,12 @@ class Segment:
 		if self.type==LINE and other.type==LINE:
 			# check for intersection
 			DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
-			#print DD
 			if abs(DD)<EPS2: return None,None
 
 			Dt = -(other.start[0]-self.start[0])*other.AB[1] + \
 			      (other.start[1]-self.start[1])*other.AB[0]
 			t = Dt/DD
-			#print t
 			P = self.AB*t + self.start
-			#print P
 			if self.minx<=P[0]<=self.maxx and other.minx<=P[0]<=other.maxx and \
 			   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:
 				return P,None
@@ -336,9 +426,15 @@ class Segment:
 			CC = other.center - self.center
 			d = CC.norm()
 			if d<=EPS2 or d>=self.radius+other.radius: return None,None
-			x = (self.radius**2 - other.radius**2 + d**2) / (2.*d)
+			#x = (d**2 + self.radius**2 - other.radius**2) / (2.*d)
+			if abs(d)<abs(self.radius):
+				x = (self.radius**2 + (d+other.radius)*(d-other.radius)) / (2.*d)
+			else:
+				x = (d**2 + (self.radius+other.radius)*(self.radius-other.radius)) / (2.*d)
+
 			diff = (self.radius-x)*(self.radius+x)
-			if diff<0.0: return None,None
+			if diff<-EPS: return None,None
+			elif diff<EPS: diff = 0.0
 			y = sqrt(diff)
 
 			O = CC.orthogonal()
@@ -357,6 +453,10 @@ class Segment:
 	# Return minimum distance of P from segment
 	#----------------------------------------------------------------------
 	def distance(self, P):
+#		if eq(P,Vector(42.0926, 16.8319)) and \
+#		   eq(self.start, Vector(48.0042, 15.5539)) and \
+#		   eq(self.end, Vector(36.2223, 15.5307)):
+#			import pdb; pdb.set_trace()
 		if self.type == LINE:
 			AB2  = self.AB[0]**2 + self.AB[1]**2
 			APx  = P[0]-self.start[0]
@@ -396,11 +496,11 @@ class Segment:
 	# Split segment at point P and return second part
 	#----------------------------------------------------------------------
 	def split(self, P):
-		if eq2(P,self.start,EPS0):
+		if eq2(P,self.start,EPS):
 			# XXX should flag previous segment as cross
 			return -1
 
-		elif eq2(P,self.end,EPS0):
+		elif eq2(P,self.end,EPS):
 			self.cross = True
 			return 0
 
@@ -409,10 +509,11 @@ class Segment:
 		self.cross = False
 		self.end   = P
 		self.AB    = self.end - self.start
-		self.calcBBox()
 		if self.type>LINE:
 			new.setCenter(self.center) #, self.radius, None, self.endPhi)
 			self.setCenter(self.center) #, self.radius, self.startPhi, new.startPhi)
+		else:
+			self.calcBBox()
 		return new
 
 #==============================================================================
@@ -482,7 +583,7 @@ class Path(list):
 		for i,N in enumerate(self):
 			NL = N.AB.length()
 			prod = PL * NL
-			if abs(prod)>EPS0:
+			if abs(prod)>EPS:
 				cross = (P ^ N.AB) / prod
 				if   cross <= -0.9999999999:
 					phi -= pi/2.0
@@ -580,12 +681,10 @@ class Path(list):
 #			closed = path.isClosed()
 #			end = path[0].end
 #			for segment in path[1:]:
-#				segment.start = Vector(end)	# force points to be the same
-#				if segment.type != LINE:
-#					segment._correctEnd()
+#				segment.setStart(end)
 #				end = segment.end
 #			if closed:
-#				path[0].start = end
+#				path[0].setStart(end)
 
 		return paths
 
@@ -609,32 +708,59 @@ class Path(list):
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
 			# Join with the previous edge
+			inside = False
 			if Eo is not None and eq(Eo,So):
 				# possibly a full circle
 				if segment.type != LINE and len(self)==1:
 					path.append(Segment(segment.type, Eo, So, segment.center))
+					opt = 1
+#					print "*0*",path[-1]
 
 			elif Op is not None:
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if (prev.type!=LINE and segment.type!=LINE) or \
-				   (abs(cross)>EPS and cross*offset > 0):
+				#if (prev.type!=LINE and segment.type!=LINE) or \
+				if   (abs(cross)>EPSV and cross*offset > 0):
 					# either a circle
 					t = offset>0 and CW or CCW
 					path.append(Segment(t, Eo, So, segment.start))
+#					print "*A*",path[-1]
 				else:
 					# or a straight line if inside
 					path.append(Segment(LINE, Eo, So))
+					inside = True
+#					print "*B*",path[-1]
 
 			# connect with previous point
 			O  = segment.orthogonalEnd()
 			Eo = segment.end + O*offset
-			if (So-Eo).length2() > EPS:
+			if (So-Eo).length2() > EPSV2:
 				if segment.type == LINE:
 					path.append(Segment(LINE, So, Eo))
+#					print "*C*",path[-1]
 				else:
 					# FIXME check for radius + offset > 0.0
 					path.append(Segment(segment.type, So, Eo, segment.center))
+#					print "*D*",path[-1]
+#					if abs(abs(segment.radius - path[-1].radius) - abs(offset)) > EPS:
+#						print "ERROR", segment.radius - path[-1].radius - abs(offset)
+#						import pdb; pdb.set_trace()
+
+				# Internal line segment?
+#				if inside and len(path)>2:
+#					# Check the distance with the intersection point
+#					P1,P2 = path[-3].intersect(path[-1])
+#					if P1 or P2:
+#						M = path[-2].midPoint()
+#						if P1 and (P1-M).length() < abs(offset)/100:
+#								#delete segment
+#								path[-3].setEnd(P1)
+#								path[-1].setStart(P1)
+#								del path[-2]
+#								print "DELETE SEGMENT"
+#						elif P2:
+#							pass
+
 			Op = O
 			prev = segment
 		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
@@ -657,7 +783,7 @@ class Path(list):
 				#	P1,P2 = self[i].intersect(self[j])
 
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq2(P1,P2,EPS0):
+				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
 					P2 = None
 
 				if P1 is not None:
@@ -727,25 +853,32 @@ class Path(list):
 	# @param include defines the first segment if it is to be included or not
 	#----------------------------------------------------------------------
 	def removeExcluded(self, path, offset):
-		start = time.time()
+#		start = time.time()
 		chkofs = abs(offset)*(1.0-EPS)
-		include = path.distance(self[0].start) >= chkofs
+		include = path.distance(self[0].midPoint()) >= chkofs
 		i = 0
 		while i < len(self):
 			segment = self[i]
-
+#			if eq(segment.end,Vector(47.805, 17.1293)):
+#				import pdb; pdb.set_trace()
 			if not include:
 #				print "remove", self[i]
 				del self[i]
 				i -= 1
-
-			if segment.cross:	# crossing point
+			if segment.cross:	# segment.end is a crossing point
 				include = not include
-				if include:
-					include = path.distance(segment.end) > chkofs
-#					print "+++",i, segment.end, path.distance(segment.end), chkofs, include
+				#if include:
+				# Check middle of next path
+				if i+1<len(self):
+#					print "Check:",self[i+1]
+					include = path.distance(self[i+1].midPoint()) >= chkofs
+					#if not include:
+					#	include = path.distance(segment.end) >= chkofs
+#					print "+M+",i, segment.end, path.distance(self[i+1].midPoint())-chkofs, include
+				else:
+					include = path.distance(segment.end) >= chkofs
+#					print "+E+",i, segment.end, path.distance(segment.end)-chkofs, include
 			i += 1
-		self.removeZeroLength()
 		#sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
@@ -765,17 +898,15 @@ class Path(list):
 			O  = segment.orthogonalStart()
 			if Op is not None:
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if prev.type==LINE and segment.type==LINE and cross*offset < -EPS:
+				if prev.type==LINE and segment.type==LINE and cross*offset < -EPSV:
 					# find direction
 					D = O+Op
 					D.normalize()
 					if offset>0.0: D = -D
-
 					costheta = O*Op
 					costheta2 = sqrt((1.0+costheta)/2.0)
 					distance = abs(offset)*(1.0/costheta2-1.0)
 					D *= distance
-
 					self.insert(i,Segment(LINE, segment.start, segment.start + D))
 					self.insert(i+1, Segment(LINE, segment.start+D, segment.start))
 					i += 2
@@ -828,33 +959,44 @@ class Path(list):
 	# Remove zero length segments
 	# Replace small arcs with lines
 	#----------------------------------------------------------------------
-	def removeZeroLength(self):
+	def removeZeroLength(self, eps=EPSV):
 		i = 0
-		#ndel = 0
-		#nline = 0
-		#minlength = 1000.0
-		#minsagitta = 1000.0
 		while i<len(self):
-			#minlength = min(minlength, self[i].length())
-			if self[i].length() < EPS:
+			#if eq(self[i].start, [227.286, 151.109]): import pdb; pdb.set_trace()
+			if self[i].length() < eps:
+				start = self[i].start
+
 				del self[i]
-				#ndel += 1
+				# Join segments
+				if 0<i<len(self):
+					self[i].setStart(start)
 				continue
 
-			if self[i].type == CCW:
-				df = self[i].endPhi - self[i].startPhi
-			elif self[i].type == CW:
-				df = self[i].startPhi - self[i].endPhi
-
+			# Convert to line segments with small saggita
 			if self[i].type != LINE:
+				if self[i].type == CCW:
+					df = self[i].endPhi - self[i].startPhi
+				else:
+					df = self[i].startPhi - self[i].endPhi
 				if df<pi/2.0:
 					sagitta = self[i].radius * (1.0 - cos(df/2.0))
-					#minsagitta = min(minsagitta, sagitta)
-					if sagitta < EPS*10:
-						#nline += 1
-						self[i].type = LINE
-
+					#if sagitta < eps:
+					if sagitta < eps*10:
+						self[i].change2Line()
 			i += 1
+
+		# Join last and first node if closed
+		if self and eq2(self[0].start, self[-1].end, eps):
+			self[-1].setEnd(self[0].start)
+
+	#----------------------------------------------------------------------
+	# Convert to LINES small segments
+	#----------------------------------------------------------------------
+	def convert2Lines(self, minlen):
+		for segment in self:
+			if segment.type == LINE: continue
+			if segment.length()<=minlen:
+				segment.change2Line()
 
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments
@@ -890,7 +1032,7 @@ class Path(list):
 					b = bulge[i]
 					end = Vector(x,y)
 					if eq(start,end): continue
-					if abs(b)<EPS0:
+					if abs(b)<EPS:
 						self.append(Segment(LINE, start, end))
 					else:
 						# arc with bulge = b
