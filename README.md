@@ -46,12 +46,13 @@ installation directory.
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
-  - basic **CAM** features (profiling, cutting, drilling)
+  - basic **CAM** features (profiling, pocketing, cutting, drilling)
   - User g-code plugins:
     - bowl generator
     - finger joint box generator
     - simple spur gear generator
     - spirograph generator
+    - surface flatten
     - ...
 - G-Code editor and display
     - graphical display of the g-code, and workspace
