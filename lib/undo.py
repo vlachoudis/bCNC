@@ -1,4 +1,4 @@
-# $Id: undo.py 3479 2015-03-18 14:09:33Z bnv $
+# $Id: undo.py 3595 2015-10-15 14:59:24Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +99,6 @@ def undo(info):
 		text = None
 
 	#print " *U*", info
-	#redo = apply(func, args)
 	redo = func(*args)
 	#print " *R*", redo
 	if text is not None and callable(redo[0]):

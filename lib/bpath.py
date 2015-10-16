@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: bpath.py 3575 2015-09-14 07:20:22Z bnv $
+# $Id: bpath.py 3598 2015-10-16 13:07:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~

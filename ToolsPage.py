@@ -568,6 +568,7 @@ class Cut(DataBase):
 		self.name = "Cut"
 		self.variables = [
 			("name",      "db" ,    "", "Name"),
+			("surface",   "mm" ,    "", "Surface Z"),
 			("depth"  ,   "mm" ,    "", "Target Depth"),
 			("stepz"  ,   "mm" ,    "", "Depth Increment")
 		]
@@ -576,14 +577,18 @@ class Cut(DataBase):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		try:
-			h = self.master.fromMm(float(self["depth"]))
+			surface = self.master.fromMm(float(self["surface"]))
 		except:
-			h = None
+			surface = None
 		try:
-			s =  self.master.fromMm(float(self["stepz"]))
+			depth = self.master.fromMm(float(self["depth"]))
 		except:
-			s = None
-		app.executeOnSelection("CUT", True, h, s)
+			depth = None
+		try:
+			step =  self.master.fromMm(float(self["stepz"]))
+		except:
+			step = None
+		app.executeOnSelection("CUT", True, depth, step, surface)
 		app.setStatus("CUT selected paths")
 
 #==============================================================================

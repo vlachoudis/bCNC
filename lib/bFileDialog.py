@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: bFileDialog.py 3385 2015-01-26 12:59:41Z bnv $
+# $Id: bFileDialog.py 3597 2015-10-16 12:59:56Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -550,6 +550,7 @@ class FileDialog(Toplevel):
 
 		if path is None: path = self.path
 
+		# Populate list but sorted
 		try:
 			for fn in os.listdir(path):
 				if not self.hidden and fn[0]==".": continue
@@ -595,7 +596,8 @@ class FileDialog(Toplevel):
 				"Error listing folder \"%s\""%(path),
 				parent=self)
 
-		self.fileList.sort(0, True)		# First short by name
+		self.fileList.sort(0, False)		# First short by name
+		# Move all directories to top
 		self.fileList.sort(1, False)		# then by type
 
 		# Find item to select
@@ -631,7 +633,7 @@ class FileDialog(Toplevel):
 				pass
 
 			# Check for a pattern
-			if fn.find('*')>=0 or fn.find('?')>=0 or fn.find('[')>=0:
+			if fn.find('*')>=0 or fn.find('?')>=0:
 				self.filter = (fn,)
 				self.fill()
 				return
@@ -933,7 +935,7 @@ if __name__ == "__main__":
 
 	files = asksaveasfilename(title="Open flair project",
 			initialdir=initdir,
-			initialfile="../test.f",
+#			initialfile="test.f",
 			filetypes=(("All","*"),
 				("Python", "*.py"),
 				("Flair",("*.flair", "*.inp"))))

@@ -2519,7 +2519,7 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, block,path, z, depth, stepz):
+	def cutPath(self, block, path, z, depth, stepz):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -2551,10 +2551,14 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None):
+	def cut(self, items, depth=None, stepz=None, surface=None):
+		if surface is None: surface = self.cnc["surface"]
 		if stepz is None: stepz = self.cnc["stepz"]
-		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
+		if depth is None: depth = surface - self.cnc["thickness"]
 
+		if surface > self.cnc["surface"]:
+			return "ERROR: Starting cut height is higher than stock surface. " \
+				"Please change stock surface in Tools->Stock or cut depth."
 		if depth < self.cnc["surface"]-self.cnc["thickness"] or depth > self.cnc["surface"]:
 			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
 				"Please change stock surface in Tools->Stock or cut depth." \
@@ -2571,7 +2575,7 @@ class GCode:
 			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
-				self.cutPath(newblock, path, self.cnc["surface"], depth, stepz)
+				self.cutPath(newblock, path, surface, depth, stepz)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))

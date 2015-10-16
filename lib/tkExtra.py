@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3574 2015-09-14 07:16:57Z bnv $
+# $Id: tkExtra.py 3598 2015-10-16 13:07:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,4 +1,4 @@
-# $Id: bmath.py 3485 2015-03-26 08:27:58Z bnv $
+# $Id: bmath.py 3598 2015-10-16 13:07:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -372,13 +372,14 @@ class Vector(list):
 		return "[%s]"%(", ".join([(_format%(x)).strip() for x in self]))
 
 	# ----------------------------------------------------------------------
-	def eq(self, v, acc):
+	def eq(self, v, acc=_accuracy):
 		"""Test for equality with vector v within accuracy"""
 		if len(self) != len(v): return False
+		s2 = 0.0
 		for i in range(len(self)):
-			if abs(self[i]-v[i])>acc: return False
-		return True
-	def __eq__(self, v): return self.eq(v,_accuracy)
+			s2 += (self[i]-v[i])**2
+		return s2 <= acc**2
+	def __eq__(self, v): return self.eq(v)
 
 	# ----------------------------------------------------------------------
 	def __neg__(self):

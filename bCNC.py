@@ -914,15 +914,18 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("CONTROL",cmd,4):
 			self.ribbon.changePage("Control")
 
-		# CUT [height] [pass-per-depth]: replicate selected blocks to cut-height
+		# CUT [depth] [pass-per-depth] [z-surface]: replicate selected blocks to cut-height
 		# default values are taken from the active material
 		elif cmd == "CUT":
-			try:    h = float(line[1])
-			except: h = None
+			try:    depth = float(line[1])
+			except: depth = None
 
-			try:    d = float(line[2])
-			except: d = None
-			self.executeOnSelection("CUT", True, h, d)
+			try:    step = float(line[2])
+			except: step = None
+
+			try:    surface = float(line[3])
+			except: surface = None
+			self.executeOnSelection("CUT", True, depth, step, surface)
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
