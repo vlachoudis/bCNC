@@ -126,9 +126,9 @@ class Entity(dict):
 	# Return start point
 	#----------------------------------------------------------------------
 	def start(self):
-		if self._start is not None: return self._start
-
-		if self.type == "LINE":
+		if self._start is not None:
+			return self._start
+		elif self.type == "LINE":
 			self._start = self.point()
 		elif self.type == "CIRCLE":
 			x,y = self.point()
@@ -139,26 +139,24 @@ class Entity(dict):
 			r = self.radius()
 			s = math.radians(self.startPhi())
 			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
-		elif self.type == "LWPOLYLINE":
+		elif self.type in ("LWPOLYLINE", "SPLINE"):
 			self._start = Vector(self[10][0], self[20][0])
 		#elif self.type == "ELLIPSE":
-		#elif self.type == "SPLINE":
 		elif self.type == "POINT":
 			self._start = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
 			self._start = self.point()
-
 		return self._start
 
 	#----------------------------------------------------------------------
 	# Return end point
 	#----------------------------------------------------------------------
 	def end(self):
-		if self._end is not None: return self._end
-
-		if self.type == "LINE":
+		if self._end is not None:
+			return self._end
+		elif self.type == "LINE":
 			self._end = self.point(1)
 		elif self.type == "CIRCLE":
 			x,y = self.point()
@@ -169,7 +167,7 @@ class Entity(dict):
 			r = self.radius()
 			s = math.radians(self.endPhi())
 			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
-		elif self.type == "LWPOLYLINE":
+		elif self.type in ("LWPOLYLINE", "SPLINE"):
 			self._end = Vector(self[10][-1], self[20][-1])
 		elif self.type == "POINT":
 			self._end = self.point()
@@ -177,7 +175,6 @@ class Entity(dict):
 			#raise Exception("Cannot handle entity type %s"%(self.type))
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
 			self._end = self.point()
-
 		return self._end
 
 	#----------------------------------------------------------------------
@@ -329,7 +326,8 @@ class DXF:
 			entity = self.readEntity()
 			if entity is None: return
 			#print ">>>",entity
-			if entity.type in ("SPLINE","ELLIPSE"): continue
+			#if entity.type in ("SPLINE","ELLIPSE"): continue
+			if entity.type in ("ELLIPSE"): continue
 			try:
 				layer = self.layers[entity.name]
 			except KeyError:

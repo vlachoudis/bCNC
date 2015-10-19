@@ -615,7 +615,7 @@ class Drill(DataBase):
 			p =  self.master.fromMm(float(self["peck"]))
 		except:
 			p = None
-		app.executeOnSelection("DRILL",h, p)
+		app.executeOnSelection("DRILL", True, h, p)
 		app.setStatus("DRILL selected points")
 
 #==============================================================================

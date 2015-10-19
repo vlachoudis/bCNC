@@ -576,9 +576,6 @@ class CNC:
 		self.tool = 0
 		self._lastTool = None
 
-		CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] =  1000000.0
-		CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
-
 		self.absolute    = True		# G90/G91     absolute/relative motion
 		self.arcabsolute = False	# G90.1/G91.1 absolute/relative arc
 		self.retractz    = True		# G98/G99     retract to Z or R
@@ -588,12 +585,34 @@ class CNC:
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
 
+		self.resetAllMargins()
+
+	#----------------------------------------------------------------------
+	def resetEnableMargins(self):
+		# Selected blocks margin
+		CNC.vars["xmin"]  = CNC.vars["ymin"]  = CNC.vars["zmin"]  =  1000000.0
+		CNC.vars["xmax"]  = CNC.vars["ymax"]  = CNC.vars["zmax"]  = -1000000.0
+
+	#----------------------------------------------------------------------
+	def resetAllMargins(self):
+		self.resetEnableMargins()
+		# All blocks margin
+		CNC.vars["axmin"] = CNC.vars["aymin"] = CNC.vars["azmin"] =  1000000.0
+		CNC.vars["axmax"] = CNC.vars["aymax"] = CNC.vars["azmax"] = -1000000.0
+
 	#----------------------------------------------------------------------
 	@staticmethod
 	def isMarginValid():
 		return	CNC.vars["xmin"] <= CNC.vars["xmax"] and \
 			CNC.vars["ymin"] <= CNC.vars["ymax"] and \
 			CNC.vars["zmin"] <= CNC.vars["zmax"]
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def isAllMarginValid():
+		return	CNC.vars["axmin"] <= CNC.vars["axmax"] and \
+			CNC.vars["aymin"] <= CNC.vars["aymax"] and \
+			CNC.vars["azmin"] <= CNC.vars["azmax"]
 
 	#----------------------------------------------------------------------
 	# Number formating
@@ -1249,7 +1268,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
-	def pathLength(self, xyz):
+	def pathLength(self, block, xyz):
 		# For XY plan
 		p = xyz[0]
 		length = 0.0
@@ -1257,27 +1276,37 @@ class CNC:
 			length += math.sqrt((i[0]-p[0])**2 + (i[1]-p[1])**2 + (i[2]-p[2])**2)
 			p = i
 
+		block.length += length
 		self.totalLength += length
+
 		if self.gcode == 0:
 			# FIXME calculate the correct time with the feed direction
 			# and acceleration
+			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
 		else:
 			try:
+				block.time += length / self.feed
 				self.totalTime += length / self.feed
 			except:
 				pass
-		return length
 
 	#----------------------------------------------------------------------
-	def pathMargins(self, xyz):
-		if self.gcode in (1,2,3):
-			CNC.vars["xmin"] = min(CNC.vars["xmin"], min([i[0] for i in xyz]))
-			CNC.vars["ymin"] = min(CNC.vars["ymin"], min([i[1] for i in xyz]))
-			CNC.vars["zmin"] = min(CNC.vars["zmin"], min([i[2] for i in xyz]))
-			CNC.vars["xmax"] = max(CNC.vars["xmax"], max([i[0] for i in xyz]))
-			CNC.vars["ymax"] = max(CNC.vars["ymax"], max([i[1] for i in xyz]))
-			CNC.vars["zmax"] = max(CNC.vars["zmax"], max([i[2] for i in xyz]))
+	def pathMargins(self, block):
+		if block.enable:
+			CNC.vars["xmin"] = min(CNC.vars["xmin"], block.xmin)
+			CNC.vars["ymin"] = min(CNC.vars["ymin"], block.ymin)
+			CNC.vars["zmin"] = min(CNC.vars["zmin"], block.zmin)
+			CNC.vars["xmax"] = max(CNC.vars["xmax"], block.xmax)
+			CNC.vars["ymax"] = max(CNC.vars["ymax"], block.ymax)
+			CNC.vars["zmax"] = max(CNC.vars["zmax"], block.zmax)
+
+		CNC.vars["axmin"] = min(CNC.vars["axmin"], block.xmin)
+		CNC.vars["aymin"] = min(CNC.vars["aymin"], block.ymin)
+		CNC.vars["azmin"] = min(CNC.vars["azmin"], block.zmin)
+		CNC.vars["axmax"] = max(CNC.vars["axmax"], block.xmax)
+		CNC.vars["aymax"] = max(CNC.vars["aymax"], block.ymax)
+		CNC.vars["azmax"] = max(CNC.vars["azmax"], block.zmax)
 
 	#----------------------------------------------------------------------
 	# Instead of the current code, override with the custom user lines
@@ -1483,11 +1512,12 @@ class Block(list):
 			self.copy(name)
 			return
 		self._name   = name
-		self.enable  = True	# Enabled/Visible in drawing
-		self.expand  = False	# Expand in editor
-		self._path   = []	# canvas drawing paths
+		self.enable  = True		# Enabled/Visible in drawing
+		self.expand  = False		# Expand in editor
+		self._path   = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates (entry point first non rapid motion)
 		self.ex = self.ey = self.ez = 0	# ending coordinates
+		self.resetPath()
 
 	#----------------------------------------------------------------------
 	def copy(self, src):
@@ -1606,6 +1636,10 @@ class Block(list):
 	#----------------------------------------------------------------------
 	def resetPath(self):
 		del self._path[:]
+		self.xmin = self.ymin = self.zmin =  1000000.0
+		self.xmax = self.ymax = self.zmax = -1000000.0
+		self.length = 0.0
+		self.time   = 0.0
 
 	#----------------------------------------------------------------------
 	def hasPath(self):
@@ -1634,6 +1668,15 @@ class Block(list):
 		self.ey = y
 		self.ez = z
 
+	#----------------------------------------------------------------------
+	def pathMargins(self, xyz):
+		self.xmin = min(self.xmin, min([i[0] for i in xyz]))
+		self.ymin = min(self.ymin, min([i[1] for i in xyz]))
+		self.zmin = min(self.zmin, min([i[2] for i in xyz]))
+		self.xmax = max(self.xmax, max([i[0] for i in xyz]))
+		self.ymax = max(self.ymax, max([i[1] for i in xyz]))
+		self.zmax = max(self.zmax, max([i[2] for i in xyz]))
+
 #==============================================================================
 # Gcode file
 #==============================================================================
@@ -1658,6 +1701,20 @@ class GCode:
 
 		self._lastModified = 0
 		self._modified = False
+
+	#----------------------------------------------------------------------
+	# Recalculate enabled path margins
+	#----------------------------------------------------------------------
+	def calculateEnableMargins(self):
+		self.cnc.resetEnableMargins()
+		for block in self.blocks:
+			if block.enable:
+				CNC.vars["xmin"] = min(CNC.vars["xmin"], block.xmin)
+				CNC.vars["ymin"] = min(CNC.vars["ymin"], block.ymin)
+				CNC.vars["zmin"] = min(CNC.vars["zmin"], block.zmin)
+				CNC.vars["xmax"] = max(CNC.vars["xmax"], block.xmax)
+				CNC.vars["ymax"] = max(CNC.vars["ymax"], block.ymax)
+				CNC.vars["zmax"] = max(CNC.vars["zmax"], block.zmax)
 
 	#----------------------------------------------------------------------
 	def isModified(self): return self._modified
@@ -2496,7 +2553,6 @@ class GCode:
 				elif self.cnc.dz>0.0:
 					# retract
 					pass
-				#	drill.append(line)
 
 				elif self.cnc.gcode == 0:
 					# add all rapid movements

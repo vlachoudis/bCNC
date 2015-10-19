@@ -535,13 +535,10 @@ class CNCListbox(Listbox):
 		self.event_generate("<<Status>>",data="Toggled Expand of selected objects")
 
 	# ----------------------------------------------------------------------
-	# toggle state enable/disable
-	# ----------------------------------------------------------------------
-	def toggleEnable(self, event=None):
+	def _toggleEnable(self, enable=None):
 		if not self._items: return None
 		items   = list(map(int,self.curselection()))
 		active  = self.index(ACTIVE)
-		enable  = None
 		ypos = self.yview()[0]
 		undoinfo = []
 		for i in items:
@@ -561,11 +558,27 @@ class CNCListbox(Listbox):
 			if sel: self.selection_set(i)
 
 		if undoinfo:
+			self.gcode.calculateEnableMargins()
 			self.gcode.addUndo(undoinfo)
 			self.activate(active)
 			self.yview_moveto(ypos)
 			self.event_generate("<<ListboxSelect>>")
 
+	# ----------------------------------------------------------------------
+	def enable(self, event=None):
+		self._toggleEnable(True)
+		self.event_generate("<<Status>>",data="Enabled selected objects")
+
+	# ----------------------------------------------------------------------
+	def disable(self, event=None):
+		self._toggleEnable(False)
+		self.event_generate("<<Status>>",data="Disabled selected objects")
+
+	# ----------------------------------------------------------------------
+	# toggle state enable/disable
+	# ----------------------------------------------------------------------
+	def toggleEnable(self, event=None):
+		self._toggleEnable()
 		self.event_generate("<<Status>>",data="Toggled Visibility of selected objects")
 
 	# ----------------------------------------------------------------------

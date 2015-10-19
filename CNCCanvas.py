@@ -191,6 +191,7 @@ class CNCCanvas(Canvas):
 		self._gantry2     = None
 		self._select      = None
 		self._margin      = None
+		self._amargin     = None
 		self._workarea    = None
 		self._vector      = None
 		self._lastActive  = None
@@ -750,7 +751,7 @@ class CNCCanvas(Canvas):
 		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
 		self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
 
-		margins = self.getMargins()
+		self.drawMargin()
 
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
@@ -834,8 +835,8 @@ class CNCCanvas(Canvas):
 		self.delete("Axes")
 		if not self.draw_axes: return
 
-		dx = CNC.vars["xmax"] - CNC.vars["xmin"]
-		dy = CNC.vars["ymax"] - CNC.vars["ymin"]
+		dx = CNC.vars["axmax"] - CNC.vars["axmin"]
+		dy = CNC.vars["aymax"] - CNC.vars["aymin"]
 		d = min(dx,dy)
 		try:
 			s = math.pow(10.0, int(math.log10(d)))
@@ -855,18 +856,33 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def drawMargin(self):
-		if self._margin: self.delete(self._margin)
+		if self._margin:  self.delete(self._margin)
+		if self._amargin: self.delete(self._amargin)
+		self._margin = self._amargin = None
 		if not self.draw_margin: return
-		if not CNC.isMarginValid(): return
-		xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
-		       (CNC.vars["xmax"], CNC.vars["ymin"], 0.),
-		       (CNC.vars["xmax"], CNC.vars["ymax"], 0.),
-		       (CNC.vars["xmin"], CNC.vars["ymax"], 0.),
-		       (CNC.vars["xmin"], CNC.vars["ymin"], 0.)]
-		self._margin = self.create_line(
+
+		if CNC.isMarginValid():
+			xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
+			       (CNC.vars["xmax"], CNC.vars["ymin"], 0.),
+			       (CNC.vars["xmax"], CNC.vars["ymax"], 0.),
+			       (CNC.vars["xmin"], CNC.vars["ymax"], 0.),
+			       (CNC.vars["xmin"], CNC.vars["ymin"], 0.)]
+			self._margin = self.create_line(
+						self.plotCoords(xyz),
+						fill=MARGIN_COLOR)
+			self.tag_lower(self._margin)
+
+		if not CNC.isAllMarginValid(): return
+		xyz = [(CNC.vars["axmin"], CNC.vars["aymin"], 0.),
+		       (CNC.vars["axmax"], CNC.vars["aymin"], 0.),
+		       (CNC.vars["axmax"], CNC.vars["aymax"], 0.),
+		       (CNC.vars["axmin"], CNC.vars["aymax"], 0.),
+		       (CNC.vars["axmin"], CNC.vars["aymin"], 0.)]
+		self._amargin = self.create_line(
 					self.plotCoords(xyz),
+					dash=(3,2),
 					fill=MARGIN_COLOR)
-		self.tag_lower(self._margin)
+		self.tag_lower(self._amargin)
 
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
@@ -887,7 +903,7 @@ class CNCCanvas(Canvas):
 		       (xmin, ymin, 0.)]
 		self._workarea = self.create_line(
 					self.plotCoords(xyz),
-					fill="Orange", dash=(3,1))
+					fill="Orange", dash=(3,2))
 		self.tag_lower(self._workarea)
 
 	#----------------------------------------------------------------------
@@ -895,11 +911,11 @@ class CNCCanvas(Canvas):
 		self.delete("Grid")
 		if not self.draw_grid: return
 		if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
-			xmin = (CNC.vars["xmin"]//10)  *10
-			xmax = (CNC.vars["xmax"]//10+1)*10
-			ymin = (CNC.vars["ymin"]//10)  *10
-			ymax = (CNC.vars["ymax"]//10+1)*10
-			for i in range(int(CNC.vars["ymin"]//10), int(CNC.vars["ymax"]//10)+2):
+			xmin = (CNC.vars["axmin"]//10)  *10
+			xmax = (CNC.vars["axmax"]//10+1)*10
+			ymin = (CNC.vars["aymin"]//10)  *10
+			ymax = (CNC.vars["aymax"]//10+1)*10
+			for i in range(int(CNC.vars["aymin"]//10), int(CNC.vars["aymax"]//10)+2):
 				y = i*10.0
 				xyz = [(xmin,y,0), (xmax,y,0)]
 				item = self.create_line(self.plotCoords(xyz),
@@ -908,7 +924,7 @@ class CNCCanvas(Canvas):
 							dash=(1,3))
 				self.tag_lower(item)
 
-			for i in range(int(CNC.vars["xmin"]//10), int(CNC.vars["xmax"]//10)+2):
+			for i in range(int(CNC.vars["axmin"]//10), int(CNC.vars["axmax"]//10)+2):
 				x = i*10.0
 				xyz = [(x,ymin,0), (x,ymax,0)]
 				item = self.create_line(self.plotCoords(xyz),
@@ -1087,7 +1103,7 @@ class CNCCanvas(Canvas):
 				if cmd is None or not drawG:
 					block.addPath(None)
 				else:
-					path = self.drawPath(cmd, block.enable)
+					path = self.drawPath(block, cmd)
 					self._items[path] = i,j
 					block.addPath(path)
 					if start and self.cnc.gcode in (1,2,3):
@@ -1099,14 +1115,17 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Create path for one g command
 	#----------------------------------------------------------------------
-	def drawPath(self, cmds, enable=True):
+	def drawPath(self, block, cmds):
 		self.cnc.motionStart(cmds)
 		xyz = self.cnc.motionPath()
 		self.cnc.motionEnd()
 		if xyz:
-			length = self.cnc.pathLength(xyz)
-			self.cnc.pathMargins(xyz)
-			if enable:
+			self.cnc.pathLength(block, xyz)
+			if self.cnc.gcode in (1,2,3):
+				block.pathMargins(xyz)
+				self.cnc.pathMargins(block)
+
+			if block.enable:
 				if self.cnc.gcode == 0 and self.draw_rapid:
 					xyz[0] = self._last
 				self._last = xyz[-1]
@@ -1115,7 +1134,7 @@ class CNCCanvas(Canvas):
 					return None
 			coords = self.plotCoords(xyz)
 			if coords:
-				if enable:
+				if block.enable:
 					fill = ENABLE_COLOR
 				else:
 					fill = DISABLE_COLOR

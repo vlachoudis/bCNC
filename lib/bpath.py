@@ -1018,7 +1018,8 @@ class Path(list):
 				center = entity.center()
 				self.append(Segment(t, start, end, center))
 
-			elif entity.type == "LWPOLYLINE":
+			#elif entity.type == "LWPOLYLINE":
+			elif entity.type in ("LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
 				xy = list(zip(entity[10], entity[20]))
 				bulge = entity.bulge()

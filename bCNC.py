@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.7"
-__date__    = "14 Oct 2015"
+__version__ = "0.6.8"
+__date__    = "19 Oct 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -266,7 +266,9 @@ class Application(Toplevel,Sender):
 			pass
 		self.bind('<<Invert>>',		self.editor.invertBlocks)
 		self.bind('<<Expand>>',		self.editor.toggleExpand)
-		self.bind('<<Enable>>',		self.editor.toggleEnable)
+		self.bind('<<EnableToggle>>',	self.editor.toggleEnable)
+		self.bind('<<Enable>>',		self.editor.enable)
+		self.bind('<<Disable>>',	self.editor.disable)
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
@@ -287,6 +289,9 @@ class Application(Toplevel,Sender):
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)
 		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
+
+		self.bind("<<ListboxSelect>>",	self.selectionChange)
+		self.bind("<<Modified>>",	self.drawAfter)
 
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
@@ -738,21 +743,142 @@ class Application(Toplevel,Sender):
 	# FIXME Very primitive
 	#-----------------------------------------------------------------------
 	def showStats(self, event=None):
-		msg  = "GCode: %s\n"%(self.gcode.filename)
-		if not self.gcode.probe.isEmpty():
-			msg += "Probe: %s\n"%(self.gcode.probe.filename)
+		toplevel = Toplevel(self)
+		toplevel.transient(self)
+		toplevel.title("Statistics")
+
 		if CNC.inch:
 			unit = "in"
 		else:
 			unit = "mm"
-		msg += "Margins:\tX[%g .. %g]\n" % (CNC.vars["xmin"], CNC.vars["xmax"])
-		msg += "\tY:[%g .. %g]\n" % (CNC.vars["ymin"], CNC.vars["ymax"])
-		msg += "Dim:\t%g x %g\n" % \
-				(CNC.vars["xmax"]-CNC.vars["xmin"],
-				 CNC.vars["ymax"]-CNC.vars["ymin"])
-		msg += "Movement Length: %g %s\n"%(self.cnc.totalLength, unit)
-		msg += "Total Time: ~%.2g min\n"%(self.cnc.totalTime)
-		tkMessageBox.showinfo("Statistics", msg, parent=self)
+
+		# count enabled blocks
+		e = 0
+		l = 0
+		t = 0
+		for block in self.gcode.blocks:
+			if block.enable:
+				e += 1
+				l += block.length
+				t += block.time
+
+		# ===========
+		frame = LabelFrame(toplevel, text="Enabled GCode", foreground="DarkRed")
+		frame.pack(fill=BOTH)
+
+		# ---
+		row, col = 0,0
+		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g %s" % (CNC.vars["xmin"], CNC.vars["xmax"], unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g %s" % (CNC.vars["ymin"], CNC.vars["ymax"], unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="# Blocks:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text=str(e),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="Length:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g %s" % (l, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="Time:").grid(row=row, column=col, sticky=E)
+		col += 1
+		h,m = divmod(t, 60)	# t in min
+		s = (m-int(m))*60
+		Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		frame.grid_columnconfigure(1, weight=1)
+
+
+		# ===========
+		frame = LabelFrame(toplevel, text="All GCode", foreground="DarkRed")
+		frame.pack(fill=BOTH)
+
+		# ---
+		row, col = 0,0
+		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g %s" % (CNC.vars["axmin"], CNC.vars["axmax"], unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g %s" % (CNC.vars["aymin"], CNC.vars["aymax"], unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="# Blocks:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text=str(len(self.gcode.blocks)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="Length:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g %s" % (self.cnc.totalLength, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="Time:").grid(row=row, column=col, sticky=E)
+		col += 1
+		h,m = divmod(self.cnc.totalTime, 60)	# t in min
+		s = (m-int(m))*60
+		Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		frame.grid_columnconfigure(1, weight=1)
+
+		# ===========
+		frame = Frame(toplevel)
+		frame.pack(fill=X)
+
+		closeFunc = lambda e=None,t=toplevel: t.destroy()
+		b = Button(frame, text="Close", command=closeFunc)
+		b.pack(pady=5)
+		frame.grid_columnconfigure(1, weight=1)
+
+		toplevel.bind("<Escape>",    closeFunc)
+		toplevel.bind("<Return>",    closeFunc)
+		toplevel.bind("<KP_Enter>",  closeFunc)
+
+		# ----
+		toplevel.deiconify()
+		toplevel.wait_visibility()
+		toplevel.resizable(False, False)
+
+		try: toplevel.grab_set()
+		except: pass
+		b.focus_set()
+		toplevel.lift()
+		toplevel.wait_window()
 
 	#-----------------------------------------------------------------------
 	def reportDialog(self, event=None):
@@ -1177,6 +1303,10 @@ class Application(Toplevel,Sender):
 			except: z = ""
 			self._wcsSet(None,None,z)
 
+		# STAT*ISTICS: show statistics of current job
+		elif rexx.abbrev("STATISTICS",cmd,4):
+			self.showStats()
+
 		# STEP [s]: set motion step size to s
 		elif cmd == "STEP":
 			try:
@@ -1349,7 +1479,8 @@ class Application(Toplevel,Sender):
 				pass
 
 		# additional offset
-		ofs += offset
+		try: ofs += float(offset)
+		except: pass
 
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()

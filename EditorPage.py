@@ -116,16 +116,29 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ---
 		col,row=1,0
-		b = Ribbon.LabelButton(self.frame, self.app, "<<Enable>>",
+		b = Ribbon.LabelButton(self.frame, self.app, "<<EnableToggle>>",
 				image=Utils.icons["toggle"],
-				text="Toggle",
-				compound=LEFT,
+				#text="Toggle",
+				#compound=LEFT,
 				anchor=W,
-#				command=app.editor.toggleEnable,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Toggle enable/disable block of g-code [Ctrl-L]")
 		self.addWidget(b)
+
+		menulist = [	("Enable",   "enable",
+				lambda a=self.app : a.event_generate("<<Enable>>")),
+				("Disable",  "disable",
+				lambda a=self.app : a.event_generate("<<Disable>>"))]
+		b = Ribbon.MenuButton(self.frame, menulist,
+				text="Active",
+				image=Utils.icons["triangle_down"],
+				compound=RIGHT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col+1, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, "Enable or disable blocks of gcode")
+
 
 		# ---
 		row += 1
@@ -135,7 +148,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Toggle expand/collapse blocks of gcode [Ctrl-E]")
 		self.addWidget(b)
 
@@ -148,7 +161,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				anchor=W,
 				state=DISABLED,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "(Un)Comment selected lines")
 		self.addWidget(b)
 
@@ -455,10 +468,6 @@ class EditorFrame(CNCRibbon.PageFrame):
 						background="White")
 		self.editor.pack(side=LEFT,expand=TRUE, fill=BOTH)
 		self.addWidget(self.editor)
-
-		# FIXME XXX MOVE TO app
-		self.editor.bind("<<ListboxSelect>>",	app.selectionChange)
-		self.editor.bind("<<Modified>>",	app.drawAfter)
 
 		sb = Scrollbar(self, orient=VERTICAL, command=self.editor.yview)
 		sb.pack(side=RIGHT, fill=Y)
