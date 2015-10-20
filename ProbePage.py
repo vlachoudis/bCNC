@@ -33,6 +33,10 @@ TOOL_POLICY = [ "Send M6 commands",		# 0
 		"Manual Tool Change (TLO)"	# 3
 		]
 
+TOOL_WAIT = [  "ONLY before probing",
+               "BEFORE & AFTER probing"
+		]
+
 #===============================================================================
 # Probe Tab Group
 #===============================================================================
@@ -758,7 +762,22 @@ class ToolFrame(CNCRibbon.PageFrame):
 					width=16)
 		self.toolPolicy.grid(row=row, column=col, columnspan=3, sticky=EW)
 		self.toolPolicy.fill(TOOL_POLICY)
+		self.toolPolicy.set(TOOL_POLICY[0])
 		self.addWidget(self.toolPolicy)
+
+		# ----
+		row += 1
+		col  = 0
+		Label(lframe, text="Pause:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.toolWait = tkExtra.Combobox(lframe, True,
+					background="White",
+					command=self.policyChange,
+					width=16)
+		self.toolWait.grid(row=row, column=col, columnspan=3, sticky=EW)
+		self.toolWait.fill(TOOL_WAIT)
+		self.toolWait.set(TOOL_WAIT[1])
+		self.addWidget(self.toolWait)
 
 		# ----
 		row += 1
@@ -867,6 +886,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -892,6 +912,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.probeDistance.set(Utils.getFloat("Probe","tooldistance"))
 		self.toolHeight.set(   Utils.getFloat("Probe","toolheight"))
 		self.toolPolicy.set(TOOL_POLICY[Utils.getInt("Probe","toolpolicy",0)])
+		self.toolWait.set(TOOL_WAIT[Utils.getInt("Probe","toolwait",1)])
 		CNC.vars["toolmz"] = Utils.getFloat("Probe","toolmz")
 		self.set()
 
@@ -937,6 +958,10 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def policyChange(self):
 		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
+
+	#----------------------------------------------------------------------
+	def waitChange(self):
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
 
 	#----------------------------------------------------------------------
 	def getChange(self):
@@ -1043,8 +1068,8 @@ class ProbePage(CNCRibbon.Page):
 			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
+		self.tabGroup.tab.set("Probe")
 		self.tabGroup.tab.trace('w', self.tabChange)
-		#self.tabGroup.tab.set("Probe")
 
 	#----------------------------------------------------------------------
 	def tabChange(self, a, b, c):

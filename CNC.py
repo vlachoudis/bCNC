@@ -429,6 +429,8 @@ class CNC:
 				# 1 - skip those lines
 				# 2 - manual tool change
 
+	toolWaitAfterProbe = True	# wait at tool change position after probing
+
 	#----------------------------------------------------------------------
 	def __init__(self):
 		CNC.vars = {
@@ -1394,6 +1396,9 @@ class CNC:
 
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+
+		if CNC.toolWaitAfterProbe:
+			lines.append("%pause Restart spindle")
 
 		# restore state
 		lines.append("g90")		# restore mode

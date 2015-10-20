@@ -59,6 +59,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 import math
+import spline
 from bmath import Vector
 
 EPS  = 0.0001
@@ -66,6 +67,9 @@ EPS2 = EPS**2
 
 # Just to avoid repeating errors
 errors = {}
+
+SPLINE_SEGMENTS  = 20
+ELLIPSE_SEGMENTS = 100
 
 #------------------------------------------------------------------------------
 def error(msg):
@@ -97,13 +101,18 @@ class Entity(dict):
 		return out
 
 	#----------------------------------------------------------------------
-	def point(self,idx=0):
+	def init(self):
+		self._start = None
+		self._end = None
+
+	#----------------------------------------------------------------------
+	def point(self, idx=0):
 		return Vector(self.get(10+idx,0), self.get(20+idx,0))
 	point2D = point
 	center  = point
 
 	#----------------------------------------------------------------------
-	def point3D(self,idx=0):
+	def point3D(self, idx=0):
 		return Vector(self.get(10+idx), self.get(20+idx), self.get(30+idx))
 
 	#----------------------------------------------------------------------
@@ -141,8 +150,7 @@ class Entity(dict):
 			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type in ("LWPOLYLINE", "SPLINE"):
 			self._start = Vector(self[10][0], self[20][0])
-		#elif self.type == "ELLIPSE":
-		elif self.type == "POINT":
+		elif self.type in ("POINT", "ELLIPSE"):
 			self._start = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
@@ -183,6 +191,49 @@ class Entity(dict):
 	def invert(self):
 		self._invert = not self._invert
 		self._start, self._end = self._end, self._start
+
+	#----------------------------------------------------------------------
+	# Convert entity to polyline
+	#
+	# FIXME needs to be adaptive to the precision requested from the saggita
+	#----------------------------------------------------------------------
+	def convert2Polyline(self):
+		if self.type == "SPLINE":
+			# Convert to polyline
+			xy = zip(self[10], self[20])
+			xx,yy = spline.spline2Polyline(xy, int(self[71]), True, SPLINE_SEGMENTS)
+			self[10] = xx
+			self[20] = yy
+			self[42] = 0	# bulge FIXME maybe I should use it
+			self.type = "LWPOLYLINE"
+
+		elif self.type == "ELLIPSE":
+			center = self.start()
+			major  = self.point(1)
+			ratio  = self.get(40,1.0)
+			sPhi   = self.get(41,0.0)
+			ePhi   = self.get(42,2.0*math.pi)
+
+			# minor length
+			major_length = major.normalize()
+			minor_length = ratio*major_length
+
+			xx = []
+			yy = []
+			nseg = int((ePhi-sPhi) / math.pi * ELLIPSE_SEGMENTS)
+			dphi = (ePhi-sPhi)/float(nseg)
+			phi = sPhi
+			for i in range(nseg+1):
+				vx = major_length*math.cos(phi)
+				vy = minor_length*math.sin(phi)
+				xx.append(vx*major[0] - vy*major[1] + center[0])
+				yy.append(vx*major[1] + vy*major[0] + center[1])
+				phi += dphi
+			self[10] = xx
+			self[20] = yy
+			self[42] = 0	# bulge FIXME maybe I should use it
+			self.type = "LWPOLYLINE"
+		self.init()
 
 #==============================================================================
 # DXF layer
@@ -325,9 +376,13 @@ class DXF:
 		while True:
 			entity = self.readEntity()
 			if entity is None: return
+
 			#print ">>>",entity
-			#if entity.type in ("SPLINE","ELLIPSE"): continue
-			if entity.type in ("ELLIPSE"): continue
+			#for n,v in entity.items(): print n,":",v
+
+			if entity.type in ("ELLIPSE", "SPLINE"):
+				entity.convert2Polyline()
+
 			try:
 				layer = self.layers[entity.name]
 			except KeyError:
@@ -550,9 +605,19 @@ class DXF:
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
+#	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
 	dxf = DXF(sys.argv[1],"r")
 	dxf.readFile()
 	dxf.close()
+#	for name,layer in dxf.layers.items():
+#		print "#",name
+#		for entity in layer.entities:
+#			if entity.type == "SPLINE":
+#				xy = zip(entity[10], entity[20])
+#				cs = CubicBezierCurve(xy)
+#				for x,y in cs.approximate(100):
+#					print x,y
+
 #	for name,layer in dxf.layers.items():
 #		#print "Frozen=",not bool(layer.isFrozen())
 #		for entity in dxf.sortLayer(name):
