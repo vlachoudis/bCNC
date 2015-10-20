@@ -1398,6 +1398,7 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		if CNC.toolWaitAfterProbe:
+			lines.append("%wait")
 			lines.append("%pause Restart spindle")
 
 		# restore state
