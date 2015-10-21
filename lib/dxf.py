@@ -200,10 +200,25 @@ class Entity(dict):
 	def convert2Polyline(self):
 		if self.type == "SPLINE":
 			# Convert to polyline
-			xy = zip(self[10], self[20])
-			xx,yy = spline.spline2Polyline(xy, int(self[71]), True, SPLINE_SEGMENTS)
+			xyz  = zip(self[10], self[20], self[30])
+			flag = int(self.get(70,0))
+			closed   = bool(flag & 1)
+			periodic = bool(flag & 2)
+			rational = bool(flag & 4)
+			planar   = bool(flag & 8)
+			linear   = bool(flag & 16)
+			#for n in sorted(self.keys()): print n,"=",self[n]
+			#print "closed=",closed
+			#print "periodic=",periodic
+			#print "rational=",rational
+			#print "planar=",planar
+			#print "linear=",linear
+			#if closed: xyz.append(xyz[0])
+			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
+					closed, SPLINE_SEGMENTS)
 			self[10] = xx
 			self[20] = yy
+			self[30] = zz
 			self[42] = 0	# bulge FIXME maybe I should use it
 			self.type = "LWPOLYLINE"
 

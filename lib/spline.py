@@ -17,6 +17,14 @@ SPLINE_SEGMENTS = 20
 def spline2Polyline(controlPoints, degree, closed, segments):
 	npts = len(controlPoints)
 
+	if degree<1 or degree>3:
+		#print "invalid degree"
+		return None,None,None
+
+	if npts < degree+1:
+		#print "not enough control points"
+		return None,None,None
+
 	# order:
 	k = degree+1
 
@@ -32,23 +40,25 @@ def spline2Polyline(controlPoints, degree, closed, segments):
 	for pt in controlPoints:
 		b[i]   = pt[0]
 		b[i+1] = pt[1]
-		b[i+2] = 0.0
+		b[i+2] = pt[2]
 
 		#RS_DEBUG->print("RS_Spline::update: b[%d]: %f/%f", i, b[i], b[i+1])
 		i +=3
 
 	if closed:
-		rbspline(npts,k,p1,b,h,p)
-	else:
 		rbsplinu(npts,k,p1,b,h,p)
+	else:
+		rbspline(npts,k,p1,b,h,p)
 
 	x = []
 	y = []
+	z = []
 	for i in range(1,3*p1+1,3):
 		x.append(p[i])
 		y.append(p[i+1])
+		z.append(p[i+2])
 
-	return x,y
+	return x,y,z
 
 # -----------------------------------------------------------------------------
 # Generates B-Spline open knot vector with multiplicity
@@ -64,19 +74,19 @@ def knot(num, order, knotVector):
 
 # -----------------------------------------------------------------------------
 # Generates rational B-spline basis functions for an open knot vector.
+# -----------------------------------------------------------------------------
 def rbasis(c, t, npts, x, h, r):
 	nplusc = npts + c
 	temp = [0.0]*(nplusc+1)
 
 	# calculate the first order nonrational basis functions n[i]
 	for i in range(1, nplusc):
-		if t >= x[i] and t < x[i+1]:
+		if x[i] <= t < x[i+1]:
 			temp[i] = 1.0
 		else:
 			temp[i] = 0.0
 
 	# calculate the higher order nonrational basis functions
-
 	for k in range(2,c+1):
 		for i in range(1,nplusc-k+1):
 			# if the lower order basis function is zero skip the calculation
@@ -196,7 +206,7 @@ def rbsplinu(npts, k, p1, b, h, p):
 
 	for i1 in range(1, p1+1):
 		if float(x[nplusc]) - t < 5e-6:
-		    t = float(x[nplusc])
+			t = float(x[nplusc])
 
 		# generate the basis function for this value of t
 		rbasis(k,t,npts,x,h,nbasis)

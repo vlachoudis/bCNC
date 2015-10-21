@@ -138,6 +138,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
 		self.terminal = Text(self,
 					background="White",
 					width=20,
+					height=3,
 					wrap=NONE,
 					state=DISABLED)
 		self.terminal.pack(side=LEFT, fill=BOTH, expand=YES)
