@@ -277,7 +277,8 @@ class Tool(Plugin):
 
 				else:
 					# Handle 'rests' in addition to notes.
-					block.append("G04 P%0.4f\n" % duration )
+					duration = (((note[0]-last_time)+0.0)/(midi.division+0.0)) * (tempo/1000000.0)
+					block.append(CNC.gcode(4, [("P",duration)]))
 
 				# finally, set this absolute time as the new starting time
 				last_time = note[0]
