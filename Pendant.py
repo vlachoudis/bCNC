@@ -165,9 +165,12 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		#handle certain filetypes
 		filetype = page.rpartition('.')[2]
 		if filetype == "css": self.do_HEAD(content="text/css")
-		elif filetype == "js": self.do_HEAD(content="text/javascript")
-		elif filetype == "jpg": self.do_HEAD(content="image/jpeg")
+		elif filetype == "js": self.do_HEAD(content="application/x-javascript")
+		elif filetype == "json": self.do_HEAD(content="application/json")
+		elif filetype == "jpg" or filetype == "jpeg" : self.do_HEAD(content="image/jpeg")
 		elif filetype == "gif": self.do_HEAD(content="image/gif")
+		elif filetype == "png": self.do_HEAD(content="image/png")
+		elif filetype == "ico": self.do_HEAD(content="image/x-icon")
 		else: self.do_HEAD()
 
 		if page == "": page = "index.html"
