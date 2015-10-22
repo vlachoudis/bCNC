@@ -166,6 +166,8 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		filetype = page.rpartition('.')[2]
 		if filetype == "css": self.do_HEAD(content="text/css")
 		elif filetype == "js": self.do_HEAD(content="text/javascript")
+		elif filetype == "jpg": self.do_HEAD(content="image/gif")
+		elif filetype == "gif": self.do_HEAD(content="image/javascript")
 		else: self.do_HEAD()
 
 		if page == "": page = "index.html"
