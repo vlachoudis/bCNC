@@ -9,7 +9,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = "Pyrograph"
-__version__= "0.0.2"
+__version__= "0.0.3"
 
 from ToolsPage import DataBase
 
@@ -32,7 +32,7 @@ class Pyrograph:
 # Create pyrograph
 #==============================================================================
 class Tool(Plugin):
-	"""Create a pyrograph path"""
+	"""Create a variable feed path based upon image brightness"""
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Pyrograph"
@@ -56,7 +56,8 @@ class Tool(Plugin):
 		try:
 			from PIL import Image
 		except:
-			app.setStatus("Error: This plugin requires PIL/Pillow")
+			app.setStatus("Pyrograph abort: This plugin requires PIL/Pillow")
+			return
 
 		n = self["name"]
 		if not n or n=="default": n="Pyrograph"
@@ -70,14 +71,31 @@ class Tool(Plugin):
 		direction = self["Direction"]
 		drawBorder = self["DrawBorder"]
 
+		#Check parameters
+		if direction is "":
+			app.setStatus("Pyrograph abort: please define a scan Direction")
+			return
+
+		if toolSize <=0:
+			app.setStatus("Pyrograph abort: Tool Size must be > 0")
+			return
+
+		if feedMin <=0 or feedMax <=0 :
+			app.setStatus("Pyrograph abort: Please check feed rate parameters")
+			return
+
 		#divisions
 		divisions = maxSize / toolSize
 
 		fileName = self["File"]
-		img = Image.open(fileName)
-		img = img.convert ('RGB') #be sure to have color to calculate luminance
-		iWidth,iHeight =  img.size
+		try:
+			img = Image.open(fileName)
+			img = img.convert ('RGB') #be sure to have color to calculate luminance
+		except:
+			app.setStatus("Pyrograph abort: Can't read image file")
+			return
 
+		iWidth,iHeight =  img.size
 		newWidth = iWidth
 		newHeight = iHeight
 

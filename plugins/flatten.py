@@ -9,7 +9,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = "Flatten"
-__version__= "0.0.1"
+__version__= "0.0.2"
 
 from ToolsPage import DataBase
 
@@ -27,11 +27,28 @@ class Flatten:
 		self.name = name
 
 	#----------------------------------------------------------------------
-	def make(self, XStart=0.0, YStart=0.0, FlatWidth=10., FlatHeight=10., \
+	def make(self,app, XStart=0.0, YStart=0.0, FlatWidth=10., FlatHeight=10., \
 			FlatDepth=0,BorderPass=False,CutDirection="Climb",PocketType="Raster"):
 
 		#GCode Blocks
 		blocks = []
+
+		#Check parameters
+		if CutDirection is "":
+			app.setStatus("Flatten abort: Cut Direction is undefined")
+			return
+
+		if PocketType is "":
+			app.setStatus("Flatten abort: Pocket Type is undefined")
+			return
+
+		if FlatWidth <= 0 or FlatHeight <= 0 :
+			app.setStatus("Flatten abort: Flatten Area dimensions must be > 0")
+			return
+
+		if FlatDepth > 0 :
+			app.setStatus("Flatten abort: Hey this is only for subtractive machine! Check depth!")
+			return
 
 		#Add Region disabled to show worked area
 		block = Block(self.name + " Outline")
@@ -65,6 +82,10 @@ class Flatten:
 		#Calc space to work with/without border cut
 		WToWork = FlatWidth - toolDiam
 		HToWork = FlatHeight - toolDiam
+
+		if(WToWork < toolRadius or HToWork < toolRadius):
+			app.setStatus("Flatten abort: Flatten area is too small for this End Mill.")
+			return
 
 		#Prepare points for pocketing
 		xP=[]
@@ -229,7 +250,7 @@ class Flatten:
 # Create a flatten surface
 #==============================================================================
 class Tool(Plugin):
-	"""Create a flattening path"""
+	"""Flatten an area in different ways"""
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Flatten"
@@ -253,7 +274,8 @@ class Tool(Plugin):
 		if not n or n=="default": n="Flatten"
 		flatten = Flatten(n)
 
-		blocks = flatten.make(self["XStart"],
+		blocks = flatten.make(app,
+				self["XStart"],
 				self["YStart"],
 				self["FlatWidth"],
 				self["FlatHeight"],
@@ -263,8 +285,9 @@ class Tool(Plugin):
 				self["PocketType"]
 				)
 
-		active = app.activeBlock()
-		app.gcode.insBlocks(active, blocks, "Flatten")
-		app.refresh()
-		app.setStatus("Generated flatten surface")
+		if blocks is not None:
+			active = app.activeBlock()
+			app.gcode.insBlocks(active, blocks, "Flatten")
+			app.refresh()
+			app.setStatus("Flatten: Generated flatten surface")
 
