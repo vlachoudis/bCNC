@@ -17,6 +17,7 @@ import undo
 import Unicode
 
 from dxf   import DXF
+from stl   import Binary_STL_Writer
 from bpath import Path, Segment
 from bmath import *
 
@@ -54,7 +55,7 @@ PLANE         = { "G17" : "XY",
 		  "G18" : "ZX",
 		  "G19" : "YZ" }
 
-# Modal Mode from $G and variable set 
+# Modal Mode from $G and variable set
 MODAL_MODES = {
 	"G0"	: "motion",
 	"G1"	: "motion",
@@ -220,6 +221,28 @@ class Probe:
 				f.write("%g %g %g\n"%(x,y,self.matrix[j][i]))
 			f.write("\n")
 		f.close()
+
+	#----------------------------------------------------------------------
+	# Save level information as STL file
+	#----------------------------------------------------------------------
+	def saveAsSTL(self, filename=None):
+		if filename is not None:
+			self.filename = filename
+
+		with open(self.filename, 'wb') as fp:
+			writer = Binary_STL_Writer(fp)
+			for j in range(self.yn -1):
+				y1 = self.ymin + self._ystep*j
+				y2 = self.ymin + self._ystep*(j+1)
+				for i in range(self.xn -1):
+					x1 = self.xmin + self._xstep*i
+					x2 = self.xmin + self._xstep*(i+1)
+					v1=[x1,y1,self.matrix[j][i]]
+					v2=[x2,y1,self.matrix[j][i+1]]
+					v3=[x2,y2,self.matrix[j+1][i+1]]
+					v4=[x1,y2,self.matrix[j+1][i]]
+					writer.add_face([v1,v2,v3,v4])
+			writer.close()
 
 	#----------------------------------------------------------------------
 	# Return step

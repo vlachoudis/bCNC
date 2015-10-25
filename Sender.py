@@ -319,6 +319,9 @@ class Sender:
 				self.gcode.probe.filename = filename
 				self._saveConfigFile()
 			self.gcode.probe.load(filename)
+		elif ext == ".stl":
+            # FIXME: implements solid import???
+			pass
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
@@ -338,6 +341,9 @@ class Sender:
 				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
 				self.gcode.probe.save()
+		elif ext == ".stl":
+			#save probe as STL
+			self.gcode.probe.saveAsSTL(filename)
 		elif ext == ".dxf":
 			return self.gcode.saveDXF(filename)
 		else:
