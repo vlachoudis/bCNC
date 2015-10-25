@@ -63,6 +63,7 @@ import time
 import signal
 import string
 import Unicode
+import bFileDialog
 from log import say
 
 try:
@@ -2612,18 +2613,18 @@ class InPlaceFile(InPlaceEdit):
 
 	# ----------------------------------------------------------------------
 	def fileDialog(self):
-		import bFileDialog
 		self.frame.unbind("<FocusOut>")
 		self.frame.grab_release()
+		filename = self.listbox.get(self.item)
 		if self._save:
 			fn = bFileDialog.asksaveasfilename(master=self.listbox,
 				title=self.title,
-				initialfile=self.value,
+				initialfile=filename,
 				filetypes=self.filetypes)
 		else:
 			fn = bFileDialog.askopenfilename(master=self.listbox,
 				title=self.title,
-				initialfile=self.value,
+				initialfile=filename,
 				filetypes=self.filetypes)
 		self.frame.grab_set()
 		#self.frame.bind("<FocusOut>", self.cancel)

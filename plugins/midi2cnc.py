@@ -38,7 +38,7 @@ class Tool(Plugin):
 		Plugin.__init__(self, master)
 		self.name = "Midi2CNC"
 		self.icon = "midi2cnc"
-		
+
 		self.axes_dict = dict( {
 		'X':[0],       'Y':[1],    'Z':[2],
 		'XY':[0,1],    'YX':[1,0], 'XZ':[0,2],
@@ -61,9 +61,7 @@ class Tool(Plugin):
 		]
 		self.buttons.append("exe")
 
-
-
-# ----------------------------------------------------------------------
+	# ----------------------------------------------------------------------
 	def reached_limit(self,current, distance, direction, min, max):
 		# Returns true if the proposed movement will exceed the
 		# safe working limits of the machine but the movement is
@@ -96,8 +94,6 @@ class Tool(Plugin):
 			# envelope, so abort.
 			exit(2);
 
-
-
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		try:
@@ -118,7 +114,7 @@ class Tool(Plugin):
 		x_dir=1.0;
 		y_dir=1.0;
 		z_dir=1.0;
-		
+
 		# List of MIDI channels (instruments) to import.
 		# Channel 10 is percussion, so better to omit it
 		channels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] 
@@ -143,7 +139,7 @@ class Tool(Plugin):
 		except:
 			app.setStatus("Error: Sorry can't parse the Midi file.")
 			return
-		
+
 		noteEventList=[]
 		all_channels=set()
 
@@ -153,7 +149,8 @@ class Tool(Plugin):
 				if event.type == midiparser.meta.SetTempo:
 					tempo=event.detail.tempo
 
-				if ((event.type == midiparser.voice.NoteOn) and (event.channel in channels)): # filter undesired instruments
+				# filter undesired instruments
+				if ((event.type == midiparser.voice.NoteOn) and (event.channel in channels)):
 
 					if event.channel not in channels:
 						channels.add(event.channel)
@@ -293,12 +290,8 @@ class Tool(Plugin):
 				if(active_notes.has_key(note[2])):
 					active_notes.pop(note[2])
 
-
 		blocks.append(block)
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Midi2CNC")
 		app.refresh()
 		app.setStatus("Generated Midi2CNC, ready to play?")
-
-
-
