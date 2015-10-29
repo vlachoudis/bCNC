@@ -424,6 +424,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def sendHex(self, hexcode):
+		if self.serial is None: return
 		self.serial.write(chr(int(hexcode,16)))
 		self.serial.flush()
 

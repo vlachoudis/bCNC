@@ -2179,8 +2179,9 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Clone a block
 	#----------------------------------------------------------------------
-	def cloneBlockUndo(self, bid):
-		return self.addBlockUndo(bid, Block(self.blocks[bid]))
+	def cloneBlockUndo(self, bid, pos=None):
+		if pos is None: pos = bid
+		return self.addBlockUndo(pos, Block(self.blocks[bid]))
 
 	#----------------------------------------------------------------------
 	# Delete a whole block
@@ -2906,7 +2907,7 @@ class GCode:
 					newcmd.append(self.fmt(cmd[0],new[c]))
 				undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
-		# XXX should I add it here or return it to be added later?
+		# FIXME I should add it later, check all functions using it
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
@@ -2937,7 +2938,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
-	def moveLines(self, items, dx, dy, dz):
+	def moveLines(self, items, dx, dy, dz=0.0):
 		return self.process(items, self.moveFunc, dx, dy, dz)
 
 	#----------------------------------------------------------------------

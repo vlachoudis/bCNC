@@ -8,7 +8,7 @@
 __author__  = "Vasilis Vlachoudis"
 __email__   = "Vasilis.Vlachoudis@cern.ch"
 
-import Unicode
+import traceback
 try:
 	from Tkinter import *
 except ImportError:
@@ -20,6 +20,7 @@ import glob
 import Utils
 import Ribbon
 import tkExtra
+import Unicode
 import CNCRibbon
 
 #===============================================================================
@@ -690,13 +691,11 @@ class Tools:
 			name,ext = os.path.splitext(os.path.basename(f))
 			try:
 				exec("import %s"%(name))
-			except ImportError:
-				continue
-			try:
 				tool = eval("%s.Tool(self)"%(name))
 				self.addTool(tool)
-			except AttributeError:
-				continue
+			except (ImportError, AttributeError):
+				typ, val, tb = sys.exc_info()
+				traceback.print_exception(typ, val, tb)
 
 	# ----------------------------------------------------------------------
 	def addTool(self, tool):

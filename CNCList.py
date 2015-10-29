@@ -219,8 +219,7 @@ class CNCListbox(Listbox):
 
 		#self.selection_set(ACTIVE)
 		#self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
-		return "break"
+		self.app.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	def clone(self, event=None):
@@ -229,20 +228,28 @@ class CNCListbox(Listbox):
 
 		ypos = self.yview()[0]
 		undoinfo = []
+		self.selection_clear(0,END)
+		pos = self._items[sel[-1]][0]+1
+		blocks = []
 		for i in reversed(sel):
 			bid, lid = self._items[i]
 			if lid is None:
-				undoinfo.append(self.gcode.cloneBlockUndo(bid))
+				undoinfo.append(self.gcode.cloneBlockUndo(bid, pos))
+				for i in range(len(blocks)): blocks[i] += 1
+				blocks.append(pos)
 			else:
 				undoinfo.append(self.gcode.cloneLineUndo(bid, lid))
 		self.gcode.addUndo(undoinfo)
 
-		self.selection_clear(0,END)
 		self.fill()
 		self.yview_moveto(ypos)
-		self.selection_set(ACTIVE)
+		if blocks:
+			self.selectBlocks(blocks)
+			self.activate(self._blockPos[blocks[-1]])
+		else:
+			self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -267,7 +274,7 @@ class CNCListbox(Listbox):
 		self.yview_moveto(ypos)
 		self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Edit active item
@@ -315,7 +322,7 @@ class CNCListbox(Listbox):
 			self.itemconfig(active, foreground=COMMENT_COLOR)
 
 		self.yview_moveto(ypos)
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# return active block id
@@ -367,7 +374,7 @@ class CNCListbox(Listbox):
 		self.see(active)
 		self.activate(active)
 		self.edit()
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Insert a new line below cursor
@@ -414,7 +421,7 @@ class CNCListbox(Listbox):
 			self._blockPos[i] += 1	# shift all blocks below by one
 
 		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	def toggleKey(self,event=None):
@@ -703,7 +710,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderUp(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -715,7 +722,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderDown(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.event_generate("<<Modified>>")
+		self.app.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------

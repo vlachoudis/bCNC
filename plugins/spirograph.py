@@ -12,8 +12,6 @@ __email__  = "f.rivato@gmail.com"
 __name__ = "Spirograph"
 __version__= "0.0.1"
 
-from ToolsPage import DataBase
-
 import math
 from bmath import Vector
 from CNC import CNC,Block

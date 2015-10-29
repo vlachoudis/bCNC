@@ -10,8 +10,6 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 __name__ = "Gear"
 
-from ToolsPage import DataBase
-
 import math
 from bmath import Vector
 from CNC import CW,CCW,CNC,Block

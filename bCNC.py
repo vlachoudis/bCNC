@@ -572,6 +572,10 @@ class Application(Toplevel,Sender):
 		return "break"
 
 	#-----------------------------------------------------------------------
+	def addUndo(self, undoinfo):
+		self.gcode.addUndo(undoinfo)
+
+	#-----------------------------------------------------------------------
 	def about(self, event=None, timer=None):
 		toplevel = Toplevel(self)
 		toplevel.transient(self)
@@ -771,7 +775,10 @@ class Application(Toplevel,Sender):
 		row, col = 0,0
 		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
 		col += 1
-		Label(frame, text="%g .. %g %s" % (CNC.vars["xmin"], CNC.vars["xmax"], unit),
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["xmin"], CNC.vars["xmax"],
+			 CNC.vars["xmax"] -CNC.vars["xmin"],
+			 unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---
@@ -779,7 +786,21 @@ class Application(Toplevel,Sender):
 		col = 0
 		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
 		col += 1
-		Label(frame, text="%g .. %g %s" % (CNC.vars["ymin"], CNC.vars["ymax"], unit),
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["ymin"], CNC.vars["ymax"],
+			 CNC.vars["ymax"] -CNC.vars["ymin"],
+			 unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["zmin"], CNC.vars["zmax"],
+			 CNC.vars["zmax"] -CNC.vars["zmin"],
+			 unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---
@@ -819,7 +840,10 @@ class Application(Toplevel,Sender):
 		row, col = 0,0
 		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
 		col += 1
-		Label(frame, text="%g .. %g %s" % (CNC.vars["axmin"], CNC.vars["axmax"], unit),
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["axmin"], CNC.vars["axmax"],
+			 CNC.vars["axmax"] -CNC.vars["axmin"],
+			 unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---
@@ -827,7 +851,21 @@ class Application(Toplevel,Sender):
 		col = 0
 		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
 		col += 1
-		Label(frame, text="%g .. %g %s" % (CNC.vars["aymin"], CNC.vars["aymax"], unit),
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["aymin"], CNC.vars["aymax"],
+			 CNC.vars["aymax"] -CNC.vars["aymin"],
+			 unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g .. %g [%g] %s" % \
+			(CNC.vars["azmin"], CNC.vars["azmax"],
+			 CNC.vars["azmax"] -CNC.vars["azmin"],
+			 unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---
@@ -1425,6 +1463,7 @@ class Application(Toplevel,Sender):
 
 		self.busy()
 		sel = None
+		undoinfo = None	# all operations should return undo information
 		if   cmd == "CUT":
 			sel = self.gcode.cut(items, *args)
 		elif cmd == "CLOSE":
@@ -1662,7 +1701,7 @@ class Application(Toplevel,Sender):
 				pos = None
 			else:
 				pos = sel[-1]
-			self.gcode.addUndo(self.gcode.insBlocksUndo(pos, gcode.blocks))
+			self.addUndo(self.gcode.insBlocksUndo(pos, gcode.blocks))
 			del gcode
 			self.editor.fill()
 			self.draw()
