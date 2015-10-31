@@ -12,6 +12,11 @@ __name__ = "Tile"
 
 from ToolsPage import Plugin
 
+try:
+	import tkMessageBox
+except ImportError:
+	import tkinter.messagebox as tkMessageBox
+
 #import math
 #from bmath import Vector
 #from CNC import CW,CCW,CNC,Block
@@ -41,6 +46,12 @@ class Tool(Plugin):
 		if not blocks:
 			app.editor.selectAll()
 			blocks = app.editor.getSelectedBlocks()
+
+		if not blocks:
+			tkMessageBox.showerror("Tile error",
+				"No g-code blocks selected")
+			return
+
 
 		try:
 			dx = float(self["dx"])
