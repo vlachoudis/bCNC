@@ -1881,6 +1881,11 @@ class GCode:
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
 
+		if CNC.inch:
+			units = DXF.INCHES
+		else:
+			units = DXF.MILLIMETERS
+
 		undoinfo = []
 		for name,layer in dxf.layers.items():
 			enable = not bool(layer.isFrozen())
@@ -1888,7 +1893,7 @@ class GCode:
 			if not entities: continue
 			self.importEntityPoints(None, entities, name, enable)
 			path = Path(name)
-			path.fromDxfLayer(entities)
+			path.fromDxfLayer(dxf, entities, units)
 			path.removeZeroLength()
 			opath = path.split2contours()
 			if not opath: continue
@@ -1934,6 +1939,10 @@ class GCode:
 			dxf = DXF(filename,"w")
 		except:
 			return False
+		if CNC.inch:
+			dxf.units = DXF.INCHES
+		else:
+			dxf.units = DXF.MILLIMETERS
 		dxf.writeHeader()
 		for block in self.blocks:
 			name = block.name()

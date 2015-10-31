@@ -1001,27 +1001,28 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments
 	#----------------------------------------------------------------------
-	def fromDxfLayer(self, layer):
+	def fromDxfLayer(self, dxf, layer, units=0):
 		for entity in layer:
-			start = entity.start()
-			end   = entity.end()
+			start = dxf.convert(entity.start(), units)
+			end   = dxf.convert(entity.end(), units)
 			if entity.type == "LINE":
 				if not eq(start,end):
 					self.append(Segment(LINE, start, end))
 
 			elif entity.type == "CIRCLE":
-				center = entity.center()
+				center = dxf.convert(entity.center(), units)
 				self.append(Segment(CCW, start, end, center))
 
 			elif entity.type == "ARC":
 				t = entity._invert and CW or CCW
-				center = entity.center()
+				center = dxf.convert(entity.center(), units)
 				self.append(Segment(t, start, end, center))
 
 			#elif entity.type == "LWPOLYLINE":
 			elif entity.type in ("LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
-				xy = list(zip(entity[10], entity[20]))
+				xy = list(zip(dxf.convert(entity[10],units), dxf.convert(entity[20],units)))
+				if entity.isClosed(): xy.append(xy[0])
 				bulge = entity.bulge()
 				if not isinstance(bulge,list): bulge = [bulge]*len(xy)
 				if entity._invert:

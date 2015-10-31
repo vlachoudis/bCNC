@@ -68,9 +68,6 @@ EPS2 = EPS**2
 # Just to avoid repeating errors
 errors = {}
 
-SPLINE_SEGMENTS  = 20
-ELLIPSE_SEGMENTS = 100
-
 #------------------------------------------------------------------------------
 def error(msg):
 	global errors
@@ -84,6 +81,16 @@ def error(msg):
 # Entity holder
 #==============================================================================
 class Entity(dict):
+	CLOSED   = 0x01
+	PERIODIC = 0x02
+	RATIONAL = 0x04
+	PLANAR   = 0x08
+	LINEAR   = 0x10
+
+	SPLINE_SEGMENTS  = 20
+	ELLIPSE_SEGMENTS = 100
+
+	#----------------------------------------------------------------------
 	def __init__(self, t, n=None):
 		self.type    = t
 		self.name    = n
@@ -132,6 +139,14 @@ class Entity(dict):
 		return self.get(42,0)
 
 	#----------------------------------------------------------------------
+	def flag(self):
+		return self.get(70,0)
+
+	#----------------------------------------------------------------------
+	def isClosed(self):
+		return bool(self.flag() & Entity.CLOSED)
+
+	#----------------------------------------------------------------------
 	# Return start point
 	#----------------------------------------------------------------------
 	def start(self):
@@ -176,7 +191,10 @@ class Entity(dict):
 			s = math.radians(self.endPhi())
 			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type in ("LWPOLYLINE", "SPLINE"):
-			self._end = Vector(self[10][-1], self[20][-1])
+			if self.isClosed():
+				self._end = Vector(self[10][0], self[20][0])
+			else:
+				self._end = Vector(self[10][-1], self[20][-1])
 		elif self.type == "POINT":
 			self._end = self.point()
 		else:
@@ -202,11 +220,11 @@ class Entity(dict):
 			# Convert to polyline
 			xyz  = zip(self[10], self[20], self[30])
 			flag = int(self.get(70,0))
-			closed   = bool(flag & 1)
-			periodic = bool(flag & 2)
-			rational = bool(flag & 4)
-			planar   = bool(flag & 8)
-			linear   = bool(flag & 16)
+			closed   = bool(flag & Entity.CLOSED)
+			periodic = bool(flag & Entity.PERIODIC)
+			rational = bool(flag & Entity.RATIONAL)
+			planar   = bool(flag & Entity.PLANAR)
+			linear   = bool(flag & Entity.LINEAR)
 			#for n in sorted(self.keys()): print n,"=",self[n]
 			#print "closed=",closed
 			#print "periodic=",periodic
@@ -215,7 +233,7 @@ class Entity(dict):
 			#print "linear=",linear
 			#if closed: xyz.append(xyz[0])
 			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
-					closed, SPLINE_SEGMENTS)
+					closed, Entity.SPLINE_SEGMENTS)
 			self[10] = xx
 			self[20] = yy
 			self[30] = zz
@@ -235,7 +253,7 @@ class Entity(dict):
 
 			xx = []
 			yy = []
-			nseg = int((ePhi-sPhi) / math.pi * ELLIPSE_SEGMENTS)
+			nseg = int((ePhi-sPhi) / math.pi * Entity.ELLIPSE_SEGMENTS)
 			dphi = (ePhi-sPhi)/float(nseg)
 			phi = sPhi
 			for i in range(nseg+1):
@@ -274,12 +292,86 @@ class Layer:
 # DXF importer/exporter class
 #==============================================================================
 class DXF:
+	# Default drawing units for AutoCAD DesignCenter blocks:
+	UNITLESS           = 0
+	INCHES             = 1
+	FEET               = 2
+	MILES              = 3
+	MILLIMETERS        = 4
+	CENTIMETERS        = 5
+	METERS             = 6
+	KILOMETERS         = 7
+	MICROINCHES        = 8
+	MILS               = 9
+	YARDS              = 10
+	ANGSTROMS          = 11
+	NANOMETERS         = 12
+	MICRONS            = 13
+	DECIMETERS         = 14
+	DECAMETERS         = 15
+	HECTOMETERS        = 16
+	GIGAMETERS         = 17
+	ASTRONOMICAL_UNITS = 18
+	LIGHT_YEARS        = 19
+	PARSECS            = 20
+
+	# Convert Units to mm
+	_TOMM = [    1.0,	# UNITLESS           = 0
+		    25.4,	# INCHES             = 1
+		 25.4*12,	# FEET               = 2
+		1609.34e3,	# MILES              = 3
+		     1.0,	# MILLIMETERS        = 4
+		    10.0,	# CENTIMETERS        = 5
+		  1000.0,	# METERS             = 6
+		     1e6,	# KILOMETERS         = 7
+		 25.4e-6,	# MICROINCHES        = 8
+		 25.4e-3,	# MILS               = 9
+		   915.4,	# YARDS              = 10
+		    1e-7,	# ANGSTROMS          = 11
+		    1e-9,	# NANOMETERS         = 12
+		    1e-6,	# MICRONS            = 13
+		   100.0,	# DECIMETERS         = 14
+		 10000.0,	# DECAMETERS         = 15
+		100000.0,	# HECTOMETERS        = 16
+		    1e12,	# GIGAMETERS         = 17
+		1.496e14,	# ASTRONOMICAL_UNITS = 18
+		9.461e18,	# LIGHT_YEARS        = 19
+		3.086e19	# PARSECS            = 20
+	 ]
+
+	#----------------------------------------------------------------------
 	def __init__(self, filename=None, mode="r"):
 		self._f = None
 		if filename:
 			self.open(filename,mode)
 		self.title  = "dxf-class"
+		self.units  = DXF.UNITLESS
 		errors.clear()
+
+	#----------------------------------------------------------------------
+	# Convert units to another format
+	#----------------------------------------------------------------------
+	def convert(self, value, units):
+		# Convert to another type of units
+		f = self._TOMM[self.units] / DXF._TOMM[units]
+
+		if isinstance(value,float):
+			return value * f
+
+		elif isinstance(value,Vector):
+			new = Vector(value)
+			for i in range(len(value)):
+				new[i] *= f
+			return new
+
+		elif isinstance(value,list):
+			new = []
+			for x in value:
+				new.append(x*f)
+			return new
+
+		else:
+			raise Exception("Cannot convert type %s %s"%(type(value),str(value)))
 
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
@@ -354,7 +446,22 @@ class DXF:
 	# Read header section
 	#----------------------------------------------------------------------
 	def readHeader(self):
-		self.skipSection()
+		var = None
+		while True:
+			tag,value = self.read()
+			if tag is None or (tag == 0 and value=="ENDSEC"):
+				return
+			elif tag == 9:
+				var = value
+			elif tag == 70:
+				if var == "$MEASUREMENT":
+					value = int(value)
+					if value == 0:
+						self.units = DXF.INCHES
+					else:
+						self.units = DXF.MILLIMETERS
+				elif var == "$INSUNITS":
+					self.units = int(value)
 
 	#----------------------------------------------------------------------
 	# Read and return one entity
@@ -565,6 +672,13 @@ class DXF:
 		self.writeVector( 0, 0,0,0)
 		self.write( 9, "$EXTMAX")
 		self.writeVector( 0, 1000,1000,0)
+		self.write( 9, "$MEASUREMENT")
+		if self.units == DXF.MILLIMETERS:
+			self.write(70, 1)
+		else:
+			self.write(70, 0)
+		self.write( 9, "$INSUNITS")
+		self.write(70, self.units)
 		self.write( 0, "ENDSEC")
 
 		self.write( 0,"SECTION")
