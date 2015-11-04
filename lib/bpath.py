@@ -1005,7 +1005,7 @@ class Path(list):
 		for entity in layer:
 			start = dxf.convert(entity.start(), units)
 			end   = dxf.convert(entity.end(), units)
-			if entity.type == "Segment.LINE":
+			if entity.type == "LINE":
 				if not eq(start,end):
 					self.append(Segment(Segment.LINE, start, end))
 
@@ -1018,7 +1018,6 @@ class Path(list):
 				center = dxf.convert(entity.center(), units)
 				self.append(Segment(t, start, end, center))
 
-			#elif entity.type == "LWPOLYLINE":
 			elif entity.type in ("LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
 				xy = list(zip(dxf.convert(entity[10],units), dxf.convert(entity[20],units)))

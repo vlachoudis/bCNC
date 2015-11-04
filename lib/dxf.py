@@ -741,6 +741,7 @@ if __name__ == "__main__":
 #	for name,layer in dxf.layers.items():
 #		print "#",name
 #		for entity in layer.entities:
+#			print entity.name, entity.type
 #			if entity.type == "SPLINE":
 #				xy = zip(entity[10], entity[20])
 #				cs = CubicBezierCurve(xy)
