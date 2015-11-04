@@ -163,7 +163,7 @@ class Entity(dict):
 			r = self.radius()
 			s = math.radians(self.startPhi())
 			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
-		elif self.type in ("LWPOLYLINE", "SPLINE"):
+		elif self.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 			self._start = Vector(self[10][0], self[20][0])
 		elif self.type in ("POINT", "ELLIPSE"):
 			self._start = self.point()
@@ -190,7 +190,7 @@ class Entity(dict):
 			r = self.radius()
 			s = math.radians(self.endPhi())
 			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
-		elif self.type in ("LWPOLYLINE", "SPLINE"):
+		elif self.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 			if self.isClosed():
 				self._end = Vector(self[10][0], self[20][0])
 			else:
@@ -464,6 +464,37 @@ class DXF:
 					self.units = int(value)
 
 	#----------------------------------------------------------------------
+	# Read vertex for POLYLINE
+	# Very bad!!
+	#----------------------------------------------------------------------
+	def readVertex(self, entity):
+		entity[10] = []
+		entity[20] = []
+		entity[30] = []
+		entity[42] = []
+
+		x = 0.
+		y = 0.
+		z = 0.
+		while True:
+			tag,value = self.read()
+			#print tag,value
+			if tag is None: return
+			if tag==0:
+				if value == "SEQEND":
+					# Vertex sequence end
+					tag,value = self.read()
+					if tag!=8: self.push(tag,value)
+					# Correct bulge
+					if not entity[42]: entity[42] = 0
+					return
+				elif value != "VERTEX":
+					print value
+					raise Exception("Entity found in wrong context")
+			elif tag in (10,20,30,42):
+				entity[tag].append(value)
+
+	#----------------------------------------------------------------------
 	# Read and return one entity
 	#----------------------------------------------------------------------
 	def readEntity(self):
@@ -478,8 +509,12 @@ class DXF:
 			#print tag,value
 			if tag is None: return
 			if tag==0:
-				self.push(tag,value)
-				return entity
+				if entity.type == "POLYLINE":
+					self.readVertex(entity)
+					return entity
+				else:
+					self.push(tag,value)
+					return entity
 			elif tag==8:
 				entity.name = str(value)
 			else:

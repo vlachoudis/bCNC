@@ -1018,7 +1018,7 @@ class Path(list):
 				center = dxf.convert(entity.center(), units)
 				self.append(Segment(t, start, end, center))
 
-			elif entity.type in ("LWPOLYLINE", "SPLINE"):
+			elif entity.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
 				xy = list(zip(dxf.convert(entity[10],units), dxf.convert(entity[20],units)))
 				if entity.isClosed(): xy.append(xy[0])
