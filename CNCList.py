@@ -164,7 +164,11 @@ class CNCListbox(Listbox):
 		try:
 			self.__bid, self.__lid = self._items[self.curselection()[-1]]
 		except:
-			self.__bid, self.__lid = self._items[-1]
+			try:
+				self.__bid, self.__lid = self._items[-1]
+			except:
+				self.__bid = 0
+				self.__lid = None
 
 		selitems = []
 		undoinfo = []

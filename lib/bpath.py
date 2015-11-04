@@ -68,11 +68,6 @@ EPSV  = 0.00001
 EPSV2 = EPSV**2
 PI2   = 2.0*pi
 
-LINE = 1
-CW   = 2
-CCW  = 3
-_TYPES = ["LINE","CW  ","CCW "]
-
 #------------------------------------------------------------------------------
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
@@ -95,13 +90,18 @@ def eq2(A,B,acc):
 # Segment
 #==============================================================================
 class Segment:
+	LINE = 1
+	CW   = 2
+	CCW  = 3
+	_TYPES = ["LINE", "CW  ","CCW "]
+
 	def __init__(self, t, s, e, c=None): #, r=None): #, sPhi=None, ePhi=None):
 		self.type  = t
 		self.start = s
 		self.end   = e
 		self.cross = False	# end point is a path cross point
 		self.AB = self.end-self.start
-		if self.type==LINE:
+		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:
 			self.setCenter(c)
@@ -110,7 +110,7 @@ class Segment:
 	def setStart(self, s):
 		self.start = s
 		self.AB = self.end-self.start
-		if self.type==LINE:
+		if self.type==Segment.LINE:
 			self.calcBBox()
 		else:
 			self.correct()
@@ -119,7 +119,7 @@ class Segment:
 	def setEnd(self, e):
 		self.end = e
 		self.AB = self.end-self.start
-		if self.type==LINE:
+		if self.type==Segment.LINE:
 			self.calcBBox()
 		else:
 			self.correct()
@@ -176,10 +176,10 @@ class Segment:
 			self.center = self.start + CS*t
 			if t < 0.0:
 				# change type
-				if self.type == CW:
-					self.type = CCW
+				if self.type == Segment.CW:
+					self.type = Segment.CCW
 				else:
-					self.type = CW
+					self.type = Segment.CW
 			#if (self.center-C).length()>EPS:
 			#	print self
 			#	print (self.center-C).length()
@@ -199,16 +199,16 @@ class Segment:
 		if abs(self.startPhi)<EPS: self.startPhi = 0.0
 		if abs(self.endPhi)  <EPS: self.endPhi   = 0.0
 
-		if self.type == CW:	# Inverted: end < start
+		if self.type == Segment.CW:	# Inverted: end < start
 			if self.startPhi <= self.endPhi: self.startPhi += PI2
-		elif self.type == CCW:	# Normal: start < end
+		elif self.type == Segment.CCW:	# Normal: start < end
 			if self.endPhi <= self.startPhi: self.endPhi += PI2
 
 		self.calcBBox()
 
 	#----------------------------------------------------------------------
 	def change2Line(self):
-		self.type = LINE
+		self.type = Segment.LINE
 		self.calcBBox()
 
 	#----------------------------------------------------------------------
@@ -217,17 +217,17 @@ class Segment:
 	def invert(self):
 		self.start, self.end = self.end, self.start
 		self.AB = -self.AB
-		if self.type != LINE:
-			if self.type == CW:
-				self.type = CCW
-			elif self.type == CCW:
-				self.type = CW
+		if self.type != Segment.LINE:
+			if self.type == Segment.CW:
+				self.type = Segment.CCW
+			elif self.type == Segment.CCW:
+				self.type = Segment.CW
 			self.startPhi, self.endPhi = self.endPhi, self.startPhi
 			self.correct()
 
 	#----------------------------------------------------------------------
 	def calcBBox(self):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			self.minx = min(self.start[0], self.end[0]) - EPSV
 			self.maxx = max(self.start[0], self.end[0]) + EPSV
 			self.miny = min(self.start[1], self.end[1]) - EPSV
@@ -245,7 +245,7 @@ class Segment:
 			c = "x"
 		else:
 			c = ""
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			return "%s %s %s%s L:%g"%(_TYPES[self.type-1], self.start, self.end, c, self.length())
 		else:
 			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g"%(_TYPES[self.type-1], \
@@ -259,7 +259,7 @@ class Segment:
 	# Return a point ON the segment in the middle
 	#----------------------------------------------------------------------
 	def midPoint(self):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			return 0.5*(self.start + self.end)
 		else:
 			phi = 0.5*(self.startPhi + self.endPhi)
@@ -270,13 +270,13 @@ class Segment:
 	# return segment length
 	#----------------------------------------------------------------------
 	def length(self):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			return self.AB.length()
 
-		elif self.type == CW:
+		elif self.type == Segment.CW:
 			phi = self.startPhi - self.endPhi
 
-		elif self.type == CCW:
+		elif self.type == Segment.CCW:
 			phi = self.endPhi - self.startPhi
 
 		if phi < 0.0: phi += PI2
@@ -286,14 +286,14 @@ class Segment:
 	# Orthogonal vector at start
 	#----------------------------------------------------------------------
 	def orthogonalStart(self):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			O = self.AB.orthogonal()
 			O.norm()
 			return O
 		else:
 			O = self.start - self.center
 			O.norm()
-			if self.type == CCW:
+			if self.type == Segment.CCW:
 				return -O
 			else:
 				return O
@@ -302,14 +302,14 @@ class Segment:
 	# Orthogonal vector at end
 	#----------------------------------------------------------------------
 	def orthogonalEnd(self):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			O = self.AB.orthogonal()
 			O.norm()
 			return O
 		else:
 			O = self.end - self.center
 			O.norm()
-			if self.type == CCW:
+			if self.type == Segment.CCW:
 				return -O
 			else:
 				return O
@@ -320,11 +320,11 @@ class Segment:
 	#----------------------------------------------------------------------
 	def _insideArc(self, P):
 		phi = atan2(P[1]-self.center[1], P[0]-self.center[0])
-		if self.type==CW:
+		if self.type==Segment.CW:
 			if phi < self.endPhi-EPS/self.radius: phi += PI2
 			if phi <= self.startPhi + EPS/self.radius:
 				return True
-		elif self.type==CCW:
+		elif self.type==Segment.CCW:
 			if phi < self.startPhi-EPS/self.radius: phi += PI2
 			if phi <= self.endPhi + EPS/self.radius:
 				return True
@@ -338,7 +338,7 @@ class Segment:
 	# Return if P is inside the segment
 	#----------------------------------------------------------------------
 	def inside(self, P):
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			if P[0] <= self.minx or P[0] >= self.maxx: return False
 			if P[1] <= self.miny or P[1] >= self.maxy: return False
 			return True
@@ -401,7 +401,7 @@ class Segment:
 		if max(self.minx,other.minx) > min(self.maxx,other.maxx): return None,None
 		if max(self.miny,other.miny) > min(self.maxy,other.maxy): return None,None
 
-		if self.type==LINE and other.type==LINE:
+		if self.type==Segment.LINE and other.type==Segment.LINE:
 			# check for intersection
 			DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
 			if abs(DD)<EPS2: return None,None
@@ -415,13 +415,13 @@ class Segment:
 				return P,None
 			return None,None
 
-		elif self.type==LINE and other.type!=LINE:
+		elif self.type==Segment.LINE and other.type!=Segment.LINE:
 			return self._intersectLineArc(other)
 
-		elif self.type!=LINE and other.type==LINE:
+		elif self.type!=Segment.LINE and other.type==Segment.LINE:
 			return other._intersectLineArc(self)
 
-		elif self.type!=LINE and other.type!=LINE:
+		elif self.type!=Segment.LINE and other.type!=Segment.LINE:
 			# Circle circle intersection
 			CC = other.center - self.center
 			d = CC.norm()
@@ -457,7 +457,7 @@ class Segment:
 #		   eq(self.start, Vector(48.0042, 15.5539)) and \
 #		   eq(self.end, Vector(36.2223, 15.5307)):
 #			import pdb; pdb.set_trace()
-		if self.type == LINE:
+		if self.type == Segment.LINE:
 			AB2  = self.AB[0]**2 + self.AB[1]**2
 			APx  = P[0]-self.start[0]
 			APy  = P[1]-self.start[1]
@@ -472,7 +472,7 @@ class Segment:
 				if abs(d)<EPS: return 0.0
 				return sqrt(d)
 
-		elif self.type == CW:
+		elif self.type == Segment.CW:
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
@@ -482,7 +482,7 @@ class Segment:
 			else:
 				return abs(sqrt(PCx**2+PCy**2) - self.radius)
 
-		elif self.type == CCW:
+		elif self.type == Segment.CCW:
 			PCx = P[0] - self.center[0]
 			PCy = P[1] - self.center[1]
 			phi = atan2(PCy, PCx)
@@ -509,7 +509,7 @@ class Segment:
 		self.cross = False
 		self.end   = P
 		self.AB    = self.end - self.start
-		if self.type>LINE:
+		if self.type>Segment.LINE:
 			new.setCenter(self.center) #, self.radius, None, self.endPhi)
 			self.setCenter(self.center) #, self.radius, self.startPhi, new.startPhi)
 		else:
@@ -543,14 +543,14 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def close(self):
 		self._length = None
-		self.append(Segment(LINE, self[-1].end, self[0].start))
+		self.append(Segment(Segment.LINE, self[-1].end, self[0].start))
 
 	#----------------------------------------------------------------------
 	# Join path at the end
 	#----------------------------------------------------------------------
 	def join(self, path):
 		self._length = None
-		self.append(Segment(LINE, self[-1].end, path[0].start))
+		self.append(Segment(Segment.LINE, self[-1].end, path[0].start))
 		self.extend(path)
 
 	#----------------------------------------------------------------------
@@ -571,9 +571,9 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# Return:
-	#	-1 for CCW closed path
+	#	-1 for Segment.CCW closed path
 	#        0 for open path
-	#	 1 for CW  closed path
+	#	 1 for Segment.CW  closed path
 	#----------------------------------------------------------------------
 	def direction(self):
 		if not self.isClosed(): return 0
@@ -599,9 +599,9 @@ class Path(list):
 					elif dot> 1.0: dot= 1.0
 					phi += copysign(acos(dot), cross)
 			else:
-				if N.type == CW:
+				if N.type == Segment.CW:
 					phi -= PI2
-				elif N.type == CCW:
+				elif N.type == Segment.CCW:
 					phi += PI2
 			P  = N.AB
 			PL = NL
@@ -711,7 +711,7 @@ class Path(list):
 			inside = False
 			if Eo is not None and eq(Eo,So):
 				# possibly a full circle
-				if segment.type != LINE and len(self)==1:
+				if segment.type != Segment.LINE and len(self)==1:
 					path.append(Segment(segment.type, Eo, So, segment.center))
 					opt = 1
 #					print "*0*",path[-1]
@@ -719,15 +719,15 @@ class Path(list):
 			elif Op is not None:
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				#if (prev.type!=LINE and segment.type!=LINE) or \
+				#if (prev.type!=Segment.LINE and segment.type!=Segment.LINE) or \
 				if   (abs(cross)>EPSV and cross*offset > 0):
 					# either a circle
-					t = offset>0 and CW or CCW
+					t = offset>0 and Segment.CW or Segment.CCW
 					path.append(Segment(t, Eo, So, segment.start))
 #					print "*A*",path[-1]
 				else:
 					# or a straight line if inside
-					path.append(Segment(LINE, Eo, So))
+					path.append(Segment(Segment.LINE, Eo, So))
 					inside = True
 #					print "*B*",path[-1]
 
@@ -735,8 +735,8 @@ class Path(list):
 			O  = segment.orthogonalEnd()
 			Eo = segment.end + O*offset
 			if (So-Eo).length2() > EPSV2:
-				if segment.type == LINE:
-					path.append(Segment(LINE, So, Eo))
+				if segment.type == Segment.LINE:
+					path.append(Segment(Segment.LINE, So, Eo))
 #					print "*C*",path[-1]
 				else:
 					# FIXME check for radius + offset > 0.0
@@ -898,7 +898,7 @@ class Path(list):
 			O  = segment.orthogonalStart()
 			if Op is not None:
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if prev.type==LINE and segment.type==LINE and cross*offset < -EPSV:
+				if prev.type==Segment.LINE and segment.type==Segment.LINE and cross*offset < -EPSV:
 					# find direction
 					D = O+Op
 					D.normalize()
@@ -907,8 +907,8 @@ class Path(list):
 					costheta2 = sqrt((1.0+costheta)/2.0)
 					distance = abs(offset)*(1.0/costheta2-1.0)
 					D *= distance
-					self.insert(i,Segment(LINE, segment.start, segment.start + D))
-					self.insert(i+1, Segment(LINE, segment.start+D, segment.start))
+					self.insert(i,Segment(Segment.LINE, segment.start, segment.start + D))
+					self.insert(i+1, Segment(Segment.LINE, segment.start+D, segment.start))
 					i += 2
 			prev = segment
 			Op = prev.orthogonalEnd()
@@ -973,8 +973,8 @@ class Path(list):
 				continue
 
 			# Convert to line segments with small saggita
-			if self[i].type != LINE:
-				if self[i].type == CCW:
+			if self[i].type != Segment.LINE:
+				if self[i].type == Segment.CCW:
 					df = self[i].endPhi - self[i].startPhi
 				else:
 					df = self[i].startPhi - self[i].endPhi
@@ -994,7 +994,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def convert2Lines(self, minlen):
 		for segment in self:
-			if segment.type == LINE: continue
+			if segment.type == Segment.LINE: continue
 			if segment.length()<=minlen:
 				segment.change2Line()
 
@@ -1005,16 +1005,16 @@ class Path(list):
 		for entity in layer:
 			start = dxf.convert(entity.start(), units)
 			end   = dxf.convert(entity.end(), units)
-			if entity.type == "LINE":
+			if entity.type == "Segment.LINE":
 				if not eq(start,end):
-					self.append(Segment(LINE, start, end))
+					self.append(Segment(Segment.LINE, start, end))
 
 			elif entity.type == "CIRCLE":
 				center = dxf.convert(entity.center(), units)
-				self.append(Segment(CCW, start, end, center))
+				self.append(Segment(Segment.CCW, start, end, center))
 
 			elif entity.type == "ARC":
-				t = entity._invert and CW or CCW
+				t = entity._invert and Segment.CW or Segment.CCW
 				center = dxf.convert(entity.center(), units)
 				self.append(Segment(t, start, end, center))
 
@@ -1035,7 +1035,7 @@ class Path(list):
 					end = Vector(x,y)
 					if eq(start,end): continue
 					if abs(b)<EPS:
-						self.append(Segment(LINE, start, end))
+						self.append(Segment(Segment.LINE, start, end))
 					else:
 						# arc with bulge = b
 						# b = tan(theta/4)
@@ -1048,13 +1048,13 @@ class Path(list):
 						try:
 							OC = sqrt((r-d)*(r+d))
 							if b<0.0:
-								t  = CW
+								t  = Segment.CW
 							else:
-								t  = CCW
+								t  = Segment.CCW
 								OC = -OC
 							center = Vector(C[0] - OC*AB[1]/ABlen,
 									C[1] + OC*AB[0]/ABlen)
 							self.append(Segment(t, start, end, center))
 						except:
-							self.append(Segment(LINE, start, end))
+							self.append(Segment(Segment.LINE, start, end))
 					start = end
