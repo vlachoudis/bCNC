@@ -27,13 +27,19 @@ try:
 except ImportError:
 	import http.server as HTTPServer
 
-HOSTNAME = "localhost"
-port = 8080
+try:
+	import cv2 as cv
+except ImportError:
+	cv = None
 
-httpd = None
-prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
-webpath = "%s/pendant"%(prgpath)
+HOSTNAME = "localhost"
+port     = 8080
+
+httpd    = None
+prgpath  = os.path.abspath(os.path.dirname(sys.argv[0]))
+webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
+cameraId = 0
 
 #==============================================================================
 # Simple Pendant controller for CNC
@@ -61,9 +67,9 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			page = self.path
 			arg = None
 
-		#print self.path,type(self.path)
-		#print page
-		#print arg
+#		print self.path,type(self.path)
+#		print page
+#		print arg
 
 		if page == "/send":
 			if arg is None: return
@@ -78,22 +84,21 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			self.wfile.write("")
 
 		elif page == "/state":
-			self.do_HEAD(200, "text/text")
+			self.do_HEAD(200, content="text/text")
 			tmp = {}
 			for name in ["state", "color", "msg", "wx", "wy", "wz", "G"]:
 				tmp[name] = CNC.vars[name]
 			self.wfile.write(json.dumps(tmp))
 
 		elif page == "/config":
-			self.do_HEAD(200, "text/text")
+			self.do_HEAD(200, content="text/text")
 			snd = {}
 			snd["rpmmax"] = httpd.app.get("CNC","spindlemax")
 			self.wfile.write(json.dumps(snd))
 
 		elif page == "/icon":
 			if arg is None: return
-			self.do_HEAD(200, "image/gif")
-
+			self.do_HEAD(200, content="image/gif")
 			filename = os.path.join(iconpath, arg["name"]+".gif")
 			try:
 				f = open(filename,"rb")
@@ -101,6 +106,20 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				f.close()
 			except:
 				pass
+
+		elif page == "/camera":
+			if cv is None: return
+			cam = cv.VideoCapture(cameraId)
+			s,img = cam.read()
+			if s:
+				cv.imwrite("camera.jpg",img)
+				self.do_HEAD(200, content="image/jpeg")
+				try:
+					f = open("camera.jpg","rb")
+					self.wfile.write(f.read())
+					f.close()
+				except:
+					pass
 		else:
 			self.mainPage(page[1:])
 
@@ -148,7 +167,6 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				preline = line
 		return (False, "Unexpected Ends of data.")
 
-
     #----------------------------------------------------------------------
 	def do_POST(self):
 		result,fMsg=self.deal_post_data()
@@ -157,15 +175,14 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		#send empty response so browser does not generate errors
 		self.do_HEAD(200, "text/text")
 
-
 	# ---------------------------------------------------------------------
 	def mainPage(self, page):
 		global webpath
 
 		#handle certain filetypes
 		filetype = page.rpartition('.')[2]
-		if filetype == "css": self.do_HEAD(content="text/css")
-		elif filetype == "js": self.do_HEAD(content="application/x-javascript")
+		if   filetype == "css": self.do_HEAD(content="text/css")
+		elif filetype == "js":  self.do_HEAD(content="application/x-javascript")
 		elif filetype == "json": self.do_HEAD(content="application/json")
 		elif filetype == "jpg" or filetype == "jpeg" : self.do_HEAD(content="image/jpeg")
 		elif filetype == "gif": self.do_HEAD(content="image/gif")
