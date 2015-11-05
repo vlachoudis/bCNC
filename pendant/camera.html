@@ -12,6 +12,9 @@
 	var xmlhttp = false;
 	var WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"];
 	var WCSVAL = ["wcsx", "wcsy", "wcsz"];
+	var imageUpdate = 5;
+	var stateCount = imageUpdate;
+	var _count = 0;
 
 	function findWcs(x)
 	{
@@ -43,6 +46,12 @@
 				}
 			}
 		});
+
+		// update the image every N seconds
+		if (stateCount--<=0) {
+			$('#camera').attr('src','/camera?_='+_count++)
+			stateCount = imageUpdate;
+		}
 	} // getState
 
 	/* parse once configuration */
@@ -53,6 +62,7 @@
 			dataType: 'json',
 			success: function(result,status,xhr) {
 				rpmmax = result.rpmmax;
+// FIXME camera update?
 			}
 		});
 	} // getConfig
@@ -263,9 +273,9 @@
 
 	<!-- CONTROL BUTTONS & STATUS INFO -->
 	<div class="pure-g">
-		<div class="pure-u-1-3"><button id="btn-home" onclick="sendCmd('HOME');" class="button command">Home</button></div>
-		<div class="pure-u-1-3"><button id="btn-unlock" onclick="sendCmd('UNLOCK');" class="button command">Unlock</button></div>
-		<div class="pure-u-1-3"><button id="btn-reset" onclick="sendCmd('RESET');" class="button command">Reset</button></div>
+		<div class="pure-u-1-3"><button id="btn-home" onclick="sendCmd('HOME');" class="button command" disabled>Home</button></div>
+		<div class="pure-u-1-3"><button id="btn-unlock" onclick="sendCmd('UNLOCK');" class="button command" disabled>Unlock</button></div>
+		<div class="pure-u-1-3"><button id="btn-reset" onclick="sendCmd('RESET');" class="button command" disabled>Reset</button></div>
 	</div>
 	<br />
 	<div class="pure-g border">
@@ -288,125 +298,10 @@
 	</div>
 
 	<br />
-	<!-- MACHINE CONTROL SECTION -->
-	<div class="pure-g"><div class="pure-u-1 hdr">Machine Control</div></div>
-
 	<div class="pure-g">
-		<div class="pure-u-1-4">
-		Spindle:
-			<select id="spindle" onchange="spindleChange();">
-				<option value="Off" selected>Off</option>
-				<option value="25%">25%</option>
-				<option value="50%">50%</option>
-				<option value="75%">75%</option>
-				<option value="100%">100%</option>
-			</select>
-		</div>
-	<div class="pure-u-1-4">
-		Coolant:
-			<select id="coolant" onchange="coolantChange();">
-				<option value="Off" selected>Off</option>
-				<option value="On">On</option>
-			</select>
-		</div>
-	</div>
-
-	<br />
-
-	<div class="pure-g">
-		<div class="pure-u-1-2">
-			<span style="padding-top:2px;">Command:</span>
-			<input id="cmd" style="width:75%"/>
-			<button onclick="sendCmd(encodeURIComponent($('#cmd').val())); $('#cmd').val('');" class="button">
-				Send
-			</button>
-		</div>
-		<div class="pure-u-1-2">
-			<form id="upload-file" style="width:75%" enctype="multipart/form-data">
-			Select file to upload:
-			<input name="file" type="file" onchange="fileChange();"/>
-		</form>
-		</div>
-	</div>
-
-	<br />
-		<!-- WORK COORDINATE SYSTEM SECTION -->
-		<div class="pure-g"><div class="pure-u-1 hdr">Work Coordinates</div></div>
-			<div class="pure-g">
-			<div class="pure-u-1">
-			<select id="wcs" onchange="wcsChange();">
-				<option value="G54" selected>G54</option>
-				<option value="G55">G55</option>
-				<option value="G56">G56</option>
-				<option value="G57">G57</option>
-				<option value="G58">G58</option>
-				<option value="G59">G59</option>
-				<option value="G28">G28</option>
-				<option value="G30">G30</option>
-				<option value="G92">G92</option>
-			</select>
-
-			<span style="padding-left: 10px; padding-top:2px;">X: </span><input id="wcsx" type="number" size="1"/>
-			<span style="padding-left: 10px; padding-top:2px;">Y: </span><input id="wcsy" type="number" size="1"/>
-			<span style="padding-left: 10px; padding-top:2px;">Z: </span><input id="wcsz" type="number" size="1"/>
-			<button onclick="setWcs();" class="button">Set</button>
-			</div>
-			</div>
-		</div>
-	</div>
-
-	<br />
-	<!-- JOGGING SECTION -->
-	<div class="pure-g"><div class="pure-u-1 hdr">Jogging</div></div>
-
-		<div class="pure-g">
-		<div class="pure-u-1-6 bold" style="text-align:center;">Z</div>
-		<div class="pure-u-1-3">&nbsp;</div>
-		<div class="pure-u-1-6 bold" style="text-align:center;">Y</div>
-	</div>
-
-	<div class="pure-g">
-		<div class="pure-u-1-6"><button onclick="sendMove('Zu')" class="button direction">&#x25B2;</button></div>
-		<div class="pure-u-1-6">&nbsp;</div>
-		<div class="pure-u-1-6"><button onclick="sendMove('XdYu')" class="button direction">&#x25F8;</button></div>
-		<div class="pure-u-1-6"><button onclick="sendMove('Yu')"   class="button direction">&#x25B2;</button></div>
-		<div class="pure-u-1-6"><button onclick="sendMove('XuYu')" class="button direction">&#x25F9;</button></div>
-	</div>
-
-	<div class="pure-g">
-		<div class="pure-u-1-6" align="center">
-			<select id="step" width="100%" style="margin-top:21px;">
-				<option value="0.001">0.001</option>
-				<option value="0.005">0.005</option>
-				<option value="0.01">0.01</option>
-				<option value="0.02">0.02</option>
-				<option value="0.05">0.05</option>
-				<option value="0.1">0.1</option>
-				<option value="0.2">0.2</option>
-				<option value="0.5">0.5</option>
-				<option value="1" selected>1</option>
-				<option value="2">2</option>
-				<option value="5">5</option>
-				<option value="10">10</option>
-				<option value="20">20</option>
-				<option value="50">50</option>
-				<option value="100">100</option>
-				<option value="500">500</option>
-			</select>
-		</div>
-
-		<div class="pure-u-1-6 bold" style="text-align:right;margin-top:23px;">X&nbsp;&nbsp;</div>
-			<div class="pure-u-1-6"><button onclick="sendMove('Xd')" class="button direction">&#x25C0;</button></div>
-			<div class="pure-u-1-6" align="center"><button onclick="sendMove('O')" class="button direction">&#x25EF;</button></div>
-			<div class="pure-u-1-6"><button onclick="sendMove('Xu')" class="button direction">&#x25b6;</button></div>
-		</div>
-		<div class="pure-g">
-			<div class="pure-u-1-6"><button onclick="sendMove('Zd')"   class="button direction">&#x25BC;</button></div>
-			<div class="pure-u-1-6">&nbsp;</div>
-			<div class="pure-u-1-6"><button onclick="sendMove('XdYd')" class="button direction">&#x25FA;</button></div>
-			<div class="pure-u-1-6"><button onclick="sendMove('Yd')"   class="button direction">&#x25BC;</button></div>
-			<div class="pure-u-1-6"><button onclick="sendMove('XuYd')" class="button direction">&#x25FF;</button></div>
-		</div>
+		<center>
+			<img id="camera" src="/camera"/>
+		</center>
 	</div>
 </body>
 </html>
