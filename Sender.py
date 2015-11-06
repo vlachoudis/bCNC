@@ -136,6 +136,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def loadConfig(self):
 		Pendant.port = Utils.getInt("Connection","pendantport",Pendant.port)
+		GCode.LOOP_MERGE = Utils.getBool("File","dxfloopmerge")
 		self.loadHistory()
 
 	#----------------------------------------------------------------------
@@ -320,7 +321,7 @@ class Sender:
 				self._saveConfigFile()
 			self.gcode.probe.load(filename)
 		elif ext == ".stl":
-            # FIXME: implements solid import???
+			# FIXME: implements solid import???
 			pass
 		elif ext==".dxf":
 			self.gcode.init()

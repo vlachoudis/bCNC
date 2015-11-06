@@ -1710,14 +1710,16 @@ class Block(list):
 # Gcode file
 #==============================================================================
 class GCode:
+	LOOP_MERGE = False
+
 	#----------------------------------------------------------------------
 	def __init__(self):
 		self.cnc = CNC()
-		self.header    = ""
-		self.footer    = ""
-		self.undoredo  = undo.UndoRedo()
-		self.probe     = Probe()
-		self.vars      = {}		# local variables
+		self.header   = ""
+		self.footer   = ""
+		self.undoredo = undo.UndoRedo()
+		self.probe    = Probe()
+		self.vars     = {}		# local variables
 		self.init()
 
 	#----------------------------------------------------------------------
@@ -1878,6 +1880,7 @@ class GCode:
 		dxf.readFile()
 		dxf.close()
 
+		#import time; start = time.time()
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
 
@@ -1905,7 +1908,11 @@ class GCode:
 						li = i
 						llen = p.length()
 				longest = opath.pop(li)
-				longest.mergeLoops(opath)
+
+				# Can be time consuming
+				if GCode.LOOP_MERGE:
+					print "Loop merge"
+					longest.mergeLoops(opath)
 
 				undoinfo.extend(self.importPath(None, longest, None, enable))
 #				d = longest.direction()
@@ -1927,6 +1934,7 @@ class GCode:
 #			elif d==-1:
 #				undoinfo.extend(self.addBlockOperationUndo(bid,"CCW"))
 
+		#print "Loading time:", time.time()-start
 		if empty: self.addBlockFromString("Footer",self.footer)
 		#self.addUndo(undoinfo)
 		return True
