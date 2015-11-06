@@ -5,7 +5,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.6.10"
+__version__ = "0.7.0"
 __date__    = "31 Oct 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
@@ -78,7 +78,7 @@ FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "
 		("DXF",    "*.dxf"),
 		("SVG",    "*.svg"),
 		("Probe",  "*.probe"),
-        ("STL",    "*.stl"),
+		("STL",    "*.stl"),
 		("All",    "*")]
 
 geometry = None

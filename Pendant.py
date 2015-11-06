@@ -123,7 +123,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		else:
 			self.mainPage(page[1:])
 
-    #----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def deal_post_data(self):
 		boundary = self.headers.plisttext.split("=")[1]
 		remainbytes = int(self.headers['content-length'])
@@ -167,7 +167,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				preline = line
 		return (False, "Unexpected Ends of data.")
 
-    #----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def do_POST(self):
 		result,fMsg=self.deal_post_data()
 		if(result):

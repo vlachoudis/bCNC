@@ -33,8 +33,8 @@ TOOL_POLICY = [ "Send M6 commands",		# 0
 		"Manual Tool Change (TLO)"	# 3
 		]
 
-TOOL_WAIT = [  "ONLY before probing",
-               "BEFORE & AFTER probing"
+TOOL_WAIT = [	"ONLY before probing",
+		"BEFORE & AFTER probing"
 		]
 
 #===============================================================================

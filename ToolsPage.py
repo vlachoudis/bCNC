@@ -52,7 +52,7 @@ class Base:
 		else:
 			self.values["%s.%d"%(name,self.current)] = value
 
-       # ----------------------------------------------------------------------
+	# ----------------------------------------------------------------------
 	def __getitem__(self, name):
 		if self.current is None:
 			return self.values.get(name,"")
