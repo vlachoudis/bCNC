@@ -18,7 +18,7 @@ import Unicode
 
 from dxf   import DXF
 from stl   import Binary_STL_Writer
-from bpath import Path, Segment
+from bpath import eq,Path, Segment
 from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
@@ -445,9 +445,10 @@ class CNC:
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
 	comment        = ""	# last parsed comment
+	developer      = False
 
 	drillPolicy    = 1	# Expand Canned cycles
-	toolPolicy     = 0	# Should be in sync with ProbePage
+	toolPolicy     = 1	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
 				# 2 - manual tool change
@@ -722,15 +723,20 @@ class CNC:
 			return "g1 %s %s"%(CNC.fmt("z",z), CNC.fmt("f",CNC.vars["cutfeedz"]))
 
 	#----------------------------------------------------------------------
+	@staticmethod
+	def zexit(z):
+		if CNC.lasercutter:
+			return "m5"
+		else:
+			return "g0 %s"%(CNC.fmt("z",z))
+
+	#----------------------------------------------------------------------
 	# gcode to go to z-safe
 	# Exit from material or stop the laser
 	#----------------------------------------------------------------------
 	@staticmethod
 	def zsafe():
-		if CNC.lasercutter:
-			return "m5"
-		else:
-			return "g0 %s"%(CNC.fmt("z",CNC.vars["safe"]))
+		return CNC.zexit(CNC.vars["safe"])
 
 	#----------------------------------------------------------------------
 	# @return line in broken a list of commands, None if empty or comment
@@ -1525,6 +1531,86 @@ class CNC:
 		return lines
 
 #==============================================================================
+# a class holding tab information and necessary functions to break a segment
+#==============================================================================
+class Tab:
+	def __init__(self, xmin, xmax, ymin, ymax, z):
+		self.xmin = xmin		# x,y limits of a square tab
+		self.xmax = xmax
+		self.ymin = ymin
+		self.ymax = ymax
+		self.z    =  z			# z to raise within the tab
+#		self.slope = 45			# cutting z-slope as entry/exit
+#		self.create()
+
+	#----------------------------------------------------------------------
+	# Create 4 line segment of the tab
+	#----------------------------------------------------------------------
+	def create(self, diameter=0.0):
+		r = diameter/2.0
+
+		self.segments = []
+
+		A = A0 = Vector(self.xmin-r, self.ymin-r)
+		B = Vector(self.xmax+r, self.ymin-r)
+		self.segments.append(Segment(Segment.LINE, A, B))
+
+		A = B
+		B = Vector(self.xmax+r, self.ymax+r)
+		self.segments.append(Segment(Segment.LINE, A, B))
+
+		A = B
+		B = Vector(self.xmin-r, self.ymax+r)
+		self.segments.append(Segment(Segment.LINE, A, B))
+
+		A = B
+		B = A0
+		self.segments.append(Segment(Segment.LINE, A, B))
+
+	#----------------------------------------------------------------------
+	# return true if a point is inside the tab or not
+	#----------------------------------------------------------------------
+	def inside(self, P):
+		return self.xmin <= P[0] <= self.xmax and \
+		       self.ymin <= P[1] <= self.ymax
+
+	#----------------------------------------------------------------------
+	# Split and introduce new segments that fall inside the tabs
+	# All segments will be marked with an extra field "inside"
+	# whether they are in or out
+	#----------------------------------------------------------------------
+	def split(self, path):
+		for A in self.segments:
+			i = 0	# starting point
+			while i<len(path):
+				split = False
+				B = path[i]
+				P1,P2 = A.intersect(B)
+				if P1 is not None:
+					C = B.split(P1)
+					if not isinstance(C,int):
+						path.insert(i+1,C)
+						split = True
+
+				if P2 is not None and not eq(P1,P2):
+					if B.inside(P2):
+						j = i
+					else:
+						j = i+1
+
+					C = path[j].split(P2)
+					if not isinstance(C,int):
+						path.insert(j+1,C)
+						split = True
+
+				if split: continue # restart from same location
+				i += 1
+
+		for s in path:
+			if s._inside is None and self.inside(s.midPoint()):
+				s._inside = self
+
+#==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
 # - Basic shape from the first rapid move command to the last rapid z raise
@@ -1544,7 +1630,8 @@ class Block(list):
 		self.enable  = True		# Enabled/Visible in drawing
 		self.expand  = False		# Expand in editor
 		self._path   = []		# canvas drawing paths
-		self.sx = self.sy = self.sz = 0	# start  coordinates (entry point first non rapid motion)
+		self.sx = self.sy = self.sz = 0	# start  coordinates
+						# (entry point first non rapid motion)
 		self.ex = self.ey = self.ez = 0	# ending coordinates
 		self.resetPath()
 
@@ -1726,6 +1813,7 @@ class GCode:
 	def init(self):
 		self.filename = ""
 		self.blocks   = []		# list of blocks
+		self.tabs     = []		# list of tabs
 		self.vars.clear()
 		self.undoredo.reset()
 		self.probe.init()
@@ -1781,6 +1869,10 @@ class GCode:
 	# add new line to list create block if necessary
 	#----------------------------------------------------------------------
 	def _addLine(self, line):
+		if line.startswith("(Tab:"):
+			items = map(float,line.replace("(Tab:","").replace(")","").split())
+			self.tabs.append(Tab(*items))
+
 		if line.startswith("(Block-name:"):
 			self._blocksExist = True
 			pat = BLOCKPAT.match(line)
@@ -1996,7 +2088,6 @@ class GCode:
 			block.append(CNC.zsafe())
 			undoinfo.append(self.addBlockUndo(pos,block))
 			if pos is not None: pos += 1
-
 			del entities[i]
 
 		return undoinfo
@@ -2048,6 +2139,20 @@ class GCode:
 			else:
 				block = Block(path[0].name)
 
+		def addSegment(segment):
+			x,y = segment.end
+			if segment.type == Segment.LINE:
+				x,y = segment.end
+				block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+			elif segment.type in (Segment.CW, Segment.CCW):
+				ij = segment.center - segment.start
+				if abs(ij[0])<1e-5: ij[0] = 0.
+				if abs(ij[1])<1e-5: ij[1] = 0.
+				block.append("g%d %s %s %s %s" % \
+					(segment.type,
+					 self.fmt("x",x,7), self.fmt("y",y,7),
+					 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+
 		if isinstance(path, Path):
 			x,y = path[0].start
 			if z is None: z = self.cnc["surface"]
@@ -2055,19 +2160,28 @@ class GCode:
 				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 			block.append(CNC.zenter(z))
 			first = True
+			prevInside = None
 			for segment in path:
-				x,y = segment.end
-				if segment.type == 1:
-					x,y = segment.end
-					block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-				elif segment.type in (2,3):
-					ij = segment.center - segment.start
-					if abs(ij[0])<1e-5: ij[0] = 0.
-					if abs(ij[1])<1e-5: ij[1] = 0.
-					block.append("g%d %s %s %s %s" % \
-						(segment.type,
-						 self.fmt("x",x,7), self.fmt("y",y,7),
-						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+				if prevInside is not segment._inside:
+					if segment._inside is None:
+						block.append(CNC.zenter(z))
+					elif segment._inside.z > z:
+						block.append(CNC.zexit(segment._inside.z))
+					prevInside = segment._inside
+				addSegment(segment)
+#				x,y = segment.end
+#				if segment.type == Segment.LINE:
+#					x,y = segment.end
+#					block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+#				elif segment.type in (Segment.CW, Segment.CCW):
+#					ij = segment.center - segment.start
+#					if abs(ij[0])<1e-5: ij[0] = 0.
+#					if abs(ij[1])<1e-5: ij[1] = 0.
+#					block.append("g%d %s %s %s %s" % \
+#						(segment.type,
+#						 self.fmt("x",x,7), self.fmt("y",y,7),
+#						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+
 				if first:
 					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
 					first = False
@@ -2626,6 +2740,14 @@ class GCode:
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
+
+		# Mark in which tab we are inside
+		if self.tabs:
+			# Mark everything as outside
+			for tab in self.tabs:
+				tab.create(CNC.vars["diameter"])
+				tab.split(path)
+
 		while z > depth:
 			z = max(z-stepz, depth)
 			if not closed:
@@ -2634,6 +2756,7 @@ class GCode:
 			elif abs(z-depth)<1e-7:
 				# last pass
 				exit =True
+
 			self.fromPath(path, block, z, entry, exit)
 			entry = False
 		return block

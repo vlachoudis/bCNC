@@ -2044,9 +2044,9 @@ if __name__ == "__main__":
 		elif opt in ("-i", "--ini"):
 			Utils.iniUser = val
 		elif opt == "-d":
-			Utils.developer = True
+			CNC.developer = True
 		elif opt == "-D":
-			Utils.developer = False
+			CNC.developer = False
 		elif opt == "-g":
 			geometry = val
 		elif opt in ("-r", "-R", "--recent", "-l", "--list"):

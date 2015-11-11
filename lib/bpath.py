@@ -96,10 +96,11 @@ class Segment:
 	_TYPES = ["LINE", "CW  ","CCW "]
 
 	def __init__(self, t, s, e, c=None): #, r=None): #, sPhi=None, ePhi=None):
-		self.type  = t
-		self.start = s
-		self.end   = e
-		self.cross = False	# end point is a path cross point
+		self.type    = t
+		self.start   = s
+		self.end     = e
+		self.cross   = False	# end point is a path cross point
+		self._inside = None	# auxiliary variable for tab operations
 		self.AB = self.end-self.start
 		if self.type==Segment.LINE:
 			self.calcBBox()
@@ -246,9 +247,10 @@ class Segment:
 		else:
 			c = ""
 		if self.type == Segment.LINE:
-			return "%s %s %s%s L:%g"%(_TYPES[self.type-1], self.start, self.end, c, self.length())
+			return "%s %s %s%s L:%g"%(Segment._TYPES[self.type-1],
+					self.start, self.end, c, self.length())
 		else:
-			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g"%(_TYPES[self.type-1], \
+			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g"%(Segment._TYPES[self.type-1], \
 				self.start, self.end, c, \
 				self.center, self.radius, \
 				degrees(self.startPhi), \
@@ -328,10 +330,8 @@ class Segment:
 			if phi < self.startPhi-EPS/self.radius: phi += PI2
 			if phi <= self.endPhi + EPS/self.radius:
 				return True
-
 		if eq2(self.start,P,EPS) or eq2(self.end,P,EPS):
 			return True
-
 		return False
 
 	#----------------------------------------------------------------------
@@ -461,6 +461,7 @@ class Segment:
 			AB2  = self.AB[0]**2 + self.AB[1]**2
 			APx  = P[0]-self.start[0]
 			APy  = P[1]-self.start[1]
+			if abs(AB2)<EPS: return sqrt(APx**2+APy**2)
 			dot  = APx*self.AB[0] + APy*self.AB[1]
 			proj = dot / AB2
 			if proj < 0.0:

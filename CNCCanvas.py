@@ -48,6 +48,7 @@ GANTRY_COLOR  = "Red"
 MARGIN_COLOR  = "Magenta"
 GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
+TAB_COLOR     = "DarkOrange"
 
 ENABLE_COLOR  = "Black"
 DISABLE_COLOR = "LightGray"
@@ -72,6 +73,8 @@ ACTION_GANTRY        = 22
 
 ACTION_RULER         = 30
 
+ACTION_TAB           = 40
+
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
@@ -87,11 +90,6 @@ DEF_CURSOR = ""
 MOUSE_CURSOR = {
 	ACTION_SELECT        : DEF_CURSOR,
 	ACTION_SELECT_AREA   : "right_ptr",
-#	ACTION_ZONE          : "center_ptr",
-#	ACTION_ZONEPAINT     : "spraycan",	# "pencil"
-#	ACTION_PEN           : "pencil",
-#	ACTION_PAINT         : "spraycan",
-#	ACTION_INFO          : "tcross",	# "target"
 
 	ACTION_PAN           : "fleur",
 	ACTION_ORIGIN        : "cross",
@@ -104,8 +102,7 @@ MOUSE_CURSOR = {
 #	ACTION_VIEW_MOVE     : "fleur",
 #	ACTION_VIEW_ROTATE   : "exchange",
 
-#	ACTION_ADD           : "tcross",
-#	ACTION_ADD_NEXT      : "tcross",
+	ACTION_TAB           : "tcross",
 
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
@@ -272,6 +269,11 @@ class CNCCanvas(Canvas):
 		self.event_generate("<<Status>>",data="Drag a ruler to measure distances")
 
 	# ----------------------------------------------------------------------
+	def setActionTab(self, event=None):
+		self.setAction(ACTION_TAB)
+		self.event_generate("<<Status>>",data="Draw a square tab")
+
+	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
 		u = self.canvasx(x) / self.zoom
 		v = self.canvasy(y) / self.zoom
@@ -366,6 +368,14 @@ class CNCCanvas(Canvas):
 			x,y,z = self.canvas2xyz(i,j)
 			self.app.insertCommand("origin %g %g %g"%(x,y,z),True)
 			self.setActionSelect()
+
+		# Add tab
+		#elif self.action == ACTION_TAB:
+		#	i = self.canvasx(event.x)
+		#	j = self.canvasy(event.y)
+		#	x,y,z = self.canvas2xyz(i,j)
+		#	self.app.insertCommand("origin %g %g %g"%(x,y,z),True)
+		#	self.setActionSelect()
 
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
@@ -774,6 +784,7 @@ class CNCCanvas(Canvas):
 		self.drawWorkarea()
 		self.drawProbe()
 		self.drawAxes()
+		self.drawTabs()
 #		self.tag_lower(self._workarea)
 		if self._gantry1: self.tag_raise(self._gantry1)
 		if self._gantry2: self.tag_raise(self._gantry2)
@@ -883,6 +894,20 @@ class CNCCanvas(Canvas):
 					dash=(3,2),
 					fill=MARGIN_COLOR)
 		self.tag_lower(self._amargin)
+
+	#----------------------------------------------------------------------
+	def drawTabs(self):
+		if not self.draw_margin: return
+		for tab in self.gcode.tabs:
+			xyz = [(tab.xmin, tab.ymin, 0.), #tab.z),
+			       (tab.xmax, tab.ymin, 0.), #tab.z),
+			       (tab.xmax, tab.ymax, 0.), #tab.z),
+			       (tab.xmin, tab.ymax, 0.), #tab.z),
+			       (tab.xmin, tab.ymin, 0.)] #tab.z)]
+			tabLine = self.create_line(
+					self.plotCoords(xyz),
+					fill=TAB_COLOR)
+			self.tag_lower(tabLine)
 
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):

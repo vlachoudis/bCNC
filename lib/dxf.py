@@ -476,11 +476,17 @@ class DXF:
 		x = 0.
 		y = 0.
 		z = 0.
+		bulge = None
 		while True:
 			tag,value = self.read()
 			#print tag,value
 			if tag is None: return
 			if tag==0:
+				if bulge is None:
+					entity[42].append(0)
+				else:
+					bulge = None
+
 				if value == "SEQEND":
 					# Vertex sequence end
 					tag,value = self.read()
@@ -489,9 +495,13 @@ class DXF:
 					if not entity[42]: entity[42] = 0
 					return
 				elif value != "VERTEX":
-					print value
-					raise Exception("Entity found in wrong context")
-			elif tag in (10,20,30,42):
+					raise Exception("Entity %s found in wrong context"%(value))
+
+			elif tag in (10,20,30):
+				entity[tag].append(value)
+
+			elif tag == 42:
+				bulge = value
 				entity[tag].append(value)
 
 	#----------------------------------------------------------------------

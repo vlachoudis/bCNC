@@ -36,7 +36,6 @@ __credits__ = \
 		"@chamnit Sonny Jeon\n" \
 		"@onekk Carlo\n" \
 		"@willadams William Adams"
-developer   = False
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
