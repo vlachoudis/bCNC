@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3598 2015-10-16 13:07:06Z bnv $
+# $Id: tkExtra.py 3633 2015-11-10 08:51:59Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -509,7 +509,10 @@ class AutoScrollbar(Scrollbar):
 	def set(self, lo, hi):
 		flo = float(lo)
 		fhi = float(hi)
-		g = self.get()
+		try:
+			g = self.get()
+		except TclError:
+			return
 		if abs(flo-float(g[0]))<=0.001 and abs(fhi-float(g[1]))<=0.001: return
 		if flo <= 0.001 and fhi >= 0.999:
 			if self.method==0:
@@ -2615,7 +2618,10 @@ class InPlaceFile(InPlaceEdit):
 	def fileDialog(self):
 		self.frame.unbind("<FocusOut>")
 		self.frame.grab_release()
-		filename = self.listbox.get(self.item)
+		if self.value is None:
+			filename = self.listbox.get(self.item)
+		else:
+			filename = self.value
 		if self._save:
 			fn = bFileDialog.asksaveasfilename(master=self.listbox,
 				title=self.title,
@@ -2740,9 +2746,11 @@ class Combobox(Frame):
 		self.bind('<Return>',   self.postList)
 		self.bind('<KP_Enter>', self.postList)
 		if label:
-			self._text.bind('<Key-space>', self.postList)
-		if isinstance(self._text, Label):
-			self._text.bind('<Button-1>', self._togglePost)
+			self._text.bind('<Key-space>',       self.postList)
+			self._text.bind('<Button-1>',        self._togglePost)
+		else:
+			self._text.bind('<Button-1>',        self.button1)
+			self._text.bind('<ButtonRelease-1>', self.release1)
 
 		# Need to unpost the popup if the entryfield is unmapped (eg:
 		# its toplevel window is withdrawn) while the popup list is
@@ -2858,20 +2866,39 @@ class Combobox(Frame):
 		lb.see(ACTIVE)
 
 	# ----------------------------------------------------------------------
+	# Post list on click
+	# ----------------------------------------------------------------------
+	def button1(self, event):
+		if self.focus_get() is not self._text:
+			self.postList()
+			return "break"
+
+	# ----------------------------------------------------------------------
+	# Edit on release
+	# ----------------------------------------------------------------------
+	def release1(self, event):
+		if self.focus_get() is not self._text:
+			self._text.focus_set()
+			self._text.icursor("@%d"%(event.x))
+
+	# ----------------------------------------------------------------------
 	def postList(self, event=None):
 		if self._arrowBtn.cget("state") != DISABLED:
 			self._post.set(True)
+		return "break"
 
 	# ----------------------------------------------------------------------
 	def unpostList(self, event=None):
 		self._listbox.reset()
 		if self._arrowBtn.cget("state") != DISABLED:
 			self._post.set(False)
+		return "break"
 
 	# ----------------------------------------------------------------------
 	def _togglePost(self, event):
 		if self._text.cget("state") != DISABLED:
 			self._post.set( not self._post.get() )
+		return "break"
 
 	# ----------------------------------------------------------------------
 	def _focusOut(self, event):
@@ -3073,8 +3100,8 @@ class Splitter(Frame):
 			self.bind("<Configure>", self.placeChilds)
 
 	# ----------------------------------------------------------------------
-	def orient(self): return self._hori
-	def firstFrame(self): return self.f1
+	def orient(self):      return self._hori
+	def firstFrame(self):  return self.f1
 	def secondFrame(self): return self.f2
 
 	# ----------------------------------------------------------------------
@@ -3132,12 +3159,12 @@ class Splitter(Frame):
 	# ----------------------------------------------------------------------
 	# Set acceptable range
 	# ----------------------------------------------------------------------
-	def setRange(self, min=0.005, max=0.995):
-		if min<0.01: min=0.01
-		if max>0.99: max=0.99
+	def setRange(self, _min=0.005, _max=0.995):
+		if _min<0.01: _min=0.01
+		if _max>0.99: _max=0.99
 		self.margin = 5	# pixels on absolute
-		self.min = min
-		self.max = max
+		self.min = _min
+		self.max = _max
 
 	# ----------------------------------------------------------------------
 	def _setSplit(self, newSplit):
@@ -4106,15 +4133,15 @@ class ExLabelFrame(LabelFrame):
 	def __call__(self): return self.frame
 
 #================================================================================
-# ScrolledFrame by Bruno
+# ScrollFrame by Bruno
 #================================================================================
-class ScrolledFrame(Frame):
+class ScrollFrame(Frame):
 	# ----------------------------------------------------------------------
 	def __init__(self, master=None, stretch=True, cnf={}, **kw):
 		Frame.__init__(self,master,cnf,**kw)
 		self.client = Frame(self,border=0)
 
-		# width and height of Scrolledframe
+		# width and height of Scrollframe
 		self.W = 1.0
 		self.H = 1.0
 
@@ -4139,8 +4166,13 @@ class ScrolledFrame(Frame):
 		self.stretch_x = stretch
 		self.stretch_y = stretch
 
-		#self.bind("<Expose>",self.updateScrollRegion)
-		self.bind("<Configure>",self.updateScrollRegion)
+		#self.bind("<Expose>",		self.updateScrollRegion)
+		self.bind("<Button-2>",         self.drag)
+		self.bind("<ButtonRelease-2>",  self.dragRelease)
+		self.bind("<Configure>",        self.updateScrollRegion)
+
+		self.mult  = 1.0
+		self._drag = None
 
 	# ----------------------------------------------------------------------
 	def cget(self,item):
@@ -4170,6 +4202,25 @@ class ScrolledFrame(Frame):
 	# ----------------------------------------------------------------------
 	def position(self):
 		return self.client_x, self.client_y
+
+	# ----------------------------------------------------------------------
+	def drag(self, event):
+		if self._drag is not None:
+			dx = (event.x - self._drag[0])*self.mult
+			dy = (event.y - self._drag[1])*self.mult
+			self.client_x += dx
+			self.client_y += dy
+			self.updateScrollx()
+			self.updateScrolly()
+			self.client.place_configure(x=self.client_x, y=self.client_y)
+		else:
+			self.config(cursor="hand2")
+		self._drag = event.x, event.y
+
+	# ----------------------------------------------------------------------
+	def dragRelease(self, event):
+		self._drag = None
+		self.config(cursor="")
 
 	# ----------------------------------------------------------------------
 	def xview(self, event, value, units='pages'):
