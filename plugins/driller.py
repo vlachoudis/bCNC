@@ -10,7 +10,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = "Driller"
-__version__= "0.0.5"
+__version__= "0.0.6"
 
 import math
 from bmath import Vector
@@ -199,19 +199,16 @@ class Tool(Plugin):
 				holesCount += 1
 				block.append(CNC.grapid(None,None,zH + zSafe))
 				block.append(CNC.grapid(xH,yH))
-				if (peck is None) or (peck == 0) :
-					block.append(CNC.zenter(zH + targetDepth))
-					if dwell != 0:
-						block.append(CNC.gcode(4, [("P",dwell)]))
-				else:
+				if (peck != 0) :
 					z = 0
 					while z > targetDepth:
 							z = max(z-peck, targetDepth)
 							block.append(CNC.zenter(zH + z))
-							if dwell != 0:
-								block.append(CNC.gcode(4, [("P",dwell)]))
 							block.append(CNC.grapid(None,None,zH + zSafe))
-
+				block.append(CNC.zenter(zH + targetDepth))
+				#dwell time only on last pass
+				if dwell != 0:
+						block.append(CNC.gcode(4, [("P",dwell)]))
 
 		#Gcode Zsafe on finish
 		block.append(CNC.zsafe())
