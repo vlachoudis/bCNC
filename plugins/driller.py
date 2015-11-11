@@ -149,12 +149,10 @@ class Tool(Plugin):
 			#Calc rest
 			holes = fullPathLength // holesDistance
 			rest = fullPathLength - (holesDistance * (holes))
-
 			#Travel along the path
 			elapsedLength = rest / 2.0 #equaly distribute rest, as option???
 			bidHoles = []
 			while elapsedLength <= fullPathLength:
-
 				#Search best segment to apply line interpolation
 				bestSegment = bidSegment[0]
 				segmentsSum = 0.0
@@ -175,11 +173,8 @@ class Tool(Plugin):
 				y2 = bestSegment[1][1]
 				z2 = bestSegment[1][2]
 
-				#Check if segment is excluded
-				if bestSegment[2]:
-					bidHoles.append([x2,y2,z2])
-					elapsedLength += bestSegment[3]
-				else:
+				#Check if segment is not excluded
+				if not bestSegment[2]:
 					newHolePoint = (x1 + perc*(x2-x1) ,
 						y1 + perc*(y2-y1),
 						z1 + perc*(z2-z1))
@@ -198,16 +193,7 @@ class Tool(Plugin):
 		block = Block(self.name)
 
 		holesCount = 0
-		firstPoint = True
 		for bid in allHoles:
-
-			#move safe to the first point
-			xH=bid[0][0]
-			yH=bid[0][1]
-			zH=bid[0][2]
-			block.append(CNC.grapid(None,None,zH + zSafe))
-			block.append(CNC.grapid(xH,yH))
-			firstPoint = False
 
 			for xH,yH,zH in bid:
 				holesCount += 1
