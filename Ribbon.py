@@ -35,7 +35,7 @@ _BACKGROUND_GROUP3  = "#A0C0A0"
 _BACKGROUND_GROUP4  = "#B0C0A0"
 
 _FOREGROUND_GROUP   = "White"
-_ACTIVE_COLOR       = "LightYellow"
+_ACTIVE_COLOR       = "LightBlue"
 _LABEL_SELECT_COLOR = "#C0FFC0"
 
 #===============================================================================
