@@ -23,10 +23,10 @@ import Utils
 import Ribbon
 import CNCRibbon
 
-#try:
-#	from serial.tools.list_ports import comports
-#except:
-from Utils import comports
+try:
+	from serial.tools.list_ports import comports
+except:
+	from Utils import comports
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
