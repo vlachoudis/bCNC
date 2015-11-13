@@ -245,6 +245,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<Run>>',            lambda e,s=self: s.run())
 		self.bind('<<Stop>>',           self.stopRun)
 		self.bind('<<Pause>>',          self.pause)
+		self.bind('<<TabAdded>>',       self.tabAdded)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
 		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
@@ -492,6 +493,9 @@ class Application(Toplevel,Sender):
 			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
 		except:
 			pass
+
+		Ribbon._ACTIVE_COLOR       = Utils.getStr("Color", "ribbon.active", Ribbon._ACTIVE_COLOR)
+		Ribbon._LABEL_SELECT_COLOR = Utils.getStr("Color", "ribbon.select", Ribbon._LABEL_SELECT_COLOR)
 
 		self.tools.loadConfig()
 		Sender.loadConfig(self)
@@ -1557,6 +1561,13 @@ class Application(Toplevel,Sender):
 #		self.setStatus("Pocket block distance=%g"%(ofs*sign))
 
 	#-----------------------------------------------------------------------
+	def tabAdded(self, event=None):
+		self.tools.loadGcode()
+		tools = Page.frames["Tools"]
+		tools.populate()
+#		tools.selectTab(-1)
+
+	#-----------------------------------------------------------------------
 	def edit(self, event=None):
 		page = self.ribbon.getActivePage()
 		if page.name == "Editor":
@@ -1660,6 +1671,8 @@ class Application(Toplevel,Sender):
 			self.editor.fill()
 			self.draw()
 			self.canvas.fit2Screen()
+			self.tools.loadGcode()
+			Page.frames["Tools"].populate()
 
 		self.setStatus("'%s' loaded"%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))

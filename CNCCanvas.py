@@ -8,10 +8,12 @@ import math
 import bmath
 try:
 	from Tkinter import *
+	import Tkinter
 except ImportError:
 	from tkinter import *
+	import tkinter as Tkinter
 
-from CNC import CNC
+from CNC import Tab, CNC
 import tkExtra
 import Utils
 
@@ -49,6 +51,7 @@ MARGIN_COLOR  = "Magenta"
 GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 TAB_COLOR     = "DarkOrange"
+WORK_COLOR    = "Orange"
 
 ENABLE_COLOR  = "Black"
 DISABLE_COLOR = "LightGray"
@@ -73,7 +76,7 @@ ACTION_GANTRY        = 22
 
 ACTION_RULER         = 30
 
-ACTION_TAB           = 40
+ACTION_ADDTAB        = 40
 
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
@@ -102,7 +105,7 @@ MOUSE_CURSOR = {
 #	ACTION_VIEW_MOVE     : "fleur",
 #	ACTION_VIEW_ROTATE   : "exchange",
 
-	ACTION_TAB           : "tcross",
+	ACTION_ADDTAB        : "tcross",
 
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
@@ -162,6 +165,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Key-o>',		self.setActionOrigin)
 		self.bind('<Key-r>',		self.setActionRuler)
 		self.bind('<Key-s>',		self.setActionSelect)
+		self.bind('<Key-t>',		self.setActionAddTab)
 
 		self.bind('<Control-Key-equal>',self.menuZoomIn)
 		self.bind('<Control-Key-minus>',self.menuZoomOut)
@@ -197,6 +201,8 @@ class CNCCanvas(Canvas):
 		self._image       = None
 		self._tkimage     = None
 		self._probeImage  = None
+		self._tab         = None
+		self._tabRect     = None
 
 		self.draw_axes    = True		# Drawing flags
 		self.draw_grid    = True
@@ -269,8 +275,8 @@ class CNCCanvas(Canvas):
 		self.event_generate("<<Status>>",data="Drag a ruler to measure distances")
 
 	# ----------------------------------------------------------------------
-	def setActionTab(self, event=None):
-		self.setAction(ACTION_TAB)
+	def setActionAddTab(self, event=None):
+		self.setAction(ACTION_ADDTAB)
 		self.event_generate("<<Status>>",data="Draw a square tab")
 
 	# ----------------------------------------------------------------------
@@ -370,12 +376,21 @@ class CNCCanvas(Canvas):
 			self.setActionSelect()
 
 		# Add tab
-		#elif self.action == ACTION_TAB:
-		#	i = self.canvasx(event.x)
-		#	j = self.canvasy(event.y)
-		#	x,y,z = self.canvas2xyz(i,j)
-		#	self.app.insertCommand("origin %g %g %g"%(x,y,z),True)
-		#	self.setActionSelect()
+		elif self.action == ACTION_ADDTAB:
+			i = self.canvasx(event.x)
+			j = self.canvasy(event.y)
+			x,y,z = self.canvas2xyz(i,j)
+			x = round(x,CNC.digits)
+			y = round(y,CNC.digits)
+			z = round(z,CNC.digits)
+			# use the same z as the last tab added in gcode
+			if self.gcode.tabs: z = self.gcode.tabs[-1].z
+			self._tab = Tab(x,y,x,y,z)
+			self._tabRect = self._drawRect(
+						self._tab.xmin, self._tab.ymin,
+						self._tab.xmax, self._tab.ymax,
+						fill=TAB_COLOR)
+			self._mouseAction = self.action
 
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
@@ -419,6 +434,19 @@ class CNCCanvas(Canvas):
 				data="dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
 					math.degrees(math.atan2(dy,dx))))
+
+		# Resize tab
+		elif self._mouseAction == ACTION_ADDTAB:
+			i = self.canvasx(event.x)
+			j = self.canvasy(event.y)
+			x,y,z = self.canvas2xyz(i,j)
+			x = round(x,CNC.digits)
+			y = round(y,CNC.digits)
+			self._tab.xmax = x
+			self._tab.ymax = y
+			self._rectCoords(self._tabRect,
+					self._tab.xmin, self._tab.ymin,
+					self._tab.xmax, self._tab.ymax)
 
 		self.setStatus(event)
 
@@ -481,6 +509,15 @@ class CNCCanvas(Canvas):
 			dz=self._vz1-self._vz0
 			self.event_generate("<<Status>>", data="Move by %g, %g, %g"%(dx,dy,dz))
 			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
+
+		# Finalize tab
+		elif self._mouseAction == ACTION_ADDTAB:
+			self._tab.correct()
+			self.gcode.addUndo(self.gcode.addTabUndo(-1,self._tab))
+			self._tab = None
+			self._tabRect = None
+			self.setActionSelect()
+			self.event_generate("<<TabAdded>>")
 
 	# ----------------------------------------------------------------------
 	def double(self, event):
@@ -896,18 +933,37 @@ class CNCCanvas(Canvas):
 		self.tag_lower(self._amargin)
 
 	#----------------------------------------------------------------------
+	# Change rectangle coordinates
+	#----------------------------------------------------------------------
+	def _rectCoords(self, rect, xmin, ymin, xmax, ymax, z=0.0):
+		self.coords(rect, Tkinter._flatten(self.plotCoords(
+			[(xmin, ymin, z),
+			 (xmax, ymin, z),
+			 (xmax, ymax, z),
+			 (xmin, ymax, z),
+			 (xmin, ymin, z)]
+			)))
+
+	#----------------------------------------------------------------------
+	# Draw a 3D rectangle
+	#----------------------------------------------------------------------
+	def _drawRect(self, xmin, ymin, xmax, ymax, z=0.0, **kwargs):
+		xyz = [(xmin, ymin, z),
+		       (xmax, ymin, z),
+		       (xmax, ymax, z),
+		       (xmin, ymax, z),
+		       (xmin, ymin, z)]
+		rect = self.create_line(
+				self.plotCoords(xyz),
+				**kwargs),
+		return rect
+
+	#----------------------------------------------------------------------
 	def drawTabs(self):
 		if not self.draw_margin: return
 		for tab in self.gcode.tabs:
-			xyz = [(tab.xmin, tab.ymin, 0.), #tab.z),
-			       (tab.xmax, tab.ymin, 0.), #tab.z),
-			       (tab.xmax, tab.ymax, 0.), #tab.z),
-			       (tab.xmin, tab.ymax, 0.), #tab.z),
-			       (tab.xmin, tab.ymin, 0.)] #tab.z)]
-			tabLine = self.create_line(
-					self.plotCoords(xyz),
-					fill=TAB_COLOR)
-			self.tag_lower(tabLine)
+			item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=TAB_COLOR)
+			self.tag_lower(item)
 
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
@@ -921,14 +977,7 @@ class CNCCanvas(Canvas):
 		ymax = self._dy
 		zmax = self._dz
 
-		xyz = [(xmin, ymin, 0.),
-		       (xmax, ymin, 0.),
-		       (xmax, ymax, 0.),
-		       (xmin, ymax, 0.),
-		       (xmin, ymin, 0.)]
-		self._workarea = self.create_line(
-					self.plotCoords(xyz),
-					fill="Orange", dash=(3,2))
+		self._workarea = self._drawRect(xmin, ymin, xmax, ymax, 0., fill=WORK_COLOR, dash=(3,2))
 		self.tag_lower(self._workarea)
 
 	#----------------------------------------------------------------------
@@ -1174,6 +1223,8 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	# Return plotting coordinates for a 3d xyz path
+	#
+	# NOTE: Use the Tkinter._flatten() to pass to self.coords() function
 	#----------------------------------------------------------------------
 	def plotCoords(self, xyz):
 		coords = None

@@ -30,9 +30,9 @@ class InPlaceText(tkExtra.InPlaceText):
 		self.edit.bind("<Escape>", self.ok)
 
 #==============================================================================
-# Tools
+# Tools Base class
 #==============================================================================
-class Base:
+class _Base:
 	def __init__(self, master):
 		self.master    = master
 		self.name      = None
@@ -60,6 +60,10 @@ class Base:
 			return self.values.get("%s.%d"%(name,self.current),"")
 
 	# ----------------------------------------------------------------------
+	def gcode(self):
+		return self.master.gcode
+
+	# ----------------------------------------------------------------------
 	# Return a sorted list of all names
 	# ----------------------------------------------------------------------
 	def names(self):
@@ -84,77 +88,6 @@ class Base:
 			return Utils.getStr(self.name, key, default)
 
 	# ----------------------------------------------------------------------
-	# Load from a configuration file
-	# ----------------------------------------------------------------------
-	def loadConfig(self):
-		# Load lists
-		lists = []
-		for n, t, d, l in self.variables:
-			if t=="list":
-				lists.append(n)
-		if lists:
-			for p in lists:
-				self.listdb[p] = []
-				for i in range(1000):
-					key = "_%s.%d"%(p, i)
-					value = Utils.getStr(self.name, key).strip()
-					if value:
-						self.listdb[p].append(value)
-					else:
-						break
-
-		# Check if there is a current
-		try:
-			self.current = int(Utils.config.get(self.name, "current"))
-		except:
-			self.current = None
-
-		# Load values
-		if self.current is not None:
-			self.n = self._get("n", "int", 0)
-			for i in range(self.n):
-				key = "name.%d"%(i)
-				self.values[key] = Utils.getStr(self.name, key)
-				for n, t, d, l in self.variables:
-					key = "%s.%d"%(n,i)
-					self.values[key] = self._get(key, t, d)
-		else:
-			for n, t, d, l in self.variables:
-				self.values[n] = self._get(n, t, d)
-		self.update()
-
-	# ----------------------------------------------------------------------
-	# Save to a configuration file
-	# ----------------------------------------------------------------------
-	def saveConfig(self):
-		# if section do not exist add it
-		Utils.addSection(self.name)
-
-		if self.listdb:
-			for name,lst in self.listdb.items():
-				for i,value in enumerate(lst):
-					Utils.setStr(self.name, "_%s.%d"%(name,i), value)
-
-		# Save values
-		if self.current is not None:
-			Utils.setStr(self.name, "current", str(self.current))
-			Utils.setStr(self.name, "n", str(self.n))
-
-			for i in range(self.n):
-				key = "name.%d"%(i)
-				value = self.values.get(key)
-				if value is None: break
-				Utils.setStr(self.name, key, value)
-
-				for n, t, d, l in self.variables:
-					key = "%s.%d"%(n,i)
-					Utils.setStr(self.name, key,
-						str(self.values.get(key,d)))
-		else:
-			for n, t, d, l in self.variables:
-				Utils.setStr(self.name, n, str(self.values.get(n,d)))
-
-	# ----------------------------------------------------------------------
 	# Override with execute command
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -165,6 +98,10 @@ class Base:
 	# ----------------------------------------------------------------------
 	def update(self):
 		return False
+
+	# ----------------------------------------------------------------------
+	def event_generate(self, msg, **kwargs):
+		self.master.listbox.event_generate(msg, **kwargs)
 
 	# ----------------------------------------------------------------------
 	def populate(self):
@@ -334,23 +271,105 @@ class Base:
 			elif edit.lastkey in ("Return", "KP_Enter", "Down"):
 				self._editNext()
 
+	#==============================================================================
+	# Additional persistence class for config
+	#==============================================================================
+	#class _Config:
+	# ----------------------------------------------------------------------
+	# Load from a configuration file
+	# ----------------------------------------------------------------------
+	def load(self):
+		# Load lists
+		lists = []
+		for n, t, d, l in self.variables:
+			if t=="list":
+				lists.append(n)
+		if lists:
+			for p in lists:
+				self.listdb[p] = []
+				for i in range(1000):
+					key = "_%s.%d"%(p, i)
+					value = Utils.getStr(self.name, key).strip()
+					if value:
+						self.listdb[p].append(value)
+					else:
+						break
+
+		# Check if there is a current
+		try:
+			self.current = int(Utils.config.get(self.name, "current"))
+		except:
+			self.current = None
+
+		# Load values
+		if self.current is not None:
+			self.n = self._get("n", "int", 0)
+			for i in range(self.n):
+				key = "name.%d"%(i)
+				self.values[key] = Utils.getStr(self.name, key)
+				for n, t, d, l in self.variables:
+					key = "%s.%d"%(n,i)
+					self.values[key] = self._get(key, t, d)
+		else:
+			for n, t, d, l in self.variables:
+				self.values[n] = self._get(n, t, d)
+		self.update()
+
+	# ----------------------------------------------------------------------
+	# Save to a configuration file
+	# ----------------------------------------------------------------------
+	def save(self):
+		# if section do not exist add it
+		Utils.addSection(self.name)
+
+		if self.listdb:
+			for name,lst in self.listdb.items():
+				for i,value in enumerate(lst):
+					Utils.setStr(self.name, "_%s.%d"%(name,i), value)
+
+		# Save values
+		if self.current is not None:
+			Utils.setStr(self.name, "current", str(self.current))
+			Utils.setStr(self.name, "n", str(self.n))
+
+			for i in range(self.n):
+				key = "name.%d"%(i)
+				value = self.values.get(key)
+				if value is None: break
+				Utils.setStr(self.name, key, value)
+
+				for n, t, d, l in self.variables:
+					key = "%s.%d"%(n,i)
+					Utils.setStr(self.name, key,
+						str(self.values.get(key,d)))
+		else:
+			for n, t, d, l in self.variables:
+				Utils.setStr(self.name, n, str(self.values.get(n,d)))
+
+	# ----------------------------------------------------------------------
+	# Load information from gcode
+	# ----------------------------------------------------------------------
+	def loadGcode(self, gcode):
+		pass
+
 #==============================================================================
 # Base class of all databases
 #==============================================================================
-class DataBase(Base):
+class DataBase(_Base):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		_Base.__init__(self, master)
 		self.buttons  = ["add","delete","clone","rename"]
 
 	# ----------------------------------------------------------------------
 	# Add a new item
 	# ----------------------------------------------------------------------
-	def add(self):
+	def add(self, rename=True):
 		self.current = self.n
-		self.values["name.%d"%(self.n)] = self.name
+		self.values["name.%d"%(self.n)] = "%s %02d"%(self.name, self.n+1)
 		self.n += 1
 		self.populate()
-		self.rename()
+		if rename:
+			self.rename()
 
 	# ----------------------------------------------------------------------
 	# Delete selected item
@@ -410,9 +429,9 @@ class Plugin(DataBase):
 #==============================================================================
 # Generic ini configuration
 #==============================================================================
-class Ini(Base):
+class Ini(_Base):
 	def __init__(self, master, name, vartype):
-		Base.__init__(self, master)
+		_Base.__init__(self, master)
 		self.name = name
 
 		# detect variables from ini file
@@ -443,9 +462,9 @@ class Shortcut(Ini):
 #==============================================================================
 # CNC machine configuration
 #==============================================================================
-class CNC(Base):
+class CNC(_Base):
 	def __init__(self, master):
-		Base.__init__(self, master)
+		_Base.__init__(self, master)
 		self.name = "CNC"
 		self.variables = [
 			("units"         , "bool", 0    , "Units (inches)")   ,
@@ -668,6 +687,66 @@ class Pocket(DataBase):
 		app.setStatus("Generate pocket path")
 
 #==============================================================================
+# Tabs
+#==============================================================================
+class Tabs(DataBase):
+	def __init__(self, master):
+		DataBase.__init__(self, master)
+		self.name = "Tabs"
+		self.variables = [
+			("name",      "db" ,    "", "Name"),
+			("xmin",      "mm" ,    "", "Xmin"),
+			("ymin",      "mm" ,    "", "Ymin"),
+			("xmax",      "mm" ,    "", "Xmax"),
+			("ymax",      "mm" ,    "", "Ymax"),
+			("z",         "mm" ,    "", "z"),
+		]
+		#self.buttons.append("exe")
+
+	# ----------------------------------------------------------------------
+	def edit(self, event=None, rename=False):
+		_Base.edit(self, event, rename)
+		self.updateTab()
+		self.event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
+	def add(self):
+		DataBase.add(self, False)
+		#self.master.event_generate("<<AddTab>>")
+
+	# ----------------------------------------------------------------------
+	# We will load the info from the gcode
+	# ----------------------------------------------------------------------
+	def load(self): pass
+	def save(self): pass
+
+	# ----------------------------------------------------------------------
+	def updateTab(self):
+		if self.current is None: return
+		tab = self.gcode().tabs[self.current]
+		tab.xmin = self.values["xmin.%d"%(self.current)]
+		tab.ymin = self.values["ymin.%d"%(self.current)]
+		tab.xmax = self.values["xmax.%d"%(self.current)]
+		tab.ymax = self.values["ymax.%d"%(self.current)]
+		tab.z    = self.values["z.%d"%(self.current)]
+
+	# ----------------------------------------------------------------------
+	# Load information from gcode
+	# ----------------------------------------------------------------------
+	def loadGcode(self, gcode):
+		# Load tabs information from the gcode
+		self.values.clear()
+		self.n = len(gcode.tabs)
+		for i,tab in enumerate(gcode.tabs):
+			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
+			self.values["xmin.%d"%(i)] = tab.xmin
+			self.values["ymin.%d"%(i)] = tab.ymin
+			self.values["xmax.%d"%(i)] = tab.xmax
+			self.values["ymax.%d"%(i)] = tab.ymax
+			self.values["z.%d"%(i)]    = tab.z
+		self.populate()
+
+#==============================================================================
 # Tools container class
 #==============================================================================
 class Tools:
@@ -682,7 +761,9 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Material, Pocket, Profile, Shortcut, Stock]:
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill,
+			     Material, Pocket, Profile, Shortcut, Stock,
+			     Tabs]:
 			tool = cls(self)
 			self.addTool(tool)
 
@@ -745,16 +826,27 @@ class Tools:
 		return lst
 
 	# ----------------------------------------------------------------------
+	# Load from config file
+	# ----------------------------------------------------------------------
 	def loadConfig(self):
 		self.active.set(Utils.getStr(Utils.__prg__, "tool", "CNC"))
 		for tool in self.tools.values():
-			tool.loadConfig()
+			tool.load()
 
+	# ----------------------------------------------------------------------
+	# Save to config file
 	# ----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setStr(Utils.__prg__, "tool", self.active.get())
 		for tool in self.tools.values():
-			tool.saveConfig()
+			tool.save()
+
+	# ----------------------------------------------------------------------
+	# New gcode was loaded load from gcode if needed
+	# ----------------------------------------------------------------------
+	def loadGcode(self):
+		for tool in self.tools.values():
+			tool.loadGcode(self.gcode)
 
 	# ----------------------------------------------------------------------
 	def cnc(self):
@@ -946,7 +1038,6 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				variable=app.tools.active,
 				value="Tabs",
-				state=DISABLED,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, "Insert holding tabs")
@@ -1088,6 +1179,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		tool.populate()
 		tool.update()
 		self.tools.activateButtons(tool)
+	populate = change
 
 	#----------------------------------------------------------------------
 	# Edit tool listbox
@@ -1119,6 +1211,10 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def rename(self, event=None):
 		self.tools.getActive().rename()
+
+	#----------------------------------------------------------------------
+#	def selectTab(self, tabid):
+#
 
 #===============================================================================
 # Tools Page

@@ -1534,7 +1534,7 @@ class CNC:
 # a class holding tab information and necessary functions to break a segment
 #==============================================================================
 class Tab:
-	def __init__(self, xmin, xmax, ymin, ymax, z):
+	def __init__(self, xmin, ymin, xmax, ymax, z):
 		self.xmin = xmin		# x,y limits of a square tab
 		self.xmax = xmax
 		self.ymin = ymin
@@ -1542,6 +1542,23 @@ class Tab:
 		self.z    =  z			# z to raise within the tab
 #		self.slope = 45			# cutting z-slope as entry/exit
 #		self.create()
+
+	#----------------------------------------------------------------------
+	def __str__(self):
+		return "Tab([%g, %g] .. [%g, %g] z=%g)" % \
+			(self.xmin, self.ymin,
+			 self.xmax, self.ymax,
+			 self.z)
+
+	#----------------------------------------------------------------------
+	# Correct tab for min/max
+	#----------------------------------------------------------------------
+	def correct(self):
+		if self.xmin > self.xmax:
+			self.xmin, self.xmax = self.xmax, self.xmin
+
+		if self.ymin > self.ymax:
+			self.ymin, self.ymax = self.ymax, self.ymin
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
@@ -1609,6 +1626,7 @@ class Tab:
 		for s in path:
 			if s._inside is None and self.inside(s.midPoint()):
 				s._inside = self
+
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -1872,6 +1890,7 @@ class GCode:
 		if line.startswith("(Tab:"):
 			items = map(float,line.replace("(Tab:","").replace(")","").split())
 			self.tabs.append(Tab(*items))
+			return
 
 		if line.startswith("(Block-name:"):
 			self._blocksExist = True
@@ -1935,6 +1954,10 @@ class GCode:
 			f = open(self.filename,"w")
 		except:
 			return False
+
+		# write tabs if any
+		for tab in self.tabs:
+			f.write("(Tab:%g %g %g %g %g)\n"%(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
 		for block in self.blocks:
 			block.write(f)
 		f.close()
@@ -2240,6 +2263,23 @@ class GCode:
 		if len(last)==1 and len(last[0])==0: del last[0]
 		if len(self.blocks[-1])==0:
 			self.blocks.pop()
+
+	#----------------------------------------------------------------------
+	# Append a new tab
+	#----------------------------------------------------------------------
+	def addTabUndo(self, pos, tab):
+		undoinfo = (self.delTabUndo, len(self.tabs))
+		if pos<0 or pos>=len(self.tabs):
+			self.tabs.append(tab)
+		else:
+			self.tabs.insert(pos, tab)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	def delTabUndo(self, pos):
+		undoinfo = (self.addTabUndo, pos, self.tabs[pos])
+		del self.tabs[pos]
+		return undoinfo
 
 	#----------------------------------------------------------------------
 	# Change all lines in editor
