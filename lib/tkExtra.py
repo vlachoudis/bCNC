@@ -1,5 +1,5 @@
 #!/bin/env python
-# $Id: tkExtra.py 3633 2015-11-10 08:51:59Z bnv $
+# $Id: tkExtra.py 3643 2015-11-13 11:16:20Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1721,13 +1721,12 @@ class MultiListbox(Frame):
 
 	# ----------------------------------------------------------------------
 	def saveSort(self):
-		self._saveColumn  = self._sortColumn
-		self._saveReverse = self._sortReverse
+		return self._sortColumn, self._sortReverse
 
 	# ----------------------------------------------------------------------
-	def restoreSort(self):
-		if self._saveColumn>=0:
-			self.sort(self._saveColumn, self._saveReverse)
+	def restoreSort(self, arg):
+		if arg[0] >= 0:
+			self.sort(*arg)
 
 	# ----------------------------------------------------------------------
 	def yview(self):

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: bFileDialog.py 3597 2015-10-16 12:59:56Z bnv $
+# $Id: bFileDialog.py 3643 2015-11-13 11:16:20Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -222,6 +222,7 @@ def fileTypeColor(filename):
 # FileDialog
 #===============================================================================
 class FileDialog(Toplevel):
+	sort      = None
 	width     = -1
 	height    = -1
 	sash      = None
@@ -291,6 +292,7 @@ class FileDialog(Toplevel):
 		self.fileList.bindList('<F2>',            self.rename)
 		self.fileList.bindList("<Key-BackSpace>", self.upDir)
 		self.fileList.bind("<<ListboxSelect>>",   self.select)
+		self.fileList.bind("<<ListboxSort>>",     self.sortChanged)
 		self.fileList.bind("<Configure>",         self.resize)
 
 		frame = Frame(self)
@@ -596,9 +598,13 @@ class FileDialog(Toplevel):
 				"Error listing folder \"%s\""%(path),
 				parent=self)
 
-		self.fileList.sort(0, False)		# First short by name
-		# Move all directories to top
-		self.fileList.sort(1, False)		# then by type
+		if FileDialog.sort is None:
+			self.fileList.sort(0, False)		# First short by name
+			# Move all directories to top
+			self.fileList.sort(1, False)		# then by type
+			FileDialog.sort = None
+		else:
+			self.fileList.restoreSort(FileDialog.sort)
 
 		# Find item to select
 		fn = self.filename.get()
@@ -613,6 +619,10 @@ class FileDialog(Toplevel):
 			self.fileList.see(0)
 			self.fileList.activate(0)
 			self.fileList.selection_set(0)
+
+	# ----------------------------------------------------------------------
+	def sortChanged(self, event=None):
+		FileDialog.sort = self.fileList.saveSort()
 
 	# ----------------------------------------------------------------------
 	def open(self, fn):
