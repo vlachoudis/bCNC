@@ -490,9 +490,9 @@ class Sender:
 		elif p==8:
 			cmd = "G92"
 
-		if x is not None: cmd += "X"+str(x)
-		if y is not None: cmd += "Y"+str(y)
-		if z is not None: cmd += "Z"+str(z)
+		if x is not None and abs(x)<10000.0: cmd += "X"+str(x)
+		if y is not None and abs(y)<10000.0: cmd += "Y"+str(y)
+		if z is not None and abs(z)<10000.0: cmd += "Z"+str(z)
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
 			data="Set workspace %s to X%s Y%s Z%s"%(WCS[p],str(x),str(y),str(z)))
