@@ -580,10 +580,11 @@ class TabRibbonFrame(Frame):
 		#traceback.print_stack()
 
 		if page is not None:
-			try:
-				page = self.pages[page]
-			except KeyError:
-				return
+			if not isinstance(page, Page):
+				try:
+					page = self.pages[page]
+				except KeyError:
+					return
 			self.activePage.set(page.name)
 		else:
 			try:
