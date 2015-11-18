@@ -124,8 +124,18 @@ def addSection(section):
 #------------------------------------------------------------------------------
 def getStr(section, name, default=""):
 	global config
-	try: return config.get(section, name)
-	except: return default
+	try:
+		return config.get(section, name)
+	except:
+		return default
+
+#------------------------------------------------------------------------------
+def getUtf(section, name, default=""):
+	global config
+	try:
+		return config.get(section, name).decode("utf-8")
+	except:
+		return default
 
 #------------------------------------------------------------------------------
 def getInt(section, name, default=0):
@@ -193,6 +203,15 @@ def setBool(section, name, value):
 def setStr(section, name, value):
 	global config
 	config.set(section, name, str(value))
+
+#------------------------------------------------------------------------------
+def setUtf(section, name, value):
+	global config
+	try:
+		s = value.encode("utf-8")
+	except:
+		s = str(value)
+	config.set(section, name, s)
 
 setInt   = setStr
 setFloat = setStr
@@ -410,7 +429,7 @@ class ReportDialog(Toplevel):
 			"Accept": "text/plain"}
 		conn = httplib.HTTPConnection("www.fluka.org:80")
 		try:
-			conn.request("POST", "/flair/send_email.php", params, headers)
+			conn.request("POST", "/flair/send_email_bcnc.php", params, headers)
 			response = conn.getresponse()
 		except:
 			tkMessageBox.showwarning("Error sending report",

@@ -306,9 +306,9 @@ class Sender:
 	def _saveConfigFile(self, filename=None):
 		if filename is None:
 			filename = self.gcode.filename
-		Utils.setStr("File", "dir",   os.path.dirname(os.path.abspath(filename)))
-		Utils.setStr("File", "file",  os.path.basename(filename))
-		Utils.setStr("File", "probe", os.path.basename(self.gcode.probe.filename))
+		Utils.setUtf("File", "dir",   os.path.dirname(os.path.abspath(filename)))
+		Utils.setUtf("File", "file",  os.path.basename(filename))
+		Utils.setUtf("File", "probe", os.path.basename(self.gcode.probe.filename))
 
 	#----------------------------------------------------------------------
 	# Load a file into editor

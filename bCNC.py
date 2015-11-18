@@ -1630,8 +1630,8 @@ class Application(Toplevel,Sender):
 		filename = bFileDialog.askopenfilename(master=self,
 			title="Open file",
 			initialfile=os.path.join(
-					Utils.config.get("File", "dir"),
-					Utils.config.get("File", "file")),
+					Utils.getUtf("File", "dir"),
+					Utils.getUtf("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.load(filename)
 
@@ -1701,8 +1701,8 @@ class Application(Toplevel,Sender):
 			filename = bFileDialog.askopenfilename(master=self,
 				title="Import Gcode/DXF file",
 				initialfile=os.path.join(
-						Utils.config.get("File", "dir"),
-						Utils.config.get("File", "file")),
+						Utils.getUtf("File", "dir"),
+						Utils.getUtf("File", "file")),
 				filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
