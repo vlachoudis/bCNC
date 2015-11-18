@@ -111,11 +111,18 @@ COLORS = {
 		"ps":	"Purple",
 		"gif":	"Purple",
 		"png":	"Purple",
-		"tif":	"Purple",
+		"jpg":	"Purple",
+		"bmp":	"Purple",
 		"tif":	"Purple",
 
 		"vxl":  "DarkRed",
 		"dcm":  "DarkRed",
+
+		"ngc":  "Orange",
+		"nc" :   "Orange",
+
+		"probe": "Brown",
+		"stl"  : "Brown",
 
 		_LINK_TYPE:	"DarkCyan",
 		_BACKUP_TYPE:	"DarkGray",
@@ -150,12 +157,13 @@ DESCRIPTION = {
 		"a":	"Lib a",
 		"so":	"Lib so",
 
-#		"eps":	"Image eps",
-#		"gif":	"Image gif",
-#		"jpg":	"Image jpg",
-#		"png":	"Image png",
-#		"ps":	"Image ps",
-#		"tif":	"Image tif",
+		"eps":	"Image eps",
+		"gif":	"Image gif",
+		"jpg":	"Image jpg",
+		"png":	"Image png",
+		"bmp":	"Image bmp",
+		"ps":	"Image ps",
+		"tif":	"Image tif",
 
 		"vxl":  "Voxel",
 		"dcm":  "Dicom",
@@ -189,7 +197,7 @@ def fileTypeColor(filename):
 	fn = os.path.basename(filename)
 	dot = fn.rfind(".")
 	if dot>=0:
-		ext = fn[dot+1:]
+		ext = fn[dot+1:].lower()
 	else:
 		ext = _FILE_TYPE
 	color  = None		# Default
