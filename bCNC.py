@@ -1544,7 +1544,7 @@ class Application(Toplevel,Sender):
 	def pocket(self, name=None):
 		tool = self.tools["EndMill"]
 		diameter = self.tools.fromMm(tool["diameter"])
-		stepover = self.tools.fromMm(tool["stepover"]) / 100.0
+		stepover = tool["stepover"] / 100.0
 
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
