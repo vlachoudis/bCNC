@@ -119,7 +119,7 @@ COLORS = {
 		"dcm":  "DarkRed",
 
 		"ngc":  "Orange",
-		"nc" :   "Orange",
+		"nc" :  "Orange",
 
 		"probe": "Brown",
 		"stl"  : "Brown",
