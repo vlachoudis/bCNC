@@ -35,7 +35,6 @@ class Heightmap:
 	def __init__(self,name="Heightmap"):
 		self.name = name
 
-
 #==============================================================================
 # Create heightmap
 #==============================================================================
@@ -47,22 +46,21 @@ class Tool(Plugin):
 		self.icon = "heightmap"
 
 		self.variables = [
-			("name",	  "db" ,	"", "Name"),
-			("Depth"  ,   "mm" ,	  -1.0, "Working Depth"),
-			("MaxSize"  ,   "mm" ,   100.0, "Maximum size"),
-			("Scan", "Columns , Rows , C&R , R&C", "Rows", "Scan"),
-            ("ScanDir", "Alternating , Positive , Negative , Up Mill , Down Mill" ,\
-			 "Alternating" , "ScanDir"),
-            ("CutTop",  "bool",  False, "Cut Top"),
-			("CutBorder",  "bool",  False, "Cut Border"),
-            ("Invert",  "bool",  False, "Invert"),
-			("File"  ,   "file" ,	   "", "Image to process"),
+			("name",      "db" ,     "", "Name"),
+			("Depth",     "mm" ,   -1.0, "Working Depth"),
+			("MaxSize",   "mm" ,  100.0, "Maximum size"),
+			("Scan",      "Columns,Rows,C&R,R&C", "Rows", "Scan"),
+			("ScanDir",   "Alternating,Positive,Negative,Up Mill,Down Mill" ,\
+						"Alternating" , "ScanDir"),
+			("CutTop",    "bool",  False, "Cut Top"),
+			("CutBorder", "bool",  False, "Cut Border"),
+			("Invert",    "bool",  False, "Invert"),
+			("File",      "file" ,	  "", "Image to process"),
 		]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-
 		#Try import PIL
 		try:
 			from PIL import Image
@@ -122,7 +120,7 @@ class Tool(Plugin):
 		depth         = -self["Depth"]
 		Cont_Angle    =  45.0 #Contact angle , only with "Lace Bounding"
 
-        #Cut perimeter/border
+		#Cut perimeter/border
 		cutperim      = 0
 		if (self["CutBorder"]) : cutperim = 1
 
@@ -154,8 +152,8 @@ class Tool(Plugin):
 			TOOL = make_tool_shape(NUMPY,vee_common(v_angle), tool_diameter, pixel_size)
 		else: #"Ball End"
 			TOOL = make_tool_shape(NUMPY,ball_tool, tool_diameter, pixel_size)
-		######################################################
 
+		######################################################
 		rows = 0
 		columns = 0
 		columns_first = 0
@@ -168,7 +166,7 @@ class Tool(Plugin):
 			columns_first = 1
 
 		######################################################
-        # Options are "Alternating", "Positive"   , "Negative",  "Up Mill", "Down Mill"
+		# Options are "Alternating", "Positive"   , "Negative",  "Up Mill", "Down Mill"
 		converter = self["ScanDir"]
 
 		if converter == "Positive":
@@ -349,7 +347,6 @@ class Tool(Plugin):
 						 edge_offset,   \
 						 disable_arcs)
 
-
 		#Gcode
 		n = self["name"]
 		if not n or n=="default": n="Heightmap"
@@ -365,5 +362,3 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, n)
 		app.refresh()
 		app.setStatus("Generated Heightmap %d x %d x %d "%(image_w,image_h,depth) )
-
-
