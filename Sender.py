@@ -315,6 +315,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def load(self, filename):
 		fn,ext = os.path.splitext(filename)
+		ext = ext.lower()
 		if ext==".probe":
 			if filename is not None:
 				self.gcode.probe.filename = filename
@@ -335,6 +336,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def save(self, filename):
 		fn,ext = os.path.splitext(filename)
+		ext = ext.lower()
 		if ext == ".probe":
 			# save probe
 			if filename is not None:
