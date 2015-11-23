@@ -431,18 +431,18 @@ class ReportDialog(Toplevel):
 			conn.request("POST", "/flair/send_email_bcnc.php", params, headers)
 			response = conn.getresponse()
 		except:
-			tkMessageBox.showwarning("Error sending report",
-				"There was a problem connecting to the web site",
+			tkMessageBox.showwarning(_("Error sending report"),
+				_("There was a problem connecting to the web site"),
 				parent=self)
 		else:
 			if response.status == 200:
-				tkMessageBox.showinfo("Report successfully send",
-					"Report was successfully uploaded to web site",
+				tkMessageBox.showinfo(_("Report successfully send"),
+					_("Report was successfully uploaded to web site"),
 					parent=self)
 				del errors[:]
 			else:
-				tkMessageBox.showwarning("Error sending report",
-					"There was an error sending the report\nCode=%d %s"%\
+				tkMessageBox.showwarning(_("Error sending report"),
+					_("There was an error sending the report\nCode=%d %s")%\
 					(response.status, response.reason),
 					parent=self)
 		conn.close()
@@ -549,21 +549,21 @@ class UserButtonDialog(Toplevel):
 	NONE = "<none>"
 	def __init__(self, master, button):
 		Toplevel.__init__(self, master)
-		self.title("User configurable button")
+		self.title(_("User configurable button"))
 		self.transient(master)
 		self.button = button
 
 		# Name
 		row,col = 0,0
-		Label(self, text="Name:").grid(row=row, column=col, sticky=E)
+		Label(self, text=_("Name:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.name = Entry(self, background="White")
 		self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
-		tkExtra.Balloon.set(self.name, "Name to appear on button")
+		tkExtra.Balloon.set(self.name, _("Name to appear on button"))
 
 		# Icon
 		row,col = row+1,0
-		Label(self, text="Icon:").grid(row=row, column=col, sticky=E)
+		Label(self, text=_("Icon:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.icon = Label(self, relief=RAISED)
 		self.icon.grid(row=row, column=col, sticky=EW)
@@ -575,19 +575,19 @@ class UserButtonDialog(Toplevel):
 		lst.insert(0,UserButtonDialog.NONE)
 		self.iconCombo.fill(lst)
 		self.iconCombo.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.iconCombo, "Icon to appear on button")
+		tkExtra.Balloon.set(self.iconCombo, _("Icon to appear on button"))
 
 		# Tooltip
 		row,col = row+1,0
-		Label(self, text="Tool Tip:").grid(row=row, column=col, sticky=E)
+		Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.tooltip = Entry(self, background="White")
 		self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
-		tkExtra.Balloon.set(self.tooltip, "Tooltip for button")
+		tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
 
 		# Tooltip
 		row,col = row+1,0
-		Label(self, text="Command:").grid(row=row, column=col, sticky=N+E)
+		Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N+E)
 		col += 1
 		self.command = Text(self, background="White", width=40, height=10)
 		self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
@@ -599,8 +599,8 @@ class UserButtonDialog(Toplevel):
 		row += 1
 		f = Frame(self)
 		f.grid(row=row, column=0, columnspan=3, sticky=EW)
-		Button(f, text="Cancel", command=self.cancel).pack(side=RIGHT)
-		Button(f, text="Ok",     command=self.ok).pack(side=RIGHT)
+		Button(f, text=_("Cancel"), command=self.cancel).pack(side=RIGHT)
+		Button(f, text=_("Ok"),     command=self.ok).pack(side=RIGHT)
 
 		# Set variables
 		self.name.insert(0,self.button.name())
