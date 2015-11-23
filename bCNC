@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env sh
+
 DIR=`dirname $0`
-export PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
+PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
+export DIR PYTHONPATH
 if [ .$PYTHON = . ]; then
 	PYTHON=python
 fi
