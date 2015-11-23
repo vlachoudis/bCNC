@@ -1,0 +1,2222 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-23 16:43+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: test.py:8 FilePage.py:206
+msgid "Exit"
+msgstr ""
+
+#: Sender.py:57
+msgid "bCNC is currently sending a gcode program to Grbl"
+msgstr ""
+
+#: Sender.py:58
+msgid "Grbl is in idle state and waiting for user commands"
+msgstr ""
+
+#: Sender.py:59
+msgid "Grbl is on hold state. Click on resume (pause) to continue"
+msgstr ""
+
+#: Sender.py:60
+msgid ""
+"Alarm is an emergency state. Something has gone terribly wrong when these "
+"occur. Typically, they are caused by limit error when the machine has moved "
+"or wants to move outside the machine space and crash into something. They "
+"also report problems if Grbl is lost and can't guarantee positioning or a "
+"probe command has failed. Once in alarm-mode, Grbl will lock out and shut "
+"down everything until the user issues a reset. Even after a reset, Grbl will "
+"remain in alarm-mode, block all G-code from being executed, but allows the "
+"user to override the alarm manually. This is to ensure the user knows and "
+"acknowledges the problem and has taken steps to fix or account for it."
+msgstr ""
+
+#: Sender.py:61
+msgid "Grbl is not connected. Please specify the correct port and click Open."
+msgstr ""
+
+#: Sender.py:62
+msgid "Connection is established with Grbl"
+msgstr ""
+
+#: Sender.py:64
+msgid ""
+"All is good! Everything in the last line was understood by Grbl and was "
+"successfully processed and executed."
+msgstr ""
+
+#: Sender.py:65
+msgid ""
+"G-code is composed of G-code 'words', which consists of a letter followed by "
+"a number value. This error occurs when the letter prefix of a G-code word is "
+"missing in the G-code block (aka line)."
+msgstr ""
+
+#: Sender.py:66
+msgid ""
+"The number value suffix of a G-code word is missing in the G-code block, or "
+"when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
+"value."
+msgstr ""
+
+#: Sender.py:67
+msgid "The issued Grbl $ system command is not recognized or is invalid."
+msgstr ""
+
+#: Sender.py:68
+msgid ""
+"The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
+"tool number, or S spindle speed is negative."
+msgstr ""
+
+#: Sender.py:69
+msgid "Homing is disabled when issuing a $H command."
+msgstr ""
+
+#: Sender.py:70
+msgid ""
+"Step pulse time length cannot be less than 3 microseconds (for technical "
+"reasons)."
+msgstr ""
+
+#: Sender.py:71
+msgid ""
+"If Grbl can't read data contained in the EEPROM, this error is returned. "
+"Grbl will also clear and restore the effected data back to defaults."
+msgstr ""
+
+#: Sender.py:72
+msgid ""
+"Certain Grbl $ commands are blocked depending Grbl's current state, or what "
+"its doing. In general, Grbl blocks any command that fetches from or writes "
+"to the EEPROM since the AVR microcontroller will shutdown all of the "
+"interrupts for a few clock cycles when this happens. There is no work "
+"around, other than blocking it. This ensures both the serial and step "
+"generator interrupts are working smoothly throughout operation."
+msgstr ""
+
+#: Sender.py:73
+msgid ""
+"Grbl enters an ALARM state when Grbl doesn't know where it is and will then "
+"block all G-code commands from being executed. This error occurs if G-code "
+"commands are sent while in the alarm state. Grbl has two alarm scenarios: "
+"When homing is enabled, Grbl automatically goes into an alarm state to "
+"remind the user to home before doing anything; When something has went "
+"critically wrong, usually when Grbl can't guarantee positioning. This "
+"typically happens when something causes Grbl to force an immediate stop "
+"while its moving from a hard limit being triggered or a user commands an ill-"
+"timed reset."
+msgstr ""
+
+#: Sender.py:74
+msgid ""
+"Soft limits cannot be enabled if homing is not enabled, because Grbl has no "
+"idea where it is when you startup your machine unless you perform a homing "
+"cycle."
+msgstr ""
+
+#: Sender.py:75
+msgid ""
+"Grbl has to do everything it does within 2KB of RAM. Not much at all. So, we "
+"had to make some decisions on what's important. Grbl limits the number of "
+"characters in each line to less than 80 characters (70 in v0.8, 50 in v0.7 "
+"or earlier), excluding spaces or comments. The G-code standard mandates 256 "
+"characters, but Grbl simply doesn't have the RAM to spare. However, we don't "
+"think there will be any problems with this with all of the expected G-code "
+"commands sent to Grbl. This error almost always occurs when a user or CAM-"
+"generated G-code program sends position values that are in double precision "
+"(i.e. -2.003928578394852), which is not realistic or physically possible. "
+"Users and GUIs need to send Grbl floating point values in single precision "
+"(i.e. -2.003929) to avoid this error."
+msgstr ""
+
+#: Sender.py:76
+msgid ""
+"The G-code parser has detected two G-code commands that belong to the same "
+"modal group in the block/line. Modal groups are sets of G-code commands that "
+"mutually exclusive. For example, you can't issue both a G0 rapids and G2 arc "
+"in the same line, since they both need to use the XYZ target position values "
+"in the line. LinuxCNC.org has some great documentation on modal groups."
+msgstr ""
+
+#: Sender.py:77
+msgid ""
+"The G-code parser doesn't recognize or support one of the G-code commands in "
+"the line. Check your G-code program for any unsupported commands and either "
+"remove them or update them to be compatible with Grbl."
+msgstr ""
+
+#: Sender.py:78
+msgid ""
+"There is no feed rate programmed, and a G-code command that requires one is "
+"in the block/line. The G-code standard mandates F feed rates to be undefined "
+"upon a reset or when switching from inverse time mode to units mode. Older "
+"Grbl versions had a default feed rate setting, which was illegal and was "
+"removed in Grbl v0.9."
+msgstr ""
+
+#: Sender.py:79
+msgid ""
+"A G or M command value in the block is not an integer. For example, G4 can't "
+"be G4.13. Some G-code commands are floating point (G92.1), but these are "
+"ignored."
+msgstr ""
+
+#: Sender.py:80
+msgid ""
+"Two G-code commands that both require the use of the XYZ axis words were "
+"detected in the block."
+msgstr ""
+
+#: Sender.py:81
+msgid "A G-code word was repeated in the block."
+msgstr ""
+
+#: Sender.py:82
+msgid ""
+"A G-code command implicitly or explicitly requires XYZ axis words in the "
+"block, but none were detected."
+msgstr ""
+
+#: Sender.py:83
+msgid ""
+"The G-code protocol mandates N line numbers to be within the range of "
+"1-99,999. We think that's a bit silly and arbitrary. So, we increased the "
+"max number to 9,999,999. This error occurs when you send a number more than "
+"this."
+msgstr ""
+
+#: Sender.py:84
+msgid ""
+"A G-code command was sent, but is missing some important P or L value words "
+"in the line. Without them, the command can't be executed. Check your G-code."
+msgstr ""
+
+#: Sender.py:85
+msgid ""
+"Grbl supports six work coordinate systems G54-G59. This error happens when "
+"trying to use or configure an unsupported work coordinate system, such as "
+"G59.1, G59.2, and G59.3."
+msgstr ""
+
+#: Sender.py:86
+msgid ""
+"The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
+"be active. A different motion was active."
+msgstr ""
+
+#: Sender.py:87
+msgid ""
+"There are unused axis words in the block and G80 motion mode cancel is "
+"active."
+msgstr ""
+
+#: Sender.py:88
+msgid ""
+"A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
+"plane to trace the arc."
+msgstr ""
+
+#: Sender.py:89
+msgid ""
+"The motion command has an invalid target. G2, G3, and G38.2 generates this "
+"error. For both probing and arcs traced with the radius definition, the "
+"current position cannot be the same as the target. This also errors when the "
+"arc is mathematically impossible to trace, where the current position, the "
+"target position, and the radius of the arc doesn't define a valid arc."
+msgstr ""
+
+#: Sender.py:90
+msgid ""
+"A G2 or G3 arc, traced with the radius definition, had a mathematical error "
+"when computing the arc geometry. Try either breaking up the arc into semi-"
+"circles or quadrants, or redefine them with the arc offset definition."
+msgstr ""
+
+#: Sender.py:91
+msgid ""
+"A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
+"word in the selected plane to trace the arc."
+msgstr ""
+
+#: Sender.py:92
+msgid ""
+"There are unused, leftover G-code words that aren't used by any command in "
+"the block."
+msgstr ""
+
+#: Sender.py:93
+msgid ""
+"The G43.1 dynamic tool length offset command cannot apply an offset to an "
+"axis other than its configured axis. The Grbl default axis is the Z-axis."
+msgstr ""
+
+#: Sender.py:95
+msgid ""
+"Hard and/or soft limits must be enabled for this error to occur. With hard "
+"limits, Grbl will enter alarm mode when a hard limit switch has been "
+"triggered and force kills all motion. Machine position will be lost and "
+"require re-homing. With soft limits, the alarm occurs when Grbl detects a "
+"programmed motion trying to move outside of the machine space, set by homing "
+"and the max travel settings. However, upon the alarm, a soft limit violation "
+"will instruct a feed hold and wait until the machine has stopped before "
+"issuing the alarm. Soft limits do not lose machine position because of this."
+msgstr ""
+
+#: Sender.py:96
+msgid ""
+"This alarm occurs when a user issues a soft-reset while the machine is in a "
+"cycle and moving. The soft-reset will kill all current motion, and, much "
+"like the hard limit alarm, the uncontrolled stop causes Grbl to lose "
+"position."
+msgstr ""
+
+#: Sender.py:97
+msgid ""
+"The G38.2 straight probe command requires an alarm or error when the probe "
+"fails to trigger within the programmed probe distance. Grbl enters the alarm "
+"state to indicate to the user the probe has failed, but will not lose "
+"machine position, since the probe motion comes to a controlled stop before "
+"the error."
+msgstr ""
+
+#: Sender.py:281
+msgid "unknown command"
+msgstr ""
+
+#: Sender.py:281
+#, python-format
+msgid "Invalid command %s"
+msgstr ""
+
+#: Sender.py:509 ControlPage.py:346
+#, python-format
+msgid "Set workspace %s to X%s Y%s Z%s"
+msgstr ""
+
+#: ToolsPage.py:469
+msgid "Units (inches)"
+msgstr ""
+
+#: ToolsPage.py:470
+msgid "Lasercutter"
+msgstr ""
+
+#: ToolsPage.py:471
+msgid "Acceleration x"
+msgstr ""
+
+#: ToolsPage.py:472
+msgid "Acceleration y"
+msgstr ""
+
+#: ToolsPage.py:473
+msgid "Acceleration z"
+msgstr ""
+
+#: ToolsPage.py:474
+msgid "Feed max x"
+msgstr ""
+
+#: ToolsPage.py:475
+msgid "Feed max y"
+msgstr ""
+
+#: ToolsPage.py:476
+msgid "Feed max z"
+msgstr ""
+
+#: ToolsPage.py:477
+msgid "Travel x"
+msgstr ""
+
+#: ToolsPage.py:478
+msgid "Travel y"
+msgstr ""
+
+#: ToolsPage.py:479
+msgid "Travel z"
+msgstr ""
+
+#: ToolsPage.py:480
+msgid "Decimal digits"
+msgstr ""
+
+#: ToolsPage.py:481
+msgid "Plotting Arc accuracy"
+msgstr ""
+
+#: ToolsPage.py:482
+msgid "startup"
+msgstr ""
+
+#: ToolsPage.py:483
+msgid "Spindle min (RPM)"
+msgstr ""
+
+#: ToolsPage.py:484
+msgid "Spindle max (RPM)"
+msgstr ""
+
+#: ToolsPage.py:485
+msgid "Header gcode"
+msgstr ""
+
+#: ToolsPage.py:486
+msgid "Footer gcode"
+msgstr ""
+
+#: ToolsPage.py:508 ToolsPage.py:534 ToolsPage.py:563 ToolsPage.py:589
+#: ToolsPage.py:621 ToolsPage.py:648 ToolsPage.py:674 ToolsPage.py:696
+#: ToolsPage.py:1156 plugins/pyrograph.py:40 plugins/heightmap.py:49
+#: plugins/midi2cnc.py:51 plugins/gear.py:162 plugins/flatten.py:257
+#: plugins/driller.py:41 plugins/tile.py:34 plugins/spirograph.py:101
+#: plugins/bowl.py:107 plugins/box.py:306
+msgid "Name"
+msgstr ""
+
+#: ToolsPage.py:509
+msgid "Feed"
+msgstr ""
+
+#: ToolsPage.py:510
+msgid "Plunge Feed"
+msgstr ""
+
+#: ToolsPage.py:511 ToolsPage.py:592
+msgid "Depth Increment"
+msgstr ""
+
+#: ToolsPage.py:535
+msgid "Type"
+msgstr ""
+
+#: ToolsPage.py:536
+msgid "Shape"
+msgstr ""
+
+#: ToolsPage.py:537 ToolsPage.py:564 ToolsPage.py:891
+msgid "Material"
+msgstr ""
+
+#: ToolsPage.py:538
+msgid "Coating"
+msgstr ""
+
+#: ToolsPage.py:539 plugins/bowl.py:108
+msgid "Diameter"
+msgstr ""
+
+#: ToolsPage.py:540
+msgid "Mount Axis"
+msgstr ""
+
+#: ToolsPage.py:541
+msgid "Flutes"
+msgstr ""
+
+#: ToolsPage.py:542
+msgid "Length"
+msgstr ""
+
+#: ToolsPage.py:543
+msgid "Angle"
+msgstr ""
+
+#: ToolsPage.py:544
+msgid "Stepover %"
+msgstr ""
+
+#: ToolsPage.py:565
+msgid "Safe Z"
+msgstr ""
+
+#: ToolsPage.py:566 ToolsPage.py:590
+msgid "Surface Z"
+msgstr ""
+
+#: ToolsPage.py:567
+msgid "Thickness"
+msgstr ""
+
+#: ToolsPage.py:591 ToolsPage.py:622 plugins/driller.py:43
+#: plugins/spirograph.py:105
+msgid "Target Depth"
+msgstr ""
+
+#: ToolsPage.py:611
+msgid "CUT selected paths"
+msgstr ""
+
+#: ToolsPage.py:623
+msgid "Peck depth"
+msgstr ""
+
+#: ToolsPage.py:638
+msgid "DRILL selected points"
+msgstr ""
+
+#: ToolsPage.py:649 ToolsPage.py:675 ToolsPage.py:905
+msgid "End Mill"
+msgstr ""
+
+#: ToolsPage.py:650 plugins/pyrograph.py:46
+msgid "Direction"
+msgstr ""
+
+#: ToolsPage.py:651
+msgid "Additional offset distance"
+msgstr ""
+
+#: ToolsPage.py:652 plugins/box.py:314
+msgid "Overcut"
+msgstr ""
+
+#: ToolsPage.py:664
+msgid "Generate profile path"
+msgstr ""
+
+#: ToolsPage.py:686
+msgid "Generate pocket path"
+msgstr ""
+
+#: ToolsPage.py:877
+msgid "Stock"
+msgstr ""
+
+#: ToolsPage.py:884
+msgid "Stock material currently on machine"
+msgstr ""
+
+#: ToolsPage.py:898
+msgid "Editable database of material properties"
+msgstr ""
+
+#: ToolsPage.py:912
+msgid "Editable database of EndMills properties"
+msgstr ""
+
+#: ToolsPage.py:919
+msgid "Rename"
+msgstr ""
+
+#: ToolsPage.py:924
+msgid "Edit name of current operation/object"
+msgstr ""
+
+#: ToolsPage.py:932 EditorPage.py:84
+msgid "Add"
+msgstr ""
+
+#: ToolsPage.py:937
+msgid "Add a new operation/object"
+msgstr ""
+
+#: ToolsPage.py:945 EditorPage.py:96
+msgid "Clone"
+msgstr ""
+
+#: ToolsPage.py:950
+msgid "Clone selected operation/object"
+msgstr ""
+
+#: ToolsPage.py:958 EditorPage.py:108
+msgid "Delete"
+msgstr ""
+
+#: ToolsPage.py:963
+msgid "Delete selected operation/object"
+msgstr ""
+
+#: ToolsPage.py:979 EditorPage.py:46 plugins/box.py:315
+msgid "Cut"
+msgstr ""
+
+#: ToolsPage.py:986
+msgid "Cut for the full stock thickness selected code"
+msgstr ""
+
+#: ToolsPage.py:993 plugins/box.py:313
+msgid "Profile"
+msgstr ""
+
+#: ToolsPage.py:1000
+msgid "Perform a profile operation on selected code"
+msgstr ""
+
+#: ToolsPage.py:1007
+msgid "Pocket"
+msgstr ""
+
+#: ToolsPage.py:1014
+msgid "Perform a pocket operation on selected code"
+msgstr ""
+
+#: ToolsPage.py:1021
+msgid "Drill"
+msgstr ""
+
+#: ToolsPage.py:1028
+msgid "Insert a drill cycle on current objects/location"
+msgstr ""
+
+#: ToolsPage.py:1035
+msgid "Tabs"
+msgstr ""
+
+#: ToolsPage.py:1042
+msgid "Insert holding tabs"
+msgstr ""
+
+#: ToolsPage.py:1086
+msgid "Machine"
+msgstr ""
+
+#: ToolsPage.py:1093
+msgid "Machine configuration for bCNC"
+msgstr ""
+
+#: ToolsPage.py:1100
+msgid "Fonts"
+msgstr ""
+
+#: ToolsPage.py:1107
+msgid "Font configuration"
+msgstr ""
+
+#: ToolsPage.py:1114
+msgid "Colors"
+msgstr ""
+
+#: ToolsPage.py:1121
+msgid "Color configuration"
+msgstr ""
+
+#: ToolsPage.py:1128 ToolsPage.py:1135
+msgid "Shortcuts"
+msgstr ""
+
+#: ToolsPage.py:1146
+msgid "Execute"
+msgstr ""
+
+#: ToolsPage.py:1157
+msgid "Value"
+msgstr ""
+
+#: ProbePage.py:23
+msgid "G38.2 stop on contact else error"
+msgstr ""
+
+#: ProbePage.py:24
+msgid "G38.3 stop on contact"
+msgstr ""
+
+#: ProbePage.py:25
+msgid "G38.4 stop on loss contact else error"
+msgstr ""
+
+#: ProbePage.py:26
+msgid "G38.5 stop on loss contact"
+msgstr ""
+
+#: ProbePage.py:29
+msgid "Send M6 commands"
+msgstr ""
+
+#: ProbePage.py:30
+msgid "Ignore M6 commands"
+msgstr ""
+
+#: ProbePage.py:31
+msgid "Manual Tool Change (WCS)"
+msgstr ""
+
+#: ProbePage.py:32
+msgid "Manual Tool Change (TLO)"
+msgstr ""
+
+#: ProbePage.py:35
+msgid "ONLY before probing"
+msgstr ""
+
+#: ProbePage.py:36
+msgid "BEFORE & AFTER probing"
+msgstr ""
+
+#: ProbePage.py:53 ProbePage.py:120 ProbePage.py:320 bCNC.py:86
+msgid "Probe"
+msgstr ""
+
+#: ProbePage.py:59
+msgid "Simple probing along a direction"
+msgstr ""
+
+#: ProbePage.py:65 ProbePage.py:138 ProbePage.py:427 EditorPage.py:263
+msgid "Center"
+msgstr ""
+
+#: ProbePage.py:71
+msgid "Center probing using a ring"
+msgstr ""
+
+#: ProbePage.py:77
+msgid "Square"
+msgstr ""
+
+#: ProbePage.py:84
+msgid "Probe X/Y axis by using a set square probe"
+msgstr ""
+
+#: ProbePage.py:90
+msgid "Autolevel"
+msgstr ""
+
+#: ProbePage.py:96
+msgid "Autolevel Z surface"
+msgstr ""
+
+#: ProbePage.py:102
+msgid "Tool"
+msgstr ""
+
+#: ProbePage.py:108
+msgid "Setup probing for manual tool change"
+msgstr ""
+
+#: ProbePage.py:126
+msgid "Perform a single probe cycle"
+msgstr ""
+
+#: ProbePage.py:144
+msgid "Perform a center probe cycle"
+msgstr ""
+
+#: ProbePage.py:159
+msgid "Margins"
+msgstr ""
+
+#: ProbePage.py:164
+msgid "Get margins from gcode file"
+msgstr ""
+
+#: ProbePage.py:171
+msgid "Zero"
+msgstr ""
+
+#: ProbePage.py:176
+msgid "Set current location as Z-zero for leveling"
+msgstr ""
+
+#: ProbePage.py:183 TerminalPage.py:29
+msgid "Clear"
+msgstr ""
+
+#: ProbePage.py:188
+msgid "Clear probe data"
+msgstr ""
+
+#: ProbePage.py:195 plugins/heightmap.py:52
+msgid "Scan"
+msgstr ""
+
+#: ProbePage.py:202
+msgid "Scan probed area for level information on Z plane"
+msgstr ""
+
+#: ProbePage.py:223
+msgid "Probe Feed:"
+msgstr ""
+
+#: ProbePage.py:227
+msgid "Set probe feed rate"
+msgstr ""
+
+#: ProbePage.py:234
+msgid "TLO"
+msgstr ""
+
+#: ProbePage.py:238
+msgid "Set tool offset for probing"
+msgstr ""
+
+#: ProbePage.py:244 ControlPage.py:784 ControlPage.py:819
+msgid "set"
+msgstr ""
+
+#: ProbePage.py:254
+msgid "Probe Command"
+msgstr ""
+
+#: ProbePage.py:324 ProbePage.py:824
+msgid "Probe:"
+msgstr ""
+
+#: ProbePage.py:340
+msgid "Pos:"
+msgstr ""
+
+#: ProbePage.py:345
+msgid "Probe along X direction"
+msgstr ""
+
+#: ProbePage.py:351
+msgid "Probe along Y direction"
+msgstr ""
+
+#: ProbePage.py:357
+msgid "Probe along Z direction"
+msgstr ""
+
+#: ProbePage.py:392 ProbePage.py:416 ProbePage.py:651 ProbePage.py:664
+#: ProbePage.py:674 ProbePage.py:681
+msgid "Probe Error"
+msgstr ""
+
+#: ProbePage.py:393 ProbePage.py:682
+msgid "Invalid probe feed rate"
+msgstr ""
+
+#: ProbePage.py:417
+msgid "At least one probe direction should be specified"
+msgstr ""
+
+#: ProbePage.py:430
+msgid "Diameter:"
+msgstr ""
+
+#: ProbePage.py:433
+msgid "Probing ring internal diameter"
+msgstr ""
+
+#: ProbePage.py:457
+msgid "Probe Center Error"
+msgstr ""
+
+#: ProbePage.py:458
+msgid "Invalid diameter entered"
+msgstr ""
+
+#: ProbePage.py:491
+msgid "Min"
+msgstr ""
+
+#: ProbePage.py:493
+msgid "Max"
+msgstr ""
+
+#: ProbePage.py:495
+msgid "Step"
+msgstr ""
+
+#: ProbePage.py:506
+msgid "X minimum"
+msgstr ""
+
+#: ProbePage.py:512
+msgid "X maximum"
+msgstr ""
+
+#: ProbePage.py:519
+msgid "X step"
+msgstr ""
+
+#: ProbePage.py:528
+msgid "X bins"
+msgstr ""
+
+#: ProbePage.py:538
+msgid "Y minimum"
+msgstr ""
+
+#: ProbePage.py:544
+msgid "Y maximum"
+msgstr ""
+
+#: ProbePage.py:551
+msgid "Y step"
+msgstr ""
+
+#: ProbePage.py:560
+msgid "Y bins"
+msgstr ""
+
+#: ProbePage.py:571
+msgid "Z Minimum depth to scan"
+msgstr ""
+
+#: ProbePage.py:577
+msgid "Z safe to move"
+msgstr ""
+
+#: ProbePage.py:652
+msgid "Invalid X probing region"
+msgstr ""
+
+#: ProbePage.py:665
+msgid "Invalid Y probing region"
+msgstr ""
+
+#: ProbePage.py:675
+msgid "Invalid Z probing region"
+msgstr ""
+
+#: ProbePage.py:726 ProbePage.py:873
+msgid "Calibrate"
+msgstr ""
+
+#: ProbePage.py:732
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr ""
+
+#: ProbePage.py:736
+msgid "Change"
+msgstr ""
+
+#: ProbePage.py:742
+msgid "Perform a tool change cycle"
+msgstr ""
+
+#: ProbePage.py:751
+msgid "Manual Tool Change"
+msgstr ""
+
+#: ProbePage.py:756
+msgid "Policy:"
+msgstr ""
+
+#: ProbePage.py:765
+msgid "Tool change policy"
+msgstr ""
+
+#: ProbePage.py:771
+msgid "Pause:"
+msgstr ""
+
+#: ProbePage.py:794
+msgid "Change:"
+msgstr ""
+
+#: ProbePage.py:798
+msgid "Manual tool change Machine X location"
+msgstr ""
+
+#: ProbePage.py:804
+msgid "Manual tool change Machine Y location"
+msgstr ""
+
+#: ProbePage.py:810
+msgid "Manual tool change Machine Z location"
+msgstr ""
+
+#: ProbePage.py:814 ProbePage.py:844
+msgid "get"
+msgstr ""
+
+#: ProbePage.py:818
+msgid "Get current gantry position as machine tool change location"
+msgstr ""
+
+#: ProbePage.py:828
+msgid "Manual tool change Probing MX location"
+msgstr ""
+
+#: ProbePage.py:834
+msgid "Manual tool change Probing MY location"
+msgstr ""
+
+#: ProbePage.py:840
+msgid "Manual tool change Probing MZ location"
+msgstr ""
+
+#: ProbePage.py:848
+msgid "Get current gantry position as machine tool probe location"
+msgstr ""
+
+#: ProbePage.py:854 ControlPage.py:742
+msgid "Distance:"
+msgstr ""
+
+#: ProbePage.py:859
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr ""
+
+#: ProbePage.py:865
+msgid "Calibration:"
+msgstr ""
+
+#: ProbePage.py:869
+msgid "Tool probe height"
+msgstr ""
+
+#: ProbePage.py:877
+msgid "Perform a calibration probing to determine the height"
+msgstr ""
+
+#: ProbePage.py:927 ProbePage.py:937 ProbePage.py:945 ProbePage.py:953
+msgid "Probe Tool Change Error"
+msgstr ""
+
+#: ProbePage.py:928
+msgid "Invalid tool change position"
+msgstr ""
+
+#: ProbePage.py:938
+msgid "Invalid tool probe location"
+msgstr ""
+
+#: ProbePage.py:946
+msgid "Invalid tool scanning distance entered"
+msgstr ""
+
+#: ProbePage.py:954
+msgid "Invalid tool height or not calibrated"
+msgstr ""
+
+#: ControlPage.py:39
+msgid "Hard Reset"
+msgstr ""
+
+#: ControlPage.py:47
+msgid "Home"
+msgstr ""
+
+#: ControlPage.py:53
+msgid "Perform a homing cycle [$H]"
+msgstr ""
+
+#: ControlPage.py:60
+msgid "Unlock"
+msgstr ""
+
+#: ControlPage.py:66
+msgid "Unlock controller [$X]"
+msgstr ""
+
+#: ControlPage.py:72
+msgid "Reset"
+msgstr ""
+
+#: ControlPage.py:78
+msgid "Software reset of controller [ctrl-x]"
+msgstr ""
+
+#: ControlPage.py:107 FilePage.py:177
+msgid "Start"
+msgstr ""
+
+#: ControlPage.py:111
+msgid "Run g-code commands from editor to controller"
+msgstr ""
+
+#: ControlPage.py:116
+msgid "Pause"
+msgstr ""
+
+#: ControlPage.py:120
+msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+msgstr ""
+
+#: ControlPage.py:124 FilePage.py:188
+msgid "Stop"
+msgstr ""
+
+#: ControlPage.py:128
+msgid "Pause running program and soft reset controller to empty the buffer."
+msgstr ""
+
+#: ControlPage.py:147
+msgid "Status:"
+msgstr ""
+
+#: ControlPage.py:157
+msgid ""
+"Show current state of the machine\n"
+"Click to see details\n"
+"Right-Click to clear alarm/errors"
+msgstr ""
+
+#: ControlPage.py:163
+msgid "WPos:"
+msgstr ""
+
+#: ControlPage.py:174
+msgid "X work position (click to set)"
+msgstr ""
+
+#: ControlPage.py:188
+msgid "Y work position (click to set)"
+msgstr ""
+
+#: ControlPage.py:202
+msgid "Z work position (click to set)"
+msgstr ""
+
+#: ControlPage.py:210
+msgid "MPos:"
+msgstr ""
+
+#: ControlPage.py:233
+msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: ControlPage.py:242
+msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: ControlPage.py:251
+msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: ControlPage.py:262
+msgid "Show Info"
+msgstr ""
+
+#: ControlPage.py:264
+msgid "Clear Message"
+msgstr ""
+
+#: ControlPage.py:268
+msgid "Feed hold"
+msgstr ""
+
+#: ControlPage.py:270
+msgid "Resume"
+msgstr ""
+
+#: ControlPage.py:353
+#, python-format
+msgid "Last error: %s\n"
+msgstr ""
+
+#: ControlPage.py:359
+msgid ""
+"No info available.\n"
+"Please contact the author."
+msgstr ""
+
+#: ControlPage.py:360
+#, python-format
+msgid "State: %s"
+msgstr ""
+
+#: ControlPage.py:387
+msgid "Move +Z"
+msgstr ""
+
+#: ControlPage.py:397
+msgid "Move -X +Y"
+msgstr ""
+
+#: ControlPage.py:406
+msgid "Move +Y"
+msgstr ""
+
+#: ControlPage.py:415
+msgid "Move +X +Y"
+msgstr ""
+
+#: ControlPage.py:424
+msgid "Multiply step by 10"
+msgstr ""
+
+#: ControlPage.py:433
+msgid "Increase step by 1 unit"
+msgstr ""
+
+#: ControlPage.py:448
+msgid "Move -X"
+msgstr ""
+
+#: ControlPage.py:457
+msgid ""
+"Move to Origin.\n"
+"User configurable button.\n"
+"Right click to configure."
+msgstr ""
+
+#: ControlPage.py:466
+msgid "Move +X"
+msgstr ""
+
+#: ControlPage.py:489
+msgid "Step for every move operation"
+msgstr ""
+
+#: ControlPage.py:507
+msgid "Step for Z move operation"
+msgstr ""
+
+#: ControlPage.py:521
+msgid "Move -Z"
+msgstr ""
+
+#: ControlPage.py:530
+msgid "Move -X -Y"
+msgstr ""
+
+#: ControlPage.py:539
+msgid "Move -Y"
+msgstr ""
+
+#: ControlPage.py:548
+msgid "Move +X -Y"
+msgstr ""
+
+#: ControlPage.py:556
+msgid "Divide step by 10"
+msgstr ""
+
+#: ControlPage.py:564
+msgid "Decrease step by 1 unit"
+msgstr ""
+
+#: ControlPage.py:630
+#, python-format
+msgid "Step: %g"
+msgstr ""
+
+#: ControlPage.py:633
+#, python-format
+msgid "Step: %g    Zstep:%g "
+msgstr ""
+
+#: ControlPage.py:736
+#, python-format
+msgid "Switch to workspace %s"
+msgstr ""
+
+#: ControlPage.py:750
+msgid "Distance Mode [G90,G91]"
+msgstr ""
+
+#: ControlPage.py:760
+msgid "Units:"
+msgstr ""
+
+#: ControlPage.py:768
+msgid "Units [G20, G21]"
+msgstr ""
+
+#: ControlPage.py:775
+msgid "Tool:"
+msgstr ""
+
+#: ControlPage.py:780
+msgid "Tool number [T#]"
+msgstr ""
+
+#: ControlPage.py:792
+msgid "Plane:"
+msgstr ""
+
+#: ControlPage.py:800
+msgid "Plane [G17,G18,G19]"
+msgstr ""
+
+#: ControlPage.py:808
+msgid "Feed:"
+msgstr ""
+
+#: ControlPage.py:815
+msgid "Feed Rate [F#]"
+msgstr ""
+
+#: ControlPage.py:826
+msgid "Mode:"
+msgstr ""
+
+#: ControlPage.py:835
+msgid "Feed Mode [G93, G94, G95]"
+msgstr ""
+
+#: ControlPage.py:853
+msgid ""
+"Feed\n"
+"Override:"
+msgstr ""
+
+#: ControlPage.py:859
+msgid "Reset Feed Override to 100%"
+msgstr ""
+
+#: ControlPage.py:871
+msgid "Set Feed Override"
+msgstr ""
+
+#: ControlPage.py:876
+msgid "Spindle"
+msgstr ""
+
+#: ControlPage.py:884
+msgid "Start/Stop spindle (M3/M5)"
+msgstr ""
+
+#: ControlPage.py:895
+msgid "Set spindle RPM"
+msgstr ""
+
+#: EditorPage.py:35
+msgid "Paste"
+msgstr ""
+
+#: EditorPage.py:40
+msgid "Paste [Ctrl-V]"
+msgstr ""
+
+#: EditorPage.py:51
+msgid "Cut [Ctrl-X]"
+msgstr ""
+
+#: EditorPage.py:58
+msgid "Copy"
+msgstr ""
+
+#: EditorPage.py:63
+msgid "Copy [Ctrl-C]"
+msgstr ""
+
+#: EditorPage.py:73
+msgid "Import"
+msgstr ""
+
+#: EditorPage.py:74
+msgid "Inkscape"
+msgstr ""
+
+#: EditorPage.py:75
+msgid "Round"
+msgstr ""
+
+#: EditorPage.py:76 bCNC.py:765
+msgid "Statistics"
+msgstr ""
+
+#: EditorPage.py:89
+msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
+msgstr ""
+
+#: EditorPage.py:101
+msgid "Clone selected lines or blocks [Ctrl-D]"
+msgstr ""
+
+#: EditorPage.py:113
+msgid "Delete selected lines or blocks [Del]"
+msgstr ""
+
+#: EditorPage.py:125
+msgid "Toggle enable/disable block of g-code [Ctrl-L]"
+msgstr ""
+
+#: EditorPage.py:128
+msgid "Enable"
+msgstr ""
+
+#: EditorPage.py:130
+msgid "Disable"
+msgstr ""
+
+#: EditorPage.py:133
+msgid "Active"
+msgstr ""
+
+#: EditorPage.py:139
+msgid "Enable or disable blocks of gcode"
+msgstr ""
+
+#: EditorPage.py:146
+msgid "Expand"
+msgstr ""
+
+#: EditorPage.py:151
+msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
+msgstr ""
+
+#: EditorPage.py:158
+msgid "Comment"
+msgstr ""
+
+#: EditorPage.py:164
+msgid "(Un)Comment selected lines"
+msgstr ""
+
+#: EditorPage.py:179
+msgid "Move"
+msgstr ""
+
+#: EditorPage.py:187
+msgid "Move objects [M]"
+msgstr ""
+
+#: EditorPage.py:194
+msgid "Origin"
+msgstr ""
+
+#: EditorPage.py:202
+msgid "Place origin with the mouse on canvas [O]"
+msgstr ""
+
+#: EditorPage.py:210
+msgid "T-L"
+msgstr ""
+
+#: EditorPage.py:216
+msgid "Move origin of g-code to Top-Left corner"
+msgstr ""
+
+#: EditorPage.py:223
+msgid "L"
+msgstr ""
+
+#: EditorPage.py:229
+msgid "Move origin of g-code to Left side"
+msgstr ""
+
+#: EditorPage.py:236
+msgid "B-L"
+msgstr ""
+
+#: EditorPage.py:242
+msgid "Move origin of g-code to Bottom-Left corner"
+msgstr ""
+
+#: EditorPage.py:250
+msgid "Top"
+msgstr ""
+
+#: EditorPage.py:256
+msgid "Move origin of g-code to Top side"
+msgstr ""
+
+#: EditorPage.py:269
+msgid "Move origin of g-code to center"
+msgstr ""
+
+#: EditorPage.py:276
+msgid "Bottom"
+msgstr ""
+
+#: EditorPage.py:282
+msgid "Move origin of g-code to Bottom side"
+msgstr ""
+
+#: EditorPage.py:290
+msgid "T-R"
+msgstr ""
+
+#: EditorPage.py:296
+msgid "Move origin of g-code to Top-Right corner"
+msgstr ""
+
+#: EditorPage.py:303
+msgid "R"
+msgstr ""
+
+#: EditorPage.py:309
+msgid "Move origin of g-code to Right side"
+msgstr ""
+
+#: EditorPage.py:316
+msgid "B-R"
+msgstr ""
+
+#: EditorPage.py:322
+msgid "Move origin of g-code to Bottom-Right corner"
+msgstr ""
+
+#: EditorPage.py:331
+msgid "Optimize"
+msgstr ""
+
+#: EditorPage.py:339
+msgid "Up"
+msgstr ""
+
+#: EditorPage.py:344
+msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
+msgstr ""
+
+#: EditorPage.py:351
+msgid "Down"
+msgstr ""
+
+#: EditorPage.py:356
+msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
+msgstr ""
+
+#: EditorPage.py:363 plugins/heightmap.py:57
+msgid "Invert"
+msgstr ""
+
+#: EditorPage.py:368
+msgid "Invert cutting order of selected blocks"
+msgstr ""
+
+#: EditorPage.py:383
+msgid "CW"
+msgstr ""
+
+#: EditorPage.py:389
+msgid "Rotate selected gcode clock-wise (-90deg)"
+msgstr ""
+
+#: EditorPage.py:396
+msgid "Flip"
+msgstr ""
+
+#: EditorPage.py:402
+msgid "Rotate selected gcode by 180deg"
+msgstr ""
+
+#: EditorPage.py:409
+msgid "CCW"
+msgstr ""
+
+#: EditorPage.py:415
+msgid "Rotate selected gcode counter-clock-wise (90deg)"
+msgstr ""
+
+#: EditorPage.py:422
+msgid "Horizontal"
+msgstr ""
+
+#: EditorPage.py:428
+msgid "Mirror horizontally X=-X selected gcode"
+msgstr ""
+
+#: EditorPage.py:435
+msgid "Vertical"
+msgstr ""
+
+#: EditorPage.py:441
+msgid "Mirror vertically Y=-Y selected gcode"
+msgstr ""
+
+#: EditorPage.py:448
+msgid "Reverse"
+msgstr ""
+
+#: EditorPage.py:454
+msgid "Reverse direction of selected gcode blocks"
+msgstr ""
+
+#: bCNC.py:82
+msgid "All accepted"
+msgstr ""
+
+#: bCNC.py:83 bCNC.py:1714
+msgid "G-Code"
+msgstr ""
+
+#: bCNC.py:88
+msgid "All"
+msgstr ""
+
+#: bCNC.py:144
+msgid "Command:"
+msgstr ""
+
+#: bCNC.py:157
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+
+#: bCNC.py:423
+msgid "Running"
+msgstr ""
+
+#: bCNC.py:424
+msgid "CNC is currently running, please stop it before."
+msgstr ""
+
+#: bCNC.py:432 bCNC.py:1665
+msgid "File modified"
+msgstr ""
+
+#: bCNC.py:433 bCNC.py:1666
+msgid "Gcode was modified do you want to save it first?"
+msgstr ""
+
+#: bCNC.py:593
+#, python-format
+msgid "About %s"
+msgstr ""
+
+#: bCNC.py:628
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+
+#: bCNC.py:727 bCNC.py:915 bCNC.py:1763
+msgid "Close"
+msgstr ""
+
+#: bCNC.py:783
+msgid "Enabled GCode"
+msgstr ""
+
+#: bCNC.py:788 bCNC.py:853
+msgid "Margins X:"
+msgstr ""
+
+#: bCNC.py:821 bCNC.py:886
+msgid "# Blocks:"
+msgstr ""
+
+#: bCNC.py:829 bCNC.py:893
+msgid "Length:"
+msgstr ""
+
+#: bCNC.py:837 bCNC.py:901
+msgid "Time:"
+msgstr ""
+
+#: bCNC.py:848
+msgid "All GCode"
+msgstr ""
+
+#: bCNC.py:1064
+msgid "Evaluation error"
+msgstr ""
+
+#: bCNC.py:1406
+#, python-format
+msgid "EndMill: %s %g"
+msgstr ""
+
+#: bCNC.py:1431
+#, python-format
+msgid "Invalid user command %s"
+msgstr ""
+
+#: bCNC.py:1508
+msgid "Operation error"
+msgstr ""
+
+#: bCNC.py:1549
+#, python-format
+msgid "Profile block distance=%g"
+msgstr ""
+
+#: bCNC.py:1562
+msgid "Open paths"
+msgstr ""
+
+#: bCNC.py:1563
+#, python-format
+msgid "WARNING: %s"
+msgstr ""
+
+#: bCNC.py:1639
+msgid "Open file"
+msgstr ""
+
+#: bCNC.py:1652
+msgid "Save file"
+msgstr ""
+
+#: bCNC.py:1671
+#, python-format
+msgid "Loading: %s ..."
+msgstr ""
+
+#: bCNC.py:1685
+#, python-format
+msgid "'%s' loaded"
+msgstr ""
+
+#: bCNC.py:1691
+#, python-format
+msgid "'%s' saved"
+msgstr ""
+
+#: bCNC.py:1710
+msgid "Import Gcode/DXF file"
+msgstr ""
+
+#: bCNC.py:1739
+msgid "Warning"
+msgstr ""
+
+#: bCNC.py:1740
+#, python-format
+msgid ""
+"Gcode file %s was changed since editing started\n"
+"Reload new version?"
+msgstr ""
+
+#: bCNC.py:1755 FilePage.py:266
+msgid "Open"
+msgstr ""
+
+#: bCNC.py:1775
+msgid "Error opening serial"
+msgstr ""
+
+#: bCNC.py:1804
+msgid "Run ended"
+msgstr ""
+
+#: bCNC.py:1811
+msgid "Serial Error"
+msgstr ""
+
+#: bCNC.py:1812
+msgid "Serial is not connected"
+msgstr ""
+
+#: bCNC.py:1819
+msgid "Already running"
+msgstr ""
+
+#: bCNC.py:1820
+msgid "Please stop before"
+msgstr ""
+
+#: bCNC.py:1824
+msgid "Preparing to run ..."
+msgstr ""
+
+#: bCNC.py:1831
+msgid "Probe is not zeroed"
+msgstr ""
+
+#: bCNC.py:1832
+msgid "Please ZERO any location of the probe before starting a run"
+msgstr ""
+
+#: bCNC.py:1838
+msgid "Empty gcode"
+msgstr ""
+
+#: bCNC.py:1839
+msgid "Not gcode file was loaded"
+msgstr ""
+
+#: bCNC.py:1864
+msgid "Running..."
+msgstr ""
+
+#: bCNC.py:1884 bCNC.py:1888 bCNC.py:1901
+msgid "Pendant"
+msgstr ""
+
+#: bCNC.py:1885
+msgid "Pendant started:\n"
+msgstr ""
+
+#: bCNC.py:1889
+msgid "Pendant already started:\n"
+msgstr ""
+
+#: bCNC.py:1891
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+
+#: bCNC.py:1901
+msgid "Pendant stopped"
+msgstr ""
+
+#: bCNC.py:2139
+msgid "python serial missing"
+msgstr ""
+
+#: bCNC.py:2140
+msgid ""
+"ERROR: Please install the python pyserial module\n"
+"Windows: C:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Linux: sudo apt-get or yum install python-serial"
+msgstr ""
+
+#: FilePage.py:68
+msgid "New gcode/dxf file"
+msgstr ""
+
+#: FilePage.py:77
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr ""
+
+#: FilePage.py:87
+msgid "Open recent file"
+msgstr ""
+
+#: FilePage.py:97
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr ""
+
+#: FilePage.py:102
+msgid "Save"
+msgstr ""
+
+#: FilePage.py:107
+msgid "Save gcode/dxf AS"
+msgstr ""
+
+#: FilePage.py:134
+msgid "Report"
+msgstr ""
+
+#: FilePage.py:141
+msgid "Send Error Report"
+msgstr ""
+
+#: FilePage.py:146
+msgid "Updates"
+msgstr ""
+
+#: FilePage.py:154
+msgid "Check Updates"
+msgstr ""
+
+#: FilePage.py:158
+msgid "About"
+msgstr ""
+
+#: FilePage.py:165
+msgid "About the program"
+msgstr ""
+
+#: FilePage.py:184
+msgid "Start pendant"
+msgstr ""
+
+#: FilePage.py:195
+msgid "Stop pendant"
+msgstr ""
+
+#: FilePage.py:213
+msgid "Close program [Ctrl-Q]"
+msgstr ""
+
+#: FilePage.py:226
+msgid "Port:"
+msgstr ""
+
+#: FilePage.py:232
+msgid "Select (or manual enter) port to connect"
+msgstr ""
+
+#: FilePage.py:241
+msgid "Baud:"
+msgstr ""
+
+#: FilePage.py:246
+msgid "Select connection baud rate"
+msgstr ""
+
+#: FilePage.py:253
+msgid "Connect on startup"
+msgstr ""
+
+#: FilePage.py:256
+msgid "Connect to serial on startup of the program"
+msgstr ""
+
+#: FilePage.py:271
+msgid "Open/Close serial port"
+msgstr ""
+
+#: TerminalPage.py:33
+msgid "Clear terminal"
+msgstr ""
+
+#: TerminalPage.py:41
+msgid "Restore Settings"
+msgstr ""
+
+#: TerminalPage.py:42
+msgid "Restore Workspace"
+msgstr ""
+
+#: TerminalPage.py:43
+msgid "Restore All"
+msgstr ""
+
+#: TerminalPage.py:51
+msgid "Settings"
+msgstr ""
+
+#: TerminalPage.py:57
+msgid "$$ Display settings of Grbl"
+msgstr ""
+
+#: TerminalPage.py:63
+msgid "Parameters"
+msgstr ""
+
+#: TerminalPage.py:69
+msgid "$# Display parameters of Grbl"
+msgstr ""
+
+#: TerminalPage.py:75
+msgid "State"
+msgstr ""
+
+#: TerminalPage.py:81
+msgid "$G Display state of Grbl"
+msgstr ""
+
+#: TerminalPage.py:89
+msgid "Build"
+msgstr ""
+
+#: TerminalPage.py:95
+msgid "$I Display build information of Grbl"
+msgstr ""
+
+#: TerminalPage.py:101
+msgid "Startup"
+msgstr ""
+
+#: TerminalPage.py:107
+msgid "$N Display startup configuration of Grbl"
+msgstr ""
+
+#: TerminalPage.py:114
+msgid "Check gcode"
+msgstr ""
+
+#: TerminalPage.py:120
+msgid "$C Enable/Disable checking of gcode"
+msgstr ""
+
+#: TerminalPage.py:128
+msgid "Help"
+msgstr ""
+
+#: TerminalPage.py:134
+msgid "$ Display build information of Grbl"
+msgstr ""
+
+#: plugins/pyrograph.py:41
+msgid "Pyrograph tip size"
+msgstr ""
+
+#: plugins/pyrograph.py:42 plugins/heightmap.py:50
+msgid "Working Depth"
+msgstr ""
+
+#: plugins/pyrograph.py:43 plugins/heightmap.py:51
+msgid "Maximum size"
+msgstr ""
+
+#: plugins/pyrograph.py:44
+msgid "Minimum feed"
+msgstr ""
+
+#: plugins/pyrograph.py:45
+msgid "Maximum feed"
+msgstr ""
+
+#: plugins/pyrograph.py:47
+msgid "Draw border"
+msgstr ""
+
+#: plugins/pyrograph.py:48 plugins/heightmap.py:58
+msgid "Image to process"
+msgstr ""
+
+#: plugins/pyrograph.py:57
+msgid "Pyrograph abort: This plugin requires PIL/Pillow"
+msgstr ""
+
+#: plugins/pyrograph.py:74
+msgid "Pyrograph abort: please define a scan Direction"
+msgstr ""
+
+#: plugins/pyrograph.py:78
+msgid "Pyrograph abort: Tool Size must be > 0"
+msgstr ""
+
+#: plugins/pyrograph.py:82
+msgid "Pyrograph abort: Please check feed rate parameters"
+msgstr ""
+
+#: plugins/pyrograph.py:93
+msgid "Pyrograph abort: Can't read image file"
+msgstr ""
+
+#: plugins/pyrograph.py:202
+msgid "Generated Pyrograph"
+msgstr ""
+
+#: plugins/heightmap.py:54
+msgid "ScanDir"
+msgstr ""
+
+#: plugins/heightmap.py:55
+msgid "Cut Top"
+msgstr ""
+
+#: plugins/heightmap.py:56
+msgid "Cut Border"
+msgstr ""
+
+#: plugins/heightmap.py:68
+msgid "Heightmap abort: This plugin requires PIL/Pillow"
+msgstr ""
+
+#: plugins/heightmap.py:77
+msgid "Heightmap abort: Can't read image file"
+msgstr ""
+
+#: plugins/heightmap.py:81
+msgid "Heightmap abort: depth must be < 0"
+msgstr ""
+
+#: plugins/heightmap.py:150
+msgid "Heightmap abort: angle not defined for selected End Mill"
+msgstr ""
+
+#: plugins/heightmap.py:364
+#, python-format
+msgid "Generated Heightmap %d x %d x %d "
+msgstr ""
+
+#: plugins/midi2cnc.py:52
+msgid "Pulse per unit for X"
+msgstr ""
+
+#: plugins/midi2cnc.py:53
+msgid "Pulse per unit for Y"
+msgstr ""
+
+#: plugins/midi2cnc.py:54
+msgid "Pulse per unit for Z"
+msgstr ""
+
+#: plugins/midi2cnc.py:55
+msgid "Maximum X travel"
+msgstr ""
+
+#: plugins/midi2cnc.py:56
+msgid "Maximum Y travel"
+msgstr ""
+
+#: plugins/midi2cnc.py:57
+msgid "Maximum Z travel"
+msgstr ""
+
+#: plugins/midi2cnc.py:58
+msgid "Axis to be used"
+msgstr ""
+
+#: plugins/midi2cnc.py:59
+msgid "Midi to process"
+msgstr ""
+
+#: plugins/midi2cnc.py:101
+msgid "Error: This plugin requires midiparser.py"
+msgstr ""
+
+#: plugins/midi2cnc.py:139
+msgid "Error: Sorry can't parse the Midi file."
+msgstr ""
+
+#: plugins/midi2cnc.py:296
+msgid "Generated Midi2CNC, ready to play?"
+msgstr ""
+
+#: plugins/gear.py:163
+msgid "No of teeth"
+msgstr ""
+
+#: plugins/gear.py:164
+msgid "Pressure angle"
+msgstr ""
+
+#: plugins/gear.py:165
+msgid "Circular Pitch"
+msgstr ""
+
+#: plugins/gear.py:176
+msgid "Create Spur GEAR"
+msgstr ""
+
+#: plugins/gear.py:178
+msgid "Generated: Spur GEAR"
+msgstr ""
+
+#: plugins/flatten.py:36
+msgid "Flatten abort: Cut Direction is undefined"
+msgstr ""
+
+#: plugins/flatten.py:40
+msgid "Flatten abort: Pocket Type is undefined"
+msgstr ""
+
+#: plugins/flatten.py:44
+msgid "Flatten abort: Flatten Area dimensions must be > 0"
+msgstr ""
+
+#: plugins/flatten.py:48
+msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
+msgstr ""
+
+#: plugins/flatten.py:85
+msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgstr ""
+
+#: plugins/flatten.py:258
+msgid "X start"
+msgstr ""
+
+#: plugins/flatten.py:259
+msgid "Y start"
+msgstr ""
+
+#: plugins/flatten.py:260
+msgid "Width to flatten"
+msgstr ""
+
+#: plugins/flatten.py:261
+msgid "Height to flatten"
+msgstr ""
+
+#: plugins/flatten.py:262
+msgid "Depth to flatten"
+msgstr ""
+
+#: plugins/flatten.py:263
+msgid "Raster border"
+msgstr ""
+
+#: plugins/flatten.py:264
+msgid "Cut Direction"
+msgstr ""
+
+#: plugins/flatten.py:265
+msgid "Pocket type"
+msgstr ""
+
+#: plugins/flatten.py:290
+msgid "Flatten: Generated flatten surface"
+msgstr ""
+
+#: plugins/driller.py:42
+msgid "Distance between holes"
+msgstr ""
+
+#: plugins/driller.py:44
+msgid "Peck, 0 meas None"
+msgstr ""
+
+#: plugins/driller.py:45
+msgid "Dwell time, 0 means None"
+msgstr ""
+
+#: plugins/driller.py:117
+msgid "Driller abort: Distance must be > 0"
+msgstr ""
+
+#: plugins/driller.py:121
+msgid "Driller abort: Peck must be >= 0"
+msgstr ""
+
+#: plugins/driller.py:125
+msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
+msgstr ""
+
+#: plugins/driller.py:135
+msgid "Driller abort: Please select some path"
+msgstr ""
+
+#: plugins/driller.py:221
+#, python-format
+msgid "Generated Driller: %d holes"
+msgstr ""
+
+#: plugins/tile.py:51
+msgid "Tile error"
+msgstr ""
+
+#: plugins/tile.py:52
+msgid "No g-code blocks selected"
+msgstr ""
+
+#: plugins/tile.py:92
+msgid "Tiled selected blocks"
+msgstr ""
+
+#: plugins/spirograph.py:102
+msgid "External Radius"
+msgstr ""
+
+#: plugins/spirograph.py:103
+msgid "Internal Radius"
+msgstr ""
+
+#: plugins/spirograph.py:104
+msgid "Offset radius"
+msgstr ""
+
+#: plugins/spirograph.py:123
+msgid "Generated: Spirograph"
+msgstr ""
+
+#: plugins/bowl.py:109
+msgid "Resolution (degrees)"
+msgstr ""
+
+#: plugins/bowl.py:110
+msgid "Progressive"
+msgstr ""
+
+#: plugins/bowl.py:124
+msgid "Generated: BOWL"
+msgstr ""
+
+#: plugins/bowl.py:126
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr ""
+
+#: plugins/box.py:307
+msgid "Width Dx"
+msgstr ""
+
+#: plugins/box.py:308
+msgid "Depth Dy"
+msgstr ""
+
+#: plugins/box.py:309
+msgid "Height Dz"
+msgstr ""
+
+#: plugins/box.py:310
+msgid "Fingers Nx"
+msgstr ""
+
+#: plugins/box.py:311
+msgid "Fingers Ny"
+msgstr ""
+
+#: plugins/box.py:312
+msgid "Fingers Nz"
+msgstr ""
+
+#: plugins/box.py:339
+msgid "Create finger BOX"
+msgstr ""
+
+#: plugins/box.py:341
+msgid "Generated: BOX with fingers"
+msgstr ""
