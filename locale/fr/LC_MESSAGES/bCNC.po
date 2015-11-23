@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-23 16:44+0100\n"
-"PO-Revision-Date: 2015-11-23 16:45+0100\n"
+"POT-Creation-Date: 2015-11-23 17:40+0100\n"
+"PO-Revision-Date: 2015-11-23 17:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -363,7 +363,7 @@ msgid "Plotting Arc accuracy"
 msgstr ""
 
 #: ToolsPage.py:482
-msgid "startup"
+msgid "Start up"
 msgstr ""
 
 #: ToolsPage.py:483
@@ -618,6 +618,69 @@ msgstr ""
 
 #: ToolsPage.py:1157
 msgid "Value"
+msgstr ""
+
+#: Utils.py:434 Utils.py:444
+msgid "Error sending report"
+msgstr ""
+
+#: Utils.py:435
+msgid "There was a problem connecting to the web site"
+msgstr ""
+
+#: Utils.py:439
+msgid "Report successfully send"
+msgstr ""
+
+#: Utils.py:440
+msgid "Report was successfully uploaded to web site"
+msgstr ""
+
+#: Utils.py:445
+#, python-format
+msgid ""
+"There was an error sending the report\n"
+"Code=%d %s"
+msgstr ""
+
+#: Utils.py:552
+msgid "User configurable button"
+msgstr ""
+
+#: Utils.py:558
+msgid "Name:"
+msgstr ""
+
+#: Utils.py:562
+msgid "Name to appear on button"
+msgstr ""
+
+#: Utils.py:566
+msgid "Icon:"
+msgstr ""
+
+#: Utils.py:578
+msgid "Icon to appear on button"
+msgstr ""
+
+#: Utils.py:582
+msgid "Tool Tip:"
+msgstr ""
+
+#: Utils.py:586
+msgid "Tooltip for button"
+msgstr ""
+
+#: Utils.py:590 bCNC.py:144
+msgid "Command:"
+msgstr ""
+
+#: Utils.py:602
+msgid "Cancel"
+msgstr ""
+
+#: Utils.py:603
+msgid "Ok"
 msgstr ""
 
 #: ProbePage.py:23
@@ -1526,10 +1589,6 @@ msgstr ""
 
 #: bCNC.py:88
 msgid "All"
-msgstr ""
-
-#: bCNC.py:144
-msgid "Command:"
 msgstr ""
 
 #: bCNC.py:157
