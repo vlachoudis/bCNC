@@ -24,7 +24,7 @@ msgstr "Sortir"
 
 #: Sender.py:57
 msgid "bCNC is currently sending a gcode program to Grbl"
-msgstr "bCNC est en train d'envoyer un programme gcode à Grgl."
+msgstr "bCNC est en train d'envoyer un programme gcode à Grbl."
 
 #: Sender.py:58
 msgid "Grbl is in idle state and waiting for user commands"
@@ -99,22 +99,28 @@ msgid ""
 "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
 "tool number, or S spindle speed is negative."
 msgstr ""
+"La valeur $x=val du paramètre Grbl, le taux d'avance F, le numéro de ligne N, "
+" le mot P, le numéro d'outil T ou la vitesse S de la fraiseuse est négative." 
 
 #: Sender.py:69
 msgid "Homing is disabled when issuing a $H command."
-msgstr ""
+msgstr "Le calage à l'origine (homing) est désactivé lors de l'envoi d'une commande $H."
 
 #: Sender.py:70
 msgid ""
 "Step pulse time length cannot be less than 3 microseconds (for technical "
 "reasons)."
 msgstr ""
+"La durée de l'impulsion du pas ne peut être inférieur à 3 microsecondes "
+"(pour des raisons techniques)."
 
 #: Sender.py:71
 msgid ""
 "If Grbl can't read data contained in the EEPROM, this error is returned. "
 "Grbl will also clear and restore the effected data back to defaults."
 msgstr ""
+"Erreur retournée si Grbl ne peut lire les données contenues dans l'EEPROM. "
+"Grbl effacera et restaurera les données à leurs valeurs par défaut."
 
 #: Sender.py:72
 msgid ""
@@ -313,65 +319,65 @@ msgstr ""
 
 #: Sender.py:281
 msgid "unknown command"
-msgstr ""
+msgstr "commande inconnue."
 
 #: Sender.py:281
 #, python-format
 msgid "Invalid command %s"
-msgstr ""
+msgstr "Commande %s invalide."
 
 #: Sender.py:509 ControlPage.py:346
 #, python-format
 msgid "Set workspace %s to X%s Y%s Z%s"
-msgstr ""
+msgstr "Réglez l'espace de travail %s à X%s Y%s Z%s."
 
 #: ToolsPage.py:469
 msgid "Units (inches)"
-msgstr ""
+msgstr "Unités (pouces)"
 
 #: ToolsPage.py:470
 msgid "Lasercutter"
-msgstr ""
+msgstr "Découpe laser"
 
 #: ToolsPage.py:471
 msgid "Acceleration x"
-msgstr ""
+msgstr "Accélération x"
 
 #: ToolsPage.py:472
 msgid "Acceleration y"
-msgstr ""
+msgstr "Accélération y"
 
 #: ToolsPage.py:473
 msgid "Acceleration z"
-msgstr ""
+msgstr "Accéleration z"
 
 #: ToolsPage.py:474
 msgid "Feed max x"
-msgstr ""
+msgstr "Vitesse max x"
 
 #: ToolsPage.py:475
 msgid "Feed max y"
-msgstr ""
+msgstr "Vitesse max y"
 
 #: ToolsPage.py:476
 msgid "Feed max z"
-msgstr ""
+msgstr "Vitesse max z"
 
 #: ToolsPage.py:477
 msgid "Travel x"
-msgstr ""
+msgstr "Déplacement x"
 
 #: ToolsPage.py:478
 msgid "Travel y"
-msgstr ""
+msgstr "Déplacement y"
 
 #: ToolsPage.py:479
 msgid "Travel z"
-msgstr ""
+msgstr "Déplacement z"
 
 #: ToolsPage.py:480
 msgid "Decimal digits"
-msgstr ""
+msgstr "Nombre de décimales"
 
 #: ToolsPage.py:481
 msgid "Plotting Arc accuracy"
@@ -379,23 +385,23 @@ msgstr ""
 
 #: ToolsPage.py:482
 msgid "Start up"
-msgstr ""
+msgstr "Démarrage"
 
 #: ToolsPage.py:483
 msgid "Spindle min (RPM)"
-msgstr ""
+msgstr "Rotation min (RPM)"
 
 #: ToolsPage.py:484
 msgid "Spindle max (RPM)"
-msgstr ""
+msgstr "Rotation max (RPM)"
 
 #: ToolsPage.py:485
 msgid "Header gcode"
-msgstr ""
+msgstr "G-code à exécuter au début"
 
 #: ToolsPage.py:486
 msgid "Footer gcode"
-msgstr ""
+msgstr "G-code à exécuter à la fin"
 
 #: ToolsPage.py:508 ToolsPage.py:534 ToolsPage.py:563 ToolsPage.py:589
 #: ToolsPage.py:621 ToolsPage.py:648 ToolsPage.py:674 ToolsPage.py:696
@@ -408,27 +414,27 @@ msgstr "Nom"
 
 #: ToolsPage.py:509
 msgid "Feed"
-msgstr ""
+msgstr "Vitesse"
 
 #: ToolsPage.py:510
 msgid "Plunge Feed"
-msgstr ""
+msgstr "Vitesse de plongée"
 
 #: ToolsPage.py:511 ToolsPage.py:592
 msgid "Depth Increment"
-msgstr ""
+msgstr "Hauteur de passage"
 
 #: ToolsPage.py:535
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: ToolsPage.py:536
 msgid "Shape"
-msgstr ""
+msgstr "Forme"
 
 #: ToolsPage.py:537 ToolsPage.py:564 ToolsPage.py:891
 msgid "Material"
-msgstr ""
+msgstr "Matériau"
 
 #: ToolsPage.py:538
 msgid "Coating"
@@ -436,11 +442,11 @@ msgstr ""
 
 #: ToolsPage.py:539 plugins/bowl.py:108
 msgid "Diameter"
-msgstr ""
+msgstr "Diamètre"
 
 #: ToolsPage.py:540
 msgid "Mount Axis"
-msgstr ""
+msgstr "Axe"
 
 #: ToolsPage.py:541
 msgid "Flutes"
@@ -448,11 +454,11 @@ msgstr ""
 
 #: ToolsPage.py:542
 msgid "Length"
-msgstr ""
+msgstr "Longueur"
 
 #: ToolsPage.py:543
 msgid "Angle"
-msgstr ""
+msgstr "Angle"
 
 #: ToolsPage.py:544
 msgid "Stepover %"
@@ -460,20 +466,20 @@ msgstr ""
 
 #: ToolsPage.py:565
 msgid "Safe Z"
-msgstr ""
+msgstr "Sécurité Z"
 
 #: ToolsPage.py:566 ToolsPage.py:590
 msgid "Surface Z"
-msgstr ""
+msgstr "Surface Z"
 
 #: ToolsPage.py:567
 msgid "Thickness"
-msgstr ""
+msgstr "Épaisseur"
 
 #: ToolsPage.py:591 ToolsPage.py:622 plugins/driller.py:43
 #: plugins/spirograph.py:105
 msgid "Target Depth"
-msgstr ""
+msgstr "Profondeur finale"
 
 #: ToolsPage.py:611
 msgid "CUT selected paths"
@@ -493,7 +499,7 @@ msgstr ""
 
 #: ToolsPage.py:650 plugins/pyrograph.py:46
 msgid "Direction"
-msgstr ""
+msgstr "Direction"
 
 #: ToolsPage.py:651
 msgid "Additional offset distance"
@@ -513,7 +519,7 @@ msgstr ""
 
 #: ToolsPage.py:877
 msgid "Stock"
-msgstr ""
+msgstr "Stock"
 
 #: ToolsPage.py:884
 msgid "Stock material currently on machine"
@@ -529,7 +535,7 @@ msgstr ""
 
 #: ToolsPage.py:919
 msgid "Rename"
-msgstr ""
+msgstr "Renommer"
 
 #: ToolsPage.py:924
 msgid "Edit name of current operation/object"
@@ -537,7 +543,7 @@ msgstr ""
 
 #: ToolsPage.py:932 EditorPage.py:84
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #: ToolsPage.py:937
 msgid "Add a new operation/object"
@@ -545,7 +551,7 @@ msgstr ""
 
 #: ToolsPage.py:945 EditorPage.py:96
 msgid "Clone"
-msgstr ""
+msgstr "Cloner"
 
 #: ToolsPage.py:950
 msgid "Clone selected operation/object"
@@ -553,7 +559,7 @@ msgstr ""
 
 #: ToolsPage.py:958 EditorPage.py:108
 msgid "Delete"
-msgstr ""
+msgstr "Effacer"
 
 #: ToolsPage.py:963
 msgid "Delete selected operation/object"
@@ -561,7 +567,7 @@ msgstr ""
 
 #: ToolsPage.py:979 EditorPage.py:46 plugins/box.py:315
 msgid "Cut"
-msgstr ""
+msgstr "Couper"
 
 #: ToolsPage.py:986
 msgid "Cut for the full stock thickness selected code"
@@ -585,7 +591,7 @@ msgstr ""
 
 #: ToolsPage.py:1021
 msgid "Drill"
-msgstr ""
+msgstr "Percer"
 
 #: ToolsPage.py:1028
 msgid "Insert a drill cycle on current objects/location"
@@ -593,7 +599,7 @@ msgstr ""
 
 #: ToolsPage.py:1035
 msgid "Tabs"
-msgstr ""
+msgstr "Onglets"
 
 #: ToolsPage.py:1042
 msgid "Insert holding tabs"
@@ -601,7 +607,7 @@ msgstr ""
 
 #: ToolsPage.py:1086
 msgid "Machine"
-msgstr ""
+msgstr "Machine"
 
 #: ToolsPage.py:1093
 msgid "Machine configuration for bCNC"
@@ -609,15 +615,15 @@ msgstr ""
 
 #: ToolsPage.py:1100
 msgid "Fonts"
-msgstr ""
+msgstr "Polices"
 
 #: ToolsPage.py:1107
 msgid "Font configuration"
-msgstr ""
+msgstr "Configuration de la police"
 
 #: ToolsPage.py:1114
 msgid "Colors"
-msgstr ""
+msgstr "Couleurs"
 
 #: ToolsPage.py:1121
 msgid "Color configuration"
@@ -625,15 +631,15 @@ msgstr ""
 
 #: ToolsPage.py:1128 ToolsPage.py:1135
 msgid "Shortcuts"
-msgstr ""
+msgstr "Raccourcis"
 
 #: ToolsPage.py:1146
 msgid "Execute"
-msgstr ""
+msgstr "Exécuter"
 
 #: ToolsPage.py:1157
 msgid "Value"
-msgstr ""
+msgstr "Valeur"
 
 #: Utils.py:434 Utils.py:444
 msgid "Error sending report"
@@ -664,7 +670,7 @@ msgstr ""
 
 #: Utils.py:558
 msgid "Name:"
-msgstr ""
+msgstr "Nom"
 
 #: Utils.py:562
 msgid "Name to appear on button"
@@ -672,7 +678,7 @@ msgstr ""
 
 #: Utils.py:566
 msgid "Icon:"
-msgstr ""
+msgstr "Icone :"
 
 #: Utils.py:578
 msgid "Icon to appear on button"
@@ -688,15 +694,15 @@ msgstr ""
 
 #: Utils.py:590 bCNC.py:144
 msgid "Command:"
-msgstr ""
+msgstr "Commande :"
 
 #: Utils.py:602
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #: Utils.py:603
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: ProbePage.py:23
 msgid "G38.2 stop on contact else error"
@@ -704,75 +710,75 @@ msgstr ""
 
 #: ProbePage.py:24
 msgid "G38.3 stop on contact"
-msgstr ""
+msgstr "G38.3 stoppe au contatc"
 
 #: ProbePage.py:25
 msgid "G38.4 stop on loss contact else error"
-msgstr ""
+msgstr "G38.4 stoppe à la perte de contact sinon erreur"
 
 #: ProbePage.py:26
 msgid "G38.5 stop on loss contact"
-msgstr ""
+msgstr "G38.5 stoppe à la perte de contact"
 
 #: ProbePage.py:29
 msgid "Send M6 commands"
-msgstr ""
+msgstr "Envoie les commandes M6"
 
 #: ProbePage.py:30
 msgid "Ignore M6 commands"
-msgstr ""
+msgstr "Ignore les commandes M6"
 
 #: ProbePage.py:31
 msgid "Manual Tool Change (WCS)"
-msgstr ""
+msgstr "Changement manuel d'outil (WCS)"
 
 #: ProbePage.py:32
 msgid "Manual Tool Change (TLO)"
-msgstr ""
+msgstr "Changement manuel d'outil (TLO)"
 
 #: ProbePage.py:35
 msgid "ONLY before probing"
-msgstr ""
+msgstr "SEULEMENT avant sondage"
 
 #: ProbePage.py:36
 msgid "BEFORE & AFTER probing"
-msgstr ""
+msgstr "AVANT & APRÈS sondage"
 
 #: ProbePage.py:53 ProbePage.py:120 ProbePage.py:320 bCNC.py:86
 msgid "Probe"
-msgstr ""
+msgstr "Sonde"
 
 #: ProbePage.py:59
 msgid "Simple probing along a direction"
-msgstr ""
+msgstr "Sondage simple selon une direction"
 
 #: ProbePage.py:65 ProbePage.py:138 ProbePage.py:427 EditorPage.py:263
 msgid "Center"
-msgstr ""
+msgstr "Centrer"
 
 #: ProbePage.py:71
 msgid "Center probing using a ring"
-msgstr ""
+msgstr "Sondage central avec un anneau"
 
 #: ProbePage.py:77
 msgid "Square"
-msgstr ""
+msgstr "Carré"
 
 #: ProbePage.py:84
 msgid "Probe X/Y axis by using a set square probe"
-msgstr ""
+msgstr "Sondage sur les axes X/Y en utilisant une sonde carrée"
 
 #: ProbePage.py:90
 msgid "Autolevel"
-msgstr ""
+msgstr "Nivelage automatique"
 
 #: ProbePage.py:96
 msgid "Autolevel Z surface"
-msgstr ""
+msgstr "Nivelage automatique en Z"
 
 #: ProbePage.py:102
 msgid "Tool"
-msgstr ""
+msgstr "Outil"
 
 #: ProbePage.py:108
 msgid "Setup probing for manual tool change"
@@ -780,23 +786,23 @@ msgstr ""
 
 #: ProbePage.py:126
 msgid "Perform a single probe cycle"
-msgstr ""
+msgstr "Lancer un cycle de sondage simple"
 
 #: ProbePage.py:144
 msgid "Perform a center probe cycle"
-msgstr ""
+msgstr "Lancer un cycle de sondage circulaire"
 
 #: ProbePage.py:159
 msgid "Margins"
-msgstr ""
+msgstr "Marges"
 
 #: ProbePage.py:164
 msgid "Get margins from gcode file"
-msgstr ""
+msgstr "Prendre les marges dans le fichier G-code"
 
 #: ProbePage.py:171
 msgid "Zero"
-msgstr ""
+msgstr "Zéro"
 
 #: ProbePage.py:176
 msgid "Set current location as Z-zero for leveling"
@@ -804,7 +810,7 @@ msgstr ""
 
 #: ProbePage.py:183 TerminalPage.py:29
 msgid "Clear"
-msgstr ""
+msgstr "Effacer"
 
 #: ProbePage.py:188
 msgid "Clear probe data"
@@ -812,7 +818,7 @@ msgstr ""
 
 #: ProbePage.py:195 plugins/heightmap.py:52
 msgid "Scan"
-msgstr ""
+msgstr "Scanner"
 
 #: ProbePage.py:202
 msgid "Scan probed area for level information on Z plane"
@@ -820,7 +826,7 @@ msgstr ""
 
 #: ProbePage.py:223
 msgid "Probe Feed:"
-msgstr ""
+msgstr "Vitesse de la sonde :"
 
 #: ProbePage.py:227
 msgid "Set probe feed rate"
@@ -828,7 +834,7 @@ msgstr ""
 
 #: ProbePage.py:234
 msgid "TLO"
-msgstr ""
+msgstr "TLO"
 
 #: ProbePage.py:238
 msgid "Set tool offset for probing"
@@ -836,40 +842,40 @@ msgstr ""
 
 #: ProbePage.py:244 ControlPage.py:784 ControlPage.py:819
 msgid "set"
-msgstr ""
+msgstr "régler"
 
 #: ProbePage.py:254
 msgid "Probe Command"
-msgstr ""
+msgstr "Commande de la sonde"
 
 #: ProbePage.py:324 ProbePage.py:824
 msgid "Probe:"
-msgstr ""
+msgstr "Sonde :"
 
 #: ProbePage.py:340
 msgid "Pos:"
-msgstr ""
+msgstr "Pos :"
 
 #: ProbePage.py:345
 msgid "Probe along X direction"
-msgstr ""
+msgstr "Sonde suivant la direction X"
 
 #: ProbePage.py:351
 msgid "Probe along Y direction"
-msgstr ""
+msgstr "Sonde suivant la direction Y"
 
 #: ProbePage.py:357
 msgid "Probe along Z direction"
-msgstr ""
+msgstr "Sonde suivant la direction Z"
 
 #: ProbePage.py:392 ProbePage.py:416 ProbePage.py:651 ProbePage.py:664
 #: ProbePage.py:674 ProbePage.py:681
 msgid "Probe Error"
-msgstr ""
+msgstr "Erreur avec la sonde"
 
 #: ProbePage.py:393 ProbePage.py:682
 msgid "Invalid probe feed rate"
-msgstr ""
+msgstr "Vitesse d'avancée de la sonde invalide."
 
 #: ProbePage.py:417
 msgid "At least one probe direction should be specified"
@@ -877,7 +883,7 @@ msgstr ""
 
 #: ProbePage.py:430
 msgid "Diameter:"
-msgstr ""
+msgstr "Diamètre :"
 
 #: ProbePage.py:433
 msgid "Probing ring internal diameter"
@@ -893,27 +899,27 @@ msgstr ""
 
 #: ProbePage.py:491
 msgid "Min"
-msgstr ""
+msgstr "Min"
 
 #: ProbePage.py:493
 msgid "Max"
-msgstr ""
+msgstr "Max"
 
 #: ProbePage.py:495
 msgid "Step"
-msgstr ""
+msgstr "Pas"
 
 #: ProbePage.py:506
 msgid "X minimum"
-msgstr ""
+msgstr "X minimum"
 
 #: ProbePage.py:512
 msgid "X maximum"
-msgstr ""
+msgstr "X maximum"
 
 #: ProbePage.py:519
 msgid "X step"
-msgstr ""
+msgstr "Pas X"
 
 #: ProbePage.py:528
 msgid "X bins"
@@ -929,7 +935,7 @@ msgstr ""
 
 #: ProbePage.py:551
 msgid "Y step"
-msgstr ""
+msgstr "Pas Y"
 
 #: ProbePage.py:560
 msgid "Y bins"
@@ -937,11 +943,11 @@ msgstr ""
 
 #: ProbePage.py:571
 msgid "Z Minimum depth to scan"
-msgstr ""
+msgstr "Profondeur minimale en Z de scannage"
 
 #: ProbePage.py:577
 msgid "Z safe to move"
-msgstr ""
+msgstr "Z de sécurité pour les déplacements"
 
 #: ProbePage.py:652
 msgid "Invalid X probing region"
@@ -957,7 +963,7 @@ msgstr ""
 
 #: ProbePage.py:726 ProbePage.py:873
 msgid "Calibrate"
-msgstr ""
+msgstr "Calibrer"
 
 #: ProbePage.py:732
 msgid "Perform a single a tool change cycle to set the calibration field"
@@ -1029,7 +1035,7 @@ msgstr ""
 
 #: ProbePage.py:854 ControlPage.py:742
 msgid "Distance:"
-msgstr ""
+msgstr "Distance :"
 
 #: ProbePage.py:859
 msgid "After a tool change distance to scan starting from ProbeZ"
@@ -1037,7 +1043,7 @@ msgstr ""
 
 #: ProbePage.py:865
 msgid "Calibration:"
-msgstr ""
+msgstr "Calibration :"
 
 #: ProbePage.py:869
 msgid "Tool probe height"
@@ -1069,11 +1075,11 @@ msgstr ""
 
 #: ControlPage.py:39
 msgid "Hard Reset"
-msgstr ""
+msgstr "Hard Reset"
 
 #: ControlPage.py:47
 msgid "Home"
-msgstr ""
+msgstr "Home"
 
 #: ControlPage.py:53
 msgid "Perform a homing cycle [$H]"
@@ -1081,7 +1087,7 @@ msgstr ""
 
 #: ControlPage.py:60
 msgid "Unlock"
-msgstr ""
+msgstr "Débloquer"
 
 #: ControlPage.py:66
 msgid "Unlock controller [$X]"
@@ -1089,7 +1095,7 @@ msgstr ""
 
 #: ControlPage.py:72
 msgid "Reset"
-msgstr ""
+msgstr "Remise à zéro"
 
 #: ControlPage.py:78
 msgid "Software reset of controller [ctrl-x]"
@@ -1097,7 +1103,7 @@ msgstr ""
 
 #: ControlPage.py:107 FilePage.py:177
 msgid "Start"
-msgstr ""
+msgstr "Début"
 
 #: ControlPage.py:111
 msgid "Run g-code commands from editor to controller"
@@ -1105,7 +1111,7 @@ msgstr ""
 
 #: ControlPage.py:116
 msgid "Pause"
-msgstr ""
+msgstr "Pause"
 
 #: ControlPage.py:120
 msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
@@ -1113,7 +1119,7 @@ msgstr ""
 
 #: ControlPage.py:124 FilePage.py:188
 msgid "Stop"
-msgstr ""
+msgstr "Arrêt"
 
 #: ControlPage.py:128
 msgid "Pause running program and soft reset controller to empty the buffer."
@@ -1121,7 +1127,7 @@ msgstr ""
 
 #: ControlPage.py:147
 msgid "Status:"
-msgstr ""
+msgstr "Status :"
 
 #: ControlPage.py:157
 msgid ""
@@ -1164,11 +1170,11 @@ msgstr ""
 
 #: ControlPage.py:262
 msgid "Show Info"
-msgstr ""
+msgstr "Montrer Info"
 
 #: ControlPage.py:264
 msgid "Clear Message"
-msgstr ""
+msgstr "Effacer Message"
 
 #: ControlPage.py:268
 msgid "Feed hold"
@@ -1176,7 +1182,7 @@ msgstr ""
 
 #: ControlPage.py:270
 msgid "Resume"
-msgstr ""
+msgstr "Reprendre"
 
 #: ControlPage.py:353
 #, python-format
