@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: bFileDialog.py 3643 2015-11-13 11:16:20Z bnv $
 #
 # Copyright and User License
