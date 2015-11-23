@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
@@ -31,7 +31,7 @@ class Tool(Plugin):
 		self.name = "Tile"
 		self.icon = "tile"
 		self.variables = [
-			("name",      "db",    "", "Name"),
+			("name",      "db",    "", _("Name")),
 			("nx",       "int",     3, "Nx"),
 			("ny",       "int",     3, "Ny"),
 			("dx",        "mm",  50.0, "Dx"),
@@ -48,10 +48,9 @@ class Tool(Plugin):
 			blocks = app.editor.getSelectedBlocks()
 
 		if not blocks:
-			tkMessageBox.showerror("Tile error",
-				"No g-code blocks selected")
+			tkMessageBox.showerror(_("Tile error"),
+				_("No g-code blocks selected"))
 			return
-
 
 		try:
 			dx = float(self["dx"])
@@ -90,4 +89,4 @@ class Tool(Plugin):
 			y += dy
 
 		app.refresh()
-		app.setStatus("Tiled selected blocks")
+		app.setStatus(_("Tiled selected blocks"))

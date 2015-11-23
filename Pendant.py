@@ -1,4 +1,4 @@
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: Pendant.py,v 1.3 2014/10/15 15:04:48 bnv Exp bnv $
 #
 # Author:	Vasilis.Vlachoudis@cern.ch

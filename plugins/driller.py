@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author: Filippo Rivato
@@ -38,11 +38,11 @@ class Tool(Plugin):
 		self.icon = "driller"
 
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("HolesDistance"  ,   "mm" , 10.0, "Distance between holes"),
-			("TargetDepth"  ,   "mm" ,    0.0, "Target Depth"),
-			("Peck"  ,   "mm" ,           0.0, "Peck, 0 meas None"),
-			("Dwell"  ,   "float" ,       0.0, "Dwell time, 0 means None"),
+			("name",          "db",   "", _("Name")),
+			("HolesDistance", "mm", 10.0, _("Distance between holes")),
+			("TargetDepth",   "mm",  0.0, _("Target Depth")),
+			("Peck",          "mm",  0.0, _("Peck, 0 meas None")),
+			("Dwell",      "float",  0.0, _("Dwell time, 0 means None")),
 		]
 		self.buttons.append("exe")
 
@@ -114,15 +114,15 @@ class Tool(Plugin):
 
 		#Check inputs
 		if holesDistance <=0:
-			app.setStatus("Driller abort: Distance must be > 0")
+			app.setStatus(_("Driller abort: Distance must be > 0"))
 			return
 
 		if peck <0:
-			app.setStatus("Driller abort: Peck must be >= 0")
+			app.setStatus(_("Driller abort: Peck must be >= 0"))
 			return
 
 		if dwell <0:
-			app.setStatus("Driller abort: Dwell time >= 0, here time runs only forward!")
+			app.setStatus(_("Driller abort: Dwell time >= 0, here time runs only forward!"))
 			return
 
 		# Get selected blocks from editor
@@ -132,7 +132,7 @@ class Tool(Plugin):
 			selBlocks = app.editor.getSelectedBlocks()
 
 		if not selBlocks:
-			app.setStatus("Driller abort: Please select some path")
+			app.setStatus(_("Driller abort: Please select some path"))
 			return
 
 		#Get all segments from gcode
@@ -218,7 +218,4 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Driller")
 		app.refresh()
-		app.setStatus("Generated Driller: %d holes"%holesCount)
-
-
-
+		app.setStatus(_("Generated Driller: %d holes")%holesCount)

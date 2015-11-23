@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:       vvlachoudis@gmail.com
@@ -467,24 +466,24 @@ class CNC(_Base):
 		_Base.__init__(self, master)
 		self.name = "CNC"
 		self.variables = [
-			("units"         , "bool", 0    , "Units (inches)")   ,
-			("lasercutter"   , "bool", 0    , "Lasercutter")   ,
-			("acceleration_x", "mm"  , 25.0 , "Acceleration x")   ,
-			("acceleration_y", "mm"  , 25.0 , "Acceleration y")   ,
-			("acceleration_z", "mm"  , 5.0  , "Acceleration z")   ,
-			("feedmax_x"     , "mm"  , 3000., "Feed max x")       ,
-			("feedmax_y"     , "mm"  , 3000., "Feed max y")       ,
-			("feedmax_z"     , "mm"  , 2000., "Feed max z")       ,
-			("travel_x"      , "mm"  , 200  , "Travel x")         ,
-			("travel_y"      , "mm"  , 200  , "Travel y")         ,
-			("travel_z"      , "mm"  , 100  , "Travel z")         ,
-			("round"         , "int" , 4    , "Decimal digits")   ,
-			("accuracy"      , "mm"  , 0.1  , "Plotting Arc accuracy"),
-			("startup"       , "str" , "G90", "startup")          ,
-			("spindlemin"    , "int" , 0    , "Spindle min (RPM)"),
-			("spindlemax"    , "int" , 12000, "Spindle max (RPM)"),
-			("header"        , "text" ,   "", "Header gcode"),
-			("footer"        , "text" ,   "", "Footer gcode")
+			("units"         , "bool", 0    , _("Units (inches)"))   ,
+			("lasercutter"   , "bool", 0    , _("Lasercutter"))   ,
+			("acceleration_x", "mm"  , 25.0 , _("Acceleration x"))   ,
+			("acceleration_y", "mm"  , 25.0 , _("Acceleration y"))   ,
+			("acceleration_z", "mm"  , 5.0  , _("Acceleration z"))   ,
+			("feedmax_x"     , "mm"  , 3000., _("Feed max x"))       ,
+			("feedmax_y"     , "mm"  , 3000., _("Feed max y"))       ,
+			("feedmax_z"     , "mm"  , 2000., _("Feed max z"))       ,
+			("travel_x"      , "mm"  , 200  , _("Travel x"))         ,
+			("travel_y"      , "mm"  , 200  , _("Travel y"))         ,
+			("travel_z"      , "mm"  , 100  , _("Travel z"))         ,
+			("round"         , "int" , 4    , _("Decimal digits"))   ,
+			("accuracy"      , "mm"  , 0.1  , _("Plotting Arc accuracy")),
+			("startup"       , "str" , "G90", _("Start up"))          ,
+			("spindlemin"    , "int" , 0    , _("Spindle min (RPM)")),
+			("spindlemax"    , "int" , 12000, _("Spindle max (RPM)")),
+			("header"        , "text" ,   "", _("Header gcode")),
+			("footer"        , "text" ,   "", _("Footer gcode"))
 		]
 
 	# ----------------------------------------------------------------------
@@ -506,10 +505,10 @@ class Material(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Material"
 		self.variables = [
-			("name",    "db",    "", "Name"),
-			("feed",    "mm"  , 10., "Feed"),
-			("feedz",   "mm"  ,  1., "Plunge Feed"),
-			("stepz",   "mm"  ,  1., "Depth Increment")
+			("name",    "db",    "", _("Name")),
+			("feed",    "mm"  , 10., _("Feed")),
+			("feedz",   "mm"  ,  1., _("Plunge Feed")),
+			("stepz",   "mm"  ,  1., _("Depth Increment"))
 		 ]
 
 	# ----------------------------------------------------------------------
@@ -532,17 +531,17 @@ class EndMill(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "EndMill"
 		self.variables = [
-			("name",       "db",     "", "Name"),
-			("type",     "list",     "", "Type"),
-			("shape",    "list",     "", "Shape"),
-			("material", "list",     "", "Material"),
-			("coating",  "list",     "", "Coating"),
-			("diameter",   "mm",  3.175, "Diameter"),
-			("axis",       "mm",  3.175, "Mount Axis"),
-			("flutes",    "int",      2, "Flutes"),
-			("length",     "mm",   20.0, "Length"),
-			("angle",   "float",     "", "Angle"),
-			("stepover","float",   40.0, "Stepover %")
+			("name",       "db",     "", _("Name")),
+			("type",     "list",     "", _("Type")),
+			("shape",    "list",     "", _("Shape")),
+			("material", "list",     "", _("Material")),
+			("coating",  "list",     "", _("Coating")),
+			("diameter",   "mm",  3.175, _("Diameter")),
+			("axis",       "mm",  3.175, _("Mount Axis")),
+			("flutes",    "int",      2, _("Flutes")),
+			("length",     "mm",   20.0, _("Length")),
+			("angle",   "float",     "", _("Angle")),
+			("stepover","float",   40.0, _("Stepover %"))
 		]
 
 	# ----------------------------------------------------------------------
@@ -561,11 +560,11 @@ class Stock(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Stock"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("material",  "db" ,    "", "Material"),
-			("safe"  ,    "mm" ,   3.0, "Safe Z"),
-			("surface",   "mm" ,   0.0, "Surface Z"),
-			("thickness", "mm" ,   5.0, "Thickness")
+			("name",      "db" ,    "", _("Name")),
+			("material",  "db" ,    "", _("Material")),
+			("safe"  ,    "mm" ,   3.0, _("Safe Z")),
+			("surface",   "mm" ,   0.0, _("Surface Z")),
+			("thickness", "mm" ,   5.0, _("Thickness"))
 		]
 
 	# ----------------------------------------------------------------------
@@ -587,10 +586,10 @@ class Cut(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Cut"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("surface",   "mm" ,    "", "Surface Z"),
-			("depth"  ,   "mm" ,    "", "Target Depth"),
-			("stepz"  ,   "mm" ,    "", "Depth Increment")
+			("name",      "db" ,    "", _("Name")),
+			("surface",   "mm" ,    "", _("Surface Z")),
+			("depth"  ,   "mm" ,    "", _("Target Depth")),
+			("stepz"  ,   "mm" ,    "", _("Depth Increment"))
 		]
 		self.buttons.append("exe")
 
@@ -609,7 +608,7 @@ class Cut(DataBase):
 		except:
 			step = None
 		app.executeOnSelection("CUT", True, depth, step, surface)
-		app.setStatus("CUT selected paths")
+		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
 # Drill material
@@ -619,9 +618,9 @@ class Drill(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Drill"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("depth",     "mm" ,    "", "Target Depth"),
-			("peck",      "mm" ,    "", "Peck depth")
+			("name",      "db" ,    "", _("Name")),
+			("depth",     "mm" ,    "", _("Target Depth")),
+			("peck",      "mm" ,    "", _("Peck depth"))
 		]
 		self.buttons.append("exe")
 
@@ -636,7 +635,7 @@ class Drill(DataBase):
 		except:
 			p = None
 		app.executeOnSelection("DRILL", True, h, p)
-		app.setStatus("DRILL selected points")
+		app.setStatus(_("DRILL selected points"))
 
 #==============================================================================
 # Profile
@@ -646,11 +645,11 @@ class Profile(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Profile"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("endmill",   "db" ,    "", "End Mill"),
-			("direction","inside,outside" , "outside", "Direction"),
-			("offset",   "float",  0.0, "Additional offset distance"),
-			("overcut",  "bool",     1, "Overcut")
+			("name",      "db" ,    "", _("Name")),
+			("endmill",   "db" ,    "", _("End Mill")),
+			("direction","inside,outside" , "outside", _("Direction")),
+			("offset",   "float",  0.0, _("Additional offset distance")),
+			("overcut",  "bool",     1, _("Overcut"))
 		]
 		self.buttons.append("exe")
 
@@ -662,7 +661,7 @@ class Profile(DataBase):
 		name = self["name"]
 		if name=="default" or name=="": name=None
 		app.profile(direction, self["offset"], self["overcut"], name)
-		app.setStatus("Generate profile path")
+		app.setStatus(_("Generate profile path"))
 
 #==============================================================================
 # Pocket
@@ -672,8 +671,8 @@ class Pocket(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Pocket"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("endmill",   "db" ,    "", "End Mill"),
+			("name",      "db" ,    "", _("Name")),
+			("endmill",   "db" ,    "", _("End Mill")),
 		]
 		self.buttons.append("exe")
 
@@ -684,7 +683,7 @@ class Pocket(DataBase):
 		name = self["name"]
 		if name=="default" or name=="": name=None
 		app.pocket(name)
-		app.setStatus("Generate pocket path")
+		app.setStatus(_("Generate pocket path"))
 
 #==============================================================================
 # Tabs
@@ -694,7 +693,7 @@ class Tabs(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Tabs"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
+			("name",      "db" ,    "", _("Name")),
 			("xmin",      "mm" ,    "", "Xmin"),
 			("ymin",      "mm" ,    "", "Ymin"),
 			("xmax",      "mm" ,    "", "Xmax"),
@@ -875,54 +874,54 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["stock32"],
-				text="Stock",
+				text=_("Stock"),
 				compound=TOP,
 				anchor=W,
 				variable=app.tools.active,
 				value="Stock",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Stock material currently on machine")
+		tkExtra.Balloon.set(b, _("Stock material currently on machine"))
 		self.addWidget(b)
 
 		# ===
 		col,row=1,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["material"],
-				text="Material",
+				text=_("Material"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Material",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Editable database of material properties")
+		tkExtra.Balloon.set(b, _("Editable database of material properties"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["endmill"],
-				text="End Mill",
+				text=_("End Mill"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="EndMill",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Editable database of EndMills properties")
+		tkExtra.Balloon.set(b, _("Editable database of EndMills properties"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolRename>>",
 				image=Utils.icons["rename"],
-				text="Rename",
+				text=_("Rename"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Edit name of current operation/object")
+		tkExtra.Balloon.set(b, _("Edit name of current operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("rename",b)
 
@@ -930,12 +929,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		col,row=2,0
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolAdd>>",
 				image=Utils.icons["add"],
-				text="Add",
+				text=_("Add"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Add a new operation/object")
+		tkExtra.Balloon.set(b, _("Add a new operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("add",b)
 
@@ -943,12 +942,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolClone>>",
 				image=Utils.icons["clone"],
-				text="Clone",
+				text=_("Clone"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Clone selected operation/object")
+		tkExtra.Balloon.set(b, _("Clone selected operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("clone",b)
 
@@ -956,12 +955,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolDelete>>",
 				image=Utils.icons["x"],
-				text="Delete",
+				text=_("Delete"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Delete selected operation/object")
+		tkExtra.Balloon.set(b, _("Delete selected operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("delete",b)
 
@@ -977,70 +976,70 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["cut32"],
-				text="Cut",
+				text=_("Cut"),
 				compound=TOP,
 				anchor=W,
 				variable=app.tools.active,
 				value="Cut",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Cut for the full stock thickness selected code")
+		tkExtra.Balloon.set(b, _("Cut for the full stock thickness selected code"))
 		self.addWidget(b)
 
 		# ===
 		col,row=1,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["profile32"],
-				text="Profile",
+				text=_("Profile"),
 				compound=TOP,
 				anchor=W,
 				variable=app.tools.active,
 				value="Profile",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Perform a profile operation on selected code")
+		tkExtra.Balloon.set(b, _("Perform a profile operation on selected code"))
 		self.addWidget(b)
 
 		# ===
 		col,row=2,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["pocket"],
-				text="Pocket",
+				text=_("Pocket"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Pocket",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Perform a pocket operation on selected code")
+		tkExtra.Balloon.set(b, _("Perform a pocket operation on selected code"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["drill"],
-				text="Drill",
+				text=_("Drill"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Drill",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Insert a drill cycle on current objects/location")
+		tkExtra.Balloon.set(b, _("Insert a drill cycle on current objects/location"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["tab"],
-				text="Tabs",
+				text=_("Tabs"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Tabs",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Insert holding tabs")
+		tkExtra.Balloon.set(b, _("Insert holding tabs"))
 		self.addWidget(b)
 
 #===============================================================================
@@ -1084,56 +1083,56 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["config"],
-				text="Machine",
+				text=_("Machine"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="CNC",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Machine configuration for bCNC")
+		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
-				text="Fonts",
+				text=_("Fonts"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Font",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Font configuration")
+		tkExtra.Balloon.set(b, _("Font configuration"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["color"],
-				text="Colors",
+				text=_("Colors"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Color",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Color configuration")
+		tkExtra.Balloon.set(b, _("Color configuration"))
 		self.addWidget(b)
 
 		# ===
 		col,row=1,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["shortcut"],
-				text="Shortcuts",
+				text=_("Shortcuts"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
 				value="Shortcut",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Shortcuts")
+		tkExtra.Balloon.set(b, _("Shortcuts"))
 		self.addWidget(b)
 
 #==============================================================================
@@ -1144,7 +1143,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
 		self.tools = app.tools
 
-		b = Button(self, text="Execute",
+		b = Button(self, text=_("Execute"),
 				image=Utils.icons["gear"],
 				compound=LEFT,
 				foreground="DarkRed",
@@ -1154,8 +1153,8 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.tools.addButton("exe",b)
 
 		self.toolList = tkExtra.MultiListbox(self,
-					(("Name", 16, None),
-					 ("Value", 24, None)),
+					((_("Name"), 16, None),
+					 (_("Value"), 24, None)),
 					 header = False,
 					 stretch = "last",
 					 background = "White")
@@ -1163,6 +1162,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.edit)
 		self.toolList.bindList("<Return>",	self.edit)
+		self.toolList.bindList("<Key-space>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)

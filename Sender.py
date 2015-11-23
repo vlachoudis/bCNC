@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
 #
 # Author: vvlachoudis@gmail.com
@@ -28,7 +28,7 @@ from CNC import WAIT, PAUSE, UPDATE, WCS, CNC, GCode
 import Utils
 import Pendant
 
-WIKI       = "https://github.com/vlachoudis/bCNC/wiki"
+WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
 SERIAL_POLL   = 0.125	# s
 G_POLL        = 10	# s
@@ -54,47 +54,47 @@ STATECOLORDEF = "LightYellow"
 
 # From https://github.com/grbl/grbl/wiki/Interfacing-with-Grbl
 ERROR_CODES = {
-	"Run"         : "bCNC is currently sending a gcode program to Grbl",
-	"Idle"        : "Grbl is in idle state and waiting for user commands",
-	"Hold"        : "Grbl is on hold state. Click on resume (pause) to continue",
-	"Alarm"       : "Alarm is an emergency state. Something has gone terribly wrong when these occur. Typically, they are caused by limit error when the machine has moved or wants to move outside the machine space and crash into something. They also report problems if Grbl is lost and can't guarantee positioning or a probe command has failed. Once in alarm-mode, Grbl will lock out and shut down everything until the user issues a reset. Even after a reset, Grbl will remain in alarm-mode, block all G-code from being executed, but allows the user to override the alarm manually. This is to ensure the user knows and acknowledges the problem and has taken steps to fix or account for it.",
-	NOT_CONNECTED : "Grbl is not connected. Please specify the correct port and click Open.",
-	CONNECTED     : "Connection is established with Grbl",
+	"Run"      : _("bCNC is currently sending a gcode program to Grbl"),
+	"Idle"     : _("Grbl is in idle state and waiting for user commands"),
+	"Hold"     : _("Grbl is on hold state. Click on resume (pause) to continue"),
+	"Alarm"    : _("Alarm is an emergency state. Something has gone terribly wrong when these occur. Typically, they are caused by limit error when the machine has moved or wants to move outside the machine space and crash into something. They also report problems if Grbl is lost and can't guarantee positioning or a probe command has failed. Once in alarm-mode, Grbl will lock out and shut down everything until the user issues a reset. Even after a reset, Grbl will remain in alarm-mode, block all G-code from being executed, but allows the user to override the alarm manually. This is to ensure the user knows and acknowledges the problem and has taken steps to fix or account for it."),
+	NOT_CONNECTED : _("Grbl is not connected. Please specify the correct port and click Open."),
+	CONNECTED     : _("Connection is established with Grbl"),
 
-	"ok" : "All is good! Everything in the last line was understood by Grbl and was successfully processed and executed.",
-	"error: Expected command letter" : "G-code is composed of G-code \"words\", which consists of a letter followed by a number value. This error occurs when the letter prefix of a G-code word is missing in the G-code block (aka line).",
-	"error: Bad number format" : "The number value suffix of a G-code word is missing in the G-code block, or when configuring a $Nx=line or $x=val Grbl setting and the x is not a number value.",
-	"error: Invalid statement" : "The issued Grbl $ system command is not recognized or is invalid.",
-	"error: Value < 0" : "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T tool number, or S spindle speed is negative.",
-	"error:Setting disabled" : "Homing is disabled when issuing a $H command.",
-	"error: Value < 3 usec" : "Step pulse time length cannot be less than 3 microseconds (for technical reasons).",
-	"error: EEPROM read fail. Using defaults" : "If Grbl can't read data contained in the EEPROM, this error is returned. Grbl will also clear and restore the effected data back to defaults.",
-	"error: Not idle" : "Certain Grbl $ commands are blocked depending Grbl's current state, or what its doing. In general, Grbl blocks any command that fetches from or writes to the EEPROM since the AVR microcontroller will shutdown all of the interrupts for a few clock cycles when this happens. There is no work around, other than blocking it. This ensures both the serial and step generator interrupts are working smoothly throughout operation.",
-	"error: Alarm lock" : "Grbl enters an ALARM state when Grbl doesn't know where it is and will then block all G-code commands from being executed. This error occurs if G-code commands are sent while in the alarm state. Grbl has two alarm scenarios: When homing is enabled, Grbl automatically goes into an alarm state to remind the user to home before doing anything; When something has went critically wrong, usually when Grbl can't guarantee positioning. This typically happens when something causes Grbl to force an immediate stop while its moving from a hard limit being triggered or a user commands an ill-timed reset.",
-	"error: Homing not enabled" : "Soft limits cannot be enabled if homing is not enabled, because Grbl has no idea where it is when you startup your machine unless you perform a homing cycle.",
-	"error: Line overflow" : "Grbl has to do everything it does within 2KB of RAM. Not much at all. So, we had to make some decisions on what's important. Grbl limits the number of characters in each line to less than 80 characters (70 in v0.8, 50 in v0.7 or earlier), excluding spaces or comments. The G-code standard mandates 256 characters, but Grbl simply doesn't have the RAM to spare. However, we don't think there will be any problems with this with all of the expected G-code commands sent to Grbl. This error almost always occurs when a user or CAM-generated G-code program sends position values that are in double precision (i.e. -2.003928578394852), which is not realistic or physically possible. Users and GUIs need to send Grbl floating point values in single precision (i.e. -2.003929) to avoid this error.",
-	"error: Modal group violation" : "The G-code parser has detected two G-code commands that belong to the same modal group in the block/line. Modal groups are sets of G-code commands that mutually exclusive. For example, you can't issue both a G0 rapids and G2 arc in the same line, since they both need to use the XYZ target position values in the line. LinuxCNC.org has some great documentation on modal groups.",
-	"error: Unsupported command" : "The G-code parser doesn't recognize or support one of the G-code commands in the line. Check your G-code program for any unsupported commands and either remove them or update them to be compatible with Grbl.",
-	"error: Undefined feed rate" : "There is no feed rate programmed, and a G-code command that requires one is in the block/line. The G-code standard mandates F feed rates to be undefined upon a reset or when switching from inverse time mode to units mode. Older Grbl versions had a default feed rate setting, which was illegal and was removed in Grbl v0.9.",
-	"error: Invalid gcode ID:23" : "A G or M command value in the block is not an integer. For example, G4 can't be G4.13. Some G-code commands are floating point (G92.1), but these are ignored.",
-	"error: Invalid gcode ID:24" : "Two G-code commands that both require the use of the XYZ axis words were detected in the block.",
-	"error: Invalid gcode ID:25" : "A G-code word was repeated in the block.",
-	"error: Invalid gcode ID:26" : "A G-code command implicitly or explicitly requires XYZ axis words in the block, but none were detected.",
-	"error: Invalid gcode ID:27" : "The G-code protocol mandates N line numbers to be within the range of 1-99,999. We think that's a bit silly and arbitrary. So, we increased the max number to 9,999,999. This error occurs when you send a number more than this.",
-	"error: Invalid gcode ID:28" : "A G-code command was sent, but is missing some important P or L value words in the line. Without them, the command can't be executed. Check your G-code.",
-	"error: Invalid gcode ID:29" : "Grbl supports six work coordinate systems G54-G59. This error happens when trying to use or configure an unsupported work coordinate system, such as G59.1, G59.2, and G59.3.",
-	"error: Invalid gcode ID:30" : "The G53 G-code command requires either a G0 seek or G1 feed motion mode to be active. A different motion was active.",
-	"error: Invalid gcode ID:31" : "There are unused axis words in the block and G80 motion mode cancel is active.",
-	"error: Invalid gcode ID:32" : "A G2 or G3 arc was commanded but there are no XYZ axis words in the selected plane to trace the arc.",
-	"error: Invalid gcode ID:33" : "The motion command has an invalid target. G2, G3, and G38.2 generates this error. For both probing and arcs traced with the radius definition, the current position cannot be the same as the target. This also errors when the arc is mathematically impossible to trace, where the current position, the target position, and the radius of the arc doesn't define a valid arc.",
-	"error: Invalid gcode ID:34" : "A G2 or G3 arc, traced with the radius definition, had a mathematical error when computing the arc geometry. Try either breaking up the arc into semi-circles or quadrants, or redefine them with the arc offset definition.",
-	"error: Invalid gcode ID:35" : "A G2 or G3 arc, traced with the offset definition, is missing the IJK offset word in the selected plane to trace the arc.",
-	"error: Invalid gcode ID:36" : "There are unused, leftover G-code words that aren't used by any command in the block.",
-	"error: Invalid gcode ID:37" : "The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis.",
+	"ok" : _("All is good! Everything in the last line was understood by Grbl and was successfully processed and executed."),
+	"error: Expected command letter" : _("G-code is composed of G-code \'words\', which consists of a letter followed by a number value. This error occurs when the letter prefix of a G-code word is missing in the G-code block (aka line)."),
+	"error: Bad number format" : _("The number value suffix of a G-code word is missing in the G-code block, or when configuring a $Nx=line or $x=val Grbl setting and the x is not a number value."),
+	"error: Invalid statement" : _("The issued Grbl $ system command is not recognized or is invalid."),
+	"error: Value < 0" : _("The value of a $x=val Grbl setting, F feed rate, N line number, P word, T tool number, or S spindle speed is negative."),
+	"error:Setting disabled" : _("Homing is disabled when issuing a $H command."),
+	"error: Value < 3 usec" : _("Step pulse time length cannot be less than 3 microseconds (for technical reasons)."),
+	"error: EEPROM read fail. Using defaults" : _("If Grbl can't read data contained in the EEPROM, this error is returned. Grbl will also clear and restore the effected data back to defaults."),
+	"error: Not idle" : _("Certain Grbl $ commands are blocked depending Grbl's current state, or what its doing. In general, Grbl blocks any command that fetches from or writes to the EEPROM since the AVR microcontroller will shutdown all of the interrupts for a few clock cycles when this happens. There is no work around, other than blocking it. This ensures both the serial and step generator interrupts are working smoothly throughout operation."),
+	"error: Alarm lock" : _("Grbl enters an ALARM state when Grbl doesn't know where it is and will then block all G-code commands from being executed. This error occurs if G-code commands are sent while in the alarm state. Grbl has two alarm scenarios: When homing is enabled, Grbl automatically goes into an alarm state to remind the user to home before doing anything; When something has went critically wrong, usually when Grbl can't guarantee positioning. This typically happens when something causes Grbl to force an immediate stop while its moving from a hard limit being triggered or a user commands an ill-timed reset."),
+	"error: Homing not enabled" : _("Soft limits cannot be enabled if homing is not enabled, because Grbl has no idea where it is when you startup your machine unless you perform a homing cycle."),
+	"error: Line overflow" : _("Grbl has to do everything it does within 2KB of RAM. Not much at all. So, we had to make some decisions on what's important. Grbl limits the number of characters in each line to less than 80 characters (70 in v0.8, 50 in v0.7 or earlier), excluding spaces or comments. The G-code standard mandates 256 characters, but Grbl simply doesn't have the RAM to spare. However, we don't think there will be any problems with this with all of the expected G-code commands sent to Grbl. This error almost always occurs when a user or CAM-generated G-code program sends position values that are in double precision (i.e. -2.003928578394852), which is not realistic or physically possible. Users and GUIs need to send Grbl floating point values in single precision (i.e. -2.003929) to avoid this error."),
+	"error: Modal group violation" : _("The G-code parser has detected two G-code commands that belong to the same modal group in the block/line. Modal groups are sets of G-code commands that mutually exclusive. For example, you can't issue both a G0 rapids and G2 arc in the same line, since they both need to use the XYZ target position values in the line. LinuxCNC.org has some great documentation on modal groups."),
+	"error: Unsupported command" : _("The G-code parser doesn't recognize or support one of the G-code commands in the line. Check your G-code program for any unsupported commands and either remove them or update them to be compatible with Grbl."),
+	"error: Undefined feed rate" : _("There is no feed rate programmed, and a G-code command that requires one is in the block/line. The G-code standard mandates F feed rates to be undefined upon a reset or when switching from inverse time mode to units mode. Older Grbl versions had a default feed rate setting, which was illegal and was removed in Grbl v0.9."),
+	"error: Invalid gcode ID:23" : _("A G or M command value in the block is not an integer. For example, G4 can't be G4.13. Some G-code commands are floating point (G92.1), but these are ignored."),
+	"error: Invalid gcode ID:24" : _("Two G-code commands that both require the use of the XYZ axis words were detected in the block."),
+	"error: Invalid gcode ID:25" : _("A G-code word was repeated in the block."),
+	"error: Invalid gcode ID:26" : _("A G-code command implicitly or explicitly requires XYZ axis words in the block, but none were detected."),
+	"error: Invalid gcode ID:27" : _("The G-code protocol mandates N line numbers to be within the range of 1-99,999. We think that's a bit silly and arbitrary. So, we increased the max number to 9,999,999. This error occurs when you send a number more than this."),
+	"error: Invalid gcode ID:28" : _("A G-code command was sent, but is missing some important P or L value words in the line. Without them, the command can't be executed. Check your G-code."),
+	"error: Invalid gcode ID:29" : _("Grbl supports six work coordinate systems G54-G59. This error happens when trying to use or configure an unsupported work coordinate system, such as G59.1, G59.2, and G59.3."),
+	"error: Invalid gcode ID:30" : _("The G53 G-code command requires either a G0 seek or G1 feed motion mode to be active. A different motion was active."),
+	"error: Invalid gcode ID:31" : _("There are unused axis words in the block and G80 motion mode cancel is active."),
+	"error: Invalid gcode ID:32" : _("A G2 or G3 arc was commanded but there are no XYZ axis words in the selected plane to trace the arc."),
+	"error: Invalid gcode ID:33" : _("The motion command has an invalid target. G2, G3, and G38.2 generates this error. For both probing and arcs traced with the radius definition, the current position cannot be the same as the target. This also errors when the arc is mathematically impossible to trace, where the current position, the target position, and the radius of the arc doesn't define a valid arc."),
+	"error: Invalid gcode ID:34" : _("A G2 or G3 arc, traced with the radius definition, had a mathematical error when computing the arc geometry. Try either breaking up the arc into semi-circles or quadrants, or redefine them with the arc offset definition."),
+	"error: Invalid gcode ID:35" : _("A G2 or G3 arc, traced with the offset definition, is missing the IJK offset word in the selected plane to trace the arc."),
+	"error: Invalid gcode ID:36" : _("There are unused, leftover G-code words that aren't used by any command in the block."),
+	"error: Invalid gcode ID:37" : _("The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis."),
 
-	"ALARM: Hard/soft limit" : "Hard and/or soft limits must be enabled for this error to occur. With hard limits, Grbl will enter alarm mode when a hard limit switch has been triggered and force kills all motion. Machine position will be lost and require re-homing. With soft limits, the alarm occurs when Grbl detects a programmed motion trying to move outside of the machine space, set by homing and the max travel settings. However, upon the alarm, a soft limit violation will instruct a feed hold and wait until the machine has stopped before issuing the alarm. Soft limits do not lose machine position because of this.",
-	"ALARM: Abort during cycle" : "This alarm occurs when a user issues a soft-reset while the machine is in a cycle and moving. The soft-reset will kill all current motion, and, much like the hard limit alarm, the uncontrolled stop causes Grbl to lose position.",
-	"ALARM: Probe fail" : "The G38.2 straight probe command requires an alarm or error when the probe fails to trigger within the programmed probe distance. Grbl enters the alarm state to indicate to the user the probe has failed, but will not lose machine position, since the probe motion comes to a controlled stop before the error.",
+	"ALARM: Hard/soft limit" : _("Hard and/or soft limits must be enabled for this error to occur. With hard limits, Grbl will enter alarm mode when a hard limit switch has been triggered and force kills all motion. Machine position will be lost and require re-homing. With soft limits, the alarm occurs when Grbl detects a programmed motion trying to move outside of the machine space, set by homing and the max travel settings. However, upon the alarm, a soft limit violation will instruct a feed hold and wait until the machine has stopped before issuing the alarm. Soft limits do not lose machine position because of this."),
+	"ALARM: Abort during cycle" : _("This alarm occurs when a user issues a soft-reset while the machine is in a cycle and moving. The soft-reset will kill all current motion, and, much like the hard limit alarm, the uncontrolled stop causes Grbl to lose position."),
+	"ALARM: Probe fail" : _("The G38.2 straight probe command requires an alarm or error when the probe fails to trigger within the programmed probe distance. Grbl enters the alarm state to indicate to the user the probe has failed, but will not lose machine position, since the probe motion comes to a controlled stop before the error."),
 }
 
 #==============================================================================
@@ -278,7 +278,7 @@ class Sender:
 			self.unlock()
 
 		else:
-			return "unknown command","Invalid command %s"%(oline)
+			return _("unknown command"),_("Invalid command %s")%(oline)
 
 	#----------------------------------------------------------------------
 	def help(self, event=None):
@@ -469,8 +469,17 @@ class Sender:
 	def checkGcode(self):
 		self.sendGrbl("$C\n")
 
-	def grblhelp(self):
+	def grblHelp(self):
 		self.sendGrbl("$\n")
+
+	def grblRestoreSettings(self):
+		self.sendGrbl("$RST=$\n")
+
+	def grblRestoreWCS(self):
+		self.sendGrbl("$RST=#\n")
+
+	def grblRestoreAll(self):
+		self.sendGrbl("$RST=#\n")
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -497,7 +506,7 @@ class Sender:
 		if z is not None and abs(z)<10000.0: cmd += "Z"+str(z)
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data="Set workspace %s to X%s Y%s Z%s"%(WCS[p],str(x),str(y),str(z)))
+			data=_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z)))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------

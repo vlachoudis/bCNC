@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -26,26 +26,26 @@ class Flatten:
 
 	#----------------------------------------------------------------------
 	def make(self,app, XStart=0.0, YStart=0.0, FlatWidth=10., FlatHeight=10., \
-			FlatDepth=0,BorderPass=False,CutDirection="Climb",PocketType="Raster"):
+			FlatDepth=0, BorderPass=False, CutDirection="Climb", PocketType="Raster"):
 
 		#GCode Blocks
 		blocks = []
 
 		#Check parameters
 		if CutDirection is "":
-			app.setStatus("Flatten abort: Cut Direction is undefined")
+			app.setStatus(_("Flatten abort: Cut Direction is undefined"))
 			return
 
 		if PocketType is "":
-			app.setStatus("Flatten abort: Pocket Type is undefined")
+			app.setStatus(_("Flatten abort: Pocket Type is undefined"))
 			return
 
 		if FlatWidth <= 0 or FlatHeight <= 0 :
-			app.setStatus("Flatten abort: Flatten Area dimensions must be > 0")
+			app.setStatus(_("Flatten abort: Flatten Area dimensions must be > 0"))
 			return
 
 		if FlatDepth > 0 :
-			app.setStatus("Flatten abort: Hey this is only for subtractive machine! Check depth!")
+			app.setStatus(_("Flatten abort: Hey this is only for subtractive machine! Check depth!"))
 			return
 
 		#Add Region disabled to show worked area
@@ -82,7 +82,7 @@ class Flatten:
 		HToWork = FlatHeight - toolDiam
 
 		if(WToWork < toolRadius or HToWork < toolRadius):
-			app.setStatus("Flatten abort: Flatten area is too small for this End Mill.")
+			app.setStatus(_("Flatten abort: Flatten area is too small for this End Mill."))
 			return
 
 		#Prepare points for pocketing
@@ -254,15 +254,15 @@ class Tool(Plugin):
 		self.name = "Flatten"
 		self.icon = "flatten"
 		self.variables = [
-			("name",           "db",    "", "Name"),
-			("XStart"  ,       "mm",   0.0, "X start"),
-			("YStart"  ,       "mm",   0.0, "Y start"),
-			("FlatWidth" ,     "mm",   30.0, "Width to flatten"),
-			("FlatHeight"  ,   "mm",   20.0, "Height to flatten"),
-			("FlatDepth"  ,    "mm",    0.0, "Depth to flatten"),
-			("BorderPass"  , "bool",  True , "Raster border"),
-			("CutDirection", "Climb,Conventional","Climb", "Cut Direction"),
-			("PocketType"  , "Raster,Offset" ,"Raster", "Pocket type")
+			("name",           "db",    "", _("Name")),
+			("XStart"  ,       "mm",   0.0, _("X start")),
+			("YStart"  ,       "mm",   0.0, _("Y start")),
+			("FlatWidth" ,     "mm",   30.0, _("Width to flatten")),
+			("FlatHeight"  ,   "mm",   20.0, _("Height to flatten")),
+			("FlatDepth"  ,    "mm",    0.0, _("Depth to flatten")),
+			("BorderPass"  , "bool",  True , _("Raster border")),
+			("CutDirection", "Climb,Conventional","Climb", _("Cut Direction")),
+			("PocketType"  , "Raster,Offset" ,"Raster", _("Pocket type"))
 		]
 		self.buttons.append("exe")
 
@@ -287,5 +287,4 @@ class Tool(Plugin):
 			active = app.activeBlock()
 			app.gcode.insBlocks(active, blocks, "Flatten")
 			app.refresh()
-			app.setStatus("Flatten: Generated flatten surface")
-
+			app.setStatus(_("Flatten: Generated flatten surface"))

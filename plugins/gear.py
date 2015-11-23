@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
@@ -159,10 +159,10 @@ class Tool(Plugin):
 		self.name = "Gear"
 		self.icon = "gear"
 		self.variables = [
-			("name",      "db",    "", "Name"),
-			("n",        "int",    10, "No of teeth"),
-			("phi",    "float",  17.0, "Pressure angle"),
-			("pc",        "mm",   5.0, "Circular Pitch")
+			("name",      "db",    "", _("Name")),
+			("n",        "int",    10, _("No of teeth")),
+			("phi",    "float",  17.0, _("Pressure angle")),
+			("pc",        "mm",   5.0, _("Circular Pitch"))
 		]
 		self.buttons.append("exe")
 
@@ -173,9 +173,9 @@ class Tool(Plugin):
 		gear = Gear(n)
 		blocks = gear.calc(self["n"], math.radians(self["phi"]), self["pc"])
 		active = app.activeBlock()
-		app.gcode.insBlocks(active, blocks, "Create Spur GEAR")
+		app.gcode.insBlocks(active, blocks, _("Create Spur GEAR"))
 		app.refresh()
-		app.setStatus("Generated: Spur GEAR")
+		app.setStatus(_("Generated: Spur GEAR"))
 
 if __name__=="__main__":
 	gear = Gear()

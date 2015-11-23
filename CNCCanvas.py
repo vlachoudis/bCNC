@@ -1,4 +1,4 @@
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: CNCCanvas.py,v 1.7 2014/10/15 15:04:06 bnv Exp $
 #
 # Author:       vvlachoudis@gmail.com
@@ -862,6 +862,7 @@ class CNCCanvas(Canvas):
 		self._vector = None
 		self._items.clear()
 		self.cnc.initPath()
+		self.cnc.resetAllMargins()
 
 	#----------------------------------------------------------------------
 	def _drawGantry(self, x, y):
@@ -1161,6 +1162,7 @@ class CNCCanvas(Canvas):
 
 		self._last = (0.,0.,0.)
 		self.initPosition()
+		self.cnc.resetAllMargins()
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
 			start = True	# start location found

@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
@@ -66,7 +65,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				compound=TOP,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "New gcode/dxf file")
+		tkExtra.Balloon.set(b, _("New gcode/dxf file"))
 		self.addWidget(b)
 
 		# ---
@@ -75,7 +74,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				image=Utils.icons["open32"],
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Open existing gcode/dxf file [Ctrl-O]")
+		tkExtra.Balloon.set(b, _("Open existing gcode/dxf file [Ctrl-O]"))
 		self.addWidget(b)
 
 		col,row=1,2
@@ -85,7 +84,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				compound=RIGHT,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Open recent file")
+		tkExtra.Balloon.set(b, _("Open recent file"))
 		self.addWidget(b)
 
 		# ---
@@ -95,17 +94,17 @@ class FileGroup(CNCRibbon.ButtonGroup):
 				command=app.save,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Save gcode/dxf file [Ctrl-S]")
+		tkExtra.Balloon.set(b, _("Save gcode/dxf file [Ctrl-S]"))
 		self.addWidget(b)
 
 		col,row=2,2
 		b = Ribbon.LabelButton(self.frame, self, "<<SaveAs>>",
-				text="Save",
+				text=_("Save"),
 				image=Utils.icons["triangle_down"],
 				compound=RIGHT,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Save gcode/dxf AS")
+		tkExtra.Balloon.set(b, _("Save gcode/dxf AS"))
 		self.addWidget(b)
 
 #===============================================================================
@@ -119,7 +118,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 #		# ---
 #		col,row=0,0
 #		b = Ribbon.LabelButton(self.frame, #self.page, "<<Config>>",
-#				text="Config",
+#				text=_("Config"),
 #				image=Utils.icons["config32"],
 ##				command=self.app.preferences,
 #				state=DISABLED,
@@ -127,24 +126,24 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 #				anchor=W,
 #				background=Ribbon._BACKGROUND)
 #		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-#		tkExtra.Balloon.set(b, "Open configuration dialog")
+#		tkExtra.Balloon.set(b, _("Open configuration dialog"))
 
 		# ===
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame,
-				text="Report",
+				text=_("Report"),
 				image=Utils.icons["debug"],
 				compound=LEFT,
 				command=Utils.ReportDialog.sendErrorReport,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-		tkExtra.Balloon.set(b, "Send Error Report")
+		tkExtra.Balloon.set(b, _("Send Error Report"))
 
 		# ---
 		col,row=1,1
 		b = Ribbon.LabelButton(self.frame,
-				text="Updates",
+				text=_("Updates"),
 				image=Utils.icons["global"],
 				compound=LEFT,
 				state=DISABLED,
@@ -152,18 +151,18 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-		tkExtra.Balloon.set(b, "Check Updates")
+		tkExtra.Balloon.set(b, _("Check Updates"))
 
 		col,row=1,2
 		b = Ribbon.LabelButton(self.frame,
-				text="About",
+				text=_("About"),
 				image=Utils.icons["about"],
 				compound=LEFT,
 				command=self.app.about,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
-		tkExtra.Balloon.set(b, "About the program")
+		tkExtra.Balloon.set(b, _("About the program"))
 
 #===============================================================================
 # Pendant Group
@@ -175,25 +174,25 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
-				text="Start",
+				text=_("Start"),
 				image=Utils.icons["start"],
 				compound=LEFT,
 				anchor=W,
 				command=app.startPendant,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Start pendant")
+		tkExtra.Balloon.set(b, _("Start pendant"))
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				text="Stop",
+				text=_("Stop"),
 				image=Utils.icons["stop"],
 				compound=LEFT,
 				anchor=W,
 				command=app.stopPendant,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Stop pendant")
+		tkExtra.Balloon.set(b, _("Stop pendant"))
 
 #===============================================================================
 # Close Group
@@ -204,14 +203,14 @@ class CloseGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		b = Ribbon.LabelButton(self.frame,
-				text="Exit",
+				text=_("Exit"),
 				image=Utils.icons["exit32"],
 				compound=TOP,
 				command=app.quit,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
-		tkExtra.Balloon.set(b, "Close program [Ctrl-Q]")
+		tkExtra.Balloon.set(b, _("Close program [Ctrl-Q]"))
 
 #===============================================================================
 # Serial Frame
@@ -224,13 +223,13 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		col,row=0,0
-		b = Label(self, text="Port:", background=Ribbon._BACKGROUND)
+		b = Label(self, text=_("Port:"), background=Ribbon._BACKGROUND)
 		b.grid(row=row,column=col,sticky=E)
 		self.addWidget(b)
 
 		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
 		self.portCombo.grid(row=row, column=col+1, sticky=EW)
-		tkExtra.Balloon.set(self.portCombo, "Select (or manual enter) port to connect")
+		tkExtra.Balloon.set(self.portCombo, _("Select (or manual enter) port to connect"))
 #		sys.stdout.write(comports())
 		devices = sorted([x[0] for x in comports()])
 		self.portCombo.fill(devices)
@@ -239,22 +238,22 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		row += 1
-		b = Label(self, text="Baud:", background=Ribbon._BACKGROUND)
+		b = Label(self, text=_("Baud:"), background=Ribbon._BACKGROUND)
 		b.grid(row=row,column=col,sticky=E)
 
 		self.baudCombo = tkExtra.Combobox(self, True, background="White")
 		self.baudCombo.grid(row=row, column=col+1, sticky=EW)
-		tkExtra.Balloon.set(self.baudCombo, "Select connection baud rate")
+		tkExtra.Balloon.set(self.baudCombo, _("Select connection baud rate"))
 		self.baudCombo.fill(BAUDS)
 		self.baudCombo.set(Utils.getStr("Connection","baud","115200"))
 		self.addWidget(self.baudCombo)
 
 		# ---
 		row += 1
-		b= Checkbutton(self,	text="Connect on startup",
+		b= Checkbutton(self,	text=_("Connect on startup"),
 					variable=self.autostart)
 		b.grid(row=row, column=col, columnspan=2, sticky=W)
-		tkExtra.Balloon.set(b, "Connect to serial on startup of the program")
+		tkExtra.Balloon.set(b, _("Connect to serial on startup of the program"))
 		self.autostart.set(Utils.getBool("Connection","openserial"))
 		self.addWidget(b)
 
@@ -264,12 +263,12 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		self.connectBtn = Ribbon.LabelButton(self,
 				image=Utils.icons["serial32"],
-				text="Open",
+				text=_("Open"),
 				compound=TOP,
 				command=lambda s=self : s.event_generate("<<Connect>>"),
 				background=Ribbon._BACKGROUND)
 		self.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(self.connectBtn, "Open/Close serial port")
+		tkExtra.Balloon.set(self.connectBtn, _("Open/Close serial port"))
 		self.grid_columnconfigure(1, weight=1)
 
 	#-----------------------------------------------------------------------

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -32,7 +32,6 @@ class Midi2CNC:
 # Create pyrograph
 #==============================================================================
 class Tool(Plugin):
-
 	"""Sound your machine from a midi file"""
 	def __init__(self, master):
 		Plugin.__init__(self, master)
@@ -49,23 +48,23 @@ class Tool(Plugin):
 		})
 
 		self.variables = [
-			("name",	  "db" ,	"", "Name"),
-			("ppu_X"  ,   "float" , 200.0, "Pulse per unit for X"),
-			("ppu_Y"  ,   "float" , 200.0, "Pulse per unit for Y"),
-			("ppu_Z"  ,  "float" ,  200.0, "Pulse per unit for Z"),
-			("max_X"  ,  "int" ,       50, "Maximum X travel"),
-			("max_Y"  ,  "int" ,       50, "Maximum Y travel"),
-			("max_Z"  ,  "int" ,       20, "Maximum Z travel"),
-			("AxisUsed", ",".join(self.axes_dict.keys()), "XYZ", "Axis to be used"),
-			("File"  ,   "file" ,	   "", "Midi to process"),
+			("name",	 "db" ,	   "", _("Name")),
+			("ppu_X"  ,   "float" , 200.0, _("Pulse per unit for X")),
+			("ppu_Y"  ,   "float" , 200.0, _("Pulse per unit for Y")),
+			("ppu_Z"  ,  "float" ,  200.0, _("Pulse per unit for Z")),
+			("max_X"  ,  "int" ,       50, _("Maximum X travel")),
+			("max_Y"  ,  "int" ,       50, _("Maximum Y travel")),
+			("max_Z"  ,  "int" ,       20, _("Maximum Z travel")),
+			("AxisUsed", ",".join(self.axes_dict.keys()), "XYZ", _("Axis to be used")),
+			("File"  ,   "file" ,	   "", _("Midi to process")),
 		]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def reached_limit(self,current, distance, direction, min, max):
 		# Returns true if the proposed movement will exceed the
-		# safe working limits of the machine but the movement is
-		# allowable in the reverse direction
+		# safe working limits of the machine but the movement is
+		# allowable in the reverse direction
 		#
 		# Returns false if the movement is allowable in the
 		# current direction
@@ -99,7 +98,7 @@ class Tool(Plugin):
 		try:
 			import midiparser as midiparser
 		except:
-			app.setStatus("Error: This plugin requires midiparser.py")
+			app.setStatus(_("Error: This plugin requires midiparser.py"))
 			return
 
 		n = self["name"]
@@ -137,7 +136,7 @@ class Tool(Plugin):
 		try:
 			midi = midiparser.File(fileName)
 		except:
-			app.setStatus("Error: Sorry can't parse the Midi file.")
+			app.setStatus(_("Error: Sorry can't parse the Midi file."))
 			return
 
 		noteEventList=[]
@@ -172,7 +171,7 @@ class Tool(Plugin):
 				#print 'Processed track %d, containing channels numbered: [%s ]' % (track.number, msg)
 				all_channels = all_channels.union(channels)
 
-		# List all channels encountered
+		# List all channels encountered
 		if len(all_channels) > 0:
 			msg=', ' . join(['%2d' % ch for ch in sorted(all_channels)])
 			#print 'The file as a whole contains channels numbered: [%s ]' % msg
@@ -215,24 +214,24 @@ class Tool(Plugin):
 
 				for i in range(0, min(len(active_notes.values()), active_axes)):
 
-					# Which axis are should we be writing to?
+					# Which axis are should we be writing to?
 					#
 					j = self.axes_dict.get(axes)[i]
 
 					# Debug
-					# print"Axes %s: item %d is %d" % (axes_dict.get(args.axes), i, j)
+					# print"Axes %s: item %d is %d" % (axes_dict.get(args.axes), i, j)
 
 					# Sound higher pitched notes first by sorting by pitch then indexing by axis
 					#
 					nownote=sorted(active_notes.values(), reverse=True)[i]
 
 					# MIDI note 69	 = A4(440Hz)
-					# 2 to the power (69-69) / 12 * 440 = A4 440Hz
-					# 2 to the power (64-69) / 12 * 440 = E4 329.627Hz
+					# 2 to the power (69-69) / 12 * 440 = A4 440Hz
+					# 2 to the power (64-69) / 12 * 440 = E4 329.627Hz
 					#
 					freq_xyz[j] = pow(2.0, (nownote-69 + transpose[j])/12.0)*440.0
 
-					# Here is where we need smart per-axis feed conversions
+					# Here is where we need smart per-axis feed conversions
 					# to enable use of X/Y *and* Z on a Makerbot
 					#
 					# feed_xyz[0] = X; feed_xyz[1] = Y; feed_xyz[2] = Z;
@@ -294,4 +293,4 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Midi2CNC")
 		app.refresh()
-		app.setStatus("Generated Midi2CNC, ready to play?")
+		app.setStatus(_("Generated Midi2CNC, ready to play?"))

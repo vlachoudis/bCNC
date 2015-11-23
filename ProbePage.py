@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
@@ -21,20 +20,20 @@ import Ribbon
 import tkExtra
 import CNCRibbon
 
-PROBE_CMD = [	"G38.2 stop on contact else error",
-		"G38.3 stop on contact",
-		"G38.4 stop on loss contact else error",
-		"G38.5 stop on loss contact"
+PROBE_CMD = [	_("G38.2 stop on contact else error"),
+		_("G38.3 stop on contact"),
+		_("G38.4 stop on loss contact else error"),
+		_("G38.5 stop on loss contact")
 	]
 
-TOOL_POLICY = [ "Send M6 commands",		# 0
-		"Ignore M6 commands",		# 1
-		"Manual Tool Change (WCS)",	# 2
-		"Manual Tool Change (TLO)"	# 3
+TOOL_POLICY = [ _("Send M6 commands"),		# 0
+		_("Ignore M6 commands"),	# 1
+		_("Manual Tool Change (WCS)"),	# 2
+		_("Manual Tool Change (TLO)")	# 3
 		]
 
-TOOL_WAIT = [	"ONLY before probing",
-		"BEFORE & AFTER probing"
+TOOL_WAIT = [	_("ONLY before probing"),
+		_("BEFORE & AFTER probing")
 		]
 
 #===============================================================================
@@ -51,62 +50,62 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["probe32"],
-				text="Probe",
+				text=_("Probe"),
 				compound=TOP,
 				variable=self.tab,
 				value="Probe",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Simple probing along a direction")
+		tkExtra.Balloon.set(b, _("Simple probing along a direction"))
 
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["target32"],
-				text="Center",
+				text=_("Center"),
 				compound=TOP,
 				variable=self.tab,
 				value="Center",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Center probing using a ring")
+		tkExtra.Balloon.set(b, _("Center probing using a ring"))
 
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["setsquare32"],
-				text="Square",
+				text=_("Square"),
 				compound=TOP,
 				variable=self.tab,
 				state=DISABLED,
 				value="Square",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Probe X/Y axis by using a set square probe")
+		tkExtra.Balloon.set(b, _("Probe X/Y axis by using a set square probe"))
 
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["level32"],
-				text="Autolevel",
+				text=_("Autolevel"),
 				compound=TOP,
 				variable=self.tab,
 				value="Autolevel",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Autolevel Z surface")
+		tkExtra.Balloon.set(b, _("Autolevel Z surface"))
 
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["endmill32"],
-				text="Tool",
+				text=_("Tool"),
 				compound=TOP,
 				variable=self.tab,
 				value="Tool",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Setup probing for manual tool change")
+		tkExtra.Balloon.set(b, _("Setup probing for manual tool change"))
 
 #===============================================================================
 # Probe Group
@@ -118,13 +117,13 @@ class ProbeGroup(CNCRibbon.ButtonGroup):
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Probe>>",
 				image=Utils.icons["gear32"],
-				text="Probe",
+				text=_("Probe"),
 				compound=TOP,
 				width=48,
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, "Perform a single probe cycle")
+		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
 
 #===============================================================================
 # Center Group
@@ -136,13 +135,13 @@ class CenterGroup(CNCRibbon.ButtonGroup):
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ProbeCenter>>",
 				image=Utils.icons["gear32"],
-				text="Center",
+				text=_("Center"),
 				compound=TOP,
 				width=48,
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, "Perform a center probe cycle")
+		tkExtra.Balloon.set(b, _("Perform a center probe cycle"))
 
 #===============================================================================
 # Autolevel Group
@@ -157,50 +156,50 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelMargins>>",
 				image=Utils.icons["margins"],
-				text="Margins",
+				text=_("Margins"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Get margins from gcode file")
+		tkExtra.Balloon.set(b, _("Get margins from gcode file"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelZero>>",
 				image=Utils.icons["origin"],
-				text="Zero",
+				text=_("Zero"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Set current location as Z-zero for leveling")
+		tkExtra.Balloon.set(b, _("Set current location as Z-zero for leveling"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelClear>>",
 				image=Utils.icons["clear"],
-				text="Clear",
+				text=_("Clear"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "Clear probe data")
+		tkExtra.Balloon.set(b, _("Clear probe data"))
 		self.addWidget(b)
 
 		# ---
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScan>>",
 				image=Utils.icons["gear32"],
-				text="Scan",
+				text=_("Scan"),
 				compound=TOP,
 				justify=CENTER,
 				width=48,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, "Scan probed area for level information on Z plane")
+		tkExtra.Balloon.set(b, _("Scan probed area for level information on Z plane"))
 
 #===============================================================================
 # Probe Common Offset
@@ -221,28 +220,28 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		row = 0
 		col = 0
 
-		Label(frame, text="Probe Feed:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
 		ProbeCommonFrame.probeFeed.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(ProbeCommonFrame.probeFeed, "Set probe feed rate")
+		tkExtra.Balloon.set(ProbeCommonFrame.probeFeed, _("Set probe feed rate"))
 		self.addWidget(ProbeCommonFrame.probeFeed)
 
 		# ----
 		# Tool offset
 		row += 1
 		col  = 0
-		Label(frame, text="TLO").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("TLO")).grid(row=row, column=col, sticky=E)
 		col += 1
 		ProbeCommonFrame.tlo = tkExtra.FloatEntry(frame, background="White")
 		ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(ProbeCommonFrame.tlo, "Set tool offset for probing")
+		tkExtra.Balloon.set(ProbeCommonFrame.tlo, _("Set tool offset for probing"))
 		self.addWidget(ProbeCommonFrame.tlo)
 		self.tlo.bind("<Return>",   self.tloSet)
 		self.tlo.bind("<KP_Enter>", self.tloSet)
 
 		col += 1
-		b = Button(frame, text="set",
+		b = Button(frame, text=_("set"),
 				command=self.tloSet,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
@@ -252,7 +251,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# feed command
 		row += 1
 		col  = 0
-		Label(frame, text="Probe Command").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Probe Command")).grid(row=row, column=col, sticky=E)
 		col += 1
 		ProbeCommonFrame.probeCmd = tkExtra.Combobox(frame, True,
 						background="White",
@@ -318,11 +317,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
 		# WorkSpace -> Probe
-		lframe = LabelFrame(self, text="Probe", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Probe"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
-		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Probe:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
 		self._probeX = Label(lframe, foreground="DarkBlue", background="gray95")
@@ -338,24 +337,24 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		# ---
 		row,col = row+1,0
-		Label(lframe, text="Pos:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Pos:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
 		self.probeXdir = tkExtra.FloatEntry(lframe, background="White")
 		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeXdir, "Probe along X direction")
+		tkExtra.Balloon.set(self.probeXdir, _("Probe along X direction"))
 		self.addWidget(self.probeXdir)
 
 		col += 1
 		self.probeYdir = tkExtra.FloatEntry(lframe, background="White")
 		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeYdir, "Probe along Y direction")
+		tkExtra.Balloon.set(self.probeYdir, _("Probe along Y direction"))
 		self.addWidget(self.probeYdir)
 
 		col += 1
 		self.probeZdir = tkExtra.FloatEntry(lframe, background="White")
 		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(self.probeZdir, "Probe along Z direction")
+		tkExtra.Balloon.set(self.probeZdir, _("Probe along Z direction"))
 		self.addWidget(self.probeZdir)
 
 		lframe.grid_columnconfigure(1,weight=1)
@@ -390,8 +389,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def probe(self, event=None):
 		if ProbeCommonFrame.probeUpdate():
-			tkMessageBox.showerror("Probe Error",
-				"Invalid probe feed rate",
+			tkMessageBox.showerror(_("Probe Error"),
+				_("Invalid probe feed rate"),
 				parent=self)
 			return
 		cmd = CNC.vars["prbcmd"]
@@ -414,8 +413,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		if ok:
 			self.sendGrbl(cmd+"\n")
 		else:
-			tkMessageBox.showerror("Probe Error",
-					"At least one probe direction should be specified")
+			tkMessageBox.showerror(_("Probe Error"),
+					_("At least one probe direction should be specified"))
 
 #===============================================================================
 # Center Frame
@@ -425,13 +424,13 @@ class ProbeCenterFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Center", app)
 
 		# WorkSpace -> Probe
-		lframe = LabelFrame(self, text="Center", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Center"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
-		Label(lframe, text="Diameter:").pack(side=LEFT)
+		Label(lframe, text=_("Diameter:")).pack(side=LEFT)
 		self.diameter = tkExtra.FloatEntry(lframe, background="White")
 		self.diameter.pack(side=LEFT, fill=X)
-		tkExtra.Balloon.set(self.diameter, "Probing ring internal diameter")
+		tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
 		self.addWidget(self.diameter)
 
 		self.loadConfig()
@@ -455,8 +454,8 @@ class ProbeCenterFrame(CNCRibbon.PageFrame):
 			diameter = 0.0
 
 		if diameter < 0.001:
-			tkMessageBox.showerror("Probe Center Error",
-					"Invalid diameter entered",
+			tkMessageBox.showerror(_("Probe Center Error"),
+					_("Invalid diameter entered"),
 					parent=self)
 			return
 
@@ -489,11 +488,11 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		row,col = 0,0
 		# Empty
 		col += 1
-		Label(lframe, text="Min").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="Max").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="Step").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("Step")).grid(row=row, column=col, sticky=EW)
 		col += 1
 		Label(lframe, text="N").grid(row=row, column=col, sticky=EW)
 
@@ -504,20 +503,20 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.probeXmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeXmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXmin, "X minimum")
+		tkExtra.Balloon.set(self.probeXmin, _("X minimum"))
 		self.addWidget(self.probeXmin)
 
 		col += 1
 		self.probeXmax = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeXmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXmax, "X maximum")
+		tkExtra.Balloon.set(self.probeXmax, _("X maximum"))
 		self.addWidget(self.probeXmax)
 
 		col += 1
 		self.probeXstep = Label(lframe, foreground="DarkBlue",
 					background="gray95", width=5)
 		self.probeXstep.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXstep, "X step")
+		tkExtra.Balloon.set(self.probeXstep, _("X step"))
 
 		col += 1
 		self.probeXbins = Spinbox(lframe,
@@ -526,7 +525,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 					background="White",
 					width=3)
 		self.probeXbins.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeXbins, "X bins")
+		tkExtra.Balloon.set(self.probeXbins, _("X bins"))
 		self.addWidget(self.probeXbins)
 
 		# --- Y ---
@@ -536,20 +535,20 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.probeYmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeYmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYmin, "Y minimum")
+		tkExtra.Balloon.set(self.probeYmin, _("Y minimum"))
 		self.addWidget(self.probeYmin)
 
 		col += 1
 		self.probeYmax = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeYmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYmax, "Y maximum")
+		tkExtra.Balloon.set(self.probeYmax, _("Y maximum"))
 		self.addWidget(self.probeYmax)
 
 		col += 1
 		self.probeYstep = Label(lframe,  foreground="DarkBlue",
 					background="gray95", width=5)
 		self.probeYstep.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYstep, "Y step")
+		tkExtra.Balloon.set(self.probeYstep, _("Y step"))
 
 		col += 1
 		self.probeYbins = Spinbox(lframe,
@@ -558,7 +557,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 					background="White",
 					width=3)
 		self.probeYbins.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeYbins, "Y bins")
+		tkExtra.Balloon.set(self.probeYbins, _("Y bins"))
 		self.addWidget(self.probeYbins)
 
 		# Max Z
@@ -569,13 +568,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.probeZmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeZmin.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeZmin, "Z Minimum depth to scan")
+		tkExtra.Balloon.set(self.probeZmin, _("Z Minimum depth to scan"))
 		self.addWidget(self.probeZmin)
 
 		col += 1
 		self.probeZmax = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeZmax.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeZmax, "Z safe to move")
+		tkExtra.Balloon.set(self.probeZmax, _("Z safe to move"))
 		self.addWidget(self.probeZmax)
 
 		lframe.grid_columnconfigure(1,weight=2)
@@ -649,8 +648,8 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		except ValueError:
 			self.probeXstep["text"] = ""
 			if verbose:
-				tkMessageBox.showerror("Probe Error",
-						"Invalid X probing region",
+				tkMessageBox.showerror(_("Probe Error"),
+						_("Invalid X probing region"),
 						parent=self)
 			error = True
 
@@ -662,8 +661,8 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		except ValueError:
 			self.probeYstep["text"] = ""
 			if verbose:
-				tkMessageBox.showerror("Probe Error",
-						"Invalid Y probing region",
+				tkMessageBox.showerror(_("Probe Error"),
+						_("Invalid Y probing region"),
 						parent=self)
 			error = True
 
@@ -672,15 +671,15 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			probe.zmax  = float(self.probeZmax.get())
 		except ValueError:
 			if verbose:
-				tkMessageBox.showerror("Probe Error",
-					"Invalid Z probing region",
+				tkMessageBox.showerror(_("Probe Error"),
+					_("Invalid Z probing region"),
 					parent=self)
 			error = True
 
 		if ProbeCommonFrame.probeUpdate():
 			if verbose:
-				tkMessageBox.showerror("Probe Error",
-					"Invalid probe feed rate",
+				tkMessageBox.showerror(_("Probe Error"),
+					_("Invalid probe feed rate"),
 					parent=self)
 			error = True
 
@@ -724,23 +723,23 @@ class ToolGroup(CNCRibbon.ButtonGroup):
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ToolCalibrate>>",
 				image=Utils.icons["probe32"],
-				text="Calibrate",
+				text=_("Calibrate"),
 				compound=TOP,
 				width=48,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH, expand=YES)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, "Perform a single a tool change cycle to set the calibration field")
+		tkExtra.Balloon.set(b, _("Perform a single a tool change cycle to set the calibration field"))
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ToolChange>>",
 				image=Utils.icons["endmill32"],
-				text="Change",
+				text=_("Change"),
 				compound=TOP,
 				width=48,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH, expand=YES)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, "Perform a tool change cycle")
+		tkExtra.Balloon.set(b, _("Perform a tool change cycle"))
 
 #===============================================================================
 # Tool Frame
@@ -749,12 +748,12 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Tool", app)
 
-		lframe = LabelFrame(self, text="Manual Tool Change", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Manual Tool Change"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		# --- Tool policy ---
 		row,col = 0,0
-		Label(lframe, text="Policy:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Policy:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.toolPolicy = tkExtra.Combobox(lframe, True,
 					background="White",
@@ -763,12 +762,13 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.toolPolicy.grid(row=row, column=col, columnspan=3, sticky=EW)
 		self.toolPolicy.fill(TOOL_POLICY)
 		self.toolPolicy.set(TOOL_POLICY[0])
+		tkExtra.Balloon.set(self.toolPolicy, _("Tool change policy"))
 		self.addWidget(self.toolPolicy)
 
 		# ----
 		row += 1
 		col  = 0
-		Label(lframe, text="Pause:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Pause:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.toolWait = tkExtra.Combobox(lframe, True,
 					background="White",
@@ -791,90 +791,90 @@ class ToolFrame(CNCRibbon.PageFrame):
 		# --- Tool Change position ---
 		row += 1
 		col = 0
-		Label(lframe, text="Change:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Change:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.changeX = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.changeX.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.changeX, "Manual tool change Machine X location")
+		tkExtra.Balloon.set(self.changeX, _("Manual tool change Machine X location"))
 		self.addWidget(self.changeX)
 
 		col += 1
 		self.changeY = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.changeY.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.changeY, "Manual tool change Machine Y location")
+		tkExtra.Balloon.set(self.changeY, _("Manual tool change Machine Y location"))
 		self.addWidget(self.changeY)
 
 		col += 1
 		self.changeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.changeZ.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.changeZ, "Manual tool change Machine Z location")
+		tkExtra.Balloon.set(self.changeZ, _("Manual tool change Machine Z location"))
 		self.addWidget(self.changeZ)
 
 		col += 1
-		b = Button(lframe, text="get",
+		b = Button(lframe, text=_("get"),
 				command=self.getChange,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Get current gantry position as machine tool change location")
+		tkExtra.Balloon.set(b, _("Get current gantry position as machine tool change location"))
 		self.addWidget(b)
 
 		# --- Tool Probe position ---
 		row += 1
 		col = 0
-		Label(lframe, text="Probe:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Probe:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.probeX = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeX.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeX, "Manual tool change Probing MX location")
+		tkExtra.Balloon.set(self.probeX, _("Manual tool change Probing MX location"))
 		self.addWidget(self.probeX)
 
 		col += 1
 		self.probeY = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeY.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeY, "Manual tool change Probing MY location")
+		tkExtra.Balloon.set(self.probeY, _("Manual tool change Probing MY location"))
 		self.addWidget(self.probeY)
 
 		col += 1
 		self.probeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeZ.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.probeZ, "Manual tool change Probing MZ location")
+		tkExtra.Balloon.set(self.probeZ, _("Manual tool change Probing MZ location"))
 		self.addWidget(self.probeZ)
 
 		col += 1
-		b = Button(lframe, text="get",
+		b = Button(lframe, text=_("get"),
 				command=self.getProbe,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Get current gantry position as machine tool probe location")
+		tkExtra.Balloon.set(b, _("Get current gantry position as machine tool probe location"))
 		self.addWidget(b)
 
 		# --- Probe Distance ---
 		row += 1
 		col = 0
-		Label(lframe, text="Distance:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Distance:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.probeDistance = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeDistance.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeDistance,
-				"After a tool change distance to scan starting from ProbeZ")
+				_("After a tool change distance to scan starting from ProbeZ"))
 		self.addWidget(self.probeDistance)
 
 		# --- Calibration ---
 		row += 1
 		col = 0
-		Label(lframe, text="Calibration:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Calibration:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.toolHeight = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.toolHeight.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(self.toolHeight, "Tool probe height")
+		tkExtra.Balloon.set(self.toolHeight, _("Tool probe height"))
 		self.addWidget(self.toolHeight)
 
 		col += 1
-		b = Button(lframe, text="Calibrate",
+		b = Button(lframe, text=_("Calibrate"),
 				command=self.probe,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, "Perform a calibration probing to determine the height")
+		tkExtra.Balloon.set(b, _("Perform a calibration probing to determine the height"))
 		self.addWidget(b)
 
 		lframe.grid_columnconfigure(1,weight=1)
@@ -924,8 +924,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 			CNC.vars["toolchangey"]  = float(self.changeY.get())
 			CNC.vars["toolchangez"]  = float(self.changeZ.get())
 		except:
-			tkMessageBox.showerror("Probe Tool Change Error",
-					"Invalid tool change position",
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool change position"),
 					parent=self)
 			return
 
@@ -934,24 +934,24 @@ class ToolFrame(CNCRibbon.PageFrame):
 			CNC.vars["toolprobey"]   = float(self.probeY.get())
 			CNC.vars["toolprobez"]   = float(self.probeZ.get())
 		except:
-			tkMessageBox.showerror("Probe Tool Change Error",
-					"Invalid tool probe location",
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool probe location"),
 					parent=self)
 			return
 
 		try:
 			CNC.vars["tooldistance"] = abs(float(self.probeDistance.get()))
 		except:
-			tkMessageBox.showerror("Probe Tool Change Error",
-					"Invalid tool scanning distance entered",
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool scanning distance entered"),
 					parent=self)
 			return
 
 		try:
 			CNC.vars["toolheight"]   = float(self.toolHeight.get())
 		except:
-			tkMessageBox.showerror("Probe Tool Change Error",
-					"Invalid tool height or not calibrated",
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool height or not calibrated"),
 					parent=self)
 			return
 

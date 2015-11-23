@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
@@ -303,16 +303,16 @@ class Tool(Plugin):
 		self.name = "Box"
 		self.icon = "box"
 		self.variables = [
-			("name",      "db",    "", "Name"),
-			("dx",        "mm", 100.0, "Width Dx"),
-			("dy",        "mm",  70.0, "Depth Dy"),
-			("dz",        "mm",  50.0, "Height Dz"),
-			("nx",       "int",    11, "Fingers Nx"),
-			("ny",       "int",     7, "Fingers Ny"),
-			("nz",       "int",     5, "Fingers Nz"),
-			("profile", "bool",     0, "Profile"),
-			("overcut", "bool",     1, "Overcut"),
-			("cut",     "bool",     0, "Cut")
+			("name",      "db",    "", _("Name")),
+			("dx",        "mm", 100.0, _("Width Dx")),
+			("dy",        "mm",  70.0, _("Depth Dy")),
+			("dz",        "mm",  50.0, _("Height Dz")),
+			("nx",       "int",    11, _("Fingers Nx")),
+			("ny",       "int",     7, _("Fingers Ny")),
+			("nz",       "int",     5, _("Fingers Nz")),
+			("profile", "bool",     0, _("Profile")),
+			("overcut", "bool",     1, _("Overcut")),
+			("cut",     "bool",     0, _("Cut"))
 		]
 		self.buttons.append("exe")
 
@@ -336,9 +336,9 @@ class Tool(Plugin):
 		if self["overcut"]: box.overcut = 'D'
 
 		active = app.activeBlock()
-		app.gcode.insBlocks(active, box.make(), "Create finger BOX")
+		app.gcode.insBlocks(active, box.make(), _("Create finger BOX"))
 		app.refresh()
-		app.setStatus("Generated: BOX with fingers")
+		app.setStatus(_("Generated: BOX with fingers"))
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":

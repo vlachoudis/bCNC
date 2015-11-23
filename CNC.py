@@ -1,4 +1,4 @@
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
 # Author: vvlachoudis@gmail.com
@@ -504,6 +504,7 @@ class CNC:
 				"TLO"       : 0.,
 			}
 		self.initPath()
+		self.resetAllMargins()
 
 	#----------------------------------------------------------------------
 	# Update G variables from "G" string
@@ -610,8 +611,6 @@ class CNC:
 		self.feed        = 0		# Actual gcode feed rate (not to confuse with cutfeed
 		self.totalLength = 0.0
 		self.totalTime   = 0.0
-
-		self.resetAllMargins()
 
 	#----------------------------------------------------------------------
 	def resetEnableMargins(self):
@@ -1938,6 +1937,7 @@ class GCode:
 		except: return False
 		self._lastModified = os.stat(self.filename).st_mtime
 		self.cnc.initPath()
+		self.cnc.resetAllMargins()
 		self._blocksExist = False
 		for line in f:
 			self._addLine(line[:-1].replace("\x0d",""))
@@ -2723,6 +2723,7 @@ class GCode:
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
+			block.enable = True
 
 			# construct new name
 			undoinfo.append(self.addBlockOperationUndo(bid, opname))
@@ -2838,6 +2839,7 @@ class GCode:
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
+			block.enable = True
 			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):

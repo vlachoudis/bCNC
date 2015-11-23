@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -37,15 +37,15 @@ class Tool(Plugin):
 		self.icon = "pyrograph"
 
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("ToolSize"  ,   "mm" ,    0.5, "Pyrograph tip size"),
-			("Depth"  ,   "mm" ,       0.0, "Working Depth"),
-			("MaxSize"  ,   "mm" ,   100.0, "Maximum size"),
-			("FeedMin"  ,  "int" ,     250, "Minimum feed"),
-			("FeedMax"  ,  "int" ,    5000, "Maximum feed"),
-			("Direction", "Horizontal,Vertical,Both", "Horizontal", "Direction"),
-			("DrawBorder",  "bool",  False, "Draw border"),
-			("File"  ,   "file" ,       "", "Image to process"),
+			("name",      "db" ,    "", _("Name")),
+			("ToolSize"  ,   "mm" ,    0.5, _("Pyrograph tip size")),
+			("Depth"  ,   "mm" ,       0.0, _("Working Depth")),
+			("MaxSize"  ,   "mm" ,   100.0, _("Maximum size")),
+			("FeedMin"  ,  "int" ,     250, _("Minimum feed")),
+			("FeedMax"  ,  "int" ,    5000, _("Maximum feed")),
+			("Direction", "Horizontal,Vertical,Both", "Horizontal", _("Direction")),
+			("DrawBorder",  "bool",  False, _("Draw border")),
+			("File"  ,   "file" ,       "", _("Image to process")),
 		]
 		self.buttons.append("exe")
 
@@ -54,7 +54,7 @@ class Tool(Plugin):
 		try:
 			from PIL import Image
 		except:
-			app.setStatus("Pyrograph abort: This plugin requires PIL/Pillow")
+			app.setStatus(_("Pyrograph abort: This plugin requires PIL/Pillow"))
 			return
 
 		n = self["name"]
@@ -71,15 +71,15 @@ class Tool(Plugin):
 
 		#Check parameters
 		if direction is "":
-			app.setStatus("Pyrograph abort: please define a scan Direction")
+			app.setStatus(_("Pyrograph abort: please define a scan Direction"))
 			return
 
 		if toolSize <=0:
-			app.setStatus("Pyrograph abort: Tool Size must be > 0")
+			app.setStatus(_("Pyrograph abort: Tool Size must be > 0"))
 			return
 
 		if feedMin <=0 or feedMax <=0 :
-			app.setStatus("Pyrograph abort: Please check feed rate parameters")
+			app.setStatus(_("Pyrograph abort: Please check feed rate parameters"))
 			return
 
 		#divisions
@@ -90,7 +90,7 @@ class Tool(Plugin):
 			img = Image.open(fileName)
 			img = img.convert ('RGB') #be sure to have color to calculate luminance
 		except:
-			app.setStatus("Pyrograph abort: Can't read image file")
+			app.setStatus(_("Pyrograph abort: Can't read image file"))
 			return
 
 		iWidth,iHeight =  img.size
@@ -199,7 +199,4 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Pyrograph")
 		app.refresh()
-		app.setStatus("Generated Pyrograph")
-
-
-
+		app.setStatus(_("Generated Pyrograph"))

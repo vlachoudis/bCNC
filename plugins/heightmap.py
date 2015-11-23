@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -46,16 +46,16 @@ class Tool(Plugin):
 		self.icon = "heightmap"
 
 		self.variables = [
-			("name",      "db" ,     "", "Name"),
-			("Depth",     "mm" ,   -1.0, "Working Depth"),
-			("MaxSize",   "mm" ,  100.0, "Maximum size"),
-			("Scan",      "Columns,Rows,C&R,R&C", "Rows", "Scan"),
+			("name",      "db" ,     "", _("Name")),
+			("Depth",     "mm" ,   -1.0, _("Working Depth")),
+			("MaxSize",   "mm" ,  100.0, _("Maximum size")),
+			("Scan",      "Columns,Rows,C&R,R&C", "Rows", _("Scan")),
 			("ScanDir",   "Alternating,Positive,Negative,Up Mill,Down Mill" ,\
-						"Alternating" , "ScanDir"),
-			("CutTop",    "bool",  False, "Cut Top"),
-			("CutBorder", "bool",  False, "Cut Border"),
-			("Invert",    "bool",  False, "Invert"),
-			("File",      "file" ,	  "", "Image to process"),
+						"Alternating" , _("ScanDir")),
+			("CutTop",    "bool",  False, _("Cut Top")),
+			("CutBorder", "bool",  False, _("Cut Border")),
+			("Invert",    "bool",  False, _("Invert")),
+			("File",      "file" ,	  "", _("Image to process")),
 		]
 		self.buttons.append("exe")
 
@@ -65,7 +65,7 @@ class Tool(Plugin):
 		try:
 			from PIL import Image
 		except:
-			app.setStatus("Heightmap abort: This plugin requires PIL/Pillow")
+			app.setStatus(_("Heightmap abort: This plugin requires PIL/Pillow"))
 			return
 
 		#Try read image
@@ -74,11 +74,11 @@ class Tool(Plugin):
 			img = Image.open(fileName)
 			img = img.convert ('L') #Luminance
 		except:
-			app.setStatus("Heightmap abort: Can't read image file")
+			app.setStatus(_("Heightmap abort: Can't read image file"))
 			return
 
 		if self["Depth"]>=0:
-			app.setStatus("Heightmap abort: depth must be < 0")
+			app.setStatus(_("Heightmap abort: depth must be < 0"))
 			return
 
 		#Define type of matrix manipulation
@@ -93,7 +93,7 @@ class Tool(Plugin):
 			Image_Matrix = Image_Matrix_Numpy
 		else:
 			Image_Matrix = Image_Matrix_List
-			print "Install NumPy will speed up heightmap creation"
+			#print "Install NumPy will speed up heightmap creation"
 
 		MAT = Image_Matrix()
 		MAT.FromImage(img,True)
@@ -115,7 +115,7 @@ class Tool(Plugin):
 
 		tolerance     =  0.1
 		safe_z        =  CNC.vars["safe"]
-		splitstep     =  0.0 	#Offset Stepover
+		splitstep     =  0.0	#Offset Stepover
 		toptol        = -0.1	#Top Tolerance
 		depth         = -self["Depth"]
 		Cont_Angle    =  45.0 #Contact angle , only with "Lace Bounding"
@@ -147,7 +147,7 @@ class Tool(Plugin):
 			try:
 				v_angle = float(tool["angle"])
 			except:
-				app.setStatus("Heightmap abort: angle not defined for selected End Mill")
+				app.setStatus(_("Heightmap abort: angle not defined for selected End Mill"))
 				return
 			TOOL = make_tool_shape(NUMPY,vee_common(v_angle), tool_diameter, pixel_size)
 		else: #"Ball End"
@@ -361,4 +361,4 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, n)
 		app.refresh()
-		app.setStatus("Generated Heightmap %d x %d x %d "%(image_w,image_h,depth) )
+		app.setStatus(_("Generated Heightmap %d x %d x %d ")%(image_w,image_h,depth) )

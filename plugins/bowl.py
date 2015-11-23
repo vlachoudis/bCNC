@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	https://github.com/carlosgs
@@ -104,10 +104,10 @@ class Tool(Plugin):
 		self.name = "Bowl"
 		self.icon = "bowl"
 		self.variables = [
-			("name",      "db",   "",  "Name"),
-			("D",         "mm", 30.0,  "Diameter"),
-			("res",    "float",  10.0,  "Resolution (degrees)"),
-			("pocket",    "bool",    1,  "Progressive")
+			("name",      "db",     "",  _("Name")),
+			("D",         "mm",   30.0,  _("Diameter")),
+			("res",    "float",   10.0,  _("Resolution (degrees)")),
+			("pocket",    "bool",    1,  _("Progressive"))
 		]
 		self.buttons.append("exe")
 
@@ -121,6 +121,6 @@ class Tool(Plugin):
 			active = app.activeBlock()
 			app.gcode.insBlocks(active, blocks, "Create BOWL")
 			app.refresh()
-			app.setStatus("Generated: BOWL")
+			app.setStatus(_("Generated: BOWL"))
 		else:
-			app.setStatus("Error: Check the Bowl and End Mill parameters")
+			app.setStatus(_("Error: Check the Bowl and End Mill parameters"))

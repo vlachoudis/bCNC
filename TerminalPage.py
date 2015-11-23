@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
@@ -27,55 +26,59 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
 
 		b = Ribbon.LabelButton(self.frame, self, "<<TerminalClear>>",
 				image=Utils.icons["clean32"],
-				text="Clear",
+				text=_("Clear"),
 				compound=TOP,
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
-		tkExtra.Balloon.set(b, "Clear terminal")
+		tkExtra.Balloon.set(b, _("Clear terminal"))
 
 #===============================================================================
 # Commands Group
 #===============================================================================
-class CommandsGroup(CNCRibbon.ButtonGroup):
+class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Commands", app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Commands", app,
+			[(_("Restore Settings"),  "grbl_settings",  app.grblRestoreSettings),
+			 (_("Restore Workspace"), "grbl_params",    app.grblRestoreWCS),
+			 (_("Restore All"),       "reset",          app.grblRestoreAll),
+			])
 		self.grid3rows()
 
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_settings"],
-				text="Settings",
+				text=_("Settings"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.viewSettings,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$$ Display settings of Grbl")
+		tkExtra.Balloon.set(b, _("$$ Display settings of Grbl"))
 		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_params"],
-				text="Parameters",
+				text=_("Parameters"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.viewParameters,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$# Display parameters of Grbl")
+		tkExtra.Balloon.set(b, _("$# Display parameters of Grbl"))
 		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_state"],
-				text="State",
+				text=_("State"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.viewState,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$G Display state of Grbl")
+		tkExtra.Balloon.set(b, _("$G Display state of Grbl"))
 		self.addWidget(b)
 
 		# ---
@@ -83,38 +86,38 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 		row  = 0
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_build"],
-				text="Build",
+				text=_("Build"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.viewBuild,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$I Display build information of Grbl")
+		tkExtra.Balloon.set(b, _("$I Display build information of Grbl"))
 		self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_startup"],
-				text="Startup",
+				text=_("Startup"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.viewStartup,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$N Display startup configuration of Grbl")
+		tkExtra.Balloon.set(b, _("$N Display startup configuration of Grbl"))
 		self.addWidget(b)
 
 		row += 1
 		# FIXME Checkbutton!!!!!
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_check"],
-				text="Check gcode",
+				text=_("Check gcode"),
 				compound=LEFT,
 				anchor=W,
 				command=self.app.checkGcode,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$C Enable/Disable checking of gcode")
+		tkExtra.Balloon.set(b, _("$C Enable/Disable checking of gcode"))
 		self.addWidget(b)
 
 		# ---
@@ -122,13 +125,13 @@ class CommandsGroup(CNCRibbon.ButtonGroup):
 		row  = 1
 		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["grbl_help"],
-				text="Help",
+				text=_("Help"),
 				compound=LEFT,
 				anchor=W,
-				command=self.app.grblhelp,
+				command=self.app.grblHelp,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, "$ Display build information of Grbl")
+		tkExtra.Balloon.set(b, _("$ Display build information of Grbl"))
 		self.addWidget(b)
 
 #===============================================================================

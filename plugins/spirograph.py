@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -98,11 +98,11 @@ class Tool(Plugin):
 		self.name = "Spirograph"
 		self.icon = "spirograph"
 		self.variables = [
-			("name",      "db" ,    "", "Name"),
-			("RadiusExternal"  ,   "mm" ,    50.0, "External Radius"),
-			("RadiusInternal"  ,   "mm" ,    33.0, "Internal Radius"),
-			("RadiusOffset"  ,   "mm" ,    13.0, "Offset radius"),
-			("Depth"  ,   "mm" ,    0, "Target Depth")
+			("name",      "db" ,    "", _("Name")),
+			("RadiusExternal"  ,   "mm" ,    50.0, _("External Radius")),
+			("RadiusInternal"  ,   "mm" ,    33.0, _("Internal Radius")),
+			("RadiusOffset"  ,   "mm" ,    13.0, _("Offset radius")),
+			("Depth"  ,   "mm" ,    0, _("Target Depth"))
 		]
 		self.buttons.append("exe")
 
@@ -120,10 +120,8 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Spirograph")
 		app.refresh()
-		app.setStatus("Generated: Spirograph")
+		app.setStatus(_("Generated: Spirograph"))
 
 if __name__=="__main__":
 	spirograph = Spirograph()
 	spirograph.make()
-
-

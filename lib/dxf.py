@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: dxf.py 3598 2015-10-16 13:07:06Z bnv $
 #
 # Copyright and User License
