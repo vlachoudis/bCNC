@@ -24,11 +24,11 @@ msgstr "Sortir"
 
 #: Sender.py:57
 msgid "bCNC is currently sending a gcode program to Grbl"
-msgstr ""
+msgstr "bCNC est en train d'envoyer un programme gcode vers Grbl."
 
 #: Sender.py:58
 msgid "Grbl is in idle state and waiting for user commands"
-msgstr ""
+msgstr "Grbl est en attente de commandes de l'utilisateur."
 
 #: Sender.py:59
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
