@@ -24,7 +24,7 @@ msgstr "Sortir"
 
 #: Sender.py:57
 msgid "bCNC is currently sending a gcode program to Grbl"
-msgstr "bCNC est en train d'envoyer un programme gcode vers Grbl."
+msgstr "bCNC est en train d'envoyer un programme gcode à Grgl."
 
 #: Sender.py:58
 msgid "Grbl is in idle state and waiting for user commands"
@@ -32,7 +32,7 @@ msgstr "Grbl est en attente de commandes de l'utilisateur."
 
 #: Sender.py:59
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr ""
+msgstr "Grbl est en pause. Cliquez sur reprendre (pause) pour poursuivre."
 
 #: Sender.py:60
 msgid ""
@@ -46,20 +46,30 @@ msgid ""
 "user to override the alarm manually. This is to ensure the user knows and "
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
+"Alarme est un état d'urgence : quelque chose ne s'est pas du tout bien passé."
+"C'est typique d'une erreur causée par un dépassement de limite lors du déplacement "
+"de la machine hors de son espace et qu'elle a buté contre quelque chose. Ça "
+" peur aussi indiquer que Grbl est perdu et qu'il ne sait pas où il se situe ou "
+" qu'une commande avec la sonde a échouée. Une fois dans ce mode d'urgence, Grbl "
+"verrouille tout et s'éteint jusqu'à ce que vous fassiez un reset. Même après ça, "
+"Grbl reste dans ce mode, empêche l'exécution de tout gcode, mais il permet de "
+"désactiver manuellement cette alarme. Ceci afin que l'utilisateur sache exactement "
+"ce qu'il en ait et qu'il agisse en connaissance de cause."
 
 #: Sender.py:61
 msgid "Grbl is not connected. Please specify the correct port and click Open."
-msgstr ""
+msgstr "Grbl n'est pas connecté. Veuillez indiquer le bon port et cliquez sur Ouvrir."
 
 #: Sender.py:62
 msgid "Connection is established with Grbl"
-msgstr ""
+msgstr "Connection établie avec Grbl."
 
 #: Sender.py:64
 msgid ""
 "All is good! Everything in the last line was understood by Grbl and was "
 "successfully processed and executed."
 msgstr ""
+"Impeccable ! Tout a été compris par Grbl et a été correctement exécuté."
 
 #: Sender.py:65
 msgid ""
@@ -67,6 +77,9 @@ msgid ""
 "a number value. This error occurs when the letter prefix of a G-code word is "
 "missing in the G-code block (aka line)."
 msgstr ""
+"G_code est composé de 'mots' G-code commençant par une lettre suivie d'un "
+"nombre. Cette erreur apparaît quand cette lettre en préfixe est absente dans "
+" le block de G-code (c'est-à-dire dans la ligne)."
 
 #: Sender.py:66
 msgid ""
@@ -74,10 +87,12 @@ msgid ""
 "when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
 "value."
 msgstr ""
+"Il manque une valeur dans la ligne de G-code, ou en configurant un paramètre "
+"dans Grbl comme $Nx=line ou $x=val x n'est pas une valeur numérique."
 
 #: Sender.py:67
 msgid "The issued Grbl $ system command is not recognized or is invalid."
-msgstr ""
+msgstr "La commande système $ envoyé à Grbl n'est pas reconnue ou est invalide."
 
 #: Sender.py:68
 msgid ""
