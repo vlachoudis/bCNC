@@ -1,12 +1,12 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
 #
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.7.0"
-__date__    = "31 Oct 2015"
+__version__ = "0.7.1"
+__date__    = "23 Nov 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -18,6 +18,12 @@ import time
 import getopt
 import socket
 import traceback
+
+import __builtin__
+import gettext
+# dirty way of substituting the "_" on the builtin namespace
+#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
 
 try:
 	import serial
@@ -73,13 +79,13 @@ MAX_HISTORY  = 500
 
 #ZERO = ["G28", "G30", "G92"]
 
-FILETYPES = [	("All accepted", ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.stl")),
-		("G-Code",("*.ngc","*.nc", "*.gcode")),
-		("DXF",    "*.dxf"),
-		("SVG",    "*.svg"),
-		("Probe",  "*.probe"),
-		("STL",    "*.stl"),
-		("All",    "*")]
+FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.stl")),
+		(_("G-Code"),("*.ngc","*.nc", "*.gcode")),
+		("DXF",       "*.dxf"),
+		("SVG",       "*.svg"),
+		(_("Probe"),  "*.probe"),
+		("STL",       "*.stl"),
+		(_("All"),    "*")]
 
 geometry = None
 
@@ -135,7 +141,7 @@ class Application(Toplevel,Sender):
 		# Command bar
 		f = Frame(frame)
 		f.pack(side=BOTTOM, fill=X)
-		self.cmdlabel = Label(f, text="Command:")
+		self.cmdlabel = Label(f, text=_("Command:"))
 		self.cmdlabel.pack(side=LEFT)
 		self.command = Entry(f, relief=SUNKEN, background="White")
 		self.command.pack(side=RIGHT, fill=X, expand=YES)
@@ -148,9 +154,9 @@ class Application(Toplevel,Sender):
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
 		tkExtra.Balloon.set(self.command,
-			"MDI Command line: Accept g-code commands or macro "
-			"commands (RESET/HOME...) or editor commands "
-			"(move,inkscape, round...) [Space or Ctrl-Space]")
+			_("MDI Command line: Accept g-code commands or macro " \
+			  "commands (RESET/HOME...) or editor commands " \
+			  "(move,inkscape, round...) [Space or Ctrl-Space]"))
 		self.widgets.append(self.command)
 
 		# --- Right side ---
@@ -311,6 +317,7 @@ class Application(Toplevel,Sender):
 		self.bind('<Control-Key-Z>',	self.redo)
 		self.canvas.bind('<Key-space>',	self.commandFocus)
 		self.bind('<Control-Key-space>',self.commandFocus)
+		self.bind('<<CommandFocus>>',	self.commandFocus)
 
 		tools = self.pages["Tools"]
 		self.bind('<<ToolAdd>>',	tools.add)
@@ -413,8 +420,8 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def quit(self, event=None):
 		if self.running and self._quit<1:
-			tkMessageBox.showinfo("Running",
-				"CNC is currently running, please stop it before.",
+			tkMessageBox.showinfo(_("Running"),
+				_("CNC is currently running, please stop it before."),
 				parent=self)
 			self._quit += 1
 			return
@@ -422,8 +429,8 @@ class Application(Toplevel,Sender):
 
 		if self.gcode.isModified():
 			# file is modified
-			ans = tkMessageBox.askquestion("File modified",
-				"Gcode was modified do you want to save it first?",
+			ans = tkMessageBox.askquestion(_("File modified"),
+				_("Gcode was modified do you want to save it first?"),
 				parent=self)
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveDialog()
@@ -583,7 +590,7 @@ class Application(Toplevel,Sender):
 	def about(self, event=None, timer=None):
 		toplevel = Toplevel(self)
 		toplevel.transient(self)
-		toplevel.title("About %s" % (Utils.__prg__))
+		toplevel.title(_("About %s") % (Utils.__prg__))
 		if sys.platform == "win32":
 			self.iconbitmap("bCNC.ico")
 		else:
@@ -617,8 +624,9 @@ class Application(Toplevel,Sender):
 
 		# -----
 		row += 1
-		l = Label(frame, text="bCNC/\tAn advanced fully featured\n" \
-				"\tg-code sender for GRBL.",
+		l = Label(frame, text=\
+				_("bCNC/\tAn advanced fully featured\n" \
+				  "\tg-code sender for GRBL."),
 				font = font3,
 				foreground=fg, background=bg, justify=LEFT)
 		l.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
@@ -716,7 +724,7 @@ class Application(Toplevel,Sender):
 		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
 
 		closeFunc = lambda e=None,t=toplevel: t.destroy()
-		b = Button(toplevel, text="Close", command=closeFunc)
+		b = Button(toplevel, text=_("Close"), command=closeFunc)
 		b.pack(pady=5)
 		frame.grid_columnconfigure(1, weight=1)
 
@@ -754,7 +762,7 @@ class Application(Toplevel,Sender):
 	def showStats(self, event=None):
 		toplevel = Toplevel(self)
 		toplevel.transient(self)
-		toplevel.title("Statistics")
+		toplevel.title(_("Statistics"))
 
 		if CNC.inch:
 			unit = "in"
@@ -772,12 +780,12 @@ class Application(Toplevel,Sender):
 				t += block.time
 
 		# ===========
-		frame = LabelFrame(toplevel, text="Enabled GCode", foreground="DarkRed")
+		frame = LabelFrame(toplevel, text=_("Enabled GCode"), foreground="DarkRed")
 		frame.pack(fill=BOTH)
 
 		# ---
 		row, col = 0,0
-		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["xmin"], CNC.vars["xmax"],
@@ -810,7 +818,7 @@ class Application(Toplevel,Sender):
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="# Blocks:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text=str(e),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
@@ -818,7 +826,7 @@ class Application(Toplevel,Sender):
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="Length:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g %s" % (l, unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
@@ -826,7 +834,7 @@ class Application(Toplevel,Sender):
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="Time:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		h,m = divmod(t, 60)	# t in min
 		s = (m-int(m))*60
@@ -837,12 +845,12 @@ class Application(Toplevel,Sender):
 
 
 		# ===========
-		frame = LabelFrame(toplevel, text="All GCode", foreground="DarkRed")
+		frame = LabelFrame(toplevel, text=_("All GCode"), foreground="DarkRed")
 		frame.pack(fill=BOTH)
 
 		# ---
 		row, col = 0,0
-		Label(frame, text="Margins X:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["axmin"], CNC.vars["axmax"],
@@ -875,14 +883,14 @@ class Application(Toplevel,Sender):
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="# Blocks:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text=str(len(self.gcode.blocks)),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="Length:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g %s" % (self.cnc.totalLength, unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
@@ -890,7 +898,7 @@ class Application(Toplevel,Sender):
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="Time:").grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		h,m = divmod(self.cnc.totalTime, 60)	# t in min
 		s = (m-int(m))*60
@@ -904,7 +912,7 @@ class Application(Toplevel,Sender):
 		frame.pack(fill=X)
 
 		closeFunc = lambda e=None,t=toplevel: t.destroy()
-		b = Button(frame, text="Close", command=closeFunc)
+		b = Button(frame, text=_("Close"), command=closeFunc)
 		b.pack(pady=5)
 		frame.grid_columnconfigure(1, weight=1)
 
@@ -1053,7 +1061,7 @@ class Application(Toplevel,Sender):
 		try:
 			line = self.evaluate(line)
 		except:
-			tkMessageBox.showerror("Evaluation error",
+			tkMessageBox.showerror(_("Evaluation error"),
 				sys.exc_info()[1], parent=self)
 			return "break"
 		#print ">>>",line
@@ -1172,7 +1180,7 @@ class Application(Toplevel,Sender):
 #			except: pass
 #			try: self.feed = float(line[3])
 #			except: pass
-#			self.setStatus("Height: %g  Depth-per-pass: %g  Feed: %g"%(self.height,self.depth_pass, self.feed))
+#			self.setStatus(_("Height: %g  Depth-per-pass: %g  Feed: %g")%(self.height,self.depth_pass, self.feed))
 
 		# MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
 		elif rexx.abbrev("MIRROR",cmd,3):
@@ -1395,7 +1403,7 @@ class Application(Toplevel,Sender):
 			except:
 				tool = self.tools["EndMill"]
 				diam = self.tools.fromMm(tool["diameter"])
-			self.setStatus("EndMill: %s %g"%(tool["name"], diam))
+			self.setStatus(_("EndMill: %s %g")%(tool["name"], diam))
 
 		# TOOLS
 		elif cmd=="TOOLS":
@@ -1420,7 +1428,7 @@ class Application(Toplevel,Sender):
 				except:
 					return "break"
 			if idx<0 or idx>=n:
-				self.setStatus("Invalid user command %s"%(line[1]))
+				self.setStatus(_("Invalid user command %s")%(line[1]))
 				return "break"
 			cmd = Utils.getStr("Buttons","command.%d"%(idx),"")
 			for line in cmd.splitlines():
@@ -1497,7 +1505,7 @@ class Application(Toplevel,Sender):
 		self.editor.fill()
 		if sel is not None:
 			if isinstance(sel, str):
-				tkMessageBox.showerror("Operation error", sel, parent=self)
+				tkMessageBox.showerror(_("Operation error"), sel, parent=self)
 			else:
 				self.editor.select(sel,clear=True)
 		self.drawAfter()
@@ -1538,7 +1546,7 @@ class Application(Toplevel,Sender):
 		self.editor.selectBlocks(blocks)
 		self.draw()
 		self.notBusy()
-		self.setStatus("Profile block distance=%g"%(ofs*sign))
+		self.setStatus(_("Profile block distance=%g")%(ofs*sign))
 
 	#-----------------------------------------------------------------------
 	def pocket(self, name=None):
@@ -1551,14 +1559,14 @@ class Application(Toplevel,Sender):
 		# on return we have the blocks with the new blocks to select
 		msg = self.gcode.pocket(blocks, diameter, stepover, name)
 		if msg:
-			tkMessageBox.showwarning("Open paths",
-					"WARNING: %s"%(msg),
+			tkMessageBox.showwarning(_("Open paths"),
+					_("WARNING: %s")%(msg),
 					parent=self)
 		self.editor.fill()
 		self.editor.selectBlocks(blocks)
 		self.draw()
 		self.notBusy()
-#		self.setStatus("Pocket block distance=%g"%(ofs*sign))
+#		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
 
 	#-----------------------------------------------------------------------
 	def tabAdded(self, event=None):
@@ -1628,7 +1636,7 @@ class Application(Toplevel,Sender):
 	def loadDialog(self, event=None):
 		if self.running: return
 		filename = bFileDialog.askopenfilename(master=self,
-			title="Open file",
+			title=_("Open file"),
 			initialfile=os.path.join(
 					Utils.getUtf("File", "dir"),
 					Utils.getUtf("File", "file")),
@@ -1641,7 +1649,7 @@ class Application(Toplevel,Sender):
 	def saveDialog(self, event=None):
 		if self.running: return
 		filename = bFileDialog.asksaveasfilename(master=self,
-			title="Save file",
+			title=_("Save file"),
 			initialfile=os.path.join(self.gcode.filename),
 			filetypes=FILETYPES)
 		if filename: self.save(filename)
@@ -1654,13 +1662,13 @@ class Application(Toplevel,Sender):
 		if ext==".probe":
 			pass
 		elif self.gcode.isModified():
-			ans = tkMessageBox.askquestion("File modified",
-				"Gcode was modified do you want to save it first?",
+			ans = tkMessageBox.askquestion(_("File modified"),
+				_("Gcode was modified do you want to save it first?"),
 				parent=self)
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveAll()
 
-		self.setStatus("Loading: %s ..."%(filename), True)
+		self.setStatus(_("Loading: %s ...")%(filename), True)
 		Sender.load(self,filename)
 
 		if ext==".probe":
@@ -1674,13 +1682,13 @@ class Application(Toplevel,Sender):
 			self.tools.loadGcode()
 			Page.frames["Tools"].populate()
 
-		self.setStatus("'%s' loaded"%(filename))
+		self.setStatus(_("'%s' loaded")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus("'%s' saved"%(filename))
+		self.setStatus(_("'%s' saved")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
@@ -1699,11 +1707,11 @@ class Application(Toplevel,Sender):
 	def importFile(self, filename=None):
 		if filename is None:
 			filename = bFileDialog.askopenfilename(master=self,
-				title="Import Gcode/DXF file",
+				title=_("Import Gcode/DXF file"),
 				initialfile=os.path.join(
 						Utils.getUtf("File", "dir"),
 						Utils.getUtf("File", "file")),
-				filetypes=[("G-Code",("*.ngc","*.nc", "*.gcode")),
+				filetypes=[(_("G-Code"),("*.ngc","*.nc", "*.gcode")),
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
 		if filename:
@@ -1728,9 +1736,9 @@ class Application(Toplevel,Sender):
 		self._inFocus = True
 		if self.gcode.checkFile():
 			if self.gcode.isModified():
-				ans = tkMessageBox.askquestion("Warning",
-					"Gcode file %s was changed since editing started\n" \
-					"Reload new version?"%(self.gcode.filename),
+				ans = tkMessageBox.askquestion(_("Warning"),
+					_("Gcode file %s was changed since editing started\n" \
+					  "Reload new version?")%(self.gcode.filename),
 					parent=self)
 				if ans==tkMessageBox.YES or ans==True:
 					self.gcode.resetModified()
@@ -1744,7 +1752,7 @@ class Application(Toplevel,Sender):
 		serialPage = Page.frames["Serial"]
 		if self.serial is not None:
 			self.close()
-			serialPage.connectBtn.config(text="Open",
+			serialPage.connectBtn.config(text=_("Open"),
 						background="LightGreen",
 						activebackground="LightGreen")
 		else:
@@ -1752,7 +1760,7 @@ class Application(Toplevel,Sender):
 			device   = _device or serialPage.portCombo.get()
 			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
-				serialPage.connectBtn.config(text="Close",
+				serialPage.connectBtn.config(text=_("Close"),
 							background="Salmon",
 							activebackground="Salmon")
 				self.enable()
@@ -1764,7 +1772,7 @@ class Application(Toplevel,Sender):
 		except:
 			self.serial = None
 			self.thread = None
-			tkMessageBox.showerror("Error opening serial",
+			tkMessageBox.showerror(_("Error opening serial"),
 					sys.exc_info()[1],
 					parent=self)
 		return False
@@ -1793,42 +1801,42 @@ class Application(Toplevel,Sender):
 		Sender.runEnded(self)
 		self.statusbar.clear()
 		self.statusbar.config(background="LightGray")
-		self.setStatus("Run ended")
+		self.setStatus(_("Run ended"))
 
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
 	def run(self, lines=None):
 		if self.serial is None:
-			tkMessageBox.showerror("Serial Error",
-				"Serial is not connected",
+			tkMessageBox.showerror(_("Serial Error"),
+				_("Serial is not connected"),
 				parent=self)
 			return
 		if self.running:
 			if self._pause:
 				self.resume()
 				return
-			tkMessageBox.showerror("Already running",
-				"Please stop before",
+			tkMessageBox.showerror(_("Already running"),
+				_("Please stop before"),
 				parent=self)
 			return
 
-		self.setStatus("Preparing to run ...", True)
+		self.setStatus(_("Preparing to run ..."), True)
 		self.editor.selectClear()
 		self.selectionChange()
 		CNC.vars["errline"] = ""
 
 		if lines is None:
 			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
-				tkMessageBox.showerror("Probe is not zeroed",
-					"Please ZERO any location of the probe before starting a run",
+				tkMessageBox.showerror(_("Probe is not zeroed"),
+					_("Please ZERO any location of the probe before starting a run"),
 					parent=self)
 				return
 
 			lines,paths = self.gcode.compile()
 			if not lines:
-				tkMessageBox.showerror("Empty gcode",
-					"Not gcode file was loaded",
+				tkMessageBox.showerror(_("Empty gcode"),
+					_("Not gcode file was loaded"),
 					parent=self)
 				return
 
@@ -1853,7 +1861,7 @@ class Application(Toplevel,Sender):
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
 
-		self.setStatus("Running...")
+		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)
 		self.statusbar.configText(fill="White")
 		self.statusbar.config(background="DarkGray")
@@ -1873,12 +1881,14 @@ class Application(Toplevel,Sender):
 		if showInfo:
 			hostName="http://%s:%d"%(socket.gethostname(),Pendant.port)
 			if started:
-				tkMessageBox.showinfo("Pendant",
-					"Pendant started:\n"+hostName,
+				tkMessageBox.showinfo(_("Pendant"),
+					_("Pendant started:\n")+hostName,
 					parent=self)
 			else:
-				dr=tkMessageBox.askquestion("Pendant",
-					"Pendant already started:\n"+hostName+"\nWould you like open it locally?",
+				dr=tkMessageBox.askquestion(_("Pendant"),
+					_("Pendant already started:\n") \
+					+ hostName + \
+					_("\nWould you like open it locally?"),
 					parent=self)
 				if dr=="yes":
 					webbrowser.open(hostName,new=2)
@@ -1888,7 +1898,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def stopPendant(self):
 		if Pendant.stop():
-			tkMessageBox.showinfo("Pendant","Pendant stopped", parent=self)
+			tkMessageBox.showinfo(_("Pendant"),_("Pendant stopped"), parent=self)
 
 	#-----------------------------------------------------------------------
 	# Inner loop to catch any generic exception
@@ -2126,10 +2136,10 @@ if __name__ == "__main__":
 		application.load(fn)
 
 	if serial is None:
-		tkMessageBox.showerror("python serial missing",
-			"ERROR: Please install the python pyserial module\n" \
-			"Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
-			"Linux: sudo apt-get or yum install python-serial")
+		tkMessageBox.showerror(_("python serial missing"),
+			_("ERROR: Please install the python pyserial module\n" \
+			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
+			  "Linux: sudo apt-get or yum install python-serial"))
 
 	try:
 		tk.mainloop()
