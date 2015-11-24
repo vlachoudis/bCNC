@@ -2030,7 +2030,7 @@ def usage(rc):
 	sys.stdout.write("\t-g #\t\tSet the default geometry\n")
 	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
 	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
-	sys.stdout.write("\t-l | --list\t\tList all recently files\n")
+	sys.stdout.write("\t-l | --list\t\tList all recently opened files\n")
 	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
 	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
 	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
