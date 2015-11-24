@@ -118,11 +118,11 @@ COLORS = {
 		"vxl":  "DarkRed",
 		"dcm":  "DarkRed",
 
-		"ngc":  "Orange",
-		"nc" :  "Orange",
+		"ngc":  "Brown",
+		"nc" :  "Brown",
 
-		"probe": "Brown",
-		"stl"  : "Brown",
+		"probe": "DarkOrange",
+		"stl"  : "DarkOrange",
 
 		_LINK_TYPE:	"DarkCyan",
 		_BACKUP_TYPE:	"DarkGray",
