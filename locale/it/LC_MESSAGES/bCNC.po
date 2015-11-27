@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-11-23 17:39+0100\n"
-"PO-Revision-Date: 2015-11-27 17:18+0100\n"
+"PO-Revision-Date: 2015-11-27 19:53+0100\n"
 "Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -22,15 +22,15 @@ msgstr "Esci"
 
 #: Sender.py:57
 msgid "bCNC is currently sending a gcode program to Grbl"
-msgstr ""
+msgstr "bCNC sta inviando del codice a Grbl"
 
 #: Sender.py:58
 msgid "Grbl is in idle state and waiting for user commands"
-msgstr ""
+msgstr "Grbl è inattivo in attesa di comandi utente"
 
 #: Sender.py:59
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr ""
+msgstr "Grbl è in sospensione. Premi (Pausa) per continuare."
 
 #: Sender.py:60
 msgid ""
@@ -44,10 +44,21 @@ msgid ""
 "user to override the alarm manually. This is to ensure the user knows and "
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
+"ALLARME: Grbl segnala un'EMERGENZA. Quando questo accade qualcosa di grave è "
+"successo. Solitamente questo è causato da un problema di superamento "
+"meccanico o elettronico dei limiti. Oppureperché Grbl ha perso i suoi "
+"riferimenti a causa di un sondaggio o di un posizionamento fallito. Una "
+"volta entrato nella modalità allarme, Grbl blocca e spegne tutto fino a "
+"quando l'utente comanda un RESET. Anche dopo un RESET, Grbl rimane in "
+"modalità ALLARME, blocca l'esecuzione di tutti i GCode, ma permette "
+"all'utente di superare l'allarme manualmente. Questo assicura che l'utente "
+"identifichi il problema e vi ponga rimedio.   "
 
 #: Sender.py:61
 msgid "Grbl is not connected. Please specify the correct port and click Open."
 msgstr ""
+"Grbl non è connesso. Specificare la porta di comunicazione corretta e "
+"premere Apri."
 
 #: Sender.py:62
 msgid "Connection is established with Grbl"
@@ -58,6 +69,8 @@ msgid ""
 "All is good! Everything in the last line was understood by Grbl and was "
 "successfully processed and executed."
 msgstr ""
+"Tutto OK! L'ultima linea è stata riconosciuta, elaborata ed eseguita in modo "
+"corretto."
 
 #: Sender.py:65
 msgid ""
@@ -65,6 +78,9 @@ msgid ""
 "a number value. This error occurs when the letter prefix of a G-code word is "
 "missing in the G-code block (aka line)."
 msgstr ""
+"Errore GCode: prefisso  mancante nel blocco  (riga) di GCode.Il GCode è "
+"composto da una \"parola\" composta da una lettera seguita da un valore "
+"numerico."
 
 #: Sender.py:66
 msgid ""
@@ -72,32 +88,42 @@ msgid ""
 "when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
 "value."
 msgstr ""
+"Errore GCode: valore mancante. Il valore numerico è mancante nel blocco "
+"(riga) di GCode, oppure nella configurazione di $Nx=riga oppure nelle "
+"impostazioni di Grbl  $x=val e x non è un numero. "
 
 #: Sender.py:67
 msgid "The issued Grbl $ system command is not recognized or is invalid."
 msgstr ""
+"Il comando di sistema $xx non è riconosciuto da Grbl oppure non è valido."
 
 #: Sender.py:68
 msgid ""
 "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
 "tool number, or S spindle speed is negative."
 msgstr ""
+"Il valore di $x=val, F avanzamento, N numero di riga, P comando, T numero "
+"Utensile oppure S velocità mandrino è negativo. "
 
 #: Sender.py:69
 msgid "Homing is disabled when issuing a $H command."
-msgstr ""
+msgstr "l'Homing è disabilitato qundo si invoca un comando $H."
 
 #: Sender.py:70
 msgid ""
 "Step pulse time length cannot be less than 3 microseconds (for technical "
 "reasons)."
 msgstr ""
+"La lunghezza temporale dell'impulso di step non può essere inferiore a 3ms "
+"(per ragioni tecniche)."
 
 #: Sender.py:71
 msgid ""
 "If Grbl can't read data contained in the EEPROM, this error is returned. "
 "Grbl will also clear and restore the effected data back to defaults."
 msgstr ""
+"Errore EEPROM. Grbl non può leggere i dati contenuti nella EEPROM, Grbl "
+"pulisce e riporta ai valori per difetto i dati interessati."
 
 #: Sender.py:72
 msgid ""
