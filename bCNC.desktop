@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Name=bCNC
-Comment=
+Comment=bCNC Controller
 Exec=bCNC
 Icon=bCNC.png
 Path=

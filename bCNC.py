@@ -1868,7 +1868,7 @@ class Application(Toplevel,Sender):
 
 		for line in lines:
 			if line is not None:
-				if isinstance(line,str):
+				if isinstance(line,str) or isinstance(line,unicode):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
