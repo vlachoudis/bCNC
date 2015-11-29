@@ -919,6 +919,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def set(self):
 		self.policyChange()
+		self.waitChange()
 		try:
 			CNC.vars["toolchangex"]  = float(self.changeX.get())
 			CNC.vars["toolchangey"]  = float(self.changeY.get())
