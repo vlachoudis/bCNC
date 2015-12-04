@@ -39,7 +39,7 @@ class Tool(Plugin):
 		self.variables = [("name",      "db" ,    "", "Name"),
 			("Text"  ,    "text" ,    "Write this!", "Text to generate"),
 			("Depth"  ,   "mm" ,       0.0, "Working Depth"),
-			("FontSize"  ,   "mm" ,   100.0, "Font size"),
+			("FontSize"  ,   "mm" ,   10.0, "Font size"),
 			("FontFile"  ,   "file" ,       "", "Font file"),]
 		self.buttons.append("exe")
 
@@ -52,7 +52,7 @@ class Tool(Plugin):
 		textToWrite = self["Text"]
 		fontFileName = self["FontFile"]
 
-		#Check parameters!!!
+		#TODO: Check parameters!!!
 
 		#Init blocks
 		blocks = []
@@ -71,31 +71,25 @@ class Tool(Plugin):
 		adv = font.get_glyph_advances()
 
 		glyphIndxLast = cmap[' ']
-		#for i,c in enumerate(textToWrite):
-		i=0
-		while i<len(textToWrite):
-			c=textToWrite[i]
-			glyphIndx = cmap[c]
-
-			if ((glyphIndx,glyphIndxLast) in kern):
-				k = kern[(glyphIndx,glyphIndxLast)]
-
+		for c in textToWrite:
 			#New line
-			if c == '\\' and i+1<len(textToWrite) and textToWrite[i + 1] == 'n':
+			if c == u'\n':
 				xOffset = 0.0
 				yOffset -= 1#
-				i+=2
 				continue
+
+			glyphIndx = cmap[c]
+			if ((glyphIndx,glyphIndxLast) in kern):
+				k = kern[(glyphIndx,glyphIndxLast)]
 
 			#Get glyph contours as line segmentes and draw them
 			gc = font.get_glyph_contours(glyphIndx)
 			if(not gc):
 				gc = font.get_glyph_contours(0)#standard glyph for missing glyphs (complex glyph)
 			if(gc and not c==' '): #for some reason space is not mapped correctly!!!
-				self.writeGlyphContour(block, font, gc, fontSize, xOffset, yOffset)
+				self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
 			xOffset += adv[glyphIndx]
 			glyphIndxLast = glyphIndx
-			i+=1
 
 		#Remeber to close Font
 		font.close()
@@ -111,7 +105,7 @@ class Tool(Plugin):
 
 
 	#Write GCode from glyph conrtours
-	def writeGlyphContour(self,block,font,contours,fontSize,xO, yO):
+	def writeGlyphContour(self,block,font,contours,fontSize,depth,xO, yO):
 		width = font.header.x_max - font.header.x_min
 		height = font.header.y_max - font.header.y_min
 		scale = fontSize / font.header.units_per_em
@@ -120,8 +114,9 @@ class Tool(Plugin):
 		for cont in contours:
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xO + cont[0].x * scale , yO + cont[0].y * scale))
-			block.append(CNC.zenter(0))
-
+			block.append(CNC.zenter(depth))
+			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
+			
 			for p in cont:
 				block.append(CNC.gline(xO + p.x * scale, yO + p.y * scale))
 
