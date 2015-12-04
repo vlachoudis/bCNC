@@ -166,6 +166,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Key-r>',		self.setActionRuler)
 		self.bind('<Key-s>',		self.setActionSelect)
 		self.bind('<Key-t>',		self.setActionAddTab)
+		self.bind('<Key-x>',		self.setActionPan)
 
 		self.bind('<Control-Key-equal>',self.menuZoomIn)
 		self.bind('<Control-Key-minus>',self.menuZoomOut)
@@ -253,6 +254,11 @@ class CNCCanvas(Canvas):
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
 		self.event_generate("<<Status>>",data="Select objects with mouse")
+
+	# ----------------------------------------------------------------------
+	def setActionPan(self, event=None):
+		self.setAction(ACTION_PAN)
+		self.event_generate("<<Status>>",data="Pan viewport")
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
@@ -375,6 +381,9 @@ class CNCCanvas(Canvas):
 			self.app.insertCommand("origin %g %g %g"%(x,y,z),True)
 			self.setActionSelect()
 
+		elif self.action == ACTION_PAN:
+			self.pan(event)
+
 		# Add tab
 		elif self.action == ACTION_ADDTAB:
 			i = self.canvasx(event.x)
@@ -435,6 +444,9 @@ class CNCCanvas(Canvas):
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
 					math.degrees(math.atan2(dy,dx))))
 
+		elif self._mouseAction == ACTION_PAN:
+			self.pan(event)
+
 		# Resize tab
 		elif self._mouseAction == ACTION_ADDTAB:
 			i = self.canvasx(event.x)
@@ -471,10 +483,8 @@ class CNCCanvas(Canvas):
 							self.canvasy(self._y),
 							self.canvasx(event.x),
 							self.canvasy(event.y))
-
 				self.delete(self._select)
 				self._select = None
-
 				items = []
 				for i in closest:
 					try: items.append(self._items[i])
@@ -509,6 +519,9 @@ class CNCCanvas(Canvas):
 			dz=self._vz1-self._vz0
 			self.event_generate("<<Status>>", data="Move by %g, %g, %g"%(dx,dy,dz))
 			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
+
+		elif self._mouseAction == ACTION_PAN:
+			self.panRelease(event)
 
 		# Finalize tab
 		elif self._mouseAction == ACTION_ADDTAB:
@@ -1409,7 +1422,6 @@ class CanvasFrame(Frame):
 		tkExtra.Balloon.set(b, "Fit to screen [F]")
 		b.pack(side=LEFT)
 
-
 		Label(toolbar, text="Tool:",
 				image=Utils.icons["sep"],
 				compound=LEFT).pack(side=LEFT, padx=2)
@@ -1422,6 +1434,15 @@ class CanvasFrame(Frame):
 					value=ACTION_SELECT,
 					command=self.canvas.setActionSelect)
 		tkExtra.Balloon.set(b, "Select tool [S]")
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["pan"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_PAN,
+					command=self.canvas.setActionPan)
+		tkExtra.Balloon.set(b, "Pan viewport [X]")
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
