@@ -52,7 +52,16 @@ class Tool(Plugin):
 		textToWrite = self["Text"]
 		fontFileName = self["FontFile"]
 
-		#TODO: Check parameters!!!
+		#Check parameters!!!
+		if fontSize <=0:
+			app.setStatus(_("Text abort: please input a Font size > 0"))
+			return
+		if fontFileName == "":
+			app.setStatus(_("Text abort: please select a font file"))
+			return
+		if textToWrite == "":
+			textToWrite = "Nel mezzo del cammin di nostra vita..."
+			return
 
 		#Init blocks
 		blocks = []
@@ -64,8 +73,12 @@ class Tool(Plugin):
 		xOffset = 0
 		yOffset = 0
 
-		import ttf
-		font = ttf.TruetypeInfo(fontFileName)
+		try:
+			import ttf
+			font = ttf.TruetypeInfo(fontFileName)
+		except:
+			app.setStatus(_("Text abort: That embarrassing, I can't read this font file!"))
+			return
 		cmap = font.get_character_map()
 		kern = font.get_glyph_kernings()
 		adv = font.get_glyph_advances()
@@ -75,7 +88,7 @@ class Tool(Plugin):
 			#New line
 			if c == u'\n':
 				xOffset = 0.0
-				yOffset -= 1#
+				yOffset -= 1#offset for new line
 				continue
 
 			glyphIndx = cmap[c]
@@ -86,7 +99,7 @@ class Tool(Plugin):
 			gc = font.get_glyph_contours(glyphIndx)
 			if(not gc):
 				gc = font.get_glyph_contours(0)#standard glyph for missing glyphs (complex glyph)
-			if(gc and not c==' '): #for some reason space is not mapped correctly!!!
+			if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
 				self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
 			xOffset += adv[glyphIndx]
 			glyphIndxLast = glyphIndx
