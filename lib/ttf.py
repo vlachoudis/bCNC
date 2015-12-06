@@ -31,7 +31,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
-# $Id: ttf.py 1484 2007-12-06 22:51:23Z Alex.Holkner $
 
 """
 Implementation of the Truetype file format.
@@ -39,6 +38,19 @@ Implementation of the Truetype file format.
 References:
  * http://developer.apple.com/fonts/TTRefMan/RM06
  * http://www.microsoft.com/typography/otspec
+"""
+# ----------------------------------------------------------------------------
+
+"""
+ Based on Alex Holkner work I've ported from here
+ *http://stevehanov.ca/blog/index.php?id=143
+ the JavaScript code to extract also Glyph data as vector.
+
+ To extract contours out of ttf structure data, here are some other useful reference:
+  *http://chanae.walon.org/pub/ttf/ttf_glyphs.htm
+  *http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html#section-1
+
+  Filippo Rivato f.rivato@gmail.com
 """
 
 import codecs
@@ -53,9 +65,7 @@ class TruetypeInfo:
 	it is vital that you call the `close` method to avoid large memory
 	leaks.  Once closed, you cannot call any of the ``get_*`` methods.
 
-	Not all tables have been implemented yet (or likely ever will).
 
-	Glyp ported from http://stevehanov.ca/blog/index.php?id=143
 	"""
 
 	_name_id_lookup = {
@@ -477,17 +487,12 @@ class TruetypeInfo:
 
 		#add contours end
 		for i in range(0,glyph_size.numContours):
-			fmt = ">H" #uint16
-			size = struct.calcsize(fmt)
-			ce = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
+			ce,g_offset = self._get_data(">H", g_offset)#uint16
 			glyph.contoursEnd.append(ce)
-			g_offset += size
 
 		#skip over intructions
-		fmt = ">H" #uint16
-		size = struct.calcsize(fmt)
-		seek = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-		g_offset += size + seek
+		seek,g_offset = self._get_data(">H", g_offset)#uint16
+		g_offset += seek
 
 		if (glyph_size.numContours == 0): return
 
@@ -496,20 +501,14 @@ class TruetypeInfo:
 
 		i = 0
 		while (i < numPoints):
-			fmt = ">B" #uint8
-			size = struct.calcsize(fmt)
-			flag = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-			g_offset += size
+			flag, g_offset = self._get_data(">B", g_offset)#uint8
 			flags.append(flag)
 			gp = GlyphPoint()
 			gp.ON_CURVE = (flag & ON_CURVE) > 0
 			glyph.points.append(gp)
 
 			if (flag & REPEAT) :
-				fmt = ">B" #uint8
-				size = struct.calcsize(fmt)
-				repeat_count = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-				g_offset += size
+				repeat_count,g_offset = self._get_data(">B", g_offset)#uint8
 				i += repeat_count
 				while (repeat_count > 0):
 					flags.append(flag)
@@ -524,19 +523,13 @@ class TruetypeInfo:
 		xValue = 0
 		for i,f in enumerate(flags):
 			if (f & X_IS_BYTE > 0):
-				fmt = ">B" #uint8
-				size = struct.calcsize(fmt)
-				vx = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-				g_offset += size
+				vx,g_offset = self._get_data(">B", g_offset)#uint8
 				if (f & X_DELTA) > 0:
 					xValue += vx
 				else:
 					xValue -= vx
 			elif (-(f + 1) & X_DELTA) > 0: #??????????  else if ( ~flag & deltaFlag ) -(N+1)
-				fmt = ">h" #int16
-				size = struct.calcsize(fmt)
-				vx = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-				g_offset += size
+				vx,g_offset = self._get_data(">h", g_offset)#int16
 				xValue += vx
 			else:
 				pass #value unchage
@@ -547,19 +540,13 @@ class TruetypeInfo:
 		yValue = 0
 		for i,f in enumerate(flags):
 			if (f & Y_IS_BYTE > 0):
-				fmt = ">B" #uint8
-				size = struct.calcsize(fmt)
-				vy = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-				g_offset += size
+				vy,g_offset = self._get_data(">B", g_offset)#uint8
 				if (f & Y_DELTA) > 0:
 					yValue += vy
 				else:
 					yValue -= vy
 			elif (-(f + 1) & Y_DELTA) > 0: #??????????  else if ( ~flag & deltaFlag )
-				fmt = ">h" #int16
-				size = struct.calcsize(fmt)
-				vy = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
-				g_offset += size
+				vy,g_offset = self._get_data(">h", g_offset)#int16
 				yValue += vy
 			else:
 				pass #value unchage
@@ -567,8 +554,14 @@ class TruetypeInfo:
 			glyph.points[i].y = yValue
 		return glyph
 
+	def _get_data(self, fmt, g_offset):
+		size = struct.calcsize(fmt)
+		data = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
+		g_offset += size
+		return data,g_offset
+
 	def _read_compound_glyp(self,glyph_size,g_offset):
-		#TODO:implements this functions for complex glyph
+		#FIXME:implements extraction of data for complex glyph
 		pass
 
 	def get_glyph_vector(self,index):
