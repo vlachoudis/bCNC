@@ -187,9 +187,9 @@ class Tool(Plugin):
 			block.append(CNC.grapid(0,0))
 			block.append(CNC.zenter(depth))
 			block.append(CNC.gcode(1, [("f",feedMin)]))
-			block.append(CNC.gline(newWidth * toolSize,0))
-			block.append(CNC.gline(newWidth * toolSize,newHeight* toolSize))
-			block.append(CNC.gline(0,newHeight* toolSize,))
+			block.append(CNC.gline(newWidth * toolSize - toolSize,0))
+			block.append(CNC.gline(newWidth * toolSize - toolSize ,newHeight* toolSize))
+			block.append(CNC.gline(0,newHeight* toolSize ))
 			block.append(CNC.gline(0,0))
 
 		#Gcode Zsafe
@@ -199,4 +199,5 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Pyrograph")
 		app.refresh()
-		app.setStatus(_("Generated Pyrograph"))
+		app.setStatus(_("Generated Pyrograph W=%g x H=%g x D=%g" %
+		(newWidth * toolSize , newHeight * toolSize , depth)))
