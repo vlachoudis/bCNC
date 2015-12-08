@@ -80,7 +80,12 @@ class Tool(Plugin):
 			app.setStatus(_("Text abort: That embarrassing, I can't read this font file!"))
 			return
 		cmap = font.get_character_map()
-		kern = font.get_glyph_kernings()
+
+		kern = None
+		try:
+			kern = font.get_glyph_kernings()
+		except:
+			pass
 		adv = font.get_glyph_advances()
 
 		glyphIndxLast = cmap[' ']
@@ -91,18 +96,21 @@ class Tool(Plugin):
 				yOffset -= 1#offset for new line
 				continue
 
-			glyphIndx = cmap[c]
-			if ((glyphIndx,glyphIndxLast) in kern):
-				k = kern[(glyphIndx,glyphIndxLast)]
+			if c in cmap:
+				glyphIndx = cmap[c]
 
-			#Get glyph contours as line segmentes and draw them
-			gc = font.get_glyph_contours(glyphIndx)
-			if(not gc):
-				gc = font.get_glyph_contours(0)#standard glyph for missing glyphs (complex glyph)
-			if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
-				self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
-			xOffset += adv[glyphIndx]
-			glyphIndxLast = glyphIndx
+				if (kern and (glyphIndx,glyphIndxLast) in kern):
+					k = kern[(glyphIndx,glyphIndxLast)] #FIXME: use kern for offset??
+
+				#Get glyph contours as line segmentes and draw them
+				gc = font.get_glyph_contours(glyphIndx)
+				if(not gc):
+					gc = font.get_glyph_contours(0)#standard glyph for missing glyphs (complex glyph)
+				if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
+					self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
+
+				xOffset += adv[glyphIndx]
+				glyphIndxLast = glyphIndx
 
 		#Remeber to close Font
 		font.close()
