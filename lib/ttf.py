@@ -31,27 +31,26 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
-
-"""
-Implementation of the Truetype file format.
-
-References:
- * http://developer.apple.com/fonts/TTRefMan/RM06
- * http://www.microsoft.com/typography/otspec
-"""
+#
+#Implementation of the Truetype file format.
+#
+#References:
+# * http://developer.apple.com/fonts/TTRefMan/RM06
+# * http://www.microsoft.com/typography/otspec
+#
+# ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 
-"""
- Based on Alex Holkner work I've ported from here
- *http://stevehanov.ca/blog/index.php?id=143
- the JavaScript code to extract also Glyph data as vector.
-
- To extract contours out of ttf structure data, here are some other useful reference:
-  *http://chanae.walon.org/pub/ttf/ttf_glyphs.htm
-  *http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html#section-1
-
-  Filippo Rivato f.rivato@gmail.com
-"""
+#
+# Deriver from Alex Holkner work for pyglet 
+# Glyph data ported from
+# * http://stevehanov.ca/blog/index.php?id=143
+# the JavaScript code to extract also Glyph data as vector.
+# To extract contours out of ttf structure data, here are some other useful links:
+#  * http://chanae.walon.org/pub/ttf/ttf_glyphs.htm
+#  * http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html#section-1
+#
+#   Filippo Rivato f.rivato@gmail.com
 
 import codecs
 import os
@@ -64,8 +63,6 @@ class TruetypeInfo:
 	The class memory-maps the font file to read the tables, so
 	it is vital that you call the `close` method to avoid large memory
 	leaks.  Once closed, you cannot call any of the ``get_*`` methods.
-
-
 	"""
 
 	_name_id_lookup = {
