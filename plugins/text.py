@@ -40,7 +40,9 @@ class Tool(Plugin):
 			("Text"  ,    "text" ,    "Write this!", "Text to generate"),
 			("Depth"  ,   "mm" ,       0.0, "Working Depth"),
 			("FontSize"  ,   "mm" ,   10.0, "Font size"),
-			("FontFile"  ,   "file" ,       "", "Font file"),]
+			("FontFile"  ,   "file" ,       "", "Font file"),
+			("ImageToAscii"  ,   "file" ,       "", "Image to ascii"),
+			("CharsWidth"  ,   "int" ,    80, "Chars width"),]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
@@ -51,6 +53,8 @@ class Tool(Plugin):
 		depth = self["Depth"]
 		textToWrite = self["Text"]
 		fontFileName = self["FontFile"]
+		imageFileName = self["ImageToAscii"]
+		charsWidth = self["CharsWidth"]
 
 		#Check parameters!!!
 		if fontSize <=0:
@@ -59,9 +63,15 @@ class Tool(Plugin):
 		if fontFileName == "":
 			app.setStatus(_("Text abort: please select a font file"))
 			return
+		if imageFileName != "":
+			try:
+				textToWrite = self.asciiArt(imageFileName,charsWidth)
+			except:
+				pass
 		if textToWrite == "":
 			textToWrite = "Nel mezzo del cammin di nostra vita..."
 			return
+
 
 		#Init blocks
 		blocks = []
@@ -69,9 +79,6 @@ class Tool(Plugin):
 		if not n or n == "default": n = "Text"
 		block = Block(n)
 		block.append("(Text: %s)" % textToWrite)
-
-		xOffset = 0
-		yOffset = 0
 
 		try:
 			import ttf
@@ -88,6 +95,8 @@ class Tool(Plugin):
 			pass
 		adv = font.get_glyph_advances()
 
+		xOffset = 0
+		yOffset = 0
 		glyphIndxLast = cmap[' ']
 		for c in textToWrite:
 			#New line
@@ -142,5 +151,30 @@ class Tool(Plugin):
 				block.append(CNC.gline(xO + p.x * scale, yO + p.y * scale))
 
 
+	def image_to_ascii(self,image):
+		ascii_chars = [ '#', 'A', '@', '%', 'S', '+', '<', '*', ':', ',', '.']
+		image_as_ascii = []
+		all_pixels = list(image.getdata())
+		for pixel_value in all_pixels:
+			index = pixel_value / 25 # 0 - 10
+			image_as_ascii.append(ascii_chars[index])
+		return image_as_ascii
 
+	def asciiArt(self,filePath,new_width = 80):
+		from PIL import Image
+		img = Image.open(filePath)
+		width, heigth = img.size
+		new_heigth = int((heigth * new_width) / width)
+		new_image = img.resize((new_width, new_heigth))
+		new_image = new_image.convert("L") # convert to grayscale
+
+		# now that we have a grayscale image with some fixed width we have to convert every pixel
+		# to the appropriate ascii character from "ascii_chars"
+		img_as_ascii = self.image_to_ascii(new_image)
+		img_as_ascii = ''.join(ch for ch in img_as_ascii)
+		output = ""
+		for c in range(0, len(img_as_ascii), new_width):
+			#print img_as_ascii[c:c+new_width]
+			output += img_as_ascii[c:c+new_width] + u'\n'
+		return output
 
