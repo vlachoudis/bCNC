@@ -118,7 +118,10 @@ class Tool(Plugin):
 				if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
 					self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
 
-				xOffset += adv[glyphIndx]
+				if glyphIndx < len(adv):
+					xOffset += adv[glyphIndx]
+				else:
+					xOffset += 1
 				glyphIndxLast = glyphIndx
 
 		#Remeber to close Font
