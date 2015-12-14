@@ -621,7 +621,7 @@ class TruetypeInfo:
 					while (t <= 1):
 						newP = self.approx_quadratic_bez(newCont[i],newCont[i + 1],newCont[i + 2],t)
 						lp.append(newP)
-						t += 0.100
+						t += 0.250
 					for p in lp:
 						normContLine.append(GlyphPoint(p.x,p.y))
 					i+=2

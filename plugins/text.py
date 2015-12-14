@@ -41,8 +41,8 @@ class Tool(Plugin):
 			("Depth"  ,   "mm" ,       0.0, "Working Depth"),
 			("FontSize"  ,   "mm" ,   10.0, "Font size"),
 			("FontFile"  ,   "file" ,       "", "Font file"),
-			("ImageToAscii"  ,   "file" ,       "", "Image to ascii"),
-			("CharsWidth"  ,   "int" ,    80, "Chars width"),]
+			("ImageToAscii"  ,   "file" ,       "", "Image to Ascii"),
+			("CharsWidth"  ,   "int" ,    80, "Image chars width"),]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
@@ -78,7 +78,12 @@ class Tool(Plugin):
 		n = self["name"]
 		if not n or n == "default": n = "Text"
 		block = Block(n)
-		block.append("(Text: %s)" % textToWrite)
+		if(u'\n' in  textToWrite):
+			block.append("(Text:)")
+			for line in textToWrite.splitlines():
+				block.append("(%s)" % line)
+		else:
+			block.append("(Text: %s)" % textToWrite)
 
 		try:
 			import ttf
