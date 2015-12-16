@@ -19,8 +19,8 @@ import getopt
 import socket
 import traceback
 
-import __builtin__
 import gettext
+import __builtin__
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
 __builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
@@ -42,6 +42,10 @@ except ImportError:
 	from tkinter import *
 	import configparser as ConfigParser
 	import tkinter.messagebox as tkMessageBox
+
+PRGPATH=os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(PRGPATH, 'lib'))
+sys.path.append(os.path.join(PRGPATH, 'plugins'))
 
 import rexx
 import tkExtra
