@@ -1350,7 +1350,7 @@ class CNC:
 			newcmd = []
 			cmds = CNC.parseLine2(line)
 			if cmds is None: continue
-			if isinstance(cmds,str):
+			if isinstance(cmds,str) or isinstance(cmds,unicode):
 				cmds = CNC.breakLine(cmds)
 			else:
 				# either CodeType or tuple, list[] append at it as is
@@ -3344,7 +3344,7 @@ class GCode:
 				newcmd = []
 				cmds = CNC.parseLine2(line)
 				if cmds is None: continue
-				if isinstance(cmds,str):
+				if isinstance(cmds,str) or isinstance(cmds,unicode):
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is

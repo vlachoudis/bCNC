@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.7.1"
-__date__    = "23 Nov 2015"
+__version__ = "0.7.2"
+__date__    = "29 Nov 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -1868,7 +1868,7 @@ class Application(Toplevel,Sender):
 
 		for line in lines:
 			if line is not None:
-				if isinstance(line,str):
+				if isinstance(line,str) or isinstance(line,unicode):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
