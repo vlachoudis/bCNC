@@ -8,7 +8,7 @@
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
-__name__ = "Pyrograph"
+__name__ = _("Pyrograph")
 __version__= "0.0.3"
 
 import math
@@ -30,7 +30,7 @@ class Pyrograph:
 # Create pyrograph
 #==============================================================================
 class Tool(Plugin):
-	"""Create a variable feed path based upon image brightness"""
+	_("Create a variable feed path based upon image brightness")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Pyrograph"

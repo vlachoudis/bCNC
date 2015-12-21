@@ -8,7 +8,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-__name__ = "Tile"
+__name__ = _("Tile")
 
 from ToolsPage import Plugin
 
@@ -25,7 +25,7 @@ except ImportError:
 # Tile replicas of the selected blocks
 #==============================================================================
 class Tool(Plugin):
-	"""Generate replicas of selected code"""
+	_("Generate replicas of selected code")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Tile"

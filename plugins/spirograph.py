@@ -9,7 +9,7 @@
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
-__name__ = "Spirograph"
+__name__ = _("Spirograph")
 __version__= "0.0.1"
 
 import math
@@ -92,7 +92,7 @@ class Spirograph:
 # Create a sphirograph plot
 #==============================================================================
 class Tool(Plugin):
-	"""Create a spirograph path"""
+	_("Create a spirograph path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Spirograph"

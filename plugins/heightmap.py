@@ -14,7 +14,7 @@
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
-__name__ = "Heightmap"
+__name__ = _("Heightmap")
 __version__= "0.0.1"
 
 from ToolsPage import DataBase
@@ -39,7 +39,7 @@ class Heightmap:
 # Create heightmap
 #==============================================================================
 class Tool(Plugin):
-	"""Use a brightess map to create a variable Z path"""
+	_("Use a brightess map to create a variable Z path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Heightmap"

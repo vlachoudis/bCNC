@@ -8,7 +8,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-__name__ = "Gear"
+__name__ = _("Gear")
 
 import math
 from bmath import Vector
@@ -82,11 +82,11 @@ class Gear:
 
 			# angles
 			pitch1 = c - half_thick_angle
-			base1 = pitch1 - pitch_to_base_angle
+			base1  = pitch1 - pitch_to_base_angle
 			outer1 = pitch1 + pitch_to_outer_angle
 
 			pitch2 = c + half_thick_angle
-			base2 = pitch2 + pitch_to_base_angle
+			base2  = pitch2 + pitch_to_base_angle
 			outer2 = pitch2 - pitch_to_outer_angle
 
 			# points
@@ -153,7 +153,7 @@ class Gear:
 # Create a simple Gear
 #==============================================================================
 class Tool(Plugin):
-	"""Generate a spur gear"""
+	_("Generate a spur gear")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Gear"
@@ -183,4 +183,3 @@ if __name__=="__main__":
 	gear.calc(36, math.radians(10), math.radians(10))
 #	gear.calc(10, math.radians(10), math.radians(10))
 	#b:scale(Coord(0,0),Coord(10,10))
-
