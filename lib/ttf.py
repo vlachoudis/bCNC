@@ -1,4 +1,5 @@
-﻿# ----------------------------------------------------------------------------
+# -*- coding: ascii -*-
+# ----------------------------------------------------------------------------
 # pyglet
 # Copyright (c) 2006-2007 Alex Holkner
 # All rights reserved.
@@ -861,4 +862,3 @@ class GlyphPoint:
 		#self.CUBIC = False
 		self.x = x
 		self.y = y
-
