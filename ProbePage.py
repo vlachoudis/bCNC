@@ -707,11 +707,8 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def scan(self, event=None):
 		if self.change(): return
-
 		# absolute
-		probe = self.app.gcode.probe
-		probe.clear()
-		self.app.run(lines=probe.scan())
+		self.app.run(lines=self.app.gcode.probe.scan())
 
 #===============================================================================
 # Tool Group

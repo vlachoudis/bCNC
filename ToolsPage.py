@@ -735,14 +735,14 @@ class Tabs(DataBase):
 	def loadGcode(self, gcode):
 		# Load tabs information from the gcode
 		self.values.clear()
-		self.n = len(gcode.tabs)
-		for i,tab in enumerate(gcode.tabs):
-			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
-			self.values["xmin.%d"%(i)] = tab.xmin
-			self.values["ymin.%d"%(i)] = tab.ymin
-			self.values["xmax.%d"%(i)] = tab.xmax
-			self.values["ymax.%d"%(i)] = tab.ymax
-			self.values["z.%d"%(i)]    = tab.z
+#		self.n = len(gcode.tabs)
+#		for i,tab in enumerate(gcode.tabs):
+#			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
+#			self.values["xmin.%d"%(i)] = tab.xmin
+#			self.values["ymin.%d"%(i)] = tab.ymin
+#			self.values["xmax.%d"%(i)] = tab.xmax
+#			self.values["ymax.%d"%(i)] = tab.ymax
+#			self.values["z.%d"%(i)]    = tab.z
 		self.populate()
 
 #==============================================================================

@@ -61,7 +61,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame, self, "<<New>>",
 				image=Utils.icons["new32"],
-				text="New",
+				text=_("New"),
 				compound=TOP,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
@@ -79,7 +79,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 
 		col,row=1,2
 		b = _RecentMenuButton(self.frame, None,
-				text="Open",
+				text=_("Open"),
 				image=Utils.icons["triangle_down"],
 				compound=RIGHT,
 				background=Ribbon._BACKGROUND)

@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.7.2"
-__date__    = "29 Nov 2015"
+__version__ = "0.7.3"
+__date__    = "21 Dec 2015"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -24,6 +24,7 @@ import __builtin__
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
 __builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__.N_ = lambda message: message
 
 try:
 	import serial

@@ -253,37 +253,37 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.event_generate("<<Status>>",data="Select objects with mouse")
+		self.event_generate("<<Status>>", data=_("Select objects with mouse"))
 
 	# ----------------------------------------------------------------------
 	def setActionPan(self, event=None):
 		self.setAction(ACTION_PAN)
-		self.event_generate("<<Status>>",data="Pan viewport")
+		self.event_generate("<<Status>>",data=_("Pan viewport"))
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
 		self.setAction(ACTION_ORIGIN)
-		self.event_generate("<<Status>>",data="Click to set the origin (zero)")
+		self.event_generate("<<Status>>",data=_("Click to set the origin (zero)"))
 
 	# ----------------------------------------------------------------------
 	def setActionMove(self, event=None):
 		self.setAction(ACTION_MOVE)
-		self.event_generate("<<Status>>",data="Move graphically objects")
+		self.event_generate("<<Status>>",data=_("Move graphically objects"))
 
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
-		self.event_generate("<<Status>>",data="Move CNC gantry to mouse location")
+		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location"))
 
 	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
-		self.event_generate("<<Status>>",data="Drag a ruler to measure distances")
+		self.event_generate("<<Status>>",data=_("Drag a ruler to measure distances"))
 
 	# ----------------------------------------------------------------------
 	def setActionAddTab(self, event=None):
 		self.setAction(ACTION_ADDTAB)
-		self.event_generate("<<Status>>",data="Draw a square tab")
+		self.event_generate("<<Status>>",data=_("Draw a square tab"))
 
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
@@ -352,7 +352,8 @@ class CNCCanvas(Canvas):
 					for item in self.find_overlapping(i-CLOSE_DISTANCE, j-CLOSE_DISTANCE,
 								i+CLOSE_DISTANCE, j+CLOSE_DISTANCE):
 						tags = self.gettags(item)
-						if "sel" in tags or "sel2" in tags:
+						if "sel"  in tags or "sel2" in tags or \
+						   "sel3" in tags or "sel4" in tags:
 							break
 					else:
 						self._mouseAction = ACTION_SELECT_SINGLE
@@ -378,28 +379,28 @@ class CNCCanvas(Canvas):
 			i = self.canvasx(event.x)
 			j = self.canvasy(event.y)
 			x,y,z = self.canvas2xyz(i,j)
-			self.app.insertCommand("origin %g %g %g"%(x,y,z),True)
+			self.app.insertCommand(_("origin %g %g %g")%(x,y,z),True)
 			self.setActionSelect()
 
 		elif self.action == ACTION_PAN:
 			self.pan(event)
 
-		# Add tab
-		elif self.action == ACTION_ADDTAB:
-			i = self.canvasx(event.x)
-			j = self.canvasy(event.y)
-			x,y,z = self.canvas2xyz(i,j)
-			x = round(x,CNC.digits)
-			y = round(y,CNC.digits)
-			z = round(z,CNC.digits)
-			# use the same z as the last tab added in gcode
-			if self.gcode.tabs: z = self.gcode.tabs[-1].z
-			self._tab = Tab(x,y,x,y,z)
-			self._tabRect = self._drawRect(
-						self._tab.xmin, self._tab.ymin,
-						self._tab.xmax, self._tab.ymax,
-						fill=TAB_COLOR)
-			self._mouseAction = self.action
+#		# Add tab
+#		elif self.action == ACTION_ADDTAB:
+#			i = self.canvasx(event.x)
+#			j = self.canvasy(event.y)
+#			x,y,z = self.canvas2xyz(i,j)
+#			x = round(x,CNC.digits)
+#			y = round(y,CNC.digits)
+#			z = round(z,CNC.digits)
+#			# use the same z as the last tab added in gcode
+#			if self.gcode.tabs: z = self.gcode.tabs[-1].z
+#			self._tab = Tab(x,y,x,y,z)
+#			self._tabRect = self._drawRect(
+#						self._tab.xmin, self._tab.ymin,
+#						self._tab.xmax, self._tab.ymax,
+#						fill=TAB_COLOR)
+#			self._mouseAction = self.action
 
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
@@ -432,6 +433,8 @@ class CNCCanvas(Canvas):
 			if self._mouseAction == ACTION_MOVE:
 				self.move("sel",  event.x-self._xp, event.y-self._yp)
 				self.move("sel2", event.x-self._xp, event.y-self._yp)
+				self.move("sel3", event.x-self._xp, event.y-self._yp)
+				self.move("sel4", event.x-self._xp, event.y-self._yp)
 				self._xp = event.x
 				self._yp = event.y
 
@@ -440,7 +443,7 @@ class CNCCanvas(Canvas):
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
 			self.event_generate("<<Status>>",
-				data="dx=%g  dy=%g  dz=%g  length=%g  angle=%g"\
+				data=_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
 					math.degrees(math.atan2(dy,dx))))
 
@@ -517,8 +520,8 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.event_generate("<<Status>>", data="Move by %g, %g, %g"%(dx,dy,dz))
-			self.app.insertCommand("move %g %g %g"%(dx,dy,dz),True)
+			self.event_generate("<<Status>>", data=_("Move by %g, %g, %g")%(dx,dy,dz))
+			self.app.insertCommand(_("move %g %g %g")%(dx,dy,dz),True)
 
 		elif self._mouseAction == ACTION_PAN:
 			self.panRelease(event)
@@ -641,20 +644,17 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def selBbox(self):
 		x1 = None
-		bb = self.bbox('sel')
-		if bb is not None:
-			x1,y1,x2,y2 = bb
-
-		bb = self.bbox('sel2')
-		if bb is not None:
-			if x1 is not None:
+		for tag in ("sel","sel2","sel3","sel4"):
+			bb = self.bbox(tag)
+			if bb is None:
+				continue
+			elif x1 is None:
+				x1,y1,x2,y2 = bb
+			else:
 				x1 = min(x1,bb[0])
 				y1 = min(y1,bb[1])
 				x2 = max(x2,bb[2])
 				y2 = max(y2,bb[3])
-				return x1,y1,x2,y2
-			else:
-				return bb
 
 		if x1 is None:
 			return self.bbox('all')
@@ -786,8 +786,12 @@ class CNCCanvas(Canvas):
 			self._lastActive = None
 		self.itemconfig("sel",  width=1, fill=ENABLE_COLOR)
 		self.itemconfig("sel2", width=1, fill=DISABLE_COLOR)
+		self.itemconfig("sel3", width=1, fill=TAB_COLOR)
+		self.itemconfig("sel4", width=1, fill=DISABLE_COLOR)
 		self.dtag("sel")
 		self.dtag("sel2")
+		self.dtag("sel3")
+		self.dtag("sel4")
 
 	#----------------------------------------------------------------------
 	# Highlight selected items
@@ -795,22 +799,32 @@ class CNCCanvas(Canvas):
 	def select(self, items):
 		for b, i in items:
 			block = self.gcode[b]
-			if block.enable:
-				sel = "sel"
-			else:
-				sel = "sel2"
 			if i is None:
 				for path in block._path:
 					if path is not None:
 						self.addtag_withtag(sel, path)
-			else:
+				sel = block.enable and "sel3" or "sel4"
+				for tab in block.tabs:
+					path = tab.path
+					if path is not None:
+						self.addtag_withtag(sel, tab.path)
+
+			elif isinstance(i,int):
 				path = block.path(i)
 				if path:
+					sel = block.enable and "sel" or "sel2"
+					self.addtag_withtag(sel, path)
+
+			elif isinstance(i,Tab):
+				path = i.path
+				if path:
+					sel = block.enable and "sel3" or "sel4"
 					self.addtag_withtag(sel, path)
 
 		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
 		self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
-
+		self.itemconfig("sel3", width=2, fill=TAB_COLOR)
+		self.itemconfig("sel4", width=2, fill=TAB_COLOR)
 		self.drawMargin()
 
 	#----------------------------------------------------------------------
@@ -834,7 +848,7 @@ class CNCCanvas(Canvas):
 		self.drawWorkarea()
 		self.drawProbe()
 		self.drawAxes()
-		self.drawTabs()
+#		self.drawTabs()
 #		self.tag_lower(self._workarea)
 		if self._gantry1: self.tag_raise(self._gantry1)
 		if self._gantry2: self.tag_raise(self._gantry2)
@@ -972,13 +986,14 @@ class CNCCanvas(Canvas):
 				**kwargs),
 		return rect
 
-	#----------------------------------------------------------------------
-	def drawTabs(self):
-		if not self.draw_margin: return
-		for tab in self.gcode.tabs:
-			item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=TAB_COLOR)
-			self.tag_lower(item)
-
+#	#----------------------------------------------------------------------
+#	def drawTabs(self):
+#		if not self.draw_margin: return
+#		for tab in self.gcode.tabs:
+#			item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=TAB_COLOR)
+#			self._items[item[0]] = tab
+#			self.tag_lower(item)
+#
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
 		if self._workarea: self.delete(self._workarea)
@@ -1180,13 +1195,22 @@ class CNCCanvas(Canvas):
 		for i,block in enumerate(self.gcode.blocks):
 			start = True	# start location found
 			block.resetPath()
+			# Draw block tabs
+			if self.draw_margin:
+				for tab in block.tabs:
+					color = block.enable and TAB_COLOR or DISABLE_COLOR
+					item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=color)
+					tab.path = item
+					self._items[item[0]] = i,tab
+					self.tag_lower(item)
+			# Draw block
 			for j,line in enumerate(block):
 				#cmd = self.cnc.parseLine(line)
 				try:
 					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
 				except:
-					sys.stderr.write(">>> ERROR: %s\n"%(str(sys.exc_info()[1])))
-					sys.stderr.write("     line: %s\n"%(line))
+					sys.stderr.write(_(">>> ERROR: %s\n")%(str(sys.exc_info()[1])))
+					sys.stderr.write(_("     line: %s\n")%(line))
 					cmd = None
 
 				if cmd is None or not drawG:
@@ -1405,24 +1429,24 @@ class CanvasFrame(Frame):
 		b.config(padx=0, pady=1)
 		b.unbind("F10")
 		b.pack(side=LEFT)
-		tkExtra.Balloon.set(b, "Change viewing angle")
+		tkExtra.Balloon.set(b, _("Change viewing angle"))
 
 		b = Button(toolbar, image=Utils.icons["zoom_in"],
 				command=self.canvas.menuZoomIn)
-		tkExtra.Balloon.set(b, "Zoom In [Ctrl-=]")
+		tkExtra.Balloon.set(b, _("Zoom In [Ctrl-=]"))
 		b.pack(side=LEFT)
 
 		b = Button(toolbar, image=Utils.icons["zoom_out"],
 				command=self.canvas.menuZoomOut)
-		tkExtra.Balloon.set(b, "Zoom Out [Ctrl--]")
+		tkExtra.Balloon.set(b, _("Zoom Out [Ctrl--]"))
 		b.pack(side=LEFT)
 
 		b = Button(toolbar, image=Utils.icons["zoom_on"],
 				command=self.canvas.fit2Screen)
-		tkExtra.Balloon.set(b, "Fit to screen [F]")
+		tkExtra.Balloon.set(b, _("Fit to screen [F]"))
 		b.pack(side=LEFT)
 
-		Label(toolbar, text="Tool:",
+		Label(toolbar, text=_("Tool:"),
 				image=Utils.icons["sep"],
 				compound=LEFT).pack(side=LEFT, padx=2)
 		# -----
@@ -1433,7 +1457,7 @@ class CanvasFrame(Frame):
 					variable=self.canvas.actionVar,
 					value=ACTION_SELECT,
 					command=self.canvas.setActionSelect)
-		tkExtra.Balloon.set(b, "Select tool [S]")
+		tkExtra.Balloon.set(b, _("Select tool [S]"))
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
@@ -1442,7 +1466,7 @@ class CanvasFrame(Frame):
 					variable=self.canvas.actionVar,
 					value=ACTION_PAN,
 					command=self.canvas.setActionPan)
-		tkExtra.Balloon.set(b, "Pan viewport [X]")
+		tkExtra.Balloon.set(b, _("Pan viewport [X]"))
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
@@ -1451,7 +1475,7 @@ class CanvasFrame(Frame):
 					variable=self.canvas.actionVar,
 					value=ACTION_GANTRY,
 					command=self.canvas.setActionGantry)
-		tkExtra.Balloon.set(b, "Move gantry [G]")
+		tkExtra.Balloon.set(b, _("Move gantry [G]"))
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
@@ -1460,13 +1484,13 @@ class CanvasFrame(Frame):
 					variable=self.canvas.actionVar,
 					value=ACTION_RULER,
 					command=self.canvas.setActionRuler)
-		tkExtra.Balloon.set(b, "Ruler [R]")
+		tkExtra.Balloon.set(b, _("Ruler [R]"))
 		b.pack(side=LEFT)
 
 		# -----------
 		# Draw flags
 		# -----------
-		Label(toolbar, text="Draw:",
+		Label(toolbar, text=_("Draw:"),
 				image=Utils.icons["sep"],
 				compound=LEFT).pack(side=LEFT, padx=2)
 
@@ -1475,7 +1499,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_axes,
 				command=self.drawAxes)
-		tkExtra.Balloon.set(b, "Toggle display of axes")
+		tkExtra.Balloon.set(b, _("Toggle display of axes"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1483,7 +1507,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_grid,
 				command=self.drawGrid)
-		tkExtra.Balloon.set(b, "Toggle display of grid lines")
+		tkExtra.Balloon.set(b, _("Toggle display of grid lines"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1491,7 +1515,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_margin,
 				command=self.drawMargin)
-		tkExtra.Balloon.set(b, "Toggle display of margins")
+		tkExtra.Balloon.set(b, _("Toggle display of margins"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1500,7 +1524,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_probe,
 				command=self.drawProbe)
-		tkExtra.Balloon.set(b, "Toggle display of probe")
+		tkExtra.Balloon.set(b, _("Toggle display of probe"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1508,7 +1532,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_paths,
 				command=self.toggleDrawFlag)
-		tkExtra.Balloon.set(b, "Toggle display of paths (G1,G2,G3)")
+		tkExtra.Balloon.set(b, _("Toggle display of paths (G1,G2,G3)"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1516,7 +1540,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_rapid,
 				command=self.toggleDrawFlag)
-		tkExtra.Balloon.set(b, "Toggle display of rapid motion (G0)")
+		tkExtra.Balloon.set(b, _("Toggle display of rapid motion (G0)"))
 		b.pack(side=LEFT)
 
 		b = Checkbutton(toolbar,
@@ -1524,7 +1548,7 @@ class CanvasFrame(Frame):
 				indicatoron=False,
 				variable=self.draw_workarea,
 				command=self.drawWorkarea)
-		tkExtra.Balloon.set(b, "Toggle display of workarea")
+		tkExtra.Balloon.set(b, _("Toggle display of workarea"))
 		b.pack(side=LEFT)
 
 	#----------------------------------------------------------------------

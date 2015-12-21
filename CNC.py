@@ -25,7 +25,7 @@ IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
-BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+): (.*)\)")
+BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+):\s*(.*)\)")
 AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 
 STOP   = 0
@@ -258,6 +258,7 @@ class Probe:
 	#----------------------------------------------------------------------
 	def scan(self):
 		lines = []
+		self.clear()
 		self.makeMatrix()
 		x = self.xmin
 		xstep = self._xstep
@@ -1539,6 +1540,7 @@ class Tab:
 		self.ymin = ymin
 		self.ymax = ymax
 		self.z    =  z			# z to raise within the tab
+		self.path = None
 #		self.slope = 45			# cutting z-slope as entry/exit
 #		self.create()
 
@@ -1550,35 +1552,54 @@ class Tab:
 			 self.z)
 
 	#----------------------------------------------------------------------
+	# Tab string entry in listbox
+	#----------------------------------------------------------------------
+#	def entry(self):
+#		return "Tab: %g %g %g %g %g"
+
+	#----------------------------------------------------------------------
 	# Correct tab for min/max
 	#----------------------------------------------------------------------
 	def correct(self):
 		if self.xmin > self.xmax:
 			self.xmin, self.xmax = self.xmax, self.xmin
-
 		if self.ymin > self.ymax:
 			self.ymin, self.ymax = self.ymax, self.ymin
+
+	#----------------------------------------------------------------------
+	def save(self):
+		return self.xmin, self.ymin, self.xmax, self.ymax, self.z
+
+	#----------------------------------------------------------------------
+	def restore(self, params):
+		self.xmin = params[0]
+		self.ymin = params[1]
+		self.xmax = params[2]
+		self.ymax = params[3]
+		self.z    = params[4]
+
+	#----------------------------------------------------------------------
+	def move(self, dx, dy, dz=None):
+		self.xmin += dx
+		self.xmax += dx
+		self.ymin += dy
+		self.ymax += dy
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
 	#----------------------------------------------------------------------
 	def create(self, diameter=0.0):
 		r = diameter/2.0
-
 		self.segments = []
-
 		A = A0 = Vector(self.xmin-r, self.ymin-r)
 		B = Vector(self.xmax+r, self.ymin-r)
 		self.segments.append(Segment(Segment.LINE, A, B))
-
 		A = B
 		B = Vector(self.xmax+r, self.ymax+r)
 		self.segments.append(Segment(Segment.LINE, A, B))
-
 		A = B
 		B = Vector(self.xmin-r, self.ymax+r)
 		self.segments.append(Segment(Segment.LINE, A, B))
-
 		A = B
 		B = A0
 		self.segments.append(Segment(Segment.LINE, A, B))
@@ -1643,10 +1664,11 @@ class Block(list):
 		if isinstance(name, Block):
 			self.copy(name)
 			return
-		self._name   = name
-		self.enable  = True		# Enabled/Visible in drawing
-		self.expand  = False		# Expand in editor
-		self._path   = []		# canvas drawing paths
+		self._name    = name
+		self.enable   = True		# Enabled/Visible in drawing
+		self.expand   = False		# Expand in editor
+		self.tabs     = []		# Tabs on block
+		self._path    = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates
 						# (entry point first non rapid motion)
 		self.ex = self.ey = self.ez = 0	# ending coordinates
@@ -1725,6 +1747,9 @@ class Block(list):
 		f.write("(Block-name: %s)\n"%(self.name()))
 		f.write("(Block-expand: %d)\n"%(int(self.expand)))
 		f.write("(Block-enable: %d)\n"%(int(self.enable)))
+		for tab in self.tabs:
+			f.write("(Block-tab: %g %g %g %g %g)\n"% \
+				(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
 		f.write("%s\n"%("\n".join(self)))
 
 	#----------------------------------------------------------------------
@@ -1761,6 +1786,10 @@ class Block(list):
 				elif name=="enable":
 					self.enable = bool(int(value))
 					return
+				elif name=="tab":
+					items = map(float,value.split())
+					self.tabs.append(Tab(*items))
+					return
 		if self._name is None and ("id:" in line) and ("End" not in line):
 			pat = IDPAT.match(line)
 			if pat: self._name = pat.group(1)
@@ -1783,9 +1812,9 @@ class Block(list):
 		self._path.append(p)
 
 	#----------------------------------------------------------------------
-	def path(self, i):
+	def path(self, item):
 		try:
-			return self._path[i]
+			return self._path[item]
 		except:
 			return None
 
@@ -1830,7 +1859,7 @@ class GCode:
 	def init(self):
 		self.filename = ""
 		self.blocks   = []		# list of blocks
-		self.tabs     = []		# list of tabs
+#		self.tabs     = []		# list of tabs
 		self.vars.clear()
 		self.undoredo.reset()
 		self.probe.init()
@@ -1886,10 +1915,10 @@ class GCode:
 	# add new line to list create block if necessary
 	#----------------------------------------------------------------------
 	def _addLine(self, line):
-		if line.startswith("(Tab:"):
-			items = map(float,line.replace("(Tab:","").replace(")","").split())
-			self.tabs.append(Tab(*items))
-			return
+#		if line.startswith("(Tab:"):
+#			items = map(float,line.replace("(Tab:","").replace(")","").split())
+#			self.tabs.append(Tab(*items))
+#			return
 
 		if line.startswith("(Block-name:"):
 			self._blocksExist = True
@@ -1956,8 +1985,8 @@ class GCode:
 			return False
 
 		# write tabs if any
-		for tab in self.tabs:
-			f.write("(Tab:%g %g %g %g %g)\n"%(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
+#		for tab in self.tabs:
+#			f.write("(Tab:%g %g %g %g %g)\n"%(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
 		for block in self.blocks:
 			block.write(f)
 		f.close()
@@ -2264,21 +2293,28 @@ class GCode:
 		if len(self.blocks[-1])==0:
 			self.blocks.pop()
 
-	#----------------------------------------------------------------------
-	# Append a new tab
-	#----------------------------------------------------------------------
-	def addTabUndo(self, pos, tab):
-		undoinfo = (self.delTabUndo, len(self.tabs))
-		if pos<0 or pos>=len(self.tabs):
-			self.tabs.append(tab)
-		else:
-			self.tabs.insert(pos, tab)
-		return undoinfo
+#	#----------------------------------------------------------------------
+#	# Append a new tab
+#	#----------------------------------------------------------------------
+#	def addTabUndo(self, pos, tab):
+#		undoinfo = (self.delTabUndo, len(self.tabs))
+#		if pos<0 or pos>=len(self.tabs):
+#			self.tabs.append(tab)
+#		else:
+#			self.tabs.insert(pos, tab)
+#		return undoinfo
+#
+#	#----------------------------------------------------------------------
+#	def delTabUndo(self, pos):
+#		undoinfo = (self.addTabUndo, pos, self.tabs[pos])
+#		del self.tabs[pos]
+#		return undoinfo
 
 	#----------------------------------------------------------------------
-	def delTabUndo(self, pos):
-		undoinfo = (self.addTabUndo, pos, self.tabs[pos])
-		del self.tabs[pos]
+	def tabSetUndo(self, bid, tid, params):
+		tab = self.blocks[bid].tabs[tid]
+		undoinfo = (self.tabSetUndo, bid, tid, tab.save())
+		tab.restore(params)
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -2635,7 +2671,10 @@ class GCode:
 	def iterate(self, items):
 		for bid,lid in items:
 			if lid is None:
-				for i in range(len(self.blocks[bid])):
+				block = self.blocks[bid]
+				for i in block.tabs:
+					yield bid,i
+				for i in range(len(block)):
 					yield bid,i
 			else:
 				yield bid,lid
@@ -2783,9 +2822,9 @@ class GCode:
 		exit   = False
 
 		# Mark in which tab we are inside
-		if self.tabs:
+		if block.tabs:
 			# Mark everything as outside
-			for tab in self.tabs:
+			for tab in block.tabs:
 				tab.create(CNC.vars["diameter"])
 				tab.split(path)
 
@@ -3060,34 +3099,41 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Modify the lines according to the supplied function and arguments
 	#----------------------------------------------------------------------
-	def process(self, items, func, *args):
+	def process(self, items, func, tabFunc, *args):
 		undoinfo = []
 		old = {}	# Last value
 		new = {}	# New value
 
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
-			cmds = CNC.parseLine(block[lid])
-			if cmds is None: continue
 
-			# Collect all values
-			new.clear()
-			for cmd in cmds:
-				c = cmd[0].upper()
-				try:
-					new[c] = float(cmd[1:])
-				except:
-					new[c] = 0.0
+			if isinstance(lid, Tab) and tabFunc is not None:
+				tid = block.tabs.index(lid)
+				undoinfo.append(self.tabSetUndo(bid, tid, lid.save()))
+				tabFunc(lid, *args)
 
-			# Modify values with func
-			if func(new, old, *args):
-				# Reconstruct new cmd
-				newcmd = []
+			elif isinstance(lid, int):
+				cmds = CNC.parseLine(block[lid])
+				if cmds is None: continue
+
+				# Collect all values
+				new.clear()
 				for cmd in cmds:
 					c = cmd[0].upper()
-					old[c] = new[c]
-					newcmd.append(self.fmt(cmd[0],new[c]))
-				undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
+					try:
+						new[c] = float(cmd[1:])
+					except:
+						new[c] = 0.0
+
+				# Modify values with func
+				if func(new, old, *args):
+					# Reconstruct new cmd
+					newcmd = []
+					for cmd in cmds:
+						c = cmd[0].upper()
+						old[c] = new[c]
+						newcmd.append(self.fmt(cmd[0],new[c]))
+					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
 		# FIXME I should add it later, check all functions using it
 		self.addUndo(undoinfo)
@@ -3121,7 +3167,7 @@ class GCode:
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
 	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.process(items, self.moveFunc, dx, dy, dz)
+		return self.process(items, self.moveFunc, Tab.move, dx, dy, dz)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
@@ -3151,7 +3197,7 @@ class GCode:
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.process(items, self.rotateFunc, c, s, x0, y0)
+		return self.process(items, self.rotateFunc, None, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Mirror Horizontal
@@ -3189,10 +3235,10 @@ class GCode:
 	# Mirror horizontally/vertically
 	#----------------------------------------------------------------------
 	def mirrorHLines(self, items):
-		return self.process(items, self.mirrorHFunc)
+		return self.process(items, self.mirrorHFunc, None)
 
 	def mirrorVLines(self, items):
-		return self.process(items, self.mirrorVFunc)
+		return self.process(items, self.mirrorVFunc, None)
 
 	#----------------------------------------------------------------------
 	# Round all digits with accuracy
@@ -3207,7 +3253,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def roundLines(self, items, acc=None):
 		if acc is not None: CNC.digits = acc
-		return self.process(items, self.roundFunc)
+		return self.process(items, self.roundFunc, None)
 
 	#----------------------------------------------------------------------
 	# Inkscape g-code tools on slice/slice it raises the tool to the
@@ -3358,23 +3404,21 @@ class GCode:
 				skip   = False
 				expand = None
 				self.cnc.motionStart(cmds)
-				if autolevel:
+
+				if autolevel and self.cnc.gcode in (1,2,3):
 					xyz = self.cnc.motionPath()
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement
 						# commands, just append the line as-is
 						lines.append(line)
 						paths.append(None)
-						continue
-
-					if self.cnc.gcode in (1,2,3):
+					else:
 						for c in cmds:
 							if c[0] in ('f','F'):
 								feed = c
 								break
 						else:
 							feed = ""
-
 						x1,y1,z1 = xyz[0]
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
@@ -3387,16 +3431,14 @@ class GCode:
 								feed = ""
 							x1,y1,z1 = x2,y2,z2
 						lines[-1] = lines[-1].strip()
-						self.cnc.motionEnd()
-						continue
-
+					self.cnc.motionEnd()
+					continue
 				else:
 					# FIXME expansion policy here variable needed
 					# Canned cycles
 					if CNC.drillPolicy==1 and \
 					   self.cnc.gcode in (81,82,83,85,86,89):
 						expand = self.cnc.macroGroupG8X()
-
 					# Tool change
 					elif self.cnc.mval == 6:
 						if CNC.toolPolicy == 0:
@@ -3405,15 +3447,13 @@ class GCode:
 							skip = True	# skip whole line
 						elif CNC.toolPolicy >= 2:
 							expand = CNC.compile(self.cnc.toolChange())
-
-				self.cnc.motionEnd()
+					self.cnc.motionEnd()
 
 				if expand:
 					lines.extend(expand)
 					paths.extend([None]*len(expand))
 					expand = None
 					continue
-
 				elif skip:
 					skip = False
 					continue

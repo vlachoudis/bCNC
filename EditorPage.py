@@ -175,31 +175,16 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		# ===
 		col,row = 0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["pan"],
+				image=Utils.icons["move32"],
 				text=_("Move"),
-				compound=LEFT,
+				compound=TOP,
 				anchor=W,
 				variable=app.canvas.actionVar,
 				value=ACTION_MOVE,
 				command=app.canvas.setActionMove,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Move objects [M]"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["origin"],
-				text=_("Origin"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.canvas.actionVar,
-				value=ACTION_ORIGIN,
-				command=app.canvas.setActionOrigin,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Place origin with the mouse on canvas [O]"))
 		self.addWidget(b)
 
 		# ===
@@ -321,6 +306,23 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Move origin of g-code to Bottom-Right corner"))
 		self.addWidget(b)
+
+		# ---
+		col += 1
+		row = 0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["origin"],
+				text=_("Origin"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.canvas.actionVar,
+				value=ACTION_ORIGIN,
+				command=app.canvas.setActionOrigin,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Place origin with the mouse on canvas [O]"))
+		self.addWidget(b)
+
 
 #===============================================================================
 # Order Group
