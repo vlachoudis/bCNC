@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-11-23 17:40+0100\n"
-"PO-Revision-Date: 2015-12-21 01:11+0100\n"
+"PO-Revision-Date: 2015-12-21 10:30+0100\n"
 "Last-Translator: ThierryM <thierry.munoz@free.fr>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -75,8 +75,8 @@ msgid ""
 "value. This error occurs when the letter prefix of a G-code word is missing in the G-"
 "code block (aka line)."
 msgstr ""
-"G_code est composé de 'mots' G-code commençant par une lettre suivie d'un nombre. "
-"Cette erreur apparaît quand cette lettre en préfixe est absente dans  le block de G-"
+"G-code est composé de 'mots' G-code commençant par une lettre suivie d'un nombre. "
+"Cette erreur apparaît quand cette lettre en préfixe est absente dans  le bloc de G-"
 "code (c'est-à-dire dans la ligne)."
 
 #: Sender.py:66
@@ -84,8 +84,8 @@ msgid ""
 "The number value suffix of a G-code word is missing in the G-code block, or when "
 "configuring a $Nx=line or $x=val Grbl setting and the x is not a number value."
 msgstr ""
-"Il manque une valeur dans la ligne de G-code, ou en configurant un paramètre dans "
-"Grbl comme $Nx=line ou $x=val x n'est pas une valeur numérique."
+"Il manque une valeur dans le bloc de G-code, ou en configurant un paramètre dans Grbl "
+"comme $Nx=line ou $x=val x n'est pas une valeur numérique."
 
 #: Sender.py:67
 msgid "The issued Grbl $ system command is not recognized or is invalid."
@@ -1514,7 +1514,7 @@ msgstr "Actif"
 
 #: EditorPage.py:139
 msgid "Enable or disable blocks of gcode"
-msgstr "Activer ou désactiver des blocks de gCode"
+msgstr "Activer ou désactiver des blocs de gCode"
 
 #: EditorPage.py:146
 msgid "Expand"
@@ -1755,7 +1755,7 @@ msgstr "Marges X :"
 
 #: bCNC.py:821 bCNC.py:886
 msgid "# Blocks:"
-msgstr "# Blocks :"
+msgstr "# Blocs :"
 
 #: bCNC.py:829 bCNC.py:893
 msgid "Length:"
