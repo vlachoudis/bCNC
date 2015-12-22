@@ -7,5 +7,4 @@ if [ .$PYTHON = . ]; then
 	PYTHON=python
 fi
 ${PYTHON} ${DIR}/bCNC.py $*
-export LC_ALL=fr_FR.UTF-8
 #python -m cProfile -o bCNC.out ${DIR}/bCNC.py $*
