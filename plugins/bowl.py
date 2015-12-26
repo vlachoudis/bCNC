@@ -98,7 +98,7 @@ class Bowl:
 # Create a simple Bowl
 #==============================================================================
 class Tool(Plugin):
-	_("Generate a bowl cavity")
+	__doc__ = _("Generate a bowl cavity")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Bowl"

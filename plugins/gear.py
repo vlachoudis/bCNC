@@ -153,7 +153,7 @@ class Gear:
 # Create a simple Gear
 #==============================================================================
 class Tool(Plugin):
-	_("Generate a spur gear")
+	__doc__ = _("Generate a spur gear")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Gear"

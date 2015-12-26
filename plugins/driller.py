@@ -30,7 +30,7 @@ class Driller:
 # Create holes along selected blocks
 #==============================================================================
 class Tool(Plugin):
-	_("Create holes along selected blocks")
+	__doc__ = _("Create holes along selected blocks")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Driller"
