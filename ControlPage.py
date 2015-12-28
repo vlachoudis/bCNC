@@ -513,6 +513,22 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		except:
 			self.zstep = self.step
 
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("Control","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("Control","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("Control","step3")
+		except:
+			self.step3 = 10
+
 		# ---
 		row += 1
 		col = 0
@@ -708,6 +724,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+
+	def setStep1(self, event=None):
+		self.setStep(self.step1, self.step1)
+
+	def setStep2(self, event=None):
+		self.setStep(self.step2, self.step2)
+
+	def setStep3(self, event=None):
+		self.setStep(self.step3, self.step2)
 #===============================================================================
 # StateFrame
 #===============================================================================
