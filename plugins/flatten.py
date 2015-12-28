@@ -248,7 +248,7 @@ class Flatten:
 # Create a flatten surface
 #==============================================================================
 class Tool(Plugin):
-	_("Flatten an area in different ways")
+	__doc__ = _("Flatten an area in different ways")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Flatten"

@@ -92,7 +92,7 @@ class Spirograph:
 # Create a sphirograph plot
 #==============================================================================
 class Tool(Plugin):
-	_("Create a spirograph path")
+	__doc__ = _("Create a spirograph path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Spirograph"

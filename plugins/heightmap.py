@@ -39,7 +39,7 @@ class Heightmap:
 # Create heightmap
 #==============================================================================
 class Tool(Plugin):
-	_("Use a brightess map to create a variable Z path")
+	__doc__ = _("Use a brightess map to create a variable Z path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Heightmap"

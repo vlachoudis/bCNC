@@ -25,7 +25,7 @@ except ImportError:
 # Tile replicas of the selected blocks
 #==============================================================================
 class Tool(Plugin):
-	_("Generate replicas of selected code")
+	__doc__ = _("Generate replicas of selected code")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Tile"

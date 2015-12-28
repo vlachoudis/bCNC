@@ -297,7 +297,7 @@ class Box:
 # Create a BOX
 #==============================================================================
 class Tool(Plugin):
-	_("Generate a finger box")
+	__doc__ = _("Generate a finger box")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Box"
