@@ -1025,7 +1025,6 @@ class CNC:
 
 			elif c == "M":
 				self.mval = int(value)
-				self.gcode = None	# Why????
 
 			elif c == "N":
 				pass
