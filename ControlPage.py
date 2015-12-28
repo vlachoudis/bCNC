@@ -326,6 +326,10 @@ class DROFrame(CNCRibbon.PageFrame):
 		self._wcsSet(None,None,self.zwork.get())
 
 	#----------------------------------------------------------------------
+	def wcsSet(self, x, y, z):
+		self._wcsSet(x, y, z)
+
+	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
 		global wcsvar
 		p = wcsvar.get()
