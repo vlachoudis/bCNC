@@ -1266,6 +1266,8 @@ class Application(Toplevel,Sender):
 
 		# OPT*IIMZE: reorder selected blocks to minimize rapid motions
 		elif rexx.abbrev("OPTIMIZE",cmd,3):
+			if not self.editor.curselection():
+				self.editor.selection_set(1, self.editor.size()-2)
 			self.executeOnSelection("OPTIMIZE", True)
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
