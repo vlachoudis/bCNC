@@ -358,9 +358,9 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-slash>',	self.control.divStep)
 		self.bind('<KP_Divide>',	self.control.divStep)
 
-		self.bind('<Key-1>',	self.control.setStep1)
-		self.bind('<Key-2>',	self.control.setStep2)
-		self.bind('<Key-3>',	self.control.setStep3)
+		self.bind('<Key-1>',		self.control.setStep1)
+		self.bind('<Key-2>',		self.control.setStep2)
+		self.bind('<Key-3>',		self.control.setStep3)
 
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)

@@ -819,11 +819,8 @@ class CNCCanvas(Canvas):
 	def select(self, items):
 		for b, i in items:
 			block = self.gcode[b]
-			if block.enable:
-				sel = "sel"
-			else:
-				sel = "sel2"
 			if i is None:
+				sel = block.enable and "sel" or "sel2"
 				for path in block._path:
 					if path is not None:
 						self.addtag_withtag(sel, path)

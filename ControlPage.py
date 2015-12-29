@@ -652,6 +652,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.zstep.set("%.4g"%(zs))
 			self.event_generate("<<Status>>",data=_("Step: %g    Zstep:%g ")%(s,zs))
 
+	#----------------------------------------------------------------------
 	@staticmethod
 	def _stepPower(step):
 		try:
@@ -662,6 +663,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		power = math.pow(10.0,math.floor(math.log10(step)))
 		return round(step/power)*power, power
 
+	#----------------------------------------------------------------------
 	def incStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -677,6 +679,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def decStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -694,6 +697,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def mulStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -709,6 +713,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def divStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -724,15 +729,21 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
-
+	#----------------------------------------------------------------------
 	def setStep1(self, event=None):
+		if event is not None and not self.acceptKey(): return
 		self.setStep(self.step1, self.step1)
 
+	#----------------------------------------------------------------------
 	def setStep2(self, event=None):
+		if event is not None and not self.acceptKey(): return
 		self.setStep(self.step2, self.step2)
 
+	#----------------------------------------------------------------------
 	def setStep3(self, event=None):
+		if event is not None and not self.acceptKey(): return
 		self.setStep(self.step3, self.step2)
+
 #===============================================================================
 # StateFrame
 #===============================================================================
