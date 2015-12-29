@@ -624,7 +624,7 @@ class TruetypeInfo:
 			print component.glyphIndex
 			subGlyph = self._read_glyph(component.glyphIndex)
 			#apply transformation to points
-			#glyph.points.extend(subGlyph.points)
+			#FIX ME: not all transformations (es. scale) are applied correctly
 			for p in subGlyph.points:
 				tp = GlyphPoint(p.x,p.y)
 				tp.ON_CURVE = p.ON_CURVE
