@@ -73,6 +73,7 @@ ACTION_ORIGIN        = 11
 ACTION_MOVE          = 20
 ACTION_ROTATE        = 21
 ACTION_GANTRY        = 22
+ACTION_SET_POS       = 23
 
 ACTION_RULER         = 30
 
@@ -110,6 +111,7 @@ MOUSE_CURSOR = {
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
 	ACTION_GANTRY        : "target",
+	ACTION_SET_POS        : "target",
 
 	ACTION_RULER         : "tcross",
 
@@ -276,6 +278,11 @@ class CNCCanvas(Canvas):
 		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location"))
 
 	# ----------------------------------------------------------------------
+	def setActionSetPos(self, event=None):
+		self.setAction(ACTION_SET_POS)
+		self.event_generate("<<Status>>",data=_("Set mouse location as current machine position (X/Y only)"))
+
+	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
 		self.event_generate("<<Status>>",data=_("Drag a ruler to measure distances"))
@@ -307,6 +314,16 @@ class CNCCanvas(Canvas):
 
 		elif self.view == VIEW_ISO3:
 			self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+		self.setAction(ACTION_SELECT)
+
+	# ----------------------------------------------------------------------
+	def actionSetPos(self, x, y):
+		u = self.canvasx(x) / self.zoom
+		v = self.canvasy(y) / self.zoom
+
+		if self.view == VIEW_XY:
+			self.app.dro.wcsSet(u,-v, None)
+
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
@@ -373,6 +390,9 @@ class CNCCanvas(Canvas):
 		# Move gantry to position
 		elif self.action == ACTION_GANTRY:
 			self.actionGantry(event.x,event.y)
+		# Move gantry to position
+		elif self.action == ACTION_SET_POS:
+			self.actionSetPos(event.x,event.y)
 
 		# Set coordinate origin
 		elif self.action == ACTION_ORIGIN:
@@ -1476,6 +1496,15 @@ class CanvasFrame(Frame):
 					value=ACTION_GANTRY,
 					command=self.canvas.setActionGantry)
 		tkExtra.Balloon.set(b, _("Move gantry [G]"))
+		self.addWidget(b)
+		b.pack(side=LEFT)
+
+		b = Radiobutton(toolbar, image=Utils.icons["origin"],
+					indicatoron=FALSE,
+					variable=self.canvas.actionVar,
+					value=ACTION_SET_POS,
+					command=self.canvas.setActionSetPos)
+		tkExtra.Balloon.set(b, _("Set WPOS"))
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
