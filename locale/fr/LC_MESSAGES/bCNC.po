@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-24 23:03+0100\n"
-"PO-Revision-Date: 2015-12-24 23:57+0100\n"
+"POT-Creation-Date: 2015-12-30 15:27+0100\n"
+"PO-Revision-Date: 2015-12-30 15:33+0100\n"
 "Last-Translator: ThierryM <thierry.munoz@free.fr>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -433,7 +433,7 @@ msgstr "commande inconnue."
 msgid "Invalid command %s"
 msgstr "Commande %s invalide."
 
-#: Sender.py:509 ControlPage.py:346
+#: Sender.py:509 ControlPage.py:350
 #, python-format
 msgid "Set workspace %s to X%s Y%s Z%s"
 msgstr "Réglez l'espace de travail %s à X%s Y%s Z%s."
@@ -648,7 +648,7 @@ msgstr "Renommer"
 msgid "Edit name of current operation/object"
 msgstr "Éditer le nom de l'objet/opération actuel"
 
-#: ToolsPage.py:932 EditorPage.py:84
+#: ToolsPage.py:932 EditorPage.py:128
 msgid "Add"
 msgstr "Ajouter"
 
@@ -656,7 +656,7 @@ msgstr "Ajouter"
 msgid "Add a new operation/object"
 msgstr "Ajouter un nouvel objet/opération"
 
-#: ToolsPage.py:945 EditorPage.py:96
+#: ToolsPage.py:945 EditorPage.py:140
 msgid "Clone"
 msgstr "Cloner"
 
@@ -664,7 +664,7 @@ msgstr "Cloner"
 msgid "Clone selected operation/object"
 msgstr "Cloner l'objet/opération sélectionné"
 
-#: ToolsPage.py:958 EditorPage.py:108
+#: ToolsPage.py:958 EditorPage.py:152
 msgid "Delete"
 msgstr "Effacer"
 
@@ -770,7 +770,7 @@ msgstr "Votre courriel"
 msgid "Automatic error reporting"
 msgstr "Rapport automatique d'erreur"
 
-#: Utils.py:364 bCNC.py:732 bCNC.py:920 bCNC.py:1768
+#: Utils.py:364 bCNC.py:743 bCNC.py:931 bCNC.py:1790
 msgid "Close"
 msgstr "Fermer"
 
@@ -960,12 +960,12 @@ msgstr "Déplacement en pause"
 msgid "Resume"
 msgstr "Reprendre"
 
-#: ControlPage.py:353
+#: ControlPage.py:357
 #, python-format
 msgid "Last error: %s\n"
 msgstr "Dernière erreur : %s\n"
 
-#: ControlPage.py:359
+#: ControlPage.py:363
 msgid ""
 "No info available.\n"
 "Please contact the author."
@@ -973,40 +973,40 @@ msgstr ""
 "Aucune information disponible.\n"
 "Veuillez contacter l'auteur."
 
-#: ControlPage.py:360
+#: ControlPage.py:364
 #, python-format
 msgid "State: %s"
 msgstr "État :%s"
 
-#: ControlPage.py:387
+#: ControlPage.py:391
 msgid "Move +Z"
 msgstr "Déplacer +Z"
 
-#: ControlPage.py:397
+#: ControlPage.py:401
 msgid "Move -X +Y"
 msgstr "Déplacer -X +Y"
 
-#: ControlPage.py:406
+#: ControlPage.py:410
 msgid "Move +Y"
 msgstr "Déplacer +Y"
 
-#: ControlPage.py:415
+#: ControlPage.py:419
 msgid "Move +X +Y"
 msgstr "Déplacer +X +Y"
 
-#: ControlPage.py:424
+#: ControlPage.py:428
 msgid "Multiply step by 10"
 msgstr "Multiplier le pas par 10"
 
-#: ControlPage.py:433
+#: ControlPage.py:437
 msgid "Increase step by 1 unit"
 msgstr "Augmenter le pas par 1 unité"
 
-#: ControlPage.py:448
+#: ControlPage.py:452
 msgid "Move -X"
 msgstr "Déplacer -X"
 
-#: ControlPage.py:457
+#: ControlPage.py:461
 msgid ""
 "Move to Origin.\n"
 "User configurable button.\n"
@@ -1016,110 +1016,110 @@ msgstr ""
 "Bouton Utilisateur Configurable.\n"
 "Clic-Droit pour configurer."
 
-#: ControlPage.py:466
+#: ControlPage.py:470
 msgid "Move +X"
 msgstr "Déplacer +X"
 
-#: ControlPage.py:489
+#: ControlPage.py:493
 msgid "Step for every move operation"
 msgstr "Pas pour toute opération de déplacement"
 
-#: ControlPage.py:507
+#: ControlPage.py:511
 msgid "Step for Z move operation"
 msgstr "Pas pour déplacement en Z"
 
-#: ControlPage.py:521
+#: ControlPage.py:541
 msgid "Move -Z"
 msgstr "Déplacer -Z"
 
-#: ControlPage.py:530
+#: ControlPage.py:550
 msgid "Move -X -Y"
 msgstr "Déplacer -X -Y"
 
-#: ControlPage.py:539
+#: ControlPage.py:559
 msgid "Move -Y"
 msgstr "Déplacer -Y"
 
-#: ControlPage.py:548
+#: ControlPage.py:568
 msgid "Move +X -Y"
 msgstr "Déplacer +X -Y"
 
-#: ControlPage.py:556
+#: ControlPage.py:576
 msgid "Divide step by 10"
 msgstr "Diviser le pas par 10"
 
-#: ControlPage.py:564
+#: ControlPage.py:584
 msgid "Decrease step by 1 unit"
 msgstr "Diminuer le pas par 1 unité"
 
-#: ControlPage.py:630
+#: ControlPage.py:650
 #, python-format
 msgid "Step: %g"
 msgstr "Pas : %g"
 
-#: ControlPage.py:633
+#: ControlPage.py:653
 #, python-format
 msgid "Step: %g    Zstep:%g "
 msgstr "Pas : %g\tPas Z : %g"
 
-#: ControlPage.py:736
+#: ControlPage.py:776
 #, python-format
 msgid "Switch to workspace %s"
 msgstr "Basculer vers l'espace de travail %s"
 
-#: ControlPage.py:742 ProbePage.py:851
+#: ControlPage.py:782 ProbePage.py:851
 msgid "Distance:"
 msgstr "Distance :"
 
-#: ControlPage.py:750
+#: ControlPage.py:790
 msgid "Distance Mode [G90,G91]"
 msgstr "Mode Distance [G90,G91]"
 
-#: ControlPage.py:760
+#: ControlPage.py:800
 msgid "Units:"
 msgstr "Unités :"
 
-#: ControlPage.py:768
+#: ControlPage.py:808
 msgid "Units [G20, G21]"
 msgstr "Unités [G20, G21]"
 
-#: ControlPage.py:775 CNCCanvas.py:1449
+#: ControlPage.py:815 CNCCanvas.py:1470
 msgid "Tool:"
 msgstr "Outil :"
 
-#: ControlPage.py:780
+#: ControlPage.py:820
 msgid "Tool number [T#]"
 msgstr "N° d'outil [T#]"
 
-#: ControlPage.py:784 ControlPage.py:819 ProbePage.py:244
+#: ControlPage.py:824 ControlPage.py:859 ProbePage.py:244
 msgid "set"
 msgstr "régler"
 
-#: ControlPage.py:792
+#: ControlPage.py:832
 msgid "Plane:"
 msgstr "Plan :"
 
-#: ControlPage.py:800
+#: ControlPage.py:840
 msgid "Plane [G17,G18,G19]"
 msgstr "Plan [G17,G18,G19]"
 
-#: ControlPage.py:808
+#: ControlPage.py:848
 msgid "Feed:"
 msgstr "Vitesse :"
 
-#: ControlPage.py:815
+#: ControlPage.py:855
 msgid "Feed Rate [F#]"
 msgstr "Vitesse de déplacement [F#]"
 
-#: ControlPage.py:826
+#: ControlPage.py:866
 msgid "Mode:"
 msgstr "Mode :"
 
-#: ControlPage.py:835
+#: ControlPage.py:875
 msgid "Feed Mode [G93, G94, G95]"
 msgstr "Mode Vitesse [G93, G94, G95]"
 
-#: ControlPage.py:853
+#: ControlPage.py:893
 msgid ""
 "Feed\n"
 "Override:"
@@ -1127,23 +1127,23 @@ msgstr ""
 "Vitesse\n"
 "Adaptation :"
 
-#: ControlPage.py:859
+#: ControlPage.py:899
 msgid "Reset Feed Override to 100%"
 msgstr "Ré-initialiser l'adaptation de la vitesse à 100%"
 
-#: ControlPage.py:871
+#: ControlPage.py:911
 msgid "Set Feed Override"
 msgstr "Régler l'adaptation de la vitesse"
 
-#: ControlPage.py:876
+#: ControlPage.py:916
 msgid "Spindle"
 msgstr "Broche"
 
-#: ControlPage.py:884
+#: ControlPage.py:924
 msgid "Start/Stop spindle (M3/M5)"
 msgstr "Lancer/Stopper la broche (M3/M5)"
 
-#: ControlPage.py:895
+#: ControlPage.py:935
 msgid "Set spindle RPM"
 msgstr "Fixer la rotation RPM de la broche"
 
@@ -1159,7 +1159,7 @@ msgstr "Nouveau fichier GCode/DXF"
 msgid "Open existing gcode/dxf file [Ctrl-O]"
 msgstr "Ouvrir un fichier GCode/DXF existant [Ctrl-O]"
 
-#: FilePage.py:82 FilePage.py:266 bCNC.py:1760 lib/bFileDialog.py:313
+#: FilePage.py:82 FilePage.py:266 bCNC.py:1782 lib/bFileDialog.py:313
 #: lib/bFileDialog.py:955
 msgid "Open"
 msgstr "Ouvrir"
@@ -1264,6 +1264,274 @@ msgstr "Refaire [Ctrl-Y]"
 msgid "Help [F1]"
 msgstr "Aide [F1]"
 
+#: EditorPage.py:35
+msgid "Paste"
+msgstr "Coller"
+
+#: EditorPage.py:40
+msgid "Paste [Ctrl-V]"
+msgstr "Coller [Ctrl-V]"
+
+#: EditorPage.py:51
+msgid "Cut [Ctrl-X]"
+msgstr "ouper [Ctrl-X]"
+
+#: EditorPage.py:58
+msgid "Copy"
+msgstr "Copier"
+
+#: EditorPage.py:63
+msgid "Copy [Ctrl-C]"
+msgstr "Copier [Ctrl-C]"
+
+#: EditorPage.py:79 bCNC.py:93
+msgid "All"
+msgstr "Tout"
+
+#: EditorPage.py:84
+msgid "Select all blocks [Ctrl-A]"
+msgstr "Sélectionner tous les blocs [Ctrl-A]"
+
+#: EditorPage.py:91
+msgid "None"
+msgstr "Aucun"
+
+#: EditorPage.py:96
+msgid "Unselect all blocks [Ctrl-Shift-A]"
+msgstr "Désélectionner tous les blocs [Ctrl-Shift-A]"
+
+#: EditorPage.py:103 EditorPage.py:409 plugins/heightmap.py:57
+msgid "Invert"
+msgstr "Inverser"
+
+#: EditorPage.py:108
+msgid "Invert selection [Ctrl-I]"
+msgstr "Inverser la sélection [Ctrl-I]"
+
+#: EditorPage.py:117
+msgid "Import"
+msgstr "Importer"
+
+#: EditorPage.py:118
+msgid "Inkscape"
+msgstr "Inkscape"
+
+#: EditorPage.py:119
+msgid "Round"
+msgstr "Diamètre"
+
+#: EditorPage.py:120 bCNC.py:781
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: EditorPage.py:133
+msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
+msgstr "Insérer un nouveau bloc ou ligne de code [Ins ou Ctrl-Enter]"
+
+#: EditorPage.py:145
+msgid "Clone selected lines or blocks [Ctrl-D]"
+msgstr "Cloner les blocs ou lignes sélectionnés [Ctrl-D]"
+
+#: EditorPage.py:157
+msgid "Delete selected lines or blocks [Del]"
+msgstr "Effacer les blocs ou lignes sélectionnés [Ctrl-D]"
+
+#: EditorPage.py:169
+msgid "Toggle enable/disable block of g-code [Ctrl-L]"
+msgstr "Bouton qui active/désactive bloc de G-Code [Ctrl-L]"
+
+#: EditorPage.py:172
+msgid "Enable"
+msgstr "Activer"
+
+#: EditorPage.py:174
+msgid "Disable"
+msgstr "Désactiver"
+
+#: EditorPage.py:177
+msgid "Active"
+msgstr "Actif"
+
+#: EditorPage.py:183
+msgid "Enable or disable blocks of gcode"
+msgstr "Activer ou désactiver des blocs de gCode"
+
+#: EditorPage.py:190
+msgid "Expand"
+msgstr "Augmenter"
+
+#: EditorPage.py:195
+msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
+msgstr "Bouton qui étend/replie des blocs de G-Code [Ctrl-L]"
+
+#: EditorPage.py:202
+msgid "Comment"
+msgstr "Commentaire"
+
+#: EditorPage.py:208
+msgid "(Un)Comment selected lines"
+msgstr "(Dé)Commenter les lignes sélectionnées"
+
+#: EditorPage.py:223
+msgid "Move"
+msgstr "Déplacer"
+
+#: EditorPage.py:231
+msgid "Move objects [M]"
+msgstr "Déplacer les objets [M]"
+
+#: EditorPage.py:239
+msgid "T-L"
+msgstr "H-G"
+
+#: EditorPage.py:245
+msgid "Move origin of g-code to Top-Left corner"
+msgstr "Déplace l'origine du G-Code dans le coin Haut-Gauche"
+
+#: EditorPage.py:252
+msgid "L"
+msgstr "G"
+
+#: EditorPage.py:258
+msgid "Move origin of g-code to Left side"
+msgstr "Déplace l'origine du G-Code dans le côté Gauche"
+
+#: EditorPage.py:265
+msgid "B-L"
+msgstr "B-G"
+
+#: EditorPage.py:271
+msgid "Move origin of g-code to Bottom-Left corner"
+msgstr "Déplace l'origine du G-Code dans le coin Bas-Gauche"
+
+#: EditorPage.py:279
+msgid "Top"
+msgstr "Dessus"
+
+#: EditorPage.py:285
+msgid "Move origin of g-code to Top side"
+msgstr "Déplace l'origine du G-Code dans le côté Haut"
+
+#: EditorPage.py:292 ProbePage.py:65 ProbePage.py:138 ProbePage.py:427
+msgid "Center"
+msgstr "Centrer"
+
+#: EditorPage.py:298
+msgid "Move origin of g-code to center"
+msgstr "Déplace l'origine du G-Code au centre"
+
+#: EditorPage.py:305
+msgid "Bottom"
+msgstr "Dessous"
+
+#: EditorPage.py:311
+msgid "Move origin of g-code to Bottom side"
+msgstr "Déplace l'origine du G-Code dans le côté Bas"
+
+#: EditorPage.py:319
+msgid "T-R"
+msgstr "H-D"
+
+#: EditorPage.py:325
+msgid "Move origin of g-code to Top-Right corner"
+msgstr "Déplace l'origine du G-Code dans le coin Haut-Droit"
+
+#: EditorPage.py:332
+msgid "R"
+msgstr "D"
+
+#: EditorPage.py:338
+msgid "Move origin of g-code to Right side"
+msgstr "Déplace l'origine du G-Code dans le côté Droit"
+
+#: EditorPage.py:345
+msgid "B-R"
+msgstr "B-D"
+
+#: EditorPage.py:351
+msgid "Move origin of g-code to Bottom-Right corner"
+msgstr "Déplace l'origine du G-Code dans le coin Bas-Droit"
+
+#: EditorPage.py:359
+msgid "Origin"
+msgstr "Origine"
+
+#: EditorPage.py:367
+msgid "Place origin with the mouse on canvas [O]"
+msgstr "Placer l'origine avec la souris sur le canevas [O]"
+
+#: EditorPage.py:377 bCNC.py:1283
+msgid "Optimize"
+msgstr "Optimiser"
+
+#: EditorPage.py:385
+msgid "Up"
+msgstr "Haut"
+
+#: EditorPage.py:390
+msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
+msgstr "Déplace le G-code sélectionné en haut [Ctrl-Haut, Ctrl-PgUp]"
+
+#: EditorPage.py:397
+msgid "Down"
+msgstr "Bas"
+
+#: EditorPage.py:402
+msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
+msgstr "Déplace le G-code sélectionné en bas [Ctrl-Bas, Ctrl-PgDn]"
+
+#: EditorPage.py:414
+msgid "Invert cutting order of selected blocks"
+msgstr "Inverse l'ordre de coupe des blocs sélectionnés"
+
+#: EditorPage.py:429
+msgid "CW"
+msgstr "Sens Horaire"
+
+#: EditorPage.py:435
+msgid "Rotate selected gcode clock-wise (-90deg)"
+msgstr "Rotation à sens horaire (à -90 °) du G-Code sélectionné"
+
+#: EditorPage.py:442
+msgid "Flip"
+msgstr "Symétrique"
+
+#: EditorPage.py:448
+msgid "Rotate selected gcode by 180deg"
+msgstr "Rotation à 180 ° du G-Code sélectionné"
+
+#: EditorPage.py:455
+msgid "CCW"
+msgstr "Sens Anti-Horaire"
+
+#: EditorPage.py:461
+msgid "Rotate selected gcode counter-clock-wise (90deg)"
+msgstr "Rotation à sens anti-horaire (à 90 °) du G-Code sélectionné"
+
+#: EditorPage.py:468
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: EditorPage.py:474
+msgid "Mirror horizontally X=-X selected gcode"
+msgstr "Miroir horizontal X=-X du G-Code sélectionné"
+
+#: EditorPage.py:481
+msgid "Vertical"
+msgstr "Horizontal"
+
+#: EditorPage.py:487
+msgid "Mirror vertically Y=-Y selected gcode"
+msgstr "Miroir horizontal Y=-Y du G-Code sélectionné"
+
+#: EditorPage.py:494
+msgid "Reverse"
+msgstr "Inverser"
+
+#: EditorPage.py:500
+msgid "Reverse direction of selected gcode blocks"
+msgstr "Inverser la direction des blocs de GCode sélectionnées"
+
 #: ProbePage.py:23
 msgid "G38.2 stop on contact else error"
 msgstr "G38.2 Arrêt au contact sinon erreur"
@@ -1311,10 +1579,6 @@ msgstr "Sonde"
 #: ProbePage.py:59
 msgid "Simple probing along a direction"
 msgstr "Sondage simple selon une direction"
-
-#: ProbePage.py:65 ProbePage.py:138 ProbePage.py:427 EditorPage.py:248
-msgid "Center"
-msgstr "Centrer"
 
 #: ProbePage.py:71
 msgid "Center probing using a ring"
@@ -1629,369 +1893,135 @@ msgstr "Distance erronée de scan de sondage saisie"
 msgid "Invalid tool height or not calibrated"
 msgstr "Hauteur de l'outil invalide ou non calibrée"
 
-#: EditorPage.py:35
-msgid "Paste"
-msgstr "Coller"
-
-#: EditorPage.py:40
-msgid "Paste [Ctrl-V]"
-msgstr "Coller [Ctrl-V]"
-
-#: EditorPage.py:51
-msgid "Cut [Ctrl-X]"
-msgstr "ouper [Ctrl-X]"
-
-#: EditorPage.py:58
-msgid "Copy"
-msgstr "Copier"
-
-#: EditorPage.py:63
-msgid "Copy [Ctrl-C]"
-msgstr "Copier [Ctrl-C]"
-
-#: EditorPage.py:73
-msgid "Import"
-msgstr "Importer"
-
-#: EditorPage.py:74
-msgid "Inkscape"
-msgstr "Inkscape"
-
-#: EditorPage.py:75
-msgid "Round"
-msgstr "Diamètre"
-
-#: EditorPage.py:76 bCNC.py:770
-msgid "Statistics"
-msgstr "Statistiques"
-
-#: EditorPage.py:89
-msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
-msgstr "Insérer un nouveau bloc ou ligne de code [Ins ou Ctrl-Enter]"
-
-#: EditorPage.py:101
-msgid "Clone selected lines or blocks [Ctrl-D]"
-msgstr "Cloner les blocs ou lignes sélectionnés [Ctrl-D]"
-
-#: EditorPage.py:113
-msgid "Delete selected lines or blocks [Del]"
-msgstr "Effacer les blocs ou lignes sélectionnés [Ctrl-D]"
-
-#: EditorPage.py:125
-msgid "Toggle enable/disable block of g-code [Ctrl-L]"
-msgstr "Bouton qui active/désactive bloc de G-Code [Ctrl-L]"
-
-#: EditorPage.py:128
-msgid "Enable"
-msgstr "Activer"
-
-#: EditorPage.py:130
-msgid "Disable"
-msgstr "Désactiver"
-
-#: EditorPage.py:133
-msgid "Active"
-msgstr "Actif"
-
-#: EditorPage.py:139
-msgid "Enable or disable blocks of gcode"
-msgstr "Activer ou désactiver des blocs de gCode"
-
-#: EditorPage.py:146
-msgid "Expand"
-msgstr "Augmenter"
-
-#: EditorPage.py:151
-msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
-msgstr "Bouton qui étend/replie des blocs de G-Code [Ctrl-L]"
-
-#: EditorPage.py:158
-msgid "Comment"
-msgstr "Commentaire"
-
-#: EditorPage.py:164
-msgid "(Un)Comment selected lines"
-msgstr "(Dé)Commenter les lignes sélectionnées"
-
-#: EditorPage.py:179
-msgid "Move"
-msgstr "Déplacer"
-
-#: EditorPage.py:187
-msgid "Move objects [M]"
-msgstr "Déplacer les objets [M]"
-
-#: EditorPage.py:195
-msgid "T-L"
-msgstr "H-G"
-
-#: EditorPage.py:201
-msgid "Move origin of g-code to Top-Left corner"
-msgstr "Déplace l'origine du G-Code dans le coin Haut-Gauche"
-
-#: EditorPage.py:208
-msgid "L"
-msgstr "G"
-
-#: EditorPage.py:214
-msgid "Move origin of g-code to Left side"
-msgstr "Déplace l'origine du G-Code dans le côté Gauche"
-
-#: EditorPage.py:221
-msgid "B-L"
-msgstr "B-G"
-
-#: EditorPage.py:227
-msgid "Move origin of g-code to Bottom-Left corner"
-msgstr "Déplace l'origine du G-Code dans le coin Bas-Gauche"
-
-#: EditorPage.py:235
-msgid "Top"
-msgstr "Dessus"
-
-#: EditorPage.py:241
-msgid "Move origin of g-code to Top side"
-msgstr "Déplace l'origine du G-Code dans le côté Haut"
-
-#: EditorPage.py:254
-msgid "Move origin of g-code to center"
-msgstr "Déplace l'origine du G-Code au centre"
-
-#: EditorPage.py:261
-msgid "Bottom"
-msgstr "Dessous"
-
-#: EditorPage.py:267
-msgid "Move origin of g-code to Bottom side"
-msgstr "Déplace l'origine du G-Code dans le côté Bas"
-
-#: EditorPage.py:275
-msgid "T-R"
-msgstr "H-D"
-
-#: EditorPage.py:281
-msgid "Move origin of g-code to Top-Right corner"
-msgstr "Déplace l'origine du G-Code dans le coin Haut-Droit"
-
-#: EditorPage.py:288
-msgid "R"
-msgstr "D"
-
-#: EditorPage.py:294
-msgid "Move origin of g-code to Right side"
-msgstr "Déplace l'origine du G-Code dans le côté Droit"
-
-#: EditorPage.py:301
-msgid "B-R"
-msgstr "B-D"
-
-#: EditorPage.py:307
-msgid "Move origin of g-code to Bottom-Right corner"
-msgstr "Déplace l'origine du G-Code dans le coin Bas-Droit"
-
-#: EditorPage.py:315
-msgid "Origin"
-msgstr "Origine"
-
-#: EditorPage.py:323
-msgid "Place origin with the mouse on canvas [O]"
-msgstr "Placer l'origine avec la souris sur le canevas [O]"
-
-#: EditorPage.py:333
-msgid "Optimize"
-msgstr "Optimiser"
-
-#: EditorPage.py:341
-msgid "Up"
-msgstr "Haut"
-
-#: EditorPage.py:346
-msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
-msgstr "Déplace le G-code sélectionné en haut [Ctrl-Haut, Ctrl-PgUp]"
-
-#: EditorPage.py:353
-msgid "Down"
-msgstr "Bas"
-
-#: EditorPage.py:358
-msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
-msgstr "Déplace le G-code sélectionné en bas [Ctrl-Bas, Ctrl-PgDn]"
-
-#: EditorPage.py:365 plugins/heightmap.py:57
-msgid "Invert"
-msgstr "Inverser"
-
-#: EditorPage.py:370
-msgid "Invert cutting order of selected blocks"
-msgstr "Inverse l'ordre de coupe des blocs sélectionnés"
-
-#: EditorPage.py:385
-msgid "CW"
-msgstr "Sens Horaire"
-
-#: EditorPage.py:391
-msgid "Rotate selected gcode clock-wise (-90deg)"
-msgstr "Rotation à sens horaire (à -90 °) du G-Code sélectionné"
-
-#: EditorPage.py:398
-msgid "Flip"
-msgstr "Symétrique"
-
-#: EditorPage.py:404
-msgid "Rotate selected gcode by 180deg"
-msgstr "Rotation à 180 ° du G-Code sélectionné"
-
-#: EditorPage.py:411
-msgid "CCW"
-msgstr "Sens Anti-Horaire"
-
-#: EditorPage.py:417
-msgid "Rotate selected gcode counter-clock-wise (90deg)"
-msgstr "Rotation à sens anti-horaire (à 90 °) du G-Code sélectionné"
-
-#: EditorPage.py:424
-msgid "Horizontal"
-msgstr "Horizontal"
-
-#: EditorPage.py:430
-msgid "Mirror horizontally X=-X selected gcode"
-msgstr "Miroir horizontal X=-X du G-Code sélectionné"
-
-#: EditorPage.py:437
-msgid "Vertical"
-msgstr "Horizontal"
-
-#: EditorPage.py:443
-msgid "Mirror vertically Y=-Y selected gcode"
-msgstr "Miroir horizontal Y=-Y du G-Code sélectionné"
-
-#: EditorPage.py:450
-msgid "Reverse"
-msgstr "Inverser"
-
-#: EditorPage.py:456
-msgid "Reverse direction of selected gcode blocks"
-msgstr "Inverser la direction des blocs de GCode sélectionnées"
-
-#: CNCCanvas.py:256
+#: CNCCanvas.py:258
 msgid "Select objects with mouse"
 msgstr "Choisir des objets à la souris"
 
-#: CNCCanvas.py:261
+#: CNCCanvas.py:263
 msgid "Pan viewport"
 msgstr "Nettoyer la vue"
 
-#: CNCCanvas.py:266
+#: CNCCanvas.py:268
 msgid "Click to set the origin (zero)"
 msgstr "Cliquer pour fixer l'origine (zéro)"
 
-#: CNCCanvas.py:271
+#: CNCCanvas.py:273
 msgid "Move graphically objects"
 msgstr "Déplacer les objets graphiquement"
 
-#: CNCCanvas.py:276
+#: CNCCanvas.py:278
 msgid "Move CNC gantry to mouse location"
 msgstr "Déplacer le portique de la CNC à l'emplacement de la souris"
 
-#: CNCCanvas.py:281
+#: CNCCanvas.py:283
+msgid "Set mouse location as current machine position (X/Y only)"
+msgstr ""
+"Fixer la position actuelle de la machine à l'emplacement de la souris (X/Y "
+"seulement)"
+
+#: CNCCanvas.py:288
 msgid "Drag a ruler to measure distances"
 msgstr "Utiliser une règle pour mesurer les distances"
 
-#: CNCCanvas.py:286
+#: CNCCanvas.py:293
 msgid "Draw a square tab"
 msgstr "Dessiner une languette carré"
 
-#: CNCCanvas.py:382
+#: CNCCanvas.py:402
 #, python-format
 msgid "origin %g %g %g"
 msgstr "origine %g %g %g"
 
-#: CNCCanvas.py:446
+#: CNCCanvas.py:466
 #, python-format
 msgid "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
 msgstr "dx=%g  dy=%g  dz=%g  longueur=%g  angle=%g"
 
-#: CNCCanvas.py:523
+#: CNCCanvas.py:543
 #, python-format
 msgid "Move by %g, %g, %g"
 msgstr "Déplacer de %g, %g, %g"
 
-#: CNCCanvas.py:524
+#: CNCCanvas.py:544
 #, python-format
 msgid "move %g %g %g"
 msgstr "déplacer %g, %g, %g"
 
-#: CNCCanvas.py:1212
+#: CNCCanvas.py:1233
 #, python-format
 msgid ">>> ERROR: %s\n"
 msgstr ">>> ERREUR : %s\n"
 
-#: CNCCanvas.py:1213
+#: CNCCanvas.py:1234
 #, python-format
 msgid "     line: %s\n"
 msgstr "     ligne : %s\n"
 
-#: CNCCanvas.py:1432
+#: CNCCanvas.py:1453
 msgid "Change viewing angle"
 msgstr "Changer l'angle de vue"
 
-#: CNCCanvas.py:1436
+#: CNCCanvas.py:1457
 msgid "Zoom In [Ctrl-=]"
 msgstr "Zoomer [Ctrl-=]"
 
-#: CNCCanvas.py:1441
+#: CNCCanvas.py:1462
 msgid "Zoom Out [Ctrl--]"
 msgstr "Dézoomer [Ctrl--]"
 
-#: CNCCanvas.py:1446
+#: CNCCanvas.py:1467
 msgid "Fit to screen [F]"
 msgstr "Afficher en entier [F]"
 
-#: CNCCanvas.py:1460
+#: CNCCanvas.py:1481
 msgid "Select tool [S]"
 msgstr "Choisir outil [S]"
 
-#: CNCCanvas.py:1469
+#: CNCCanvas.py:1490
 msgid "Pan viewport [X]"
 msgstr "Nettoyer la vue [X]"
 
-#: CNCCanvas.py:1478
+#: CNCCanvas.py:1499
 msgid "Move gantry [G]"
 msgstr "Déplacer le portique [G]"
 
-#: CNCCanvas.py:1487
+#: CNCCanvas.py:1508
+msgid "Set WPOS"
+msgstr "Régler WPOS"
+
+#: CNCCanvas.py:1517
 msgid "Ruler [R]"
 msgstr "Règle [R]"
 
-#: CNCCanvas.py:1493
+#: CNCCanvas.py:1523
 msgid "Draw:"
 msgstr "Dessin :"
 
-#: CNCCanvas.py:1502
+#: CNCCanvas.py:1532
 msgid "Toggle display of axes"
 msgstr "Activer (ou pas) l'affichage des axes"
 
-#: CNCCanvas.py:1510
+#: CNCCanvas.py:1540
 msgid "Toggle display of grid lines"
 msgstr "Activer (ou pas) l'affichage des lignes"
 
-#: CNCCanvas.py:1518
+#: CNCCanvas.py:1548
 msgid "Toggle display of margins"
 msgstr "Activer (ou pas) l'affichage des marges"
 
-#: CNCCanvas.py:1527
+#: CNCCanvas.py:1557
 msgid "Toggle display of probe"
 msgstr "Activer (ou pas) l'affichage de la sonde"
 
-#: CNCCanvas.py:1535
+#: CNCCanvas.py:1565
 msgid "Toggle display of paths (G1,G2,G3)"
 msgstr "Activer (ou pas) l'affichage des parcours (G1, G2, G3)"
 
-#: CNCCanvas.py:1543
+#: CNCCanvas.py:1573
 msgid "Toggle display of rapid motion (G0)"
 msgstr "Activer (ou pas) l'affichage des mouvements rapides de déplacement"
 
-#: CNCCanvas.py:1551
+#: CNCCanvas.py:1581
 msgid "Toggle display of workarea"
 msgstr "Activer (ou pas) l'affichage de la zone de travail"
 
@@ -1999,13 +2029,9 @@ msgstr "Activer (ou pas) l'affichage de la zone de travail"
 msgid "All accepted"
 msgstr "Tout accepté"
 
-#: bCNC.py:88 bCNC.py:1719
+#: bCNC.py:88 bCNC.py:1741
 msgid "G-Code"
 msgstr "G-Code"
-
-#: bCNC.py:93
-msgid "All"
-msgstr "Tout"
 
 #: bCNC.py:162
 msgid ""
@@ -2016,28 +2042,28 @@ msgstr ""
 "HOME...) ou les commandes de l'éditeur (move, inkscape, round...) [Space or "
 "Ctrl-Space]"
 
-#: bCNC.py:428
+#: bCNC.py:439
 msgid "Running"
 msgstr "En marche"
 
-#: bCNC.py:429
+#: bCNC.py:440
 msgid "CNC is currently running, please stop it before."
 msgstr "CNC est en marche, veuillez l'arrêter avant."
 
-#: bCNC.py:437 bCNC.py:1670
+#: bCNC.py:448 bCNC.py:1692
 msgid "File modified"
 msgstr "Fichier modifié"
 
-#: bCNC.py:438 bCNC.py:1671
+#: bCNC.py:449 bCNC.py:1693
 msgid "Gcode was modified do you want to save it first?"
 msgstr "Le GCode a été modifié, voulez-vous d'abord l'enregistrer ?"
 
-#: bCNC.py:598
+#: bCNC.py:609
 #, python-format
 msgid "About %s"
 msgstr "Environ %s"
 
-#: bCNC.py:633
+#: bCNC.py:644
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
@@ -2045,94 +2071,98 @@ msgstr ""
 "bCNC/\tUn interpréteur complet avancé\n"
 "\tde GCode pour GRBL."
 
-#: bCNC.py:788
+#: bCNC.py:799
 msgid "Enabled GCode"
 msgstr "GCode activé"
 
-#: bCNC.py:793 bCNC.py:858
+#: bCNC.py:804 bCNC.py:869
 msgid "Margins X:"
 msgstr "Marges X :"
 
-#: bCNC.py:826 bCNC.py:891
+#: bCNC.py:837 bCNC.py:902
 msgid "# Blocks:"
 msgstr "# Blocs :"
 
-#: bCNC.py:834 bCNC.py:898
+#: bCNC.py:845 bCNC.py:909
 msgid "Length:"
 msgstr "Longueur :"
 
-#: bCNC.py:842 bCNC.py:906
+#: bCNC.py:853 bCNC.py:917
 msgid "Time:"
 msgstr "Temps:"
 
-#: bCNC.py:853
+#: bCNC.py:864
 msgid "All GCode"
 msgstr "Tout le GCode"
 
-#: bCNC.py:1069
+#: bCNC.py:1086
 msgid "Evaluation error"
 msgstr "Erreur d'évaluation"
 
-#: bCNC.py:1411
+#: bCNC.py:1284
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "Veuillez sélectionner les blocs de gcode à optimiser."
+
+#: bCNC.py:1433
 #, python-format
 msgid "EndMill: %s %g"
 msgstr "Fraise : %s %g"
 
-#: bCNC.py:1436
+#: bCNC.py:1458
 #, python-format
 msgid "Invalid user command %s"
 msgstr "Commande utilisateur %s invalide"
 
-#: bCNC.py:1513
+#: bCNC.py:1535
 msgid "Operation error"
 msgstr "Erreur d'opération"
 
-#: bCNC.py:1554
+#: bCNC.py:1576
 #, python-format
 msgid "Profile block distance=%g"
 msgstr "Distance du bloc contour = %g"
 
-#: bCNC.py:1567
+#: bCNC.py:1589
 msgid "Open paths"
 msgstr "Parcours ouverts"
 
-#: bCNC.py:1568
+#: bCNC.py:1590
 #, python-format
 msgid "WARNING: %s"
 msgstr "ATTENTION : %s"
 
-#: bCNC.py:1644
+#: bCNC.py:1666
 msgid "Open file"
 msgstr "Ouvrir fichier"
 
-#: bCNC.py:1657
+#: bCNC.py:1679
 msgid "Save file"
 msgstr "Enregistrer fichier"
 
-#: bCNC.py:1676
+#: bCNC.py:1698
 #, python-format
 msgid "Loading: %s ..."
 msgstr "Chargement : %s ..."
 
-#: bCNC.py:1690
+#: bCNC.py:1712
 #, python-format
 msgid "'%s' loaded"
 msgstr "'%s' chargé"
 
-#: bCNC.py:1696
+#: bCNC.py:1718
 #, python-format
 msgid "'%s' saved"
 msgstr "'%s' sauvegardé"
 
-#: bCNC.py:1715
+#: bCNC.py:1737
 msgid "Import Gcode/DXF file"
 msgstr "Importer fichier GCode/DXF"
 
-#: bCNC.py:1744
+#: bCNC.py:1766
 msgid "Warning"
 msgstr "Alerte"
 
-#: bCNC.py:1745
+#: bCNC.py:1767
 #, python-format
 msgid ""
 "Gcode file %s was changed since editing started\n"
@@ -2141,68 +2171,68 @@ msgstr ""
 "Le fichier G-Code %s a été modifié depuis le début de l'édition\n"
 "Recharger la nouvelle version ?"
 
-#: bCNC.py:1780
+#: bCNC.py:1802
 msgid "Error opening serial"
 msgstr "Erreur à l'ouverture du port série"
 
-#: bCNC.py:1809
+#: bCNC.py:1831
 msgid "Run ended"
 msgstr "Travail terminé"
 
-#: bCNC.py:1816
+#: bCNC.py:1838
 msgid "Serial Error"
 msgstr "Erreur port série"
 
-#: bCNC.py:1817
+#: bCNC.py:1839
 msgid "Serial is not connected"
 msgstr "Port série non connecté"
 
-#: bCNC.py:1824
+#: bCNC.py:1846
 msgid "Already running"
 msgstr "Déjà en marche"
 
-#: bCNC.py:1825
+#: bCNC.py:1847
 msgid "Please stop before"
 msgstr "Veuillez stopper avant"
 
-#: bCNC.py:1829
+#: bCNC.py:1851
 msgid "Preparing to run ..."
 msgstr "Préparation avant le travail ..."
 
-#: bCNC.py:1836
+#: bCNC.py:1858
 msgid "Probe is not zeroed"
 msgstr "Sonde non mise à Zéro"
 
-#: bCNC.py:1837
+#: bCNC.py:1859
 msgid "Please ZERO any location of the probe before starting a run"
 msgstr ""
 "Veuillez mettre à ZÉRO les positions de la sonde avant de lancer un travail"
 
-#: bCNC.py:1843
+#: bCNC.py:1865
 msgid "Empty gcode"
 msgstr "GCode vide"
 
-#: bCNC.py:1844
+#: bCNC.py:1866
 msgid "Not gcode file was loaded"
 msgstr "Aucun fichier GCode chargé"
 
-#: bCNC.py:1869
+#: bCNC.py:1891
 msgid "Running..."
 msgstr "En Marche ..."
 
-#: bCNC.py:1889 bCNC.py:1893 bCNC.py:1906
+#: bCNC.py:1911 bCNC.py:1915 bCNC.py:1928
 msgid "Pendant"
 msgstr "Boîtier de contrôle"
 
-#: bCNC.py:1890
+#: bCNC.py:1912
 msgid "Pendant started:\n"
 msgstr "Boîtier de contrôle activé :\n"
 
-#: bCNC.py:1894
+#: bCNC.py:1916
 msgid "Pendant already started:\n"
 msgstr "Boîtier de contrôle déjà activé :\n"
 
-#: bCNC.py:1896
+#: bCNC.py:1918
 msgid ""
 "\n"
 "Would you like open it locally?"
@@ -2210,15 +2240,15 @@ msgstr ""
 "\n"
 "Voulez-vous l'ouvrir localement ?"
 
-#: bCNC.py:1906
+#: bCNC.py:1928
 msgid "Pendant stopped"
 msgstr "Boîtier de contrôle arrêté"
 
-#: bCNC.py:2144
+#: bCNC.py:2166
 msgid "python serial missing"
 msgstr "python serial manquant"
 
-#: bCNC.py:2145
+#: bCNC.py:2167
 msgid ""
 "ERROR: Please install the python pyserial module\n"
 "Windows: C:\\PythonXX\\Scripts\\easy_install pyserial\n"
@@ -2775,6 +2805,10 @@ msgstr "Créer une boîte assemblée par aboutage"
 #: plugins/box.py:341
 msgid "Generated: BOX with fingers"
 msgstr "Boîte à dents d'assemblage générée"
+
+#: plugins/text.py:33
+msgid "Create text using a ttf font"
+msgstr "Créer un texte utilisant une police ttf"
 
 #: plugins/text.py:61
 msgid "Text abort: please input a Font size > 0"
