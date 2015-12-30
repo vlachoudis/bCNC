@@ -65,6 +65,50 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 #===============================================================================
+# Select Group
+#===============================================================================
+class SelectGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Select", app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectAll>>",
+				image=Utils.icons["select_all"],
+				text=_("All"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Select all blocks [Ctrl-A]"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectNone>>",
+				image=Utils.icons["select_none"],
+				text=_("None"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Unselect all blocks [Ctrl-Shift-A]"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectInvert>>",
+				image=Utils.icons["select_invert"],
+				text=_("Invert"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Invert selection [Ctrl-I]"))
+		self.addWidget(b)
+
+#===============================================================================
 # Edit Group
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
@@ -487,5 +531,5 @@ class EditorPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ClipboardGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
+		self._register((ClipboardGroup, SelectGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
 			(EditorFrame,))

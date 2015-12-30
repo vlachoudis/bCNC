@@ -681,6 +681,14 @@ class CNCListbox(Listbox):
 		self.selection_clear(0,END)
 
 	# ----------------------------------------------------------------------
+	def selectInvert(self):
+		for i in range(self.size()):
+			if self.selection_includes(i):
+				self.selection_clear(i)
+			else:
+				self.selection_set(i)
+
+	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
 	# ----------------------------------------------------------------------
 	def getSelection(self):

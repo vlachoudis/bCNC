@@ -306,8 +306,15 @@ class Application(Toplevel,Sender):
 		self.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.bind("<<Modified>>",	self.drawAfter)
 
-		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
+		self.bind('<Control-Key-A>',	self.unselectAll)
+		self.bind('<Escape>',		self.unselectAll)
+		self.bind('<Control-Key-i>',	self.selectInvert)
+
+		self.bind('<<SelectAll>>',	self.selectAll)
+		self.bind('<<SelectNone>>',	self.unselectAll)
+		self.bind('<<SelectInvert>>',	self.selectInvert)
+
 #		self.bind('<Control-Key-f>',	self.find)
 #		self.bind('<Control-Key-g>',	self.findNext)
 #		self.bind('<Control-Key-h>',	self.replace)
@@ -1004,9 +1011,15 @@ class Application(Toplevel,Sender):
 			self.editor.selectClear()
 			self.selectionChange()
 			return "break"
-#		if isinstance(focus, Entry) or \
-#		   isinstance(focus, Spinbox) or \
-#		   isinstance(focus, Listbox): return
+
+	#-----------------------------------------------------------------------
+	def selectInvert(self, event=None):
+		focus = self.focus_get()
+		if focus in (self.canvas, self.editor):
+			self.ribbon.changePage("Editor")
+			self.editor.selectInvert()
+			self.selectionChange()
+			return "break"
 
 	#-----------------------------------------------------------------------
 	def find(self, event=None):
@@ -1264,11 +1277,14 @@ class Application(Toplevel,Sender):
 				except: dz = 0.0
 			self.executeOnSelection("MOVE", False, dx,dy,dz)
 
-		# OPT*IIMZE: reorder selected blocks to minimize rapid motions
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions
 		elif rexx.abbrev("OPTIMIZE",cmd,3):
 			if not self.editor.curselection():
-				self.editor.selection_set(1, self.editor.size()-2)
-			self.executeOnSelection("OPTIMIZE", True)
+				tkMessageBox.showinfo(_("Optimize"),
+					_("Please select the blocks of gcode you want to optimize."),
+					parent=self)
+			else:
+				self.executeOnSelection("OPTIMIZE", True)
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
