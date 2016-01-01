@@ -53,7 +53,7 @@ import tkExtra
 import Unicode
 import bFileDialog
 
-from CNC import CNC, GCode
+from CNC import WAIT, CNC, GCode
 import Utils
 import Ribbon
 import Pendant
@@ -410,7 +410,7 @@ class Application(Toplevel,Sender):
 	# Set a status message from an event
 	#-----------------------------------------------------------------------
 	def updateStatus(self, event):
-		self.setStatus(event.data)
+		self.setStatus(_(event.data))
 
 	#-----------------------------------------------------------------------
 	# Update canvas coordinates
@@ -1677,7 +1677,9 @@ class Application(Toplevel,Sender):
 		if self.running: return
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title=_("Save file"),
-			initialfile=os.path.join(self.gcode.filename),
+			initialfile=os.path.join(
+					Utils.getUtf("File", "dir"),
+					Utils.getUtf("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.save(filename)
 
@@ -1899,6 +1901,7 @@ class Application(Toplevel,Sender):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
+		self.queue.put((WAIT,))
 
 	#-----------------------------------------------------------------------
 	# Start the web pendant
@@ -2013,9 +2016,12 @@ class Application(Toplevel,Sender):
 			CNC.vars["msg"] = self.statusbar.msg
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
+					#print
+					#print "selectI,gcount,runLines=",self._selectI, self._paths[self._selectI], self._gcount, self._runLines
 					if self._paths[self._selectI]:
 						i,j = self._paths[self._selectI]
 						path = self.gcode[i].path(j)
+						#print "current=",i,j,self.gcode[i][j], "path=",path
 						if path:
 							self.canvas.itemconfig(path,
 								width=2,
@@ -2023,6 +2029,7 @@ class Application(Toplevel,Sender):
 					self._selectI += 1
 
 			if self._gcount >= self._runLines:
+				#print "Run ENDED"
 				self.runEnded()
 
 	#-----------------------------------------------------------------------

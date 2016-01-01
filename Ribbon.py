@@ -73,7 +73,7 @@ class LabelGroup(Frame):
 				pady=0,
 				compound=RIGHT)
 		else:
-			self.label = Label(self, text=name,
+			self.label = Label(self, text=_(name),
 					font       = _FONT,
 					foreground = _FOREGROUND_GROUP,
 					background = _BACKGROUND_GROUP,
@@ -551,7 +551,7 @@ class TabRibbonFrame(Frame):
 		self.pages[page.name] = page
 		page._tab = TabButton(self._tabFrame,
 				image    = page._icon,
-				text     = page.name,
+				text     = _(page.name),
 				compound = LEFT,
 				value    = page.name,
 				variable = self.activePage,

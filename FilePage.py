@@ -54,7 +54,7 @@ class _RecentMenuButton(Ribbon.MenuButton):
 #===============================================================================
 class FileGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "File", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("File"), app)
 		self.grid3rows()
 
 		# ---
@@ -112,7 +112,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class OptionsGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Options", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Options"), app)
 		self.grid3rows()
 
 #		# ---
@@ -169,7 +169,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class PendantGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Pendant", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Pendant"), app)
 		self.grid3rows()
 
 		col,row=0,0
@@ -199,7 +199,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CloseGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Close", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Close"), app)
 
 		# ---
 		b = Ribbon.LabelButton(self.frame,
@@ -283,7 +283,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 #===============================================================================
 class FilePage(CNCRibbon.Page):
 	"""File I/O and configuration"""
-	_name_ = "File"
+	_name_ = N_("File")
 	_icon_ = "new"
 
 	#----------------------------------------------------------------------

@@ -255,42 +255,44 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.event_generate("<<Status>>", data=_("Select objects with mouse"))
+		self.event_generate("<<Status>>", data=_("Select objects with mouse").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionPan(self, event=None):
 		self.setAction(ACTION_PAN)
-		self.event_generate("<<Status>>",data=_("Pan viewport"))
+		self.event_generate("<<Status>>",data=_("Pan viewport").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
 		self.setAction(ACTION_ORIGIN)
-		self.event_generate("<<Status>>",data=_("Click to set the origin (zero)"))
+		self.event_generate("<<Status>>",data=_("Click to set the origin (zero)").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionMove(self, event=None):
 		self.setAction(ACTION_MOVE)
-		self.event_generate("<<Status>>",data=_("Move graphically objects"))
+		self.event_generate("<<Status>>",data=_("Move graphically objects").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
-		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location"))
+		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionSetPos(self, event=None):
 		self.setAction(ACTION_SET_POS)
-		self.event_generate("<<Status>>",data=_("Set mouse location as current machine position (X/Y only)"))
+		self.event_generate("<<Status>>",
+			data=_("Set mouse location as current machine position (X/Y only)").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
-		self.event_generate("<<Status>>",data=_("Drag a ruler to measure distances"))
+		self.event_generate("<<Status>>",
+			data=_("Drag a ruler to measure distances").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionAddTab(self, event=None):
 		self.setAction(ACTION_ADDTAB)
-		self.event_generate("<<Status>>",data=_("Draw a square tab"))
+		self.event_generate("<<Status>>",data=_("Draw a square tab").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
@@ -463,9 +465,9 @@ class CNCCanvas(Canvas):
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
 			self.event_generate("<<Status>>",
-				data=_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
+				data=(_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
-					math.degrees(math.atan2(dy,dx))))
+					math.degrees(math.atan2(dy,dx)))).encode("utf-8"))
 
 		elif self._mouseAction == ACTION_PAN:
 			self.pan(event)
@@ -540,8 +542,9 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.event_generate("<<Status>>", data=_("Move by %g, %g, %g")%(dx,dy,dz))
-			self.app.insertCommand(_("move %g %g %g")%(dx,dy,dz),True)
+			self.event_generate("<<Status>>",
+				data=(_("Move by %g, %g, %g")%(dx,dy,dz)).encode("utf-8"))
+			self.app.insertCommand(("move %g %g %g")%(dx,dy,dz),True)
 
 		elif self._mouseAction == ACTION_PAN:
 			self.panRelease(event)
@@ -1488,7 +1491,6 @@ class CanvasFrame(Frame):
 					value=ACTION_PAN,
 					command=self.canvas.setActionPan)
 		tkExtra.Balloon.set(b, _("Pan viewport [X]"))
-		self.addWidget(b)
 		b.pack(side=LEFT)
 
 		b = Radiobutton(toolbar, image=Utils.icons["gantry"],

@@ -279,7 +279,6 @@ class Probe:
 	# Add a probed point to the list and the 3D matrix
 	#----------------------------------------------------------------------
 	def add(self, x,y,z):
-		self.points.append([x,y,z])
 		i = round((x-self.xmin) / self._xstep)
 		if i<0.0 or i>self.xn: return
 
@@ -294,6 +293,7 @@ class Probe:
 
 		try:
 			self.matrix[int(j)][int(i)] = z
+			self.points.append([x,y,z])
 		except IndexError:
 			pass
 

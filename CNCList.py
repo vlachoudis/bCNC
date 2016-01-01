@@ -557,16 +557,16 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def _toggleEnable(self, enable=None):
 		if not self._items: return None
-		items   = list(map(int,self.curselection()))
-		active  = self.index(ACTIVE)
-		ypos = self.yview()[0]
+		items    = list(map(int,self.curselection()))
+		active   = self.index(ACTIVE)
+		ypos     = self.yview()[0]
 		undoinfo = []
-		#blocks = []
+		blocks   = []
 		for i in items:
 			bid,lid = self._items[i]
-			#if lid is not None:
-			#	if bid in blocks: continue
-			#blocks.append(bid)
+			if lid is not None:
+				if bid in blocks: continue
+			blocks.append(bid)
 			block = self.gcode[bid]
 			if block.name() in ("Header", "Footer"): continue
 			if enable is None: enable = not block.enable

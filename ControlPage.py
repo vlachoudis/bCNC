@@ -35,7 +35,7 @@ _HIGHZSTEP = 10.0
 #===============================================================================
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Connection", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Connection"), app,
 			[(_("Hard Reset"),  "reset",     app.hardReset)
 			])
 		self.grid2rows()
@@ -347,7 +347,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if z is not None: cmd += "Z"+str(z)
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z)))
+			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -647,10 +647,12 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def setStep(self, s, zs=None):
 		self.step.set("%.4g"%(s))
 		if self.zstep is self.step or zs is None:
-			self.event_generate("<<Status>>",data=_("Step: %g")%(s))
+			self.event_generate("<<Status>>",
+				data=(_("Step: %g")%(s)).encode("utf-8"))
 		else:
 			self.zstep.set("%.4g"%(zs))
-			self.event_generate("<<Status>>",data=_("Step: %g    Zstep:%g ")%(s,zs))
+			self.event_generate("<<Status>>",
+				data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf-8"))
 
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -1030,7 +1032,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 class ControlPage(CNCRibbon.Page):
 	"""CNC communication and control"""
 
-	_name_ = "Control"
+	_name_ = N_("Control")
 	_icon_ = "control"
 
 	#----------------------------------------------------------------------

@@ -26,7 +26,7 @@ from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 #===============================================================================
 class ClipboardGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Clipboard", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Clipboard"), app)
 		self.grid2rows()
 
 		# ---
@@ -69,7 +69,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class SelectGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Select", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Select"), app)
 		self.grid3rows()
 
 		# ---
@@ -113,7 +113,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
 			[(_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True)),
@@ -213,7 +213,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class MoveGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Move", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Move"), app)
 		self.grid3rows()
 
 		# ===
@@ -373,7 +373,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class OrderGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Order", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Order"), app,
 			[(_("Optimize"),  "optimize", lambda a=app:a.insertCommand("OPTIMIZE",True)),
 			])
 		self.grid2rows()
@@ -419,7 +419,7 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class TransformGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Transform", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Transform"), app)
 		self.grid3rows()
 
 		# ---
@@ -524,7 +524,7 @@ class EditorFrame(CNCRibbon.PageFrame):
 class EditorPage(CNCRibbon.Page):
 	"""GCode editor"""
 
-	_name_ = "Editor"
+	_name_ = N_("Editor")
 	_icon_ = "edit"
 
 	#----------------------------------------------------------------------

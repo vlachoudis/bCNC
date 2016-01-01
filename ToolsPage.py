@@ -867,7 +867,7 @@ class Tools:
 #===============================================================================
 class DataBaseGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Database", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Database"), app)
 		self.grid3rows()
 
 		# ---
@@ -969,7 +969,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CAMGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "CAM", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("CAM"), app)
 		self.grid3rows()
 
 		# ===
@@ -1047,7 +1047,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class MacrosGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Macros", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Macros"), app)
 		self.grid3rows()
 
 		col,row=0,0
@@ -1076,7 +1076,7 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class ConfigGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Config", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
 		self.grid3rows()
 
 		# ===
@@ -1222,7 +1222,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 class ToolsPage(CNCRibbon.Page):
 	"""GCode manipulation tools and user plugins"""
 
-	_name_ = "Tools"
+	_name_ = N_("Tools")
 	_icon_ = "tools"
 
 	#----------------------------------------------------------------------

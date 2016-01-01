@@ -41,7 +41,7 @@ TOOL_WAIT = [	_("ONLY before probing"),
 #===============================================================================
 class ProbeTabGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Probe"), app)
 
 		self.tab = StringVar()
 		self.tab.set("Probe")
