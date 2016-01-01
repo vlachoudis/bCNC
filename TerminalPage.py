@@ -165,8 +165,9 @@ class TerminalFrame(CNCRibbon.PageFrame):
 # Terminal Page
 #===============================================================================
 class TerminalPage(CNCRibbon.Page):
-	_name_ = "Terminal"
-	_icon_ = "terminal"
+	__doc__ = _("Serial Terminal")
+	_name_  = "Terminal"
+	_icon_  = "terminal"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

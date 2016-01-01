@@ -522,10 +522,9 @@ class EditorFrame(CNCRibbon.PageFrame):
 # Editor Page
 #===============================================================================
 class EditorPage(CNCRibbon.Page):
-	"""GCode editor"""
-
-	_name_ = N_("Editor")
-	_icon_ = "edit"
+	__doc__ = _("GCode editor")
+	_name_  = N_("Editor")
+	_icon_  = "edit"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

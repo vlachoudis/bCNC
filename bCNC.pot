@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-01-01 22:17+CET\n"
+"POT-Creation-Date: 2016-01-01 22:33+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -432,7 +432,11 @@ msgstr ""
 msgid "Set spindle RPM"
 msgstr ""
 
-#: ControlPage.py:1035
+#: ControlPage.py:1033
+msgid "CNC communication and control"
+msgstr ""
+
+#: ControlPage.py:1034
 msgid "Control"
 msgstr ""
 
@@ -740,7 +744,11 @@ msgstr ""
 msgid "Reverse direction of selected gcode blocks"
 msgstr ""
 
-#: EditorPage.py:527
+#: EditorPage.py:525
+msgid "GCode editor"
+msgstr ""
+
+#: EditorPage.py:526
 msgid "Editor"
 msgstr ""
 
@@ -859,6 +867,10 @@ msgstr ""
 
 #: FilePage.py:271
 msgid "Open/Close serial port"
+msgstr ""
+
+#: FilePage.py:285
+msgid "File I/O and configuration"
 msgstr ""
 
 #: ProbePage.py:23
@@ -1219,6 +1231,10 @@ msgstr ""
 msgid "Invalid tool height or not calibrated"
 msgstr ""
 
+#: ProbePage.py:1056
+msgid "Probe configuration and probing"
+msgstr ""
+
 #: Ribbon.py:481
 msgid "Open file [Ctrl-O]"
 msgstr ""
@@ -1481,6 +1497,10 @@ msgstr ""
 
 #: TerminalPage.py:134
 msgid "$ Display build information of Grbl"
+msgstr ""
+
+#: TerminalPage.py:168
+msgid "Serial Terminal"
 msgstr ""
 
 #: ToolsPage.py:469
@@ -1793,7 +1813,11 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: ToolsPage.py:1225
+#: ToolsPage.py:1223
+msgid "GCode manipulation tools and user plugins"
+msgstr ""
+
+#: ToolsPage.py:1224
 msgid "Tools"
 msgstr ""
 

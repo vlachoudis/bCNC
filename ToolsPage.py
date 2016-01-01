@@ -1220,10 +1220,9 @@ class ToolsFrame(CNCRibbon.PageFrame):
 # Tools Page
 #===============================================================================
 class ToolsPage(CNCRibbon.Page):
-	"""GCode manipulation tools and user plugins"""
-
-	_name_ = N_("Tools")
-	_icon_ = "tools"
+	__doc__ = _("GCode manipulation tools and user plugins")
+	_name_  = N_("Tools")
+	_icon_  = "tools"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

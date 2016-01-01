@@ -282,9 +282,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 # File Page
 #===============================================================================
 class FilePage(CNCRibbon.Page):
-	"""File I/O and configuration"""
-	_name_ = N_("File")
-	_icon_ = "new"
+	__doc__ = _("File I/O and configuration")
+	_name_  = N_("File")
+	_icon_  = "new"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

@@ -1053,10 +1053,9 @@ class ToolFrame(CNCRibbon.PageFrame):
 # Probe Page
 #===============================================================================
 class ProbePage(CNCRibbon.Page):
-	"""Probe configuration and probing"""
-
-	_name_ = "Probe"
-	_icon_ = "measure"
+	__doc__ = _("Probe configuration and probing")
+	_name_  = "Probe"
+	_icon_  = "measure"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

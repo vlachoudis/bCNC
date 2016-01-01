@@ -1030,10 +1030,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 # Control Page
 #===============================================================================
 class ControlPage(CNCRibbon.Page):
-	"""CNC communication and control"""
-
-	_name_ = N_("Control")
-	_icon_ = "control"
+	__doc__ = _("CNC communication and control")
+	_name_  = N_("Control")
+	_icon_  = "control"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run
