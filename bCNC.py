@@ -705,6 +705,18 @@ class Application(Toplevel,Sender):
 
 		# -----
 		row += 1
+		l = Label(frame, text='translations:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+
+		l = Label(frame, text=Utils.__translations__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
 		l = Label(frame, text='credits:',
 				foreground=fg, background=bg, justify=LEFT,
 				font=font2)
