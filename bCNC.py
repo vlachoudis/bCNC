@@ -2102,11 +2102,12 @@ if __name__ == "__main__":
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
 			'?b:dDhi:g:rlpPSs:',
-			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
+			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud=','run'])
 	except getopt.GetoptError:
 		usage(1)
 
 	recent   = None
+	run      = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -2173,6 +2174,9 @@ if __name__ == "__main__":
 		elif opt == "--pendant":
 			pass #startPendant on port
 
+		elif opt == "--run":
+			run = True
+
 	# Start application
 	application = Application(tk)
 
@@ -2187,6 +2191,9 @@ if __name__ == "__main__":
 			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
 			  "Linux: sudo apt-get or yum install python-serial"))
 
+	if run:
+		application.run()
+			  
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
