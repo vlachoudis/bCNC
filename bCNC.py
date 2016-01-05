@@ -2083,6 +2083,7 @@ def usage(rc):
 	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
 	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
 	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
+	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
