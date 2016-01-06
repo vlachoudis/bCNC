@@ -2083,6 +2083,7 @@ def usage(rc):
 	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
 	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
 	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
+	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
@@ -2102,11 +2103,12 @@ if __name__ == "__main__":
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
 			'?b:dDhi:g:rlpPSs:',
-			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
+			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud=','run'])
 	except getopt.GetoptError:
 		usage(1)
 
 	recent   = None
+	run      = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -2173,6 +2175,9 @@ if __name__ == "__main__":
 		elif opt == "--pendant":
 			pass #startPendant on port
 
+		elif opt == "--run":
+			run = True
+
 	# Start application
 	application = Application(tk)
 
@@ -2187,6 +2192,9 @@ if __name__ == "__main__":
 			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
 			  "Linux: sudo apt-get or yum install python-serial"))
 
+	if run:
+		application.run()
+			  
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
