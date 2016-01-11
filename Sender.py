@@ -725,7 +725,8 @@ class Sender:
 								CNC.vars["prbx"] = float(pat.group(2))
 								CNC.vars["prby"] = float(pat.group(3))
 								CNC.vars["prbz"] = float(pat.group(4))
-								if self.running:
+								#if self.running:
+								if True:
 									self.gcode.probe.add(
 										 CNC.vars["prbx"]
 										+CNC.vars["wx"]
