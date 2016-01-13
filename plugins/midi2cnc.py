@@ -32,7 +32,7 @@ class Midi2CNC:
 # Create pyrograph
 #==============================================================================
 class Tool(Plugin):
-	"""Sound your machine from a midi file"""
+	__doc__ = _("Sound your machine from a midi file")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Midi2CNC"

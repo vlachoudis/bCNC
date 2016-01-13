@@ -22,7 +22,7 @@ import CNCRibbon
 #===============================================================================
 class TerminalGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Terminal", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Terminal"), app)
 
 		b = Ribbon.LabelButton(self.frame, self, "<<TerminalClear>>",
 				image=Utils.icons["clean32"],
@@ -37,7 +37,7 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Commands", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Commands"), app,
 			[(_("Restore Settings"),  "grbl_settings",  app.grblRestoreSettings),
 			 (_("Restore Workspace"), "grbl_params",    app.grblRestoreWCS),
 			 (_("Restore All"),       "reset",          app.grblRestoreAll),
@@ -137,7 +137,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Terminal", app)
+		CNCRibbon.PageFrame.__init__(self, master, N_("Terminal"), app)
 		self.terminal = Text(self,
 					background="White",
 					width=20,
@@ -165,8 +165,9 @@ class TerminalFrame(CNCRibbon.PageFrame):
 # Terminal Page
 #===============================================================================
 class TerminalPage(CNCRibbon.Page):
-	_name_ = "Terminal"
-	_icon_ = "terminal"
+	__doc__ = _("Serial Terminal")
+	_name_  = "Terminal"
+	_icon_  = "terminal"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

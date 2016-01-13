@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.7.2"
-__date__    = "29 Nov 2015"
+__version__ = "0.7.4"
+__date__    = "11 Jan 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -19,11 +19,12 @@ import getopt
 import socket
 import traceback
 
-import __builtin__
 import gettext
+import __builtin__
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
 __builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__.N_ = lambda message: message
 
 try:
 	import serial
@@ -43,12 +44,16 @@ except ImportError:
 	import configparser as ConfigParser
 	import tkinter.messagebox as tkMessageBox
 
+PRGPATH=os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(PRGPATH, 'lib'))
+sys.path.append(os.path.join(PRGPATH, 'plugins'))
+
 import rexx
 import tkExtra
 import Unicode
 import bFileDialog
 
-from CNC import CNC, GCode
+from CNC import WAIT, CNC, GCode
 import Utils
 import Ribbon
 import Pendant
@@ -301,8 +306,15 @@ class Application(Toplevel,Sender):
 		self.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.bind("<<Modified>>",	self.drawAfter)
 
-		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-a>',	self.selectAll)
+		self.bind('<Control-Key-A>',	self.unselectAll)
+		self.bind('<Escape>',		self.unselectAll)
+		self.bind('<Control-Key-i>',	self.selectInvert)
+
+		self.bind('<<SelectAll>>',	self.selectAll)
+		self.bind('<<SelectNone>>',	self.unselectAll)
+		self.bind('<<SelectInvert>>',	self.selectInvert)
+
 #		self.bind('<Control-Key-f>',	self.find)
 #		self.bind('<Control-Key-g>',	self.findNext)
 #		self.bind('<Control-Key-h>',	self.replace)
@@ -353,6 +365,10 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-slash>',	self.control.divStep)
 		self.bind('<KP_Divide>',	self.control.divStep)
 
+		self.bind('<Key-1>',		self.control.setStep1)
+		self.bind('<Key-2>',		self.control.setStep2)
+		self.bind('<Key-3>',		self.control.setStep3)
+
 		self.bind('<Key-exclam>',	self.feedHold)
 		self.bind('<Key-asciitilde>',	self.resume)
 
@@ -394,7 +410,7 @@ class Application(Toplevel,Sender):
 	# Set a status message from an event
 	#-----------------------------------------------------------------------
 	def updateStatus(self, event):
-		self.setStatus(event.data)
+		self.setStatus(_(event.data))
 
 	#-----------------------------------------------------------------------
 	# Update canvas coordinates
@@ -683,6 +699,18 @@ class Application(Toplevel,Sender):
 		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
 
 		l = Label(frame, text=Utils.__contribute__,
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = Label(frame, text='translations:',
+				foreground=fg, background=bg, justify=LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+
+		l = Label(frame, text=Utils.__translations__,
 				foreground=fg, background=bg, justify=LEFT,
 				font=font2)
 		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
@@ -995,9 +1023,15 @@ class Application(Toplevel,Sender):
 			self.editor.selectClear()
 			self.selectionChange()
 			return "break"
-#		if isinstance(focus, Entry) or \
-#		   isinstance(focus, Spinbox) or \
-#		   isinstance(focus, Listbox): return
+
+	#-----------------------------------------------------------------------
+	def selectInvert(self, event=None):
+		focus = self.focus_get()
+		if focus in (self.canvas, self.editor):
+			self.ribbon.changePage("Editor")
+			self.editor.selectInvert()
+			self.selectionChange()
+			return "break"
 
 	#-----------------------------------------------------------------------
 	def find(self, event=None):
@@ -1255,9 +1289,14 @@ class Application(Toplevel,Sender):
 				except: dz = 0.0
 			self.executeOnSelection("MOVE", False, dx,dy,dz)
 
-		# OPT*IIMZE: reorder selected blocks to minimize rapid motions
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions
 		elif rexx.abbrev("OPTIMIZE",cmd,3):
-			self.executeOnSelection("OPTIMIZE", True)
+			if not self.editor.curselection():
+				tkMessageBox.showinfo(_("Optimize"),
+					_("Please select the blocks of gcode you want to optimize."),
+					parent=self)
+			else:
+				self.executeOnSelection("OPTIMIZE", True)
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
@@ -1650,7 +1689,9 @@ class Application(Toplevel,Sender):
 		if self.running: return
 		filename = bFileDialog.asksaveasfilename(master=self,
 			title=_("Save file"),
-			initialfile=os.path.join(self.gcode.filename),
+			initialfile=os.path.join(
+					Utils.getUtf("File", "dir"),
+					Utils.getUtf("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.save(filename)
 
@@ -1872,6 +1913,7 @@ class Application(Toplevel,Sender):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
+		self.queue.put((WAIT,))
 
 	#-----------------------------------------------------------------------
 	# Start the web pendant
@@ -1986,9 +2028,12 @@ class Application(Toplevel,Sender):
 			CNC.vars["msg"] = self.statusbar.msg
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
+					#print
+					#print "selectI,gcount,runLines=",self._selectI, self._paths[self._selectI], self._gcount, self._runLines
 					if self._paths[self._selectI]:
 						i,j = self._paths[self._selectI]
 						path = self.gcode[i].path(j)
+						#print "current=",i,j,self.gcode[i][j], "path=",path
 						if path:
 							self.canvas.itemconfig(path,
 								width=2,
@@ -1996,6 +2041,7 @@ class Application(Toplevel,Sender):
 					self._selectI += 1
 
 			if self._gcount >= self._runLines:
+				#print "Run ENDED"
 				self.runEnded()
 
 	#-----------------------------------------------------------------------
@@ -2037,6 +2083,7 @@ def usage(rc):
 	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
 	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
 	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
+	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
@@ -2056,11 +2103,12 @@ if __name__ == "__main__":
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
 			'?b:dDhi:g:rlpPSs:',
-			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud='])
+			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud=','run'])
 	except getopt.GetoptError:
 		usage(1)
 
 	recent   = None
+	run      = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -2127,6 +2175,9 @@ if __name__ == "__main__":
 		elif opt == "--pendant":
 			pass #startPendant on port
 
+		elif opt == "--run":
+			run = True
+
 	# Start application
 	application = Application(tk)
 
@@ -2141,6 +2192,9 @@ if __name__ == "__main__":
 			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
 			  "Linux: sudo apt-get or yum install python-serial"))
 
+	if run:
+		application.run()
+			  
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:

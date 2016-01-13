@@ -259,7 +259,7 @@ class FileDialog(Toplevel):
 
 		self.dirframe = Frame(self)
 		self.dirframe.pack(side=TOP, fill=X)
-		Label(self.dirframe, text="Directory:").grid(
+		Label(self.dirframe, text=_("Directory:")).grid(
 			row=0, column=0)
 
 		self.downButton = Label(self.dirframe, text=u"\u25BC",
@@ -283,10 +283,10 @@ class FileDialog(Toplevel):
 		else:
 			selectmode = BROWSE
 		self.fileList = tkExtra.ColorMultiListbox(self,
-			(("Name", 30, None),
-			 ("Type", 12, None),
-			 ("Size",  8, None),
-			 ("Date", 17, None)),
+			((_("Name"), 30, None),
+			 (_("Type"), 12, None),
+			 (_("Size"),  8, None),
+			 (_("Date"), 17, None)),
 			 height=20,
 			 selectmode=selectmode)
 		self.fileList.pack(expand=YES, fill=BOTH)
@@ -306,14 +306,14 @@ class FileDialog(Toplevel):
 		frame = Frame(self)
 		frame.pack(side=BOTTOM, fill=X)
 
-		l = Label(frame, text="File name:")
+		l = Label(frame, text=_("File name:"))
 		l.grid(row=0, column=0, sticky=E)
 		self.filename = Entry(frame, background="White")
 		self.filename.grid(row=0, column=1, sticky=EW)
-		self.ok = Button(frame, text="Open", command=self.openFilename)
+		self.ok = Button(frame, text=_("Open"), command=self.openFilename)
 		self.ok.grid(row=0, column=2, sticky=EW)
 
-		l = Label(frame, text="Files of type:")
+		l = Label(frame, text=_("Files of type:"))
 		l.grid(row=1, column=0, sticky=E)
 
 		self.combo = tkExtra.Combobox(frame, command=self.typeChange)
@@ -334,7 +334,7 @@ class FileDialog(Toplevel):
 				self.combo.insert(END, s)
 				self.filetypes[s] = ext
 
-		b = Button(frame, text="Cancel", command=self.cancel)
+		b = Button(frame, text=_("Cancel"), command=self.cancel)
 		b.grid(row=1, column=2, sticky=EW)
 		frame.grid_columnconfigure(1, weight=1)
 
@@ -544,8 +544,8 @@ class FileDialog(Toplevel):
 		path = os.path.abspath(path)
 		try: os.lstat(path)
 		except OSError:
-			messagebox.showerror("Error",
-				"Cannot access path \"%s\""%(path),
+			messagebox.showerror(_("Error"),
+				_("Cannot access path \"%s\"")%(path),
 				parent=self)
 			return
 		self.buttonPath(path)
@@ -602,8 +602,8 @@ class FileDialog(Toplevel):
 					elif color:
 						self.fileList.setColor(END, color)
 		except OSError:
-			messagebox.showerror("Error",
-				"Error listing folder \"%s\""%(path),
+			messagebox.showerror(_("Error"),
+				_("Error listing folder \"%s\"")%(path),
 				parent=self)
 
 		if FileDialog.sort is None:
@@ -784,7 +784,7 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def newFolder(self):
-		self.fileList.insert(END, ("NewFolder", _DIR_TYPE, 0,
+		self.fileList.insert(END, (_("NewFolder"), _DIR_TYPE, 0,
 					 time.strftime(_TIME_FORMAT,
 					 time.localtime(time.time()))))
 		self.fileList.see(END)
@@ -796,8 +796,8 @@ class FileDialog(Toplevel):
 			try:
 				os.mkdir(os.path.join(self.path, edit.value))
 			except OSError:
-				messagebox.showerror("Error",
-					"Error creating folder \"%s\""%(edit.value),
+				messagebox.showerror(_("Error"),
+					_("Error creating folder \"%s\"")%(edit.value),
 					parent=self)
 				self.fileList.delete(END)
 				return
@@ -820,8 +820,8 @@ class FileDialog(Toplevel):
 				os.rename(os.path.join(self.path, fn),
 					os.path.join(self.path, edit.value))
 			except OSError:
-				messagebox.showerror("Error",
-					"Error renaming \"%s\" to \"%s\"" \
+				messagebox.showerror(_("Error"),
+					_("Error renaming \"%s\" to \"%s\"") \
 						%(fn, edit.value),
 					parent=self)
 		self.select()
@@ -842,8 +842,8 @@ class FileDialog(Toplevel):
 					os.remove(filename)
 				self.fileList.delete(i)
 		except OSError:
-			messagebox.showerror("Error",
-					"Error deleting file \"%s\""%(fn),
+			messagebox.showerror(_("Error"),
+					_("Error deleting file \"%s\"")%(fn),
 					parent=self)
 		self.select()
 
@@ -852,15 +852,16 @@ class OpenDialog(FileDialog):
 	_title = "Open"
 
 	# ----------------------------------------------------------------------
+	# Check if file exist
+	# ----------------------------------------------------------------------
 	def check(self):
-		"""Check if file exist"""
 		if isinstance(self.selFile, list):
 			for f in self.selFile:
 				try:
 					os.lstat(f)
 				except:
-					messagebox.showwarning("File does not exist",
-						"File \"%s\" does not exist"%(f),
+					messagebox.showwarning(_("File does not exist"),
+						_("File \"%s\" does not exist")%(f),
 						parent=self)
 					self.selFile = ""
 					return False
@@ -868,8 +869,8 @@ class OpenDialog(FileDialog):
 			try:
 				os.lstat(self.selFile)
 			except:
-				messagebox.showwarning("File does not exist",
-					"File \"%s\" does not exist"%(self.selFile),
+				messagebox.showwarning(_("File does not exist"),
+					_("File \"%s\" does not exist")%(self.selFile),
 					parent=self)
 				self.selFile = ""
 				return False
@@ -877,19 +878,19 @@ class OpenDialog(FileDialog):
 
 #===============================================================================
 class SaveAsDialog(FileDialog):
-	_title = "Save As"
+	_title = _("Save As")
 
 	# ----------------------------------------------------------------------
 	def __init__(self, **kw):
 		FileDialog.__init__(self, **kw)
-		self.ok["text"] = "Save"
+		self.ok["text"] = _("Save")
 
 	# ----------------------------------------------------------------------
 	def check(self):
 		try:
 			os.lstat(self.selFile)
-			ans = messagebox.askyesno("File already exists",
-				"Overwrite existing file %r?"%(self.selFile),
+			ans = messagebox.askyesno(_("File already exists"),
+				_("Overwrite existing file %r?")%(self.selFile),
 				parent=self)
 			if str(ans)!=messagebox.YES and not ans:
 				self.selFile = ""
@@ -900,7 +901,7 @@ class SaveAsDialog(FileDialog):
 
 #===============================================================================
 class DirectoryDialog(FileDialog):
-	_title = "Choose Directory"
+	_title = _("Choose Directory")
 	def __init__(self, **kw):
 		FileDialog.__init__(self, **kw)
 		self.files  = False
@@ -951,7 +952,7 @@ if __name__ == "__main__":
 		initdir = os.path.abspath(sys.argv[1])
 	#print askdirectory()
 
-	files = asksaveasfilename(title="Open flair project",
+	files = asksaveasfilename(title=_("Open"),
 			initialdir=initdir,
 #			initialfile="test.f",
 			filetypes=(("All","*"),

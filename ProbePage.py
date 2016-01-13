@@ -41,7 +41,7 @@ TOOL_WAIT = [	_("ONLY before probing"),
 #===============================================================================
 class ProbeTabGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Probe"), app)
 
 		self.tab = StringVar()
 		self.tab.set("Probe")
@@ -707,11 +707,8 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def scan(self, event=None):
 		if self.change(): return
-
 		# absolute
-		probe = self.app.gcode.probe
-		probe.clear()
-		self.app.run(lines=probe.scan())
+		self.app.run(lines=self.app.gcode.probe.scan())
 
 #===============================================================================
 # Tool Group
@@ -1056,10 +1053,9 @@ class ToolFrame(CNCRibbon.PageFrame):
 # Probe Page
 #===============================================================================
 class ProbePage(CNCRibbon.Page):
-	"""Probe configuration and probing"""
-
-	_name_ = "Probe"
-	_icon_ = "measure"
+	__doc__ = _("Probe configuration and probing")
+	_name_  = "Probe"
+	_icon_  = "measure"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

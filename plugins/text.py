@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
@@ -30,7 +30,7 @@ class Text:
 # Create Text
 #==============================================================================
 class Tool(Plugin):
-	"""Create text using a ttf font"""
+	__doc__ =  _("Create text using a ttf font")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Text"
@@ -185,4 +185,3 @@ class Tool(Plugin):
 			#print img_as_ascii[c:c+new_width]
 			output += img_as_ascii[c:c+new_width] + u'\n'
 		return output
-

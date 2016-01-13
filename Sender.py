@@ -506,7 +506,7 @@ class Sender:
 		if z is not None and abs(z)<10000.0: cmd += "Z"+str(z)
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z)))
+			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -620,6 +620,7 @@ class Sender:
 					if isinstance(tosend, tuple):
 						# Count executed commands as well
 						self._gcount += 1
+						#print "gcount tuple=",self._gcount
 						# wait to empty the grbl buffer
 						if tosend[0] == WAIT:
 							wait = True
@@ -648,6 +649,7 @@ class Sender:
 							else:
 								# Count executed commands as well
 								self._gcount += 1
+								#print "gcount str=",self._gcount
 							#print "+++ eval=",repr(tosend),type(tosend)
 						except:
 							self.log.put((True,sys.exc_info()[1]))
@@ -723,7 +725,8 @@ class Sender:
 								CNC.vars["prbx"] = float(pat.group(2))
 								CNC.vars["prby"] = float(pat.group(3))
 								CNC.vars["prbz"] = float(pat.group(4))
-								if self.running:
+								#if self.running:
+								if True:
 									self.gcode.probe.add(
 										 CNC.vars["prbx"]
 										+CNC.vars["wx"]
@@ -757,6 +760,7 @@ class Sender:
 						uline = line.upper()
 						if uline.find("ERROR")==0 or uline.find("ALARM")==0:
 							self._gcount += 1
+							#print "gcount ERROR=",self._gcount
 							if cline: del cline[0]
 							if sline: CNC.vars["errline"] = sline.pop(0)
 							if not self._alarm: self._posUpdate = True
@@ -772,6 +776,7 @@ class Sender:
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
+							#print "gcount OK=",self._gcount
 							if cline: del cline[0]
 							if sline: del sline[0]
 

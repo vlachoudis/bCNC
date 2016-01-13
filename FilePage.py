@@ -54,14 +54,14 @@ class _RecentMenuButton(Ribbon.MenuButton):
 #===============================================================================
 class FileGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "File", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("File"), app)
 		self.grid3rows()
 
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame, self, "<<New>>",
 				image=Utils.icons["new32"],
-				text="New",
+				text=_("New"),
 				compound=TOP,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
@@ -79,7 +79,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 
 		col,row=1,2
 		b = _RecentMenuButton(self.frame, None,
-				text="Open",
+				text=_("Open"),
 				image=Utils.icons["triangle_down"],
 				compound=RIGHT,
 				background=Ribbon._BACKGROUND)
@@ -112,7 +112,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class OptionsGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Options", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Options"), app)
 		self.grid3rows()
 
 #		# ---
@@ -169,7 +169,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class PendantGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Pendant", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Pendant"), app)
 		self.grid3rows()
 
 		col,row=0,0
@@ -199,7 +199,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CloseGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Close", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Close"), app)
 
 		# ---
 		b = Ribbon.LabelButton(self.frame,
@@ -282,9 +282,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 # File Page
 #===============================================================================
 class FilePage(CNCRibbon.Page):
-	"""File I/O and configuration"""
-	_name_ = "File"
-	_icon_ = "new"
+	__doc__ = _("File I/O and configuration")
+	_name_  = N_("File")
+	_icon_  = "new"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

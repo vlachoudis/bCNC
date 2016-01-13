@@ -8,7 +8,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-__name__ = "Box"
+__name__ = _("Box")
 
 import math
 from bmath import *
@@ -297,7 +297,7 @@ class Box:
 # Create a BOX
 #==============================================================================
 class Tool(Plugin):
-	"""Generate a finger box"""
+	__doc__ = _("Generate a finger box")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Box"

@@ -9,7 +9,7 @@
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
-__name__ = "Driller"
+__name__ = _("Driller")
 __version__= "0.0.6"
 
 import math
@@ -26,12 +26,11 @@ class Driller:
 	def __init__(self,name="Driller"):
 		self.name = name
 
-
 #==============================================================================
 # Create holes along selected blocks
 #==============================================================================
 class Tool(Plugin):
-	"""Create holes along selected blocks"""
+	__doc__ = _("Create holes along selected blocks")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
 		self.name = "Driller"

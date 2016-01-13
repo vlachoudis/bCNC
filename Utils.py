@@ -35,6 +35,8 @@ __credits__ = \
 		"@chamnit Sonny Jeon\n" \
 		"@onekk Carlo\n" \
 		"@willadams William Adams"
+__translations__ = \
+		"French - @ThierryM"
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
@@ -323,14 +325,14 @@ class ReportDialog(Toplevel):
 
 		Toplevel.__init__(self, master)
 		if master is not None: self.transient(master)
-		self.title("%s Error Reporting"%(__name__))
+		self.title(_("Error Reporting"))
 
 		# Label Frame
-		frame = LabelFrame(self, text="Report")
+		frame = LabelFrame(self, text=_("Report"))
 		frame.pack(side=TOP, expand=YES, fill=BOTH)
 
-		l = Label(frame, text="The following report is about to be send "\
-				"to the author of %s"%(__name__), justify=LEFT, anchor=W)
+		l = Label(frame, text=_("The following report is about to be send "\
+				"to the author of %s")%(__name__), justify=LEFT, anchor=W)
 		l.pack(side=TOP)
 
 		self.text = Text(frame, background="White")
@@ -344,7 +346,7 @@ class ReportDialog(Toplevel):
 		frame = Frame(self)
 		frame.pack(side=TOP, fill=X)
 
-		l = Label(frame, text="Your email")
+		l = Label(frame, text=_("Your email"))
 		l.pack(side=LEFT)
 
 		self.email = Entry(frame, background="White")
@@ -353,7 +355,7 @@ class ReportDialog(Toplevel):
 		# Automatic error reporting
 		self.err = BooleanVar()
 		self.err.set(_errorReport)
-		b = Checkbutton(frame, text="Automatic error reporting",
+		b = Checkbutton(frame, text=_("Automatic error reporting"),
 			variable=self.err, anchor=E, justify=RIGHT)
 		b.pack(side=RIGHT)
 
@@ -361,11 +363,11 @@ class ReportDialog(Toplevel):
 		frame = Frame(self)
 		frame.pack(side=BOTTOM, fill=X)
 
-		b = Button(frame, text="Close",
+		b = Button(frame, text=_("Close"),
 				compound=LEFT,
 				command=self.cancel)
 		b.pack(side=RIGHT)
-		b = Button(frame, text="Send report",
+		b = Button(frame, text=_("Send report"),
 				compound=LEFT,
 				command=self.send)
 		b.pack(side=RIGHT)

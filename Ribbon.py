@@ -73,7 +73,7 @@ class LabelGroup(Frame):
 				pady=0,
 				compound=RIGHT)
 		else:
-			self.label = Label(self, text=name,
+			self.label = Label(self, text=_(name),
 					font       = _FONT,
 					foreground = _FOREGROUND_GROUP,
 					background = _BACKGROUND_GROUP,
@@ -478,19 +478,19 @@ class TabRibbonFrame(Frame):
 		b = LabelButton(frame, self, "<<Open>>",
 				image=Utils.icons["load"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Open file [Ctrl-O]")
+		tkExtra.Balloon.set(b, _("Open file [Ctrl-O]"))
 		b.pack(side=LEFT)
 
 		b = LabelButton(frame, self, "<<Save>>",
 				image=Utils.icons["save"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Save all [Ctrl-S]")
+		tkExtra.Balloon.set(b, _("Save all [Ctrl-S]"))
 		b.pack(side=LEFT)
 
 		b = LabelButton(frame, self, "<<Undo>>",
 				image=Utils.icons["undo"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Undo [Ctrl-Z]")
+		tkExtra.Balloon.set(b, _("Undo [Ctrl-Z]"))
 		b.pack(side=LEFT)
 		self.tool["undo"] = b
 
@@ -503,7 +503,7 @@ class TabRibbonFrame(Frame):
 		b = LabelButton(frame, self, "<<Redo>>",
 				image=Utils.icons["redo"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Redo [Ctrl-Y]")
+		tkExtra.Balloon.set(b, _("Redo [Ctrl-Y]"))
 		b.pack(side=LEFT)
 		self.tool["redo"] = b
 
@@ -514,7 +514,7 @@ class TabRibbonFrame(Frame):
 		b = LabelButton(frame, self, "<<Help>>",
 				image=Utils.icons["info"],
 				background=_BACKGROUND_DISABLE)
-		tkExtra.Balloon.set(b, "Help [F1]")
+		tkExtra.Balloon.set(b, _("Help [F1]"))
 		b.pack(side=RIGHT, padx=2)
 
 		Label(frame, image=Utils.icons["sep"],
@@ -551,7 +551,7 @@ class TabRibbonFrame(Frame):
 		self.pages[page.name] = page
 		page._tab = TabButton(self._tabFrame,
 				image    = page._icon,
-				text     = page.name,
+				text     = _(page.name),
 				compound = LEFT,
 				value    = page.name,
 				variable = self.activePage,

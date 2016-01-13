@@ -20,13 +20,14 @@ except ImportError:
 	from tkinter import *
 	import tkinter.font as tkFont
 
-from CNC import Block, CNC
+from CNC import Tab, Block, CNC
 import tkExtra
 #import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
 COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
+from CNCCanvas import TAB_COLOR
 
 #==============================================================================
 # CNC Listbox
@@ -111,12 +112,19 @@ class CNCListbox(Listbox):
 
 			self._blockPos.append(y)
 			self.insert(END, block.header())
-			y += 1
 			self._items.append((bi,None))
 			self.itemconfig(END, background=BLOCK_COLOR)
+			y += 1
 			if not block.enable:
 				self.itemconfig(END, foreground=DISABLE_COLOR)
 			if not block.expand: continue
+
+			for tab in block.tabs:
+				line = str(tab)
+				self.insert(END, line)
+				self._items.append((bi, tab))
+				self.itemconfig(END, foreground=TAB_COLOR)
+				y += 1
 
 			for lj,line in enumerate(block):
 				self.insert(END, line)
@@ -520,15 +528,16 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def toggleExpand(self, event=None):
 		if not self._items: return None
-		items   = list(map(int,self.curselection()))
-		expand  = None
+		items  = list(map(int,self.curselection()))
+		expand = None
 		active = self.index(ACTIVE)
 		bactive,lactive = self._items[active]
 		blocks = []
 		undoinfo = []
 		for i in reversed(items):
 			bid,lid = self._items[i]
-			if lid is not None: continue
+			if lid is not None:
+				if bid in blocks: continue
 			blocks.append(bid)
 			if expand is None: expand = not self.gcode[bid].expand
 			undoinfo.append(self.gcode.setBlockExpandUndo(bid, expand))
@@ -548,13 +557,16 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def _toggleEnable(self, enable=None):
 		if not self._items: return None
-		items   = list(map(int,self.curselection()))
-		active  = self.index(ACTIVE)
-		ypos = self.yview()[0]
+		items    = list(map(int,self.curselection()))
+		active   = self.index(ACTIVE)
+		ypos     = self.yview()[0]
 		undoinfo = []
+		blocks   = []
 		for i in items:
 			bid,lid = self._items[i]
-			if lid is not None: continue
+			if lid is not None:
+				if bid in blocks: continue
+			blocks.append(bid)
 			block = self.gcode[bid]
 			if block.name() in ("Header", "Footer"): continue
 			if enable is None: enable = not block.enable
@@ -600,19 +612,30 @@ class CNCListbox(Listbox):
 			self.selection_clear(0,END)
 			toggle = False
 		first = None
-		for b,i in items:
+
+		for bi in items:
+			b,i = bi
 			block = self.gcode[b]
-			if double:
+			if double or not block.expand or i is None:
 				# select whole block
 				y = self._blockPos[b]
 
-			elif i is not None and block.expand:
+			elif isinstance(i,int):
 				# find line of block
-				y = self._blockPos[b]+i+1
+				y = self._blockPos[b]+1 + len(block.tabs) + i
+
+			elif isinstance(i,Tab):
+				# select the appropriate tab
+				try:
+					idx = block.tabs.index(i)
+					y = self._blockPos[b]+1 + idx
+				except IndexError:
+					print "Tab",tab,"not found"
+					continue
 
 			else:
-				# select whole block
-				y = self._blockPos[b]
+				raise
+				#continue
 
 			if y is None: continue
 
@@ -658,6 +681,14 @@ class CNCListbox(Listbox):
 		self.selection_clear(0,END)
 
 	# ----------------------------------------------------------------------
+	def selectInvert(self):
+		for i in range(self.size()):
+			if self.selection_includes(i):
+				self.selection_clear(i)
+			else:
+				self.selection_set(i)
+
+	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
 	# ----------------------------------------------------------------------
 	def getSelection(self):
@@ -680,15 +711,14 @@ class CNCListbox(Listbox):
 	def getCleanSelection(self):
 		items = [self._items[int(i)] for i in self.curselection()]
 		if not items: return items
-
 		blocks = {}
 		i = 0
 		while i<len(items):
-			block,line = items[i]
-			if line is None:
-				blocks[block] = True
+			bid,lid = items[i]
+			if lid is None:
+				blocks[bid] = True
 				i += 1
-			elif blocks.get(block,False):
+			elif blocks.get(bid,False):
 				del items[i]
 			else:
 				i += 1

@@ -26,7 +26,7 @@ from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 #===============================================================================
 class ClipboardGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Clipboard", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Clipboard"), app)
 		self.grid2rows()
 
 		# ---
@@ -65,11 +65,55 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 #===============================================================================
+# Select Group
+#===============================================================================
+class SelectGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Select"), app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectAll>>",
+				image=Utils.icons["select_all"],
+				text=_("All"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Select all blocks [Ctrl-A]"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectNone>>",
+				image=Utils.icons["select_none"],
+				text=_("None"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Unselect all blocks [Ctrl-Shift-A]"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectInvert>>",
+				image=Utils.icons["select_invert"],
+				text=_("Invert"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Invert selection [Ctrl-I]"))
+		self.addWidget(b)
+
+#===============================================================================
 # Edit Group
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Edit", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
 			[(_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True)),
@@ -169,37 +213,22 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class MoveGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Move", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Move"), app)
 		self.grid3rows()
 
 		# ===
 		col,row = 0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["pan"],
+				image=Utils.icons["move32"],
 				text=_("Move"),
-				compound=LEFT,
+				compound=TOP,
 				anchor=W,
 				variable=app.canvas.actionVar,
 				value=ACTION_MOVE,
 				command=app.canvas.setActionMove,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Move objects [M]"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["origin"],
-				text=_("Origin"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.canvas.actionVar,
-				value=ACTION_ORIGIN,
-				command=app.canvas.setActionOrigin,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Place origin with the mouse on canvas [O]"))
 		self.addWidget(b)
 
 		# ===
@@ -322,12 +351,29 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Move origin of g-code to Bottom-Right corner"))
 		self.addWidget(b)
 
+		# ---
+		col += 1
+		row = 0
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["origin"],
+				text=_("Origin"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.canvas.actionVar,
+				value=ACTION_ORIGIN,
+				command=app.canvas.setActionOrigin,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Place origin with the mouse on canvas [O]"))
+		self.addWidget(b)
+
+
 #===============================================================================
 # Order Group
 #===============================================================================
 class OrderGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Order", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Order"), app,
 			[(_("Optimize"),  "optimize", lambda a=app:a.insertCommand("OPTIMIZE",True)),
 			])
 		self.grid2rows()
@@ -373,7 +419,7 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class TransformGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Transform", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Transform"), app)
 		self.grid3rows()
 
 		# ---
@@ -476,14 +522,13 @@ class EditorFrame(CNCRibbon.PageFrame):
 # Editor Page
 #===============================================================================
 class EditorPage(CNCRibbon.Page):
-	"""GCode editor"""
-
-	_name_ = "Editor"
-	_icon_ = "edit"
+	__doc__ = _("GCode editor")
+	_name_  = N_("Editor")
+	_icon_  = "edit"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ClipboardGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
+		self._register((ClipboardGroup, SelectGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
 			(EditorFrame,))

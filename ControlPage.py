@@ -35,7 +35,7 @@ _HIGHZSTEP = 10.0
 #===============================================================================
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, "Connection", app,
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Connection"), app,
 			[(_("Hard Reset"),  "reset",     app.hardReset)
 			])
 		self.grid2rows()
@@ -326,6 +326,10 @@ class DROFrame(CNCRibbon.PageFrame):
 		self._wcsSet(None,None,self.zwork.get())
 
 	#----------------------------------------------------------------------
+	def wcsSet(self, x, y, z):
+		self._wcsSet(x, y, z)
+
+	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
 		global wcsvar
 		p = wcsvar.get()
@@ -343,7 +347,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if z is not None: cmd += "Z"+str(z)
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z)))
+			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -509,6 +513,22 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		except:
 			self.zstep = self.step
 
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("Control","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("Control","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("Control","step3")
+		except:
+			self.step3 = 10
+
 		# ---
 		row += 1
 		col = 0
@@ -627,11 +647,14 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def setStep(self, s, zs=None):
 		self.step.set("%.4g"%(s))
 		if self.zstep is self.step or zs is None:
-			self.event_generate("<<Status>>",data=_("Step: %g")%(s))
+			self.event_generate("<<Status>>",
+				data=(_("Step: %g")%(s)).encode("utf-8"))
 		else:
 			self.zstep.set("%.4g"%(zs))
-			self.event_generate("<<Status>>",data=_("Step: %g    Zstep:%g ")%(s,zs))
+			self.event_generate("<<Status>>",
+				data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf-8"))
 
+	#----------------------------------------------------------------------
 	@staticmethod
 	def _stepPower(step):
 		try:
@@ -642,6 +665,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		power = math.pow(10.0,math.floor(math.log10(step)))
 		return round(step/power)*power, power
 
+	#----------------------------------------------------------------------
 	def incStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -657,6 +681,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def decStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -674,6 +699,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def mulStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -689,6 +715,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			zs=None
 		self.setStep(s, zs)
 
+	#----------------------------------------------------------------------
 	def divStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.step.get())
@@ -703,6 +730,21 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		else:
 			zs=None
 		self.setStep(s, zs)
+
+	#----------------------------------------------------------------------
+	def setStep1(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step1, self.step1)
+
+	#----------------------------------------------------------------------
+	def setStep2(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step2, self.step2)
+
+	#----------------------------------------------------------------------
+	def setStep3(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step3, self.step2)
 
 #===============================================================================
 # StateFrame
@@ -988,10 +1030,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 # Control Page
 #===============================================================================
 class ControlPage(CNCRibbon.Page):
-	"""CNC communication and control"""
-
-	_name_ = "Control"
-	_icon_ = "control"
+	__doc__ = _("CNC communication and control")
+	_name_  = N_("Control")
+	_icon_  = "control"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

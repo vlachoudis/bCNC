@@ -1,4 +1,5 @@
-﻿# ----------------------------------------------------------------------------
+# -*- coding: ascii -*-
+# ----------------------------------------------------------------------------
 # pyglet
 # Copyright (c) 2006-2007 Alex Holkner
 # All rights reserved.
@@ -559,8 +560,88 @@ class TruetypeInfo:
 
 	def _read_compound_glyp(self,glyph_size,g_offset):
 		#FIXME:implements extraction of data for complex glyph
-		pass
+		ARG_1_AND_2_ARE_WORDS    = 1
+		ARGS_ARE_XY_VALUES       = 2
+		ROUND_XY_TO_GRID         = 4
+		WE_HAVE_A_SCALE          = 8
+		RESERVED                 = 16
+		MORE_COMPONENTS          = 32
+		WE_HAVE_AN_X_AND_Y_SCALE = 64
+		WE_HAVE_A_TWO_BY_TWO     = 128
+		WE_HAVE_INSTRUCTIONS     = 256
+		USE_MY_METRICS           = 512
+		OVERLAP_COMPONENT        = 1024
+		
+		glyph = Glyph()
+		glyph.type = "compound"
+		glyph.components = []
+		
+		flags =  MORE_COMPONENTS
+		while flags & MORE_COMPONENTS:
+			flags,g_offset = self._get_data(">H", g_offset)#uint16
+			
+			component = GlyphComponent()
+			component.glyphIndex,g_offset = self._get_data(">H", g_offset)#uint16
+			
+			arg1 = 0
+			arg2 = 0
+			if ( flags &  ARG_1_AND_2_ARE_WORDS ):
+				arg1,g_offset = self._get_data(">H", g_offset)#uint16
+				arg2,g_offset = self._get_data(">H", g_offset)#uint16
+			else:
+				arg1,g_offset = self._get_data(">B", g_offset)#uint8
+				arg2,g_offset = self._get_data(">B", g_offset)#uint8
+			
+			if ( flags & ARGS_ARE_XY_VALUES ):
+				component.e = arg1
+				component.f = arg2
+			else:
+				component.destPointIndex = arg1
+				component.srcPointIndex = arg2
+				
+			if ( flags & WE_HAVE_A_SCALE ):
+				component.a,g_offset = self.get2Dot14(g_offset)
+				component.d = component.a
+			elif( flags & WE_HAVE_AN_X_AND_Y_SCALE ):
+				component.a,g_offset = self.get2Dot14(g_offset)
+				component.d,g_offset = self.get2Dot14(g_offset)
+			elif( flags & WE_HAVE_A_TWO_BY_TWO ):
+				component.a,g_offset = self.get2Dot14(g_offset)
+				component.b,g_offset = self.get2Dot14(g_offset)
+				component.c,g_offset = self.get2Dot14(g_offset)
+				component.d,g_offset = self.get2Dot14(g_offset)
 
+			#add component
+			glyph.components.append(component)
+			
+			if ( flags & WE_HAVE_INSTRUCTIONS ):
+				seek,g_offset = self._get_data(">H", g_offset)#uint16
+				g_offset += seek
+
+		#Create glyph points
+		ceOffset = 0
+		for component in glyph.components:
+			print component.glyphIndex
+			subGlyph = self._read_glyph(component.glyphIndex)
+			#apply transformation to points
+			#FIX ME: not all transformations (es. scale) are applied correctly
+			for p in subGlyph.points:
+				tp = GlyphPoint(p.x,p.y)
+				tp.ON_CURVE = p.ON_CURVE
+				tp.x += component.e
+				tp.y += component.f
+				glyph.points.append(tp)
+			#append contours ends
+			for ce in subGlyph.contoursEnd:
+				glyph.contoursEnd.append(ceOffset+ce)
+			ceOffset += len(subGlyph.points)
+		return glyph
+
+
+	def get2Dot14(self,g_offset):
+		v,g_offset = self._get_data(">h", g_offset)#int16
+		return v / (1 << 14),g_offset
+		
 	def get_glyph_vector(self,index):
 		"""
 		return glyph data as original vector form
@@ -853,12 +934,23 @@ class Glyph:
 		self.type = ""
 		self.contoursEnd = []
 		self.points = []
-		#self.size = None
+
 class GlyphPoint:
 	def __init__(self ,x=0.0 , y=0.0):
 		self.ON_CURVE = False
-		#self.BEIZER = False
-		#self.CUBIC = False
 		self.x = x
 		self.y = y
-
+		
+class GlyphComponent:
+	def __init__(self ):
+		self.glyphIndex = 0
+		#
+		destPointIndex = 0
+		srcPointIndex = 0
+		#Matrix
+		self.a = 1
+		self.b = 0
+		self.c = 0
+		self.d = 1
+		self.e = 0
+		self.f = 0

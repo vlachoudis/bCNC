@@ -735,14 +735,14 @@ class Tabs(DataBase):
 	def loadGcode(self, gcode):
 		# Load tabs information from the gcode
 		self.values.clear()
-		self.n = len(gcode.tabs)
-		for i,tab in enumerate(gcode.tabs):
-			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
-			self.values["xmin.%d"%(i)] = tab.xmin
-			self.values["ymin.%d"%(i)] = tab.ymin
-			self.values["xmax.%d"%(i)] = tab.xmax
-			self.values["ymax.%d"%(i)] = tab.ymax
-			self.values["z.%d"%(i)]    = tab.z
+#		self.n = len(gcode.tabs)
+#		for i,tab in enumerate(gcode.tabs):
+#			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
+#			self.values["xmin.%d"%(i)] = tab.xmin
+#			self.values["ymin.%d"%(i)] = tab.ymin
+#			self.values["xmax.%d"%(i)] = tab.xmax
+#			self.values["ymax.%d"%(i)] = tab.ymax
+#			self.values["z.%d"%(i)]    = tab.z
 		self.populate()
 
 #==============================================================================
@@ -867,7 +867,7 @@ class Tools:
 #===============================================================================
 class DataBaseGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Database", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Database"), app)
 		self.grid3rows()
 
 		# ---
@@ -969,7 +969,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CAMGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "CAM", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("CAM"), app)
 		self.grid3rows()
 
 		# ===
@@ -1047,7 +1047,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class MacrosGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Macros", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Macros"), app)
 		self.grid3rows()
 
 		col,row=0,0
@@ -1076,7 +1076,7 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class ConfigGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Config", app)
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
 		self.grid3rows()
 
 		# ===
@@ -1220,10 +1220,9 @@ class ToolsFrame(CNCRibbon.PageFrame):
 # Tools Page
 #===============================================================================
 class ToolsPage(CNCRibbon.Page):
-	"""GCode manipulation tools and user plugins"""
-
-	_name_ = "Tools"
-	_icon_ = "tools"
+	__doc__ = _("GCode manipulation tools and user plugins")
+	_name_  = N_("Tools")
+	_icon_  = "tools"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run
