@@ -707,6 +707,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def scan(self, event=None):
 		if self.change(): return
+		self.event_generate("<<DrawProbe>>")
 		# absolute
 		self.app.run(lines=self.app.gcode.probe.scan())
 

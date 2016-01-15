@@ -618,14 +618,16 @@ class Sender:
 					#print "+++",repr(tosend)
 
 					if isinstance(tosend, tuple):
-						# Count executed commands as well
-						self._gcount += 1
 						#print "gcount tuple=",self._gcount
 						# wait to empty the grbl buffer
 						if tosend[0] == WAIT:
+							# Don't count WAIT until we are idle!
 							wait = True
 							#print "+++ WAIT ON"
+							#print "gcount=",self._gcount, self._runLines
 						elif tosend[0] == PAUSE:
+							# Count executed commands as well
+							self._gcount += 1
 							if tosend[1] is not None:
 								# show our message on machine status
 								self._msg = tosend[1]
@@ -634,7 +636,12 @@ class Sender:
 							self.serial.write(b"!")
 							#print ">S> !"
 						elif tosend[0] == UPDATE:
+							# Count executed commands as well
+							self._gcount += 1
 							self._update = tosend[1]
+						else:
+							# Count executed commands as well
+							self._gcount += 1
 						tosend = None
 
 					elif not isinstance(tosend, str):
@@ -712,8 +719,10 @@ class Sender:
 							# stop waiting and go on
 							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
 							if wait and not cline and pat.group(1)=="Idle":
+								#print ">>>",line
 								wait = False
 								#print "<<< NO MORE WAIT"
+								self._gcount += 1
 						else:
 							self.log.put((False, line+"\n"))
 
@@ -725,6 +734,7 @@ class Sender:
 								CNC.vars["prbx"] = float(pat.group(2))
 								CNC.vars["prby"] = float(pat.group(3))
 								CNC.vars["prbz"] = float(pat.group(4))
+								#print self.running, "PROBE:", line
 								#if self.running:
 								if True:
 									self.gcode.probe.add(

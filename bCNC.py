@@ -1897,7 +1897,7 @@ class Application(Toplevel,Sender):
 		self.initRun()
 		# the buffer of the machine should be empty?
 		self.canvas.clearSelection()
-		self._runLines = len(lines)
+		self._runLines = len(lines) + 1	# plus the wait
 		self._gcount  = 0
 		self._selectI = 0	# last selection pointer in items
 		self._paths   = paths	# drawing paths for canvas
@@ -1913,7 +1913,7 @@ class Application(Toplevel,Sender):
 					self.queue.put(line+"\n")
 				else:
 					self.queue.put(line)
-		self.queue.put((WAIT,))
+		self.queue.put((WAIT,))	# increase the runLines + 1
 
 	#-----------------------------------------------------------------------
 	# Start the web pendant
@@ -2194,7 +2194,7 @@ if __name__ == "__main__":
 
 	if run:
 		application.run()
-			  
+
 	try:
 		tk.mainloop()
 	except KeyboardInterrupt:
