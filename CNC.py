@@ -1675,11 +1675,12 @@ class Block(list):
 
 	#----------------------------------------------------------------------
 	def copy(self, src):
-		self._name   = src._name
-		self.enable  = src.enable
-		self.expand  = src.expand
-		self[:]    = src[:]
-		self._path = []
+		self._name  = src._name
+		self.enable = src.enable
+		self.expand = src.expand
+		self.tabs   = src.tabs[:]
+		self[:]     = src[:]
+		self._path  = []
 		self.sx = src.sx
 		self.sy = src.sy
 		self.sz = src.sz

@@ -66,6 +66,7 @@ class Tool(Plugin):
 
 		#undoinfo = []
 		y = 0.0
+		pos += 1
 		for j in range(self["ny"]):
 			x = 0.0
 			for i in range(self["nx"]):
@@ -84,6 +85,7 @@ class Tool(Plugin):
 
 				# FIXME but the moveLines already does the addUndo
 				# I should correct it
+				print i,j,"x,y=",x,y,dx,dy
 				app.gcode.moveLines(newblocks, x, y)
 				x += dx
 			y += dy
