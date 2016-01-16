@@ -475,6 +475,12 @@ class TabRibbonFrame(Frame):
 		frame.pack(side=TOP, fill=X)
 
 		# --- Basic buttons ---
+		b = LabelButton(frame, self, "<<New>>",
+				image=Utils.icons["new"],
+				background=_BACKGROUND_DISABLE)
+		tkExtra.Balloon.set(b, _("New file"))
+		b.pack(side=LEFT)
+
 		b = LabelButton(frame, self, "<<Open>>",
 				image=Utils.icons["load"],
 				background=_BACKGROUND_DISABLE)
