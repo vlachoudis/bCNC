@@ -60,12 +60,19 @@ class Tool(Plugin):
 		zreg = '(Zz? ?-?(\d+(\.\d+)?))'
 		zregexp = re.compile(zreg)
 
+<<<<<<< HEAD
 		pos = blocks[-1]
 		pos += 1
 		for block in blocks:
 
 			newblock = Block(self.name)
 			newblocks = []
+=======
+
+		for block in blocks:
+
+			newblock = []
+>>>>>>> 6fa804477d4adb6eafd34e2ab7bd06eb3e1c118b
 			for passnum in range(0, int(np), 1):
 				for line in app.editor.gcode.blocks[block]:
 					z = zregexp.search(line)
@@ -74,6 +81,7 @@ class Tool(Plugin):
 						curzval = z.group(0)
 						repzval = (dpp * (passnum + 1)) + float(curzval[1:])
 						line = zregexp.sub(lambda match: z.group(0).replace(curzval, 'Z' + str(repzval)), line)
+<<<<<<< HEAD
 						#append modified line to new block
 						newblock.append(line)
 
@@ -84,4 +92,14 @@ class Tool(Plugin):
 
 		app.refresh()
 		app.setStatus(_("Multipass blocks are now in the editor"))
+=======
+						#print('pass #' + str(passnum) + '  original match ' + str(z.group(0)) + ' replacement ' + str(repzval))
+						#print(line)
+						newblock.append(line)
+
+			print newblock
+			#app.editor.gcode.blocks.add
+		app.refresh()
+		app.setStatus(_("Tiled selected blocks"))
+>>>>>>> 6fa804477d4adb6eafd34e2ab7bd06eb3e1c118b
 
