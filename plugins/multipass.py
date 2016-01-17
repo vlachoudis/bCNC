@@ -69,7 +69,7 @@ class Tool(Plugin):
 		for block in blocks:
 			newblocks = []
 			for passnum in range(0, int(np), 1):
-				newblock = Block('Block ' + str(block) + ' pass'+str(pos))
+				newblock = Block('Block ' + str(block) + ' pass'+str(passnum))
 				for line in app.editor.gcode.blocks[block]:
 					z = zregexp.search(line)
 					#check if line has a Z value, if so increment/decrement
