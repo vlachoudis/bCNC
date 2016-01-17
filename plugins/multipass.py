@@ -29,7 +29,7 @@ class Tool(Plugin):
 		self.variables = [
 			("name",      "db",    "", _("Name")),
 			("np",       "int",     3, "Number of passes"),
-			("dpp",      "int",     3, "Depth per Pass")
+			("dpp",      "float",     3, "Depth per Pass")
 		]
 		self.buttons.append("exe")
 
@@ -39,6 +39,7 @@ class Tool(Plugin):
 		blocks = app.editor.getSelectedBlocks()
 		if not blocks:
 			app.editor.selectAll()
+			#It would be nice if getSelectedBlocks also got names, for block generation below
 			blocks = app.editor.getSelectedBlocks()
 
 		if not blocks:
@@ -60,6 +61,9 @@ class Tool(Plugin):
 		zreg = '(Zz? ?-?(\d+(\.\d+)?))'
 		zregexp = re.compile(zreg)
 
+		yreg = '(Yy? ?-?(\d+(\.\d+)?))'
+		yregexp = re.compile(yreg)
+
 		pos = blocks[-1]
 		pos += 1
 		for block in blocks:
@@ -75,6 +79,20 @@ class Tool(Plugin):
 						line = zregexp.sub(lambda match: z.group(0).replace(curzval, 'Z' + str(repzval)), line)
 						#append modified line to new block
 						newblock.append(line)
+					#selected block doesn't have a z value, add one in
+					else:
+						y = yregexp.search(line)
+						if y is not None:
+							curyval = y.group(0)
+							repyval = str(y.group(0)) + ' Z' + str((dpp * (passnum + 1)))
+							print (curyval)
+							print (repyval)
+							line = yregexp.sub(lambda match: y.group(0).replace(curyval, str(repyval)), line)
+							newblock.append(line)
+						#No y value given, most likely a header M5, M3, or S command. Tack on to new block
+						else:
+							newblock.append(line)
+
 				app.gcode.addBlockUndo(pos, newblock)
 				pos += 1
 		app.refresh()
