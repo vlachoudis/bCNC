@@ -1956,10 +1956,10 @@ class GCode:
 
 		self.cnc.motionStart(cmds)
 
-		# rapid move up = end of block
+		# end of block if either rapid move up or tool is lifted above Z=0
 		if self._blocksExist:
 			self.blocks[-1].append(line)
-		elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
+		elif (self.cnc.gcode == 0 or self.cnc.zval > 0.0) and self.cnc.dz > 0.0:
 			self.blocks[-1].append(line)
 			self.blocks.append(Block())
 		elif self.cnc.gcode == 0 and len(self.blocks)==1:
