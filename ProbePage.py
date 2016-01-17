@@ -267,7 +267,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def tloSet(self, event=None):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-			cmd = "g43.1z"+(ProbeCommonFrame.tlo.get())
+			cmd = "g43.1z"+str(ProbeCommonFrame.tlo.get())
 			self.sendGrbl(cmd+"\n")
 		except:
 			pass
@@ -277,7 +277,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def probeUpdate():
 		try:
 			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
-			CNC.vars["prbcmd"]  = ProbeCommonFrame.probeCmd.get().split()[0]
+			CNC.vars["prbcmd"]  = str(ProbeCommonFrame.probeCmd.get().split()[0])
 			return False
 		except:
 			return True
@@ -393,7 +393,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				_("Invalid probe feed rate"),
 				parent=self)
 			return
-		cmd = CNC.vars["prbcmd"]
+		cmd = str(CNC.vars["prbcmd"])
 		ok = False
 		v = self.probeXdir.get()
 		if v != "":

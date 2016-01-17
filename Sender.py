@@ -125,7 +125,7 @@ class Sender:
 		self._stop       = False	# Raise to stop current run
 		self._quit       = 0
 		self._pause      = False	# machine is on Hold
-		self._alarm      = True
+		self._alarm      = True		# Display alarm message if true
 		self._msg        = None
 
 	#----------------------------------------------------------------------
@@ -436,16 +436,22 @@ class Sender:
 		if self.serial is not None:
 			self.openClose()
 		self.openClose()
+		self.stopProbe()
+		self._alarm = False
 
 	#----------------------------------------------------------------------
 	def softReset(self):
 		if self.serial:
 			self.serial.write(b"\030")
+		self.stopProbe()
+		self._alarm = False
 
+	#----------------------------------------------------------------------
 	def unlock(self):
 		self._alarm = False
 		self.sendGrbl("$X\n")
 
+	#----------------------------------------------------------------------
 	def home(self):
 		self._alarm = False
 		self.sendGrbl("$H\n")
@@ -556,6 +562,11 @@ class Sender:
 				break
 
 	#----------------------------------------------------------------------
+	def stopProbe(self):
+		if self.gcode.probe.start:
+			self.gcode.probe.clear()
+
+	#----------------------------------------------------------------------
 	def initRun(self):
 		self._quit   = 0
 		self._pause  = False
@@ -588,6 +599,7 @@ class Sender:
 		time.sleep(1)
 		self.unlock()
 		self.runEnded()
+		self.stopProbe()
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -644,14 +656,14 @@ class Sender:
 							self._gcount += 1
 						tosend = None
 
-					elif not isinstance(tosend, str):
+					elif not isinstance(tosend,str) and not isinstance(tosend,unicode):
 						try:
 							tosend = self.gcode.evaluate(tosend)
 #							if isinstance(tosend, list):
 #								cline.append(len(tosend[0]))
 #								sline.append(tosend[0])
 #								self.log.put((True,tosend[0]))
-							if isinstance(tosend,str):
+							if isinstance(tosend,str) or isinstance(tosend,unicode):
 								tosend += "\n"
 							else:
 								# Count executed commands as well
@@ -734,21 +746,19 @@ class Sender:
 								CNC.vars["prbx"] = float(pat.group(2))
 								CNC.vars["prby"] = float(pat.group(3))
 								CNC.vars["prbz"] = float(pat.group(4))
-								#print self.running, "PROBE:", line
 								#if self.running:
-								if True:
-									self.gcode.probe.add(
-										 CNC.vars["prbx"]
-										+CNC.vars["wx"]
-										-CNC.vars["mx"],
+								self.gcode.probe.add(
+									 CNC.vars["prbx"]
+									+CNC.vars["wx"]
+									-CNC.vars["mx"],
 
-										 CNC.vars["prby"]
-										+CNC.vars["wy"]
-										-CNC.vars["my"],
+									 CNC.vars["prby"]
+									+CNC.vars["wy"]
+									-CNC.vars["my"],
 
-										 CNC.vars["prbz"]
-										+CNC.vars["wz"]
-										-CNC.vars["mz"])
+									 CNC.vars["prbz"]
+									+CNC.vars["wz"]
+									-CNC.vars["mz"])
 								self._probeUpdate = True
 							CNC.vars[pat.group(1)] = \
 								[float(pat.group(2)),

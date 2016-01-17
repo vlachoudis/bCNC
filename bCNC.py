@@ -443,13 +443,7 @@ class Application(Toplevel,Sender):
 			return
 		del self.widgets[:]
 
-		if self.gcode.isModified():
-			# file is modified
-			ans = tkMessageBox.askquestion(_("File modified"),
-				_("Gcode was modified do you want to save it first?"),
-				parent=self)
-			if ans==tkMessageBox.YES or ans==True:
-				self.saveDialog()
+		self.fileModified()
 
 		Sender.quit(self)
 		self.saveConfig()
@@ -1696,18 +1690,40 @@ class Application(Toplevel,Sender):
 		if filename: self.save(filename)
 
 	#-----------------------------------------------------------------------
+	def fileModified(self):
+		if self.gcode.isModified():
+			ans = tkMessageBox.askquestion(_("File modified"),
+				_("Gcode was modified do you want to save it first?"),
+				parent=self)
+			if ans==tkMessageBox.YES or ans==True:
+				self.saveAll()
+
+		if not self.gcode.probe.isEmpty() and not self.gcode.probe.saved:
+			ans = tkMessageBox.askquestion(_("Probe File modified"),
+				_("Probe was modified do you want to save it first?"),
+				parent=self)
+			if ans==tkMessageBox.YES or ans==True:
+				if self.gcode.probe.filename == "":
+					self.saveDialog()
+				else:
+					self.gcode.probe.save()
+
+	#-----------------------------------------------------------------------
 	# Load a file into editor
 	#-----------------------------------------------------------------------
 	def load(self, filename):
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
 			pass
-		elif self.gcode.isModified():
-			ans = tkMessageBox.askquestion(_("File modified"),
-				_("Gcode was modified do you want to save it first?"),
-				parent=self)
-			if ans==tkMessageBox.YES or ans==True:
-				self.saveAll()
+		else:
+			self.fileModified()
+
+			if not self.gcode.probe.isEmpty():
+				ans = tkMessageBox.askquestion(_("Existing Autolevel"),
+					_("Autolevel/probe information already exists.\nDelete it?"),
+					parent=self)
+				if ans==tkMessageBox.YES or ans==True:
+					self.gcode.probe.init()
 
 		self.setStatus(_("Loading: %s ...")%(filename), True)
 		Sender.load(self,filename)
@@ -1868,11 +1884,11 @@ class Application(Toplevel,Sender):
 		CNC.vars["errline"] = ""
 
 		if lines is None:
-			if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
-				tkMessageBox.showerror(_("Probe is not zeroed"),
-					_("Please ZERO any location of the probe before starting a run"),
-					parent=self)
-				return
+			#if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
+			#	tkMessageBox.showerror(_("Probe is not zeroed"),
+			#		_("Please ZERO any location of the probe before starting a run"),
+			#		parent=self)
+			#	return
 
 			lines,paths = self.gcode.compile()
 			if not lines:
@@ -1898,9 +1914,9 @@ class Application(Toplevel,Sender):
 		# the buffer of the machine should be empty?
 		self.canvas.clearSelection()
 		self._runLines = len(lines) + 1	# plus the wait
-		self._gcount  = 0
-		self._selectI = 0	# last selection pointer in items
-		self._paths   = paths	# drawing paths for canvas
+		self._gcount   = 0		# count executed lines
+		self._selectI  = 0		# last selection pointer in items
+		self._paths    = paths		# drawing paths for canvas
 
 		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)
