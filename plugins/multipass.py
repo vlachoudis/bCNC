@@ -64,7 +64,7 @@ class Tool(Plugin):
 		pos += 1
 		for block in blocks:
 
-			newblock = []
+			newblock = Block(self.name)
 			newblocks = []
 			for passnum in range(0, int(np), 1):
 				for line in app.editor.gcode.blocks[block]:
@@ -74,13 +74,14 @@ class Tool(Plugin):
 						curzval = z.group(0)
 						repzval = (dpp * (passnum + 1)) + float(curzval[1:])
 						line = zregexp.sub(lambda match: z.group(0).replace(curzval, 'Z' + str(repzval)), line)
-						#print('pass #' + str(passnum) + '  original match ' + str(z.group(0)) + ' replacement ' + str(repzval))
-						#print(line)
+						#append modified line to new block
 						newblock.append(line)
-				newblocks.append((pos, newblock))
-				pos += 1
 
-			#app.gcode.cnc.insBlock(app.activeBlock(),(pos,newblocks)
+				newblocks.append((pos, newblock))
+			app.gcode.addBlockUndo(pos, newblocks)
+			pos += 1
+
+
 		app.refresh()
 		app.setStatus(_("Multipass blocks are now in the editor"))
 
