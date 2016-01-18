@@ -85,8 +85,6 @@ class Tool(Plugin):
 						if y is not None:
 							curyval = y.group(0)
 							repyval = str(y.group(0)) + ' Z' + str((dpp * (passnum + 1)))
-							print (curyval)
-							print (repyval)
 							line = yregexp.sub(lambda match: y.group(0).replace(curyval, str(repyval)), line)
 							newblock.append(line)
 						#No y value given, most likely a header M5, M3, or S command. Tack on to new block
