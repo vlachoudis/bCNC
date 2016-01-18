@@ -150,12 +150,16 @@ class Probe:
 		self.points = []	# probe points
 		self.matrix = []	# 2D matrix with Z coordinates
 		self.zeroed = False	# if probe was zeroed at any location
+		self.start  = False	# start collecting probes
+		self.saved  = False
 
 	#----------------------------------------------------------------------
 	def clear(self):
 		del self.points[:]
 		del self.matrix[:]
-		self.zeroed = False	# if probe was zeroed at any location
+		self.zeroed = False
+		self.start  = False
+		self.saved  = False
 
 	#----------------------------------------------------------------------
 	def isEmpty(self): return len(self.matrix)==0
@@ -173,6 +177,7 @@ class Probe:
 		if filename is not None:
 			self.filename = filename
 		self.clear()
+		self.saved = True
 
 		def read(f):
 			while True:
@@ -194,6 +199,7 @@ class Probe:
 		self.xstep()
 		self.ystep()
 
+		self.start = True
 		try:
 			for j in range(self.yn):
 				for i in range(self.xn):
@@ -221,6 +227,7 @@ class Probe:
 				f.write("%g %g %g\n"%(x,y,self.matrix[j][i]))
 			f.write("\n")
 		f.close()
+		self.saved = True
 
 	#----------------------------------------------------------------------
 	# Save level information as STL file
@@ -251,17 +258,21 @@ class Probe:
 		self._xstep = (self.xmax-self.xmin)/float(self.xn-1)
 		return self._xstep
 
+	#----------------------------------------------------------------------
 	def ystep(self):
 		self._ystep = (self.ymax-self.ymin)/float(self.yn-1)
 		return self._ystep
 
 	#----------------------------------------------------------------------
+	# Return the code needed to scan for autoleveling
+	#----------------------------------------------------------------------
 	def scan(self):
-		lines = []
 		self.clear()
+		self.start = True
 		self.makeMatrix()
 		x = self.xmin
 		xstep = self._xstep
+		lines = []
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
@@ -279,6 +290,7 @@ class Probe:
 	# Add a probed point to the list and the 3D matrix
 	#----------------------------------------------------------------------
 	def add(self, x,y,z):
+		if not self.start: return
 		i = round((x-self.xmin) / self._xstep)
 		if i<0.0 or i>self.xn: return
 
@@ -296,6 +308,9 @@ class Probe:
 			self.points.append([x,y,z])
 		except IndexError:
 			pass
+
+		if len(self.points) >= self.xn*self.yn:
+			self.start = False
 
 	#----------------------------------------------------------------------
 	# Make z-level relative to the location of (x,y,0)
@@ -1862,7 +1877,7 @@ class GCode:
 #		self.tabs     = []		# list of tabs
 		self.vars.clear()
 		self.undoredo.reset()
-		self.probe.init()
+#		self.probe.init()
 
 		self._lastModified = 0
 		self._modified = False
