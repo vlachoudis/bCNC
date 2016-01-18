@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2016-01-16 23:31+0100\n"
-"PO-Revision-Date: 2016-01-17 13:00+0100\n"
+"PO-Revision-Date: 2016-01-18 21:45+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1384,6 +1384,12 @@ msgid ""
 "happens. There is no work around, other than blocking it. This ensures both the serial "
 "and step generator interrupts are working smoothly throughout operation."
 msgstr ""
+"Algunos comandos $ de Grbl son bloqueantes dependiendo del estado actual o la tarea que "
+"esté realizando. En general, Grbl bloquea cualquier comando que lee o escribe de la "
+"memoria EEPROM (puesto que el microcontrolador AVR desconecta todas las interrupciones "
+"durante algunos ciclos de reloj). Por tanto, no queda más opción que bloquear la entrada "
+"de nuevos comandos temporalmente, asegurando que tanto la comunicación serie como el "
+"generador de pasos funcionen sin problemas."
 
 #: Sender.py:73
 msgid ""
@@ -1796,7 +1802,7 @@ msgstr "Grosor"
 
 #: ToolsPage.py:591 ToolsPage.py:622 plugins/driller.py:42 plugins/spirograph.py:105
 msgid "Target Depth"
-msgstr "Profundidad deseada"
+msgstr "Profundidad deseada (dejar en blanco para grosor total de sustrato)"
 
 #: ToolsPage.py:611
 msgid "CUT selected paths"
@@ -1824,119 +1830,125 @@ msgstr "Separación adicional"
 
 #: ToolsPage.py:652 plugins/box.py:314
 msgid "Overcut"
-msgstr ""
+msgstr "Ampliar esquinas interiores"
 
 #: ToolsPage.py:664
 msgid "Generate profile path"
-msgstr ""
+msgstr "Generar ruta de perfilado"
 
 #: ToolsPage.py:686
 msgid "Generate pocket path"
-msgstr ""
+msgstr "Generar cavidad (pocket)"
 
 #: ToolsPage.py:870
 msgid "Database"
-msgstr ""
+msgstr "Datos de herram. y material"
 
 #: ToolsPage.py:877
 msgid "Stock"
-msgstr ""
+msgstr "Sustrato"
 
 #: ToolsPage.py:884
 msgid "Stock material currently on machine"
-msgstr ""
+msgstr "Trozo de material a desbastar, actualmente colocado en la máquina"
 
 #: ToolsPage.py:898
 msgid "Editable database of material properties"
-msgstr ""
+msgstr "Base de datos (editable) de materiales y sus propiedades"
 
 #: ToolsPage.py:912
 msgid "Editable database of EndMills properties"
-msgstr ""
+msgstr "Base de datos (editable) de herramientas y sus propiedades"
 
 #: ToolsPage.py:919
 msgid "Rename"
-msgstr ""
+msgstr "Renombrar"
 
 #: ToolsPage.py:924
 msgid "Edit name of current operation/object"
-msgstr ""
+msgstr "Cambiar el nombre de la operación/objeto seleccionado"
 
 #: ToolsPage.py:937
 msgid "Add a new operation/object"
-msgstr ""
+msgstr "Añadir una nueva operación/objeto"
 
 #: ToolsPage.py:950
 msgid "Clone selected operation/object"
-msgstr ""
+msgstr "Duplicar la operación/objeto seleccionado"
 
 #: ToolsPage.py:963
 msgid "Delete selected operation/object"
-msgstr ""
+msgstr "Eliminar la operación/objeto seleccionado"
 
 #: ToolsPage.py:972
 msgid "CAM"
-msgstr ""
+msgstr "Oper. CAM básicas"
 
 #: ToolsPage.py:986
 msgid "Cut for the full stock thickness selected code"
-msgstr ""
+msgstr "Corta la ruta seleccionada el grueso total especificado en \"sustrato\""
 
 #: ToolsPage.py:993 plugins/box.py:313
 msgid "Profile"
-msgstr ""
+msgstr "Perfilado"
 
 #: ToolsPage.py:1000
 msgid "Perform a profile operation on selected code"
 msgstr ""
+"Perfilado de la ruta seleccionada. Como la operación de corte, pero teniendo en cuenta el "
+"diámetro de la herramienta seleccionada"
 
 #: ToolsPage.py:1007
 msgid "Pocket"
-msgstr ""
+msgstr "Cavidad"
 
 #: ToolsPage.py:1014
 msgid "Perform a pocket operation on selected code"
 msgstr ""
+"Excava el interior del trazo seleccionado. Para que la ruta generada tenga profundidad, "
+"debe aplicarse una operación de corte posteriormente"
 
 #: ToolsPage.py:1021
 msgid "Drill"
-msgstr ""
+msgstr "Taladrado"
 
 #: ToolsPage.py:1028
 msgid "Insert a drill cycle on current objects/location"
-msgstr ""
+msgstr "Operación de taladrado en las ubicaciones u objetos seleccionados"
 
 #: ToolsPage.py:1035
 msgid "Tabs"
-msgstr ""
+msgstr "Pestañas"
 
 #: ToolsPage.py:1042
 msgid "Insert holding tabs"
 msgstr ""
+"Inserta pestañas de sustentación, para evitar que queden piezas sueltas durante una "
+"operación de corte"
 
 #: ToolsPage.py:1050
 msgid "Macros"
-msgstr ""
+msgstr "Complementos"
 
 #: ToolsPage.py:1079
 msgid "Config"
-msgstr ""
+msgstr "Configuración"
 
 #: ToolsPage.py:1086
 msgid "Machine"
-msgstr ""
+msgstr "Máquina"
 
 #: ToolsPage.py:1093
 msgid "Machine configuration for bCNC"
-msgstr ""
+msgstr "Configuración de la máquina CNC"
 
 #: ToolsPage.py:1100
 msgid "Fonts"
-msgstr ""
+msgstr "Fuente"
 
 #: ToolsPage.py:1107
 msgid "Font configuration"
-msgstr ""
+msgstr "Configuración de estilo de fuente"
 
 #: ToolsPage.py:1114
 msgid "Colors"
@@ -1968,45 +1980,49 @@ msgstr "Herramientas"
 
 #: Utils.py:326
 msgid "Error Reporting"
-msgstr ""
+msgstr "Notificar de un error"
 
 #: Utils.py:332
 msgid "The following report is about to be send to the author of %s"
-msgstr ""
+msgstr "Se va a enviar este informe de error al autor de %s"
 
 #: Utils.py:347
 msgid "Your email"
-msgstr ""
+msgstr "Tu email"
 
 #: Utils.py:356
 msgid "Automatic error reporting"
-msgstr ""
+msgstr "Enviar informes automáticamente"
 
 #: Utils.py:368
 msgid "Send report"
-msgstr ""
+msgstr "Enviar informe"
 
 #: Utils.py:434 Utils.py:444
 msgid "Error sending report"
-msgstr ""
+msgstr "Error al enviar el informe"
 
 #: Utils.py:435
 msgid "There was a problem connecting to the web site"
 msgstr ""
+"Hubo un problema en la conexión. Rogamos envíe sus comentarios a través de la web del "
+"programa"
 
 #: Utils.py:439
 msgid "Report successfully send"
-msgstr ""
+msgstr "Informe enviado correctamente"
 
 #: Utils.py:440
 msgid "Report was successfully uploaded to web site"
-msgstr ""
+msgstr "Se ha enviado el informe. Muchas gracias por su colaboración"
 
 #: Utils.py:445
 msgid ""
 "There was an error sending the report\n"
 "Code=%d %s"
 msgstr ""
+"Hubo un error al enviar el informe\n"
+"Código=%d %s"
 
 #: Utils.py:552
 msgid "User configurable button"
@@ -2018,15 +2034,15 @@ msgstr "Nombre:"
 
 #: Utils.py:562
 msgid "Name to appear on button"
-msgstr ""
+msgstr "Nombre que aparecerá en el botón"
 
 #: Utils.py:566
 msgid "Icon:"
-msgstr ""
+msgstr "Icono:"
 
 #: Utils.py:578
 msgid "Icon to appear on button"
-msgstr ""
+msgstr "Imagen de icono que aparecerá en el botón"
 
 #: Utils.py:582
 msgid "Tool Tip:"
