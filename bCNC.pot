@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-01-01 22:33+CET\n"
+"POT-Creation-Date: 2016-01-19 17:25+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -256,7 +256,7 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: ControlPage.py:350 Sender.py:509
+#: ControlPage.py:350 Sender.py:515
 msgid "Set workspace %s to X%s Y%s Z%s"
 msgstr ""
 
@@ -358,7 +358,7 @@ msgstr ""
 msgid "Switch to workspace %s"
 msgstr ""
 
-#: ControlPage.py:784 ProbePage.py:851
+#: ControlPage.py:784 ProbePage.py:852
 msgid "Distance:"
 msgstr ""
 
@@ -452,7 +452,7 @@ msgstr ""
 msgid "Paste [Ctrl-V]"
 msgstr ""
 
-#: EditorPage.py:46 ToolsPage.py:979 plugins/box.py:315
+#: EditorPage.py:46 ToolsPage.py:979 plugins/box.py:314
 msgid "Cut"
 msgstr ""
 
@@ -512,7 +512,7 @@ msgstr ""
 msgid "Round"
 msgstr ""
 
-#: EditorPage.py:120 bCNC.py:781
+#: EditorPage.py:120 bCNC.py:787
 msgid "Statistics"
 msgstr ""
 
@@ -668,7 +668,7 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: EditorPage.py:377 bCNC.py:1283
+#: EditorPage.py:377 bCNC.py:1289
 msgid "Optimize"
 msgstr ""
 
@@ -768,8 +768,8 @@ msgstr ""
 msgid "Open existing gcode/dxf file [Ctrl-O]"
 msgstr ""
 
-#: FilePage.py:82 FilePage.py:266 bCNC.py:1784 lib/bFileDialog.py:313
-#: lib/bFileDialog.py:955
+#: FilePage.py:82 FilePage.py:266 bCNC.py:1812 lib/bFileDialog.py:320
+#: lib/bFileDialog.py:956
 msgid "Open"
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr ""
 msgid "Save gcode/dxf file [Ctrl-S]"
 msgstr ""
 
-#: FilePage.py:102 lib/bFileDialog.py:886
+#: FilePage.py:102 lib/bFileDialog.py:887
 msgid "Save"
 msgstr ""
 
@@ -793,7 +793,7 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: FilePage.py:134 Utils.py:329
+#: FilePage.py:134 Utils.py:331
 msgid "Report"
 msgstr ""
 
@@ -817,7 +817,7 @@ msgstr ""
 msgid "About the program"
 msgstr ""
 
-#: FilePage.py:172 bCNC.py:1914 bCNC.py:1918 bCNC.py:1931
+#: FilePage.py:172 bCNC.py:1942 bCNC.py:1946 bCNC.py:1959
 msgid "Pendant"
 msgstr ""
 
@@ -829,7 +829,7 @@ msgstr ""
 msgid "Stop pendant"
 msgstr ""
 
-#: FilePage.py:202 Utils.py:364 bCNC.py:743 bCNC.py:931 bCNC.py:1792
+#: FilePage.py:202 Utils.py:366 bCNC.py:749 bCNC.py:937 bCNC.py:1820
 msgid "Close"
 msgstr ""
 
@@ -1010,7 +1010,7 @@ msgstr ""
 msgid "Probe Command"
 msgstr ""
 
-#: ProbePage.py:324 ProbePage.py:821
+#: ProbePage.py:324 ProbePage.py:822
 msgid "Probe:"
 msgstr ""
 
@@ -1123,135 +1123,139 @@ msgstr ""
 msgid "Invalid Z probing region"
 msgstr ""
 
-#: ProbePage.py:723 ProbePage.py:870
+#: ProbePage.py:724 ProbePage.py:871
 msgid "Calibrate"
 msgstr ""
 
-#: ProbePage.py:729
+#: ProbePage.py:730
 msgid "Perform a single a tool change cycle to set the calibration field"
 msgstr ""
 
-#: ProbePage.py:733
+#: ProbePage.py:734
 msgid "Change"
 msgstr ""
 
-#: ProbePage.py:739
+#: ProbePage.py:740
 msgid "Perform a tool change cycle"
 msgstr ""
 
-#: ProbePage.py:748
+#: ProbePage.py:749
 msgid "Manual Tool Change"
 msgstr ""
 
-#: ProbePage.py:753
+#: ProbePage.py:754
 msgid "Policy:"
 msgstr ""
 
-#: ProbePage.py:762
+#: ProbePage.py:763
 msgid "Tool change policy"
 msgstr ""
 
-#: ProbePage.py:768
+#: ProbePage.py:769
 msgid "Pause:"
 msgstr ""
 
-#: ProbePage.py:791
+#: ProbePage.py:792
 msgid "Change:"
 msgstr ""
 
-#: ProbePage.py:795
+#: ProbePage.py:796
 msgid "Manual tool change Machine X location"
 msgstr ""
 
-#: ProbePage.py:801
+#: ProbePage.py:802
 msgid "Manual tool change Machine Y location"
 msgstr ""
 
-#: ProbePage.py:807
+#: ProbePage.py:808
 msgid "Manual tool change Machine Z location"
 msgstr ""
 
-#: ProbePage.py:811 ProbePage.py:841
+#: ProbePage.py:812 ProbePage.py:842
 msgid "get"
 msgstr ""
 
-#: ProbePage.py:815
+#: ProbePage.py:816
 msgid "Get current gantry position as machine tool change location"
 msgstr ""
 
-#: ProbePage.py:825
+#: ProbePage.py:826
 msgid "Manual tool change Probing MX location"
 msgstr ""
 
-#: ProbePage.py:831
+#: ProbePage.py:832
 msgid "Manual tool change Probing MY location"
 msgstr ""
 
-#: ProbePage.py:837
+#: ProbePage.py:838
 msgid "Manual tool change Probing MZ location"
 msgstr ""
 
-#: ProbePage.py:845
+#: ProbePage.py:846
 msgid "Get current gantry position as machine tool probe location"
 msgstr ""
 
-#: ProbePage.py:856
+#: ProbePage.py:857
 msgid "After a tool change distance to scan starting from ProbeZ"
 msgstr ""
 
-#: ProbePage.py:862
+#: ProbePage.py:863
 msgid "Calibration:"
 msgstr ""
 
-#: ProbePage.py:866
+#: ProbePage.py:867
 msgid "Tool probe height"
 msgstr ""
 
-#: ProbePage.py:874
+#: ProbePage.py:875
 msgid "Perform a calibration probing to determine the height"
 msgstr ""
 
-#: ProbePage.py:925 ProbePage.py:935 ProbePage.py:943 ProbePage.py:951
+#: ProbePage.py:926 ProbePage.py:936 ProbePage.py:944 ProbePage.py:952
 msgid "Probe Tool Change Error"
 msgstr ""
 
-#: ProbePage.py:926
+#: ProbePage.py:927
 msgid "Invalid tool change position"
 msgstr ""
 
-#: ProbePage.py:936
+#: ProbePage.py:937
 msgid "Invalid tool probe location"
 msgstr ""
 
-#: ProbePage.py:944
+#: ProbePage.py:945
 msgid "Invalid tool scanning distance entered"
 msgstr ""
 
-#: ProbePage.py:952
+#: ProbePage.py:953
 msgid "Invalid tool height or not calibrated"
 msgstr ""
 
-#: ProbePage.py:1056
+#: ProbePage.py:1057
 msgid "Probe configuration and probing"
 msgstr ""
 
 #: Ribbon.py:481
-msgid "Open file [Ctrl-O]"
+msgid "New file"
 msgstr ""
 
 #: Ribbon.py:487
-msgid "Save all [Ctrl-S]"
+msgid "Open file [Ctrl-O]"
 msgstr ""
 
 #: Ribbon.py:493
+msgid "Save all [Ctrl-S]"
+msgstr ""
+
+#: Ribbon.py:499
 msgid "Undo [Ctrl-Z]"
 msgstr ""
 
-#: Ribbon.py:506
+#: Ribbon.py:512
 msgid "Redo [Ctrl-Y]"
 msgstr ""
 
-#: Ribbon.py:517
+#: Ribbon.py:523
 msgid "Help [F1]"
 msgstr ""
 
@@ -1577,10 +1581,11 @@ msgstr ""
 
 #: ToolsPage.py:508 ToolsPage.py:534 ToolsPage.py:563 ToolsPage.py:589
 #: ToolsPage.py:621 ToolsPage.py:648 ToolsPage.py:674 ToolsPage.py:696
-#: ToolsPage.py:1156 lib/bFileDialog.py:286 plugins/bowl.py:107
-#: plugins/box.py:306 plugins/driller.py:40 plugins/flatten.py:257
+#: ToolsPage.py:1156 lib/bFileDialog.py:293 plugins/bowl.py:107
+#: plugins/box.py:305 plugins/driller.py:40 plugins/flatten.py:257
 #: plugins/gear.py:162 plugins/heightmap.py:49 plugins/midi2cnc.py:51
-#: plugins/pyrograph.py:40 plugins/spirograph.py:101 plugins/tile.py:34
+#: plugins/pyrograph.py:40 plugins/spirograph.py:101 plugins/text.py:39
+#: plugins/tile.py:34
 msgid "Name"
 msgstr ""
 
@@ -1596,7 +1601,7 @@ msgstr ""
 msgid "Depth Increment"
 msgstr ""
 
-#: ToolsPage.py:535 lib/bFileDialog.py:287
+#: ToolsPage.py:535 lib/bFileDialog.py:294
 msgid "Type"
 msgstr ""
 
@@ -1677,7 +1682,7 @@ msgstr ""
 msgid "Additional offset distance"
 msgstr ""
 
-#: ToolsPage.py:652 plugins/box.py:314
+#: ToolsPage.py:652 plugins/box.py:313
 msgid "Overcut"
 msgstr ""
 
@@ -1737,7 +1742,7 @@ msgstr ""
 msgid "Cut for the full stock thickness selected code"
 msgstr ""
 
-#: ToolsPage.py:993 plugins/box.py:313
+#: ToolsPage.py:993 plugins/box.py:312
 msgid "Profile"
 msgstr ""
 
@@ -1821,85 +1826,85 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: Utils.py:326
+#: Utils.py:328
 msgid "Error Reporting"
 msgstr ""
 
-#: Utils.py:332
+#: Utils.py:334
 msgid "The following report is about to be send to the author of %s"
 msgstr ""
 
-#: Utils.py:347
+#: Utils.py:349
 msgid "Your email"
 msgstr ""
 
-#: Utils.py:356
+#: Utils.py:358
 msgid "Automatic error reporting"
 msgstr ""
 
-#: Utils.py:368
+#: Utils.py:370
 msgid "Send report"
 msgstr ""
 
-#: Utils.py:434 Utils.py:444
+#: Utils.py:436 Utils.py:446
 msgid "Error sending report"
 msgstr ""
 
-#: Utils.py:435
+#: Utils.py:437
 msgid "There was a problem connecting to the web site"
 msgstr ""
 
-#: Utils.py:439
+#: Utils.py:441
 msgid "Report successfully send"
 msgstr ""
 
-#: Utils.py:440
+#: Utils.py:442
 msgid "Report was successfully uploaded to web site"
 msgstr ""
 
-#: Utils.py:445
+#: Utils.py:447
 msgid ""
 "There was an error sending the report\n"
 "Code=%d %s"
 msgstr ""
 
-#: Utils.py:552
+#: Utils.py:554
 msgid "User configurable button"
 msgstr ""
 
-#: Utils.py:558
+#: Utils.py:560
 msgid "Name:"
 msgstr ""
 
-#: Utils.py:562
+#: Utils.py:564
 msgid "Name to appear on button"
 msgstr ""
 
-#: Utils.py:566
+#: Utils.py:568
 msgid "Icon:"
 msgstr ""
 
-#: Utils.py:578
+#: Utils.py:580
 msgid "Icon to appear on button"
 msgstr ""
 
-#: Utils.py:582
+#: Utils.py:584
 msgid "Tool Tip:"
 msgstr ""
 
-#: Utils.py:586
+#: Utils.py:588
 msgid "Tooltip for button"
 msgstr ""
 
-#: Utils.py:590 bCNC.py:149
+#: Utils.py:592 bCNC.py:149
 msgid "Command:"
 msgstr ""
 
-#: Utils.py:602 lib/bFileDialog.py:337
+#: Utils.py:604 lib/bFileDialog.py:344
 msgid "Cancel"
 msgstr ""
 
-#: Utils.py:603
+#: Utils.py:605
 msgid "Ok"
 msgstr ""
 
@@ -1907,7 +1912,7 @@ msgstr ""
 msgid "All accepted"
 msgstr ""
 
-#: bCNC.py:88 bCNC.py:1743
+#: bCNC.py:88 bCNC.py:1771
 msgid "G-Code"
 msgstr ""
 
@@ -1923,263 +1928,273 @@ msgstr ""
 msgid "CNC is currently running, please stop it before."
 msgstr ""
 
-#: bCNC.py:448 bCNC.py:1694
-msgid "File modified"
-msgstr ""
-
-#: bCNC.py:449 bCNC.py:1695
-msgid "Gcode was modified do you want to save it first?"
-msgstr ""
-
-#: bCNC.py:609
+#: bCNC.py:603
 msgid "About %s"
 msgstr ""
 
-#: bCNC.py:644
+#: bCNC.py:638
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
 msgstr ""
 
-#: bCNC.py:799
+#: bCNC.py:805
 msgid "Enabled GCode"
 msgstr ""
 
-#: bCNC.py:804 bCNC.py:869
+#: bCNC.py:810 bCNC.py:875
 msgid "Margins X:"
 msgstr ""
 
-#: bCNC.py:837 bCNC.py:902
+#: bCNC.py:843 bCNC.py:908
 msgid "# Blocks:"
 msgstr ""
 
-#: bCNC.py:845 bCNC.py:909
+#: bCNC.py:851 bCNC.py:915
 msgid "Length:"
 msgstr ""
 
-#: bCNC.py:853 bCNC.py:917
+#: bCNC.py:859 bCNC.py:923
 msgid "Time:"
 msgstr ""
 
-#: bCNC.py:864
+#: bCNC.py:870
 msgid "All GCode"
 msgstr ""
 
-#: bCNC.py:1086
+#: bCNC.py:1092
 msgid "Evaluation error"
 msgstr ""
 
-#: bCNC.py:1284
+#: bCNC.py:1290
 msgid "Please select the blocks of gcode you want to optimize."
 msgstr ""
 
-#: bCNC.py:1433
+#: bCNC.py:1439
 msgid "EndMill: %s %g"
 msgstr ""
 
-#: bCNC.py:1458
+#: bCNC.py:1464
 msgid "Invalid user command %s"
 msgstr ""
 
-#: bCNC.py:1535
+#: bCNC.py:1541
 msgid "Operation error"
 msgstr ""
 
-#: bCNC.py:1576
+#: bCNC.py:1582
 msgid "Profile block distance=%g"
 msgstr ""
 
-#: bCNC.py:1589
+#: bCNC.py:1595
 msgid "Open paths"
 msgstr ""
 
-#: bCNC.py:1590
+#: bCNC.py:1596
 msgid "WARNING: %s"
 msgstr ""
 
-#: bCNC.py:1666
+#: bCNC.py:1672
 msgid "Open file"
 msgstr ""
 
-#: bCNC.py:1679
+#: bCNC.py:1685
 msgid "Save file"
 msgstr ""
 
-#: bCNC.py:1700
+#: bCNC.py:1695
+msgid "File modified"
+msgstr ""
+
+#: bCNC.py:1696
+msgid "Gcode was modified do you want to save it first?"
+msgstr ""
+
+#: bCNC.py:1702
+msgid "Probe File modified"
+msgstr ""
+
+#: bCNC.py:1703
+msgid "Probe was modified do you want to save it first?"
+msgstr ""
+
+#: bCNC.py:1722
+msgid "Existing Autolevel"
+msgstr ""
+
+#: bCNC.py:1723
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+
+#: bCNC.py:1728
 msgid "Loading: %s ..."
 msgstr ""
 
-#: bCNC.py:1714
+#: bCNC.py:1742
 msgid "'%s' loaded"
 msgstr ""
 
-#: bCNC.py:1720
+#: bCNC.py:1748
 msgid "'%s' saved"
 msgstr ""
 
-#: bCNC.py:1739
+#: bCNC.py:1767
 msgid "Import Gcode/DXF file"
 msgstr ""
 
-#: bCNC.py:1768
+#: bCNC.py:1796
 msgid "Warning"
 msgstr ""
 
-#: bCNC.py:1769
+#: bCNC.py:1797
 msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
 
-#: bCNC.py:1804
+#: bCNC.py:1832
 msgid "Error opening serial"
 msgstr ""
 
-#: bCNC.py:1833
+#: bCNC.py:1861
 msgid "Run ended"
 msgstr ""
 
-#: bCNC.py:1840
+#: bCNC.py:1868
 msgid "Serial Error"
 msgstr ""
 
-#: bCNC.py:1841
+#: bCNC.py:1869
 msgid "Serial is not connected"
 msgstr ""
 
-#: bCNC.py:1848
+#: bCNC.py:1876
 msgid "Already running"
 msgstr ""
 
-#: bCNC.py:1849
+#: bCNC.py:1877
 msgid "Please stop before"
 msgstr ""
 
-#: bCNC.py:1853
+#: bCNC.py:1881
 msgid "Preparing to run ..."
 msgstr ""
 
-#: bCNC.py:1860
-msgid "Probe is not zeroed"
-msgstr ""
-
-#: bCNC.py:1861
-msgid "Please ZERO any location of the probe before starting a run"
-msgstr ""
-
-#: bCNC.py:1867
+#: bCNC.py:1895
 msgid "Empty gcode"
 msgstr ""
 
-#: bCNC.py:1868
+#: bCNC.py:1896
 msgid "Not gcode file was loaded"
 msgstr ""
 
-#: bCNC.py:1893
+#: bCNC.py:1921
 msgid "Running..."
 msgstr ""
 
-#: bCNC.py:1915
+#: bCNC.py:1943
 msgid ""
 "Pendant started:\n"
 msgstr ""
 
-#: bCNC.py:1919
+#: bCNC.py:1947
 msgid ""
 "Pendant already started:\n"
 msgstr ""
 
-#: bCNC.py:1921
+#: bCNC.py:1949
 msgid ""
 "\n"
 "Would you like open it locally?"
 msgstr ""
 
-#: bCNC.py:1931
+#: bCNC.py:1959
 msgid "Pendant stopped"
 msgstr ""
 
-#: bCNC.py:2173
+#: bCNC.py:2206
 msgid "python serial missing"
 msgstr ""
 
-#: bCNC.py:2174
+#: bCNC.py:2207
 msgid ""
 "ERROR: Please install the python pyserial module\n"
 "Windows: C:\\PythonXX\\Scripts\\easy_install pyserial\n"
 "Linux: sudo apt-get or yum install python-serial"
 msgstr ""
 
-#: lib/bFileDialog.py:262
+#: lib/bFileDialog.py:269
 msgid "Directory:"
 msgstr ""
 
-#: lib/bFileDialog.py:288
+#: lib/bFileDialog.py:295
 msgid "Size"
 msgstr ""
 
-#: lib/bFileDialog.py:289
+#: lib/bFileDialog.py:296
 msgid "Date"
 msgstr ""
 
-#: lib/bFileDialog.py:309
+#: lib/bFileDialog.py:316
 msgid "File name:"
 msgstr ""
 
-#: lib/bFileDialog.py:316
+#: lib/bFileDialog.py:323
 msgid "Files of type:"
 msgstr ""
 
-#: lib/bFileDialog.py:547 lib/bFileDialog.py:605 lib/bFileDialog.py:799
-#: lib/bFileDialog.py:823 lib/bFileDialog.py:845
+#: lib/bFileDialog.py:548 lib/bFileDialog.py:606 lib/bFileDialog.py:800
+#: lib/bFileDialog.py:824 lib/bFileDialog.py:846
 msgid "Error"
 msgstr ""
 
-#: lib/bFileDialog.py:548
+#: lib/bFileDialog.py:549
 msgid "Cannot access path \"%s\""
 msgstr ""
 
-#: lib/bFileDialog.py:606
+#: lib/bFileDialog.py:607
 msgid "Error listing folder \"%s\""
 msgstr ""
 
-#: lib/bFileDialog.py:787
+#: lib/bFileDialog.py:788
 msgid "NewFolder"
 msgstr ""
 
-#: lib/bFileDialog.py:800
+#: lib/bFileDialog.py:801
 msgid "Error creating folder \"%s\""
 msgstr ""
 
-#: lib/bFileDialog.py:824
+#: lib/bFileDialog.py:825
 msgid "Error renaming \"%s\" to \"%s\""
 msgstr ""
 
-#: lib/bFileDialog.py:846
+#: lib/bFileDialog.py:847
 msgid "Error deleting file \"%s\""
 msgstr ""
 
-#: lib/bFileDialog.py:863 lib/bFileDialog.py:872
+#: lib/bFileDialog.py:864 lib/bFileDialog.py:873
 msgid "File does not exist"
 msgstr ""
 
-#: lib/bFileDialog.py:864 lib/bFileDialog.py:873
+#: lib/bFileDialog.py:865 lib/bFileDialog.py:874
 msgid "File \"%s\" does not exist"
 msgstr ""
 
-#: lib/bFileDialog.py:881
+#: lib/bFileDialog.py:882
 msgid "Save As"
 msgstr ""
 
-#: lib/bFileDialog.py:892
+#: lib/bFileDialog.py:893
 msgid "File already exists"
 msgstr ""
 
-#: lib/bFileDialog.py:893
+#: lib/bFileDialog.py:894
 msgid "Overwrite existing file %r?"
 msgstr ""
 
-#: lib/bFileDialog.py:904
+#: lib/bFileDialog.py:905
 msgid "Choose Directory"
 msgstr ""
 
@@ -2211,39 +2226,39 @@ msgstr ""
 msgid "Box"
 msgstr ""
 
-#: plugins/box.py:300
+#: plugins/box.py:299
 msgid "Generate a finger box"
 msgstr ""
 
-#: plugins/box.py:307
+#: plugins/box.py:306
 msgid "Width Dx"
 msgstr ""
 
-#: plugins/box.py:308
+#: plugins/box.py:307
 msgid "Depth Dy"
 msgstr ""
 
-#: plugins/box.py:309
+#: plugins/box.py:308
 msgid "Height Dz"
 msgstr ""
 
-#: plugins/box.py:310
+#: plugins/box.py:309
 msgid "Fingers Nx"
 msgstr ""
 
-#: plugins/box.py:311
+#: plugins/box.py:310
 msgid "Fingers Ny"
 msgstr ""
 
-#: plugins/box.py:312
+#: plugins/box.py:311
 msgid "Fingers Nz"
 msgstr ""
 
-#: plugins/box.py:339
+#: plugins/box.py:341
 msgid "Create finger BOX"
 msgstr ""
 
-#: plugins/box.py:341
+#: plugins/box.py:343
 msgid "Generated: BOX with fingers"
 msgstr ""
 
@@ -2387,7 +2402,7 @@ msgstr ""
 msgid "Use a brightess map to create a variable Z path"
 msgstr ""
 
-#: plugins/heightmap.py:50 plugins/pyrograph.py:42
+#: plugins/heightmap.py:50 plugins/pyrograph.py:42 plugins/text.py:41
 msgid "Working Depth"
 msgstr ""
 
@@ -2555,6 +2570,26 @@ msgstr ""
 msgid "Create text using a ttf font"
 msgstr ""
 
+#: plugins/text.py:40
+msgid "Text to generate"
+msgstr ""
+
+#: plugins/text.py:42
+msgid "Font size"
+msgstr ""
+
+#: plugins/text.py:43
+msgid "Font file"
+msgstr ""
+
+#: plugins/text.py:44
+msgid "Image to Ascii"
+msgstr ""
+
+#: plugins/text.py:45
+msgid "Image chars width"
+msgstr ""
+
 #: plugins/text.py:61
 msgid "Text abort: please input a Font size > 0"
 msgstr ""
@@ -2563,7 +2598,7 @@ msgstr ""
 msgid "Text abort: please select a font file"
 msgstr ""
 
-#: plugins/text.py:92
+#: plugins/text.py:91
 msgid "Text abort: That embarrassing, I can't read this font file!"
 msgstr ""
 
@@ -2583,7 +2618,7 @@ msgstr ""
 msgid "No g-code blocks selected"
 msgstr ""
 
-#: plugins/tile.py:92
+#: plugins/tile.py:93
 msgid "Tiled selected blocks"
 msgstr ""
 
