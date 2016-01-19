@@ -193,6 +193,13 @@ _active      = False
 _history     = []
 
 #-------------------------------------------------------------------------------
+def append2History(path):
+	global _history
+	if not path: return
+	if path not in _history:
+		_history.append(path)
+
+#-------------------------------------------------------------------------------
 def fileTypeColor(filename):
 	fn = os.path.basename(filename)
 	dot = fn.rfind(".")
@@ -363,7 +370,7 @@ class FileDialog(Toplevel):
 		self.files  = True
 		self.seldir = False
 		self.selFile = ""
-		self.append2History(self.path)
+		append2History(self.path)
 
 		# popup history
 		self._popup = None
@@ -486,7 +493,7 @@ class FileDialog(Toplevel):
 		self._popupList.bind("<ButtonRelease-1>", self._historyClick)
 		self._popupList.bind("<Return>", self._historyClick)
 		sb.config(command=self._popupList.yview)
-		for h in _history:
+		for h in sorted(_history):
 			self._popupList.insert(END, h)
 		self._popupList.selection_set(0)
 		self._popupList.activate(0)
@@ -527,12 +534,6 @@ class FileDialog(Toplevel):
 		return "break"
 
 	# ----------------------------------------------------------------------
-	def append2History(self, path):
-		global _history
-		if path not in _history:
-			_history.append(path)
-
-	# ----------------------------------------------------------------------
 	def upDir(self, event):
 		if not tkExtra.ExListbox._search:
 			self.changePath(os.path.dirname(self.path))
@@ -551,7 +552,7 @@ class FileDialog(Toplevel):
 		self.buttonPath(path)
 		self.path = path
 		self.fill()
-		self.append2History(self.path)
+		append2History(self.path)
 
 	# ----------------------------------------------------------------------
 	def fill(self, path=None):

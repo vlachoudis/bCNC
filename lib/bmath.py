@@ -337,6 +337,13 @@ class ZeroDict(DefaultDict):
 	def __init__(self):
 		DefaultDict.__init__(self, 0.0)
 
+#==============================================================================
+# Unknown keys will return 0.0
+#==============================================================================
+class ZeroIntDict(DefaultDict):
+	def __init__(self):
+		DefaultDict.__init__(self, 0)
+
 #===============================================================================
 # Vector class
 # Inherits from List

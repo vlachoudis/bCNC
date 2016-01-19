@@ -2499,6 +2499,17 @@ class InPlaceMaxLength(InPlaceEdit):
 #===============================================================================
 class InPlaceText(InPlaceEdit):
 	# ----------------------------------------------------------------------
+	def createWidget(self):
+		self.toplevel = Toplevel(self.listbox)
+		self.toplevel.transient(self.listbox)
+		self.toplevel.overrideredirect(1)
+		self.toplevel.update_idletasks()
+		self.edit = Text(self.toplevel, width=70, height=10,
+					background="White", undo=True)
+		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
+		self.edit.focus_set()
+
+	# ----------------------------------------------------------------------
 	def show(self):
 		self.toplevel.bind("<FocusOut>", self.focusOut)
 		try:
@@ -2519,17 +2530,6 @@ class InPlaceText(InPlaceEdit):
 		self.edit.bind("<Escape>", self.cancel)
 
 	# ----------------------------------------------------------------------
-	def createWidget(self):
-		self.toplevel = Toplevel(self.listbox)
-		self.toplevel.transient(self.listbox)
-		self.toplevel.update_idletasks() 
-		self.toplevel.overrideredirect(1)
-		self.edit = Text(self.toplevel, width=70, height=10,
-					background="White", undo=True)
-		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
-		self.edit.focus_set()
-
-	# ----------------------------------------------------------------------
 	def resize(self, event=None):
 		if self.frame is None: return
 		bbox = self.listbox.bbox(self.item)
@@ -2537,7 +2537,7 @@ class InPlaceText(InPlaceEdit):
 		x, y, w, h = bbox
 		x += self.listbox.winfo_rootx()
 		y += self.listbox.winfo_rooty()
-		w  = self.listbox.winfo_width()
+		#w  = self.listbox.winfo_width()
 		try:
 			self.toplevel.wm_geometry("+%d+%d" % (x,y))
 		except TclError:

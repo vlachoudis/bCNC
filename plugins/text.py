@@ -36,13 +36,13 @@ class Tool(Plugin):
 		self.name = "Text"
 		self.icon = "text"
 
-		self.variables = [("name",      "db" ,    "", "Name"),
-			("Text"  ,    "text" ,    "Write this!", "Text to generate"),
-			("Depth"  ,   "mm" ,       0.0, "Working Depth"),
-			("FontSize"  ,   "mm" ,   10.0, "Font size"),
-			("FontFile"  ,   "file" ,       "", "Font file"),
-			("ImageToAscii"  ,   "file" ,       "", "Image to Ascii"),
-			("CharsWidth"  ,   "int" ,    80, "Image chars width"),]
+		self.variables = [("name",      "db" ,    "", _("Name")),
+				("Text",        "text", "Write this!", _("Text to generate")),
+				("Depth",       "mm",    0.0, _("Working Depth")),
+				("FontSize",    "mm",   10.0, _("Font size")),
+				("FontFile",    "file",   "", _("Font file")),
+				("ImageToAscii","file",   "", _("Image to Ascii")),
+				("CharsWidth",  "int",    80, _("Image chars width"))]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
@@ -71,7 +71,6 @@ class Tool(Plugin):
 		if textToWrite == "":
 			textToWrite = "Nel mezzo del cammin di nostra vita..."
 			return
-
 
 		#Init blocks
 		blocks = []
