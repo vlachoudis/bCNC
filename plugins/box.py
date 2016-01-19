@@ -33,7 +33,7 @@ class Box:
 		self.overcut   = 'D'	# Cut additional holes to compensate
 					# round edges from cutter
 					# D=diagonal, V=vertical, H=horizontal(doesn't work)
-		self.overcutAdd = 0.1	# Add 10% of the tool diameter
+		self.overcutAdd = 0.05	# Add 5% of the tool diameter
 
 		self.surface = 0.	# location of surface
 		self.thick   = 5.	# thickness of material (and finger)
@@ -89,7 +89,7 @@ class Box:
 		n   = abs(n)
 
 		# Make additional overcut/cuts to compensate for the
-		# round edges in the inner teeths
+		# round edges in the inner teeth
 		if self.r > 0.0:
 			overcut = self.overcut
 			#rd = (sqrt(2.)-1.0) * self.r
@@ -142,9 +142,8 @@ class Box:
 							pos += sgn*rd*(U+V)
 							block.append(CNC.glinev(1, pos))
 							pos += sgn*(dv-self.r)*V
-
-#						else:
-#							pos += sgn*(dv-self.r)*V
+						else:
+							pos += sgn*(dv-self.r)*V
 						block.append(CNC.glinev(1, pos))
 						ijk = self.r*U
 						pos += sgn*self.r*V + self.r*U
@@ -174,9 +173,9 @@ class Box:
 								block.append(CNC.glinev(1, pos))
 								pos += sgn*rd*(U-V)
 								block.append(CNC.glinev(1, pos))
-#						else:
-#							pos += sgn*(dv-self.r)*V
-#							block.append(CNC.glinev(1, pos))
+						else:
+							pos += sgn*(dv-self.r)*V
+							block.append(CNC.glinev(1, pos))
 
 			elif i<n-1:
 				pos += sgn*dv*V
@@ -333,7 +332,10 @@ class Tool(Plugin):
 			box.setTool(0.0)
 
 		box.cut = self["cut"]	# create multiple layers or only one
-		if self["overcut"]: box.overcut = 'D'
+		if self["overcut"]:
+			box.overcut = 'D'
+		else:
+			box.overcut = None
 
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, box.make(), _("Create finger BOX"))
