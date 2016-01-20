@@ -866,6 +866,9 @@ class CNCCanvas(Canvas):
 
 		if view is not None: self.view = view
 
+		self._last = (0.,0.,0.)
+		self.initPosition()
+
 		self.drawPaths()
 		self.drawGrid()
 		self.drawMargin()
@@ -1212,8 +1215,6 @@ class CNCCanvas(Canvas):
 				block.resetPath()
 			return
 
-		self._last = (0.,0.,0.)
-		self.initPosition()
 		self.cnc.resetAllMargins()
 		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 		for i,block in enumerate(self.gcode.blocks):
