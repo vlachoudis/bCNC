@@ -2130,6 +2130,7 @@ if __name__ == "__main__":
 			usage(0)
 		elif opt in ("-i", "--ini"):
 			Utils.iniUser = val
+			Utils.loadConfiguration()
 		elif opt == "-d":
 			CNC.developer = True
 		elif opt == "-D":
