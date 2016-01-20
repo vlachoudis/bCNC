@@ -1136,7 +1136,7 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		row += 1
-		b = Button(self.frame,
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["about"],
 				text=_("User File"),
 				compound=LEFT,

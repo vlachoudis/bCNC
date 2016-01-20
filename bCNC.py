@@ -498,7 +498,6 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def showUserFile(self):
-		import webbrowser
 		webbrowser.open(Utils.iniUser)
 		#os.startfile(Utils.iniUser)
 
