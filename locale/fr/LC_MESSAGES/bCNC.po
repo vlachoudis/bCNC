@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-20 16:49+0100\n"
-"PO-Revision-Date: 2016-01-20 16:51+0100\n"
+"PO-Revision-Date: 2016-01-20 21:14+0100\n"
 "Last-Translator: ThierryM <thierry.munoz@free.fr>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -525,7 +525,7 @@ msgstr "Inkscape"
 
 #: EditorPage.py:119
 msgid "Round"
-msgstr "Diamètre"
+msgstr "Arrondi"
 
 #: EditorPage.py:120 bCNC.py:787
 msgid "Statistics"
