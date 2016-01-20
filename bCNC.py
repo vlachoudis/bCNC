@@ -497,6 +497,12 @@ class Application(Toplevel,Sender):
 				self.bind("<%s>"%(key), lambda e,s=self,c=value : s.execute(c))
 
 	#-----------------------------------------------------------------------
+	def showUserFile(self):
+		import webbrowser
+		webbrowser.open(Utils.iniUser)
+		#os.startfile(Utils.iniUser)
+
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		global geometry
 		if geometry is None:
