@@ -1135,6 +1135,18 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Shortcuts"))
 		self.addWidget(b)
 
+		row += 1
+		b = Button(self.frame,
+				image=Utils.icons["about"],
+				text=_("User File"),
+				compound=LEFT,
+				anchor=W,
+				command=app.showUserFile,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Open user configuration file"))
+		self.addWidget(b)
+
 #==============================================================================
 # Tools Frame
 #==============================================================================
