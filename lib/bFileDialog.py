@@ -680,7 +680,7 @@ class FileDialog(Toplevel):
 			# Delete all temporary directories and keep only the last one
 			if len(_history) > self._historyOldLen:
 				del _history[self._historyOldLen:]
-			self.append2History(self.path)
+			append2History(self.path)
 			self.close()
 
 	# ----------------------------------------------------------------------
