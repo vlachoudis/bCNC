@@ -2872,7 +2872,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None):
+	def cut(self, items, depth=None, stepz=None, surface=None, cutFromTop=False):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None: stepz = self.cnc["stepz"]
 		if depth is None: depth = surface - self.cnc["thickness"]
@@ -2897,7 +2897,10 @@ class GCode:
 			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
-				self.cutPath(newblock, path, surface, depth, stepz)
+				if cutFromTop:
+					self.cutPath(newblock, path, surface + stepz, depth, stepz)
+				else:
+					self.cutPath(newblock, path, surface, depth, stepz)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
