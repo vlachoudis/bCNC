@@ -36,7 +36,8 @@ __credits__ = \
 		"@onekk Carlo\n" \
 		"@willadams William Adams"
 __translations__ = \
-		"French - @ThierryM"
+		"French - @ThierryM\n"
+		"Spanish - @carlosgs"
 
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
