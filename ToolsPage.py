@@ -586,10 +586,11 @@ class Cut(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Cut"
 		self.variables = [
-			("name",      "db" ,    "", _("Name")),
-			("surface",   "mm" ,    "", _("Surface Z")),
-			("depth"  ,   "mm" ,    "", _("Target Depth")),
-			("stepz"  ,   "mm" ,    "", _("Depth Increment"))
+			("name",           "db" ,    "", _("Name")),
+			("surface",        "mm" ,    "", _("Surface Z")),
+			("depth"  ,        "mm" ,    "", _("Target Depth")),
+			("stepz"  ,        "mm" ,    "", _("Depth Increment")),
+			("cutFromTop",   "bool" , False, _("First cut at surface height"))
 		]
 		self.buttons.append("exe")
 
@@ -607,7 +608,11 @@ class Cut(DataBase):
 			step =  self.master.fromMm(float(self["stepz"]))
 		except:
 			step = None
-		app.executeOnSelection("CUT", True, depth, step, surface)
+		try:
+			cutFromTop =  self.master.fromMm(float(self["cutFromTop"]))
+		except:
+			cutFromTop = False
+		app.executeOnSelection("CUT", True, depth, step, surface, cutFromTop)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
