@@ -10,8 +10,10 @@ __email__   = "Vasilis.Vlachoudis@cern.ch"
 import traceback
 try:
 	from Tkinter import *
+	import tkMessageBox
 except ImportError:
 	from tkinter import *
+	import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
 import os
@@ -1079,13 +1081,32 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 # Config
 #===============================================================================
-class ConfigGroup(CNCRibbon.ButtonGroup):
+class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
+		#CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app,
+			[(_("User File"), "about",    app.showUserFile)])
 		self.grid3rows()
 
 		# ===
 		col,row=0,0
+		f = Frame(self.frame)
+		f.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
+
+		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT)
+
+		self.language = Ribbon.LabelCombobox(f,
+				command=self.languageChange,
+				width=16)
+		self.language.pack(side=RIGHT, fill=X, expand=YES)
+		tkExtra.Balloon.set(self.language, _("Change program language restart is required"))
+		self.addWidget(self.language)
+
+		self.fillLanguage()
+
+		# ===
+		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["config"],
 				text=_("Machine"),
@@ -1100,6 +1121,20 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text=_("Shortcuts"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Shortcuts"))
+		self.addWidget(b)
+
+		# ===
+		col,row = 1,1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
 				text=_("Fonts"),
@@ -1126,31 +1161,24 @@ class ConfigGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Color configuration"))
 		self.addWidget(b)
 
-		# ===
-		col,row=1,0
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["shortcut"],
-				text=_("Shortcuts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Shortcut",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts"))
-		self.addWidget(b)
+	#----------------------------------------------------------------------
+	def fillLanguage(self):
+		self.language.set(Utils.LANGUAGES.get(Utils.language,""))
+		self.language.fill(list(sorted(Utils.LANGUAGES.values())))
 
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["about"],
-				text=_("User File"),
-				compound=LEFT,
-				anchor=W,
-				command=app.showUserFile,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Open user configuration file"))
-		self.addWidget(b)
+	#----------------------------------------------------------------------
+	def languageChange(self):
+		lang = self.language.get()
+		# find translation
+		for a,b in Utils.LANGUAGES.items():
+			if b == lang:
+				if Utils.language == a: return
+				Utils.language = a
+				Utils.setStr(Utils.__prg__,  "language", Utils.language)
+				tkMessageBox.showinfo(_("Language change"),
+					_("Please restart the program."),
+					parent=self.winfo_toplevel())
+				return
 
 #==============================================================================
 # Tools Frame

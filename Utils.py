@@ -22,6 +22,9 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 	import configparser as ConfigParser
 
+import gettext
+import __builtin__
+
 import Ribbon
 import tkExtra
 
@@ -39,12 +42,20 @@ __translations__ = \
 		"French - @ThierryM\n" \
 		"Spanish - @carlosgs"
 
+LANGUAGES = {
+		""   : "<system>",
+		"en" : "English",
+		"es" : u"Espa\u00f1ol",
+		"fr" : u"Fran\u00e7ais"
+	}
+
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
 iniUser   = os.path.expanduser("~/.%s" % (__prg__))
 hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 icons     = {}
 config    = ConfigParser.ConfigParser()
+language  = ""
 
 _errorReport = True
 errors       = []
@@ -75,13 +86,18 @@ def delIcons():
 # Load configuration
 #------------------------------------------------------------------------------
 def loadConfiguration(systemOnly=False):
-	global config, _errorReport
+	global config, _errorReport, language
 	if systemOnly:
 		config.read(iniSystem)
 	else:
 		config.read([iniSystem, iniUser])
 		_errorReport = getInt("Connection","errorreport",1)
-		loadIcons()
+
+		language = getStr(__prg__, "language")
+		if language:
+			# replace language
+			__builtin__._ = gettext.translation('bCNC', 'locale',
+					fallback=True, languages=[language]).ugettext
 
 #------------------------------------------------------------------------------
 # Save configuration file

@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.7.6"
-__date__    = "17 Jan 2016"
+__version__ = "0.7.7"
+__date__    = "22 Jan 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -48,13 +48,18 @@ PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(PRGPATH, 'lib'))
 sys.path.append(os.path.join(PRGPATH, 'plugins'))
 
+# Load configuration before anything else
+# and if needed replace the  translate function _()
+# before any string is initialized
+import Utils
+Utils.loadConfiguration()
+
 import rexx
 import tkExtra
 import Unicode
 import bFileDialog
 
 from CNC import WAIT, CNC, GCode
-import Utils
 import Ribbon
 import Pendant
 from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
@@ -2118,7 +2123,7 @@ if __name__ == "__main__":
 		tkinter.CallWrapper = Utils.CallWrapper
 
 	tkExtra.bindClasses(tk)
-	Utils.loadConfiguration()
+	Utils.loadIcons()
 
 	# Parse arguments
 	try:
