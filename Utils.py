@@ -40,11 +40,13 @@ __credits__ = \
 		"@willadams William Adams"
 __translations__ = \
 		"French - @ThierryM\n" \
+		"Italian - @onekk\n" \
 		"Spanish - @carlosgs"
 
 LANGUAGES = {
 		""   : "<system>",
 		"en" : "English",
+		"it" : "Italiano",
 		"es" : u"Espa\u00f1ol",
 		"fr" : u"Fran\u00e7ais"
 	}
