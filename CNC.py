@@ -2,7 +2,7 @@
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
 # Author: vvlachoudis@gmail.com
-# Date: 24-Aug-2014
+# Date: 24-Aug-2014y
 
 import os
 import re
@@ -551,20 +551,34 @@ class CNC:
 	@staticmethod
 	def loadConfig(config):
 		section = "CNC"
-		CNC.inch           = bool(int(config.get(section, "units")))
-		CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
-		CNC.acceleration_x = float(config.get(section, "acceleration_x"))
-		CNC.acceleration_y = float(config.get(section, "acceleration_y"))
-		CNC.acceleration_z = float(config.get(section, "acceleration_z"))
-		CNC.feedmax_x      = float(config.get(section, "feedmax_x"))
-		CNC.feedmax_y      = float(config.get(section, "feedmax_y"))
-		CNC.feedmax_z      = float(config.get(section, "feedmax_z"))
-		CNC.travel_x       = float(config.get(section, "travel_x"))
-		CNC.travel_y       = float(config.get(section, "travel_y"))
-		CNC.travel_z       = float(config.get(section, "travel_z"))
-		CNC.travel_z       = float(config.get(section, "travel_z"))
-		CNC.accuracy       = float(config.get(section, "accuracy"))
-		CNC.digits         = int(  config.get(section, "round"))
+		try: CNC.inch           = bool(int(config.get(section, "units")))
+		except: pass
+		try: CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
+		except: pass
+		try: CNC.acceleration_x = float(config.get(section, "acceleration_x"))
+		except: pass
+		try: CNC.acceleration_y = float(config.get(section, "acceleration_y"))
+		except: pass
+		try: CNC.acceleration_z = float(config.get(section, "acceleration_z"))
+		except: pass
+		try: CNC.feedmax_x      = float(config.get(section, "feedmax_x"))
+		except: pass
+		try: CNC.feedmax_y      = float(config.get(section, "feedmax_y"))
+		except: pass
+		try: CNC.feedmax_z      = float(config.get(section, "feedmax_z"))
+		except: pass
+		try: CNC.travel_x       = float(config.get(section, "travel_x"))
+		except: pass
+		try: CNC.travel_y       = float(config.get(section, "travel_y"))
+		except: pass
+		try: CNC.travel_z       = float(config.get(section, "travel_z"))
+		except: pass
+		try: CNC.travel_z       = float(config.get(section, "travel_z"))
+		except: pass
+		try: CNC.accuracy       = float(config.get(section, "accuracy"))
+		except: pass
+		try: CNC.digits         = int(  config.get(section, "round"))
+		except: pass
 		CNC.startup        =       config.get(section, "startup")
 		CNC.header         =       config.get(section, "header")
 		CNC.footer         =       config.get(section, "footer")
