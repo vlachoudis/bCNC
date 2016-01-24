@@ -1529,6 +1529,10 @@ class Application(Toplevel,Sender):
 			self.gcode.orderLines(items, *args)
 		elif cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
+		elif cmd == "MIRRORH":
+			self.gcode.mirrorHLines(items)
+		elif cmd == "MIRRORV":
+			self.gcode.mirrorVLines(items)
 		elif cmd == "MOVE":
 			self.gcode.moveLines(items, *args)
 		elif cmd == "OPTIMIZE":
@@ -1539,10 +1543,8 @@ class Application(Toplevel,Sender):
 			self.gcode.roundLines(items, *args)
 		elif cmd == "ROTATE":
 			self.gcode.rotateLines(items, *args)
-		elif cmd == "MIRRORH":
-			self.gcode.mirrorHLines(items)
-		elif cmd == "MIRRORV":
-			self.gcode.mirrorVLines(items)
+		elif cmd == "TABS":
+			self.gcode.createTabs(items, *args)
 
 		# Fill listbox and update selection
 		self.editor.fill()

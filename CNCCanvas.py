@@ -419,8 +419,8 @@ class CNCCanvas(Canvas):
 #			if self.gcode.tabs: z = self.gcode.tabs[-1].z
 #			self._tab = Tab(x,y,x,y,z)
 #			self._tabRect = self._drawRect(
-#						self._tab.xmin, self._tab.ymin,
-#						self._tab.xmax, self._tab.ymax,
+#						self._tab.x-self._tab.dx, self._tab.y-self._tab.dy,
+#						self._tab.x+self._tab.dx, self._tab.y+self._tab.dy,
 #						fill=TAB_COLOR)
 #			self._mouseAction = self.action
 
@@ -473,17 +473,17 @@ class CNCCanvas(Canvas):
 			self.pan(event)
 
 		# Resize tab
-		elif self._mouseAction == ACTION_ADDTAB:
-			i = self.canvasx(event.x)
-			j = self.canvasy(event.y)
-			x,y,z = self.canvas2xyz(i,j)
-			x = round(x,CNC.digits)
-			y = round(y,CNC.digits)
-			self._tab.xmax = x
-			self._tab.ymax = y
-			self._rectCoords(self._tabRect,
-					self._tab.xmin, self._tab.ymin,
-					self._tab.xmax, self._tab.ymax)
+#		elif self._mouseAction == ACTION_ADDTAB:
+#			i = self.canvasx(event.x)
+#			j = self.canvasy(event.y)
+#			x,y,z = self.canvas2xyz(i,j)
+#			x = round(x,CNC.digits)
+#			y = round(y,CNC.digits)
+#			self._tab.xmax = x
+#			self._tab.ymax = y
+#			self._rectCoords(self._tabRect,
+#					self._tab.x-self._tab.dx, self._tab.y-self._tab.dy,
+#					self._tab.x+self._tab.dx, self._tab.y+self._tab.dy)
 
 		self.setStatus(event)
 
@@ -1224,7 +1224,9 @@ class CNCCanvas(Canvas):
 			if self.draw_margin:
 				for tab in block.tabs:
 					color = block.enable and TAB_COLOR or DISABLE_COLOR
-					item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=color)
+					item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
+								tab.x+tab.dx/2., tab.y+tab.dy/2.,
+								0., fill=color)
 					tab.path = item
 					self._items[item[0]] = i,tab
 					self.tag_lower(item)

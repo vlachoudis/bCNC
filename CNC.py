@@ -1562,22 +1562,28 @@ class CNC:
 # a class holding tab information and necessary functions to break a segment
 #==============================================================================
 class Tab:
-	def __init__(self, xmin, ymin, xmax, ymax, z):
-		self.xmin = xmin		# x,y limits of a square tab
-		self.xmax = xmax
-		self.ymin = ymin
-		self.ymax = ymax
-		self.z    =  z			# z to raise within the tab
+	def __init__(self, x, y, dx, dy, z):
+		self.x  = x			# x,y limits of a square tab
+		self.y  = y
+		self.dx = dx
+		self.dy = dy
+		self.z  = z			# z to raise within the tab
 		self.path = None
 #		self.slope = 45			# cutting z-slope as entry/exit
 #		self.create()
 
 	#----------------------------------------------------------------------
 	def __str__(self):
-		return "Tab([%g, %g] .. [%g, %g] z=%g)" % \
-			(self.xmin, self.ymin,
-			 self.xmax, self.ymax,
-			 self.z)
+		return "Tab([%g, %g] x [%g, %g] z=%g)" % \
+			(self.x, self.y, self.dx, self.dy, self.z)
+
+	#----------------------------------------------------------------------
+	# parse and return parameters of the __str__(function above)
+	#----------------------------------------------------------------------
+	@staticmethod
+	def parse(s):
+		# replace all non digits to space, split and convert to float
+		return map(float, re.sub("[^0-9.]"," ",s).split())
 
 	#----------------------------------------------------------------------
 	# Tab string entry in listbox
@@ -1588,30 +1594,28 @@ class Tab:
 	#----------------------------------------------------------------------
 	# Correct tab for min/max
 	#----------------------------------------------------------------------
-	def correct(self):
-		if self.xmin > self.xmax:
-			self.xmin, self.xmax = self.xmax, self.xmin
-		if self.ymin > self.ymax:
-			self.ymin, self.ymax = self.ymax, self.ymin
+#	def correct(self):
+#		if self.xmin > self.xmax:
+#			self.xmin, self.xmax = self.xmax, self.xmin
+#		if self.ymin > self.ymax:
+#			self.ymin, self.ymax = self.ymax, self.ymin
 
 	#----------------------------------------------------------------------
 	def save(self):
-		return self.xmin, self.ymin, self.xmax, self.ymax, self.z
+		return self.x, self.y, self.dx, self.dy, self.z
 
 	#----------------------------------------------------------------------
 	def restore(self, params):
-		self.xmin = params[0]
-		self.ymin = params[1]
-		self.xmax = params[2]
-		self.ymax = params[3]
-		self.z    = params[4]
+		self.x  = params[0]
+		self.y  = params[1]
+		self.dx = params[2]
+		self.dy = params[3]
+		self.z  = params[4]
 
 	#----------------------------------------------------------------------
 	def move(self, dx, dy, dz=None):
-		self.xmin += dx
-		self.xmax += dx
-		self.ymin += dy
-		self.ymax += dy
+		self.x += dx
+		self.y += dy
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
@@ -1619,14 +1623,18 @@ class Tab:
 	def create(self, diameter=0.0):
 		r = diameter/2.0
 		self.segments = []
-		A = A0 = Vector(self.xmin-r, self.ymin-r)
-		B = Vector(self.xmax+r, self.ymin-r)
+
+		dx = self.dx/2. + r
+		dy = self.dy/2. + r
+
+		A = A0 = Vector(self.x-dx, self.y-dy)
+		B = Vector(self.x+dx, self.y-dy)
 		self.segments.append(Segment(Segment.LINE, A, B))
 		A = B
-		B = Vector(self.xmax+r, self.ymax+r)
+		B = Vector(self.x+dx, self.y+dy)
 		self.segments.append(Segment(Segment.LINE, A, B))
 		A = B
-		B = Vector(self.xmin-r, self.ymax+r)
+		B = Vector(self.x-dx, self.y+dy)
 		self.segments.append(Segment(Segment.LINE, A, B))
 		A = B
 		B = A0
@@ -1636,8 +1644,8 @@ class Tab:
 	# return true if a point is inside the tab or not
 	#----------------------------------------------------------------------
 	def inside(self, P):
-		return self.xmin <= P[0] <= self.xmax and \
-		       self.ymin <= P[1] <= self.ymax
+		return self.x-self.dx/2. <= P[0] <= self.x+self.dx/2. and \
+		       self.y-self.dy/2. <= P[1] <= self.y+self.dy/2.
 
 	#----------------------------------------------------------------------
 	# Split and introduce new segments that fall inside the tabs
@@ -1657,7 +1665,7 @@ class Tab:
 						path.insert(i+1,C)
 						split = True
 
-				if P2 is not None and not eq(P1,P2):
+				if P2 is not None and (P1 is None or not eq(P1,P2)):
 					if B.inside(P2):
 						j = i
 					else:
@@ -1674,7 +1682,6 @@ class Tab:
 		for s in path:
 			if s._inside is None and self.inside(s.midPoint()):
 				s._inside = self
-
 
 #==============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -1778,7 +1785,7 @@ class Block(list):
 		f.write("(Block-enable: %d)\n"%(int(self.enable)))
 		for tab in self.tabs:
 			f.write("(Block-tab: %g %g %g %g %g)\n"% \
-				(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
+				(tab.x, tab.y, tab.dx, tab.dy, tab.z))
 		f.write("%s\n"%("\n".join(self)))
 
 	#----------------------------------------------------------------------
@@ -2084,7 +2091,7 @@ class GCode:
 
 				# Can be time consuming
 				if GCode.LOOP_MERGE:
-					print "Loop merge"
+#					print "Loop merge"
 					longest.mergeLoops(opath)
 
 				undoinfo.extend(self.importPath(None, longest, None, enable))
@@ -2322,22 +2329,25 @@ class GCode:
 		if len(self.blocks[-1])==0:
 			self.blocks.pop()
 
-#	#----------------------------------------------------------------------
-#	# Append a new tab
-#	#----------------------------------------------------------------------
-#	def addTabUndo(self, pos, tab):
-#		undoinfo = (self.delTabUndo, len(self.tabs))
-#		if pos<0 or pos>=len(self.tabs):
-#			self.tabs.append(tab)
-#		else:
-#			self.tabs.insert(pos, tab)
-#		return undoinfo
-#
-#	#----------------------------------------------------------------------
-#	def delTabUndo(self, pos):
-#		undoinfo = (self.addTabUndo, pos, self.tabs[pos])
-#		del self.tabs[pos]
-#		return undoinfo
+	#----------------------------------------------------------------------
+	# Append a new tab
+	#----------------------------------------------------------------------
+	def addTabUndo(self, bid, tid, tab):
+		block = self.blocks[bid]
+		if tid<0 or tid>=len(block.tabs):
+			undoinfo = (self.delTabUndo, bid, len(block.tabs))
+			block.tabs.append(tab)
+		else:
+			undoinfo = (self.delTabUndo, bid, tid)
+			block.tabs.insert(tid, tab)
+		return undoinfo
+
+	#----------------------------------------------------------------------
+	def delTabUndo(self, bid, tid):
+		block = self.blocks[bid]
+		undoinfo = (self.addTabUndo, bid, tid, block.tabs[tid])
+		del block.tabs[tid]
+		return undoinfo
 
 	#----------------------------------------------------------------------
 	def tabSetUndo(self, bid, tid, params):
@@ -2735,15 +2745,15 @@ class GCode:
 		sel = []	# new selection
 		undoinfo = []
 		for bid,lid in items:
-			if lid is None:
+			if isinstance(lid,int):
+				undoinfo.append(self.orderDownLineUndo(bid,lid))
+				sel.append((bid, lid-1))
+			elif lid is None:
 				undoinfo.append(self.orderUpBlockUndo(bid))
 				if bid==0:
 					return items
 				else:
 					sel.append((bid-1,None))
-			else:
-				undoinfo.append(self.orderDownLineUndo(bid,lid))
-				sel.append((bid, lid-1))
 		self.addUndo(undoinfo,"Move Up")
 		return sel
 
@@ -2754,15 +2764,15 @@ class GCode:
 		sel = []	# new selection
 		undoinfo = []
 		for bid,lid in reversed(items):
-			if lid is None:
+			if isinstance(lid,int):
+				undoinfo.append(self.orderDownLineUndo(bid,lid))
+				sel.append((bid,lid+1))
+			elif lid is None:
 				undoinfo.append(self.orderDownBlockUndo(bid))
 				if bid>=len(self.blocks)-1:
 					return items
 				else:
 					sel.append((bid+1,None))
-			else:
-				undoinfo.append(self.orderDownLineUndo(bid,lid))
-				sel.append((bid,lid+1))
 		self.addUndo(undoinfo,"Move Down")
 		sel.reverse()
 		return sel
@@ -2839,13 +2849,14 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Perform a cut on a path an add it to block
-	# @param block	I/O	block to add the cut paths
+	# @param newblock O	block to add the cut paths
+	# @param block	I	existing block
 	# @param path	I	path to cut
 	# @param z	I	starting z surface
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, block, path, z, depth, stepz):
+	def cutPath(self, newblock, block, path, z, depth, stepz):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -2864,11 +2875,11 @@ class GCode:
 				entry = exit = True
 			elif abs(z-depth)<1e-7:
 				# last pass
-				exit =True
+				exit = True
 
-			self.fromPath(path, block, z, entry, exit)
+			self.fromPath(path, newblock, z, entry, exit)
 			entry = False
-		return block
+		return newblock
 
 	#----------------------------------------------------------------------
 	# Close paths by joining end with start with a line segment
@@ -2912,12 +2923,64 @@ class GCode:
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
 				if cutFromTop:
-					self.cutPath(newblock, path, surface + stepz, depth, stepz)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz)
 				else:
-					self.cutPath(newblock, path, surface, depth, stepz)
+					self.cutPath(newblock, block, path, surface, depth, stepz)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
+		self.addUndo(undoinfo)
+
+	#----------------------------------------------------------------------
+	# Create tabs to selected blocks
+	# @param ntabs	number of tabs
+	# @param dtabs	distance between tabs
+	# @param dx	width of tabs
+	# @param dy	depth of tabs
+	# @param z	height of tabs
+	#----------------------------------------------------------------------
+	def createTabs(self, items, ntabs, dtabs, dx, dy, z):
+		undoinfo = []
+		if ntabs==0 and dtabs==0: return
+		for bid in items:
+			block = self.blocks[bid]
+			if block.name() in ("Header", "Footer"): continue
+
+			for path in self.toPath(bid):
+				length = path.length()
+				d = max(length / float(ntabs), dtabs)
+
+				# running length
+				s = d/2.	# start from half distance to add first tab
+
+				for segment in path:
+					l = segment.length()
+
+					# if we haven't reach d
+					if s+l < d:
+						s += l
+						continue
+
+					n = 0
+					while True:
+						n += 1
+						remain = n*d - s
+						if remain > l:
+							s = d-(remain-l)
+							break
+
+						if segment.type == Segment.LINE:
+							P = segment.start + (remain/l)*segment.AB
+						else:
+							if segment.type == Segment.CW:
+								phi = segment.startPhi - remain / segment.radius
+							else:
+								phi = segment.startPhi + remain / segment.radius
+							P = Vector(segment.center[0] + segment.radius*math.cos(phi),
+								   segment.center[1] + segment.radius*math.sin(phi))
+
+						tab = Tab(P[0],P[1],dx,dy,z)
+						undoinfo.append(self.addTabUndo(bid,0,tab))
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
@@ -2927,7 +2990,6 @@ class GCode:
 		undoinfo = []
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
-
 			newpath = []
 			for path in self.toPath(bid):
 				path.invert()

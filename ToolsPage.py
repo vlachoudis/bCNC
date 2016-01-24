@@ -701,56 +701,50 @@ class Tabs(DataBase):
 		self.name = "Tabs"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("xmin",      "mm" ,    "", "Xmin"),
-			("ymin",      "mm" ,    "", "Ymin"),
-			("xmax",      "mm" ,    "", "Xmax"),
-			("ymax",      "mm" ,    "", "Ymax"),
-			("z",         "mm" ,    "", "z"),
+			("ntabs",     "int",     5, _("Number of tabs")),
+			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
+			("dx",        "mm",    5.0,   "Dx"),
+			("dy",        "mm",    5.0,   "Dy"),
+			("z",         "mm",   -3.0, _("Height"))
 		]
-		#self.buttons.append("exe")
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
-	def edit(self, event=None, rename=False):
-		_Base.edit(self, event, rename)
-		self.updateTab()
-		self.event_generate("<<Modified>>")
+	def execute(self,app):
+		try:
+			ntabs = int(self["ntabs"])
+		except:
+			ntabs = 0
 
-	# ----------------------------------------------------------------------
-	def add(self):
-		DataBase.add(self, False)
-		#self.master.event_generate("<<AddTab>>")
+		try:
+			dtabs = self.master.fromMm(float(self["dtabs"]))
+		except:
+			dtabs = 0.
 
-	# ----------------------------------------------------------------------
-	# We will load the info from the gcode
-	# ----------------------------------------------------------------------
-	def load(self): pass
-	def save(self): pass
+		try:
+			dx = self.master.fromMm(float(self["dx"]))
+		except:
+			dx = 5.
 
-	# ----------------------------------------------------------------------
-	def updateTab(self):
-		if self.current is None: return
-		tab = self.gcode().tabs[self.current]
-		tab.xmin = self.values["xmin.%d"%(self.current)]
-		tab.ymin = self.values["ymin.%d"%(self.current)]
-		tab.xmax = self.values["xmax.%d"%(self.current)]
-		tab.ymax = self.values["ymax.%d"%(self.current)]
-		tab.z    = self.values["z.%d"%(self.current)]
+		try:
+			dy = self.master.fromMm(float(self["dy"]))
+		except:
+			dy = 5.
 
-	# ----------------------------------------------------------------------
-	# Load information from gcode
-	# ----------------------------------------------------------------------
-	def loadGcode(self, gcode):
-		# Load tabs information from the gcode
-		self.values.clear()
-#		self.n = len(gcode.tabs)
-#		for i,tab in enumerate(gcode.tabs):
-#			self.values["name.%d"%(i)] = "tab %02d"%(i+1)
-#			self.values["xmin.%d"%(i)] = tab.xmin
-#			self.values["ymin.%d"%(i)] = tab.ymin
-#			self.values["xmax.%d"%(i)] = tab.xmax
-#			self.values["ymax.%d"%(i)] = tab.ymax
-#			self.values["z.%d"%(i)]    = tab.z
-		self.populate()
+		try:
+			z = self.master.fromMm(float(self["z"]))
+		except:
+			z = self.master.fromMm(-3.)
+
+		if ntabs<0: ntabs=0
+		if dtabs<0.: dtabs=0
+
+		if ntabs==0 and dtabs==0:
+			tkMessageBox.showerror(_("Tabs error"),
+				_("You cannot have both the number of tabs or distance equal to zero"))
+
+		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
 # Tools container class

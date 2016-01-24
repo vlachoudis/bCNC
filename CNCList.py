@@ -275,10 +275,14 @@ class CNCListbox(Listbox):
 		undoinfo = []
 		for i in reversed(sel):
 			bid, lid = self._items[i]
-			if lid is None:
-				undoinfo.append(self.gcode.delBlockUndo(bid))
-			else:
+			if isinstance(lid,int):
 				undoinfo.append(self.gcode.delLineUndo(bid, lid))
+			elif isinstance(lid,Tab):
+				block = self.gcode[bid]
+				tid = block.tabs.index(lid)
+				undoinfo.append(self.gcode.delTabUndo(bid,tid))
+			else:
+				undoinfo.append(self.gcode.delBlockUndo(bid))
 		self.gcode.addUndo(undoinfo)
 
 		self.selection_clear(0,END)
@@ -317,21 +321,27 @@ class CNCListbox(Listbox):
 					self.itemconfig(active, foreground=DISABLE_COLOR)
 			return
 
-		if lid is None:
-			self.gcode.addUndo(self.gcode.setBlockNameUndo(bid, edit.value))
-		else:
+		if isinstance(lid,int):
 			self.gcode.addUndo(self.gcode.setLineUndo(bid, lid, edit.value))
+			self.set(active, edit.value)
+			if edit.value and edit.value[0] in ("(","%"):
+				self.itemconfig(active, foreground=COMMENT_COLOR)
 
-		if lid is None:
+		elif isinstance(lid,Tab):
+			#try:
+				block = self.gcode[bid]
+				tid = block.tabs.index(lid)
+				params = Tab.parse(edit.value)
+				self.gcode.addUndo(self.gcode.tabSetUndo(bid, tid, params))
+			#except:
+			#	pass
+
+		else:
+			self.gcode.addUndo(self.gcode.setBlockNameUndo(bid, edit.value))
 			self.set(active, self.gcode[bid].header())
 			self.itemconfig(active, background=BLOCK_COLOR)
 			if not self.gcode[bid].enable:
 				self.itemconfig(active, foreground=DISABLE_COLOR)
-		else:
-			self.set(active, edit.value)
-
-		if edit.value and edit.value[0] in ("(","%"):
-			self.itemconfig(active, foreground=COMMENT_COLOR)
 
 		self.yview_moveto(ypos)
 		self.app.event_generate("<<Modified>>")
@@ -399,6 +409,16 @@ class CNCListbox(Listbox):
 			return
 
 		bid, lid = self._items[active]
+
+		# Add new line if the last Tab is selected
+		if isinstance(lid,Tab):
+			block = self.gcode[bid]
+			tid = block.tabs.index(lid)
+			if tid == len(block.tabs)-1:
+				lid = 0
+			else:
+				return
+
 		active += 1
 
 		self.insert(active,"")
@@ -614,23 +634,23 @@ class CNCListbox(Listbox):
 		first = None
 
 		for bi in items:
-			b,i = bi
-			block = self.gcode[b]
-			if double or not block.expand or i is None:
+			bid,lid = bi
+			block = self.gcode[bid]
+			if double or not block.expand or lid is None:
 				# select whole block
-				y = self._blockPos[b]
+				y = self._blockPos[bid]
 
-			elif isinstance(i,int):
+			elif isinstance(lid,int):
 				# find line of block
-				y = self._blockPos[b]+1 + len(block.tabs) + i
+				y = self._blockPos[bid]+1 + len(block.tabs) + lid
 
-			elif isinstance(i,Tab):
+			elif isinstance(lid,Tab):
 				# select the appropriate tab
 				try:
-					idx = block.tabs.index(i)
-					y = self._blockPos[b]+1 + idx
+					idx = block.tabs.index(lid)
+					y = self._blockPos[bid]+1 + idx
 				except IndexError:
-					print "Tab",tab,"not found"
+					#print "Tab",tab,"not found"
 					continue
 
 			else:

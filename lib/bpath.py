@@ -720,8 +720,9 @@ class Path(list):
 			elif Op is not None:
 				# if cross*offset
 				cross = O[0]*Op[1]-O[1]*Op[0]
+				dot   = O[0]*Op[0]+O[1]*Op[1]
 				#if (prev.type!=Segment.LINE and segment.type!=Segment.LINE) or \
-				if   (abs(cross)>EPSV and cross*offset > 0):
+				if  (abs(cross)>EPSV or dot<0.0) and cross*offset >= 0:
 					# either a circle
 					t = offset>0 and Segment.CW or Segment.CCW
 					path.append(Segment(t, Eo, So, segment.start))
