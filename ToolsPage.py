@@ -351,7 +351,10 @@ class _Base:
 
 	# ----------------------------------------------------------------------
 	def fromMm(self, name):
-		return self.master.fromMm(float(self[name]))
+		try:
+			return self.master.fromMm(float(self[name]))
+		except ValueError:
+			return 0.0
 
 #==============================================================================
 # Base class of all databases
