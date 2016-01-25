@@ -350,11 +350,11 @@ class _Base:
 				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
-	def fromMm(self, name):
+	def fromMm(self, name, default=0.0):
 		try:
 			return self.master.fromMm(float(self[name]))
 		except ValueError:
-			return 0.0
+			return default
 
 #==============================================================================
 # Base class of all databases
@@ -601,22 +601,10 @@ class Cut(DataBase):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		try:
-			surface = self.fromMm("surface")
-		except:
-			surface = None
-		try:
-			depth = self.fromMm("depth")
-		except:
-			depth = None
-		try:
-			step =  self.fromMm("stepz")
-		except:
-			step = None
-		try:
-			cutFromTop =  self.fromMm("cutFromTop")
-		except:
-			cutFromTop = False
+		surface    = self.fromMm("surface", None)
+		depth      = self.fromMm("depth", None)
+		step       = self.fromMm("stepz", None)
+		cutFromTop = self["cutFromTop"]
 		app.executeOnSelection("CUT", True, depth, step, surface, cutFromTop)
 		app.setStatus(_("CUT selected paths"))
 
@@ -636,14 +624,8 @@ class Drill(DataBase):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		try:
-			h = self.fromMm("depth")
-		except:
-			h = None
-		try:
-			p =  self.fromMm("peck")
-		except:
-			p = None
+		h = self.fromMm("depth", None)
+		p = self.fromMm("peck",  None)
 		app.executeOnSelection("DRILL", True, h, p)
 		app.setStatus(_("DRILL selected points"))
 
@@ -719,25 +701,10 @@ class Tabs(DataBase):
 		except:
 			ntabs = 0
 
-		try:
-			dtabs = self.fromMm("dtabs")
-		except:
-			dtabs = 0.
-
-		try:
-			dx = self.fromMm("dx")
-		except:
-			dx = 5.
-
-		try:
-			dy = self.fromMm("dy")
-		except:
-			dy = 5.
-
-		try:
-			z = self.fromMm("z")
-		except:
-			z = self.master.fromMm(-3.)
+		dtabs = self.fromMm("dtabs", 0.)
+		dx    = self.fromMm("dx", self.master.fromMm(5.))
+		dy    = self.fromMm("dy", self.master.fromMm(5.))
+		z     = self.fromMm("z", -self.master.fromMm(3.))
 
 		if ntabs<0: ntabs=0
 		if dtabs<0.: dtabs=0
