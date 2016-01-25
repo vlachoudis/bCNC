@@ -348,10 +348,8 @@ class _Base:
 				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
-	# Load information from gcode
-	# ----------------------------------------------------------------------
-	def loadGcode(self, gcode):
-		pass
+	def fromMm(self, name):
+		return self.master.fromMm(float(self[name]))
 
 #==============================================================================
 # Base class of all databases
@@ -520,9 +518,9 @@ class Material(DataBase):
 		# update ONLY if stock material is empty:
 		stockmat = self.master["stock"]["material"]
 		if stockmat=="" or stockmat==self["name"]:
-			self.master.cnc()["cutfeed"]  = self.master.fromMm(self["feed"])
-			self.master.cnc()["cutfeedz"] = self.master.fromMm(self["feedz"])
-			self.master.cnc()["stepz"]    = self.master.fromMm(self["stepz"])
+			self.master.cnc()["cutfeed"]  = self.fromMm("feed")
+			self.master.cnc()["cutfeedz"] = self.fromMm("feedz")
+			self.master.cnc()["stepz"]    = self.fromMm("stepz")
 		return False
 
 #==============================================================================
@@ -550,7 +548,7 @@ class EndMill(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.cnc()["diameter"] = self.master.fromMm(self["diameter"])
+		self.master.cnc()["diameter"] = self.fromMm("diameter")
 		self.master.cnc()["stepover"] = self["stepover"]
 		return False
 
@@ -573,9 +571,9 @@ class Stock(DataBase):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.cnc()["safe"]      = self.master.fromMm(self["safe"])
-		self.master.cnc()["surface"]   = self.master.fromMm(self["surface"])
-		self.master.cnc()["thickness"] = self.master.fromMm(self["thickness"])
+		self.master.cnc()["safe"]      = self.fromMm("safe")
+		self.master.cnc()["surface"]   = self.fromMm("surface")
+		self.master.cnc()["thickness"] = self.fromMm("thickness")
 		if self["material"]:
 			self.master["material"].makeCurrent(self["material"])
 		return False
@@ -599,19 +597,19 @@ class Cut(DataBase):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		try:
-			surface = self.master.fromMm(float(self["surface"]))
+			surface = self.fromMm("surface")
 		except:
 			surface = None
 		try:
-			depth = self.master.fromMm(float(self["depth"]))
+			depth = self.fromMm("depth")
 		except:
 			depth = None
 		try:
-			step =  self.master.fromMm(float(self["stepz"]))
+			step =  self.fromMm("stepz")
 		except:
 			step = None
 		try:
-			cutFromTop =  self.master.fromMm(float(self["cutFromTop"]))
+			cutFromTop =  self.fromMm("cutFromTop")
 		except:
 			cutFromTop = False
 		app.executeOnSelection("CUT", True, depth, step, surface, cutFromTop)
@@ -634,11 +632,11 @@ class Drill(DataBase):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		try:
-			h = self.master.fromMm(float(self["depth"]))
+			h = self.fromMm("depth")
 		except:
 			h = None
 		try:
-			p =  self.master.fromMm(float(self["peck"]))
+			p =  self.fromMm("peck")
 		except:
 			p = None
 		app.executeOnSelection("DRILL", True, h, p)
@@ -717,22 +715,22 @@ class Tabs(DataBase):
 			ntabs = 0
 
 		try:
-			dtabs = self.master.fromMm(float(self["dtabs"]))
+			dtabs = self.fromMm("dtabs")
 		except:
 			dtabs = 0.
 
 		try:
-			dx = self.master.fromMm(float(self["dx"]))
+			dx = self.fromMm("dx")
 		except:
 			dx = 5.
 
 		try:
-			dy = self.master.fromMm(float(self["dy"]))
+			dy = self.fromMm("dy")
 		except:
 			dy = 5.
 
 		try:
-			z = self.master.fromMm(float(self["z"]))
+			z = self.fromMm("z")
 		except:
 			z = self.master.fromMm(-3.)
 
@@ -840,13 +838,6 @@ class Tools:
 		Utils.setStr(Utils.__prg__, "tool", self.active.get())
 		for tool in self.tools.values():
 			tool.save()
-
-	# ----------------------------------------------------------------------
-	# New gcode was loaded load from gcode if needed
-	# ----------------------------------------------------------------------
-	def loadGcode(self):
-		for tool in self.tools.values():
-			tool.loadGcode(self.gcode)
 
 	# ----------------------------------------------------------------------
 	def cnc(self):

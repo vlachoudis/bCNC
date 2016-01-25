@@ -160,6 +160,7 @@ class Application(Toplevel,Sender):
 		self.command.bind("<Down>",		self.commandHistoryDown)
 		self.command.bind("<FocusIn>",		self.commandFocusIn)
 		self.command.bind("<FocusOut>",		self.commandFocusOut)
+		self.command.bind("<Key>",		self.commandKey)
 		self.command.bind("<Control-Key-z>",	self.undo)
 		self.command.bind("<Control-Key-Z>",	self.redo)
 		self.command.bind("<Control-Key-y>",	self.redo)
@@ -261,7 +262,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<Run>>',            lambda e,s=self: s.run())
 		self.bind('<<Stop>>',           self.stopRun)
 		self.bind('<<Pause>>',          self.pause)
-		self.bind('<<TabAdded>>',       self.tabAdded)
+#		self.bind('<<TabAdded>>',       self.tabAdded)
 
 		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
 		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
@@ -554,6 +555,7 @@ class Application(Toplevel,Sender):
 		except:
 			return
 		self.history = [x.strip() for x in f]
+		self._historySearch = None
 		f.close()
 
 	#-----------------------------------------------------------------------
@@ -993,18 +995,6 @@ class Application(Toplevel,Sender):
 		return "break"
 
 	#-----------------------------------------------------------------------
-	def commandFocus(self, event=None):
-		self.command.focus_set()
-
-	#-----------------------------------------------------------------------
-	def commandFocusIn(self, event=None):
-		self.cmdlabel["foreground"] = "Blue"
-
-	#-----------------------------------------------------------------------
-	def commandFocusOut(self, event=None):
-		self.cmdlabel["foreground"] = "Black"
-
-	#-----------------------------------------------------------------------
 	def canvasFocus(self, event=None):
 		self.canvas.focus_set()
 		return "break"
@@ -1075,6 +1065,9 @@ class Application(Toplevel,Sender):
 	# Execute command from command line
 	#-----------------------------------------------------------------------
 	def commandExecute(self, addHistory=True):
+		self._historyPos = None
+		self._historySearch = None
+
 		line = self.command.get().strip()
 		if not line: return
 
@@ -1084,7 +1077,6 @@ class Application(Toplevel,Sender):
 		elif not self.history or self.history[-1] != line:
 			self.history.append(line)
 
-		self._historyPos = None
 		if len(self.history)>MAX_HISTORY:
 			self.history.pop(0)
 		self.command.delete(0,END)
@@ -1435,6 +1427,22 @@ class Application(Toplevel,Sender):
 		elif cmd == "STOP":
 			self.stopRun()
 
+		# TAB*S [ntabs] [dtabs] [dx] [dy] [z]: create tabs on selected blocks
+		# default values are taken from the active tab
+		elif rexx.abbrev("TABS",cmd,3):
+			tabs = self.tools["TABS"]
+			try:	ntabs = int(line[1])
+			except:	ntabs = int(tabs["ntabs"])
+			try:	dtabs = float(line[2])
+			except:	dtabs = tabs.fromMm("dtabs")
+			try:	dx = float(line[3])
+			except:	dx = tabs.fromMm("dx")
+			try:	dy = float(line[4])
+			except:	dy = tabs.fromMm("dy")
+			try:	z = float(line[5])
+			except:	z = tabs.fromMm("z")
+			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):
 			self.ribbon.changePage("Terminal")
@@ -1613,11 +1621,10 @@ class Application(Toplevel,Sender):
 		self.notBusy()
 #		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
 
-	#-----------------------------------------------------------------------
-	def tabAdded(self, event=None):
-		self.tools.loadGcode()
-		tools = Page.frames["Tools"]
-		tools.populate()
+#	#-----------------------------------------------------------------------
+#	def tabAdded(self, event=None):
+#		tools = Page.frames["Tools"]
+#		tools.populate()
 #		tools.selectTab(-1)
 
 	#-----------------------------------------------------------------------
@@ -1629,25 +1636,67 @@ class Application(Toplevel,Sender):
 			page.edit()
 
 	#-----------------------------------------------------------------------
+	def commandFocus(self, event=None):
+		self.command.focus_set()
+
+	#-----------------------------------------------------------------------
+	def commandFocusIn(self, event=None):
+		self.cmdlabel["foreground"] = "Blue"
+
+	#-----------------------------------------------------------------------
+	def commandFocusOut(self, event=None):
+		self.cmdlabel["foreground"] = "Black"
+
+	#-----------------------------------------------------------------------
+	# FIXME why it is not called?
+	#-----------------------------------------------------------------------
+	def commandKey(self, event):
+		if event.char or event.keysym in ("BackSpace"):
+			self._historyPos    = None
+			self._historySearch = None
+
+	#-----------------------------------------------------------------------
 	def commandHistoryUp(self, event=None):
 		if self._historyPos is None:
+			s = self.command.get()
 			if self.history:
 				self._historyPos = len(self.history)-1
 			else:
+				self._historySearch = None
 				return
+			if s and self._historySearch is None:
+				self._historySearch = s.strip().upper()
 		else:
 			self._historyPos = max(0, self._historyPos-1)
+
+		if self._historySearch:
+			for i in range(self._historyPos,-1,-1):
+				h = self.history[i]
+				if h.upper().startswith(self._historySearch):
+					self._historyPos = i
+					break
+
 		self.command.delete(0,END)
 		self.command.insert(0,self.history[self._historyPos])
 
 	#-----------------------------------------------------------------------
 	def commandHistoryDown(self, event=None):
 		if self._historyPos is None:
+			self._historySearch = None
 			return
 		else:
 			self._historyPos += 1
 			if self._historyPos >= len(self.history):
-				self._historyPos = None
+				self._historyPos    = None
+				self._historySearch = None
+
+		if self._historySearch:
+			for i in range(self._historyPos,len(self.history)):
+				h = self.history[i]
+				if h.upper().startswith(self._historySearch):
+					self._historyPos = i
+					break
+
 		self.command.delete(0,END)
 		if self._historyPos is not None:
 			self.command.insert(0,self.history[self._historyPos])
@@ -1748,7 +1797,6 @@ class Application(Toplevel,Sender):
 			self.editor.fill()
 			self.draw()
 			self.canvas.fit2Screen()
-			self.tools.loadGcode()
 			Page.frames["Tools"].populate()
 
 		self.setStatus(_("'%s' loaded")%(filename))
