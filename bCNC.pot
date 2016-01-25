@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-22 17:46+0100\n"
+"POT-Creation-Date: 2016-01-25 09:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -305,81 +305,81 @@ msgstr ""
 msgid "Set workspace %s to X%s Y%s Z%s"
 msgstr ""
 
-#: ToolsPage.py:471
+#: ToolsPage.py:469
 msgid "Units (inches)"
 msgstr ""
 
-#: ToolsPage.py:472
+#: ToolsPage.py:470
 msgid "Lasercutter"
 msgstr ""
 
-#: ToolsPage.py:473
+#: ToolsPage.py:471
 msgid "Acceleration x"
 msgstr ""
 
-#: ToolsPage.py:474
+#: ToolsPage.py:472
 msgid "Acceleration y"
 msgstr ""
 
-#: ToolsPage.py:475
+#: ToolsPage.py:473
 msgid "Acceleration z"
 msgstr ""
 
-#: ToolsPage.py:476
+#: ToolsPage.py:474
 msgid "Feed max x"
 msgstr ""
 
-#: ToolsPage.py:477
+#: ToolsPage.py:475
 msgid "Feed max y"
 msgstr ""
 
-#: ToolsPage.py:478
+#: ToolsPage.py:476
 msgid "Feed max z"
 msgstr ""
 
-#: ToolsPage.py:479
+#: ToolsPage.py:477
 msgid "Travel x"
 msgstr ""
 
-#: ToolsPage.py:480
+#: ToolsPage.py:478
 msgid "Travel y"
 msgstr ""
 
-#: ToolsPage.py:481
+#: ToolsPage.py:479
 msgid "Travel z"
 msgstr ""
 
-#: ToolsPage.py:482
+#: ToolsPage.py:480
 msgid "Decimal digits"
 msgstr ""
 
-#: ToolsPage.py:483
+#: ToolsPage.py:481
 msgid "Plotting Arc accuracy"
 msgstr ""
 
-#: ToolsPage.py:484
+#: ToolsPage.py:482
 msgid "Start up"
 msgstr ""
 
-#: ToolsPage.py:485
+#: ToolsPage.py:483
 msgid "Spindle min (RPM)"
 msgstr ""
 
-#: ToolsPage.py:486
+#: ToolsPage.py:484
 msgid "Spindle max (RPM)"
 msgstr ""
 
-#: ToolsPage.py:487
+#: ToolsPage.py:485
 msgid "Header gcode"
 msgstr ""
 
-#: ToolsPage.py:488
+#: ToolsPage.py:486
 msgid "Footer gcode"
 msgstr ""
 
-#: ToolsPage.py:510 ToolsPage.py:536 ToolsPage.py:565 ToolsPage.py:591
-#: ToolsPage.py:628 ToolsPage.py:655 ToolsPage.py:681 ToolsPage.py:703
-#: ToolsPage.py:1201 lib/bFileDialog.py:293 plugins/pyrograph.py:40
+#: ToolsPage.py:508 ToolsPage.py:534 ToolsPage.py:563 ToolsPage.py:589
+#: ToolsPage.py:626 ToolsPage.py:653 ToolsPage.py:679 ToolsPage.py:701
+#: ToolsPage.py:1186 lib/bFileDialog.py:293 plugins/pyrograph.py:40
 #: plugins/heightmap.py:49 plugins/midi2cnc.py:51 plugins/gear.py:162
 #: plugins/flatten.py:257 plugins/driller.py:40 plugins/tile.py:34
 #: plugins/spirograph.py:101 plugins/bowl.py:107 plugins/box.py:305
@@ -387,256 +387,280 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: ToolsPage.py:511
+#: ToolsPage.py:509
 msgid "Feed"
 msgstr ""
 
-#: ToolsPage.py:512
+#: ToolsPage.py:510
 msgid "Plunge Feed"
 msgstr ""
 
-#: ToolsPage.py:513 ToolsPage.py:594
+#: ToolsPage.py:511 ToolsPage.py:592
 msgid "Depth Increment"
 msgstr ""
 
-#: ToolsPage.py:537 lib/bFileDialog.py:294
+#: ToolsPage.py:535 lib/bFileDialog.py:294
 msgid "Type"
 msgstr ""
 
-#: ToolsPage.py:538
+#: ToolsPage.py:536
 msgid "Shape"
 msgstr ""
 
-#: ToolsPage.py:539 ToolsPage.py:566 ToolsPage.py:898
+#: ToolsPage.py:537 ToolsPage.py:564 ToolsPage.py:883
 msgid "Material"
 msgstr ""
 
-#: ToolsPage.py:540
+#: ToolsPage.py:538
 msgid "Coating"
 msgstr ""
 
-#: ToolsPage.py:541 plugins/bowl.py:108
+#: ToolsPage.py:539 plugins/bowl.py:108
 msgid "Diameter"
 msgstr ""
 
-#: ToolsPage.py:542
+#: ToolsPage.py:540
 msgid "Mount Axis"
 msgstr ""
 
-#: ToolsPage.py:543
+#: ToolsPage.py:541
 msgid "Flutes"
 msgstr ""
 
-#: ToolsPage.py:544
+#: ToolsPage.py:542
 msgid "Length"
 msgstr ""
 
-#: ToolsPage.py:545
+#: ToolsPage.py:543
 msgid "Angle"
 msgstr ""
 
-#: ToolsPage.py:546
+#: ToolsPage.py:544
 msgid "Stepover %"
 msgstr ""
 
-#: ToolsPage.py:567
+#: ToolsPage.py:565
 msgid "Safe Z"
 msgstr ""
 
-#: ToolsPage.py:568 ToolsPage.py:592
+#: ToolsPage.py:566 ToolsPage.py:590
 msgid "Surface Z"
 msgstr ""
 
-#: ToolsPage.py:569
+#: ToolsPage.py:567
 msgid "Thickness"
 msgstr ""
 
-#: ToolsPage.py:593 ToolsPage.py:629 plugins/driller.py:42
+#: ToolsPage.py:591 ToolsPage.py:627 plugins/driller.py:42
 #: plugins/spirograph.py:105
 msgid "Target Depth"
 msgstr ""
 
-#: ToolsPage.py:595
+#: ToolsPage.py:593
 msgid "First cut at surface height"
 msgstr ""
 
-#: ToolsPage.py:618
+#: ToolsPage.py:616
 msgid "CUT selected paths"
 msgstr ""
 
-#: ToolsPage.py:630
+#: ToolsPage.py:628
 msgid "Peck depth"
 msgstr ""
 
-#: ToolsPage.py:645
+#: ToolsPage.py:643
 msgid "DRILL selected points"
 msgstr ""
 
-#: ToolsPage.py:656 ToolsPage.py:682 ToolsPage.py:912
+#: ToolsPage.py:654 ToolsPage.py:680 ToolsPage.py:897
 msgid "End Mill"
 msgstr ""
 
-#: ToolsPage.py:657 plugins/pyrograph.py:46
+#: ToolsPage.py:655 plugins/pyrograph.py:46
 msgid "Direction"
 msgstr ""
 
-#: ToolsPage.py:658
+#: ToolsPage.py:656
 msgid "Additional offset distance"
 msgstr ""
 
-#: ToolsPage.py:659 plugins/box.py:313
+#: ToolsPage.py:657 plugins/box.py:313
 msgid "Overcut"
 msgstr ""
 
-#: ToolsPage.py:671
+#: ToolsPage.py:669
 msgid "Generate profile path"
 msgstr ""
 
-#: ToolsPage.py:693
+#: ToolsPage.py:691
 msgid "Generate pocket path"
 msgstr ""
 
-#: ToolsPage.py:884
+#: ToolsPage.py:702
+msgid "Number of tabs"
+msgstr ""
+
+#: ToolsPage.py:703
+msgid "Min. Distance of tabs"
+msgstr ""
+
+#: ToolsPage.py:706
+msgid "Height"
+msgstr ""
+
+#: ToolsPage.py:741
+msgid "Tabs error"
+msgstr ""
+
+#: ToolsPage.py:742
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr ""
+
+#: ToolsPage.py:745
+msgid "Create tabs on blocks"
+msgstr ""
+
+#: ToolsPage.py:869
 msgid "Stock"
 msgstr ""
 
-#: ToolsPage.py:891
+#: ToolsPage.py:876
 msgid "Stock material currently on machine"
 msgstr ""
 
-#: ToolsPage.py:905
+#: ToolsPage.py:890
 msgid "Editable database of material properties"
 msgstr ""
 
-#: ToolsPage.py:919
+#: ToolsPage.py:904
 msgid "Editable database of EndMills properties"
 msgstr ""
 
-#: ToolsPage.py:926
+#: ToolsPage.py:911
 msgid "Rename"
 msgstr ""
 
-#: ToolsPage.py:931
+#: ToolsPage.py:916
 msgid "Edit name of current operation/object"
 msgstr ""
 
-#: ToolsPage.py:939 EditorPage.py:128
+#: ToolsPage.py:924 EditorPage.py:128
 msgid "Add"
 msgstr ""
 
-#: ToolsPage.py:944
+#: ToolsPage.py:929
 msgid "Add a new operation/object"
 msgstr ""
 
-#: ToolsPage.py:952 EditorPage.py:140
+#: ToolsPage.py:937 EditorPage.py:140
 msgid "Clone"
 msgstr ""
 
-#: ToolsPage.py:957
+#: ToolsPage.py:942
 msgid "Clone selected operation/object"
 msgstr ""
 
-#: ToolsPage.py:965 EditorPage.py:152
+#: ToolsPage.py:950 EditorPage.py:152
 msgid "Delete"
 msgstr ""
 
-#: ToolsPage.py:970
+#: ToolsPage.py:955
 msgid "Delete selected operation/object"
 msgstr ""
 
-#: ToolsPage.py:986 EditorPage.py:46 plugins/box.py:314
+#: ToolsPage.py:971 EditorPage.py:46 plugins/box.py:314
 msgid "Cut"
 msgstr ""
 
-#: ToolsPage.py:993
+#: ToolsPage.py:978
 msgid "Cut for the full stock thickness selected code"
 msgstr ""
 
-#: ToolsPage.py:1000 plugins/box.py:312
+#: ToolsPage.py:985 plugins/box.py:312
 msgid "Profile"
 msgstr ""
 
-#: ToolsPage.py:1007
+#: ToolsPage.py:992
 msgid "Perform a profile operation on selected code"
 msgstr ""
 
-#: ToolsPage.py:1014
+#: ToolsPage.py:999
 msgid "Pocket"
 msgstr ""
 
-#: ToolsPage.py:1021
+#: ToolsPage.py:1006
 msgid "Perform a pocket operation on selected code"
 msgstr ""
 
-#: ToolsPage.py:1028
+#: ToolsPage.py:1013
 msgid "Drill"
 msgstr ""
 
-#: ToolsPage.py:1035
+#: ToolsPage.py:1020
 msgid "Insert a drill cycle on current objects/location"
 msgstr ""
 
-#: ToolsPage.py:1042
+#: ToolsPage.py:1027
 msgid "Tabs"
 msgstr ""
 
-#: ToolsPage.py:1049
+#: ToolsPage.py:1034
 msgid "Insert holding tabs"
 msgstr ""
 
-#: ToolsPage.py:1088
+#: ToolsPage.py:1073
 msgid "User File"
 msgstr ""
 
-#: ToolsPage.py:1103
+#: ToolsPage.py:1088
 msgid "Change program language restart is required"
 msgstr ""
 
-#: ToolsPage.py:1112
+#: ToolsPage.py:1097
 msgid "Machine"
 msgstr ""
 
-#: ToolsPage.py:1119
+#: ToolsPage.py:1104
 msgid "Machine configuration for bCNC"
 msgstr ""
 
-#: ToolsPage.py:1126 ToolsPage.py:1133
+#: ToolsPage.py:1111 ToolsPage.py:1118
 msgid "Shortcuts"
 msgstr ""
 
-#: ToolsPage.py:1140
+#: ToolsPage.py:1125
 msgid "Fonts"
 msgstr ""
 
-#: ToolsPage.py:1147
+#: ToolsPage.py:1132
 msgid "Font configuration"
 msgstr ""
 
-#: ToolsPage.py:1154
+#: ToolsPage.py:1139
 msgid "Colors"
 msgstr ""
 
-#: ToolsPage.py:1161
+#: ToolsPage.py:1146
 msgid "Color configuration"
 msgstr ""
 
-#: ToolsPage.py:1178
+#: ToolsPage.py:1163
 msgid "Language change"
 msgstr ""
 
-#: ToolsPage.py:1179
+#: ToolsPage.py:1164
 msgid "Please restart the program."
 msgstr ""
 
-#: ToolsPage.py:1191
+#: ToolsPage.py:1176
 msgid "Execute"
 msgstr ""
 
-#: ToolsPage.py:1202
+#: ToolsPage.py:1187
 msgid "Value"
 msgstr ""
 
-#: ToolsPage.py:1268
+#: ToolsPage.py:1253
 msgid "GCode manipulation tools and user plugins"
 msgstr ""
 
@@ -664,95 +688,95 @@ msgstr ""
 msgid "Help [F1]"
 msgstr ""
 
-#: Utils.py:345
+#: Utils.py:347
 msgid "Error Reporting"
 msgstr ""
 
-#: Utils.py:348 FilePage.py:134
+#: Utils.py:350 FilePage.py:134
 msgid "Report"
 msgstr ""
 
-#: Utils.py:351
+#: Utils.py:353
 #, python-format
 msgid "The following report is about to be send to the author of %s"
 msgstr ""
 
-#: Utils.py:366
+#: Utils.py:368
 msgid "Your email"
 msgstr ""
 
-#: Utils.py:375
+#: Utils.py:377
 msgid "Automatic error reporting"
 msgstr ""
 
-#: Utils.py:383 bCNC.py:759 bCNC.py:947 bCNC.py:1830
+#: Utils.py:385 bCNC.py:761 bCNC.py:949 bCNC.py:1880
 msgid "Close"
 msgstr ""
 
-#: Utils.py:387
+#: Utils.py:389
 msgid "Send report"
 msgstr ""
 
-#: Utils.py:453 Utils.py:463
+#: Utils.py:455 Utils.py:465
 msgid "Error sending report"
 msgstr ""
 
-#: Utils.py:454
+#: Utils.py:456
 msgid "There was a problem connecting to the web site"
 msgstr ""
 
-#: Utils.py:458
+#: Utils.py:460
 msgid "Report successfully send"
 msgstr ""
 
-#: Utils.py:459
+#: Utils.py:461
 msgid "Report was successfully uploaded to web site"
 msgstr ""
 
-#: Utils.py:464
+#: Utils.py:466
 #, python-format
 msgid ""
 "There was an error sending the report\n"
 "Code=%d %s"
 msgstr ""
 
-#: Utils.py:571
+#: Utils.py:573
 msgid "User configurable button"
 msgstr ""
 
-#: Utils.py:577
+#: Utils.py:579
 msgid "Name:"
 msgstr ""
 
-#: Utils.py:581
+#: Utils.py:583
 msgid "Name to appear on button"
 msgstr ""
 
-#: Utils.py:585
+#: Utils.py:587
 msgid "Icon:"
 msgstr ""
 
-#: Utils.py:597
+#: Utils.py:599
 msgid "Icon to appear on button"
 msgstr ""
 
-#: Utils.py:601
+#: Utils.py:603
 msgid "Tool Tip:"
 msgstr ""
 
-#: Utils.py:605
+#: Utils.py:607
 msgid "Tooltip for button"
 msgstr ""
 
-#: Utils.py:609 bCNC.py:154
+#: Utils.py:611 bCNC.py:154
 msgid "Command:"
 msgstr ""
 
-#: Utils.py:621 lib/bFileDialog.py:344
+#: Utils.py:623 lib/bFileDialog.py:344
 msgid "Cancel"
 msgstr ""
 
-#: Utils.py:622
+#: Utils.py:624
 msgid "Ok"
 msgstr ""
 
@@ -1354,7 +1378,7 @@ msgstr ""
 msgid "Units [G20, G21]"
 msgstr ""
 
-#: ControlPage.py:817 CNCCanvas.py:1474
+#: ControlPage.py:817 CNCCanvas.py:1476
 msgid "Tool:"
 msgstr ""
 
@@ -1472,7 +1496,7 @@ msgstr ""
 msgid "Round"
 msgstr ""
 
-#: EditorPage.py:120 bCNC.py:797
+#: EditorPage.py:120 bCNC.py:799
 msgid "Statistics"
 msgstr ""
 
@@ -1608,7 +1632,7 @@ msgstr ""
 msgid "Place origin with the mouse on canvas [O]"
 msgstr ""
 
-#: EditorPage.py:377 bCNC.py:1299
+#: EditorPage.py:377 bCNC.py:1291
 msgid "Optimize"
 msgstr ""
 
@@ -1731,81 +1755,81 @@ msgstr ""
 msgid "Move by %g, %g, %g"
 msgstr ""
 
-#: CNCCanvas.py:1237
+#: CNCCanvas.py:1239
 #, python-format
 msgid ">>> ERROR: %s\n"
 msgstr ""
 
-#: CNCCanvas.py:1238
+#: CNCCanvas.py:1240
 #, python-format
 msgid "     line: %s\n"
 msgstr ""
 
-#: CNCCanvas.py:1457
+#: CNCCanvas.py:1459
 msgid "Change viewing angle"
 msgstr ""
 
-#: CNCCanvas.py:1461
+#: CNCCanvas.py:1463
 msgid "Zoom In [Ctrl-=]"
 msgstr ""
 
-#: CNCCanvas.py:1466
+#: CNCCanvas.py:1468
 msgid "Zoom Out [Ctrl--]"
 msgstr ""
 
-#: CNCCanvas.py:1471
+#: CNCCanvas.py:1473
 msgid "Fit to screen [F]"
 msgstr ""
 
-#: CNCCanvas.py:1485
+#: CNCCanvas.py:1487
 msgid "Select tool [S]"
 msgstr ""
 
-#: CNCCanvas.py:1494
+#: CNCCanvas.py:1496
 msgid "Pan viewport [X]"
 msgstr ""
 
-#: CNCCanvas.py:1502
+#: CNCCanvas.py:1504
 msgid "Move gantry [G]"
 msgstr ""
 
-#: CNCCanvas.py:1511
+#: CNCCanvas.py:1513
 msgid "Set WPOS"
 msgstr ""
 
-#: CNCCanvas.py:1520
+#: CNCCanvas.py:1522
 msgid "Ruler [R]"
 msgstr ""
 
-#: CNCCanvas.py:1526
+#: CNCCanvas.py:1528
 msgid "Draw:"
 msgstr ""
 
-#: CNCCanvas.py:1535
+#: CNCCanvas.py:1537
 msgid "Toggle display of axes"
 msgstr ""
 
-#: CNCCanvas.py:1543
+#: CNCCanvas.py:1545
 msgid "Toggle display of grid lines"
 msgstr ""
 
-#: CNCCanvas.py:1551
+#: CNCCanvas.py:1553
 msgid "Toggle display of margins"
 msgstr ""
 
-#: CNCCanvas.py:1560
+#: CNCCanvas.py:1562
 msgid "Toggle display of probe"
 msgstr ""
 
-#: CNCCanvas.py:1568
+#: CNCCanvas.py:1570
 msgid "Toggle display of paths (G1,G2,G3)"
 msgstr ""
 
-#: CNCCanvas.py:1576
+#: CNCCanvas.py:1578
 msgid "Toggle display of rapid motion (G0)"
 msgstr ""
 
-#: CNCCanvas.py:1584
+#: CNCCanvas.py:1586
 msgid "Toggle display of workarea"
 msgstr ""
 
@@ -1813,231 +1837,231 @@ msgstr ""
 msgid "All accepted"
 msgstr ""
 
-#: bCNC.py:93 bCNC.py:1781
+#: bCNC.py:93 bCNC.py:1831
 msgid "G-Code"
 msgstr ""
 
-#: bCNC.py:167
+#: bCNC.py:168
 msgid ""
 "MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
 "or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
 msgstr ""
 
-#: bCNC.py:444
+#: bCNC.py:445
 msgid "Running"
 msgstr ""
 
-#: bCNC.py:445
+#: bCNC.py:446
 msgid "CNC is currently running, please stop it before."
 msgstr ""
 
-#: bCNC.py:613
+#: bCNC.py:615
 #, python-format
 msgid "About %s"
 msgstr ""
 
-#: bCNC.py:648
+#: bCNC.py:650
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
 msgstr ""
 
-#: bCNC.py:815
+#: bCNC.py:817
 msgid "Enabled GCode"
 msgstr ""
 
-#: bCNC.py:820 bCNC.py:885
+#: bCNC.py:822 bCNC.py:887
 msgid "Margins X:"
 msgstr ""
 
-#: bCNC.py:853 bCNC.py:918
+#: bCNC.py:855 bCNC.py:920
 msgid "# Blocks:"
 msgstr ""
 
-#: bCNC.py:861 bCNC.py:925
+#: bCNC.py:863 bCNC.py:927
 msgid "Length:"
 msgstr ""
 
-#: bCNC.py:869 bCNC.py:933
+#: bCNC.py:871 bCNC.py:935
 msgid "Time:"
 msgstr ""
 
-#: bCNC.py:880
+#: bCNC.py:882
 msgid "All GCode"
 msgstr ""
 
-#: bCNC.py:1102
+#: bCNC.py:1094
 msgid "Evaluation error"
 msgstr ""
 
-#: bCNC.py:1300
+#: bCNC.py:1292
 msgid "Please select the blocks of gcode you want to optimize."
 msgstr ""
 
-#: bCNC.py:1449
+#: bCNC.py:1457
 #, python-format
 msgid "EndMill: %s %g"
 msgstr ""
 
-#: bCNC.py:1474
+#: bCNC.py:1482
 #, python-format
 msgid "Invalid user command %s"
 msgstr ""
 
-#: bCNC.py:1551
+#: bCNC.py:1561
 msgid "Operation error"
 msgstr ""
 
-#: bCNC.py:1592
+#: bCNC.py:1602
 #, python-format
 msgid "Profile block distance=%g"
 msgstr ""
 
-#: bCNC.py:1605
+#: bCNC.py:1615
 msgid "Open paths"
 msgstr ""
 
-#: bCNC.py:1606
+#: bCNC.py:1616
 #, python-format
 msgid "WARNING: %s"
 msgstr ""
 
-#: bCNC.py:1682
+#: bCNC.py:1733
 msgid "Open file"
 msgstr ""
 
-#: bCNC.py:1695
+#: bCNC.py:1746
 msgid "Save file"
 msgstr ""
 
-#: bCNC.py:1705
+#: bCNC.py:1756
 msgid "File modified"
 msgstr ""
 
-#: bCNC.py:1706
+#: bCNC.py:1757
 msgid "Gcode was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1712
+#: bCNC.py:1763
 msgid "Probe File modified"
 msgstr ""
 
-#: bCNC.py:1713
+#: bCNC.py:1764
 msgid "Probe was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1732
+#: bCNC.py:1783
 msgid "Existing Autolevel"
 msgstr ""
 
-#: bCNC.py:1733
+#: bCNC.py:1784
 msgid ""
 "Autolevel/probe information already exists.\n"
 "Delete it?"
 msgstr ""
 
-#: bCNC.py:1738
+#: bCNC.py:1789
 #, python-format
 msgid "Loading: %s ..."
 msgstr ""
 
-#: bCNC.py:1752
+#: bCNC.py:1802
 #, python-format
 msgid "'%s' loaded"
 msgstr ""
 
-#: bCNC.py:1758
+#: bCNC.py:1808
 #, python-format
 msgid "'%s' saved"
 msgstr ""
 
-#: bCNC.py:1777
+#: bCNC.py:1827
 msgid "Import Gcode/DXF file"
 msgstr ""
 
-#: bCNC.py:1806
+#: bCNC.py:1856
 msgid "Warning"
 msgstr ""
 
-#: bCNC.py:1807
+#: bCNC.py:1857
 #, python-format
 msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
 
-#: bCNC.py:1822 FilePage.py:82 FilePage.py:266 lib/bFileDialog.py:320
+#: bCNC.py:1872 FilePage.py:82 FilePage.py:266 lib/bFileDialog.py:320
 #: lib/bFileDialog.py:956
 msgid "Open"
 msgstr ""
 
-#: bCNC.py:1842
+#: bCNC.py:1892
 msgid "Error opening serial"
 msgstr ""
 
-#: bCNC.py:1871
+#: bCNC.py:1921
 msgid "Run ended"
 msgstr ""
 
-#: bCNC.py:1878
+#: bCNC.py:1928
 msgid "Serial Error"
 msgstr ""
 
-#: bCNC.py:1879
+#: bCNC.py:1929
 msgid "Serial is not connected"
 msgstr ""
 
-#: bCNC.py:1886
+#: bCNC.py:1936
 msgid "Already running"
 msgstr ""
 
-#: bCNC.py:1887
+#: bCNC.py:1937
 msgid "Please stop before"
 msgstr ""
 
-#: bCNC.py:1891
+#: bCNC.py:1941
 msgid "Preparing to run ..."
 msgstr ""
 
-#: bCNC.py:1905
+#: bCNC.py:1955
 msgid "Empty gcode"
 msgstr ""
 
-#: bCNC.py:1906
+#: bCNC.py:1956
 msgid "Not gcode file was loaded"
 msgstr ""
 
-#: bCNC.py:1931
+#: bCNC.py:1981
 msgid "Running..."
 msgstr ""
 
-#: bCNC.py:1952 bCNC.py:1956 bCNC.py:1969
+#: bCNC.py:2002 bCNC.py:2006 bCNC.py:2019
 msgid "Pendant"
 msgstr ""
 
-#: bCNC.py:1953
+#: bCNC.py:2003
 msgid "Pendant started:\n"
 msgstr ""
 
-#: bCNC.py:1957
+#: bCNC.py:2007
 msgid "Pendant already started:\n"
 msgstr ""
 
-#: bCNC.py:1959
+#: bCNC.py:2009
 msgid ""
 "\n"
 "Would you like open it locally?"
 msgstr ""
 
-#: bCNC.py:1969
+#: bCNC.py:2019
 msgid "Pendant stopped"
 msgstr ""
 
-#: bCNC.py:2217
+#: bCNC.py:2267
 msgid "python serial missing"
 msgstr ""
 
-#: bCNC.py:2218
+#: bCNC.py:2268
 msgid ""
 "ERROR: Please install the python pyserial module\n"
 "Windows: C:\\PythonXX\\Scripts\\easy_install pyserial\n"
