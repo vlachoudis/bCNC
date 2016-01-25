@@ -24,6 +24,8 @@ import tkExtra
 import Unicode
 import CNCRibbon
 
+_EXE_FONT = ("Helvetica",12,"bold")
+
 #===============================================================================
 class InPlaceText(tkExtra.InPlaceText):
 	def defaultBinds(self):
@@ -1177,9 +1179,11 @@ class ToolsFrame(CNCRibbon.PageFrame):
 				image=Utils.icons["gear"],
 				compound=LEFT,
 				foreground="DarkRed",
-				background="LightYellow",
+				activeforeground="DarkRed",
+				activebackground="LightYellow",
+				font=_EXE_FONT,
 				command=self.execute)
-		b.pack(side=BOTTOM, fill=X)
+		b.pack(side=TOP, fill=X)
 		self.tools.addButton("exe",b)
 
 		self.toolList = tkExtra.MultiListbox(self,

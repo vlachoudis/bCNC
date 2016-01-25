@@ -97,7 +97,9 @@ class CNCListbox(Listbox):
 	def fill(self, event=None):
 		ypos = self.yview()[0]
 		act = self.index(ACTIVE)
-		sel = self.curselection()
+
+		#sel = self.curselection()
+		items = self.getSelection()
 
 		self.delete(0,END)
 
@@ -133,7 +135,8 @@ class CNCListbox(Listbox):
 					self.itemconfig(END, foreground=COMMENT_COLOR)
 				self._items.append((bi, lj))
 
-		for i in sel: self.selection_set(i)
+		self.select(items)
+		#for i in sel: self.selection_set(i)
 		self.yview_moveto(ypos)
 		self.activate(act)
 		self.see(act)
