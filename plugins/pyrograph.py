@@ -37,15 +37,15 @@ class Tool(Plugin):
 		self.icon = "pyrograph"
 
 		self.variables = [
-			("name",      "db" ,    "", _("Name")),
-			("ToolSize"  ,   "mm" ,    0.5, _("Pyrograph tip size")),
-			("Depth"  ,   "mm" ,       0.0, _("Working Depth")),
-			("MaxSize"  ,   "mm" ,   100.0, _("Maximum size")),
-			("FeedMin"  ,  "int" ,     250, _("Minimum feed")),
-			("FeedMax"  ,  "int" ,    5000, _("Maximum feed")),
+			("name",         "db" ,    "", _("Name")),
+			("ToolSize",     "mm" ,    0.5, _("Pyrograph tip size")),
+			("Depth",        "mm" ,    0.0, _("Working Depth")),
+			("MaxSize",      "mm" ,  100.0, _("Maximum size")),
+			("FeedMin",     "int" ,    250, _("Minimum feed")),
+			("FeedMax",     "int" ,   5000, _("Maximum feed")),
 			("Direction", "Horizontal,Vertical,Both", "Horizontal", _("Direction")),
 			("DrawBorder",  "bool",  False, _("Draw border")),
-			("File"  ,   "file" ,       "", _("Image to process")),
+			("File",       "file" ,     "", _("Image to process")),
 		]
 		self.buttons.append("exe")
 
@@ -61,11 +61,11 @@ class Tool(Plugin):
 		if not n or n=="default": n="Pyrograph"
 
 		#Calc desired size
-		toolSize = self["ToolSize"]
-		maxSize = self["MaxSize"]
+		toolSize = self.fromMm("ToolSize")
+		maxSize = self.fromMm("MaxSize")
 		feedMin = self["FeedMin"]
 		feedMax = self["FeedMax"]
-		depth = self["Depth"]
+		depth = self.fromMm("Depth")
 		direction = self["Direction"]
 		drawBorder = self["DrawBorder"]
 

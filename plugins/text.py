@@ -49,12 +49,12 @@ class Tool(Plugin):
 	def execute(self, app):
 
 		#Get inputs
-		fontSize = self["FontSize"]
-		depth = self["Depth"]
-		textToWrite = self["Text"]
-		fontFileName = self["FontFile"]
+		fontSize      = self.fromMm("FontSize")
+		depth         = self.fromMm("Depth")
+		textToWrite   = self["Text"]
+		fontFileName  = self["FontFile"]
 		imageFileName = self["ImageToAscii"]
-		charsWidth = self["CharsWidth"]
+		charsWidth    = self["CharsWidth"]
 
 		#Check parameters!!!
 		if fontSize <=0:

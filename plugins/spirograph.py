@@ -112,10 +112,10 @@ class Tool(Plugin):
 		if not n or n=="default": n="Spirograph"
 		spirograph = Spirograph(n)
 
-		blocks = spirograph.make(self["RadiusExternal"],
-				self["RadiusInternal"],
-				self["RadiusOffset"],
-				self["Depth"])
+		blocks = spirograph.make(self.fromMm("RadiusExternal"),
+				self.fromMm("RadiusInternal"),
+				self.fromMm("RadiusOffset"),
+				self.fromMm("Depth"))
 
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Spirograph")

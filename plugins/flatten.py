@@ -273,11 +273,11 @@ class Tool(Plugin):
 		flatten = Flatten(n)
 
 		blocks = flatten.make(app,
-				self["XStart"],
-				self["YStart"],
-				self["FlatWidth"],
-				self["FlatHeight"],
-				self["FlatDepth"],
+				self.fromMm("XStart"),
+				self.fromMm("YStart"),
+				self.fromMm("FlatWidth"),
+				self.fromMm("FlatHeight"),
+				self.fromMm("FlatDepth"),
 				self["BorderPass"],
 				self["CutDirection"],
 				self["PocketType"]

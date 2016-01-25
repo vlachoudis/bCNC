@@ -77,7 +77,7 @@ class Tool(Plugin):
 			app.setStatus(_("Heightmap abort: Can't read image file"))
 			return
 
-		if self["Depth"]>=0:
+		if self.fromMm("Depth")>=0:
 			app.setStatus(_("Heightmap abort: depth must be < 0"))
 			return
 
@@ -98,7 +98,7 @@ class Tool(Plugin):
 		MAT = Image_Matrix()
 		MAT.FromImage(img,True)
 
-		maxSize = self["MaxSize"]
+		maxSize = self.fromMm("MaxSize")
 		w, h = img.size
 
 		if (w > h):

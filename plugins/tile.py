@@ -53,12 +53,12 @@ class Tool(Plugin):
 			return
 
 		try:
-			dx = float(self["dx"])
+			dx = self.fromMm("dx")
 		except:
 			dx = 0.0
 
 		try:
-			dy = float(self["dy"])
+			dy = self.fromMm("dy")
 		except:
 			dy = 0.0
 

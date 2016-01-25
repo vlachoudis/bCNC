@@ -116,7 +116,7 @@ class Tool(Plugin):
 		n = self["name"]
 		if not n or n=="default": n="Bowl"
 		bowl = Bowl(n)
-		blocks = bowl.calc(self["D"], math.radians(self["res"]), self["pocket"])
+		blocks = bowl.calc(self.fromMm("D"), math.radians(self["res"]), self["pocket"])
 		if len(blocks) > 0:
 			active = app.activeBlock()
 			app.gcode.insBlocks(active, blocks, "Create BOWL")

@@ -317,7 +317,7 @@ class Tool(Plugin):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		box = Box(self["dx"],self["dy"],self["dz"])
+		box = Box(self.fromMm("dx"),self.fromMm("dy"),self.fromMm("dz"))
 		box.name  = self["name"]
 		if box.name == "default": box.name = "Box"
 		box.thick = app.cnc["thickness"]

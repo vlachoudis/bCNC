@@ -104,9 +104,9 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		#Get inputs
-		holesDistance = self["HolesDistance"]
-		targetDepth = self["TargetDepth"]
-		peck = self["Peck"]
+		holesDistance = self.fromMm("HolesDistance")
+		targetDepth = self.fromMm("TargetDepth")
+		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
 
 		zSafe = CNC.vars["safe"]
