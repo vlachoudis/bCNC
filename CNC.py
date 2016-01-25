@@ -1568,9 +1568,14 @@ class Tab:
 		self.dx = dx
 		self.dy = dy
 		self.z  = z			# z to raise within the tab
-		self.path = None
-#		self.slope = 45			# cutting z-slope as entry/exit
-#		self.create()
+
+	#----------------------------------------------------------------------
+	def copy(self, src):
+		self.x  = src.x			# x,y limits of a square tab
+		self.y  = src.y
+		self.dx = src.dx
+		self.dy = src.dy
+		self.z  = src.z			# z to raise within the tab
 
 	#----------------------------------------------------------------------
 	def __str__(self):
@@ -1714,7 +1719,9 @@ class Block(list):
 		self._name  = src._name
 		self.enable = src.enable
 		self.expand = src.expand
-		self.tabs   = src.tabs[:]
+		self.tabs   = []
+		for tab in src.tabs:
+			self.tabs.append(Tab(tab.x, tab.y, tab.dx, tab.dy, tab.z))
 		self[:]     = src[:]
 		self._path  = []
 		self.sx = src.sx
