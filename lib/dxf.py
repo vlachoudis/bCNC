@@ -167,6 +167,9 @@ class Entity(dict):
 			self._start = Vector(self[10][0], self[20][0])
 		elif self.type in ("POINT", "ELLIPSE"):
 			self._start = self.point()
+		elif self.type == "DIMENSION":
+			# Ignore!!
+			self._start = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
@@ -196,6 +199,9 @@ class Entity(dict):
 			else:
 				self._end = Vector(self[10][-1], self[20][-1])
 		elif self.type == "POINT":
+			self._end = self.point()
+		elif self.type == "DIMENSION":
+			# Ignore!!
 			self._end = self.point()
 		else:
 			#raise Exception("Cannot handle entity type %s"%(self.type))
