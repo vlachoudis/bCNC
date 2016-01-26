@@ -589,19 +589,23 @@ class CNCListbox(Listbox):
 			bid,lid = self._items[i]
 			if lid is not None:
 				if bid in blocks: continue
+				pos = self._blockPos[bid]
+			else:
+				pos = i
+
 			blocks.append(bid)
 			block = self.gcode[bid]
 			if block.name() in ("Header", "Footer"): continue
 			if enable is None: enable = not block.enable
 			undoinfo.append(self.gcode.setBlockEnableUndo(bid, enable))
 
-			sel = self.selection_includes(i)
-			self.delete(i)
-			self.insert(i, block.header())
-			self.itemconfig(i, background=BLOCK_COLOR)
+			sel = self.selection_includes(pos)
+			self.delete(pos)
+			self.insert(pos, block.header())
+			self.itemconfig(pos, background=BLOCK_COLOR)
 			if not block.enable:
-				self.itemconfig(i, foreground=DISABLE_COLOR)
-			if sel: self.selection_set(i)
+				self.itemconfig(pos, foreground=DISABLE_COLOR)
+			if sel: self.selection_set(pos)
 
 		if undoinfo:
 			self.gcode.calculateEnableMargins()

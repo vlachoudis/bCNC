@@ -161,8 +161,12 @@ class CNCCanvas(Canvas):
 		self.bind('<Control-Key-Down>',	self.panDown)
 
 		self.bind('<Escape>',		self.actionCancel)
+		self.bind('<Key-a>',		lambda e,s=self : s.event_generate("<<SelectAll>>"))
+		self.bind('<Key-A>',		lambda e,s=self : s.event_generate("<<SelectNone>>"))
+		self.bind('<Key-e>',		lambda e,s=self : s.event_generate("<<Expand>>"))
 		self.bind('<Key-f>',		self.fit2Screen)
 		self.bind('<Key-g>',		self.setActionGantry)
+		self.bind('<Key-l>',		lambda e,s=self : s.event_generate("<<EnableToggle>>"))
 		self.bind('<Key-m>',		self.setActionMove)
 		self.bind('<Key-o>',		self.setActionOrigin)
 		self.bind('<Key-r>',		self.setActionRuler)
@@ -1594,8 +1598,13 @@ class CanvasFrame(Frame):
 		b = Button(toolbar,
 				image=Utils.icons["refresh"],
 				command=self.viewChange)
-		tkExtra.Balloon.set(b, _("Redraw display"))
+		tkExtra.Balloon.set(b, _("Redraw display [Ctrl-R]"))
 		b.pack(side=LEFT)
+
+	#----------------------------------------------------------------------
+	def redraw(self, event=None):
+		self.canvas.reset()
+		self.event_generate("<<ViewChange>>")
 
 	#----------------------------------------------------------------------
 	def viewChange(self, a=None, b=None, c=None):
