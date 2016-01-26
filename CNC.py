@@ -3014,6 +3014,8 @@ class GCode:
 	def info(self, bid):
 		block = self.blocks[bid]
 		paths = self.toPath(bid)
+		if not paths:
+			return None, 1
 		if len(paths)>1:
 			return len(paths), paths[0]._direction()
 		else:

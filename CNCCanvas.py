@@ -256,7 +256,7 @@ class CNCCanvas(Canvas):
 		self.action = action
 		self.actionVar.set(action)
 		self._mouseAction = None
-		self.config(cursor=mouseCursor(self.action))
+		self.config(cursor=mouseCursor(self.action), background="White")
 
 	# ----------------------------------------------------------------------
 	def actionCancel(self, event=None):
@@ -286,11 +286,13 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
+		self.config(background="seashell")
 		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def setActionSetPos(self, event=None):
 		self.setAction(ACTION_SET_POS)
+		self.config(background="ivory")
 		self.event_generate("<<Status>>",
 			data=_("Set mouse location as current machine position (X/Y only)").encode("utf-8"))
 
@@ -897,6 +899,9 @@ class CNCCanvas(Canvas):
 				else:
 					ef = 0.
 					sf = 2.0*math.pi
+
+			elif closed is None:
+				continue
 
 			n = 64
 			df = (ef-sf)/float(n)
@@ -1575,7 +1580,7 @@ class CanvasFrame(Frame):
 					variable=self.canvas.actionVar,
 					value=ACTION_SET_POS,
 					command=self.canvas.setActionSetPos)
-		tkExtra.Balloon.set(b, _("Set WPOS"))
+		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
 		self.addWidget(b)
 		b.pack(side=LEFT)
 
