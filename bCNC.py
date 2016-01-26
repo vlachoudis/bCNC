@@ -404,7 +404,6 @@ class Application(Toplevel,Sender):
 
 		if _openserial and Utils.getBool("Connection","openserial"):
 			self.openClose()
-		self.canvas.fit2Screen()
 
 	#-----------------------------------------------------------------------
 	def setStatus(self, msg, force_update=False):
@@ -1795,6 +1794,7 @@ class Application(Toplevel,Sender):
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
+			self.canvas.reset()
 			self.draw()
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()

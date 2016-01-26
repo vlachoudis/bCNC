@@ -638,7 +638,10 @@ class CNCListbox(Listbox):
 
 		for bi in items:
 			bid,lid = bi
-			block = self.gcode[bid]
+			try:
+				block = self.gcode[bid]
+			except:
+				continue
 			if double or not block.expand or lid is None:
 				# select whole block
 				y = self._blockPos[bid]

@@ -224,7 +224,12 @@ class CNCCanvas(Canvas):
 		self._tafter = None
 
 		#self.config(xscrollincrement=1, yscrollincrement=1)
+		self.reset()
 		self.initPosition()
+
+	# ----------------------------------------------------------------------
+	def reset(self):
+		self.zoom = 1.0
 
 	# ----------------------------------------------------------------------
 	# Update scrollbars
@@ -858,7 +863,7 @@ class CNCCanvas(Canvas):
 		if self._inDraw : return
 		self._inDraw  = True
 
-		self._tzoom  = 1.0
+		self._tzoom = 1.0
 		self._tafter = None
 		xyz = self.canvas2xyz(
 				self.canvasx(self.winfo_width()/2),
@@ -1584,6 +1589,12 @@ class CanvasFrame(Frame):
 				variable=self.draw_workarea,
 				command=self.drawWorkarea)
 		tkExtra.Balloon.set(b, _("Toggle display of workarea"))
+		b.pack(side=LEFT)
+
+		b = Button(toolbar,
+				image=Utils.icons["refresh"],
+				command=self.viewChange)
+		tkExtra.Balloon.set(b, _("Redraw display"))
 		b.pack(side=LEFT)
 
 	#----------------------------------------------------------------------
