@@ -574,10 +574,16 @@ class Path(list):
 	# Return:
 	#	-1 for Segment.CCW closed path
 	#        0 for open path
-	#	 1 for Segment.CW  closed path
+	#	+1 for Segment.CW  closed path
 	#----------------------------------------------------------------------
 	def direction(self):
 		if not self.isClosed(): return 0
+		return self._direction()
+
+	#----------------------------------------------------------------------
+	# Return -1/+1 even for open paths
+	#----------------------------------------------------------------------
+	def _direction(self):
 		phi = 0.0
 		P  = self[-1].AB
 		PL = P.length()
@@ -982,8 +988,7 @@ class Path(list):
 					df = self[i].startPhi - self[i].endPhi
 				if df<pi/2.0:
 					sagitta = self[i].radius * (1.0 - cos(df/2.0))
-					#if sagitta < eps:
-					if sagitta < eps*10:
+					if sagitta < eps*5:
 						self[i].change2Line()
 			i += 1
 

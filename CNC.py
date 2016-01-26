@@ -3008,6 +3008,18 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
+	# Return information for a block
+	# return XXX
+	#----------------------------------------------------------------------
+	def info(self, bid):
+		block = self.blocks[bid]
+		paths = self.toPath(bid)
+		if len(paths)>1:
+			return len(paths), paths[0]._direction()
+		else:
+			return int(paths[0].isClosed()), paths[0]._direction()
+
+	#----------------------------------------------------------------------
 	# make a profile on block
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
@@ -3338,6 +3350,7 @@ class GCode:
 	def mirrorHLines(self, items):
 		return self.process(items, self.mirrorHFunc, None)
 
+	#----------------------------------------------------------------------
 	def mirrorVLines(self, items):
 		return self.process(items, self.mirrorVFunc, None)
 

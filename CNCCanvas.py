@@ -62,6 +62,8 @@ PROCESS_COLOR = "Green"
 MOVE_COLOR    = "DarkCyan"
 RULER_COLOR   = "Green"
 
+INFO_COLOR    = "Gold"
+
 ACTION_SELECT        =  0
 ACTION_SELECT_SINGLE =  1
 ACTION_SELECT_AREA   =  2
@@ -77,7 +79,7 @@ ACTION_SET_POS       = 23
 
 ACTION_RULER         = 30
 
-ACTION_ADDTAB        = 40
+#ACTION_ADDTAB        = 40
 
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
@@ -106,12 +108,12 @@ MOUSE_CURSOR = {
 #	ACTION_VIEW_MOVE     : "fleur",
 #	ACTION_VIEW_ROTATE   : "exchange",
 
-	ACTION_ADDTAB        : "tcross",
+#	ACTION_ADDTAB        : "tcross",
 
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
 	ACTION_GANTRY        : "target",
-	ACTION_SET_POS        : "target",
+	ACTION_SET_POS       : "diamond_cross",
 
 	ACTION_RULER         : "tcross",
 
@@ -171,7 +173,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Key-o>',		self.setActionOrigin)
 		self.bind('<Key-r>',		self.setActionRuler)
 		self.bind('<Key-s>',		self.setActionSelect)
-		self.bind('<Key-t>',		self.setActionAddTab)
+#		self.bind('<Key-t>',		self.setActionAddTab)
 		self.bind('<Key-x>',		self.setActionPan)
 
 		self.bind('<Control-Key-equal>',self.menuZoomIn)
@@ -298,10 +300,10 @@ class CNCCanvas(Canvas):
 		self.event_generate("<<Status>>",
 			data=_("Drag a ruler to measure distances").encode("utf-8"))
 
-	# ----------------------------------------------------------------------
-	def setActionAddTab(self, event=None):
-		self.setAction(ACTION_ADDTAB)
-		self.event_generate("<<Status>>",data=_("Draw a square tab").encode("utf-8"))
+#	# ----------------------------------------------------------------------
+#	def setActionAddTab(self, event=None):
+#		self.setAction(ACTION_ADDTAB)
+#		self.event_generate("<<Status>>",data=_("Draw a square tab").encode("utf-8"))
 
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
@@ -558,14 +560,14 @@ class CNCCanvas(Canvas):
 		elif self._mouseAction == ACTION_PAN:
 			self.panRelease(event)
 
-		# Finalize tab
-		elif self._mouseAction == ACTION_ADDTAB:
-			self._tab.correct()
-			self.gcode.addUndo(self.gcode.addTabUndo(-1,self._tab))
-			self._tab = None
-			self._tabRect = None
-			self.setActionSelect()
-			self.event_generate("<<TabAdded>>")
+#		# Finalize tab
+#		elif self._mouseAction == ACTION_ADDTAB:
+#			self._tab.correct()
+#			self.gcode.addUndo(self.gcode.addTabUndo(-1,self._tab))
+#			self._tab = None
+#			self._tabRect = None
+#			self.setActionSelect()
+#			self.event_generate("<<TabAdded>>")
 
 	# ----------------------------------------------------------------------
 	def double(self, event):
@@ -824,6 +826,7 @@ class CNCCanvas(Canvas):
 		self.dtag("sel2")
 		self.dtag("sel3")
 		self.dtag("sel4")
+		self.delete("info")
 
 	#----------------------------------------------------------------------
 	# Highlight selected items
@@ -859,6 +862,55 @@ class CNCCanvas(Canvas):
 		self.itemconfig("sel3", width=2, fill=TAB_COLOR)
 		self.itemconfig("sel4", width=2, fill=TAB_COLOR)
 		self.drawMargin()
+
+	#----------------------------------------------------------------------
+	# Display graphical information on selected blocks
+	#----------------------------------------------------------------------
+	def showInfo(self, blocks):
+		self.delete("info")	# clear any previous information
+		for bid in blocks:
+			block = self.gcode.blocks[bid]
+			xyz = [(block.xmin, block.ymin, 0.),
+			       (block.xmax, block.ymin, 0.),
+			       (block.xmax, block.ymax, 0.),
+			       (block.xmin, block.ymax, 0.),
+			       (block.xmin, block.ymin, 0.)]
+			self.create_line(self.plotCoords(xyz),
+					fill=INFO_COLOR,
+					tag="info")
+			xc = (block.xmin + block.xmax)/2.0
+			yc = (block.ymin + block.ymax)/2.0
+			r  = min(block.xmax-xc, block.ymax-yc)
+			closed, direction = self.gcode.info(bid)
+
+			if closed==0:	# open path
+				if direction==1:
+					sf = math.pi/4.0
+					ef = 2.0*math.pi - sf
+				else:
+					ef = math.pi/4.0
+					sf = 2.0*math.pi - ef
+			elif closed==1:
+				if direction==1:
+					sf = 0.
+					ef = 2.0*math.pi
+				else:
+					ef = 0.
+					sf = 2.0*math.pi
+
+			n = 64
+			df = (ef-sf)/float(n)
+			xyz = []
+			f = sf
+			for i in range(n+1):
+				xyz.append((xc+r*math.sin(f), yc+r*math.cos(f), 0.))	# towards up
+				f += df
+			self.create_line(self.plotCoords(xyz),
+					fill=INFO_COLOR,
+					width=5,
+					arrow=LAST,
+					arrowshape=(32,40,12),
+					tag="info")
 
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
@@ -899,6 +951,8 @@ class CNCCanvas(Canvas):
 		self._inDraw  = False
 
 	#----------------------------------------------------------------------
+	# Initialize gantry position
+	#----------------------------------------------------------------------
 	def initPosition(self):
 		self.delete(ALL)
 		if self.view in (VIEW_XY, VIEW_XZ, VIEW_YZ):
@@ -928,6 +982,8 @@ class CNCCanvas(Canvas):
 		self.cnc.resetAllMargins()
 
 	#----------------------------------------------------------------------
+	# Draw gantry location
+	#----------------------------------------------------------------------
 	def _drawGantry(self, x, y):
 		if self._gantry2 is None:
 			self.coords(self._gantry1,
@@ -942,6 +998,8 @@ class CNCCanvas(Canvas):
 					 x, y,
 					 x+GANTRY_X, y-GANTRY_H))
 
+	#----------------------------------------------------------------------
+	# Draw system axes
 	#----------------------------------------------------------------------
 	def drawAxes(self):
 		self.delete("Axes")
@@ -966,6 +1024,8 @@ class CNCCanvas(Canvas):
 		xyz = [(0.,0.,0.), (0., 0., s)]
 		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
 
+	#----------------------------------------------------------------------
+	# Draw margins of selected blocks
 	#----------------------------------------------------------------------
 	def drawMargin(self):
 		if self._margin:  self.delete(self._margin)
@@ -1022,14 +1082,8 @@ class CNCCanvas(Canvas):
 				**kwargs),
 		return rect
 
-#	#----------------------------------------------------------------------
-#	def drawTabs(self):
-#		if not self.draw_margin: return
-#		for tab in self.gcode.tabs:
-#			item = self._drawRect(tab.xmin, tab.ymin, tab.xmax, tab.ymax, 0., fill=TAB_COLOR)
-#			self._items[item[0]] = tab
-#			self.tag_lower(item)
-#
+	#----------------------------------------------------------------------
+	# Draw a workspace rectangle
 	#----------------------------------------------------------------------
 	def drawWorkarea(self):
 		if self._workarea: self.delete(self._workarea)
@@ -1045,6 +1099,8 @@ class CNCCanvas(Canvas):
 		self._workarea = self._drawRect(xmin, ymin, xmax, ymax, 0., fill=WORK_COLOR, dash=(3,2))
 		self.tag_lower(self._workarea)
 
+	#----------------------------------------------------------------------
+	# Draw coordinates grid
 	#----------------------------------------------------------------------
 	def drawGrid(self):
 		self.delete("Grid")

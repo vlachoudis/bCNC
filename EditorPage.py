@@ -364,7 +364,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 				command=app.canvas.setActionOrigin,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Place origin with the mouse on canvas [O]"))
+		tkExtra.Balloon.set(b, _("Move all gcode such as origin is on mouse location [O]"))
 		self.addWidget(b)
 
 
@@ -504,6 +504,40 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 #					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
 
 #===============================================================================
+# Info Group
+#===============================================================================
+class InfoGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Info"), app)
+		self.grid2rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["stats"],
+				text=_("Statistics"),
+				compound=LEFT,
+				anchor=W,
+				command=app.showStats,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Show statistics for enabled gcode"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["info"],
+				text=_("Info"),
+				compound=LEFT,
+				anchor=W,
+				command=app.showInfo,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Show cutting information on selected blocks [Ctrl-n]"))
+		self.addWidget(b)
+
+#===============================================================================
 class EditorFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Editor", app)
@@ -530,5 +564,6 @@ class EditorPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ClipboardGroup, SelectGroup, EditGroup, MoveGroup, OrderGroup, TransformGroup),
+		self._register((ClipboardGroup, SelectGroup, EditGroup, MoveGroup,
+				OrderGroup, TransformGroup, InfoGroup),
 			(EditorFrame,))

@@ -316,6 +316,7 @@ class Application(Toplevel,Sender):
 		self.bind('<Control-Key-A>',	self.unselectAll)
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-i>',	self.selectInvert)
+		self.bind('<Control-Key-n>',	self.showInfo)
 
 		self.bind('<<SelectAll>>',	self.selectAll)
 		self.bind('<<SelectNone>>',	self.unselectAll)
@@ -788,6 +789,13 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def alarmClear(self, event=None):
 		self._alarm = False
+
+	#-----------------------------------------------------------------------
+	# Display information on selected blocks
+	#-----------------------------------------------------------------------
+	def showInfo(self, event=None):
+		self.canvas.showInfo(self.editor.getSelectedBlocks())
+		return "break"
 
 	#-----------------------------------------------------------------------
 	# FIXME Very primitive

@@ -50,6 +50,8 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-Prior>",self.orderUp)
 		self.bind("<Control-Key-Down>",	self.orderDown)
 		self.bind("<Control-Key-Next>",	self.orderDown)
+		self.bind("<Control-Key-p>",	lambda e : "break")
+		self.bind("<Control-Key-n>",	lambda e : "break")
 		self.bind("<Delete>",		self.deleteBlock)
 		self.bind("<BackSpace>",	self.deleteBlock)
 		try:
