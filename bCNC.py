@@ -316,7 +316,6 @@ class Application(Toplevel,Sender):
 		self.bind('<Control-Key-A>',	self.unselectAll)
 		self.bind('<Escape>',		self.unselectAll)
 		self.bind('<Control-Key-i>',	self.selectInvert)
-		self.bind('<Control-Key-n>',	self.showInfo)
 
 		self.bind('<<SelectAll>>',	self.selectAll)
 		self.bind('<<SelectNone>>',	self.unselectAll)
@@ -326,6 +325,8 @@ class Application(Toplevel,Sender):
 #		self.bind('<Control-Key-g>',	self.findNext)
 #		self.bind('<Control-Key-h>',	self.replace)
 		self.bind('<Control-Key-e>',	self.editor.toggleExpand)
+		self.bind('<Control-Key-n>',	self.showInfo)
+		self.bind('<<ShowInfo>>',	self.showInfo)
 		self.bind('<Control-Key-l>',	self.editor.toggleEnable)
 		self.bind('<Control-Key-q>',	self.quit)
 		self.bind('<Control-Key-o>',	self.loadDialog)

@@ -578,16 +578,20 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def direction(self):
 		if not self.isClosed(): return 0
-		return self._direction()
+		return self._direction(True)
 
 	#----------------------------------------------------------------------
 	# Return -1/+1 even for open paths
 	#----------------------------------------------------------------------
-	def _direction(self):
+	def _direction(self, closed=True):
 		phi = 0.0
-		P  = self[-1].AB
+		if closed:
+			start = 0
+		else:
+			start = 1
+		P  = self[start-1].AB
 		PL = P.length()
-		for i,N in enumerate(self):
+		for i,N in enumerate(self[start:]):
 			NL = N.AB.length()
 			prod = PL * NL
 			if abs(prod)>EPS:
@@ -612,7 +616,7 @@ class Path(list):
 					phi += PI2
 			P  = N.AB
 			PL = NL
-		if phi < 0: return 1
+		if phi < 0.0: return 1
 		return -1
 
 	#----------------------------------------------------------------------

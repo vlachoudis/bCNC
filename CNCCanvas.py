@@ -170,6 +170,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Key-g>',		self.setActionGantry)
 		self.bind('<Key-l>',		lambda e,s=self : s.event_generate("<<EnableToggle>>"))
 		self.bind('<Key-m>',		self.setActionMove)
+		self.bind('<Key-n>',		lambda e,s=self : s.event_generate("<<ShowInfo>>"))
 		self.bind('<Key-o>',		self.setActionOrigin)
 		self.bind('<Key-r>',		self.setActionRuler)
 		self.bind('<Key-s>',		self.setActionSelect)

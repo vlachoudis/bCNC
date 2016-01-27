@@ -3017,9 +3017,11 @@ class GCode:
 		if not paths:
 			return None, 1
 		if len(paths)>1:
-			return len(paths), paths[0]._direction()
+			closed = paths[0].isClosed()
+			return len(paths), paths[0]._direction(closed)
 		else:
-			return int(paths[0].isClosed()), paths[0]._direction()
+			closed = paths[0].isClosed()
+			return int(closed), paths[0]._direction(closed)
 
 	#----------------------------------------------------------------------
 	# make a profile on block
