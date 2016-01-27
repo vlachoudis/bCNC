@@ -2254,14 +2254,16 @@ class GCode:
 			if entry:
 				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 			block.append(CNC.zenter(z))
-			first = True
+			setfeed = True
 			prevInside = None
 			for segment in path:
 				if prevInside is not segment._inside:
 					if segment._inside is None:
 						block.append(CNC.zenter(z))
+						setfeed = True
 					elif segment._inside.z > z:
 						block.append(CNC.zexit(segment._inside.z))
+						setfeed = True
 					prevInside = segment._inside
 				addSegment(segment)
 #				x,y = segment.end
@@ -2277,9 +2279,9 @@ class GCode:
 #						 self.fmt("x",x,7), self.fmt("y",y,7),
 #						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
 
-				if first:
+				if setfeed:
 					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
-					first = False
+					setfeed = False
 			if exit:
 				block.append(CNC.zsafe())
 		else:
