@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-22 17:46+0100\n"
-"PO-Revision-Date: 2016-01-23 18:22+0100\n"
+"PO-Revision-Date: 2016-01-26 21:50+0100\n"
 "Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
 "Language-Team: \n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.8.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-Basepath: ../../..\n"
 
@@ -44,14 +44,14 @@ msgid ""
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
 "L'allarme è uno stato di emergenza : qualche cosa non è andata per il verso "
-"giusto.Questo errore è tipicamente emesso quando si supera un limite durante "
-"un movimento. Questo può anche indicare che Grbl non conosce più la sua "
-"posizione oppure che è fallito un comando di sondaggio. Una volta entrato in "
-"emergenza Grbl ferma tutto e si blocca finché non si effettua un reset. "
-"Anche dopo il reset, Grbl resta in questa modalità, impedendo l'esecuzione  "
-"di ogni comando GCode, ma permette di disattivare manualmente questo "
-"allarme. Questo affinché l'utilizzatore sappia esattamente cosa è successo e "
-"agisca con cognizione di causa."
+"giusto. Questo errore è tipicamente emesso quando si supera un limite "
+"durante un movimento. Questo può anche indicare che Grbl non conosce più la "
+"sua posizione oppure che è fallito un comando di sondaggio. Una volta "
+"entrato in emergenza Grbl ferma tutto e si blocca finché non si effettua un "
+"reset. Anche dopo il reset, Grbl resta in questa modalità, impedendo "
+"l'esecuzione  di ogni comando GCode, ma permette di disattivare manualmente "
+"questo allarme. Questo affinché l'utilizzatore sappia esattamente cosa è "
+"successo e agisca con cognizione di causa."
 
 #: Sender.py:61
 msgid "Grbl is not connected. Please specify the correct port and click Open."
@@ -139,9 +139,9 @@ msgstr ""
 "dall'operazione in corso di esecuzione da parte di Grbl. In generale, Grbl "
 "blocca tuti i comandi che leggono o scrivono dati nella EEPROM perché il "
 "microcontrollore AVR  annulla tutti gli interrupts per alcuni cicli di clock "
-"durante le operazioni sulla EEPROM. Questo comportamento assicura che gli "
-"interrupts provienenti dalla porta seriale e dal generatore di step siano "
-"onorati e che le operazioni si svolgano correttamente."
+"durante le operazioni sulla EEPROM. Questo assicura che gli interrupts "
+"provenienti dalla porta seriale e dal generatore di step lavorino senza "
+"intoppi e che le operazioni vengano svolte correttamente."
 
 #: Sender.py:73
 msgid ""
@@ -155,16 +155,16 @@ msgid ""
 "while its moving from a hard limit being triggered or a user commands an ill-"
 "timed reset."
 msgstr ""
-"Grbl ritorna uno stato di ALLARME quando Grbl non conoscce la sua posizione "
-"e impedisce a tutti i comandi G-Code di essere eseguiti. Questo errore si "
-"verifica se i  comandi G-Code sono inviati durante uno stato si allarme. "
-"Grbl possiede 2 tipi di allarem : 1) se l'homing è abilitato, all'avvio Grbl "
-"si mette automaticamente in stato di allarme per ricordare all'utilizzatore "
-"di eseguire un ciclo di homing prima di eseguire qualsiasi azione; 2) se "
-"succede qualcosa di critico e Grbl mon può garantire il posizionamento, "
-"questo tipicamente accade quando qualcosa induce Grbl a emettere uno stop "
-"immediato, superamento di un limite fisico oppure un comando di utente di "
-"reset."
+"Grbl entra in uno stato di ALLARME quando Grbl non conosce la propria "
+"posizione ed impedisce a tutti i comandi G-Code di essere eseguiti. Questo "
+"errore si verifica se i  comandi G-Code sono inviati durante uno stato si "
+"allarme. Grbl possiede due tipi di allarme : 1) se l'homing è abilitato, "
+"all'avvio Grbl si mette automaticamente in stato di allarme per ricordare "
+"all'utente di eseguire un ciclo di homing prima di eseguire qualsiasi "
+"azione; 2) se succede qualcosa di critico e Grbl non può garantire il "
+"posizionamento. Questo tipicamente accade quando qualcosa induce Grbl a "
+"emettere uno stop immediato finché si sta muovendo da un fine corsa che è "
+"premuto oppure l'utente comanda un reset in un momento inopportuno."
 
 #: Sender.py:74
 msgid ""
@@ -237,13 +237,13 @@ msgid ""
 "Grbl versions had a default feed rate setting, which was illegal and was "
 "removed in Grbl v0.9."
 msgstr ""
-"Nessuna velocità di avanzamento programmata, e un comando G-Code ne "
-"richiedeuna all'interno del blocco della riga. Lo standard G-Code definisce "
-"che la velocità di avanzamento F deve essere aazerata dopo un o quando si "
-"passa dal modo di avanzamento reciproco del tempo (G93) ad un modo di "
-"avanzamento in unità per minuto (G94/G95). Le precedenti versioni di Grbl "
-"avevano una velocità di avanzamento per difetto, che era illegale ed è stata "
-"soppressa nella v0.9 di Grbl."
+"Nessuna velocità di avanzamento programmata, e un comando G-Code ne richiede "
+"una all'interno del blocco della riga. Lo standard G-Code definisce che la "
+"velocità di avanzamento F non sia definita dopo un reset o quando si passa "
+"dal modo di avanzamento reciproco del tempo (G93) ad un modo di avanzamento "
+"in unità per minuto (G94/G95). Le precedenti versioni di Grbl avevano una "
+"velocità di avanzamento per difetto, che era illegale ed è stata soppressa "
+"nella v0.9 di Grbl."
 
 #: Sender.py:79
 msgid ""
@@ -341,9 +341,9 @@ msgstr ""
 "Il comando di movimento possiede un obiettivo non valido. G2, G3 et G38.2 "
 "possono generare questo errore. Sia per il sondaggio che per un arco con una "
 "interpolazione di raggio, la posizione attuale non può essere la stessa di "
-"quella obiettivo. Questo errore viene emesso anche aundo è matematicamente "
+"quella obiettivo. Questo errore viene emesso anche quando è matematicamente "
 "impossibile tracciare l'arco, a causa della posizione attuale, della "
-"poszione obiettivo o del raggio dell'arco."
+"posizione obiettivo o del raggio dell'arco."
 
 #: Sender.py:90
 msgid ""
@@ -412,7 +412,7 @@ msgid ""
 msgstr ""
 "Questo allarme si verifica  quando l'utilizzatore esegue un soft-reset "
 "mentre la macchina sta effettuando un ciclo e si sta muovendo. Il soft-reset "
-"arresta tutti i movimenti in corsa, e come un alarme di superamento dei "
+"arresta tutti i movimenti in corsa, e come un allarme di superamento dei "
 "limiti fisici questo arresto non controllato fa perdere la posizione "
 "macchina a Grbl."
 
@@ -426,7 +426,7 @@ msgid ""
 msgstr ""
 "Il comando G38.2 per il sondaggio emette un avvertimento o un errore quando "
 "la sonda non si attiva all'interno della zone prevista. Grbl ritorna uno "
-"stato di allerme per segnalare all'utilizzatore che la sonda non è stata "
+"stato di allarme per segnalare all'utilizzatore che la sonda non è stata "
 "attivata ma non perde la posizione macchina, fino a quando il movimento "
 "della sonda porta ad un fermo controllato prima dell'errore."
 
@@ -510,11 +510,11 @@ msgstr "Rotazione max (RPM)"
 
 #: ToolsPage.py:487
 msgid "Header gcode"
-msgstr "G-Code da eseguire all'avvio"
+msgstr "GCode da eseguire all'avvio"
 
 #: ToolsPage.py:488
 msgid "Footer gcode"
-msgstr "G-Ccode da eseguire alla fine"
+msgstr "GCcode da eseguire alla fine"
 
 #: ToolsPage.py:510 ToolsPage.py:536 ToolsPage.py:565 ToolsPage.py:591
 #: ToolsPage.py:628 ToolsPage.py:655 ToolsPage.py:681 ToolsPage.py:703
@@ -761,11 +761,11 @@ msgstr "Configurazione dei Colori"
 
 #: ToolsPage.py:1178
 msgid "Language change"
-msgstr "Cambio Utensile manuale"
+msgstr "Cambio lingua"
 
 #: ToolsPage.py:1179
 msgid "Please restart the program."
-msgstr "Connetti la comunicazione seriale all'avvio"
+msgstr "Si prega di riavviare il programma"
 
 #: ToolsPage.py:1191
 msgid "Execute"
@@ -777,11 +777,11 @@ msgstr "Valori"
 
 #: ToolsPage.py:1268
 msgid "GCode manipulation tools and user plugins"
-msgstr "Strumenti di manipolazione del GCode e plugins utente"
+msgstr "Strumenti di manipolazione GCode e plugins utente"
 
 #: Ribbon.py:481
 msgid "New file"
-msgstr "Apri File"
+msgstr "Nuovo file"
 
 #: Ribbon.py:487
 msgid "Open file [Ctrl-O]"
@@ -822,7 +822,7 @@ msgstr "Vostra Email"
 
 #: Utils.py:375
 msgid "Automatic error reporting"
-msgstr "Rapporto automatico di errore"
+msgstr "Invio automatico dei rapporti di errore"
 
 #: Utils.py:383 bCNC.py:759 bCNC.py:947 bCNC.py:1830
 msgid "Close"
@@ -834,7 +834,7 @@ msgstr "Invia rapporto"
 
 #: Utils.py:453 Utils.py:463
 msgid "Error sending report"
-msgstr "Invio del rapporte di errore"
+msgstr "Invio del rapporto di errore"
 
 #: Utils.py:454
 msgid "There was a problem connecting to the web site"
@@ -955,7 +955,7 @@ msgstr "Sondagio centrale usando un anello"
 
 #: ProbePage.py:77
 msgid "Square"
-msgstr "Quadro"
+msgstr "Squadra"
 
 #: ProbePage.py:84
 msgid "Probe X/Y axis by using a set square probe"
@@ -1031,7 +1031,7 @@ msgstr "TLO"
 
 #: ProbePage.py:238
 msgid "Set tool offset for probing"
-msgstr "Impostare la compensazione Utensile per il sondaggio"
+msgstr "Impostare la compensazione utensile per il sondaggio"
 
 #: ProbePage.py:244 ControlPage.py:826 ControlPage.py:861
 msgid "set"
@@ -1116,7 +1116,7 @@ msgstr "Passo X"
 
 #: ProbePage.py:528
 msgid "X bins"
-msgstr "X bins"
+msgstr "X spazi"
 
 #: ProbePage.py:538
 msgid "Y minimum"
@@ -1124,7 +1124,7 @@ msgstr "Y minimo"
 
 #: ProbePage.py:544
 msgid "Y maximum"
-msgstr "Y maxssimo"
+msgstr "Y massimo"
 
 #: ProbePage.py:551
 msgid "Y step"
@@ -1132,7 +1132,7 @@ msgstr "Passo Y"
 
 #: ProbePage.py:560
 msgid "Y bins"
-msgstr "Y bins"
+msgstr "Y spazi"
 
 #: ProbePage.py:571
 msgid "Z Minimum depth to scan"
@@ -1511,7 +1511,7 @@ msgstr "Unità [G20, G21]"
 
 #: ControlPage.py:817 CNCCanvas.py:1474
 msgid "Tool:"
-msgstr "Utensile :"
+msgstr "Attrezzi :"
 
 #: ControlPage.py:822
 msgid "Tool number [T#]"
@@ -1546,16 +1546,16 @@ msgid ""
 "Feed\n"
 "Override:"
 msgstr ""
-"Addattamento\n"
+"Adattamento\n"
 "Avanzamento :"
 
 #: ControlPage.py:901
 msgid "Reset Feed Override to 100%"
-msgstr "Imposta l'addattamento avanzamento al 100%"
+msgstr "Imposta l'adattamento avanzamento al 100%"
 
 #: ControlPage.py:913
 msgid "Set Feed Override"
-msgstr "Regola l'addatamento avanzamento"
+msgstr "Regola l'adatamento avanzamento"
 
 #: ControlPage.py:918
 msgid "Spindle"
@@ -1607,7 +1607,7 @@ msgstr "Nessuno"
 
 #: EditorPage.py:96
 msgid "Unselect all blocks [Ctrl-Shift-A]"
-msgstr "De-Selezionare tutti i blocchi  [Ctrl-Shift-A]"
+msgstr "Deselezionare tutti i blocchi  [Ctrl-Shift-A]"
 
 #: EditorPage.py:103 EditorPage.py:409 plugins/heightmap.py:57
 msgid "Invert"
@@ -1627,7 +1627,7 @@ msgstr "Inkscape"
 
 #: EditorPage.py:119
 msgid "Round"
-msgstr "Diametro"
+msgstr "Arrotonda"
 
 #: EditorPage.py:120 bCNC.py:797
 msgid "Statistics"
@@ -1663,7 +1663,7 @@ msgstr "Attivo"
 
 #: EditorPage.py:183
 msgid "Enable or disable blocks of gcode"
-msgstr "Attivare o disattivare i blocchi di gCode"
+msgstr "Attivare o disattivare i blocchi di GCode"
 
 #: EditorPage.py:190
 msgid "Expand"
@@ -1839,7 +1839,7 @@ msgstr "Inverti la direzione dei blocchi di GCode selezionati"
 
 #: EditorPage.py:525
 msgid "GCode editor"
-msgstr "GCode editor"
+msgstr "Editor GCode"
 
 #: CNCCanvas.py:258
 msgid "Select objects with mouse"
@@ -1945,7 +1945,7 @@ msgstr "Visualizza (o meno) gli assi"
 
 #: CNCCanvas.py:1543
 msgid "Toggle display of grid lines"
-msgstr "Visualizza (o meno) le righe"
+msgstr "Visualizza (o meno) la griglia"
 
 #: CNCCanvas.py:1551
 msgid "Toggle display of margins"
@@ -1957,11 +1957,11 @@ msgstr "Visualizza (o meno) la sonda"
 
 #: CNCCanvas.py:1568
 msgid "Toggle display of paths (G1,G2,G3)"
-msgstr "Visualizza (o meno) i PU (G1, G2, G3)"
+msgstr "Visualizza (o meno) i percorsi (G1, G2, G3)"
 
 #: CNCCanvas.py:1576
 msgid "Toggle display of rapid motion (G0)"
-msgstr "Visualizza (o meno)  i Rapidi"
+msgstr "Visualizza (o meno)  i movimenti rapidi (G0)"
 
 #: CNCCanvas.py:1584
 msgid "Toggle display of workarea"
@@ -1989,19 +1989,19 @@ msgstr "In esecuzione"
 
 #: bCNC.py:445
 msgid "CNC is currently running, please stop it before."
-msgstr "CNC è in funzione, fermarlo prima."
+msgstr "CNC è in funzione, si prega di fermarlo."
 
 #: bCNC.py:613
 #, python-format
 msgid "About %s"
-msgstr "A porposito %s"
+msgstr "A proposito %s"
 
 #: bCNC.py:648
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
 msgstr ""
-"bCNC/\tUn sender completo avanzato\n"
+"bCNC/\tUn sender completo e avanzato\n"
 "\tdi GCode per GRBL."
 
 #: bCNC.py:815
@@ -2129,7 +2129,7 @@ msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
-"Il File G-Code %s è stato modificato dal momento del caricamento\n"
+"Il File GCode %s è stato modificato dal momento del caricamento\n"
 "Ricaricare la nuova versione?"
 
 #: bCNC.py:1822 FilePage.py:82 FilePage.py:266 lib/bFileDialog.py:320
@@ -2163,7 +2163,7 @@ msgstr "Prego fermare prima"
 
 #: bCNC.py:1891
 msgid "Preparing to run ..."
-msgstr "Preparazione dell'ezecuzione ..."
+msgstr "Preparazione all'esecuzione ..."
 
 #: bCNC.py:1905
 msgid "Empty gcode"
@@ -2171,7 +2171,7 @@ msgstr "GCode vuoto"
 
 #: bCNC.py:1906
 msgid "Not gcode file was loaded"
-msgstr "Nessun File GCode chricato"
+msgstr "Nessun File GCode caricato"
 
 #: bCNC.py:1931
 msgid "Running..."
@@ -2203,7 +2203,7 @@ msgstr "Controllo remoto fermato"
 
 #: bCNC.py:2217
 msgid "python serial missing"
-msgstr "python serial non installata"
+msgstr "python serial non installato"
 
 #: bCNC.py:2218
 msgid ""
@@ -2474,7 +2474,7 @@ msgstr "Pirografo"
 #: plugins/pyrograph.py:33
 msgid "Create a variable feed path based upon image brightness"
 msgstr ""
-"Crea percorsi ad avanzamento variabile basati sulla luminosità dell'immagine"
+"Crea percorsi ad avanzamento variabile, basati sulla luminosità dell'immagine"
 
 #: plugins/pyrograph.py:41
 msgid "Pyrograph tip size"
@@ -2486,7 +2486,7 @@ msgstr "Profondità di lavoro"
 
 #: plugins/pyrograph.py:43 plugins/heightmap.py:51
 msgid "Maximum size"
-msgstr "Dimensione Massima"
+msgstr "Dimensione massima"
 
 #: plugins/pyrograph.py:44
 msgid "Minimum feed"
@@ -2745,7 +2745,7 @@ msgstr "Foratura annullata: La ritrazione deve essere > 0"
 
 #: plugins/driller.py:124
 msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
-msgstr "Foratura annullata: il tempo di sosta deve essere >=0"
+msgstr "Foratura annullata: Il tempo di sosta deve essere >=0"
 
 #: plugins/driller.py:134
 msgid "Driller abort: Please select some path"
@@ -2782,7 +2782,7 @@ msgstr "Spirografo"
 
 #: plugins/spirograph.py:95
 msgid "Create a spirograph path"
-msgstr "Crea un percorso per lo spirograpfo"
+msgstr "Crea un percorso per lo spirografo"
 
 #: plugins/spirograph.py:102
 msgid "External Radius"
@@ -2866,19 +2866,19 @@ msgstr "Scatola ad incastro generata"
 
 #: plugins/text.py:33
 msgid "Create text using a ttf font"
-msgstr "Crea un testo utilizzando un carattere ttf"
+msgstr "Crea del testo utilizzando font ttf"
 
 #: plugins/text.py:40
 msgid "Text to generate"
-msgstr "Impostare la velocità di avanzamento della sonda"
+msgstr "Testo da generare"
 
 #: plugins/text.py:42
 msgid "Font size"
-msgstr "Caratteri"
+msgstr "Dimensione carattere"
 
 #: plugins/text.py:43
 msgid "Font file"
-msgstr "Apri File"
+msgstr "File Font"
 
 #: plugins/text.py:44
 msgid "Image to Ascii"
@@ -2886,7 +2886,7 @@ msgstr "Da immagine ad ASCII"
 
 #: plugins/text.py:45
 msgid "Image chars width"
-msgstr "Larghezza caratteri Immagine"
+msgstr "Caratteri per larghezza immagine"
 
 #: plugins/text.py:61
 msgid "Text abort: please input a Font size > 0"
@@ -2894,8 +2894,8 @@ msgstr "Testo annullato: Inserire una dimensione carattere > 0"
 
 #: plugins/text.py:64
 msgid "Text abort: please select a font file"
-msgstr "Testo annullato: Scegliere un carattere"
+msgstr "Testo annullato: Scegliere un file di font"
 
 #: plugins/text.py:91
 msgid "Text abort: That embarrassing, I can't read this font file!"
-msgstr "Testo annullato: Impossibile leggere il file di carattere!"
+msgstr "Testo annullato: Impossibile leggere il file dei font!"
