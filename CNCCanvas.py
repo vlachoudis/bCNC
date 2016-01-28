@@ -942,7 +942,6 @@ class CNCCanvas(Canvas):
 		self.drawWorkarea()
 		self.drawProbe()
 		self.drawAxes()
-#		self.drawTabs()
 #		self.tag_lower(self._workarea)
 		if self._gantry1: self.tag_raise(self._gantry1)
 		if self._gantry2: self.tag_raise(self._gantry2)

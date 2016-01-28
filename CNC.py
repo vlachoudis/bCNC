@@ -1568,6 +1568,7 @@ class Tab:
 		self.dx = dx
 		self.dy = dy
 		self.z  = z			# z to raise within the tab
+		self.path = None
 
 	#----------------------------------------------------------------------
 	def copy(self, src):
