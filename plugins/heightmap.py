@@ -359,6 +359,7 @@ class Tool(Plugin):
 		blocks = []
 		blocks.append(block)
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, n)
 		app.refresh()
 		app.setStatus(_("Generated Heightmap %d x %d x %d ")%(image_w,image_h,depth) )

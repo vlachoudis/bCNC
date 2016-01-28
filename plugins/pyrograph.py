@@ -197,6 +197,7 @@ class Tool(Plugin):
 
 		blocks.append(block)
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Pyrograph")
 		app.refresh()
 		app.setStatus(_("Generated Pyrograph W=%g x H=%g x D=%g") %

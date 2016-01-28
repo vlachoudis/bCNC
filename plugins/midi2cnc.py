@@ -291,6 +291,7 @@ class Tool(Plugin):
 
 		blocks.append(block)
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Midi2CNC")
 		app.refresh()
 		app.setStatus(_("Generated Midi2CNC, ready to play?"))

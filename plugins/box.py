@@ -338,6 +338,7 @@ class Tool(Plugin):
 			box.overcut = None
 
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, box.make(), _("Create finger BOX"))
 		app.refresh()
 		app.setStatus(_("Generated: BOX with fingers"))

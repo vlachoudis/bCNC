@@ -285,6 +285,7 @@ class Tool(Plugin):
 
 		if blocks is not None:
 			active = app.activeBlock()
+			if active==0: active=1
 			app.gcode.insBlocks(active, blocks, "Flatten")
 			app.refresh()
 			app.setStatus(_("Flatten: Generated flatten surface"))

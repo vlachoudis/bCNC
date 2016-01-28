@@ -118,6 +118,7 @@ class Tool(Plugin):
 				self.fromMm("Depth"))
 
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Spirograph")
 		app.refresh()
 		app.setStatus(_("Generated: Spirograph"))

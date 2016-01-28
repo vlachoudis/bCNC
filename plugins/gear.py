@@ -173,6 +173,7 @@ class Tool(Plugin):
 		gear = Gear(n)
 		blocks = gear.calc(self["n"], math.radians(self["phi"]), self.fromMm("pc"))
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, _("Create Spur GEAR"))
 		app.refresh()
 		app.setStatus(_("Generated: Spur GEAR"))

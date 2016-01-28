@@ -119,6 +119,7 @@ class Tool(Plugin):
 		blocks = bowl.calc(self.fromMm("D"), math.radians(self["res"]), self["pocket"])
 		if len(blocks) > 0:
 			active = app.activeBlock()
+			if active==0: active=1
 			app.gcode.insBlocks(active, blocks, "Create BOWL")
 			app.refresh()
 			app.setStatus(_("Generated: BOWL"))

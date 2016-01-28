@@ -215,6 +215,7 @@ class Tool(Plugin):
 
 		#Insert created block
 		active = app.activeBlock()
+		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Driller")
 		app.refresh()
 		app.setStatus(_("Generated Driller: %d holes")%holesCount)
