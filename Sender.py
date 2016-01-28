@@ -114,6 +114,7 @@ class Sender:
 		self.pendant     = Queue()	# Command queue to be executed from Pendant
 		self.serial      = None
 		self.thread      = None
+		self.controller  = Utils.CONTROLLER["Grbl"]
 
 		self._posUpdate  = False	# Update position
 		self._probeUpdate= False	# Update probe
@@ -135,7 +136,8 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		Pendant.port = Utils.getInt("Connection","pendantport",Pendant.port)
+		self.controller  = Utils.CONTROLLER.get(Utils.getStr("Connection", "controller"), 0)
+		Pendant.port     = Utils.getInt("Connection","pendantport",Pendant.port)
 		GCode.LOOP_MERGE = Utils.getBool("File","dxfloopmerge")
 		self.loadHistory()
 
@@ -276,6 +278,17 @@ class Sender:
 		# UNL*OCK: unlock grbl
 		elif rexx.abbrev("UNLOCK",cmd,3):
 			self.unlock()
+
+		# Send commands to SMOOTHIE
+		elif self.controller == Utils.SMOOTHIE:
+			if line[0] in (	"help", "version", "mem", "ls",
+					"cd", "pwd", "cat", "rm", "mv",
+					"remount", "play", "progress", "abort",
+					"reset", "dfu", "break", "config-get",
+					"config-set", "get", "set_temp", "get",
+					"get", "net", "load", "save", "upload",
+					"calc_thermistor", "thermistors", "md5sum"):
+				self.serial.write(oline+"\n")
 
 		else:
 			return _("unknown command"),_("Invalid command %s")%(oline)
@@ -442,7 +455,10 @@ class Sender:
 	#----------------------------------------------------------------------
 	def softReset(self):
 		if self.serial:
-			self.serial.write(b"\030")
+			if self.controller == Utils.GRBL:
+				self.serial.write(b"\030")
+			elif self.controller == Utils.SMOOTHIE:
+				self.serial.write("reset\n")
 		self.stopProbe()
 		self._alarm = False
 
@@ -458,34 +474,46 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
-		self.sendGrbl("$$\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$$\n")
 
 	def viewParameters(self):
-		self.sendGrbl("$#\n$G\n")
+		self.sendGrbl("$#\n")
 
 	def viewState(self):
 		self.sendGrbl("$G\n")
 
 	def viewBuild(self):
-		self.sendGrbl("$I\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$I\n")
+		elif self.controller == Utils.SMOOTHIE:
+			self.serial.write("version\n")
 
 	def viewStartup(self):
-		self.sendGrbl("$N\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$N\n")
 
 	def checkGcode(self):
-		self.sendGrbl("$C\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$C\n")
 
 	def grblHelp(self):
-		self.sendGrbl("$\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$\n")
+		elif self.controller == Utils.SMOOTHIE:
+			self.serial.write("help\n")
 
 	def grblRestoreSettings(self):
-		self.sendGrbl("$RST=$\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$RST=$\n")
 
 	def grblRestoreWCS(self):
-		self.sendGrbl("$RST=#\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$RST=#\n")
 
 	def grblRestoreAll(self):
-		self.sendGrbl("$RST=#\n")
+		if self.controller == Utils.GRBL:
+			self.sendGrbl("$RST=#\n")
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -815,6 +843,7 @@ class Sender:
 #					if not tosend: tosend = None
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
+				if self.controller==Utils.SMOOTHIE: tosend = tosend.upper()
 				self.serial.write(bytes(tosend))
 #				self.serial.flush()
 

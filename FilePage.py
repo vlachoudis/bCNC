@@ -250,7 +250,21 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		row += 1
-		b= Checkbutton(self,	text=_("Connect on startup"),
+		b = Label(self, text=_("Controller:"), background=Ribbon._BACKGROUND)
+		b.grid(row=row,column=col,sticky=E)
+
+		self.ctrlCombo = tkExtra.Combobox(self, True,
+					background="White",
+					command=self.ctrlChange)
+		self.ctrlCombo.grid(row=row, column=col+1, sticky=EW)
+		tkExtra.Balloon.set(self.ctrlCombo, _("Select controller board"))
+		self.ctrlCombo.fill(sorted(Utils.CONTROLLER.keys()))
+		self.ctrlCombo.set(Utils.controllerName(app.controller))
+		self.addWidget(self.ctrlCombo)
+
+		# ---
+		row += 1
+		b= Checkbutton(self, text=_("Connect on startup"),
 					variable=self.autostart)
 		b.grid(row=row, column=col, columnspan=2, sticky=W)
 		tkExtra.Balloon.set(b, _("Connect to serial on startup of the program"))
@@ -272,8 +286,13 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.grid_columnconfigure(1, weight=1)
 
 	#-----------------------------------------------------------------------
+	def ctrlChange(self):
+		self.app.controller = Utils.CONTROLLER.get(self.ctrlCombo.get(), 0)
+
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Connection
+		Utils.setStr("Connection", "controller",  Utils.controllerName(self.app.controller))
 		Utils.setStr("Connection", "port",        self.portCombo.get())
 		Utils.setStr("Connection", "baud",        self.baudCombo.get())
 		Utils.setBool("Connection", "openserial", self.autostart.get())

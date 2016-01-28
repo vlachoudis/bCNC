@@ -51,6 +51,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 				text=_("Settings"),
 				compound=LEFT,
 				anchor=W,
+				#state=app.controller==Utils.GRBL and NORMAL or DISABLED,
 				command=self.app.viewSettings,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
