@@ -110,7 +110,9 @@ class CNCListbox(Listbox):
 		y = 0
 		for bi,block in enumerate(self.gcode.blocks):
 			if self.filter is not None:
-				if self.filter not in block.name():
+				if self.filter not in block.name() and \
+				   (self.filter=="enable" and not block.enable or
+				    self.filter=="disable" and block.enable):
 					self._blockPos.append(None)
 					continue
 
