@@ -1739,7 +1739,7 @@ class Block(list):
 	# @return the new name with an operation (static)
 	#----------------------------------------------------------------------
 	@staticmethod
-	def operationName(name, operation):
+	def operationName(name, operation, remove=None):
 		pat = OPPAT.match(name)
 		if pat is None:
 			return "%s [%s]"%(name,operation)
@@ -1751,6 +1751,8 @@ class Block(list):
 			else:
 				oid = operation
 				opt = None
+
+			found = False
 			for i,o in enumerate(ops):
 				if ":" in o:
 					o,c = o.split(":")
@@ -1760,22 +1762,29 @@ class Block(list):
 						c = 1
 				else:
 					c = 1
-				if o==oid:
+
+				if remove and o in remove: ops[i]=""
+				if not found and o==oid:
 					if opt is not None or c is None:
 						ops[i] = operation
 					else:
 						ops[i] = "%s:%d"%(oid,c+1)
-					break
-			else:
+					found = True
+
+			# remove all empty
+			ops = filter(lambda x:x!="", ops)
+
+			if not found:
 				ops.append(operation)
+
 			return "%s [%s]"%(name,','.join(ops))
 
 	#----------------------------------------------------------------------
 	# Add a new operation to the block's name
 	#----------------------------------------------------------------------
-	def addOperation(self, operation):
+	def addOperation(self, operation, remove=None):
 		n = self.name()
-		self._name = Block.operationName(self.name(), operation)
+		self._name = Block.operationName(self.name(), operation, remove)
 
 	#----------------------------------------------------------------------
 	def header(self):
@@ -2580,9 +2589,9 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Add an operation code in the name as [drill, cut, in/out...]
 	#----------------------------------------------------------------------
-	def addBlockOperationUndo(self, bid, operation):
+	def addBlockOperationUndo(self, bid, operation, remove=None):
 		undoinfo = (self.setBlockNameUndo, bid, self.blocks[bid]._name)
-		self.blocks[bid].addOperation(operation)
+		self.blocks[bid].addOperation(operation, remove)
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -2997,6 +3006,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def reverse(self, items):
 		undoinfo = []
+		operation = "reverse"
+		remove = ["cut","climb","conventional"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3005,7 +3016,27 @@ class GCode:
 				newpath.append(path)
 			if newpath:
 				block = self.fromPath(newpath)
-				undoinfo.append(self.addBlockOperationUndo(bid, "reverse"))
+				undoinfo.append(self.addBlockOperationUndo(bid, operation, remove))
+				undoinfo.append(self.setBlockLinesUndo(bid, block))
+		self.addUndo(undoinfo)
+
+	#----------------------------------------------------------------------
+	def cutDirection(self, items, direction=1):
+		undoinfo = []
+		if direction==1:
+			operation = "conventional"
+		else:
+			operation = "climb"
+		remove = ["cut","reverse","climb","conventional"]
+		for bid in items:
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
+			newpath = []
+			for path in self.toPath(bid):
+				if path._direction(path.isClosed())==direction: path.invert()
+				newpath.append(path)
+			if newpath:
+				block = self.fromPath(newpath)
+				undoinfo.append(self.addBlockOperationUndo(bid, operation,remove))
 				undoinfo.append(self.setBlockLinesUndo(bid, block))
 		self.addUndo(undoinfo)
 

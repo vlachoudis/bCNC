@@ -353,7 +353,7 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		col += 1
-		row = 0
+		row = 1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["origin"],
 				text=_("Origin"),
@@ -487,6 +487,43 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Mirror vertically Y=-Y selected gcode"))
 		self.addWidget(b)
 
+#		submenu.add_command(label=_("Rotate command"), underline=0,
+#					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
+
+#===============================================================================
+# Route Group
+#===============================================================================
+class RouteGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, N_("Route"), app)
+		self.grid3rows()
+
+		# ---
+		col,row=0,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["conventional"],
+				text=_("Conventional"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CONVENTIONAL", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to conventional for selected gcode blocks"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["climb"],
+				text=_("Climb"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CLIMB", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to climb for selected gcode blocks"))
+		self.addWidget(b)
+
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
@@ -497,11 +534,8 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 				command=lambda s=app:s.insertCommand("REVERSE", True),
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Reverse direction of selected gcode blocks"))
+		tkExtra.Balloon.set(b, _("Reverse cut direction for selected gcode blocks"))
 		self.addWidget(b)
-
-#		submenu.add_command(label=_("Rotate command"), underline=0,
-#					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
 
 #===============================================================================
 # Info Group
@@ -538,6 +572,8 @@ class InfoGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 #===============================================================================
+# Main Frame of Editor
+#===============================================================================
 class EditorFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Editor", app)
@@ -565,5 +601,5 @@ class EditorPage(CNCRibbon.Page):
 	#----------------------------------------------------------------------
 	def register(self):
 		self._register((ClipboardGroup, SelectGroup, EditGroup, MoveGroup,
-				OrderGroup, TransformGroup, InfoGroup),
+				OrderGroup, TransformGroup, RouteGroup, InfoGroup),
 			(EditorFrame,))

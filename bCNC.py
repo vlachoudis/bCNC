@@ -1149,6 +1149,19 @@ class Application(Toplevel,Sender):
 		elif cmd=="UP":
 			self.editor.orderUp()
 
+		# DIR*ECTION
+		elif rexx.abbrev("DIRECTION", cmd, 3):
+			if rexx.abbrev("CLIMB", line[1].upper(), 2):
+				direction = -1
+			elif rexx.abbrev("CONVENTIONAL", line[1].upper(), 2):
+				direction =  1
+			else:
+				tkMessageBox.showerror(_("Direction command error"),
+					_("Invalid direction %s specified"%(line[1])),
+					parent=self)
+				return "break"
+			self.executeOnSelection("DIRECTION", True, direction)
+
 		# DRI*LL [depth] [peck]: perform drilling at all penetrations points
 		elif rexx.abbrev("DRILL",cmd,3):
 			try:    h = float(line[1])
@@ -1539,6 +1552,8 @@ class Application(Toplevel,Sender):
 			sel = self.gcode.cut(items, *args)
 		elif cmd == "CLOSE":
 			sel = self.gcode.close(items)
+		elif cmd == "DIRECTION":
+			self.gcode.cutDirection(items, *args)
 		elif cmd == "DRILL":
 			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":
