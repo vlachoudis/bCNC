@@ -185,21 +185,6 @@ class CheckUpdateDialog(Toplevel):
 		self.destroy()
 
 #-------------------------------------------------------------------------------
-# Find FLUKA version
-#-------------------------------------------------------------------------------
-def flukaVersion(dir):
-	try:
-		f = open(os.path.join(dir,"Version.tag"),"r")
-		str = f.read()
-		m = fluka_pat.match(str)
-		if m:
-			version, released = m.groups()
-		f.close()
-		return version
-	except:
-		return "Unknown"
-
-#-------------------------------------------------------------------------------
 # Check if interval has passed from last check
 #-------------------------------------------------------------------------------
 def need2Check():
