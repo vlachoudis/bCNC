@@ -44,6 +44,9 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 			])
 		self.grid3rows()
 
+		# Disable state for some SMOOTHIE commands
+		state=app.controller==Utils.GRBL and NORMAL or DISABLED,
+
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
@@ -51,12 +54,12 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 				text=_("Settings"),
 				compound=LEFT,
 				anchor=W,
-				#state=app.controller==Utils.GRBL and NORMAL or DISABLED,
+				state=state,
 				command=self.app.viewSettings,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("$$ Display settings of Grbl"))
-		self.addWidget(b)
+		if state == NORMAL: self.addWidget(b)
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
@@ -102,11 +105,12 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 				text=_("Startup"),
 				compound=LEFT,
 				anchor=W,
+				state=state,
 				command=self.app.viewStartup,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("$N Display startup configuration of Grbl"))
-		self.addWidget(b)
+		if state == NORMAL: self.addWidget(b)
 
 		row += 1
 		# FIXME Checkbutton!!!!!
@@ -115,11 +119,12 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 				text=_("Check gcode"),
 				compound=LEFT,
 				anchor=W,
+				state=state,
 				command=self.app.checkGcode,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("$C Enable/Disable checking of gcode"))
-		self.addWidget(b)
+		if state == NORMAL: self.addWidget(b)
 
 		# ---
 		col += 1
