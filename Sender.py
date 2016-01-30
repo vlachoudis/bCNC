@@ -446,11 +446,17 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def hardReset(self):
+		self.busy()
 		if self.serial is not None:
+			if self.controller == Utils.SMOOTHIE:
+				self.serial.write("reset\n")
 			self.openClose()
+			if self.controller == Utils.SMOOTHIE:
+				time.sleep(6)
 		self.openClose()
 		self.stopProbe()
 		self._alarm = False
+		self.notBusy()
 
 	#----------------------------------------------------------------------
 	def softReset(self):
