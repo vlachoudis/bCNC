@@ -500,7 +500,7 @@ class Application(Toplevel,Sender):
 	# Check for updates
 	# ----------------------------------------------------------------------
 	def checkUpdates(self):
-		# Find fluka version
+		# Find bCNC version
 		Updates.CheckUpdateDialog(self, __version__)
 
 	#-----------------------------------------------------------------------
