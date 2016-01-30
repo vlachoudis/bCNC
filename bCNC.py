@@ -57,6 +57,7 @@ Utils.loadConfiguration()
 import rexx
 import tkExtra
 import Unicode
+import Updates
 import bFileDialog
 
 from CNC import WAIT, CNC, GCode
@@ -491,8 +492,16 @@ class Application(Toplevel,Sender):
 	def enable(self):
 		self.configWidgets("state",NORMAL)
 
+	# ---------------------------------------------------------------------
 	def disable(self):
 		self.configWidgets("state",DISABLED)
+
+	# ----------------------------------------------------------------------
+	# Check for updates
+	# ----------------------------------------------------------------------
+	def checkUpdates(self):
+		# Find fluka version
+		Updates.CheckUpdateDialog(self, __version__)
 
 	#-----------------------------------------------------------------------
 	def loadShortcuts(self):
@@ -2187,6 +2196,9 @@ def usage(rc):
 	sys.stdout.write("\n")
 	sys.exit(rc)
 
+
+
+
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 	tk = Tk()
@@ -2292,6 +2304,7 @@ if __name__ == "__main__":
 			_("ERROR: Please install the python pyserial module\n" \
 			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
 			  "Linux: sudo apt-get or yum install python-serial"))
+		if Updates.need2Check(): application.checkUpdates()
 
 	if run:
 		application.run()

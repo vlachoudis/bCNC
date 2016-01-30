@@ -8,12 +8,12 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import os
+import re
 import sys
 #import cgi
 import json
-import threading
 import urllib
-import re
+import threading
 
 from CNC import CNC
 

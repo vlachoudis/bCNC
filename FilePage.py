@@ -146,8 +146,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 				text=_("Updates"),
 				image=Utils.icons["global"],
 				compound=LEFT,
-				state=DISABLED,
-#				command=self.app.checkUpdates,
+				command=self.app.checkUpdates,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
