@@ -64,6 +64,8 @@ import time
 import fnmatch
 from stat import *
 
+if "_" not in dir(): _ = lambda x: x
+
 try:
 	from Tkinter import *
 	import tkMessageBox as messagebox
@@ -270,7 +272,7 @@ class FileDialog(Toplevel):
 			row=0, column=0)
 
 		self.downButton = Label(self.dirframe, text=u"\u25BC",
-			padx=3, pady=1, relief=RAISED)
+				padx=3, pady=1, relief=RAISED)
 		self.downButton.bind("<Button-1>", self.history)
 		self.downButton.grid(row=0, column=99)
 
@@ -457,8 +459,11 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def button(self, b):
-		path = [ i["text"] for i in self.buttons[1:b+1] ]
-		path = os.sep + os.sep.join(path)
+		path = [ x["text"] for x in self.buttons[0:b+1] ]
+		if path[0] == os.sep:
+			path = os.sep + os.sep.join(path[1:])
+		else:
+			path = os.sep.join(path)
 		if path=="": path=os.sep
 		self.fileList.focus_set()
 		self.changePath(path)
@@ -531,6 +536,7 @@ class FileDialog(Toplevel):
 		self._popup.destroy()
 		self._popup = None
 		self.grab_set()
+		self.focus_set()
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -946,6 +952,7 @@ def askdirectory(**options):
 #===============================================================================
 if __name__ == "__main__":
 	import sys
+
 	root = Tk()
 	root.withdraw()
 	initdir = None
