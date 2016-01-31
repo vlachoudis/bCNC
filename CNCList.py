@@ -102,7 +102,6 @@ class CNCListbox(Listbox):
 
 		#sel = self.curselection()
 		items = self.getSelection()
-
 		self.delete(0,END)
 
 		del self._blockPos[:]
@@ -110,11 +109,11 @@ class CNCListbox(Listbox):
 		y = 0
 		for bi,block in enumerate(self.gcode.blocks):
 			if self.filter is not None:
-				if self.filter not in block.name() and \
-				   (self.filter=="enable" and not block.enable or
-				    self.filter=="disable" and block.enable):
-					self._blockPos.append(None)
-					continue
+				if not (self.filter in block.name() or \
+					self.filter=="enable" and block.enable or
+					self.filter=="disable" and not block.enable):
+						self._blockPos.append(None)
+						continue
 
 			self._blockPos.append(y)
 			self.insert(END, block.header())
@@ -240,6 +239,8 @@ class CNCListbox(Listbox):
 		#self.see(ACTIVE)
 		self.app.event_generate("<<Modified>>")
 
+	# ----------------------------------------------------------------------
+	# Clone selected blocks
 	# ----------------------------------------------------------------------
 	def clone(self, event=None):
 		sel = list(map(int,self.curselection()))
@@ -440,7 +441,6 @@ class CNCListbox(Listbox):
 
 		if edit.value is None:
 			# Cancel and leave
-			self.delete(active)
 			active -= 1
 			self.activate(active)
 			self.selection_set(active)
@@ -457,7 +457,8 @@ class CNCListbox(Listbox):
 		# Correct pointers
 		self._items.insert(active, (bid, lid+1))
 		for i in range(bid+1, len(self._blockPos)):
-			self._blockPos[i] += 1	# shift all blocks below by one
+			if self._blockPos[i] is not None:
+				self._blockPos[i] += 1	# shift all blocks below by one
 
 		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
 		self.app.event_generate("<<Modified>>")
@@ -693,11 +694,14 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def selectBlock(self, bid):
 		start = self._blockPos[bid]
-		bid += 1
-		if bid >= len(self._blockPos):
-			end = END
-		else:
-			end = self._blockPos[bid]-1
+		while True:
+			bid += 1
+			if bid >= len(self._blockPos):
+				end = END
+				break
+			elif self._blockPos[bid] is not None:
+				end = self._blockPos[bid]-1
+				break
 		self.selection_set(start,end)
 
 	# ----------------------------------------------------------------------
