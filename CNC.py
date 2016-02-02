@@ -111,6 +111,8 @@ MODAL_MODES = {
 
 ERROR_HANDLING = {}
 
+TOLERANCE = 1e-7
+
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
 #------------------------------------------------------------------------------
@@ -123,9 +125,9 @@ def getValue(name,new,old,default=0.0):
 		except:
 			return default
 
-#==============================================================================
+#===============================================================================
 # Probing class and linear interpolation
-#==============================================================================
+#===============================================================================
 class Probe:
 	def __init__(self):
 		self.init()
@@ -441,9 +443,149 @@ class Probe:
 		#print "segments=",segments
 		return segments
 
-#==============================================================================
+#===============================================================================
+# contains a list of machine points vs position in the gcode
+# calculates the transformation matrix (rotation + translation) needed
+# to adjust the gcode to match the workpiece on the machine
+#===============================================================================
+class Orient:
+	#-----------------------------------------------------------------------
+	def __init__(self):
+		self.markers = []		# list of points pairs (xm, ym, x, y)
+						# xm,ym = machine x,y mpos
+						# x, y  = desired or gcode location
+		self.clear()
+
+	#-----------------------------------------------------------------------
+	def clear(self):
+		del self.markers[:]
+		self.phi = 0.0
+		self.xo  = 0.0
+		self.yo  = 0.0
+
+	#-----------------------------------------------------------------------
+	def add(self, xm, ym, x, y):
+		self.markers.append((xm,ym,x,y))
+
+	#-----------------------------------------------------------------------
+	# Return the rotation angle phi in radians and the offset (xo,yo)
+	# or none on failure
+	# Transformation equation is the following
+	#
+	#    X = R * Xm + T
+	#
+	#    X  = [x y]^t
+	#    Xm = [xm ym]^t
+	#
+	#
+	#       / cosf  -sinf \   / c  -s \
+	#   R = |             | = |       |
+	#       \ sinf   cosf /   \ s   c /
+	#
+	# Assuming that the machine is squared. We could even solve it for
+	# a skewed machine, but then the arcs have to be converted to
+	# ellipses...
+	#
+	#   T = [xo yo]^t
+	#
+	# The overdetermined system (equations) to solve are the following
+	#      c*xm + s*(-ym) + xo = x
+	#      s*xm + c*ym    + yo = y
+	#  <=> c*ym + s*ym         + yo = y
+	#
+	# We are solving for the unknowns c,s,xo,yo
+	#
+	#       /  xm1  -ym1  1 0 \ / c  \    / x1 \
+	#       |  ym1   xm1  0 1 | | s  |    | y1 |
+	#       |  xm2  -ym2  1 0 | | xo |    | x2 |
+	#       |  ym2   xm2  0 1 | \ yo /  = | y2 |
+	#	       ....                   ..
+	#       |  xmn  -ymn  1 0 |           | xn |
+	#       \  ymn   xmn  0 1 /           \ yn /
+	#
+	#                  A          X      = B
+	#
+	# Constraints:
+	#   1. orthogonal system   c^2 + s^2 = 1
+	#   2. no aspect ratio
+	#
+	#-----------------------------------------------------------------------
+	def solve(self):
+		if len(self.markers)< 2: raise Exception("Too few markers")
+		A = []
+		B = []
+		for xm,ym,x,y in self.markers:
+			A.append([xm,-ym,1.0,0.0]);	B.append([x])
+			A.append([ym, xm,0.0,1.0]);	B.append([y])
+
+		# The solution of the overdetermined system A X = B
+		try:
+			c,s,self.xo,self.yo = solveOverDetermined(Matrix(A),Matrix(B))
+		except:
+			raise Exception("Unable to solve system")
+
+		#print "c,s,xo,yo=",c,s,xo,yo
+
+		# Normalize the coefficients
+		r = sqrt(c*c + s*s)	# length should be 1.0
+		if abs(r-1.0) > 0.1:
+			print "**** r=",r,c,s
+			raise Exception("Resulting system is too skew")
+
+#		print "r=",r
+		#xo /= r
+		#yo /= r
+		self.phi = atan2(s, c)
+
+		if abs(self.phi)<TOLERANCE: self.phi = 0.0	# rotation
+
+		return self.phi,self.xo,self.yo
+
+	#-----------------------------------------------------------------------
+	# @return minimum, average and maximum error
+	#-----------------------------------------------------------------------
+	def error(self):
+		# Type errors
+		minerr = 1e9
+		maxerr = 0.0
+		sumerr = 0.0
+
+		c = cos(self.phi)
+		s = sin(self.phi)
+
+		for i,(xm,ym,x,y) in enumerate(self.markers):
+			dx = c*xm - s*ym + self.xo - x
+			dy = s*xm + c*ym + self.yo - y
+			err = sqrt(dx**2 + dy**2)
+			minerr = min(minerr, err)
+			maxerr = max(maxerr, err)
+			sumerr += err
+
+		return minerr, sumerr/float(i), maxerr
+
+	#-----------------------------------------------------------------------
+	# Convert machine to gcode coordinates
+	#-----------------------------------------------------------------------
+	def machine2gcode(self, xm, ym):
+		c = cos(self.phi)
+		s = sin(self.phi)
+		return	c*xm - s*ym + self.xo, \
+			s*xm + c*ym + self.yo
+
+	#-----------------------------------------------------------------------
+	# Convert gcode to machine coordinates
+	#-----------------------------------------------------------------------
+	def gcode2machine(self, x, y):
+		c = cos(self.phi)
+		s = sin(self.phi)
+		x -= self.xo
+		y -= self.yo
+		return	 c*x + s*y, \
+			-s*x + c*y
+
+#===============================================================================
 # Command operations on a CNC
-#==============================================================================
+#===============================================================================
 class CNC:
 	inch           = False
 	lasercutter    = False
@@ -1558,9 +1700,9 @@ class CNC:
 		#print "-"*50
 		return lines
 
-#==============================================================================
+#===============================================================================
 # a class holding tab information and necessary functions to break a segment
-#==============================================================================
+#===============================================================================
 class Tab:
 	def __init__(self, x, y, dx, dy, z):
 		self.x  = x			# x,y limits of a square tab
@@ -1689,7 +1831,7 @@ class Tab:
 			if s._inside is None and self.inside(s.midPoint()):
 				s._inside = self
 
-#==============================================================================
+#===============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
 # - Basic shape from the first rapid move command to the last rapid z raise
@@ -1698,7 +1840,7 @@ class Tab:
 # Inherits from list and contains:
 #	- a list list of gcode lines
 #	- (imported shape)
-#==============================================================================
+#===============================================================================
 class Block(list):
 	def __init__(self, name=None):
 		# Copy constructor
@@ -1892,9 +2034,9 @@ class Block(list):
 		self.ymax = max(self.ymax, max([i[1] for i in xyz]))
 		self.zmax = max(self.zmax, max([i[2] for i in xyz]))
 
-#==============================================================================
+#===============================================================================
 # Gcode file
-#==============================================================================
+#===============================================================================
 class GCode:
 	LOOP_MERGE = False
 
@@ -3626,6 +3768,20 @@ class GCode:
 		return lines,paths
 
 #if __name__=="__main__":
+#	orient = Orient()
+#	orient.add(  0,  0, 100, 50)
+#	orient.add( 50, 10, 150, 60)
+#	orient.add(100, 20, 200, 70)
+#	phi,xo,yo = orient.solve()
+#	print phi,degrees(phi),xo,yo
+#
+#	orient.clear()
+#	orient.add(  0,  0, -50, 100)
+#	orient.add( 50, 10, -60, 150)
+#	orient.add(100, 20, -70, 200)
+#	phi,xo,yo = orient.solve()
+#	print phi,degrees(phi),xo,yo
+#
 #	import pdb; pdb.set_trace()
 #	#print Block.operationName("door","in")
 #	print Block.operationName("door [in:2,cut:0.1]","cut:0.5")

@@ -211,6 +211,7 @@ class Application(Toplevel,Sender):
 		self.control   = Page.frames["Control"]
 		self.editor    = Page.frames["Editor"].editor
 		self.terminal  = Page.frames["Terminal"].terminal
+		self._terminalCount = 0		# count lines inserted in terminal
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -226,6 +227,7 @@ class Application(Toplevel,Sender):
 			self.ribbon.addPage(self.pages[name],side)
 
 		# Restore last page
+		self.pages["Probe"].tabChange()	# Select "Probe:Probe" tab to show the dialogs!
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
 		# Global bindings
@@ -293,12 +295,8 @@ class Application(Toplevel,Sender):
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
 
-		frame = Page.frames["Probe:Probe"]
-		self.bind('<<Probe>>',            frame.probe)
-		frame = Page.frames["Probe:Center"]
-		self.bind('<<ProbeCenter>>',      frame.probe)
 		frame = Page.frames["Probe:Tool"]
-		self.bind('<<ToolCalibrate>>',    frame.probe)
+		self.bind('<<ToolCalibrate>>',    frame.calibrate)
 		self.bind('<<ToolChange>>',       frame.change)
 
 		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
@@ -2059,6 +2057,8 @@ class Application(Toplevel,Sender):
 
 		# Check serial output
 		t = time.time()
+
+		# dump in the terminal what ever you can in less than 0.1s
 		while self.log.qsize()>0 and time.time()-t<0.1:
 			try:
 				io, line = self.log.get_nowait()
@@ -2069,6 +2069,13 @@ class Application(Toplevel,Sender):
 					self.terminal.insert(END, line, "SEND")
 				else:
 					self.terminal.insert(END, line)
+				self._terminalCount += 1
+				if self._terminalCount > 1000:
+					try:
+						self.terminal.delete("0.0","500.0")
+						self._terminalCount = int(text.index(END).split(".")[0])
+					except TclError:
+						pass
 			except Empty:
 				break
 

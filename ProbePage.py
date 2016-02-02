@@ -44,8 +44,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		CNCRibbon.ButtonGroup.__init__(self, master, N_("Probe"), app)
 
 		self.tab = StringVar()
-		self.tab.set("Probe")
-
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelRadiobutton(self.frame,
@@ -57,18 +55,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Simple probing along a direction"))
-
-		# ---
-		col += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["target32"],
-				text=_("Center"),
-				compound=TOP,
-				variable=self.tab,
-				value="Center",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Center probing using a ring"))
 
 		# ---
 		col += 1
@@ -106,42 +92,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Setup probing for manual tool change"))
-
-#===============================================================================
-# Probe Group
-#===============================================================================
-class ProbeGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Probe", app)
-		self.label["background"] = Ribbon._BACKGROUND_GROUP2
-
-		b = Ribbon.LabelButton(self.frame, self, "<<Probe>>",
-				image=Utils.icons["gear32"],
-				text=_("Probe"),
-				compound=TOP,
-				width=48,
-				background=Ribbon._BACKGROUND)
-		b.pack(fill=BOTH, expand=YES)
-		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
-
-#===============================================================================
-# Center Group
-#===============================================================================
-class CenterGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Center", app)
-		self.label["background"] = Ribbon._BACKGROUND_GROUP2
-
-		b = Ribbon.LabelButton(self.frame, self, "<<ProbeCenter>>",
-				image=Utils.icons["gear32"],
-				text=_("Center"),
-				compound=TOP,
-				width=48,
-				background=Ribbon._BACKGROUND)
-		b.pack(fill=BOTH, expand=YES)
-		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Perform a center probe cycle"))
 
 #===============================================================================
 # Autolevel Group
@@ -317,50 +267,82 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
 		# WorkSpace -> Probe
-		lframe = LabelFrame(self, text=_("Probe"), foreground="DarkBlue")
+		lframe = tkExtra.ExLabelFrame(self, text=_("Probe"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
-		Label(lframe, text=_("Probe:")).grid(row=row, column=col, sticky=E)
+		Label(lframe(), text=_("Probe:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self._probeX = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeX = Label(lframe(), foreground="DarkBlue", background="gray95")
 		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeY = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeY = Label(lframe(), foreground="DarkBlue", background="gray95")
 		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeZ = Label(lframe, foreground="DarkBlue", background="gray95")
+		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray95")
 		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		# ---
+		col += 1
+		b = Button(lframe(), #"<<Probe>>",
+				image=Utils.icons["probe32"],
+				text=_("Probe"),
+				compound=TOP,
+				command=self.probe)
+		b.grid(row=row, column=col, rowspan=2, padx=1, sticky=EW+S)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+
+		# ---
 		row,col = row+1,0
-		Label(lframe, text=_("Pos:")).grid(row=row, column=col, sticky=E)
+		Label(lframe(), text=_("Pos:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.probeXdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeXdir = tkExtra.FloatEntry(lframe(), background="White")
 		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(self.probeXdir, _("Probe along X direction"))
 		self.addWidget(self.probeXdir)
 
 		col += 1
-		self.probeYdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeYdir = tkExtra.FloatEntry(lframe(), background="White")
 		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(self.probeYdir, _("Probe along Y direction"))
 		self.addWidget(self.probeYdir)
 
 		col += 1
-		self.probeZdir = tkExtra.FloatEntry(lframe, background="White")
+		self.probeZdir = tkExtra.FloatEntry(lframe(), background="White")
 		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(self.probeZdir, _("Probe along Z direction"))
 		self.addWidget(self.probeZdir)
 
-		lframe.grid_columnconfigure(1,weight=1)
-		lframe.grid_columnconfigure(2,weight=1)
-		lframe.grid_columnconfigure(3,weight=1)
+		lframe().grid_columnconfigure(1,weight=1)
+		lframe().grid_columnconfigure(2,weight=1)
+		lframe().grid_columnconfigure(3,weight=1)
 
+		# WorkSpace -> Probe
+		lframe = tkExtra.ExLabelFrame(self, text=_("Center"), foreground="DarkBlue")
+		lframe.pack(side=TOP, expand=YES, fill=X)
+
+		Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
+		self.diameter = tkExtra.FloatEntry(lframe(), background="White")
+		self.diameter.pack(side=LEFT, expand=YES, fill=X)
+		tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
+		self.addWidget(self.diameter)
+
+		# ---
+		b = Button(lframe(),
+				image=Utils.icons["target32"],
+				text=_("Center"),
+				compound=TOP,
+				command=self.probeCenter)
+		b.pack(side=RIGHT)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Center probing using a ring"))
+
+		self.warn = True
 		self.loadConfig()
 
 	#----------------------------------------------------------------------
@@ -368,12 +350,16 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.probeXdir.set(Utils.getStr("Probe","x"))
 		self.probeYdir.set(Utils.getStr("Probe","y"))
 		self.probeZdir.set(Utils.getStr("Probe","z"))
+		self.diameter.set(Utils.getStr("Probe", "center"))
+		self.warn = Utils.getBool("Warning","probe",self.warn)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "x",    self.probeXdir.get())
 		Utils.setFloat("Probe", "y",    self.probeYdir.get())
 		Utils.setFloat("Probe", "z",    self.probeZdir.get())
+		Utils.setFloat("Probe", "center",  self.diameter.get())
+		Utils.setBool("Warning", "probe", self.warn)
 
 	#----------------------------------------------------------------------
 	def updateProbe(self):
@@ -385,6 +371,16 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			pass
 
 	#----------------------------------------------------------------------
+	def warnMessage(self):
+		if self.warn:
+			ans = tkMessageBox.askquestion(_("Probe connected?"),
+				_("Please verify that the probe is connected.\n\nShow this message again?"),
+				  icon='warning',
+				  parent=self)
+			if ans != 'yes':
+				self.warn = False
+
+	#----------------------------------------------------------------------
 	# Probe one Point
 	#----------------------------------------------------------------------
 	def probe(self, event=None):
@@ -393,6 +389,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				_("Invalid probe feed rate"),
 				parent=self)
 			return
+		self.warnMessage()
+
 		cmd = str(CNC.vars["prbcmd"])
 		ok = False
 		v = self.probeXdir.get()
@@ -416,37 +414,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
 
-#===============================================================================
-# Center Frame
-#===============================================================================
-class ProbeCenterFrame(CNCRibbon.PageFrame):
-	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Center", app)
-
-		# WorkSpace -> Probe
-		lframe = LabelFrame(self, text=_("Center"), foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-		Label(lframe, text=_("Diameter:")).pack(side=LEFT)
-		self.diameter = tkExtra.FloatEntry(lframe, background="White")
-		self.diameter.pack(side=LEFT, fill=X)
-		tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
-		self.addWidget(self.diameter)
-
-		self.loadConfig()
-
 	#----------------------------------------------------------------------
-	def loadConfig(self):
-		self.diameter.set(Utils.getStr("Probe", "center"))
+	# Probe Center
+	#----------------------------------------------------------------------
+	def probeCenter(self, event=None):
+		self.warnMessage()
 
-	#----------------------------------------------------------------------
-	def saveConfig(self):
-		Utils.setFloat("Probe", "center",  self.diameter.get())
-
-	#----------------------------------------------------------------------
-	# Probe one Point
-	#----------------------------------------------------------------------
-	def probe(self, event=None):
 		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
 		try:
 			diameter = abs(float(self.diameter.get()))
@@ -720,7 +693,7 @@ class ToolGroup(CNCRibbon.ButtonGroup):
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ToolCalibrate>>",
-				image=Utils.icons["probe32"],
+				image=Utils.icons["calibrate32"],
 				text=_("Calibrate"),
 				compound=TOP,
 				width=48,
@@ -869,7 +842,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		b = Button(lframe, text=_("Calibrate"),
-				command=self.probe,
+				command=self.calibrate,
 				padx=2, pady=1)
 		b.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(b, _("Perform a calibration probing to determine the height"))
@@ -982,7 +955,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.toolHeight.config(state=state)
 
 	#----------------------------------------------------------------------
-	def probe(self, event=None):
+	def calibrate(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
 
@@ -1062,15 +1035,15 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, ProbeGroup, CenterGroup, AutolevelGroup, ToolGroup),
-			(ProbeCommonFrame, ProbeFrame, ProbeCenterFrame, AutolevelFrame, ToolFrame))
+		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
+			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.set("Probe")
 		self.tabGroup.tab.trace('w', self.tabChange)
 
 	#----------------------------------------------------------------------
-	def tabChange(self, a, b, c):
+	def tabChange(self, a=None, b=None, c=None):
 		tab = self.tabGroup.tab.get()
 		self.master._forgetPage()
 
