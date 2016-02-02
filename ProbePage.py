@@ -7,6 +7,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
+import sys
 try:
 	from Tkinter import *
 	import tkMessageBox
@@ -336,12 +337,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
 		self.addWidget(self.diameter)
 
-		#----------------------------------------------------------------
-		# Align / Orient??
-		#----------------------------------------------------------------
-		lframe = tkExtra.ExLabelFrame(self, text=_("Orient"), foreground="DarkBlue")
-		lframe.pack(side=TOP, expand=YES, fill=X)
-
 		# ---
 		b = Button(lframe(),
 				image=Utils.icons["target32"],
@@ -351,6 +346,26 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		b.pack(side=RIGHT)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Center probing using a ring"))
+
+		#----------------------------------------------------------------
+		# Align / Orient / Square ?
+		#----------------------------------------------------------------
+		lframe = tkExtra.ExLabelFrame(self, text=_("Orient"), foreground="DarkBlue")
+		lframe.pack(side=TOP, expand=YES, fill=X)
+
+		# Just lay some buttons
+		b = Button(lframe(), text="Add",
+				command=lambda s=self: s.event_generate("<<AddMarker>>")
+				)
+		b.pack()
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Add an orientation marker"))
+
+		# Just lay some buttons
+		b = Button(lframe(), text="Solve", command = self.orientSolve)
+		b.pack()
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Add an orientation marker"))
 
 		#----------------------------------------------------------------
 		self.warn = True
@@ -458,6 +473,14 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("g53 g0 y[0.5*(tmp+prby)]")
 		lines.append("g90")
 		self.app.run(lines=lines)
+
+	#-----------------------------------------------------------------------
+	def orientSolve(self, event=None):
+		try:
+			phi, xo, yo = self.app.gcode.orient.solve()
+			print phi, xo, yo
+		except:
+			print sys.exc_info()
 
 #===============================================================================
 # Autolevel Frame

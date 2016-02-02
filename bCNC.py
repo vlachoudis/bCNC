@@ -294,6 +294,7 @@ class Application(Toplevel,Sender):
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
+		self.bind("<<AddMarker>>",	self.canvas.setActionAddMarker)
 
 		frame = Page.frames["Probe:Tool"]
 		self.bind('<<ToolCalibrate>>',    frame.calibrate)
@@ -2073,7 +2074,7 @@ class Application(Toplevel,Sender):
 				if self._terminalCount > 1000:
 					try:
 						self.terminal.delete("0.0","500.0")
-						self._terminalCount = int(text.index(END).split(".")[0])
+						self._terminalCount = int(self._terminal.index(END).split(".")[0])
 					except TclError:
 						pass
 			except Empty:

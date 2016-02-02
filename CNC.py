@@ -2047,6 +2047,7 @@ class GCode:
 		self.footer   = ""
 		self.undoredo = undo.UndoRedo()
 		self.probe    = Probe()
+		self.orient   = Orient()
 		self.vars     = {}		# local variables
 		self.init()
 

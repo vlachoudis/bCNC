@@ -78,6 +78,7 @@ ACTION_GANTRY        = 22
 ACTION_SET_POS       = 23
 
 ACTION_RULER         = 30
+ACTION_ADDMARKER     = 31
 
 #ACTION_ADDTAB        = 40
 
@@ -116,6 +117,7 @@ MOUSE_CURSOR = {
 	ACTION_SET_POS       : "diamond_cross",
 
 	ACTION_RULER         : "tcross",
+	ACTION_ADDMARKER     : "tcross",
 
 #	ACTION_EDIT          : "pencil",
 }
@@ -239,6 +241,12 @@ class CNCCanvas(Canvas):
 		self.zoom = 1.0
 
 	# ----------------------------------------------------------------------
+	# Set status message
+	# ----------------------------------------------------------------------
+	def status(self, msg):
+		self.event_generate("<<Status>>", data=msg.encode("utf-8"))
+
+	# ----------------------------------------------------------------------
 	# Update scrollbars
 	# ----------------------------------------------------------------------
 	def _updateScrollBars(self):
@@ -267,79 +275,100 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def setActionSelect(self, event=None):
 		self.setAction(ACTION_SELECT)
-		self.event_generate("<<Status>>", data=_("Select objects with mouse").encode("utf-8"))
+		self.status(_("Select objects with mouse"))
 
 	# ----------------------------------------------------------------------
 	def setActionPan(self, event=None):
 		self.setAction(ACTION_PAN)
-		self.event_generate("<<Status>>",data=_("Pan viewport").encode("utf-8"))
+		self.status(_("Pan viewport"))
 
 	# ----------------------------------------------------------------------
 	def setActionOrigin(self, event=None):
 		self.setAction(ACTION_ORIGIN)
-		self.event_generate("<<Status>>",data=_("Click to set the origin (zero)").encode("utf-8"))
+		self.status(_("Click to set the origin (zero)"))
 
 	# ----------------------------------------------------------------------
 	def setActionMove(self, event=None):
 		self.setAction(ACTION_MOVE)
-		self.event_generate("<<Status>>",data=_("Move graphically objects").encode("utf-8"))
+		self.status(_("Move graphically objects"))
 
 	# ----------------------------------------------------------------------
 	def setActionGantry(self, event=None):
 		self.setAction(ACTION_GANTRY)
 		self.config(background="seashell")
-		self.event_generate("<<Status>>",data=_("Move CNC gantry to mouse location").encode("utf-8"))
+		self.status(_("Move CNC gantry to mouse location"))
 
 	# ----------------------------------------------------------------------
 	def setActionSetPos(self, event=None):
 		self.setAction(ACTION_SET_POS)
 		self.config(background="ivory")
-		self.event_generate("<<Status>>",
-			data=_("Set mouse location as current machine position (X/Y only)").encode("utf-8"))
+		self.status(_("Set mouse location as current machine position (X/Y only)"))
 
 	# ----------------------------------------------------------------------
 	def setActionRuler(self, event=None):
 		self.setAction(ACTION_RULER)
-		self.event_generate("<<Status>>",
-			data=_("Drag a ruler to measure distances").encode("utf-8"))
+		self.status(_("Drag a ruler to measure distances"))
+
+	# ----------------------------------------------------------------------
+	def setActionAddMarker(self, event=None):
+		self.setAction(ACTION_ADDMARKER)
+		self.status(_("Add an orientation marker"))
 
 #	# ----------------------------------------------------------------------
 #	def setActionAddTab(self, event=None):
 #		self.setAction(ACTION_ADDTAB)
-#		self.event_generate("<<Status>>",data=_("Draw a square tab").encode("utf-8"))
+#		self.status(_("Draw a square tab"))
 
 	# ----------------------------------------------------------------------
-	def actionGantry(self, x, y):
+	# Convert canvase x,y coordinates to machine space
+	# ----------------------------------------------------------------------
+	def canvas2Machine(self, x, y):
 		u = self.canvasx(x) / self.zoom
 		v = self.canvasy(y) / self.zoom
 
 		if self.view == VIEW_XY:
-			self.app.goto(u,-v)
+			return u, -v, None
 
 		elif self.view == VIEW_XZ:
-			self.app.goto(u,None,-v)
+			return u, None, -v
 
 		elif self.view == VIEW_YZ:
-			self.app.goto(None,u,-v)
+			return None, u, -v
 
 		elif self.view == VIEW_ISO1:
-			self.app.goto(0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60))
+			return 0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60), None
 
 		elif self.view == VIEW_ISO2:
-			self.app.goto(0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60))
+			return 0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60), None
 
 		elif self.view == VIEW_ISO3:
-			self.app.goto(-0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60))
+			return -0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60), None
+
+	# ----------------------------------------------------------------------
+	# Move gantry to mouse location
+	# ----------------------------------------------------------------------
+	def actionGantry(self, x, y):
+		u,v,w = self.canvas2Machine(x,y)
+		self.app.goto(u,v,w)
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
+	# Set the work coordinates to mouse location
+	# ----------------------------------------------------------------------
 	def actionSetPos(self, x, y):
-		u = self.canvasx(x) / self.zoom
-		v = self.canvasy(y) / self.zoom
+		u,v,w = self.canvas2Machine(x,y)
+		self.app.dro.wcsSet(u,v,w)
+		self.setAction(ACTION_SELECT)
 
-		if self.view == VIEW_XY:
-			self.app.dro.wcsSet(u,-v, None)
-
+	# ----------------------------------------------------------------------
+	# Add an orientation marker at mouse location
+	# ----------------------------------------------------------------------
+	def actionAddMarker(self, x, y):
+		u,v,w = self.canvas2Machine(x,y)
+		if u is None or v is None:
+			self.status(_("ERROR: Cannot set X-Y marker  with the current view"))
+			return
+		self.gcode.orient.add(CNC.vars["mx"], CNC.vars["my"], u, v)
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
@@ -406,9 +435,14 @@ class CNCCanvas(Canvas):
 		# Move gantry to position
 		elif self.action == ACTION_GANTRY:
 			self.actionGantry(event.x,event.y)
+
 		# Move gantry to position
 		elif self.action == ACTION_SET_POS:
 			self.actionSetPos(event.x,event.y)
+
+		# Add orientation marker
+		elif self.action == ACTION_ADDMARKER:
+			self.actionAddMarker(event.x,event.y)
 
 		# Set coordinate origin
 		elif self.action == ACTION_ORIGIN:
@@ -478,10 +512,9 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.event_generate("<<Status>>",
-				data=(_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
+			self.status(_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
 					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
-					math.degrees(math.atan2(dy,dx)))).encode("utf-8"))
+					math.degrees(math.atan2(dy,dx))))
 
 		elif self._mouseAction == ACTION_PAN:
 			self.pan(event)
@@ -556,8 +589,7 @@ class CNCCanvas(Canvas):
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.event_generate("<<Status>>",
-				data=(_("Move by %g, %g, %g")%(dx,dy,dz)).encode("utf-8"))
+			self.status(_("Move by %g, %g, %g")%(dx,dy,dz))
 			self.app.insertCommand(("move %g %g %g")%(dx,dy,dz),True)
 
 		elif self._mouseAction == ACTION_PAN:
