@@ -213,7 +213,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		frame.grid_columnconfigure(1,weight=1)
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	def tloSet(self, event=None):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
@@ -222,7 +222,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	@staticmethod
 	def probeUpdate():
 		try:
@@ -232,7 +232,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		except:
 			return True
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	def updateTlo(self):
 		try:
 			if self.focus_get() is not ProbeCommonFrame.tlo:
@@ -243,13 +243,13 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "feed", ProbeCommonFrame.probeFeed.get())
 		Utils.setFloat("Probe", "tlo",  ProbeCommonFrame.tlo.get())
 		Utils.setFloat("Probe", "cmd",  ProbeCommonFrame.probeCmd.get().split()[0])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe","feed"))
 		ProbeCommonFrame.tlo.set(      Utils.getFloat("Probe","tlo"))
@@ -266,7 +266,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
-		# WorkSpace -> Probe
+		#----------------------------------------------------------------
+		# Single probe
+		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Probe"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
@@ -322,7 +324,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lframe().grid_columnconfigure(2,weight=1)
 		lframe().grid_columnconfigure(3,weight=1)
 
-		# WorkSpace -> Probe
+		#----------------------------------------------------------------
+		# Center probing
+		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Center"), foreground="DarkBlue")
 		lframe.pack(side=TOP, expand=YES, fill=X)
 
@@ -331,6 +335,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.diameter.pack(side=LEFT, expand=YES, fill=X)
 		tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
 		self.addWidget(self.diameter)
+
+		#----------------------------------------------------------------
+		# Align / Orient??
+		#----------------------------------------------------------------
+		lframe = tkExtra.ExLabelFrame(self, text=_("Orient"), foreground="DarkBlue")
+		lframe.pack(side=TOP, expand=YES, fill=X)
 
 		# ---
 		b = Button(lframe(),
@@ -342,10 +352,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Center probing using a ring"))
 
+		#----------------------------------------------------------------
 		self.warn = True
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.probeXdir.set(Utils.getStr("Probe","x"))
 		self.probeYdir.set(Utils.getStr("Probe","y"))
@@ -353,7 +364,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.diameter.set(Utils.getStr("Probe", "center"))
 		self.warn = Utils.getBool("Warning","probe",self.warn)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "x",    self.probeXdir.get())
 		Utils.setFloat("Probe", "y",    self.probeYdir.get())
@@ -361,7 +372,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "center",  self.diameter.get())
 		Utils.setBool("Warning", "probe", self.warn)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateProbe(self):
 		try:
 			self._probeX["text"] = CNC.vars.get("prbx")
@@ -370,7 +381,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def warnMessage(self):
 		if self.warn:
 			ans = tkMessageBox.askquestion(_("Probe connected?"),
@@ -380,9 +391,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			if ans != 'yes':
 				self.warn = False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe one Point
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def probe(self, event=None):
 		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror(_("Probe Error"),
@@ -414,9 +425,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe Center
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def probeCenter(self, event=None):
 		self.warnMessage()
 
@@ -556,7 +567,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setValues(self):
 		probe = self.app.gcode.probe
 		self.probeXmin.set(str(probe.xmin))
@@ -574,7 +585,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeZmin.set(str(probe.zmin))
 		self.probeZmax.set(str(probe.zmax))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "xmin", self.probeXmin.get())
 		Utils.setFloat("Probe", "xmax", self.probeXmax.get())
@@ -585,7 +596,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "zmin", self.probeZmin.get())
 		Utils.setFloat("Probe", "zmax", self.probeZmax.get())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.probeXmin.set(Utils.getFloat("Probe","xmin"))
 		self.probeXmax.set(Utils.getFloat("Probe","xmax"))
@@ -601,7 +612,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeYbins.insert(0,max(2,Utils.getInt("Probe","yn",5)))
 		self.change(False)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getMargins(self, event=None):
 		self.probeXmin.set(str(CNC.vars["xmin"]))
 		self.probeXmax.set(str(CNC.vars["xmax"]))
@@ -609,7 +620,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeYmax.set(str(CNC.vars["ymax"]))
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def change(self, verbose=True):
 		probe = self.app.gcode.probe
 		error = False
@@ -658,26 +669,26 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		return error
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def draw(self):
 		if not self.change():
 			self.event_generate("<<DrawProbe>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setZero(self, event=None):
 		x = CNC.vars["wx"]
 		y = CNC.vars["wy"]
 		self.app.gcode.probe.setZero(x,y)
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def clear(self, event=None):
 		self.app.gcode.probe.clear()
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe an X-Y area
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def scan(self, event=None):
 		if self.change(): return
 		self.event_generate("<<DrawProbe>>")
@@ -854,7 +865,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
 		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
@@ -870,7 +881,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "toolheight",  self.toolHeight.get())
 		Utils.setFloat("Probe", "toolmz",      CNC.vars.get("toolmz",0.))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.changeX.set(Utils.getFloat("Probe","toolchangex"))
 		self.changeY.set(Utils.getFloat("Probe","toolchangey"))
@@ -887,7 +898,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		CNC.vars["toolmz"] = Utils.getFloat("Probe","toolmz")
 		self.set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def set(self):
 		self.policyChange()
 		self.waitChange()
@@ -927,34 +938,34 @@ class ToolFrame(CNCRibbon.PageFrame):
 					parent=self)
 			return
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def policyChange(self):
 		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def waitChange(self):
 		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getChange(self):
 		self.changeX.set(CNC.vars["mx"])
 		self.changeY.set(CNC.vars["my"])
 		self.changeZ.set(CNC.vars["mz"])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getProbe(self):
 		self.probeX.set(CNC.vars["mx"])
 		self.probeY.set(CNC.vars["my"])
 		self.probeZ.set(CNC.vars["mz"])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateTool(self):
 		state = self.toolHeight.cget("state")
 		self.toolHeight.config(state=NORMAL)
 		self.toolHeight.set(CNC.vars["toolheight"])
 		self.toolHeight.config(state=state)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def calibrate(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
@@ -977,9 +988,9 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lines.append("g90")
 		self.app.run(lines=lines)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# FIXME should be replaced with the CNC.tolChange()
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def change(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
@@ -1031,9 +1042,9 @@ class ProbePage(CNCRibbon.Page):
 	_name_  = "Probe"
 	_icon_  = "measure"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def register(self):
 		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
 			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, ToolFrame))
@@ -1042,7 +1053,7 @@ class ProbePage(CNCRibbon.Page):
 		self.tabGroup.tab.set("Probe")
 		self.tabGroup.tab.trace('w', self.tabChange)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def tabChange(self, a=None, b=None, c=None):
 		tab = self.tabGroup.tab.get()
 		self.master._forgetPage()
