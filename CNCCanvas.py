@@ -369,6 +369,8 @@ class CNCCanvas(Canvas):
 			self.status(_("ERROR: Cannot set X-Y marker  with the current view"))
 			return
 		self.gcode.orient.add(CNC.vars["mx"], CNC.vars["my"], u, v)
+		self.event_generate("<<OrientUpdate>>") #, data=len(self.gcode.orient.markers)-1)
+		self.drawOrient()
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
@@ -574,6 +576,10 @@ class CNCCanvas(Canvas):
 						items.append(self._items[i])
 						#i = None
 					except KeyError:
+						tags = self.gettags(i)
+						if "Orient" in tags:
+							self.selectMarker(i)
+							return
 						#i = self.find_below(i)
 						pass
 			if not items: return
@@ -899,6 +905,18 @@ class CNCCanvas(Canvas):
 		self.drawMargin()
 
 	#----------------------------------------------------------------------
+	# Select orientation marker
+	#----------------------------------------------------------------------
+	def selectMarker(self, item):
+		# find marker
+		for i,paths in enumerate(self.gcode.orient.paths):
+			if item in paths:
+				self.event_generate("<<SelectMarker>>",
+					data=i)
+				print "Marker found", i
+				return
+
+	#----------------------------------------------------------------------
 	# Display graphical information on selected blocks
 	#----------------------------------------------------------------------
 	def showInfo(self, blocks):
@@ -973,6 +991,7 @@ class CNCCanvas(Canvas):
 		self.drawMargin()
 		self.drawWorkarea()
 		self.drawProbe()
+		self.drawOrient()
 		self.drawAxes()
 #		self.tag_lower(self._workarea)
 		if self._gantry1: self.tag_raise(self._gantry1)
@@ -1164,6 +1183,59 @@ class CNCCanvas(Canvas):
 							tag="Grid",
 							dash=(1,3))
 				self.tag_lower(item)
+
+	#----------------------------------------------------------------------
+	# Display orientation markers
+	#----------------------------------------------------------------------
+	def drawOrient(self, event=None):
+		self.delete("Orient")
+		#if not self.draw_probe: return
+		if self.view in (VIEW_XZ, VIEW_YZ): return
+
+		# Draw orient markers
+		if CNC.inch:
+			w = 0.1
+		else:
+			w = 2.5
+
+		self.gcode.orient.clearPaths()
+		for xm,ym,x,y in self.gcode.orient.markers:
+			paths = []
+			# Machine position (cross)
+			item = self.create_line(self.plotCoords([(xm-w,ym,0.),(xm+w,ym,0.)]),
+						tag="Orient",
+						fill="Green")
+			self.tag_lower(item)
+			paths.append(item)
+
+			item = self.create_line(self.plotCoords([(xm,ym-w,0.),(xm,ym+w,0.)]),
+						tag="Orient",
+						fill="Green")
+			self.tag_lower(item)
+			paths.append(item)
+
+			# GCode position (cross)
+			item = self.create_line(self.plotCoords([(x-w,y,0.),(x+w,y,0.)]),
+						tag="Orient",
+						fill="Red")
+			self.tag_lower(item)
+			paths.append(item)
+
+			item = self.create_line(self.plotCoords([(x,y-w,0.),(x,y+w,0.)]),
+						tag="Orient",
+						fill="Red")
+			self.tag_lower(item)
+			paths.append(item)
+
+			# Connecting line
+			item = self.create_line(self.plotCoords([(xm,ym,0.),(x,y,0.)]),
+						tag="Orient",
+						fill="Blue",
+						dash=(1,1))
+			self.tag_lower(item)
+			paths.append(item)
+
+			self.gcode.orient.addPath(paths)
 
 	#----------------------------------------------------------------------
 	# Display probe

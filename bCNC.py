@@ -230,6 +230,10 @@ class Application(Toplevel,Sender):
 		self.pages["Probe"].tabChange()	# Select "Probe:Probe" tab to show the dialogs!
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
+		probe = Page.frames["Probe:Probe"]
+		tkExtra.bindEventData(self, "<<SelectMarker>>", lambda e,f=probe: f.selectMarker(int(e.data)))
+		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
+
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
 		self.bind('<<Redo>>',           self.redo)
@@ -267,8 +271,8 @@ class Application(Toplevel,Sender):
 		self.bind('<<Pause>>',          self.pause)
 #		self.bind('<<TabAdded>>',       self.tabAdded)
 
-		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
-		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
+		tkExtra.bindEventData(self, "<<Status>>",       self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",       self.updateCanvasCoords)
 
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
@@ -308,6 +312,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)
 		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
+		self.bind('<<DrawOrient>>',	self.canvas.drawOrient)
 
 		self.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.bind("<<Modified>>",	self.drawAfter)

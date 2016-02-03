@@ -353,19 +353,82 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lframe = tkExtra.ExLabelFrame(self, text=_("Orient"), foreground="DarkBlue")
 		lframe.pack(side=TOP, expand=YES, fill=X)
 
-		# Just lay some buttons
-		b = Button(lframe(), text="Add",
-				command=lambda s=self: s.event_generate("<<AddMarker>>")
-				)
-		b.pack()
+		# ---
+		row, col = 0,0
+
+		Label(lframe(), text=_("Markers:")).grid(row=row, column=col, sticky=E)
+		col += 1
+
+		self.scale_orient = Scale(lframe(),
+					from_=1, to_=1,
+					orient=HORIZONTAL,
+					showvalue=1,
+					command=self.changeMarker)
+		self.scale_orient.grid(row=row, column=col, columnspan=3, sticky=EW)
+		tkExtra.Balloon.set(self.scale_orient, _("Select orientation marker"))
+
+		# ----
+		row += 1
+		col = 0
+		Label(lframe(), text="Gcode:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.x_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.x_orient.grid(row=row, column=col, sticky=EW)
+		self.x_orient.bind("<FocusOut>", self.orientUpdate)
+		self.x_orient.bind("<Return>",   self.orientUpdate)
+		self.x_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.x_orient, _("GCode X coordinate of orientation point"))
+
+		col += 1
+		self.y_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.y_orient.grid(row=row, column=col, sticky=EW)
+		self.y_orient.bind("<FocusOut>", self.orientUpdate)
+		self.y_orient.bind("<Return>",   self.orientUpdate)
+		self.y_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.y_orient, _("GCode Y coordinate of orientation point"))
+
+		# Add new point
+		col += 1
+		b = Button(lframe(), text=_("Add"),
+				image=Utils.icons["add"],
+				compound=LEFT,
+				command=lambda s=self: s.event_generate("<<AddMarker>>"))
+		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Add an orientation marker"))
 
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text="MPos:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.xm_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.xm_orient.grid(row=row, column=col, sticky=EW)
+		self.xm_orient.bind("<FocusOut>", self.orientUpdate)
+		self.xm_orient.bind("<Return>",   self.orientUpdate)
+		self.xm_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.xm_orient, _("Machine X coordinate of orientation point"))
+
+		col += 1
+		self.ym_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.ym_orient.grid(row=row, column=col, sticky=EW)
+		self.ym_orient.bind("<FocusOut>", self.orientUpdate)
+		self.ym_orient.bind("<Return>",   self.orientUpdate)
+		self.ym_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.ym_orient, _("Machine Y coordinate of orientation point"))
+
 		# Just lay some buttons
-		b = Button(lframe(), text="Solve", command = self.orientSolve)
-		b.pack()
+		col += 1
+		b = Button(lframe(), text=_("Solve"),
+				image=Utils.icons["gear"],
+				compound=LEFT,
+				command = self.orientSolve)
+		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Add an orientation marker"))
+
+		lframe().grid_columnconfigure(1, weight=1)
+		lframe().grid_columnconfigure(2, weight=1)
 
 		#----------------------------------------------------------------
 		self.warn = True
@@ -481,6 +544,40 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			print phi, xo, yo
 		except:
 			print sys.exc_info()
+
+	#-----------------------------------------------------------------------
+	def orientUpdate(self, event=None):
+		marker = self.scale_orient.get()-1
+		xm,ym,x,y = self.app.gcode.orient.markers[marker]
+		try:    x = float(self.x_orient.get())
+		except: pass
+		try:    y = float(self.y_orient.get())
+		except: pass
+		try:    xm = float(self.xm_orient.get())
+		except: pass
+		try:    ym = float(self.ym_orient.get())
+		except: pass
+		self.app.gcode.orient.markers[marker] = xm,ym,x,y
+
+		self.changeMarker(marker+1)
+		self.scale_orient.config(to_=len(self.app.gcode.orient.markers))
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
+	def changeMarker(self, marker):
+		marker = int(marker) - 1
+		if marker >= len(self.app.gcode.orient.markers): return
+
+		xm,ym,x,y = self.app.gcode.orient.markers[marker]
+		d = CNC.digits
+		self.x_orient.set("%*f"%(d,x))
+		self.y_orient.set("%*f"%(d,y))
+		self.xm_orient.set("%*f"%(d,xm))
+		self.ym_orient.set("%*f"%(d,ym))
+
+	#-----------------------------------------------------------------------
+	def selectMarker(self, marker):
+		self.scale_orient.set(marker+1)
 
 #===============================================================================
 # Autolevel Frame

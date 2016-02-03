@@ -460,9 +460,9 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def softReset(self):
-		#if self.serial:
+		if self.serial:
 		#	if self.controller == Utils.GRBL:
-		self.serial.write(b"\030")
+				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
 		#		self.serial.write("reset\n")
 		self.stopProbe()

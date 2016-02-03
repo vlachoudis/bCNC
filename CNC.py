@@ -454,18 +454,28 @@ class Orient:
 		self.markers = []		# list of points pairs (xm, ym, x, y)
 						# xm,ym = machine x,y mpos
 						# x, y  = desired or gcode location
+		self.paths   = []
 		self.clear()
 
 	#-----------------------------------------------------------------------
 	def clear(self):
+		self.clearPaths()
 		del self.markers[:]
 		self.phi = 0.0
 		self.xo  = 0.0
 		self.yo  = 0.0
 
 	#-----------------------------------------------------------------------
+	def clearPaths(self):
+		del self.paths[:]
+
+	#-----------------------------------------------------------------------
 	def add(self, xm, ym, x, y):
 		self.markers.append((xm,ym,x,y))
+
+	#-----------------------------------------------------------------------
+	def addPath(self, path):
+		self.paths.append(path)
 
 	#-----------------------------------------------------------------------
 	# Return the rotation angle phi in radians and the offset (xo,yo)
