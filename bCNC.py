@@ -1974,6 +1974,14 @@ class Application(Toplevel,Sender):
 		self.selectionChange()
 		CNC.vars["errline"] = ""
 
+		# the buffer of the machine should be empty?
+		self.initRun()
+		self.canvas.clearSelection()
+		self._runLines = sys.maxint	# temporary
+		self._gcount   = 0		# count executed lines
+		self._selectI  = 0		# last selection pointer in items
+		self._paths    = None		# temporary
+
 		if lines is None:
 			#if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
 			#	tkMessageBox.showerror(_("Probe is not zeroed"),
@@ -2001,12 +2009,12 @@ class Application(Toplevel,Sender):
 			lines = CNC.compile(lines)
 			paths = None
 
-		self.initRun()
-		# the buffer of the machine should be empty?
-		self.canvas.clearSelection()
+#		# the buffer of the machine should be empty?
+#		self.initRun()
+#		self.canvas.clearSelection()
+#		self._gcount   = 0		# count executed lines
+#		self._selectI  = 0		# last selection pointer in items
 		self._runLines = len(lines) + 1	# plus the wait
-		self._gcount   = 0		# count executed lines
-		self._selectI  = 0		# last selection pointer in items
 		self._paths    = paths		# drawing paths for canvas
 
 		self.setStatus(_("Running..."))
@@ -2073,7 +2081,7 @@ class Application(Toplevel,Sender):
 				if self._terminalCount > 1000:
 					try:
 						self.terminal.delete("0.0","500.0")
-						self._terminalCount = int(text.index(END).split(".")[0])
+						self._terminalCount = int(self.terminal.index(END).split(".")[0])
 					except TclError:
 						pass
 			except Empty:

@@ -924,11 +924,6 @@ class CNC:
 		# strip all spaces
 		line = line.replace(" ","")
 
-		# break line into tokens
-		#cmd = []
-		#for ch in line:
-		#
-
 		# Insert space before each command
 		line = CMDPAT.sub(r" \1",line).lstrip()
 		return line.split()
@@ -986,11 +981,11 @@ class CNC:
 			CNC.comment = line[1:].strip()
 			return None
 
-		out = []		# output list of commands
-		braket    = 0		# bracket count []
-		paren     = 0		# parenthesis count ()
-		expr      = ""		# expression string
-		cmd       = ""		# cmd string
+		out    = []		# output list of commands
+		braket = 0		# bracket count []
+		paren  = 0		# parenthesis count ()
+		expr   = ""		# expression string
+		cmd    = ""		# cmd string
 		inComment = False	# inside inComment
 		for i,ch in enumerate(line):
 			if ch == '(':
@@ -3675,8 +3670,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def compile(self):
 		autolevel = not self.probe.isEmpty()
-		lines  = []
-		paths  = []
+		lines = []
+		paths = []
 		self.initPath()
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
