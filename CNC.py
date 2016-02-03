@@ -478,6 +478,14 @@ class Orient:
 		self.paths.append(path)
 
 	#-----------------------------------------------------------------------
+	def __getitem__(self, i):
+		return self.markers[i]
+
+	#-----------------------------------------------------------------------
+	def __len__(self):
+		return len(self.markers)
+
+	#-----------------------------------------------------------------------
 	# Return the rotation angle phi in radians and the offset (xo,yo)
 	# or none on failure
 	# Transformation equation is the following

@@ -8,6 +8,8 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
+import math
+
 try:
 	from Tkinter import *
 	import tkMessageBox
@@ -277,15 +279,15 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Label(lframe(), text=_("Probe:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self._probeX = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeX = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeY = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeY = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		# ---
@@ -360,12 +362,27 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		col += 1
 
 		self.scale_orient = Scale(lframe(),
-					from_=1, to_=1,
+					from_=0, to_=0,
 					orient=HORIZONTAL,
 					showvalue=1,
+					state=DISABLED,
 					command=self.changeMarker)
-		self.scale_orient.grid(row=row, column=col, columnspan=3, sticky=EW)
+		self.scale_orient.grid(row=row, column=col, columnspan=2, sticky=EW)
 		tkExtra.Balloon.set(self.scale_orient, _("Select orientation marker"))
+
+		# Add new point
+		col += 2
+		b = Button(lframe(), text=_("Add"),
+				image=Utils.icons["add"],
+				compound=LEFT,
+				command=lambda s=self: s.event_generate("<<AddMarker>>"),
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, column=col, sticky=NSEW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Add an orientation marker. " \
+				"Jog first the machine to the marker position " \
+				"and then click on canvas to add the marker."))
 
 		# ----
 		row += 1
@@ -387,19 +404,22 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.y_orient.bind("<KP_Enter>", self.orientUpdate)
 		tkExtra.Balloon.set(self.y_orient, _("GCode Y coordinate of orientation point"))
 
-		# Add new point
+		# Buttons
 		col += 1
-		b = Button(lframe(), text=_("Add"),
-				image=Utils.icons["add"],
+		b = Button(lframe(), text=_("Delete"),
+				image=Utils.icons["x"],
 				compound=LEFT,
-				command=lambda s=self: s.event_generate("<<AddMarker>>"))
+				command = self.orientSolve,
+				padx = 1,
+				pady = 1)
 		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Add an orientation marker"))
+		tkExtra.Balloon.set(b, _("Delete current marker"))
 
 		# ---
 		row += 1
 		col = 0
+
 		Label(lframe(), text="MPos:").grid(row=row, column=col, sticky=E)
 		col += 1
 		self.xm_orient = tkExtra.FloatEntry(lframe(), background="White")
@@ -417,15 +437,47 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.ym_orient.bind("<KP_Enter>", self.orientUpdate)
 		tkExtra.Balloon.set(self.ym_orient, _("Machine Y coordinate of orientation point"))
 
-		# Just lay some buttons
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Angle:")).grid(row=row, column=col, sticky=E)
+
 		col += 1
-		b = Button(lframe(), text=_("Solve"),
-				image=Utils.icons["gear"],
+		self.angle_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.angle_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
+
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Offset:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.xo_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.xo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+
+		col += 1
+		self.yo_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.yo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Error:")).grid(row=row, column=col, sticky=E)
+		col += 1
+		self.err_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.err_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
+
+		# Buttons
+		col += 2
+		b = Button(lframe(), text=_("Clear"),
+				image=Utils.icons["clear"],
 				compound=LEFT,
-				command = self.orientSolve)
+				command = self.orientClear,
+				padx = 1,
+				pady = 1)
 		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Add an orientation marker"))
+		tkExtra.Balloon.set(b, _("Delete all markers"))
 
 		lframe().grid_columnconfigure(1, weight=1)
 		lframe().grid_columnconfigure(2, weight=1)
@@ -538,17 +590,38 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=lines)
 
 	#-----------------------------------------------------------------------
+	# Solve the system and update fields
+	#-----------------------------------------------------------------------
 	def orientSolve(self, event=None):
 		try:
 			phi, xo, yo = self.app.gcode.orient.solve()
-			print phi, xo, yo
-		except:
-			print sys.exc_info()
+			self.angle_orient["text"]="%*f"%(CNC.digits, math.degrees(phi))
+			self.xo_orient["text"]="%*f"%(CNC.digits, xo)
+			self.yo_orient["text"]="%*f"%(CNC.digits, yo)
 
+			minerr, meanerr, maxerr = self.app.gcode.orient.error()
+			self.err_orient["text"] = "Avg:%*f  Max:%*f  Min:%*f"%\
+				(CNC.digits, meanerr, CNC.digits, maxerr, CNC.digits, minerr)
+
+		except:
+			self.angle_orient["text"] = sys.exc_info()[1]
+			self.xo_orient["text"]    = ""
+			self.yo_orient["text"]    = ""
+			self.err_orient["text"]   = ""
+
+	#-----------------------------------------------------------------------
+	# Clear all markers
+	#-----------------------------------------------------------------------
+	def orientClear(self, event=None):
+		self.app.gcode.orient.clear()
+		self.scale_orient.config(state=DISABLED, from_=0, to_=0)
+
+	#-----------------------------------------------------------------------
+	# Update orient with the current marker
 	#-----------------------------------------------------------------------
 	def orientUpdate(self, event=None):
 		marker = self.scale_orient.get()-1
-		xm,ym,x,y = self.app.gcode.orient.markers[marker]
+		xm,ym,x,y = self.app.gcode.orient[marker]
 		try:    x = float(self.x_orient.get())
 		except: pass
 		try:    y = float(self.y_orient.get())
@@ -559,22 +632,36 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		except: pass
 		self.app.gcode.orient.markers[marker] = xm,ym,x,y
 
+		n = len(self.app.gcode.orient)
+		if n:
+			self.scale_orient.config(state=NORMAL, from_=1, to_=n)
+		else:
+			self.scale_orient.config(state=DISABLED, from_=0, to_=0)
 		self.changeMarker(marker+1)
-		self.scale_orient.config(to_=len(self.app.gcode.orient.markers))
+		self.orientSolve()
 		self.event_generate("<<DrawOrient>>")
 
 	#-----------------------------------------------------------------------
+	# The index will be +1 to appear more human starting from 1
+	#-----------------------------------------------------------------------
 	def changeMarker(self, marker):
-		marker = int(marker) - 1
-		if marker >= len(self.app.gcode.orient.markers): return
+		marker = int(marker)-1
+		if marker<0 or marker >= len(self.app.gcode.orient):
+			self.x_orient.delete(0,END)
+			self.y_orient.delete(0,END)
+			self.xm_orient.delete(0,END)
+			self.ym_orient.delete(0,END)
+			return
 
-		xm,ym,x,y = self.app.gcode.orient.markers[marker]
+		xm,ym,x,y = self.app.gcode.orient[marker]
 		d = CNC.digits
 		self.x_orient.set("%*f"%(d,x))
 		self.y_orient.set("%*f"%(d,y))
 		self.xm_orient.set("%*f"%(d,xm))
 		self.ym_orient.set("%*f"%(d,ym))
 
+	#-----------------------------------------------------------------------
+	# Select marker
 	#-----------------------------------------------------------------------
 	def selectMarker(self, marker):
 		self.scale_orient.set(marker+1)
@@ -618,7 +705,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		self.probeXstep = Label(lframe, foreground="DarkBlue",
-					background="gray95", width=5)
+					background="gray90", width=5)
 		self.probeXstep.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeXstep, _("X step"))
 
@@ -650,7 +737,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		self.probeYstep = Label(lframe,  foreground="DarkBlue",
-					background="gray95", width=5)
+					background="gray90", width=5)
 		self.probeYstep.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeYstep, _("Y step"))
 

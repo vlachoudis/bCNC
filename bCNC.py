@@ -2316,6 +2316,7 @@ if __name__ == "__main__":
 		tkMessageBox.showerror(_("python serial missing"),
 			_("ERROR: Please install the python pyserial module\n" \
 			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
+			  "Mac: pip install pyserial\n" \
 			  "Linux: sudo apt-get or yum install python-serial"))
 		if Updates.need2Check(): application.checkUpdates()
 
