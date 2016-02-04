@@ -78,7 +78,7 @@ ACTION_GANTRY        = 22
 ACTION_SET_POS       = 23
 
 ACTION_RULER         = 30
-ACTION_ADDMARKER     = 31
+ACTION_ADDORIENT     = 31
 
 #ACTION_ADDTAB        = 40
 
@@ -117,7 +117,7 @@ MOUSE_CURSOR = {
 	ACTION_SET_POS       : "diamond_cross",
 
 	ACTION_RULER         : "tcross",
-	ACTION_ADDMARKER     : "tcross",
+	ACTION_ADDORIENT     : "tcross",
 
 #	ACTION_EDIT          : "pencil",
 }
@@ -231,6 +231,7 @@ class CNCCanvas(Canvas):
 
 		self._tzoom  = 1.0
 		self._tafter = None
+		self._orientSelected = None
 
 		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.reset()
@@ -311,7 +312,7 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setActionAddMarker(self, event=None):
-		self.setAction(ACTION_ADDMARKER)
+		self.setAction(ACTION_ADDORIENT)
 		self.status(_("Add an orientation marker"))
 
 #	# ----------------------------------------------------------------------
@@ -363,15 +364,14 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	# Add an orientation marker at mouse location
 	# ----------------------------------------------------------------------
-	def actionAddMarker(self, x, y):
+	def actionAddOrient(self, x, y):
 		u,v,w = self.canvas2Machine(x,y)
 		if u is None or v is None:
 			self.status(_("ERROR: Cannot set X-Y marker  with the current view"))
 			return
-		i = len(self.gcode.orient)
+		self._orientSelected = len(self.gcode.orient)
 		self.gcode.orient.add(CNC.vars["mx"], CNC.vars["my"], u, v)
-		self.event_generate("<<OrientUpdate>>") #, data=len(self.gcode.orient.markers)-1)
-		self.event_generate("<<SelectMarker>>", data=i)
+		self.event_generate("<<OrientSelect>>", data=self._orientSelected)
 		self.drawOrient()
 		self.setAction(ACTION_SELECT)
 
@@ -445,8 +445,8 @@ class CNCCanvas(Canvas):
 			self.actionSetPos(event.x,event.y)
 
 		# Add orientation marker
-		elif self.action == ACTION_ADDMARKER:
-			self.actionAddMarker(event.x,event.y)
+		elif self.action == ACTION_ADDORIENT:
+			self.actionAddOrient(event.x,event.y)
 
 		# Set coordinate origin
 		elif self.action == ACTION_ORIGIN:
@@ -913,8 +913,24 @@ class CNCCanvas(Canvas):
 		# find marker
 		for i,paths in enumerate(self.gcode.orient.paths):
 			if item in paths:
-				self.event_generate("<<SelectMarker>>", data=i)
+				self._orientSelected = i
+				for j in paths:
+					self.itemconfig(j, width=2)
+				self.event_generate("<<OrientSelect>>", data=i)
 				return
+		self._orientSelected = None
+
+	#----------------------------------------------------------------------
+	# Highlight marker that was selected
+	#----------------------------------------------------------------------
+	def orientChange(self, marker):
+		self.itemconfig("Orient", width=1)
+		if marker >=0:
+			self._orientSelected = marker
+			for i in self.gcode.orient.paths[self._orientSelected]:
+				self.itemconfig(i, width=2)
+		else:
+			self._orientSelected = None
 
 	#----------------------------------------------------------------------
 	# Display graphical information on selected blocks
@@ -1236,6 +1252,13 @@ class CNCCanvas(Canvas):
 			paths.append(item)
 
 			self.gcode.orient.addPath(paths)
+
+		if self._orientSelected is not None:
+			try:
+				for item in self.gcode.orient.paths[self._orientSelected]:
+					self.itemconfig(item, width=2)
+			except (IndexError, TclError):
+				pass
 
 	#----------------------------------------------------------------------
 	# Display probe

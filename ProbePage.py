@@ -409,7 +409,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		b = Button(lframe(), text=_("Delete"),
 				image=Utils.icons["x"],
 				compound=LEFT,
-				command = self.orientSolve,
+				command = self.orientDelete,
 				padx = 1,
 				pady = 1)
 		b.grid(row=row, column=col, sticky=EW)
@@ -610,17 +610,54 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			self.err_orient["text"]   = ""
 
 	#-----------------------------------------------------------------------
+	# Delete current orientation point
+	#-----------------------------------------------------------------------
+	def orientDelete(self, event=None):
+		marker = self.scale_orient.get()-1
+		if marker<0 or marker >= len(self.app.gcode.orient): return
+		self.app.gcode.orient.clear(marker)
+		self.orientUpdateScale()
+		self.changeMarker(marker+1)
+		self.orientSolve()
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
 	# Clear all markers
 	#-----------------------------------------------------------------------
 	def orientClear(self, event=None):
 		self.app.gcode.orient.clear()
-		self.scale_orient.config(state=DISABLED, from_=0, to_=0)
+		self.orientUpdateScale()
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
+	# Update orientation scale
+	#-----------------------------------------------------------------------
+	def orientUpdateScale(self):
+		n = len(self.app.gcode.orient)
+		if n:
+			self.scale_orient.config(state=NORMAL, from_=1, to_=n)
+		else:
+			self.scale_orient.config(state=DISABLED, from_=0, to_=0)
+
+	#-----------------------------------------------------------------------
+	def orientClearFields(self):
+		self.x_orient.delete(0,END)
+		self.y_orient.delete(0,END)
+		self.xm_orient.delete(0,END)
+		self.ym_orient.delete(0,END)
+		self.angle_orient["text"] = ""
+		self.xo_orient["text"]    = ""
+		self.yo_orient["text"]    = ""
+		self.err_orient["text"]   = ""
 
 	#-----------------------------------------------------------------------
 	# Update orient with the current marker
 	#-----------------------------------------------------------------------
 	def orientUpdate(self, event=None):
 		marker = self.scale_orient.get()-1
+		if marker<0 or marker >= len(self.app.gcode.orient):
+			self.orientClearFields()
+			return
 		xm,ym,x,y = self.app.gcode.orient[marker]
 		try:    x = float(self.x_orient.get())
 		except: pass
@@ -632,11 +669,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		except: pass
 		self.app.gcode.orient.markers[marker] = xm,ym,x,y
 
-		n = len(self.app.gcode.orient)
-		if n:
-			self.scale_orient.config(state=NORMAL, from_=1, to_=n)
-		else:
-			self.scale_orient.config(state=DISABLED, from_=0, to_=0)
+		self.orientUpdateScale()
 		self.changeMarker(marker+1)
 		self.orientSolve()
 		self.event_generate("<<DrawOrient>>")
@@ -647,10 +680,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def changeMarker(self, marker):
 		marker = int(marker)-1
 		if marker<0 or marker >= len(self.app.gcode.orient):
-			self.x_orient.delete(0,END)
-			self.y_orient.delete(0,END)
-			self.xm_orient.delete(0,END)
-			self.ym_orient.delete(0,END)
+			self.orientClearFields()
+			self.event_generate("<<OrientChange>>", data=-1)
 			return
 
 		xm,ym,x,y = self.app.gcode.orient[marker]
@@ -659,11 +690,13 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.y_orient.set("%*f"%(d,y))
 		self.xm_orient.set("%*f"%(d,xm))
 		self.ym_orient.set("%*f"%(d,ym))
+		self.event_generate("<<OrientChange>>", data=marker)
 
 	#-----------------------------------------------------------------------
 	# Select marker
 	#-----------------------------------------------------------------------
 	def selectMarker(self, marker):
+		self.orientUpdateScale()
 		self.scale_orient.set(marker+1)
 
 #===============================================================================

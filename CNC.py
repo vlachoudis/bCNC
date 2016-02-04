@@ -458,9 +458,14 @@ class Orient:
 		self.clear()
 
 	#-----------------------------------------------------------------------
-	def clear(self):
-		self.clearPaths()
-		del self.markers[:]
+	def clear(self, item=None):
+		if item is None:
+			self.clearPaths()
+			del self.markers[:]
+		else:
+			del self.paths[item]
+			del self.markers[item]
+
 		self.phi = 0.0
 		self.xo  = 0.0
 		self.yo  = 0.0

@@ -231,7 +231,8 @@ class Application(Toplevel,Sender):
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
 		probe = Page.frames["Probe:Probe"]
-		tkExtra.bindEventData(self, "<<SelectMarker>>", lambda e,f=probe: f.selectMarker(int(e.data)))
+		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
+		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
 		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
 
 		# Global bindings
