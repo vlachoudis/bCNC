@@ -334,6 +334,9 @@ class Sender:
 				self.gcode.probe.filename = filename
 				self._saveConfigFile()
 			self.gcode.probe.load(filename)
+		if ext == ".orient":
+			# save orientation file
+			self.gcode.orient.load(filename)
 		elif ext == ".stl":
 			# FIXME: implements solid import???
 			pass
@@ -357,6 +360,9 @@ class Sender:
 				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
 				self.gcode.probe.save()
+		if ext == ".orient":
+			# save orientation file
+			self.gcode.orient.save(filename)
 		elif ext == ".stl":
 			#save probe as STL
 			self.gcode.probe.saveAsSTL(filename)

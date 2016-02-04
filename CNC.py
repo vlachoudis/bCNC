@@ -454,7 +454,8 @@ class Orient:
 		self.markers = []		# list of points pairs (xm, ym, x, y)
 						# xm,ym = machine x,y mpos
 						# x, y  = desired or gcode location
-		self.paths   = []
+		self.paths    = []
+		self.filename = ""
 		self.clear()
 
 	#-----------------------------------------------------------------------
@@ -469,6 +470,8 @@ class Orient:
 		self.phi = 0.0
 		self.xo  = 0.0
 		self.yo  = 0.0
+		self.valid = False
+		self.saved = False
 
 	#-----------------------------------------------------------------------
 	def clearPaths(self):
@@ -477,6 +480,8 @@ class Orient:
 	#-----------------------------------------------------------------------
 	def add(self, xm, ym, x, y):
 		self.markers.append((xm,ym,x,y))
+		self.valid = False
+		self.saved = False
 
 	#-----------------------------------------------------------------------
 	def addPath(self, path):
@@ -495,10 +500,10 @@ class Orient:
 	# or none on failure
 	# Transformation equation is the following
 	#
-	#    X = R * Xm + T
+	#    Xm = R * X + T
 	#
-	#    X  = [x y]^t
 	#    Xm = [xm ym]^t
+	#    X  = [x y]^t
 	#
 	#
 	#       / cosf  -sinf \   / c  -s \
@@ -512,21 +517,21 @@ class Orient:
 	#   T = [xo yo]^t
 	#
 	# The overdetermined system (equations) to solve are the following
-	#      c*xm + s*(-ym) + xo = x
-	#      s*xm + c*ym    + yo = y
-	#  <=> c*ym + s*ym         + yo = y
+	#      c*x + s*(-y) + xo      = xm
+	#      s*x + c*y    + yo      = ym
+	#  <=> c*y + s*y         + yo = ym
 	#
 	# We are solving for the unknowns c,s,xo,yo
 	#
-	#       /  xm1  -ym1  1 0 \ / c  \    / x1 \
-	#       |  ym1   xm1  0 1 | | s  |    | y1 |
-	#       |  xm2  -ym2  1 0 | | xo |    | x2 |
-	#       |  ym2   xm2  0 1 | \ yo /  = | y2 |
-	#	       ....                   ..
-	#       |  xmn  -ymn  1 0 |           | xn |
-	#       \  ymn   xmn  0 1 /           \ yn /
+	#       /  x1  -y1  1 0 \ / c  \    / xm1 \
+	#       |  y1   x1  0 1 | | s  |    | ym1 |
+	#       |  x2  -y2  1 0 | | xo |    | xm2 |
+	#       |  y2   x2  0 1 | \ yo /  = | ym2 |
+	#	      ...                   ..
+	#       |  xn  -yn  1 0 |           | xmn |
+	#       \  yn   xn  0 1 /           \ ymn /
 	#
-	#                  A          X      = B
+	#               A            X    =    B
 	#
 	# Constraints:
 	#   1. orthogonal system   c^2 + s^2 = 1
@@ -534,12 +539,13 @@ class Orient:
 	#
 	#-----------------------------------------------------------------------
 	def solve(self):
+		self.valid = False
 		if len(self.markers)< 2: raise Exception("Too few markers")
 		A = []
 		B = []
 		for xm,ym,x,y in self.markers:
-			A.append([xm,-ym,1.0,0.0]);	B.append([x])
-			A.append([ym, xm,0.0,1.0]);	B.append([y])
+			A.append([x,-y,1.0,0.0]);	B.append([xm])
+			A.append([y, x,0.0,1.0]);	B.append([ym])
 
 		# The solution of the overdetermined system A X = B
 		try:
@@ -552,7 +558,6 @@ class Orient:
 		# Normalize the coefficients
 		r = sqrt(c*c + s*s)	# length should be 1.0
 		if abs(r-1.0) > 0.1:
-			print "**** r=",r,c,s
 			raise Exception("Resulting system is too skew")
 
 #		print "r=",r
@@ -562,6 +567,7 @@ class Orient:
 
 		if abs(self.phi)<TOLERANCE: self.phi = 0.0	# rotation
 
+		self.valid = True
 		return self.phi,self.xo,self.yo
 
 	#-----------------------------------------------------------------------
@@ -587,24 +593,50 @@ class Orient:
 		return minerr, sumerr/float(i), maxerr
 
 	#-----------------------------------------------------------------------
-	# Convert machine to gcode coordinates
+	# Convert gcode to machine coordinates
 	#-----------------------------------------------------------------------
-	def machine2gcode(self, xm, ym):
+	def gcode2machine(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
 		return	c*xm - s*ym + self.xo, \
 			s*xm + c*ym + self.yo
 
 	#-----------------------------------------------------------------------
-	# Convert gcode to machine coordinates
+	# Convert machine to gcode coordinates
 	#-----------------------------------------------------------------------
-	def gcode2machine(self, x, y):
+	def machine2gcode(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
 		x -= self.xo
 		y -= self.yo
 		return	 c*x + s*y, \
 			-s*x + c*y
+
+	#----------------------------------------------------------------------
+	# Load orient information from file
+	#----------------------------------------------------------------------
+	def load(self, filename=None):
+		if filename is not None:
+			self.filename = filename
+		self.clear()
+		self.saved = True
+
+		f = open(self.filename,"r")
+		for line in f:
+			self.add(*map(float, line.split()))
+		f.close()
+
+	#----------------------------------------------------------------------
+	# Save orient information to file
+	#----------------------------------------------------------------------
+	def save(self, filename=None):
+		if filename is not None:
+			self.filename = filename
+		f = open(self.filename,"w")
+		for xm,ym,x,y in self.markers:
+			f.write("%g %g %g %g\n"%(xm,ym,x,y))
+		f.close()
+		self.saved = True
 
 #===============================================================================
 # Command operations on a CNC
@@ -1787,6 +1819,13 @@ class Tab:
 	def move(self, dx, dy, dz=None):
 		self.x += dx
 		self.y += dy
+
+	#----------------------------------------------------------------------
+	def transform(self, c, s, xo, yo):
+		xn = c*self.x - s*self.y + xo
+		yn = s*self.x + c*self.y + yo
+		self.x = xn
+		self.y = yn
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
@@ -3493,14 +3532,14 @@ class GCode:
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
-		new['X'] = (x-x0)*c - (y-y0)*s + x0
-		new['Y'] = (x-x0)*s + (y-y0)*c + y0
+		new['X'] = c*(x-x0) - s*(y-y0) + x0
+		new['Y'] = s*(x-x0) + c*(y-y0) + y0
 
 		if 'I' in new or 'J' in new:
 			i = getValue('I',new,old)
 			j = getValue('J',new,old)
-			new['I'] = i*c - j*s
-			new['J'] = i*s + j*c
+			new['I'] = c*i - s*j
+			new['J'] = s*i + c*j
 		return True
 
 	#----------------------------------------------------------------------
@@ -3515,6 +3554,36 @@ class GCode:
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
 		return self.process(items, self.rotateFunc, None, c, s, x0, y0)
+
+	#----------------------------------------------------------------------
+	# Transform (rototranslate) position with the following function:
+	#	 xn = c*x - s*y + xo
+	#	 yn = s*x + c*y + yo
+	# it is like the rotate but the rotation center is not defined
+	#----------------------------------------------------------------------
+	def transformFunc(self, new, old, c, s, xo, yo):
+		if 'X' not in new and 'Y' not in new: return False
+		x = getValue('X',new,old)
+		y = getValue('Y',new,old)
+		new['X'] = c*x - s*y + xo
+		new['Y'] = s*x + c*y + yo
+
+		if 'I' in new or 'J' in new:
+			i = getValue('I',new,old)
+			j = getValue('J',new,old)
+			new['I'] = c*i - s*j
+			new['J'] = s*i + c*j
+		return True
+
+	#----------------------------------------------------------------------
+	# Use the orientation information to orient selected code
+	#----------------------------------------------------------------------
+	def orientLines(self, items):
+		if not self.orient.valid: return "ERROR: Orientation information is not valid"
+		c = math.cos(self.orient.phi)
+		s = math.sin(self.orient.phi)
+		return self.process(items, self.transformFunc, Tab.transform, c, s,
+					self.orient.xo, self.orient.yo)
 
 	#----------------------------------------------------------------------
 	# Mirror Horizontal

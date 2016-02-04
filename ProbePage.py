@@ -62,19 +62,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["setsquare32"],
-				text=_("Square"),
-				compound=TOP,
-				variable=self.tab,
-				state=DISABLED,
-				value="Square",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Probe X/Y axis by using a set square probe"))
-
-		# ---
-		col += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["level32"],
 				text=_("Autolevel"),
 				compound=TOP,
@@ -437,6 +424,18 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.ym_orient.bind("<KP_Enter>", self.orientUpdate)
 		tkExtra.Balloon.set(self.ym_orient, _("Machine Y coordinate of orientation point"))
 
+		# Buttons
+		col += 1
+		b = Button(lframe(), text=_("Clear"),
+				image=Utils.icons["clear"],
+				compound=LEFT,
+				command = self.orientClear,
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, column=col, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Delete all markers"))
+
 		# ---
 		row += 1
 		col = 0
@@ -445,6 +444,18 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.angle_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
 		self.angle_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
+
+		# Buttons
+		col += 2
+		b = Button(lframe(), text=_("Orient"),
+				image=Utils.icons["setsquare32"],
+				compound=TOP,
+				command = lambda a=app:a.insertCommand("ORIENT",True),
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, rowspan=3, column=col, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Align GCode with the machine markers"))
 
 		# ---
 		row += 1
@@ -466,18 +477,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.err_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
 		self.err_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
-
-		# Buttons
-		col += 2
-		b = Button(lframe(), text=_("Clear"),
-				image=Utils.icons["clear"],
-				compound=LEFT,
-				command = self.orientClear,
-				padx = 1,
-				pady = 1)
-		b.grid(row=row, column=col, sticky=EW)
-		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Delete all markers"))
 
 		lframe().grid_columnconfigure(1, weight=1)
 		lframe().grid_columnconfigure(2, weight=1)
@@ -516,9 +515,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		if self.warn:
 			ans = tkMessageBox.askquestion(_("Probe connected?"),
 				_("Please verify that the probe is connected.\n\nShow this message again?"),
-				  icon='warning',
-				  parent=self)
-			if ans != 'yes':
+				icon='warning',
+				parent=self.winfo_toplevel())
+			if ans != YES:
 				self.warn = False
 
 	#-----------------------------------------------------------------------
@@ -528,7 +527,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror(_("Probe Error"),
 				_("Invalid probe feed rate"),
-				parent=self)
+				parent=self.winfo_toplevel())
 			return
 		self.warnMessage()
 
@@ -570,7 +569,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		if diameter < 0.001:
 			tkMessageBox.showerror(_("Probe Center Error"),
 					_("Invalid diameter entered"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		lines = []
@@ -625,6 +624,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	# Clear all markers
 	#-----------------------------------------------------------------------
 	def orientClear(self, event=None):
+		if self.scale_orient.cget("to") == 0: return
+		ans = tkMessageBox.askquestion(_("Delete all markers"),
+			_("Do you want to delete all orientation markers?"),
+			parent=self.winfo_toplevel())
+		if ans!=tkMessageBox.YES: return
 		self.app.gcode.orient.clear()
 		self.orientUpdateScale()
 		self.event_generate("<<DrawOrient>>")
@@ -874,7 +878,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 						_("Invalid X probing region"),
-						parent=self)
+						parent=self.winfo_toplevel())
 			error = True
 
 		try:
@@ -887,7 +891,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 						_("Invalid Y probing region"),
-						parent=self)
+						parent=self.winfo_toplevel())
 			error = True
 
 		try:
@@ -897,14 +901,14 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 					_("Invalid Z probing region"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			error = True
 
 		if ProbeCommonFrame.probeUpdate():
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 					_("Invalid probe feed rate"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			error = True
 
 		return error
@@ -923,6 +927,10 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def clear(self, event=None):
+		ans = tkMessageBox.askquestion(_("Delete autolevel information"),
+			_("Do you want to delete all autolevel in formation?"),
+			parent=self.winfo_toplevel())
+		if ans!=tkMessageBox.YES: return
 		self.app.gcode.probe.clear()
 		self.draw()
 
@@ -1149,7 +1157,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool change position"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -1159,7 +1167,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool probe location"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -1167,7 +1175,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool scanning distance entered"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -1175,7 +1183,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool height or not calibrated"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 	#-----------------------------------------------------------------------

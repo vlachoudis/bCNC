@@ -90,11 +90,12 @@ MAX_HISTORY  = 500
 
 #ZERO = ["G28", "G30", "G92"]
 
-FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.stl")),
+FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
 		(_("G-Code"),("*.ngc","*.nc", "*.gcode")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
 		(_("Probe"),  "*.probe"),
+		(_("Orient"), "*.orient"),
 		("STL",       "*.stl"),
 		(_("All"),    "*")]
 
@@ -233,7 +234,6 @@ class Application(Toplevel,Sender):
 		probe = Page.frames["Probe:Probe"]
 		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
 		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
-		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
 
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
@@ -1329,6 +1329,12 @@ class Application(Toplevel,Sender):
 			else:
 				self.executeOnSelection("OPTIMIZE", True)
 
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions
+		elif rexx.abbrev("ORIENT",cmd,4):
+			if not self.editor.curselection():
+				self.editor.selectAll()
+			self.executeOnSelection("ORIENT", False)
+
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
 			try:    dx = -float(line[1])
@@ -1582,6 +1588,8 @@ class Application(Toplevel,Sender):
 			self.gcode.moveLines(items, *args)
 		elif cmd == "OPTIMIZE":
 			self.gcode.optimize(items)
+		elif cmd == "ORIENT":
+			self.gcode.orientLines(items)
 		elif cmd == "REVERSE":
 			self.gcode.reverse(items, *args)
 		elif cmd == "ROUND":
@@ -1829,6 +1837,11 @@ class Application(Toplevel,Sender):
 		if ext==".probe":
 			self.autolevel.setValues()
 			self.event_generate("<<DrawProbe>>")
+
+		elif ext==".orient":
+			self.event_generate("<<DrawOrient>>")
+			self.event_generate("<<OrientSelect>>",data=0)
+
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
