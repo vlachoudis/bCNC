@@ -234,6 +234,7 @@ class Application(Toplevel,Sender):
 		probe = Page.frames["Probe:Probe"]
 		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
 		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
+		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
 
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
@@ -1841,6 +1842,7 @@ class Application(Toplevel,Sender):
 		elif ext==".orient":
 			self.event_generate("<<DrawOrient>>")
 			self.event_generate("<<OrientSelect>>",data=0)
+			self.event_generate("<<OrientUpdate>>")
 
 		else:
 			self.editor.selectClear()
