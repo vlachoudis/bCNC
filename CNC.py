@@ -590,7 +590,7 @@ class Orient:
 			maxerr = max(maxerr, err)
 			sumerr += err
 
-		return minerr, sumerr/float(i), maxerr
+		return minerr, sumerr/float(len(self.markers)), maxerr
 
 	#-----------------------------------------------------------------------
 	# Convert gcode to machine coordinates
