@@ -457,7 +457,8 @@ class Application(Toplevel,Sender):
 			return
 		del self.widgets[:]
 
-		self.fileModified()
+		if self.fileModified():
+			return
 
 		Sender.quit(self)
 		self.saveConfig()
@@ -1801,14 +1802,20 @@ class Application(Toplevel,Sender):
 		if self.gcode.isModified():
 			ans = tkMessageBox.askquestion(_("File modified"),
 				_("Gcode was modified do you want to save it first?"),
+				type = tkMessageBox.YESNOCANCEL, 
 				parent=self)
+			if ans==tkMessageBox.CANCEL:
+				return True
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveAll()
 
 		if not self.gcode.probe.isEmpty() and not self.gcode.probe.saved:
 			ans = tkMessageBox.askquestion(_("Probe File modified"),
 				_("Probe was modified do you want to save it first?"),
+				type = tkMessageBox.YESNOCANCEL,
 				parent=self)
+			if ans==tkMessageBox.CANCEL:
+				return True
 			if ans==tkMessageBox.YES or ans==True:
 				if self.gcode.probe.filename == "":
 					self.saveDialog()
