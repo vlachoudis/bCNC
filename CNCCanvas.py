@@ -1249,6 +1249,13 @@ class CNCCanvas(Canvas):
 			# Draw error if any
 			try:
 				err = self.gcode.orient.errors[i]
+				item = self.create_oval(self.plotCoords([(xm-err,ym-err,0.),(xm+err,ym+err,0.)]),
+						tag="Orient",
+						outline="Red")
+				self.tag_lower(item)
+				paths.append(item)
+
+				err = self.gcode.orient.errors[i]
 				item = self.create_oval(self.plotCoords([(x-err,y-err,0.),(x+err,y+err,0.)]),
 						tag="Orient",
 						outline="Red")
