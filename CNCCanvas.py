@@ -370,9 +370,9 @@ class CNCCanvas(Canvas):
 			self.status(_("ERROR: Cannot set X-Y marker  with the current view"))
 			return
 		self._orientSelected = len(self.gcode.orient)
-		self.gcode.orient.add(CNC.vars["mx"], CNC.vars["my"], u, v)
+		self.gcode.orient.add(CNC.vars["wx"], CNC.vars["wy"], u, v)
 		self.event_generate("<<OrientSelect>>", data=self._orientSelected)
-		self.drawOrient()
+		#self.drawOrient()
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
@@ -927,8 +927,11 @@ class CNCCanvas(Canvas):
 		self.itemconfig("Orient", width=1)
 		if marker >=0:
 			self._orientSelected = marker
-			for i in self.gcode.orient.paths[self._orientSelected]:
-				self.itemconfig(i, width=2)
+			try:
+				for i in self.gcode.orient.paths[self._orientSelected]:
+					self.itemconfig(i, width=2)
+			except IndexError:
+				self.drawOrient()
 		else:
 			self._orientSelected = None
 

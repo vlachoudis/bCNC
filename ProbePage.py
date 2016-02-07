@@ -407,7 +407,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		row += 1
 		col = 0
 
-		Label(lframe(), text="MPos:").grid(row=row, column=col, sticky=E)
+		Label(lframe(), text="WPos:").grid(row=row, column=col, sticky=E)
 		col += 1
 		self.xm_orient = tkExtra.FloatEntry(lframe(), background="White")
 		self.xm_orient.grid(row=row, column=col, sticky=EW)
@@ -694,6 +694,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.y_orient.set("%*f"%(d,y))
 		self.xm_orient.set("%*f"%(d,xm))
 		self.ym_orient.set("%*f"%(d,ym))
+		self.orientSolve()
 		self.event_generate("<<OrientChange>>", data=marker)
 
 	#-----------------------------------------------------------------------
