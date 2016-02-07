@@ -1218,7 +1218,7 @@ class CNCCanvas(Canvas):
 			w = 2.5
 
 		self.gcode.orient.clearPaths()
-		for xm,ym,x,y in self.gcode.orient.markers:
+		for i,(xm,ym,x,y) in enumerate(self.gcode.orient.markers):
 			paths = []
 			# Machine position (cross)
 			item = self.create_line(self.plotCoords([(xm-w,ym,0.),(xm+w,ym,0.)]),
@@ -1245,6 +1245,17 @@ class CNCCanvas(Canvas):
 						fill="Red")
 			self.tag_lower(item)
 			paths.append(item)
+
+			# Draw error if any
+			try:
+				err = self.gcode.orient.errors[i]
+				item = self.create_oval(self.plotCoords([(x-err,y-err,0.),(x+err,y+err,0.)]),
+						tag="Orient",
+						outline="Red")
+				self.tag_lower(item)
+				paths.append(item)
+			except IndexError:
+				pass
 
 			# Connecting line
 			item = self.create_line(self.plotCoords([(xm,ym,0.),(x,y,0.)]),

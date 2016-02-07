@@ -454,7 +454,8 @@ class Orient:
 		self.markers = []		# list of points pairs (xm, ym, x, y)
 						# xm,ym = machine x,y mpos
 						# x, y  = desired or gcode location
-		self.paths    = []
+		self.paths   = []
+		self.errors  = []
 		self.filename = ""
 		self.clear()
 
@@ -582,10 +583,14 @@ class Orient:
 		c = cos(self.phi)
 		s = sin(self.phi)
 
+		del self.errors[:]
+
 		for i,(xm,ym,x,y) in enumerate(self.markers):
-			dx = c*xm - s*ym + self.xo - x
-			dy = s*xm + c*ym + self.yo - y
+			dx = c*x - s*y + self.xo - xm
+			dy = s*x + c*y + self.yo - ym
 			err = sqrt(dx**2 + dy**2)
+			self.errors.append(err)
+
 			minerr = min(minerr, err)
 			maxerr = max(maxerr, err)
 			sumerr += err
@@ -598,8 +603,8 @@ class Orient:
 	def gcode2machine(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
-		return	c*xm - s*ym + self.xo, \
-			s*xm + c*ym + self.yo
+		return	c*x - s*y + self.xo, \
+			s*x + c*y + self.yo
 
 	#-----------------------------------------------------------------------
 	# Convert machine to gcode coordinates
