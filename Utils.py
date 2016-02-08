@@ -23,7 +23,16 @@ except ImportError:
 	import configparser as ConfigParser
 
 import gettext
-import __builtin__
+try:
+	import __builtin__
+except:
+	import builtins as __builtin__
+
+# dirty way of substituting the "_" on the builtin namespace
+#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).gettext
+__builtin__.N_ = lambda message: message
+
 
 import Ribbon
 import tkExtra
@@ -103,7 +112,7 @@ def loadConfiguration(systemOnly=False):
 		if language:
 			# replace language
 			__builtin__._ = gettext.translation('bCNC', 'locale',
-					fallback=True, languages=[language]).ugettext
+					fallback=True, languages=[language]).gettext
 
 #------------------------------------------------------------------------------
 # Save configuration file

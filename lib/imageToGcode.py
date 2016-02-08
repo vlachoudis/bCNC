@@ -17,14 +17,14 @@
 ## jepler@unpy.net
 
 #################################################################################
-#			 image-to-gcode												 		#
+#                                 image-to-gcode                                #
 #################################################################################
 import math
 import sys
 import operator
 
 epsilon = 1e-5
-MAXINT = sys.maxint
+MAXINT = 1000000000
 
 def ball_tool(r,rad):
 	s = -math.sqrt(rad**2-r**2)
@@ -1017,7 +1017,7 @@ def douglas(st, tolerance=.001, plane=None, _first=True):
                 max_arc = i
                 min_rad = rad
 
-	    worst_arc_dist = 0
+            worst_arc_dist = 0
     if min_rad != MAXINT:
         c1, c2 = arc_center(plane, ps, st[max_arc], pe)
         lx, ly, lz = st[0]

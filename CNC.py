@@ -110,8 +110,8 @@ MODAL_MODES = {
 }
 
 ERROR_HANDLING = {}
-
 TOLERANCE = 1e-7
+MAXINT    = 1000000000	# python3 doesn't have maxint
 
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
@@ -3118,7 +3118,7 @@ class GCode:
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-			undoinfo.append(self.insLineUndo(bid, sys.maxint,
+			undoinfo.append(self.insLineUndo(bid, MAXINT,
 					self.cnc.gline(block.sx, block.sy)))
 		self.addUndo(undoinfo)
 

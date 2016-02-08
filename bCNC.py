@@ -19,13 +19,6 @@ import getopt
 import socket
 import traceback
 
-import gettext
-import __builtin__
-# dirty way of substituting the "_" on the builtin namespace
-#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__.N_ = lambda message: message
-
 try:
 	import serial
 except:
@@ -2338,9 +2331,12 @@ if __name__ == "__main__":
 	if serial is None:
 		tkMessageBox.showerror(_("python serial missing"),
 			_("ERROR: Please install the python pyserial module\n" \
-			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
-			  "Mac: pip install pyserial\n" \
-			  "Linux: sudo apt-get or yum install python-serial"))
+			  "Windows:\n\tC:\PythonXX\Scripts\easy_install pyserial\n" \
+			  "Mac:\tpip install pyserial\n" \
+			  "Linux:\tsudo apt-get install python-serial\n" \
+			  "\tor yum install python-serial\n" \
+			  "\tor dnf install python-pyserial"),
+			  parent=application)
 		if Updates.need2Check(): application.checkUpdates()
 
 	if run:

@@ -16,15 +16,12 @@ from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-import tkMessageBox
-
 #==============================================================================
 #Text class
 #==============================================================================
 class Text:
 	def __init__(self,name="Text"):
 		self.name = name
-
 
 #==============================================================================
 # Create Text
