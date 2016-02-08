@@ -351,6 +351,7 @@ class LabelEntry(Entry):
 		self._empty = value==""
 		if self._empty:
 			self.showLabel()
+			self.master.focus_set()	# lose focus
 		else:
 			self.removeLabel()
 			self.insert(0, value)
@@ -596,23 +597,54 @@ class ProgressBar(Canvas):
 			self.done = self.high
 
 		# calculate remaining time
-		dt = time.time()-self.t0
-		p  = now-self.low
+		dt = time.time() - self.t0
+		p  = now - self.low
 		if p>0:
 			tot = dt/p*(self.high-self.low)
 		else:
 			tot = 0.0
-		th,s  = divmod(tot,3600)
-		tm,ts = divmod(s,60)
 
+
+		# elapsed time
 		dh,s  = divmod(dt,3600)
 		dm,ds = divmod(s,60)
+		if dh > 0:
+			elapsedTxt = "%dh%02dm"%(dh,dm)
+		elif dm > 0:
+			elapsedTxt = "%dm%02ds"%(dm,ds)
+		else:
+			elapsedTxt = "%ds"%(ds)
+
+		# total time
+		th,s  = divmod(tot,3600)
+		tm,ts = divmod(s,60)
+		if th > 0:
+			totalTxt = "Tot: %dh%02dm"%(th,tm)
+		elif tm > 0:
+			totalTxt = "Tot: %dm%02ds"%(tm,ts)
+		else:
+			totalTxt = "Tot: %ds"%(ts)
+
+		# remain time
+		remain = tot - dt
+		if remain>0:
+			rh,s  = divmod(remain,3600)
+			rm,rs = divmod(s,60)
+			if rh > 0:
+				remainTxt = "Rem: %dh%02dm"%(rh,rm)
+			elif rm > 0:
+				remainTxt = "Rem: %dm%02ds"%(rm,rs)
+			else:
+				remainTxt = "Rem: %ds"%(rs)
+		else:
+			remainTxt = ""
 
 		self.draw()
 		if txt is not None:
 			self.setText(txt)
+
 		elif self.auto:
-			self.autoText("[%d:%02d:%02d | %d:%02d:%02d]"%(dh,dm,ds, th,tm,ts))
+			self.autoText("[%s %s %s]"%(elapsedTxt, remainTxt, totalTxt))
 
 	# ----------------------------------------------------------------------
 	def clear(self):
@@ -1297,8 +1329,8 @@ class MultiListbox(Frame):
 	def __init__(self, master, lists, **options):
 		Frame.__init__(self, master)
 		self.paneframe = PanedWindow(self, orient=HORIZONTAL,
-			showhandle=0, handlepad=0, handlesize=0,
-			sashwidth=2, opaqueresize=1)
+				showhandle=0, handlepad=0, handlesize=0,
+				sashwidth=2, opaqueresize=1)
 		self.paneframe.pack(side=LEFT, expand=YES, fill=BOTH)
 		self.paneframe.bind("<Button-1>",	 self._sashMark)
 		self.paneframe.bind("<B1-Motion>",	 self._sashDrag)
@@ -1373,8 +1405,7 @@ class MultiListbox(Frame):
 			self.scrollbar.pack(side=RIGHT, fill=Y)
 
 		self.lists[0]['yscrollcommand']=self.scrollbar.set
-		self.activeList = self.lists[0]
-
+		self.activeList   = self.lists[0]
 		self.sortAssist   = SortAssist
 		self._sortOrder	  = None	# Array containing the previous order of the list after sort
 		self._sortColumn  = -1
@@ -2058,6 +2089,38 @@ class ImageListbox(Text):
 		"""Get list of items from FIRST to LAST (not included)."""
 		if first == END:
 			first = self.size()-1
+		elif first == ACTIVE:
+			first = self._active
+		else:
+			first = int(first)
+
+		if last is None:
+			if 0 <= first < len(self._selection):
+				first += 1
+				img = Text.image_cget(self, "%d.0"%(first), "image")
+				txt = Text.get(self, "%d.2"%(first), "%d.end"%(first))
+				return txt
+			return None
+
+		if last == END:
+			last = self.size()
+		elif last == ACTIVE:
+			last = self._active
+		else:
+			last = int(last)
+
+		# FIXME....
+		# return list of text items
+
+	# ----------------------------------------------------------------------
+	# get both image and text
+	# ----------------------------------------------------------------------
+	def elicit(self, first, last=None):
+		"""Get list of items from FIRST to LAST (not included)."""
+		if first == END:
+			first = self.size()-1
+		elif first == ACTIVE:
+			first = self._active
 		else:
 			first = int(first)
 
@@ -2071,8 +2134,13 @@ class ImageListbox(Text):
 
 		if last == END:
 			last = self.size()
+		elif last == ACTIVE:
+			last = self._active
 		else:
 			last = int(last)
+
+		# FIXME....
+		# return list of (image,text) items
 
 	# ----------------------------------------------------------------------
 	def index(self, index):
@@ -2499,17 +2567,6 @@ class InPlaceMaxLength(InPlaceEdit):
 #===============================================================================
 class InPlaceText(InPlaceEdit):
 	# ----------------------------------------------------------------------
-	def createWidget(self):
-		self.toplevel = Toplevel(self.listbox)
-		self.toplevel.transient(self.listbox)
-		self.toplevel.overrideredirect(1)
-		self.toplevel.update_idletasks()
-		self.edit = Text(self.toplevel, width=70, height=10,
-					background="White", undo=True)
-		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
-		self.edit.focus_set()
-
-	# ----------------------------------------------------------------------
 	def show(self):
 		self.toplevel.bind("<FocusOut>", self.focusOut)
 		try:
@@ -2530,6 +2587,16 @@ class InPlaceText(InPlaceEdit):
 		self.edit.bind("<Escape>", self.cancel)
 
 	# ----------------------------------------------------------------------
+	def createWidget(self):
+		self.toplevel = Toplevel(self.listbox)
+		self.toplevel.transient(self.listbox)
+		self.toplevel.overrideredirect(1)
+		self.edit = Text(self.toplevel, width=70, height=10,
+					background="White", undo=True)
+		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
+		self.edit.focus_set()
+
+	# ----------------------------------------------------------------------
 	def resize(self, event=None):
 		if self.frame is None: return
 		bbox = self.listbox.bbox(self.item)
@@ -2537,7 +2604,7 @@ class InPlaceText(InPlaceEdit):
 		x, y, w, h = bbox
 		x += self.listbox.winfo_rootx()
 		y += self.listbox.winfo_rooty()
-		#w  = self.listbox.winfo_width()
+		w  = self.listbox.winfo_width()
 		try:
 			self.toplevel.wm_geometry("+%d+%d" % (x,y))
 		except TclError:
