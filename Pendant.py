@@ -45,6 +45,8 @@ cameraId = 0
 # Simple Pendant controller for CNC
 #==============================================================================
 class Pendant(HTTPServer.BaseHTTPRequestHandler):
+	camera = None
+
 	#----------------------------------------------------------------------
 	def log_message(self, fmt, *args):
 		# Only requests to the main page log them, all other ignore
@@ -109,8 +111,10 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/camera":
 			if cv is None: return
-			cam = cv.VideoCapture(cameraId)
-			s,img = cam.read()
+			if Pendant.camera is None:
+				Pendant.camera = cv.VideoCapture(cameraId)
+
+			s,img = Pendant.camera.read()
 			if s:
 				cv.imwrite("camera.jpg",img)
 				self.do_HEAD(200, content="image/jpeg")
