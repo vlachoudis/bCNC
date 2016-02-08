@@ -12,8 +12,6 @@ import re
 import time
 import json
 
-def _(x): return x
-
 try:
 	import httplib as http
 	from Tkinter import *
