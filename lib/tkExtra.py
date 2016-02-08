@@ -644,7 +644,7 @@ class ProgressBar(Canvas):
 			self.setText(txt)
 
 		elif self.auto:
-			self.autoText("[%s %s %s]"%(elapsedTxt, remainTxt, totalTxt))
+			self.autoText("[%s %s %s]"%(elapsedTxt, totalTxt, remainTxt))
 
 	# ----------------------------------------------------------------------
 	def clear(self):
