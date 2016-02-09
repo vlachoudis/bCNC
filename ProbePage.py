@@ -533,20 +533,25 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		cmd = str(CNC.vars["prbcmd"])
 		ok = False
+
 		v = self.probeXdir.get()
 		if v != "":
 			cmd += "X"+str(v)
 			ok = True
+
 		v = self.probeYdir.get()
 		if v != "":
 			cmd += "Y"+str(v)
 			ok = True
+
 		v = self.probeZdir.get()
 		if v != "":
 			cmd += "Z"+str(v)
 			ok = True
+
+		v = ProbeCommonFrame.probeFeed.get()
 		if v != "":
-			cmd += "F"+str(CNC.vars["prbfeed"])
+			cmd += "F"+str(v)
 
 		if ok:
 			self.sendGrbl(cmd+"\n")
