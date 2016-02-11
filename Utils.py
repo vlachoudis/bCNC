@@ -31,7 +31,7 @@ except:
 
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).gettext
+__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
 __builtin__.N_ = lambda message: message
 
 

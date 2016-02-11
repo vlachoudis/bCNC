@@ -455,7 +455,7 @@ class Sender:
 		self.busy()
 		if self.serial is not None:
 			if self.controller == Utils.SMOOTHIE:
-				self.serial.write("reset\n")
+				self.serial.write(b"reset\n")
 			self.openClose()
 			if self.controller == Utils.SMOOTHIE:
 				time.sleep(6)
@@ -470,7 +470,7 @@ class Sender:
 		#	if self.controller == Utils.GRBL:
 				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
-		#		self.serial.write("reset\n")
+		#		self.serial.write(b"reset\n")
 		self.stopProbe()
 		self._alarm = False
 
@@ -499,7 +499,7 @@ class Sender:
 		if self.controller == Utils.GRBL:
 			self.sendGrbl("$I\n")
 		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write("version\n")
+			self.serial.write(b"version\n")
 
 	def viewStartup(self):
 		if self.controller == Utils.GRBL:
@@ -513,7 +513,7 @@ class Sender:
 		if self.controller == Utils.GRBL:
 			self.sendGrbl("$\n")
 		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write("help\n")
+			self.serial.write(b"help\n")
 
 	def grblRestoreSettings(self):
 		if self.controller == Utils.GRBL:
@@ -686,6 +686,7 @@ class Sender:
 							# Feed hold
 							# Maybe a M0 would be better?
 							self.serial.write(b"!")
+							self.serial.flush()
 							#print ">S> !"
 						elif tosend[0] == UPDATE:
 							# Count executed commands as well

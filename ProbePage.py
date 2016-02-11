@@ -1121,8 +1121,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
-		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -1194,11 +1194,11 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def policyChange(self):
-		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
+		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
 
 	#-----------------------------------------------------------------------
 	def waitChange(self):
-		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
 
 	#-----------------------------------------------------------------------
 	def getChange(self):
@@ -1249,24 +1249,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
 		lines = self.app.cnc.toolChange(0)
-#		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
-#		lines = []
-#		lines.append("g53 g0 z[toolchangez]")
-#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-#		lines.append("%wait")
-#		lines.append("%pause Manual Tool change")
-#		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
-#		lines.append("g53 g0 z[toolprobez]")
-#		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
-##		lines.append("%wait")
-#		p = WCS.index(CNC.vars["WCS"])+1
-#		lines.append("G10L20P%d z[toolheight]"%(p))
-#		lines.append("%wait")
-##		lines.append("g53g0z-2.0")
-##		lines.append("g53g0x-200.0y-100.0")
-#		lines.append("g53 g0 z[toolchangez]")
-#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-#		lines.append("g90")
 		self.app.run(lines=lines)
 
 ##===============================================================================

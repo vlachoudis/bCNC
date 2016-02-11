@@ -1626,7 +1626,7 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("%wait")
 
-		# FIXME Could be placed with m0?
+		# FIXME Could be replaced with m0?
 		if CNC.comment:
 			lines.append("%%pause Tool change T%02d (%s)"%(self.tool,CNC.comment))
 		else:
