@@ -342,12 +342,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		elif p==8:
 			cmd = "G92"
 
-		if x is not None: cmd += "X"+str(x)
-		if y is not None: cmd += "Y"+str(y)
-		if z is not None: cmd += "Z"+str(z)
+		pos = ""
+		if x is not None: pos += "X"+str(x)
+		if y is not None: pos += "Y"+str(y)
+		if z is not None: pos += "Z"+str(z)
+		cmd += pos
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
+			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
+			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -648,11 +651,13 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.step.set("%.4g"%(s))
 		if self.zstep is self.step or zs is None:
 			self.event_generate("<<Status>>",
-				data=(_("Step: %g")%(s)).encode("utf-8"))
+				data=_("Step: %g")%(s))
+				#data=(_("Step: %g")%(s)).encode("utf8"))
 		else:
 			self.zstep.set("%.4g"%(zs))
 			self.event_generate("<<Status>>",
-				data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf-8"))
+				data=_("Step: %g    Zstep:%g ")%(s,zs))
+				#data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf8"))
 
 	#----------------------------------------------------------------------
 	@staticmethod

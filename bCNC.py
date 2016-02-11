@@ -1397,34 +1397,6 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("RULER",cmd,2):
 			self.canvas.setActionRuler()
 
-		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
-		elif cmd == "SET":
-			try: x = float(line[1])
-			except: x = None
-			try: y = float(line[2])
-			except: y = None
-			try: z = float(line[3])
-			except: z = None
-			self._wcsSet(x,y,z)
-
-		elif cmd == "SET0":
-			self._wcsSet(0.,0.,0.)
-
-		elif cmd == "SETX":
-			try: x = float(line[1])
-			except: x = ""
-			self._wcsSet(x,None,None)
-
-		elif cmd == "SETY":
-			try: y = float(line[1])
-			except: y = ""
-			self._wcsSet(None,y,None)
-
-		elif cmd == "SETZ":
-			try: z = float(line[1])
-			except: z = ""
-			self._wcsSet(None,None,z)
-
 		# STAT*ISTICS: show statistics of current job
 		elif rexx.abbrev("STATISTICS",cmd,4):
 			self.showStats()

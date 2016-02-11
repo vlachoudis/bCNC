@@ -271,6 +271,34 @@ class Sender:
 		elif cmd == "SENDHEX":
 			self.sendHex(line[1])
 
+		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
+		elif cmd == "SET":
+			try: x = float(line[1])
+			except: x = None
+			try: y = float(line[2])
+			except: y = None
+			try: z = float(line[3])
+			except: z = None
+			self._wcsSet(x,y,z)
+
+		elif cmd == "SET0":
+			self._wcsSet(0.,0.,0.)
+
+		elif cmd == "SETX":
+			try: x = float(line[1])
+			except: x = ""
+			self._wcsSet(x,None,None)
+
+		elif cmd == "SETY":
+			try: y = float(line[1])
+			except: y = ""
+			self._wcsSet(None,y,None)
+
+		elif cmd == "SETZ":
+			try: z = float(line[1])
+			except: z = ""
+			self._wcsSet(None,None,z)
+
 		# STOP: stop current run
 		elif cmd == "STOP":
 			self.stopRun()
@@ -536,6 +564,8 @@ class Sender:
 		self.sendGrbl("%s\n"%(cmd))
 
 	#----------------------------------------------------------------------
+	# FIXME Duplicate with ControlPage
+	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
 		p = WCS.index(CNC.vars["WCS"])
 		if p<6:
@@ -547,12 +577,15 @@ class Sender:
 		elif p==8:
 			cmd = "G92"
 
-		if x is not None and abs(x)<10000.0: cmd += "X"+str(x)
-		if y is not None and abs(y)<10000.0: cmd += "Y"+str(y)
-		if z is not None and abs(z)<10000.0: cmd += "Z"+str(z)
+		pos = ""
+		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
+		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
+		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
+		cmd += pos
 		self.sendGrbl(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
+			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
+			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------

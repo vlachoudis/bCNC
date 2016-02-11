@@ -245,7 +245,8 @@ class CNCCanvas(Canvas):
 	# Set status message
 	# ----------------------------------------------------------------------
 	def status(self, msg):
-		self.event_generate("<<Status>>", data=msg.encode("utf-8"))
+		#self.event_generate("<<Status>>", data=msg.encode("utf8"))
+		self.event_generate("<<Status>>", data=msg)
 
 	# ----------------------------------------------------------------------
 	def setMouseStatus(self, event):
