@@ -248,6 +248,11 @@ class CNCCanvas(Canvas):
 		self.event_generate("<<Status>>", data=msg.encode("utf-8"))
 
 	# ----------------------------------------------------------------------
+	def setMouseStatus(self, event):
+		data="%.4f %.4f %.4f" % self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		self.event_generate("<<Coords>>", data=data)
+
+	# ----------------------------------------------------------------------
 	# Update scrollbars
 	# ----------------------------------------------------------------------
 	def _updateScrollBars(self):
@@ -321,11 +326,11 @@ class CNCCanvas(Canvas):
 #		self.status(_("Draw a square tab"))
 
 	# ----------------------------------------------------------------------
-	# Convert canvase x,y coordinates to machine space
+	# Convert canvas cx,cy coordinates to machine space
 	# ----------------------------------------------------------------------
-	def canvas2Machine(self, x, y):
-		u = self.canvasx(x) / self.zoom
-		v = self.canvasy(y) / self.zoom
+	def canvas2Machine(self, cx, cy):
+		u = cx / self.zoom
+		v = cy / self.zoom
 
 		if self.view == VIEW_XY:
 			return u, -v, None
@@ -346,10 +351,16 @@ class CNCCanvas(Canvas):
 			return -0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60), None
 
 	# ----------------------------------------------------------------------
+	# Image (pixel) coordinates to machine
+	# ----------------------------------------------------------------------
+	def image2Machine(self, x, y):
+		return self.canvas2Machine(self.canvasx(x), self.canvasy(y))
+
+	# ----------------------------------------------------------------------
 	# Move gantry to mouse location
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
-		u,v,w = self.canvas2Machine(x,y)
+		u,v,w = self.image2Machine(x,y)
 		self.app.goto(u,v,w)
 		self.setAction(ACTION_SELECT)
 
@@ -357,7 +368,7 @@ class CNCCanvas(Canvas):
 	# Set the work coordinates to mouse location
 	# ----------------------------------------------------------------------
 	def actionSetPos(self, x, y):
-		u,v,w = self.canvas2Machine(x,y)
+		u,v,w = self.image2Machine(x,y)
 		self.app.dro.wcsSet(u,v,w)
 		self.setAction(ACTION_SELECT)
 
@@ -365,7 +376,8 @@ class CNCCanvas(Canvas):
 	# Add an orientation marker at mouse location
 	# ----------------------------------------------------------------------
 	def actionAddOrient(self, x, y):
-		u,v,w = self.canvas2Machine(x,y)
+		cx,cy = self.snapPoint(self.canvasx(x), self.canvasy(y))
+		u,v,w = self.canvas2Machine(cx,cy)
 		if u is None or v is None:
 			self.status(_("ERROR: Cannot set X-Y marker  with the current view"))
 			return
@@ -536,7 +548,7 @@ class CNCCanvas(Canvas):
 #					self._tab.x-self._tab.dx, self._tab.y-self._tab.dy,
 #					self._tab.x+self._tab.dx, self._tab.y+self._tab.dy)
 
-		self.setStatus(event)
+		self.setMouseStatus(event)
 
 	# ----------------------------------------------------------------------
 	# Canvas release button1. Select area
@@ -567,11 +579,9 @@ class CNCCanvas(Canvas):
 					except: pass
 
 			elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
-				closest = self.find_closest(
-						self.canvasx(event.x),
-						self.canvasy(event.y),
-						CLOSE_DISTANCE)
-
+				closest = self.find_closest(	self.canvasx(event.x),
+								self.canvasy(event.y),
+								CLOSE_DISTANCE)
 				items = []
 				for i in closest:
 					try:
@@ -618,13 +628,44 @@ class CNCCanvas(Canvas):
 		self._mouseAction = ACTION_SELECT_DOUBLE
 
 	# ----------------------------------------------------------------------
-	def setStatus(self, event):
-		data="%.4f %.4f %.4f" % self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
-		self.event_generate("<<Coords>>", data=data)
+	def motion(self, event):
+		self.setMouseStatus(event)
 
 	# ----------------------------------------------------------------------
-	def motion(self, event):
-		self.setStatus(event)
+	# Snap to the closest point if any
+	# ----------------------------------------------------------------------
+	def snapPoint(self, cx, cy):
+		xs,ys = None,None
+		dmin  = 1e10
+		for item in self.find_closest(cx, cy, CLOSE_DISTANCE):
+			try:
+				bid,lid = self._items[item]
+			except KeyError:
+				continue
+
+			# Very cheap and inaccurate approach :)
+			coords = self.coords(item)
+			x = coords[0]	# first
+			y = coords[1]	# point
+			d = (cx-x)**2 + (cy-y)**2
+			if d<dmin:
+				dmin = d
+				xs,ys = x,y
+
+			x = coords[-2]	# last
+			y = coords[-1]	# point
+			d = (cx-x)**2 + (cy-y)**2
+			if d<dmin:
+				dmin = d
+				xs,ys = x,y
+
+			# I need to check the real code and if
+			# an arc check also the center?
+
+		if xs is not None:
+			return xs, ys
+		else:
+			return cx, cy
 
 	#----------------------------------------------------------------------
 	# Get margins of selected items
