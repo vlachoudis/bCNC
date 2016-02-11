@@ -636,7 +636,13 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def snapPoint(self, cx, cy):
 		xs,ys = None,None
-		dmin  = 1e10
+		if CNC.inch:
+			dmin = (self.zoom/25.4)**2	# 1mm maximum distance ...
+		else:
+			dmin = (self.zoom)**2
+		dmin  = (CLOSE_DISTANCE*self.zoom)**2
+
+		# ... and if we are closer than 5pixels
 		for item in self.find_closest(cx, cy, CLOSE_DISTANCE):
 			try:
 				bid,lid = self._items[item]
