@@ -24,7 +24,7 @@ try:
 except ImportError:
 	from queue import *
 
-from CNC import WAIT, PAUSE, UPDATE, WCS, CNC, GCode
+from CNC import WAIT, MSG, UPDATE, WCS, CNC, GCode
 import Utils
 import Pendant
 
@@ -677,17 +677,12 @@ class Sender:
 							wait = True
 							#print "+++ WAIT ON"
 							#print "gcount=",self._gcount, self._runLines
-						elif tosend[0] == PAUSE:
+						elif tosend[0] == MSG:
 							# Count executed commands as well
 							self._gcount += 1
 							if tosend[1] is not None:
 								# show our message on machine status
 								self._msg = tosend[1]
-							# Feed hold
-							# Maybe a M0 would be better?
-							self.serial.write(b"!")
-							self.serial.flush()
-							#print ">S> !"
 						elif tosend[0] == UPDATE:
 							# Count executed commands as well
 							self._gcount += 1

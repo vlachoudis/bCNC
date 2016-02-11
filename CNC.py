@@ -31,7 +31,7 @@ AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 STOP   = 0
 SKIP   = 1
 ASK    = 2
-PAUSE  = 3
+MSG    = 3
 WAIT   = 4
 UPDATE = 5
 
@@ -1021,9 +1021,9 @@ class CNC:
 				args = None
 			if cmd=="%wait":
 				return (WAIT,)
-			elif cmd=="%pause":
+			elif cmd=="%msg":
 				if not args: args = None
-				return (PAUSE, args)
+				return (MSG, args)
 			elif cmd=="%update":
 				return (UPDATE, args)
 			else:
@@ -1628,9 +1628,10 @@ class CNC:
 
 		# FIXME Could be replaced with m0?
 		if CNC.comment:
-			lines.append("%%pause Tool change T%02d (%s)"%(self.tool,CNC.comment))
+			lines.append("%%msg Tool change T%02d (%s)"%(self.tool,CNC.comment))
 		else:
-			lines.append("%%pause Tool change T%02d"%(self.tool))
+			lines.append("%%msg Tool change T%02d"%(self.tool))
+		lines.append("m0")	# feed hold
 
 		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
 		lines.append("g53 g0 z[toolprobez]")
@@ -1658,7 +1659,8 @@ class CNC:
 
 		if CNC.toolWaitAfterProbe:
 			lines.append("%wait")
-			lines.append("%pause Restart spindle")
+			lines.append("%msg Restart spindle")
+			lines.append("m0")	# feed hold
 
 		# restore state
 		lines.append("g90")		# restore mode
