@@ -280,7 +280,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 				compound=TOP,
 				command=lambda s=self : s.event_generate("<<Connect>>"),
 				background=Ribbon._BACKGROUND)
-		self.connectBtn.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
+		self.connectBtn.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(self.connectBtn, _("Open/Close serial port"))
 		self.grid_columnconfigure(1, weight=1)
 

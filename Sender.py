@@ -334,7 +334,7 @@ class Sender:
 				self.gcode.probe.filename = filename
 				self._saveConfigFile()
 			self.gcode.probe.load(filename)
-		if ext == ".orient":
+		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.load(filename)
 		elif ext == ".stl":
@@ -360,7 +360,7 @@ class Sender:
 				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
 				self.gcode.probe.save()
-		if ext == ".orient":
+		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.save(filename)
 		elif ext == ".stl":
@@ -857,6 +857,7 @@ class Sender:
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.controller==Utils.SMOOTHIE: tosend = tosend.upper()
 				self.serial.write(bytes(tosend))
+#				self.serial.write(tosend.encode("utf8"))
 #				self.serial.flush()
 
 				tosend = None

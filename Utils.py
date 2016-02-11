@@ -27,6 +27,7 @@ try:
 	import __builtin__
 except:
 	import builtins as __builtin__
+	#__builtin__.unicode = str		# dirty hack for python3
 
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
@@ -166,7 +167,7 @@ def getStr(section, name, default=""):
 def getUtf(section, name, default=""):
 	global config
 	try:
-		return config.get(section, name).decode("utf-8")
+		return config.get(section, name).decode("utf8")
 	except:
 		return default
 
@@ -241,7 +242,7 @@ def setStr(section, name, value):
 def setUtf(section, name, value):
 	global config
 	try:
-		s = value.encode("utf-8")
+		s = str(value.encode("utf8"))
 	except:
 		s = str(value)
 	config.set(section, name, s)
@@ -263,7 +264,7 @@ def addRecent(filename):
 	try:
 		sfn = str(os.path.abspath(filename))
 	except UnicodeEncodeError:
-		sfn = filename.encode("utf-8")
+		sfn = filename.encode("utf8")
 
 	last = _maxRecent-1
 	for i in range(_maxRecent):

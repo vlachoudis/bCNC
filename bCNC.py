@@ -1795,7 +1795,7 @@ class Application(Toplevel,Sender):
 		if self.gcode.isModified():
 			ans = tkMessageBox.askquestion(_("File modified"),
 				_("Gcode was modified do you want to save it first?"),
-				type = tkMessageBox.YESNOCANCEL, 
+				type = tkMessageBox.YESNOCANCEL,
 				parent=self)
 			if ans==tkMessageBox.CANCEL:
 				return True
