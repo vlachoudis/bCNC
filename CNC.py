@@ -1537,20 +1537,21 @@ class CNC:
 			length += math.sqrt((i[0]-p[0])**2 + (i[1]-p[1])**2 + (i[2]-p[2])**2)
 			p = i
 
-		block.length += length
-		self.totalLength += length
-
 		if self.gcode == 0:
 			# FIXME calculate the correct time with the feed direction
 			# and acceleration
 			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
+			block.rapid += length
 		else:
 			try:
 				block.time += length / self.feed
 				self.totalTime += length / self.feed
 			except:
 				pass
+			block.length += length
+
+		self.totalLength += length
 
 	#----------------------------------------------------------------------
 	def pathMargins(self, block):
@@ -2064,7 +2065,8 @@ class Block(list):
 		del self._path[:]
 		self.xmin = self.ymin = self.zmin =  1000000.0
 		self.xmax = self.ymax = self.zmax = -1000000.0
-		self.length = 0.0
+		self.length = 0.0	# cut length
+		self.rapid  = 0.0	# rapid length
 		self.time   = 0.0
 
 	#----------------------------------------------------------------------

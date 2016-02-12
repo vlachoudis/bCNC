@@ -823,11 +823,13 @@ class Application(Toplevel,Sender):
 		# count enabled blocks
 		e = 0
 		l = 0
+		r = 0
 		t = 0
 		for block in self.gcode.blocks:
 			if block.enable:
 				e += 1
 				l += block.length
+				r += block.rapid
 				t += block.time
 
 		# ===========
@@ -880,6 +882,14 @@ class Application(Toplevel,Sender):
 		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g %s" % (l, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g %s" % (r, unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---

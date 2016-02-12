@@ -556,6 +556,9 @@ class DXF:
 			if entity.type in ("ELLIPSE", "SPLINE"):
 				entity.convert2Polyline()
 
+			elif entity.type in ("HATCH",):
+				continue	# ignore
+
 			try:
 				layer = self.layers[entity.name]
 			except KeyError:
