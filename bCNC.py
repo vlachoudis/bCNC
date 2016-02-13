@@ -2162,7 +2162,7 @@ class Application(Toplevel,Sender):
 
 		if self.running:
 			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
-						self._gcount)
+						self._gcount, bufferFill = Sender.getBufferFill(self))
 			CNC.vars["msg"] = self.statusbar.msg
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
