@@ -2,7 +2,7 @@
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
 # Author: vvlachoudis@gmail.com
-# Date: 24-Aug-2014y
+# Date: 24-Aug-2014
 
 import os
 import re
@@ -365,82 +365,64 @@ class Probe:
 	# return only end points
 	#----------------------------------------------------------------------
 	def splitLine(self, x1, y1, z1, x2, y2, z2):
-		#print "splitLine:",x1, y1, z1, x2, y2, z2
-		#pdb.set_trace()
-		i1 = int(math.floor((x1-self.xmin) / self._xstep))
-		i2 = int(math.floor((x2-self.xmin) / self._xstep))
-
-		j1 = int(math.floor((y1-self.ymin) / self._ystep))
-		j2 = int(math.floor((y2-self.ymin) / self._ystep))
-
 		dx = x2-x1
 		dy = y2-y1
 		dz = z2-z1
-		if dx==0.0 and dy==0.0:
-			return [(x2,y2,z2+self.interpolate(x2,y2))]
-
-		rxy = math.sqrt(dx*dx+dy*dy)
-		r   = math.sqrt(dx*dx + dy*dy + dz*dz)
-		dx /= rxy
-		dy /= rxy
-		# add correction for the slope in Z, versut the travel in XY
-		dz  =  dz * rxy/(dx*dx + dy*dy + dz*dz)
 
 		if abs(dx)<1e-10: dx = 0.0
 		if abs(dy)<1e-10: dy = 0.0
+		if abs(dz)<1e-10: dz = 0.0
 
-		# Next intersection
-		if dx>0.0:
-			i = i1+1
-			i2 += 1
+		if dx==0.0 and dy==0.0:
+			return [(x2,y2,z2+self.interpolate(x2,y2))]
+
+		# Length along projection on X-Y plane
+		rxy = math.sqrt(dx*dx + dy*dy)
+		dx /= rxy	# direction cosines along XY plane
+		dy /= rxy
+		dz /= rxy	# add correction for the slope in Z, versus the travel in XY
+
+		i = int(math.floor((x1-self.xmin) / self._xstep))
+		j = int(math.floor((y1-self.ymin) / self._ystep))
+		if dx > 1e-10:
+			tx  = (float(i+1)*self._xstep+self.xmin - x1)/ dx	# distance to next cell
+			tdx = self._xstep / dx
+		elif dx < -1e-10:
+			tx  = (float(i)*self._xstep+self.xmin - x1)/ dx		# distance to next cell
+			tdx = -self._xstep / dx
 		else:
-			i = i1
+			tx  = 1e10
+			tdx = 0.0
 
-		if dy>0.0:
-			j = j1+1
-			j2 += 1
+		if dy > 1e-10:
+			ty  = (float(j+1)*self._ystep+self.ymin - y1)/ dy	# distance to next cell
+			tdy = self._ystep / dy
+		elif dy < -1e-10:
+			ty  = (float(j)*self._ystep+self.ymin - y1)/ dy		# distance to next cell
+			tdy = -self._ystep / dy
 		else:
-			j = j1
-
-		xn = x = x1
-		yn = y = y1
-		z  = z1
-		tx = ty = 1E10
+			ty  = 1e10
+			tdy = 0.0
 
 		segments = []
-		endx = False
-		endy = False
-		while i!=i2 or j!=j2:
-			if dx!=0.0:
-				xn = self.xmin + i*self._xstep
-				tx = (xn - x1) / dx
-			if dy!=0.0:
-				yn = self.ymin + j*self._ystep
-				ty = (yn - y1) / dy
-
-			if tx < ty:
-				x = xn
-				y = y1 + tx*dy
-				z = z1 + tx*dz
-				if dx > 0.0:
-					i += 1
-					endx = i>=i2
-				else:
-					i -= 1
-					endx = i<=i2
+		rxy *= 0.999999999	# just reduce a bit to avoid precision errors
+		while tx<rxy or ty<rxy:
+			if tx==ty:
+				t = tx
+				tx += tdx
+				ty += tdy
+			elif tx<ty:
+				t = tx
+				tx += tdx
 			else:
-				x = x1 + ty*dx
-				y = yn
-				z = z1 + ty*dz
-				if dy > 0.0:
-					j += 1
-					endy = j>=j2
-				else:
-					j -= 1
-					endy = j<=j2
+				t = ty
+				ty += tdy
+			x = x1 + t*dx
+			y = y1 + t*dy
+			z = z1 + t*dz
 			segments.append((x,y,z+self.interpolate(x,y)))
+
 		segments.append((x2,y2,z2+self.interpolate(x2,y2)))
-		#print "segments=",segments
 		return segments
 
 #===============================================================================
@@ -664,6 +646,7 @@ class CNC:
 	stdexpr        = False	# standard way of defining expressions with []
 	comment        = ""	# last parsed comment
 	developer      = False
+	vars           = {}
 
 	drillPolicy    = 1	# Expand Canned cycles
 	toolPolicy     = 1	# Should be in sync with ProbePage

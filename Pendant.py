@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-# $Id: Pendant.py,v 1.3 2014/10/15 15:04:48 bnv Exp bnv $
+# $Id$
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	06-Oct-2014
+# Author: vvlachoudis@gmail.com
+# Date: 24-Aug-2014
 
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
@@ -27,10 +27,7 @@ try:
 except ImportError:
 	import http.server as HTTPServer
 
-try:
-	import cv2 as cv
-except ImportError:
-	cv = None
+import Camera
 
 HOSTNAME = "localhost"
 port     = 8080
@@ -39,7 +36,6 @@ httpd    = None
 prgpath  = os.path.abspath(os.path.dirname(sys.argv[0]))
 webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
-cameraId = 0
 
 #==============================================================================
 # Simple Pendant controller for CNC
@@ -110,13 +106,14 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				pass
 
 		elif page == "/camera":
-			if cv is None: return
+			if not Camera.hasOpenCV(): return
 			if Pendant.camera is None:
-				Pendant.camera = cv.VideoCapture(cameraId)
+				Pendant.camera = Camera.Camera("webcam")
 
 			s,img = Pendant.camera.read()
 			if s:
-				cv.imwrite("camera.jpg",img)
+				Pendant.camera.save("camera.jpg")
+				#cv.imwrite("camera.jpg",img)
 				self.do_HEAD(200, content="image/jpeg")
 				try:
 					f = open("camera.jpg","rb")
