@@ -325,8 +325,8 @@ class FileDialog(Toplevel):
 		l = Label(frame, text=_("Files of type:"))
 		l.grid(row=1, column=0, sticky=E)
 
-		self.combo = tkExtra.Combobox(frame, command=self.typeChange)
-		self.combo.grid(row=1, column=1, sticky=NSEW)
+		self.typeCombo = tkExtra.Combobox(frame, command=self.typeChange)
+		self.typeCombo.grid(row=1, column=1, sticky=NSEW)
 
 		self.filter = None
 		self.filetypes = {}
@@ -340,7 +340,7 @@ class FileDialog(Toplevel):
 					ext = (ext,)
 				else:
 					s = "%s (%s)"%(desc, ",".join(ext))
-				self.combo.insert(END, s)
+				self.typeCombo.insert(END, s)
 				self.filetypes[s] = ext
 
 		b = Button(frame, text=_("Cancel"), command=self.cancel)
@@ -386,7 +386,7 @@ class FileDialog(Toplevel):
 				%(FileDialog.width, FileDialog.height))
 
 		self.buttonPath(self.path)
-		self.combo.set(self.combo.get(0))	# will fill the files
+		self.typeCombo.set(self.typeCombo.get(0))	# will fill the files
 		try:
 			self.lift()
 			self.focus_set()
@@ -785,9 +785,23 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def typeChange(self, event=None):
-		pat = self.combo.get()
+		pat = self.typeCombo.get()
 		self.filter = self.filetypes.get(pat,None)
 		self.fill()
+		if self.filter is None: return
+
+		# Change extension if needed
+		first = None
+		fn,ext = os.path.splitext(self.filename.get())
+		for i in self.filter:
+			f,e = os.path.splitext(i)
+			if first is None and e: first = e
+			if e == ext: return
+		else:
+			if first:
+				# not found, change the filename to the first extension
+				self.filename.delete(0, END)
+				self.filename.insert(0, fn+first)
 
 	# ----------------------------------------------------------------------
 	def newFolder(self):
