@@ -557,10 +557,6 @@ class ProgressBar(Canvas):
 		self.doneBox = self.create_rectangle(0, 0, 0, 0,
 					fill='DarkGreen',
 					width=0)
-		self.buffArc = self.create_arc(0, 0, 0, 0,
-					fill='Green',
-					width=0,
-					start = 90)
 		self.text = self.create_text(0,0,
 					text="",
 					fill="White",
@@ -581,10 +577,9 @@ class ProgressBar(Canvas):
 		self.now    = float(low)
 		self.t0     = time.time()
 		self.msg    = ""
-		self.buffFill = 0.
 
 	# ----------------------------------------------------------------------
-	def setProgress(self, now, done=None, txt=None, bufferFill=None):
+	def setProgress(self, now, done=None, txt=None):
 		self.now = now
 		if self.now < self.low:
 			self.now = self.low
@@ -600,11 +595,6 @@ class ProgressBar(Canvas):
 			self.done = self.low
 		elif self.done > self.high:
 			self.done = self.high
-
-		if bufferFill is None:
-			self.buffFill = 0
-		else:
-			self.buffFill = bufferFill
 
 		# calculate remaining time
 		dt = time.time() - self.t0
@@ -695,13 +685,8 @@ class ProgressBar(Canvas):
 
 		if wd >= wn: wd = wn - 1
 
-		wn-=height
-		wd-=height
-
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)
-		self.coords(self.buffArc, width - height + 2, 2, width-4, height-4)
-		self.itemconfig(self.buffArc, extent = self.buffFill * 3.6)
 
 		if self.itemcget(self.text, "justify") == CENTER:
 			self.coords(self.text, width/2, height/2)
@@ -4456,6 +4441,36 @@ class ScrollFrame(Frame):
 			self.xscrollcommand(0.0,1.0)
 			self.yscrollcommand(0.0,1.0)
 			self.client.place_forget()
+
+#===============================================================================
+# Gauge Canvas. Pie chart as guage meter
+#===============================================================================
+class Gauge(Canvas):
+	def __init__(self, master=None, **kw):
+		Canvas.__init__(self, master, **kw)
+
+		self.gaugeArc = self.create_arc(0, 0, 0, 0,
+					fill='Green',
+					width=0,
+					start = 90)
+		self.gaugeBorder = self.create_oval(0, 0, 0, 0,
+					width = 1)
+		self.Fill = 0.
+		self.bind('<Configure>', self.draw)
+
+	def setFill(self, Fill=0.):
+		self.Fill = Fill
+		self.draw()
+
+		# ----------------------------------------------------------------------
+	def draw(self, event=None):
+		width  = self.winfo_width()
+		height = self.winfo_height()
+
+		self.coords(self.gaugeBorder, 2, 2, width-4, height-4)
+
+		self.coords(self.gaugeArc, 2, 2, width-4, height-4)
+		self.itemconfig(self.gaugeArc, extent = self.Fill * 3.6)
 
 #================================================================================
 # The following is from idlelib (tabpage.py)
