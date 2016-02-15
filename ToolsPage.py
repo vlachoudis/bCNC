@@ -143,6 +143,8 @@ class _Base:
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.see(active)
+		n, t, d, l = self.variables[active]
+		if t=="bool": return	# Forbid changing value of bool
 		self.master.listbox.event_generate("<Return>")
 
 	#----------------------------------------------------------------------
@@ -454,6 +456,11 @@ class Color(Ini):
 		Ini.__init__(self, master, "Color", "color")
 
 #------------------------------------------------------------------------------
+class Camera(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Camera", "int")
+
+#------------------------------------------------------------------------------
 class Shortcut(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Shortcut", "str")
@@ -731,7 +738,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill,
+		for cls in [ CNC, Font, Camera, Color, Cut, Drill, EndMill,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
@@ -1048,7 +1055,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		col,row=0,0
 		f = Frame(self.frame)
-		f.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
+		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=NSEW)
 
 		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT)
@@ -1116,6 +1123,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Color configuration"))
+		self.addWidget(b)
+
+		# ===
+		col,row = 2,1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["camera"],
+				text=_("Camera"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Camera",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
 	#----------------------------------------------------------------------
