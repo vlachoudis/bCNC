@@ -1072,43 +1072,15 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config"],
-				text=_("Machine"),
+				image=Utils.icons["camera"],
+				text=_("Camera"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="CNC",
+				value="Camera",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["shortcut"],
-				text=_("Shortcuts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Shortcut",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts"))
-		self.addWidget(b)
-
-		# ===
-		col,row = 1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["font"],
-				text=_("Fonts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Font",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Font configuration"))
+		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
 		# ---
@@ -1126,17 +1098,45 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		self.addWidget(b)
 
 		# ===
-		col,row = 2,1
+		col,row = col+1,1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["camera"],
-				text=_("Camera"),
+				image=Utils.icons["font"],
+				text=_("Fonts"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="Camera",
+				value="Font",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Camera Configuration"))
+		tkExtra.Balloon.set(b, _("Font configuration"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["config"],
+				text=_("Machine"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="CNC",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
+		self.addWidget(b)
+
+		# ===
+		col,row = col+1,1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text=_("Shortcuts"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Shortcuts"))
 		self.addWidget(b)
 
 	#----------------------------------------------------------------------
