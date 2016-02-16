@@ -4448,29 +4448,27 @@ class ScrollFrame(Frame):
 class Gauge(Canvas):
 	def __init__(self, master=None, **kw):
 		Canvas.__init__(self, master, **kw)
-
 		self.gaugeArc = self.create_arc(0, 0, 0, 0,
-					fill='Green',
-					width=0,
+					fill  = 'Green',
+					width = 0,
 					start = 90)
 		self.gaugeBorder = self.create_oval(0, 0, 0, 0,
 					width = 1)
-		self.Fill = 0.
+		self.fill = 0.
 		self.bind('<Configure>', self.draw)
 
-	def setFill(self, Fill=0.):
-		self.Fill = Fill
+	# ----------------------------------------------------------------------
+	def setFill(self, fill=0.):
+		self.fill = fill
 		self.draw()
 
-		# ----------------------------------------------------------------------
+	# ----------------------------------------------------------------------
 	def draw(self, event=None):
 		width  = self.winfo_width()
 		height = self.winfo_height()
-
 		self.coords(self.gaugeBorder, 2, 2, width-4, height-4)
-
-		self.coords(self.gaugeArc, 2, 2, width-4, height-4)
-		self.itemconfig(self.gaugeArc, extent = self.Fill * 3.6)
+		self.coords(self.gaugeArc,    2, 2, width-4, height-4)
+		self.itemconfig(self.gaugeArc, extent = self.fill * 3.6)
 
 #================================================================================
 # The following is from idlelib (tabpage.py)

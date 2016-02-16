@@ -136,8 +136,8 @@ class Application(Toplevel,Sender):
 		self.statusx.pack(side=RIGHT)
 
 		# Buffer gauge
-		self.bufferGauge = tkExtra.Gauge(frame,height=20, width=20, relief=SUNKEN)
-		self.bufferGauge.pack(side=RIGHT, fill=X, expand=NO)
+		self.bufferGauge = tkExtra.Gauge(frame, height=20, width=20, relief=SUNKEN)
+		self.bufferGauge.pack(side=RIGHT, expand=NO)
 
 		# --- Left side ---
 		frame = Frame(self.paned)
