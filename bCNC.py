@@ -135,6 +135,10 @@ class Application(Toplevel,Sender):
 		self.statusx = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusx.pack(side=RIGHT)
 
+		# Buffer gauge
+		self.bufferGauge = tkExtra.Gauge(frame,height=20, width=20, relief=SUNKEN)
+		self.bufferGauge.pack(side=RIGHT, fill=X, expand=NO)
+
 		# --- Left side ---
 		frame = Frame(self.paned)
 		self.paned.add(frame) #, minsize=340)
@@ -412,6 +416,7 @@ class Application(Toplevel,Sender):
 		self.statusbar.configText(text=msg, fill="DarkBlue")
 		if force_update:
 			self.statusbar.update_idletasks()
+			self.bufferGauge.update_idletasks()
 
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
@@ -1954,6 +1959,7 @@ class Application(Toplevel,Sender):
 		self.statusbar.clear()
 		self.statusbar.config(background="LightGray")
 		self.setStatus(_("Run ended"))
+		self.bufferGauge.setFill(0)
 
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
@@ -2146,6 +2152,7 @@ class Application(Toplevel,Sender):
 			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
 			CNC.vars["msg"] = self.statusbar.msg
+			self.bufferGauge.setFill(Sender.getBufferFill(self))
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
 					#print

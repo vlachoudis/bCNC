@@ -128,6 +128,7 @@ class Sender:
 		self._pause      = False	# machine is on Hold
 		self._alarm      = True		# Display alarm message if true
 		self._msg        = None
+		self._sumcline   = 0
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -640,6 +641,10 @@ class Sender:
 			self.gcode.probe.clear()
 
 	#----------------------------------------------------------------------
+	def getBufferFill(self):
+		return self._sumcline * 100. / RX_BUFFER_SIZE
+
+	#----------------------------------------------------------------------
 	def initRun(self):
 		self._quit   = 0
 		self._pause  = False
@@ -879,6 +884,7 @@ class Sender:
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
+				self._sumcline = sum(cline)
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
