@@ -1839,7 +1839,7 @@ class Application(Toplevel,Sender):
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
 
-		self.setStatus(_("'%s' loaded")%(filename))
+		self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
