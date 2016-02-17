@@ -1335,6 +1335,8 @@ class CNC:
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
 			uc,vc = self.motionCenter()
+
+			gcode = self.gcode
 			if self.plane == XY:
 				u0 = self.x
 				v0 = self.y
@@ -1349,6 +1351,7 @@ class CNC:
 				u1 = self.xval
 				v1 = self.zval
 				w1 = self.yval
+				gcode = 5-gcode	# flip 2-3 when XZ plane is used
 			else:
 				u0 = self.y
 				v0 = self.z
@@ -1368,7 +1371,7 @@ class CNC:
 			else:
 				df = math.pi/4.0
 
-			if self.gcode==2:
+			if gcode==2:
 				if phi1>=phi0-1e-10: phi1 -= 2.0*math.pi
 				ws  = (w1-w0)/(phi1-phi0)
 				phi = phi0 - df
