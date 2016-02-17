@@ -1845,7 +1845,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus(_("'%s' saved")%(filename))
+		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------

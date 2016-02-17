@@ -29,16 +29,21 @@ except:
 	import builtins as __builtin__
 	#__builtin__.unicode = str		# dirty hack for python3
 
+__prg__     = "bCNC"
+prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
+iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
+iniUser   = os.path.expanduser("~/.%s" % (__prg__))
+hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
+
 # dirty way of substituting the "_" on the builtin namespace
 #__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).ugettext
 __builtin__.N_ = lambda message: message
 
 
 import Ribbon
 import tkExtra
 
-__prg__     = "bCNC"
 __www__     = "https://github.com/vlachoudis/bCNC"
 __contribute__ = \
 		"@effer Filippo Rivato\n" \
@@ -61,10 +66,6 @@ LANGUAGES = {
 		"fr" : u"Fran\u00e7ais"
 	}
 
-prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
-iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
-iniUser   = os.path.expanduser("~/.%s" % (__prg__))
-hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 icons     = {}
 config    = ConfigParser.ConfigParser()
 language  = ""
@@ -112,7 +113,7 @@ def loadConfiguration(systemOnly=False):
 		language = getStr(__prg__, "language")
 		if language:
 			# replace language
-			__builtin__._ = gettext.translation('bCNC', 'locale',
+			__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'),
 					fallback=True, languages=[language]).gettext
 
 #------------------------------------------------------------------------------

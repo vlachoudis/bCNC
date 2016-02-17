@@ -2539,6 +2539,7 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def _trim(self):
+		if not self.blocks: return
 		# Delete last block if empty
 		last = self.blocks[-1]
 		if len(last)==1 and len(last[0])==0: del last[0]
