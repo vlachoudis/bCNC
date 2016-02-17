@@ -792,7 +792,9 @@ class FileDialog(Toplevel):
 
 		# Change extension if needed
 		first = None
-		fn,ext = os.path.splitext(self.filename.get())
+		filename = self.filename.get()
+		if filename == "" or "," in filename: return
+		fn,ext = os.path.splitext(filename)
 		for i in self.filter:
 			f,e = os.path.splitext(i)
 			if first is None and e: first = e
@@ -974,7 +976,7 @@ if __name__ == "__main__":
 		initdir = os.path.abspath(sys.argv[1])
 	#print askdirectory()
 
-	files = asksaveasfilename(title=_("Open"),
+	files = askopenfilenames(title=_("Open"),
 			initialdir=initdir,
 #			initialfile="test.f",
 			filetypes=(("All","*"),
