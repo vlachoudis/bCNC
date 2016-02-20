@@ -1583,8 +1583,7 @@ class CNC:
 					cmd = CNC.fmt(c,value)
 				else:
 					opt = ERROR_HANDLING.get(cmd.upper(),0)
-					if opt == SKIP:
-						cmd = None
+					if opt == SKIP: cmd = None
 
 				if cmd is not None:
 					newcmd.append(cmd)
@@ -3767,6 +3766,13 @@ class GCode:
 		lines  = []
 		paths  = []
 		self.initPath()
+
+		if autolevel:
+			# During autolevel do not send any unit change command
+			# All paths are going to expand internally
+			ERROR_HANDLING["G20"] = SKIP
+			ERROR_HANDLING["G21"] = SKIP
+
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
 			for j,line in enumerate(block):
@@ -3847,13 +3853,20 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
-					#else:
-					#	opt = ERROR_HANDLING.get(cmd.upper(),0)
+					else:
+						opt = ERROR_HANDLING.get(cmd.upper(),0)
+						if opt == SKIP: cmd = None
 					if cmd is not None:
 						newcmd.append(cmd)
 
 				lines.append("".join(newcmd))
 				paths.append((i,j))
+
+		if autolevel:
+			# Remove the skipping of unit change commands
+			del ERROR_HANDLING["G20"]
+			del ERROR_HANDLING["G21"]
+
 		return lines,paths
 
 #if __name__=="__main__":
