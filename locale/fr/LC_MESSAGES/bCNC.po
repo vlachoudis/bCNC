@@ -7,60 +7,60 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-11 21:24+0100\n"
-"PO-Revision-Date: 2016-02-11 21:25+0100\n"
+"POT-Creation-Date: 2016-02-20 15:37+0100\n"
+"PO-Revision-Date: 2016-02-20 16:00+0100\n"
 "Last-Translator: ThierryM <thierry.munoz@free.fr>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 1.8.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: Updates.py:47
 msgid "Installed Version:"
-msgstr ""
+msgstr "Version installée :"
 
 #: Updates.py:52
 msgid "Running version of bCNC"
-msgstr ""
+msgstr "Version actuelle de bCNC"
 
 #: Updates.py:54
 msgid "Latest Github Version:"
-msgstr ""
+msgstr "Dernière Version Github :"
 
 #: Updates.py:60
 msgid "Latest release version on on github"
-msgstr ""
+msgstr "Dernière version sur Github"
 
 #: Updates.py:61
 msgid "Published at:"
-msgstr ""
+msgstr "Publié le :"
 
 #: Updates.py:67
 msgid "Published date of the latest github relase"
-msgstr ""
+msgstr "Date de publication du dernier release sur Github"
 
 #: Updates.py:72
 msgid "Check Interval"
-msgstr ""
+msgstr "Intervalle de Vérification"
 
 #: Updates.py:75
 msgid "Last Check:"
-msgstr ""
+msgstr "Dernière Vérification :"
 
 #: Updates.py:87
 msgid "Date of last checking"
-msgstr ""
+msgstr "Date de la dernière vérification"
 
 #: Updates.py:89
 msgid "Interval (days):"
-msgstr ""
+msgstr "Intervalle (jours) :"
 
 #: Updates.py:100
 msgid "Days-interval to remind again for checking"
-msgstr ""
+msgstr "Intervalle de jours pour rappeler une vérification de nouvelle version"
 
 #: Updates.py:105 Utils.py:406 bCNC.py:771 bCNC.py:966 bCNC.py:1933
 msgid "Close"
@@ -68,24 +68,24 @@ msgstr "Fermer"
 
 #: Updates.py:111
 msgid "Check Now"
-msgstr ""
+msgstr "Vérifier Maintenant"
 
 #: Updates.py:117
 msgid "Check the web site for new versions of bCNC"
-msgstr ""
+msgstr "Vérifier le site Internet pour de nouvelles versions de bCNC"
 
 #: Updates.py:149
 msgid "Download"
-msgstr ""
+msgstr "Télécharger"
 
 #: Updates.py:152
 msgid "Open web browser to download bCNC"
-msgstr ""
+msgstr "Ouvrir le navigateur Internet pour télécharger bCNC"
 
 #: Updates.py:157
 #, python-format
 msgid "Error %d in connection"
-msgstr ""
+msgstr "Erreur %d de connexion"
 
 #: Sender.py:57
 msgid "bCNC is currently sending a gcode program to Grbl"
@@ -1358,11 +1358,11 @@ msgstr "Choisir la vitesse de connexion en baud"
 
 #: FilePage.py:252
 msgid "Controller:"
-msgstr ""
+msgstr "Contrôleur :"
 
 #: FilePage.py:259
 msgid "Select controller board"
-msgstr ""
+msgstr "Choisir la carte contrôleur"
 
 #: FilePage.py:266
 msgid "Connect on startup"
@@ -1864,65 +1864,67 @@ msgstr "Sondage central avec un anneau"
 
 #: ProbePage.py:342 ProbePage.py:450 bCNC.py:91
 msgid "Orient"
-msgstr ""
+msgstr "Orienter"
 
 #: ProbePage.py:348
 msgid "Markers:"
-msgstr ""
+msgstr "Marqueurs :"
 
 #: ProbePage.py:358
 msgid "Select orientation marker"
-msgstr ""
+msgstr "Choisir le marqueur d'orientation"
 
 #: ProbePage.py:370
 msgid ""
 "Add an orientation marker. Jog first the machine to the marker position and "
 "then click on canvas to add the marker."
 msgstr ""
+"Ajouter un marqueur d'orientation. Déplacer d'abord la machine vers la "
+"position du marqueur, puis cliquer sur l'écran pour ajouter le marqueur."
 
 #: ProbePage.py:384
 msgid "GCode X coordinate of orientation point"
-msgstr ""
+msgstr "Coordonnée GCode X du point d'orientation"
 
 #: ProbePage.py:392
 msgid "GCode Y coordinate of orientation point"
-msgstr ""
+msgstr "Coordonnée GCode Y du point d'orientation"
 
 #: ProbePage.py:404
 msgid "Delete current marker"
-msgstr ""
+msgstr "Effacer le marqueur actuel"
 
 #: ProbePage.py:417
 msgid "Machine X coordinate of orientation point"
-msgstr ""
+msgstr "Coordonnée machine X du point d'orientation"
 
 #: ProbePage.py:425
 msgid "Machine Y coordinate of orientation point"
-msgstr ""
+msgstr "Coordonnée machine Y du point d'orientation"
 
 #: ProbePage.py:437 ProbePage.py:633
 msgid "Delete all markers"
-msgstr ""
+msgstr "Effacer tous les marqueurs"
 
 #: ProbePage.py:442
 msgid "Angle:"
-msgstr ""
+msgstr "Angle :"
 
 #: ProbePage.py:458
 msgid "Align GCode with the machine markers"
-msgstr ""
+msgstr "Aligner le GCode avec les marqueurs de la machine"
 
 #: ProbePage.py:463
 msgid "Offset:"
-msgstr ""
+msgstr "Décalage (Offset) :"
 
 #: ProbePage.py:476
 msgid "Error:"
-msgstr ""
+msgstr "Erreur :"
 
 #: ProbePage.py:516
 msgid "Probe connected?"
-msgstr ""
+msgstr "Sonde connectée ?"
 
 #: ProbePage.py:517
 msgid ""
@@ -1930,6 +1932,9 @@ msgid ""
 "\n"
 "Show this message again?"
 msgstr ""
+"Veuillez vérifiez que la sonde soit connectée. \n"
+"\n"
+"Montrer ce message à nouveau ?"
 
 #: ProbePage.py:528 ProbePage.py:559 ProbePage.py:885 ProbePage.py:898
 #: ProbePage.py:908 ProbePage.py:915
@@ -1954,7 +1959,7 @@ msgstr "Diamètre saisi invalide"
 
 #: ProbePage.py:634
 msgid "Do you want to delete all orientation markers?"
-msgstr ""
+msgstr "Voulez-vous effacer tous les marqueurs d'orientation ?"
 
 #: ProbePage.py:725
 msgid "Min"
@@ -2022,11 +2027,11 @@ msgstr "Région Z de sondage invalide"
 
 #: ProbePage.py:936
 msgid "Delete autolevel information"
-msgstr ""
+msgstr "Effacer les informations d'autolevel (nivelage automatique)"
 
 #: ProbePage.py:937
 msgid "Do you want to delete all autolevel in formation?"
-msgstr ""
+msgstr "Voulez-vous effacer toutes les informations d'autolevel ?"
 
 #: ProbePage.py:962 ProbePage.py:1109
 msgid "Calibrate"
@@ -2176,11 +2181,11 @@ msgstr "Utiliser une règle pour mesurer les distances"
 
 #: CNCCanvas.py:321
 msgid "Add an orientation marker"
-msgstr ""
+msgstr "Ajouter un marqueur d'orientation"
 
 #: CNCCanvas.py:382
 msgid "ERROR: Cannot set X-Y marker  with the current view"
-msgstr ""
+msgstr "ERREUR : Impossible de régler le marqueur X-Y avec la vue actuelle"
 
 #: CNCCanvas.py:468
 #, python-format
@@ -2532,6 +2537,13 @@ msgid ""
 "\tor yum install python-serial\n"
 "\tor dnf install python-pyserial"
 msgstr ""
+"ERREUR : Veuillez installer le module python pyserial\n"
+"Windows:\n"
+"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Mac:\tpip install pyserial\n"
+"Linux:\tsudo apt-get install python-serial\n"
+"\tor yum install python-serial\n"
+"\tor dnf install python-pyserial"
 
 #: TerminalPage.py:33
 msgid "Clear terminal"
