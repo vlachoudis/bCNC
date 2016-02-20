@@ -3767,11 +3767,11 @@ class GCode:
 		paths  = []
 		self.initPath()
 
-		if autolevel:
-			# During autolevel do not send any unit change command
-			# All paths are going to expand internally
-			ERROR_HANDLING["G20"] = SKIP
-			ERROR_HANDLING["G21"] = SKIP
+#		if autolevel:
+#			# During autolevel do not send any unit change command
+#			# All paths are going to expand internally
+#			ERROR_HANDLING["G20"] = SKIP
+#			ERROR_HANDLING["G21"] = SKIP
 
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
@@ -3812,9 +3812,9 @@ class GCode:
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
 								lines.append(" G1%s%s%s%s"%\
-									(self.fmt("X",x),
-									 self.fmt("Y",y),
-									 self.fmt("Z",z),
+									(self.fmt("X",x/self.cnc.unit),
+									 self.fmt("Y",y/self.cnc.unit),
+									 self.fmt("Z",z/self.cnc.unit),
 									 feed))
 								paths.append((i,j))
 								feed = ""
@@ -3862,10 +3862,10 @@ class GCode:
 				lines.append("".join(newcmd))
 				paths.append((i,j))
 
-		if autolevel:
-			# Remove the skipping of unit change commands
-			del ERROR_HANDLING["G20"]
-			del ERROR_HANDLING["G21"]
+#		if autolevel:
+#			# Remove the skipping of unit change commands
+#			del ERROR_HANDLING["G20"]
+#			del ERROR_HANDLING["G21"]
 
 		return lines,paths
 
