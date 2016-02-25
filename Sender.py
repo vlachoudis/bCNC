@@ -652,7 +652,7 @@ class Sender:
 		self.running = True
 		self.disable()
 		self.emptyQueue()
-		self.queue.put(self.tools["CNC"]["startup"]+"\n")
+		#self.queue.put(self.tools["CNC"]["startup"]+"\n")
 		time.sleep(1)
 
 	#----------------------------------------------------------------------
@@ -674,8 +674,9 @@ class Sender:
 		self._stop = True
 		time.sleep(1)
 		self.softReset()
-		time.sleep(1)
-		self.unlock()
+		if self.controller == Utils.GRBL:
+			time.sleep(1)
+			self.unlock()
 		self.runEnded()
 		self.stopProbe()
 
@@ -804,6 +805,7 @@ class Sender:
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
 							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
+							#print ">>>", line
 							if wait and not cline and pat.group(1)=="Idle":
 								#print ">>>",line
 								wait = False
@@ -873,6 +875,7 @@ class Sender:
 							#print "gcount OK=",self._gcount
 							if cline: del cline[0]
 							if sline: del sline[0]
+							#print "SLINE:",sline
 
 			# Received external message to stop
 			if self._stop:

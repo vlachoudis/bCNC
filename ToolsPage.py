@@ -505,8 +505,9 @@ class CNC(_Base):
 		self.master.inches = self["units"]
 		self.master.digits = int(self["round"])
 		self.master.cnc().decimal = self.master.digits
-		self.master.gcode.header = self["header"]
-		self.master.gcode.footer = self["footer"]
+		self.master.cnc().startup = self["startup"]
+		self.master.gcode.header  = self["header"]
+		self.master.gcode.footer  = self["footer"]
 		return False
 
 #==============================================================================

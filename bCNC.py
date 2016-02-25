@@ -1965,7 +1965,7 @@ class Application(Toplevel,Sender):
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
 	def run(self, lines=None):
-		if self.serial is None:
+		if self.serial is None and not CNC.developer:
 			tkMessageBox.showerror(_("Serial Error"),
 				_("Serial is not connected"),
 				parent=self)
@@ -2010,6 +2010,12 @@ class Application(Toplevel,Sender):
 		else:
 			lines = CNC.compile(lines)
 			paths = None
+
+		if CNC.developer:
+			f = open("run.output","w");
+			f.write(lines.join("\n"))
+			f.close()
+			return
 
 		self.initRun()
 		# the buffer of the machine should be empty?
@@ -2213,9 +2219,6 @@ def usage(rc):
 	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
-
-
-
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":

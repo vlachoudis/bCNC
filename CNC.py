@@ -764,9 +764,10 @@ class CNC:
 		except: pass
 		try: CNC.digits         = int(  config.get(section, "round"))
 		except: pass
-		CNC.startup        =       config.get(section, "startup")
-		CNC.header         =       config.get(section, "header")
-		CNC.footer         =       config.get(section, "footer")
+
+		CNC.startup = config.get(section, "startup")
+		CNC.header  = config.get(section, "header")
+		CNC.footer  = config.get(section, "footer")
 
 		if CNC.inch:
 			CNC.acceleration_x  /= 25.4
@@ -3763,15 +3764,9 @@ class GCode:
 	#----------------------------------------------------------------------
 	def compile(self):
 		autolevel = not self.probe.isEmpty()
-		lines  = []
-		paths  = []
+		lines  = [self.cnc.startup]
+		paths  = [None]
 		self.initPath()
-
-#		if autolevel:
-#			# During autolevel do not send any unit change command
-#			# All paths are going to expand internally
-#			ERROR_HANDLING["G20"] = SKIP
-#			ERROR_HANDLING["G21"] = SKIP
 
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
@@ -3861,11 +3856,6 @@ class GCode:
 
 				lines.append("".join(newcmd))
 				paths.append((i,j))
-
-#		if autolevel:
-#			# Remove the skipping of unit change commands
-#			del ERROR_HANDLING["G20"]
-#			del ERROR_HANDLING["G21"]
 
 		return lines,paths
 
