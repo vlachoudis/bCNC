@@ -74,6 +74,18 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Camera"),
+				compound=TOP,
+				variable=self.tab,
+				value="Camera",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Work surface camera view and alignment"))
+
+		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["endmill32"],
 				text=_("Tool"),
 				compound=TOP,
@@ -950,6 +962,123 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=self.app.gcode.probe.scan())
 
 #===============================================================================
+# Camera Group
+#===============================================================================
+class CameraGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+
+		self.cameraFlag = BooleanVar()
+
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("On/Off"),
+				compound=TOP,
+				width=48,
+				variable = self.cameraFlag,
+				background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH, expand=YES)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Turn on/off display of alignment camera"))
+
+		self.cameraFlag.trace('w', self.cameraToggle)
+
+	#-----------------------------------------------------------------------
+	def cameraToggle(self, a=None, b=None, c=None):
+		if self.cameraFlag.get():
+			self.event_generate("<<CameraOn>>")
+		else:
+			self.event_generate("<<CameraOff>>")
+
+#===============================================================================
+# Camera Frame
+#===============================================================================
+class CameraFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
+
+		lframe = LabelFrame(self, text=_("Location"), foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X)
+
+		self.cameraAnchor = StringVar()
+		self.cameraAnchor.set(CENTER)
+
+		# ===
+		b = Radiobutton(lframe, text=_("T-L"),
+					variable = self.cameraAnchor,
+					value = NW)
+		b.grid(row=0, column=0)
+		tkExtra.Balloon.set(b, _("Anchor camera to Top-Left corner"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("Top"),
+					variable = self.cameraAnchor,
+					value = N)
+		b.grid(row=0, column=1)
+		tkExtra.Balloon.set(b, _("Anchor camera to Top"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("T-R"),
+					variable = self.cameraAnchor,
+					value = NE)
+		b.grid(row=0, column=2)
+		tkExtra.Balloon.set(b, _("Anchor camera to Top-Right corner"))
+
+		# ===
+		b = Radiobutton(lframe, text=_("Left"),
+					variable = self.cameraAnchor,
+					value = W)
+		b.grid(row=1, column=0)
+		tkExtra.Balloon.set(b, _("Anchor camera to Left"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("Center"),
+					variable = self.cameraAnchor,
+					value = CENTER)
+		b.grid(row=1, column=1)
+		tkExtra.Balloon.set(b, _("Anchor camera to center"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("Right"),
+					variable = self.cameraAnchor,
+					value = E)
+		b.grid(row=1, column=2)
+		tkExtra.Balloon.set(b, _("Anchor camera to Right"))
+
+		# ===
+		b = Radiobutton(lframe, text=_("B-L"),
+					variable = self.cameraAnchor,
+					value = SW)
+		b.grid(row=2, column=0)
+		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Left corner"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("Bottom"),
+					variable = self.cameraAnchor,
+					value = S)
+		b.grid(row=2, column=1)
+		tkExtra.Balloon.set(b, _("Anchor camera to Bottom"))
+
+		# ---
+		b = Radiobutton(lframe, text=_("B-R"),
+					variable = self.cameraAnchor,
+					value = SE)
+		b.grid(row=2, column=2)
+		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Right corner"))
+
+		lframe.grid_columnconfigure(0, weight=1)
+		lframe.grid_columnconfigure(1, weight=1)
+		lframe.grid_columnconfigure(2, weight=1)
+
+		self.cameraAnchor.trace("w", self.cameraAnchorChange)
+
+	#-----------------------------------------------------------------------
+	def cameraAnchorChange(self, a, b, c):
+		self.app.canvas._cameraAnchor = self.cameraAnchor.get()
+		self.app.canvas.cameraPosition()
+
+#===============================================================================
 # Tool Group
 #===============================================================================
 class ToolGroup(CNCRibbon.ButtonGroup):
@@ -1282,8 +1411,8 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#-----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
-			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, ToolFrame))
+		self._register((ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
+			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.set("Probe")

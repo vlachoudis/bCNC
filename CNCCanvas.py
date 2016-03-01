@@ -14,8 +14,9 @@ except ImportError:
 	import tkinter as Tkinter
 
 from CNC import Tab, CNC
-import tkExtra
 import Utils
+import Camera
+import tkExtra
 
 # Probe mapping we need PIL and numpy
 try:
@@ -190,15 +191,16 @@ class CNCCanvas(Canvas):
 #		self.bind('<Control-Key-space>',self.commandFocus)
 #		self.bind('<Control-Key-a>',	self.selectAll)
 
-		self.x0     = 0.0
-		self.y0     = 0.0
-		self.zoom   = 1.0
-		self._items = {}
+		self.x0      = 0.0
+		self.y0      = 0.0
+		self.zoom    = 1.0
+		self.__tzoom = 1.0		# delayed zoom (temporary)
+		self._items  = {}
 
-		self.action       = ACTION_SELECT
-		self._mouseAction = None
 		self._x  = self._y  = 0
 		self._xp = self._yp = 0
+		self.action       = ACTION_SELECT
+		self._mouseAction = None
 		self._inDraw      = False		# semaphore for parsing
 		self._gantry1     = None
 		self._gantry2     = None
@@ -210,9 +212,14 @@ class CNCCanvas(Canvas):
 		self._lastActive  = None
 		self._lastGantry  = None
 
-		self._image       = None
-		self._tkimage     = None
 		self._probeImage  = None
+		self._probeTkImage= None
+		self._probe       = None
+
+		self.camera       = Camera.Camera("aligncam")
+		self._cameraImage = None
+		self._cameraAnchor= CENTER
+
 		self._tab         = None
 		self._tabRect     = None
 
@@ -229,7 +236,6 @@ class CNCCanvas(Canvas):
 		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
 
-		self._tzoom  = 1.0
 		self._tafter = None
 		self._orientSelected = None
 
@@ -685,10 +691,24 @@ class CNCCanvas(Canvas):
 		dy = (y2-y1-1)/self.zoom
 		return dx,dy
 
+	#----------------------------------------------------------------------
+	def xview(self, *args):
+		ret = Canvas.xview(self, *args)
+		if args: self.cameraPosition()
+		return ret
+
+	#----------------------------------------------------------------------
+	def yview(self, *args):
+		ret = Canvas.yview(self, *args)
+		if args: self.cameraPosition()
+		return ret
+
 	# ----------------------------------------------------------------------
 	def pan(self, event):
 		if self._mouseAction == ACTION_PAN:
 			self.scan_dragto(event.x, event.y, gain=1)
+			self.cameraPosition()
+
 		else:
 			self.config(cursor=mouseCursor(ACTION_PAN))
 			self.scan_mark(event.x, event.y)
@@ -713,13 +733,15 @@ class CNCCanvas(Canvas):
 		self.yview(SCROLL,  1, UNITS)
 
 	# ----------------------------------------------------------------------
+	# Delay zooming to cascade multiple zoom actions
+	# ----------------------------------------------------------------------
 	def zoomCanvas(self, x, y, zoom):
 		self._tx = x
 		self._ty = y
-		self._tzoom *= zoom
-		if self._tafter:
-			self.after_cancel(self._tafter)
-		self._tafter = self.after(50, self._zoomCanvas)
+		self.__tzoom *= zoom
+		#if self._tafter: self.after_cancel(self._tafter)
+		#self._tafter = self.after(50, self._zoomCanvas)
+		self.after_idle(self._zoomCanvas)
 
 	# ----------------------------------------------------------------------
 	# Zoom on screen position x,y by a factor zoom
@@ -728,10 +750,10 @@ class CNCCanvas(Canvas):
 		self._tafter = None
 		x = self._tx
 		y = self._ty
-		zoom = self._tzoom
+		zoom = self.__tzoom
 
 		#def zoomCanvas(self, x, y, zoom):
-		self._tzoom = 1.0
+		self.__tzoom = 1.0
 
 		self.zoom *= zoom
 
@@ -760,9 +782,10 @@ class CNCCanvas(Canvas):
 		self.scan_dragto(int(round(dx-x0)), int(round(dy-y0)), 1)
 
 		# Resize probe image if any
-		if self._probeImage:
+		if self._probe:
 			self._projectProbeImage()
-			self.itemconfig(self._probeImage, image=self._tkimage)
+			self.itemconfig(self._probe, image=self._probeTkImage)
+		self.cameraPosition()
 
 	# ----------------------------------------------------------------------
 	# Return selected objects bounding box
@@ -802,9 +825,9 @@ class CNCCanvas(Canvas):
 		except:
 			return
 		if zx > 1.0:
-			self._tzoom = min(zx,zy)
+			self.__tzoom = min(zx,zy)
 		else:
-			self._tzoom = max(zx,zy)
+			self.__tzoom = max(zx,zy)
 
 		self._tx = self._ty = 0	
 		self._zoomCanvas()
@@ -824,6 +847,8 @@ class CNCCanvas(Canvas):
 		a,b = self.yview()
 		d = (b-a)/2.0
 		self.yview_moveto(midy-d)
+
+		self.cameraPosition()
 
 	# ----------------------------------------------------------------------
 	def menuZoomIn(self, event=None):
@@ -1035,6 +1060,55 @@ class CNCCanvas(Canvas):
 					arrowshape=(32,40,12),
 					tag="info")
 
+	#-----------------------------------------------------------------------
+	def cameraOn(self, event=None):
+		self.camera.start()
+		self.cameraRefresh()
+
+	#-----------------------------------------------------------------------
+	def cameraOff(self, event=None):
+		self.delete(self._cameraImage)
+		self._cameraImage = None
+		self.after_cancel(self._cameraAfter)
+		self.camera.stop()
+
+	#-----------------------------------------------------------------------
+	def cameraRefresh(self):
+		if self._cameraImage is None:
+			self._cameraImage = self.create_image((0,0))
+			self.cameraPosition()
+			self.lower(self._cameraImage)
+		self.camera.read()
+		self.camera.resize(self.zoom)
+		self.itemconfig(self._cameraImage, image=self.camera.toTk())
+		self._cameraAfter = self.after(100, self.cameraRefresh);
+
+	# ----------------------------------------------------------------------
+	def cameraPosition(self):
+		if self._cameraImage is None: return
+		if not self._cameraAnchor: return
+
+		w = self.winfo_width()
+		h = self.winfo_height()
+
+		x = w/2		# everything on center
+		y = h/2
+		if self._cameraAnchor == CENTER:
+			pass
+		else:
+			if N in self._cameraAnchor:
+				y = 0
+			elif S in self._cameraAnchor:
+				y = h
+
+			if W in self._cameraAnchor:
+				x = 0
+			elif E in self._cameraAnchor:
+				x = w
+
+		self.coords(self._cameraImage, (self.canvasx(x),self.canvasy(y)))
+		self.itemconfig(self._cameraImage, anchor=self._cameraAnchor)
+
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
 	#----------------------------------------------------------------------
@@ -1042,7 +1116,7 @@ class CNCCanvas(Canvas):
 		if self._inDraw : return
 		self._inDraw  = True
 
-		self._tzoom = 1.0
+		self.__tzoom = 1.0
 		self._tafter = None
 		xyz = self.canvas2xyz(
 				self.canvasx(self.winfo_width()/2),
@@ -1078,6 +1152,7 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def initPosition(self):
 		self.delete(ALL)
+		self._cameraImage = None
 		if self.view in (VIEW_XY, VIEW_XZ, VIEW_YZ):
 			# FIXME should be done as a triangle for XZ and YZ
 			self._gantry1 = self.create_oval(
@@ -1334,9 +1409,9 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def drawProbe(self):
 		self.delete("Probe")
-		if self._probeImage:
-			self.delete(self._probeImage)
-			self._probeImage = None
+		if self._probe:
+			self.delete(self._probe)
+			self._probe = None
 		if not self.draw_probe: return
 		if self.view in (VIEW_XZ, VIEW_YZ): return
 
@@ -1404,16 +1479,16 @@ class CNCCanvas(Canvas):
 				#print ">>", x,i,palette[-3], palette[-2], palette[-1]
 			#print "palette size=",len(palette)/3
 			array = numpy.floor((array-lw)/(hg-lw)*255)
-			self._image = Image.fromarray(array.astype(numpy.int16)).convert('L')
-			self._image.putpalette(palette)
+			self._probeImage = Image.fromarray(array.astype(numpy.int16)).convert('L')
+			self._probeImage.putpalette(palette)
 
 			# Add transparency for a possible composite operation latter on ISO*
-			self._image = self._image.convert("RGBA")
+			self._probeImage = self._probeImage.convert("RGBA")
 
 			x,y = self._projectProbeImage()
 
-			self._probeImage = self.create_image(x,y, image=self._tkimage, anchor='sw')
-			self.tag_lower(self._probeImage)
+			self._probe = self.create_image(x,y, image=self._probeTkImage, anchor='sw')
+			self.tag_lower(self._probe)
 
 	#----------------------------------------------------------------------
 	# Create the tkimage for the current projection
@@ -1426,7 +1501,7 @@ class CNCCanvas(Canvas):
 		marginy = int(probe._ystep/2. * self.zoom)
 		crop = (marginx, marginy, size[0]-marginx, size[1]-marginy)
 
-		image = self._image.resize((size), resample=RESAMPLE).crop(crop)
+		image = self._probeImage.resize((size), resample=RESAMPLE).crop(crop)
 
 		if self.view in (VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
 			w, h = image.size
@@ -1469,7 +1544,7 @@ class CNCCanvas(Canvas):
 		else:
 			x,y = self.plotCoords([(probe.xmin, probe.ymin, 0.)])[0]
 
-		self._tkimage = ImageTk.PhotoImage(image)
+		self._probeTkImage = ImageTk.PhotoImage(image)
 		return x,y
 
 	#----------------------------------------------------------------------

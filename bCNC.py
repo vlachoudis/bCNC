@@ -300,13 +300,16 @@ class Application(Toplevel,Sender):
 		self.bind("<<AddMarker>>",	self.canvas.setActionAddMarker)
 
 		frame = Page.frames["Probe:Tool"]
-		self.bind('<<ToolCalibrate>>',    frame.calibrate)
-		self.bind('<<ToolChange>>',       frame.change)
+		self.bind('<<ToolCalibrate>>',	frame.calibrate)
+		self.bind('<<ToolChange>>',	frame.change)
 
-		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
-		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
-		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
-		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+		self.bind('<<AutolevelMargins>>',self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',	self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',	self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',	self.autolevel.scan)
+
+		self.bind('<<CameraOn>>',	self.canvas.cameraOn)
+		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
 
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)

@@ -34,13 +34,24 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def __init__(self, prefix=""):
 		if cv is None: return
-
-		self.prefix = prefix
-		self.idx = Utils.getInt("Camera", prefix)
-		self.camera  = cv.VideoCapture(self.idx)
+		self.prefix  = prefix
+		self.idx     = Utils.getInt("Camera", prefix)
+		self.camera  = None
 		self.image   = None
-		self.imageTk = None
+		self.imagetk = None
+
+	#-----------------------------------------------------------------------
+	def start(self):
+		if cv is None: return
+		self.camera = cv.VideoCapture(self.idx)
 		self.set()
+
+	#-----------------------------------------------------------------------
+	def stop(self):
+		if cv is None or self.camera is None: return
+		self.camera.release()
+#		del self.camera
+		self.camera = None
 
 	#-----------------------------------------------------------------------
 	def set(self):
@@ -76,6 +87,10 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		cv.imwrite(filename, self.image)
+
+	#-----------------------------------------------------------------------
+	def resize(self, factor):
+		self.image = cv.resize(self.image, (0,0), fx=factor, fy=factor)
 
 	#-----------------------------------------------------------------------
 	def toTk(self):
