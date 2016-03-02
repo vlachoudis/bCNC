@@ -998,85 +998,148 @@ class CameraFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
 
+		# FIXME VERY CRUDE for testing
+
 		lframe = LabelFrame(self, text=_("Location"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
-		self.cameraAnchor = StringVar()
-		self.cameraAnchor.set(CENTER)
+		self.anchor = StringVar()
+		self.anchor.set(CENTER)
 
 		# ===
 		b = Radiobutton(lframe, text=_("T-L"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = NW)
-		b.grid(row=0, column=0)
+		b.grid(row=0, column=0, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Top-Left corner"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("Top"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = N)
-		b.grid(row=0, column=1)
+		b.grid(row=0, column=1, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Top"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("T-R"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = NE)
-		b.grid(row=0, column=2)
+		b.grid(row=0, column=2, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Top-Right corner"))
 
 		# ===
 		b = Radiobutton(lframe, text=_("Left"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = W)
-		b.grid(row=1, column=0)
+		b.grid(row=1, column=0, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Left"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("Center"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = CENTER)
-		b.grid(row=1, column=1)
+		b.grid(row=1, column=1, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to center"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("Right"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = E)
-		b.grid(row=1, column=2)
+		b.grid(row=1, column=2, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Right"))
 
 		# ===
 		b = Radiobutton(lframe, text=_("B-L"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = SW)
-		b.grid(row=2, column=0)
+		b.grid(row=2, column=0, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Left corner"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("Bottom"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = S)
-		b.grid(row=2, column=1)
+		b.grid(row=2, column=1, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Bottom"))
 
 		# ---
 		b = Radiobutton(lframe, text=_("B-R"),
-					variable = self.cameraAnchor,
+					variable = self.anchor,
 					value = SE)
-		b.grid(row=2, column=2)
+		b.grid(row=2, column=2, sticky=W)
 		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Right corner"))
+
+		# ===
+		b = Radiobutton(lframe, text=_("Gantry"),
+					variable = self.anchor,
+					value = "")
+		b.grid(row=3, column=0)
+		tkExtra.Balloon.set(b, _("Anchor camera to Gantry location plus offset"))
 
 		lframe.grid_columnconfigure(0, weight=1)
 		lframe.grid_columnconfigure(1, weight=1)
 		lframe.grid_columnconfigure(2, weight=1)
 
-		self.cameraAnchor.trace("w", self.cameraAnchorChange)
+		# ==========
+		lframe = LabelFrame(self, text=_("Scale"), foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X)
+
+		# ----
+		Label(lframe, text="Scale:").grid(row=0, column=0, sticky=E)
+		self.scale = tkExtra.FloatEntry(lframe, background="White")
+		self.scale.grid(row=0, column=1, sticky=EW)
+		self.scale.bind("<Return>",   self.updateValues)
+		self.scale.bind("<KP_Enter>", self.updateValues)
+		tkExtra.Balloon.set(self.scale, _("Camera scale pixels/unit"))
+
+		# ----
+		Label(lframe, text="Radius:").grid(row=1, column=0, sticky=E)
+		self.radius = tkExtra.FloatEntry(lframe, background="White")
+		self.radius.grid(row=1, column=1, sticky=EW)
+		self.radius.bind("<Return>",   self.updateValues)
+		self.radius.bind("<KP_Enter>", self.updateValues)
+		tkExtra.Balloon.set(self.radius, _("Camera cross hair circular radius (units)"))
+
+		# ----
+		Label(lframe, text="Offset:").grid(row=2, column=0, sticky=E)
+		self.dx = tkExtra.FloatEntry(lframe, background="White")
+		self.dx.grid(row=2, column=1, sticky=EW)
+		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
+
+		self.dy = tkExtra.FloatEntry(lframe, background="White")
+		self.dy.grid(row=2, column=2, sticky=EW)
+		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
+
+		Button(lframe, text="Update", command=self.updateValues).grid(row=3, column=0, columnspan=3)
+
+		self.loadConfig()
+		self.anchor.trace("w", self.updateValues)
 
 	#-----------------------------------------------------------------------
-	def cameraAnchorChange(self, a, b, c):
-		self.app.canvas._cameraAnchor = self.cameraAnchor.get()
-		self.app.canvas.cameraPosition()
+	def saveConfig(self):
+		Utils.setStr(  "Camera", "aligncam_anchor",self.anchor.get())
+		Utils.setFloat("Camera", "aligncam_r",     self.radius.get())
+		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
+
+	#-----------------------------------------------------------------------
+	def loadConfig(self):
+		self.anchor.set(Utils.getStr(  "Camera", "aligncam_anchor"))
+		self.radius.set(Utils.getFloat("Camera", "aligncam_r"))
+		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	def updateValues(self, *args):
+		self.app.canvas.cameraAnchor = self.anchor.get()
+		try:
+			self.app.canvas.cameraScale = float(self.scale.get())
+		except ValueError:
+			pass
+		try:
+			self.app.canvas.cameraR = float(self.radius.get())
+		except ValueError:
+			pass
+		self.app.canvas.cameraUpdate()
 
 #===============================================================================
 # Tool Group

@@ -41,6 +41,9 @@ class Camera:
 		self.imagetk = None
 
 	#-----------------------------------------------------------------------
+	def isOn(self): return self.camera is not None
+
+	#-----------------------------------------------------------------------
 	def start(self):
 		if cv is None: return
 		self.camera = cv.VideoCapture(self.idx)
@@ -89,8 +92,26 @@ class Camera:
 		cv.imwrite(filename, self.image)
 
 	#-----------------------------------------------------------------------
-	def resize(self, factor):
-		self.image = cv.resize(self.image, (0,0), fx=factor, fy=factor)
+	# Resize image up to a maximum width,height
+	#-----------------------------------------------------------------------
+	def resize(self, factor, maxwidth, maxheight):
+		if factor==1.0: return
+		h,w = self.image.shape[:2]
+		wn = int(w*factor)
+		hn = int(h*factor)
+		if wn>maxwidth or hn>maxheight:
+			# crop the image to match max
+			wn = int(maxwidth/factor)//2
+			hn = int(maxheight/factor)//2
+			w //= 2
+			h //= 2
+			self.image = self.image[h-hn:h+hn,w-wn:w+wn]
+		try:
+			self.image = cv.resize(self.image, (0,0), fx=factor, fy=factor)
+		except:
+			# FIXME Too much zoom out, results in void image!
+			#self.image = None
+			pass
 
 	#-----------------------------------------------------------------------
 	def toTk(self):

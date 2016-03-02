@@ -22,26 +22,24 @@ import tkExtra
 try:
 	from PIL import Image, ImageTk
 	import numpy
-
 	# Resampling image based on PIL library and converting to RGB.
 	# options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
 	RESAMPLE = Image.NEAREST	# resize type
 	#RESAMPLE = Image.BILINEAR	# resize type
 except:
-	numpy = None
+	numpy    = None
 	RESAMPLE = None
 
-VIEW_XY      = 0
-VIEW_XZ      = 1
-VIEW_YZ      = 2
-VIEW_ISO1    = 3
-VIEW_ISO2    = 4
-VIEW_ISO3    = 5
+VIEW_XY   = 0
+VIEW_XZ   = 1
+VIEW_YZ   = 2
+VIEW_ISO1 = 3
+VIEW_ISO2 = 4
+VIEW_ISO3 = 5
+VIEWS     = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
-VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
-
-INSERT_WIDTH2 = 3
-GANTRY_R      = 4
+INSERT_WIDTH2 =  3
+GANTRY_R      =  4
 GANTRY_X      = 10
 GANTRY_Y      =  5
 GANTRY_H      = 20
@@ -53,6 +51,7 @@ GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 TAB_COLOR     = "DarkOrange"
 WORK_COLOR    = "Orange"
+CAMERA_COLOR  = "Cyan"
 
 ENABLE_COLOR  = "Black"
 DISABLE_COLOR = "LightGray"
@@ -142,6 +141,7 @@ class CNCCanvas(Canvas):
 		self.actionVar = IntVar()
 
 		# Canvas binding
+		self.bind('<Configure>',	self.configureEvent)
 		self.bind('<Motion>',		self.motion)
 
 		self.bind('<Button-1>',		self.click)
@@ -216,9 +216,17 @@ class CNCCanvas(Canvas):
 		self._probeTkImage= None
 		self._probe       = None
 
-		self.camera       = Camera.Camera("aligncam")
-		self._cameraImage = None
-		self._cameraAnchor= CENTER
+		self.camera          = Camera.Camera("aligncam")
+		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
+		self.cameraScale     = 10.0		# camera pixels/unit
+		self.cameraR         =  1.75		# circle radius in units (mm/inched)
+		self._cameraImage    = None
+		self._cameraAfter    = None		# Camera anchor location "" for gantry
+		self._cameraMaxWidth = 640		# on zoom over this size crop the image
+		self._cameraMaxHeight= 480
+		self._cameraHori     = None
+		self._cameraVert     = None
+		self._cameraCircle   = None
 
 		self._tab         = None
 		self._tabRect     = None
@@ -236,7 +244,6 @@ class CNCCanvas(Canvas):
 		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
 		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
 
-		self._tafter = None
 		self._orientSelected = None
 
 		#self.config(xscrollincrement=1, yscrollincrement=1)
@@ -703,6 +710,10 @@ class CNCCanvas(Canvas):
 		if args: self.cameraPosition()
 		return ret
 
+	#----------------------------------------------------------------------
+	def configureEvent(self, event):
+		self.cameraPosition()
+
 	# ----------------------------------------------------------------------
 	def pan(self, event):
 		if self._mouseAction == ACTION_PAN:
@@ -739,15 +750,12 @@ class CNCCanvas(Canvas):
 		self._tx = x
 		self._ty = y
 		self.__tzoom *= zoom
-		#if self._tafter: self.after_cancel(self._tafter)
-		#self._tafter = self.after(50, self._zoomCanvas)
 		self.after_idle(self._zoomCanvas)
 
 	# ----------------------------------------------------------------------
 	# Zoom on screen position x,y by a factor zoom
 	# ----------------------------------------------------------------------
 	def _zoomCanvas(self, event=None): #x, y, zoom):
-		self._tafter = None
 		x = self._tx
 		y = self._ty
 		zoom = self.__tzoom
@@ -785,7 +793,7 @@ class CNCCanvas(Canvas):
 		if self._probe:
 			self._projectProbeImage()
 			self.itemconfig(self._probe, image=self._probeTkImage)
-		self.cameraPosition()
+		self.cameraUpdate()
 
 	# ----------------------------------------------------------------------
 	# Return selected objects bounding box
@@ -1069,45 +1077,75 @@ class CNCCanvas(Canvas):
 	def cameraOff(self, event=None):
 		self.delete(self._cameraImage)
 		self._cameraImage = None
-		self.after_cancel(self._cameraAfter)
+		if self._cameraAfter:
+			self.after_cancel(self._cameraAfter)
+			self._cameraAfter = None
 		self.camera.stop()
 
 	#-----------------------------------------------------------------------
+	def cameraUpdate(self):
+		if not self.camera.isOn(): return
+		if self._cameraAfter:
+			self.after_cancel(self._cameraAfter)
+			self._cameraAfter = None
+		self.cameraRefresh()
+		self.cameraPosition()
+
+	#-----------------------------------------------------------------------
 	def cameraRefresh(self):
-		if self._cameraImage is None:
-			self._cameraImage = self.create_image((0,0))
-			self.cameraPosition()
-			self.lower(self._cameraImage)
 		self.camera.read()
-		self.camera.resize(self.zoom)
+		self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
+		if self._cameraImage is None:
+			self._cameraImage = self.create_image((0,0), tag="CameraImage")
+			self.lower(self._cameraImage)
+			# create cross hair at dummy location we will correct latter
+			self._cameraHori   = self.create_line(0,0,1,0, fill=CAMERA_COLOR, tag="CrossHair")
+			self._cameraVert   = self.create_line(0,0,0,1, fill=CAMERA_COLOR, tag="CrossHair")
+			self._cameraCircle = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR, tag="CrossHair")
+			self.cameraPosition()
 		self.itemconfig(self._cameraImage, image=self.camera.toTk())
 		self._cameraAfter = self.after(100, self.cameraRefresh);
 
 	# ----------------------------------------------------------------------
+	# Reposition camera and crosshair
+	# ----------------------------------------------------------------------
 	def cameraPosition(self):
 		if self._cameraImage is None: return
-		if not self._cameraAnchor: return
 
 		w = self.winfo_width()
 		h = self.winfo_height()
 
-		x = w/2		# everything on center
-		y = h/2
-		if self._cameraAnchor == CENTER:
+		hc,wc = self.camera.image.shape[:2]
+		wc //= 2
+		hc //= 2
+
+		x = w//2		# everything on center
+		y = h//2
+
+		if self.cameraAnchor == "":
+			return
+		elif self.cameraAnchor == CENTER:
 			pass
 		else:
-			if N in self._cameraAnchor:
-				y = 0
-			elif S in self._cameraAnchor:
-				y = h
+			if N in self.cameraAnchor:
+				y = hc
+			elif S in self.cameraAnchor:
+				y = h-hc
 
-			if W in self._cameraAnchor:
-				x = 0
-			elif E in self._cameraAnchor:
-				x = w
+			if W in self.cameraAnchor:
+				x = wc
+			elif E in self.cameraAnchor:
+				x = w-wc
 
-		self.coords(self._cameraImage, (self.canvasx(x),self.canvasy(y)))
-		self.itemconfig(self._cameraImage, anchor=self._cameraAnchor)
+		x = self.canvasx(x)
+		y = self.canvasy(y)
+		r = self.cameraR * self.zoom
+
+		self.coords(self._cameraHori,   x-wc, y, x+wc, y)
+		self.coords(self._cameraVert,   x, y-hc, x, y+hc)
+		self.coords(self._cameraCircle, x-r, y-r, x+r, y+r)
+		self.coords(self._cameraImage,  x, y)
+		#self.itemconfig(self._cameraImage, anchor=self.cameraAnchor)
 
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
@@ -1117,7 +1155,6 @@ class CNCCanvas(Canvas):
 		self._inDraw  = True
 
 		self.__tzoom = 1.0
-		self._tafter = None
 		xyz = self.canvas2xyz(
 				self.canvasx(self.winfo_width()/2),
 				self.canvasy(self.winfo_height()/2))
