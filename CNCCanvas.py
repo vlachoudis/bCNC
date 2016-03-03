@@ -1118,44 +1118,36 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def cameraPosition(self):
 		if self._cameraImage is None: return
-
 		w = self.winfo_width()
 		h = self.winfo_height()
-
 		hc,wc = self.camera.image.shape[:2]
 		wc //= 2
 		hc //= 2
-
 		x = w//2		# everything on center
 		y = h//2
-
 		if self.cameraAnchor == NONE:
-			x,y = self.coords(self._cameraImage)
-			self.coords(self._cameraHori, x-wc, y, x+wc, y)
-			self.coords(self._cameraVert, x, y-hc, x, y+hc)
-			return
-		elif self.cameraAnchor == CENTER:
-			pass
+			if self._lastGantry is None: return
+			x,y = self.plotCoords([self._lastGantry])[0]
+			x += self.cameraDx * self.zoom
+			y += self.cameraDy * self.zoom
 		else:
-			if N in self.cameraAnchor:
-				y = hc
-			elif S in self.cameraAnchor:
-				y = h-hc
+			if self.cameraAnchor != CENTER:
+				if N in self.cameraAnchor:
+					y = hc
+				elif S in self.cameraAnchor:
+					y = h-hc
+				if W in self.cameraAnchor:
+					x = wc
+				elif E in self.cameraAnchor:
+					x = w-wc
+			x = self.canvasx(x)
+			y = self.canvasy(y)
+			r = self.cameraR * self.zoom
 
-			if W in self.cameraAnchor:
-				x = wc
-			elif E in self.cameraAnchor:
-				x = w-wc
-
-		x = self.canvasx(x)
-		y = self.canvasy(y)
-		r = self.cameraR * self.zoom
-
+		self.coords(self._cameraImage,  x, y)
 		self.coords(self._cameraHori,   x-wc, y, x+wc, y)
 		self.coords(self._cameraVert,   x, y-hc, x, y+hc)
 		self.coords(self._cameraCircle, x-r, y-r, x+r, y+r)
-		self.coords(self._cameraImage,  x, y)
-		#self.itemconfig(self._cameraImage, anchor=self.cameraAnchor)
 
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
