@@ -1748,7 +1748,7 @@ msgstr "SEULEMENT avant sondage"
 
 #: ProbePage.py:39
 msgid "BEFORE & AFTER probing"
-msgstr "AVANT & APRES sondage"
+msgstr "AVANT & APRÈS sondage"
 
 #: ProbePage.py:54 ProbePage.py:262 ProbePage.py:284 bCNC.py:90
 msgid "Probe"
