@@ -220,11 +220,13 @@ class CNCCanvas(Canvas):
 		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
 		self.cameraScale     = 10.0		# camera pixels/unit
 		self.cameraR         =  1.75		# circle radius in units (mm/inched)
+		self.cameraDx        = 0		# camera shift vs gantry
+		self.cameraDy        = 0
 		self._cameraImage    = None
 		self._cameraAfter    = None		# Camera anchor location "" for gantry
 		self._cameraMaxWidth = 640		# on zoom over this size crop the image
 		self._cameraMaxHeight= 480
-		self._cameraHori     = None
+		self._cameraHori     = None		# cross hair items
 		self._cameraVert     = None
 		self._cameraCircle   = None
 
@@ -903,7 +905,12 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def gantry(self, wx, wy, wz, mx, my, mz):
 		self._lastGantry = (wx,wy,wz)
-		self._drawGantry(*self.plotCoords([(wx,wy,wz)])[0])
+		x, y = self.plotCoords([(wx,wy,wz)])[0]
+		self._drawGantry(x, y)
+		if self._cameraImage and self.cameraAnchor==NONE:
+			x += self.cameraDx * self.zoom
+			y += self.cameraDy * self.zoom
+			self.coords(self._cameraImage,  x, y)
 
 		dx = wx-mx
 		dy = wy-my
@@ -1122,7 +1129,10 @@ class CNCCanvas(Canvas):
 		x = w//2		# everything on center
 		y = h//2
 
-		if self.cameraAnchor == "":
+		if self.cameraAnchor == NONE:
+			x,y = self.coords(self._cameraImage)
+			self.coords(self._cameraHori, x-wc, y, x+wc, y)
+			self.coords(self._cameraVert, x, y-hc, x, y+hc)
 			return
 		elif self.cameraAnchor == CENTER:
 			pass

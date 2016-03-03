@@ -1072,7 +1072,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 		# ===
 		b = Radiobutton(lframe, text=_("Gantry"),
 					variable = self.anchor,
-					value = "")
+					value = NONE)
 		b.grid(row=3, column=0)
 		tkExtra.Balloon.set(b, _("Anchor camera to Gantry location plus offset"))
 
@@ -1131,14 +1131,14 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def updateValues(self, *args):
 		self.app.canvas.cameraAnchor = self.anchor.get()
-		try:
-			self.app.canvas.cameraScale = float(self.scale.get())
-		except ValueError:
-			pass
-		try:
-			self.app.canvas.cameraR = float(self.radius.get())
-		except ValueError:
-			pass
+		try: self.app.canvas.cameraScale = float(self.scale.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraR = float(self.radius.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraDx = float(self.dx.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraDy = float(self.dy.get())
+		except ValueError: pass
 		self.app.canvas.cameraUpdate()
 
 #===============================================================================
