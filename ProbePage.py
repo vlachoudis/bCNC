@@ -979,7 +979,6 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 				variable = self.cameraFlag,
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH, expand=YES)
-		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Turn on/off display of alignment camera"))
 
 		self.cameraFlag.trace('w', self.cameraToggle)
@@ -1104,10 +1103,14 @@ class CameraFrame(CNCRibbon.PageFrame):
 		Label(lframe, text="Offset:").grid(row=2, column=0, sticky=E)
 		self.dx = tkExtra.FloatEntry(lframe, background="White")
 		self.dx.grid(row=2, column=1, sticky=EW)
+		self.dx.bind("<Return>",   self.updateValues)
+		self.dx.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
 
 		self.dy = tkExtra.FloatEntry(lframe, background="White")
 		self.dy.grid(row=2, column=2, sticky=EW)
+		self.dy.bind("<Return>",   self.updateValues)
+		self.dy.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
 
 		Button(lframe, text="Update", command=self.updateValues).grid(row=3, column=0, columnspan=3)

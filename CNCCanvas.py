@@ -905,12 +905,9 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def gantry(self, wx, wy, wz, mx, my, mz):
 		self._lastGantry = (wx,wy,wz)
-		x, y = self.plotCoords([(wx,wy,wz)])[0]
-		self._drawGantry(x, y)
+		self._drawGantry(*self.plotCoords([(wx,wy,wz)])[0])
 		if self._cameraImage and self.cameraAnchor==NONE:
-			x += self.cameraDx * self.zoom
-			y += self.cameraDy * self.zoom
-			self.coords(self._cameraImage,  x, y)
+			self.cameraPosition()
 
 		dx = wx-mx
 		dy = wy-my
@@ -1129,7 +1126,7 @@ class CNCCanvas(Canvas):
 			if self._lastGantry is None: return
 			x,y = self.plotCoords([self._lastGantry])[0]
 			x += self.cameraDx * self.zoom
-			y += self.cameraDy * self.zoom
+			y -= self.cameraDy * self.zoom
 		else:
 			if self.cameraAnchor != CENTER:
 				if N in self.cameraAnchor:
@@ -1142,7 +1139,7 @@ class CNCCanvas(Canvas):
 					x = w-wc
 			x = self.canvasx(x)
 			y = self.canvasy(y)
-			r = self.cameraR * self.zoom
+		r = self.cameraR * self.zoom
 
 		self.coords(self._cameraImage,  x, y)
 		self.coords(self._cameraHori,   x-wc, y, x+wc, y)
