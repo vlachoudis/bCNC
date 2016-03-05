@@ -36,8 +36,7 @@ _HIGHZSTEP = 10.0
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Connection"), app,
-			[(_("Hard Reset"),  "reset",     app.hardReset)
-			])
+			[(_("Hard Reset"),  "reset",     app.hardReset) ])
 		self.grid2rows()
 
 		# ---
@@ -154,7 +153,10 @@ class DROFrame(CNCRibbon.PageFrame):
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
-		tkExtra.Balloon.set(self.state, _("Show current state of the machine\nClick to see details\nRight-Click to clear alarm/errors"))
+		tkExtra.Balloon.set(self.state,
+				_("Show current state of the machine\n"
+				  "Click to see details\n"
+				  "Right-Click to clear alarm/errors"))
 		#self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
 		self.state.bind("<Button-3>", self.stateMenu)
 

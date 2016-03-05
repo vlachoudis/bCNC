@@ -207,7 +207,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def tloSet(self, event=None):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-			cmd = "g43.1z"+str(ProbeCommonFrame.tlo.get())
+			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
 			self.sendGrbl(cmd+"\n")
 		except:
 			pass
@@ -565,7 +565,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def probeCenter(self, event=None):
 		self.warnMessage()
 
-		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+		cmd = "G91 %s F%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
 		try:
 			diameter = abs(float(self.diameter.get()))
 		except:
@@ -1223,9 +1223,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def calibrate(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
-
-		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
-
 		lines = []
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
