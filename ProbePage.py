@@ -1008,7 +1008,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.toolWait = tkExtra.Combobox(lframe, True,
 					background="White",
-					command=self.policyChange,
+					command=self.waitChange,
 					width=16)
 		self.toolWait.grid(row=row, column=col, columnspan=3, sticky=EW)
 		self.toolWait.fill(TOOL_WAIT)
@@ -1199,6 +1199,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def waitChange(self):
 		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
+		print CNC.toolWaitAfterProbe
 
 	#-----------------------------------------------------------------------
 	def getChange(self):
