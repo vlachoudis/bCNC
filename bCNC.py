@@ -358,13 +358,16 @@ class Application(Toplevel,Sender):
 		self.bind('<Left>',		self.control.moveXdown)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
+		self.bind('<Home>',		self.home)
 		try:
-			self.bind('<KP_Up>',		self.control.moveYup)
-			self.bind('<KP_Down>',		self.control.moveYdown)
-			self.bind('<KP_Right>',		self.control.moveXup)
-			self.bind('<KP_Left>',		self.control.moveXdown)
-			self.bind('<KP_Prior>',		self.control.moveZup)
-			self.bind('<KP_Next>',		self.control.moveZdown)
+			self.bind('<KP_Up>',	self.control.moveYup)
+			self.bind('<KP_Down>',	self.control.moveYdown)
+			self.bind('<KP_Right>',	self.control.moveXup)
+			self.bind('<KP_Left>',	self.control.moveXdown)
+			self.bind('<KP_Prior>',	self.control.moveZup)
+			self.bind('<KP_Next>',	self.control.moveZdown)
+			self.bind('<KP_Home>',	self.home)
+			self.bind('<KP_End>',	self.control.go2origin)
 		except TclError:
 			pass
 
@@ -1510,14 +1513,6 @@ class Application(Toplevel,Sender):
 			cmd = Utils.getStr("Buttons","command.%d"%(idx),"")
 			for line in cmd.splitlines():
 				self.execute(line)
-
-		# WCS [n]: switch to workspace index n
-#		elif rexx.abbrev("WORKSPACE",cmd,4) or cmd=="WCS":
-#			self.tabPage.changePage("WCS")
-#			try:
-#				self.wcsvar.set(WCS.index(line[1].upper()))
-#			except:
-#				pass
 
 		# XY: switch to XY view
 		# YX: switch to XY view

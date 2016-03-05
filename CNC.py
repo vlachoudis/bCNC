@@ -672,6 +672,7 @@ class CNC:
 				"my"        : 0.0,
 				"mz"        : 0.0,
 				"G"         : ["G20","G54"],
+				"TLO"       : 0.0,
 				"motion"    : "G0",
 				"WCS"       : "G54",
 				"plane"     : "G17",

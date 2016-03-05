@@ -35,11 +35,12 @@ G_POLL        = 10	# s
 
 RX_BUFFER_SIZE = 128
 
-GPAT     = re.compile(r"[A-Za-z]\d+.*")
-STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
-POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
-TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
-FEEDPAT  = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
+GPAT      = re.compile(r"[A-Za-z]\d+.*")
+STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
+POSPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
+TLOPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
+DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
+FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
@@ -673,12 +674,17 @@ class Sender:
 		self.feedHold()
 		self._stop = True
 		time.sleep(1)
-		self.softReset()
+		# remember and send all G commands
+		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
+		TLO = CNC.vars["TLO"]
+		self.softReset()			# reset controller
 		if self.controller == Utils.GRBL:
 			time.sleep(1)
 			self.unlock()
 		self.runEnded()
 		self.stopProbe()
+		self.sendGrbl("%s\n$G\n"%(G))		# restore $G
+		self.sendGrbl("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -845,7 +851,7 @@ class Sender:
 							if pat:
 								CNC.vars[pat.group(1)] = pat.group(2)
 								self._probeUpdate = True
-							else:
+							elif DOLLARPAT.match(line):
 								CNC.vars["G"] = line[1:-1].split()
 								CNC.updateG()
 								self._gUpdate = True
