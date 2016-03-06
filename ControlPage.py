@@ -375,28 +375,23 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
-		row,col = 0,0
-		Label(self, text="Z").grid(row=row, column=col)
-
-		col += 3
-		Label(self, text="Y").grid(row=row, column=col)
-
-		# ---
-		row += 1
-		col = 0
-
 		width=3
 		height=2
 
-		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveZup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +Z"))
-		self.addWidget(b)
+		#x-y controlfield
+		# ---
+		row,col = 0,2
+		Label(self, text="Y").grid(row=row, column=col)
 
-		col += 2
+		col = 4
+		Label(self, text=" ").grid(row=row, column=col) #reserve space in col4
+
+		col = 7
+		Label(self, text=" ").grid(row=row, column=col) #reserve space in col7
+
+		
+		# ---
+		row,col = 1,1
 		b = Button(self, text=Unicode.UPPER_LEFT_TRIANGLE,
 					command=self.moveXdownYup,
 					width=width, height=height,
@@ -427,7 +422,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		col += 2
 		b = Button(self, text=u"\u00D710",
 				command=self.mulStep,
-				width=3,
+				width=2,
 				padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(b, _("Multiply step by 10"))
@@ -436,17 +431,16 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		col += 1
 		b = Button(self, text="+",
 				command=self.incStep,
-				width=3,
+				width=2,
 				padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
 		self.addWidget(b)
 
+		
 		# ---
-		row += 1
-
-		col = 1
-		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		row,col = 2,0
+		Label(self, text="X", width=1, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
 		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
@@ -475,11 +469,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(b, _("Move +X"))
 		self.addWidget(b)
 
-		# --
-		col += 1
-		Label(self,"",width=2).grid(row=row,column=col)
-
-		col += 1
+		col += 2
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
@@ -498,55 +488,9 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
-		# -- Separate zstep --
-		try:
-			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(self, width=1, background="White")
-			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
-			self.zstep.set(zstep)
-			self.zstep.fill(["0.001",
-					"0.005",
-					"0.01",
-					"0.05",
-					"0.1",
-					"0.5",
-					"1",
-					"5",
-					"10"])
-			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
-			self.addWidget(self.zstep)
-		except:
-			self.zstep = self.step
-
-		# Default steppings
-		try:
-			self.step1 = Utils.getFloat("Control","step1")
-		except:
-			self.step1 = 0.1
-
-		try:
-			self.step2 = Utils.getFloat("Control","step2")
-		except:
-			self.step2 = 1
-
-		try:
-			self.step3 = Utils.getFloat("Control","step3")
-		except:
-			self.step3 = 10
-
+		
 		# ---
-		row += 1
-		col = 0
-
-		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-					command=self.moveZdown,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -Z"))
-		self.addWidget(b)
-
-		col += 2
+		row,col = 3,1
 		b = Button(self, text=Unicode.LOWER_LEFT_TRIANGLE,
 					command=self.moveXdownYdown,
 					width=width, height=height,
@@ -588,6 +532,123 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		b.grid(row=row, column=col, sticky=EW+N)
 		tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
 		self.addWidget(b)
+
+
+		#z controlfield
+		row,col = 0,10
+		Label(self, text="Z").grid(row=row, column=col)
+		
+		row,col = 1,10
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveZup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +Z"))
+		self.addWidget(b)
+
+		row,col = 2,10
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_DOUBLE_TRIANGLE,
+					command=self.moveZupmost,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move to upmost z-position.\nOnly to be used after proper homing.\n(G53 Z-2)"))
+		self.addWidget(b)
+
+		row,col = 3,10
+		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveZdown,
+					width=width, height=height,		
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -Z"))
+		self.addWidget(b)
+
+		# -- zstep dependend controlfield --
+		try:
+			zstep = Utils.config.get("Control","zstep")
+			
+			#lines to seperate z
+			Label(self, text="|").grid(row=1, column=8) 
+			Label(self, text="|").grid(row=2, column=8) 
+			Label(self, text="|").grid(row=3, column=8) 
+		
+			#use space to create an empty column
+			Label(self, text=" ").grid(row=0, column=9) #reserve space in col9
+			Label(self, text=" ").grid(row=0, column=11) #reserve space in col9
+			
+			
+			row, col = 1,12
+			b = Button(self, text=u"\u00D710",
+					command=self.mulzStep,
+					width=2,
+					padx=1, pady=1)
+			b.grid(row=row, column=col, sticky=EW+S)
+			tkExtra.Balloon.set(b, _("Multiply zstep by 10"))
+			self.addWidget(b)
+
+			col += 1
+			b = Button(self, text="+",
+					command=self.inczStep,
+					width=2,
+					padx=1, pady=1)
+			b.grid(row=row, column=col, sticky=EW+S)
+			tkExtra.Balloon.set(b, _("Increase zstep by 1 unit"))
+			self.addWidget(b)
+			
+			row, col = 2,12
+			self.zstep = tkExtra.Combobox(self, width=6, background="White")  #alt:width =1
+			self.zstep.grid(row=row, column=col, columnspan=2, sticky=EW)    #alt: columnspan=1
+			self.zstep.set(zstep)
+			self.zstep.fill(["0.001",
+					"0.005",
+					"0.01",
+					"0.05",
+					"0.1",
+					"0.5",
+					"1",
+					"5",
+					"10"])
+			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
+			self.addWidget(self.zstep)
+			
+			row, col = 3,12
+			b = Button(self, text=u"\u00F710",
+						command=self.divzStep,
+						padx=1, pady=1)
+			b.grid(row=row, column=col, sticky=EW+N)
+			tkExtra.Balloon.set(b, _("Divide zstep by 10"))
+			self.addWidget(b)
+
+			col += 1
+			b = Button(self, text="-",
+						command=self.deczStep,
+						padx=1, pady=1)
+			b.grid(row=row, column=col, sticky=EW+N)
+			tkExtra.Balloon.set(b, _("Decrease zstep by 1 unit"))
+			self.addWidget(b)
+				
+		except:
+			self.zstep = self.step
+
+			
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("Control","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("Control","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("Control","step3")
+		except:
+			self.step3 = 10
+
 
 		#self.grid_columnconfigure(6,weight=1)
 		try:
@@ -645,6 +706,10 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.sendGrbl("G91G0Z-%s\nG90\n"%(self.zstep.get()))
 
+	def moveZupmost(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.sendGrbl("G53Z-2\n")
+		
 	def go2origin(self, event=None):
 		self.sendGrbl("G90G0X0Y0Z0\n")
 
@@ -680,14 +745,19 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
 		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step+power
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+			zs = float(self.zstep.get())
 		else:
 			zs=None
 		self.setStep(s, zs)
-
+	
+	def inczStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		s = float(self.step.get())
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step+power
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		self.setStep(s, zs)
 	#----------------------------------------------------------------------
 	def decStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
@@ -697,15 +767,20 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
 		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step-power
-			if zs<=0.0: zs = step-power/10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+			zs = float(self.zstep.get())
 		else:
 			zs=None
 		self.setStep(s, zs)
 
+	def deczStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		s = float(self.step.get())
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step-power
+		if zs<=0.0: zs = step-power/10.0
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		self.setStep(s, zs)
 	#----------------------------------------------------------------------
 	def mulStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
@@ -714,14 +789,19 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
 		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step*10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+			zs = float(self.zstep.get())
 		else:
 			zs=None
 		self.setStep(s, zs)
 
+	def mulzStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		s = float(self.step.get())
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step*10
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		self.setStep(s, zs)
 	#----------------------------------------------------------------------
 	def divStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
@@ -730,12 +810,18 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
 		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step/10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+			zs = float(self.zstep.get())
 		else:
 			zs=None
+		self.setStep(s, zs)
+
+	def divzStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		s = float(self.step.get())
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step/10
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
 		self.setStep(s, zs)
 
 	#----------------------------------------------------------------------
