@@ -138,6 +138,7 @@ class Application(Toplevel,Sender):
 		# Buffer gauge
 		self.bufferGauge = tkExtra.Gauge(frame, height=20, width=20, relief=SUNKEN)
 		self.bufferGauge.pack(side=RIGHT, expand=NO)
+		tkExtra.Balloon.set(self.bufferGauge,_("Controller buffer fill"))
 
 		# --- Left side ---
 		frame = Frame(self.paned)
