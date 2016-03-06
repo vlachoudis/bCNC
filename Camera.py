@@ -41,13 +41,18 @@ class Camera:
 		self.imagetk = None
 
 	#-----------------------------------------------------------------------
-	def isOn(self): return self.camera is not None
+	def isOn(self): return self.camera is not None and self.camera.isOpened()
 
 	#-----------------------------------------------------------------------
 	def start(self):
 		if cv is None: return
 		self.camera = cv.VideoCapture(self.idx)
+		if self.camera is None: return
+		if not self.camera.isOpened():
+			self.stop()
+			return False
 		self.set()
+		return True
 
 	#-----------------------------------------------------------------------
 	def stop(self):
@@ -65,6 +70,23 @@ class Camera:
 		self.angle = Utils.getInt("Camera", self.prefix+"_angle")//90 % 4
 
 	#-----------------------------------------------------------------------
+	# Read one image and rotated if needed
+	#-----------------------------------------------------------------------
+	def read(self):
+		s,self.image = self.camera.read()
+		if s:
+			self.image = self.rotate90(self.image)
+		else:
+			self.stop()
+		return s
+
+	#-----------------------------------------------------------------------
+	# Save image to file
+	#-----------------------------------------------------------------------
+	def save(self, filename):
+		cv.imwrite(filename, self.image)
+
+	#-----------------------------------------------------------------------
 	# Rotate image in steps of 90deg
 	#-----------------------------------------------------------------------
 	def rotate90(self, image):
@@ -76,20 +98,6 @@ class Camera:
 			return cv.flip(cv.transpose(image), 1)
 		else:
 			return image
-
-	#-----------------------------------------------------------------------
-	# Read one image and rotated if needed
-	#-----------------------------------------------------------------------
-	def read(self):
-		s,self.image = self.camera.read()
-		if s: self.image = self.rotate90(self.image)
-		return s,self.image
-
-	#-----------------------------------------------------------------------
-	# Save image to file
-	#-----------------------------------------------------------------------
-	def save(self, filename):
-		cv.imwrite(filename, self.image)
 
 	#-----------------------------------------------------------------------
 	# Resize image up to a maximum width,height

@@ -1193,6 +1193,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
+		self.addWidget(self.toolList)
 
 		app.tools.active.trace('w',self.change)
 		self.change()

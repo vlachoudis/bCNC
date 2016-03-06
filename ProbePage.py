@@ -1394,7 +1394,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def waitChange(self):
 		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
-		print CNC.toolWaitAfterProbe
 
 	#-----------------------------------------------------------------------
 	def getChange(self):

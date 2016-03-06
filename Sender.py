@@ -653,7 +653,6 @@ class Sender:
 		self.running = True
 		self.disable()
 		self.emptyQueue()
-		#self.queue.put(self.tools["CNC"]["startup"]+"\n")
 		time.sleep(1)
 
 	#----------------------------------------------------------------------

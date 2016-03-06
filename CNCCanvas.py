@@ -222,10 +222,10 @@ class CNCCanvas(Canvas):
 		self.cameraR         =  1.75		# circle radius in units (mm/inched)
 		self.cameraDx        = 0		# camera shift vs gantry
 		self.cameraDy        = 0
-		self._cameraImage    = None
 		self._cameraAfter    = None		# Camera anchor location "" for gantry
 		self._cameraMaxWidth = 640		# on zoom over this size crop the image
 		self._cameraMaxHeight= 480
+		self._cameraImage    = None
 		self._cameraHori     = None		# cross hair items
 		self._cameraVert     = None
 		self._cameraCircle   = None
@@ -1074,12 +1074,16 @@ class CNCCanvas(Canvas):
 
 	#-----------------------------------------------------------------------
 	def cameraOn(self, event=None):
-		self.camera.start()
+		if not self.camera.start(): return
 		self.cameraRefresh()
 
 	#-----------------------------------------------------------------------
 	def cameraOff(self, event=None):
 		self.delete(self._cameraImage)
+		self.delete(self._cameraHori)
+		self.delete(self._cameraVert)
+		self.delete(self._cameraCircle)
+
 		self._cameraImage = None
 		if self._cameraAfter:
 			self.after_cancel(self._cameraAfter)
@@ -1097,7 +1101,9 @@ class CNCCanvas(Canvas):
 
 	#-----------------------------------------------------------------------
 	def cameraRefresh(self):
-		self.camera.read()
+		if not self.camera.read():
+			self.cameraOff()
+			return
 		self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
 		if self._cameraImage is None:
 			self._cameraImage = self.create_image((0,0), tag="CameraImage")
