@@ -4468,7 +4468,14 @@ class Gauge(Canvas):
 		height = self.winfo_height()
 		self.coords(self.gaugeBorder, 2, 2, width-4, height-4)
 		self.coords(self.gaugeArc,    2, 2, width-4, height-4)
-		self.itemconfig(self.gaugeArc, extent = self.fill * 3.6)
+		self.itemconfig(self.gaugeArc, extent = -self.fill * 3.6)
+		if self.fill == 0:
+			self.itemconfig(self.gaugeBorder, state = HIDDEN)
+			self.itemconfig(self.gaugeArc, state = HIDDEN)
+		else:
+			self.itemconfig(self.gaugeBorder, state = NORMAL)
+			self.itemconfig(self.gaugeArc, state = NORMAL)
+
 
 #================================================================================
 # The following is from idlelib (tabpage.py)
