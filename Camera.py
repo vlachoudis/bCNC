@@ -78,13 +78,14 @@ class Camera:
 			self.image = self.rotate90(self.image)
 		else:
 			self.stop()
+		self.original = self.image
 		return s
 
 	#-----------------------------------------------------------------------
 	# Save image to file
 	#-----------------------------------------------------------------------
 	def save(self, filename):
-		cv.imwrite(filename, self.image)
+		cv.imwrite(filename, self.original)
 
 	#-----------------------------------------------------------------------
 	# Rotate image in steps of 90deg

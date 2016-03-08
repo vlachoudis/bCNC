@@ -180,6 +180,8 @@ class CNCCanvas(Canvas):
 #		self.bind('<Key-t>',		self.setActionAddTab)
 		self.bind('<Key-x>',		self.setActionPan)
 
+		self.bind('<Control-Key-S>',	self.cameraSave)
+
 		self.bind('<Control-Key-equal>',self.menuZoomIn)
 		self.bind('<Control-Key-minus>',self.menuZoomOut)
 
@@ -1115,6 +1117,14 @@ class CNCCanvas(Canvas):
 			self.cameraPosition()
 		self.itemconfig(self._cameraImage, image=self.camera.toTk())
 		self._cameraAfter = self.after(100, self.cameraRefresh);
+
+	#-----------------------------------------------------------------------
+	def cameraSave(self, event=None):
+		try:
+			self._count += 1
+		except:
+			self._count = 1
+		self.camera.save("camera%02d.png"%(self._count))
 
 	# ----------------------------------------------------------------------
 	# Reposition camera and crosshair
