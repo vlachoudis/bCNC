@@ -656,4 +656,7 @@ CUP_ON_BLACK_SQUARE                              = u"\u26FE"
 WHITE_FLAG_WITH_HORIZONTAL_MIDDLE_BLACK_STRIPE   = u"\u26FF"
 
 # Mathematical symbols
-UP_TACK         = u"\u22A5"
+UP_TACK         								= u"\u22A5"
+
+# Miscellaneous Technical
+BLACK_UP_POINTING_DOUBLE_TRIANGLE				= u"\u23EB"
