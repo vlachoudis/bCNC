@@ -1162,6 +1162,17 @@ class CNCCanvas(Canvas):
 		self.coords(self._cameraVert,   x, y-hc, x, y+hc)
 		self.coords(self._cameraCircle, x-r, y-r, x+r, y+r)
 
+	# ----------------------------------------------------------------------
+	# Crop center of camera and search it in subsequent movements
+	# ----------------------------------------------------------------------
+	def cameraMakeTemplate(self, r):
+		if self._cameraImage is None: return
+		self._template = self.camera.getCenterTemplate(r)
+
+	# ----------------------------------------------------------------------
+	def cameraMatchTemplate(self):
+		return self.camera.matchTemplate(self._template)
+
 	#----------------------------------------------------------------------
 	# Parse and draw the file from the editor to g-code commands
 	#----------------------------------------------------------------------
@@ -1773,7 +1784,8 @@ class CanvasFrame(Frame):
 		self.draw_probe  = BooleanVar()
 		self.draw_paths  = BooleanVar()
 		self.draw_rapid  = BooleanVar()
-		self.draw_workarea = BooleanVar()
+		self.draw_workarea=BooleanVar()
+		self.draw_camera = BooleanVar()
 		self.view  = StringVar()
 
 		self.loadConfig()
@@ -1814,6 +1826,7 @@ class CanvasFrame(Frame):
 		self.draw_paths.set(   bool(int(Utils.getBool("Canvas", "paths",   True))))
 		self.draw_rapid.set(   bool(int(Utils.getBool("Canvas", "rapid",   True))))
 		self.draw_workarea.set(bool(int(Utils.getBool("Canvas", "workarea",True))))
+		#self.draw_camera.set(  bool(int(Utils.getBool("Canvas", "camera",  False))))
 
 		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
 
@@ -1840,6 +1853,7 @@ class CanvasFrame(Frame):
 		Utils.setBool("Canvas", "paths",   self.draw_paths.get())
 		Utils.setBool("Canvas", "rapid",   self.draw_rapid.get())
 		Utils.setBool("Canvas", "workarea",self.draw_workarea.get())
+		#Utils.setBool("Canvas", "camera",  self.draw_camera.get())
 
 	#----------------------------------------------------------------------
 	# Canvas toolbar FIXME XXX should be moved to CNCCanvas
@@ -1979,6 +1993,14 @@ class CanvasFrame(Frame):
 		tkExtra.Balloon.set(b, _("Toggle display of workarea"))
 		b.pack(side=LEFT)
 
+		b = Checkbutton(toolbar,
+				image=Utils.icons["camera"],
+				indicatoron=False,
+				variable=self.draw_camera,
+				command=self.drawCamera)
+		tkExtra.Balloon.set(b, _("Toggle display of camera"))
+		b.pack(side=LEFT)
+
 		b = Button(toolbar,
 				image=Utils.icons["refresh"],
 				command=self.viewChange)
@@ -2058,3 +2080,11 @@ class CanvasFrame(Frame):
 		if value is not None: self.draw_workarea.set(value)
 		self.canvas.draw_workarea = self.draw_workarea.get()
 		self.canvas.drawWorkarea()
+
+	#----------------------------------------------------------------------
+	def drawCamera(self, value=None):
+		if value is not None: self.draw_camera.set(value)
+		if self.draw_camera.get():
+			self.canvas.cameraOn()
+		else:
+			self.canvas.cameraOff()

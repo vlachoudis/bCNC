@@ -123,6 +123,44 @@ class Camera:
 			pass
 
 	#-----------------------------------------------------------------------
+	# Return center portion of the image to be used as a template
+	#-----------------------------------------------------------------------
+	def getCenterTemplate(self, r):
+		h,w = self.original.shape[:-1]
+		w2 = w//2
+		h2 = h//2
+		return self.original[h2-r:h2+r, w2-r:w2+r]
+
+	#-----------------------------------------------------------------------
+	# return location of matching template
+	#-----------------------------------------------------------------------
+	def matchTemplate(self, template):
+		method = cv.TM_CCOEFF_NORMED
+		res = cv.matchTemplate(self.original, template, method)
+		min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+
+		h,w = self.original.shape[:-1]
+		w2 = w//2
+		h2 = h//2
+
+		h,w = template.shape[:-1]
+		r = w//2
+
+		# If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
+		if method in (cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED):
+			top_left = min_loc
+		else:
+			top_left = max_loc
+		#bottom_right = (top_left[0]+2*r, top_left[1]+2*r)
+		dx= w2-r - top_left[0]
+		dy= h2-r - top_left[1]
+		#cv.rectangle(img, top_left, bottom_right, 255, 2)
+		#print "Match=",dx,dy
+		return dx,dy
+
+	#-----------------------------------------------------------------------
+	# Convert to Tk image
+	#-----------------------------------------------------------------------
 	def toTk(self):
 		self.imagetk = ImageTk.PhotoImage(
 					image=Image.fromarray(

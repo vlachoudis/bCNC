@@ -8,6 +8,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
+import time
 import math
 
 try:
@@ -38,6 +39,29 @@ TOOL_POLICY = [ _("Send M6 commands"),		# 0
 TOOL_WAIT = [	_("ONLY before probing"),
 		_("BEFORE & AFTER probing")
 		]
+
+CAMERA_LOCATION = { "Gantry"      : NONE,
+		    "Top-Left"    : NW,
+		    "Top"         : N,
+		    "Top-R"       : NE,
+		    "Left"        : W,
+		    "Center"      : W,
+		    "R"           : E,
+		    "Bottom-Left" : SW,
+		    "Bottom"      : S,
+		    "Bottom-R"    : SE,
+		}
+CAMERA_LOCATION_ORDER = [
+		    "Gantry",
+		    "Top-Left",
+		    "Top",
+		    "Top-R",
+		    "Left",
+		    "Center",
+		    "R",
+		    "Bottom-Left",
+		    "Bottom",
+		    "Bottom-R"]
 
 #===============================================================================
 # Probe Tab Group
@@ -969,27 +993,6 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
-		self.cameraFlag = BooleanVar()
-
-		b = Ribbon.LabelCheckbutton(self.frame,
-				image=Utils.icons["camera32"],
-				text=_("On/Off"),
-				compound=TOP,
-				width=48,
-				variable = self.cameraFlag,
-				background=Ribbon._BACKGROUND)
-		b.pack(side=LEFT, fill=BOTH, expand=YES)
-		tkExtra.Balloon.set(b, _("Turn on/off display of alignment camera"))
-
-		self.cameraFlag.trace('w', self.cameraToggle)
-
-	#-----------------------------------------------------------------------
-	def cameraToggle(self, a=None, b=None, c=None):
-		if self.cameraFlag.get():
-			self.event_generate("<<CameraOn>>")
-		else:
-			self.event_generate("<<CameraOff>>")
-
 #===============================================================================
 # Camera Frame
 #===============================================================================
@@ -1001,6 +1004,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 		lframe = LabelFrame(self, text=_("Location"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
+
 
 		self.anchor = StringVar()
 		self.anchor.set(CENTER)
@@ -1081,59 +1085,107 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 		# ==========
 		lframe = LabelFrame(self, text=_("Scale"), foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
+		lframe.pack(side=TOP, fill=X, expand=YES)
 
 		# ----
-		Label(lframe, text="Scale:").grid(row=0, column=0, sticky=E)
+		row = 0
+		Label(lframe, text="Location:").grid(row=row, column=0, sticky=E)
+		self.location = tkExtra.Combobox(lframe, True,
+					background="White",
+					width=16)
+		self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
+		self.location.fill(CAMERA_LOCATION_ORDER)
+		self.location.set(CAMERA_LOCATION_ORDER[0])
+		tkExtra.Balloon.set(self.location, _("Camera location"))
+
+		# ----
+		row += 1
+		Label(lframe, text="Scale:").grid(row=row, column=0, sticky=E)
 		self.scale = tkExtra.FloatEntry(lframe, background="White")
-		self.scale.grid(row=0, column=1, sticky=EW)
+		self.scale.grid(row=row, column=1, sticky=EW)
 		self.scale.bind("<Return>",   self.updateValues)
 		self.scale.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.scale, _("Camera scale pixels/unit"))
 
 		# ----
-		Label(lframe, text="Radius:").grid(row=1, column=0, sticky=E)
+		row += 1
+		Label(lframe, text="Radius:").grid(row=row, column=0, sticky=E)
 		self.radius = tkExtra.FloatEntry(lframe, background="White")
-		self.radius.grid(row=1, column=1, sticky=EW)
+		self.radius.grid(row=row, column=1, sticky=EW)
 		self.radius.bind("<Return>",   self.updateValues)
 		self.radius.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.radius, _("Camera cross hair circular radius (units)"))
 
 		# ----
-		Label(lframe, text="Offset:").grid(row=2, column=0, sticky=E)
+		row += 1
+		Label(lframe, text="Offset:").grid(row=row, column=0, sticky=E)
 		self.dx = tkExtra.FloatEntry(lframe, background="White")
-		self.dx.grid(row=2, column=1, sticky=EW)
+		self.dx.grid(row=row, column=1, sticky=EW)
 		self.dx.bind("<Return>",   self.updateValues)
 		self.dx.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
 
 		self.dy = tkExtra.FloatEntry(lframe, background="White")
-		self.dy.grid(row=2, column=2, sticky=EW)
+		self.dy.grid(row=row, column=2, sticky=EW)
 		self.dy.bind("<Return>",   self.updateValues)
 		self.dy.bind("<KP_Enter>", self.updateValues)
 		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
 
-		Button(lframe, text="Update", command=self.updateValues).grid(row=3, column=0, columnspan=3)
+		self.z = tkExtra.FloatEntry(lframe, background="White")
+		self.z.grid(row=row, column=3, sticky=EW)
+		self.z.bind("<Return>",   self.updateValues)
+		self.z.bind("<KP_Enter>", self.updateValues)
+		tkExtra.Balloon.set(self.z, _("Spindle Z position when camera was registered"))
+
+		row += 1
+		Button(lframe, text="Update", command=self.updateValues).grid(row=row, column=0, columnspan=3)
+		row += 1
+		Button(lframe, text="1. Register Spindle", command=self.registerSpindle).grid(row=row, column=0, columnspan=3)
+		row += 1
+		Button(lframe, text="2. Register Camera", command=self.registerCamera).grid(row=row, column=0, columnspan=3)
+		row += 1
+		Button(lframe, text="3. Find Scale", command=self.findScale).grid(row=row, column=0, columnspan=3)
+
+		lframe.grid_columnconfigure(1, weight=1)
+		lframe.grid_columnconfigure(2, weight=1)
+		lframe.grid_columnconfigure(3, weight=1)
 
 		self.loadConfig()
 		self.anchor.trace("w", self.updateValues)
+		self.location.config(command=self.updateValues)
+		self.spindleX = None
+		self.spindleY = None
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setStr(  "Camera", "aligncam_anchor",self.anchor.get())
 		Utils.setFloat("Camera", "aligncam_r",     self.radius.get())
 		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
+		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
+		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
+		Utils.setFloat("Camera", "aligncam_z",     self.z.get())
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.anchor.set(Utils.getStr(  "Camera", "aligncam_anchor"))
 		self.radius.set(Utils.getFloat("Camera", "aligncam_r"))
 		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
+		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
+		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
+		self.z.set(     Utils.getFloat("Camera", "aligncam_z"))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
+	# Return camera Anchor
+	#-----------------------------------------------------------------------
+	def cameraAnchor(self):
+		return CAMERA_LOCATION[self.location.get()]
+
+	#-----------------------------------------------------------------------
+	# Update canvas with values
+	#-----------------------------------------------------------------------
 	def updateValues(self, *args):
-		self.app.canvas.cameraAnchor = self.anchor.get()
+		self.app.canvas.cameraAnchor = self.cameraAnchor()
 		try: self.app.canvas.cameraScale = float(self.scale.get())
 		except ValueError: pass
 		try: self.app.canvas.cameraR = float(self.radius.get())
@@ -1143,6 +1195,58 @@ class CameraFrame(CNCRibbon.PageFrame):
 		try: self.app.canvas.cameraDy = float(self.dy.get())
 		except ValueError: pass
 		self.app.canvas.cameraUpdate()
+
+	#-----------------------------------------------------------------------
+	# Register spindle position
+	#-----------------------------------------------------------------------
+	def registerSpindle(self):
+		self.spindleX = CNC.vars["wx"]
+		self.spindleY = CNC.vars["wy"]
+		self.event_generate("<<Status>>", data=_("Spindle position is registered"))
+
+	#-----------------------------------------------------------------------
+	# Register camera position
+	#-----------------------------------------------------------------------
+	def registerCamera(self):
+		if self.spindleX is None:
+			tkMessageBox.showwarning(_("Spindle position is not registered"),
+					_("Spindle position must be registered before camera"),
+					parent=self)
+			return
+		self.dx.set(str(self.spindleX - CNC.vars["wx"]))
+		self.dy.set(str(self.spindleY - CNC.vars["wy"]))
+		self.z.set(str(CNC.vars["wz"]))
+		self.event_generate("<<Status>>", data=_("Camera offset is updated"))
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	def findScale(self):
+		self.app.canvas.cameraMakeTemplate(30)
+
+		self.app.control.moveXup()
+		#self.app.wait4Idle()
+		time.sleep(2)
+		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
+
+		self.app.control.moveXdown()
+		self.app.control.moveXdown()
+		#self.app.wait4Idle()
+		time.sleep(2)
+		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
+
+		self.app.control.moveXup()
+		self.app.control.moveYup()
+		#self.app.wait4Idle()
+		time.sleep(2)
+		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
+
+		self.app.control.moveYdown()
+		self.app.control.moveYdown()
+		#self.app.wait4Idle()
+		time.sleep(2)
+		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
+
+		self.app.control.moveYup()
 
 #===============================================================================
 # Tool Group

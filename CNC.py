@@ -671,6 +671,8 @@ class CNC:
 				"mx"        : 0.0,
 				"my"        : 0.0,
 				"mz"        : 0.0,
+				"_camwx"    : 0.0,
+				"_camwy"    : 0.0,
 				"G"         : ["G20","G54"],
 				"TLO"       : 0.0,
 				"motion"    : "G0",
@@ -3798,12 +3800,10 @@ class GCode:
 						lines.append(line)
 						paths.append(None)
 					else:
+						extra = ""
 						for c in cmds:
-							if c[0] in ('f','F'):
-								feed = c
-								break
-						else:
-							feed = ""
+							if c[0].upper() not in ('G', 'X', 'Y', 'Z','I','J','K'):
+								extra += c
 						x1,y1,z1 = xyz[0]
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
@@ -3811,9 +3811,9 @@ class GCode:
 									(self.fmt("X",x/self.cnc.unit),
 									 self.fmt("Y",y/self.cnc.unit),
 									 self.fmt("Z",z/self.cnc.unit),
-									 feed))
+									 extra))
 								paths.append((i,j))
-								feed = ""
+								extra = ""
 							x1,y1,z1 = x2,y2,z2
 						lines[-1] = lines[-1].strip()
 					self.cnc.motionEnd()
