@@ -179,11 +179,11 @@ class Sender:
 	#----------------------------------------------------------------------
 	def executeGcode(self, line):
 		if isinstance(line, tuple):
-			self.sendGrbl(line)
+			self.sendGCode(line)
 			return True
 
 		elif line[0] in ("$","!","~","?","(","@") or GPAT.match(line):
-			self.sendGrbl(line+"\n")
+			self.sendGCode(line+"\n")
 			return True
 
 		return False
@@ -208,7 +208,7 @@ class Sender:
 
 		# ABS*OLUTE: Set absolute coordinates
 		if rexx.abbrev("ABSOLUTE",cmd,3):
-			self.sendGrbl("G90\n")
+			self.sendGCode("G90\n")
 
 		# HELP: open browser to display help
 		elif cmd == "HELP":
@@ -246,7 +246,7 @@ class Sender:
 
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
-			self.sendGrbl("G91\n")
+			self.sendGCode("G91\n")
 
 		# RESET: perform a soft reset to grbl
 		elif cmd == "RESET":
@@ -465,9 +465,9 @@ class Sender:
 #			pass
 
 	#----------------------------------------------------------------------
-	# Send to grbl
+	# Send to controller a gcode or command
 	#----------------------------------------------------------------------
-	def sendGrbl(self, cmd):
+	def sendGCode(self, cmd):
 #		sys.stdout.write(">>> %s"%(cmd))
 #		import traceback
 #		traceback.print_stack()
@@ -507,55 +507,55 @@ class Sender:
 	#----------------------------------------------------------------------
 	def unlock(self):
 		self._alarm = False
-		self.sendGrbl("$X\n")
+		self.sendGCode("$X\n")
 
 	#----------------------------------------------------------------------
-	def home(self):
+	def home(self, event=None):
 		self._alarm = False
-		self.sendGrbl("$H\n")
+		self.sendGCode("$H\n")
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$$\n")
+			self.sendGCode("$$\n")
 
 	def viewParameters(self):
-		self.sendGrbl("$#\n")
+		self.sendGCode("$#\n")
 
 	def viewState(self):
-		self.sendGrbl("$G\n")
+		self.sendGCode("$G\n")
 
 	def viewBuild(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$I\n")
+			self.sendGCode("$I\n")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"version\n")
 
 	def viewStartup(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$N\n")
+			self.sendGCode("$N\n")
 
 	def checkGcode(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$C\n")
+			self.sendGCode("$C\n")
 
 	def grblHelp(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$\n")
+			self.sendGCode("$\n")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"help\n")
 
 	def grblRestoreSettings(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=$\n")
+			self.sendGCode("$RST=$\n")
 
 	def grblRestoreWCS(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=#\n")
+			self.sendGCode("$RST=#\n")
 
 	def grblRestoreAll(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=#\n")
+			self.sendGCode("$RST=#\n")
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -563,7 +563,7 @@ class Sender:
 		if x is not None: cmd += "X%g"%(x)
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
-		self.sendGrbl("%s\n"%(cmd))
+		self.sendGCode("%s\n"%(cmd))
 
 	#----------------------------------------------------------------------
 	# FIXME Duplicate with ControlPage
@@ -584,7 +584,7 @@ class Sender:
 		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
 		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
 		cmd += pos
-		self.sendGrbl(cmd+"\n$#\n")
+		self.sendGCode(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
 			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
@@ -620,13 +620,13 @@ class Sender:
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g28Command(self):
-		self.sendGrbl("G28.1\n")
+		self.sendGCode("G28.1\n")
 
 	#----------------------------------------------------------------------
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g30Command(self):
-		self.sendGrbl("G30.1\n")
+		self.sendGCode("G30.1\n")
 
 	#----------------------------------------------------------------------
 	def emptyQueue(self):
@@ -682,8 +682,8 @@ class Sender:
 			self.unlock()
 		self.runEnded()
 		self.stopProbe()
-		self.sendGrbl("%s\n$G\n"%(G))		# restore $G
-		self.sendGrbl("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
+		self.sendGCode("%s\n$G\n"%(G))		# restore $G
+		self.sendGCode("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line

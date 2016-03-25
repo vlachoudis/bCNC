@@ -231,6 +231,11 @@ class _Base:
 			edit = tkExtra.InPlaceFile(lb, save=True)
 		elif t == "color":
 			edit = tkExtra.InPlaceColor(lb)
+			if edit.value is not None:
+				try:
+					lb.itemconfig(ACTIVE, background=edit.value)
+				except TclError:
+					pass
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
 

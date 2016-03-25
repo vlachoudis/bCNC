@@ -40,28 +40,28 @@ TOOL_WAIT = [	_("ONLY before probing"),
 		_("BEFORE & AFTER probing")
 		]
 
-CAMERA_LOCATION = { "Gantry"      : NONE,
-		    "Top-Left"    : NW,
-		    "Top"         : N,
-		    "Top-R"       : NE,
-		    "Left"        : W,
-		    "Center"      : W,
-		    "R"           : E,
-		    "Bottom-Left" : SW,
-		    "Bottom"      : S,
-		    "Bottom-R"    : SE,
+CAMERA_LOCATION = { "Gantry"       : NONE,
+		    "Top-Left"     : NW,
+		    "Top"          : N,
+		    "Top-Right"    : NE,
+		    "Left"         : W,
+		    "Center"       : CENTER,
+		    "Right"        : E,
+		    "Bottom-Left"  : SW,
+		    "Bottom"       : S,
+		    "Bottom-Right" : SE,
 		}
 CAMERA_LOCATION_ORDER = [
 		    "Gantry",
 		    "Top-Left",
 		    "Top",
-		    "Top-R",
+		    "Top-Right",
 		    "Left",
 		    "Center",
-		    "R",
+		    "Right",
 		    "Bottom-Left",
 		    "Bottom",
-		    "Bottom-R"]
+		    "Bottom-Right"]
 
 #===============================================================================
 # Probe Tab Group
@@ -244,7 +244,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
 			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
-			self.sendGrbl(cmd+"\n")
+			self.sendGCode(cmd+"\n")
 		except:
 			pass
 
@@ -590,7 +590,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			cmd += "F"+str(v)
 
 		if ok:
-			self.sendGrbl(cmd+"\n")
+			self.sendGCode(cmd+"\n")
 		else:
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
@@ -988,10 +988,10 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 #===============================================================================
 # Camera Group
 #===============================================================================
-class CameraGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
-		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+#class CameraGroup(CNCRibbon.ButtonGroup):
+#	def __init__(self, master, app):
+#		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+#		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
 #===============================================================================
 # Camera Frame
@@ -1000,91 +1000,8 @@ class CameraFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
 
-		# FIXME VERY CRUDE for testing
-
-		lframe = LabelFrame(self, text=_("Location"), foreground="DarkBlue")
-		lframe.pack(side=TOP, fill=X)
-
-
-		self.anchor = StringVar()
-		self.anchor.set(CENTER)
-
-		# ===
-		b = Radiobutton(lframe, text=_("T-L"),
-					variable = self.anchor,
-					value = NW)
-		b.grid(row=0, column=0, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Top-Left corner"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("Top"),
-					variable = self.anchor,
-					value = N)
-		b.grid(row=0, column=1, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Top"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("T-R"),
-					variable = self.anchor,
-					value = NE)
-		b.grid(row=0, column=2, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Top-Right corner"))
-
-		# ===
-		b = Radiobutton(lframe, text=_("Left"),
-					variable = self.anchor,
-					value = W)
-		b.grid(row=1, column=0, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Left"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("Center"),
-					variable = self.anchor,
-					value = CENTER)
-		b.grid(row=1, column=1, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to center"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("Right"),
-					variable = self.anchor,
-					value = E)
-		b.grid(row=1, column=2, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Right"))
-
-		# ===
-		b = Radiobutton(lframe, text=_("B-L"),
-					variable = self.anchor,
-					value = SW)
-		b.grid(row=2, column=0, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Left corner"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("Bottom"),
-					variable = self.anchor,
-					value = S)
-		b.grid(row=2, column=1, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Bottom"))
-
-		# ---
-		b = Radiobutton(lframe, text=_("B-R"),
-					variable = self.anchor,
-					value = SE)
-		b.grid(row=2, column=2, sticky=W)
-		tkExtra.Balloon.set(b, _("Anchor camera to Bottom-Right corner"))
-
-		# ===
-		b = Radiobutton(lframe, text=_("Gantry"),
-					variable = self.anchor,
-					value = NONE)
-		b.grid(row=3, column=0)
-		tkExtra.Balloon.set(b, _("Anchor camera to Gantry location plus offset"))
-
-		lframe.grid_columnconfigure(0, weight=1)
-		lframe.grid_columnconfigure(1, weight=1)
-		lframe.grid_columnconfigure(2, weight=1)
-
 		# ==========
-		lframe = LabelFrame(self, text=_("Scale"), foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Camera"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X, expand=YES)
 
 		# ----
@@ -1096,7 +1013,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
 		self.location.fill(CAMERA_LOCATION_ORDER)
 		self.location.set(CAMERA_LOCATION_ORDER[0])
-		tkExtra.Balloon.set(self.location, _("Camera location"))
+		tkExtra.Balloon.set(self.location, _("Camera location inside canvas"))
 
 		# ----
 		row += 1
@@ -1105,16 +1022,16 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.scale.grid(row=row, column=1, sticky=EW)
 		self.scale.bind("<Return>",   self.updateValues)
 		self.scale.bind("<KP_Enter>", self.updateValues)
-		tkExtra.Balloon.set(self.scale, _("Camera scale pixels/unit"))
+		tkExtra.Balloon.set(self.scale, _("Camera scale [pixels / unit]"))
 
 		# ----
 		row += 1
-		Label(lframe, text="Radius:").grid(row=row, column=0, sticky=E)
+		Label(lframe, text="Crosshair:").grid(row=row, column=0, sticky=E)
 		self.radius = tkExtra.FloatEntry(lframe, background="White")
 		self.radius.grid(row=row, column=1, sticky=EW)
 		self.radius.bind("<Return>",   self.updateValues)
 		self.radius.bind("<KP_Enter>", self.updateValues)
-		tkExtra.Balloon.set(self.radius, _("Camera cross hair circular radius (units)"))
+		tkExtra.Balloon.set(self.radius, _("Camera cross hair radius [units]"))
 
 		# ----
 		row += 1
@@ -1146,19 +1063,24 @@ class CameraFrame(CNCRibbon.PageFrame):
 		row += 1
 		Button(lframe, text="3. Find Scale", command=self.findScale).grid(row=row, column=0, columnspan=3)
 
+		row += 1
+		self.switchVar = BooleanVar()
+		Checkbutton(lframe, text="4. Switch to Camera",
+				variable=self.switchVar,
+				command=self.switch2Camera).grid(row=row, column=0, columnspan=3)
+
 		lframe.grid_columnconfigure(1, weight=1)
 		lframe.grid_columnconfigure(2, weight=1)
 		lframe.grid_columnconfigure(3, weight=1)
 
 		self.loadConfig()
-		self.anchor.trace("w", self.updateValues)
 		self.location.config(command=self.updateValues)
 		self.spindleX = None
 		self.spindleY = None
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setStr(  "Camera", "aligncam_anchor",self.anchor.get())
+		Utils.setStr(  "Camera", "aligncam_anchor",self.location.get())
 		Utils.setFloat("Camera", "aligncam_r",     self.radius.get())
 		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
 		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
@@ -1167,7 +1089,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		self.anchor.set(Utils.getStr(  "Camera", "aligncam_anchor"))
+		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
 		self.radius.set(Utils.getFloat("Camera", "aligncam_r"))
 		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
 		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
@@ -1178,8 +1100,8 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	# Return camera Anchor
 	#-----------------------------------------------------------------------
-	def cameraAnchor(self):
-		return CAMERA_LOCATION[self.location.get()]
+	def cameraAnchor(self,):
+		return CAMERA_LOCATION.get(self.location.get(),CENTER)
 
 	#-----------------------------------------------------------------------
 	# Update canvas with values
@@ -1221,6 +1143,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def findScale(self):
+		return
 		self.app.canvas.cameraMakeTemplate(30)
 
 		self.app.control.moveXup()
@@ -1247,6 +1170,21 @@ class CameraFrame(CNCRibbon.PageFrame):
 		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
 
 		self.app.control.moveYup()
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+	def switch2Camera(self, event=None):
+		wx = CNC.vars["wx"]
+		wy = CNC.vars["wy"]
+		dx = float(self.dx.get())
+		dy = float(self.dy.get())
+		if self.switchVar.get():
+			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+		else:
+			self.sendGCode("G92.1\n")
+		self.sendGCode("G0X%gY%g\n"%(wx,wy))
 
 #===============================================================================
 # Tool Group
@@ -1578,7 +1516,7 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#-----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
+		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
 			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]

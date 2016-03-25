@@ -112,9 +112,13 @@ class Camera:
 			# crop the image to match max
 			wn = int(maxwidth/factor)//2
 			hn = int(maxheight/factor)//2
-			w //= 2
-			h //= 2
-			self.image = self.image[h-hn:h+hn,w-wn:w+wn]
+			w2 = w//2
+			h2 = h//2
+			left  = max(w2-wn,0)
+			right = min(w2+wn,w-1)
+			top   = max(h2-hn,0)
+			bottom = min(h2+hn,h-1)
+			self.image = self.image[top:bottom,left:right]
 		try:
 			self.image = cv.resize(self.image, (0,0), fx=factor, fy=factor)
 		except:

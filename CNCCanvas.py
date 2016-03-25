@@ -221,7 +221,7 @@ class CNCCanvas(Canvas):
 		self.camera          = Camera.Camera("aligncam")
 		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
 		self.cameraScale     = 10.0		# camera pixels/unit
-		self.cameraR         =  1.75		# circle radius in units (mm/inched)
+		self.cameraR         =  1.5875		# circle radius in units (mm/inched)
 		self.cameraDx        = 0		# camera shift vs gantry
 		self.cameraDy        = 0
 		self._cameraAfter    = None		# Camera anchor location "" for gantry
@@ -231,6 +231,7 @@ class CNCCanvas(Canvas):
 		self._cameraHori     = None		# cross hair items
 		self._cameraVert     = None
 		self._cameraCircle   = None
+		self._cameraCircle2  = None
 
 		self._tab         = None
 		self._tabRect     = None
@@ -1085,6 +1086,7 @@ class CNCCanvas(Canvas):
 		self.delete(self._cameraHori)
 		self.delete(self._cameraVert)
 		self.delete(self._cameraCircle)
+		self.delete(self._cameraCircle2)
 
 		self._cameraImage = None
 		if self._cameraAfter:
@@ -1106,14 +1108,17 @@ class CNCCanvas(Canvas):
 		if not self.camera.read():
 			self.cameraOff()
 			return
-		self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
+		if self.cameraAnchor==NONE or self.zoom/self.cameraScale>1.0:
+			self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
 		if self._cameraImage is None:
 			self._cameraImage = self.create_image((0,0), tag="CameraImage")
 			self.lower(self._cameraImage)
 			# create cross hair at dummy location we will correct latter
-			self._cameraHori   = self.create_line(0,0,1,0, fill=CAMERA_COLOR, tag="CrossHair")
-			self._cameraVert   = self.create_line(0,0,0,1, fill=CAMERA_COLOR, tag="CrossHair")
-			self._cameraCircle = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR, tag="CrossHair")
+			self._cameraHori    = self.create_line(0,0,1,0, fill=CAMERA_COLOR, tag="CrossHair")
+			self._cameraVert    = self.create_line(0,0,0,1, fill=CAMERA_COLOR, tag="CrossHair")
+			self._cameraCircle  = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR, tag="CrossHair")
+			self._cameraCircle2 = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR,
+							dash=(3,3), tag="CrossHair")
 			self.cameraPosition()
 		self.itemconfig(self._cameraImage, image=self.camera.toTk())
 		self._cameraAfter = self.after(100, self.cameraRefresh);
@@ -1139,10 +1144,13 @@ class CNCCanvas(Canvas):
 		x = w//2		# everything on center
 		y = h//2
 		if self.cameraAnchor == NONE:
-			if self._lastGantry is None: return
-			x,y = self.plotCoords([self._lastGantry])[0]
+			if self._lastGantry is not None:
+				x,y = self.plotCoords([self._lastGantry])[0]
+			else:
+				x = y = 0
 			x += self.cameraDx * self.zoom
 			y -= self.cameraDy * self.zoom
+			r  = self.cameraR  * self.zoom
 		else:
 			if self.cameraAnchor != CENTER:
 				if N in self.cameraAnchor:
@@ -1155,12 +1163,16 @@ class CNCCanvas(Canvas):
 					x = w-wc
 			x = self.canvasx(x)
 			y = self.canvasy(y)
-		r = self.cameraR * self.zoom
+			if self.zoom/self.cameraScale>1.0:
+				r = self.cameraR * self.zoom
+			else:
+				r = self.cameraR * self.cameraScale
 
-		self.coords(self._cameraImage,  x, y)
-		self.coords(self._cameraHori,   x-wc, y, x+wc, y)
-		self.coords(self._cameraVert,   x, y-hc, x, y+hc)
-		self.coords(self._cameraCircle, x-r, y-r, x+r, y+r)
+		self.coords(self._cameraImage,   x, y)
+		self.coords(self._cameraHori,    x-wc, y, x+wc, y)
+		self.coords(self._cameraVert,    x, y-hc, x, y+hc)
+		self.coords(self._cameraCircle,  x-r, y-r, x+r, y+r)
+		self.coords(self._cameraCircle2, x-r*2, y-r*2, x+r*2, y+r*2)
 
 	# ----------------------------------------------------------------------
 	# Crop center of camera and search it in subsequent movements
@@ -1818,6 +1830,7 @@ class CanvasFrame(Frame):
 		global INSERT_COLOR, GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
 		global BOX_SELECT, ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
 		global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
+		global CAMERA_COLOR
 
 		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
 		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
@@ -1834,7 +1847,7 @@ class CanvasFrame(Frame):
 		GANTRY_COLOR  = Utils.getStr("Color", "canvas.gantry", GANTRY_COLOR)
 		MARGIN_COLOR  = Utils.getStr("Color", "canvas.margin", MARGIN_COLOR)
 		GRID_COLOR    = Utils.getStr("Color", "canvas.grid",   GRID_COLOR)
-		BOX_SELECT    = Utils.getStr("Color", "canvas.box",    BOX_SELECT)
+		BOX_SELECT    = Utils.getStr("Color", "canvas.selectbox",BOX_SELECT)
 		ENABLE_COLOR  = Utils.getStr("Color", "canvas.enable", ENABLE_COLOR)
 		DISABLE_COLOR = Utils.getStr("Color", "canvas.disable",DISABLE_COLOR)
 		SELECT_COLOR  = Utils.getStr("Color", "canvas.select", SELECT_COLOR)
@@ -1842,6 +1855,7 @@ class CanvasFrame(Frame):
 		PROCESS_COLOR = Utils.getStr("Color", "canvas.process",PROCESS_COLOR)
 		MOVE_COLOR    = Utils.getStr("Color", "canvas.move",   MOVE_COLOR)
 		RULER_COLOR   = Utils.getStr("Color", "canvas.ruler",  RULER_COLOR)
+		CAMERA_COLOR  = Utils.getStr("Color", "canvas.camera", CAMERA_COLOR)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
