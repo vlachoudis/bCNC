@@ -224,6 +224,7 @@ class CNCCanvas(Canvas):
 		self.cameraR         =  1.5875		# circle radius in units (mm/inched)
 		self.cameraDx        = 0		# camera shift vs gantry
 		self.cameraDy        = 0
+		self.cameraZ         = 0
 		self._cameraAfter    = None		# Camera anchor location "" for gantry
 		self._cameraMaxWidth = 640		# on zoom over this size crop the image
 		self._cameraMaxHeight= 480

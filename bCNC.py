@@ -1147,6 +1147,18 @@ class Application(Toplevel,Sender):
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
 
+		# CAM*ERA: camera actions
+		elif rexx.abbrev("CAMERA",cmd,3):
+			# FIXME will make crazy the button state
+			if rexx.abbrev("SWITCH",line[1].upper(),1):
+				Page.groups["Probe:Camera"].switchCamera()
+
+			elif rexx.abbrev("SPINDLE",line[1].upper(),2):
+				Page.frames["Probe:Camera"].registerSpindle()
+
+			elif rexx.abbrev("CAMERA",line[1].upper(),1):
+				Page.frames["Probe:Camera"].registerCamera()
+
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
 			self.ribbon.changePage("Terminal")

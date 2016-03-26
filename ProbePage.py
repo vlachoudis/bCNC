@@ -188,7 +188,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
-		lframe = tkExtra.ExLabelFrame(self, text="Common", foreground="DarkBlue")
+		lframe = tkExtra.ExLabelFrame(self, text=_("Common"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 		frame = lframe.frame
 
@@ -410,7 +410,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		# ----
 		row += 1
 		col = 0
-		Label(lframe(), text="Gcode:").grid(row=row, column=col, sticky=E)
+		Label(lframe(), text=_("Gcode:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.x_orient = tkExtra.FloatEntry(lframe(), background="White")
 		self.x_orient.grid(row=row, column=col, sticky=EW)
@@ -752,7 +752,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
 
-		lframe = LabelFrame(self, text="Autolevel", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Autolevel"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
@@ -988,10 +988,48 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 #===============================================================================
 # Camera Group
 #===============================================================================
-#class CameraGroup(CNCRibbon.ButtonGroup):
-#	def __init__(self, master, app):
-#		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
-#		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+class CameraGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+
+		self.switch = BooleanVar()
+
+		# ---
+		col,row=0,0
+		self.switchButton = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Switch To"),
+				compound=TOP,
+				variable=self.switch,
+				command=self.switchCommand,
+				background=Ribbon._BACKGROUND)
+		self.switchButton.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.switchButton, _("Switch between camera and spindle"))
+
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+	def switchCommand(self, event=None):
+		wx = CNC.vars["wx"]
+		wy = CNC.vars["wy"]
+		dx = self.app.canvas.cameraDx
+		dy = self.app.canvas.cameraDy
+		z  = self.app.canvas.cameraZ
+		if self.switch.get():
+			self.switchButton.config(image=Utils.icons["endmill32"])
+			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+		else:
+			self.switchButton.config(image=Utils.icons["camera32"])
+			self.sendGCode("G92.1\n")
+		self.sendGCode("G0X%gY%gZ%g\n"%(wx,wy,z))
+
+	#-----------------------------------------------------------------------
+	def switchCamera(self, event=None):
+		self.switch.set(not self.switch.get())
+		self.switchCommand()
 
 #===============================================================================
 # Camera Frame
@@ -1006,7 +1044,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 		# ----
 		row = 0
-		Label(lframe, text="Location:").grid(row=row, column=0, sticky=E)
+		Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
 		self.location = tkExtra.Combobox(lframe, True,
 					background="White",
 					width=16)
@@ -1017,57 +1055,66 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 		# ----
 		row += 1
-		Label(lframe, text="Scale:").grid(row=row, column=0, sticky=E)
+		Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
 		self.scale = tkExtra.FloatEntry(lframe, background="White")
 		self.scale.grid(row=row, column=1, sticky=EW)
 		self.scale.bind("<Return>",   self.updateValues)
 		self.scale.bind("<KP_Enter>", self.updateValues)
+		self.scale.bind("<FocusOut>", self.updateValues)
 		tkExtra.Balloon.set(self.scale, _("Camera scale [pixels / unit]"))
 
 		# ----
 		row += 1
-		Label(lframe, text="Crosshair:").grid(row=row, column=0, sticky=E)
-		self.radius = tkExtra.FloatEntry(lframe, background="White")
-		self.radius.grid(row=row, column=1, sticky=EW)
-		self.radius.bind("<Return>",   self.updateValues)
-		self.radius.bind("<KP_Enter>", self.updateValues)
-		tkExtra.Balloon.set(self.radius, _("Camera cross hair radius [units]"))
+		Label(lframe, text=_("Crosshair:")).grid(row=row, column=0, sticky=E)
+		self.diameter = tkExtra.FloatEntry(lframe, background="White")
+		self.diameter.grid(row=row, column=1, sticky=EW)
+		self.diameter.bind("<Return>",   self.updateValues)
+		self.diameter.bind("<KP_Enter>", self.updateValues)
+		self.diameter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.diameter, _("Camera cross hair diameter [units]"))
+
+		b = Button(lframe, text=_("Get"), command=self.getDiameter, padx=1, pady=1)
+		b.grid(row=row, column=2, sticky=W)
+		tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
 
 		# ----
 		row += 1
-		Label(lframe, text="Offset:").grid(row=row, column=0, sticky=E)
+		Label(lframe, text=_("Offset:")).grid(row=row, column=0, sticky=E)
 		self.dx = tkExtra.FloatEntry(lframe, background="White")
 		self.dx.grid(row=row, column=1, sticky=EW)
 		self.dx.bind("<Return>",   self.updateValues)
 		self.dx.bind("<KP_Enter>", self.updateValues)
+		self.dx.bind("<FocusOut>", self.updateValues)
 		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
 
 		self.dy = tkExtra.FloatEntry(lframe, background="White")
 		self.dy.grid(row=row, column=2, sticky=EW)
 		self.dy.bind("<Return>",   self.updateValues)
 		self.dy.bind("<KP_Enter>", self.updateValues)
+		self.dy.bind("<FocusOut>", self.updateValues)
 		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
 
 		self.z = tkExtra.FloatEntry(lframe, background="White")
 		self.z.grid(row=row, column=3, sticky=EW)
 		self.z.bind("<Return>",   self.updateValues)
 		self.z.bind("<KP_Enter>", self.updateValues)
+		self.z.bind("<FocusOut>", self.updateValues)
 		tkExtra.Balloon.set(self.z, _("Spindle Z position when camera was registered"))
 
 		row += 1
-		Button(lframe, text="Update", command=self.updateValues).grid(row=row, column=0, columnspan=3)
-		row += 1
-		Button(lframe, text="1. Register Spindle", command=self.registerSpindle).grid(row=row, column=0, columnspan=3)
-		row += 1
-		Button(lframe, text="2. Register Camera", command=self.registerCamera).grid(row=row, column=0, columnspan=3)
-		row += 1
-		Button(lframe, text="3. Find Scale", command=self.findScale).grid(row=row, column=0, columnspan=3)
-
-		row += 1
-		self.switchVar = BooleanVar()
-		Checkbutton(lframe, text="4. Switch to Camera",
-				variable=self.switchVar,
-				command=self.switch2Camera).grid(row=row, column=0, columnspan=3)
+		Label(lframe, text=_("Register:")).grid(row=row, column=0, sticky=E)
+		b = Button(lframe, text=_("1. Spindle"),
+				command=self.registerSpindle,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark spindle position for calculating offset"))
+		b.grid(row=row, column=1, sticky=EW)
+		b = Button(lframe, text=_("2. Camera"),
+				command=self.registerCamera,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark camera position for calculating offset"))
+		b.grid(row=row, column=2, sticky=EW)
 
 		lframe.grid_columnconfigure(1, weight=1)
 		lframe.grid_columnconfigure(2, weight=1)
@@ -1081,7 +1128,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setStr(  "Camera", "aligncam_anchor",self.location.get())
-		Utils.setFloat("Camera", "aligncam_r",     self.radius.get())
+		Utils.setFloat("Camera", "aligncam_d",     self.diameter.get())
 		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
 		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
 		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
@@ -1090,7 +1137,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
-		self.radius.set(Utils.getFloat("Camera", "aligncam_r"))
+		self.diameter.set(Utils.getFloat("Camera","aligncam_d"))
 		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
 		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
 		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
@@ -1100,8 +1147,13 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	# Return camera Anchor
 	#-----------------------------------------------------------------------
-	def cameraAnchor(self,):
+	def cameraAnchor(self):
 		return CAMERA_LOCATION.get(self.location.get(),CENTER)
+
+	#-----------------------------------------------------------------------
+	def getDiameter(self):
+		self.diameter.set(CNC.vars["diameter"])
+		self.updateValues()
 
 	#-----------------------------------------------------------------------
 	# Update canvas with values
@@ -1110,11 +1162,13 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.app.canvas.cameraAnchor = self.cameraAnchor()
 		try: self.app.canvas.cameraScale = float(self.scale.get())
 		except ValueError: pass
-		try: self.app.canvas.cameraR = float(self.radius.get())
+		try: self.app.canvas.cameraR = float(self.diameter.get())/2.0
 		except ValueError: pass
 		try: self.app.canvas.cameraDx = float(self.dx.get())
 		except ValueError: pass
 		try: self.app.canvas.cameraDy = float(self.dy.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraZ  = float(self.z.get())
 		except ValueError: pass
 		self.app.canvas.cameraUpdate()
 
@@ -1141,50 +1195,51 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.event_generate("<<Status>>", data=_("Camera offset is updated"))
 		self.updateValues()
 
-	#-----------------------------------------------------------------------
-	def findScale(self):
-		return
-		self.app.canvas.cameraMakeTemplate(30)
-
-		self.app.control.moveXup()
-		#self.app.wait4Idle()
-		time.sleep(2)
-		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
-
-		self.app.control.moveXdown()
-		self.app.control.moveXdown()
-		#self.app.wait4Idle()
-		time.sleep(2)
-		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
-
-		self.app.control.moveXup()
-		self.app.control.moveYup()
-		#self.app.wait4Idle()
-		time.sleep(2)
-		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
-
-		self.app.control.moveYdown()
-		self.app.control.moveYdown()
-		#self.app.wait4Idle()
-		time.sleep(2)
-		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
-
-		self.app.control.moveYup()
+#	#-----------------------------------------------------------------------
+#	def findScale(self):
+#		return
+#		self.app.canvas.cameraMakeTemplate(30)
+#
+#		self.app.control.moveXup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
+#
+#		self.app.control.moveXdown()
+#		self.app.control.moveXdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
+#
+#		self.app.control.moveXup()
+#		self.app.control.moveYup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
+#
+#		self.app.control.moveYdown()
+#		self.app.control.moveYdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
+#
+#		self.app.control.moveYup()
 
 	#-----------------------------------------------------------------------
 	# Move camera to spindle location and change coordinates to relative
 	# to camera via g92
 	#-----------------------------------------------------------------------
-	def switch2Camera(self, event=None):
-		wx = CNC.vars["wx"]
-		wy = CNC.vars["wy"]
-		dx = float(self.dx.get())
-		dy = float(self.dy.get())
-		if self.switchVar.get():
-			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
-		else:
-			self.sendGCode("G92.1\n")
-		self.sendGCode("G0X%gY%g\n"%(wx,wy))
+#	def switch2Camera(self, event=None):
+#		print "Switch to camera"
+#		wx = CNC.vars["wx"]
+#		wy = CNC.vars["wy"]
+#		dx = float(self.dx.get())
+#		dy = float(self.dy.get())
+#		if self.switchVar.get():
+#			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+#		else:
+#			self.sendGCode("G92.1\n")
+#		self.sendGCode("G0X%gY%g\n"%(wx,wy))
 
 #===============================================================================
 # Tool Group
@@ -1516,7 +1571,7 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#-----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
+		self._register((ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
 			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
