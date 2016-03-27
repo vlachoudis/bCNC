@@ -38,6 +38,7 @@ class Camera:
 		self.idx     = Utils.getInt("Camera", prefix)
 		self.camera  = None
 		self.image   = None
+		self.frozen  = None
 		self.imagetk = None
 
 	#-----------------------------------------------------------------------
@@ -79,6 +80,9 @@ class Camera:
 		else:
 			self.stop()
 		self.original = self.image
+
+		if self.frozen is not None:
+			self.image = cv.addWeighted(self.image, 0.7, self.frozen, 0.3, 0.0)
 		return s
 
 	#-----------------------------------------------------------------------
@@ -125,6 +129,22 @@ class Camera:
 			# FIXME Too much zoom out, results in void image!
 			#self.image = None
 			pass
+
+	#-----------------------------------------------------------------------
+	# Canny edge detection
+	#-----------------------------------------------------------------------
+	def canny(self, threshold1, threshold2):
+		edge = cv.cvtColor(cv.Canny(self.image, threshold1, threshold2), cv.COLOR_GRAY2BGR)
+		self.image = cv.addWeighted(self.image, 0.9, edge, 0.5, 0.0)
+
+	#-----------------------------------------------------------------------
+	# Freeze and overlay image
+	#-----------------------------------------------------------------------
+	def freeze(self, f):
+		if f:
+			self.frozen = self.image.copy()
+		else:
+			self.frozen = None
 
 	#-----------------------------------------------------------------------
 	# Return center portion of the image to be used as a template

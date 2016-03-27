@@ -992,8 +992,11 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+		self.grid3rows()
 
 		self.switch = BooleanVar()
+		self.edge   = BooleanVar()
+		self.freeze = BooleanVar()
 
 		# ---
 		col,row=0,0
@@ -1004,9 +1007,34 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 				variable=self.switch,
 				command=self.switchCommand,
 				background=Ribbon._BACKGROUND)
-		self.switchButton.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		self.switchButton.grid(row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(self.switchButton, _("Switch between camera and spindle"))
 
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["edge"],
+				text=_("Edge Detection"),
+				compound=LEFT,
+				variable=self.edge,
+				anchor=W,
+				command=self.edgeDetection,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+
+		# ---
+		row += 1
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["freeze"],
+				text=_("Freeze"),
+				compound=LEFT,
+				variable=self.freeze,
+				anchor=W,
+				command=self.freezeImage,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
 
 	#-----------------------------------------------------------------------
 	# Move camera to spindle location and change coordinates to relative
@@ -1030,6 +1058,14 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 	def switchCamera(self, event=None):
 		self.switch.set(not self.switch.get())
 		self.switchCommand()
+
+	#-----------------------------------------------------------------------
+	def edgeDetection(self):
+		self.app.canvas.cameraEdge = self.edge.get()
+
+	#-----------------------------------------------------------------------
+	def freezeImage(self):
+		self.app.canvas.cameraFreeze(self.freeze.get())
 
 #===============================================================================
 # Camera Frame

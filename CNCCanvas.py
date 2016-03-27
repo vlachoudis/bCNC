@@ -40,9 +40,9 @@ VIEWS     = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
 INSERT_WIDTH2 =  3
 GANTRY_R      =  4
-GANTRY_X      = 10
-GANTRY_Y      =  5
-GANTRY_H      = 20
+GANTRY_X      = GANTRY_R*2	# 10
+GANTRY_Y      = GANTRY_R	# 5
+GANTRY_H      = GANTRY_R*5	# 20
 
 INSERT_COLOR  = "Blue"
 GANTRY_COLOR  = "Red"
@@ -221,6 +221,7 @@ class CNCCanvas(Canvas):
 		self.camera          = Camera.Camera("aligncam")
 		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
 		self.cameraScale     = 10.0		# camera pixels/unit
+		self.cameraEdge      = False		# edge detection
 		self.cameraR         =  1.5875		# circle radius in units (mm/inched)
 		self.cameraDx        = 0		# camera shift vs gantry
 		self.cameraDy        = 0
@@ -1109,6 +1110,7 @@ class CNCCanvas(Canvas):
 		if not self.camera.read():
 			self.cameraOff()
 			return
+		if self.cameraEdge: self.camera.canny(50,200)
 		if self.cameraAnchor==NONE or self.zoom/self.cameraScale>1.0:
 			self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
 		if self._cameraImage is None:
@@ -1123,6 +1125,11 @@ class CNCCanvas(Canvas):
 			self.cameraPosition()
 		self.itemconfig(self._cameraImage, image=self.camera.toTk())
 		self._cameraAfter = self.after(100, self.cameraRefresh);
+
+	#-----------------------------------------------------------------------
+	def cameraFreeze(self, freeze):
+		if self.camera.isOn():
+			self.camera.freeze(freeze)
 
 	#-----------------------------------------------------------------------
 	def cameraSave(self, event=None):
@@ -1229,23 +1236,28 @@ class CNCCanvas(Canvas):
 	def initPosition(self):
 		self.delete(ALL)
 		self._cameraImage = None
-		if self.view in (VIEW_XY, VIEW_XZ, VIEW_YZ):
-			# FIXME should be done as a triangle for XZ and YZ
-			self._gantry1 = self.create_oval(
-					(-GANTRY_R,-GANTRY_R),
-					( GANTRY_R, GANTRY_R),
+		gr = max(3,int(CNC.vars["diameter"]/2.0*self.zoom))
+		if self.view == VIEW_XY:
+			self._gantry1 = self.create_oval( (-gr,-gr), ( gr, gr),
 					width=2,
 					outline=GANTRY_COLOR)
 			self._gantry2 = None
 		else:
-			self._gantry1 = self.create_oval(
-					(-GANTRY_X, -GANTRY_H-GANTRY_Y, GANTRY_X, -GANTRY_H+GANTRY_Y),
-					width=2,
-					outline=GANTRY_COLOR)
-			self._gantry2 = self.create_line(
-					(-GANTRY_X, -GANTRY_H, 0, 0, GANTRY_X, -GANTRY_H),
-					width=2,
-					fill=GANTRY_COLOR)
+			gx = gr
+			gy = gr//2
+			gh = 3*gr
+			if self.view in (VIEW_XZ, VIEW_YZ):
+				self._gantry1 = None
+				self._gantry2 = self.create_line((-gx,-gh, 0,0, gx,-gh, -gx,-gh),
+						width=2,
+						fill=GANTRY_COLOR)
+			else:
+				self._gantry1 = self.create_oval((-gx,-gh-gy, gx,-gh+gy),
+						width=2,
+						outline=GANTRY_COLOR)
+				self._gantry2 = self.create_line((-gx, -gh, 0, 0, gx, -gh),
+						width=2,
+						fill=GANTRY_COLOR)
 
 		self._lastInsert = None
 		self._lastActive = None
@@ -1259,18 +1271,18 @@ class CNCCanvas(Canvas):
 	# Draw gantry location
 	#----------------------------------------------------------------------
 	def _drawGantry(self, x, y):
+		gr = max(3,int(CNC.vars["diameter"]/2.0*self.zoom))
 		if self._gantry2 is None:
-			self.coords(self._gantry1,
-				(x-GANTRY_R, y-GANTRY_R,
-				 x+GANTRY_R, y+GANTRY_R))
+			self.coords(self._gantry1, (x-gr, y-gr, x+gr, y+gr))
 		else:
-			self.coords(self._gantry1,
-					(x-GANTRY_X, y-GANTRY_H-GANTRY_Y,
-					 x+GANTRY_X, y-GANTRY_H+GANTRY_Y))
-			self.coords(self._gantry2,
-					(x-GANTRY_X, y-GANTRY_H,
-					 x, y,
-					 x+GANTRY_X, y-GANTRY_H))
+			gx = gr
+			gy = gr//2
+			gh = 3*gr
+			if self._gantry1 is None:
+				self.coords(self._gantry2, (x-gx,y-gh, x,y, x+gx,y-gh, x-gx,y-gh))
+			else:
+				self.coords(self._gantry1, (x-gx, y-gh-gy, x+gx, y-gh+gy))
+				self.coords(self._gantry2, (x-gx, y-gh, x, y, x+gx, y-gh))
 
 	#----------------------------------------------------------------------
 	# Draw system axes
