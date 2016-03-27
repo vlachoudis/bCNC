@@ -8,6 +8,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
+import time
 import math
 
 try:
@@ -38,6 +39,29 @@ TOOL_POLICY = [ _("Send M6 commands"),		# 0
 TOOL_WAIT = [	_("ONLY before probing"),
 		_("BEFORE & AFTER probing")
 		]
+
+CAMERA_LOCATION = { "Gantry"       : NONE,
+		    "Top-Left"     : NW,
+		    "Top"          : N,
+		    "Top-Right"    : NE,
+		    "Left"         : W,
+		    "Center"       : CENTER,
+		    "Right"        : E,
+		    "Bottom-Left"  : SW,
+		    "Bottom"       : S,
+		    "Bottom-Right" : SE,
+		}
+CAMERA_LOCATION_ORDER = [
+		    "Gantry",
+		    "Top-Left",
+		    "Top",
+		    "Top-Right",
+		    "Left",
+		    "Center",
+		    "Right",
+		    "Bottom-Left",
+		    "Bottom",
+		    "Bottom-Right"]
 
 #===============================================================================
 # Probe Tab Group
@@ -70,6 +94,18 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Autolevel Z surface"))
+
+		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Camera"),
+				compound=TOP,
+				variable=self.tab,
+				value="Camera",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Work surface camera view and alignment"))
 
 		# ---
 		col += 1
@@ -152,7 +188,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
-		lframe = tkExtra.ExLabelFrame(self, text="Common", foreground="DarkBlue")
+		lframe = tkExtra.ExLabelFrame(self, text=_("Common"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 		frame = lframe.frame
 
@@ -208,7 +244,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
 			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
-			self.sendGrbl(cmd+"\n")
+			self.sendGCode(cmd+"\n")
 		except:
 			pass
 
@@ -374,7 +410,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		# ----
 		row += 1
 		col = 0
-		Label(lframe(), text="Gcode:").grid(row=row, column=col, sticky=E)
+		Label(lframe(), text=_("Gcode:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.x_orient = tkExtra.FloatEntry(lframe(), background="White")
 		self.x_orient.grid(row=row, column=col, sticky=EW)
@@ -554,7 +590,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			cmd += "F"+str(v)
 
 		if ok:
-			self.sendGrbl(cmd+"\n")
+			self.sendGCode(cmd+"\n")
 		else:
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
@@ -716,7 +752,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
 
-		lframe = LabelFrame(self, text="Autolevel", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Autolevel"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
@@ -948,6 +984,298 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.event_generate("<<DrawProbe>>")
 		# absolute
 		self.app.run(lines=self.app.gcode.probe.scan())
+
+#===============================================================================
+# Camera Group
+#===============================================================================
+class CameraGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+		self.grid3rows()
+
+		self.switch = BooleanVar()
+		self.edge   = BooleanVar()
+		self.freeze = BooleanVar()
+
+		# ---
+		col,row=0,0
+		self.switchButton = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Switch To"),
+				compound=TOP,
+				variable=self.switch,
+				command=self.switchCommand,
+				background=Ribbon._BACKGROUND)
+		self.switchButton.grid(row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.switchButton, _("Switch between camera and spindle"))
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["edge"],
+				text=_("Edge Detection"),
+				compound=LEFT,
+				variable=self.edge,
+				anchor=W,
+				command=self.edgeDetection,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+
+		# ---
+		row += 1
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["freeze"],
+				text=_("Freeze"),
+				compound=LEFT,
+				variable=self.freeze,
+				anchor=W,
+				command=self.freezeImage,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+	def switchCommand(self, event=None):
+		wx = CNC.vars["wx"]
+		wy = CNC.vars["wy"]
+		dx = self.app.canvas.cameraDx
+		dy = self.app.canvas.cameraDy
+		z  = self.app.canvas.cameraZ
+		if self.switch.get():
+			self.switchButton.config(image=Utils.icons["endmill32"])
+			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+		else:
+			self.switchButton.config(image=Utils.icons["camera32"])
+			self.sendGCode("G92.1\n")
+		self.sendGCode("G0X%gY%gZ%g\n"%(wx,wy,z))
+
+	#-----------------------------------------------------------------------
+	def switchCamera(self, event=None):
+		self.switch.set(not self.switch.get())
+		self.switchCommand()
+
+	#-----------------------------------------------------------------------
+	def edgeDetection(self):
+		self.app.canvas.cameraEdge = self.edge.get()
+
+	#-----------------------------------------------------------------------
+	def freezeImage(self):
+		self.app.canvas.cameraFreeze(self.freeze.get())
+
+#===============================================================================
+# Camera Frame
+#===============================================================================
+class CameraFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
+
+		# ==========
+		lframe = LabelFrame(self, text=_("Camera"), foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X, expand=YES)
+
+		# ----
+		row = 0
+		Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
+		self.location = tkExtra.Combobox(lframe, True,
+					background="White",
+					width=16)
+		self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
+		self.location.fill(CAMERA_LOCATION_ORDER)
+		self.location.set(CAMERA_LOCATION_ORDER[0])
+		tkExtra.Balloon.set(self.location, _("Camera location inside canvas"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
+		self.scale = tkExtra.FloatEntry(lframe, background="White")
+		self.scale.grid(row=row, column=1, sticky=EW)
+		self.scale.bind("<Return>",   self.updateValues)
+		self.scale.bind("<KP_Enter>", self.updateValues)
+		self.scale.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.scale, _("Camera scale [pixels / unit]"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Crosshair:")).grid(row=row, column=0, sticky=E)
+		self.diameter = tkExtra.FloatEntry(lframe, background="White")
+		self.diameter.grid(row=row, column=1, sticky=EW)
+		self.diameter.bind("<Return>",   self.updateValues)
+		self.diameter.bind("<KP_Enter>", self.updateValues)
+		self.diameter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.diameter, _("Camera cross hair diameter [units]"))
+
+		b = Button(lframe, text=_("Get"), command=self.getDiameter, padx=1, pady=1)
+		b.grid(row=row, column=2, sticky=W)
+		tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Offset:")).grid(row=row, column=0, sticky=E)
+		self.dx = tkExtra.FloatEntry(lframe, background="White")
+		self.dx.grid(row=row, column=1, sticky=EW)
+		self.dx.bind("<Return>",   self.updateValues)
+		self.dx.bind("<KP_Enter>", self.updateValues)
+		self.dx.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
+
+		self.dy = tkExtra.FloatEntry(lframe, background="White")
+		self.dy.grid(row=row, column=2, sticky=EW)
+		self.dy.bind("<Return>",   self.updateValues)
+		self.dy.bind("<KP_Enter>", self.updateValues)
+		self.dy.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
+
+		self.z = tkExtra.FloatEntry(lframe, background="White")
+		self.z.grid(row=row, column=3, sticky=EW)
+		self.z.bind("<Return>",   self.updateValues)
+		self.z.bind("<KP_Enter>", self.updateValues)
+		self.z.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.z, _("Spindle Z position when camera was registered"))
+
+		row += 1
+		Label(lframe, text=_("Register:")).grid(row=row, column=0, sticky=E)
+		b = Button(lframe, text=_("1. Spindle"),
+				command=self.registerSpindle,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark spindle position for calculating offset"))
+		b.grid(row=row, column=1, sticky=EW)
+		b = Button(lframe, text=_("2. Camera"),
+				command=self.registerCamera,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark camera position for calculating offset"))
+		b.grid(row=row, column=2, sticky=EW)
+
+		lframe.grid_columnconfigure(1, weight=1)
+		lframe.grid_columnconfigure(2, weight=1)
+		lframe.grid_columnconfigure(3, weight=1)
+
+		self.loadConfig()
+		self.location.config(command=self.updateValues)
+		self.spindleX = None
+		self.spindleY = None
+
+	#-----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setStr(  "Camera", "aligncam_anchor",self.location.get())
+		Utils.setFloat("Camera", "aligncam_d",     self.diameter.get())
+		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
+		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
+		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
+		Utils.setFloat("Camera", "aligncam_z",     self.z.get())
+
+	#-----------------------------------------------------------------------
+	def loadConfig(self):
+		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
+		self.diameter.set(Utils.getFloat("Camera","aligncam_d"))
+		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
+		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
+		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
+		self.z.set(     Utils.getFloat("Camera", "aligncam_z"))
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	# Return camera Anchor
+	#-----------------------------------------------------------------------
+	def cameraAnchor(self):
+		return CAMERA_LOCATION.get(self.location.get(),CENTER)
+
+	#-----------------------------------------------------------------------
+	def getDiameter(self):
+		self.diameter.set(CNC.vars["diameter"])
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	# Update canvas with values
+	#-----------------------------------------------------------------------
+	def updateValues(self, *args):
+		self.app.canvas.cameraAnchor = self.cameraAnchor()
+		try: self.app.canvas.cameraScale = float(self.scale.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraR = float(self.diameter.get())/2.0
+		except ValueError: pass
+		try: self.app.canvas.cameraDx = float(self.dx.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraDy = float(self.dy.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraZ  = float(self.z.get())
+		except ValueError: pass
+		self.app.canvas.cameraUpdate()
+
+	#-----------------------------------------------------------------------
+	# Register spindle position
+	#-----------------------------------------------------------------------
+	def registerSpindle(self):
+		self.spindleX = CNC.vars["wx"]
+		self.spindleY = CNC.vars["wy"]
+		self.event_generate("<<Status>>", data=_("Spindle position is registered"))
+
+	#-----------------------------------------------------------------------
+	# Register camera position
+	#-----------------------------------------------------------------------
+	def registerCamera(self):
+		if self.spindleX is None:
+			tkMessageBox.showwarning(_("Spindle position is not registered"),
+					_("Spindle position must be registered before camera"),
+					parent=self)
+			return
+		self.dx.set(str(self.spindleX - CNC.vars["wx"]))
+		self.dy.set(str(self.spindleY - CNC.vars["wy"]))
+		self.z.set(str(CNC.vars["wz"]))
+		self.event_generate("<<Status>>", data=_("Camera offset is updated"))
+		self.updateValues()
+
+#	#-----------------------------------------------------------------------
+#	def findScale(self):
+#		return
+#		self.app.canvas.cameraMakeTemplate(30)
+#
+#		self.app.control.moveXup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
+#
+#		self.app.control.moveXdown()
+#		self.app.control.moveXdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
+#
+#		self.app.control.moveXup()
+#		self.app.control.moveYup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
+#
+#		self.app.control.moveYdown()
+#		self.app.control.moveYdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
+#
+#		self.app.control.moveYup()
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+#	def switch2Camera(self, event=None):
+#		print "Switch to camera"
+#		wx = CNC.vars["wx"]
+#		wy = CNC.vars["wy"]
+#		dx = float(self.dx.get())
+#		dy = float(self.dy.get())
+#		if self.switchVar.get():
+#			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+#		else:
+#			self.sendGCode("G92.1\n")
+#		self.sendGCode("G0X%gY%g\n"%(wx,wy))
 
 #===============================================================================
 # Tool Group
@@ -1279,8 +1607,8 @@ class ProbePage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#-----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
-			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, ToolFrame))
+		self._register((ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
+			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.set("Probe")

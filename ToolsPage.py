@@ -231,6 +231,11 @@ class _Base:
 			edit = tkExtra.InPlaceFile(lb, save=True)
 		elif t == "color":
 			edit = tkExtra.InPlaceColor(lb)
+			if edit.value is not None:
+				try:
+					lb.itemconfig(ACTIVE, background=edit.value)
+				except TclError:
+					pass
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
 
@@ -739,7 +744,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Camera, Color, Cut, Drill, EndMill,
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
@@ -1193,6 +1198,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
+		self.addWidget(self.toolList)
 
 		app.tools.active.trace('w',self.change)
 		self.change()
