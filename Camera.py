@@ -42,7 +42,9 @@ class Camera:
 		self.imagetk = None
 
 	#-----------------------------------------------------------------------
-	def isOn(self): return self.camera is not None and self.camera.isOpened()
+	def isOn(self):
+		if cv is None: return False
+		return self.camera is not None and self.camera.isOpened()
 
 	#-----------------------------------------------------------------------
 	def start(self):

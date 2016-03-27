@@ -2027,6 +2027,7 @@ class CanvasFrame(Frame):
 				command=self.drawCamera)
 		tkExtra.Balloon.set(b, _("Toggle display of camera"))
 		b.pack(side=LEFT)
+		if Camera.cv is None: b.config(state=DISABLED)
 
 		b = Button(toolbar,
 				image=Utils.icons["refresh"],

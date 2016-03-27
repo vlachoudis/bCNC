@@ -20,6 +20,7 @@ except ImportError:
 
 from CNC import WCS,CNC
 import Utils
+import Camera
 import Ribbon
 import tkExtra
 import CNCRibbon
@@ -106,6 +107,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Work surface camera view and alignment"))
+		if Camera.cv is None: b.config(state=DISABLED)
 
 		# ---
 		col += 1
