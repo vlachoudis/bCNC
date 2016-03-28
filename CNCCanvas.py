@@ -226,6 +226,7 @@ class CNCCanvas(Canvas):
 		self.cameraDx        = 0		# camera shift vs gantry
 		self.cameraDy        = 0
 		self.cameraZ         = 0
+		self.cameraSwitch    = False		# Look at spindle(False) or camera(True)
 		self._cameraAfter    = None		# Camera anchor location "" for gantry
 		self._cameraMaxWidth = 640		# on zoom over this size crop the image
 		self._cameraMaxHeight= 480
@@ -1156,8 +1157,9 @@ class CNCCanvas(Canvas):
 				x,y = self.plotCoords([self._lastGantry])[0]
 			else:
 				x = y = 0
-			x += self.cameraDx * self.zoom
-			y -= self.cameraDy * self.zoom
+			if not self.cameraSwitch:
+				x += self.cameraDx * self.zoom
+				y -= self.cameraDy * self.zoom
 			r  = self.cameraR  * self.zoom
 		else:
 			if self.cameraAnchor != CENTER:

@@ -1049,9 +1049,11 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 		if self.switch.get():
 			self.switchButton.config(image=Utils.icons["endmill32"])
 			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+			self.app.canvas.cameraSwitch = True
 		else:
 			self.switchButton.config(image=Utils.icons["camera32"])
 			self.sendGCode("G92.1\n")
+			self.app.canvas.cameraSwitch = False
 		self.sendGCode("G0X%gY%gZ%g\n"%(wx,wy,z))
 
 	#-----------------------------------------------------------------------
