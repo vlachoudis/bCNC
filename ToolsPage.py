@@ -744,7 +744,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill,
+		for cls in [ CNC, Font, Camera, Color, Cut, Drill, EndMill,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
