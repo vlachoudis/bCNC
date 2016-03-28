@@ -321,7 +321,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				image=Utils.icons["probe32"],
 				text=_("Probe"),
 				compound=TOP,
-				command=self.probe)
+				command=self.probe,
+				width=48,
+				padx=5, pady=0)
 		b.grid(row=row, column=col, rowspan=2, padx=1, sticky=EW+S)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
@@ -369,7 +371,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				image=Utils.icons["target32"],
 				text=_("Center"),
 				compound=TOP,
-				command=self.probeCenter)
+				command=self.probeCenter,
+				width=48,
+				padx=5, pady=0)
 		b.pack(side=RIGHT)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Center probing using a ring"))

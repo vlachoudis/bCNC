@@ -71,6 +71,7 @@ class Camera:
 		height = Utils.getInt("Camera", self.prefix+"_height",  0)
 		if height: self.camera.set(4, height)
 		self.angle = Utils.getInt("Camera", self.prefix+"_angle")//90 % 4
+#		self.camera.set(38, 3) # CV_CAP_PROP_BUFFERSIZE
 
 	#-----------------------------------------------------------------------
 	# Read one image and rotated if needed
