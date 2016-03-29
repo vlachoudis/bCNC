@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.1"
-__date__    = "15 Feb 2016"
+__version__ = "0.9.2"
+__date__    = "27 Mar 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -301,13 +301,16 @@ class Application(Toplevel,Sender):
 		self.bind("<<AddMarker>>",	self.canvas.setActionAddMarker)
 
 		frame = Page.frames["Probe:Tool"]
-		self.bind('<<ToolCalibrate>>',    frame.calibrate)
-		self.bind('<<ToolChange>>',       frame.change)
+		self.bind('<<ToolCalibrate>>',	frame.calibrate)
+		self.bind('<<ToolChange>>',	frame.change)
 
-		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
-		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
-		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
-		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+		self.bind('<<AutolevelMargins>>',self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',	self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',	self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',	self.autolevel.scan)
+
+		self.bind('<<CameraOn>>',	self.canvas.cameraOn)
+		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
 
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)
@@ -1143,6 +1146,18 @@ class Application(Toplevel,Sender):
 		# ABO*UT: About dialog
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
+
+		# CAM*ERA: camera actions
+		elif rexx.abbrev("CAMERA",cmd,3):
+			# FIXME will make crazy the button state
+			if rexx.abbrev("SWITCH",line[1].upper(),1):
+				Page.groups["Probe:Camera"].switchCamera()
+
+			elif rexx.abbrev("SPINDLE",line[1].upper(),2):
+				Page.frames["Probe:Camera"].registerSpindle()
+
+			elif rexx.abbrev("CAMERA",line[1].upper(),1):
+				Page.frames["Probe:Camera"].registerCamera()
 
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":

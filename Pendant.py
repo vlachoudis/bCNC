@@ -109,6 +109,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			if not Camera.hasOpenCV(): return
 			if Pendant.camera is None:
 				Pendant.camera = Camera.Camera("webcam")
+				Pendant.camera.start()
 
 			s,img = Pendant.camera.read()
 			if s:
@@ -235,6 +236,7 @@ def stop():
 	if httpd is None: return False
 	httpd.shutdown()
 	httpd = None
+	if Pendant.camera: Pendant.camera.stop()
 	return True
 
 if __name__ == '__main__':
