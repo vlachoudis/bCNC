@@ -769,19 +769,16 @@ class Sender:
 					pat = FEEDPAT.match(tosend)
 					if pat is not None:
 						self._lastFeed = pat.group(2)
-						#print self._lastFeed  
 
 					#If Override change, attach feed
 					if CNC.vars["overrideChanged"]:
 						CNC.vars["overrideChanged"] = False
 						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
-						tosend = "f%g"% self._newFeed + tosend 
+						if pat is None:
+							tosend = "f%g" % (self._newFeed) + tosend
+							#print tosend
 
-					# FIXME should be smarter and apply the feed override
-					# also on cards with out feed (the first time only)
-					# I should track the feed rate for every card
-					# and when it is changed apply a F### command
-					# even if it is not there
+					#Apply override Feed
 					if CNC.vars["override"] != 100:
 						pat = FEEDPAT.match(tosend)
 						if pat is not None:
@@ -790,6 +787,7 @@ class Sender:
 									(pat.group(1),
 									 self._newFeed,
 									 pat.group(3))
+								print "F:" + tosend
 							except:
 								pass
 
