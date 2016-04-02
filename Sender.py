@@ -787,7 +787,6 @@ class Sender:
 									(pat.group(1),
 									 self._newFeed,
 									 pat.group(3))
-								print "F:" + tosend
 							except:
 								pass
 
