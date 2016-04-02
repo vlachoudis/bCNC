@@ -693,6 +693,7 @@ class CNC:
 				"rpm"       : 0.0,
 
 				"override"  : 100,
+				"overrideChanged"  : False,
 				"diameter"  : 3.175,	# Tool diameter
 				"cutfeed"   : 1000.,	# Material feed for cutting
 				"cutfeedz"  : 500.,	# Material feed for cutting

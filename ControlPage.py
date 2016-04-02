@@ -950,6 +950,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def overrideControl(self, event=None):
 		CNC.vars["override"] = self.override.get()
+		CNC.vars["overrideChanged"] = True
 
 	#----------------------------------------------------------------------
 	def resetOverride(self, event=None):

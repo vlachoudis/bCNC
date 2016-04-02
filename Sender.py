@@ -130,6 +130,8 @@ class Sender:
 		self._alarm      = True		# Display alarm message if true
 		self._msg        = None
 		self._sumcline   = 0
+		self._lastFeed   = 0
+		self._newFeed   = 0
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -762,18 +764,27 @@ class Sender:
 					if isinstance(tosend, unicode):
 						tosend = tosend.encode("ascii","replace")
 
-					# FIXME should be smarter and apply the feed override
-					# also on cards with out feed (the first time only)
-					# I should track the feed rate for every card
-					# and when it is changed apply a F### command
-					# even if it is not there
+					#Keep track of last feed
+					pat = FEEDPAT.match(tosend)
+					if pat is not None:
+						self._lastFeed = pat.group(2)
+
+					#If Override change, attach feed
+					if CNC.vars["overrideChanged"]:
+						CNC.vars["overrideChanged"] = False
+						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
+						if pat is None:
+							tosend = "f%g" % (self._newFeed) + tosend
+							#print tosend
+
+					#Apply override Feed
 					if CNC.vars["override"] != 100:
 						pat = FEEDPAT.match(tosend)
 						if pat is not None:
 							try:
 								tosend = "%sf%g%s\n" % \
 									(pat.group(1),
-									 float(pat.group(2))*CNC.vars["override"]/100.0,
+									 self._newFeed,
 									 pat.group(3))
 							except:
 								pass
