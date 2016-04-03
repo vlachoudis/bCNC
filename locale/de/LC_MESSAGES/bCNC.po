@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-03-26 01:22+0100\n"
-"PO-Revision-Date: 2016-04-02 16:36+0200\n"
+"PO-Revision-Date: 2016-04-03 13:47+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -160,16 +160,21 @@ msgid ""
 "when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
 "value."
 msgstr ""
+"The number value suffix of a G-code word is missing in the G-code block, or "
+"when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
+"value."
 
 #: Sender.py:67
 msgid "The issued Grbl $ system command is not recognized or is invalid."
-msgstr ""
+msgstr "Das angegebene Grbl $ Kommando wurde nicht erkannt oder ist ungültig."
 
 #: Sender.py:68
 msgid ""
 "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
 "tool number, or S spindle speed is negative."
 msgstr ""
+"Der Wert einer $x=val Grbl Einstellung, F feed rate, N Zeilennummer, P "
+"Ausdruck, T Werkzeugnummer oder S Spindeldrehzahl ist negativ."
 
 #: Sender.py:69
 msgid "Homing is disabled when issuing a $H command."
@@ -188,6 +193,9 @@ msgid ""
 "If Grbl can't read data contained in the EEPROM, this error is returned. "
 "Grbl will also clear and restore the effected data back to defaults."
 msgstr ""
+"Dieser Fehler wird zurückgegeben wenn Grbl den EEPROM Speicher nicht "
+"auslesen kann. Grbl löscht den entsprechenden Speicherbereich und setzt die "
+"Einstellungen auf Standardwerte."
 
 #: Sender.py:72
 msgid ""
@@ -464,11 +472,11 @@ msgstr "Spindel Drehzahl max (U/min)"
 
 #: ToolsPage.py:490
 msgid "Header gcode"
-msgstr ""
+msgstr "Header G-Code"
 
 #: ToolsPage.py:491
 msgid "Footer gcode"
-msgstr ""
+msgstr "Footer G-Code"
 
 #: ToolsPage.py:513 ToolsPage.py:539 ToolsPage.py:568 ToolsPage.py:594
 #: ToolsPage.py:619 ToolsPage.py:640 ToolsPage.py:666 ToolsPage.py:688
@@ -478,7 +486,7 @@ msgstr ""
 #: plugins/spirograph.py:101 plugins/bowl.py:107 plugins/box.py:305
 #: plugins/text.py:36
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: ToolsPage.py:514
 msgid "Feed"
@@ -486,7 +494,7 @@ msgstr "Vorschub"
 
 #: ToolsPage.py:515
 msgid "Plunge Feed"
-msgstr ""
+msgstr "Zustellgeschwindigkeit"
 
 #: ToolsPage.py:516 ToolsPage.py:597
 msgid "Depth Increment"
@@ -529,8 +537,9 @@ msgid "Angle"
 msgstr "Winkel"
 
 #: ToolsPage.py:549
+#, fuzzy
 msgid "Stepover %"
-msgstr ""
+msgstr "Überlappung %"
 
 #: ToolsPage.py:570
 msgid "Safe Z"
@@ -563,11 +572,12 @@ msgstr ""
 
 #: ToolsPage.py:630
 msgid "DRILL selected points"
-msgstr ""
+msgstr "Ausgewählte Punkte BOHREN"
 
 #: ToolsPage.py:641 ToolsPage.py:667 ToolsPage.py:869
+#, fuzzy
 msgid "End Mill"
-msgstr ""
+msgstr "Schaftfräser"
 
 #: ToolsPage.py:642 plugins/pyrograph.py:44
 msgid "Direction"
@@ -614,8 +624,9 @@ msgid "Create tabs on blocks"
 msgstr ""
 
 #: ToolsPage.py:841
+#, fuzzy
 msgid "Stock"
-msgstr ""
+msgstr "Arbeitsraum"
 
 #: ToolsPage.py:848
 msgid "Stock material currently on machine"
