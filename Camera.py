@@ -189,6 +189,7 @@ class Camera:
 	# Convert to Tk image
 	#-----------------------------------------------------------------------
 	def toTk(self):
+		if self.image is None: return None
 		self.imagetk = ImageTk.PhotoImage(
 					image=Image.fromarray(
 						cv.cvtColor(self.image, cv.COLOR_BGR2RGB), "RGB"))
