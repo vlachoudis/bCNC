@@ -8,12 +8,12 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-03-26 01:22+0100\n"
-"PO-Revision-Date: 2016-03-26 01:47+0100\n"
+"PO-Revision-Date: 2016-04-02 16:36+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "Last-Translator: Felix Mahnke <@feistus>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Language: de_DE\n"
@@ -98,7 +98,7 @@ msgstr "Grbl ist in Bereitschaft und wartet auf Benutzerkommandos"
 
 #: Sender.py:59
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr ""
+msgstr "Grbl hat angehalten. Auf Fortsetzen (Pause) klicken um fortzufahren"
 
 #: Sender.py:60
 msgid ""
@@ -112,20 +112,37 @@ msgid ""
 "user to override the alarm manually. This is to ensure the user knows and "
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
+"Der Alarmzustand wird nur angezeigt, wenn etwas Schlimmes passiert ist. "
+"Normalerweise ist die Ursache ein Endlagenschalter, der betätigt wurde "
+"während die Maschine fährt, oder wenn der Fahrweg außerhalb des "
+"Arbeitsbereichs liegt und es zu einem Crash kommen würde. Der Alarmzustand "
+"wird auch angezeigt, wenn die Verbindung zu Grbl verloren gegangen ist, und "
+"nicht sichergestellt ist, dass die Positionierung oder ein Sensorkommando "
+"nicht fehlgeschlagen ist. Befindet sich Grbl erst einmal im Alarmzustand, "
+"werden alle Kontrollen abgeschaltet, bis vom Benutzer ein Reset ausgelöst "
+"wird. Selbst nach einem Reset verbleibt Grbl im Alarmzustand und ignoriert "
+"alle G-Code Kommandos. Jedoch kann der Benutzen nun den Alarm manuell "
+"quittieren. Auf diese Weise wird gewährleistet, dass der Benutzer über "
+"Kenntnis über die Ursache des Alarms hat, und sich aktiv darum kümmert das "
+"Problem zu beseitigen."
 
 #: Sender.py:61
 msgid "Grbl is not connected. Please specify the correct port and click Open."
 msgstr ""
+"Keine Verbindung zu Grbl. Bitte den korrekten Port spezifizieren und Öffnen "
+"klicken."
 
 #: Sender.py:62
 msgid "Connection is established with Grbl"
-msgstr ""
+msgstr "Verbindung zu Grbl hergestellt"
 
 #: Sender.py:64
 msgid ""
 "All is good! Everything in the last line was understood by Grbl and was "
 "successfully processed and executed."
 msgstr ""
+"Alles gut! Jeder Teil der letzten Zeile wurde von Grbl verstanden und "
+"erfolgreich verarbeitet und ausgeführt."
 
 #: Sender.py:65
 msgid ""
@@ -133,6 +150,9 @@ msgid ""
 "a number value. This error occurs when the letter prefix of a G-code word is "
 "missing in the G-code block (aka line)."
 msgstr ""
+"G-Code wird durch G-Code 'Wörter' beschrieben, bestehend aus einem "
+"Buchstaben gefolgt von einem Zahlenwert. Dieser Fehler tritt auf, wenn der "
+"Buchstabe des G-Code Blocks (auch Zeile) fehlt."
 
 #: Sender.py:66
 msgid ""
@@ -153,13 +173,15 @@ msgstr ""
 
 #: Sender.py:69
 msgid "Homing is disabled when issuing a $H command."
-msgstr ""
+msgstr "Referenzfahrt ist deaktiviert, wenn das$H Kommando gesendet wird."
 
 #: Sender.py:70
 msgid ""
 "Step pulse time length cannot be less than 3 microseconds (for technical "
 "reasons)."
 msgstr ""
+"Aus technischen Gründen kann die Schrittpulsdauer nicht kleiner sein als 3 "
+"Mikrosekunden."
 
 #: Sender.py:71
 msgid ""
@@ -364,25 +386,25 @@ msgstr ""
 
 #: Sender.py:294
 msgid "unknown command"
-msgstr ""
+msgstr "Unbekanntes Kommando"
 
 #: Sender.py:294
 #, python-format
 msgid "Invalid command %s"
-msgstr ""
+msgstr "Ungültiges Kommando %s"
 
 #: Sender.py:555
 #, python-format
 msgid "Set workspace %s to X%s Y%s Z%s"
-msgstr ""
+msgstr "Setze Arbeitsbereich %s auf X%s Y%s Z%s"
 
 #: ToolsPage.py:474
 msgid "Units (inches)"
-msgstr ""
+msgstr "Einheiten (Zoll)"
 
 #: ToolsPage.py:475
 msgid "Lasercutter"
-msgstr ""
+msgstr "Lasercutter"
 
 #: ToolsPage.py:476
 msgid "Acceleration x"
@@ -410,35 +432,35 @@ msgstr "Vorschub max z"
 
 #: ToolsPage.py:482
 msgid "Travel x"
-msgstr ""
+msgstr "Achslänge x"
 
 #: ToolsPage.py:483
 msgid "Travel y"
-msgstr ""
+msgstr "Achslänge y"
 
 #: ToolsPage.py:484
 msgid "Travel z"
-msgstr ""
+msgstr "Achslänge z"
 
 #: ToolsPage.py:485
 msgid "Decimal digits"
-msgstr ""
+msgstr "Dezimale Stellen"
 
 #: ToolsPage.py:486
 msgid "Plotting Arc accuracy"
-msgstr ""
+msgstr "Kreisbogen Genauigkeit"
 
 #: ToolsPage.py:487
 msgid "Start up"
-msgstr ""
+msgstr "Start"
 
 #: ToolsPage.py:488
 msgid "Spindle min (RPM)"
-msgstr ""
+msgstr "Spindel Drehzahl min (U/min)"
 
 #: ToolsPage.py:489
 msgid "Spindle max (RPM)"
-msgstr ""
+msgstr "Spindel Drehzahl max (U/min)"
 
 #: ToolsPage.py:490
 msgid "Header gcode"
@@ -468,7 +490,7 @@ msgstr ""
 
 #: ToolsPage.py:516 ToolsPage.py:597
 msgid "Depth Increment"
-msgstr ""
+msgstr "Zustelltiefe"
 
 #: ToolsPage.py:540 lib/bFileDialog.py:296
 msgid "Type"
@@ -476,15 +498,15 @@ msgstr ""
 
 #: ToolsPage.py:541
 msgid "Shape"
-msgstr ""
+msgstr "Form"
 
 #: ToolsPage.py:542 ToolsPage.py:569 ToolsPage.py:855
 msgid "Material"
-msgstr ""
+msgstr "Material"
 
 #: ToolsPage.py:543
 msgid "Coating"
-msgstr ""
+msgstr "Beschichtung"
 
 #: ToolsPage.py:544 plugins/bowl.py:108
 msgid "Diameter"
@@ -496,7 +518,7 @@ msgstr ""
 
 #: ToolsPage.py:546
 msgid "Flutes"
-msgstr ""
+msgstr "Schneiden"
 
 #: ToolsPage.py:547
 msgid "Length"
@@ -512,20 +534,20 @@ msgstr ""
 
 #: ToolsPage.py:570
 msgid "Safe Z"
-msgstr ""
+msgstr "Sichere Höhe"
 
 #: ToolsPage.py:571 ToolsPage.py:595
 msgid "Surface Z"
-msgstr ""
+msgstr "Oberfläche"
 
 #: ToolsPage.py:572
 msgid "Thickness"
-msgstr ""
+msgstr "Dicke"
 
 #: ToolsPage.py:596 ToolsPage.py:620 plugins/driller.py:40
 #: plugins/spirograph.py:105
 msgid "Target Depth"
-msgstr ""
+msgstr "Endtiefe"
 
 #: ToolsPage.py:598
 msgid "First cut at surface height"
@@ -549,7 +571,7 @@ msgstr ""
 
 #: ToolsPage.py:642 plugins/pyrograph.py:44
 msgid "Direction"
-msgstr ""
+msgstr "Richtung"
 
 #: ToolsPage.py:643
 msgid "Additional offset distance"
@@ -665,7 +687,7 @@ msgstr ""
 
 #: ToolsPage.py:985
 msgid "Drill"
-msgstr ""
+msgstr "Bohrer"
 
 #: ToolsPage.py:992
 msgid "Insert a drill cycle on current objects/location"
@@ -709,23 +731,23 @@ msgstr ""
 
 #: ToolsPage.py:1111
 msgid "Colors"
-msgstr ""
+msgstr "Farben"
 
 #: ToolsPage.py:1118
 msgid "Color configuration"
-msgstr ""
+msgstr "Farbeinstellung"
 
 #: ToolsPage.py:1135
 msgid "Language change"
-msgstr ""
+msgstr "Ändern der Sprache"
 
 #: ToolsPage.py:1136
 msgid "Please restart the program."
-msgstr ""
+msgstr "Bitte das Programm neustarten"
 
 #: ToolsPage.py:1148
 msgid "Execute"
-msgstr ""
+msgstr "Ausführen"
 
 #: ToolsPage.py:1161
 msgid "Value"
@@ -750,7 +772,7 @@ msgstr ""
 
 #: Utils.py:389
 msgid "Your email"
-msgstr ""
+msgstr "Email Adresse"
 
 #: Utils.py:398
 msgid "Automatic error reporting"
@@ -789,15 +811,15 @@ msgstr ""
 
 #: Utils.py:600
 msgid "Name:"
-msgstr ""
+msgstr "Name:"
 
 #: Utils.py:604
 msgid "Name to appear on button"
-msgstr ""
+msgstr "Name auf dem Button"
 
 #: Utils.py:608
 msgid "Icon:"
-msgstr ""
+msgstr "Icon:"
 
 #: Utils.py:620
 msgid "Icon to appear on button"
@@ -833,23 +855,23 @@ msgstr ""
 
 #: ControlPage.py:53
 msgid "Perform a homing cycle [$H]"
-msgstr ""
+msgstr "Referenzfahrt durchführen"
 
 #: ControlPage.py:60
 msgid "Unlock"
-msgstr ""
+msgstr "Freigabe"
 
 #: ControlPage.py:66
 msgid "Unlock controller [$X]"
-msgstr ""
+msgstr "Controller freigeben [$X]"
 
 #: ControlPage.py:72
 msgid "Reset"
-msgstr ""
+msgstr "Reset"
 
 #: ControlPage.py:78
 msgid "Software reset of controller [ctrl-x]"
-msgstr ""
+msgstr "Software Reset (Controller) [Strg-x]"
 
 #: ControlPage.py:107 FilePage.py:176
 msgid "Start"
@@ -1051,7 +1073,7 @@ msgstr ""
 
 #: ControlPage.py:805
 msgid "Units:"
-msgstr ""
+msgstr "EInheiten:"
 
 #: ControlPage.py:813
 msgid "Units [G20, G21]"
@@ -1059,7 +1081,7 @@ msgstr ""
 
 #: ControlPage.py:820 CNCCanvas.py:1741
 msgid "Tool:"
-msgstr ""
+msgstr "Werkzeug:"
 
 #: ControlPage.py:825
 msgid "Tool number [T#]"
