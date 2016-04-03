@@ -63,7 +63,8 @@ LANGUAGES = {
 		"en" : "English",
 		"it" : "Italiano",
 		"es" : u"Espa\u00f1ol",
-		"fr" : u"Fran\u00e7ais"
+		"fr" : u"Fran\u00e7ais",
+		"de" : "Deutsch"
 	}
 
 icons     = {}
