@@ -465,6 +465,7 @@ class Application(Toplevel,Sender):
 		if self.fileModified():
 			return
 
+		self.canvas.cameraOff()
 		Sender.quit(self)
 		self.saveConfig()
 		self.destroy()
