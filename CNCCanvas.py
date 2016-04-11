@@ -1527,7 +1527,7 @@ class CNCCanvas(Canvas):
 						text="%.*f"%(CNC.digits,probe.points[i][2]),
 						tag="Probe",
 						justify=CENTER,
-						fill="Green")
+						fill=RULER_COLOR)
 			self.tag_lower(item)
 
 		# Draw image map if numpy exists
