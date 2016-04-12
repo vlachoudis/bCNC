@@ -181,6 +181,7 @@ class CNCCanvas(Canvas):
 		self.bind('<Key-x>',		self.setActionPan)
 
 		self.bind('<Control-Key-S>',	self.cameraSave)
+		self.bind('<Control-Key-t>',	self.__test)
 
 		self.bind('<Control-Key-equal>',self.menuZoomIn)
 		self.bind('<Control-Key-minus>',self.menuZoomOut)
@@ -652,6 +653,22 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	def motion(self, event):
 		self.setMouseStatus(event)
+
+	#-----------------------------------------------------------------------
+	# Testing routine
+	#-----------------------------------------------------------------------
+	def __test(self, event):
+		i = self.canvasx(event.x)
+		j = self.canvasy(event.y)
+		x,y,z = self.canvas2xyz(i,j)
+		blocks =  self.app.editor.getSelectedBlocks()
+
+		from bmath import Vector
+		P = Vector(x,y)
+		for bid in blocks:
+			for path in self.gcode.toPath(bid):
+				print path
+				print path.isInside(P)
 
 	# ----------------------------------------------------------------------
 	# Snap to the closest point if any

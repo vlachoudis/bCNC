@@ -652,7 +652,9 @@ class CNC:
 	toolPolicy     = 1	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
-				# 2 - manual tool change
+				# 2 - manual tool change (WCS)
+				# 3 - manual tool change (TLO)
+				# 4 - manual tool change (No Probe)
 
 	toolWaitAfterProbe = True	# wait at tool change position after probing
 
@@ -1617,36 +1619,36 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("%wait")
 
-		# FIXME Could be replaced with m0?
 		if CNC.comment:
 			lines.append("%%msg Tool change T%02d (%s)"%(self.tool,CNC.comment))
 		else:
 			lines.append("%%msg Tool change T%02d"%(self.tool))
 		lines.append("m0")	# feed hold
 
-		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
-		lines.append("g53 g0 z[toolprobez]")
+		if CNC.toolPolicy < 4:
+			lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+			lines.append("g53 g0 z[toolprobez]")
 
-		# fixed WCS
-		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+			# fixed WCS
+			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
-		if CNC.toolPolicy==2:
-			# Adjust the current WCS to fit to the tool
-			# FIXME could be done dynamically in the code
-			p = WCS.index(CNC.vars["WCS"])+1
-			lines.append("G10L20P%d z[toolheight]"%(p))
-			lines.append("%wait")
+			if CNC.toolPolicy==2:
+				# Adjust the current WCS to fit to the tool
+				# FIXME could be done dynamically in the code
+				p = WCS.index(CNC.vars["WCS"])+1
+				lines.append("G10L20P%d z[toolheight]"%(p))
+				lines.append("%wait")
 
-		elif CNC.toolPolicy==3:
-			# Modify the tool length, update the TLO
-			lines.append("g4 p1")	# wait a sec to get the probe info
-			lines.append("%wait")
-			lines.append("%global TLO; TLO=prbz-toolmz")
-			lines.append("g43.1z[TLO]")
-			lines.append("%update TLO")
+			elif CNC.toolPolicy==3:
+				# Modify the tool length, update the TLO
+				lines.append("g4 p1")	# wait a sec to get the probe info
+				lines.append("%wait")
+				lines.append("%global TLO; TLO=prbz-toolmz")
+				lines.append("g43.1z[TLO]")
+				lines.append("%update TLO")
 
-		lines.append("g53 g0 z[toolchangez]")
-		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+			lines.append("g53 g0 z[toolchangez]")
+			lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		if CNC.toolWaitAfterProbe:
 			lines.append("%wait")
@@ -3326,6 +3328,8 @@ class GCode:
 		blocks.extend(newblocks)
 		return msg
 
+	#----------------------------------------------------------------------
+	# Generate a pocket path
 	#----------------------------------------------------------------------
 	def _pocket(self, path, diameter, stepover, depth):
 		#print "_pocket",depth

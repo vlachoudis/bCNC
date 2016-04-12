@@ -31,10 +31,11 @@ PROBE_CMD = [	_("G38.2 stop on contact else error"),
 		_("G38.5 stop on loss contact")
 	]
 
-TOOL_POLICY = [ _("Send M6 commands"),		# 0
-		_("Ignore M6 commands"),	# 1
-		_("Manual Tool Change (WCS)"),	# 2
-		_("Manual Tool Change (TLO)")	# 3
+TOOL_POLICY = [ _("Send M6 commands"),		 # 0
+		_("Ignore M6 commands"),	 # 1
+		_("Manual Tool Change (WCS)"),	 # 2
+		_("Manual Tool Change (TLO)"),	 # 3
+		_("Manual Tool Change (NoProbe)")# 4
 		]
 
 TOOL_WAIT = [	_("ONLY before probing"),
