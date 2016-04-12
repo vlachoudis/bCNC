@@ -24,7 +24,7 @@ try:
 except ImportError:
 	from queue import *
 
-from CNC import WAIT, PAUSE, UPDATE, WCS, CNC, GCode
+from CNC import WAIT, MSG, UPDATE, WCS, CNC, GCode
 import Utils
 import Pendant
 
@@ -35,11 +35,12 @@ G_POLL        = 10	# s
 
 RX_BUFFER_SIZE = 128
 
-GPAT     = re.compile(r"[A-Za-z]\d+.*")
-STATUSPAT= re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
-POSPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
-TLOPAT   = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
-FEEDPAT  = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
+GPAT      = re.compile(r"[A-Za-z]\d+.*")
+STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
+POSPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
+TLOPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
+DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
+FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
@@ -128,6 +129,9 @@ class Sender:
 		self._pause      = False	# machine is on Hold
 		self._alarm      = True		# Display alarm message if true
 		self._msg        = None
+		self._sumcline   = 0
+		self._lastFeed   = 0
+		self._newFeed   = 0
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -177,11 +181,11 @@ class Sender:
 	#----------------------------------------------------------------------
 	def executeGcode(self, line):
 		if isinstance(line, tuple):
-			self.sendGrbl(line)
+			self.sendGCode(line)
 			return True
 
 		elif line[0] in ("$","!","~","?","(","@") or GPAT.match(line):
-			self.sendGrbl(line+"\n")
+			self.sendGCode(line+"\n")
 			return True
 
 		return False
@@ -206,7 +210,7 @@ class Sender:
 
 		# ABS*OLUTE: Set absolute coordinates
 		if rexx.abbrev("ABSOLUTE",cmd,3):
-			self.sendGrbl("G90\n")
+			self.sendGCode("G90\n")
 
 		# HELP: open browser to display help
 		elif cmd == "HELP":
@@ -244,7 +248,7 @@ class Sender:
 
 		# REL*ATIVE: switch to relative coordinates
 		elif rexx.abbrev("RELATIVE",cmd,3):
-			self.sendGrbl("G91\n")
+			self.sendGCode("G91\n")
 
 		# RESET: perform a soft reset to grbl
 		elif cmd == "RESET":
@@ -270,6 +274,34 @@ class Sender:
 		# SENDHEX: send a hex-char in grbl
 		elif cmd == "SENDHEX":
 			self.sendHex(line[1])
+
+		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
+		elif cmd == "SET":
+			try: x = float(line[1])
+			except: x = None
+			try: y = float(line[2])
+			except: y = None
+			try: z = float(line[3])
+			except: z = None
+			self._wcsSet(x,y,z)
+
+		elif cmd == "SET0":
+			self._wcsSet(0.,0.,0.)
+
+		elif cmd == "SETX":
+			try: x = float(line[1])
+			except: x = ""
+			self._wcsSet(x,None,None)
+
+		elif cmd == "SETY":
+			try: y = float(line[1])
+			except: y = ""
+			self._wcsSet(None,y,None)
+
+		elif cmd == "SETZ":
+			try: z = float(line[1])
+			except: z = ""
+			self._wcsSet(None,None,z)
 
 		# STOP: stop current run
 		elif cmd == "STOP":
@@ -334,6 +366,9 @@ class Sender:
 				self.gcode.probe.filename = filename
 				self._saveConfigFile()
 			self.gcode.probe.load(filename)
+		elif ext == ".orient":
+			# save orientation file
+			self.gcode.orient.load(filename)
 		elif ext == ".stl":
 			# FIXME: implements solid import???
 			pass
@@ -357,6 +392,9 @@ class Sender:
 				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
 				self.gcode.probe.save()
+		elif ext == ".orient":
+			# save orientation file
+			self.gcode.orient.save(filename)
 		elif ext == ".stl":
 			#save probe as STL
 			self.gcode.probe.saveAsSTL(filename)
@@ -429,9 +467,9 @@ class Sender:
 #			pass
 
 	#----------------------------------------------------------------------
-	# Send to grbl
+	# Send to controller a gcode or command
 	#----------------------------------------------------------------------
-	def sendGrbl(self, cmd):
+	def sendGCode(self, cmd):
 #		sys.stdout.write(">>> %s"%(cmd))
 #		import traceback
 #		traceback.print_stack()
@@ -449,7 +487,7 @@ class Sender:
 		self.busy()
 		if self.serial is not None:
 			if self.controller == Utils.SMOOTHIE:
-				self.serial.write("reset\n")
+				self.serial.write(b"reset\n")
 			self.openClose()
 			if self.controller == Utils.SMOOTHIE:
 				time.sleep(6)
@@ -460,66 +498,66 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def softReset(self):
-		#if self.serial:
+		if self.serial:
 		#	if self.controller == Utils.GRBL:
-		self.serial.write(b"\030")
+				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
-		#		self.serial.write("reset\n")
+		#		self.serial.write(b"reset\n")
 		self.stopProbe()
 		self._alarm = False
 
 	#----------------------------------------------------------------------
 	def unlock(self):
 		self._alarm = False
-		self.sendGrbl("$X\n")
+		self.sendGCode("$X\n")
 
 	#----------------------------------------------------------------------
-	def home(self):
+	def home(self, event=None):
 		self._alarm = False
-		self.sendGrbl("$H\n")
+		self.sendGCode("$H\n")
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$$\n")
+			self.sendGCode("$$\n")
 
 	def viewParameters(self):
-		self.sendGrbl("$#\n")
+		self.sendGCode("$#\n")
 
 	def viewState(self):
-		self.sendGrbl("$G\n")
+		self.sendGCode("$G\n")
 
 	def viewBuild(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$I\n")
+			self.sendGCode("$I\n")
 		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write("version\n")
+			self.serial.write(b"version\n")
 
 	def viewStartup(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$N\n")
+			self.sendGCode("$N\n")
 
 	def checkGcode(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$C\n")
+			self.sendGCode("$C\n")
 
 	def grblHelp(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$\n")
+			self.sendGCode("$\n")
 		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write("help\n")
+			self.serial.write(b"help\n")
 
 	def grblRestoreSettings(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=$\n")
+			self.sendGCode("$RST=$\n")
 
 	def grblRestoreWCS(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=#\n")
+			self.sendGCode("$RST=#\n")
 
 	def grblRestoreAll(self):
 		if self.controller == Utils.GRBL:
-			self.sendGrbl("$RST=#\n")
+			self.sendGCode("$RST=#\n")
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -527,8 +565,10 @@ class Sender:
 		if x is not None: cmd += "X%g"%(x)
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
-		self.sendGrbl("%s\n"%(cmd))
+		self.sendGCode("%s\n"%(cmd))
 
+	#----------------------------------------------------------------------
+	# FIXME Duplicate with ControlPage
 	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
 		p = WCS.index(CNC.vars["WCS"])
@@ -541,12 +581,15 @@ class Sender:
 		elif p==8:
 			cmd = "G92"
 
-		if x is not None and abs(x)<10000.0: cmd += "X"+str(x)
-		if y is not None and abs(y)<10000.0: cmd += "Y"+str(y)
-		if z is not None and abs(z)<10000.0: cmd += "Z"+str(z)
-		self.sendGrbl(cmd+"\n$#\n")
+		pos = ""
+		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
+		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
+		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
+		cmd += pos
+		self.sendGCode(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
+			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
+			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -579,13 +622,13 @@ class Sender:
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g28Command(self):
-		self.sendGrbl("G28.1\n")
+		self.sendGCode("G28.1\n")
 
 	#----------------------------------------------------------------------
 	# FIXME ????
 	#----------------------------------------------------------------------
 	def g30Command(self):
-		self.sendGrbl("G30.1\n")
+		self.sendGCode("G30.1\n")
 
 	#----------------------------------------------------------------------
 	def emptyQueue(self):
@@ -601,6 +644,10 @@ class Sender:
 			self.gcode.probe.clear()
 
 	#----------------------------------------------------------------------
+	def getBufferFill(self):
+		return self._sumcline * 100. / RX_BUFFER_SIZE
+
+	#----------------------------------------------------------------------
 	def initRun(self):
 		self._quit   = 0
 		self._pause  = False
@@ -608,7 +655,6 @@ class Sender:
 		self.running = True
 		self.disable()
 		self.emptyQueue()
-		self.queue.put(self.tools["CNC"]["startup"]+"\n")
 		time.sleep(1)
 
 	#----------------------------------------------------------------------
@@ -629,11 +675,17 @@ class Sender:
 		self.feedHold()
 		self._stop = True
 		time.sleep(1)
-		self.softReset()
-		time.sleep(1)
-		self.unlock()
+		# remember and send all G commands
+		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
+		TLO = CNC.vars["TLO"]
+		self.softReset()			# reset controller
+		if self.controller == Utils.GRBL:
+			time.sleep(1)
+			self.unlock()
 		self.runEnded()
 		self.stopProbe()
+		self.sendGCode("%s\n$G\n"%(G))		# restore $G
+		self.sendGCode("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -671,16 +723,12 @@ class Sender:
 							wait = True
 							#print "+++ WAIT ON"
 							#print "gcount=",self._gcount, self._runLines
-						elif tosend[0] == PAUSE:
+						elif tosend[0] == MSG:
 							# Count executed commands as well
 							self._gcount += 1
 							if tosend[1] is not None:
 								# show our message on machine status
 								self._msg = tosend[1]
-							# Feed hold
-							# Maybe a M0 would be better?
-							self.serial.write(b"!")
-							#print ">S> !"
 						elif tosend[0] == UPDATE:
 							# Count executed commands as well
 							self._gcount += 1
@@ -716,18 +764,27 @@ class Sender:
 					if isinstance(tosend, unicode):
 						tosend = tosend.encode("ascii","replace")
 
-					# FIXME should be smarter and apply the feed override
-					# also on cards with out feed (the first time only)
-					# I should track the feed rate for every card
-					# and when it is changed apply a F### command
-					# even if it is not there
-					if CNC.vars["override"] != 100:
+					#Keep track of last feed
+					pat = FEEDPAT.match(tosend)
+					if pat is not None:
+						self._lastFeed = pat.group(2)
+
+					#If Override change, attach feed
+					if CNC.vars["overrideChanged"]:
+						CNC.vars["overrideChanged"] = False
+						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
+						if pat is None and self._newFeed!=0:
+							tosend = "f%g" % (self._newFeed) + tosend
+							#print tosend
+
+					#Apply override Feed
+					if CNC.vars["override"] != 100 and self._newFeed!=0:
 						pat = FEEDPAT.match(tosend)
 						if pat is not None:
 							try:
 								tosend = "%sf%g%s\n" % \
 									(pat.group(1),
-									 float(pat.group(2))*CNC.vars["override"]/100.0,
+									 self._newFeed,
 									 pat.group(3))
 							except:
 								pass
@@ -764,6 +821,7 @@ class Sender:
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
 							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
+							#print ">>>", line
 							if wait and not cline and pat.group(1)=="Idle":
 								#print ">>>",line
 								wait = False
@@ -803,7 +861,7 @@ class Sender:
 							if pat:
 								CNC.vars[pat.group(1)] = pat.group(2)
 								self._probeUpdate = True
-							else:
+							elif DOLLARPAT.match(line):
 								CNC.vars["G"] = line[1:-1].split()
 								CNC.updateG()
 								self._gUpdate = True
@@ -833,6 +891,7 @@ class Sender:
 							#print "gcount OK=",self._gcount
 							if cline: del cline[0]
 							if sline: del sline[0]
+							#print "SLINE:",sline
 
 			# Received external message to stop
 			if self._stop:
@@ -844,6 +903,7 @@ class Sender:
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
+				self._sumcline = sum(cline)
 #				if isinstance(tosend, list):
 #					self.serial.write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
@@ -851,6 +911,7 @@ class Sender:
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.controller==Utils.SMOOTHIE: tosend = tosend.upper()
 				self.serial.write(bytes(tosend))
+#				self.serial.write(tosend.encode("utf8"))
 #				self.serial.flush()
 
 				tosend = None

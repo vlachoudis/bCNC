@@ -95,6 +95,7 @@ class Segment:
 	CCW  = 3
 	_TYPES = ["LINE", "CW  ","CCW "]
 
+	#----------------------------------------------------------------------
 	def __init__(self, t, s, e, c=None): #, r=None): #, sPhi=None, ePhi=None):
 		self.type    = t
 		self.start   = s
@@ -390,6 +391,9 @@ class Segment:
 			#P2 = AB*t2 + self.start
 			P2 = Vector(self.AB[0]*t2+self.start[0], self.AB[1]*t2+self.start[1])
 		if P2 and not arc._insideArc(P2): P2 = None
+
+		# force P1 to have always the solution if any
+		if P1 is None: return P2,None
 		return P1,P2
 
 	#----------------------------------------------------------------------
@@ -447,7 +451,9 @@ class Segment:
 			if not self._insideArc(P2) or not other._insideArc(P2):
 				P2 = None
 
-			return P1, P2
+			# force P1 to have always the solution if any
+			if P1 is None: return P2,None
+			return P1,P2
 
 	#----------------------------------------------------------------------
 	# Return minimum distance of P from segment
@@ -618,6 +624,71 @@ class Path(list):
 			PL = NL
 		if phi < 0.0: return 1
 		return -1
+
+	#----------------------------------------------------------------------
+	# @return the bounding box of the path (very crude)
+	#----------------------------------------------------------------------
+	def bbox(self):
+		minx = self[0].minx
+		miny = self[0].miny
+		maxx = self[0].maxx
+		maxy = self[0].maxy
+		for segment in self[1:]:
+			minx = min(minx, segment.minx)
+			miny = min(miny, segment.miny)
+			maxx = max(maxx, segment.maxx)
+			maxy = max(maxy, segment.maxy)
+		return minx,miny,maxx,maxy
+
+	#----------------------------------------------------------------------
+	# Return true if point P(x,y) is inside the path
+	# The solution is determined by the number N of crossings of a horizontal
+	# line starting from the point P(x,y)
+	# If N is odd the point is inside
+	# if N is even the point is outside
+	# WARNING: the path must be closed otherwise it is meaningless
+	#----------------------------------------------------------------------
+	def isInside(self, P):
+		print "P=",P
+		minx,miny,maxx,maxy = self.bbox()
+		print "limits:",minx,miny,maxx,maxy
+		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]))
+		count = 0
+		PP1 = None	# previous points to avoid double counting
+		PP2 = None
+		print "Line=",line
+		for i,segment in enumerate(self):
+			P1,P2 = line.intersect(segment)
+			print
+			print i,segment
+			if P1 is not None:
+				if PP1 is None and PP2 is None:
+					count += 1
+				elif PP1 is not None and PP2 is not None and \
+				     not eq(P1,PP1) and not eq(P1,PP2):
+					count += 1
+				elif PP1 is not None and not eq(P1,PP1):
+					count += 1
+				elif PP2 is not None and not eq(P1,PP2):
+					count += 1
+
+				if P2 is not None:
+					if eq(P1,P2):
+						P2 = None
+					elif PP1 is None and PP2 is None:
+						count += 1
+					elif PP1 is not None and PP2 is not None and \
+					     not eq(P2,PP1) and not eq(P2,PP2):
+						count += 1
+					elif PP1 is not None and not eq(P2,PP1):
+						count += 1
+					elif PP2 is not None and not eq(P2,PP2):
+						count += 1
+			print P1,P2,count
+			PP1 = P1
+			PP2 = P2
+		print "Count=",count
+		return bool(count&1)
 
 	#----------------------------------------------------------------------
 	# Invert the whole path

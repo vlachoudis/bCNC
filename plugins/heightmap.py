@@ -26,7 +26,6 @@ from ToolsPage import Plugin
 
 from imageToGcode import *
 import math
-import tkMessageBox
 
 #==============================================================================
 #Heightmap class

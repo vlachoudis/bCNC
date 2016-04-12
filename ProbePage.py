@@ -7,6 +7,10 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
+import sys
+import time
+import math
+
 try:
 	from Tkinter import *
 	import tkMessageBox
@@ -16,6 +20,7 @@ except ImportError:
 
 from CNC import WCS,CNC
 import Utils
+import Camera
 import Ribbon
 import tkExtra
 import CNCRibbon
@@ -26,15 +31,39 @@ PROBE_CMD = [	_("G38.2 stop on contact else error"),
 		_("G38.5 stop on loss contact")
 	]
 
-TOOL_POLICY = [ _("Send M6 commands"),		# 0
-		_("Ignore M6 commands"),	# 1
-		_("Manual Tool Change (WCS)"),	# 2
-		_("Manual Tool Change (TLO)")	# 3
+TOOL_POLICY = [ _("Send M6 commands"),		 # 0
+		_("Ignore M6 commands"),	 # 1
+		_("Manual Tool Change (WCS)"),	 # 2
+		_("Manual Tool Change (TLO)"),	 # 3
+		_("Manual Tool Change (NoProbe)")# 4
 		]
 
 TOOL_WAIT = [	_("ONLY before probing"),
 		_("BEFORE & AFTER probing")
 		]
+
+CAMERA_LOCATION = { "Gantry"       : NONE,
+		    "Top-Left"     : NW,
+		    "Top"          : N,
+		    "Top-Right"    : NE,
+		    "Left"         : W,
+		    "Center"       : CENTER,
+		    "Right"        : E,
+		    "Bottom-Left"  : SW,
+		    "Bottom"       : S,
+		    "Bottom-Right" : SE,
+		}
+CAMERA_LOCATION_ORDER = [
+		    "Gantry",
+		    "Top-Left",
+		    "Top",
+		    "Top-Right",
+		    "Left",
+		    "Center",
+		    "Right",
+		    "Bottom-Left",
+		    "Bottom",
+		    "Bottom-Right"]
 
 #===============================================================================
 # Probe Tab Group
@@ -59,19 +88,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["setsquare32"],
-				text=_("Square"),
-				compound=TOP,
-				variable=self.tab,
-				state=DISABLED,
-				value="Square",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Probe X/Y axis by using a set square probe"))
-
-		# ---
-		col += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["level32"],
 				text=_("Autolevel"),
 				compound=TOP,
@@ -80,6 +96,19 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Autolevel Z surface"))
+
+		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Camera"),
+				compound=TOP,
+				variable=self.tab,
+				value="Camera",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Work surface camera view and alignment"))
+		if Camera.cv is None: b.config(state=DISABLED)
 
 		# ---
 		col += 1
@@ -162,7 +191,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
-		lframe = tkExtra.ExLabelFrame(self, text="Common", foreground="DarkBlue")
+		lframe = tkExtra.ExLabelFrame(self, text=_("Common"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 		frame = lframe.frame
 
@@ -213,16 +242,16 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		frame.grid_columnconfigure(1,weight=1)
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	def tloSet(self, event=None):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-			cmd = "g43.1z"+str(ProbeCommonFrame.tlo.get())
-			self.sendGrbl(cmd+"\n")
+			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
+			self.sendGCode(cmd+"\n")
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	@staticmethod
 	def probeUpdate():
 		try:
@@ -232,7 +261,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		except:
 			return True
 
-	#----------------------------------------------------------------------
+	#------------------------------------------------------------------------
 	def updateTlo(self):
 		try:
 			if self.focus_get() is not ProbeCommonFrame.tlo:
@@ -243,13 +272,13 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "feed", ProbeCommonFrame.probeFeed.get())
 		Utils.setFloat("Probe", "tlo",  ProbeCommonFrame.tlo.get())
 		Utils.setFloat("Probe", "cmd",  ProbeCommonFrame.probeCmd.get().split()[0])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe","feed"))
 		ProbeCommonFrame.tlo.set(      Utils.getFloat("Probe","tlo"))
@@ -266,7 +295,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
-		# WorkSpace -> Probe
+		#----------------------------------------------------------------
+		# Single probe
+		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Probe"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
@@ -274,15 +305,15 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Label(lframe(), text=_("Probe:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self._probeX = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeX = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeX.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeY = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeY = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeY.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		col += 1
-		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray95")
+		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
 
 		# ---
@@ -291,7 +322,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				image=Utils.icons["probe32"],
 				text=_("Probe"),
 				compound=TOP,
-				command=self.probe)
+				command=self.probe,
+				width=48,
+				padx=5, pady=0)
 		b.grid(row=row, column=col, rowspan=2, padx=1, sticky=EW+S)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
@@ -322,7 +355,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lframe().grid_columnconfigure(2,weight=1)
 		lframe().grid_columnconfigure(3,weight=1)
 
-		# WorkSpace -> Probe
+		#----------------------------------------------------------------
+		# Center probing
+		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Center"), foreground="DarkBlue")
 		lframe.pack(side=TOP, expand=YES, fill=X)
 
@@ -337,15 +372,163 @@ class ProbeFrame(CNCRibbon.PageFrame):
 				image=Utils.icons["target32"],
 				text=_("Center"),
 				compound=TOP,
-				command=self.probeCenter)
+				command=self.probeCenter,
+				width=48,
+				padx=5, pady=0)
 		b.pack(side=RIGHT)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Center probing using a ring"))
 
+		#----------------------------------------------------------------
+		# Align / Orient / Square ?
+		#----------------------------------------------------------------
+		lframe = tkExtra.ExLabelFrame(self, text=_("Orient"), foreground="DarkBlue")
+		lframe.pack(side=TOP, expand=YES, fill=X)
+
+		# ---
+		row, col = 0,0
+
+		Label(lframe(), text=_("Markers:")).grid(row=row, column=col, sticky=E)
+		col += 1
+
+		self.scale_orient = Scale(lframe(),
+					from_=0, to_=0,
+					orient=HORIZONTAL,
+					showvalue=1,
+					state=DISABLED,
+					command=self.changeMarker)
+		self.scale_orient.grid(row=row, column=col, columnspan=2, sticky=EW)
+		tkExtra.Balloon.set(self.scale_orient, _("Select orientation marker"))
+
+		# Add new point
+		col += 2
+		b = Button(lframe(), text=_("Add"),
+				image=Utils.icons["add"],
+				compound=LEFT,
+				command=lambda s=self: s.event_generate("<<AddMarker>>"),
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, column=col, sticky=NSEW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Add an orientation marker. " \
+				"Jog first the machine to the marker position " \
+				"and then click on canvas to add the marker."))
+
+		# ----
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Gcode:")).grid(row=row, column=col, sticky=E)
+		col += 1
+		self.x_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.x_orient.grid(row=row, column=col, sticky=EW)
+		self.x_orient.bind("<FocusOut>", self.orientUpdate)
+		self.x_orient.bind("<Return>",   self.orientUpdate)
+		self.x_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.x_orient, _("GCode X coordinate of orientation point"))
+
+		col += 1
+		self.y_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.y_orient.grid(row=row, column=col, sticky=EW)
+		self.y_orient.bind("<FocusOut>", self.orientUpdate)
+		self.y_orient.bind("<Return>",   self.orientUpdate)
+		self.y_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.y_orient, _("GCode Y coordinate of orientation point"))
+
+		# Buttons
+		col += 1
+		b = Button(lframe(), text=_("Delete"),
+				image=Utils.icons["x"],
+				compound=LEFT,
+				command = self.orientDelete,
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, column=col, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Delete current marker"))
+
+		# ---
+		row += 1
+		col = 0
+
+		Label(lframe(), text="WPos:").grid(row=row, column=col, sticky=E)
+		col += 1
+		self.xm_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.xm_orient.grid(row=row, column=col, sticky=EW)
+		self.xm_orient.bind("<FocusOut>", self.orientUpdate)
+		self.xm_orient.bind("<Return>",   self.orientUpdate)
+		self.xm_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.xm_orient, _("Machine X coordinate of orientation point"))
+
+		col += 1
+		self.ym_orient = tkExtra.FloatEntry(lframe(), background="White")
+		self.ym_orient.grid(row=row, column=col, sticky=EW)
+		self.ym_orient.bind("<FocusOut>", self.orientUpdate)
+		self.ym_orient.bind("<Return>",   self.orientUpdate)
+		self.ym_orient.bind("<KP_Enter>", self.orientUpdate)
+		tkExtra.Balloon.set(self.ym_orient, _("Machine Y coordinate of orientation point"))
+
+		# Buttons
+		col += 1
+		b = Button(lframe(), text=_("Clear"),
+				image=Utils.icons["clear"],
+				compound=LEFT,
+				command = self.orientClear,
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, column=col, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Delete all markers"))
+
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Angle:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.angle_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.angle_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
+
+		# Buttons
+		col += 2
+		b = Button(lframe(), text=_("Orient"),
+				image=Utils.icons["setsquare32"],
+				compound=TOP,
+				command = lambda a=app:a.insertCommand("ORIENT",True),
+				padx = 1,
+				pady = 1)
+		b.grid(row=row, rowspan=3, column=col, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Align GCode with the machine markers"))
+
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Offset:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.xo_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.xo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+
+		col += 1
+		self.yo_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.yo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+
+		# ---
+		row += 1
+		col = 0
+		Label(lframe(), text=_("Error:")).grid(row=row, column=col, sticky=E)
+		col += 1
+		self.err_orient = Label(lframe(), foreground="DarkBlue", background="gray90", anchor=W)
+		self.err_orient.grid(row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1)
+
+		lframe().grid_columnconfigure(1, weight=1)
+		lframe().grid_columnconfigure(2, weight=1)
+
+		#----------------------------------------------------------------
 		self.warn = True
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.probeXdir.set(Utils.getStr("Probe","x"))
 		self.probeYdir.set(Utils.getStr("Probe","y"))
@@ -353,7 +536,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.diameter.set(Utils.getStr("Probe", "center"))
 		self.warn = Utils.getBool("Warning","probe",self.warn)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "x",    self.probeXdir.get())
 		Utils.setFloat("Probe", "y",    self.probeYdir.get())
@@ -361,7 +544,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "center",  self.diameter.get())
 		Utils.setBool("Warning", "probe", self.warn)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateProbe(self):
 		try:
 			self._probeX["text"] = CNC.vars.get("prbx")
@@ -370,57 +553,62 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		except:
 			pass
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def warnMessage(self):
 		if self.warn:
 			ans = tkMessageBox.askquestion(_("Probe connected?"),
 				_("Please verify that the probe is connected.\n\nShow this message again?"),
-				  icon='warning',
-				  parent=self)
-			if ans != 'yes':
+				icon='warning',
+				parent=self.winfo_toplevel())
+			if ans != YES:
 				self.warn = False
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe one Point
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def probe(self, event=None):
 		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror(_("Probe Error"),
 				_("Invalid probe feed rate"),
-				parent=self)
+				parent=self.winfo_toplevel())
 			return
 		self.warnMessage()
 
 		cmd = str(CNC.vars["prbcmd"])
 		ok = False
+
 		v = self.probeXdir.get()
 		if v != "":
 			cmd += "X"+str(v)
 			ok = True
+
 		v = self.probeYdir.get()
 		if v != "":
 			cmd += "Y"+str(v)
 			ok = True
+
 		v = self.probeZdir.get()
 		if v != "":
 			cmd += "Z"+str(v)
 			ok = True
+
+		v = ProbeCommonFrame.probeFeed.get()
 		if v != "":
-			cmd += "F"+str(CNC.vars["prbfeed"])
+			cmd += "F"+str(v)
 
 		if ok:
-			self.sendGrbl(cmd+"\n")
+			self.sendGCode(cmd+"\n")
 		else:
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe Center
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def probeCenter(self, event=None):
 		self.warnMessage()
 
-		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+		cmd = "G91 %s F%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
 		try:
 			diameter = abs(float(self.diameter.get()))
 		except:
@@ -429,7 +617,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		if diameter < 0.001:
 			tkMessageBox.showerror(_("Probe Center Error"),
 					_("Invalid diameter entered"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		lines = []
@@ -448,6 +636,122 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("g90")
 		self.app.run(lines=lines)
 
+	#-----------------------------------------------------------------------
+	# Solve the system and update fields
+	#-----------------------------------------------------------------------
+	def orientSolve(self, event=None):
+		try:
+			phi, xo, yo = self.app.gcode.orient.solve()
+			self.angle_orient["text"]="%*f"%(CNC.digits, math.degrees(phi))
+			self.xo_orient["text"]="%*f"%(CNC.digits, xo)
+			self.yo_orient["text"]="%*f"%(CNC.digits, yo)
+
+			minerr, meanerr, maxerr = self.app.gcode.orient.error()
+			self.err_orient["text"] = "Avg:%*f  Max:%*f  Min:%*f"%\
+				(CNC.digits, meanerr, CNC.digits, maxerr, CNC.digits, minerr)
+
+		except:
+			self.angle_orient["text"] = sys.exc_info()[1]
+			self.xo_orient["text"]    = ""
+			self.yo_orient["text"]    = ""
+			self.err_orient["text"]   = ""
+
+	#-----------------------------------------------------------------------
+	# Delete current orientation point
+	#-----------------------------------------------------------------------
+	def orientDelete(self, event=None):
+		marker = self.scale_orient.get()-1
+		if marker<0 or marker >= len(self.app.gcode.orient): return
+		self.app.gcode.orient.clear(marker)
+		self.orientUpdateScale()
+		self.changeMarker(marker+1)
+		self.orientSolve()
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
+	# Clear all markers
+	#-----------------------------------------------------------------------
+	def orientClear(self, event=None):
+		if self.scale_orient.cget("to") == 0: return
+		ans = tkMessageBox.askquestion(_("Delete all markers"),
+			_("Do you want to delete all orientation markers?"),
+			parent=self.winfo_toplevel())
+		if ans!=tkMessageBox.YES: return
+		self.app.gcode.orient.clear()
+		self.orientUpdateScale()
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
+	# Update orientation scale
+	#-----------------------------------------------------------------------
+	def orientUpdateScale(self):
+		n = len(self.app.gcode.orient)
+		if n:
+			self.scale_orient.config(state=NORMAL, from_=1, to_=n)
+		else:
+			self.scale_orient.config(state=DISABLED, from_=0, to_=0)
+
+	#-----------------------------------------------------------------------
+	def orientClearFields(self):
+		self.x_orient.delete(0,END)
+		self.y_orient.delete(0,END)
+		self.xm_orient.delete(0,END)
+		self.ym_orient.delete(0,END)
+		self.angle_orient["text"] = ""
+		self.xo_orient["text"]    = ""
+		self.yo_orient["text"]    = ""
+		self.err_orient["text"]   = ""
+
+	#-----------------------------------------------------------------------
+	# Update orient with the current marker
+	#-----------------------------------------------------------------------
+	def orientUpdate(self, event=None):
+		marker = self.scale_orient.get()-1
+		if marker<0 or marker >= len(self.app.gcode.orient):
+			self.orientClearFields()
+			return
+		xm,ym,x,y = self.app.gcode.orient[marker]
+		try:    x = float(self.x_orient.get())
+		except: pass
+		try:    y = float(self.y_orient.get())
+		except: pass
+		try:    xm = float(self.xm_orient.get())
+		except: pass
+		try:    ym = float(self.ym_orient.get())
+		except: pass
+		self.app.gcode.orient.markers[marker] = xm,ym,x,y
+
+		self.orientUpdateScale()
+		self.changeMarker(marker+1)
+		self.orientSolve()
+		self.event_generate("<<DrawOrient>>")
+
+	#-----------------------------------------------------------------------
+	# The index will be +1 to appear more human starting from 1
+	#-----------------------------------------------------------------------
+	def changeMarker(self, marker):
+		marker = int(marker)-1
+		if marker<0 or marker >= len(self.app.gcode.orient):
+			self.orientClearFields()
+			self.event_generate("<<OrientChange>>", data=-1)
+			return
+
+		xm,ym,x,y = self.app.gcode.orient[marker]
+		d = CNC.digits
+		self.x_orient.set("%*f"%(d,x))
+		self.y_orient.set("%*f"%(d,y))
+		self.xm_orient.set("%*f"%(d,xm))
+		self.ym_orient.set("%*f"%(d,ym))
+		self.orientSolve()
+		self.event_generate("<<OrientChange>>", data=marker)
+
+	#-----------------------------------------------------------------------
+	# Select marker
+	#-----------------------------------------------------------------------
+	def selectMarker(self, marker):
+		self.orientUpdateScale()
+		self.scale_orient.set(marker+1)
+
 #===============================================================================
 # Autolevel Frame
 #===============================================================================
@@ -455,7 +759,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
 
-		lframe = LabelFrame(self, text="Autolevel", foreground="DarkBlue")
+		lframe = LabelFrame(self, text=_("Autolevel"), foreground="DarkBlue")
 		lframe.pack(side=TOP, fill=X)
 
 		row,col = 0,0
@@ -487,7 +791,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		self.probeXstep = Label(lframe, foreground="DarkBlue",
-					background="gray95", width=5)
+					background="gray90", width=5)
 		self.probeXstep.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeXstep, _("X step"))
 
@@ -519,7 +823,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		self.probeYstep = Label(lframe,  foreground="DarkBlue",
-					background="gray95", width=5)
+					background="gray90", width=5)
 		self.probeYstep.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeYstep, _("Y step"))
 
@@ -556,7 +860,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setValues(self):
 		probe = self.app.gcode.probe
 		self.probeXmin.set(str(probe.xmin))
@@ -574,7 +878,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeZmin.set(str(probe.zmin))
 		self.probeZmax.set(str(probe.zmax))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		Utils.setFloat("Probe", "xmin", self.probeXmin.get())
 		Utils.setFloat("Probe", "xmax", self.probeXmax.get())
@@ -585,7 +889,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "zmin", self.probeZmin.get())
 		Utils.setFloat("Probe", "zmax", self.probeZmax.get())
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.probeXmin.set(Utils.getFloat("Probe","xmin"))
 		self.probeXmax.set(Utils.getFloat("Probe","xmax"))
@@ -601,7 +905,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeYbins.insert(0,max(2,Utils.getInt("Probe","yn",5)))
 		self.change(False)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getMargins(self, event=None):
 		self.probeXmin.set(str(CNC.vars["xmin"]))
 		self.probeXmax.set(str(CNC.vars["xmax"]))
@@ -609,7 +913,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.probeYmax.set(str(CNC.vars["ymax"]))
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def change(self, verbose=True):
 		probe = self.app.gcode.probe
 		error = False
@@ -623,7 +927,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 						_("Invalid X probing region"),
-						parent=self)
+						parent=self.winfo_toplevel())
 			error = True
 
 		try:
@@ -636,7 +940,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 						_("Invalid Y probing region"),
-						parent=self)
+						parent=self.winfo_toplevel())
 			error = True
 
 		try:
@@ -646,43 +950,341 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 					_("Invalid Z probing region"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			error = True
 
 		if ProbeCommonFrame.probeUpdate():
 			if verbose:
 				tkMessageBox.showerror(_("Probe Error"),
 					_("Invalid probe feed rate"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			error = True
 
 		return error
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def draw(self):
 		if not self.change():
 			self.event_generate("<<DrawProbe>>")
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def setZero(self, event=None):
 		x = CNC.vars["wx"]
 		y = CNC.vars["wy"]
 		self.app.gcode.probe.setZero(x,y)
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def clear(self, event=None):
+		ans = tkMessageBox.askquestion(_("Delete autolevel information"),
+			_("Do you want to delete all autolevel in formation?"),
+			parent=self.winfo_toplevel())
+		if ans!=tkMessageBox.YES: return
 		self.app.gcode.probe.clear()
 		self.draw()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Probe an X-Y area
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def scan(self, event=None):
 		if self.change(): return
 		self.event_generate("<<DrawProbe>>")
 		# absolute
 		self.app.run(lines=self.app.gcode.probe.scan())
+
+#===============================================================================
+# Camera Group
+#===============================================================================
+class CameraGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+		self.label["background"] = Ribbon._BACKGROUND_GROUP2
+		self.grid3rows()
+
+		self.switch = BooleanVar()
+		self.edge   = BooleanVar()
+		self.freeze = BooleanVar()
+
+		# ---
+		col,row=0,0
+		self.switchButton = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["camera32"],
+				text=_("Switch To"),
+				compound=TOP,
+				variable=self.switch,
+				command=self.switchCommand,
+				background=Ribbon._BACKGROUND)
+		self.switchButton.grid(row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.switchButton, _("Switch between camera and spindle"))
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["edge"],
+				text=_("Edge Detection"),
+				compound=LEFT,
+				variable=self.edge,
+				anchor=W,
+				command=self.edgeDetection,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+
+		# ---
+		row += 1
+		b = Ribbon.LabelCheckbutton(self.frame,
+				image=Utils.icons["freeze"],
+				text=_("Freeze"),
+				compound=LEFT,
+				variable=self.freeze,
+				anchor=W,
+				command=self.freezeImage,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+	def switchCommand(self, event=None):
+		wx = CNC.vars["wx"]
+		wy = CNC.vars["wy"]
+		dx = self.app.canvas.cameraDx
+		dy = self.app.canvas.cameraDy
+		z  = self.app.canvas.cameraZ
+		if self.switch.get():
+			self.switchButton.config(image=Utils.icons["endmill32"])
+			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+			self.app.canvas.cameraSwitch = True
+		else:
+			self.switchButton.config(image=Utils.icons["camera32"])
+			self.sendGCode("G92.1\n")
+			self.app.canvas.cameraSwitch = False
+		self.sendGCode("G0X%gY%gZ%g\n"%(wx,wy,z))
+
+	#-----------------------------------------------------------------------
+	def switchCamera(self, event=None):
+		self.switch.set(not self.switch.get())
+		self.switchCommand()
+
+	#-----------------------------------------------------------------------
+	def edgeDetection(self):
+		self.app.canvas.cameraEdge = self.edge.get()
+
+	#-----------------------------------------------------------------------
+	def freezeImage(self):
+		self.app.canvas.cameraFreeze(self.freeze.get())
+
+#===============================================================================
+# Camera Frame
+#===============================================================================
+class CameraFrame(CNCRibbon.PageFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
+
+		# ==========
+		lframe = LabelFrame(self, text=_("Camera"), foreground="DarkBlue")
+		lframe.pack(side=TOP, fill=X, expand=YES)
+
+		# ----
+		row = 0
+		Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
+		self.location = tkExtra.Combobox(lframe, True,
+					background="White",
+					width=16)
+		self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
+		self.location.fill(CAMERA_LOCATION_ORDER)
+		self.location.set(CAMERA_LOCATION_ORDER[0])
+		tkExtra.Balloon.set(self.location, _("Camera location inside canvas"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
+		self.scale = tkExtra.FloatEntry(lframe, background="White")
+		self.scale.grid(row=row, column=1, sticky=EW)
+		self.scale.bind("<Return>",   self.updateValues)
+		self.scale.bind("<KP_Enter>", self.updateValues)
+		self.scale.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.scale, _("Camera scale [pixels / unit]"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Crosshair:")).grid(row=row, column=0, sticky=E)
+		self.diameter = tkExtra.FloatEntry(lframe, background="White")
+		self.diameter.grid(row=row, column=1, sticky=EW)
+		self.diameter.bind("<Return>",   self.updateValues)
+		self.diameter.bind("<KP_Enter>", self.updateValues)
+		self.diameter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.diameter, _("Camera cross hair diameter [units]"))
+
+		b = Button(lframe, text=_("Get"), command=self.getDiameter, padx=1, pady=1)
+		b.grid(row=row, column=2, sticky=W)
+		tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
+
+		# ----
+		row += 1
+		Label(lframe, text=_("Offset:")).grid(row=row, column=0, sticky=E)
+		self.dx = tkExtra.FloatEntry(lframe, background="White")
+		self.dx.grid(row=row, column=1, sticky=EW)
+		self.dx.bind("<Return>",   self.updateValues)
+		self.dx.bind("<KP_Enter>", self.updateValues)
+		self.dx.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
+
+		self.dy = tkExtra.FloatEntry(lframe, background="White")
+		self.dy.grid(row=row, column=2, sticky=EW)
+		self.dy.bind("<Return>",   self.updateValues)
+		self.dy.bind("<KP_Enter>", self.updateValues)
+		self.dy.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
+
+		self.z = tkExtra.FloatEntry(lframe, background="White")
+		self.z.grid(row=row, column=3, sticky=EW)
+		self.z.bind("<Return>",   self.updateValues)
+		self.z.bind("<KP_Enter>", self.updateValues)
+		self.z.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.z, _("Spindle Z position when camera was registered"))
+
+		row += 1
+		Label(lframe, text=_("Register:")).grid(row=row, column=0, sticky=E)
+		b = Button(lframe, text=_("1. Spindle"),
+				command=self.registerSpindle,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark spindle position for calculating offset"))
+		b.grid(row=row, column=1, sticky=EW)
+		b = Button(lframe, text=_("2. Camera"),
+				command=self.registerCamera,
+				padx=1,
+				pady=1)
+		tkExtra.Balloon.set(b, _("Mark camera position for calculating offset"))
+		b.grid(row=row, column=2, sticky=EW)
+
+		lframe.grid_columnconfigure(1, weight=1)
+		lframe.grid_columnconfigure(2, weight=1)
+		lframe.grid_columnconfigure(3, weight=1)
+
+		self.loadConfig()
+		self.location.config(command=self.updateValues)
+		self.spindleX = None
+		self.spindleY = None
+
+	#-----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setStr(  "Camera", "aligncam_anchor",self.location.get())
+		Utils.setFloat("Camera", "aligncam_d",     self.diameter.get())
+		Utils.setFloat("Camera", "aligncam_scale", self.scale.get())
+		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
+		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
+		Utils.setFloat("Camera", "aligncam_z",     self.z.get())
+
+	#-----------------------------------------------------------------------
+	def loadConfig(self):
+		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
+		self.diameter.set(Utils.getFloat("Camera","aligncam_d"))
+		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
+		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
+		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
+		self.z.set(     Utils.getFloat("Camera", "aligncam_z"))
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	# Return camera Anchor
+	#-----------------------------------------------------------------------
+	def cameraAnchor(self):
+		return CAMERA_LOCATION.get(self.location.get(),CENTER)
+
+	#-----------------------------------------------------------------------
+	def getDiameter(self):
+		self.diameter.set(CNC.vars["diameter"])
+		self.updateValues()
+
+	#-----------------------------------------------------------------------
+	# Update canvas with values
+	#-----------------------------------------------------------------------
+	def updateValues(self, *args):
+		self.app.canvas.cameraAnchor = self.cameraAnchor()
+		try: self.app.canvas.cameraScale = float(self.scale.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraR = float(self.diameter.get())/2.0
+		except ValueError: pass
+		try: self.app.canvas.cameraDx = float(self.dx.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraDy = float(self.dy.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraZ  = float(self.z.get())
+		except ValueError: pass
+		self.app.canvas.cameraUpdate()
+
+	#-----------------------------------------------------------------------
+	# Register spindle position
+	#-----------------------------------------------------------------------
+	def registerSpindle(self):
+		self.spindleX = CNC.vars["wx"]
+		self.spindleY = CNC.vars["wy"]
+		self.event_generate("<<Status>>", data=_("Spindle position is registered"))
+
+	#-----------------------------------------------------------------------
+	# Register camera position
+	#-----------------------------------------------------------------------
+	def registerCamera(self):
+		if self.spindleX is None:
+			tkMessageBox.showwarning(_("Spindle position is not registered"),
+					_("Spindle position must be registered before camera"),
+					parent=self)
+			return
+		self.dx.set(str(self.spindleX - CNC.vars["wx"]))
+		self.dy.set(str(self.spindleY - CNC.vars["wy"]))
+		self.z.set(str(CNC.vars["wz"]))
+		self.event_generate("<<Status>>", data=_("Camera offset is updated"))
+		self.updateValues()
+
+#	#-----------------------------------------------------------------------
+#	def findScale(self):
+#		return
+#		self.app.canvas.cameraMakeTemplate(30)
+#
+#		self.app.control.moveXup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
+#
+#		self.app.control.moveXdown()
+#		self.app.control.moveXdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
+#
+#		self.app.control.moveXup()
+#		self.app.control.moveYup()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
+#
+#		self.app.control.moveYdown()
+#		self.app.control.moveYdown()
+#		#self.app.wait4Idle()
+#		time.sleep(2)
+#		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
+#
+#		self.app.control.moveYup()
+
+	#-----------------------------------------------------------------------
+	# Move camera to spindle location and change coordinates to relative
+	# to camera via g92
+	#-----------------------------------------------------------------------
+#	def switch2Camera(self, event=None):
+#		print "Switch to camera"
+#		wx = CNC.vars["wx"]
+#		wy = CNC.vars["wy"]
+#		dx = float(self.dx.get())
+#		dy = float(self.dy.get())
+#		if self.switchVar.get():
+#			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+#		else:
+#			self.sendGCode("G92.1\n")
+#		self.sendGCode("G0X%gY%g\n"%(wx,wy))
 
 #===============================================================================
 # Tool Group
@@ -743,7 +1345,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.toolWait = tkExtra.Combobox(lframe, True,
 					background="White",
-					command=self.policyChange,
+					command=self.waitChange,
 					width=16)
 		self.toolWait.grid(row=row, column=col, columnspan=3, sticky=EW)
 		self.toolWait.fill(TOOL_WAIT)
@@ -854,10 +1456,10 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 		self.loadConfig()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
-		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -870,7 +1472,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "toolheight",  self.toolHeight.get())
 		Utils.setFloat("Probe", "toolmz",      CNC.vars.get("toolmz",0.))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		self.changeX.set(Utils.getFloat("Probe","toolchangex"))
 		self.changeY.set(Utils.getFloat("Probe","toolchangey"))
@@ -887,7 +1489,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		CNC.vars["toolmz"] = Utils.getFloat("Probe","toolmz")
 		self.set()
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def set(self):
 		self.policyChange()
 		self.waitChange()
@@ -898,7 +1500,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool change position"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -908,7 +1510,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool probe location"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -916,7 +1518,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool scanning distance entered"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
 		try:
@@ -924,43 +1526,40 @@ class ToolFrame(CNCRibbon.PageFrame):
 		except:
 			tkMessageBox.showerror(_("Probe Tool Change Error"),
 					_("Invalid tool height or not calibrated"),
-					parent=self)
+					parent=self.winfo_toplevel())
 			return
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def policyChange(self):
-		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
+		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def waitChange(self):
-		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getChange(self):
 		self.changeX.set(CNC.vars["mx"])
 		self.changeY.set(CNC.vars["my"])
 		self.changeZ.set(CNC.vars["mz"])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def getProbe(self):
 		self.probeX.set(CNC.vars["mx"])
 		self.probeY.set(CNC.vars["my"])
 		self.probeZ.set(CNC.vars["mz"])
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def updateTool(self):
 		state = self.toolHeight.cget("state")
 		self.toolHeight.config(state=NORMAL)
 		self.toolHeight.set(CNC.vars["toolheight"])
 		self.toolHeight.config(state=state)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def calibrate(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
-
-		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
-
 		lines = []
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
@@ -977,31 +1576,13 @@ class ToolFrame(CNCRibbon.PageFrame):
 		lines.append("g90")
 		self.app.run(lines=lines)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# FIXME should be replaced with the CNC.tolChange()
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def change(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
 		lines = self.app.cnc.toolChange(0)
-#		cmd = "g91 %s f%s"%(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
-#		lines = []
-#		lines.append("g53 g0 z[toolchangez]")
-#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-#		lines.append("%wait")
-#		lines.append("%pause Manual Tool change")
-#		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
-#		lines.append("g53 g0 z[toolprobez]")
-#		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
-##		lines.append("%wait")
-#		p = WCS.index(CNC.vars["WCS"])+1
-#		lines.append("G10L20P%d z[toolheight]"%(p))
-#		lines.append("%wait")
-##		lines.append("g53g0z-2.0")
-##		lines.append("g53g0x-200.0y-100.0")
-#		lines.append("g53 g0 z[toolchangez]")
-#		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
-#		lines.append("g90")
 		self.app.run(lines=lines)
 
 ##===============================================================================
@@ -1031,18 +1612,18 @@ class ProbePage(CNCRibbon.Page):
 	_name_  = "Probe"
 	_icon_  = "measure"
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def register(self):
-		self._register((ProbeTabGroup, AutolevelGroup, ToolGroup),
-			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, ToolFrame))
+		self._register((ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
+			(ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame))
 
 		self.tabGroup = CNCRibbon.Page.groups["Probe"]
 		self.tabGroup.tab.set("Probe")
 		self.tabGroup.tab.trace('w', self.tabChange)
 
-	#----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	def tabChange(self, a=None, b=None, c=None):
 		tab = self.tabGroup.tab.get()
 		self.master._forgetPage()

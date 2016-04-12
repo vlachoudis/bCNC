@@ -36,8 +36,7 @@ _HIGHZSTEP = 10.0
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Connection"), app,
-			[(_("Hard Reset"),  "reset",     app.hardReset)
-			])
+			[(_("Hard Reset"),  "reset",     app.hardReset) ])
 		self.grid2rows()
 
 		# ---
@@ -154,7 +153,10 @@ class DROFrame(CNCRibbon.PageFrame):
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
 		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
-		tkExtra.Balloon.set(self.state, _("Show current state of the machine\nClick to see details\nRight-Click to clear alarm/errors"))
+		tkExtra.Balloon.set(self.state,
+				_("Show current state of the machine\n"
+				  "Click to see details\n"
+				  "Right-Click to clear alarm/errors"))
 		#self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
 		self.state.bind("<Button-3>", self.stateMenu)
 
@@ -342,12 +344,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		elif p==8:
 			cmd = "G92"
 
-		if x is not None: cmd += "X"+str(x)
-		if y is not None: cmd += "Y"+str(y)
-		if z is not None: cmd += "Z"+str(z)
-		self.sendGrbl(cmd+"\n$#\n")
+		pos = ""
+		if x is not None: pos += "X"+str(x)
+		if y is not None: pos += "Y"+str(y)
+		if z is not None: pos += "Z"+str(z)
+		cmd += pos
+		self.sendGCode(cmd+"\n$#\n")
 		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to X%s Y%s Z%s")%(WCS[p],str(x),str(y),str(z))).encode("utf-8"))
+			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
+			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -602,57 +607,59 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0X%s\nG90\n"%(self.step.get()))
 
 	def moveXdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X-%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0X-%s\nG90\n"%(self.step.get()))
 
 	def moveYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Y%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0Y%s\nG90\n"%(self.step.get()))
 
 	def moveYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Y-%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0Y-%s\nG90\n"%(self.step.get()))
 
 	def moveXdownYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXdownYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveXupYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Z%s\nG90\n"%(self.zstep.get()))
+		self.sendGCode("G91G0Z%s\nG90\n"%(self.zstep.get()))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGrbl("G91G0Z-%s\nG90\n"%(self.zstep.get()))
+		self.sendGCode("G91G0Z-%s\nG90\n"%(self.zstep.get()))
 
 	def go2origin(self, event=None):
-		self.sendGrbl("G90G0X0Y0Z0\n")
+		self.sendGCode("G90G0X0Y0Z0\n")
 
 	#----------------------------------------------------------------------
 	def setStep(self, s, zs=None):
 		self.step.set("%.4g"%(s))
 		if self.zstep is self.step or zs is None:
 			self.event_generate("<<Status>>",
-				data=(_("Step: %g")%(s)).encode("utf-8"))
+				data=_("Step: %g")%(s))
+				#data=(_("Step: %g")%(s)).encode("utf8"))
 		else:
 			self.zstep.set("%.4g"%(zs))
 			self.event_generate("<<Status>>",
-				data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf-8"))
+				data=_("Step: %g    Zstep:%g ")%(s,zs))
+				#data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf8"))
 
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -943,6 +950,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def overrideControl(self, event=None):
 		CNC.vars["override"] = self.override.get()
+		CNC.vars["overrideChanged"] = True
 
 	#----------------------------------------------------------------------
 	def resetOverride(self, event=None):
@@ -953,7 +961,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def _gChange(self, value, dictionary):
 		for k,v in dictionary.items():
 			if v==value:
-				self.sendGrbl("%s\n"%(k))
+				self.sendGCode("%s\n"%(k))
 				return
 
 	#----------------------------------------------------------------------
@@ -981,7 +989,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		if self._gUpdate: return
 		try:
 			feed = float(self.feedRate.get())
-			self.sendGrbl("F%g\n"%(feed))
+			self.sendGCode("F%g\n"%(feed))
 			self.event_generate("<<CanvasFocus>>")
 		except ValueError:
 			pass
@@ -996,9 +1004,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		# Avoid sending commands before unlocking
 		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
 		if self.spindle.get():
-			self.sendGrbl("M3 S%d\n"%(self.spindleSpeed.get()))
+			self.sendGCode("M3 S%d\n"%(self.spindleSpeed.get()))
 		else:
-			self.sendGrbl("M5\n")
+			self.sendGCode("M5\n")
 
 	#----------------------------------------------------------------------
 	def updateG(self):
@@ -1024,7 +1032,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def wcsChange(self):
 		global wcsvar
-		self.sendGrbl(WCS[wcsvar.get()]+"\n$G\n")
+		self.sendGCode(WCS[wcsvar.get()]+"\n$G\n")
 
 #===============================================================================
 # Control Page

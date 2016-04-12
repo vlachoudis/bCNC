@@ -29,6 +29,8 @@ COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
 from CNCCanvas import TAB_COLOR
 
+MAXINT    = 1000000000	# python3 doesn't have maxint
+
 #==============================================================================
 # CNC Listbox
 #==============================================================================
@@ -192,14 +194,14 @@ class CNCListbox(Listbox):
 				# Create a new block
 				if self.__lid is None:
 					self.__bid += 1
-					self.__lid = sys.maxint
+					self.__lid = MAXINT
 					block = Block()
 					undoinfo.append(self.gcode.addBlockUndo(self.__bid,block))
 					selitems.append((self.__bid, None))
 				else:
 					block = self.gcode.blocks[self.__bid]
 
-				if self.__lid == sys.maxint:
+				if self.__lid == MAXINT:
 					selitems.append((self.__bid, len(block)))
 				else:
 					self.__lid += 1

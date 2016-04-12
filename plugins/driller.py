@@ -10,14 +10,12 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Driller")
-__version__= "0.0.6"
+__version__= "0.0.7"
 
 import math
 from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
-import tkMessageBox
 
 #==============================================================================
 #Driller class
@@ -63,7 +61,7 @@ class Tool(Plugin):
 			bidSegments = []
 			block = allBlocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-			if not block.enable : continue
+			#if not block.enable : continue
 			app.gcode.initPath(bid)
 			for line in block:
 				try:
@@ -140,6 +138,9 @@ class Tool(Plugin):
 		#Create holes locations
 		allHoles=[]
 		for bidSegment in allSegments:
+			if len(bidSegment)==0:
+				continue
+
 			#Summ all path length
 			fullPathLength = 0.0
 			for s in bidSegment:

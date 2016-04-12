@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.8.3"
-__date__    = "30 Jan 2016"
+__version__ = "0.9.2"
+__date__    = "27 Mar 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -18,13 +18,6 @@ import time
 import getopt
 import socket
 import traceback
-
-import gettext
-import __builtin__
-# dirty way of substituting the "_" on the builtin namespace
-#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__.N_ = lambda message: message
 
 try:
 	import serial
@@ -90,11 +83,12 @@ MAX_HISTORY  = 500
 
 #ZERO = ["G28", "G30", "G92"]
 
-FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.stl")),
+FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
 		(_("G-Code"),("*.ngc","*.nc", "*.gcode")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
 		(_("Probe"),  "*.probe"),
+		(_("Orient"), "*.orient"),
 		("STL",       "*.stl"),
 		(_("All"),    "*")]
 
@@ -140,6 +134,11 @@ class Application(Toplevel,Sender):
 		self.statusy.pack(side=RIGHT)
 		self.statusx = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusx.pack(side=RIGHT)
+
+		# Buffer gauge
+		self.bufferGauge = tkExtra.Gauge(frame, height=20, width=20, relief=SUNKEN)
+		self.bufferGauge.pack(side=RIGHT, expand=NO)
+		tkExtra.Balloon.set(self.bufferGauge,_("Controller buffer fill"))
 
 		# --- Left side ---
 		frame = Frame(self.paned)
@@ -230,6 +229,11 @@ class Application(Toplevel,Sender):
 		self.pages["Probe"].tabChange()	# Select "Probe:Probe" tab to show the dialogs!
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
+		probe = Page.frames["Probe:Probe"]
+		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
+		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
+		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
+
 		# Global bindings
 		self.bind('<<Undo>>',           self.undo)
 		self.bind('<<Redo>>',           self.redo)
@@ -267,8 +271,8 @@ class Application(Toplevel,Sender):
 		self.bind('<<Pause>>',          self.pause)
 #		self.bind('<<TabAdded>>',       self.tabAdded)
 
-		tkExtra.bindEventData(self, "<<Status>>",    self.updateStatus)
-		tkExtra.bindEventData(self, "<<Coords>>",    self.updateCanvasCoords)
+		tkExtra.bindEventData(self, "<<Status>>",       self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",       self.updateCanvasCoords)
 
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
@@ -294,19 +298,24 @@ class Application(Toplevel,Sender):
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
+		self.bind("<<AddMarker>>",	self.canvas.setActionAddMarker)
 
 		frame = Page.frames["Probe:Tool"]
-		self.bind('<<ToolCalibrate>>',    frame.calibrate)
-		self.bind('<<ToolChange>>',       frame.change)
+		self.bind('<<ToolCalibrate>>',	frame.calibrate)
+		self.bind('<<ToolChange>>',	frame.change)
 
-		self.bind('<<AutolevelMargins>>', self.autolevel.getMargins)
-		self.bind('<<AutolevelZero>>',    self.autolevel.setZero)
-		self.bind('<<AutolevelClear>>',   self.autolevel.clear)
-		self.bind('<<AutolevelScan>>',    self.autolevel.scan)
+		self.bind('<<AutolevelMargins>>',self.autolevel.getMargins)
+		self.bind('<<AutolevelZero>>',	self.autolevel.setZero)
+		self.bind('<<AutolevelClear>>',	self.autolevel.clear)
+		self.bind('<<AutolevelScan>>',	self.autolevel.scan)
+
+		self.bind('<<CameraOn>>',	self.canvas.cameraOn)
+		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
 
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
 		self.bind('<<Draw>>',	        self.draw)
 		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
+		self.bind('<<DrawOrient>>',	self.canvas.drawOrient)
 
 		self.bind("<<ListboxSelect>>",	self.selectionChange)
 		self.bind("<<Modified>>",	self.drawAfter)
@@ -350,13 +359,16 @@ class Application(Toplevel,Sender):
 		self.bind('<Left>',		self.control.moveXdown)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
+		self.bind('<Home>',		self.home)
 		try:
-			self.bind('<KP_Up>',		self.control.moveYup)
-			self.bind('<KP_Down>',		self.control.moveYdown)
-			self.bind('<KP_Right>',		self.control.moveXup)
-			self.bind('<KP_Left>',		self.control.moveXdown)
-			self.bind('<KP_Prior>',		self.control.moveZup)
-			self.bind('<KP_Next>',		self.control.moveZdown)
+			self.bind('<KP_Up>',	self.control.moveYup)
+			self.bind('<KP_Down>',	self.control.moveYdown)
+			self.bind('<KP_Right>',	self.control.moveXup)
+			self.bind('<KP_Left>',	self.control.moveXdown)
+			self.bind('<KP_Prior>',	self.control.moveZup)
+			self.bind('<KP_Next>',	self.control.moveZdown)
+			self.bind('<KP_Home>',	self.home)
+			self.bind('<KP_End>',	self.control.go2origin)
 		except TclError:
 			pass
 
@@ -411,6 +423,7 @@ class Application(Toplevel,Sender):
 		self.statusbar.configText(text=msg, fill="DarkBlue")
 		if force_update:
 			self.statusbar.update_idletasks()
+			self.bufferGauge.update_idletasks()
 
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
@@ -449,8 +462,10 @@ class Application(Toplevel,Sender):
 			return
 		del self.widgets[:]
 
-		self.fileModified()
+		if self.fileModified():
+			return
 
+		self.canvas.cameraOff()
 		Sender.quit(self)
 		self.saveConfig()
 		self.destroy()
@@ -821,11 +836,13 @@ class Application(Toplevel,Sender):
 		# count enabled blocks
 		e = 0
 		l = 0
+		r = 0
 		t = 0
 		for block in self.gcode.blocks:
 			if block.enable:
 				e += 1
 				l += block.length
+				r += block.rapid
 				t += block.time
 
 		# ===========
@@ -878,6 +895,14 @@ class Application(Toplevel,Sender):
 		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		Label(frame, text="%g %s" % (l, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+
+		# ---
+		row += 1
+		col = 0
+		Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
+		col += 1
+		Label(frame, text="%g %s" % (r, unit),
 			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
 
 		# ---
@@ -1123,6 +1148,18 @@ class Application(Toplevel,Sender):
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
 
+		# CAM*ERA: camera actions
+		elif rexx.abbrev("CAMERA",cmd,3):
+			# FIXME will make crazy the button state
+			if rexx.abbrev("SWITCH",line[1].upper(),1):
+				Page.groups["Probe:Camera"].switchCamera()
+
+			elif rexx.abbrev("SPINDLE",line[1].upper(),2):
+				Page.frames["Probe:Camera"].registerSpindle()
+
+			elif rexx.abbrev("CAMERA",line[1].upper(),1):
+				Page.frames["Probe:Camera"].registerCamera()
+
 		# CLE*AR: clear terminal
 		elif rexx.abbrev("CLEAR",cmd,3) or cmd=="CLS":
 			self.ribbon.changePage("Terminal")
@@ -1322,6 +1359,12 @@ class Application(Toplevel,Sender):
 			else:
 				self.executeOnSelection("OPTIMIZE", True)
 
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions
+		elif rexx.abbrev("ORIENT",cmd,4):
+			if not self.editor.curselection():
+				self.editor.selectAll()
+			self.executeOnSelection("ORIENT", False)
+
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
 			try:    dx = -float(line[1])
@@ -1388,34 +1431,6 @@ class Application(Toplevel,Sender):
 		# RU*LER: measure distances with mouse ruler
 		elif rexx.abbrev("RULER",cmd,2):
 			self.canvas.setActionRuler()
-
-		# SET [x [y [z]]]: set x,y,z coordinates to current workspace
-		elif cmd == "SET":
-			try: x = float(line[1])
-			except: x = None
-			try: y = float(line[2])
-			except: y = None
-			try: z = float(line[3])
-			except: z = None
-			self._wcsSet(x,y,z)
-
-		elif cmd == "SET0":
-			self._wcsSet(0.,0.,0.)
-
-		elif cmd == "SETX":
-			try: x = float(line[1])
-			except: x = ""
-			self._wcsSet(x,None,None)
-
-		elif cmd == "SETY":
-			try: y = float(line[1])
-			except: y = ""
-			self._wcsSet(None,y,None)
-
-		elif cmd == "SETZ":
-			try: z = float(line[1])
-			except: z = ""
-			self._wcsSet(None,None,z)
 
 		# STAT*ISTICS: show statistics of current job
 		elif rexx.abbrev("STATISTICS",cmd,4):
@@ -1513,14 +1528,6 @@ class Application(Toplevel,Sender):
 			for line in cmd.splitlines():
 				self.execute(line)
 
-		# WCS [n]: switch to workspace index n
-#		elif rexx.abbrev("WORKSPACE",cmd,4) or cmd=="WCS":
-#			self.tabPage.changePage("WCS")
-#			try:
-#				self.wcsvar.set(WCS.index(line[1].upper()))
-#			except:
-#				pass
-
 		# XY: switch to XY view
 		# YX: switch to XY view
 		elif cmd in ("XY","YX"):
@@ -1575,6 +1582,8 @@ class Application(Toplevel,Sender):
 			self.gcode.moveLines(items, *args)
 		elif cmd == "OPTIMIZE":
 			self.gcode.optimize(items)
+		elif cmd == "ORIENT":
+			self.gcode.orientLines(items)
 		elif cmd == "REVERSE":
 			self.gcode.reverse(items, *args)
 		elif cmd == "ROUND":
@@ -1785,14 +1794,20 @@ class Application(Toplevel,Sender):
 		if self.gcode.isModified():
 			ans = tkMessageBox.askquestion(_("File modified"),
 				_("Gcode was modified do you want to save it first?"),
+				type = tkMessageBox.YESNOCANCEL,
 				parent=self)
+			if ans==tkMessageBox.CANCEL:
+				return True
 			if ans==tkMessageBox.YES or ans==True:
 				self.saveAll()
 
 		if not self.gcode.probe.isEmpty() and not self.gcode.probe.saved:
 			ans = tkMessageBox.askquestion(_("Probe File modified"),
 				_("Probe was modified do you want to save it first?"),
+				type = tkMessageBox.YESNOCANCEL,
 				parent=self)
+			if ans==tkMessageBox.CANCEL:
+				return True
 			if ans==tkMessageBox.YES or ans==True:
 				if self.gcode.probe.filename == "":
 					self.saveDialog()
@@ -1822,6 +1837,12 @@ class Application(Toplevel,Sender):
 		if ext==".probe":
 			self.autolevel.setValues()
 			self.event_generate("<<DrawProbe>>")
+
+		elif ext==".orient":
+			self.event_generate("<<DrawOrient>>")
+			self.event_generate("<<OrientSelect>>",data=0)
+			self.event_generate("<<OrientUpdate>>")
+
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
@@ -1830,13 +1851,13 @@ class Application(Toplevel,Sender):
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
 
-		self.setStatus(_("'%s' loaded")%(filename))
+		self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus(_("'%s' saved")%(filename))
+		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
@@ -1950,12 +1971,13 @@ class Application(Toplevel,Sender):
 		self.statusbar.clear()
 		self.statusbar.config(background="LightGray")
 		self.setStatus(_("Run ended"))
+		self.bufferGauge.setFill(0)
 
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
 	def run(self, lines=None):
-		if self.serial is None:
+		if self.serial is None and not CNC.developer:
 			tkMessageBox.showerror(_("Serial Error"),
 				_("Serial is not connected"),
 				parent=self)
@@ -2014,6 +2036,15 @@ class Application(Toplevel,Sender):
 #		self.canvas.clearSelection()
 #		self._gcount   = 0		# count executed lines
 #		self._selectI  = 0		# last selection pointer in items
+		if CNC.developer:
+			f = open("run.output","w");
+			f.write(lines.join("\n"))
+			f.close()
+			return
+
+		self.initRun()
+		# the buffer of the machine should be empty?
+		self.canvas.clearSelection()
 		self._runLines = len(lines) + 1	# plus the wait
 		self._paths    = paths		# drawing paths for canvas
 
@@ -2150,6 +2181,7 @@ class Application(Toplevel,Sender):
 			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
 			CNC.vars["msg"] = self.statusbar.msg
+			self.bufferGauge.setFill(Sender.getBufferFill(self))
 			if self._selectI>=0 and self._paths:
 				while self._selectI < self._gcount and self._selectI<len(self._paths):
 					#print
@@ -2210,9 +2242,6 @@ def usage(rc):
 	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
 	sys.stdout.write("\n")
 	sys.exit(rc)
-
-
-
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -2317,8 +2346,12 @@ if __name__ == "__main__":
 	if serial is None:
 		tkMessageBox.showerror(_("python serial missing"),
 			_("ERROR: Please install the python pyserial module\n" \
-			  "Windows: C:\PythonXX\Scripts\easy_install pyserial\n" \
-			  "Linux: sudo apt-get or yum install python-serial"))
+			  "Windows:\n\tC:\PythonXX\Scripts\easy_install pyserial\n" \
+			  "Mac:\tpip install pyserial\n" \
+			  "Linux:\tsudo apt-get install python-serial\n" \
+			  "\tor yum install python-serial\n" \
+			  "\tor dnf install python-pyserial"),
+			  parent=application)
 		if Updates.need2Check(): application.checkUpdates()
 
 	if run:

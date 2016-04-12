@@ -10,14 +10,13 @@ __email__  = "vvlachoudis@gmail.com"
 import os
 import re
 import time
-import httplib
 import json
 
-def _(x): return x
-
 try:
+	import httplib as http
 	from Tkinter import *
 except ImportError:
+	import http.client as http
 	from tkinter import *
 
 import Utils
@@ -135,11 +134,11 @@ class CheckUpdateDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def check(self):
-		h = httplib.HTTPSConnection("api.github.com")
+		h = http.HTTPSConnection("api.github.com")
 		h.request("GET","/repos/vlachoudis/bCNC/releases/latest",None,{"User-Agent":"bCNC"})
 		r = h.getresponse()
-		if r.status == httplib.OK:
-			data = json.loads(r.read())
+		if r.status == http.OK:
+			data = json.loads(r.read().decode("utf-8"))
 			latest_version = data["tag_name"]
 
 			self.webversion.config(text=latest_version)

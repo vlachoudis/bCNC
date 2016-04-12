@@ -12,7 +12,7 @@ endfacet
 
 BINARY_HEADER ="80sI"
 BINARY_FACET = "12fH"
-	
+
 def crossproduct(u,v):
 	s1 = u[1]*v[2] - u[2]*v[1]
 	s2 = u[2]*v[0] - u[0]*v[2]
@@ -31,20 +31,20 @@ def normalto(u,v):
 
 def diff(u,v):
 	return [u[0]-v[0], u[1]-v[1], u[2]-v[2]]
-	
+
 #functions for calculation of the normal vector (right-thumb-rule)
 def crossProduct(a, b):
 	#calculate cross product of two threedimensional vectors
 	if (len(a)!=3) or (len(b)!=3):
 		raise ValueError('unvalid value')
 	return [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]]
- 
+
 def diff(v1,v2):
 	#substracting one list from another
 	if (len(v1)!=3) or (len(v2)!=3):
 		raise ValueError('unvalid value')
 	return [v1[0]-v2[0],v1[1]-v2[1],v1[2]-v2[2]]
- 
+
 def normal(v1,v2,v3):
 	#calculate normal vector on triangle spanned by the three vertices
 	#tells in which direction the plane looks "right-thumb-rule"
@@ -58,14 +58,13 @@ def normal(v1,v2,v3):
 		else:
 			absolut-=i
 	if absolut == 0:
-		print "this should not have happened!"
+		#print "this should not have happened!"
 		return n
 	else :
 		return [n[0]/absolut,n[1]/absolut,n[2]/absolut]
- 
+
 #simple function to create sets of three vertices
 def triangulate(vertices):
-	print "triangulate!"
 	n=len(vertices)
 	if(n==3):
 		return vertices
@@ -74,31 +73,31 @@ def triangulate(vertices):
 			self.add_facets(facets)
 	else:
 		 raise ValueError('wrong number of vertices')
- 
+
 	def add_facets(self, facets):
-		print "add %d facets" % len(facets)
+		#print "add %d facets" % len(facets)
 		for facet in facets:
 			self.add_facet(facet)
- 
+
 	def extrude(self,bottom,height):
 		if len(bottom) < 3 :
 			raise ValueError('not a polygon')
 		else :
 			top = []
- 
+
 			for vertice in bottom :
 				top.append([vertice[0],vertice[1],vertice[2]+height])
- 
+
 			bottom.reverse()
 			self.add_facet(bottom)
 			bottom.reverse()
- 
+
 			for i in range(0,len(bottom)-1) :
 				self.add_facet([bottom[i],bottom[i+1],top[i+1],top[i]])
 			self.add_facet([bottom[len(bottom)-1],bottom[0],top[0],top[len(bottom)-1]])
- 
+
 			self.add_facet(top)
- 
+
 
 class ASCII_STL_Writer:
 	""" Export 3D objects build of 3 or 4 vertices as ASCII STL file.

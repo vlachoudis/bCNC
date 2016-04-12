@@ -2,7 +2,7 @@
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
 # Author: vvlachoudis@gmail.com
-# Date: 24-Aug-2014y
+# Date: 24-Aug-2014
 
 import os
 import re
@@ -31,7 +31,7 @@ AUXPAT   = re.compile(r"^(%[A-Za-z0-9]+)\b *(.*)$")
 STOP   = 0
 SKIP   = 1
 ASK    = 2
-PAUSE  = 3
+MSG    = 3
 WAIT   = 4
 UPDATE = 5
 
@@ -110,8 +110,8 @@ MODAL_MODES = {
 }
 
 ERROR_HANDLING = {}
-
 TOLERANCE = 1e-7
+MAXINT    = 1000000000	# python3 doesn't have maxint
 
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
@@ -365,82 +365,64 @@ class Probe:
 	# return only end points
 	#----------------------------------------------------------------------
 	def splitLine(self, x1, y1, z1, x2, y2, z2):
-		#print "splitLine:",x1, y1, z1, x2, y2, z2
-		#pdb.set_trace()
-		i1 = int(math.floor((x1-self.xmin) / self._xstep))
-		i2 = int(math.floor((x2-self.xmin) / self._xstep))
-
-		j1 = int(math.floor((y1-self.ymin) / self._ystep))
-		j2 = int(math.floor((y2-self.ymin) / self._ystep))
-
 		dx = x2-x1
 		dy = y2-y1
 		dz = z2-z1
-		if dx==0.0 and dy==0.0:
-			return [(x2,y2,z2+self.interpolate(x2,y2))]
-
-		rxy = math.sqrt(dx*dx+dy*dy)
-		r   = math.sqrt(dx*dx + dy*dy + dz*dz)
-		dx /= rxy
-		dy /= rxy
-		# add correction for the slope in Z, versut the travel in XY
-		dz  =  dz * rxy/(dx*dx + dy*dy + dz*dz)
 
 		if abs(dx)<1e-10: dx = 0.0
 		if abs(dy)<1e-10: dy = 0.0
+		if abs(dz)<1e-10: dz = 0.0
 
-		# Next intersection
-		if dx>0.0:
-			i = i1+1
-			i2 += 1
+		if dx==0.0 and dy==0.0:
+			return [(x2,y2,z2+self.interpolate(x2,y2))]
+
+		# Length along projection on X-Y plane
+		rxy = math.sqrt(dx*dx + dy*dy)
+		dx /= rxy	# direction cosines along XY plane
+		dy /= rxy
+		dz /= rxy	# add correction for the slope in Z, versus the travel in XY
+
+		i = int(math.floor((x1-self.xmin) / self._xstep))
+		j = int(math.floor((y1-self.ymin) / self._ystep))
+		if dx > 1e-10:
+			tx  = (float(i+1)*self._xstep+self.xmin - x1)/ dx	# distance to next cell
+			tdx = self._xstep / dx
+		elif dx < -1e-10:
+			tx  = (float(i)*self._xstep+self.xmin - x1)/ dx		# distance to next cell
+			tdx = -self._xstep / dx
 		else:
-			i = i1
+			tx  = 1e10
+			tdx = 0.0
 
-		if dy>0.0:
-			j = j1+1
-			j2 += 1
+		if dy > 1e-10:
+			ty  = (float(j+1)*self._ystep+self.ymin - y1)/ dy	# distance to next cell
+			tdy = self._ystep / dy
+		elif dy < -1e-10:
+			ty  = (float(j)*self._ystep+self.ymin - y1)/ dy		# distance to next cell
+			tdy = -self._ystep / dy
 		else:
-			j = j1
-
-		xn = x = x1
-		yn = y = y1
-		z  = z1
-		tx = ty = 1E10
+			ty  = 1e10
+			tdy = 0.0
 
 		segments = []
-		endx = False
-		endy = False
-		while i!=i2 or j!=j2:
-			if dx!=0.0:
-				xn = self.xmin + i*self._xstep
-				tx = (xn - x1) / dx
-			if dy!=0.0:
-				yn = self.ymin + j*self._ystep
-				ty = (yn - y1) / dy
-
-			if tx < ty:
-				x = xn
-				y = y1 + tx*dy
-				z = z1 + tx*dz
-				if dx > 0.0:
-					i += 1
-					endx = i>=i2
-				else:
-					i -= 1
-					endx = i<=i2
+		rxy *= 0.999999999	# just reduce a bit to avoid precision errors
+		while tx<rxy or ty<rxy:
+			if tx==ty:
+				t = tx
+				tx += tdx
+				ty += tdy
+			elif tx<ty:
+				t = tx
+				tx += tdx
 			else:
-				x = x1 + ty*dx
-				y = yn
-				z = z1 + ty*dz
-				if dy > 0.0:
-					j += 1
-					endy = j>=j2
-				else:
-					j -= 1
-					endy = j<=j2
+				t = ty
+				ty += tdy
+			x = x1 + t*dx
+			y = y1 + t*dy
+			z = z1 + t*dz
 			segments.append((x,y,z+self.interpolate(x,y)))
+
 		segments.append((x2,y2,z2+self.interpolate(x2,y2)))
-		#print "segments=",segments
 		return segments
 
 #===============================================================================
@@ -454,28 +436,57 @@ class Orient:
 		self.markers = []		# list of points pairs (xm, ym, x, y)
 						# xm,ym = machine x,y mpos
 						# x, y  = desired or gcode location
+		self.paths   = []
+		self.errors  = []
+		self.filename = ""
 		self.clear()
 
 	#-----------------------------------------------------------------------
-	def clear(self):
-		del self.markers[:]
+	def clear(self, item=None):
+		if item is None:
+			self.clearPaths()
+			del self.markers[:]
+		else:
+			del self.paths[item]
+			del self.markers[item]
+
 		self.phi = 0.0
 		self.xo  = 0.0
 		self.yo  = 0.0
+		self.valid = False
+		self.saved = False
+
+	#-----------------------------------------------------------------------
+	def clearPaths(self):
+		del self.paths[:]
 
 	#-----------------------------------------------------------------------
 	def add(self, xm, ym, x, y):
 		self.markers.append((xm,ym,x,y))
+		self.valid = False
+		self.saved = False
+
+	#-----------------------------------------------------------------------
+	def addPath(self, path):
+		self.paths.append(path)
+
+	#-----------------------------------------------------------------------
+	def __getitem__(self, i):
+		return self.markers[i]
+
+	#-----------------------------------------------------------------------
+	def __len__(self):
+		return len(self.markers)
 
 	#-----------------------------------------------------------------------
 	# Return the rotation angle phi in radians and the offset (xo,yo)
 	# or none on failure
 	# Transformation equation is the following
 	#
-	#    X = R * Xm + T
+	#    Xm = R * X + T
 	#
-	#    X  = [x y]^t
 	#    Xm = [xm ym]^t
+	#    X  = [x y]^t
 	#
 	#
 	#       / cosf  -sinf \   / c  -s \
@@ -489,21 +500,21 @@ class Orient:
 	#   T = [xo yo]^t
 	#
 	# The overdetermined system (equations) to solve are the following
-	#      c*xm + s*(-ym) + xo = x
-	#      s*xm + c*ym    + yo = y
-	#  <=> c*ym + s*ym         + yo = y
+	#      c*x + s*(-y) + xo      = xm
+	#      s*x + c*y    + yo      = ym
+	#  <=> c*y + s*y         + yo = ym
 	#
 	# We are solving for the unknowns c,s,xo,yo
 	#
-	#       /  xm1  -ym1  1 0 \ / c  \    / x1 \
-	#       |  ym1   xm1  0 1 | | s  |    | y1 |
-	#       |  xm2  -ym2  1 0 | | xo |    | x2 |
-	#       |  ym2   xm2  0 1 | \ yo /  = | y2 |
-	#	       ....                   ..
-	#       |  xmn  -ymn  1 0 |           | xn |
-	#       \  ymn   xmn  0 1 /           \ yn /
+	#       /  x1  -y1  1 0 \ / c  \    / xm1 \
+	#       |  y1   x1  0 1 | | s  |    | ym1 |
+	#       |  x2  -y2  1 0 | | xo |    | xm2 |
+	#       |  y2   x2  0 1 | \ yo /  = | ym2 |
+	#	      ...                   ..
+	#       |  xn  -yn  1 0 |           | xmn |
+	#       \  yn   xn  0 1 /           \ ymn /
 	#
-	#                  A          X      = B
+	#               A            X    =    B
 	#
 	# Constraints:
 	#   1. orthogonal system   c^2 + s^2 = 1
@@ -511,12 +522,13 @@ class Orient:
 	#
 	#-----------------------------------------------------------------------
 	def solve(self):
+		self.valid = False
 		if len(self.markers)< 2: raise Exception("Too few markers")
 		A = []
 		B = []
 		for xm,ym,x,y in self.markers:
-			A.append([xm,-ym,1.0,0.0]);	B.append([x])
-			A.append([ym, xm,0.0,1.0]);	B.append([y])
+			A.append([x,-y,1.0,0.0]);	B.append([xm])
+			A.append([y, x,0.0,1.0]);	B.append([ym])
 
 		# The solution of the overdetermined system A X = B
 		try:
@@ -529,7 +541,6 @@ class Orient:
 		# Normalize the coefficients
 		r = sqrt(c*c + s*s)	# length should be 1.0
 		if abs(r-1.0) > 0.1:
-			print "**** r=",r,c,s
 			raise Exception("Resulting system is too skew")
 
 #		print "r=",r
@@ -539,6 +550,7 @@ class Orient:
 
 		if abs(self.phi)<TOLERANCE: self.phi = 0.0	# rotation
 
+		self.valid = True
 		return self.phi,self.xo,self.yo
 
 	#-----------------------------------------------------------------------
@@ -553,24 +565,19 @@ class Orient:
 		c = cos(self.phi)
 		s = sin(self.phi)
 
+		del self.errors[:]
+
 		for i,(xm,ym,x,y) in enumerate(self.markers):
-			dx = c*xm - s*ym + self.xo - x
-			dy = s*xm + c*ym + self.yo - y
+			dx = c*x - s*y + self.xo - xm
+			dy = s*x + c*y + self.yo - ym
 			err = sqrt(dx**2 + dy**2)
+			self.errors.append(err)
+
 			minerr = min(minerr, err)
 			maxerr = max(maxerr, err)
 			sumerr += err
 
-		return minerr, sumerr/float(i), maxerr
-
-	#-----------------------------------------------------------------------
-	# Convert machine to gcode coordinates
-	#-----------------------------------------------------------------------
-	def machine2gcode(self, xm, ym):
-		c = cos(self.phi)
-		s = sin(self.phi)
-		return	c*xm - s*ym + self.xo, \
-			s*xm + c*ym + self.yo
+		return minerr, sumerr/float(len(self.markers)), maxerr
 
 	#-----------------------------------------------------------------------
 	# Convert gcode to machine coordinates
@@ -578,10 +585,45 @@ class Orient:
 	def gcode2machine(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
+		return	c*x - s*y + self.xo, \
+			s*x + c*y + self.yo
+
+	#-----------------------------------------------------------------------
+	# Convert machine to gcode coordinates
+	#-----------------------------------------------------------------------
+	def machine2gcode(self, x, y):
+		c = cos(self.phi)
+		s = sin(self.phi)
 		x -= self.xo
 		y -= self.yo
 		return	 c*x + s*y, \
 			-s*x + c*y
+
+	#----------------------------------------------------------------------
+	# Load orient information from file
+	#----------------------------------------------------------------------
+	def load(self, filename=None):
+		if filename is not None:
+			self.filename = filename
+		self.clear()
+		self.saved = True
+
+		f = open(self.filename,"r")
+		for line in f:
+			self.add(*map(float, line.split()))
+		f.close()
+
+	#----------------------------------------------------------------------
+	# Save orient information to file
+	#----------------------------------------------------------------------
+	def save(self, filename=None):
+		if filename is not None:
+			self.filename = filename
+		f = open(self.filename,"w")
+		for xm,ym,x,y in self.markers:
+			f.write("%g %g %g %g\n"%(xm,ym,x,y))
+		f.close()
+		self.saved = True
 
 #===============================================================================
 # Command operations on a CNC
@@ -604,12 +646,15 @@ class CNC:
 	stdexpr        = False	# standard way of defining expressions with []
 	comment        = ""	# last parsed comment
 	developer      = False
+	vars           = {}
 
 	drillPolicy    = 1	# Expand Canned cycles
 	toolPolicy     = 1	# Should be in sync with ProbePage
 				# 0 - send to grbl
 				# 1 - skip those lines
-				# 2 - manual tool change
+				# 2 - manual tool change (WCS)
+				# 3 - manual tool change (TLO)
+				# 4 - manual tool change (No Probe)
 
 	toolWaitAfterProbe = True	# wait at tool change position after probing
 
@@ -628,7 +673,10 @@ class CNC:
 				"mx"        : 0.0,
 				"my"        : 0.0,
 				"mz"        : 0.0,
+				"_camwx"    : 0.0,
+				"_camwy"    : 0.0,
 				"G"         : ["G20","G54"],
+				"TLO"       : 0.0,
 				"motion"    : "G0",
 				"WCS"       : "G54",
 				"plane"     : "G17",
@@ -647,6 +695,7 @@ class CNC:
 				"rpm"       : 0.0,
 
 				"override"  : 100,
+				"overrideChanged"  : False,
 				"diameter"  : 3.175,	# Tool diameter
 				"cutfeed"   : 1000.,	# Material feed for cutting
 				"cutfeedz"  : 500.,	# Material feed for cutting
@@ -721,9 +770,10 @@ class CNC:
 		except: pass
 		try: CNC.digits         = int(  config.get(section, "round"))
 		except: pass
-		CNC.startup        =       config.get(section, "startup")
-		CNC.header         =       config.get(section, "header")
-		CNC.footer         =       config.get(section, "footer")
+
+		CNC.startup = config.get(section, "startup")
+		CNC.header  = config.get(section, "header")
+		CNC.footer  = config.get(section, "footer")
 
 		if CNC.inch:
 			CNC.acceleration_x  /= 25.4
@@ -956,9 +1006,9 @@ class CNC:
 				args = None
 			if cmd=="%wait":
 				return (WAIT,)
-			elif cmd=="%pause":
+			elif cmd=="%msg":
 				if not args: args = None
-				return (PAUSE, args)
+				return (MSG, args)
 			elif cmd=="%update":
 				return (UPDATE, args)
 			else:
@@ -1287,6 +1337,8 @@ class CNC:
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
 			xyz.append((self.x,self.y,self.z))
 			uc,vc = self.motionCenter()
+
+			gcode = self.gcode
 			if self.plane == XY:
 				u0 = self.x
 				v0 = self.y
@@ -1301,6 +1353,7 @@ class CNC:
 				u1 = self.xval
 				v1 = self.zval
 				w1 = self.yval
+				gcode = 5-gcode	# flip 2-3 when XZ plane is used
 			else:
 				u0 = self.y
 				v0 = self.z
@@ -1320,7 +1373,7 @@ class CNC:
 			else:
 				df = math.pi/4.0
 
-			if self.gcode==2:
+			if gcode==2:
 				if phi1>=phi0-1e-10: phi1 -= 2.0*math.pi
 				ws  = (w1-w0)/(phi1-phi0)
 				phi = phi0 - df
@@ -1472,20 +1525,21 @@ class CNC:
 			length += math.sqrt((i[0]-p[0])**2 + (i[1]-p[1])**2 + (i[2]-p[2])**2)
 			p = i
 
-		block.length += length
-		self.totalLength += length
-
 		if self.gcode == 0:
 			# FIXME calculate the correct time with the feed direction
 			# and acceleration
 			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
+			block.rapid += length
 		else:
 			try:
 				block.time += length / self.feed
 				self.totalTime += length / self.feed
 			except:
 				pass
+			block.length += length
+
+		self.totalLength += length
 
 	#----------------------------------------------------------------------
 	def pathMargins(self, block):
@@ -1531,8 +1585,7 @@ class CNC:
 					cmd = CNC.fmt(c,value)
 				else:
 					opt = ERROR_HANDLING.get(cmd.upper(),0)
-					if opt == SKIP:
-						cmd = None
+					if opt == SKIP: cmd = None
 
 				if cmd is not None:
 					newcmd.append(cmd)
@@ -1561,39 +1614,41 @@ class CNC:
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("%wait")
 
-		# FIXME Could be placed with m0?
 		if CNC.comment:
-			lines.append("%%pause Tool change T%02d (%s)"%(self.tool,CNC.comment))
+			lines.append("%%msg Tool change T%02d (%s)"%(self.tool,CNC.comment))
 		else:
-			lines.append("%%pause Tool change T%02d"%(self.tool))
+			lines.append("%%msg Tool change T%02d"%(self.tool))
+		lines.append("m0")	# feed hold
 
-		lines.append("g53 g0 x[toolprobex] y[toolprobey]")
-		lines.append("g53 g0 z[toolprobez]")
+		if CNC.toolPolicy < 4:
+			lines.append("g53 g0 x[toolprobex] y[toolprobey]")
+			lines.append("g53 g0 z[toolprobez]")
 
-		# fixed WCS
-		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+			# fixed WCS
+			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
-		if CNC.toolPolicy==2:
-			# Adjust the current WCS to fit to the tool
-			# FIXME could be done dynamically in the code
-			p = WCS.index(CNC.vars["WCS"])+1
-			lines.append("G10L20P%d z[toolheight]"%(p))
-			lines.append("%wait")
+			if CNC.toolPolicy==2:
+				# Adjust the current WCS to fit to the tool
+				# FIXME could be done dynamically in the code
+				p = WCS.index(CNC.vars["WCS"])+1
+				lines.append("G10L20P%d z[toolheight]"%(p))
+				lines.append("%wait")
 
-		elif CNC.toolPolicy==3:
-			# Modify the tool length, update the TLO
-			lines.append("g4 p1")	# wait a sec to get the probe info
-			lines.append("%wait")
-			lines.append("%global TLO; TLO=prbz-toolmz")
-			lines.append("g43.1z[TLO]")
-			lines.append("%update TLO")
+			elif CNC.toolPolicy==3:
+				# Modify the tool length, update the TLO
+				lines.append("g4 p1")	# wait a sec to get the probe info
+				lines.append("%wait")
+				lines.append("%global TLO; TLO=prbz-toolmz")
+				lines.append("g43.1z[TLO]")
+				lines.append("%update TLO")
 
-		lines.append("g53 g0 z[toolchangez]")
-		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
+			lines.append("g53 g0 z[toolchangez]")
+			lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 
 		if CNC.toolWaitAfterProbe:
 			lines.append("%wait")
-			lines.append("%pause Restart spindle")
+			lines.append("%msg Restart spindle")
+			lines.append("m0")	# feed hold
 
 		# restore state
 		lines.append("g90")		# restore mode
@@ -1759,6 +1814,13 @@ class Tab:
 	def move(self, dx, dy, dz=None):
 		self.x += dx
 		self.y += dy
+
+	#----------------------------------------------------------------------
+	def transform(self, c, s, xo, yo):
+		xn = c*self.x - s*self.y + xo
+		yn = s*self.x + c*self.y + yo
+		self.x = xn
+		self.y = yn
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
@@ -1990,7 +2052,8 @@ class Block(list):
 		del self._path[:]
 		self.xmin = self.ymin = self.zmin =  1000000.0
 		self.xmax = self.ymax = self.zmax = -1000000.0
-		self.length = 0.0
+		self.length = 0.0	# cut length
+		self.rapid  = 0.0	# rapid length
 		self.time   = 0.0
 
 	#----------------------------------------------------------------------
@@ -2042,6 +2105,7 @@ class GCode:
 		self.footer   = ""
 		self.undoredo = undo.UndoRedo()
 		self.probe    = Probe()
+		self.orient   = Orient()
 		self.vars     = {}		# local variables
 		self.init()
 
@@ -2479,6 +2543,7 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def _trim(self):
+		if not self.blocks: return
 		# Delete last block if empty
 		last = self.blocks[-1]
 		if len(last)==1 and len(last[0])==0: del last[0]
@@ -3045,7 +3110,7 @@ class GCode:
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-			undoinfo.append(self.insLineUndo(bid, sys.maxint,
+			undoinfo.append(self.insLineUndo(bid, MAXINT,
 					self.cnc.gline(block.sx, block.sy)))
 		self.addUndo(undoinfo)
 
@@ -3259,6 +3324,8 @@ class GCode:
 		return msg
 
 	#----------------------------------------------------------------------
+	# Generate a pocket path
+	#----------------------------------------------------------------------
 	def _pocket(self, path, diameter, stepover, depth):
 		#print "_pocket",depth
 		if depth>10000: return None
@@ -3464,14 +3531,14 @@ class GCode:
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
-		new['X'] = (x-x0)*c - (y-y0)*s + x0
-		new['Y'] = (x-x0)*s + (y-y0)*c + y0
+		new['X'] = c*(x-x0) - s*(y-y0) + x0
+		new['Y'] = s*(x-x0) + c*(y-y0) + y0
 
 		if 'I' in new or 'J' in new:
 			i = getValue('I',new,old)
 			j = getValue('J',new,old)
-			new['I'] = i*c - j*s
-			new['J'] = i*s + j*c
+			new['I'] = c*i - s*j
+			new['J'] = s*i + c*j
 		return True
 
 	#----------------------------------------------------------------------
@@ -3486,6 +3553,36 @@ class GCode:
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
 		return self.process(items, self.rotateFunc, None, c, s, x0, y0)
+
+	#----------------------------------------------------------------------
+	# Transform (rototranslate) position with the following function:
+	#	 xn = c*x - s*y + xo
+	#	 yn = s*x + c*y + yo
+	# it is like the rotate but the rotation center is not defined
+	#----------------------------------------------------------------------
+	def transformFunc(self, new, old, c, s, xo, yo):
+		if 'X' not in new and 'Y' not in new: return False
+		x = getValue('X',new,old)
+		y = getValue('Y',new,old)
+		new['X'] = c*x - s*y + xo
+		new['Y'] = s*x + c*y + yo
+
+		if 'I' in new or 'J' in new:
+			i = getValue('I',new,old)
+			j = getValue('J',new,old)
+			new['I'] = c*i - s*j
+			new['J'] = s*i + c*j
+		return True
+
+	#----------------------------------------------------------------------
+	# Use the orientation information to orient selected code
+	#----------------------------------------------------------------------
+	def orientLines(self, items):
+		if not self.orient.valid: return "ERROR: Orientation information is not valid"
+		c = math.cos(self.orient.phi)
+		s = math.sin(self.orient.phi)
+		return self.process(items, self.transformFunc, Tab.transform, c, s,
+					self.orient.xo, self.orient.yo)
 
 	#----------------------------------------------------------------------
 	# Mirror Horizontal
@@ -3670,9 +3767,10 @@ class GCode:
 	#----------------------------------------------------------------------
 	def compile(self):
 		autolevel = not self.probe.isEmpty()
-		lines = []
-		paths = []
+		lines  = [self.cnc.startup]
+		paths  = [None]
 		self.initPath()
+
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
 			for j,line in enumerate(block):
@@ -3702,22 +3800,20 @@ class GCode:
 						lines.append(line)
 						paths.append(None)
 					else:
+						extra = ""
 						for c in cmds:
-							if c[0] in ('f','F'):
-								feed = c
-								break
-						else:
-							feed = ""
+							if c[0].upper() not in ('G','X','Y','Z','I','J','K'):
+								extra += c
 						x1,y1,z1 = xyz[0]
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
 								lines.append(" G1%s%s%s%s"%\
-									(self.fmt("X",x),
-									 self.fmt("Y",y),
-									 self.fmt("Z",z),
-									 feed))
+									(self.fmt("X",x/self.cnc.unit),
+									 self.fmt("Y",y/self.cnc.unit),
+									 self.fmt("Z",z/self.cnc.unit),
+									 extra))
 								paths.append((i,j))
-								feed = ""
+								extra = ""
 							x1,y1,z1 = x2,y2,z2
 						lines[-1] = lines[-1].strip()
 					self.cnc.motionEnd()
@@ -3753,13 +3849,15 @@ class GCode:
 					except: value = 0.0
 					if c.upper() in ("F","X","Y","Z","I","J","K","R","P"):
 						cmd = self.fmt(c,value)
-					#else:
-					#	opt = ERROR_HANDLING.get(cmd.upper(),0)
+					else:
+						opt = ERROR_HANDLING.get(cmd.upper(),0)
+						if opt == SKIP: cmd = None
 					if cmd is not None:
 						newcmd.append(cmd)
 
 				lines.append("".join(newcmd))
 				paths.append((i,j))
+
 		return lines,paths
 
 #if __name__=="__main__":

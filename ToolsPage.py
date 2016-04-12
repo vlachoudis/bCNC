@@ -143,6 +143,8 @@ class _Base:
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.see(active)
+		n, t, d, l = self.variables[active]
+		if t=="bool": return	# Forbid changing value of bool
 		self.master.listbox.event_generate("<Return>")
 
 	#----------------------------------------------------------------------
@@ -229,6 +231,11 @@ class _Base:
 			edit = tkExtra.InPlaceFile(lb, save=True)
 		elif t == "color":
 			edit = tkExtra.InPlaceColor(lb)
+			if edit.value is not None:
+				try:
+					lb.itemconfig(ACTIVE, background=edit.value)
+				except TclError:
+					pass
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
 
@@ -454,6 +461,11 @@ class Color(Ini):
 		Ini.__init__(self, master, "Color", "color")
 
 #------------------------------------------------------------------------------
+class Camera(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Camera", "int")
+
+#------------------------------------------------------------------------------
 class Shortcut(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Shortcut", "str")
@@ -498,8 +510,9 @@ class CNC(_Base):
 		self.master.inches = self["units"]
 		self.master.digits = int(self["round"])
 		self.master.cnc().decimal = self.master.digits
-		self.master.gcode.header = self["header"]
-		self.master.gcode.footer = self["footer"]
+		self.master.cnc().startup = self["startup"]
+		self.master.gcode.header  = self["header"]
+		self.master.gcode.footer  = self["footer"]
 		return False
 
 #==============================================================================
@@ -1048,7 +1061,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		col,row=0,0
 		f = Frame(self.frame)
-		f.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
+		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=NSEW)
 
 		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT)
@@ -1065,33 +1078,33 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config"],
-				text=_("Machine"),
+				image=Utils.icons["camera"],
+				text=_("Camera"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="CNC",
+				value="Camera",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
+		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["shortcut"],
-				text=_("Shortcuts"),
+				image=Utils.icons["color"],
+				text=_("Colors"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="Shortcut",
+				value="Color",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts"))
+		tkExtra.Balloon.set(b, _("Color configuration"))
 		self.addWidget(b)
 
 		# ===
-		col,row = 1,1
+		col,row = col+1,1
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
 				text=_("Fonts"),
@@ -1107,15 +1120,29 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["color"],
-				text=_("Colors"),
+				image=Utils.icons["config"],
+				text=_("Machine"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="Color",
+				value="CNC",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Color configuration"))
+		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
+		self.addWidget(b)
+
+		# ===
+		col,row = col+1,1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text=_("Shortcuts"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Shortcuts"))
 		self.addWidget(b)
 
 	#----------------------------------------------------------------------
@@ -1171,6 +1198,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
 		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
+		self.addWidget(self.toolList)
 
 		app.tools.active.trace('w',self.change)
 		self.change()

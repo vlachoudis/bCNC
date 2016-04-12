@@ -23,12 +23,27 @@ except ImportError:
 	import configparser as ConfigParser
 
 import gettext
-import __builtin__
+try:
+	import __builtin__
+except:
+	import builtins as __builtin__
+	#__builtin__.unicode = str		# dirty hack for python3
+
+__prg__     = "bCNC"
+prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
+iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
+iniUser   = os.path.expanduser("~/.%s" % (__prg__))
+hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
+
+# dirty way of substituting the "_" on the builtin namespace
+#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).gettext
+__builtin__.N_ = lambda message: message
+
 
 import Ribbon
 import tkExtra
 
-__prg__     = "bCNC"
 __www__     = "https://github.com/vlachoudis/bCNC"
 __contribute__ = \
 		"@effer Filippo Rivato\n" \
@@ -48,13 +63,10 @@ LANGUAGES = {
 		"en" : "English",
 		"it" : "Italiano",
 		"es" : u"Espa\u00f1ol",
-		"fr" : u"Fran\u00e7ais"
+		"fr" : u"Fran\u00e7ais",
+		"de" : "Deutsch"
 	}
 
-prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
-iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
-iniUser   = os.path.expanduser("~/.%s" % (__prg__))
-hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 icons     = {}
 config    = ConfigParser.ConfigParser()
 language  = ""
@@ -102,8 +114,8 @@ def loadConfiguration(systemOnly=False):
 		language = getStr(__prg__, "language")
 		if language:
 			# replace language
-			__builtin__._ = gettext.translation('bCNC', 'locale',
-					fallback=True, languages=[language]).ugettext
+			__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'),
+					fallback=True, languages=[language]).gettext
 
 #------------------------------------------------------------------------------
 # Save configuration file
@@ -157,7 +169,7 @@ def getStr(section, name, default=""):
 def getUtf(section, name, default=""):
 	global config
 	try:
-		return config.get(section, name).decode("utf-8")
+		return config.get(section, name).decode("utf8")
 	except:
 		return default
 
@@ -232,7 +244,7 @@ def setStr(section, name, value):
 def setUtf(section, name, value):
 	global config
 	try:
-		s = value.encode("utf-8")
+		s = str(value.encode("utf8"))
 	except:
 		s = str(value)
 	config.set(section, name, s)
@@ -254,7 +266,7 @@ def addRecent(filename):
 	try:
 		sfn = str(os.path.abspath(filename))
 	except UnicodeEncodeError:
-		sfn = filename.encode("utf-8")
+		sfn = filename.encode("utf8")
 
 	last = _maxRecent-1
 	for i in range(_maxRecent):
