@@ -2168,7 +2168,7 @@ class Application(Toplevel,Sender):
 			CNC.vars["msg"] = self.statusbar.msg
 			self.bufferGauge.setFill(Sender.getBufferFill(self))
 			if self._selectI>=0 and self._paths:
-				while self._selectI < self._gcount and self._selectI<len(self._paths):
+				while self._selectI <= self._gcount and self._selectI<len(self._paths):
 					#print
 					#print "selectI,gcount,runLines=",self._selectI, self._paths[self._selectI], self._gcount, self._runLines
 					if self._paths[self._selectI]:

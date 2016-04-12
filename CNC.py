@@ -274,7 +274,7 @@ class Probe:
 		self.makeMatrix()
 		x = self.xmin
 		xstep = self._xstep
-		lines = ["G0Z.4f"%(CNC.vars["zsafe"]),
+		lines = ["G0Z%.4f"%(CNC.vars["safe"]),
 			 "G0X%.4fY%.4f"%(self.xmin, self.ymin)]
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j

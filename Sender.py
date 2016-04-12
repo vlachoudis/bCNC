@@ -462,10 +462,6 @@ class Sender:
 		self.serial = None
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-		try:
-			self.dro.updateState()
-		except TclError:
-			pass
 
 	#----------------------------------------------------------------------
 	# Send to controller a gcode or command
@@ -812,7 +808,6 @@ class Sender:
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
 							self._posUpdate = True
-
 							if pat.group(1) != "Hold" and self._msg:
 								self._msg = None
 
