@@ -3765,11 +3765,22 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def compile(self):
+	def compile(self, queue):
+		#lines  = [self.cnc.startup]
+		paths   = []
+
+		def add(line, path):
+			if line is not None:
+				if isinstance(line,str) or isinstance(line,unicode):
+					queue.put(line+"\n")
+				else:
+					queue.put(line)
+			paths.append(path)
+
 		autolevel = not self.probe.isEmpty()
-		lines  = [self.cnc.startup]
-		paths  = [None]
 		self.initPath()
+		for line in CNC.compile(self.cnc.startup.splitlines()):
+			add(line, None)
 
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
@@ -3781,11 +3792,11 @@ class GCode:
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is
-					lines.append(cmds)
+					#lines.append(cmds)
 					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
-						paths.append(None)
+						add(cmds, None)
 					else:
-						paths.append((i,j))
+						add(cmds, (i,j))
 					continue
 
 				skip   = False
@@ -3797,8 +3808,9 @@ class GCode:
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement
 						# commands, just append the line as-is
-						lines.append(line)
-						paths.append(None)
+						#lines.append(line)
+						#paths.append(None)
+						add(line, None)
 					else:
 						extra = ""
 						for c in cmds:
@@ -3807,15 +3819,15 @@ class GCode:
 						x1,y1,z1 = xyz[0]
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
-								lines.append(" G1%s%s%s%s"%\
+								add(" G1%s%s%s%s"%\
 									(self.fmt("X",x/self.cnc.unit),
 									 self.fmt("Y",y/self.cnc.unit),
 									 self.fmt("Z",z/self.cnc.unit),
-									 extra))
-								paths.append((i,j))
+									 extra),
+								    (i,j))
 								extra = ""
 							x1,y1,z1 = x2,y2,z2
-						lines[-1] = lines[-1].strip()
+						#lines[-1] = lines[-1].strip()
 					self.cnc.motionEnd()
 					continue
 				else:
@@ -3834,9 +3846,11 @@ class GCode:
 							expand = CNC.compile(self.cnc.toolChange())
 					self.cnc.motionEnd()
 
-				if expand:
-					lines.extend(expand)
-					paths.extend([None]*len(expand))
+				if expand is not None:
+					#lines.extend(expand)
+					#paths.extend([None]*len(expand))
+					for line in expand:
+						add(line, None)
 					expand = None
 					continue
 				elif skip:
@@ -3855,10 +3869,11 @@ class GCode:
 					if cmd is not None:
 						newcmd.append(cmd)
 
-				lines.append("".join(newcmd))
-				paths.append((i,j))
+				#lines.append("".join(newcmd))
+				#paths.append((i,j))
+				add("".join(newcmd), (i,j))
 
-		return lines,paths
+		return paths
 
 #if __name__=="__main__":
 #	orient = Orient()

@@ -446,33 +446,31 @@ class Sender:
 		self.thread.start()
 		return True
 
-#	#----------------------------------------------------------------------
-#	def close(self):
-#		if self.serial is None: return
-#		try:
-#			self.stopRun()
-#		except:
-#			pass
-#		self._runLines = 0
-#		self.thread = None
-#		time.sleep(1)
-#		self.serial.close()
-#		self.serial = None
-#		CNC.vars["state"] = NOT_CONNECTED
-#		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-#		try:
-#			self.state.config(text=CNC.vars["state"],
-#					background=CNC.vars["color"])
-#		except TclError:
-#			pass
+	#----------------------------------------------------------------------
+	# Close serial port
+	#----------------------------------------------------------------------
+	def close(self):
+		if self.serial is None: return
+		try:
+			self.stopRun()
+		except:
+			pass
+		self._runLines = 0
+		self.thread = None
+		time.sleep(1)
+		self.serial.close()
+		self.serial = None
+		CNC.vars["state"] = NOT_CONNECTED
+		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
+		try:
+			self.dro.updateState()
+		except TclError:
+			pass
 
 	#----------------------------------------------------------------------
 	# Send to controller a gcode or command
 	#----------------------------------------------------------------------
 	def sendGCode(self, cmd):
-#		sys.stdout.write(">>> %s"%(cmd))
-#		import traceback
-#		traceback.print_stack()
 		if self.serial and not self.running:
 			self.queue.put(cmd)
 
