@@ -167,19 +167,20 @@ class CNCCanvas(Canvas):
 		self.bind('<Control-Key-Down>',	self.panDown)
 
 		self.bind('<Escape>',		self.actionCancel)
-		self.bind('<Key-a>',		lambda e,s=self : s.event_generate("<<SelectAll>>"))
-		self.bind('<Key-A>',		lambda e,s=self : s.event_generate("<<SelectNone>>"))
-		self.bind('<Key-e>',		lambda e,s=self : s.event_generate("<<Expand>>"))
-		self.bind('<Key-f>',		self.fit2Screen)
-		self.bind('<Key-g>',		self.setActionGantry)
-		self.bind('<Key-l>',		lambda e,s=self : s.event_generate("<<EnableToggle>>"))
-		self.bind('<Key-m>',		self.setActionMove)
-		self.bind('<Key-n>',		lambda e,s=self : s.event_generate("<<ShowInfo>>"))
-		self.bind('<Key-o>',		self.setActionOrigin)
-		self.bind('<Key-r>',		self.setActionRuler)
-		self.bind('<Key-s>',		self.setActionSelect)
-#		self.bind('<Key-t>',		self.setActionAddTab)
-		self.bind('<Key-x>',		self.setActionPan)
+#		self.bind('<Key-a>',		lambda e,s=self : s.event_generate("<<SelectAll>>"))
+#		self.bind('<Key-A>',		lambda e,s=self : s.event_generate("<<SelectNone>>"))
+#		self.bind('<Key-e>',		lambda e,s=self : s.event_generate("<<Expand>>"))
+#		self.bind('<Key-f>',		self.fit2Screen)
+#		self.bind('<Key-g>',		self.setActionGantry)
+#		self.bind('<Key-l>',		lambda e,s=self : s.event_generate("<<EnableToggle>>"))
+#		self.bind('<Key-m>',		self.setActionMove)
+#		self.bind('<Key-n>',		lambda e,s=self : s.event_generate("<<ShowInfo>>"))
+#		self.bind('<Key-o>',		self.setActionOrigin)
+#		self.bind('<Key-r>',		self.setActionRuler)
+#		self.bind('<Key-s>',		self.setActionSelect)
+##		self.bind('<Key-t>',		self.setActionAddTab)
+#		self.bind('<Key-x>',		self.setActionPan)
+		self.bind('<Key>',		self.handleKey)
 
 		self.bind('<Control-Key-S>',	self.cameraSave)
 		self.bind('<Control-Key-t>',	self.__test)
@@ -289,6 +290,40 @@ class CNCCanvas(Canvas):
 		# make it 3 times bigger in each dimension
 		# so when we zoom in/out we don't touch the borders
 		self.configure(scrollregion=(x1-dx,y1-dy,x2+dx,y2+dy))
+
+	# ----------------------------------------------------------------------
+	def handleKey(self, event):
+		ctrl  = event.state & CONTROL_MASK
+		if event.char == "a":
+			self.event_generate("<<SelectAll>>")
+		elif event.char == "A":
+			self.event_generate("<<SelectNone>>")
+		elif event.char == "e":
+			self.event_generate("<<Expand>>")
+		elif event.char == "f":
+			self.fit2Screen()
+		elif event.char == "g":
+			self.setActionGantry()
+		elif event.char == "l":
+			self.event_generate("<<EnableToggle>>")
+		elif event.char == "m":
+			self.setActionMove()
+		elif event.char == "n":
+			self.event_generate("<<ShowInfo>>")
+		elif event.char == "o":
+			self.setActionOrigin()
+		elif event.char == "r":
+			self.setActionRuler()
+		elif event.char == "s":
+			self.setActionSelect()
+#		elif event.char == "t":
+#			self.setActionAddTab()
+		elif event.char == "x":
+			self.setActionPan()
+		elif event.char == "z":
+			self.menuZoomIn()
+		elif event.char == "Z":
+			self.menuZoomOut()
 
 	# ----------------------------------------------------------------------
 	def setAction(self, action):

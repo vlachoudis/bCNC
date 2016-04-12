@@ -1757,6 +1757,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def newFile(self, event=None):
+		if self.running: return
 		self.gcode.init()
 		self.gcode.headerFooter()
 		self.editor.fill()
@@ -1767,6 +1768,7 @@ class Application(Toplevel,Sender):
 	# load dialog
 	#-----------------------------------------------------------------------
 	def loadDialog(self, event=None):
+		print "Load Dialog"
 		if self.running: return
 		filename = bFileDialog.askopenfilename(master=self,
 			title=_("Open file"),
@@ -1775,6 +1777,7 @@ class Application(Toplevel,Sender):
 					Utils.getUtf("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.load(filename)
+		return "break"
 
 	#-----------------------------------------------------------------------
 	# save dialog
@@ -1788,6 +1791,7 @@ class Application(Toplevel,Sender):
 					Utils.getUtf("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.save(filename)
+		return "break"
 
 	#-----------------------------------------------------------------------
 	def fileModified(self):
