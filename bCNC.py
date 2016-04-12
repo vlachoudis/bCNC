@@ -1948,19 +1948,8 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def close(self):
-		if self.serial is None: return
+		Sender.close(self)
 		try:
-			self.stopRun()
-		except:
-			pass
-		self._runLines = 0
-		self.thread = None
-		time.sleep(1)
-		self.serial.close()
-		self.serial = None
-		try:
-			CNC.vars["state"] = NOT_CONNECTED
-			CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
 			self.dro.updateState()
 		except TclError:
 			pass
@@ -1991,10 +1980,17 @@ class Application(Toplevel,Sender):
 				parent=self)
 			return
 
-		self.setStatus(_("Preparing to run ..."), True)
 		self.editor.selectClear()
 		self.selectionChange()
 		CNC.vars["errline"] = ""
+
+		# the buffer of the machine should be empty?
+		self.initRun()
+		self.canvas.clearSelection()
+		self._runLines = sys.maxint	# temporary
+		self._gcount   = 0		# count executed lines
+		self._selectI  = 0		# last selection pointer in items
+		self._paths    = None		# temporary
 
 		if lines is None:
 			#if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
@@ -2003,15 +1999,15 @@ class Application(Toplevel,Sender):
 			#		parent=self)
 			#	return
 
-			lines,paths = self.gcode.compile()
-			if not lines:
+			self._paths = self.gcode.compile(self.queue)
+			if not self._paths:
 				tkMessageBox.showerror(_("Empty gcode"),
 					_("Not gcode file was loaded"),
 					parent=self)
 				return
 
 			# reset colors
-			for ij in paths:
+			for ij in self._paths:
 				if not ij: continue
 				path = self.gcode[ij[0]].path(ij[1])
 				if path:
@@ -2019,36 +2015,36 @@ class Application(Toplevel,Sender):
 						path,
 						width=1,
 						fill=CNCCanvas.ENABLE_COLOR)
+
+			# the buffer of the machine should be empty?
+			self._runLines = len(self._paths) + 1	# plus the wait
 		else:
-			lines = CNC.compile(lines)
-			paths = None
+			n = 1		# including one wait command
+			for line in CNC.compile(lines):
+				if line is not None:
+					if isinstance(line,str) or isinstance(line,unicode):
+						self.queue.put(line+"\n")
+					else:
+						self.queue.put(line)
+					n += 1
+			self._runLines = n	# set it at the end to be sure that all lines are queued
 
-		if CNC.developer:
-			f = open("run.output","w");
-			f.write(lines.join("\n"))
-			f.close()
-			return
+		self.queue.put((WAIT,))		# wait at the end fo become idle
 
-		self.initRun()
-		# the buffer of the machine should be empty?
-		self.canvas.clearSelection()
-		self._runLines = len(lines) + 1	# plus the wait
-		self._gcount   = 0		# count executed lines
-		self._selectI  = 0		# last selection pointer in items
-		self._paths    = paths		# drawing paths for canvas
+#		print "Lines=",self.queue.qsize()
+#		print "Paths=",len(self._paths)
+#		print "RunLines=",self._runLines
+#		fout = open("run.out","w")
+#		while self.queue.qsize()>0:
+#			line = self.queue.get()
+#			print >>fout, line
+#		fout.close()
+#		return
 
 		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)
 		self.statusbar.configText(fill="White")
 		self.statusbar.config(background="DarkGray")
-
-		for line in lines:
-			if line is not None:
-				if isinstance(line,str) or isinstance(line,unicode):
-					self.queue.put(line+"\n")
-				else:
-					self.queue.put(line)
-		self.queue.put((WAIT,))	# increase the runLines + 1
 
 	#-----------------------------------------------------------------------
 	# Start the web pendant
@@ -2172,7 +2168,7 @@ class Application(Toplevel,Sender):
 			CNC.vars["msg"] = self.statusbar.msg
 			self.bufferGauge.setFill(Sender.getBufferFill(self))
 			if self._selectI>=0 and self._paths:
-				while self._selectI < self._gcount and self._selectI<len(self._paths):
+				while self._selectI <= self._gcount and self._selectI<len(self._paths):
 					#print
 					#print "selectI,gcount,runLines=",self._selectI, self._paths[self._selectI], self._gcount, self._runLines
 					if self._paths[self._selectI]:

@@ -602,7 +602,12 @@ class Path(list):
 			prod = PL * NL
 			if abs(prod)>EPS:
 				cross = (P ^ N.AB) / prod
-				if   cross <= -0.9999999999:
+				if abs(cross)<EPS:
+					if N.type == Segment.CW:
+						phi -= PI2
+					elif N.type == Segment.CCW:
+						phi += PI2
+				elif   cross <= -0.9999999999:
 					phi -= pi/2.0
 				elif cross >=  0.9999999999:
 					phi += pi/2.0
@@ -615,11 +620,10 @@ class Path(list):
 					if   dot<-1.0: dot=-1.0
 					elif dot> 1.0: dot= 1.0
 					phi += copysign(acos(dot), cross)
-			else:
-				if N.type == Segment.CW:
-					phi -= PI2
-				elif N.type == Segment.CCW:
-					phi += PI2
+			elif N.type == Segment.CW:
+				phi -= PI2
+			elif N.type == Segment.CCW:
+				phi += PI2
 			P  = N.AB
 			PL = NL
 		if phi < 0.0: return 1

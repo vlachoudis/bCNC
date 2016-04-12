@@ -863,7 +863,7 @@ class CNCCanvas(Canvas):
 		else:
 			self.__tzoom = max(zx,zy)
 
-		self._tx = self._ty = 0	
+		self._tx = self._ty = 0
 		self._zoomCanvas()
 
 		# Find position of new selection
