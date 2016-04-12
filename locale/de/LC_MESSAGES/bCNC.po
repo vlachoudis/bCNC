@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-26 01:22+0100\n"
-"PO-Revision-Date: 2016-04-02 16:36+0200\n"
+"POT-Creation-Date: 2016-04-03 22:47+0200\n"
+"PO-Revision-Date: 2016-04-11 18:50+0200\n"
+"Last-Translator: Felix Mahnke <@feistus>\n"
 "Language-Team: \n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
-"Last-Translator: Felix Mahnke <@feistus>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: de_DE\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: Updates.py:47
@@ -160,16 +160,21 @@ msgid ""
 "when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
 "value."
 msgstr ""
+"The number value suffix of a G-code word is missing in the G-code block, or "
+"when configuring a $Nx=line or $x=val Grbl setting and the x is not a number "
+"value."
 
 #: Sender.py:67
 msgid "The issued Grbl $ system command is not recognized or is invalid."
-msgstr ""
+msgstr "Das angegebene Grbl $ Kommando wurde nicht erkannt oder ist ungültig."
 
 #: Sender.py:68
 msgid ""
 "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
 "tool number, or S spindle speed is negative."
 msgstr ""
+"Der Wert einer $x=val Grbl Einstellung, F feed rate, N Zeilennummer, P "
+"Ausdruck, T Werkzeugnummer oder S Spindeldrehzahl ist negativ."
 
 #: Sender.py:69
 msgid "Homing is disabled when issuing a $H command."
@@ -188,6 +193,9 @@ msgid ""
 "If Grbl can't read data contained in the EEPROM, this error is returned. "
 "Grbl will also clear and restore the effected data back to defaults."
 msgstr ""
+"Dieser Fehler wird zurückgegeben wenn Grbl den EEPROM Speicher nicht "
+"auslesen kann. Grbl löscht den entsprechenden Speicherbereich und setzt die "
+"Einstellungen auf Standardwerte."
 
 #: Sender.py:72
 msgid ""
@@ -198,6 +206,13 @@ msgid ""
 "around, other than blocking it. This ensures both the serial and step "
 "generator interrupts are working smoothly throughout operation."
 msgstr ""
+"Bei manchen Betriebszuständen stehen bestimmte Grbl $ Kommandos nicht zur "
+"Verfügung. Üblicherweise blockiert Grbl alle Kommandos die vom EEPROM lesen "
+"oder darauf schreiben, da der AVR Mikrocontroller während dieses Vorgangs "
+"alle Interrupts für einige Taktzyklen deaktiviert. Außer die entsprechenden "
+"Kommandos zu blockieren gibt es keinen Workaround für dieses Verhalten. Es "
+"stellt jedoch sicher, dass sowohl die Serielle Kommunikation als auch der "
+"Schrittgenerator zuverlässig arbeiten während des Betriebs."
 
 #: Sender.py:73
 msgid ""
@@ -211,6 +226,17 @@ msgid ""
 "while its moving from a hard limit being triggered or a user commands an ill-"
 "timed reset."
 msgstr ""
+"Grbl wechselt in den ALARM Zustand wenn die Absolute Position "
+"(Maschinennullpunkt) unklar ist und hindert dann alle G-Code Kommandos an "
+"der Ausführung. Dieser Fehler tritt auf wenn G-Code Kommandos gesendet "
+"werden während der Alarm Zustand ansteht. Grbl unterscheidet zwei "
+"Alarmszenarien: Wenn die Referenzfahrt aktiviert ist wechselt Grbl "
+"automatisch in den Alarmzustand um den Benutzer daran zu erinnern zunächst "
+"die Referenzfahrt durchzuführen; Wenn etwas Gravierendes schief gelaufen "
+"ist, also Grbl die Position nicht sicherstellen kann. Das passiert "
+"normalerweise wenn irgendetwas Grbl während einer Fahrt plötzlich stoppen "
+"lässt, ein Endlagenschalter betätigt wird oder der Benutzer in einem "
+"ungünstigen Zeitpunkt ein Reset auslöst."
 
 #: Sender.py:74
 msgid ""
@@ -218,6 +244,9 @@ msgid ""
 "idea where it is when you startup your machine unless you perform a homing "
 "cycle."
 msgstr ""
+"Software Endlagen können nicht aktiviert werden solange die Referenzfahrt "
+"nicht aktiviert ist, da Grbl keine Ahnung hat wo es ist wenn die Maschine "
+"eingeschaltet wird und solange keine Referenzfahrt durchgeführt wurde."
 
 #: Sender.py:75
 msgid ""
@@ -249,6 +278,9 @@ msgid ""
 "the line. Check your G-code program for any unsupported commands and either "
 "remove them or update them to be compatible with Grbl."
 msgstr ""
+"Der G-Code Parser erkennt oder unterstützt eins der G-Code Kommandos aus "
+"dieser Zeile nicht. Kontrolliere Dein G-Code Programm auf nicht-unterstützte "
+"Kommandos und entferne diese oder ändere sie, damit Grbl sie versteht."
 
 #: Sender.py:78
 msgid ""
@@ -274,7 +306,7 @@ msgstr ""
 
 #: Sender.py:81
 msgid "A G-code word was repeated in the block."
-msgstr ""
+msgstr "A G-Code Ausdruck wiederholt sich in diesem Block."
 
 #: Sender.py:82
 msgid ""
@@ -464,11 +496,11 @@ msgstr "Spindel Drehzahl max (U/min)"
 
 #: ToolsPage.py:490
 msgid "Header gcode"
-msgstr ""
+msgstr "Header G-Code"
 
 #: ToolsPage.py:491
 msgid "Footer gcode"
-msgstr ""
+msgstr "Footer G-Code"
 
 #: ToolsPage.py:513 ToolsPage.py:539 ToolsPage.py:568 ToolsPage.py:594
 #: ToolsPage.py:619 ToolsPage.py:640 ToolsPage.py:666 ToolsPage.py:688
@@ -478,7 +510,7 @@ msgstr ""
 #: plugins/spirograph.py:101 plugins/bowl.py:107 plugins/box.py:305
 #: plugins/text.py:36
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: ToolsPage.py:514
 msgid "Feed"
@@ -486,7 +518,7 @@ msgstr "Vorschub"
 
 #: ToolsPage.py:515
 msgid "Plunge Feed"
-msgstr ""
+msgstr "Zustellgeschwindigkeit"
 
 #: ToolsPage.py:516 ToolsPage.py:597
 msgid "Depth Increment"
@@ -529,8 +561,9 @@ msgid "Angle"
 msgstr "Winkel"
 
 #: ToolsPage.py:549
+#, fuzzy
 msgid "Stepover %"
-msgstr ""
+msgstr "Überlappung %"
 
 #: ToolsPage.py:570
 msgid "Safe Z"
@@ -563,11 +596,12 @@ msgstr ""
 
 #: ToolsPage.py:630
 msgid "DRILL selected points"
-msgstr ""
+msgstr "Ausgewählte Punkte BOHREN"
 
 #: ToolsPage.py:641 ToolsPage.py:667 ToolsPage.py:869
+#, fuzzy
 msgid "End Mill"
-msgstr ""
+msgstr "Schaftfräser"
 
 #: ToolsPage.py:642 plugins/pyrograph.py:44
 msgid "Direction"
@@ -575,7 +609,7 @@ msgstr "Richtung"
 
 #: ToolsPage.py:643
 msgid "Additional offset distance"
-msgstr ""
+msgstr "Zusätzliche Offset Entfernung"
 
 #: ToolsPage.py:644 plugins/box.py:313
 msgid "Overcut"
@@ -583,11 +617,11 @@ msgstr ""
 
 #: ToolsPage.py:656
 msgid "Generate profile path"
-msgstr ""
+msgstr "Pfade für Profil erzeugen"
 
 #: ToolsPage.py:678
 msgid "Generate pocket path"
-msgstr ""
+msgstr "Pfade für Tasche erzeugen"
 
 #: ToolsPage.py:689
 msgid "Number of tabs"
@@ -614,8 +648,9 @@ msgid "Create tabs on blocks"
 msgstr ""
 
 #: ToolsPage.py:841
+#, fuzzy
 msgid "Stock"
-msgstr ""
+msgstr "Arbeitsraum"
 
 #: ToolsPage.py:848
 msgid "Stock material currently on machine"
@@ -663,7 +698,7 @@ msgstr ""
 
 #: ToolsPage.py:943 EditorPage.py:46 plugins/box.py:314
 msgid "Cut"
-msgstr ""
+msgstr "Fräsen"
 
 #: ToolsPage.py:950
 msgid "Cut for the full stock thickness selected code"
@@ -671,7 +706,7 @@ msgstr ""
 
 #: ToolsPage.py:957 plugins/box.py:312
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: ToolsPage.py:964
 msgid "Perform a profile operation on selected code"
@@ -679,7 +714,7 @@ msgstr ""
 
 #: ToolsPage.py:971
 msgid "Pocket"
-msgstr ""
+msgstr "Tasche"
 
 #: ToolsPage.py:978
 msgid "Perform a pocket operation on selected code"
@@ -711,23 +746,23 @@ msgstr ""
 
 #: ToolsPage.py:1069
 msgid "Machine"
-msgstr ""
+msgstr "Maschine"
 
 #: ToolsPage.py:1076
 msgid "Machine configuration for bCNC"
-msgstr ""
+msgstr "Maschineneinstellungen für bCNC"
 
 #: ToolsPage.py:1083 ToolsPage.py:1090
 msgid "Shortcuts"
-msgstr ""
+msgstr "Schnelltasten"
 
 #: ToolsPage.py:1097
 msgid "Fonts"
-msgstr ""
+msgstr "Schriftarten"
 
 #: ToolsPage.py:1104
 msgid "Font configuration"
-msgstr ""
+msgstr "Schriftarten Konfiguration"
 
 #: ToolsPage.py:1111
 msgid "Colors"
@@ -759,16 +794,16 @@ msgstr ""
 
 #: Utils.py:368
 msgid "Error Reporting"
-msgstr ""
+msgstr "Fehlerbericht"
 
 #: Utils.py:371 FilePage.py:134
 msgid "Report"
-msgstr ""
+msgstr "Bericht"
 
 #: Utils.py:374
 #, python-format
 msgid "The following report is about to be send to the author of %s"
-msgstr ""
+msgstr "Der folgende Bericht wird gleich an den Autor von %s gesendet."
 
 #: Utils.py:389
 msgid "Your email"
@@ -776,27 +811,27 @@ msgstr "Email Adresse"
 
 #: Utils.py:398
 msgid "Automatic error reporting"
-msgstr ""
+msgstr "Automatische Fehlerberichte"
 
 #: Utils.py:410
 msgid "Send report"
-msgstr ""
+msgstr "Bericht senden"
 
 #: Utils.py:476 Utils.py:486
 msgid "Error sending report"
-msgstr ""
+msgstr "Fehler beim Senden des Berichts"
 
 #: Utils.py:477
 msgid "There was a problem connecting to the web site"
-msgstr ""
+msgstr "Es gab ein Problem beim öffnen der Webseite"
 
 #: Utils.py:481
 msgid "Report successfully send"
-msgstr ""
+msgstr "Der Bericht wurde erfolgreich gesendet"
 
 #: Utils.py:482
 msgid "Report was successfully uploaded to web site"
-msgstr ""
+msgstr "Der Bericht wurde erfolgreich auf die Webseite geladen"
 
 #: Utils.py:487
 #, python-format
@@ -835,7 +870,7 @@ msgstr ""
 
 #: Utils.py:632 bCNC.py:149
 msgid "Command:"
-msgstr ""
+msgstr "Kommando:"
 
 #: Utils.py:644 lib/bFileDialog.py:346
 msgid "Cancel"
@@ -843,11 +878,11 @@ msgstr "Abbrechen"
 
 #: Utils.py:645
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: ControlPage.py:39
 msgid "Hard Reset"
-msgstr ""
+msgstr "Hard Reset"
 
 #: ControlPage.py:47
 msgid "Home"
@@ -875,7 +910,7 @@ msgstr "Software Reset (Controller) [Strg-x]"
 
 #: ControlPage.py:107 FilePage.py:176
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: ControlPage.py:111
 msgid "Run g-code commands from editor to controller"
@@ -883,7 +918,7 @@ msgstr ""
 
 #: ControlPage.py:116
 msgid "Pause"
-msgstr ""
+msgstr "Pause"
 
 #: ControlPage.py:120
 msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
@@ -891,7 +926,7 @@ msgstr ""
 
 #: ControlPage.py:124 FilePage.py:187
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: ControlPage.py:128
 msgid "Pause running program and soft reset controller to empty the buffer."
@@ -899,7 +934,7 @@ msgstr ""
 
 #: ControlPage.py:147
 msgid "Status:"
-msgstr ""
+msgstr "Status:"
 
 #: ControlPage.py:157
 msgid ""
@@ -909,40 +944,45 @@ msgid ""
 msgstr ""
 
 #: ControlPage.py:163
+#, fuzzy
 msgid "WPos:"
-msgstr ""
+msgstr "WPos:"
 
 #: ControlPage.py:174
 msgid "X work position (click to set)"
-msgstr ""
+msgstr "X Werkstück Position (Klicken zum Festlegen)"
 
 #: ControlPage.py:188
 msgid "Y work position (click to set)"
-msgstr ""
+msgstr "Y Werkstück Position (Klicken zum Festlegen)"
 
 #: ControlPage.py:202
 msgid "Z work position (click to set)"
-msgstr ""
+msgstr "Z Werkstück Position (Klicken zum Festlegen)"
 
 #: ControlPage.py:210
+#, fuzzy
 msgid "MPos:"
-msgstr ""
+msgstr "MPos:"
 
 #: ControlPage.py:233
 msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
+"X Koordinaten auf Null setzen (oder auf eingegebene Koordinate in WPos)"
 
 #: ControlPage.py:242
 msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
+"Y Koordinaten auf Null setzen (oder auf eingegebene Koordinate in WPos)"
 
 #: ControlPage.py:251
 msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
+"Z Koordinaten auf Null setzen (oder auf eingegebene Koordinate in WPos)"
 
 #: ControlPage.py:262
 msgid "Show Info"
-msgstr ""
+msgstr "Info anzeigen"
 
 #: ControlPage.py:264
 msgid "Clear Message"
@@ -950,11 +990,11 @@ msgstr ""
 
 #: ControlPage.py:268
 msgid "Feed hold"
-msgstr ""
+msgstr "Vorschub anhalten"
 
 #: ControlPage.py:270
 msgid "Resume"
-msgstr ""
+msgstr "Fortsetzen"
 
 #: ControlPage.py:353
 #, python-format
@@ -971,11 +1011,13 @@ msgid ""
 "No info available.\n"
 "Please contact the author."
 msgstr ""
+"Keine Informationen verfügbar\n"
+"Bitte kontaktiere den Author."
 
 #: ControlPage.py:367
 #, python-format
 msgid "State: %s"
-msgstr ""
+msgstr "Status: %s"
 
 #: ControlPage.py:394
 msgid "Move +Z"
@@ -1051,7 +1093,7 @@ msgstr ""
 #: ControlPage.py:654
 #, python-format
 msgid "Step: %g"
-msgstr ""
+msgstr "Schritt: %g"
 
 #: ControlPage.py:658
 #, python-format
@@ -1065,7 +1107,7 @@ msgstr ""
 
 #: ControlPage.py:787 ProbePage.py:1090
 msgid "Distance:"
-msgstr ""
+msgstr "Entfernung:"
 
 #: ControlPage.py:795
 msgid "Distance Mode [G90,G91]"
@@ -1073,7 +1115,7 @@ msgstr ""
 
 #: ControlPage.py:805
 msgid "Units:"
-msgstr "EInheiten:"
+msgstr "Einheiten:"
 
 #: ControlPage.py:813
 msgid "Units [G20, G21]"
@@ -1085,15 +1127,15 @@ msgstr "Werkzeug:"
 
 #: ControlPage.py:825
 msgid "Tool number [T#]"
-msgstr ""
+msgstr "Werkzeug Nummer [T#]"
 
 #: ControlPage.py:829 ControlPage.py:864 ProbePage.py:184
 msgid "set"
-msgstr ""
+msgstr "setzen"
 
 #: ControlPage.py:837
 msgid "Plane:"
-msgstr ""
+msgstr "Ebene:"
 
 #: ControlPage.py:845
 msgid "Plane [G17,G18,G19]"
@@ -1101,7 +1143,7 @@ msgstr ""
 
 #: ControlPage.py:853
 msgid "Feed:"
-msgstr ""
+msgstr "Vorschub:"
 
 #: ControlPage.py:860
 msgid "Feed Rate [F#]"
@@ -1109,7 +1151,7 @@ msgstr ""
 
 #: ControlPage.py:871
 msgid "Mode:"
-msgstr ""
+msgstr "Modus:"
 
 #: ControlPage.py:880
 msgid "Feed Mode [G93, G94, G95]"
@@ -1131,7 +1173,7 @@ msgstr ""
 
 #: ControlPage.py:921
 msgid "Spindle"
-msgstr ""
+msgstr "Spindel"
 
 #: ControlPage.py:929
 msgid "Start/Stop spindle (M3/M5)"
@@ -1139,7 +1181,7 @@ msgstr ""
 
 #: ControlPage.py:940
 msgid "Set spindle RPM"
-msgstr ""
+msgstr "Spindeldrehzahl (U/min) festlegen"
 
 #: ControlPage.py:1036
 msgid "CNC communication and control"
@@ -1147,7 +1189,7 @@ msgstr ""
 
 #: FilePage.py:64
 msgid "New"
-msgstr ""
+msgstr "Neu"
 
 #: FilePage.py:68
 msgid "New gcode/dxf file"
@@ -1160,11 +1202,11 @@ msgstr ""
 #: FilePage.py:82 FilePage.py:279 bCNC.py:1925 lib/bFileDialog.py:322
 #: lib/bFileDialog.py:963
 msgid "Open"
-msgstr ""
+msgstr "Öffnen"
 
 #: FilePage.py:87
 msgid "Open recent file"
-msgstr ""
+msgstr "Letzte Datei öffnen"
 
 #: FilePage.py:97
 msgid "Save gcode/dxf file [Ctrl-S]"
@@ -1184,19 +1226,19 @@ msgstr ""
 
 #: FilePage.py:146
 msgid "Updates"
-msgstr ""
+msgstr "Updates"
 
 #: FilePage.py:153
 msgid "Check Updates"
-msgstr ""
+msgstr "Nach Updates suchen"
 
 #: FilePage.py:157
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 #: FilePage.py:164
 msgid "About the program"
-msgstr ""
+msgstr "Über das Programm"
 
 #: FilePage.py:183
 msgid "Start pendant"
@@ -1208,15 +1250,15 @@ msgstr ""
 
 #: FilePage.py:205
 msgid "Exit"
-msgstr ""
+msgstr "Beenden"
 
 #: FilePage.py:212
 msgid "Close program [Ctrl-Q]"
-msgstr ""
+msgstr "Programm Schließen [Strg-Q]"
 
 #: FilePage.py:225
 msgid "Port:"
-msgstr ""
+msgstr "Port:"
 
 #: FilePage.py:231
 msgid "Select (or manual enter) port to connect"
@@ -1224,7 +1266,7 @@ msgstr ""
 
 #: FilePage.py:240
 msgid "Baud:"
-msgstr ""
+msgstr "Baud:"
 
 #: FilePage.py:245
 msgid "Select connection baud rate"
@@ -1240,7 +1282,7 @@ msgstr ""
 
 #: FilePage.py:266
 msgid "Connect on startup"
-msgstr ""
+msgstr "Beim Starten verbinden"
 
 #: FilePage.py:269
 msgid "Connect to serial on startup of the program"
@@ -1256,87 +1298,87 @@ msgstr ""
 
 #: Ribbon.py:481
 msgid "New file"
-msgstr ""
+msgstr "Neue Datei"
 
 #: Ribbon.py:487
 msgid "Open file [Ctrl-O]"
-msgstr ""
+msgstr "Öffne Datei [Strg-O]"
 
 #: Ribbon.py:493
 msgid "Save all [Ctrl-S]"
-msgstr ""
+msgstr "Alles speichern [Strg-S]"
 
 #: Ribbon.py:499
 msgid "Undo [Ctrl-Z]"
-msgstr ""
+msgstr "Rückgängig [Strg-Z]"
 
 #: Ribbon.py:512
 msgid "Redo [Ctrl-Y]"
-msgstr ""
+msgstr "Wiederherstellen [Strg-Y]"
 
 #: Ribbon.py:523
 msgid "Help [F1]"
-msgstr ""
+msgstr "Hilfe [F1]"
 
 #: EditorPage.py:35
 msgid "Paste"
-msgstr ""
+msgstr "Einfügen"
 
 #: EditorPage.py:40
 msgid "Paste [Ctrl-V]"
-msgstr ""
+msgstr "Einfügen [Strg-V]"
 
 #: EditorPage.py:51
 msgid "Cut [Ctrl-X]"
-msgstr ""
+msgstr "Ausschneiden [Strg-X]"
 
 #: EditorPage.py:58
 msgid "Copy"
-msgstr ""
+msgstr "Kopieren"
 
 #: EditorPage.py:63
 msgid "Copy [Ctrl-C]"
-msgstr ""
+msgstr "Kopieren [Strg-C]"
 
 #: EditorPage.py:79 bCNC.py:93
 msgid "All"
-msgstr ""
+msgstr "Alles"
 
 #: EditorPage.py:84
 msgid "Select all blocks [Ctrl-A]"
-msgstr ""
+msgstr "Alle Blöcke auswählen [Strg-A]"
 
 #: EditorPage.py:91
 msgid "None"
-msgstr ""
+msgstr "Nichts"
 
 #: EditorPage.py:96
 msgid "Unselect all blocks [Ctrl-Shift-A]"
-msgstr ""
+msgstr "Alle Blöcke abwählen [Strg-Umschalten-A]"
 
 #: EditorPage.py:103 EditorPage.py:409 plugins/heightmap.py:56
 msgid "Invert"
-msgstr ""
+msgstr "Invertieren"
 
 #: EditorPage.py:108
 msgid "Invert selection [Ctrl-I]"
-msgstr ""
+msgstr "Auswahl invertieren [Strg-I]"
 
 #: EditorPage.py:117
 msgid "Import"
-msgstr ""
+msgstr "Importieren"
 
 #: EditorPage.py:118
 msgid "Inkscape"
-msgstr ""
+msgstr "Inkscape"
 
 #: EditorPage.py:119
 msgid "Round"
-msgstr ""
+msgstr "Runden"
 
 #: EditorPage.py:120 EditorPage.py:552 bCNC.py:816
 msgid "Statistics"
-msgstr ""
+msgstr "Statistiken"
 
 #: EditorPage.py:133
 msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
@@ -1356,15 +1398,15 @@ msgstr ""
 
 #: EditorPage.py:172
 msgid "Enable"
-msgstr ""
+msgstr "Aktivieren"
 
 #: EditorPage.py:174
 msgid "Disable"
-msgstr ""
+msgstr "Deaktivieren"
 
 #: EditorPage.py:177
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 #: EditorPage.py:183
 msgid "Enable or disable blocks of gcode"
@@ -1372,7 +1414,7 @@ msgstr ""
 
 #: EditorPage.py:190
 msgid "Expand"
-msgstr ""
+msgstr "Ausklappen"
 
 #: EditorPage.py:195
 msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
@@ -1380,19 +1422,19 @@ msgstr ""
 
 #: EditorPage.py:202
 msgid "Comment"
-msgstr ""
+msgstr "Kommentieren"
 
 #: EditorPage.py:208
 msgid "(Un)Comment selected lines"
-msgstr ""
+msgstr "Ein-/Auskommentieren von ausgewählten Zeilen"
 
 #: EditorPage.py:223
 msgid "Move"
-msgstr ""
+msgstr "Bewegen"
 
 #: EditorPage.py:231
 msgid "Move objects [M]"
-msgstr ""
+msgstr "Objekte bewegen [M]"
 
 #: EditorPage.py:239
 msgid "T-L"
@@ -1476,7 +1518,7 @@ msgstr ""
 
 #: EditorPage.py:377 bCNC.py:1321
 msgid "Optimize"
-msgstr ""
+msgstr "Optimieren"
 
 #: EditorPage.py:385
 msgid "Up"
@@ -1515,8 +1557,9 @@ msgid "Rotate selected gcode by 180deg"
 msgstr ""
 
 #: EditorPage.py:455
+#, fuzzy
 msgid "CCW"
-msgstr ""
+msgstr "Gegen den Uhrzeigersinn"
 
 #: EditorPage.py:461
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
@@ -1524,7 +1567,7 @@ msgstr ""
 
 #: EditorPage.py:468
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontal"
 
 #: EditorPage.py:474
 msgid "Mirror horizontally X=-X selected gcode"
@@ -1532,7 +1575,7 @@ msgstr ""
 
 #: EditorPage.py:481
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikal"
 
 #: EditorPage.py:487
 msgid "Mirror vertically Y=-Y selected gcode"
@@ -1576,7 +1619,7 @@ msgstr ""
 
 #: EditorPage.py:595
 msgid "GCode editor"
-msgstr ""
+msgstr "G-Code Editor"
 
 #: ProbePage.py:26
 msgid "G38.2 stop on contact else error"
@@ -1620,7 +1663,7 @@ msgstr ""
 
 #: ProbePage.py:54 ProbePage.py:262 ProbePage.py:284 bCNC.py:90
 msgid "Probe"
-msgstr ""
+msgstr "Tasten"
 
 #: ProbePage.py:60
 msgid "Simple probing along a direction"
@@ -1628,15 +1671,15 @@ msgstr ""
 
 #: ProbePage.py:66
 msgid "Autolevel"
-msgstr ""
+msgstr "Autolevel"
 
 #: ProbePage.py:72
 msgid "Autolevel Z surface"
-msgstr ""
+msgstr "Autolevel Z Oberfläche"
 
 #: ProbePage.py:78
 msgid "Tool"
-msgstr ""
+msgstr "Werkzeug"
 
 #: ProbePage.py:84
 msgid "Setup probing for manual tool change"
@@ -1652,7 +1695,7 @@ msgstr ""
 
 #: ProbePage.py:111
 msgid "Zero"
-msgstr ""
+msgstr "Null"
 
 #: ProbePage.py:116
 msgid "Set current location as Z-zero for leveling"
@@ -1668,27 +1711,27 @@ msgstr ""
 
 #: ProbePage.py:135 plugins/heightmap.py:51
 msgid "Scan"
-msgstr ""
+msgstr "Scan"
 
 #: ProbePage.py:142
 msgid "Scan probed area for level information on Z plane"
-msgstr ""
+msgstr "Scanne die abgetastete Fläche nach Höheninformationen auf der Z-Ebene"
 
 #: ProbePage.py:163
 msgid "Probe Feed:"
-msgstr ""
+msgstr "Abtastgeschwindigkeit:"
 
 #: ProbePage.py:167
 msgid "Set probe feed rate"
-msgstr ""
+msgstr "Setze Abtastgeschwindigkeit"
 
 #: ProbePage.py:174
 msgid "TLO"
-msgstr ""
+msgstr "Werkzeuglängen Offset"
 
 #: ProbePage.py:178
 msgid "Set tool offset for probing"
-msgstr ""
+msgstr "Setze Werkzeuglängenoffset zum Abtasten"
 
 #: ProbePage.py:194
 msgid "Probe Command"
@@ -1696,31 +1739,31 @@ msgstr ""
 
 #: ProbePage.py:266 ProbePage.py:1060
 msgid "Probe:"
-msgstr ""
+msgstr "Abtasten:"
 
 #: ProbePage.py:289
 msgid "Perform a single probe cycle"
-msgstr ""
+msgstr "Einfachen Abtastvorgang durchführen"
 
 #: ProbePage.py:293
 msgid "Pos:"
-msgstr ""
+msgstr "Pos:"
 
 #: ProbePage.py:298
 msgid "Probe along X direction"
-msgstr ""
+msgstr "Entlang der X-Achse abtasten"
 
 #: ProbePage.py:304
 msgid "Probe along Y direction"
-msgstr ""
+msgstr "Entlang der Y-Achse abtasten"
 
 #: ProbePage.py:310
 msgid "Probe along Z direction"
-msgstr ""
+msgstr "Entlang der Z-Achse abtasten"
 
 #: ProbePage.py:323
 msgid "Diameter:"
-msgstr ""
+msgstr "Durchmesser:"
 
 #: ProbePage.py:326
 msgid "Probing ring internal diameter"
@@ -1732,11 +1775,11 @@ msgstr ""
 
 #: ProbePage.py:342 ProbePage.py:450 bCNC.py:91
 msgid "Orient"
-msgstr ""
+msgstr "Ausrichtung"
 
 #: ProbePage.py:348
 msgid "Markers:"
-msgstr ""
+msgstr "Marker:"
 
 #: ProbePage.py:358
 msgid "Select orientation marker"
@@ -1758,7 +1801,7 @@ msgstr ""
 
 #: ProbePage.py:404
 msgid "Delete current marker"
-msgstr ""
+msgstr "Aktuellen Marker löschen"
 
 #: ProbePage.py:417
 msgid "Machine X coordinate of orientation point"
@@ -1770,11 +1813,11 @@ msgstr ""
 
 #: ProbePage.py:437 ProbePage.py:633
 msgid "Delete all markers"
-msgstr ""
+msgstr "Alle Marker löschen"
 
 #: ProbePage.py:442
 msgid "Angle:"
-msgstr ""
+msgstr "Winkel:"
 
 #: ProbePage.py:458
 msgid "Align GCode with the machine markers"
@@ -1782,15 +1825,15 @@ msgstr ""
 
 #: ProbePage.py:463
 msgid "Offset:"
-msgstr ""
+msgstr "Offset:"
 
 #: ProbePage.py:476
 msgid "Error:"
-msgstr ""
+msgstr "Fehler:"
 
 #: ProbePage.py:516
 msgid "Probe connected?"
-msgstr ""
+msgstr "Abtastsensor angeschlossen?"
 
 #: ProbePage.py:517
 msgid ""
@@ -1798,15 +1841,18 @@ msgid ""
 "\n"
 "Show this message again?"
 msgstr ""
+"Bitte sicherstellen, dass der Abtastsensor angeschlossen ist.\n"
+"\n"
+"Diese Nachricht nochmal anzeigen?"
 
 #: ProbePage.py:528 ProbePage.py:559 ProbePage.py:885 ProbePage.py:898
 #: ProbePage.py:908 ProbePage.py:915
 msgid "Probe Error"
-msgstr ""
+msgstr "Abtastfehler"
 
 #: ProbePage.py:529 ProbePage.py:916
 msgid "Invalid probe feed rate"
-msgstr ""
+msgstr "Ungültige Abtastgeschwindigkeit"
 
 #: ProbePage.py:560
 msgid "At least one probe direction should be specified"
@@ -1818,7 +1864,7 @@ msgstr ""
 
 #: ProbePage.py:576
 msgid "Invalid diameter entered"
-msgstr ""
+msgstr "Ungültigen Durchmesser eingegeben."
 
 #: ProbePage.py:634
 msgid "Do you want to delete all orientation markers?"
@@ -1826,15 +1872,15 @@ msgstr ""
 
 #: ProbePage.py:725
 msgid "Min"
-msgstr ""
+msgstr "Min"
 
 #: ProbePage.py:727
 msgid "Max"
-msgstr ""
+msgstr "Max"
 
 #: ProbePage.py:729
 msgid "Step"
-msgstr ""
+msgstr "Schritt"
 
 #: ProbePage.py:740
 msgid "X minimum"
@@ -1898,7 +1944,7 @@ msgstr ""
 
 #: ProbePage.py:962 ProbePage.py:1109
 msgid "Calibrate"
-msgstr ""
+msgstr "Kalibrieren"
 
 #: ProbePage.py:968
 msgid "Perform a single a tool change cycle to set the calibration field"
@@ -1906,7 +1952,7 @@ msgstr ""
 
 #: ProbePage.py:972
 msgid "Change"
-msgstr ""
+msgstr "Wechsel"
 
 #: ProbePage.py:978
 msgid "Perform a tool change cycle"
@@ -1914,7 +1960,7 @@ msgstr ""
 
 #: ProbePage.py:987
 msgid "Manual Tool Change"
-msgstr ""
+msgstr "Manueller Werkzeugwechsel"
 
 #: ProbePage.py:992
 msgid "Policy:"
@@ -1926,7 +1972,7 @@ msgstr ""
 
 #: ProbePage.py:1007
 msgid "Pause:"
-msgstr ""
+msgstr "Pause:"
 
 #: ProbePage.py:1030
 msgid "Change:"
@@ -2083,7 +2129,7 @@ msgstr ""
 
 #: CNCCanvas.py:1738
 msgid "Fit to screen [F]"
-msgstr ""
+msgstr "Auf Bildschirmgröße skalieren [F]"
 
 #: CNCCanvas.py:1752
 msgid "Select tool [S]"
@@ -2095,7 +2141,7 @@ msgstr ""
 
 #: CNCCanvas.py:1769
 msgid "Move gantry [G]"
-msgstr ""
+msgstr "Portal bewegen [G]"
 
 #: CNCCanvas.py:1778
 msgid "Set WPOS to mouse location"
@@ -2103,11 +2149,11 @@ msgstr ""
 
 #: CNCCanvas.py:1787
 msgid "Ruler [R]"
-msgstr ""
+msgstr "Lineal [R]"
 
 #: CNCCanvas.py:1793
 msgid "Draw:"
-msgstr ""
+msgstr "Darstellen:"
 
 #: CNCCanvas.py:1802
 msgid "Toggle display of axes"
@@ -2147,7 +2193,7 @@ msgstr ""
 
 #: bCNC.py:87 bCNC.py:1884
 msgid "G-Code"
-msgstr ""
+msgstr "G-Code"
 
 #: bCNC.py:163
 msgid ""
@@ -2245,11 +2291,11 @@ msgstr ""
 
 #: bCNC.py:1773
 msgid "Open file"
-msgstr ""
+msgstr "Datei öffnen"
 
 #: bCNC.py:1786
 msgid "Save file"
-msgstr ""
+msgstr "Datei speichern"
 
 #: bCNC.py:1796
 msgid "File modified"
@@ -2321,11 +2367,11 @@ msgstr ""
 
 #: bCNC.py:1982
 msgid "Serial is not connected"
-msgstr ""
+msgstr "Serielle Schnittstelle ist nicht verbunden"
 
 #: bCNC.py:1989
 msgid "Already running"
-msgstr ""
+msgstr "Läuft bereits"
 
 #: bCNC.py:1990
 msgid "Please stop before"
@@ -2333,7 +2379,7 @@ msgstr ""
 
 #: bCNC.py:1994
 msgid "Preparing to run ..."
-msgstr ""
+msgstr "Vorbereiten ..."
 
 #: bCNC.py:2008
 msgid "Empty gcode"
@@ -2345,7 +2391,7 @@ msgstr ""
 
 #: bCNC.py:2034
 msgid "Running..."
-msgstr ""
+msgstr "Ausführung..."
 
 #: bCNC.py:2055 bCNC.py:2059 bCNC.py:2072
 msgid "Pendant"
@@ -2383,6 +2429,13 @@ msgid ""
 "\tor yum install python-serial\n"
 "\tor dnf install python-pyserial"
 msgstr ""
+"FEHLER: Bitte das python pyserial Modul installieren:\n"
+"Windows;\n"
+"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Mac:\tpip install pyserial\n"
+"Linux:\tsudo apt-get install python-serial\n"
+"\toder yum install python-serial\n"
+"\toder dnf install python-pyserial"
 
 #: TerminalPage.py:33
 msgid "Clear terminal"
@@ -2390,39 +2443,39 @@ msgstr ""
 
 #: TerminalPage.py:41
 msgid "Restore Settings"
-msgstr ""
+msgstr "Einstellungen wiederherstellen"
 
 #: TerminalPage.py:42
 msgid "Restore Workspace"
-msgstr ""
+msgstr "Arbeitsbereich wiederherstellen"
 
 #: TerminalPage.py:43
 msgid "Restore All"
-msgstr ""
+msgstr "Alles wiederherstellen"
 
 #: TerminalPage.py:54
 msgid "Settings"
-msgstr ""
+msgstr "Einstellungen"
 
 #: TerminalPage.py:61
 msgid "$$ Display settings of Grbl"
-msgstr ""
+msgstr "$$ Grbl Einstellungen anzeigen"
 
 #: TerminalPage.py:67
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: TerminalPage.py:73
 msgid "$# Display parameters of Grbl"
-msgstr ""
+msgstr "$# Grbl Parameter anzeigen"
 
 #: TerminalPage.py:79
 msgid "State"
-msgstr ""
+msgstr "Status"
 
 #: TerminalPage.py:85
 msgid "$G Display state of Grbl"
-msgstr ""
+msgstr "$G Grbl Status anzeigen"
 
 #: TerminalPage.py:93
 msgid "Build"
@@ -2450,7 +2503,7 @@ msgstr ""
 
 #: TerminalPage.py:134
 msgid "Help"
-msgstr ""
+msgstr "Hilfe"
 
 #: TerminalPage.py:140
 msgid "$ Display build information of Grbl"
@@ -2458,23 +2511,23 @@ msgstr ""
 
 #: TerminalPage.py:174
 msgid "Serial Terminal"
-msgstr ""
+msgstr "Serielles Terminal"
 
 #: lib/bFileDialog.py:271
 msgid "Directory:"
-msgstr ""
+msgstr "Verzeichnis:"
 
 #: lib/bFileDialog.py:297
 msgid "Size"
-msgstr ""
+msgstr "Größe"
 
 #: lib/bFileDialog.py:298
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: lib/bFileDialog.py:318
 msgid "File name:"
-msgstr ""
+msgstr "Dateiname:"
 
 #: lib/bFileDialog.py:325
 msgid "Files of type:"
@@ -2483,7 +2536,7 @@ msgstr ""
 #: lib/bFileDialog.py:554 lib/bFileDialog.py:612 lib/bFileDialog.py:806
 #: lib/bFileDialog.py:830 lib/bFileDialog.py:852
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 #: lib/bFileDialog.py:555
 #, python-format
@@ -2525,20 +2578,20 @@ msgstr ""
 
 #: lib/bFileDialog.py:888
 msgid "Save As"
-msgstr ""
+msgstr "Speichern als"
 
 #: lib/bFileDialog.py:899
 msgid "File already exists"
-msgstr ""
+msgstr "Datei existiert bereits"
 
 #: lib/bFileDialog.py:900
 #, python-format
 msgid "Overwrite existing file %r?"
-msgstr ""
+msgstr "Soll die vorhandene Dateit %r überschrieben werden?"
 
 #: lib/bFileDialog.py:911
 msgid "Choose Directory"
-msgstr ""
+msgstr "Verzeichnis auswählen"
 
 #: plugins/pyrograph.py:11
 msgid "Pyrograph"
@@ -2692,7 +2745,7 @@ msgstr ""
 
 #: plugins/gear.py:11
 msgid "Gear"
-msgstr ""
+msgstr "Zahnrad"
 
 #: plugins/gear.py:156
 msgid "Generate a spur gear"
@@ -2720,7 +2773,7 @@ msgstr ""
 
 #: plugins/flatten.py:11
 msgid "Flatten"
-msgstr ""
+msgstr "Planfräsen"
 
 #: plugins/flatten.py:36
 msgid "Flatten abort: Cut Direction is undefined"
@@ -2845,7 +2898,7 @@ msgstr ""
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
-msgstr ""
+msgstr "Spirograph"
 
 #: plugins/spirograph.py:95
 msgid "Create a spirograph path"
@@ -2869,7 +2922,7 @@ msgstr ""
 
 #: plugins/bowl.py:10
 msgid "Bowl"
-msgstr ""
+msgstr "Schale"
 
 #: plugins/bowl.py:101
 msgid "Generate a bowl cavity"
@@ -2893,59 +2946,59 @@ msgstr ""
 
 #: plugins/box.py:11
 msgid "Box"
-msgstr ""
+msgstr "Box"
 
 #: plugins/box.py:299
 msgid "Generate a finger box"
-msgstr ""
+msgstr "Fingerbox herstellen"
 
 #: plugins/box.py:306
 msgid "Width Dx"
-msgstr ""
+msgstr "Breite Dx"
 
 #: plugins/box.py:307
 msgid "Depth Dy"
-msgstr ""
+msgstr "Tiefe Dy"
 
 #: plugins/box.py:308
 msgid "Height Dz"
-msgstr ""
+msgstr "Höhe Dz"
 
 #: plugins/box.py:309
 msgid "Fingers Nx"
-msgstr ""
+msgstr "Finger Nx"
 
 #: plugins/box.py:310
 msgid "Fingers Ny"
-msgstr ""
+msgstr "Finger Ny"
 
 #: plugins/box.py:311
 msgid "Fingers Nz"
-msgstr ""
+msgstr "Finger Nz"
 
 #: plugins/box.py:342
 msgid "Create finger BOX"
-msgstr ""
+msgstr "Fingerbox erzeugen"
 
 #: plugins/box.py:344
 msgid "Generated: BOX with fingers"
-msgstr ""
+msgstr "Hergestellt: Box mit Fingern"
 
 #: plugins/text.py:30
 msgid "Create text using a ttf font"
-msgstr ""
+msgstr "Erzeuge Text mit ttf Schriftart"
 
 #: plugins/text.py:37
 msgid "Text to generate"
-msgstr ""
+msgstr "zu erzeugender Text"
 
 #: plugins/text.py:39
 msgid "Font size"
-msgstr ""
+msgstr "Schriftgröße"
 
 #: plugins/text.py:40
 msgid "Font file"
-msgstr ""
+msgstr "Schriftartdatei"
 
 #: plugins/text.py:41
 msgid "Image to Ascii"
