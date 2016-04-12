@@ -55,6 +55,7 @@ __credits__ = \
 		"@willadams William Adams"
 __translations__ = \
 		"French - @ThierryM\n" \
+		"German - @feistus\n" \
 		"Italian - @onekk\n" \
 		"Spanish - @carlosgs"
 

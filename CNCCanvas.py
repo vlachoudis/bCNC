@@ -701,10 +701,10 @@ class CNCCanvas(Canvas):
 
 		from bmath import Vector
 		P = Vector(x,y)
-		for bid in blocks:
-			for path in self.gcode.toPath(bid):
-				print path
-				print path.isInside(P)
+#		for bid in blocks:
+#			for path in self.gcode.toPath(bid):
+#				print path
+#				print path.isInside(P)
 
 	# ----------------------------------------------------------------------
 	# Snap to the closest point if any

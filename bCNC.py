@@ -1768,7 +1768,6 @@ class Application(Toplevel,Sender):
 	# load dialog
 	#-----------------------------------------------------------------------
 	def loadDialog(self, event=None):
-		print "Load Dialog"
 		if self.running: return
 		filename = bFileDialog.askopenfilename(master=self,
 			title=_("Open file"),
