@@ -61,6 +61,7 @@ PROCESS_COLOR = "Green"
 
 MOVE_COLOR    = "DarkCyan"
 RULER_COLOR   = "Green"
+PROBE_TEXT_COLOR = "Green"
 
 INFO_COLOR    = "Gold"
 
@@ -1544,7 +1545,7 @@ class CNCCanvas(Canvas):
 						text="%.*f"%(CNC.digits,probe.points[i][2]),
 						tag="Probe",
 						justify=CENTER,
-						fill="Green")
+						fill=PROBE_TEXT_COLOR)
 			self.tag_lower(item)
 
 		# Draw image map if numpy exists
@@ -1862,7 +1863,7 @@ class CanvasFrame(Frame):
 		global INSERT_COLOR, GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
 		global BOX_SELECT, ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
 		global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
-		global CAMERA_COLOR
+		global CAMERA_COLOR, PROBE_TEXT_COLOR
 
 		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
 		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
@@ -1888,6 +1889,7 @@ class CanvasFrame(Frame):
 		MOVE_COLOR    = Utils.getStr("Color", "canvas.move",   MOVE_COLOR)
 		RULER_COLOR   = Utils.getStr("Color", "canvas.ruler",  RULER_COLOR)
 		CAMERA_COLOR  = Utils.getStr("Color", "canvas.camera", CAMERA_COLOR)
+		PROBE_TEXT_COLOR = Utils.getStr("Color", "canvas.probetext",  PROBE_TEXT_COLOR)
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
