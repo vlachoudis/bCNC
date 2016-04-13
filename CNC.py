@@ -3766,7 +3766,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def compile(self, queue):
+	def compile(self, queue, stopFunc=None):
 		#lines  = [self.cnc.startup]
 		paths   = []
 
@@ -3777,15 +3777,21 @@ class GCode:
 				else:
 					queue.put(line)
 			paths.append(path)
-
 		autolevel = not self.probe.isEmpty()
 		self.initPath()
 		for line in CNC.compile(self.cnc.startup.splitlines()):
 			add(line, None)
 
+		every = 1
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
 			for j,line in enumerate(block):
+				every -= 1
+				if every<=0:
+					if stopFunc is not None and stopFunc():
+						return None
+					every = 50
+
 				newcmd = []
 				cmds = CNC.parseLine2(line)
 				if cmds is None: continue

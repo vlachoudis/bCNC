@@ -1958,6 +1958,15 @@ class Application(Toplevel,Sender):
 			pass
 
 	#-----------------------------------------------------------------------
+	# An entry function should be called periodically during compiling
+	# to check if the Pause or Stop buttons are pressed
+	# @return true if the compile has to abort
+	#-----------------------------------------------------------------------
+	def checkStop(self):
+		self.update()	# very tricky function of Tk
+		return self._stop
+
+	#-----------------------------------------------------------------------
 	def runEnded(self):
 		Sender.runEnded(self)
 		self.statusbar.clear()
@@ -2001,9 +2010,12 @@ class Application(Toplevel,Sender):
 			#		_("Please ZERO any location of the probe before starting a run"),
 			#		parent=self)
 			#	return
-
-			self._paths = self.gcode.compile(self.queue)
-			if not self._paths:
+			self.statusbar.setLimits(0, 9999)
+			self.statusbar.setProgress(0,0)
+			self._paths = self.gcode.compile(self.queue, self.checkStop)
+			if self._paths is None:
+				return
+			elif not self._paths:
 				tkMessageBox.showerror(_("Empty gcode"),
 					_("Not gcode file was loaded"),
 					parent=self)
