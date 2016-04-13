@@ -6,6 +6,7 @@
 
 import math
 import bmath
+import signal
 try:
 	from Tkinter import *
 	import Tkinter
@@ -43,6 +44,7 @@ GANTRY_R      =  4
 GANTRY_X      = GANTRY_R*2	# 10
 GANTRY_Y      = GANTRY_R	# 5
 GANTRY_H      = GANTRY_R*5	# 20
+DRAW_TIME     = 5		# Maximum draw time permitted
 
 INSERT_COLOR  = "Blue"
 GANTRY_COLOR  = "Red"
@@ -126,6 +128,19 @@ MOUSE_CURSOR = {
 # ------------------------------------------------------------------------------
 def mouseCursor(action):
 	return MOUSE_CURSOR.get(action, DEF_CURSOR)
+
+#==============================================================================
+# Raise an alarm exception
+#==============================================================================
+class AlarmException(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+# ------------------------------------------------------------------------------
+def handler(signum, frame):
+	raise AlarmException("timeout")
 
 #==============================================================================
 # Drawing canvas
@@ -1699,42 +1714,50 @@ class CNCCanvas(Canvas):
 				block.resetPath()
 			return
 
-		self.cnc.resetAllMargins()
-		drawG = self.draw_rapid or self.draw_paths or self.draw_margin
-		for i,block in enumerate(self.gcode.blocks):
-			start = True	# start location found
-			block.resetPath()
-			# Draw block tabs
-			if self.draw_margin:
-				for tab in block.tabs:
-					color = block.enable and TAB_COLOR or DISABLE_COLOR
-					item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
-								tab.x+tab.dx/2., tab.y+tab.dy/2.,
-								0., fill=color)
-					tab.path = item
-					self._items[item[0]] = i,tab
-					self.tag_lower(item)
-			# Draw block
-			for j,line in enumerate(block):
-				#cmd = self.cnc.parseLine(line)
-				try:
-					cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
-				except:
-					sys.stderr.write(_(">>> ERROR: %s\n")%(str(sys.exc_info()[1])))
-					sys.stderr.write(_("     line: %s\n")%(line))
-					cmd = None
+		signal.signal(signal.SIGALRM, handler)
+		signal.alarm(DRAW_TIME)
 
-				if cmd is None or not drawG:
-					block.addPath(None)
-				else:
-					path = self.drawPath(block, cmd)
-					self._items[path] = i,j
-					block.addPath(path)
-					if start and self.cnc.gcode in (1,2,3):
-						# Mark as start the first non-rapid motion
-						block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
-						start = False
-			block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
+		try:
+			self.cnc.resetAllMargins()
+			drawG = self.draw_rapid or self.draw_paths or self.draw_margin
+			for i,block in enumerate(self.gcode.blocks):
+				start = True	# start location found
+				block.resetPath()
+				# Draw block tabs
+				if self.draw_margin:
+					for tab in block.tabs:
+						color = block.enable and TAB_COLOR or DISABLE_COLOR
+						item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
+									tab.x+tab.dx/2., tab.y+tab.dy/2.,
+									0., fill=color)
+						tab.path = item
+						self._items[item[0]] = i,tab
+						self.tag_lower(item)
+				# Draw block
+				for j,line in enumerate(block):
+					#cmd = self.cnc.parseLine(line)
+					try:
+						cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
+					except AlarmException:
+						raise
+					except:
+						sys.stderr.write(_(">>> ERROR: %s\n")%(str(sys.exc_info()[1])))
+						sys.stderr.write(_("     line: %s\n")%(line))
+						cmd = None
+					if cmd is None or not drawG:
+						block.addPath(None)
+					else:
+						path = self.drawPath(block, cmd)
+						self._items[path] = i,j
+						block.addPath(path)
+						if start and self.cnc.gcode in (1,2,3):
+							# Mark as start the first non-rapid motion
+							block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
+							start = False
+				block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
+		except AlarmException:
+			self.status("Rendering takes TOO Long. Interrupted...")
+		signal.alarm(0)
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
@@ -1748,7 +1771,6 @@ class CNCCanvas(Canvas):
 			if self.cnc.gcode in (1,2,3):
 				block.pathMargins(xyz)
 				self.cnc.pathMargins(block)
-
 			if block.enable:
 				if self.cnc.gcode == 0 and self.draw_rapid:
 					xyz[0] = self._last
@@ -1780,28 +1802,22 @@ class CNCCanvas(Canvas):
 		coords = None
 		if self.view == VIEW_XY:
 			coords = [(p[0]*self.zoom,-p[1]*self.zoom) for p in xyz]
-
 		elif self.view == VIEW_XZ:
 			coords = [(p[0]*self.zoom,-p[2]*self.zoom) for p in xyz]
-
 		elif self.view == VIEW_YZ:
 			coords = [(p[1]*self.zoom,-p[2]*self.zoom) for p in xyz]
-
 		elif self.view == VIEW_ISO1:
 			coords = [(( p[0]*S60 + p[1]*S60)*self.zoom,
 				   (+p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
-
 		elif self.view == VIEW_ISO2:
 			coords = [(( p[0]*S60 - p[1]*S60)*self.zoom,
 				   (-p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
-
 		elif self.view == VIEW_ISO3:
 			coords = [((-p[0]*S60 - p[1]*S60)*self.zoom,
 				   (-p[0]*C60 + p[1]*C60 - p[2])*self.zoom)
 					for p in xyz]
-
 		# Check limits
 		for i,(x,y) in enumerate(coords):
 			if abs(x)>MAXDIST or abs(y)>MAXDIST:
@@ -1810,7 +1826,6 @@ class CNCCanvas(Canvas):
 				if   y<-MAXDIST: y = -MAXDIST
 				elif y> MAXDIST: y =  MAXDIST
 				coords[i] = (x,y)
-
 		return coords
 
 	#----------------------------------------------------------------------
@@ -1899,6 +1914,7 @@ class CanvasFrame(Frame):
 		global BOX_SELECT, ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
 		global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
 		global CAMERA_COLOR, PROBE_TEXT_COLOR
+		global DRAW_TIME
 
 		self.draw_axes.set(    bool(int(Utils.getBool("Canvas", "axes",    True))))
 		self.draw_grid.set(    bool(int(Utils.getBool("Canvas", "grid",    True))))
@@ -1910,6 +1926,8 @@ class CanvasFrame(Frame):
 		#self.draw_camera.set(  bool(int(Utils.getBool("Canvas", "camera",  False))))
 
 		self.view.set(Utils.getStr("Canvas", "view", VIEWS[0]))
+
+		DRAW_TIME     = Utils.getInt("Canvas", "drawtime",     DRAW_TIME)
 
 		INSERT_COLOR  = Utils.getStr("Color", "canvas.insert", INSERT_COLOR)
 		GANTRY_COLOR  = Utils.getStr("Color", "canvas.gantry", GANTRY_COLOR)
