@@ -1999,7 +1999,9 @@ class Application(Toplevel,Sender):
 		# the buffer of the machine should be empty?
 		self.initRun()
 		self.canvas.clearSelection()
-		self._runLines = sys.maxint	# temporary
+		self._runLines = sys.maxint	# temporary WARNING this value is used
+						# by Sender._serialIO to check if we
+						# are still sending or we finished
 		self._gcount   = 0		# count executed lines
 		self._selectI  = 0		# last selection pointer in items
 		self._paths    = None		# temporary
@@ -2014,6 +2016,7 @@ class Application(Toplevel,Sender):
 			self.statusbar.setProgress(0,0)
 			self._paths = self.gcode.compile(self.queue, self.checkStop)
 			if self._paths is None:
+				self.runEnded()
 				return
 			elif not self._paths:
 				tkMessageBox.showerror(_("Empty gcode"),

@@ -131,7 +131,7 @@ class Sender:
 		self._msg        = None
 		self._sumcline   = 0
 		self._lastFeed   = 0
-		self._newFeed   = 0
+		self._newFeed    = 0
 
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
@@ -892,7 +892,10 @@ class Sender:
 				tosend = None
 				del cline[:]
 				del sline[:]
-				self._stop = False
+				# WARNING if maxint then it means we are still preparing/sending
+				# lines from from bCNC.run(), so don't stop
+				if self._runLines != sys.maxint:
+					self._stop = False
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
