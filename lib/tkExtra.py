@@ -68,11 +68,11 @@ from log import say
 
 try:
 	from Tkinter import *
-	from Tkinter import _setit
+	from Tkinter import _setit, _cnfmerge
 	from tkColorChooser import askcolor
 except ImportError:
 	from tkinter import *
-	from tkinter import _setit
+	from tkinter import _setit, _cnfmerge
 	from tkinter.colorchooser import askcolor
 
 ARROW_LEFT     = u"\u2190"
@@ -563,9 +563,22 @@ class ProgressBar(Canvas):
 					anchor=CENTER,
 					justify=CENTER)
 		self.auto = True
+		self.showTime = True
 
 		self.bind('<Configure>', self.draw)
 		self.setLimits()
+
+	# ----------------------------------------------------------------------
+	def setAuto(self, auto):
+		self.auto = auto
+
+	# ----------------------------------------------------------------------
+	def setShowTime(self, b):
+		self.showTime = b
+
+	# ----------------------------------------------------------------------
+	def setStartTime(self, t0):
+		self.t0 = t0
 
 	# ----------------------------------------------------------------------
 	def setLimits(self, low=0.0, high=100.0, step=1.0):
@@ -603,7 +616,6 @@ class ProgressBar(Canvas):
 			tot = dt/p*(self.high-self.low)
 		else:
 			tot = 0.0
-
 
 		# elapsed time
 		dh,s  = divmod(dt,3600)
@@ -644,7 +656,10 @@ class ProgressBar(Canvas):
 			self.setText(txt)
 
 		elif self.auto:
-			self.autoText("[%s %s %s]"%(elapsedTxt, totalTxt, remainTxt))
+			if self.showTime:
+				self.autoText("[%s %s %s]"%(elapsedTxt, totalTxt, remainTxt))
+			else:
+				self.autoText("")
 
 	# ----------------------------------------------------------------------
 	def clear(self):
@@ -682,7 +697,6 @@ class ProgressBar(Canvas):
 
 		wn = int(width * (self.now  - self.low) / self.length)
 		wd = int(width * (self.done - self.low) / self.length)
-
 		if wd >= wn: wd = wn - 1
 
 		self.coords(self.currBox, 0, 0, wn, height)
@@ -2591,7 +2605,6 @@ class InPlaceText(InPlaceEdit):
 	def createWidget(self):
 		self.toplevel = Toplevel(self.listbox)
 		self.toplevel.transient(self.listbox)
-		self.toplevel.update_idletasks() 
 		self.toplevel.overrideredirect(1)
 		self.edit = Text(self.toplevel, width=70, height=10,
 					background="White", undo=True)
@@ -4255,7 +4268,7 @@ class ScrollFrame(Frame):
 
 	# ----------------------------------------------------------------------
 	def configure(self,cnf=None,**kw):
-		if kw: cnf=Tkinter._cnfmerge((cnf,kw))
+		if kw: cnf=_cnfmerge((cnf,kw))
 		for key in cnf.keys():
 			if not hasattr(self,key):
 				Frame.configure(self,cnf)
