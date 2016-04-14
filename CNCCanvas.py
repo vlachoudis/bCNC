@@ -1714,8 +1714,9 @@ class CNCCanvas(Canvas):
 				block.resetPath()
 			return
 
-		signal.signal(signal.SIGALRM, handler)
-		signal.alarm(DRAW_TIME)
+		if DRAW_TIME > 0:
+			signal.signal(signal.SIGALRM, handler)
+			signal.alarm(DRAW_TIME)
 
 		try:
 			self.cnc.resetAllMargins()
@@ -1946,6 +1947,7 @@ class CanvasFrame(Frame):
 
 	#----------------------------------------------------------------------
 	def saveConfig(self):
+		Utils.setInt( "Canvas", "drawtime",DRAW_TIME)
 		Utils.setStr( "Canvas", "view",    self.view.get())
 		Utils.setBool("Canvas", "axes",    self.draw_axes.get())
 		Utils.setBool("Canvas", "grid",    self.draw_grid.get())
@@ -2109,6 +2111,16 @@ class CanvasFrame(Frame):
 		tkExtra.Balloon.set(b, _("Redraw display [Ctrl-R]"))
 		b.pack(side=LEFT)
 
+		# -----------
+		self.drawTime = tkExtra.Combobox(toolbar,
+				width=3,
+				background="White",
+				command=self.drawTimeChange)
+		tkExtra.Balloon.set(self.drawTime, _("Draw timeout in seconds"))
+		self.drawTime.fill(["inf", "1", "2", "3", "5", "10", "20", "30", "60", "120"])
+		self.drawTime.set(DRAW_TIME)
+		self.drawTime.pack(side=RIGHT)
+
 	#----------------------------------------------------------------------
 	def redraw(self, event=None):
 		self.canvas.reset()
@@ -2190,3 +2202,12 @@ class CanvasFrame(Frame):
 			self.canvas.cameraOn()
 		else:
 			self.canvas.cameraOff()
+
+	#----------------------------------------------------------------------
+	def drawTimeChange(self):
+		global DRAW_TIME
+		try:
+			DRAW_TIME = int(self.drawTime.get())
+		except ValueError:
+			DRAW_TIME = 0
+		self.viewChange()
