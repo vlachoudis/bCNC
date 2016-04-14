@@ -78,7 +78,7 @@ ACTION_ORIGIN        = 11
 ACTION_MOVE          = 20
 ACTION_ROTATE        = 21
 ACTION_GANTRY        = 22
-ACTION_SET_POS       = 23
+ACTION_WPOS          = 23
 
 ACTION_RULER         = 30
 ACTION_ADDORIENT     = 31
@@ -117,7 +117,7 @@ MOUSE_CURSOR = {
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
 	ACTION_GANTRY        : "target",
-	ACTION_SET_POS       : "diamond_cross",
+	ACTION_WPOS          : "diamond_cross",
 
 	ACTION_RULER         : "tcross",
 	ACTION_ADDORIENT     : "tcross",
@@ -349,7 +349,10 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def actionCancel(self, event=None):
-		self.setAction(ACTION_SELECT)
+		if self.action != ACTION_SELECT or \
+		   (self._mouseAction != ACTION_SELECT and self._mouseAction is not None):
+			self.setAction(ACTION_SELECT)
+			return "break"
 		#self.draw()
 
 	# ----------------------------------------------------------------------
@@ -379,8 +382,8 @@ class CNCCanvas(Canvas):
 		self.status(_("Move CNC gantry to mouse location"))
 
 	# ----------------------------------------------------------------------
-	def setActionSetPos(self, event=None):
-		self.setAction(ACTION_SET_POS)
+	def setActionWPOS(self, event=None):
+		self.setAction(ACTION_WPOS)
 		self.config(background="ivory")
 		self.status(_("Set mouse location as current machine position (X/Y only)"))
 
@@ -441,7 +444,7 @@ class CNCCanvas(Canvas):
 	# ----------------------------------------------------------------------
 	# Set the work coordinates to mouse location
 	# ----------------------------------------------------------------------
-	def actionSetPos(self, x, y):
+	def actionWPOS(self, x, y):
 		u,v,w = self.image2Machine(x,y)
 		self.app.dro.wcsSet(u,v,w)
 		self.setAction(ACTION_SELECT)
@@ -527,8 +530,8 @@ class CNCCanvas(Canvas):
 			self.actionGantry(event.x,event.y)
 
 		# Move gantry to position
-		elif self.action == ACTION_SET_POS:
-			self.actionSetPos(event.x,event.y)
+		elif self.action == ACTION_WPOS:
+			self.actionWPOS(event.x,event.y)
 
 		# Add orientation marker
 		elif self.action == ACTION_ADDORIENT:
@@ -2006,23 +2009,23 @@ class CanvasFrame(Frame):
 		tkExtra.Balloon.set(b, _("Pan viewport [X]"))
 		b.pack(side=LEFT)
 
-		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
-					indicatoron=FALSE,
-					variable=self.canvas.actionVar,
-					value=ACTION_GANTRY,
-					command=self.canvas.setActionGantry)
-		tkExtra.Balloon.set(b, _("Move gantry [G]"))
-		self.addWidget(b)
-		b.pack(side=LEFT)
-
-		b = Radiobutton(toolbar, image=Utils.icons["origin"],
-					indicatoron=FALSE,
-					variable=self.canvas.actionVar,
-					value=ACTION_SET_POS,
-					command=self.canvas.setActionSetPos)
-		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
-		self.addWidget(b)
-		b.pack(side=LEFT)
+#		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
+#					indicatoron=FALSE,
+#					variable=self.canvas.actionVar,
+#					value=ACTION_GANTRY,
+#					command=self.canvas.setActionGantry)
+#		tkExtra.Balloon.set(b, _("Move gantry [g]"))
+#		self.addWidget(b)
+#		b.pack(side=LEFT)
+#
+#		b = Radiobutton(toolbar, image=Utils.icons["origin"],
+#					indicatoron=FALSE,
+#					variable=self.canvas.actionVar,
+#					value=ACTION_WPOS,
+#					command=self.canvas.setActionWPOS)
+#		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
+#		self.addWidget(b)
+#		b.pack(side=LEFT)
 
 		b = Radiobutton(toolbar, image=Utils.icons["ruler"],
 					indicatoron=FALSE,

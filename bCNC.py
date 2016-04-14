@@ -299,6 +299,8 @@ class Application(Toplevel,Sender):
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
 		self.bind("<<AddMarker>>",	self.canvas.setActionAddMarker)
+		self.bind('<<MoveGantry>>',	self.canvas.setActionGantry)
+		self.bind('<<SetWPOS>>',	self.canvas.setActionWPOS)
 
 		frame = Page.frames["Probe:Tool"]
 		self.bind('<<ToolCalibrate>>',	frame.calibrate)

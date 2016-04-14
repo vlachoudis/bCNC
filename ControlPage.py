@@ -253,6 +253,30 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.zzero, _("Set Z coordinate to zero (or to typed coordinate in WPos)"))
 		self.addWidget(self.zzero)
 
+		# Set buttons
+		row += 1
+		col = 2
+		b = Button(self, text="Set WPOS",
+				image=Utils.icons["origin"],
+				compound=LEFT,
+				activebackground="LightYellow",
+				command=lambda s=self: s.event_generate("<<SetWPOS>>"),
+				padx=2, pady=1)
+		b.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(self, text="Move Gantry",
+				image=Utils.icons["gantry"],
+				compound=LEFT,
+				activebackground="LightYellow",
+				command=lambda s=self: s.event_generate("<<MoveGantry>>"),
+				padx=2, pady=1)
+		b.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
+		self.addWidget(b)
+
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
 		self.grid_columnconfigure(3, weight=1)
