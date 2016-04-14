@@ -5,6 +5,7 @@
 # Date: 24-Aug-2014
 
 import math
+import time
 import bmath
 import signal
 try:
@@ -133,14 +134,7 @@ def mouseCursor(action):
 # Raise an alarm exception
 #==============================================================================
 class AlarmException(Exception):
-	def __init__(self, value):
-		self.value = value
-	def __str__(self):
-		return repr(self.value)
-
-# ------------------------------------------------------------------------------
-def handler(signum, frame):
-	raise AlarmException("timeout")
+	pass
 
 #==============================================================================
 # Drawing canvas
@@ -1717,11 +1711,9 @@ class CNCCanvas(Canvas):
 				block.resetPath()
 			return
 
-		if DRAW_TIME > 0:
-			signal.signal(signal.SIGALRM, handler)
-			signal.alarm(DRAW_TIME)
-
 		try:
+			n = 1
+			startTime = time.time()
 			self.cnc.resetAllMargins()
 			drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 			for i,block in enumerate(self.gcode.blocks):
@@ -1739,6 +1731,11 @@ class CNCCanvas(Canvas):
 						self.tag_lower(item)
 				# Draw block
 				for j,line in enumerate(block):
+					n -= 1
+					if n==0:
+						if time.time() - startTime > DRAW_TIME:
+							raise AlarmException()
+						n = 1000
 					#cmd = self.cnc.parseLine(line)
 					try:
 						cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
@@ -1761,7 +1758,6 @@ class CNCCanvas(Canvas):
 				block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
 		except AlarmException:
 			self.status("Rendering takes TOO Long. Interrupted...")
-		signal.alarm(0)
 
 	#----------------------------------------------------------------------
 	# Create path for one g command
