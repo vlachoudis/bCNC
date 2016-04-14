@@ -7,7 +7,6 @@
 import math
 import time
 import bmath
-import signal
 try:
 	from Tkinter import *
 	import Tkinter
