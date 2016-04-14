@@ -222,7 +222,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		col,row=0,0
-		b = Label(self, text=_("Port:"), background=Ribbon._BACKGROUND)
+		b = Label(self, text=_("Port:"))
 		b.grid(row=row,column=col,sticky=E)
 		self.addWidget(b)
 
@@ -237,7 +237,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		row += 1
-		b = Label(self, text=_("Baud:"), background=Ribbon._BACKGROUND)
+		b = Label(self, text=_("Baud:"))
 		b.grid(row=row,column=col,sticky=E)
 
 		self.baudCombo = tkExtra.Combobox(self, True, background="White")
@@ -249,7 +249,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		row += 1
-		b = Label(self, text=_("Controller:"), background=Ribbon._BACKGROUND)
+		b = Label(self, text=_("Controller:"))
 		b.grid(row=row,column=col,sticky=E)
 
 		self.ctrlCombo = tkExtra.Combobox(self, True,
