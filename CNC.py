@@ -676,7 +676,7 @@ class CNC:
 				"mz"        : 0.0,
 				"_camwx"    : 0.0,
 				"_camwy"    : 0.0,
-				"G"         : ["G54"],
+				"G"         : [],
 				"TLO"       : 0.0,
 				"motion"    : "G0",
 				"WCS"       : "G54",

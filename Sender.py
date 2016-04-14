@@ -678,7 +678,7 @@ class Sender:
 			self.unlock()
 		self.runEnded()
 		self.stopProbe()
-		self.sendGCode("%s\n$G\n"%(G))		# restore $G
+		if G: self.sendGCode("%s\n$G\n"%(G))		# restore $G
 		self.sendGCode("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
