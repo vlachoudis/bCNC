@@ -255,7 +255,7 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# Set buttons
 		row += 1
-		col = 2
+		col = 1
 		b = Button(self, text="Set WPOS",
 				image=Utils.icons["origin"],
 				compound=LEFT,
@@ -266,7 +266,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
 		self.addWidget(b)
 
-		col += 1
+		col += 2
 		b = Button(self, text="Move Gantry",
 				image=Utils.icons["gantry"],
 				compound=LEFT,
