@@ -3487,8 +3487,11 @@ class GCode:
 					newcmd = []
 					for cmd in cmds:
 						c = cmd[0].upper()
+						if c in ("G","M"):	# leave unchanged
+							newcmd.append(cmd)
+						else:
+							newcmd.append(self.fmt(cmd[0],new[c]))
 						old[c] = new[c]
-						newcmd.append(self.fmt(cmd[0],new[c]))
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
 		# FIXME I should add it later, check all functions using it
