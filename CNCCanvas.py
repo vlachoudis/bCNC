@@ -1780,7 +1780,10 @@ class CNCCanvas(Canvas):
 			coords = self.plotCoords(xyz)
 			if coords:
 				if block.enable:
-					fill = ENABLE_COLOR
+					if block.color:
+						fill = block.color
+					else:
+						fill = ENABLE_COLOR
 				else:
 					fill = DISABLE_COLOR
 				if self.cnc.gcode == 0:
