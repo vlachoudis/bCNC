@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-04-03 22:47+0200\n"
-"PO-Revision-Date: 2016-04-11 18:50+0200\n"
+"PO-Revision-Date: 2016-04-19 21:21+0200\n"
 "Last-Translator: Felix Mahnke <@feistus>\n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -262,6 +262,18 @@ msgid ""
 "Users and GUIs need to send Grbl floating point values in single precision "
 "(i.e. -2.003929) to avoid this error."
 msgstr ""
+"Grbl muss bei Allem mit lediglich 2KB RAM auskommen. Das ist nicht wirklich "
+"viel. Also mussten wir uns entscheiden, was wirklich wichtig. ist. Die "
+"Anzahl an Zeichen für jede Zeile ist auf 80 beschränkt (70 in v0.8, 50 in "
+"0.7 und früheren Versionen), exklusive Leerzeichen und Kommentare. Der G-"
+"Code Standard fordert 256 Zeichen, Grbl hat jedoch nicht genügend RAM. "
+"Trotzdem denken wir nicht, dass es irgendwelche Probleme damit geben wird. "
+"Fehler treten fast immer nur dann auf, wenn ein Benutzer- oder durch eine "
+"CAM Software erstelltes G-Code Programm Positionsangaben mit doppelter "
+"Genauigkeit sendet (z.B. -2.003928578394852) was weder realistisch noch "
+"physikalisch möglich ist. Benutzer und GUIs sollten Grbl nur Fließkommawerte "
+"mit einfacher Genauigkeit schicken (z.B. -2.003929) um diesen Fehler zu "
+"vermeiden."
 
 #: Sender.py:76
 msgid ""
@@ -271,6 +283,12 @@ msgid ""
 "in the same line, since they both need to use the XYZ target position values "
 "in the line. LinuxCNC.org has some great documentation on modal groups."
 msgstr ""
+"Der G-Code Parser hat zwei G-Code Kommandos entdeckt, die zur gleichen "
+"Modalgruppe des Blocks / der Linie gehören. Modalgruppen sind Kombinationen "
+"von G-Code Kommandos, die sich gegenseitig ausschließen. Es können zum "
+"Beispiel nicht G0 Eilgang und G2 Kreisbogen in der gleichen Zeile stehen, "
+"weil sie sich beide auf die XYZ Zielwerte der Zeile beziehen. Auf LinuxCNC."
+"org gibt es gute Dokumentation zum Thema Modalgruppen."
 
 #: Sender.py:77
 msgid ""
@@ -2282,7 +2300,7 @@ msgstr ""
 
 #: bCNC.py:1655
 msgid "Open paths"
-msgstr ""
+msgstr "Offene Pfade"
 
 #: bCNC.py:1656
 #, python-format
@@ -2344,7 +2362,7 @@ msgstr ""
 
 #: bCNC.py:1909
 msgid "Warning"
-msgstr ""
+msgstr "Warnung"
 
 #: bCNC.py:1910
 #, python-format
@@ -2355,11 +2373,11 @@ msgstr ""
 
 #: bCNC.py:1945
 msgid "Error opening serial"
-msgstr ""
+msgstr "Fehler beim Öffnen der seriellen Schnittstelle"
 
 #: bCNC.py:1974
 msgid "Run ended"
-msgstr ""
+msgstr "Durchlauf abgeschlossen"
 
 #: bCNC.py:1981
 msgid "Serial Error"
@@ -2574,7 +2592,7 @@ msgstr ""
 #: lib/bFileDialog.py:871 lib/bFileDialog.py:880
 #, python-format
 msgid "File \"%s\" does not exist"
-msgstr ""
+msgstr "Datei \"%s\" existiert nicht"
 
 #: lib/bFileDialog.py:888
 msgid "Save As"
@@ -2607,7 +2625,7 @@ msgstr ""
 
 #: plugins/pyrograph.py:40 plugins/heightmap.py:49 plugins/text.py:38
 msgid "Working Depth"
-msgstr ""
+msgstr "Arbeitstiefe"
 
 #: plugins/pyrograph.py:41 plugins/heightmap.py:50
 msgid "Maximum size"
@@ -2753,7 +2771,7 @@ msgstr ""
 
 #: plugins/gear.py:163
 msgid "No of teeth"
-msgstr ""
+msgstr "Anzahl der Zähne"
 
 #: plugins/gear.py:164
 msgid "Pressure angle"
@@ -2801,23 +2819,23 @@ msgstr ""
 
 #: plugins/flatten.py:258
 msgid "X start"
-msgstr ""
+msgstr "X start"
 
 #: plugins/flatten.py:259
 msgid "Y start"
-msgstr ""
+msgstr "Y start"
 
 #: plugins/flatten.py:260
 msgid "Width to flatten"
-msgstr ""
+msgstr "Breite zum Planfräsen"
 
 #: plugins/flatten.py:261
 msgid "Height to flatten"
-msgstr ""
+msgstr "Höhe zum Planfräsen"
 
 #: plugins/flatten.py:262
 msgid "Depth to flatten"
-msgstr ""
+msgstr "Tiefe zum Planfräsen"
 
 #: plugins/flatten.py:263
 msgid "Raster border"
@@ -2825,7 +2843,7 @@ msgstr ""
 
 #: plugins/flatten.py:264
 msgid "Cut Direction"
-msgstr ""
+msgstr "Schnittrichtung"
 
 #: plugins/flatten.py:265
 msgid "Pocket type"
@@ -2906,11 +2924,11 @@ msgstr ""
 
 #: plugins/spirograph.py:102
 msgid "External Radius"
-msgstr ""
+msgstr "Äußerer Radius"
 
 #: plugins/spirograph.py:103
 msgid "Internal Radius"
-msgstr ""
+msgstr "Innerer Radius"
 
 #: plugins/spirograph.py:104
 msgid "Offset radius"
