@@ -1758,8 +1758,11 @@ class Application(Toplevel,Sender):
 		self.canvas.activeMarker(self.editor.getActive())
 
 	#-----------------------------------------------------------------------
+	# Create a new file
+	#-----------------------------------------------------------------------
 	def newFile(self, event=None):
 		if self.running: return
+		if self.fileModified(): return
 		self.gcode.init()
 		self.gcode.headerFooter()
 		self.editor.fill()
@@ -1818,6 +1821,7 @@ class Application(Toplevel,Sender):
 					self.saveDialog()
 				else:
 					self.gcode.probe.save()
+		return False
 
 	#-----------------------------------------------------------------------
 	# Load a file into editor
@@ -1827,7 +1831,7 @@ class Application(Toplevel,Sender):
 		if ext==".probe":
 			pass
 		else:
-			self.fileModified()
+			if self.fileModified(): return
 
 			if not self.gcode.probe.isEmpty():
 				ans = tkMessageBox.askquestion(_("Existing Autolevel"),
