@@ -872,12 +872,13 @@ class Sender:
 							self._alarm = True
 							CNC.vars["state"] = line
 							if self.running:
-								self.emptyQueue()
+								self._stop = True
+								#self.emptyQueue()
 								# Dangerous calling state of Tk if not reentrant
 								self.runEnded()
-								tosend = None
-								del cline[:]
-								del sline[:]
+								#tosend = None
+								#del cline[:]
+								#del sline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
