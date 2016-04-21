@@ -1908,6 +1908,7 @@ class Block(list):
 		self._name    = name
 		self.enable   = True		# Enabled/Visible in drawing
 		self.expand   = False		# Expand in editor
+		self.color    = None 		# Custom color for path
 		self.tabs     = []		# Tabs on block
 		self._path    = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates
@@ -1920,6 +1921,7 @@ class Block(list):
 		self._name  = src._name
 		self.enable = src.enable
 		self.expand = src.expand
+		self.color  = src.color
 		self.tabs   = []
 		for tab in src.tabs:
 			self.tabs.append(Tab(tab.x, tab.y, tab.dx, tab.dy, tab.z))
@@ -2000,6 +2002,8 @@ class Block(list):
 		f.write("(Block-name: %s)\n"%(self.name()))
 		f.write("(Block-expand: %d)\n"%(int(self.expand)))
 		f.write("(Block-enable: %d)\n"%(int(self.enable)))
+		if self.color:
+			f.write("(Block-color: %s)\n"%(self.color))
 		for tab in self.tabs:
 			f.write("(Block-tab: %g %g %g %g %g)\n"% \
 				(tab.x, tab.y, tab.dx, tab.dy, tab.z))
@@ -2042,6 +2046,9 @@ class Block(list):
 				elif name=="tab":
 					items = map(float,value.split())
 					self.tabs.append(Tab(*items))
+					return
+				elif name=="color":
+					self.color = value
 					return
 		if self._name is None and ("id:" in line) and ("End" not in line):
 			pat = IDPAT.match(line)
