@@ -85,7 +85,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ---
-		row += 1
+		col += 1
 		b = Ribbon.LabelButton(self.frame, app, "<<SelectNone>>",
 				image=Utils.icons["select_none"],
 				text=_("None"),
@@ -97,7 +97,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ---
-		row += 1
+		col,row=0,1
 		b = Ribbon.LabelButton(self.frame, app, "<<SelectInvert>>",
 				image=Utils.icons["select_invert"],
 				text=_("Invert"),
@@ -107,6 +107,37 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Invert selection [Ctrl-I]"))
 		self.addWidget(b)
+
+		# ---
+		col += 1
+		b = Ribbon.LabelButton(self.frame, app, "<<SelectLayer>>",
+				image=Utils.icons["select_layer"],
+				text=_("Layer"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Select all blocks from current layer"))
+		self.addWidget(b)
+
+		# ---
+		col, row = 0,2
+		self.filterString = tkExtra.LabelEntry(self.frame,
+				"Filter",
+				"DarkGray",
+				background="White",
+				width=16)
+		self.filterString.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.filterString, _("Filter blocks"))
+		self.addWidget(self.filterString)
+		self.filterString.bind("<Return>",   self.filter)
+		self.filterString.bind("<KP_Enter>", self.filter)
+
+
+	#-----------------------------------------------------------------------
+	def filter(self, event=None):
+		txt = self.filterString.get()
+		self.app.insertCommand("FILTER %s"%(txt), True)
 
 #===============================================================================
 # Edit Group

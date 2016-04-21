@@ -647,7 +647,56 @@ class CNC:
 	stdexpr        = False	# standard way of defining expressions with []
 	comment        = ""	# last parsed comment
 	developer      = False
-	vars           = {}
+	vars           = {
+			"prbx"      : 0.0,
+			"prby"      : 0.0,
+			"prbz"      : 0.0,
+			"prbcmd"    : "G38.2",
+			"prbfeed"   : 10.,
+			"errline"   : "",
+			"wx"        : 0.0,
+			"wy"        : 0.0,
+			"wz"        : 0.0,
+			"mx"        : 0.0,
+			"my"        : 0.0,
+			"mz"        : 0.0,
+			"_camwx"    : 0.0,
+			"_camwy"    : 0.0,
+			"G"         : [],
+			"TLO"       : 0.0,
+			"motion"    : "G0",
+			"WCS"       : "G54",
+			"plane"     : "G17",
+			"feedmode"  : "G94",
+			"distance"  : "G90",
+			"arc"       : "G91.1",
+			"units"     : "G20",
+			"cutter"    : "",
+			"tlo"       : "",
+			"program"   : "M0",
+			"spindle"   : "M5",
+			"coolant"   : "M9",
+
+			"tool"      : 0,
+			"feed"      : 0.0,
+			"rpm"       : 0.0,
+
+			"override"  : 100,
+			"overrideChanged"  : False,
+			"diameter"  : 3.175,	# Tool diameter
+			"cutfeed"   : 1000.,	# Material feed for cutting
+			"cutfeedz"  : 500.,	# Material feed for cutting
+			"safe"      : 3.,
+			"state"     : "",
+			"msg"       : "",
+			"stepz"     : 1.,
+			"surface"   : 0.,
+			"thickness" : 5.,
+			"stepover"  : 40.,
+
+			"PRB"
+			"TLO"       : 0.,
+		}
 
 	drillPolicy    = 1	# Expand Canned cycles
 	toolPolicy     = 1	# Should be in sync with ProbePage
@@ -661,56 +710,6 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	def __init__(self):
-		CNC.vars = {
-				"prbx"      : 0.0,
-				"prby"      : 0.0,
-				"prbz"      : 0.0,
-				"prbcmd"    : "G38.2",
-				"prbfeed"   : 10.,
-				"errline"   : "",
-				"wx"        : 0.0,
-				"wy"        : 0.0,
-				"wz"        : 0.0,
-				"mx"        : 0.0,
-				"my"        : 0.0,
-				"mz"        : 0.0,
-				"_camwx"    : 0.0,
-				"_camwy"    : 0.0,
-				"G"         : [],
-				"TLO"       : 0.0,
-				"motion"    : "G0",
-				"WCS"       : "G54",
-				"plane"     : "G17",
-				"feedmode"  : "G94",
-				"distance"  : "G90",
-				"arc"       : "G91.1",
-				"units"     : "G20",
-				"cutter"    : "",
-				"tlo"       : "",
-				"program"   : "M0",
-				"spindle"   : "M5",
-				"coolant"   : "M9",
-
-				"tool"      : 0,
-				"feed"      : 0.0,
-				"rpm"       : 0.0,
-
-				"override"  : 100,
-				"overrideChanged"  : False,
-				"diameter"  : 3.175,	# Tool diameter
-				"cutfeed"   : 1000.,	# Material feed for cutting
-				"cutfeedz"  : 500.,	# Material feed for cutting
-				"safe"      : 3.,
-				"state"     : "",
-				"msg"       : "",
-				"stepz"     : 1.,
-				"surface"   : 0.,
-				"thickness" : 5.,
-				"stepover"  : 40.,
-
-				"PRB"
-				"TLO"       : 0.,
-			}
 		self.initPath()
 		self.resetAllMargins()
 
@@ -1908,7 +1907,7 @@ class Block(list):
 		self._name    = name
 		self.enable   = True		# Enabled/Visible in drawing
 		self.expand   = False		# Expand in editor
-		self.color    = None 		# Custom color for path
+		self.color    = None		# Custom color for path
 		self.tabs     = []		# Tabs on block
 		self._path    = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates
@@ -1937,6 +1936,17 @@ class Block(list):
 	#----------------------------------------------------------------------
 	def name(self):
 		return self._name is None and "block" or self._name
+
+	#----------------------------------------------------------------------
+	# @return name without the operation
+	#----------------------------------------------------------------------
+	def nameNop(self):
+		name = self.name()
+		pat = OPPAT.match(name)
+		if pat is None:
+			return name
+		else:
+			return pat.group(1).strip()
 
 	#----------------------------------------------------------------------
 	# @return the new name with an operation (static)

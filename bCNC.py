@@ -330,6 +330,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<SelectAll>>',	self.selectAll)
 		self.bind('<<SelectNone>>',	self.unselectAll)
 		self.bind('<<SelectInvert>>',	self.selectInvert)
+		self.bind('<<SelectLayer>>',	self.selectLayer)
 
 #		self.bind('<Control-Key-f>',	self.find)
 #		self.bind('<Control-Key-g>',	self.findNext)
@@ -1066,6 +1067,15 @@ class Application(Toplevel,Sender):
 		if focus in (self.canvas, self.editor):
 			self.ribbon.changePage("Editor")
 			self.editor.selectInvert()
+			self.selectionChange()
+			return "break"
+
+	#-----------------------------------------------------------------------
+	def selectLayer(self, event=None):
+		focus = self.focus_get()
+		if focus in (self.canvas, self.editor):
+			self.ribbon.changePage("Editor")
+			self.editor.selectLayer()
 			self.selectionChange()
 			return "break"
 
@@ -1893,8 +1903,13 @@ class Application(Toplevel,Sender):
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
 		if filename:
+			fn,ext = os.path.splitext(filename)
+			ext = ext.lower()
 			gcode = GCode()
-			gcode.load(filename)
+			if ext == ".dxf":
+				gcode.importDXF(filename)
+			else:
+				gcode.load(filename)
 			sel = self.editor.getSelectedBlocks()
 			if not sel:
 				pos = None

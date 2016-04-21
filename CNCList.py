@@ -4,6 +4,7 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import re
 import sys
 try:
 	from cStringIO import StringIO
@@ -653,7 +654,20 @@ class CNCListbox(Listbox):
 				block = self.gcode[bid]
 			except:
 				continue
-			if double or not block.expand or lid is None:
+
+			if double:
+				if block.expand:
+					# select whole block
+					y = self._blockPos[bid]
+				else:
+					# select all blocks with the same name
+					name = block.nameNop()
+					for i,bl in enumerate(self.gcode.blocks):
+						if name == bl.nameNop():
+							self.selection_set(self._blockPos[i])
+					continue
+
+			elif not block.expand or lid is None:
 				# select whole block
 				y = self._blockPos[bid]
 
@@ -727,6 +741,16 @@ class CNCListbox(Listbox):
 				self.selection_clear(i)
 			else:
 				self.selection_set(i)
+
+	# ----------------------------------------------------------------------
+	# Select all blocks with the same name of the selected laye
+	# ----------------------------------------------------------------------
+	def selectLayer(self):
+		for bid in self.getSelectedBlocks():
+			name = self.gcode[bid].nameNop()
+			for i,bl in enumerate(self.gcode.blocks):
+				if name == bl.nameNop():
+					self.selection_set(self._blockPos[i])
 
 	# ----------------------------------------------------------------------
 	# Return list of [(blocks,lines),...] currently being selected
