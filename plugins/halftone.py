@@ -195,6 +195,15 @@ class Tool(Plugin):
 
 		#Draw block
 		block = Block(self.name)
+
+		#Change color
+		if channel == 'Blue(sqrt)':
+			block.color = "#0000ff"
+		elif channel == 'Green(sqrt)':
+			block.color = "#00ff00"
+		elif channel == 'Red(sqrt)':
+			block.color = "#ff0000"
+
 		block.append("(Halftone size W=%d x H=%d x D=%d ,Total points:%i)" %
 			 (self.imgWidth * self.ratio, self.imgHeight * self.ratio, depth, len(circles)))
 		block.append("(Channel = %s)" % channel)
