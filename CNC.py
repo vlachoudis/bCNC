@@ -2517,6 +2517,7 @@ class GCode:
 		if isinstance(paths,Path):
 			block = self.fromPath(paths)
 			block.enable = enable
+			block.color  = paths.color
 			undoinfo.append(self.addBlockUndo(pos,block))
 			if newblocks is not None: newblocks.append(pos)
 		else:

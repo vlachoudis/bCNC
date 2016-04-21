@@ -531,8 +531,9 @@ class Segment:
 # ignore zero length segments
 #==============================================================================
 class Path(list):
-	def __init__(self, name):
+	def __init__(self, name, color=None):
 		self.name    = name
+		self.color   = color
 		self._length = None
 
 	#----------------------------------------------------------------------
@@ -712,7 +713,7 @@ class Path(list):
 	def split2contours(self):
 		if len(self)==0: return []
 
-		path = Path(self.name)
+		path = Path(self.name, self.color)
 		paths = [path]
 
 		# Push first element as start point
@@ -758,7 +759,7 @@ class Path(list):
 						break
 				else:
 					# Not found push a path start point and
-					path = Path(self.name)
+					path = Path(self.name, self.color)
 					paths.append(path)
 					path.append(self.pop(0))
 
@@ -780,7 +781,7 @@ class Path(list):
 	def offset(self, offset, name=None):
 		start = time.time()
 		if name is None: name = self.name
-		path = Path(name)
+		path = Path(name, self.color)
 
 		if self.isClosed():
 			prev = self[-1]
@@ -1089,6 +1090,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def fromDxfLayer(self, dxf, layer, units=0):
 		for entity in layer:
+			self.color = entity.color()
 			start = dxf.convert(entity.start(), units)
 			end   = dxf.convert(entity.end(), units)
 			if entity.type == "LINE":
