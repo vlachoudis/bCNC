@@ -17,6 +17,7 @@ import Utils
 import tkExtra
 import Unicode
 
+_TABFONT    = ("Sans","-14","bold")
 _FONT       = ("Sans","-11")
 
 #_BACKGROUND_DISABLE = "#D6D2D0"
@@ -34,7 +35,7 @@ _BACKGROUND_GROUP3  = "#A0C0A0"
 _BACKGROUND_GROUP4  = "#B0C0A0"
 
 _FOREGROUND_GROUP   = "White"
-_ACTIVE_COLOR       = "LightBlue"
+_ACTIVE_COLOR       = "LightYellow"
 _LABEL_SELECT_COLOR = "#C0FFC0"
 
 #===============================================================================
@@ -273,6 +274,7 @@ class TabButton(Radiobutton):
 				activebackground   = _ACTIVE_COLOR,
 				indicatoron        = FALSE,
 				relief             = FLAT,
+				font               = _TABFONT,
 				borderwidth        = 0,
 				highlightthickness = 0,
 				padx               = 5,
@@ -284,7 +286,7 @@ class TabButton(Radiobutton):
 
 	#-----------------------------------------------------------------------
 	# Bind events on TabFrame
-	#-----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def bindClicks(self, tabframe):
 		self.bind("<Double-1>",         tabframe.double)
 		self.bind("<Button-1>",         tabframe.dragStart)
@@ -296,11 +298,11 @@ class TabButton(Radiobutton):
 		self.bind("<Right>",		tabframe._tabRight)
 		self.bind("<Down>",		tabframe._tabDown)
 
-	#-----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def _focusIn(self, evenl=None):
 		self.config(selectcolor = _ACTIVE_COLOR)
 
-	#-----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def _focusOut(self, evenl=None):
 		self.config(selectcolor = _BACKGROUND)
 

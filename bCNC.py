@@ -536,6 +536,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
 		global geometry
+
 		if geometry is None:
 			geometry = "%sx%s" % (Utils.getInt(Utils.__prg__, "width",  900),
 					      Utils.getInt(Utils.__prg__, "height", 650))
@@ -547,6 +548,17 @@ class Application(Toplevel,Sender):
 			self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
 		except:
 			pass
+
+		# read Tk fonts to initialize them
+		font = Utils.getFont("TkDefaultFont")
+		font = Utils.getFont("TkFixedFont")
+		font = Utils.getFont("TkMenuFont")
+		font = Utils.getFont("TkTextFont")
+
+		tkExtra.Balloon.font = Utils.getFont("balloon", tkExtra.Balloon.font)
+
+		Ribbon._FONT    = Utils.getFont("ribbon.label", Ribbon._FONT)
+		Ribbon._TABFONT = Utils.getFont("ribbon.tab",   Ribbon._TABFONT)
 
 		Ribbon._ACTIVE_COLOR       = Utils.getStr("Color", "ribbon.active", Ribbon._ACTIVE_COLOR)
 		Ribbon._LABEL_SELECT_COLOR = Utils.getStr("Color", "ribbon.select", Ribbon._LABEL_SELECT_COLOR)

@@ -3574,7 +3574,7 @@ class GCode:
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.process(items, self.rotateFunc, None, c, s, x0, y0)
+		return self.process(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Transform (rototranslate) position with the following function:

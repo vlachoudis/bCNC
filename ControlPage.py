@@ -137,9 +137,9 @@ class DROFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "DRO", app)
 
-		DROFrame.dro_status = Utils.getFont("dro_status", DROFrame.dro_status)
-		DROFrame.dro_wpos   = Utils.getFont("dro_wpos",   DROFrame.dro_wpos)
-		DROFrame.dro_mpos   = Utils.getFont("dro_mpos",   DROFrame.dro_mpos)
+		DROFrame.dro_status = Utils.getFont("dro.status", DROFrame.dro_status)
+		DROFrame.dro_wpos   = Utils.getFont("dro.wpos",   DROFrame.dro_wpos)
+		DROFrame.dro_mpos   = Utils.getFont("dro.mpos",   DROFrame.dro_mpos)
 
 		row = 0
 		col = 0

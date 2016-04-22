@@ -193,36 +193,77 @@ def getBool(section, name, default=False):
 	except: return default
 
 #-------------------------------------------------------------------------------
-def getFont(name, default):
-	global config
+# Return a font from a string
+#-------------------------------------------------------------------------------
+def makeFont(name, value=None):
 	try:
-		font = config.get(_FONT_SECTION, name)
-	except:
-		try:
-			font = tkFont.Font(name=name, font=default, exists=True)
-		except TclError:
-			font = tkFont.Font(name=name, font=default)
-			font.delete_font = False
-		except AttributeError:
-			return default
-		setFont(name, font)
+		font = tkFont.Font(name=name, exists=True)
+	except TclError:
+		font = tkFont.Font(name=name)
+		font.delete_font = False
+	except AttributeError:
+		return None
 
-	if isinstance(font, str):
-		font = tuple(font.split(','))
+	if value is None: return font
 
-	if isinstance(font, tuple):
+	if isinstance(value, tuple):
+		font.configure(family=value[0], size=value[1])
 		try:
-			return tkFont.Font(name=name, font=font, exists=True)
-		except TclError:
-			font = tkFont.Font(name=name, font=font)
-			font.delete_font = False
-		except AttributeError:
-			return default
+			font.configure(weight=value[2])
+		except:
+			pass
+		try:
+			font.configure(slant=value[3])
+		except:
+			pass
 	return font
 
 #-------------------------------------------------------------------------------
+# Create a font string
+#-------------------------------------------------------------------------------
+def fontString(font):
+	name  = str(font[0])
+	size  = str(font[1])
+	if name.find(' ')>=0:
+		s = '"%s" %s'%(name,size)
+	else:
+		s = '%s %s'%(name,size)
+
+	try:
+		if font[2] == tkFont.BOLD: s += " bold"
+	except: pass
+	try:
+		if font[3] == tkFont.ITALIC: s += " italic"
+	except: pass
+	return s
+
+#-------------------------------------------------------------------------------
+# Get font from configuration
+#-------------------------------------------------------------------------------
+def getFont(name, default=None):
+	try:
+		value = config.get(_FONT_SECTION, name)
+	except:
+		value = None
+
+	if not value:
+		font = makeFont(name, default)
+		setFont(name, font)
+		return font
+
+	if isinstance(value, str):
+		value = tuple(value.split(','))
+
+	if isinstance(value, tuple):
+		font = makeFont(name, value)
+		if font is not None: return font
+	return value
+
+#-------------------------------------------------------------------------------
+# Set font in configuration
+#-------------------------------------------------------------------------------
 def setFont(name, font):
-	global config
+	if font is None: return
 	if isinstance(font,str):
 		config.set(_FONT_SECTION, name, font)
 	elif isinstance(font,tuple):
