@@ -31,8 +31,9 @@ class Tool(Plugin):
 	__doc__ = _("Create holes along selected blocks")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Driller"
-		self.icon = "driller"
+		self.name  = "Driller"
+		self.icon  = "driller"
+		self.group = "CAM"
 
 		self.variables = [
 			("name",          "db",   "", _("Name")),

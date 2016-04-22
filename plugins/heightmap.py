@@ -41,8 +41,9 @@ class Tool(Plugin):
 	__doc__ = _("Use a brightess map to create a variable Z path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Heightmap"
-		self.icon = "heightmap"
+		self.name  = "Heightmap"
+		self.icon  = "heightmap"
+		self.group = "Generator"
 
 		self.variables = [
 			("name",      "db" ,     "", _("Name")),

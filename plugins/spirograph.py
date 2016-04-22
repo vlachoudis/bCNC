@@ -95,8 +95,9 @@ class Tool(Plugin):
 	__doc__ = _("Create a spirograph path")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Spirograph"
-		self.icon = "spirograph"
+		self.name  = "Spirograph"
+		self.icon  = "spirograph"
+		self.group = "Artistic"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("RadiusExternal"  ,   "mm" ,    50.0, _("External Radius")),

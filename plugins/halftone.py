@@ -27,8 +27,9 @@ class Tool(Plugin):
 	__doc__ = _("Create halftone pattern from a picture")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Halftone"
-		self.icon = "halftone"
+		self.name  = "Halftone"
+		self.icon  = "halftone"
+		self.group = "Artistic"
 
 		self.variables = [
 			("name",              "db" ,        "", _("Name")),

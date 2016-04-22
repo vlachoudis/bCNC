@@ -31,8 +31,9 @@ class Tool(Plugin):
 	__doc__ = _("Create a variable feed path based upon image brightness")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Pyrograph"
-		self.icon = "pyrograph"
+		self.name  = "Pyrograph"
+		self.icon  = "pyrograph"
+		self.group = "Artistic"
 
 		self.variables = [
 			("name",         "db" ,    "", _("Name")),

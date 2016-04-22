@@ -30,8 +30,9 @@ class Tool(Plugin):
 	__doc__ =  _("Create text using a ttf font")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Text"
-		self.icon = "text"
+		self.name  = "Text"
+		self.icon  = "text"
+		self.group = "Generator"
 
 		self.variables = [("name",      "db" ,    "", _("Name")),
 				("Text",        "text", "Write this!", _("Text to generate")),

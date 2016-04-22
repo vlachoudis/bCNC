@@ -436,6 +436,7 @@ class Plugin(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master)
 		self.plugin = True
+		self.group  = "Macros"
 
 #==============================================================================
 # Generic ini configuration
@@ -987,7 +988,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				variable=app.tools.active,
 				value="Pocket",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Perform a pocket operation on selected code"))
 		self.addWidget(b)
 
@@ -1001,7 +1002,7 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				variable=app.tools.active,
 				value="Drill",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Insert a drill cycle on current objects/location"))
 		self.addWidget(b)
 
@@ -1015,21 +1016,16 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				variable=app.tools.active,
 				value="Tabs",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Insert holding tabs"))
 		self.addWidget(b)
 
-#===============================================================================
-# Macros Group
-#===============================================================================
-class MacrosGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Macros"), app)
-		self.grid3rows()
-
-		col,row=0,0
+		# ---
+		col += 1
+		row  = 0
 		# Find plugins in the plugins directory and load them
 		for tool in app.tools.pluginList():
+			if tool.group != "CAM": continue
 			# ===
 			b = Ribbon.LabelRadiobutton(self.frame,
 					image=Utils.icons[tool.icon],
@@ -1039,7 +1035,7 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 					variable=app.tools.active,
 					value=tool.name,
 					background=Ribbon._BACKGROUND)
-			b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 			tkExtra.Balloon.set(b, tool.__doc__)
 			self.addWidget(b)
 
@@ -1047,6 +1043,51 @@ class MacrosGroup(CNCRibbon.ButtonGroup):
 			if row==3:
 				col += 1
 				row  = 0
+
+#===============================================================================
+# Plugins Group
+#===============================================================================
+class PluginsGroup(CNCRibbon.ButtonGroup):
+	def __init__(self, master, group, app):
+		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
+		self.grid3rows()
+
+		col,row=0,0
+		# Find plugins in the plugins directory and load them
+		for tool in app.tools.pluginList():
+			if tool.group != group: continue
+			# ===
+			b = Ribbon.LabelRadiobutton(self.frame,
+					image=Utils.icons[tool.icon],
+					text=tool.name,
+					compound=LEFT,
+					anchor=W,
+					variable=app.tools.active,
+					value=tool.name,
+					background=Ribbon._BACKGROUND)
+			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+			tkExtra.Balloon.set(b, tool.__doc__)
+			self.addWidget(b)
+
+			row += 1
+			if row==3:
+				col += 1
+				row  = 0
+
+#===============================================================================
+# Macros Groups based on plugins
+#===============================================================================
+class MacrosGroup(PluginsGroup):
+	def __init__(self, master, app):
+		PluginsGroup.__init__(self, master, N_("Macros"), app)
+
+class GeneratorGroup(PluginsGroup):
+	def __init__(self, master, app):
+		PluginsGroup.__init__(self, master, N_("Generator"), app)
+
+class ArtisticGroup(PluginsGroup):
+	def __init__(self, master, app):
+		PluginsGroup.__init__(self, master, N_("Artistic"), app)
 
 #===============================================================================
 # Config
@@ -1085,7 +1126,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				variable=app.tools.active,
 				value="Camera",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
@@ -1099,7 +1140,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				variable=app.tools.active,
 				value="Color",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Color configuration"))
 		self.addWidget(b)
 
@@ -1113,7 +1154,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				variable=app.tools.active,
 				value="Font",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Font configuration"))
 		self.addWidget(b)
 
@@ -1127,7 +1168,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				variable=app.tools.active,
 				value="CNC",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
 		self.addWidget(b)
 
@@ -1141,7 +1182,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				variable=app.tools.active,
 				value="Shortcut",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Shortcuts"))
 		self.addWidget(b)
 
@@ -1260,7 +1301,13 @@ class ToolsPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register((DataBaseGroup,CAMGroup,MacrosGroup,ConfigGroup), (ToolsFrame,))
+		self._register(
+			(DataBaseGroup,
+			CAMGroup,
+			GeneratorGroup,
+			ArtisticGroup,
+			#MacrosGroup,
+			ConfigGroup), (ToolsFrame,))
 
 	#----------------------------------------------------------------------
 	def edit(self, event=None):

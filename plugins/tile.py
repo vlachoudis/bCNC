@@ -28,8 +28,9 @@ class Tool(Plugin):
 	__doc__ = _("Generate replicas of selected code")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Tile"
-		self.icon = "tile"
+		self.name  = "Tile"
+		self.icon  = "tile"
+		self.group = "CAM"
 		self.variables = [
 			("name",      "db",    "", _("Name")),
 			("nx",       "int",     3, "Nx"),

@@ -33,8 +33,9 @@ class Tool(Plugin):
 	__doc__ = _("Sound your machine from a midi file")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Midi2CNC"
-		self.icon = "midi2cnc"
+		self.name  = "Midi2CNC"
+		self.icon  = "midi2cnc"
+		self.group = "Artistic"
 
 		self.axes_dict = dict( {
 		'X':[0],       'Y':[1],    'Z':[2],

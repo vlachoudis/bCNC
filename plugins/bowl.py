@@ -7,7 +7,7 @@
 
 __author__ = "Carlos Garcia Saura"
 __email__  = ""
-__name__ = _("Bowl")
+__name__   = _("Bowl")
 
 import math
 from CNC import CNC,Block
@@ -101,8 +101,9 @@ class Tool(Plugin):
 	__doc__ = _("Generate a bowl cavity")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Bowl"
-		self.icon = "bowl"
+		self.name  = "Bowl"
+		self.group = "Generator"
+		self.icon  = "bowl"
 		self.variables = [
 			("name",      "db",     "",  _("Name")),
 			("D",         "mm",   30.0,  _("Diameter")),

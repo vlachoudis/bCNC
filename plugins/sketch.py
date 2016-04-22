@@ -32,8 +32,9 @@ class Tool(Plugin):
 	__doc__ = _("Create sketch based on picture brightness")
 	def __init__(self, master):
 		Plugin.__init__(self, master)
-		self.name = "Sketch"
-		self.icon = "sketch"
+		self.name  = "Sketch"
+		self.icon  = "sketch"
+		self.group = "Artistic"
 
 		self.variables = [
 			("name",              "db" ,        "", _("Name")),
