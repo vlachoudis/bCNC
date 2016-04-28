@@ -2049,6 +2049,7 @@ class Application(Toplevel,Sender):
 			self.statusbar.setProgress(0,0)
 			self._paths = self.gcode.compile(self.queue, self.checkStop)
 			if self._paths is None:
+				self.emptyQueue()
 				self.runEnded()
 				return
 			elif not self._paths:
