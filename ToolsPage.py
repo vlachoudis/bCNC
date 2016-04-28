@@ -632,7 +632,10 @@ class Drill(DataBase):
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("depth",     "mm" ,    "", _("Target Depth")),
-			("peck",      "mm" ,    "", _("Peck depth"))
+			("peck",      "mm" ,    "", _("Peck depth")),
+			("dwell",     "float" , "", _("Dwell (s)")),
+			("distance",  "mm" ,    "", _("Distance (mm)")),
+			("number",    "int" ,   "", _("Number"))
 		]
 		self.buttons.append("exe")
 
@@ -640,7 +643,16 @@ class Drill(DataBase):
 	def execute(self, app):
 		h = self.fromMm("depth", None)
 		p = self.fromMm("peck",  None)
-		app.executeOnSelection("DRILL", True, h, p)
+		e = self.fromMm("distance", None)
+		try:
+			d = self["dwell"]
+		except:
+			d = None
+		try:
+			n = int(self["number"])
+		except:
+			n = 0
+		app.executeOnSelection("DRILL", True, h, p, d, e, n)
 		app.setStatus(_("DRILL selected points"))
 
 #==============================================================================

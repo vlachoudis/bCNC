@@ -366,12 +366,12 @@ class FileDialog(Toplevel):
 			self.filename.select_range(0,END)
 
 		# Flags
-		self.hidden = False
-		self.links  = True
-		self.dirs   = True
-		self.files  = True
-		self.seldir = False
-		self.selFile = ""
+		self.hidden = False	# Show hidden files
+		self.links  = True	# Show links
+		self.dirs   = True	# Show directories
+		self.files  = True	# Show files
+		self.seldir = False	# Select directory instead of file
+		self.selFile = ""	# Selected files
 		append2History(self.path)
 
 		# popup history
@@ -696,15 +696,9 @@ class FileDialog(Toplevel):
 		fn = self.filename.get()
 		# Single file selection?
 		if fn=="":
-			sel = self.fileList.curselection()
-			if len(sel)==1:
-				item = self.fileList.get(sel[0])
-				if item[1] == _DIR_TYPE:
-					self.changePath(os.path.join(self.path, item[0]))
-					return
-				fn = item[0]
-			else:
-				return
+			self.select()
+			fn = self.filename.get()
+			if fn=="": return
 		self.open(fn)
 
 	# ----------------------------------------------------------------------
@@ -750,6 +744,8 @@ class FileDialog(Toplevel):
 		self.openFilename()
 
 	# ----------------------------------------------------------------------
+	# Select current file from listbox
+	# ----------------------------------------------------------------------
 	def select(self, event=None):
 		sel = self.fileList.curselection()
 
@@ -759,8 +755,10 @@ class FileDialog(Toplevel):
 			if self.seldir:
 				try:
 					s = os.stat(fn)
-					if not S_ISDIR(s[ST_MODE]): return
-				except OSError: pass
+					if not S_ISDIR(s[ST_MODE]):
+						fn = os.path.dirname(fn)
+				except OSError:
+					pass
 				self.filename.delete(0, END)
 				self.filename.insert(0, fn)
 			else:
@@ -872,7 +870,7 @@ class FileDialog(Toplevel):
 
 #===============================================================================
 class OpenDialog(FileDialog):
-	_title = "Open"
+	_title = _("Open")
 
 	# ----------------------------------------------------------------------
 	# Check if file exist
@@ -976,7 +974,7 @@ if __name__ == "__main__":
 		initdir = os.path.abspath(sys.argv[1])
 	#print askdirectory()
 
-	files = askopenfilenames(title=_("Open"),
+	files = asksaveasfilename(title=_("Open"),
 			initialdir=initdir,
 #			initialfile="test.f",
 			filetypes=(("All","*"),

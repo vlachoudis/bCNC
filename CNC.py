@@ -3023,7 +3023,7 @@ class GCode:
 	# Depth increment
 	# Retract height=safe height
 	#----------------------------------------------------------------------
-	def drill(self, items, depth=None, peck=None, dwell=None):
+	def drill(self, items, depth=None, peck=None, dwell=None, distance=None, number=0):
 		# find the penetration points and drill
 		# skip all g1 movements on the horizontal plane
 		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
@@ -3038,6 +3038,20 @@ class GCode:
 
 		undoinfo = []
 
+		def drillHole(lines):
+			# drill point
+			if peck is None:
+				lines.append(CNC.zenter(depth))
+				lines.append(CNC.zsafe())
+			else:
+				z = self.cnc["surface"]
+				while z>depth:
+					z = max(z-peck, depth)
+					lines.append(CNC.zenter(z))
+					lines.append(CNC.zsafe())
+					if dwell:
+						lines.append("g4 %s"%(self.fmt("p",dwell)))
+
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
@@ -3050,40 +3064,58 @@ class GCode:
 			self.initPath(bid)
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
-			for i,line in enumerate(block):
-				cmds = CNC.parseLine(line)
-				if cmds is None:
-					lines.append(line)
-					continue
-				self.cnc.motionStart(cmds)
-				if self.cnc.dz<0.0:
-					# drill point
-					if peck is None:
-						lines.append(CNC.zenter(depth))
-						lines.append(CNC.zsafe())
-					else:
-						z = self.cnc["surface"]
-						while z>depth:
-							z = max(z-peck, depth)
-							lines.append(CNC.zenter(z))
-							lines.append(CNC.zsafe())
-							if dwell:
-								lines.append("g4 %s"%(self.fmt("p",dwell)))
-
-				elif self.cnc.dz>0.0:
-					# retract
-					pass
-
-				elif self.cnc.gcode == 0:
-					# add all rapid movements
-					lines.append(line)
-
-				elif self.cnc.gcode == 1:
-					# ignore normal movements
-					pass
-
-				self.cnc.motionEnd()
-
+			if distance is None and number==0:
+				for i,line in enumerate(block):
+					cmds = CNC.parseLine(line)
+					if cmds is None:
+						lines.append(line)
+						continue
+					self.cnc.motionStart(cmds)
+					if self.cnc.dz<0.0:
+						drillHole(lines)
+					elif self.cnc.dz>0.0:
+						# retract
+						pass
+					elif self.cnc.gcode == 0:
+						# add all rapid movements
+						lines.append(line)
+					elif self.cnc.gcode == 1:
+						# ignore normal movements
+						pass
+					self.cnc.motionEnd()
+			else:
+				for path in self.toPath(bid):
+					length = path.length()
+					if number>0:
+						distance = length / float(number)
+					s = 0.0			# running length
+					P = path[0].start
+					lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
+					drillHole(lines)
+					for segment in path:
+						l = segment.length()
+						# if we haven't reach 'distance'
+						if s+l < distance:
+							s += l
+							continue
+						n = 0
+						while True:
+							n += 1
+							remain = n*distance - s
+							if remain > l:
+								s = distance-(remain-l)
+								break
+							if segment.type == Segment.LINE:
+								P = segment.start + (remain/l)*segment.AB
+							else:
+								if segment.type == Segment.CW:
+									phi = segment.startPhi - remain / segment.radius
+								else:
+									phi = segment.startPhi + remain / segment.radius
+								P = Vector(segment.center[0] + segment.radius*math.cos(phi),
+									   segment.center[1] + segment.radius*math.sin(phi))
+							lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
+							drillHole(lines)
 			undoinfo.append(self.setBlockLinesUndo(bid,lines))
 		self.addUndo(undoinfo)
 
@@ -3185,22 +3217,17 @@ class GCode:
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-
 			for path in self.toPath(bid):
 				length = path.length()
 				d = max(length / float(ntabs), dtabs)
-
 				# running length
 				s = d/2.	# start from half distance to add first tab
-
 				for segment in path:
 					l = segment.length()
-
 					# if we haven't reach d
 					if s+l < d:
 						s += l
 						continue
-
 					n = 0
 					while True:
 						n += 1
@@ -3208,7 +3235,6 @@ class GCode:
 						if remain > l:
 							s = d-(remain-l)
 							break
-
 						if segment.type == Segment.LINE:
 							P = segment.start + (remain/l)*segment.AB
 						else:
@@ -3218,7 +3244,6 @@ class GCode:
 								phi = segment.startPhi + remain / segment.radius
 							P = Vector(segment.center[0] + segment.radius*math.cos(phi),
 								   segment.center[1] + segment.radius*math.sin(phi))
-
 						tab = Tab(P[0],P[1],dx,dy,z)
 						undoinfo.append(self.addTabUndo(bid,0,tab))
 		self.addUndo(undoinfo)
