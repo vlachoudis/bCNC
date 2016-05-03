@@ -663,11 +663,10 @@ class Sender:
 		self.enable()
 
 	#----------------------------------------------------------------------
-	# Stop the current run
+	# Purge the buffer of the controller. Unfortunately we have to perform
+	# a reset to clear the buffer of the controller
 	#----------------------------------------------------------------------
-	def stopRun(self, event=None):
-		self.feedHold()
-		self._stop = True
+	def purgeController(self):
 		time.sleep(1)
 		# remember and send all G commands
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
@@ -678,8 +677,18 @@ class Sender:
 			self.unlock()
 		self.runEnded()
 		self.stopProbe()
-		if G: self.sendGCode("%s\n$G\n"%(G))		# restore $G
+		if G: self.sendGCode("%s\n$G\n"%(G))	# restore $G
 		self.sendGCode("G43.1Z%s\n$G\n"%(TLO))	# restore TLO
+
+	#----------------------------------------------------------------------
+	# Stop the current run
+	#----------------------------------------------------------------------
+	def stopRun(self, event=None):
+		self.feedHold()
+		self._stop = True
+		# if we are in the process of submitting do not do anything
+		if self._runLines != sys.maxint:
+			self.purgeController()
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line

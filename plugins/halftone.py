@@ -16,7 +16,10 @@ import time
 
 from CNC import CW,CCW,CNC,Block
 from ToolsPage import Plugin
-from PIL import Image, ImageDraw, ImageStat
+try:
+	from PIL import Image, ImageDraw, ImageStat
+except ImportError:
+	Image = None
 
 import tkMessageBox
 
@@ -86,9 +89,7 @@ class Tool(Plugin):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		try:
-			from PIL import Image, ImageDraw, ImageStat
-		except:
+		if Image is None:
 			app.setStatus(_("Halftone abort: This plugin requires PIL/Pillow to read image data"))
 			return
 

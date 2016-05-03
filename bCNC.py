@@ -2050,14 +2050,13 @@ class Application(Toplevel,Sender):
 			self._paths = self.gcode.compile(self.queue, self.checkStop)
 			if self._paths is None:
 				self.emptyQueue()
-				self.runEnded()
+				self.purgeController()
 				return
 			elif not self._paths:
 				tkMessageBox.showerror(_("Empty gcode"),
 					_("Not gcode file was loaded"),
 					parent=self)
 				return
-
 			# reset colors
 			for ij in self._paths:
 				if not ij: continue
@@ -2080,18 +2079,7 @@ class Application(Toplevel,Sender):
 						self.queue.put(line)
 					n += 1
 			self._runLines = n	# set it at the end to be sure that all lines are queued
-
 		self.queue.put((WAIT,))		# wait at the end fo become idle
-
-#		print "Lines=",self.queue.qsize()
-#		print "Paths=",len(self._paths)
-#		print "RunLines=",self._runLines
-#		fout = open("run.out","w")
-#		while self.queue.qsize()>0:
-#			line = self.queue.get()
-#			print >>fout, line
-#		fout.close()
-#		return
 
 		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)
@@ -2221,12 +2209,9 @@ class Application(Toplevel,Sender):
 			self.bufferGauge.setFill(Sender.getBufferFill(self))
 			if self._selectI>=0 and self._paths:
 				while self._selectI <= self._gcount and self._selectI<len(self._paths):
-					#print
-					#print "selectI,gcount,runLines=",self._selectI, self._paths[self._selectI], self._gcount, self._runLines
 					if self._paths[self._selectI]:
 						i,j = self._paths[self._selectI]
 						path = self.gcode[i].path(j)
-						#print "current=",i,j,self.gcode[i][j], "path=",path
 						if path:
 							self.canvas.itemconfig(path,
 								width=2,
