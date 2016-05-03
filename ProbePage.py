@@ -1520,6 +1520,11 @@ class ToolFrame(CNCRibbon.PageFrame):
 					_("Invalid tool scanning distance entered"),
 					parent=self.winfo_toplevel())
 			return
+		if CNC.vars["tooldistance"] <= 0.0:
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool scanning distance entered"),
+					parent=self.winfo_toplevel())
+			return
 
 		try:
 			CNC.vars["toolheight"]   = float(self.toolHeight.get())
