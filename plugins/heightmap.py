@@ -55,6 +55,7 @@ class Tool(Plugin):
 			("CutTop",    "bool",  False, _("Cut Top")),
 			("CutBorder", "bool",  False, _("Cut Border")),
 			("Invert",    "bool",  False, _("Invert")),
+			("SinglePass",    "bool",  False, _("Single pass")),
 			("File",      "file" ,	  "", _("Image to process")),
 		]
 		self.buttons.append("exe")
@@ -132,6 +133,8 @@ class Tool(Plugin):
 		feed_rate     =  CNC.vars["cutfeed"]
 
 		zStep         =  CNC.vars['stepz']
+		if self["SinglePass"]:
+			zStep     =  0.0
 		rough_offset  =  0.0
 		rough_feed    =  CNC.vars["cutfeed"]
 
