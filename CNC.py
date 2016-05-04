@@ -3537,7 +3537,11 @@ class GCode:
 						else:
 							newcmd.append(self.fmt(cmd[0],new[c]))
 					# Append motion commands if not exist and changed
-					for c in "XYZ":
+					if 'I' in new or 'J' in new:
+						check = "XYZIJK"
+					else:
+						check = "XYZ"
+					for c in check:
 						try:
 							if c not in present and new[c] != old[c]:
 								newcmd.append(self.fmt(c,new[c]))
