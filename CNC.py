@@ -3520,21 +3520,29 @@ class GCode:
 				for cmd in cmds:
 					c = cmd[0].upper()
 					try:
-						new[c] = float(cmd[1:])
+						new[c] = old[c] = float(cmd[1:])
 					except:
-						new[c] = 0.0
+						new[c] = old[c] = 0.0
 
 				# Modify values with func
 				if func(new, old, *args):
 					# Reconstruct new cmd
 					newcmd = []
+					present = ""
 					for cmd in cmds:
 						c = cmd[0].upper()
+						present += c
 						if c in ("G","M"):	# leave unchanged
 							newcmd.append(cmd)
 						else:
 							newcmd.append(self.fmt(cmd[0],new[c]))
-						old[c] = new[c]
+					# Append motion commands if not exist and changed
+					for c in "XYZ":
+						try:
+							if c not in present and new[c] != old[c]:
+								newcmd.append(self.fmt(c,new[c]))
+						except KeyError:
+							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
 		# FIXME I should add it later, check all functions using it
@@ -3589,19 +3597,6 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
-	# Rotate items around optional center (on XY plane)
-	# ang in degrees (counter-clockwise)
-	#----------------------------------------------------------------------
-	def rotateLines(self, items, ang, x0=0.0, y0=0.0):
-		a = math.radians(ang)
-		c = math.cos(a)
-		s = math.sin(a)
-		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
-			c = round(c)	# round numbers to avoid nasty extra digits
-			s = round(s)
-		return self.process(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
-
-	#----------------------------------------------------------------------
 	# Transform (rototranslate) position with the following function:
 	#	 xn = c*x - s*y + xo
 	#	 yn = s*x + c*y + yo
@@ -3620,6 +3615,19 @@ class GCode:
 			new['I'] = c*i - s*j
 			new['J'] = s*i + c*j
 		return True
+
+	#----------------------------------------------------------------------
+	# Rotate items around optional center (on XY plane)
+	# ang in degrees (counter-clockwise)
+	#----------------------------------------------------------------------
+	def rotateLines(self, items, ang, x0=0.0, y0=0.0):
+		a = math.radians(ang)
+		c = math.cos(a)
+		s = math.sin(a)
+		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
+			c = round(c)	# round numbers to avoid nasty extra digits
+			s = round(s)
+		return self.process(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Use the orientation information to orient selected code
