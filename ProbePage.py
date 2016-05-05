@@ -1520,11 +1520,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 					_("Invalid tool scanning distance entered"),
 					parent=self.winfo_toplevel())
 			return
-		if CNC.vars["tooldistance"] <= 0.0:
-			tkMessageBox.showerror(_("Probe Tool Change Error"),
-					_("Invalid tool scanning distance entered"),
-					parent=self.winfo_toplevel())
-			return
 
 		try:
 			CNC.vars["toolheight"]   = float(self.toolHeight.get())
@@ -1533,6 +1528,15 @@ class ToolFrame(CNCRibbon.PageFrame):
 					_("Invalid tool height or not calibrated"),
 					parent=self.winfo_toplevel())
 			return
+
+	#-----------------------------------------------------------------------
+	def check4Errors(self):
+		if CNC.vars["tooldistance"] <= 0.0:
+			tkMessageBox.showerror(_("Probe Tool Change Error"),
+					_("Invalid tool scanning distance entered"),
+					parent=self.winfo_toplevel())
+			return True
+		return False
 
 	#-----------------------------------------------------------------------
 	def policyChange(self):
@@ -1565,6 +1569,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def calibrate(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
+		if self.check4Errors(): return
 		lines = []
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
@@ -1587,6 +1592,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def change(self, event=None):
 		ProbeCommonFrame.probeUpdate()
 		self.set()
+		if self.check4Errors(): return
 		lines = self.app.cnc.toolChange(0)
 		self.app.run(lines=lines)
 
