@@ -99,11 +99,11 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def rotate90(self, image):
 		if self.angle == 1:	# 90 deg
-			return cv.transpose(image)
+			return cv.transpose(cv.flip(image,1))
 		elif self.angle == 2: # 180 deg
 			return cv.flip(image,-1)
 		elif self.angle == 3: # 270 deg
-			return cv.flip(cv.transpose(image), 1)
+			return cv.flip(cv.transpose(image),1)
 		else:
 			return image
 
