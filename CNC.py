@@ -3868,7 +3868,7 @@ class GCode:
 				expand = None
 				self.cnc.motionStart(cmds)
 
-				if autolevel and self.cnc.gcode in (1,2,3):
+				if autolevel and self.cnc.gcode in (0,1,2,3):
 					xyz = self.cnc.motionPath()
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement
@@ -3882,17 +3882,21 @@ class GCode:
 							if c[0].upper() not in ('G','X','Y','Z','I','J','K'):
 								extra += c
 						x1,y1,z1 = xyz[0]
+						if self.cnc.gcode == 0:
+							g = 0
+						else:
+							g = 1
 						for x2,y2,z2 in xyz[1:]:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
-								add(" G1%s%s%s%s"%\
-									(self.fmt("X",x/self.cnc.unit),
+								add("G%d%s%s%s%s"%\
+									(g,
+									 self.fmt("X",x/self.cnc.unit),
 									 self.fmt("Y",y/self.cnc.unit),
 									 self.fmt("Z",z/self.cnc.unit),
 									 extra),
 								    (i,j))
 								extra = ""
 							x1,y1,z1 = x2,y2,z2
-						#lines[-1] = lines[-1].strip()
 					self.cnc.motionEnd()
 					continue
 				else:
@@ -3912,8 +3916,6 @@ class GCode:
 					self.cnc.motionEnd()
 
 				if expand is not None:
-					#lines.extend(expand)
-					#paths.extend([None]*len(expand))
 					for line in expand:
 						add(line, None)
 					expand = None
@@ -3934,8 +3936,6 @@ class GCode:
 					if cmd is not None:
 						newcmd.append(cmd)
 
-				#lines.append("".join(newcmd))
-				#paths.append((i,j))
 				add("".join(newcmd), (i,j))
 
 		return paths
