@@ -2722,6 +2722,14 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Set block color
+	#----------------------------------------------------------------------
+	def setBlockColorUndo(self, bid, color):
+		undoinfo = (self.setBlockEnableUndo, bid, self.blocks[bid].color)
+		self.blocks[bid].color = color
+		return undoinfo
+
+	#----------------------------------------------------------------------
 	# Swap two blocks
 	#----------------------------------------------------------------------
 	def swapBlockUndo(self, a, b):

@@ -640,6 +640,39 @@ class CNCListbox(Listbox):
 		self.event_generate("<<Status>>",data="Toggled Visibility of selected objects")
 
 	# ----------------------------------------------------------------------
+	# change color of a block
+	# ----------------------------------------------------------------------
+	def changeColor(self, event=None, newColor=None):
+		if not self._items: return None
+		items  = list(map(int,self.curselection()))
+		oldColor = None
+		active = self.index(ACTIVE)
+		bactive,lactive = self._items[active]
+		blocks = []
+		undoinfo = []
+		for i in reversed(items):
+			bid,lid = self._items[i]
+			if lid is not None:
+				if bid in blocks: continue
+			blocks.append(bid)
+			if oldColor is None: oldColor = not self.gcode[bid].color
+			self.gcode[bid].color = newColor
+			undoinfo.append(self.gcode.setBlockColorUndoUndo(bid, oldColor))
+
+		if undoinfo:
+			self.gcode.addUndo(undoinfo)
+			self.selection_clear(0,END)
+			self.fill()
+			active = self._blockPos[bactive]
+			for bid in blocks:
+				self.selectBlock(bid)
+			self.activate(active)
+			self.see(active)
+
+		self.event_generate("<<Status>>",data="Change color of block")
+
+
+	# ----------------------------------------------------------------------
 	# Select items in the form of (block, item)
 	# ----------------------------------------------------------------------
 	def select(self, items, double=False, clear=False, toggle=True):
