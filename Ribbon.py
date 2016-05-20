@@ -186,29 +186,6 @@ class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 		Frame.config(self, background= _BACKGROUND) #self.__backgroundColor)
 
 #===============================================================================
-class LabelColorPicker(Button, _KeyboardFocus):
-	def __init__(self, master, recipient=None, event=None, **kw):
-		Button.__init__(self, master, **kw)
-		self.config(	relief           = FLAT,
-				activebackground = _ACTIVE_COLOR,
-				font             = _FONT,
-				borderwidth      = 1,
-				highlightthickness = 0,
-				padx             = 2,
-				pady             = 0,
-				command          = self.showColorPicker)
-		_KeyboardFocus._bind(self)
-		
-	def showColorPicker(self,event=None):
-		try:
-			rgb, colorStr = tkExtra.askcolor(
-				title="Color",
-				#initialcolor=,
-				parent=self)
-		except TclError:
-			colorStr = None
-
-#===============================================================================
 # Button with Label that popup a menu
 #===============================================================================
 class MenuButton(Button, _KeyboardFocus):

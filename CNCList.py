@@ -642,22 +642,30 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	# change color of a block
 	# ----------------------------------------------------------------------
-	def changeColor(self, event=None, newColor=None):
-		if not self._items: return None
-		items  = list(map(int,self.curselection()))
-		oldColor = None
-		active = self.index(ACTIVE)
-		bactive,lactive = self._items[active]
-		blocks = []
-		undoinfo = []
-		for i in reversed(items):
-			bid,lid = self._items[i]
-			if lid is not None:
-				if bid in blocks: continue
-			blocks.append(bid)
-			if oldColor is None: oldColor = not self.gcode[bid].color
-			self.gcode[bid].color = newColor
-			undoinfo.append(self.gcode.setBlockColorUndoUndo(bid, oldColor))
+	def changeColor(self, event=None):
+		try:
+			rgb, colorStr = tkExtra.askcolor(
+				title="Color",
+				#initialcolor=,
+				parent=self)
+		except TclError:
+			colorStr = None
+		newColor = str(colorStr)
+		
+		# Get selected blocks from editor
+		selBlocks = self.getSelectedBlocks()
+		if not selBlocks:
+			self.selectAll()
+			selBlocks = self.getSelectedBlocks()
+
+		for bid in selBlocks:
+			bidSegments = []
+			block = self.gcode.blocks[bid]
+			if block.name() in ("Header", "Footer"): continue
+			oldColor = block.color
+			block.color = newColor
+			#print "Changed color from:" + str(oldColor) + " to:" + newColor
+			undoinfo.append(self.gcode.setBlockColorUndo(bid, oldColor))
 
 		if undoinfo:
 			self.gcode.addUndo(undoinfo)
@@ -669,7 +677,7 @@ class CNCListbox(Listbox):
 			self.activate(active)
 			self.see(active)
 
-		self.event_generate("<<Status>>",data="Change color of block")
+		self.event_generate("<<Status>>",data="Changed color of block")
 
 
 	# ----------------------------------------------------------------------

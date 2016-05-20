@@ -241,7 +241,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ---
 		col,row=3,0
-		b = Ribbon.LabelColorPicker(self.frame, self.app, "<<ChangeColor>>",
+		b = Ribbon.LabelButton(self.frame, self.app, "<<ChangeColor>>",
 				image=Utils.icons["color"],
 				text=_("Color"),
 				compound=LEFT,
