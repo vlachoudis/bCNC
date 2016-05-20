@@ -2725,7 +2725,7 @@ class GCode:
 	# Set block color
 	#----------------------------------------------------------------------
 	def setBlockColorUndo(self, bid, color):
-		undoinfo = (self.setBlockEnableUndo, bid, self.blocks[bid].color)
+		undoinfo = (self.setBlockColorUndo, bid, self.blocks[bid].color)
 		self.blocks[bid].color = color
 		return undoinfo
 

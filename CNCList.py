@@ -658,6 +658,7 @@ class CNCListbox(Listbox):
 			self.selectAll()
 			selBlocks = self.getSelectedBlocks()
 
+		undoinfo = []
 		for bid in selBlocks:
 			bidSegments = []
 			block = self.gcode.blocks[bid]
@@ -671,11 +672,11 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			self.selection_clear(0,END)
 			self.fill()
-			active = self._blockPos[bactive]
-			for bid in blocks:
-				self.selectBlock(bid)
-			self.activate(active)
-			self.see(active)
+			#active = self._blockPos[bactive]
+			#for bid in selBlocks:
+			#	self.selectBlock(bid)
+			#self.activate(active)
+			#self.see(active)
 
 		self.event_generate("<<Status>>",data="Changed color of block")
 

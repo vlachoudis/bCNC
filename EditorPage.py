@@ -240,7 +240,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		self.addWidget(b)
 
 		# ---
-		col,row=3,0
+		col,row=3,1
 		b = Ribbon.LabelButton(self.frame, self.app, "<<ChangeColor>>",
 				image=Utils.icons["color"],
 				text=_("Color"),
