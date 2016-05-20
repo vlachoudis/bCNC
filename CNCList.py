@@ -665,8 +665,6 @@ class CNCListbox(Listbox):
 				if bid in blocks: continue
 			blocks.append(bid)
 			oldColor = self.gcode[bid].color
-			self.gcode[bid].color = newColor
-			#print "Changed color from:" + str(oldColor) + " to:" + newColor
 			undoinfo.append(self.gcode.setBlockColorUndo(bid, oldColor))
 
 		if undoinfo:
@@ -675,6 +673,7 @@ class CNCListbox(Listbox):
 			self.fill()
 			active = self._blockPos[bactive]
 			for bid in blocks:
+				self.gcode[bid].color = newColor
 				self.selectBlock(bid)
 			self.activate(active)
 			self.see(active)
