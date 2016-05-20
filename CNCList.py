@@ -652,19 +652,20 @@ class CNCListbox(Listbox):
 			colorStr = None
 		newColor = str(colorStr)
 		
-		# Get selected blocks from editor
-		selBlocks = self.getSelectedBlocks()
-		if not selBlocks:
-			self.selectAll()
-			selBlocks = self.getSelectedBlocks()
-
+		if not self._items: return None
+		items  = list(map(int,self.curselection()))
+		expand = None
+		active = self.index(ACTIVE)
+		bactive,lactive = self._items[active]
+		blocks = []
 		undoinfo = []
-		for bid in selBlocks:
-			bidSegments = []
-			block = self.gcode.blocks[bid]
-			if block.name() in ("Header", "Footer"): continue
-			oldColor = block.color
-			block.color = newColor
+		for i in reversed(items):
+			bid,lid = self._items[i]
+			if lid is not None:
+				if bid in blocks: continue
+			blocks.append(bid)
+			oldColor = self.gcode[bid].color
+			self.gcode[bid].color = newColor
 			#print "Changed color from:" + str(oldColor) + " to:" + newColor
 			undoinfo.append(self.gcode.setBlockColorUndo(bid, oldColor))
 
@@ -672,11 +673,11 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			self.selection_clear(0,END)
 			self.fill()
-			#active = self._blockPos[bactive]
-			#for bid in selBlocks:
-			#	self.selectBlock(bid)
-			#self.activate(active)
-			#self.see(active)
+			active = self._blockPos[bactive]
+			for bid in blocks:
+				self.selectBlock(bid)
+			self.activate(active)
+			self.see(active)
 
 		self.event_generate("<<Status>>",data="Changed color of block")
 
