@@ -651,12 +651,9 @@ class CNCListbox(Listbox):
 		except TclError:
 			colorStr = None
 		newColor = str(colorStr)
-		
+
 		if not self._items: return None
 		items  = list(map(int,self.curselection()))
-		expand = None
-		active = self.index(ACTIVE)
-		bactive,lactive = self._items[active]
 		blocks = []
 		undoinfo = []
 		for i in reversed(items):
@@ -669,14 +666,8 @@ class CNCListbox(Listbox):
 
 		if undoinfo:
 			self.gcode.addUndo(undoinfo)
-			self.selection_clear(0,END)
-			self.fill()
-			active = self._blockPos[bactive]
 			for bid in blocks:
 				self.gcode[bid].color = newColor
-				self.selectBlock(bid)
-			self.activate(active)
-			self.see(active)
 
 		self.event_generate("<<Status>>",data="Changed color of block")
 
