@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-04-03 22:47+0200\n"
-"PO-Revision-Date: 2016-04-19 21:21+0200\n"
+"PO-Revision-Date: 2016-05-21 17:25+0200\n"
 "Last-Translator: Felix Mahnke <@feistus>\n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -308,6 +308,12 @@ msgid ""
 "Grbl versions had a default feed rate setting, which was illegal and was "
 "removed in Grbl v0.9."
 msgstr ""
+"Es wurde keine Vorschubrate angegeben, ein G-Code Kommando dieses Blocks / "
+"dieser Zeile benötigt jedoch eine Vorschubrate. Der G-Code Standard "
+"verlangt, dass nach einem Reset oder wenn von inversem Modus zum "
+"Einheitenmodus umgeschaltet wird, F Vorschubraten undefiniert sind. Ältere "
+"Grbl versionen eine eine Default Einstellung für die Vorschubrate. Das war "
+"nicht zulässig und wurde in Grbl 0.9 entfernt.  "
 
 #: Sender.py:79
 msgid ""
@@ -315,12 +321,17 @@ msgid ""
 "be G4.13. Some G-code commands are floating point (G92.1), but these are "
 "ignored."
 msgstr ""
+"Ein G oder M Kommando Wert in diesem Block ist kein integer. Zum Beispiel "
+"kann G4 nicht G4.13 sein. Einige G-Code Kommandos haben Fließkomma (float) "
+"Werte (G92.1), aber diese werden ignoriert."
 
 #: Sender.py:80
 msgid ""
 "Two G-code commands that both require the use of the XYZ axis words were "
 "detected in the block."
 msgstr ""
+"Es wurden zwei G-Code Kommandos in diesem Block erkannt, die beide ein XYZ "
+"Achsen Wort erfordern."
 
 #: Sender.py:81
 msgid "A G-code word was repeated in the block."
@@ -331,6 +342,8 @@ msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
 msgstr ""
+"Ein G-Code Kommando in diesem Block erfordert implizit oder explizit ein XYZ "
+"Achsen Wort, es wurde jedoch keines erkannt."
 
 #: Sender.py:83
 msgid ""
@@ -339,12 +352,19 @@ msgid ""
 "max number to 9,999,999. This error occurs when you send a number more than "
 "this."
 msgstr ""
+"Das G-Code Protokoll verlangt, dass N Zeilennummern innerhalb des Bereichs "
+"1-99.999 liegen. Wir halten das für Blödsinn und für zu allgemein. Daher "
+"erhöhen wir die maximale Anzahl der Zeilen auf 9.999.999. Dieser Fehler "
+"tritt auf, wenn eine Zahl gesendet wird, die höher als dieser Wert ist."
 
 #: Sender.py:84
 msgid ""
 "A G-code command was sent, but is missing some important P or L value words "
 "in the line. Without them, the command can't be executed. Check your G-code."
 msgstr ""
+"Ein G-Code Kommando wurde gesendet, aber es fehlt ein wichtiger P oder L "
+"Wert in der Zeile. Ohne diesen kann das Kommando nicht ausgeführt werden. "
+"Überprüfen Sie Ihren G-Code."
 
 #: Sender.py:85
 msgid ""
@@ -352,6 +372,9 @@ msgid ""
 "trying to use or configure an unsupported work coordinate system, such as "
 "G59.1, G59.2, and G59.3."
 msgstr ""
+"Grbl unterstützt die sechs Arbeitsbereiche (Koordinatensysteme) G54-G59. "
+"Dieser Fehler tritt auf, wenn versucht wird einen nicht unterstützten "
+"Arbeitsbereich zu wählen, wie z.B. G59.1, G59.2, und G59.3."
 
 #: Sender.py:86
 msgid ""
@@ -544,7 +567,7 @@ msgstr "Zustelltiefe"
 
 #: ToolsPage.py:540 lib/bFileDialog.py:296
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: ToolsPage.py:541
 msgid "Shape"
@@ -610,7 +633,7 @@ msgstr ""
 
 #: ToolsPage.py:621
 msgid "Peck depth"
-msgstr ""
+msgstr "Zustelltiefe"
 
 #: ToolsPage.py:630
 msgid "DRILL selected points"
@@ -631,7 +654,7 @@ msgstr "Zusätzliche Offset Entfernung"
 
 #: ToolsPage.py:644 plugins/box.py:313
 msgid "Overcut"
-msgstr ""
+msgstr "Überschnitt"
 
 #: ToolsPage.py:656
 msgid "Generate profile path"
@@ -643,11 +666,11 @@ msgstr "Pfade für Tasche erzeugen"
 
 #: ToolsPage.py:689
 msgid "Number of tabs"
-msgstr ""
+msgstr "Anzahl der Tabs"
 
 #: ToolsPage.py:690
 msgid "Min. Distance of tabs"
-msgstr ""
+msgstr "Minimaler Abstand der Tabs"
 
 #: ToolsPage.py:693
 msgid "Height"
@@ -655,7 +678,7 @@ msgstr "Höhe"
 
 #: ToolsPage.py:713
 msgid "Tabs error"
-msgstr ""
+msgstr "Tabs Fehler"
 
 #: ToolsPage.py:714
 msgid "You cannot have both the number of tabs or distance equal to zero"
