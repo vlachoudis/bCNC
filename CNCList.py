@@ -668,9 +668,9 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			for bid in blocks:
 				self.gcode[bid].color = newColor
+			self.app.event_generate("<<Modified>>")
 
 		self.event_generate("<<Status>>",data="Changed color of block")
-
 
 	# ----------------------------------------------------------------------
 	# Select items in the form of (block, item)
