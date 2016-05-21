@@ -653,9 +653,9 @@ class CNCListbox(Listbox):
 		newColor = str(colorStr)
 
 		if not self._items: return None
-		items  = list(map(int,self.curselection()))
 		blocks = []
 		undoinfo = []
+		items  = list(map(int,self.curselection()))
 		for i in reversed(items):
 			bid,lid = self._items[i]
 			if lid is not None:
@@ -668,6 +668,7 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			for bid in blocks:
 				self.gcode[bid].color = newColor
+			self.selectClear()
 			self.app.event_generate("<<Modified>>")
 
 		self.event_generate("<<Status>>",data="Changed color of block")
