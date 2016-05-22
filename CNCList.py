@@ -650,19 +650,25 @@ class CNCListbox(Listbox):
 	# change color of a block
 	# ----------------------------------------------------------------------
 	def changeColor(self, event=None):
+		items = list(map(int,self.curselection()))
+		if not items:
+			self.event_generate("<<Status>>",data="Nothing is selected")
+			return
+
+		# Find initial color
+		bid,lid = self._items[items[0]]
+
 		try:
-			rgb, colorStr = tkExtra.askcolor(
-				title="Color",
-				#initialcolor=,
+			rgb, color = tkExtra.askcolor(
+				title=_("Color"),
+				initialcolor=self.gcode[bid].color,
 				parent=self)
 		except TclError:
-			colorStr = None
-		newColor = str(colorStr)
+			color = None
+		if color is None: return
 
-		if not self._items: return None
 		blocks = []
 		undoinfo = []
-		items  = list(map(int,self.curselection()))
 		for i in reversed(items):
 			bid,lid = self._items[i]
 			if lid is not None:
@@ -672,12 +678,11 @@ class CNCListbox(Listbox):
 			undoinfo.append(self.gcode.setBlockColorUndo(bid, oldColor))
 
 		if undoinfo:
+			self.selectClear()
 			self.gcode.addUndo(undoinfo)
 			for bid in blocks:
-				self.gcode[bid].color = newColor
-			self.selectClear()
-			self.app.event_generate("<<Modified>>")
-
+				self.gcode[bid].color = color
+			self.event_generate("<<Modified>>")
 		self.event_generate("<<Status>>",data="Changed color of block")
 
 	# ----------------------------------------------------------------------
@@ -784,7 +789,7 @@ class CNCListbox(Listbox):
 				self.selection_set(i)
 
 	# ----------------------------------------------------------------------
-	# Select all blocks with the same name of the selected laye
+	# Select all blocks with the same name of the selected layer
 	# ----------------------------------------------------------------------
 	def selectLayer(self):
 		for bid in self.getSelectedBlocks():
