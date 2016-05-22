@@ -1043,7 +1043,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 				command=self.freezeImage,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Turn on/off edge detection"))
+		tkExtra.Balloon.set(b, _("Turn on/off freeze image"))
 
 	#-----------------------------------------------------------------------
 	# Move camera to spindle location and change coordinates to relative
