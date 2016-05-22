@@ -678,7 +678,6 @@ class CNCListbox(Listbox):
 			undoinfo.append(self.gcode.setBlockColorUndo(bid, oldColor))
 
 		if undoinfo:
-			self.selectClear()
 			self.gcode.addUndo(undoinfo)
 			for bid in blocks:
 				self.gcode[bid].color = color

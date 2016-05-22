@@ -67,6 +67,8 @@ PROBE_TEXT_COLOR = "Green"
 
 INFO_COLOR    = "Gold"
 
+SELECTION_TAGS = ("sel", "sel2", "sel3", "sel4")
+
 ACTION_SELECT        =  0
 ACTION_SELECT_SINGLE =  1
 ACTION_SELECT_AREA   =  2
@@ -1016,14 +1018,23 @@ class CNCCanvas(Canvas):
 		if self._lastActive is not None:
 			self.itemconfig(self._lastActive, arrow=NONE)
 			self._lastActive = None
-		self.itemconfig("sel",  width=1, fill=ENABLE_COLOR)
+
+		for i in self.find_withtag("sel"):
+			bid,lid = self._items[i]
+			if bid:
+				block = self.gcode[bid]
+				if block.color:
+					fill = block.color
+				else:
+					fill = ENABLE_COLOR
+			else:
+					fill = ENABLE_COLOR
+			self.itemconfig(i,  width=1, fill=fill)
+
 		self.itemconfig("sel2", width=1, fill=DISABLE_COLOR)
 		self.itemconfig("sel3", width=1, fill=TAB_COLOR)
 		self.itemconfig("sel4", width=1, fill=DISABLE_COLOR)
-		self.dtag("sel")
-		self.dtag("sel2")
-		self.dtag("sel3")
-		self.dtag("sel4")
+		for i in SELECTION_TAGS: self.dtag(i)
 		self.delete("info")
 
 	#----------------------------------------------------------------------
@@ -1059,6 +1070,7 @@ class CNCCanvas(Canvas):
 		self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
 		self.itemconfig("sel3", width=2, fill=TAB_COLOR)
 		self.itemconfig("sel4", width=2, fill=TAB_COLOR)
+		for i in SELECTION_TAGS: self.tag_raise(i)
 		self.drawMargin()
 
 	#----------------------------------------------------------------------
