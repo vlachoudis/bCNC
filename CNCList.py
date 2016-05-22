@@ -240,7 +240,7 @@ class CNCListbox(Listbox):
 
 		#self.selection_set(ACTIVE)
 		#self.see(ACTIVE)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Clone selected blocks
@@ -272,7 +272,7 @@ class CNCListbox(Listbox):
 		else:
 			self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -301,7 +301,7 @@ class CNCListbox(Listbox):
 		self.yview_moveto(ypos)
 		self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Edit active item
@@ -355,7 +355,7 @@ class CNCListbox(Listbox):
 				self.itemconfig(active, foreground=DISABLE_COLOR)
 
 		self.yview_moveto(ypos)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# return active block id
@@ -407,7 +407,7 @@ class CNCListbox(Listbox):
 		self.see(active)
 		self.activate(active)
 		self.edit()
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Insert a new line below cursor
@@ -464,15 +464,22 @@ class CNCListbox(Listbox):
 				self._blockPos[i] += 1	# shift all blocks below by one
 
 		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	def toggleKey(self,event=None):
 		if not self._items: return
 		active = self.index(ACTIVE)
 		bid,lid = self._items[active]
-		if lid is not None: return
-		self.toggleExpand()
+		if lid is None:
+			self.toggleExpand()
+		else:
+			# Go to header
+			self.selection_clear(0,END)
+			self.activate(self._blockPos[bid])
+			self.selection_set(ACTIVE)
+			self.see(ACTIVE)
+			self.event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
 	# Button1 clicked
@@ -808,7 +815,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderUp(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -820,7 +827,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderDown(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.app.event_generate("<<Modified>>")
+		self.event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
