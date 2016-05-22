@@ -174,7 +174,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Start"),
-				image=Utils.icons["start"],
+				image=Utils.icons["startPendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.startPendant,
@@ -185,7 +185,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Stop"),
-				image=Utils.icons["stop"],
+				image=Utils.icons["stopPendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.stopPendant,
