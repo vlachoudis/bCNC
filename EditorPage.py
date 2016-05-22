@@ -239,6 +239,18 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("(Un)Comment selected lines"))
 		self.addWidget(b)
 
+		# ---
+		col,row=3,1
+		b = Ribbon.LabelButton(self.frame, self.app, "<<ChangeColor>>",
+				image=Utils.icons["color"],
+				text=_("Color"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change color for block of g-code"))
+		self.addWidget(b)
+
 #===============================================================================
 # Move Group
 #===============================================================================
