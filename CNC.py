@@ -2023,17 +2023,18 @@ class Block(list):
 	# Return a dump object for pickler
 	#----------------------------------------------------------------------
 	def dump(self):
-		return self.name(), self.enable, self.expand, self
+		return self.name(), self.enable, self.expand, self.color, self
 
 	#----------------------------------------------------------------------
 	# Create a block from a dump object from unpickler
 	#----------------------------------------------------------------------
 	@staticmethod
 	def load(obj):
-		name, enable, expand, code = obj
+		name, enable, expand, color, code = obj
 		block = Block(name)
 		block.enable = enable
 		block.expand = expand
+		block.color = color
 		block.extend(code)
 		return block
 
