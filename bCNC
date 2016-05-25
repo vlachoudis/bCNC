@@ -4,7 +4,7 @@ DIR=`dirname $0`
 PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
 export DIR PYTHONPATH
 if [ .$PYTHON = . ]; then
-	PYTHON=python
+	PYTHON=python2.7
 fi
 ${PYTHON} ${DIR}/bCNC.py $*
 #python -m cProfile -o bCNC.out ${DIR}/bCNC.py $*
