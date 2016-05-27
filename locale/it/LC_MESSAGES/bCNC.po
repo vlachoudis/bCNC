@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-22 21:19+0200\n"
-"PO-Revision-Date: 2016-05-22 21:34+0200\n"
+"POT-Creation-Date: 2016-05-25 20:09+0200\n"
+"PO-Revision-Date: 2016-05-25 20:13+0200\n"
 "Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -831,7 +831,7 @@ msgstr "Inserire punto di fermo (Holding Tab)"
 
 #: ToolsPage.py:1111
 msgid "User File"
-msgstr "File"
+msgstr "File Utente"
 
 #: ToolsPage.py:1126
 msgid "Change program language restart is required"
@@ -2391,7 +2391,7 @@ msgstr "Rapido:"
 
 #: bCNC.py:926 bCNC.py:990
 msgid "Time:"
-msgstr "Tempis:"
+msgstr "Tempi:"
 
 #: bCNC.py:937
 msgid "All GCode"
