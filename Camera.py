@@ -51,6 +51,7 @@ class Camera:
 		if cv is None: return
 		self.camera = cv.VideoCapture(self.idx)
 		if self.camera is None: return
+		s, self.image = self.camera.read()
 		if not self.camera.isOpened():
 			self.stop()
 			return False
