@@ -111,8 +111,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				Pendant.camera = Camera.Camera("webcam")
 				Pendant.camera.start()
 
-			s,img = Pendant.camera.read()
-			if s:
+			if Pendant.camera.read():
 				Pendant.camera.save("camera.jpg")
 				#cv.imwrite("camera.jpg",img)
 				self.do_HEAD(200, content="image/jpeg")
