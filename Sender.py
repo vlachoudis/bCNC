@@ -771,14 +771,13 @@ class Sender:
 					pat = FEEDPAT.match(tosend)
 					if pat is not None:
 						self._lastFeed = pat.group(2)
+						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
 
 					#If Override change, attach feed
 					if CNC.vars["overrideChanged"]:
 						CNC.vars["overrideChanged"] = False
-						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
 						if pat is None and self._newFeed!=0:
 							tosend = "f%g" % (self._newFeed) + tosend
-							#print tosend
 
 					#Apply override Feed
 					if CNC.vars["override"] != 100 and self._newFeed!=0:
