@@ -256,7 +256,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		# Set buttons
 		row += 1
 		col = 1
-		b = Button(self, text="Set WPOS",
+		b = Button(self, text=_("Set WPOS"),
 				image=Utils.icons["origin"],
 				compound=LEFT,
 				activebackground="LightYellow",
@@ -267,7 +267,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(self, text="Move Gantry",
+		b = Button(self, text=_("Move Gantry"),
 				image=Utils.icons["gantry"],
 				compound=LEFT,
 				activebackground="LightYellow",
