@@ -500,6 +500,7 @@ class CNC(_Base):
 			("startup"       , "str" , "G90", _("Start up"))          ,
 			("spindlemin"    , "int" , 0    , _("Spindle min (RPM)")),
 			("spindlemax"    , "int" , 12000, _("Spindle max (RPM)")),
+			("drozeropad"    , "int" , 0    , _("DRO Zero padding")),
 			("header"        , "text" ,   "", _("Header gcode")),
 			("footer"        , "text" ,   "", _("Footer gcode"))
 		]

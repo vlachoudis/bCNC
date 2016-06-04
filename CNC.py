@@ -647,6 +647,7 @@ class CNC:
 	stdexpr        = False	# standard way of defining expressions with []
 	comment        = ""	# last parsed comment
 	developer      = False
+	drozeropad     = 0
 	vars           = {
 			"prbx"      : 0.0,
 			"prby"      : 0.0,
@@ -769,6 +770,8 @@ class CNC:
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
 		try: CNC.digits         = int(  config.get(section, "round"))
+		except: pass
+		try: CNC.drozeropad     = int(  config.get(section, "drozeropad"))
 		except: pass
 
 		CNC.startup = config.get(section, "startup")
