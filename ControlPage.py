@@ -309,13 +309,16 @@ class DROFrame(CNCRibbon.PageFrame):
 			focus = self.focus_get()
 		except:
 			focus = None
-		if focus is not self.xwork: self.xwork.set(CNC.vars["wx"])
-		if focus is not self.ywork: self.ywork.set(CNC.vars["wy"])
-		if focus is not self.zwork: self.zwork.set(CNC.vars["wz"])
+		if focus is not self.xwork:
+			self.xwork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wx"]))
+		if focus is not self.ywork:
+			self.ywork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wy"]))
+		if focus is not self.zwork:
+			self.zwork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wz"]))
 
-		self.xmachine["text"] = CNC.vars["mx"]
-		self.ymachine["text"] = CNC.vars["my"]
-		self.zmachine["text"] = CNC.vars["mz"]
+		self.xmachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["mx"])
+		self.ymachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["my"])
+		self.zmachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["mz"])
 
 	#----------------------------------------------------------------------
 	# Do not give the focus while we are running
