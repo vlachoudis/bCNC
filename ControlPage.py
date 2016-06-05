@@ -310,15 +310,22 @@ class DROFrame(CNCRibbon.PageFrame):
 		except:
 			focus = None
 		if focus is not self.xwork:
-			self.xwork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wx"]))
+			self.xwork.set(self.padFloat(CNC.drozeropad,CNC.vars["wx"]))
 		if focus is not self.ywork:
-			self.ywork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wy"]))
+			self.ywork.set(self.padFloat(CNC.drozeropad,CNC.vars["wy"]))
 		if focus is not self.zwork:
-			self.zwork.set("%0.*f"%(CNC.drozeropad,CNC.vars["wz"]))
+			self.zwork.set(self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
 
-		self.xmachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["mx"])
-		self.ymachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["my"])
-		self.zmachine["text"] = "%0.*f"%(CNC.drozeropad,CNC.vars["mz"])
+		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
+		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
+		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
+
+	#----------------------------------------------------------------------
+	def padFloat(self, decimals, value):
+		if decimals>0:
+			return "%0.*f"%(decimals, value)
+		else:
+			return value
 
 	#----------------------------------------------------------------------
 	# Do not give the focus while we are running
