@@ -57,6 +57,7 @@ __translations__ = \
 		"French - @ThierryM\n" \
 		"German - @feistus\n" \
 		"Italian - @onekk\n" \
+		"Russian - @minithc\n" \
 		"Spanish - @carlosgs"
 
 LANGUAGES = {
@@ -65,6 +66,7 @@ LANGUAGES = {
 		"it" : "Italiano",
 		"es" : u"Espa\u00f1ol",
 		"fr" : u"Fran\u00e7ais",
+		"ru" : "Russian",
 		"de" : "Deutsch"
 	}
 
