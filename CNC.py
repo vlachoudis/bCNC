@@ -23,6 +23,7 @@ from bmath import *
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
+SEMIPAT  = re.compile(r"(;.*)")
 OPPAT    = re.compile(r"(.*)\[(.*)\]")
 CMDPAT   = re.compile(r"([A-Za-z]+)")
 BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+):\s*(.*)\)")
@@ -967,11 +968,13 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def parseLine(line):
-		line = PARENPAT.sub("",line)
-
 		# skip empty lines
 		if len(line)==0 or line[0] in ("%","(","#",";"):
 			return None
+
+		# remove comments
+		line = PARENPAT.sub("",line)
+		line = SEMIPAT.sub("",line)
 
 		# process command
 		# strip all spaces
