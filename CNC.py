@@ -1143,6 +1143,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	def motionStart(self, cmds):
 		#print "\n<<<",cmds
+		self.mval = 0	# reset m command
 		for cmd in cmds:
 			c = cmd[0].upper()
 			try:
@@ -3883,7 +3884,7 @@ class GCode:
 				expand = None
 				self.cnc.motionStart(cmds)
 
-				if autolevel and self.cnc.gcode in (0,1,2,3):
+				if autolevel and self.cnc.gcode in (0,1,2,3) and self.cnc.mval==0:
 					xyz = self.cnc.motionPath()
 					if not xyz:
 						# while auto-levelling, do not ignore non-movement

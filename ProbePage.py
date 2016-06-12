@@ -320,16 +320,16 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		b = Button(lframe(), #"<<Probe>>",
-				image=Utils.icons["probe32"],
-				text=_("Probe"),
-				compound=TOP,
-				command=self.probe,
-				width=48,
+		b = Button(lframe(),
+				image=Utils.icons["rapid"],
+				text=_("Goto"),
+				compound=LEFT,
+				command=self.goto2Probe,
+#				width=48,
 				padx=5, pady=0)
-		b.grid(row=row, column=col, rowspan=2, padx=1, sticky=EW+S)
+		b.grid(row=row, column=col, padx=1, sticky=EW)
 		self.addWidget(b)
-		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+		tkExtra.Balloon.set(b, _("Rapid goto to last probe location"))
 
 		# ---
 		row,col = row+1,0
@@ -352,6 +352,20 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(self.probeZdir, _("Probe along Z direction"))
 		self.addWidget(self.probeZdir)
+
+		# ---
+		col += 1
+		b = Button(lframe(), #"<<Probe>>",
+				image=Utils.icons["probe32"],
+				text=_("Probe"),
+				compound=LEFT,
+				command=self.probe,
+#				width=48,
+				padx=5, pady=0)
+		b.grid(row=row, column=col, padx=1, sticky=EW)
+		self.addWidget(b)
+		tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+
 
 		lframe().grid_columnconfigure(1,weight=1)
 		lframe().grid_columnconfigure(2,weight=1)
@@ -605,6 +619,16 @@ class ProbeFrame(CNCRibbon.PageFrame):
 					_("At least one probe direction should be specified"))
 
 	#-----------------------------------------------------------------------
+	# Rapid move to the last probed location
+	#-----------------------------------------------------------------------
+	def goto2Probe(self, event=None):
+		try:
+			cmd = "G53 G0 X%g Y%g Z%g\n"%(CNC.vars["prbx"], CNC.vars["prby"], CNC.vars["prbz"])
+		except:
+			return
+		self.sendGCode(cmd)
+
+	#-----------------------------------------------------------------------
 	# Probe Center
 	#-----------------------------------------------------------------------
 	def probeCenter(self, event=None):
@@ -626,12 +650,14 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("%s x-%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("tmp=prbx")
+		lines.append("g53 g0 x[prbx+%g]"%(diameter/10))
 		lines.append("%s x%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("g53 g0 x[0.5*(tmp+prbx)]")
 		lines.append("%s y-%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("tmp=prby")
+		lines.append("g53 g0 y[prby+%g]"%(diameter/10))
 		lines.append("%s y%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("g53 g0 y[0.5*(tmp+prby)]")
