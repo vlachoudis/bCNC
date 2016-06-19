@@ -2222,5 +2222,5 @@ class CanvasFrame(Frame):
 		try:
 			DRAW_TIME = int(self.drawTime.get())
 		except ValueError:
-			DRAW_TIME = 0
+			DRAW_TIME = 5*60
 		self.viewChange()
