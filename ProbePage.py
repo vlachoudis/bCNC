@@ -1233,7 +1233,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def updateValues(self, *args):
 		self.app.canvas.cameraAnchor = self.cameraAnchor()
-		try: self.app.canvas.cameraScale = float(self.scale.get())
+		try: self.app.canvas.cameraScale = max(0.0001, float(self.scale.get()))
 		except ValueError: pass
 		try: self.app.canvas.cameraR = float(self.diameter.get())/2.0
 		except ValueError: pass

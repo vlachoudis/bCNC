@@ -3895,7 +3895,7 @@ class GCode:
 					else:
 						extra = ""
 						for c in cmds:
-							if c[0].upper() not in ('G','X','Y','Z','I','J','K'):
+							if c[0].upper() not in ('G','X','Y','Z','I','J','K','R'):
 								extra += c
 						x1,y1,z1 = xyz[0]
 						if self.cnc.gcode == 0:
