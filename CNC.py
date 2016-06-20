@@ -3548,7 +3548,7 @@ class GCode:
 					for cmd in cmds:
 						c = cmd[0].upper()
 						present += c
-						if c in ("G","M"):	# leave unchanged
+						if c == "M":	# leave unchanged
 							newcmd.append(cmd)
 						else:
 							newcmd.append(self.fmt(cmd[0],new[c]))
