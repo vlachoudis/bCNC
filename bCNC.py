@@ -2051,6 +2051,13 @@ class Application(Toplevel,Sender):
 			#	return
 			self.statusbar.setLimits(0, 9999)
 			self.statusbar.setProgress(0,0)
+
+			#class MyQueue:
+			#	def put(self,line):
+			#		print ">>>",line
+			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
+			#return
+
 			self._paths = self.gcode.compile(self.queue, self.checkStop)
 			if self._paths is None:
 				self.emptyQueue()
@@ -2061,6 +2068,7 @@ class Application(Toplevel,Sender):
 					_("Not gcode file was loaded"),
 					parent=self)
 				return
+
 			# reset colors
 			for ij in self._paths:
 				if not ij: continue

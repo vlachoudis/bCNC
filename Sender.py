@@ -428,7 +428,10 @@ class Sender:
 						xonxoff=False,
 						rtscts=False)
 		# Toggle DTR to reset Arduino
-		self.serial.setDTR(0)
+		try:
+			self.serial.setDTR(0)
+		except IOError:
+			pass
 		time.sleep(1)
 		CNC.vars["state"] = CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
@@ -437,7 +440,10 @@ class Sender:
 		# toss any data already received, see
 		# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
 		self.serial.flushInput()
-		self.serial.setDTR(1)
+		try:
+			self.serial.setDTR(1)
+		except IOError:
+			pass
 		time.sleep(1)
 		self.serial.write(b"\r\n\r\n")
 		self._gcount = 0
@@ -665,7 +671,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	# Purge the buffer of the controller. Unfortunately we have to perform
 	# a reset to clear the buffer of the controller
-	#----------------------------------------------------------------------
+	#---------------------------------------------------------------------
 	def purgeController(self):
 		time.sleep(1)
 		# remember and send all G commands
