@@ -1714,26 +1714,26 @@ class CNC:
 		x,y,z = self.x, self.y, self.z
 		if z < clearz:
 			z = clearz
-			lines.append(CNC.grapid(z=z))
+			lines.append(CNC.grapid(z=z/self.unit))
 
 		for l in range(self.lval):
 			# Rapid move parallel to XY
 			x += self.dx
 			y += self.dy
-			lines.append(CNC.grapid(x,y))
+			lines.append(CNC.grapid(x/self.unit,y/self.unit))
 
 			# Rapid move parallel to retract
 			zstep = max(drill, retract - peck)
 			while z > drill:
 				if z != retract:
 					z = retract
-					lines.append(CNC.grapid(z=z))
+					lines.append(CNC.grapid(z=z/self.unit))
 
 				z = max(drill, zstep)
 				zstep -= peck
 
 				# Drill to z
-				lines.append(CNC.gline(z=z,f=self.feed))
+				lines.append(CNC.gline(z=z/self.unit,f=self.feed))
 
 			# 82=dwell, 86=boring-stop, 89=boring-dwell
 			if self.gcode in (82,86,89):
@@ -1745,10 +1745,10 @@ class CNC:
 			# Move to original position
 			if self.gcode in (85,89):	# boring cycle
 				z = retract
-				lines.append(CNC.gline(z=z,f=self.feed))
+				lines.append(CNC.gline(z=z/self.unit,f=self.feed))
 
 			z = clearz
-			lines.append(CNC.grapid(z=z))
+			lines.append(CNC.grapid(z=z/self.unit))
 
 			if self.gcode == 86:
 				lines.append("M3")	# restart spindle???
