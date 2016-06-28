@@ -873,6 +873,12 @@ class Sender:
 								CNC.updateG()
 								self._gUpdate = True
 
+					elif line[:4]=="Grbl":
+						self.log.put((False, line+"\n"))
+						if self.running:
+							self._stop = True
+							self.runEnded()
+
 					else:
 						#print "<r<",repr(line)
 						self.log.put((False, line+"\n"))
@@ -887,12 +893,8 @@ class Sender:
 							CNC.vars["state"] = line
 							if self.running:
 								self._stop = True
-								#self.emptyQueue()
 								# Dangerous calling state of Tk if not reentrant
 								self.runEnded()
-								#tosend = None
-								#del cline[:]
-								#del sline[:]
 
 						elif line.find("ok")>=0:
 							self._gcount += 1
