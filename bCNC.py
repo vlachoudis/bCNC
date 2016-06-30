@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.4"
-__date__    = "19 Jun 2016"
+__version__ = "0.9.5"
+__date__    = "30 Jun 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -62,17 +62,17 @@ import CNCList
 import CNCCanvas
 import webbrowser
 
-from CNCRibbon    import Page
+from CNCRibbon	  import Page
 from ToolsPage	  import Tools, ToolsPage
-from FilePage     import FilePage
+from FilePage	  import FilePage
 from ControlPage  import ControlPage
 from TerminalPage import TerminalPage
-from ProbePage    import ProbePage
+from ProbePage	  import ProbePage
 from EditorPage   import EditorPage
 
 _openserial = True	# override ini parameters
 _device     = None
-_baud       = None
+_baud	    = None
 
 MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
@@ -206,12 +206,12 @@ class Application(Toplevel,Sender):
 					page.addPageFrame(n)
 
 		# remember the editor list widget
-		self.dro       = Page.frames["DRO"]
-		self.gstate    = Page.frames["State"]
-		self.control   = Page.frames["Control"]
-		self.editor    = Page.frames["Editor"].editor
-		self.terminal  = Page.frames["Terminal"].terminal
-		self._terminalCount = 0		# count lines inserted in terminal
+		self.dro      = Page.frames["DRO"]
+		self.gstate   = Page.frames["State"]
+		self.control  = Page.frames["Control"]
+		self.editor   = Page.frames["Editor"].editor
+		self.terminal = Page.frames["Terminal"].terminal
+		self.buffer   = Page.frames["Terminal"].buffer
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -236,44 +236,44 @@ class Application(Toplevel,Sender):
 		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
 
 		# Global bindings
-		self.bind('<<Undo>>',           self.undo)
-		self.bind('<<Redo>>',           self.redo)
-		self.bind('<<Copy>>',           self.copy)
-		self.bind('<<Cut>>',            self.cut)
-		self.bind('<<Paste>>',          self.paste)
+		self.bind('<<Undo>>',		self.undo)
+		self.bind('<<Redo>>',		self.redo)
+		self.bind('<<Copy>>',		self.copy)
+		self.bind('<<Cut>>',		self.cut)
+		self.bind('<<Paste>>',		self.paste)
 
 		self.bind('<<Connect>>',	self.openClose)
 
-		self.bind('<<New>>',            self.newFile)
-		self.bind('<<Open>>',           self.loadDialog)
-		self.bind('<<Save>>',           self.saveAll)
-		self.bind('<<SaveAs>>',         self.saveDialog)
-		self.bind('<<Reload>>',         self.reload)
+		self.bind('<<New>>',		self.newFile)
+		self.bind('<<Open>>',		self.loadDialog)
+		self.bind('<<Save>>',		self.saveAll)
+		self.bind('<<SaveAs>>',		self.saveDialog)
+		self.bind('<<Reload>>',		self.reload)
 
-		self.bind('<<Recent0>>',        self._loadRecent0)
-		self.bind('<<Recent1>>',        self._loadRecent1)
-		self.bind('<<Recent2>>',        self._loadRecent2)
-		self.bind('<<Recent3>>',        self._loadRecent3)
-		self.bind('<<Recent4>>',        self._loadRecent4)
-		self.bind('<<Recent5>>',        self._loadRecent5)
-		self.bind('<<Recent6>>',        self._loadRecent6)
-		self.bind('<<Recent7>>',        self._loadRecent7)
-		self.bind('<<Recent8>>',        self._loadRecent8)
-		self.bind('<<Recent9>>',        self._loadRecent9)
+		self.bind('<<Recent0>>',	self._loadRecent0)
+		self.bind('<<Recent1>>',	self._loadRecent1)
+		self.bind('<<Recent2>>',	self._loadRecent2)
+		self.bind('<<Recent3>>',	self._loadRecent3)
+		self.bind('<<Recent4>>',	self._loadRecent4)
+		self.bind('<<Recent5>>',	self._loadRecent5)
+		self.bind('<<Recent6>>',	self._loadRecent6)
+		self.bind('<<Recent7>>',	self._loadRecent7)
+		self.bind('<<Recent8>>',	self._loadRecent8)
+		self.bind('<<Recent9>>',	self._loadRecent9)
 
-		self.bind('<<TerminalClear>>',  Page.frames["Terminal"].clear)
-		self.bind('<<AlarmClear>>',     self.alarmClear)
-		self.bind('<<Help>>',           self.help)
+		self.bind('<<TerminalClear>>',	Page.frames["Terminal"].clear)
+		self.bind('<<AlarmClear>>',	self.alarmClear)
+		self.bind('<<Help>>',		self.help)
 						# Do not send the event otherwise it will skip the feedHold/resume
-		self.bind('<<FeedHold>>',       lambda e,s=self: s.feedHold())
-		self.bind('<<Resume>>',         lambda e,s=self: s.resume())
-		self.bind('<<Run>>',            lambda e,s=self: s.run())
-		self.bind('<<Stop>>',           self.stopRun)
-		self.bind('<<Pause>>',          self.pause)
-#		self.bind('<<TabAdded>>',       self.tabAdded)
+		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHold())
+		self.bind('<<Resume>>',		lambda e,s=self: s.resume())
+		self.bind('<<Run>>',		lambda e,s=self: s.run())
+		self.bind('<<Stop>>',		self.stopRun)
+		self.bind('<<Pause>>',		self.pause)
+#		self.bind('<<TabAdded>>',	self.tabAdded)
 
-		tkExtra.bindEventData(self, "<<Status>>",       self.updateStatus)
-		tkExtra.bindEventData(self, "<<Coords>>",       self.updateCanvasCoords)
+		tkExtra.bindEventData(self, "<<Status>>",	self.updateStatus)
+		tkExtra.bindEventData(self, "<<Coords>>",	self.updateCanvasCoords)
 
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
@@ -317,7 +317,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
 
 		self.bind('<<CanvasFocus>>',	self.canvasFocus)
-		self.bind('<<Draw>>',	        self.draw)
+		self.bind('<<Draw>>',		self.draw)
 		self.bind('<<DrawProbe>>',	lambda e,c=self.canvasFrame:c.drawProbe(True))
 		self.bind('<<DrawOrient>>',	self.canvas.drawOrient)
 
@@ -410,7 +410,8 @@ class Application(Toplevel,Sender):
 		CNC.vars["color"] = STATECOLOR[NOT_CONNECTED]
 		self._pendantFileUploaded = None
 		self._drawAfter = None	# after handle for modification
-		self._inFocus   = False
+		self._inFocus	= False
+		self._insertCount = 0	# END - insertCount lines where ok was applied to for $xxx commands
 		self.monitorSerial()
 		self.canvasFrame.toggleDrawFlag()
 
@@ -422,6 +423,10 @@ class Application(Toplevel,Sender):
 
 		if _openserial and Utils.getBool("Connection","openserial"):
 			self.openClose()
+
+		# Filedialog Load history
+		for i in range(Utils._maxRecent):
+			bFileDialog.append2History(os.path.dirname(Utils.getRecent(i)))
 
 	#-----------------------------------------------------------------------
 	def setStatus(self, msg, force_update=False):
@@ -509,6 +514,11 @@ class Application(Toplevel,Sender):
 	# ---------------------------------------------------------------------
 	def enable(self):
 		self.configWidgets("state",NORMAL)
+		self.statusbar.clear()
+		self.statusbar.config(background="LightGray")
+		self.bufferbar.clear()
+		self.bufferbar.config(background="LightGray")
+		self.bufferbar.setText("")
 
 	# ---------------------------------------------------------------------
 	def disable(self):
@@ -559,10 +569,10 @@ class Application(Toplevel,Sender):
 
 		tkExtra.Balloon.font = Utils.getFont("balloon", tkExtra.Balloon.font)
 
-		Ribbon._FONT    = Utils.getFont("ribbon.label", Ribbon._FONT)
-		Ribbon._TABFONT = Utils.getFont("ribbon.tab",   Ribbon._TABFONT)
+		Ribbon._FONT	= Utils.getFont("ribbon.label", Ribbon._FONT)
+		Ribbon._TABFONT = Utils.getFont("ribbon.tab",	Ribbon._TABFONT)
 
-		Ribbon._ACTIVE_COLOR       = Utils.getStr("Color", "ribbon.active", Ribbon._ACTIVE_COLOR)
+		Ribbon._ACTIVE_COLOR	   = Utils.getStr("Color", "ribbon.active", Ribbon._ACTIVE_COLOR)
 		Ribbon._LABEL_SELECT_COLOR = Utils.getStr("Color", "ribbon.select", Ribbon._LABEL_SELECT_COLOR)
 
 		self.tools.loadConfig()
@@ -572,15 +582,15 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Program
-		Utils.setInt(Utils.__prg__,  "width",    str(self.winfo_width()))
-		Utils.setInt(Utils.__prg__,  "height",   str(self.winfo_height()))
-		#Utils.setInt(Utils.__prg__,  "x",        str(self.winfo_rootx()))
-		#Utils.setInt(Utils.__prg__,  "y",        str(self.winfo_rooty()))
-		Utils.setInt(Utils.__prg__,  "sash",      str(self.paned.sash_coord(0)[0]))
+		Utils.setInt(Utils.__prg__,  "width",	 str(self.winfo_width()))
+		Utils.setInt(Utils.__prg__,  "height",	 str(self.winfo_height()))
+		#Utils.setInt(Utils.__prg__,  "x",	  str(self.winfo_rootx()))
+		#Utils.setInt(Utils.__prg__,  "y",	  str(self.winfo_rooty()))
+		Utils.setInt(Utils.__prg__,  "sash",	  str(self.paned.sash_coord(0)[0]))
 
 		#save windowState
 		Utils.setStr(Utils.__prg__,  "windowstate", str(self.wm_state()))
-		Utils.setStr(Utils.__prg__,  "page",     str(self.ribbon.getActivePage().name))
+		Utils.setStr(Utils.__prg__,  "page",	 str(self.ribbon.getActivePage().name))
 
 		# Connection
 		Page.saveConfig()
@@ -1202,13 +1212,13 @@ class Application(Toplevel,Sender):
 		# CUT [depth] [pass-per-depth] [z-surface]: replicate selected blocks to cut-height
 		# default values are taken from the active material
 		elif cmd == "CUT":
-			try:    depth = float(line[1])
+			try:	depth = float(line[1])
 			except: depth = None
 
-			try:    step = float(line[2])
+			try:	step = float(line[2])
 			except: step = None
 
-			try:    surface = float(line[3])
+			try:	surface = float(line[3])
 			except: surface = None
 			self.executeOnSelection("CUT", True, depth, step, surface)
 
@@ -1234,16 +1244,26 @@ class Application(Toplevel,Sender):
 
 		# DRI*LL [depth] [peck]: perform drilling at all penetrations points
 		elif rexx.abbrev("DRILL",cmd,3):
-			try:    h = float(line[1])
+			try:	h = float(line[1])
 			except: h = None
 
-			try:    p = float(line[2])
+			try:	p = float(line[2])
 			except: p = None
 			self.executeOnSelection("DRILL", True, h, p)
 
 		# ECHO <msg>: echo message
 		elif cmd=="ECHO":
 			self.setStatus(oline[5:].strip())
+
+		# FEED on/off: append feed commands on every motion line for feed override testing
+		elif cmd=="FEED":
+			try:
+				CNC.appendFeed = (line[1].upper()=="ON")
+			except:
+				CNC.appendFeed = True
+			self.setStatus(CNC.appendFeed and \
+				"Feed appending turned on" or \
+				"Feed appending turned off")
 
 		# INV*ERT: invert selected blocks
 		elif rexx.abbrev("INVERT",cmd,3):
@@ -1268,7 +1288,7 @@ class Application(Toplevel,Sender):
 		# IM*PORT <filename>: import filename with gcode or dxf at cursor location
 		# or at the end of the file
 		elif rexx.abbrev("IMPORT",cmd,2):
-			try:    self.importFile(line[1])
+			try:	self.importFile(line[1])
 			except: self.importFile()
 
 		# INK*SCAPE: remove uneccessary Z motion as a result of inkscape gcodetools
@@ -1368,11 +1388,11 @@ class Application(Toplevel,Sender):
 				dx = line1
 				dy = dz = line1
 			else:
-				try:    dx = float(line[1])
+				try:	dx = float(line[1])
 				except: dx = 0.0
-				try:    dy = float(line[2])
+				try:	dy = float(line[2])
 				except: dy = 0.0
-				try:    dz = float(line[3])
+				try:	dz = float(line[3])
 				except: dz = 0.0
 			self.executeOnSelection("MOVE", False, dx,dy,dz)
 
@@ -1393,11 +1413,11 @@ class Application(Toplevel,Sender):
 
 		# ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
 		elif rexx.abbrev("ORIGIN",cmd,3):
-			try:    dx = -float(line[1])
+			try:	dx = -float(line[1])
 			except: dx = 0.0
-			try:    dy = -float(line[2])
+			try:	dy = -float(line[2])
 			except: dy = 0.0
-			try:    dz = -float(line[3])
+			try:	dz = -float(line[3])
 			except: dz = 0.0
 			self.editor.selectAll()
 			self.executeOnSelection("MOVE", False, dx,dy,dz)
@@ -1964,7 +1984,7 @@ class Application(Toplevel,Sender):
 						activebackground="LightGreen")
 		else:
 			serialPage = Page.frames["Serial"]
-			device   = _device or serialPage.portCombo.get()
+			device	 = _device or serialPage.portCombo.get()
 			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
 				serialPage.connectBtn.config(text=_("Close"),
@@ -1998,18 +2018,11 @@ class Application(Toplevel,Sender):
 	# @return true if the compile has to abort
 	#-----------------------------------------------------------------------
 	def checkStop(self):
-		self.update()	# very tricky function of Tk
+		try:
+			self.update()	# very tricky function of Tk
+		except TclError:
+			pass
 		return self._stop
-
-	#-----------------------------------------------------------------------
-	def runEnded(self):
-		Sender.runEnded(self)
-		self.statusbar.clear()
-		self.statusbar.config(background="LightGray")
-		self.setStatus(_("Run ended"))
-		self.bufferbar.clear()
-		self.bufferbar.config(background="LightGray")
-		self.bufferbar.setText("")
 
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
@@ -2133,31 +2146,80 @@ class Application(Toplevel,Sender):
 	# Inner loop to catch any generic exception
 	#-----------------------------------------------------------------------
 	def _monitorSerial(self):
-		inserted = False
-
 		# Check serial output
 		t = time.time()
 
 		# dump in the terminal what ever you can in less than 0.1s
+		inserted = False
 		while self.log.qsize()>0 and time.time()-t<0.1:
 			try:
-				io, line = self.log.get_nowait()
-				if not inserted:
-					self.terminal["state"] = NORMAL
-					inserted = True
-				if io:
-					self.terminal.insert(END, line, "SEND")
-				else:
+				msg, line = self.log.get_nowait()
+				line = line.rstrip("\n")
+				inserted = True
+#				print "<<<",msg,line,"\n" in line
+
+				if msg == Sender.MSG_BUFFER:
+					self.buffer.insert(END, line)
+
+				elif msg == Sender.MSG_SEND:
 					self.terminal.insert(END, line)
-				self._terminalCount += 1
-				if self._terminalCount > 1000:
-					try:
-						self.terminal.delete("0.0","500.0")
-						self._terminalCount = int(self.terminal.index(END).split(".")[0])
-					except TclError:
-						pass
+					self.terminal.itemconfig(END, foreground="Blue")
+
+				elif msg == Sender.MSG_RECEIVE:
+					self.terminal.insert(END, line)
+					if self._insertCount:
+						# when counting is started, then continue
+						self._insertCount += 1
+					elif line and line[0] in ("[","$"):
+						# start the counting on the first line received
+						# starting with $ or [
+						self._insertCount = 1
+
+				elif msg == Sender.MSG_OK:
+					if self.terminal.size()>0:
+						if self._insertCount:
+							pos = self.terminal.size()-self._insertCount
+							self._insertCount = 0
+						else:
+							pos = END
+						self.terminal.insert(pos, self.buffer.get(0))
+						self.terminal.itemconfig(pos, foreground="Blue")
+						self.buffer.delete(0)
+					self.terminal.insert(END, line)
+
+				elif msg == Sender.MSG_ERROR:
+					if self.terminal.size()>0:
+						if self._insertCount:
+							pos = self.terminal.size()-self._insertCount
+							self._insertCount = 0
+						else:
+							pos = END
+						self.terminal.insert(pos, self.buffer.get(0))
+						self.terminal.itemconfig(pos, foreground="Blue")
+						self.buffer.delete(0)
+					self.terminal.insert(END, line)
+					self.terminal.itemconfig(END, foreground="Red")
+
+				elif msg == Sender.MSG_RUNEND:
+					self.terminal.insert(END, line)
+					self.terminal.itemconfig(END, foreground="Magenta")
+					self.setStatus(line)
+					self.enable()
+
+				elif msg == Sender.MSG_CLEAR:
+					self.buffer.delete(0,END)
+
+				else:
+					# Unknown?
+					self.buffer.insert(END, line)
+					self.terminal.itemconfig(END, foreground="Magenta")
+
+				if self.terminal.size() > 1000:
+					self.terminal.delete(0,500)
 			except Empty:
 				break
+
+		if inserted: self.terminal.see(END)
 
 		# Check pendant
 		try:
@@ -2214,10 +2276,6 @@ class Application(Toplevel,Sender):
 				Page.frames["ProbeCommon"].updateTlo()
 			self._update = None
 
-		if inserted:
-			self.terminal.see(END)
-			self.terminal["state"] = DISABLED
-
 		if self.running:
 			self.statusbar.setProgress(self._runLines-self.queue.qsize(),
 						self._gcount)
@@ -2237,7 +2295,6 @@ class Application(Toplevel,Sender):
 					self._selectI += 1
 
 			if self._gcount >= self._runLines:
-				#print "Run ENDED"
 				self.runEnded()
 
 	#-----------------------------------------------------------------------
@@ -2303,8 +2360,8 @@ if __name__ == "__main__":
 	except getopt.GetoptError:
 		usage(1)
 
-	recent   = None
-	run      = False
+	recent	 = None
+	run	 = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)

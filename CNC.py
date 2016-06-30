@@ -700,15 +700,19 @@ class CNC:
 			"TLO"       : 0.,
 		}
 
-	drillPolicy    = 1	# Expand Canned cycles
-	toolPolicy     = 1	# Should be in sync with ProbePage
-				# 0 - send to grbl
-				# 1 - skip those lines
-				# 2 - manual tool change (WCS)
-				# 3 - manual tool change (TLO)
-				# 4 - manual tool change (No Probe)
+	drillPolicy    = 1		# Expand Canned cycles
+	toolPolicy     = 1		# Should be in sync with ProbePage
+					# 0 - send to grbl
+					# 1 - skip those lines
+					# 2 - manual tool change (WCS)
+					# 3 - manual tool change (TLO)
+					# 4 - manual tool change (No Probe)
 
 	toolWaitAfterProbe = True	# wait at tool change position after probing
+	appendFeed	   = False	# append feed on every G1/G2/G3 commands to be used
+					# for feed override testing
+					# FIXME will not be needed after Grbl v1.0
+
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -3884,6 +3888,15 @@ class GCode:
 				expand = None
 				self.cnc.motionStart(cmds)
 
+				# FIXME append feed on cut commands. It will be obsolete in grbl v1.0
+				if CNC.appendFeed and self.cnc.gcode in (1,2,3):
+					# Check is not existing in cmds
+					for c in cmds:
+						if c[0] in ('f','F'):
+							break
+					else:
+						cmds.append(self.fmt('F',self.cnc.feed/self.cnc.unit))
+
 				if autolevel and self.cnc.gcode in (0,1,2,3) and self.cnc.mval==0:
 					xyz = self.cnc.motionPath()
 					if not xyz:
@@ -3906,9 +3919,9 @@ class GCode:
 							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
 								add("G%d%s%s%s%s"%\
 									(g,
-									 self.fmt("X",x/self.cnc.unit),
-									 self.fmt("Y",y/self.cnc.unit),
-									 self.fmt("Z",z/self.cnc.unit),
+									 self.fmt('X',x/self.cnc.unit),
+									 self.fmt('Y',y/self.cnc.unit),
+									 self.fmt('Z',z/self.cnc.unit),
 									 extra),
 								    (i,j))
 								extra = ""

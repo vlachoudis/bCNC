@@ -249,7 +249,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
 			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
-			self.sendGCode(cmd+"\n")
+			self.sendGCode(cmd)
 		except:
 			pass
 
@@ -613,7 +613,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			cmd += "F"+str(v)
 
 		if ok:
-			self.sendGCode(cmd+"\n")
+			self.sendGCode(cmd)
 		else:
 			tkMessageBox.showerror(_("Probe Error"),
 					_("At least one probe direction should be specified"))
@@ -1083,13 +1083,13 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 		z  = self.app.canvas.cameraZ
 		if self.switch.get():
 			self.switchButton.config(image=Utils.icons["endmill32"])
-			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+			self.sendGCode("G92X%gY%g"%(dx+wx,dy+wy))
 			self.app.canvas.cameraSwitch = True
 		else:
 			self.switchButton.config(image=Utils.icons["camera32"])
-			self.sendGCode("G92.1\n")
+			self.sendGCode("G92.1")
 			self.app.canvas.cameraSwitch = False
-		self.sendGCode("G0X%gY%gZ%g\n"%(wx,wy,z))
+		self.sendGCode("G0X%gY%gZ%g"%(wx,wy,z))
 
 	#-----------------------------------------------------------------------
 	def switchCamera(self, event=None):
@@ -1309,10 +1309,10 @@ class CameraFrame(CNCRibbon.PageFrame):
 #		dx = float(self.dx.get())
 #		dy = float(self.dy.get())
 #		if self.switchVar.get():
-#			self.sendGCode("G92X%gY%g\n"%(dx+wx,dy+wy))
+#			self.sendGCode("G92X%gY%g"%(dx+wx,dy+wy))
 #		else:
-#			self.sendGCode("G92.1\n")
-#		self.sendGCode("G0X%gY%g\n"%(wx,wy))
+#			self.sendGCode("G92.1")
+#		self.sendGCode("G0X%gY%g"%(wx,wy))
 
 #===============================================================================
 # Tool Group

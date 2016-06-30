@@ -147,8 +147,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
 			[(_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
-			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True)),
-			 (_("Statistics"),"stats",    app.showStats)
+			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True))
 			])
 		self.grid3rows()
 

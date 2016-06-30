@@ -40,7 +40,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Commands"), app,
 			[(_("Restore Settings"),  "grbl_settings",  app.grblRestoreSettings),
 			 (_("Restore Workspace"), "grbl_params",    app.grblRestoreWCS),
-			 (_("Restore All"),       "reset",          app.grblRestoreAll),
+			 (_("Restore All"),	  "reset",	    app.grblRestoreAll),
 			])
 		self.grid3rows()
 
@@ -144,27 +144,47 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 class TerminalFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, N_("Terminal"), app)
-		self.terminal = Text(self,
+
+		# ---
+		self.terminal = Listbox(self,
 					background="White",
-					width=20,
-					height=3,
-					wrap=NONE,
-					state=DISABLED)
-		self.terminal.pack(side=LEFT, fill=BOTH, expand=YES)
+					selectmode=EXTENDED,
+					height=5)
+		self.terminal.grid(row=0, column=0, sticky=NSEW)
 		sb = Scrollbar(self, orient=VERTICAL, command=self.terminal.yview)
-		sb.pack(side=RIGHT, fill=Y)
+		sb.grid(row=0, column=1, sticky=NS)
 		self.terminal.config(yscrollcommand=sb.set)
-		self.terminal.tag_config("SEND",  foreground="Blue")
-		self.terminal.tag_config("ERROR", foreground="Red")
+		self.terminal.bind("<<Copy>>",		self.copy)
+		self.terminal.bind("<Control-Key-c>",	self.copy)
+		tkExtra.Balloon.set(self.terminal, _("Terminal communication with controller"))
+
+		# ---
+		self.buffer = Listbox(self,
+					background="LightYellow",
+					selectmode=EXTENDED,
+					height=5)
+		self.buffer.grid(row=1, column=0, sticky=NSEW)
+		sb = Scrollbar(self, orient=VERTICAL, command=self.buffer.yview)
+		sb.grid(row=1, column=1, sticky=NS)
+		self.buffer.config(yscrollcommand=sb.set)
+		tkExtra.Balloon.set(self.buffer, _("Buffered commands"))
+		self.buffer.bind("<<Copy>>",		self.copy)
+		self.buffer.bind("<Control-Key-c>",	self.copy)
+
+		# ---
+		self.grid_columnconfigure(0, weight=1)
+		self.grid_rowconfigure(0, weight=1)
 
 	#----------------------------------------------------------------------
 	def clear(self, event=None):
-		self.terminal["state"] = NORMAL
-		self.terminal.delete("1.0",END)
-		self.terminal["state"] = DISABLED
+		self.terminal.delete(0,END)
 
 	#----------------------------------------------------------------------
-	def copy(self, event=None):
+	def copy(self, event):
+		self.clipboard_clear()
+		self.clipboard_append("\n".join(
+			[event.widget.get(x)
+				for x in event.widget.curselection()]))
 		return "break"
 
 #===============================================================================
@@ -172,8 +192,8 @@ class TerminalFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class TerminalPage(CNCRibbon.Page):
 	__doc__ = _("Serial Terminal")
-	_name_  = "Terminal"
-	_icon_  = "terminal"
+	_name_	= "Terminal"
+	_icon_	= "terminal"
 
 	#----------------------------------------------------------------------
 	# Add a widget in the widgets list to enable disable during the run

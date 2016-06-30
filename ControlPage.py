@@ -354,6 +354,8 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setY(self, event=None):
 		if self.app.running: return
+		self.sendGCode(cmd)
+		self.sendGCode("$#")
 		self._wcsSet(None,self.ywork.get(),None)
 
 	#----------------------------------------------------------------------
@@ -383,7 +385,8 @@ class DROFrame(CNCRibbon.PageFrame):
 		if y is not None: pos += "Y"+str(y)
 		if z is not None: pos += "Z"+str(z)
 		cmd += pos
-		self.sendGCode(cmd+"\n$#\n")
+		self.sendGCode(cmd)
+		self.sendGCode("$#")
 		self.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
 			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
@@ -641,46 +644,56 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0X%s"%(self.step.get()))
+		self.sendGCode("G90")
 
 	def moveXdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0X-%s"%(self.step.get()))
+		self.sendGCode("G90")
 
 	def moveYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Y%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0Y%s"%(self.step.get()))
+		self.sendGCode("G90")
 
 	def moveYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Y-%s\nG90\n"%(self.step.get()))
+		self.sendGCode("G91G0Y-%s"%(self.step.get()))
+		self.sendGCode("G90")
 
 	def moveXdownYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X-%sY%s"%(self.step.get(),self.step.get()))
+		self.sendGCode("G90")
 
 	def moveXupYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%sY%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X%sY%s"%(self.step.get(),self.step.get()))
+		self.sendGCode("G90")
 
 	def moveXdownYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X-%sY-%s"%(self.step.get(),self.step.get()))
+		self.sendGCode("G90")
 
 	def moveXupYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%sY-%s\nG90\n"%(self.step.get(),self.step.get()))
+		self.sendGCode("G91G0X%sY-%s"%(self.step.get(),self.step.get()))
+		self.sendGCode("G90")
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z%s\nG90\n"%(self.zstep.get()))
+		self.sendGCode("G91G0Z%s"%(self.zstep.get()))
+		self.sendGCode("G90")
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z-%s\nG90\n"%(self.zstep.get()))
+		self.sendGCode("G91G0Z-%s"%(self.zstep.get()))
+		self.sendGCode("G90")
 
 	def go2origin(self, event=None):
-		self.sendGCode("G90G0X0Y0Z0\n")
+		self.sendGCode("G90G0X0Y0Z0")
 
 	#----------------------------------------------------------------------
 	def setStep(self, s, zs=None):
@@ -995,7 +1008,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def _gChange(self, value, dictionary):
 		for k,v in dictionary.items():
 			if v==value:
-				self.sendGCode("%s\n"%(k))
+				self.sendGCode(k)
 				return
 
 	#----------------------------------------------------------------------
@@ -1023,7 +1036,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		if self._gUpdate: return
 		try:
 			feed = float(self.feedRate.get())
-			self.sendGCode("F%g\n"%(feed))
+			self.sendGCode("F%g"%(feed))
 			self.event_generate("<<CanvasFocus>>")
 		except ValueError:
 			pass
@@ -1038,9 +1051,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		# Avoid sending commands before unlocking
 		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
 		if self.spindle.get():
-			self.sendGCode("M3 S%d\n"%(self.spindleSpeed.get()))
+			self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
 		else:
-			self.sendGCode("M5\n")
+			self.sendGCode("M5")
 
 	#----------------------------------------------------------------------
 	def updateG(self):
@@ -1066,7 +1079,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	def wcsChange(self):
 		global wcsvar
-		self.sendGCode(WCS[wcsvar.get()]+"\n$G\n")
+		self.sendGCode(WCS[wcsvar.get()])
+		self.sendGCode("$G")
 
 #===============================================================================
 # Control Page

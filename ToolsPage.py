@@ -278,7 +278,7 @@ class _Base:
 		if edit is not None and not rename:
 			if edit.lastkey == "Up":
 				self._editPrev()
-			elif edit.lastkey in ("Return", "KP_Enter", "Down"):
+			elif edit.lastkey in ("Return", "KP_Enter", "Down") and active>0:
 				self._editNext()
 
 	#==============================================================================
@@ -526,6 +526,7 @@ class Material(DataBase):
 		self.name = "Material"
 		self.variables = [
 			("name",    "db",    "", _("Name")),
+			("comment","str",    "", _("Comment")),
 			("feed",    "mm"  , 10., _("Feed")),
 			("feedz",   "mm"  ,  1., _("Plunge Feed")),
 			("stepz",   "mm"  ,  1., _("Depth Increment"))
@@ -552,6 +553,7 @@ class EndMill(DataBase):
 		self.name = "EndMill"
 		self.variables = [
 			("name",       "db",     "", _("Name")),
+			("comment",   "str",     "", _("Comment")),
 			("type",     "list",     "", _("Type")),
 			("shape",    "list",     "", _("Shape")),
 			("material", "list",     "", _("Material")),
@@ -581,6 +583,7 @@ class Stock(DataBase):
 		self.name = "Stock"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
+			("comment",  "str",     "", _("Comment")),
 			("material",  "db" ,    "", _("Material")),
 			("safe"  ,    "mm" ,   3.0, _("Safe Z")),
 			("surface",   "mm" ,   0.0, _("Surface Z")),
