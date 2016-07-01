@@ -2342,6 +2342,11 @@ def usage(rc):
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
+	if sys.version_info.major != 2:
+		sys.stdout.write("="*80+"\n")
+		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
+		sys.stdout.write("="*80+"\n")
+		sys.exit(0)
 	tk = Tk()
 	tk.withdraw()
 	try:

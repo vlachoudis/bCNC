@@ -21,7 +21,10 @@ try:
 except ImportError:
 	Image = None
 
-import tkMessageBox
+try:
+	import tkMessageBox
+except ImportError:
+	import tkinter.messagebox as tkMessageBox
 
 #==============================================================================
 # Create Halftone

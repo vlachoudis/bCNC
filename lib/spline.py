@@ -1,19 +1,186 @@
 #!/usr/bin/python
-# -*- coding: ascii -*-
-# $Id$
+# -*- coding: latin1 -*-
+# $Id: spline.py 3833 2016-06-23 13:00:48Z bnv $
 #
 # Author: vvlachoudis@gmail.com
 # Date: 20-Oct-2015
 
 import sys
+import bmath
 
-SPLINE_SEGMENTS = 20
+#===============================================================================
+# Cardinal cubic spline class
+#===============================================================================
+class CardinalSpline:
+	def __init__(self, A=0.5):
+		# The default matrix is the Catmull-Rom splin
+		# which is equal to Cardinal matrix
+		# for A = 0.5
+		#
+		# Note: Vasilis
+		#	The A parameter should be the fraction in t where
+		#	the second derivative is zero
+		self.setMatrix(A)
 
-# -----------------------------------------------------------------------------
+	#-----------------------------------------------------------------------
+	# Set the matrix according to Cardinal
+	#-----------------------------------------------------------------------
+	def setMatrix(self, A=0.5):
+		self.M = []
+		self.M.append([  -A,  2.-A,    A-2.,   A ])
+		self.M.append([2.*A,  A-3., 3.-2.*A,  -A ])
+		self.M.append([  -A,    0.,       A,   0.])
+		self.M.append([  0.,    1.,       0,   0.])
+
+	#-----------------------------------------------------------------------
+	# Evaluate Cardinal spline at position t
+	# @param P	  list or tuple with 4 points y positions
+	# @param t [0..1] fraction of interval from points 1..2
+	# @param k	  index of starting 4 elements in P
+	# @return spline evaluation
+	#-----------------------------------------------------------------------
+	def __call__(self, P, t, k=1):
+		T = [t*t*t, t*t, t, 1.0]
+		R = [0.0]*4
+		for i in range(4):
+			for j in range(4):
+				R[i] += T[j] * self.M[j][i]
+		y = 0.0
+		for i in range(4):
+			y += R[i]*P[k+i-1]
+
+		return y
+
+	#-----------------------------------------------------------------------
+	# Return the coefficients of a 3rd degree polynomial
+	#     f(x) = a t^3 + b t^2 + c t + d
+	# @return [a, b, c, d]
+	#-----------------------------------------------------------------------
+	def coefficients(self, P, k=1):
+		C = [0.0]*4
+		for i in range(4):
+			for j in range(4):
+				C[i] += self.M[i][j] * P[k+j-1]
+		return C
+
+	#-----------------------------------------------------------------------
+	# Evaluate the value of the spline using the coefficients
+	#-----------------------------------------------------------------------
+	def evaluate(self, C, t):
+		return ((C[0]*t + C[1])*t + C[2])*t + C[3]
+
+#===============================================================================
+# Cubic spline ensuring that the first and second derivative are continuous
+# adapted from Penelope Manual Appending B.1
+# It requires all the points (xi,yi) and the assumption on how to deal
+# with the second derviative on the extremeties
+# Option 1: assume zero as second derivative on both ends
+# Option 2: assume the same as the next or previous one
+#===============================================================================
+class CubicSpline:
+	def __init__(self, X, Y):
+		self.X = X
+		self.Y = Y
+		self.n = len(X)
+
+		# Option #1
+		s1 = 0.0	# zero based = s0
+		sN = 0.0	# zero based = sN-1
+
+		# Construct the tri-diagonal matrix
+		A = []
+		B = [0.0] * (self.n-2)
+		for i in range(self.n-2):
+			A.append([0.0] * (self.n-2))
+
+		for i in range(1,self.n-1):
+			hi = self.h(i)
+			Hi = 2.0*(self.h(i-1) + hi)
+			j = i-1
+			A[j][j] = Hi
+			if i+1<self.n-1:
+				A[j][j+1] = A[j+1][j] = hi
+
+			if i==1:
+				B[j] = 6.*(self.d(i) - self.d(j)) - hi*s1
+			elif i<self.n-2:
+				B[j] = 6.*(self.d(i) - self.d(j))
+			else:
+				B[j] = 6.*(self.d(i) - self.d(j)) - hi*sN
+
+#		from pprint import pprint
+#		print "=========== A ============="
+#		pprint(A)
+#		print "=========== B ============="
+#		pprint(B)
+
+		# Solve by gauss elimination
+#		AA = bmath.Matrix(A)
+#		BB = []
+#		for b in B: BB.append([b])
+#		BB = bmath.Matrix(BB)
+#		print AA
+#		print BB
+#		AA.inv()
+#		print AA*BB
+		self.s = bmath.gauss(A,B)
+		self.s.insert(0,s1)
+		self.s.append(sN)
+#		print ">> s <<"
+#		pprint(self.s)
+
+	#-----------------------------------------------------------------------
+	def h(self, i):
+		return self.X[i+1] - self.X[i]
+
+	#-----------------------------------------------------------------------
+	def d(self, i):
+		return (self.Y[i+1] - self.Y[i]) / (self.X[i+1] - self.X[i])
+
+	#-----------------------------------------------------------------------
+	def coefficients(self, i):
+		"""return coefficients of cubic spline for interval i a*x**3+b*x**2+c*x+d"""
+		hi  = self.h(i)
+		si  = self.s[i]
+		si1 = self.s[i+1]
+		xi  = self.X[i]
+		xi1 = self.X[i+1]
+		fi  = self.Y[i]
+		fi1 = self.Y[i+1]
+
+		a = 1./(6.*hi)*(si*xi1**3 - si1*xi**3 + 6.*(fi*xi1 - fi1*xi)) + hi/6.*(si1*xi - si*xi1)
+		b = 1./(2.*hi)*(si1*xi**2 - si*xi1**2 + 2*(fi1 - fi)) + hi/6.*(si - si1)
+		c = 1./(2.*hi)*(si*xi1 - si1*xi)
+		d = 1./(6.*hi)*(si1-si)
+
+		return [d,c,b,a]
+
+	#-----------------------------------------------------------------------
+	def __call__(self, i, x):
+		# FIXME should interpolate to find the interval
+		C = self.coefficients(i)
+		return ((C[0]*x + C[1])*x + C[2])*x + C[3]
+
+	#-----------------------------------------------------------------------
+	# @return evaluation of cubic spline at x using coefficients C
+	#-----------------------------------------------------------------------
+	def evaluate(self, C, x):
+		return ((C[0]*x + C[1])*x + C[2])*x + C[3]
+
+	#-----------------------------------------------------------------------
+	# Return evaluated derivative at x using coefficients C
+	#-----------------------------------------------------------------------
+	def derivative(self, C, x):
+		a = 3.0*C[0]			# derivative coefficients
+		b = 2.0*C[1]			# ... for sampling with rejection
+		c =     C[2]
+		return (3.0*C[0]*x + 2.0*C[1])*x + C[2]
+
+# ------------------------------------------------------------------------------
 # Convert a B-spline to polyline with a fixed number of segments
 #
 # FIXME to become adaptive
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def spline2Polyline(controlPoints, degree, closed, segments):
 	npts = len(controlPoints)
 
@@ -60,10 +227,10 @@ def spline2Polyline(controlPoints, degree, closed, segments):
 
 	return x,y,z
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Generates B-Spline open knot vector with multiplicity
 # equal to the order at the ends.
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def knot(num, order, knotVector):
 	knotVector[1] = 0
 	for i in range(2, num+order+1):
@@ -72,9 +239,9 @@ def knot(num, order, knotVector):
 		else:
 			knotVector[i] = knotVector[i-1]
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Generates rational B-spline basis functions for an open knot vector.
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def rbasis(c, t, npts, x, h, r):
 	nplusc = npts + c
 	temp = [0.0]*(nplusc+1)
@@ -118,7 +285,7 @@ def rbasis(c, t, npts, x, h, r):
 		else:
 			r[i] = 0
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Generates a rational B-spline curve using a uniform open knot vector.
 #
 #	C code for An Introduction to NURBS
@@ -146,7 +313,7 @@ def rbasis(c, t, npts, x, h, r):
 #    p1          = number of points to be calculated on the curve
 #    t           = parameter value 0 <= t <= npts - k + 1
 #    x[]         = array containing the knot vector
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def rbspline(npts, k, p1, b, h, p):
 	nplusc = npts + k
 
@@ -182,14 +349,14 @@ def rbspline(npts, k, p1, b, h, p):
 		icount += 3
 		t += step
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def knotu(num, order, knotVector):
 	nplusc = num + order
 	knotVector[1] = 0.0
 	for i in range(2, nplusc+1):
 		knotVector[i] = i-1
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def rbsplinu(npts, k, p1, b, h, p):
 	nplusc = npts + k
 
@@ -225,6 +392,7 @@ def rbsplinu(npts, k, p1, b, h, p):
 
 # =============================================================================
 if __name__ == "__main__":
+	SPLINE_SEGMENTS = 20
 	from dxf import DXF
 #	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
 	dxf = DXF(sys.argv[1],"r")

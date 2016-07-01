@@ -3,8 +3,8 @@
 # $Id$
 #
 # Author:	Filippo Rivato
-# Date: 	07 Jennuary 2016
-# Ispired by: "Death to sharpie" a drawbot by Scott Cooper
+# Date: 	07 January 2016
+# Inspired by: "Death to sharpie" a drawbot by Scott Cooper
 # see at http://www.dullbits.com/drawbot/drawbot
 
 __author__ = "Filippo Rivato"
@@ -14,16 +14,18 @@ __name__ = _("Sketch")
 __version__= "0.0.1"
 
 import math
-import random
 import time
+import random
+from array import *
 
 from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
-from array import *
 
-import tkMessageBox
-
+try:
+	import tkMessageBox
+except ImportError:
+	import tkinter.messagebox as tkMessageBox
 
 #==============================================================================
 # Create sketch
