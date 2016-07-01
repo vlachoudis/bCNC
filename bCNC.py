@@ -426,7 +426,9 @@ class Application(Toplevel,Sender):
 
 		# Filedialog Load history
 		for i in range(Utils._maxRecent):
-			bFileDialog.append2History(os.path.dirname(Utils.getRecent(i)))
+			filename = Utils.getRecent(i)
+			if filename is None: break
+			bFileDialog.append2History(os.path.dirname(filename))
 
 	#-----------------------------------------------------------------------
 	def setStatus(self, msg, force_update=False):
