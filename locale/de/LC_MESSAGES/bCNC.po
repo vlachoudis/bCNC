@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-03 22:47+0200\n"
-"PO-Revision-Date: 2016-05-21 17:25+0200\n"
+"POT-Creation-Date: 2016-07-05 20:46+0200\n"
+"PO-Revision-Date: 2016-07-05 21:11+0200\n"
 "Last-Translator: Felix Mahnke <@feistus>\n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -381,18 +381,24 @@ msgid ""
 "The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
 "be active. A different motion was active."
 msgstr ""
+"Das G53 G-Code Kommando setzt voraus, dass entweder der G0 Suchmodus oder "
+"den G1 Vorschubmodus aktiv ist. Zur Zeit ist ein anderer Modus aktiv."
 
 #: Sender.py:87
 msgid ""
 "There are unused axis words in the block and G80 motion mode cancel is "
 "active."
 msgstr ""
+"Es gibt ungenutzte Achsen-Ausdrücke in diesem Block und der G80 "
+"Bewegungsabbruch Modus  ist aktiv."
 
 #: Sender.py:88
 msgid ""
 "A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
 "plane to trace the arc."
 msgstr ""
+"Ein G2 oder G3 Kreisbogen soll ausgeführt werden aber es gibt keine XYZ "
+"Ausdrücke auf der gewählten Ebene um den Kreisbogen zu fahren."
 
 #: Sender.py:89
 msgid ""
@@ -402,6 +408,12 @@ msgid ""
 "arc is mathematically impossible to trace, where the current position, the "
 "target position, and the radius of the arc doesn't define a valid arc."
 msgstr ""
+"Das Bewegungskommando hat ein ungültiges Ziel. G2, G3 und G38.2 erzeugen "
+"diese Art Fehler. Sowohl für Tastbewegungen als auch für Kreisbögen darf die "
+"aktuelle Position nicht gleich dem Ziel sein. Dieser Fehler tritt außerdem "
+"auf, wenn der Kreisbogen mathematisch unmöglich zu fahren ist. Also wenn z."
+"B. die aktuelle Position, die Zielposition und der Radius keinen gültigen "
+"Kreisbogen ergeben."
 
 #: Sender.py:90
 msgid ""
@@ -409,18 +421,27 @@ msgid ""
 "when computing the arc geometry. Try either breaking up the arc into semi-"
 "circles or quadrants, or redefine them with the arc offset definition."
 msgstr ""
+"Die Geometrie eines G2 oder G3 Kreisbogens unterliegt einem mathematischen "
+"Fehler, wenn sie als Radius definiert wird. Versuchen Sie lieber den "
+"Kreisbogen in Teilkreise oder Quadranten zu unterteilen und sie dann als "
+"Kreisbogen Offset Definition neu berechnen zu lassen."
 
 #: Sender.py:91
 msgid ""
 "A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
 "word in the selected plane to trace the arc."
 msgstr ""
+"Bei einem G2 oder G3 Kreisbogen, der als Offset Definition ausgeführt werden "
+"soll, fehlt der IJK Offset Ausdruck in der gewählten Ebene um den Kreisbogen "
+"zu erzeugen."
 
 #: Sender.py:92
 msgid ""
 "There are unused, leftover G-code words that aren't used by any command in "
 "the block."
 msgstr ""
+"Es gibt ungenutzte G-Code Ausdrücke die aktuell von keinem Kommando im Block "
+"verwendet werden."
 
 #: Sender.py:93
 msgid ""
@@ -739,7 +760,7 @@ msgstr ""
 
 #: ToolsPage.py:943 EditorPage.py:46 plugins/box.py:314
 msgid "Cut"
-msgstr "Fräsen"
+msgstr "Ausschneiden"
 
 #: ToolsPage.py:950
 msgid "Cut for the full stock thickness selected code"
@@ -927,7 +948,7 @@ msgstr "Hard Reset"
 
 #: ControlPage.py:47
 msgid "Home"
-msgstr ""
+msgstr "Nullfahrt"
 
 #: ControlPage.py:53
 msgid "Perform a homing cycle [$H]"
@@ -1652,7 +1673,7 @@ msgstr ""
 
 #: EditorPage.py:565
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: EditorPage.py:571
 msgid "Show cutting information on selected blocks [Ctrl-n]"
@@ -1728,11 +1749,11 @@ msgstr ""
 
 #: ProbePage.py:99
 msgid "Margins"
-msgstr ""
+msgstr "Abmessungen"
 
 #: ProbePage.py:104
 msgid "Get margins from gcode file"
-msgstr ""
+msgstr "Abmessungen aus G-Code Datei auslesen"
 
 #: ProbePage.py:111
 msgid "Zero"
@@ -1740,15 +1761,15 @@ msgstr "Null"
 
 #: ProbePage.py:116
 msgid "Set current location as Z-zero for leveling"
-msgstr ""
+msgstr "Aktuelle Position als Z=0 zum Einrichten verwenden"
 
 #: ProbePage.py:123 ProbePage.py:429 TerminalPage.py:29
 msgid "Clear"
-msgstr ""
+msgstr "Bereinigen"
 
 #: ProbePage.py:128
 msgid "Clear probe data"
-msgstr ""
+msgstr "Abtastdaten Bereinigen"
 
 #: ProbePage.py:135 plugins/heightmap.py:51
 msgid "Scan"
@@ -1776,7 +1797,7 @@ msgstr "Setze Werkzeuglängenoffset zum Abtasten"
 
 #: ProbePage.py:194
 msgid "Probe Command"
-msgstr ""
+msgstr "Tast Kommando"
 
 #: ProbePage.py:266 ProbePage.py:1060
 msgid "Probe:"
@@ -1808,7 +1829,7 @@ msgstr "Durchmesser:"
 
 #: ProbePage.py:326
 msgid "Probing ring internal diameter"
-msgstr ""
+msgstr "Tastring innerer Durchmesser"
 
 #: ProbePage.py:337
 msgid "Center probing using a ring"
