@@ -209,15 +209,13 @@ def makeFont(name, value=None):
 	if value is None: return font
 
 	if isinstance(value, tuple):
-		font.configure(family=value[0], size=value[1])
-		try:
-			font.configure(weight=value[2])
-		except:
-			pass
-		try:
-			font.configure(slant=value[3])
-		except:
-			pass
+		font.configure(family=value[0])
+		try:    font.configure(size=value[1])
+		except: pass
+		try:    font.configure(weight=value[2])
+		except: pass
+		try:    font.configure(slant=value[3])
+		except: pass
 	return font
 
 #-------------------------------------------------------------------------------
