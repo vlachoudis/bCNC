@@ -57,17 +57,19 @@ __translations__ = \
 		"French - @ThierryM\n" \
 		"German - @feistus\n" \
 		"Italian - @onekk\n" \
+		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
 		"Spanish - @carlosgs"
 
 LANGUAGES = {
-		""   : "<system>",
-		"en" : "English",
-		"it" : "Italiano",
-		"es" : u"Espa\u00f1ol",
-		"fr" : u"Fran\u00e7ais",
-		"ru" : "Russian",
-		"de" : "Deutsch"
+		""      : "<system>",
+		"de"    : "Deutsch",
+		"en"    : "English",
+		"es"    : u"Espa\u00f1ol",
+		"fr"    : u"Fran\u00e7ais",
+		"it"    : "Italiano",
+		"pt_BR" : "Brazilian - Portuguese",
+		"ru"    : "Russian",
 	}
 
 icons     = {}
