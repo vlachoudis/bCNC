@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-06-30 12:09+0200\n"
-"PO-Revision-Date: 2016-07-16 20:06+0100\n"
+"PO-Revision-Date: 2016-07-17 16:09+0100\n"
 "Last-Translator: ThierryM <thierry.munoz@free.fr>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -577,7 +577,7 @@ msgstr "Rotation max (RPM)"
 
 #: ToolsPage.py:503
 msgid "DRO Zero padding"
-msgstr ""
+msgstr "Nombre de décimales sur l'afficheur"
 
 #: ToolsPage.py:504
 msgid "Header gcode"
