@@ -387,14 +387,14 @@ class _ValidatingEntry(Entry):
 	# ----------------------------------------------------------------------
 	def getint(self, default=0):
 		try:
-			return int(self.get())
+			return int(eval(self.get()))
 		except:
 			return default
 
 	# ----------------------------------------------------------------------
 	def getfloat(self, default=0.0):
 		try:
-			return float(self.get())
+			return float(eval(self.get()))
 		except:
 			return default
 
@@ -441,6 +441,11 @@ class FloatEntry(_ValidatingEntry):
 	"""accept only floating point numbers"""
 	# ----------------------------------------------------------------------
 	def validate(self, value):
+		try:
+			if value: float(eval(value+"1"))
+			return True
+		except:
+			pass
 		try:
 			if value: float(value)
 			return True
