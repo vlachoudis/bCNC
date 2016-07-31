@@ -349,19 +349,17 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
-		self._wcsSet(self.xwork.get(),None,None)
+		self._wcsSet(self.xwork.getfloat(),None,None)
 
 	#----------------------------------------------------------------------
 	def setY(self, event=None):
 		if self.app.running: return
-		self.sendGCode(cmd)
-		self.sendGCode("$#")
-		self._wcsSet(None,self.ywork.get(),None)
+		self._wcsSet(None,self.ywork.getfloat(),None)
 
 	#----------------------------------------------------------------------
 	def setZ(self, event=None):
 		if self.app.running: return
-		self._wcsSet(None,None,self.zwork.get())
+		self._wcsSet(None,None,self.zwork.getfloat())
 
 	#----------------------------------------------------------------------
 	def wcsSet(self, x, y, z):
