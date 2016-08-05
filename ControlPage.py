@@ -166,8 +166,7 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# work
 		col += 1
-		self.xwork = tkExtra.FloatEntry(self,
-					font=DROFrame.dro_wpos,
+		self.xwork = Entry(self, font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -180,8 +179,7 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		self.ywork = tkExtra.FloatEntry(self,
-					font=DROFrame.dro_wpos,
+		self.ywork = Entry(self, font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -194,8 +192,7 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		self.zwork = tkExtra.FloatEntry(self,
-					font=DROFrame.dro_wpos,
+		self.zwork = Entry(self, font=DROFrame.dro_wpos,
 					background="White",
 					relief=FLAT,
 					borderwidth=0,
@@ -310,11 +307,14 @@ class DROFrame(CNCRibbon.PageFrame):
 		except:
 			focus = None
 		if focus is not self.xwork:
-			self.xwork.set(self.padFloat(CNC.drozeropad,CNC.vars["wx"]))
+			self.xwork.delete(0,END)
+			self.xwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wx"]))
 		if focus is not self.ywork:
-			self.ywork.set(self.padFloat(CNC.drozeropad,CNC.vars["wy"]))
+			self.ywork.delete(0,END)
+			self.ywork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wy"]))
 		if focus is not self.zwork:
-			self.zwork.set(self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
+			self.zwork.delete(0,END)
+			self.zwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
 
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
 		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
@@ -349,17 +349,29 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
-		self._wcsSet(self.xwork.getfloat(),None,None)
+		try:
+			value = float(eval(self.xwork.get(),CNC.vars,self.app.gcode.vars))
+			self._wcsSet(value,None,None)
+		except:
+			pass
 
 	#----------------------------------------------------------------------
 	def setY(self, event=None):
 		if self.app.running: return
-		self._wcsSet(None,self.ywork.getfloat(),None)
+		try:
+			value = float(eval(self.ywork.get(),CNC.vars,self.app.gcode.vars))
+			self._wcsSet(None,value,None)
+		except:
+			pass
 
 	#----------------------------------------------------------------------
 	def setZ(self, event=None):
 		if self.app.running: return
-		self._wcsSet(None,None,self.zwork.getfloat())
+		try:
+			value = float(eval(self.zwork.get(),CNC.vars,self.app.gcode.vars))
+			self._wcsSet(None,None,value)
+		except:
+			pass
 
 	#----------------------------------------------------------------------
 	def wcsSet(self, x, y, z):

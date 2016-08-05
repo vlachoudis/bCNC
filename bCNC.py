@@ -358,22 +358,47 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolClone>>',	tools.clone)
 		self.bind('<<ToolRename>>',	tools.rename)
 
-		self.bind('<Up>',		self.control.moveYup)
-		self.bind('<Down>',		self.control.moveYdown)
-		self.bind('<Right>',		self.control.moveXup)
-		self.bind('<Left>',		self.control.moveXdown)
+		self.bind('<Home>',		self.home)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
-		self.bind('<Home>',		self.home)
+
+		if self._swapKeyboard == 1:
+			self.bind('<Right>',		self.control.moveYup)
+			self.bind('<Left>',		self.control.moveYdown)
+			self.bind('<Up>',		self.control.moveXup)
+			self.bind('<Down>',		self.control.moveXdown)
+		elif self._swapKeyboard == -1:
+			self.bind('<Right>',		self.control.moveYdown)
+			self.bind('<Left>',		self.control.moveYup)
+			self.bind('<Up>',		self.control.moveXdown)
+			self.bind('<Down>',		self.control.moveXup)
+		else:
+			self.bind('<Right>',		self.control.moveXup)
+			self.bind('<Left>',		self.control.moveXdown)
+			self.bind('<Up>',		self.control.moveYup)
+			self.bind('<Down>',		self.control.moveYdown)
+
 		try:
-			self.bind('<KP_Up>',	self.control.moveYup)
-			self.bind('<KP_Down>',	self.control.moveYdown)
-			self.bind('<KP_Right>',	self.control.moveXup)
-			self.bind('<KP_Left>',	self.control.moveXdown)
-			self.bind('<KP_Prior>',	self.control.moveZup)
-			self.bind('<KP_Next>',	self.control.moveZdown)
 			self.bind('<KP_Home>',	self.home)
 			self.bind('<KP_End>',	self.control.go2origin)
+			self.bind('<KP_Prior>',	self.control.moveZup)
+			self.bind('<KP_Next>',	self.control.moveZdown)
+
+			if self._swapKeyboard==1:
+				self.bind('<KP_Right>',	self.control.moveYup)
+				self.bind('<KP_Left>',	self.control.moveYdown)
+				self.bind('<KP_Up>',	self.control.moveXup)
+				self.bind('<KP_Down>',	self.control.moveXdown)
+			elif self._swapKeyboard==-1:
+				self.bind('<KP_Right>',	self.control.moveYdown)
+				self.bind('<KP_Left>',	self.control.moveYup)
+				self.bind('<KP_Up>',	self.control.moveXdown)
+				self.bind('<KP_Down>',	self.control.moveXup)
+			else:
+				self.bind('<KP_Right>',	self.control.moveXup)
+				self.bind('<KP_Left>',	self.control.moveXdown)
+				self.bind('<KP_Up>',	self.control.moveYup)
+				self.bind('<KP_Down>',	self.control.moveYdown)
 		except TclError:
 			pass
 
@@ -568,6 +593,8 @@ class Application(Toplevel,Sender):
 		font = Utils.getFont("TkFixedFont")
 		font = Utils.getFont("TkMenuFont")
 		font = Utils.getFont("TkTextFont")
+
+		self._swapKeyboard = Utils.getInt("Control", "swap", 0)
 
 		tkExtra.Balloon.font = Utils.getFont("balloon", tkExtra.Balloon.font)
 

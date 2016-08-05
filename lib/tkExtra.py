@@ -387,14 +387,14 @@ class _ValidatingEntry(Entry):
 	# ----------------------------------------------------------------------
 	def getint(self, default=0):
 		try:
-			return int(eval(self.get()))
+			return int(self.get())
 		except:
 			return default
 
 	# ----------------------------------------------------------------------
 	def getfloat(self, default=0.0):
 		try:
-			return float(eval(self.get()))
+			return float(self.get())
 		except:
 			return default
 
@@ -441,11 +441,6 @@ class FloatEntry(_ValidatingEntry):
 	"""accept only floating point numbers"""
 	# ----------------------------------------------------------------------
 	def validate(self, value):
-		try:
-			if value: float(eval(value+"1"))
-			return True
-		except:
-			pass
 		try:
 			if value: float(value)
 			return True
@@ -1792,7 +1787,6 @@ class MultiListbox(Frame):
 # A MultiListbox that remembers the color of items
 #===============================================================================
 class ColorMultiListbox(MultiListbox):
-
 	# ----------------------------------------------------------------------
 	def sort(self, column, dir=None):
 		# remember colors
@@ -4460,41 +4454,6 @@ class ScrollFrame(Frame):
 			self.xscrollcommand(0.0,1.0)
 			self.yscrollcommand(0.0,1.0)
 			self.client.place_forget()
-
-#===============================================================================
-# Gauge Canvas. Pie chart as guage meter
-#===============================================================================
-class Gauge(Canvas):
-	def __init__(self, master=None, **kw):
-		Canvas.__init__(self, master, **kw)
-		self.gaugeArc = self.create_arc(0, 0, 0, 0,
-					fill  = 'Green',
-					width = 0,
-					start = 90)
-		self.gaugeBorder = self.create_oval(0, 0, 0, 0,
-					width = 1)
-		self.fill = 0.
-		self.bind('<Configure>', self.draw)
-
-	# ----------------------------------------------------------------------
-	def setFill(self, fill=0.):
-		self.fill = fill
-		self.draw()
-
-	# ----------------------------------------------------------------------
-	def draw(self, event=None):
-		width  = self.winfo_width()
-		height = self.winfo_height()
-		self.coords(self.gaugeBorder, 2, 2, width-4, height-4)
-		self.coords(self.gaugeArc,    2, 2, width-4, height-4)
-		self.itemconfig(self.gaugeArc, extent = -self.fill * 3.6)
-		if self.fill == 0:
-			self.itemconfig(self.gaugeBorder, state = HIDDEN)
-			self.itemconfig(self.gaugeArc, state = HIDDEN)
-		else:
-			self.itemconfig(self.gaugeBorder, state = NORMAL)
-			self.itemconfig(self.gaugeArc, state = NORMAL)
-
 
 #================================================================================
 # The following is from idlelib (tabpage.py)
