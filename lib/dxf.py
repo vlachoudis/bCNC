@@ -87,7 +87,7 @@ class Entity(dict):
 	PLANAR   = 0x08
 	LINEAR   = 0x10
 
-	SPLINE_SEGMENTS  = 20
+	SPLINE_SEGMENTS  = 8		# like in librecad
 	ELLIPSE_SEGMENTS = 100
 
 	COLORS   = [ # Acad colors

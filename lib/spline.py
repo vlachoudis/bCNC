@@ -318,7 +318,7 @@ def rbspline(npts, k, p1, b, h, p):
 	nplusc = npts + k
 
 	x = [0]*(nplusc+1)
-	nbasis = [0.0]*(npts+1)	# zero and redimension the knot vector and the basis array
+	nbasis = [0.0]*(npts+1)	# zero and re-dimension the knot vector and the basis array
 
 	# generate the uniform open knot vector
 	knot(npts,k,x)
