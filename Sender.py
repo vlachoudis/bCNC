@@ -785,8 +785,9 @@ class Sender:
 								#print "gcount str=",self._gcount
 							#print "+++ eval=",repr(tosend),type(tosend)
 						except:
-							for s in sys.exc_info()[1].splitlines():
+							for s in str(sys.exc_info()[1]).splitlines():
 								self.log.put((Sender.MSG_ERROR,s))
+							self._gcount += 1
 							tosend = None
 				except Empty:
 					break
