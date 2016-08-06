@@ -15,6 +15,8 @@ import rexx
 import time
 import threading
 import webbrowser
+
+from datetime import datetime
 try:
 	import serial
 except:
@@ -677,6 +679,8 @@ class Sender:
 	def runEnded(self):
 		if self.running:
 			self.log.put((Sender.MSG_RUNEND,_("Run ended")))
+			self.log.put((Sender.MSG_RUNEND, str(datetime.now())))
+			self.log.put((Sender.MSG_RUNEND, str(CNC.vars["msg"])))
 			if self._onStop:
 				try:
 					os.system(self._onStop)
