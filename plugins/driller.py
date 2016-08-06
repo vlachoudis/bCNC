@@ -66,7 +66,7 @@ class Tool(Plugin):
 			app.gcode.initPath(bid)
 			for line in block:
 				try:
-					cmd = app.cnc.breakLine(app.gcode.evaluate(app.cnc.parseLine2(line)))
+					cmd = app.cnc.breakLine(app.gcode.evaluate(app.cnc.parseLine(line)))
 				except:
 					cmd = None
 
