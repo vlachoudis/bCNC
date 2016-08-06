@@ -187,7 +187,7 @@ class Sender:
 	# can return a python exception, needs to be catched
 	#----------------------------------------------------------------------
 	def evaluate(self, line):
-		return self.gcode.evaluate(CNC.parseLine2(line,True))
+		return self.gcode.evaluate(CNC.compileLine(line,True))
 
 	#----------------------------------------------------------------------
 	# Execute a line as gcode if pattern matches
@@ -208,7 +208,7 @@ class Sender:
 		#print
 		#print "<<<",line
 		#try:
-		#	line = self.gcode.evaluate(CNC.parseLine2(line,True))
+		#	line = self.gcode.evaluate(CNC.compileLine(line,True))
 		#except:
 		#	return "Evaluation error", sys.exc_info()[1]
 		#print ">>>",line
