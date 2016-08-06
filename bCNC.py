@@ -2088,6 +2088,11 @@ class Application(Toplevel,Sender):
 		self._selectI  = 0		# last selection pointer in items
 		self._paths    = None		# temporary
 		CNC.vars["running"] = True
+		if self._onStart:
+			try:
+				os.system(self._onStart)
+			except:
+				pass
 
 		if lines is None:
 			#if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:

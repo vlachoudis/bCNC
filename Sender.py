@@ -143,6 +143,9 @@ class Sender:
 		self._lastFeed	 = 0
 		self._newFeed	 = 0
 
+		self._onStart    = ""
+		self._onStop     = ""
+
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
 		self.saveConfig()
@@ -674,6 +677,11 @@ class Sender:
 	def runEnded(self):
 		if self.running:
 			self.log.put((Sender.MSG_RUNEND,_("Run ended")))
+			if self._onStop:
+				try:
+					os.system(self._onStop)
+				except:
+					pass
 		self._runLines = 0
 		self._quit     = 0
 		self._msg      = None
