@@ -698,6 +698,7 @@ class CNC:
 
 			"PRB"
 			"TLO"       : 0.,
+			"running"   : False,
 		}
 
 	drillPolicy    = 1		# Expand Canned cycles
@@ -995,7 +996,7 @@ class CNC:
 	#       else compiled expressions,""
 	#----------------------------------------------------------------------
 	@staticmethod
-	def parseLine2(line, space=False):
+	def compileLine(line, space=False):
 		line = line.strip()
 		if not line: return None
 		if line[0] == "$": return line
@@ -1021,6 +1022,9 @@ class CNC:
 				return (MSG, args)
 			elif cmd=="%update":
 				return (UPDATE, args)
+			elif line.startswith("%if running") and not CNC.vars["running"]:
+				# ignore if running lines when not running
+				return None
 			else:
 				try:
 					return compile(line[1:],"","exec")
@@ -1579,7 +1583,7 @@ class CNC:
 		lines = []
 		for j,line in enumerate(program):
 			newcmd = []
-			cmds = CNC.parseLine2(line)
+			cmds = CNC.compileLine(line)
 			if cmds is None: continue
 			if isinstance(cmds,str) or isinstance(cmds,unicode):
 				cmds = CNC.breakLine(cmds)
@@ -3871,7 +3875,7 @@ class GCode:
 					every = 50
 
 				newcmd = []
-				cmds = CNC.parseLine2(line)
+				cmds = CNC.compileLine(line)
 				if cmds is None: continue
 				if isinstance(cmds,str) or isinstance(cmds,unicode):
 					cmds = CNC.breakLine(cmds)

@@ -679,6 +679,7 @@ class Sender:
 		self._msg      = None
 		self._pause    = False
 		self.running   = False
+		CNC.vars["running"] = False
 
 	#----------------------------------------------------------------------
 	# Purge the buffer of the controller. Unfortunately we have to perform

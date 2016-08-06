@@ -1749,7 +1749,7 @@ class CNCCanvas(Canvas):
 						n = 1000
 					#cmd = self.cnc.parseLine(line)
 					try:
-						cmd = CNC.breakLine(self.gcode.evaluate(CNC.parseLine2(line)))
+						cmd = CNC.breakLine(self.gcode.evaluate(CNC.compileLine(line)))
 					except AlarmException:
 						raise
 					except:

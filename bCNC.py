@@ -596,6 +596,9 @@ class Application(Toplevel,Sender):
 
 		self._swapKeyboard = Utils.getInt("Control", "swap", 0)
 
+		self._onStart = Utils.getStr("Events", "onstart", "")
+		self._onStop  = Utils.getStr("Events", "onstop",  "")
+
 		tkExtra.Balloon.font = Utils.getFont("balloon", tkExtra.Balloon.font)
 
 		Ribbon._FONT	= Utils.getFont("ribbon.label", Ribbon._FONT)
@@ -2084,6 +2087,7 @@ class Application(Toplevel,Sender):
 		self._gcount   = 0		# count executed lines
 		self._selectI  = 0		# last selection pointer in items
 		self._paths    = None		# temporary
+		CNC.vars["running"] = True
 
 		if lines is None:
 			#if not self.gcode.probe.isEmpty() and not self.gcode.probe.zeroed:
