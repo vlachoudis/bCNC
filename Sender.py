@@ -13,6 +13,7 @@ import re
 import sys
 import rexx
 import time
+from datetime import datetime
 import threading
 import webbrowser
 try:
@@ -674,6 +675,9 @@ class Sender:
 	def runEnded(self):
 		if self.running:
 			self.log.put((Sender.MSG_RUNEND,_("Run ended")))
+			self.log.put((Sender.MSG_RUNEND, str(datetime.now()))) 
+			self.log.put((Sender.MSG_RUNEND, str(CNC.vars["msg"])))
+
 		self._runLines = 0
 		self._quit     = 0
 		self._msg      = None
