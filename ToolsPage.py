@@ -467,6 +467,11 @@ class Camera(Ini):
 		Ini.__init__(self, master, "Camera", "int")
 
 #------------------------------------------------------------------------------
+class Events(Ini):
+	def __init__(self, master):
+		Ini.__init__(self, master, "Events", "str")
+
+#------------------------------------------------------------------------------
 class Shortcut(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Shortcut", "str")
@@ -761,7 +766,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill,
+		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Events,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
@@ -1199,7 +1204,21 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				value="Shortcut",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts"))
+		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["event"],
+				text=_("Events"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Events",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Events configuration"))
 		self.addWidget(b)
 
 	#----------------------------------------------------------------------
