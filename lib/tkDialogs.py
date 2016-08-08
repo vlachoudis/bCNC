@@ -1,4 +1,4 @@
-# $Id: tkDialogs.py 3515 2015-06-11 11:58:14Z bnv $
+# $Id: tkDialogs.py 3718 2016-02-04 16:10:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,7 +86,6 @@ class InputDialog(Toplevel):
 			type_="str", from_=None, to_=None):
 
 		Toplevel.__init__(self, master)
-		self.master = master
 		self.transient(master)
 		Label(self, text=message, justify=LEFT).pack(
 			expand=YES, fill=BOTH, side=TOP)
@@ -154,7 +153,7 @@ class InputDialog(Toplevel):
 class FindReplaceDialog(Toplevel):
 	def __init__(self, master, replace=True):
 		Toplevel.__init__(self, master)
-		self.master   = master
+		self.transient(master)
 		self.replace  = replace
 		self.caseVar = IntVar()
 
@@ -236,7 +235,6 @@ class FindReplaceDialog(Toplevel):
 		self.bind('<Control-Key-r>', self._replace)
 		self.bind('<Alt-Key-a>', self._replaceAll)
 		self.bind('<Control-Key-a>', self._replaceAll)
-		self.transient(master)
 
 	# --------------------------------------------------------------------
 	# Show dialog and wait for events
@@ -304,8 +302,7 @@ class Printer(Toplevel):
 
 	def __init__(self, master):
 		Toplevel.__init__(self, master)
-		self.master    = master
-
+		self.transient(master)
 		self.title('Print')
 
 		self.printCmd  = IntVar()
@@ -318,7 +315,6 @@ class Printer(Toplevel):
 		self.copiesVar.set(Printer.copies)
 
 		#self.geometry('+265+230')
-		self.transient(master)
 
 		# -----
 		frame = LabelFrame(self, text="Print To")
@@ -457,7 +453,6 @@ class Printer(Toplevel):
 		Printer.landscape = self.landscapeVar.get()
 		Printer.paper     = self.paperVar.get()
 		Printer.copies    = self.copiesVar.get()
-
 		self.destroy()
 
 	# --------------------------------------------------------------------
@@ -547,10 +542,9 @@ class Printer(Toplevel):
 class ProgressDialog(Toplevel):
 	def __init__(self, master, title):
 		Toplevel.__init__(self, master)
-		self.master = master
 		self.transient(master)
 		self.title(title)
-		self.bar = tkExtra.ProgressBar(self, width=200, height=24)
+		self.bar = tkExtra.ProgressBar(self, width=200, height=24, background="DarkGray")
 		self.bar.pack(side=TOP, expand=YES, fill=X)
 		self.label = Label(self, width=60)
 		self.label.pack(side=TOP, expand=YES, fill=BOTH)

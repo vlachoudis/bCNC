@@ -1,4 +1,4 @@
-# $Id: bmath.py 3598 2015-10-16 13:07:06Z bnv $
+# $Id: bmath.py 3739 2016-03-22 08:14:24Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,17 +99,6 @@ def limit(min_, num, max_):
 #-------------------------------------------------------------------------------
 def dms(d,m,s):
 	return d + m/60.0 + s/3600.0
-
-#-------------------------------------------------------------------------------
-# This cube root routine handles negative arguments
-#-------------------------------------------------------------------------------
-def cbrt(x):
-	if x == 0.0:
-		return 0
-	elif x > 0.0:
-		return pow (x, 1.0/3.0)
-	else:
-		return -pow(-x, 1.0/3.0)
 
 #-------------------------------------------------------------------------------
 # d2s - degrees to string
@@ -1340,6 +1329,49 @@ class Quaternion(list):
 		return self
 
 #-------------------------------------------------------------------------------
+def gauss(A, B):
+	"""Solve A*X = B using the Gauss elimination method"""
+
+	n = len(A)
+	s = [0.0]*n
+	X = [0.0]*n
+
+	p = [i for i in range(n)]
+	for i in range(n):
+		s[i] = max([abs(x) for x in A[i]])
+
+	for k in range(n-1):
+		# select j>=k so that
+		# |A[p[j]][k]| / s[p[i]] >= |A[p[i]][k]| / s[p[i]] for i = k,k+1,...,n
+		j = k
+		ap = abs(A[p[j]][k]) / s[p[j]]
+		for i in range(k+1, n):
+			api = abs(A[p[i]][k]) / s[p[i]]
+			if api>ap:
+				j  = i
+				ap = api
+
+		if j!=k: p[k],p[j] = p[j],p[k]		# Swap values
+
+		for i in range(k+1, n):
+			z = A[p[i]][k] / A[p[k]][k]
+			A[p[i]][k] = z
+			for j in range(k+1, n):
+				A[p[i]][j] -= z * A[p[k]][j]
+
+	for k in range(n-1):
+		for i in range(k+1,n):
+			B[p[i]] -= A[p[i]][k] * B[p[k]]
+
+	for i in range(n-1, -1, -1):
+		X[i] = B[p[i]]
+		for j in range(i+1, n):
+			X[i] -= A[p[i]][j] * X[j]
+		X[i] /= A[p[i]][i]
+
+	return X
+
+#-------------------------------------------------------------------------------
 def solveOverDetermined(A, B, W=None):
 	"""Solve the overdetermined linear system defined by the matrices A,B
 		such as A*X = B
@@ -1509,38 +1541,6 @@ def eigenvalues(M, eps=_accuracy, check=False):
 		# Exit condition
 		if zw1 <= eps: break
 	return ([A[i][i] for i in range(n)],V.T())
-
-# -----------------------------------------------------------------------------
-# Set the matrix according to Cardinal
-# -----------------------------------------------------------------------------
-def CardinalMatrix(a=0.5):
-	M = Matrix(4)
-	M[0][0] =  -a;   M[0][1] = 2.-a;  M[0][2] = a-2.;    M[0][3] =  a
-	M[1][0] = 2.*a;  M[1][1] = a-3.;  M[1][2] = 3.-2.*a; M[1][3] = -a
-	M[2][0] =  -a;   M[2][1] =  0.;   M[2][2] =   a;     M[2][3] = 0.
-	M[3][0] =  0.;   M[3][1] =  1.;   M[3][2] =  0.;     M[3][3] = 0.
-	return M
-
-# -----------------------------------------------------------------------------
-# CardinalR
-# -----------------------------------------------------------------------------
-def CardinalR(M, t):
-	T = [t*t*t, t*t, t, 1.0]
-	R = [0., 0., 0., 0.]
-
-	for i in range(4):
-		for j in range(4):
-			R[i] += T[j] * M[j][i]
-
-	return R
-
-# -----------------------------------------------------------------------------
-# CardinalSpline
-# -----------------------------------------------------------------------------
-def CardinalSpline(R, pts, k, t):
-	x =  0.0
-	for i in range(4): x += R[i]*pts[k+i-1]
-	return x
 
 #-------------------------------------------------------------------------------
 # Given a function, and given a bracketing triplet of abscissas ax,bx,cx (such
@@ -1713,35 +1713,34 @@ def quadratic(b, c, eps=_accuracy):
 # can be modified to accept any real or complex coefficients because the method
 # of solution does not make any assumptions.
 #-------------------------------------------------------------------------------
-def cubic(a, b, c, d=None):
-	"""
-	x^3 + ax^2 + bx + c = 0
-	(or ax^3 + bx^2 + cx + d = 0)
-	With substitution x = y-t and t = a/3,
-	the cubic equation reduces to y^3 + py + q = 0,
-	where p = b-3t^2 and q = c-bt+2t^3.
-	Then, one real root y1 = u+v can be determined by solving
-		w^2 + qw - (p/3)^3 = 0
-	where w = u^3, v^3.
-	From Vieta's theorem,
-		y1 + y2 + y3 = 0
-		y1,  y2 + y1,  y3 + y2,  y3 = p
-		y1,  y2,  y3 = -q,
-	the other two (real or complex) roots can be obtained by solving
-	y^2 + (y1)y + (p+y1^2) = 0
-	"""
-	if d: # (ax^3 + bx^2 + cx + d = 0)
-		a, b, c = b / float(a), c / float(a), d / float(a)
-	t = a / 3.0
-	p, q = b - 3 * t**2, c - b * t + 2 * t**3
-	u, v = quadratic(q, -(p/3.0)**3)
-	if type(u) == type(0j): # complex cubic root
-		r, w = polar(u.real, u.imag)
-		y1 = 2 * cbrt(r) * cos(w / 3.0)
-	else: # real root
-		y1 = cbrt(u) + cbrt(v)
-	y2, y3 = quadratic(y1, p + y1**2)
-	return y1 - t, y2 - t, y3 - t
+def cubic(a, b, c, d=None, eps=_accuracy):
+	if d is not None: # (ax^3 + bx^2 + cx + d = 0)
+		a, b, c = b/float(a), c/float(a), d/float(a)
+
+	Q = (a*a - 3.0*b) / 9.0
+	R = (2.*a**3 - 9.*a*b + 27.*c)/54.
+
+	R2 = R**2
+	Q3 = Q**3
+	if R2 < Q3:	# the cubic has 3 real solutions
+		theta = acos(R/sqrt(Q3))
+		sqrt_Q = sqrt(Q)
+		x1 = -2. * sqrt_Q * cos(theta/3.) - a/3.
+		x2 = -2. * sqrt_Q * cos((theta+2.*pi)/3.) - a/3.
+		x3 = -2. * sqrt_Q * cos((theta-2.*pi)/3.) - a/3.
+		return x1,x2,x3
+
+	A = -copysign(1.0,R) * (abs(R) + sqrt(R2 - Q3))**(1./3.)
+	if abs(A)>eps:
+		B = Q / A
+	else:
+		B = 0.0
+
+	return (A+B) - a/3., None, None
+
+	# imaginary roots
+	# x2 = -(A+B)/2 - a/3 + i*sqrt(3)*(A-B)
+	# x3 = -(A+B)/2 - a/3 - i*sqrt(3)*(A-B)
 
 #-------------------------------------------------------------------------------
 # Fit a plane to a set of points using least square fitting

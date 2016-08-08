@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: ascii -*-
-# $Id: bFileDialog.py 3643 2015-11-13 11:16:20Z bnv $
+# $Id: bFileDialog.py 3769 2016-04-26 08:02:48Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,9 +170,9 @@ DESCRIPTION = {
 		"vxl":  "Voxel",
 		"dcm":  "Dicom",
 
-		_LINK_TYPE:	_LINK_TYPE,
-		_BACKUP_TYPE:	_BACKUP_TYPE,
-		_DIR_TYPE:	_DIR_TYPE,
+		_LINK_TYPE   : _LINK_TYPE,
+		_BACKUP_TYPE : _BACKUP_TYPE,
+		_DIR_TYPE    : _DIR_TYPE,
 	}
 
 # Converted from GIF to base64 PhotoImage
@@ -190,8 +190,6 @@ W1YXE4IuWKFXV1AsKitIRx+DLlWiV1FOTkEOKRsLNIIsVbA3N5QtLTMnJSUeHCpSV0UyU9vcU1BQ
 NSPWVDI7UL9OS0lGPTEPfyVP2VNN6UtGQD06EB3wTDI/oCy5N0SfjRAHBHnwoe0ePh02YKCAkEAQ
 Bxc5TGgUAUKDhgoRElrMQEECAwQGChAYIABAgEUwBQUCADs=
 """
-# Avoid re-entrance of the dialog if by accident someone double clicks a button
-_active      = False
 _history     = []
 
 #-------------------------------------------------------------------------------
@@ -239,6 +237,8 @@ def fileTypeColor(filename):
 # FileDialog
 #===============================================================================
 class FileDialog(Toplevel):
+	_active   = False	# Avoid re-entrance of the dialog if by accident
+				# someone double clicks a button
 	sort      = None
 	width     = -1
 	height    = -1
@@ -256,15 +256,13 @@ class FileDialog(Toplevel):
 			**kw):
 
 		Toplevel.__init__(self)
-
-		global _active
-		_active = True
-
-		self.master = master
-		if title is None: title = self._title
 		self.transient(master)
 		self.title(title)
 		self.protocol("WM_DELETE_WINDOW", self.close)
+
+		FileDialog._active = True
+
+		if title is None: title = self._title
 
 		self.dirframe = Frame(self)
 		self.dirframe.pack(side=TOP, fill=X)
@@ -475,8 +473,8 @@ class FileDialog(Toplevel):
 			return
 		self.downButton["relief"] = SUNKEN
 		self._popup = Toplevel(self)
-		self._popup.overrideredirect(1)
 		self._popup.transient(self)
+		self._popup.overrideredirect(1)
 		self._popup.withdraw()
 		self._popup.bind('<Escape>',	self._historyDestroy)
 		self._popup.bind('<FocusOut>',	self._historyFocusOut)
@@ -714,11 +712,10 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def close(self):
-		global _active
-		_active = False
-		FileDialog.width  = self.winfo_width()
-		FileDialog.height = self.winfo_height()
-		FileDialog.sash   = [self.fileList.paneframe.sash_coord(i)[0]
+		FileDialog._active = False
+		FileDialog.width   = self.winfo_width()
+		FileDialog.height  = self.winfo_height()
+		FileDialog.sash    = [self.fileList.paneframe.sash_coord(i)[0]
 					for i in range(len(self.fileList.lists)-1)]
 		tkExtra.ExListbox.resetSearch()
 		self.grab_release()
@@ -939,28 +936,28 @@ class DirectoryDialog(FileDialog):
 #===============================================================================
 def askfilename(**options):
 	"""Ask for a filename"""
-	if _active: return ""
+	if FileDialog._active: return ""
 	return FileDialog(**options).show()
 
 def askopenfilename(**options):
 	"""Ask for a filename to open"""
-	if _active: return ""
+	if FileDialog._active: return ""
 	return OpenDialog(**options).show()
 
 def askopenfilenames(**options):
 	"""Ask for a multiple filenames to open"""
-	if _active: return ()
+	if FileDialog._active: return ()
 	options["multiple"] = True
 	return OpenDialog(**options).show()
 
 def asksaveasfilename(**options):
 	"""Ask for a filename to save as"""
-	if _active: return ""
+	if FileDialog._active: return ""
 	return SaveAsDialog(**options).show()
 
 def askdirectory(**options):
 	"""Ask for a directory"""
-	if _active: return ""
+	if FileDialog._active: return ""
 	return DirectoryDialog(**options).show()
 
 #===============================================================================
