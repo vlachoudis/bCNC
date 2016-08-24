@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-15 11:20+0200\n"
+"POT-Creation-Date: 2016-08-24 16:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Days-interval to remind again for checking"
 msgstr ""
 
-#: Updates.py:105 Utils.py:452 bCNC.py:843 bCNC.py:1048 bCNC.py:2022
+#: Updates.py:105 Utils.py:452 bCNC.py:843 bCNC.py:1048 bCNC.py:2032
 msgid "Close"
 msgstr ""
 
@@ -455,8 +455,8 @@ msgid "Footer gcode"
 msgstr ""
 
 #: ToolsPage.py:533 ToolsPage.py:560 ToolsPage.py:590 ToolsPage.py:617
-#: ToolsPage.py:642 ToolsPage.py:675 ToolsPage.py:701 ToolsPage.py:723
-#: ToolsPage.py:1263 lib/bFileDialog.py:293 plugins/sketch.py:42
+#: ToolsPage.py:648 ToolsPage.py:681 ToolsPage.py:707 ToolsPage.py:729
+#: ToolsPage.py:1269 lib/bFileDialog.py:293 plugins/sketch.py:42
 #: plugins/pyrograph.py:39 plugins/heightmap.py:49 plugins/midi2cnc.py:50
 #: plugins/hilbert.py:88 plugins/gear.py:163 plugins/flatten.py:258
 #: plugins/driller.py:39 plugins/tile.py:35 plugins/spirograph.py:102
@@ -469,11 +469,11 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ToolsPage.py:535
+#: ToolsPage.py:535 ToolsPage.py:621
 msgid "Feed"
 msgstr ""
 
-#: ToolsPage.py:536
+#: ToolsPage.py:536 ToolsPage.py:622
 msgid "Plunge Feed"
 msgstr ""
 
@@ -489,7 +489,7 @@ msgstr ""
 msgid "Shape"
 msgstr ""
 
-#: ToolsPage.py:564 ToolsPage.py:592 ToolsPage.py:890
+#: ToolsPage.py:564 ToolsPage.py:592 ToolsPage.py:896
 msgid "Material"
 msgstr ""
 
@@ -533,273 +533,249 @@ msgstr ""
 msgid "Thickness"
 msgstr ""
 
-#: ToolsPage.py:619 ToolsPage.py:643 plugins/driller.py:41
+#: ToolsPage.py:619 ToolsPage.py:649 plugins/driller.py:41
 #: plugins/spirograph.py:106
 msgid "Target Depth"
 msgstr ""
 
-#: ToolsPage.py:621
+#: ToolsPage.py:623
 msgid "First cut at surface height"
 msgstr ""
 
-#: ToolsPage.py:632
+#: ToolsPage.py:638
 msgid "CUT selected paths"
 msgstr ""
 
-#: ToolsPage.py:644
+#: ToolsPage.py:650
 msgid "Peck depth"
 msgstr ""
 
-#: ToolsPage.py:645
+#: ToolsPage.py:651
 msgid "Dwell (s)"
 msgstr ""
 
-#: ToolsPage.py:646
+#: ToolsPage.py:652
 msgid "Distance (mm)"
 msgstr ""
 
-#: ToolsPage.py:647
+#: ToolsPage.py:653
 msgid "Number"
 msgstr ""
 
-#: ToolsPage.py:665
+#: ToolsPage.py:671
 msgid "DRILL selected points"
 msgstr ""
 
-#: ToolsPage.py:676 ToolsPage.py:702 ToolsPage.py:904
+#: ToolsPage.py:682 ToolsPage.py:708 ToolsPage.py:910
 msgid "End Mill"
 msgstr ""
 
-#: ToolsPage.py:677 plugins/pyrograph.py:45
+#: ToolsPage.py:683 plugins/pyrograph.py:45
 msgid "Direction"
 msgstr ""
 
-#: ToolsPage.py:678
+#: ToolsPage.py:684
 msgid "Additional offset distance"
 msgstr ""
 
-#: ToolsPage.py:679 plugins/box.py:314
+#: ToolsPage.py:685 plugins/box.py:314
 msgid "Overcut"
 msgstr ""
 
-#: ToolsPage.py:691
+#: ToolsPage.py:697
 msgid "Generate profile path"
 msgstr ""
 
-#: ToolsPage.py:713
+#: ToolsPage.py:719
 msgid "Generate pocket path"
 msgstr ""
 
-#: ToolsPage.py:724
+#: ToolsPage.py:730
 msgid "Number of tabs"
 msgstr ""
 
-#: ToolsPage.py:725
+#: ToolsPage.py:731
 msgid "Min. Distance of tabs"
 msgstr ""
 
-#: ToolsPage.py:728
+#: ToolsPage.py:734
 msgid "Height"
 msgstr ""
 
-#: ToolsPage.py:748
+#: ToolsPage.py:754
 msgid "Tabs error"
 msgstr ""
 
-#: ToolsPage.py:749
+#: ToolsPage.py:755
 msgid "You cannot have both the number of tabs or distance equal to zero"
 msgstr ""
 
-#: ToolsPage.py:752
+#: ToolsPage.py:758
 msgid "Create tabs on blocks"
 msgstr ""
 
-#: ToolsPage.py:876
+#: ToolsPage.py:882
 msgid "Stock"
 msgstr ""
 
-#: ToolsPage.py:883
+#: ToolsPage.py:889
 msgid "Stock material currently on machine"
 msgstr ""
 
-#: ToolsPage.py:897
+#: ToolsPage.py:903
 msgid "Editable database of material properties"
 msgstr ""
 
-#: ToolsPage.py:911
+#: ToolsPage.py:917
 msgid "Editable database of EndMills properties"
 msgstr ""
 
-#: ToolsPage.py:918
+#: ToolsPage.py:924
 msgid "Rename"
 msgstr ""
 
-#: ToolsPage.py:923
+#: ToolsPage.py:929
 msgid "Edit name of current operation/object"
 msgstr ""
 
-#: ToolsPage.py:931 ProbePage.py:421 EditorPage.py:158
+#: ToolsPage.py:937 ProbePage.py:421 EditorPage.py:158
 msgid "Add"
 msgstr ""
 
-#: ToolsPage.py:936
+#: ToolsPage.py:942
 msgid "Add a new operation/object"
 msgstr ""
 
-#: ToolsPage.py:944 EditorPage.py:170
+#: ToolsPage.py:950 EditorPage.py:170
 msgid "Clone"
 msgstr ""
 
-#: ToolsPage.py:949
+#: ToolsPage.py:955
 msgid "Clone selected operation/object"
 msgstr ""
 
-#: ToolsPage.py:957 ProbePage.py:455 EditorPage.py:182
+#: ToolsPage.py:963 ProbePage.py:455 EditorPage.py:182
 msgid "Delete"
 msgstr ""
 
-#: ToolsPage.py:962
+#: ToolsPage.py:968
 msgid "Delete selected operation/object"
 msgstr ""
 
-#: ToolsPage.py:978 EditorPage.py:46 plugins/box.py:315
+#: ToolsPage.py:984 EditorPage.py:46 plugins/box.py:315
 msgid "Cut"
 msgstr ""
 
-#: ToolsPage.py:985
+#: ToolsPage.py:991
 msgid "Cut for the full stock thickness selected code"
 msgstr ""
 
-#: ToolsPage.py:992 plugins/box.py:313
+#: ToolsPage.py:998 plugins/box.py:313
 msgid "Profile"
 msgstr ""
 
-#: ToolsPage.py:999
+#: ToolsPage.py:1005
 msgid "Perform a profile operation on selected code"
 msgstr ""
 
-#: ToolsPage.py:1006
+#: ToolsPage.py:1012
 msgid "Pocket"
 msgstr ""
 
-#: ToolsPage.py:1013
+#: ToolsPage.py:1019
 msgid "Perform a pocket operation on selected code"
 msgstr ""
 
-#: ToolsPage.py:1020
+#: ToolsPage.py:1026
 msgid "Drill"
 msgstr ""
 
-#: ToolsPage.py:1027
+#: ToolsPage.py:1033
 msgid "Insert a drill cycle on current objects/location"
 msgstr ""
 
-#: ToolsPage.py:1034
+#: ToolsPage.py:1040
 msgid "Tabs"
 msgstr ""
 
-#: ToolsPage.py:1041
+#: ToolsPage.py:1047
 msgid "Insert holding tabs"
 msgstr ""
 
-#: ToolsPage.py:1120
+#: ToolsPage.py:1126
 msgid "User File"
 msgstr ""
 
-#: ToolsPage.py:1135
+#: ToolsPage.py:1141
 msgid "Change program language restart is required"
 msgstr ""
 
-#: ToolsPage.py:1144 ProbePage.py:104 ProbePage.py:1115
+#: ToolsPage.py:1150 ProbePage.py:104 ProbePage.py:1115
 msgid "Camera"
 msgstr ""
 
-#: ToolsPage.py:1151
+#: ToolsPage.py:1157
 msgid "Camera Configuration"
 msgstr ""
 
-#: ToolsPage.py:1158
+#: ToolsPage.py:1164
 msgid "Colors"
 msgstr ""
 
-#: ToolsPage.py:1165
+#: ToolsPage.py:1171
 msgid "Color configuration"
 msgstr ""
 
-#: ToolsPage.py:1172
+#: ToolsPage.py:1178
 msgid "Fonts"
 msgstr ""
 
-#: ToolsPage.py:1179
+#: ToolsPage.py:1185
 msgid "Font configuration"
 msgstr ""
 
-#: ToolsPage.py:1186
+#: ToolsPage.py:1192
 msgid "Machine"
 msgstr ""
 
-#: ToolsPage.py:1193
+#: ToolsPage.py:1199
 msgid "Machine configuration for bCNC"
 msgstr ""
 
-#: ToolsPage.py:1200
+#: ToolsPage.py:1206
 msgid "Shortcuts"
 msgstr ""
 
-#: ToolsPage.py:1207
+#: ToolsPage.py:1213
 msgid "Shortcuts configuration"
 msgstr ""
 
-#: ToolsPage.py:1214
+#: ToolsPage.py:1220
 msgid "Events"
 msgstr ""
 
-#: ToolsPage.py:1221
+#: ToolsPage.py:1227
 msgid "Events configuration"
 msgstr ""
 
-#: ToolsPage.py:1238
+#: ToolsPage.py:1244
 msgid "Language change"
 msgstr ""
 
-#: ToolsPage.py:1239
+#: ToolsPage.py:1245
 msgid "Please restart the program."
 msgstr ""
 
-#: ToolsPage.py:1251
+#: ToolsPage.py:1257
 msgid "Execute"
 msgstr ""
 
-#: ToolsPage.py:1264
+#: ToolsPage.py:1270
 msgid "Value"
 msgstr ""
 
-#: ToolsPage.py:1331
+#: ToolsPage.py:1337
 msgid "GCode manipulation tools and user plugins"
-msgstr ""
-
-#: Ribbon.py:483
-msgid "New file"
-msgstr ""
-
-#: Ribbon.py:489
-msgid "Open file [Ctrl-O]"
-msgstr ""
-
-#: Ribbon.py:495
-msgid "Save all [Ctrl-S]"
-msgstr ""
-
-#: Ribbon.py:501
-msgid "Undo [Ctrl-Z]"
-msgstr ""
-
-#: Ribbon.py:514
-msgid "Redo [Ctrl-Y]"
-msgstr ""
-
-#: Ribbon.py:525
-msgid "Help [F1]"
 msgstr ""
 
 #: Utils.py:414
@@ -1964,7 +1940,7 @@ msgstr ""
 msgid "Move all gcode such as origin is on mouse location [O]"
 msgstr ""
 
-#: EditorPage.py:419 bCNC.py:1434
+#: EditorPage.py:419 bCNC.py:1440
 msgid "Optimize"
 msgstr ""
 
@@ -2209,7 +2185,7 @@ msgstr ""
 msgid "All accepted"
 msgstr ""
 
-#: bCNC.py:87 bCNC.py:1968
+#: bCNC.py:87 bCNC.py:1978
 msgid "G-Code"
 msgstr ""
 
@@ -2274,175 +2250,184 @@ msgstr ""
 msgid "Evaluation error"
 msgstr ""
 
-#: bCNC.py:1271
+#: bCNC.py:1277
 msgid "Direction command error"
 msgstr ""
 
-#: bCNC.py:1272
+#: bCNC.py:1278
 #, python-format
 msgid "Invalid direction %s specified"
 msgstr ""
 
-#: bCNC.py:1435
+#: bCNC.py:1441
 msgid "Please select the blocks of gcode you want to optimize."
 msgstr ""
 
-#: bCNC.py:1578
+#: bCNC.py:1584
 #, python-format
 msgid "EndMill: %s %g"
 msgstr ""
 
-#: bCNC.py:1603
+#: bCNC.py:1609
 #, python-format
 msgid "Invalid user command %s"
 msgstr ""
 
-#: bCNC.py:1678
+#: bCNC.py:1645
+msgid "Nothing to do"
+msgstr ""
+
+#: bCNC.py:1646
+#, python-format
+msgid "Operation %s requires some gcode to be selected"
+msgstr ""
+
+#: bCNC.py:1688
 msgid "Operation error"
 msgstr ""
 
-#: bCNC.py:1719
+#: bCNC.py:1729
 #, python-format
 msgid "Profile block distance=%g"
 msgstr ""
 
-#: bCNC.py:1732
+#: bCNC.py:1742
 msgid "Open paths"
 msgstr ""
 
-#: bCNC.py:1733
+#: bCNC.py:1743
 #, python-format
 msgid "WARNING: %s"
 msgstr ""
 
-#: bCNC.py:1854
+#: bCNC.py:1864
 msgid "Open file"
 msgstr ""
 
-#: bCNC.py:1868
+#: bCNC.py:1878
 msgid "Save file"
 msgstr ""
 
-#: bCNC.py:1879
+#: bCNC.py:1889
 msgid "File modified"
 msgstr ""
 
-#: bCNC.py:1880
+#: bCNC.py:1890
 msgid "Gcode was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1889
+#: bCNC.py:1899
 msgid "Probe File modified"
 msgstr ""
 
-#: bCNC.py:1890
+#: bCNC.py:1900
 msgid "Probe was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1913
+#: bCNC.py:1923
 msgid "Existing Autolevel"
 msgstr ""
 
-#: bCNC.py:1914
+#: bCNC.py:1924
 msgid ""
 "Autolevel/probe information already exists.\n"
 "Delete it?"
 msgstr ""
 
-#: bCNC.py:1919
+#: bCNC.py:1929
 #, python-format
 msgid "Loading: %s ..."
 msgstr ""
 
-#: bCNC.py:1939
+#: bCNC.py:1949
 #, python-format
 msgid "'%s' loaded"
 msgstr ""
 
-#: bCNC.py:1945
+#: bCNC.py:1955
 #, python-format
 msgid "'%s' saved"
 msgstr ""
 
-#: bCNC.py:1964
+#: bCNC.py:1974
 msgid "Import Gcode/DXF file"
 msgstr ""
 
-#: bCNC.py:1998
+#: bCNC.py:2008
 msgid "Warning"
 msgstr ""
 
-#: bCNC.py:1999
+#: bCNC.py:2009
 #, python-format
 msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
 
-#: bCNC.py:2014 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
+#: bCNC.py:2024 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
 #: lib/bFileDialog.py:870 lib/bFileDialog.py:974
 msgid "Open"
 msgstr ""
 
-#: bCNC.py:2034
+#: bCNC.py:2044
 msgid "Error opening serial"
 msgstr ""
 
-#: bCNC.py:2064
+#: bCNC.py:2074
 msgid "Serial Error"
 msgstr ""
 
-#: bCNC.py:2065
+#: bCNC.py:2075
 msgid "Serial is not connected"
 msgstr ""
 
-#: bCNC.py:2072
+#: bCNC.py:2082
 msgid "Already running"
 msgstr ""
 
-#: bCNC.py:2073
+#: bCNC.py:2083
 msgid "Please stop before"
 msgstr ""
 
-#: bCNC.py:2118
+#: bCNC.py:2128
 msgid "Empty gcode"
 msgstr ""
 
-#: bCNC.py:2119
+#: bCNC.py:2129
 msgid "Not gcode file was loaded"
 msgstr ""
 
-#: bCNC.py:2147
+#: bCNC.py:2157
 msgid "Running..."
 msgstr ""
 
-#: bCNC.py:2164 bCNC.py:2168 bCNC.py:2181
+#: bCNC.py:2174 bCNC.py:2178 bCNC.py:2191
 msgid "Pendant"
 msgstr ""
 
-#: bCNC.py:2165
+#: bCNC.py:2175
 msgid "Pendant started:\n"
 msgstr ""
 
-#: bCNC.py:2169
+#: bCNC.py:2179
 msgid "Pendant already started:\n"
 msgstr ""
 
-#: bCNC.py:2171
+#: bCNC.py:2181
 msgid ""
 "\n"
 "Would you like open it locally?"
 msgstr ""
 
-#: bCNC.py:2181
+#: bCNC.py:2191
 msgid "Pendant stopped"
 msgstr ""
 
-#: bCNC.py:2487
+#: bCNC.py:2497
 msgid "python serial missing"
 msgstr ""
 
-#: bCNC.py:2488
+#: bCNC.py:2498
 msgid ""
 "ERROR: Please install the python pyserial module\n"
 "Windows:\n"
@@ -2451,6 +2436,30 @@ msgid ""
 "Linux:\tsudo apt-get install python-serial\n"
 "\tor yum install python-serial\n"
 "\tor dnf install python-pyserial"
+msgstr ""
+
+#: Ribbon.py:483
+msgid "New file"
+msgstr ""
+
+#: Ribbon.py:489
+msgid "Open file [Ctrl-O]"
+msgstr ""
+
+#: Ribbon.py:495
+msgid "Save all [Ctrl-S]"
+msgstr ""
+
+#: Ribbon.py:501
+msgid "Undo [Ctrl-Z]"
+msgstr ""
+
+#: Ribbon.py:514
+msgid "Redo [Ctrl-Y]"
+msgstr ""
+
+#: Ribbon.py:525
+msgid "Help [F1]"
 msgstr ""
 
 #: FilePage.py:64
