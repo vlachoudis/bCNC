@@ -3193,10 +3193,16 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, cutFromTop=False):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False):
 		if surface is None: surface = self.cnc["surface"]
-		if stepz is None: stepz = self.cnc["stepz"]
-		if depth is None: depth = surface - self.cnc["thickness"]
+		if stepz is None:   stepz = self.cnc["stepz"]
+		if depth is None:   depth = surface - self.cnc["thickness"]
+
+		# override temporarily the feed if needed
+		if feed is not None: # swap feed with cnc[cutfeed]
+			self.cnc["cutfeed"],feed   = feed, self.cnc["cutfeed"]
+		if feedz is not None:
+			self.cnc["cutfeedz"],feedz = feedz, self.cnc["cutfeedz"]
 
 		if surface > self.cnc["surface"]:
 			return "ERROR: Starting cut height is higher than stock surface. " \
@@ -3226,6 +3232,10 @@ class GCode:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
 		self.addUndo(undoinfo)
+
+		# restore feed
+		if feed  is not None: self.cnc["cutfeed"]  = feed
+		if feedz is not None: self.cnc["cutfeedz"] = feedz
 
 	#----------------------------------------------------------------------
 	# Create tabs to selected blocks

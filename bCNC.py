@@ -1241,7 +1241,7 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("CONTROL",cmd,4):
 			self.ribbon.changePage("Control")
 
-		# CUT [depth] [pass-per-depth] [z-surface]: replicate selected blocks to cut-height
+		# CUT [depth] [pass-per-depth] [z-surface] [feed] [feedz]: replicate selected blocks to cut-height
 		# default values are taken from the active material
 		elif cmd == "CUT":
 			try:	depth = float(line[1])
@@ -1252,7 +1252,13 @@ class Application(Toplevel,Sender):
 
 			try:	surface = float(line[3])
 			except: surface = None
-			self.executeOnSelection("CUT", True, depth, step, surface)
+
+			try:	feed = float(line[4])
+			except: feed = None
+
+			try:	feedz = float(line[5])
+			except: feedz = None
+			self.executeOnSelection("CUT", True, depth, step, surface, feed, feedz)
 
 		# DOWN: move downward in cutting order the selected blocks
 		# UP: move upwards in cutting order the selected blocks
@@ -1635,7 +1641,11 @@ class Application(Toplevel,Sender):
 			items = self.editor.getSelectedBlocks()
 		else:
 			items = self.editor.getCleanSelection()
-		if not items: return
+		if not items:
+			tkMessageBox.showwarning(_("Nothing to do"),
+				_("Operation %s requires some gcode to be selected")%(cmd),
+				parent=self)
+			return
 
 		self.busy()
 		sel = None

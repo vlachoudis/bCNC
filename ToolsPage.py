@@ -614,21 +614,27 @@ class Cut(DataBase):
 		DataBase.__init__(self, master)
 		self.name = "Cut"
 		self.variables = [
-			("name",           "db" ,    "", _("Name")),
-			("surface",        "mm" ,    "", _("Surface Z")),
-			("depth"  ,        "mm" ,    "", _("Target Depth")),
-			("stepz"  ,        "mm" ,    "", _("Depth Increment")),
-			("cutFromTop",   "bool" , False, _("First cut at surface height"))
+			("name",         "db" ,    "", _("Name")),
+			("surface",      "mm" ,    "", _("Surface Z")),
+			("depth"  ,      "mm" ,    "", _("Target Depth")),
+			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
+			("feed",         "mm" ,    "", _("Feed")),
+			("feedz",        "mm" ,    "", _("Plunge Feed")),
+			("cutFromTop", "bool" , False, _("First cut at surface height"))
 		]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		surface    = self.fromMm("surface", None)
-		depth      = self.fromMm("depth", None)
-		step       = self.fromMm("stepz", None)
+		surface = self.fromMm("surface", None)
+		depth   = self.fromMm("depth", None)
+		step    = self.fromMm("stepz", None)
+		try:    feed = self.fromMm("feed", None)
+		except: feed = None
+		try:    feedz = self.fromMm("feedz", None)
+		except: feedz = None
 		cutFromTop = self["cutFromTop"]
-		app.executeOnSelection("CUT", True, depth, step, surface, cutFromTop)
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
