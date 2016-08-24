@@ -2604,7 +2604,7 @@ class InPlaceText(InPlaceEdit):
 	def createWidget(self):
 		self.toplevel = Toplevel(self.listbox)
 		self.toplevel.transient(self.listbox)
-		self.toplevel.update_idletasks()
+		#self.toplevel.update_idletasks()
 		self.toplevel.overrideredirect(1)
 		self.edit = Text(self.toplevel, width=70, height=10,
 					background="White", undo=True)
