@@ -232,7 +232,7 @@ def toggleHeight(root, oldHeight):
 	width, height, x, y = map(int, m.groups())
 	maxheight = root.winfo_screenheight()
 
-	if sys.platform == 'win32':
+	if sys.platform in ("win32", "win64"):
 		newy = 0
 		newheight = maxheight - 72
 	else:
@@ -2604,7 +2604,8 @@ class InPlaceText(InPlaceEdit):
 	def createWidget(self):
 		self.toplevel = Toplevel(self.listbox)
 		self.toplevel.transient(self.listbox)
-		#self.toplevel.update_idletasks()
+		if sys.platform in ("win32", "win64"):
+			self.toplevel.update_idletasks()
 		self.toplevel.overrideredirect(1)
 		self.edit = Text(self.toplevel, width=70, height=10,
 					background="White", undo=True)
