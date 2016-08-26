@@ -560,6 +560,13 @@ class Layer:
 	def isFrozen(self):
 		return self.table.get(70,0) & 1
 
+	#----------------------------------------------------------------------
+	def color(self):
+		try:
+			return Entity.COLORS[self.table.get(62,0)]
+		except:
+			return None
+
 #==============================================================================
 # DXF importer/exporter class
 #==============================================================================

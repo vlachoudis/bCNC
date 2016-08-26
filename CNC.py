@@ -2326,10 +2326,12 @@ class GCode:
 			enable = not bool(layer.isFrozen())
 			entities = dxf.sortLayer(name)
 			if not entities: continue
-			self.importEntityPoints(None, entities, name, enable)
+			self.importEntityPoints(None, entities, name, enable, layer.color())
 			path = Path(name)
 			path.fromDxfLayer(dxf, entities, units)
 			path.removeZeroLength()
+			if path.color is None:
+				path.color = layer.color()
 			opath = path.split2contours()
 			if not opath: continue
 			while opath:
@@ -2411,7 +2413,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Import POINTS from entities
 	#----------------------------------------------------------------------
-	def importEntityPoints(self, pos, entities, name, enable=True):
+	def importEntityPoints(self, pos, entities, name, enable=True, color=None):
 		undoinfo = []
 		i = 0
 		while i<len(entities):
@@ -2421,6 +2423,10 @@ class GCode:
 
 			block = Block("%s [P]"%(name))
 			block.enable = enable
+
+			block.color = entities[i].color()
+			if block.color is None:
+				block.color = color
 
 			x,y = entities[i].start()
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
