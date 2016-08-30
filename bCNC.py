@@ -1913,7 +1913,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Load a file into editor
 	#-----------------------------------------------------------------------
-	def load(self, filename, autoLoaded = False):
+	def load(self, filename, autoloaded = False):
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
 			pass
@@ -1947,7 +1947,7 @@ class Application(Toplevel,Sender):
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
 
-		if autoLoaded:
+		if autoloaded:
 			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
 		else:
 			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
