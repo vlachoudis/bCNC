@@ -18,6 +18,7 @@ import time
 import getopt
 import socket
 import traceback
+from datetime import datetime
 
 try:
 	import serial
@@ -1912,7 +1913,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Load a file into editor
 	#-----------------------------------------------------------------------
-	def load(self, filename):
+	def load(self, filename, autoLoaded = False):
 		fn,ext = os.path.splitext(filename)
 		if ext==".probe":
 			pass
@@ -1946,7 +1947,10 @@ class Application(Toplevel,Sender):
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
 
-		self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
+		if autoLoaded:
+			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
+		else:
+			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
@@ -2013,7 +2017,7 @@ class Application(Toplevel,Sender):
 					self.gcode.resetModified()
 					self.load(self.gcode.filename)
 			else:
-				self.load(self.gcode.filename)
+				self.load(self.gcode.filename, True)
 		self._inFocus = False
 
 	#-----------------------------------------------------------------------
