@@ -412,7 +412,7 @@ class Sender:
 		elif ext == ".dxf":
 			return self.gcode.saveDXF(filename)
 		elif ext == ".txt":
-			#save gcode as txt (only enable blocks and no bCNC tags)
+			#save gcode as txt (only enable blocks and no bCNC metadata)
 			return self.gcode.saveTXT(filename)
 		else:
 			if filename is not None:

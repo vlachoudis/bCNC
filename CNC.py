@@ -2283,7 +2283,10 @@ class GCode:
 		return True
 		
 	#----------------------------------------------------------------------
-	# Save in TXT format (clened from bCNC tags)
+	# Save in TXT format 
+	# -Enabled Blocks only
+	# -Clened from bCNC metadata and comments
+	# -Uppercase
 	#----------------------------------------------------------------------
 	def saveTXT(self, filename):
 		txt = open(filename, 'w')
@@ -2292,7 +2295,7 @@ class GCode:
 				for line in block:
 					cmds = CNC.parseLine(line)
 					if cmds is None: continue
-					txt.write("%s\n"%line)
+					txt.write("%s\n"%line.upper())
 		txt.close()
 		return True
 
