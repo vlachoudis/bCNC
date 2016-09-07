@@ -1022,10 +1022,13 @@ class CNCCanvas(Canvas):
 		for i in self.find_withtag("sel"):
 			bid,lid = self._items[i]
 			if bid:
-				block = self.gcode[bid]
-				if block.color:
-					fill = block.color
-				else:
+				try:
+					block = self.gcode[bid]
+					if block.color:
+						fill = block.color
+					else:
+						fill = ENABLE_COLOR
+				except IndexError:
 					fill = ENABLE_COLOR
 			else:
 					fill = ENABLE_COLOR

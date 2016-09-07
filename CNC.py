@@ -2281,6 +2281,23 @@ class GCode:
 		self._lastModified = os.stat(self.filename).st_mtime
 		self._modified = False
 		return True
+		
+	#----------------------------------------------------------------------
+	# Save in TXT format 
+	# -Enabled Blocks only
+	# -Clened from bCNC metadata and comments
+	# -Uppercase
+	#----------------------------------------------------------------------
+	def saveTXT(self, filename):
+		txt = open(filename, 'w')
+		for block in self.blocks:
+			if block.enable:
+				for line in block:
+					cmds = CNC.parseLine(line)
+					if cmds is None: continue
+					txt.write("%s\n"%line.upper())
+		txt.close()
+		return True
 
 	#----------------------------------------------------------------------
 	def addBlockFromString(self, name, text):

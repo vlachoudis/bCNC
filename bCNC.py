@@ -86,6 +86,7 @@ MAX_HISTORY  = 500
 
 FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
 		(_("G-Code"),("*.ngc","*.nc", "*.tap", "*.gcode")),
+		(_("G-Code clean"),("*.txt")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
 		(_("Probe"),  "*.probe"),
