@@ -36,6 +36,7 @@ class Gear:
 	# PC  = Circular Pitch
 	#----------------------------------------------------------------------
 	def calc(self, N, phi, Pc):
+		N = abs(N)
 		# Pitch Circle
 		D = N * Pc / math.pi
 		R = D / 2.0
