@@ -1021,7 +1021,7 @@ class CNCCanvas(Canvas):
 
 		for i in self.find_withtag("sel"):
 			bid,lid = self._items[i]
-			if bid:
+			if bid and bid<len(self.gcode.blocks):
 				block = self.gcode[bid]
 				if block.color:
 					fill = block.color
