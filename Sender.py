@@ -37,10 +37,10 @@ G_POLL	      = 10	# s
 
 RX_BUFFER_SIZE = 128
 
-GPAT	  = re.compile(r"[A-Za-z]\d+.*")
-STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
-POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
-TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
+GPAT      = re.compile(r"[A-Za-z]\d+.*")
+STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?,WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?,?(.*)>$")
+POSPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?:?(\d*)\]$")
+TLOPAT    = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 
@@ -847,9 +847,11 @@ class Sender:
 						CNC.vars["mx"] = float(pat.group(2))
 						CNC.vars["my"] = float(pat.group(3))
 						CNC.vars["mz"] = float(pat.group(4))
-						CNC.vars["wx"] = float(pat.group(5))
-						CNC.vars["wy"] = float(pat.group(6))
-						CNC.vars["wz"] = float(pat.group(7))
+						CNC.vars["me"] = float(pat.group(5) or 0.0)
+						CNC.vars["wx"] = float(pat.group(6))
+						CNC.vars["wy"] = float(pat.group(7))
+						CNC.vars["wz"] = float(pat.group(8))
+						CNC.vars["we"] = float(pat.group(9) or 0.0)
 						self._posUpdate = True
 						if pat.group(1) != "Hold" and self._msg:
 							self._msg = None
@@ -874,6 +876,7 @@ class Sender:
 							CNC.vars["prbx"] = float(pat.group(2))
 							CNC.vars["prby"] = float(pat.group(3))
 							CNC.vars["prbz"] = float(pat.group(4))
+							CNC.vars["prbe"] = float(pat.group(5) or 0.0)
 							#if self.running:
 							self.gcode.probe.add(
 								 CNC.vars["prbx"]

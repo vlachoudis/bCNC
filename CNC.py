@@ -3610,9 +3610,9 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
-	# Move position by dx,dy,dz
+	# Move position by dx,dy,dz,de
 	#----------------------------------------------------------------------
-	def moveFunc(self, new, old, dx, dy, dz):
+	def moveFunc(self, new, old, dx, dy, dz, de):
 		changed = False
 		if 'X' in new:
 			changed = True
@@ -3623,6 +3623,9 @@ class GCode:
 		if 'Z' in new:
 			changed = True
 			new['Z'] += dz
+		if 'E' in new:
+			changed = True
+			new['E'] += de
 		return changed
 
 	#----------------------------------------------------------------------
@@ -3635,10 +3638,10 @@ class GCode:
 			pass
 
 	#----------------------------------------------------------------------
-	# Move position by dx,dy,dz
+	# Move position by dx,dy,dz,de
 	#----------------------------------------------------------------------
-	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.process(items, self.moveFunc, Tab.move, dx, dy, dz)
+	def moveLines(self, items, dx, dy, dz=0.0, de=0.0):
+		return self.process(items, self.moveFunc, Tab.move, dx, dy, dz, de)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)

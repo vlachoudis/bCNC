@@ -152,7 +152,8 @@ class DROFrame(CNCRibbon.PageFrame):
 				cursor="hand1",
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
-		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
+
+		self.state.grid(row=row,column=col, columnspan=4, sticky=EW)
 		tkExtra.Balloon.set(self.state,
 				_("Show current state of the machine\n"
 				  "Click to see details\n"
@@ -203,6 +204,20 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.zwork.bind('<Return>',   self.setZ)
 		self.zwork.bind('<KP_Enter>', self.setZ)
 
+		# ---
+		col += 1
+		self.ework = tkExtra.FloatEntry(self,
+					font=DROFrame.dro_wpos,
+					background="White",
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.ework.grid(row=row,column=col,padx=1,sticky=EW)
+		tkExtra.Balloon.set(self.ework, _("E work position (click to set)"))
+		self.ework.bind('<FocusIn>',  self.workFocus)
+		self.ework.bind('<Return>',   self.setE)
+		self.ework.bind('<KP_Enter>', self.setE)
+
 		# Machine
 		row += 1
 		col = 0
@@ -219,6 +234,10 @@ class DROFrame(CNCRibbon.PageFrame):
 		col += 1
 		self.zmachine = Label(self, font=DROFrame.dro_mpos, background="White", anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
+		self.emachine = Label(self, font=DROFrame.dro_mpos, background="White", anchor=E)
+		self.emachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		# Set buttons
 		row += 1
@@ -250,6 +269,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.zzero, _("Set Z coordinate to zero (or to typed coordinate in WPos)"))
 		self.addWidget(self.zzero)
 
+		col += 1
+		self.ezero = Button(self, text="E=0",
+				command=self.setE0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.ezero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.ezero, _("Set E coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(self.ezero)
+
 		# Set buttons
 		row += 1
 		col = 1
@@ -277,6 +305,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
 		self.grid_columnconfigure(3, weight=1)
+		self.grid_columnconfigure(4, weight=1)
 
 	#----------------------------------------------------------------------
 	def stateMenu(self, event=None):
@@ -315,10 +344,14 @@ class DROFrame(CNCRibbon.PageFrame):
 		if focus is not self.zwork:
 			self.zwork.delete(0,END)
 			self.zwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
+		if focus is not self.ework:
+			self.ework.delete(0,END)
+			self.ework.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["we"]))
 
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
 		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
 		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
+		self.emachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["me"])
 
 	#----------------------------------------------------------------------
 	def padFloat(self, decimals, value):
@@ -345,6 +378,10 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
 		self._wcsSet(None,None,"0")
+
+	#----------------------------------------------------------------------
+	def setE0(self, event=None):
+		self._wcsSet(None,None,None,"0")
 
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
@@ -374,11 +411,20 @@ class DROFrame(CNCRibbon.PageFrame):
 			pass
 
 	#----------------------------------------------------------------------
-	def wcsSet(self, x, y, z):
-		self._wcsSet(x, y, z)
+	def setE(self, event=None):
+		if self.app.running: return
+		try:
+			value = float(eval(self.ework.get(),CNC.vars,self.app.gcode.vars))
+			self._wcsSet(None,None,None,value)
+		except:
+			pass
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
+	def wcsSet(self, x, y, z, e=None):
+		self._wcsSet(x, y, z, e)
+
+	#----------------------------------------------------------------------
+	def _wcsSet(self, x, y, z, e=None):
 		global wcsvar
 		p = wcsvar.get()
 		if p<6:
@@ -394,6 +440,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if x is not None: pos += "X"+str(x)
 		if y is not None: pos += "Y"+str(y)
 		if z is not None: pos += "Z"+str(z)
+		if e is not None: pos += "E"+str(e)
 		cmd += pos
 		self.sendGCode(cmd)
 		self.sendGCode("$#")
@@ -700,6 +747,16 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		self.sendGCode("G91G0Z-%s"%(self.zstep.get()))
+		self.sendGCode("G90")
+
+	def moveEup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.sendGCode("G91G0E%s"%(self.zstep.get()))
+		self.sendGCode("G90")
+
+	def moveEdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.sendGCode("G91G0E-%s"%(self.zstep.get()))
 		self.sendGCode("G90")
 
 	def go2origin(self, event=None):
