@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-06-16 21:41+0200\n"
-"PO-Revision-Date: 2016-06-16 21:47+0200\n"
+"PO-Revision-Date: 2016-09-11 14:02+0200\n"
 "Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
 "Language-Team: \n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-Basepath: ../../..\n"
 
@@ -1153,19 +1153,19 @@ msgstr "Aiuto [F1]"
 
 #: ProbePage.py:28
 msgid "G38.2 stop on contact else error"
-msgstr "G38.2 Ferma al contatto altrimenti errore"
+msgstr "G38.2 F. al cont. altrimenti errore"
 
 #: ProbePage.py:29
 msgid "G38.3 stop on contact"
-msgstr "G38.3 Ferma al contatto"
+msgstr "G38.3 F. al contatto"
 
 #: ProbePage.py:30
 msgid "G38.4 stop on loss contact else error"
-msgstr "G38.4 Ferma alla perdita di contatto altrimenti errore"
+msgstr "G38.4 F. no cont. altrimenti errore"
 
 #: ProbePage.py:31
 msgid "G38.5 stop on loss contact"
-msgstr "G38.5 Ferma alla perdita di contatto"
+msgstr "G38.5 F. no contatto"
 
 #: ProbePage.py:34
 msgid "Send M6 commands"
@@ -1205,11 +1205,11 @@ msgstr "Sondaggio semplice lungo una direzione"
 
 #: ProbePage.py:92 ProbePage.py:790
 msgid "Autolevel"
-msgstr "Livellamento automatico"
+msgstr "Auto livellamento"
 
 #: ProbePage.py:98
 msgid "Autolevel Z surface"
-msgstr "Livellamento automatico in Z"
+msgstr "Auto Z livellamento"
 
 #: ProbePage.py:110
 msgid "Work surface camera view and alignment"
