@@ -1227,6 +1227,9 @@ class CNC:
 					elif decimal == 1:
 						self.arcabsolute = False
 
+				elif gcode in (93,94,95):
+					CNC.vars["feedmode"] = gcode
+
 				elif gcode==98:
 					self.retractz = True
 
@@ -1548,8 +1551,15 @@ class CNC:
 			block.rapid += length
 		else:
 			try:
-				block.time += length / self.feed
-				self.totalTime += length / self.feed
+				if CNC.vars["feedmode"] == 94:
+					# Normal mode
+					t = length / self.feed
+				elif CNC.vars["feedmode"] == 93:
+					# Inverse mode
+					t = length * self.feed
+
+				block.time += t
+				self.totalTime += t
 			except:
 				pass
 			block.length += length
