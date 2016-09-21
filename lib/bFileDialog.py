@@ -416,9 +416,7 @@ class FileDialog(Toplevel):
 	# Create buttons for the path
 	# ----------------------------------------------------------------------
 	def buttonPath(self, path):
-		print ">>>",path
 		path = path.split(os.sep)
-		print "<<<",path
 		if path[0] == "": path[0] = os.sep
 		if path[-1] == "": del path[-1]
 		lp = len(path)
@@ -786,7 +784,7 @@ class FileDialog(Toplevel):
 		pat = self.typeCombo.get()
 		self.filter = self.filetypes.get(pat,None)
 		self.fill()
-		if self.filter is None: return
+		if self.filter is None or self.seldir: return
 
 		# Change extension if needed
 		first = None
