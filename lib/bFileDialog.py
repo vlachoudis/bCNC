@@ -546,7 +546,7 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def changePath(self, path):
-		path = os.path.abspath(path)
+		path = os.path.abspath(path + os.path.sep)
 		try: os.lstat(path)
 		except OSError:
 			messagebox.showerror(_("Error"),
