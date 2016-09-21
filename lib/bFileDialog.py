@@ -416,7 +416,9 @@ class FileDialog(Toplevel):
 	# Create buttons for the path
 	# ----------------------------------------------------------------------
 	def buttonPath(self, path):
+		print ">>>",path
 		path = path.split(os.sep)
+		print "<<<",path
 		if path[0] == "": path[0] = os.sep
 		if path[-1] == "": del path[-1]
 		lp = len(path)
@@ -546,7 +548,8 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def changePath(self, path):
-		path = os.path.abspath(path + os.path.sep)
+		if path[-1] != os.sep: path += os.sep
+		path = os.path.abspath(path)
 		try: os.lstat(path)
 		except OSError:
 			messagebox.showerror(_("Error"),
