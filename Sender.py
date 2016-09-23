@@ -44,14 +44,28 @@ TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 
+SPLITPAT  = re.compile(r"[:,]")
+
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
 
 STATECOLOR = {	"Alarm"       : "Red",
 		"Run"	      : "LightGreen",
 		"Hold"	      : "Orange",
+		"Hold:0"      : "Orange",
+		"Hold:1"      : "Orange",
 		CONNECTED     : "Orange",
-		NOT_CONNECTED : "OrangeRed"}
+		NOT_CONNECTED : "OrangeRed"
+		}
+
+STATE_DESC = {
+		"Hold:0" : "Hold complete",
+		"Hold:1" : "Hold in-progress",
+		"Door:0" : "Door closed",
+		"Door:1" : "Machine stopped",
+		"Door:2" : "Door opened",
+		"Door:3" : "Door closed and resuming",
+	}
 
 STATECOLORDEF = "LightYellow"
 
@@ -843,11 +857,24 @@ class Sender:
 
 					elif self.controller == Utils.GRBL1:
 						status = False
-						word = line[1:-1].split("|")
+						fields = line[1:-1].split("|")
 						self._posUpdate = True
-						print word
+						print fields
 						if not self._alarm:
-							CNC.vars["state"] = pat.group(1)
+							CNC.vars["state"] = fields[0]
+						for field in fields[1:]:
+							word = SPLITPAT.split(field)
+							if word[0] == "MPos":
+								CNC.vars["mx"] = float(word[1])
+								CNC.vars["my"] = float(word[2])
+								CNC.vars["mz"] = float(word[3])
+								CNC.vars["wx"] = round(CNC.vars["mx"] - CNC.vars["wcox"], CNC.digits)
+								CNC.vars["wy"] = round(CNC.vars["my"] - CNC.vars["wcoy"], CNC.digits)
+								CNC.vars["wz"] = round(CNC.vars["mz"] - CNC.vars["wcoz"], CNC.digits)
+							elif word[0] == "WCO":
+								CNC.vars["wcox"] = float(word[1])
+								CNC.vars["wcoy"] = float(word[2])
+								CNC.vars["wcoz"] = float(word[3])
 
 					else:
 						status = False
@@ -855,16 +882,18 @@ class Sender:
 						if pat:
 							if not self._alarm:
 								CNC.vars["state"] = pat.group(1)
-							elif  self._gcount > 2 and CNC.vars["state"] == CONNECTED:
-								# turn off alarm for connected status once
-								# a valid gcode event occurs
-								self._alarm = False
 							CNC.vars["mx"] = float(pat.group(2))
 							CNC.vars["my"] = float(pat.group(3))
 							CNC.vars["mz"] = float(pat.group(4))
+
 							CNC.vars["wx"] = float(pat.group(5))
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
+
+							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
+							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
+							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+
 							self._posUpdate = True
 							if pat.group(1) != "Hold" and self._msg:
 								self._msg = None
@@ -880,6 +909,11 @@ class Sender:
 								self._gcount += 1
 						else:
 							self.log.put((Sender.MSG_RECEIVE, line))
+
+					if  self._gcount > 2 and CNC.vars["state"] == CONNECTED:
+						# turn off alarm for connected status once
+						# a valid gcode event occurs
+						self._alarm = False
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
