@@ -858,7 +858,6 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
-						self._posUpdate = True
 						print fields
 						if not self._alarm:
 							CNC.vars["state"] = fields[0]
@@ -868,9 +867,20 @@ class Sender:
 								CNC.vars["mx"] = float(word[1])
 								CNC.vars["my"] = float(word[2])
 								CNC.vars["mz"] = float(word[3])
-								CNC.vars["wx"] = round(CNC.vars["mx"] - CNC.vars["wcox"], CNC.digits)
-								CNC.vars["wy"] = round(CNC.vars["my"] - CNC.vars["wcoy"], CNC.digits)
-								CNC.vars["wz"] = round(CNC.vars["mz"] - CNC.vars["wcoz"], CNC.digits)
+								CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
+								CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
+								CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+								self._posUpdate = True
+
+							elif word[0] == "F":
+								CNC.vars["curfeed"] = float(word[1])
+							elif word[0] == "Bf":
+								CNC.vars["planner"] = int(word[1])
+								CNC.vars["rxbytes"] = int(word[2])
+							elif word[0] == "Ov":
+								CNC.vars["Ovfeed"]    = int(word[1])
+								CNC.vars["Ovrapid"]   = int(word[2])
+								CNC.vars["Ovspindle"] = int(word[2])
 							elif word[0] == "WCO":
 								CNC.vars["wcox"] = float(word[1])
 								CNC.vars["wcoy"] = float(word[2])

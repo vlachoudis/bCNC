@@ -665,6 +665,7 @@ class CNC:
 			"wcox"      : 0.0,
 			"wcoy"      : 0.0,
 			"wcoz"      : 0.0,
+			"curfeed"   : 0.0,
 			"_camwx"    : 0.0,
 			"_camwy"    : 0.0,
 			"G"         : [],
@@ -685,6 +686,13 @@ class CNC:
 			"tool"      : 0,
 			"feed"      : 0.0,
 			"rpm"       : 0.0,
+
+			"curfeed"   : 0.0,
+			"planner"   : 0,
+			"rxbytes"   : 0,
+			"Ovfeed"    : 100,
+			"Ovrapid"   : 100,
+			"Ovspindle" : 100,
 
 			"override"  : 100,
 			"overrideChanged"  : False,
