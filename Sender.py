@@ -155,7 +155,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		self.controller  = Utils.CONTROLLER.get(Utils.getStr("Connection", "controller"), 0)
+		self.controller  = Utils.CONTROLLER.get(Utils.getStr("Connection", "controller"), Utils.GRBL0)
 		Pendant.port	 = Utils.getInt("Connection","pendantport",Pendant.port)
 		GCode.LOOP_MERGE = Utils.getBool("File","dxfloopmerge")
 		self.loadHistory()
@@ -517,7 +517,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def softReset(self):
 		if self.serial:
-		#	if self.controller == Utils.GRBL:
+		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
 				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
 		#		self.serial.write(b"reset\n")
@@ -536,7 +536,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$$")
 
 	def viewParameters(self):
@@ -546,35 +546,35 @@ class Sender:
 		self.sendGCode("$G")
 
 	def viewBuild(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$I")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"version\n")
 
 	def viewStartup(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$N")
 
 	def checkGcode(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$C")
 
 	def grblHelp(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"help\n")
 
 	def grblRestoreSettings(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=$")
 
 	def grblRestoreWCS(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=#")
 
 	def grblRestoreAll(self):
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=#")
 
 	#----------------------------------------------------------------------
@@ -706,7 +706,7 @@ class Sender:
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 		TLO = CNC.vars["TLO"]
 		self.softReset()			# reset controller
-		if self.controller == Utils.GRBL:
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			time.sleep(1)
 			self.unlock()
 		self.runEnded()
@@ -838,33 +838,48 @@ class Sender:
 					pass
 
 				elif line[0]=="<":
-					pat = STATUSPAT.match(line)
-					if pat:
-						if not status: self.log.put((Sender.MSG_RECEIVE, line))
+					if not status:
+						self.log.put((Sender.MSG_RECEIVE, line))
+
+					elif self.controller == Utils.GRBL1:
 						status = False
+						word = line[1:-1].split("|")
+						self._posUpdate = True
+						print word
 						if not self._alarm:
 							CNC.vars["state"] = pat.group(1)
-						CNC.vars["mx"] = float(pat.group(2))
-						CNC.vars["my"] = float(pat.group(3))
-						CNC.vars["mz"] = float(pat.group(4))
-						CNC.vars["wx"] = float(pat.group(5))
-						CNC.vars["wy"] = float(pat.group(6))
-						CNC.vars["wz"] = float(pat.group(7))
-						self._posUpdate = True
-						if pat.group(1) != "Hold" and self._msg:
-							self._msg = None
 
-						# Machine is Idle buffer is empty
-						# stop waiting and go on
-						#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
-						#print ">>>", line
-						if wait and not cline and pat.group(1)=="Idle":
-							#print ">>>",line
-							wait = False
-							#print "<<< NO MORE WAIT"
-							self._gcount += 1
 					else:
-						self.log.put((Sender.MSG_RECEIVE, line))
+						status = False
+						pat = STATUSPAT.match(line)
+						if pat:
+							if not self._alarm:
+								CNC.vars["state"] = pat.group(1)
+							elif  self._gcount > 2 and CNC.vars["state"] == CONNECTED:
+								# turn off alarm for connected status once
+								# a valid gcode event occurs
+								self._alarm = False
+							CNC.vars["mx"] = float(pat.group(2))
+							CNC.vars["my"] = float(pat.group(3))
+							CNC.vars["mz"] = float(pat.group(4))
+							CNC.vars["wx"] = float(pat.group(5))
+							CNC.vars["wy"] = float(pat.group(6))
+							CNC.vars["wz"] = float(pat.group(7))
+							self._posUpdate = True
+							if pat.group(1) != "Hold" and self._msg:
+								self._msg = None
+
+							# Machine is Idle buffer is empty
+							# stop waiting and go on
+							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
+							#print ">>>", line
+							if wait and not cline and pat.group(1)=="Idle":
+								#print ">>>",line
+								wait = False
+								#print "<<< NO MORE WAIT"
+								self._gcount += 1
+						else:
+							self.log.put((Sender.MSG_RECEIVE, line))
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
