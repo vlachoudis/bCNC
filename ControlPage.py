@@ -965,6 +965,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.override.set(100)
 		self.spindle = BooleanVar()
 		self.spindleSpeed = IntVar()
+		self.spindleDir=BooleanVar()
+		self.cool = BooleanVar()
 
 		col,row=0,0
 		b = Button(f,	text=_("Feed\nOverride:"),
@@ -1012,6 +1014,34 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, _("Set spindle RPM"))
 		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
+
+		row += 1
+		col = 0
+
+		b = Checkbutton(f, text=_("CCW Direction"),
+				#image=Utils.icons["spinningtop"],
+				compound=LEFT,
+				indicatoron=True,
+				variable=self.spindleDir,
+				padx=1,pady=0)
+		tkExtra.Balloon.set(b, _("CCW spindle dir M4"))
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(b)    
+
+
+		col = 1            
+
+		b = Checkbutton(f, text=_("Cool \n Vac"),
+				#image=Utils.icons["spinningtop"],
+				command=self.coolControl,
+				compound=LEFT,
+				indicatoron=True,
+				variable=self.cool,
+				padx=1,pady=0)
+		tkExtra.Balloon.set(b, _("Start/Stop Coolant/Vac (M8/M9)"))
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(b) 
+
 
 		f.grid_columnconfigure(1, weight=1)
 
@@ -1072,9 +1102,22 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		# Avoid sending commands before unlocking
 		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
 		if self.spindle.get():
-			self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
+			if self.spindleDir :
+				self.sendGCode("M4 S%d"%(self.spindleSpeed.get()))                     
+			else:
+				self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
 		else:
 			self.sendGCode("M5")
+
+	#----------------------------------------------------------------------
+	def coolControl(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
+		if self.cool.get():
+			self.sendGCode("M8")
+		else:
+			self.sendGCode("M9")
 
 	#----------------------------------------------------------------------
 	def updateG(self):
