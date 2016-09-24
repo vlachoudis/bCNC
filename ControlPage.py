@@ -422,11 +422,28 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("Control","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("Control","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("Control","step3")
+		except:
+			self.step3 = 10
+
 		row,col = 0,0
 		Label(self, text="Z").grid(row=row, column=col)
 
 		col += 3
 		Label(self, text="Y").grid(row=row, column=col)
+
 
 		# ---
 		row += 1
@@ -489,6 +506,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
 		self.addWidget(b)
 
+		col += 1
+		b = Button(self, text="%s"%(self.step1),
+				command=self.setStep1,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(b, _("Use step1"))
+		self.addWidget(b)
+
 		# ---
 		row += 1
 
@@ -530,56 +556,31 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(["0.001",
-				"0.005",
-				"0.01",
-				"0.05",
-				"0.1",
-				"0.5",
-				"1",
-				"5",
-				"10",
-				"50",
-				"100",
-				"500"])
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split(',')))
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
-		# -- Separate zstep --
+		col += 2
+		b = Button(self, text="%s"%(self.step2),
+				command=self.setStep2,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step2"))
+		self.addWidget(b)
+
+
+		# -- Separate zstep and zsteplist--
 		try:
 			zstep = Utils.config.get("Control","zstep")
 			self.zstep = tkExtra.Combobox(self, width=1, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
-			self.zstep.fill(["0.001",
-					"0.005",
-					"0.01",
-					"0.05",
-					"0.1",
-					"0.5",
-					"1",
-					"5",
-					"10"])
+			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split(',')))
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 		except:
 			self.zstep = self.step
-
-		# Default steppings
-		try:
-			self.step1 = Utils.getFloat("Control","step1")
-		except:
-			self.step1 = 0.1
-
-		try:
-			self.step2 = Utils.getFloat("Control","step2")
-		except:
-			self.step2 = 1
-
-		try:
-			self.step3 = Utils.getFloat("Control","step3")
-		except:
-			self.step3 = 10
 
 		# ---
 		row += 1
@@ -637,6 +638,16 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		#self.grid_columnconfigure(6,weight=1)
+
+		col += 1
+		b = Button(self, text="%s"%(self.step3),
+				command=self.setStep3,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+N)
+		tkExtra.Balloon.set(b, _("Use step3"))
+		self.addWidget(b)
+
 		try:
 #			self.grid_anchor(CENTER)
 			self.tk.call("grid","anchor",self,CENTER)
@@ -808,7 +819,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	def setStep3(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.setStep(self.step3, self.step2)
+		self.setStep(self.step3, self.step3)
 
 #===============================================================================
 # StateFrame
@@ -954,6 +965,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.override.set(100)
 		self.spindle = BooleanVar()
 		self.spindleSpeed = IntVar()
+		self.spindleDir=BooleanVar()
+		self.cool = BooleanVar()
 
 		col,row=0,0
 		b = Button(f,	text=_("Feed\nOverride:"),
@@ -1001,6 +1014,34 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, _("Set spindle RPM"))
 		b.grid(row=row, column=col, sticky=EW)
 		self.addWidget(b)
+
+		row += 1
+		col = 0
+
+		b = Checkbutton(f, text=_("CCW Direction"),
+				#image=Utils.icons["spinningtop"],
+				compound=LEFT,
+				indicatoron=True,
+				variable=self.spindleDir,
+				padx=1,pady=0)
+		tkExtra.Balloon.set(b, _("CCW spindle dir M4"))
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(b)    
+
+
+		col = 1            
+
+		b = Checkbutton(f, text=_("Cool \n Vac"),
+				#image=Utils.icons["spinningtop"],
+				command=self.coolControl,
+				compound=LEFT,
+				indicatoron=True,
+				variable=self.cool,
+				padx=1,pady=0)
+		tkExtra.Balloon.set(b, _("Start/Stop Coolant/Vac (M8/M9)"))
+		b.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(b) 
+
 
 		f.grid_columnconfigure(1, weight=1)
 
@@ -1061,9 +1102,22 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		# Avoid sending commands before unlocking
 		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
 		if self.spindle.get():
-			self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
+			if self.spindleDir :
+				self.sendGCode("M4 S%d"%(self.spindleSpeed.get()))                     
+			else:
+				self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
 		else:
 			self.sendGCode("M5")
+
+	#----------------------------------------------------------------------
+	def coolControl(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): return
+		if self.cool.get():
+			self.sendGCode("M8")
+		else:
+			self.sendGCode("M9")
 
 	#----------------------------------------------------------------------
 	def updateG(self):
