@@ -27,6 +27,7 @@ from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
 _LOWSTEP   = 0.0001
+# TODO add an automatic retrieve function from the [Control] variables
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
 
@@ -438,215 +439,211 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		except:
 			self.step3 = 10
 
-		row,col = 0,0
-		Label(self, text="Z").grid(row=row, column=col)
+		Label(self, text="Z").grid(row=0, column=0,columnspan=2)
 
-		col += 3
-		Label(self, text="Y").grid(row=row, column=col)
+		Label(self, text="Y", width=3).grid(row=4, column=3,rowspan=2)
 
+		Label(self, text="X", width=3, anchor=E).grid(row=0,column=6,
+				columnspan=2, sticky=E)
 
+		Label(self,"",width=1).grid(row=1,column=12)
+		
 		# ---
-		row += 1
-		col = 0
 
 		width=3
 		height=2
+
+		# Z controls
 
 		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
 					command=self.moveZup,
 					width=width, height=height,
 					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=2, column=0,columnspan=2,rowspan=2, sticky=EW)
 		tkExtra.Balloon.set(b, _("Move +Z"))
-		self.addWidget(b)
-
-		col += 2
-		b = Button(self, text=Unicode.UPPER_LEFT_TRIANGLE,
-					command=self.moveXdownYup,
-					width=width, height=height,
-					activebackground="LightYellow")
-
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -X +Y"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveYup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +Y"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(self, text=Unicode.UPPER_RIGHT_TRIANGLE,
-					command=self.moveXupYup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +X +Y"))
-		self.addWidget(b)
-
-		col += 2
-		b = Button(self, text=u"\u00D710",
-				command=self.mulStep,
-				width=3,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(b, _("Multiply step by 10"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(self, text="+",
-				command=self.incStep,
-				width=3,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(self, text="%s"%(self.step1),
-				command=self.setStep1,
-				width=2,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+S)
-		tkExtra.Balloon.set(b, _("Use step1"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-
-		col = 1
-		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
-
-		col += 1
-		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
-					command=self.moveXdown,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -X"))
-		self.addWidget(b)
-
-		col += 1
-		b = Utils.UserButton(self, self.app, 0, text=Unicode.LARGE_CIRCLE,
-					command=self.go2origin,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move to Origin.\nUser configurable button.\nRight click to configure."))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(self, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
-					command=self.moveXup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +X"))
-		self.addWidget(b)
-
-		# --
-		col += 1
-		Label(self,"",width=2).grid(row=row,column=col)
-
-		col += 1
-		self.step = tkExtra.Combobox(self, width=6, background="White")
-		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
-		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(map(float, Utils.config.get("Control","steplist").split(',')))
-		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
-		self.addWidget(self.step)
-
-		col += 2
-		b = Button(self, text="%s"%(self.step2),
-				command=self.setStep2,
-				width=2,
-				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Use step2"))
-		self.addWidget(b)
-
+		self.addWidget(b)		
 
 		# -- Separate zstep and zsteplist--
 		try:
 			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(self, width=1, background="White")
-			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
+			self.zstep = tkExtra.Combobox(self, width=6, background="White")
+			self.zstep.grid(row=1, column=0, columnspan=3, sticky=EW)
 			self.zstep.set(zstep)
 			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split(',')))
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
+			
+			b = Button(self, text="+",
+					command=self.incZStep,
+					padx=1, pady=1)
+			b.grid(row=4, column=0, sticky=EW)
+			tkExtra.Balloon.set(b, _("Decrease zstep"))
+			self.addWidget(b)
+
+			b = Button(self, text="-",
+					command=self.decZStep,
+					padx=1, pady=1)
+			b.grid(row=4, column=1, sticky=EW)
+			tkExtra.Balloon.set(b, _("Decrease zstep"))
+			self.addWidget(b)
+			
 		except:
 			self.zstep = self.step
-
-		# ---
-		row += 1
-		col = 0
 
 		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 					command=self.moveZdown,
 					width=width, height=height,
 					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=6, column=0, columnspan=2,rowspan=2,sticky=EW)
 		tkExtra.Balloon.set(b, _("Move -Z"))
 		self.addWidget(b)
+		
+		
+		# XY controls
+		
+		b = Button(self, text=Unicode.UPPER_LEFT_TRIANGLE,
+					command=self.moveXdownYup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=2, column=4,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -X +Y"))
+		self.addWidget(b)
 
-		col += 2
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveYup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=2, column=6,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +Y"))
+		self.addWidget(b)
+
+		b = Button(self, text=Unicode.UPPER_RIGHT_TRIANGLE,
+					command=self.moveXupYup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=2, column=8,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +X +Y"))
+		self.addWidget(b)
+
+
+
+		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
+					command=self.moveXdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=4, column=4,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -X"))
+		self.addWidget(b)
+
+		b = Utils.UserButton(self, self.app, 0, text=Unicode.LARGE_CIRCLE,
+					command=self.go2origin,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=4, column=6,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move to Origin.\nUser configurable button.\nRight click to configure."))
+		self.addWidget(b)
+
+		b = Button(self, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+					command=self.moveXup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=4, column=8,columnspan=2,rowspan=2, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +X"))
+		self.addWidget(b)
+		
+
 		b = Button(self, text=Unicode.LOWER_LEFT_TRIANGLE,
 					command=self.moveXdownYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=6, column=4,columnspan=2,rowspan=2, sticky=EW)
 		tkExtra.Balloon.set(b, _("Move -X -Y"))
 		self.addWidget(b)
 
-		col += 1
 		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 					command=self.moveYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=6, column=6,columnspan=2,rowspan=2, sticky=EW)
 		tkExtra.Balloon.set(b, _("Move -Y"))
 		self.addWidget(b)
 
-		col += 1
 		b = Button(self, text=Unicode.LOWER_RIGHT_TRIANGLE,
 					command=self.moveXupYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=6, column=8,columnspan=2,rowspan=2, sticky=EW)
 		tkExtra.Balloon.set(b, _("Move +X -Y"))
+		self.addWidget(b)		
+		# Step control XY		
+		
+		
+		b = Button(self, text=u"\u00D710",
+				command=self.mulStep,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=1, column=4, sticky=EW)
+		tkExtra.Balloon.set(b, _("Multiply step by 10"))
 		self.addWidget(b)
 
-		col += 2
-		b = Button(self, text=u"\u00F710",
-					command=self.divStep,
-					padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+N)
-		tkExtra.Balloon.set(b, _("Divide step by 10"))
+		b = Button(self, text="+",
+				command=self.incStep,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=1, column=5, sticky=EW)
+		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
 		self.addWidget(b)
 
-		col += 1
 		b = Button(self, text="-",
 					command=self.decStep,
+					width=3,					
 					padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+N)
+		b.grid(row=1, column=8, sticky=EW)
 		tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
 		self.addWidget(b)
 
-		#self.grid_columnconfigure(6,weight=1)
+		b = Button(self, text=u"\u00F710",
+					command=self.divStep,
+					width=3,					
+					padx=1, pady=1)
+		b.grid(row=1, column=9, sticky=EW)
+		tkExtra.Balloon.set(b, _("Divide step by 10"))
+		self.addWidget(b)		
+		
+		b = Button(self, text="%s"%(self.step1),
+				command=self.setStep1,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=1, column=13, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step1"))
+		self.addWidget(b)
 
-		col += 1
+		b = Button(self, text="%s"%(self.step2),
+				command=self.setStep2,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=2, column=13, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step2"))
+		self.addWidget(b)
+		
+
 		b = Button(self, text="%s"%(self.step3),
 				command=self.setStep3,
 				width=3,
 				padx=1, pady=1)
-		b.grid(row=row, column=col, sticky=EW+N)
+		b.grid(row=3, column=13, sticky=EW)
 		tkExtra.Balloon.set(b, _("Use step3"))
 		self.addWidget(b)
+
+
+		self.step = tkExtra.Combobox(self, width=6, background="White")
+		self.step.grid(row=1, column=6, columnspan=2, sticky=EW)
+		self.step.set(Utils.config.get("Control","step"))
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split(',')))
+		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
+		self.addWidget(self.step)
+
+		#self.grid_columnconfigure(6,weight=1)
 
 		try:
 #			self.grid_anchor(CENTER)
@@ -719,16 +716,18 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	def setStep(self, s, zs=None):
 		self.step.set("%.4g"%(s))
-		if self.zstep is self.step or zs is None:
-			self.event_generate("<<Status>>",
-				data=_("Step: %g")%(s))
-				#data=(_("Step: %g")%(s)).encode("utf8"))
-		else:
-			self.zstep.set("%.4g"%(zs))
-			self.event_generate("<<Status>>",
-				data=_("Step: %g    Zstep:%g ")%(s,zs))
-				#data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf8"))
+		self.event_generate("<<Status>>",
+			data=_("Step: %g")%(s))
+			#data=(_("Step: %g")%(s)).encode("utf8"))
 
+	#----------------------------------------------------------------------			
+	def setZStep(self, zs):
+		self.zstep.set("%.4g"%(zs))
+		self.event_generate("<<Status>>",
+			data=_("Zstep:%g ")%(zs))
+			#data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf8"))			
+			
+			
 	#----------------------------------------------------------------------
 	@staticmethod
 	def _stepPower(step):
@@ -747,14 +746,8 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step+power
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step+power
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
-		else:
-			zs=None
-		self.setStep(s, zs)
+
+		self.setStep(s, None)
 
 	#----------------------------------------------------------------------
 	def decStep(self, event=None):
@@ -764,16 +757,29 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<=0.0: s = step-power/10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step-power
-			if zs<=0.0: zs = step-power/10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
-		else:
-			zs=None
-		self.setStep(s, zs)
 
+		self.setStep(s, None)
+
+		#----------------------------------------------------------------------
+	def incZStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step+power
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+		self.setZStep(zs)
+
+	#----------------------------------------------------------------------
+	def decZStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = ControlFrame._stepPower(self.zstep.get())
+		zs = step-power
+		if zs<=0.0: zs = step-power/10.0
+		if zs<_LOWSTEP: zs = _LOWSTEP
+		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
+
+		self.setZStep(zs)
+		
 	#----------------------------------------------------------------------
 	def mulStep(self, event=None):
 		if event is not None and not self.acceptKey(): return
@@ -781,14 +787,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step*10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step*10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
-		else:
-			zs=None
-		self.setStep(s, zs)
+		self.setStep(s, None)
 
 	#----------------------------------------------------------------------
 	def divStep(self, event=None):
@@ -797,14 +796,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step/10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
-			step, power = ControlFrame._stepPower(self.zstep.get())
-			zs = step/10.0
-			if zs<_LOWSTEP: zs = _LOWSTEP
-			elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
-		else:
-			zs=None
-		self.setStep(s, zs)
+		self.setStep(s, None)
 
 	#----------------------------------------------------------------------
 	def setStep1(self, event=None):
