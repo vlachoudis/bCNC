@@ -844,6 +844,9 @@ class Sender:
 						status = False
 						if not self._alarm:
 							CNC.vars["state"] = pat.group(1)
+						elif  self._gcount > 2 and CNC.vars["state"] == CONNECTED:
+							# turn off alarm for connected status once a valid gcode event occurs
+							self._alarm = False
 						CNC.vars["mx"] = float(pat.group(2))
 						CNC.vars["my"] = float(pat.group(3))
 						CNC.vars["mz"] = float(pat.group(4))
