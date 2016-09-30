@@ -530,18 +530,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(["0.001",
-				"0.005",
-				"0.01",
-				"0.05",
-				"0.1",
-				"0.5",
-				"1",
-				"5",
-				"10",
-				"50",
-				"100",
-				"500"])
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
@@ -551,15 +540,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.zstep = tkExtra.Combobox(self, width=1, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
-			self.zstep.fill(["0.001",
-					"0.005",
-					"0.01",
-					"0.05",
-					"0.1",
-					"0.5",
-					"1",
-					"5",
-					"10"])
+			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 		except:
