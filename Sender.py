@@ -79,41 +79,105 @@ ERROR_CODES = {
 	CONNECTED     : _("Connection is established with Grbl"),
 
 	"ok" : _("All is good! Everything in the last line was understood by Grbl and was successfully processed and executed."),
-	"error: Expected command letter" : _("G-code is composed of G-code \'words\', which consists of a letter followed by a number value. This error occurs when the letter prefix of a G-code word is missing in the G-code block (aka line)."),
-	"error: Bad number format" : _("The number value suffix of a G-code word is missing in the G-code block, or when configuring a $Nx=line or $x=val Grbl setting and the x is not a number value."),
-	"error: Invalid statement" : _("The issued Grbl $ system command is not recognized or is invalid."),
-	"error: Value < 0" : _("The value of a $x=val Grbl setting, F feed rate, N line number, P word, T tool number, or S spindle speed is negative."),
-	"error:Setting disabled" : _("Homing is disabled when issuing a $H command."),
-	"error: Value < 3 usec" : _("Step pulse time length cannot be less than 3 microseconds (for technical reasons)."),
-	"error: EEPROM read fail. Using defaults" : _("If Grbl can't read data contained in the EEPROM, this error is returned. Grbl will also clear and restore the effected data back to defaults."),
-	"error: Not idle" : _("Certain Grbl $ commands are blocked depending Grbl's current state, or what its doing. In general, Grbl blocks any command that fetches from or writes to the EEPROM since the AVR microcontroller will shutdown all of the interrupts for a few clock cycles when this happens. There is no work around, other than blocking it. This ensures both the serial and step generator interrupts are working smoothly throughout operation."),
-	"error: Alarm lock" : _("Grbl enters an ALARM state when Grbl doesn't know where it is and will then block all G-code commands from being executed. This error occurs if G-code commands are sent while in the alarm state. Grbl has two alarm scenarios: When homing is enabled, Grbl automatically goes into an alarm state to remind the user to home before doing anything; When something has went critically wrong, usually when Grbl can't guarantee positioning. This typically happens when something causes Grbl to force an immediate stop while its moving from a hard limit being triggered or a user commands an ill-timed reset."),
-	"error: Homing not enabled" : _("Soft limits cannot be enabled if homing is not enabled, because Grbl has no idea where it is when you startup your machine unless you perform a homing cycle."),
-	"error: Line overflow" : _("Grbl has to do everything it does within 2KB of RAM. Not much at all. So, we had to make some decisions on what's important. Grbl limits the number of characters in each line to less than 80 characters (70 in v0.8, 50 in v0.7 or earlier), excluding spaces or comments. The G-code standard mandates 256 characters, but Grbl simply doesn't have the RAM to spare. However, we don't think there will be any problems with this with all of the expected G-code commands sent to Grbl. This error almost always occurs when a user or CAM-generated G-code program sends position values that are in double precision (i.e. -2.003928578394852), which is not realistic or physically possible. Users and GUIs need to send Grbl floating point values in single precision (i.e. -2.003929) to avoid this error."),
-	"error: Modal group violation" : _("The G-code parser has detected two G-code commands that belong to the same modal group in the block/line. Modal groups are sets of G-code commands that mutually exclusive. For example, you can't issue both a G0 rapids and G2 arc in the same line, since they both need to use the XYZ target position values in the line. LinuxCNC.org has some great documentation on modal groups."),
-	"error: Unsupported command" : _("The G-code parser doesn't recognize or support one of the G-code commands in the line. Check your G-code program for any unsupported commands and either remove them or update them to be compatible with Grbl."),
-	"error: Undefined feed rate" : _("There is no feed rate programmed, and a G-code command that requires one is in the block/line. The G-code standard mandates F feed rates to be undefined upon a reset or when switching from inverse time mode to units mode. Older Grbl versions had a default feed rate setting, which was illegal and was removed in Grbl v0.9."),
-	"error: Invalid gcode ID:23" : _("A G or M command value in the block is not an integer. For example, G4 can't be G4.13. Some G-code commands are floating point (G92.1), but these are ignored."),
-	"error: Invalid gcode ID:24" : _("Two G-code commands that both require the use of the XYZ axis words were detected in the block."),
-	"error: Invalid gcode ID:25" : _("A G-code word was repeated in the block."),
-	"error: Invalid gcode ID:26" : _("A G-code command implicitly or explicitly requires XYZ axis words in the block, but none were detected."),
-	"error: Invalid gcode ID:27" : _("The G-code protocol mandates N line numbers to be within the range of 1-99,999. We think that's a bit silly and arbitrary. So, we increased the max number to 9,999,999. This error occurs when you send a number more than this."),
-	"error: Invalid gcode ID:28" : _("A G-code command was sent, but is missing some important P or L value words in the line. Without them, the command can't be executed. Check your G-code."),
-	"error: Invalid gcode ID:29" : _("Grbl supports six work coordinate systems G54-G59. This error happens when trying to use or configure an unsupported work coordinate system, such as G59.1, G59.2, and G59.3."),
-	"error: Invalid gcode ID:30" : _("The G53 G-code command requires either a G0 seek or G1 feed motion mode to be active. A different motion was active."),
-	"error: Invalid gcode ID:31" : _("There are unused axis words in the block and G80 motion mode cancel is active."),
-	"error: Invalid gcode ID:32" : _("A G2 or G3 arc was commanded but there are no XYZ axis words in the selected plane to trace the arc."),
-	"error: Invalid gcode ID:33" : _("The motion command has an invalid target. G2, G3, and G38.2 generates this error. For both probing and arcs traced with the radius definition, the current position cannot be the same as the target. This also errors when the arc is mathematically impossible to trace, where the current position, the target position, and the radius of the arc doesn't define a valid arc."),
-	"error: Invalid gcode ID:34" : _("A G2 or G3 arc, traced with the radius definition, had a mathematical error when computing the arc geometry. Try either breaking up the arc into semi-circles or quadrants, or redefine them with the arc offset definition."),
-	"error: Invalid gcode ID:35" : _("A G2 or G3 arc, traced with the offset definition, is missing the IJK offset word in the selected plane to trace the arc."),
-	"error: Invalid gcode ID:36" : _("There are unused, leftover G-code words that aren't used by any command in the block."),
-	"error: Invalid gcode ID:37" : _("The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis."),
 
-	"ALARM: Hard/soft limit" : _("Hard and/or soft limits must be enabled for this error to occur. With hard limits, Grbl will enter alarm mode when a hard limit switch has been triggered and force kills all motion. Machine position will be lost and require re-homing. With soft limits, the alarm occurs when Grbl detects a programmed motion trying to move outside of the machine space, set by homing and the max travel settings. However, upon the alarm, a soft limit violation will instruct a feed hold and wait until the machine has stopped before issuing the alarm. Soft limits do not lose machine position because of this."),
-	"ALARM: Abort during cycle" : _("This alarm occurs when a user issues a soft-reset while the machine is in a cycle and moving. The soft-reset will kill all current motion, and, much like the hard limit alarm, the uncontrolled stop causes Grbl to lose position."),
-	"ALARM: Probe fail" : _("The G38.2 straight probe command requires an alarm or error when the probe fails to trigger within the programmed probe distance. Grbl enters the alarm state to indicate to the user the probe has failed, but will not lose machine position, since the probe motion comes to a controlled stop before the error."),
+	"error:1"  : _("G-code words consist of a letter and a value. Letter was not found."),
+	"error:2"  : _("Numeric value format is not valid or missing an expected value."),
+	"error:3"  : _("Grbl '$' system command was not recognized or supported"),
+	"error:4"  : _("Negative value received for an expected positive value."),
+	"error:5"  : _("Homing cycle is not enabled via settings."),
+	"error:6"  : _("Minimum step pulse time must be greater than 3usec"),
+	"error:7"  : _("EEPROM read failed. Reset and restored to default values."),
+	"error:8"  : _("Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth operation during a job."),
+	"error:9"  : _("G-code locked out during alarm or jog state"),
+	"error:10" : _("Soft limits cannot be enabled without homing also enabled."),
+	"error:11" : _("Max characters per line exceeded. Line was not processed and executed."),
+	"error:12" : _("Grbl '$' setting value exceeds the maximum step rate supported."),
+	"error:13" : _("Safety door detected as opened and door state initiated."),
+	"error:14" : _("(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length limit."),
+	"error:15" : _("Jog target exceeds machine travel. Command ignored."),
+	"error:16" : _("Jog command with no '=' or contains prohibited g-code."),
+	"error:20" : _("Unsupported or invalid g-code command found in block."),
+	"error:21" : _("More than one g-code command from same modal group found in block."),
+	"error:22" : _("Feed rate has not yet been set or is undefined."),
+	"error:23" : _("G-code command in block requires an integer value."),
+	"error:24" : _("More than one g-code command that requires axis words found in block."),
+	"error:25" : _("Repeated g-code word found in block."),
+	"error:26" : _("No axis words found in block for g-code command or mode which requires them."),
+	"error:27" : _("Line number value is invalid"),
+	"error:28" : _("G-code command is missing a required value word."),
+	"error:29" : _("Work coordinate system commanded not supported."),
+	"error:30" : _("G53 only allowed during G0 and G1 motion modes."),
+	"error:31" : _("Axis words found in block while no command uses them."),
+	"error:32" : _("G2/3 arcs require at least one in-plane axis word."),
+	"error:33" : _("Motion command target is invalid."),
+	"error:34" : _("Arc radius value is invalid."),
+	"error:35" : _("G2/3 arcs require at least one in-plane offset word."),
+	"error:36" : _("Unused value words found in block."),
+	"error:37" : _("G43.1 dynamic tool length offset assigned to wrong axis."),
+
+	"ALARM:1" : _("Hard limit has been triggered. Machine position is likely lost due to sudden stop. Re-homing is highly recommended. `"),
+	"ALARM:2" : _("G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked."),
+	"ALARM:3" : _("Reset while in motion. Grbl cannot guarantee position. Lost steps are likely. Re-homing is highly recommended."),
+	"ALARM:4" : _("If probe is not in the expected initial state before starting probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is triggered."),
+	"ALARM:5" : _("If the probe fails to contact the workpiece within the programmed travel for G38.2 and G38.4."),
+	"ALARM:6" : _("If the active homing cycle was reset."),
+	"ALARM:7" : _("If the safety door was opened during homing cycle."),
+	"ALARM:8" : _("Pull off travel failed to clear limit switch. Try increasing pull-off setting or check wiring."),
+	"ALARM:9" : _("Failed to find limit switch within travel. Defined as 1.5 * max_travel on search and 5 * pulloff on locate phases."),
+
+	"Hold:0" : _("Hold complete. Ready to resume."),
+	"Hold:1" : _("Hold in-progress. Reset will throw an alarm."),
+	"Door:0" : _("Door closed. Ready to resume."),
+	"Door:1" : _("Machine stopped. Door still ajar. Can't resume until closed."),
+	"Door:2" : _("Door opened. Hold (or parking retract) in-progress. Reset will throw an alarm."),
+	"Door:3" : _("Door closed and resuming. Restoring from park, if applicable. Reset will throw an alarm."),
 }
 
+# Convert Grbl V1.0 codes to Grbl V0.9
+for e1,e0 in (	("error: Expected command letter", "error:1"),
+		("error: Bad number format", "error:2"),
+		("error: Invalid statement", "error:3"),
+		("error: Value < 0", "error:4"),
+		("error: Setting disabled", "error:5"),
+		("error: Value < 3 usec", "error:6"),
+		("error: EEPROM read fail. Using defaults", "error:7"),
+		("error: Not idle", "error:8"),
+		("error: G-code lock", "error:9"),
+		("error: Homing not enabled", "error:10"),
+		("error: Line overflow", "error:11"),
+		("error: Step rate > 30kHz*", "error:12"),
+		("error: Check Door", "error:13"),
+		("error: Line length exceeded", "error:14"),
+		("error: Travel exceeded", "error:15"),
+		("error: Invalid jog command", "error:16"),
+		("error: Unsupported command", "error:20"),
+		("error: Modal group violation", "error:21"),
+		("error: Undefined feed rate", "error:22"),
+		("error: Invalid gcode ID:23", "error:23"),
+		("error: Invalid gcode ID:24", "error:24"),
+		("error: Invalid gcode ID:25", "error:25"),
+		("error: Invalid gcode ID:26", "error:26"),
+		("error: Invalid gcode ID:27", "error:27"),
+		("error: Invalid gcode ID:28", "error:28"),
+		("error: Invalid gcode ID:29", "error:29"),
+		("error: Invalid gcode ID:30", "error:30"),
+		("error: Invalid gcode ID:31", "error:31"),
+		("error: Invalid gcode ID:32", "error:32"),
+		("error: Invalid gcode ID:33", "error:33"),
+		("error: Invalid gcode ID:34", "error:34"),
+		("error: Invalid gcode ID:35", "error:35"),
+		("error: Invalid gcode ID:36", "error:36"),
+		("error: Invalid gcode ID:37", "error:37"),
+		("ALARM: Hard limit", "ALARM:1"),
+		("ALARM: Soft limit", "ALARM:2"),
+		("ALARM: Abort during cycle", "ALARM:3"),
+		("ALARM: Probe fail", "ALARM:4"),
+		("ALARM: Probe fail", "ALARM:5"),
+		("ALARM: Homing fail", "ALARM:6"),
+		("ALARM: Homing fail", "ALARM:7"),
+		("ALARM: Homing fail", "ALARM:8"),
+		("ALARM: Homing fail", "ALARM:9") ):
+	ERROR_CODES[e1] = ERROR_CODES[e0]
 
 #==============================================================================
 # bCNC Sender class
@@ -858,7 +922,7 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
-						print fields
+						#print fields
 						if not self._alarm:
 							CNC.vars["state"] = fields[0]
 						for field in fields[1:]:
@@ -920,46 +984,65 @@ class Sender:
 						else:
 							self.log.put((Sender.MSG_RECEIVE, line))
 
-					if  self._gcount > 2 and CNC.vars["state"] == CONNECTED:
-						# turn off alarm for connected status once
-						# a valid gcode event occurs
-						self._alarm = False
-
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
-					pat = POSPAT.match(line)
-					if pat:
-						if pat.group(1) == "PRB":
-							CNC.vars["prbx"] = float(pat.group(2))
-							CNC.vars["prby"] = float(pat.group(3))
-							CNC.vars["prbz"] = float(pat.group(4))
+					if self.controller == Utils.GRBL1:
+						word = SPLITPAT.split(line[1:-1])
+						#print word
+						if word[0] == "PRB":
+							CNC.vars["prbx"] = float(word[1])
+							CNC.vars["prby"] = float(word[2])
+							CNC.vars["prbz"] = float(word[3])
 							#if self.running:
 							self.gcode.probe.add(
-								 CNC.vars["prbx"]
-								+CNC.vars["wx"]
-								-CNC.vars["mx"],
-
-								 CNC.vars["prby"]
-								+CNC.vars["wy"]
-								-CNC.vars["my"],
-
-								 CNC.vars["prbz"]
-								+CNC.vars["wz"]
-								-CNC.vars["mz"])
+								 CNC.vars["prbx"]-CNC.vars["wcox"],
+								 CNC.vars["prby"]-CNC.vars["wcoy"],
+								 CNC.vars["prbz"]-CNC.vars["wcoy"])
 							self._probeUpdate = True
-						CNC.vars[pat.group(1)] = \
-							[float(pat.group(2)),
-							 float(pat.group(3)),
-							 float(pat.group(4))]
-					else:
-						pat = TLOPAT.match(line)
-						if pat:
-							CNC.vars[pat.group(1)] = pat.group(2)
-							self._probeUpdate = True
-						elif DOLLARPAT.match(line):
-							CNC.vars["G"] = line[1:-1].split()
+							CNC.vars[word[0]] = word[1:]
+						elif word[0] == "GC":
+							CNC.vars["G"] = word[1:]
 							CNC.updateG()
 							self._gUpdate = True
+						elif word[0] == "TLO":
+							CNC.vars[word[0]] = word[1]
+							self._probeUpdate = True
+						else:
+							CNC.vars[word[0]] = word[1:]
+					else:
+						pat = POSPAT.match(line)
+						if pat:
+							if pat.group(1) == "PRB":
+								CNC.vars["prbx"] = float(pat.group(2))
+								CNC.vars["prby"] = float(pat.group(3))
+								CNC.vars["prbz"] = float(pat.group(4))
+								#if self.running:
+								self.gcode.probe.add(
+									 CNC.vars["prbx"]
+									+CNC.vars["wx"]
+									-CNC.vars["mx"],
+
+									 CNC.vars["prby"]
+									+CNC.vars["wy"]
+									-CNC.vars["my"],
+
+									 CNC.vars["prbz"]
+									+CNC.vars["wz"]
+									-CNC.vars["mz"])
+								self._probeUpdate = True
+							CNC.vars[pat.group(1)] = \
+								[float(pat.group(2)),
+								 float(pat.group(3)),
+								 float(pat.group(4))]
+						else:
+							pat = TLOPAT.match(line)
+							if pat:
+								CNC.vars[pat.group(1)] = pat.group(2)
+								self._probeUpdate = True
+							elif DOLLARPAT.match(line):
+								CNC.vars["G"] = line[1:-1].split()
+								CNC.updateG()
+								self._gUpdate = True
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
@@ -981,6 +1064,10 @@ class Sender:
 					del cline[:]	# After reset clear the buffer counters
 					del sline[:]
 					self.runEnded()
+					CNC.vars["version"] = line.split()[1]
+					# Detect controller
+					if self.controller in (Utils.GRBL0, Utils.GRBL1):
+						self.controller = int(CNC.vars["version"][0])
 
 				elif line.find("ok")>=0:
 					self.log.put((Sender.MSG_OK, line))
@@ -989,6 +1076,10 @@ class Sender:
 					if sline: del sline[0]
 					#print "gcount OK=",self._gcount
 					#print "SLINE:",sline
+					if  self._alarm and not self.running:
+						# turn off alarm for connected status once
+						# a valid gcode event occurs
+						self._alarm = False
 
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))

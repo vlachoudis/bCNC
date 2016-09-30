@@ -2289,7 +2289,6 @@ class Application(Toplevel,Sender):
 		# Update position if needed
 		if self._posUpdate:
 			state = CNC.vars["state"]
-			#print state
 			#print Sender.ERROR_CODES[state]
 			try:
 				CNC.vars["color"] = STATECOLOR[state]
@@ -2307,6 +2306,8 @@ class Application(Toplevel,Sender):
 					   CNC.vars["mx"],
 					   CNC.vars["my"],
 					   CNC.vars["mz"])
+			if state=="Run":
+				self.gstate.updateFeed()
 			self._posUpdate = False
 
 		# Update status string

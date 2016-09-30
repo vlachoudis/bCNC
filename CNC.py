@@ -690,12 +690,13 @@ class CNC:
 			"curfeed"   : 0.0,
 			"planner"   : 0,
 			"rxbytes"   : 0,
+
 			"Ovfeed"    : 100,
 			"Ovrapid"   : 100,
 			"Ovspindle" : 100,
-
 			"override"  : 100,
 			"overrideChanged"  : False,
+
 			"diameter"  : 3.175,	# Tool diameter
 			"cutfeed"   : 1000.,	# Material feed for cutting
 			"cutfeedz"  : 500.,	# Material feed for cutting
@@ -707,8 +708,10 @@ class CNC:
 			"thickness" : 5.,
 			"stepover"  : 40.,
 
-			"PRB"
+			"PRB"       : None,
 			"TLO"       : 0.,
+
+			"version"   : "",
 			"running"   : False,
 		}
 
