@@ -26,6 +26,8 @@ import CNCRibbon
 from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
+_DEBUG = False
+
 try:
 	_LOWSTEP = min(map(float, Utils.config.get("Control","steplist").split()))
 except:
@@ -770,7 +772,6 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 	#----------------------------------------------------------------------			
 	def setZStep(self, zs):
-		print "zs in setZStep",zs
 		self.zstep.set("%.4g"%(zs))
 		self.event_generate("<<Status>>",
 			data=_("Zstep:%g ")%(zs))
@@ -814,7 +815,8 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.zstep.get())
 		zs = step+power
-		print "incZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)
+		if _DEBUG:
+			print "incZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)
 		if zs<_LOWZSTEP: zs = _LOWZSTEP
 		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
 		self.setZStep(zs)
@@ -824,7 +826,8 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.zstep.get())
 		zs = step-power
-		print "decZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)		
+		if _DEBUG:		
+			print "decZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)		
 		if zs<=0.0: zs = step-power/10.0
 		if zs<_LOWZSTEP: zs = _LOWZSTEP
 		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
