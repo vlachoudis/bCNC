@@ -422,11 +422,28 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("Control","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("Control","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("Control","step3")
+		except:
+			self.step3 = 10
+
 		row,col = 0,0
 		Label(self, text="Z").grid(row=row, column=col)
 
 		col += 3
 		Label(self, text="Y").grid(row=row, column=col)
+
 
 		# ---
 		row += 1
@@ -489,6 +506,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
 		self.addWidget(b)
 
+		col += 1
+		b = Button(self, text="%s"%(self.step1),
+				command=self.setStep1,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(b, _("Use step1"))
+		self.addWidget(b)
+
 		# ---
 		row += 1
 
@@ -530,37 +556,39 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
+<<<<<<< HEAD
 		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
+=======
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split(',')))
+>>>>>>> bcdfa9a2842ae2e9469ce3c12d76ccd40fcf8130
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
-		# -- Separate zstep --
+		col += 2
+		b = Button(self, text="%s"%(self.step2),
+				command=self.setStep2,
+				width=2,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step2"))
+		self.addWidget(b)
+
+
+		# -- Separate zstep and zsteplist--
 		try:
 			zstep = Utils.config.get("Control","zstep")
 			self.zstep = tkExtra.Combobox(self, width=1, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
+<<<<<<< HEAD
 			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
+=======
+			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split(',')))
+>>>>>>> bcdfa9a2842ae2e9469ce3c12d76ccd40fcf8130
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 		except:
 			self.zstep = self.step
-
-		# Default steppings
-		try:
-			self.step1 = Utils.getFloat("Control","step1")
-		except:
-			self.step1 = 0.1
-
-		try:
-			self.step2 = Utils.getFloat("Control","step2")
-		except:
-			self.step2 = 1
-
-		try:
-			self.step3 = Utils.getFloat("Control","step3")
-		except:
-			self.step3 = 10
 
 		# ---
 		row += 1
@@ -618,6 +646,16 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		#self.grid_columnconfigure(6,weight=1)
+
+		col += 1
+		b = Button(self, text="%s"%(self.step3),
+				command=self.setStep3,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+N)
+		tkExtra.Balloon.set(b, _("Use step3"))
+		self.addWidget(b)
+
 		try:
 #			self.grid_anchor(CENTER)
 			self.tk.call("grid","anchor",self,CENTER)
@@ -789,7 +827,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	def setStep3(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.setStep(self.step3, self.step2)
+		self.setStep(self.step3, self.step3)
 
 #===============================================================================
 # StateFrame
