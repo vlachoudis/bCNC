@@ -26,11 +26,26 @@ import CNCRibbon
 from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
-_LOWSTEP   = 0.0001
-# TODO add an automatic retrieve function from the [Control] variables
-_HIGHSTEP  = 1000.0
-_HIGHZSTEP = 10.0
+try:
+	_LOWSTEP = min(map(float, Utils.config.get("Control","steplist").split()))
+except:
+	_LOWSTEP   = 0.0001
 
+try:
+	_HIGHSTEP = max(map(float, Utils.config.get("Control","steplist").split()))
+except:
+	_HIGHSTEP  = 1000.0
+	
+try:
+	_LOWZSTEP = min(map(float, Utils.config.get("Control","zsteplist").split()))
+except:
+	_LOWZSTEP   = 0.0001
+
+try:
+	_HIGHZSTEP = max(map(float, Utils.config.get("Control","zsteplist").split()))
+except:
+	_HIGHZSTEP  = 1000.0
+	
 #===============================================================================
 # Connection Group
 #===============================================================================
@@ -438,7 +453,18 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.step3 = Utils.getFloat("Control","step3")
 		except:
 			self.step3 = 10
-
+			
+		try:
+			self.step4 = Utils.getFloat("Control","step4")
+		except:
+			self.step4 = 25			
+			
+		try:
+			self.step5 = Utils.getFloat("Control","step5")
+		except:
+			self.step5 = 100			
+			
+			
 		Label(self, text="Z").grid(row=0, column=0,columnspan=2)
 
 		Label(self, text="Y", width=3).grid(row=4, column=3,rowspan=2)
@@ -469,21 +495,21 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.zstep = tkExtra.Combobox(self, width=6, background="White")
 			self.zstep.grid(row=1, column=0, columnspan=3, sticky=EW)
 			self.zstep.set(zstep)
-			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split(',')))
+			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 			
 			b = Button(self, text="+",
 					command=self.incZStep,
 					padx=1, pady=1)
-			b.grid(row=4, column=0, sticky=EW)
+			b.grid(row=4, column=1, sticky=EW)
 			tkExtra.Balloon.set(b, _("Decrease zstep"))
 			self.addWidget(b)
 
 			b = Button(self, text="-",
 					command=self.decZStep,
 					padx=1, pady=1)
-			b.grid(row=4, column=1, sticky=EW)
+			b.grid(row=4, column=0, sticky=EW)
 			tkExtra.Balloon.set(b, _("Decrease zstep"))
 			self.addWidget(b)
 			
@@ -582,18 +608,29 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 				command=self.mulStep,
 				width=3,
 				padx=1, pady=1)
-		b.grid(row=1, column=4, sticky=EW)
+		b.grid(row=1, column=5, sticky=EW)
 		tkExtra.Balloon.set(b, _("Multiply step by 10"))
 		self.addWidget(b)
 
+
+		b = Button(self, text=u"\u00F710",
+					command=self.divStep,
+					width=3,					
+					padx=1, pady=1)
+		b.grid(row=1, column=4, sticky=EW)
+		tkExtra.Balloon.set(b, _("Divide step by 10"))
+		self.addWidget(b)				
+		
+		
 		b = Button(self, text="+",
 				command=self.incStep,
 				width=3,
 				padx=1, pady=1)
-		b.grid(row=1, column=5, sticky=EW)
+		b.grid(row=1, column=9, sticky=EW)
 		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
 		self.addWidget(b)
 
+		
 		b = Button(self, text="-",
 					command=self.decStep,
 					width=3,					
@@ -602,13 +639,6 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
 		self.addWidget(b)
 
-		b = Button(self, text=u"\u00F710",
-					command=self.divStep,
-					width=3,					
-					padx=1, pady=1)
-		b.grid(row=1, column=9, sticky=EW)
-		tkExtra.Balloon.set(b, _("Divide step by 10"))
-		self.addWidget(b)		
 		
 		b = Button(self, text="%s"%(self.step1),
 				command=self.setStep1,
@@ -635,11 +665,29 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		tkExtra.Balloon.set(b, _("Use step3"))
 		self.addWidget(b)
 
+		
+		b = Button(self, text="%s"%(self.step4),
+				command=self.setStep4,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=4, column=13, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step4"))
+		self.addWidget(b)		
+		
+		
+		b = Button(self, text="%s"%(self.step5),
+				command=self.setStep5,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=5, column=13, sticky=EW)
+		tkExtra.Balloon.set(b, _("Use step5"))
+		self.addWidget(b)
+		
 
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=1, column=6, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(map(float, Utils.config.get("Control","steplist").split(',')))
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
@@ -722,6 +770,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 	#----------------------------------------------------------------------			
 	def setZStep(self, zs):
+		print "zs in setZStep",zs
 		self.zstep.set("%.4g"%(zs))
 		self.event_generate("<<Status>>",
 			data=_("Zstep:%g ")%(zs))
@@ -765,7 +814,8 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.zstep.get())
 		zs = step+power
-		if zs<_LOWSTEP: zs = _LOWSTEP
+		print "incZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)
+		if zs<_LOWZSTEP: zs = _LOWZSTEP
 		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
 		self.setZStep(zs)
 
@@ -774,8 +824,9 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		step, power = ControlFrame._stepPower(self.zstep.get())
 		zs = step-power
+		print "decZStep zstep = %f -- zs %f - step %f - power %f " %(float(self.zstep.get()),zs,step,power)		
 		if zs<=0.0: zs = step-power/10.0
-		if zs<_LOWSTEP: zs = _LOWSTEP
+		if zs<_LOWZSTEP: zs = _LOWZSTEP
 		elif zs>_HIGHZSTEP: zs = _HIGHZSTEP
 
 		self.setZStep(zs)
@@ -813,6 +864,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.setStep(self.step3, self.step3)
 
+	#----------------------------------------------------------------------
+	def setStep4(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step4, self.step4)		
+		
+	#----------------------------------------------------------------------
+	def setStep5(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step5, self.step5)		
 #===============================================================================
 # StateFrame
 #===============================================================================
