@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-05 20:46+0200\n"
-"PO-Revision-Date: 2016-07-05 21:11+0200\n"
+"PO-Revision-Date: 2016-10-06 21:36+0200\n"
 "Last-Translator: Felix Mahnke <@feistus>\n"
 "Language-Team: \n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 1.8.9\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -448,6 +448,9 @@ msgid ""
 "The G43.1 dynamic tool length offset command cannot apply an offset to an "
 "axis other than its configured axis. The Grbl default axis is the Z-axis."
 msgstr ""
+"Das G43.1 Kommando (Dynamischer Werkzeuglängen Offset) kann nicht einer "
+"anderen Achse einen Offset zuordnen als der konfigurierten. Die Grbl "
+"Standardachse ist die Z-Achse."
 
 #: Sender.py:95
 msgid ""
@@ -760,7 +763,7 @@ msgstr ""
 
 #: ToolsPage.py:943 EditorPage.py:46 plugins/box.py:314
 msgid "Cut"
-msgstr "Ausschneiden"
+msgstr "Fräsen"
 
 #: ToolsPage.py:950
 msgid "Cut for the full stock thickness selected code"
@@ -800,7 +803,7 @@ msgstr ""
 
 #: ToolsPage.py:1045
 msgid "User File"
-msgstr ""
+msgstr "Benutzerdatei"
 
 #: ToolsPage.py:1060
 msgid "Change program language restart is required"
@@ -1255,11 +1258,11 @@ msgstr "Neu"
 
 #: FilePage.py:68
 msgid "New gcode/dxf file"
-msgstr ""
+msgstr "Neue Gcode/DXF Datei"
 
 #: FilePage.py:77
 msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr ""
+msgstr "Vorhandene Gcode/DXF Datei öffnen [Strg-O]"
 
 #: FilePage.py:82 FilePage.py:279 bCNC.py:1925 lib/bFileDialog.py:322
 #: lib/bFileDialog.py:963
@@ -1356,7 +1359,7 @@ msgstr ""
 
 #: FilePage.py:303
 msgid "File I/O and configuration"
-msgstr ""
+msgstr "Dateien laden / speichern und Konfiguration"
 
 #: Ribbon.py:481
 msgid "New file"
@@ -2402,7 +2405,7 @@ msgstr ""
 
 #: bCNC.py:1880
 msgid "Import Gcode/DXF file"
-msgstr ""
+msgstr "Gcode/DXF Datei importieren"
 
 #: bCNC.py:1909
 msgid "Warning"
@@ -2414,6 +2417,8 @@ msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
+"Die Gcode Datei %s wurde verändert seitdem die Bearbeitung startete\n"
+"Soll die neue Version geladen werden?"
 
 #: bCNC.py:1945
 msgid "Error opening serial"
@@ -2631,7 +2636,7 @@ msgstr ""
 
 #: lib/bFileDialog.py:870 lib/bFileDialog.py:879
 msgid "File does not exist"
-msgstr ""
+msgstr "Datei existiert nicht"
 
 #: lib/bFileDialog.py:871 lib/bFileDialog.py:880
 #, python-format
