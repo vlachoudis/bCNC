@@ -12,10 +12,8 @@ __name__ = _("Flatten")
 __version__= "0.0.2"
 
 import math
-from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
-from fractions import gcd
 
 #==============================================================================
 #Flatten class
