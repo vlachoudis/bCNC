@@ -662,6 +662,10 @@ class CNC:
 			"mx"        : 0.0,
 			"my"        : 0.0,
 			"mz"        : 0.0,
+			"wcox"      : 0.0,
+			"wcoy"      : 0.0,
+			"wcoz"      : 0.0,
+			"curfeed"   : 0.0,
 			"_camwx"    : 0.0,
 			"_camwy"    : 0.0,
 			"G"         : [],
@@ -683,8 +687,16 @@ class CNC:
 			"feed"      : 0.0,
 			"rpm"       : 0.0,
 
+			"curfeed"   : 0.0,
+			"planner"   : 0,
+			"rxbytes"   : 0,
+
+			"Ovfeed"    : 100,
+			"Ovrapid"   : 100,
+			"Ovspindle" : 100,
 			"override"  : 100,
 			"overrideChanged"  : False,
+
 			"diameter"  : 3.175,	# Tool diameter
 			"cutfeed"   : 1000.,	# Material feed for cutting
 			"cutfeedz"  : 500.,	# Material feed for cutting
@@ -696,8 +708,10 @@ class CNC:
 			"thickness" : 5.,
 			"stepover"  : 40.,
 
-			"PRB"
+			"PRB"       : None,
 			"TLO"       : 0.,
+
+			"version"   : "",
 			"running"   : False,
 		}
 

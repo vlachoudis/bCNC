@@ -895,7 +895,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		Label(f, text=_("Feed:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
+		self.feedRate = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
 		self.feedRate.grid(row=row, column=col, sticky=EW)
 		self.feedRate.bind('<Return>',   self.setFeedRate)
 		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
@@ -1066,6 +1066,14 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.plane.set(PLANE[CNC.vars["plane"]])
 
 		self._gUpdate = False
+
+	#----------------------------------------------------------------------
+	def updateFeed(self):
+		if self.feedRate.cget("state") == DISABLED:
+			self.feedRate.config(state=NORMAL)
+			self.feedRate.delete(0,END)
+			self.feedRate.insert(0, CNC.vars["curfeed"])
+			self.feedRate.config(state=DISABLED)
 
 	#----------------------------------------------------------------------
 	def wcsChange(self):
