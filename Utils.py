@@ -88,6 +88,10 @@ CONTROLLER = {	"Grbl-V0"  : GRBL0,
 		"Grbl"     : GRBL1,
 		"Smoothie" : SMOOTHIE}
 
+
+# Variable that holds all the configuration in form of a multi leve dictionary
+glb_data = {}
+
 #------------------------------------------------------------------------------
 def loadIcons():
 	global icons
@@ -111,7 +115,7 @@ def delIcons():
 # Load configuration
 #------------------------------------------------------------------------------
 def loadConfiguration(systemOnly=False):
-	global config, _errorReport, language
+	global config, _errorReport, language, glb_data
 	if systemOnly:
 		config.read(iniSystem)
 	else:
@@ -123,7 +127,15 @@ def loadConfiguration(systemOnly=False):
 			# replace language
 			__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'),
 					fallback=True, languages=[language]).gettext
-
+	
+	atest = read_ini_file("buttons.ini")
+	if atest is not "KO":
+		for k,v in glb_data.iteritems():
+			print k
+			for sk,sv in v.iteritems():
+				print sk," => ",sv
+			
+																																						
 #------------------------------------------------------------------------------
 # Save configuration file
 #------------------------------------------------------------------------------
@@ -156,6 +168,37 @@ def cleanConfiguration():
 				pass
 	config = newconfig
 
+#----------------------------------------------------------------------
+# define the order of the search path for ini files:
+# first the files in .config/bCNC
+# second the files in ~
+# third the file in the program dir
+# more patch can be added or a if condition based on OS type can be useful
+#----------------------------------------------------------------------
+def search_paths(file_name):
+	paths = map(lambda path: os.path.join(path, file_name),("~/.config/%s"%(__prg__),'~','./'),)
+	for path in paths:
+		f_path = os.path.expanduser(path)
+		print "Searching : ", f_path
+		if os.path.isfile(f_path):
+			return f_path	
+
+def read_ini_file(f_name):
+	global glb_data
+	inifile = search_paths(f_name)
+	if inifile:
+		config = ConfigParser.SafeConfigParser()
+		config.read(inifile)
+		for section in config.sections():
+			print "parsing section :",section
+			kdict = {}
+			kdict = dict(config.items(section))
+			glb_data[str(section)] = kdict
+		return "OK: %s "%(inifile)
+	else:
+		return "KO"												
+
+												
 #------------------------------------------------------------------------------
 # add section if it doesn't exist
 #------------------------------------------------------------------------------

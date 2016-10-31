@@ -26,10 +26,27 @@ import CNCRibbon
 from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
-_LOWSTEP   = 0.0001
-_HIGHSTEP  = 1000.0
-_HIGHZSTEP = 10.0
 
+try:
+	_LOWSTEP = min(map(float, Utils.config.get("Control","steplist").split()))
+except:
+	_LOWSTEP   = 0.0001
+
+try:
+	_HIGHSTEP = max(map(float, Utils.config.get("Control","steplist").split()))
+except:
+	_HIGHSTEP  = 1000.0
+	
+try:
+	_LOWZSTEP = min(map(float, Utils.config.get("Control","zsteplist").split()))
+except:
+	_LOWZSTEP   = 0.0001
+
+try:
+	_HIGHZSTEP = max(map(float, Utils.config.get("Control","zsteplist").split()))
+except:
+	_HIGHZSTEP  = 1000.0
+	
 #===============================================================================
 # Connection Group
 #===============================================================================
