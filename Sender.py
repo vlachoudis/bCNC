@@ -1057,18 +1057,6 @@ class Sender:
 						self._stop = True
 						self.runEnded()
 
-				elif line[:4]=="Grbl": # and self.running:
-					tg = time.time()
-					self.log.put((Sender.MSG_RECEIVE, line))
-					self._stop = True
-					del cline[:]	# After reset clear the buffer counters
-					del sline[:]
-					self.runEnded()
-					CNC.vars["version"] = line.split()[1]
-					# Detect controller
-					if self.controller in (Utils.GRBL0, Utils.GRBL1):
-						self.controller = int(CNC.vars["version"][0])
-
 				elif line.find("ok")>=0:
 					self.log.put((Sender.MSG_OK, line))
 					self._gcount += 1
@@ -1080,6 +1068,18 @@ class Sender:
 						# turn off alarm for connected status once
 						# a valid gcode event occurs
 						self._alarm = False
+
+				elif line[:4]=="Grbl" or line[:13]=="CarbideMotion": # and self.running:
+					tg = time.time()
+					self.log.put((Sender.MSG_RECEIVE, line))
+					self._stop = True
+					del cline[:]	# After reset clear the buffer counters
+					del sline[:]
+					self.runEnded()
+					CNC.vars["version"] = line.split()[1]
+					# Detect controller
+					if self.controller in (Utils.GRBL0, Utils.GRBL1):
+						self.controller = int(CNC.vars["version"][0])
 
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))
