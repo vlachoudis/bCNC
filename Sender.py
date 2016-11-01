@@ -34,8 +34,29 @@ WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
 SERIAL_POLL   = 0.125	# s
 G_POLL	      = 10	# s
-
 RX_BUFFER_SIZE = 128
+
+OV_FEED_100     = "\x90"        # Extended override commands
+OV_FEED_i10     = "\x91"
+OV_FEED_d10     = "\x92"
+OV_FEED_i1      = "\x93"
+OV_FEED_d1      = "\x94"
+
+OV_RAPID_100    = "\x95"
+OV_RAPID_50     = "\x96"
+OV_RAPID_25     = "\x97"
+
+OV_SPINDLE_100  = "\x99"
+OV_SPINDLE_i10  = "\x9A"
+OV_SPINDLE_d10  = "\x9B"
+OV_SPINDLE_i1   = "\x9C"
+OV_SPINDLE_d1   = "\x9D"
+
+OV_SPINDLE_STOP = "\x9E"
+
+OV_FLOOD_TOGGLE = "\xA0"
+OV_MIST_TOGGLE  = "\xA1"
+
 
 GPAT	  = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -885,23 +906,80 @@ class Sender:
 						self._lastFeed = pat.group(2)
 
 					#If Override change, attach feed
-					if CNC.vars["overrideChanged"]:
-						CNC.vars["overrideChanged"] = False
-						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
-						if pat is None and self._newFeed!=0:
-							tosend = "f%g" % (self._newFeed) + tosend
+					if self.controller == Utils.GRBL1:
+						if CNC.vars["_OvChanged"]:
+							CNC.vars["_OvChanged"] = False	# Temporary
 
-					#Apply override Feed
-					if CNC.vars["override"] != 100 and self._newFeed!=0:
-						pat = FEEDPAT.match(tosend)
-						if pat is not None:
-							try:
-								tosend = "%sf%g%s\n" % \
-									(pat.group(1),
-									 self._newFeed,
-									 pat.group(3))
-							except:
+							# Check feed
+							diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
+							if diff==0:
 								pass
+							elif CNC.vars["_OvFeed"] == 100:
+								self.serial.write(OV_FEED_100)
+							elif diff >= 10:
+								self.serial.write(OV_FEED_i10)
+								CNC.vars["_OvChanged"] = diff>10
+							elif diff <= -10:
+								self.serial.write(OV_FEED_d10)
+								CNC.vars["_OvChanged"] = diff<-10
+							elif diff >= 1:
+								self.serial.write(OV_FEED_i1)
+								CNC.vars["_OvChanged"] = diff>1
+							elif diff <= -1:
+								self.serial.write(OV_FEED_d1)
+								CNC.vars["_OvChanged"] = diff<-1
+
+							# Check rapid
+							target  = CNC.vars["_OvRapid"]
+							current = CNC.vars["OvRapid"]
+							if target == current:
+								pass
+							elif target == 100:
+								self.serial.write(OV_RAPID_100)
+							elif target == 75:
+								self.serial.write(OV_RAPID_50)	# FIXME
+							elif target == 50:
+								self.serial.write(OV_RAPID_50)
+							elif target == 25:
+								self.serial.write(OV_RAPID_25)
+
+							# Check Spindle
+							diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
+							if diff==0:
+								pass
+							elif CNC.vars["_OvSpindle"] == 100:
+								self.serial.write(OV_SPINDLE_100)
+							elif diff >= 10:
+								self.serial.write(OV_SPINDLE_i10)
+								CNC.vars["_OvChanged"] = diff>10
+							elif diff <= -10:
+								self.serial.write(OV_SPINDLE_d10)
+								CNC.vars["_OvChanged"] = diff<-10
+							elif diff >= 1:
+								self.serial.write(OV_SPINDLE_i1)
+								CNC.vars["_OvChanged"] = diff>1
+							elif diff <= -1:
+								self.serial.write(OV_SPINDLE_d1)
+								CNC.vars["_OvChanged"] = diff<-1
+
+					else:
+						if CNC.vars["_OvChanged"]:
+							CNC.vars["_OvChanged"] = False
+							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
+							if pat is None and self._newFeed!=0:
+								tosend = "f%g" % (self._newFeed) + tosend
+
+						#Apply override Feed
+						if CNC.vars["_OvFeed"] != 100 and self._newFeed!=0:
+							pat = FEEDPAT.match(tosend)
+							if pat is not None:
+								try:
+									tosend = "%sf%g%s\n" % \
+										(pat.group(1),
+										 self._newFeed,
+										 pat.group(3))
+								except:
+									pass
 
 					# Bookkeeping of the buffers
 					sline.append(tosend)
@@ -942,9 +1020,9 @@ class Sender:
 								CNC.vars["planner"] = int(word[1])
 								CNC.vars["rxbytes"] = int(word[2])
 							elif word[0] == "Ov":
-								CNC.vars["Ovfeed"]    = int(word[1])
-								CNC.vars["Ovrapid"]   = int(word[2])
-								CNC.vars["Ovspindle"] = int(word[2])
+								CNC.vars["OvFeed"]    = int(word[1])
+								CNC.vars["OvRapid"]   = int(word[2])
+								CNC.vars["OvSpindle"] = int(word[2])
 							elif word[0] == "WCO":
 								CNC.vars["wcox"] = float(word[1])
 								CNC.vars["wcoy"] = float(word[2])
