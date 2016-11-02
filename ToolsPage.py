@@ -17,12 +17,15 @@ except ImportError:
 from operator import attrgetter
 
 import os
+import time
 import glob
 import Utils
 import Ribbon
 import tkExtra
 import Unicode
 import CNCRibbon
+
+from CNC import CNC
 
 _EXE_FONT = ("Helvetica",12,"bold")
 
@@ -105,6 +108,10 @@ class _Base:
 	# ----------------------------------------------------------------------
 	def event_generate(self, msg, **kwargs):
 		self.master.listbox.event_generate(msg, **kwargs)
+
+	# ----------------------------------------------------------------------
+	def beforeChange(self, app):
+		pass
 
 	# ----------------------------------------------------------------------
 	def populate(self):
@@ -484,7 +491,7 @@ class Shortcut(Ini):
 #==============================================================================
 # CNC machine configuration
 #==============================================================================
-class CNC(_Base):
+class Config(_Base):
 	def __init__(self, master):
 		_Base.__init__(self, master)
 		self.name = "CNC"
@@ -514,8 +521,8 @@ class CNC(_Base):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.inches = self["units"]
-		self.master.digits = int(self["round"])
+		self.master.inches        = self["units"]
+		self.master.digits        = int(self["round"])
 		self.master.cnc().decimal = self.master.digits
 		self.master.cnc().startup = self["startup"]
 		self.master.gcode.header  = self["header"]
@@ -758,6 +765,84 @@ class Tabs(DataBase):
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
+# Controller setup
+#==============================================================================
+class Controller(_Base):
+	def __init__(self, master):
+		_Base.__init__(self, master)
+		self.name = "Controller"
+		self.variables = [
+			("grbl_0",   "int",     10,     _("$0 Step pulse time [us]")),
+			("grbl_1",   "int",     25,     _("$1 Step idle delay [ms]")),
+			("grbl_2",   "int",      0,     _("$2 Step pulse invert [mask]")),
+			("grbl_3",   "int",      0,     _("$3 Step direction invert [mask]")),
+			("grbl_4",   "bool",     0,     _("$4 Invert step enable pin")),
+			("grbl_5",   "bool",     0,     _("$5 Invert limit pins")),
+			("grbl_6",   "bool",     0,     _("$6 Invert probe pin")),
+			("grbl_10",  "int",      1,     _("$10 Status report options [mask]")),
+			("grbl_11",  "float",    0.010, _("$11 Junction deviation [mm]")),
+			("grbl_12",  "float",    0.002, _("$12 Arc tolerance [mm]")),
+			("grbl_13",  "bool",     0,     _("$13 Report in inches")),
+			("grbl_20",  "bool",     0,     _("$20 Soft limits enable")),
+			("grbl_21",  "bool",     0,     _("$21 Hard limits enable")),
+			("grbl_22",  "bool",     0,     _("$22 Homing cycle enable")),
+			("grbl_23",  "int",      0,     _("$23 Homing direction invert [mask]")),
+			("grbl_24",  "float",   25.,    _("$24 Homing locate feed rate [mm/min]")),
+			("grbl_25",  "float",  500.,    _("$25 Homing search seek rate [mm/min]")),
+			("grbl_26",  "int",    250,     _("$26 Homing switch debounce delay, ms")),
+			("grbl_27",  "float",    1.,    _("$27 Homing switch pull-off distance [mm]")),
+			("grbl_30",  "float", 1000.,    _("$30 Maximum spindle speed [RPM]")),
+			("grbl_31",  "float",    0.,    _("$31 Minimum spindle speed [RPM]")),
+			("grbl_32",  "bool",     0,     _("$32 Laser-mode enable")),
+			("grbl_100", "float",  250.,    _("$100 X-axis steps per mm")),
+			("grbl_101", "float",  250.,    _("$101 Y-axis steps per mm")),
+			("grbl_102", "float",  250.,    _("$102 Z-axis steps per mm")),
+			("grbl_110", "float",  500.,    _("$110 X-axis maximum rate [mm/min]")),
+			("grbl_111", "float",  500.,    _("$111 Y-axis maximum rate [mm/min]")),
+			("grbl_112", "float",  500.,    _("$112 Z-axis maximum rate [mm/min]")),
+			("grbl_120", "float",   10.,    _("$120 X-axis acceleration [mm/sec^2]")),
+			("grbl_121", "float",   10.,    _("$121 Y-axis acceleration [mm/sec^2]")),
+			("grbl_122", "float",   10.,    _("$122 Z-axis acceleration [mm/sec^2]")),
+			("grbl_130", "float",  200.,    _("$130 X-axis maximum travel [mm]")),
+			("grbl_131", "float",  200.,    _("$131 Y-axis maximum travel [mm]")),
+			("grbl_132", "float",  200.,    _("$132 Z-axis maximum travel [mm]"))]
+		self.buttons.append("exe")
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		lines = []
+		for n,t,d,c in self.variables:
+			v = self[n]
+			try:
+				if t=="float":
+					if v == float(CNC.vars[n]): continue
+				else:
+					if v == int(CNC.vars[n]): continue
+			except:
+				continue
+			lines.append("$%s=%s"%(n[5:],str(v)))
+			lines.append("%wait")
+		lines.append("$$")
+		app.run(lines=lines)
+
+	# ----------------------------------------------------------------------
+	def beforeChange(self, app):
+		app.sendGCode("$$")
+		time.sleep(1)
+
+	# ----------------------------------------------------------------------
+	def populate(self):
+		for n, t, d, l in self.variables:
+			try:
+				if t=="float":
+					self.values[n] = float(CNC.vars[n])
+				else:
+					self.values[n] = int(CNC.vars[n])
+			except KeyError:
+				pass
+		_Base.populate(self)
+
+#==============================================================================
 # Tools container class
 #==============================================================================
 class Tools:
@@ -772,7 +857,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Events,
+		for cls in [ Config, Font, Color, Controller, Cut, Drill, EndMill, Events,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
@@ -1316,7 +1401,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.tools.addButton("exe",b)
 
 		self.toolList = tkExtra.MultiListbox(self,
-					((_("Name"), 16, None),
+					((_("Name"),  24, None),
 					 (_("Value"), 24, None)),
 					 header = False,
 					 stretch = "last",
@@ -1340,6 +1425,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def change(self, a=None, b=None, c=None):
 		tool = self.tools.getActive()
+		tool.beforeChange(self.app)
 		tool.populate()
 		tool.update()
 		self.tools.activateButtons(tool)

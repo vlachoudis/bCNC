@@ -64,8 +64,8 @@ POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
-
 SPLITPAT  = re.compile(r"[:,]")
+VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
@@ -830,7 +830,7 @@ class Sender:
 	def serialIO(self):
 		cline  = []		# length of pipeline commands
 		sline  = []		# pipeline commands
-		wait   = False		# wait for commands to complete
+		wait   = False		# wait for commands to complete (status change to Idle)
 		tosend = None		# next string to send
 		status = False		# waiting for status <...> report
 		tr = tg = time.time()	# last time a ? or $G was send to grbl
@@ -903,7 +903,7 @@ class Sender:
 					#print "+++",repr(tosend)
 					if isinstance(tosend, tuple):
 						#print "gcount tuple=",self._gcount
-						# wait to empty the grbl buffer
+						# wait to empty the grbl buffer and status is Idle
 						if tosend[0] == WAIT:
 							# Don't count WAIT until we are idle!
 							wait = True
@@ -1022,6 +1022,11 @@ class Sender:
 								CNC.vars["wcoy"] = float(word[2])
 								CNC.vars["wcoz"] = float(word[3])
 
+						# Machine is Idle buffer is empty stop waiting and go on
+						if wait and not cline and fields[0]=="Idle":
+							wait = False
+							self._gcount += 1
+
 					else:
 						status = False
 						pat = STATUSPAT.match(line)
@@ -1124,7 +1129,7 @@ class Sender:
 						self._stop = True
 						self.runEnded()
 
-				elif line[:4]=="Grbl": # and self.running:
+				elif line[:4]=="Grbl" or line[:13]=="CarbideMotion": # and self.running:
 					tg = time.time()
 					self.log.put((Sender.MSG_RECEIVE, line))
 					self._stop = True
@@ -1147,6 +1152,12 @@ class Sender:
 						# turn off alarm for connected status once
 						# a valid gcode event occurs
 						self._alarm = False
+
+				elif line[0] == "$":
+					self.log.put((Sender.MSG_RECEIVE, line))
+					pat = VARPAT.match(line)
+					if pat:
+						CNC.vars["grbl_%s"%(pat.group(1))] = pat.group(2)
 
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))

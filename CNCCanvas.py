@@ -1750,9 +1750,12 @@ class CNCCanvas(Canvas):
 						if time.time() - startTime > DRAW_TIME:
 							raise AlarmException()
 						n = 1000
-					#cmd = self.cnc.parseLine(line)
 					try:
-						cmd = CNC.breakLine(self.gcode.evaluate(CNC.compileLine(line)))
+						cmd = self.gcode.evaluate(CNC.compileLine(line))
+						if isinstance(cmd,tuple):
+							cmd = None
+						else:
+							cmd = CNC.breakLine(cmd)
 					except AlarmException:
 						raise
 					except:
