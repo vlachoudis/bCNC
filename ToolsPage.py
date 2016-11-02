@@ -817,6 +817,10 @@ class Tools:
 			return self.tools["CNC"]
 
 	# ----------------------------------------------------------------------
+	def setActive(self, value):
+		self.active.set(value)
+
+	# ----------------------------------------------------------------------
 	def toMm(self, value):
 		if self.inches:
 			return value*25.4
@@ -866,6 +870,7 @@ class Tools:
 			btn.config(state=DISABLED)
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
+		self.buttons["exe"].config(text=self.active.get())
 
 #===============================================================================
 # DataBase Group
@@ -972,9 +977,9 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 # CAM Group
 #===============================================================================
-class CAMGroup(CNCRibbon.ButtonGroup):
+class CAMGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("CAM"), app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("CAM"), app)
 		self.grid3rows()
 
 		# ===
@@ -1071,50 +1076,68 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				col += 1
 				row  = 0
 
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0)
+		#for group in ("Artistic", "Generator", "Macros"):
+		for group in ("Artistic", "Generator"):
+			submenu = Menu(menu, tearoff=0)
+			menu.add_cascade(label=group, menu=submenu)
+			# Find plugins in the plugins directory and load them
+			for tool in self.app.tools.pluginList():
+				if tool.group != group: continue
+				submenu.add_radiobutton(
+						label=tool.name,
+						image=Utils.icons[tool.icon],
+						compound=LEFT,
+						variable=self.app.tools.active,
+						value=tool.name)
+		return menu
+
 #===============================================================================
 # Plugins Group
 #===============================================================================
-class PluginsGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, group, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
-		self.grid3rows()
-
-		col,row=0,0
-		# Find plugins in the plugins directory and load them
-		for tool in app.tools.pluginList():
-			if tool.group != group: continue
-			# ===
-			b = Ribbon.LabelRadiobutton(self.frame,
-					image=Utils.icons[tool.icon],
-					text=tool.name,
-					compound=LEFT,
-					anchor=W,
-					variable=app.tools.active,
-					value=tool.name,
-					background=Ribbon._BACKGROUND)
-			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-			tkExtra.Balloon.set(b, tool.__doc__)
-			self.addWidget(b)
-
-			row += 1
-			if row==3:
-				col += 1
-				row  = 0
+#class PluginsGroup(CNCRibbon.ButtonGroup):
+#	def __init__(self, master, group, app):
+#		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
+#		self.grid3rows()
+#
+#		col,row=0,0
+#		# Find plugins in the plugins directory and load them
+#		for tool in app.tools.pluginList():
+#			if tool.group != group: continue
+#			# ===
+#			b = Ribbon.LabelRadiobutton(self.frame,
+#					image=Utils.icons[tool.icon],
+#					text=tool.name,
+#					compound=LEFT,
+#					anchor=W,
+#					variable=app.tools.active,
+#					value=tool.name,
+#					background=Ribbon._BACKGROUND)
+#			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+#			tkExtra.Balloon.set(b, tool.__doc__)
+#			self.addWidget(b)
+#
+#			row += 1
+#			if row==3:
+#				col += 1
+#				row  = 0
 
 #===============================================================================
 # Macros Groups based on plugins
 #===============================================================================
-class MacrosGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Macros"), app)
-
-class GeneratorGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Generator"), app)
-
-class ArtisticGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Artistic"), app)
+#class MacrosGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Macros"), app)
+#
+#class GeneratorGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Generator"), app)
+#
+#class ArtisticGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Artistic"), app)
 
 #===============================================================================
 # Config
@@ -1122,8 +1145,7 @@ class ArtisticGroup(PluginsGroup):
 class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		#CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app,
-			[(_("User File"), "about",    app.showUserFile)])
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app)
 		self.grid3rows()
 
 		# ===
@@ -1174,6 +1196,34 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		col,row = col+1,1
 		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["config"],
+				text=_("Config"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="CNC",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["arduino"],
+				text=_("Controller"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Controller",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
+		self.addWidget(b)
+
+		# ===
+		col,row = col+1,1
+		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
 				text=_("Fonts"),
 				compound=LEFT,
@@ -1188,20 +1238,6 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config"],
-				text=_("Machine"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="CNC",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
-		self.addWidget(b)
-
-		# ===
-		col,row = col+1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["shortcut"],
 				text=_("Shortcuts"),
 				compound=LEFT,
@@ -1212,20 +1248,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
 		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["event"],
-				text=_("Events"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Events",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Events configuration"))
-		self.addWidget(b)
+#
+#		# ---
+#		row += 1
+#		b = Ribbon.LabelRadiobutton(self.frame,
+#				image=Utils.icons["event"],
+#				text=_("Events"),
+#				compound=LEFT,
+#				anchor=W,
+#				variable=app.tools.active,
+#				value="Events",
+#				background=Ribbon._BACKGROUND)
+#		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+#		tkExtra.Balloon.set(b, _("Events configuration"))
+#		self.addWidget(b)
 
 	#----------------------------------------------------------------------
 	def fillLanguage(self):
@@ -1245,6 +1281,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 					_("Please restart the program."),
 					parent=self.winfo_toplevel())
 				return
+
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0)
+		menu.add_radiobutton(
+				label=_("Events"),
+				image=Utils.icons["event"], compound=LEFT,
+				variable=self.app.tools.active,
+				value="Events")
+		menu.add_command(
+				label=_("User File"),
+				image=Utils.icons["about"], compound=LEFT,
+				command=self.app.showUserFile)
+		return menu
 
 #==============================================================================
 # Tools Frame
@@ -1345,8 +1395,8 @@ class ToolsPage(CNCRibbon.Page):
 		self._register(
 			(DataBaseGroup,
 			CAMGroup,
-			GeneratorGroup,
-			ArtisticGroup,
+			#GeneratorGroup,
+			#ArtisticGroup,
 			#MacrosGroup,
 			ConfigGroup), (ToolsFrame,))
 

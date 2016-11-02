@@ -837,19 +837,70 @@ class Sender:
 
 		while self.thread:
 			t = time.time()
-
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
 				self.serial.write(b"?")
 				status = True
 				tr = t
 
+				#If Override change, attach feed
+				if CNC.vars["_OvChanged"] and self.controller == Utils.GRBL1:
+					CNC.vars["_OvChanged"] = False	# Temporary
+					# Check feed
+					diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
+					if diff==0:
+						pass
+					elif CNC.vars["_OvFeed"] == 100:
+						self.serial.write(OV_FEED_100)
+					elif diff >= 10:
+						self.serial.write(OV_FEED_i10)
+						CNC.vars["_OvChanged"] = diff>10
+					elif diff <= -10:
+						self.serial.write(OV_FEED_d10)
+						CNC.vars["_OvChanged"] = diff<-10
+					elif diff >= 1:
+						self.serial.write(OV_FEED_i1)
+						CNC.vars["_OvChanged"] = diff>1
+					elif diff <= -1:
+						self.serial.write(OV_FEED_d1)
+						CNC.vars["_OvChanged"] = diff<-1
+					# Check rapid
+					target  = CNC.vars["_OvRapid"]
+					current = CNC.vars["OvRapid"]
+					if target == current:
+						pass
+					elif target == 100:
+						self.serial.write(OV_RAPID_100)
+					elif target == 75:
+						self.serial.write(OV_RAPID_50)	# FIXME
+					elif target == 50:
+						self.serial.write(OV_RAPID_50)
+					elif target == 25:
+						self.serial.write(OV_RAPID_25)
+					# Check Spindle
+					diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
+					if diff==0:
+						pass
+					elif CNC.vars["_OvSpindle"] == 100:
+						self.serial.write(OV_SPINDLE_100)
+					elif diff >= 10:
+						self.serial.write(OV_SPINDLE_i10)
+						CNC.vars["_OvChanged"] = diff>10
+					elif diff <= -10:
+						self.serial.write(OV_SPINDLE_d10)
+						CNC.vars["_OvChanged"] = diff<-10
+					elif diff >= 1:
+						self.serial.write(OV_SPINDLE_i1)
+						CNC.vars["_OvChanged"] = diff>1
+					elif diff <= -1:
+						self.serial.write(OV_SPINDLE_d1)
+						CNC.vars["_OvChanged"] = diff<-1
+
 			# Fetch new command to send if...
 			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					#print "+++",repr(tosend)
-
 					if isinstance(tosend, tuple):
 						#print "gcount tuple=",self._gcount
 						# wait to empty the grbl buffer
@@ -905,64 +956,7 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					#If Override change, attach feed
-					if self.controller == Utils.GRBL1:
-						if CNC.vars["_OvChanged"]:
-							CNC.vars["_OvChanged"] = False	# Temporary
-
-							# Check feed
-							diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
-							if diff==0:
-								pass
-							elif CNC.vars["_OvFeed"] == 100:
-								self.serial.write(OV_FEED_100)
-							elif diff >= 10:
-								self.serial.write(OV_FEED_i10)
-								CNC.vars["_OvChanged"] = diff>10
-							elif diff <= -10:
-								self.serial.write(OV_FEED_d10)
-								CNC.vars["_OvChanged"] = diff<-10
-							elif diff >= 1:
-								self.serial.write(OV_FEED_i1)
-								CNC.vars["_OvChanged"] = diff>1
-							elif diff <= -1:
-								self.serial.write(OV_FEED_d1)
-								CNC.vars["_OvChanged"] = diff<-1
-
-							# Check rapid
-							target  = CNC.vars["_OvRapid"]
-							current = CNC.vars["OvRapid"]
-							if target == current:
-								pass
-							elif target == 100:
-								self.serial.write(OV_RAPID_100)
-							elif target == 75:
-								self.serial.write(OV_RAPID_50)	# FIXME
-							elif target == 50:
-								self.serial.write(OV_RAPID_50)
-							elif target == 25:
-								self.serial.write(OV_RAPID_25)
-
-							# Check Spindle
-							diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
-							if diff==0:
-								pass
-							elif CNC.vars["_OvSpindle"] == 100:
-								self.serial.write(OV_SPINDLE_100)
-							elif diff >= 10:
-								self.serial.write(OV_SPINDLE_i10)
-								CNC.vars["_OvChanged"] = diff>10
-							elif diff <= -10:
-								self.serial.write(OV_SPINDLE_d10)
-								CNC.vars["_OvChanged"] = diff<-10
-							elif diff >= 1:
-								self.serial.write(OV_SPINDLE_i1)
-								CNC.vars["_OvChanged"] = diff>1
-							elif diff <= -1:
-								self.serial.write(OV_SPINDLE_d1)
-								CNC.vars["_OvChanged"] = diff<-1
-
-					else:
+					if self.controller == Utils.GRBL0:
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
@@ -1037,17 +1031,14 @@ class Sender:
 							CNC.vars["mx"] = float(pat.group(2))
 							CNC.vars["my"] = float(pat.group(3))
 							CNC.vars["mz"] = float(pat.group(4))
-
 							CNC.vars["wx"] = float(pat.group(5))
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
-
 							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
 							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
 							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-
 							self._posUpdate = True
-							if pat.group(1) != "Hold" and self._msg:
+							if pat.group(1)[:4] != "Hold" and self._msg:
 								self._msg = None
 
 							# Machine is Idle buffer is empty
@@ -1099,11 +1090,9 @@ class Sender:
 									 CNC.vars["prbx"]
 									+CNC.vars["wx"]
 									-CNC.vars["mx"],
-
 									 CNC.vars["prby"]
 									+CNC.vars["wy"]
 									-CNC.vars["my"],
-
 									 CNC.vars["prbz"]
 									+CNC.vars["wz"]
 									-CNC.vars["mz"])

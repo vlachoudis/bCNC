@@ -994,10 +994,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		c = self.override.get()
 		CNC.vars["_Ov"+n] = c
 		CNC.vars["_OvChanged"] = True
-		print
-		for n in ("OvFeed", "OvRapid", "OvSpindle", "_OvChanged",
-			  "_OvFeed", "_OvRapid", "_OvSpindle"):
-			print n, CNC.vars[n]
 
 	#----------------------------------------------------------------------
 	def resetOverride(self, event=None):
