@@ -1075,7 +1075,7 @@ class Sender:
 							self._probeUpdate = True
 							CNC.vars[word[0]] = word[1:]
 						elif word[0] == "GC":
-							CNC.vars["G"] = word[1:]
+							CNC.vars["G"] = word[1].split()
 							CNC.updateG()
 							self._gUpdate = True
 						elif word[0] == "TLO":
