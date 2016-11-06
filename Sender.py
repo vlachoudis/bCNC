@@ -1007,9 +1007,11 @@ class Sender:
 								CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 								CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
 								self._posUpdate = True
-
 							elif word[0] == "F":
 								CNC.vars["curfeed"] = float(word[1])
+							elif word[0] == "FS":
+								CNC.vars["curfeed"]    = float(word[1])
+								CNC.vars["curspindle"] = float(word[2])
 							elif word[0] == "Bf":
 								CNC.vars["planner"] = int(word[1])
 								CNC.vars["rxbytes"] = int(word[2])

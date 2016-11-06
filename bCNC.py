@@ -2309,6 +2309,7 @@ class Application(Toplevel,Sender):
 					   CNC.vars["mz"])
 			if state=="Run":
 				self.gstate.updateFeed()
+				#self.xxx.updateSpindle()
 			self._posUpdate = False
 
 		# Update status string
