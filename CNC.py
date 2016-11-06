@@ -691,11 +691,13 @@ class CNC:
 			"planner"   : 0,
 			"rxbytes"   : 0,
 
-			"Ovfeed"    : 100,
-			"Ovrapid"   : 100,
-			"Ovspindle" : 100,
-			"override"  : 100,
-			"overrideChanged"  : False,
+			"OvFeed"    : 100,	# Override status
+			"OvRapid"   : 100,
+			"OvSpindle" : 100,
+			"_OvChanged": False,
+			"_OvFeed"   : 100,	# Override target values
+			"_OvRapid"  : 100,
+			"_OvSpindle": 100,
 
 			"diameter"  : 3.175,	# Tool diameter
 			"cutfeed"   : 1000.,	# Material feed for cutting

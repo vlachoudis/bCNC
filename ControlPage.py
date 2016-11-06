@@ -30,6 +30,8 @@ _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
 
+OVERRIDES = ["Feed", "Rapid", "Spindle"]
+
 #===============================================================================
 # Connection Group
 #===============================================================================
@@ -937,25 +939,26 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.spindleSpeed = IntVar()
 
 		col,row=0,0
-		b = Button(f,	text=_("Feed\nOverride:"),
-				command=self.resetOverride,
-				padx=1,
-				pady=0,
-				justify=CENTER)
-		b.grid(row=row, column=col, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Reset Feed Override to 100%"))
+		self.overrideCombo = tkExtra.Combobox(f, width=8, command=self.overrideComboChange)
+		self.overrideCombo.fill(OVERRIDES)
+		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
 
 		col += 1
-		b = Scale(f,
-				command=self.overrideControl,
+		self.overrideScale = Scale(f,
+				command=self.overrideChange,
 				variable=self.override,
 				showvalue=True,
 				orient=HORIZONTAL,
 				from_=25,
 				to_=200,
-				resolution=5)
-		b.grid(row=row, column=col, columnspan=4, sticky=EW)
-		tkExtra.Balloon.set(b, _("Set Feed Override"))
+				resolution=1)
+		self.overrideScale.bind("<Double-1>", self.resetOverride)
+		self.overrideScale.bind("<Button-3>", self.resetOverride)
+		self.overrideScale.grid(row=row, column=col, columnspan=4, sticky=EW)
+		tkExtra.Balloon.set(self.overrideScale, _("Set Feed/Rapid/Spindle Override. Right or Double click to reset."))
+
+		self.overrideCombo.set(OVERRIDES[0])
 
 		# ---
 		row += 1
@@ -986,14 +989,26 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		f.grid_columnconfigure(1, weight=1)
 
 	#----------------------------------------------------------------------
-	def overrideControl(self, event=None):
-		CNC.vars["override"] = self.override.get()
-		CNC.vars["overrideChanged"] = True
+	def overrideChange(self, event=None):
+		n = self.overrideCombo.get()
+		c = self.override.get()
+		CNC.vars["_Ov"+n] = c
+		CNC.vars["_OvChanged"] = True
 
 	#----------------------------------------------------------------------
 	def resetOverride(self, event=None):
 		self.override.set(100)
-		self.overrideControl()
+		self.overrideChange()
+
+	#----------------------------------------------------------------------
+	def overrideComboChange(self):
+		n = self.overrideCombo.get()
+		if n=="Rapid":
+			self.overrideScale.config(to_=100, resolution=25)
+		else:
+			self.overrideScale.config(to_=200, resolution=1)
+
+		self.override.set(CNC.vars["_Ov"+n])
 
 	#----------------------------------------------------------------------
 	def _gChange(self, value, dictionary):

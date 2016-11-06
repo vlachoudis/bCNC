@@ -17,12 +17,15 @@ except ImportError:
 from operator import attrgetter
 
 import os
+import time
 import glob
 import Utils
 import Ribbon
 import tkExtra
 import Unicode
 import CNCRibbon
+
+from CNC import CNC
 
 _EXE_FONT = ("Helvetica",12,"bold")
 
@@ -105,6 +108,10 @@ class _Base:
 	# ----------------------------------------------------------------------
 	def event_generate(self, msg, **kwargs):
 		self.master.listbox.event_generate(msg, **kwargs)
+
+	# ----------------------------------------------------------------------
+	def beforeChange(self, app):
+		pass
 
 	# ----------------------------------------------------------------------
 	def populate(self):
@@ -484,7 +491,7 @@ class Shortcut(Ini):
 #==============================================================================
 # CNC machine configuration
 #==============================================================================
-class CNC(_Base):
+class Config(_Base):
 	def __init__(self, master):
 		_Base.__init__(self, master)
 		self.name = "CNC"
@@ -514,8 +521,8 @@ class CNC(_Base):
 	# Update variables after edit command
 	# ----------------------------------------------------------------------
 	def update(self):
-		self.master.inches = self["units"]
-		self.master.digits = int(self["round"])
+		self.master.inches        = self["units"]
+		self.master.digits        = int(self["round"])
 		self.master.cnc().decimal = self.master.digits
 		self.master.cnc().startup = self["startup"]
 		self.master.gcode.header  = self["header"]
@@ -758,6 +765,84 @@ class Tabs(DataBase):
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
+# Controller setup
+#==============================================================================
+class Controller(_Base):
+	def __init__(self, master):
+		_Base.__init__(self, master)
+		self.name = "Controller"
+		self.variables = [
+			("grbl_0",   "int",     10,     _("$0 Step pulse time [us]")),
+			("grbl_1",   "int",     25,     _("$1 Step idle delay [ms]")),
+			("grbl_2",   "int",      0,     _("$2 Step pulse invert [mask]")),
+			("grbl_3",   "int",      0,     _("$3 Step direction invert [mask]")),
+			("grbl_4",   "bool",     0,     _("$4 Invert step enable pin")),
+			("grbl_5",   "bool",     0,     _("$5 Invert limit pins")),
+			("grbl_6",   "bool",     0,     _("$6 Invert probe pin")),
+			("grbl_10",  "int",      1,     _("$10 Status report options [mask]")),
+			("grbl_11",  "float",    0.010, _("$11 Junction deviation [mm]")),
+			("grbl_12",  "float",    0.002, _("$12 Arc tolerance [mm]")),
+			("grbl_13",  "bool",     0,     _("$13 Report in inches")),
+			("grbl_20",  "bool",     0,     _("$20 Soft limits enable")),
+			("grbl_21",  "bool",     0,     _("$21 Hard limits enable")),
+			("grbl_22",  "bool",     0,     _("$22 Homing cycle enable")),
+			("grbl_23",  "int",      0,     _("$23 Homing direction invert [mask]")),
+			("grbl_24",  "float",   25.,    _("$24 Homing locate feed rate [mm/min]")),
+			("grbl_25",  "float",  500.,    _("$25 Homing search seek rate [mm/min]")),
+			("grbl_26",  "int",    250,     _("$26 Homing switch debounce delay, ms")),
+			("grbl_27",  "float",    1.,    _("$27 Homing switch pull-off distance [mm]")),
+			("grbl_30",  "float", 1000.,    _("$30 Maximum spindle speed [RPM]")),
+			("grbl_31",  "float",    0.,    _("$31 Minimum spindle speed [RPM]")),
+			("grbl_32",  "bool",     0,     _("$32 Laser-mode enable")),
+			("grbl_100", "float",  250.,    _("$100 X-axis steps per mm")),
+			("grbl_101", "float",  250.,    _("$101 Y-axis steps per mm")),
+			("grbl_102", "float",  250.,    _("$102 Z-axis steps per mm")),
+			("grbl_110", "float",  500.,    _("$110 X-axis maximum rate [mm/min]")),
+			("grbl_111", "float",  500.,    _("$111 Y-axis maximum rate [mm/min]")),
+			("grbl_112", "float",  500.,    _("$112 Z-axis maximum rate [mm/min]")),
+			("grbl_120", "float",   10.,    _("$120 X-axis acceleration [mm/sec^2]")),
+			("grbl_121", "float",   10.,    _("$121 Y-axis acceleration [mm/sec^2]")),
+			("grbl_122", "float",   10.,    _("$122 Z-axis acceleration [mm/sec^2]")),
+			("grbl_130", "float",  200.,    _("$130 X-axis maximum travel [mm]")),
+			("grbl_131", "float",  200.,    _("$131 Y-axis maximum travel [mm]")),
+			("grbl_132", "float",  200.,    _("$132 Z-axis maximum travel [mm]"))]
+		self.buttons.append("exe")
+
+	# ----------------------------------------------------------------------
+	def execute(self, app):
+		lines = []
+		for n,t,d,c in self.variables:
+			v = self[n]
+			try:
+				if t=="float":
+					if v == float(CNC.vars[n]): continue
+				else:
+					if v == int(CNC.vars[n]): continue
+			except:
+				continue
+			lines.append("$%s=%s"%(n[5:],str(v)))
+			lines.append("%wait")
+		lines.append("$$")
+		app.run(lines=lines)
+
+	# ----------------------------------------------------------------------
+	def beforeChange(self, app):
+		app.sendGCode("$$")
+		time.sleep(1)
+
+	# ----------------------------------------------------------------------
+	def populate(self):
+		for n, t, d, l in self.variables:
+			try:
+				if t=="float":
+					self.values[n] = float(CNC.vars[n])
+				else:
+					self.values[n] = int(CNC.vars[n])
+			except KeyError:
+				pass
+		_Base.populate(self)
+
+#==============================================================================
 # Tools container class
 #==============================================================================
 class Tools:
@@ -772,7 +857,7 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ CNC, Font, Color, Cut, Drill, EndMill, Events,
+		for cls in [ Config, Font, Color, Controller, Cut, Drill, EndMill, Events,
 			     Material, Pocket, Profile, Shortcut, Stock,
 			     Tabs]:
 			tool = cls(self)
@@ -815,6 +900,10 @@ class Tools:
 		except:
 			self.active.set("CNC")
 			return self.tools["CNC"]
+
+	# ----------------------------------------------------------------------
+	def setActive(self, value):
+		self.active.set(value)
 
 	# ----------------------------------------------------------------------
 	def toMm(self, value):
@@ -866,6 +955,7 @@ class Tools:
 			btn.config(state=DISABLED)
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
+		self.buttons["exe"].config(text=self.active.get())
 
 #===============================================================================
 # DataBase Group
@@ -972,9 +1062,9 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 # CAM Group
 #===============================================================================
-class CAMGroup(CNCRibbon.ButtonGroup):
+class CAMGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("CAM"), app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("CAM"), app)
 		self.grid3rows()
 
 		# ===
@@ -1071,50 +1161,68 @@ class CAMGroup(CNCRibbon.ButtonGroup):
 				col += 1
 				row  = 0
 
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0)
+		#for group in ("Artistic", "Generator", "Macros"):
+		for group in ("Artistic", "Generator"):
+			submenu = Menu(menu, tearoff=0)
+			menu.add_cascade(label=group, menu=submenu)
+			# Find plugins in the plugins directory and load them
+			for tool in self.app.tools.pluginList():
+				if tool.group != group: continue
+				submenu.add_radiobutton(
+						label=tool.name,
+						image=Utils.icons[tool.icon],
+						compound=LEFT,
+						variable=self.app.tools.active,
+						value=tool.name)
+		return menu
+
 #===============================================================================
 # Plugins Group
 #===============================================================================
-class PluginsGroup(CNCRibbon.ButtonGroup):
-	def __init__(self, master, group, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
-		self.grid3rows()
-
-		col,row=0,0
-		# Find plugins in the plugins directory and load them
-		for tool in app.tools.pluginList():
-			if tool.group != group: continue
-			# ===
-			b = Ribbon.LabelRadiobutton(self.frame,
-					image=Utils.icons[tool.icon],
-					text=tool.name,
-					compound=LEFT,
-					anchor=W,
-					variable=app.tools.active,
-					value=tool.name,
-					background=Ribbon._BACKGROUND)
-			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-			tkExtra.Balloon.set(b, tool.__doc__)
-			self.addWidget(b)
-
-			row += 1
-			if row==3:
-				col += 1
-				row  = 0
+#class PluginsGroup(CNCRibbon.ButtonGroup):
+#	def __init__(self, master, group, app):
+#		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
+#		self.grid3rows()
+#
+#		col,row=0,0
+#		# Find plugins in the plugins directory and load them
+#		for tool in app.tools.pluginList():
+#			if tool.group != group: continue
+#			# ===
+#			b = Ribbon.LabelRadiobutton(self.frame,
+#					image=Utils.icons[tool.icon],
+#					text=tool.name,
+#					compound=LEFT,
+#					anchor=W,
+#					variable=app.tools.active,
+#					value=tool.name,
+#					background=Ribbon._BACKGROUND)
+#			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+#			tkExtra.Balloon.set(b, tool.__doc__)
+#			self.addWidget(b)
+#
+#			row += 1
+#			if row==3:
+#				col += 1
+#				row  = 0
 
 #===============================================================================
 # Macros Groups based on plugins
 #===============================================================================
-class MacrosGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Macros"), app)
-
-class GeneratorGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Generator"), app)
-
-class ArtisticGroup(PluginsGroup):
-	def __init__(self, master, app):
-		PluginsGroup.__init__(self, master, N_("Artistic"), app)
+#class MacrosGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Macros"), app)
+#
+#class GeneratorGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Generator"), app)
+#
+#class ArtisticGroup(PluginsGroup):
+#	def __init__(self, master, app):
+#		PluginsGroup.__init__(self, master, N_("Artistic"), app)
 
 #===============================================================================
 # Config
@@ -1122,8 +1230,7 @@ class ArtisticGroup(PluginsGroup):
 class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		#CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app,
-			[(_("User File"), "about",    app.showUserFile)])
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app)
 		self.grid3rows()
 
 		# ===
@@ -1174,6 +1281,34 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		col,row = col+1,1
 		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["config"],
+				text=_("Config"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="CNC",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["arduino"],
+				text=_("Controller"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Controller",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
+		self.addWidget(b)
+
+		# ===
+		col,row = col+1,1
+		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
 				text=_("Fonts"),
 				compound=LEFT,
@@ -1188,20 +1323,6 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config"],
-				text=_("Machine"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="CNC",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
-		self.addWidget(b)
-
-		# ===
-		col,row = col+1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["shortcut"],
 				text=_("Shortcuts"),
 				compound=LEFT,
@@ -1212,20 +1333,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
 		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["event"],
-				text=_("Events"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Events",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Events configuration"))
-		self.addWidget(b)
+#
+#		# ---
+#		row += 1
+#		b = Ribbon.LabelRadiobutton(self.frame,
+#				image=Utils.icons["event"],
+#				text=_("Events"),
+#				compound=LEFT,
+#				anchor=W,
+#				variable=app.tools.active,
+#				value="Events",
+#				background=Ribbon._BACKGROUND)
+#		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+#		tkExtra.Balloon.set(b, _("Events configuration"))
+#		self.addWidget(b)
 
 	#----------------------------------------------------------------------
 	def fillLanguage(self):
@@ -1245,6 +1366,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 					_("Please restart the program."),
 					parent=self.winfo_toplevel())
 				return
+
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0)
+		menu.add_radiobutton(
+				label=_("Events"),
+				image=Utils.icons["event"], compound=LEFT,
+				variable=self.app.tools.active,
+				value="Events")
+		menu.add_command(
+				label=_("User File"),
+				image=Utils.icons["about"], compound=LEFT,
+				command=self.app.showUserFile)
+		return menu
 
 #==============================================================================
 # Tools Frame
@@ -1266,7 +1401,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.tools.addButton("exe",b)
 
 		self.toolList = tkExtra.MultiListbox(self,
-					((_("Name"), 16, None),
+					((_("Name"),  24, None),
 					 (_("Value"), 24, None)),
 					 header = False,
 					 stretch = "last",
@@ -1290,6 +1425,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def change(self, a=None, b=None, c=None):
 		tool = self.tools.getActive()
+		tool.beforeChange(self.app)
 		tool.populate()
 		tool.update()
 		self.tools.activateButtons(tool)
@@ -1345,8 +1481,8 @@ class ToolsPage(CNCRibbon.Page):
 		self._register(
 			(DataBaseGroup,
 			CAMGroup,
-			GeneratorGroup,
-			ArtisticGroup,
+			#GeneratorGroup,
+			#ArtisticGroup,
 			#MacrosGroup,
 			ConfigGroup), (ToolsFrame,))
 

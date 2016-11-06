@@ -145,7 +145,8 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
-			[(_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
+			[(_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
+			 (_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True))
 			])
@@ -238,24 +239,12 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("(Un)Comment selected lines"))
 		self.addWidget(b)
 
-		# ---
-		col,row=3,1
-		b = Ribbon.LabelButton(self.frame, self.app, "<<ChangeColor>>",
-				image=Utils.icons["color"],
-				text=_("Color"),
-				compound=LEFT,
-				anchor=W,
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Change color for block of g-code"))
-		self.addWidget(b)
-
 #===============================================================================
 # Move Group
 #===============================================================================
-class MoveGroup(CNCRibbon.ButtonGroup):
+class MoveGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Move"), app)
+		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Move"), app)
 		self.grid3rows()
 
 		# ===
@@ -273,142 +262,37 @@ class MoveGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Move objects [M]"))
 		self.addWidget(b)
 
-		# ===
-		col += 1
-		row = 0
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["TL"],
-				text=_("T-L"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE TL",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Top-Left corner"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["LC"],
-				text=_("L"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE LC",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Left side"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["BL"],
-				text=_("B-L"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE BL",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Bottom-Left corner"))
-		self.addWidget(b)
-
-		# ====
-		col += 1
-		row = 0
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["TC"],
-				text=_("Top"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE TC",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Top side"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["center"],
-				text=_("Center"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE CENTER",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to center"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["BC"],
-				text=_("Bottom"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE BC",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Bottom side"))
-		self.addWidget(b)
-
-		# ===
-		col += 1
-		row = 0
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["TR"],
-				text=_("T-R"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE TR",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Top-Right corner"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["RC"],
-				text=_("R"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE RC",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Right side"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["BR"],
-				text=_("B-R"),
-				compound=LEFT,
-				anchor=W,
-				command=lambda s=app:s.insertCommand("MOVE BR",True),
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Move origin of g-code to Bottom-Right corner"))
-		self.addWidget(b)
-
 		# ---
 		col += 1
-		row = 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["origin"],
+				image=Utils.icons["origin32"],
 				text=_("Origin"),
-				compound=LEFT,
+				compound=TOP,
 				anchor=W,
 				variable=app.canvas.actionVar,
 				value=ACTION_ORIGIN,
 				command=app.canvas.setActionOrigin,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Move all gcode such as origin is on mouse location [O]"))
 		self.addWidget(b)
 
+	#----------------------------------------------------------------------
+	def createMenu(self):
+		menu = Menu(self, tearoff=0)
+		for i,n,c in (  ("TL",     _("Top-Left"),    "MOVE TL"),
+				("LC",     _("Left"),        "MOVE LC"),
+				("BL",     _("Bottom-Left"), "MOVE BL"),
+				("TC",     _("Top"),         "MOVE TC"),
+				("center", _("Center"),      "MOVE CENTER"),
+				("BC",     _("Bottom"),      "MOVE BC"),
+				("TR",     _("Top-Right"),   "MOVE TR"),
+				("RC",     _("Right"),       "MOVE RC"),
+				("BR",     _("Bottom-Right"),"MOVE BR")):
+			menu.add_command(label=n,
+					image=Utils.icons[i], compound=LEFT,
+					command=lambda a=self.app,c=c:a.insertCommand(c,True))
+		return menu
 
 #===============================================================================
 # Order Group

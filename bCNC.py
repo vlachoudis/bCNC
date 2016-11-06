@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.6"
-__date__    = "24 Aug 2016"
+__version__ = "0.9.7"
+__date__    = "3 Nov 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -2065,6 +2065,7 @@ class Application(Toplevel,Sender):
 	# @return true if the compile has to abort
 	#-----------------------------------------------------------------------
 	def checkStop(self):
+		if self._stop: print "CHECK STOP"
 		try:
 			self.update()	# very tricky function of Tk
 		except TclError:
@@ -2209,7 +2210,7 @@ class Application(Toplevel,Sender):
 				msg, line = self.log.get_nowait()
 				line = line.rstrip("\n")
 				inserted = True
-#				print "<<<",msg,line,"\n" in line
+				#print "<<<",msg,line,"\n" in line
 
 				if msg == Sender.MSG_BUFFER:
 					self.buffer.insert(END, line)

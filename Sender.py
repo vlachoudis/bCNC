@@ -34,8 +34,29 @@ WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
 SERIAL_POLL   = 0.125	# s
 G_POLL	      = 10	# s
-
 RX_BUFFER_SIZE = 128
+
+OV_FEED_100     = chr(0x90)        # Extended override commands
+OV_FEED_i10     = chr(0x91)
+OV_FEED_d10     = chr(0x92)
+OV_FEED_i1      = chr(0x93)
+OV_FEED_d1      = chr(0x94)
+
+OV_RAPID_100    = chr(0x95)
+OV_RAPID_50     = chr(0x96)
+OV_RAPID_25     = chr(0x97)
+
+OV_SPINDLE_100  = chr(0x99)
+OV_SPINDLE_i10  = chr(0x9A)
+OV_SPINDLE_d10  = chr(0x9B)
+OV_SPINDLE_i1   = chr(0x9C)
+OV_SPINDLE_d1   = chr(0x9D)
+
+OV_SPINDLE_STOP = chr(0x9E)
+
+OV_FLOOD_TOGGLE = chr(0xA0)
+OV_MIST_TOGGLE  = chr(0xA1)
+
 
 GPAT	  = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -43,8 +64,8 @@ POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
-
 SPLITPAT  = re.compile(r"[:,]")
+VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
@@ -809,29 +830,80 @@ class Sender:
 	def serialIO(self):
 		cline  = []		# length of pipeline commands
 		sline  = []		# pipeline commands
-		wait   = False		# wait for commands to complete
+		wait   = False		# wait for commands to complete (status change to Idle)
 		tosend = None		# next string to send
 		status = False		# waiting for status <...> report
 		tr = tg = time.time()	# last time a ? or $G was send to grbl
 
 		while self.thread:
 			t = time.time()
-
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
 				self.serial.write(b"?")
 				status = True
 				tr = t
 
+				#If Override change, attach feed
+				if CNC.vars["_OvChanged"] and self.controller == Utils.GRBL1:
+					CNC.vars["_OvChanged"] = False	# Temporary
+					# Check feed
+					diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
+					if diff==0:
+						pass
+					elif CNC.vars["_OvFeed"] == 100:
+						self.serial.write(OV_FEED_100)
+					elif diff >= 10:
+						self.serial.write(OV_FEED_i10)
+						CNC.vars["_OvChanged"] = diff>10
+					elif diff <= -10:
+						self.serial.write(OV_FEED_d10)
+						CNC.vars["_OvChanged"] = diff<-10
+					elif diff >= 1:
+						self.serial.write(OV_FEED_i1)
+						CNC.vars["_OvChanged"] = diff>1
+					elif diff <= -1:
+						self.serial.write(OV_FEED_d1)
+						CNC.vars["_OvChanged"] = diff<-1
+					# Check rapid
+					target  = CNC.vars["_OvRapid"]
+					current = CNC.vars["OvRapid"]
+					if target == current:
+						pass
+					elif target == 100:
+						self.serial.write(OV_RAPID_100)
+					elif target == 75:
+						self.serial.write(OV_RAPID_50)	# FIXME
+					elif target == 50:
+						self.serial.write(OV_RAPID_50)
+					elif target == 25:
+						self.serial.write(OV_RAPID_25)
+					# Check Spindle
+					diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
+					if diff==0:
+						pass
+					elif CNC.vars["_OvSpindle"] == 100:
+						self.serial.write(OV_SPINDLE_100)
+					elif diff >= 10:
+						self.serial.write(OV_SPINDLE_i10)
+						CNC.vars["_OvChanged"] = diff>10
+					elif diff <= -10:
+						self.serial.write(OV_SPINDLE_d10)
+						CNC.vars["_OvChanged"] = diff<-10
+					elif diff >= 1:
+						self.serial.write(OV_SPINDLE_i1)
+						CNC.vars["_OvChanged"] = diff>1
+					elif diff <= -1:
+						self.serial.write(OV_SPINDLE_d1)
+						CNC.vars["_OvChanged"] = diff<-1
+
 			# Fetch new command to send if...
 			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					#print "+++",repr(tosend)
-
 					if isinstance(tosend, tuple):
 						#print "gcount tuple=",self._gcount
-						# wait to empty the grbl buffer
+						# wait to empty the grbl buffer and status is Idle
 						if tosend[0] == WAIT:
 							# Don't count WAIT until we are idle!
 							wait = True
@@ -884,24 +956,24 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					#If Override change, attach feed
-					if CNC.vars["overrideChanged"]:
-						CNC.vars["overrideChanged"] = False
-						self._newFeed = float(self._lastFeed)*CNC.vars["override"]/100.0
-						if pat is None and self._newFeed!=0:
-							tosend = "f%g" % (self._newFeed) + tosend
+					if self.controller == Utils.GRBL0:
+						if CNC.vars["_OvChanged"]:
+							CNC.vars["_OvChanged"] = False
+							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
+							if pat is None and self._newFeed!=0:
+								tosend = "f%g" % (self._newFeed) + tosend
 
-					#Apply override Feed
-					if CNC.vars["override"] != 100 and self._newFeed!=0:
-						pat = FEEDPAT.match(tosend)
-						if pat is not None:
-							try:
-								tosend = "%sf%g%s\n" % \
-									(pat.group(1),
-									 self._newFeed,
-									 pat.group(3))
-							except:
-								pass
+						#Apply override Feed
+						if CNC.vars["_OvFeed"] != 100 and self._newFeed!=0:
+							pat = FEEDPAT.match(tosend)
+							if pat is not None:
+								try:
+									tosend = "%sf%g%s\n" % \
+										(pat.group(1),
+										 self._newFeed,
+										 pat.group(3))
+								except:
+									pass
 
 					# Bookkeeping of the buffers
 					sline.append(tosend)
@@ -942,13 +1014,18 @@ class Sender:
 								CNC.vars["planner"] = int(word[1])
 								CNC.vars["rxbytes"] = int(word[2])
 							elif word[0] == "Ov":
-								CNC.vars["Ovfeed"]    = int(word[1])
-								CNC.vars["Ovrapid"]   = int(word[2])
-								CNC.vars["Ovspindle"] = int(word[2])
+								CNC.vars["OvFeed"]    = int(word[1])
+								CNC.vars["OvRapid"]   = int(word[2])
+								CNC.vars["OvSpindle"] = int(word[2])
 							elif word[0] == "WCO":
 								CNC.vars["wcox"] = float(word[1])
 								CNC.vars["wcoy"] = float(word[2])
 								CNC.vars["wcoz"] = float(word[3])
+
+						# Machine is Idle buffer is empty stop waiting and go on
+						if wait and not cline and fields[0]=="Idle":
+							wait = False
+							self._gcount += 1
 
 					else:
 						status = False
@@ -959,17 +1036,14 @@ class Sender:
 							CNC.vars["mx"] = float(pat.group(2))
 							CNC.vars["my"] = float(pat.group(3))
 							CNC.vars["mz"] = float(pat.group(4))
-
 							CNC.vars["wx"] = float(pat.group(5))
 							CNC.vars["wy"] = float(pat.group(6))
 							CNC.vars["wz"] = float(pat.group(7))
-
 							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
 							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
 							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-
 							self._posUpdate = True
-							if pat.group(1) != "Hold" and self._msg:
+							if pat.group(1)[:4] != "Hold" and self._msg:
 								self._msg = None
 
 							# Machine is Idle buffer is empty
@@ -1001,7 +1075,7 @@ class Sender:
 							self._probeUpdate = True
 							CNC.vars[word[0]] = word[1:]
 						elif word[0] == "GC":
-							CNC.vars["G"] = word[1:]
+							CNC.vars["G"] = word[1].split()
 							CNC.updateG()
 							self._gUpdate = True
 						elif word[0] == "TLO":
@@ -1021,11 +1095,9 @@ class Sender:
 									 CNC.vars["prbx"]
 									+CNC.vars["wx"]
 									-CNC.vars["mx"],
-
 									 CNC.vars["prby"]
 									+CNC.vars["wy"]
 									-CNC.vars["my"],
-
 									 CNC.vars["prbz"]
 									+CNC.vars["wz"]
 									-CNC.vars["mz"])
@@ -1068,6 +1140,12 @@ class Sender:
 						# turn off alarm for connected status once
 						# a valid gcode event occurs
 						self._alarm = False
+
+				elif line[0] == "$":
+					self.log.put((Sender.MSG_RECEIVE, line))
+					pat = VARPAT.match(line)
+					if pat:
+						CNC.vars["grbl_%s"%(pat.group(1))] = pat.group(2)
 
 				elif line[:4]=="Grbl" or line[:13]=="CarbideMotion": # and self.running:
 					tg = time.time()

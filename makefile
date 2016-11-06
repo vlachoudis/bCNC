@@ -4,7 +4,7 @@ SOURCES = *.py lib/*.py plugins/*.py
 pot: ${NAME}.pot
 
 ${NAME}.pot: ${SOURCES}
-	xgettext --from-code --keyword=N_ -d ${NAME} -o $@ $^
+	xgettext --from-code=UTF-8 --keyword=N_ -d ${NAME} -o $@ $^
 	#pygettext.py -k N_ -d ${NAME} -o $@ $^
 
 tags:
