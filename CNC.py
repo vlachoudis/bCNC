@@ -2375,6 +2375,7 @@ class GCode:
 			path.removeZeroLength()
 			if path.color is None:
 				path.color = layer.color()
+			if path.color == "#FFFFFF": path.color = None
 			opath = path.split2contours()
 			if not opath: continue
 			while opath:

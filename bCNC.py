@@ -1876,12 +1876,12 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
 		if self.running: return
+		fn, ext = os.path.splitext(Utils.getUtf("File", "file"))
+		if ext in (".dxf", ".DXF"): ext = ".ngc"
 		filename = bFileDialog.asksaveasfilename(master=self,
-			title=_("Save file"),
-			initialfile=os.path.join(
-					Utils.getUtf("File", "dir"),
-					Utils.getUtf("File", "file")),
-			filetypes=FILETYPES)
+				title=_("Save file"),
+				initialfile=os.path.join(Utils.getUtf("File", "dir"), fn+ext),
+				filetypes=FILETYPES)
 		if filename: self.save(filename)
 		return "break"
 
