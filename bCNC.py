@@ -2298,7 +2298,7 @@ class Application(Toplevel,Sender):
 					CNC.vars["color"] = STATECOLOR["Alarm"]
 				else:
 					CNC.vars["color"] = STATECOLORDEF
-			self._pause = (state=="Hold")
+			self._pause = ("Hold" in state)
 			self.dro.updateState()
 			self.dro.updateCoords()
 			self.canvas.gantry(CNC.vars["wx"],
