@@ -730,7 +730,6 @@ class CNC:
 					# for feed override testing
 					# FIXME will not be needed after Grbl v1.0
 
-
 	#----------------------------------------------------------------------
 	def __init__(self):
 		self.initPath()

@@ -2103,7 +2103,8 @@ class Application(Toplevel,Sender):
 		self._gcount   = 0		# count executed lines
 		self._selectI  = 0		# last selection pointer in items
 		self._paths    = None		# temporary
-		CNC.vars["running"] = True
+		CNC.vars["running"]    = True	# enable running status
+		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		if self._onStart:
 			try:
 				os.system(self._onStart)

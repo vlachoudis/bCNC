@@ -611,6 +611,7 @@ class Sender:
 		self.openClose()
 		self.stopProbe()
 		self._alarm = False
+		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.notBusy()
 
 	#----------------------------------------------------------------------
@@ -622,6 +623,7 @@ class Sender:
 		#		self.serial.write(b"reset\n")
 		self.stopProbe()
 		self._alarm = False
+		CNC.vars["_OvChanged"] = True	# force a feed change if any
 
 	#----------------------------------------------------------------------
 	def unlock(self):
