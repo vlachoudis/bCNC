@@ -650,55 +650,71 @@ class CNC:
 	developer      = False
 	drozeropad     = 0
 	vars           = {
-			"prbx"      : 0.0,
-			"prby"      : 0.0,
-			"prbz"      : 0.0,
-			"prbcmd"    : "G38.2",
-			"prbfeed"   : 10.,
-			"errline"   : "",
-			"wx"        : 0.0,
-			"wy"        : 0.0,
-			"wz"        : 0.0,
-			"mx"        : 0.0,
-			"my"        : 0.0,
-			"mz"        : 0.0,
-			"_camwx"    : 0.0,
-			"_camwy"    : 0.0,
-			"G"         : [],
-			"TLO"       : 0.0,
-			"motion"    : "G0",
-			"WCS"       : "G54",
-			"plane"     : "G17",
-			"feedmode"  : "G94",
-			"distance"  : "G90",
-			"arc"       : "G91.1",
-			"units"     : "G20",
-			"cutter"    : "",
-			"tlo"       : "",
-			"program"   : "M0",
-			"spindle"   : "M5",
-			"coolant"   : "M9",
+			"prbx"       : 0.0,
+			"prby"       : 0.0,
+			"prbz"       : 0.0,
+			"prbcmd"     : "G38.2",
+			"prbfeed"    : 10.,
+			"errline"    : "",
+			"wx"         : 0.0,
+			"wy"         : 0.0,
+			"wz"         : 0.0,
+			"mx"         : 0.0,
+			"my"         : 0.0,
+			"mz"         : 0.0,
+			"wcox"       : 0.0,
+			"wcoy"       : 0.0,
+			"wcoz"       : 0.0,
+			"curfeed"    : 0.0,
+			"curspindle" : 0.0,
+			"_camwx"     : 0.0,
+			"_camwy"     : 0.0,
+			"G"          : [],
+			"TLO"        : 0.0,
+			"motion"     : "G0",
+			"WCS"        : "G54",
+			"plane"      : "G17",
+			"feedmode"   : "G94",
+			"distance"   : "G90",
+			"arc"        : "G91.1",
+			"units"      : "G20",
+			"cutter"     : "",
+			"tlo"        : "",
+			"program"    : "M0",
+			"spindle"    : "M5",
+			"coolant"    : "M9",
 
-			"tool"      : 0,
-			"feed"      : 0.0,
-			"rpm"       : 0.0,
+			"tool"       : 0,
+			"feed"       : 0.0,
+			"rpm"        : 0.0,
 
-			"override"  : 100,
-			"overrideChanged"  : False,
-			"diameter"  : 3.175,	# Tool diameter
-			"cutfeed"   : 1000.,	# Material feed for cutting
-			"cutfeedz"  : 500.,	# Material feed for cutting
-			"safe"      : 3.,
-			"state"     : "",
-			"msg"       : "",
-			"stepz"     : 1.,
-			"surface"   : 0.,
-			"thickness" : 5.,
-			"stepover"  : 40.,
+			"planner"    : 0,
+			"rxbytes"    : 0,
 
-			"PRB"
-			"TLO"       : 0.,
-			"running"   : False,
+			"OvFeed"     : 100,	# Override status
+			"OvRapid"    : 100,
+			"OvSpindle"  : 100,
+			"_OvChanged" : False,
+			"_OvFeed"    : 100,	# Override target values
+			"_OvRapid"   : 100,
+			"_OvSpindle" : 100,
+
+			"diameter"   : 3.175,	# Tool diameter
+			"cutfeed"    : 1000.,	# Material feed for cutting
+			"cutfeedz"   : 500.,	# Material feed for cutting
+			"safe"       : 3.,
+			"state"      : "",
+			"msg"        : "",
+			"stepz"      : 1.,
+			"surface"    : 0.,
+			"thickness"  : 5.,
+			"stepover"   : 40.,
+
+			"PRB"        : None,
+			"TLO"        : 0.,
+
+			"version"    : "",
+			"running"    : False,
 		}
 
 	drillPolicy    = 1		# Expand Canned cycles
@@ -713,7 +729,6 @@ class CNC:
 	appendFeed	   = False	# append feed on every G1/G2/G3 commands to be used
 					# for feed override testing
 					# FIXME will not be needed after Grbl v1.0
-
 
 	#----------------------------------------------------------------------
 	def __init__(self):
@@ -1227,6 +1242,9 @@ class CNC:
 					elif decimal == 1:
 						self.arcabsolute = False
 
+				elif gcode in (93,94,95):
+					CNC.vars["feedmode"] = gcode
+
 				elif gcode==98:
 					self.retractz = True
 
@@ -1548,8 +1566,15 @@ class CNC:
 			block.rapid += length
 		else:
 			try:
-				block.time += length / self.feed
-				self.totalTime += length / self.feed
+				if CNC.vars["feedmode"] == 94:
+					# Normal mode
+					t = length / self.feed
+				elif CNC.vars["feedmode"] == 93:
+					# Inverse mode
+					t = length * self.feed
+
+				block.time += t
+				self.totalTime += t
 			except:
 				pass
 			block.length += length
@@ -2349,6 +2374,7 @@ class GCode:
 			path.removeZeroLength()
 			if path.color is None:
 				path.color = layer.color()
+			if path.color == "#FFFFFF": path.color = None
 			opath = path.split2contours()
 			if not opath: continue
 			while opath:

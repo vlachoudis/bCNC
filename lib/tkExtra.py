@@ -2792,7 +2792,7 @@ class PopupList(Toplevel):
 # Combobox
 #=============================================================================
 class Combobox(Frame):
-	def __init__(self, master, label=True, *args, **kwargs):
+	def __init__(self, master, label=True, **kwargs):
 		Frame.__init__(self, master, class_="Combobox")
 		Frame.config(self, padx=0, pady=0)
 
@@ -2801,12 +2801,13 @@ class Combobox(Frame):
 			del kwargs["command"]
 		else:
 			self.command = None
-
 		# Create entry and button
 		if label:
-			self._text = Label(self, relief=GROOVE, anchor=W, *args, **kwargs)
+			cnf = {"relief":GROOVE, "anchor":W}
+			cnf.update(kwargs)
+			self._text = Label(self, **cnf)
 		else:
-			self._text = Entry(self, *args, **kwargs)
+			self._text = Entry(self, **kwargs)
 		self._text.pack(side=LEFT, expand=YES, fill=BOTH)
 
 		# Arrow button
@@ -2849,10 +2850,12 @@ class Combobox(Frame):
 		# Create the listbox inside the dropdown window
 		sb = Scrollbar(self._popup)
 		sb.pack(side=RIGHT, fill=Y)
+		for k in ("anchor","justify"):
+			try: del kwargs[k]
+			except KeyError: pass
 		self._listbox = SearchListbox(self._popup,
 					selectmode=BROWSE,
 					yscrollcommand=sb.set,
-					*args,
 					**kwargs)
 		self._listbox.pack(side=LEFT, expand=YES, fill=BOTH)
 		sb.config(command=self._listbox.yview)

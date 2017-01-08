@@ -55,7 +55,7 @@ class Box:
 		self.init()
 
 	#----------------------------------------------------------------------
-	# Set number of tooths (use odd values)
+	# Set number of tooth's (use odd values)
 	#----------------------------------------------------------------------
 	def setNTeeth(self, nx, ny, nz):
 		if nx > 0:
@@ -304,6 +304,7 @@ class Tool(Plugin):
 		self.group = "Generator"
 		self.variables = [
 			("name",      "db",    "", _("Name")),
+			("internal","bool",     1, _("Internal Dimensions")),
 			("dx",        "mm", 100.0, _("Width Dx")),
 			("dy",        "mm",  70.0, _("Depth Dy")),
 			("dz",        "mm",  50.0, _("Height Dz")),
@@ -318,7 +319,14 @@ class Tool(Plugin):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		box = Box(self.fromMm("dx"),self.fromMm("dy"),self.fromMm("dz"))
+		dx = self.fromMm("dx")
+		dy = self.fromMm("dy")
+		dz = self.fromMm("dz")
+		if not self["internal"]:
+			dx = -dx
+			dy = -dy
+			dz = -dz
+		box = Box(dx,dy,dz)
 		box.name  = self["name"]
 		if box.name == "default": box.name = "Box"
 		box.thick = app.cnc["thickness"]

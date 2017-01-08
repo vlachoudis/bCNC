@@ -546,6 +546,7 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def changePath(self, path):
+		if path[-1] != os.sep: path += os.sep
 		path = os.path.abspath(path)
 		try: os.lstat(path)
 		except OSError:
@@ -783,7 +784,7 @@ class FileDialog(Toplevel):
 		pat = self.typeCombo.get()
 		self.filter = self.filetypes.get(pat,None)
 		self.fill()
-		if self.filter is None: return
+		if self.filter is None or self.seldir: return
 
 		# Change extension if needed
 		first = None

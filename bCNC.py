@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.6"
-__date__    = "24 Aug 2016"
+__version__ = "0.9.7"
+__date__    = "3 Nov 2016"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -1880,12 +1880,12 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
 		if self.running: return
+		fn, ext = os.path.splitext(Utils.getUtf("File", "file"))
+		if ext in (".dxf", ".DXF"): ext = ".ngc"
 		filename = bFileDialog.asksaveasfilename(master=self,
-			title=_("Save file"),
-			initialfile=os.path.join(
-					Utils.getUtf("File", "dir"),
-					Utils.getUtf("File", "file")),
-			filetypes=FILETYPES)
+				title=_("Save file"),
+				initialfile=os.path.join(Utils.getUtf("File", "dir"), fn+ext),
+				filetypes=FILETYPES)
 		if filename: self.save(filename)
 		return "break"
 
@@ -2069,6 +2069,7 @@ class Application(Toplevel,Sender):
 	# @return true if the compile has to abort
 	#-----------------------------------------------------------------------
 	def checkStop(self):
+		if self._stop: print "CHECK STOP"
 		try:
 			self.update()	# very tricky function of Tk
 		except TclError:
@@ -2106,7 +2107,8 @@ class Application(Toplevel,Sender):
 		self._gcount   = 0		# count executed lines
 		self._selectI  = 0		# last selection pointer in items
 		self._paths    = None		# temporary
-		CNC.vars["running"] = True
+		CNC.vars["running"]    = True	# enable running status
+		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		if self._onStart:
 			try:
 				os.system(self._onStart)
@@ -2213,7 +2215,7 @@ class Application(Toplevel,Sender):
 				msg, line = self.log.get_nowait()
 				line = line.rstrip("\n")
 				inserted = True
-#				print "<<<",msg,line,"\n" in line
+				#print "<<<",msg,line,"\n" in line
 
 				if msg == Sender.MSG_BUFFER:
 					self.buffer.insert(END, line)
@@ -2293,7 +2295,6 @@ class Application(Toplevel,Sender):
 		# Update position if needed
 		if self._posUpdate:
 			state = CNC.vars["state"]
-			#print state
 			#print Sender.ERROR_CODES[state]
 			try:
 				CNC.vars["color"] = STATECOLOR[state]
@@ -2302,7 +2303,7 @@ class Application(Toplevel,Sender):
 					CNC.vars["color"] = STATECOLOR["Alarm"]
 				else:
 					CNC.vars["color"] = STATECOLORDEF
-			self._pause = (state=="Hold")
+			self._pause = ("Hold" in state)
 			self.dro.updateState()
 			self.dro.updateCoords()
 			self.canvas.gantry(CNC.vars["wx"],
@@ -2311,6 +2312,9 @@ class Application(Toplevel,Sender):
 					   CNC.vars["mx"],
 					   CNC.vars["my"],
 					   CNC.vars["mz"])
+			if state=="Run":
+				self.gstate.updateFeed()
+				#self.xxx.updateSpindle()
 			self._posUpdate = False
 
 		# Update status string

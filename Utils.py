@@ -40,7 +40,6 @@ hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 __builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).gettext
 __builtin__.N_ = lambda message: message
 
-
 import Ribbon
 import tkExtra
 
@@ -82,9 +81,12 @@ _maxRecent   = 10
 
 _FONT_SECTION = "Font"
 
-GRBL       = 0
-SMOOTHIE   = 1
-CONTROLLER = {"Grbl":0, "Smoothie":1}
+GRBL0      = 0
+GRBL1      = 1
+SMOOTHIE   = 10
+CONTROLLER = {	"Grbl-V0"  : GRBL0,
+		"Grbl"     : GRBL1,
+		"Smoothie" : SMOOTHIE}
 
 #------------------------------------------------------------------------------
 def loadIcons():

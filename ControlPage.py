@@ -30,6 +30,8 @@ _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
 
+OVERRIDES = ["Feed", "Rapid", "Spindle"]
+
 #===============================================================================
 # Connection Group
 #===============================================================================
@@ -577,18 +579,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.step = tkExtra.Combobox(self, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
-		self.step.fill(["0.001",
-				"0.005",
-				"0.01",
-				"0.05",
-				"0.1",
-				"0.5",
-				"1",
-				"5",
-				"10",
-				"50",
-				"100",
-				"500"])
+		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
@@ -598,15 +589,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.zstep = tkExtra.Combobox(self, width=1, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
-			self.zstep.fill(["0.001",
-					"0.005",
-					"0.01",
-					"0.05",
-					"0.1",
-					"0.5",
-					"1",
-					"5",
-					"10"])
+			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 		except:
@@ -971,7 +954,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		Label(f, text=_("Feed:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.feedRate = tkExtra.FloatEntry(f, background="White", width=5)
+		self.feedRate = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
 		self.feedRate.grid(row=row, column=col, sticky=EW)
 		self.feedRate.bind('<Return>',   self.setFeedRate)
 		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
@@ -1013,25 +996,26 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.spindleSpeed = IntVar()
 
 		col,row=0,0
-		b = Button(f,	text=_("Feed\nOverride:"),
-				command=self.resetOverride,
-				padx=1,
-				pady=0,
-				justify=CENTER)
-		b.grid(row=row, column=col, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Reset Feed Override to 100%"))
+		self.overrideCombo = tkExtra.Combobox(f, width=8, command=self.overrideComboChange)
+		self.overrideCombo.fill(OVERRIDES)
+		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
 
 		col += 1
-		b = Scale(f,
-				command=self.overrideControl,
+		self.overrideScale = Scale(f,
+				command=self.overrideChange,
 				variable=self.override,
 				showvalue=True,
 				orient=HORIZONTAL,
 				from_=25,
 				to_=200,
-				resolution=5)
-		b.grid(row=row, column=col, columnspan=4, sticky=EW)
-		tkExtra.Balloon.set(b, _("Set Feed Override"))
+				resolution=1)
+		self.overrideScale.bind("<Double-1>", self.resetOverride)
+		self.overrideScale.bind("<Button-3>", self.resetOverride)
+		self.overrideScale.grid(row=row, column=col, columnspan=4, sticky=EW)
+		tkExtra.Balloon.set(self.overrideScale, _("Set Feed/Rapid/Spindle Override. Right or Double click to reset."))
+
+		self.overrideCombo.set(OVERRIDES[0])
 
 		# ---
 		row += 1
@@ -1062,14 +1046,26 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		f.grid_columnconfigure(1, weight=1)
 
 	#----------------------------------------------------------------------
-	def overrideControl(self, event=None):
-		CNC.vars["override"] = self.override.get()
-		CNC.vars["overrideChanged"] = True
+	def overrideChange(self, event=None):
+		n = self.overrideCombo.get()
+		c = self.override.get()
+		CNC.vars["_Ov"+n] = c
+		CNC.vars["_OvChanged"] = True
 
 	#----------------------------------------------------------------------
 	def resetOverride(self, event=None):
 		self.override.set(100)
-		self.overrideControl()
+		self.overrideChange()
+
+	#----------------------------------------------------------------------
+	def overrideComboChange(self):
+		n = self.overrideCombo.get()
+		if n=="Rapid":
+			self.overrideScale.config(to_=100, resolution=25)
+		else:
+			self.overrideScale.config(to_=200, resolution=1)
+
+		self.override.set(CNC.vars["_Ov"+n])
 
 	#----------------------------------------------------------------------
 	def _gChange(self, value, dictionary):
@@ -1142,6 +1138,14 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.plane.set(PLANE[CNC.vars["plane"]])
 
 		self._gUpdate = False
+
+	#----------------------------------------------------------------------
+	def updateFeed(self):
+		if self.feedRate.cget("state") == DISABLED:
+			self.feedRate.config(state=NORMAL)
+			self.feedRate.delete(0,END)
+			self.feedRate.insert(0, CNC.vars["curfeed"])
+			self.feedRate.config(state=DISABLED)
 
 	#----------------------------------------------------------------------
 	def wcsChange(self):

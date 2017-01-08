@@ -747,41 +747,31 @@ class DXF:
 	# Very bad!!
 	#----------------------------------------------------------------------
 	def readVertex(self, entity):
-		entity[10] = []
-		entity[20] = []
-		entity[30] = []
-		entity[42] = []
+		entity[10] = [0.0]
+		entity[20] = [0.0]
+		entity[30] = [0.0]
+		entity[42] = [0.0]
 
-		x = 0.
-		y = 0.
-		z = 0.
-		bulge = None
 		while True:
 			tag,value = self.read()
 			#print tag,value
 			if tag is None: return
 			if tag==0:
-				if bulge is None:
-					entity[42].append(0)
-				else:
-					bulge = None
-
 				if value == "SEQEND":
 					# Vertex sequence end
 					tag,value = self.read()
 					if tag!=8: self.push(tag,value)
-					# Correct bulge
-					if not entity[42]: entity[42] = 0
 					return
-				elif value != "VERTEX":
+				elif value == "VERTEX":
+					entity[10].append(0.0)
+					entity[20].append(0.0)
+					entity[30].append(0.0)
+					entity[42].append(0.0)
+				else:
 					raise Exception("Entity %s found in wrong context"%(value))
 
-			elif tag in (10,20,30):
-				entity[tag].append(value)
-
-			elif tag == 42:
-				bulge = value
-				entity[tag].append(value)
+			elif tag in (10, 20, 30, 42):
+				entity[tag][-1] = value
 
 	#----------------------------------------------------------------------
 	# Read and return one entity
@@ -793,6 +783,7 @@ class DXF:
 		else:
 			entity = Entity(value)
 
+		n = 0	# counter of vertices
 		while True:
 			tag,value = self.read()
 			#print tag,value
@@ -808,12 +799,24 @@ class DXF:
 				entity.name = str(value)
 			else:
 				existing = entity.get(tag)
-				if existing is None:
+
+				if tag == 42 and entity.type=="LWPOLYLINE":
+					# Replace last value
+					entity[42][-1] = value
+				elif existing is None:
 					entity[tag] = value
 				elif isinstance(existing,list):
 					existing.append(value)
 				else:
 					entity[tag] = [existing, value]
+
+				# Synchronize optional bulge with number of vertices
+				if tag == 10 and entity.type=="LWPOLYLINE":
+					bulge = entity.get(42)
+					if bulge is None:
+						entity[42] = [0.0]
+					else:
+						entity[42].append(0.0)
 
 	#----------------------------------------------------------------------
 	# Read entities section

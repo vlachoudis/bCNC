@@ -45,7 +45,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 		self.grid3rows()
 
 		# Disable state for some SMOOTHIE commands
-		state=app.controller==Utils.GRBL and NORMAL or DISABLED,
+		state=app.controller in (Utils.GRBL0, Utils.GRBL1) and NORMAL or DISABLED,
 
 		# ---
 		col,row=0,0
