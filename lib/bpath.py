@@ -541,6 +541,16 @@ class Path(list):
 		return "%s:\n\t%s"%(self.name, "\n\t".join(["%3d: %s"%(i,x) for i,x in enumerate(self)]))
 
 	#----------------------------------------------------------------------
+	def calcBBox(self):
+		self.minx = self.miny =  1E10
+		self.maxx = self.maxy = -1E10
+		for segment in self:
+			self.minx = min(self.minx, segment.minx)
+			self.miny = min(self.miny, segment.miny)
+			self.maxx = max(self.maxx, segment.maxx)
+			self.maxy = max(self.maxy, segment.maxy)
+
+	#----------------------------------------------------------------------
 	# @return true if path is closed
 	#----------------------------------------------------------------------
 	def isClosed(self):

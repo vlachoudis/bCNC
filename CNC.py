@@ -1203,7 +1203,9 @@ class CNC:
 				decimal = int(round((value - gcode)*10))
 
 				# Execute immediately
-				if gcode==17:
+				if gcode in (4,10,53):
+					pass	# do nothing but don't record to motion
+				elif gcode==17:
 					self.plane = XY
 
 				elif gcode==18:
