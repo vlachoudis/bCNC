@@ -2139,6 +2139,7 @@ class CanvasFrame(Frame):
 		self.drawTime.fill(["inf", "1", "2", "3", "5", "10", "20", "30", "60", "120"])
 		self.drawTime.set(DRAW_TIME)
 		self.drawTime.pack(side=RIGHT)
+		Label(toolbar, text="Timeout:").pack(side=RIGHT)
 
 	#----------------------------------------------------------------------
 	def redraw(self, event=None):
