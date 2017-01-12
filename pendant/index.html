@@ -1,10 +1,10 @@
 <html>
 <head>
 <title>bCNC Pendant</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 <link rel="stylesheet" type="text/css" href="pure-min.css" />
 <script type="text/javascript" src="jquery-2.1.4.min.js" ></script>
-<!--<script type="text/javascript" src="fastclick.js"></script>-->
+<script type="text/javascript" src="fastclick.js"></script>
 
 <script type="text/javascript">
 	/* set up all functions */
@@ -213,7 +213,7 @@
 	$(document).ready(function ()
 	{
 		//set up fast click to handle mobile browser delay
-		//FastClick.attach(document.body);
+		FastClick.attach(document.body);
 
 		sendGcode("$#\n$G\n");
 		getConfig();
@@ -314,7 +314,7 @@
 	</div>
 	<div class="pure-g">
 		<div class="pure-u-1-6">
-			<select id="step" style="padding: 0; margin: 0; width: 100%; height: 7%">
+			<select id="step" class="needsclick" style="padding: 0; margin: 0; width: 100%">
 				<option value="0.001">0.001</option>
 				<option value="0.005">0.005</option>
 				<option value="0.01">0.01</option>
