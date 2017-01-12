@@ -1030,27 +1030,6 @@ class Sender:
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0]=="Idle":
-							""" Modified not merged
-							CNC.vars["state"] = pat.group(1)
-						CNC.vars["mx"] = float(pat.group(2))
-						CNC.vars["my"] = float(pat.group(3))
-						CNC.vars["mz"] = float(pat.group(4))
-						CNC.vars["me"] = float(pat.group(5) or 0.0)
-						CNC.vars["wx"] = float(pat.group(6))
-						CNC.vars["wy"] = float(pat.group(7))
-						CNC.vars["wz"] = float(pat.group(8))
-						CNC.vars["we"] = float(pat.group(9) or 0.0)
-						self._posUpdate = True
-						if pat.group(1) != "Hold" and self._msg:
-							self._msg = None
-
-						# Machine is Idle buffer is empty
-						# stop waiting and go on
-						#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
-						#print ">>>", line
-						if wait and not cline and pat.group(1)=="Idle":
-							#print ">>>",line
-							"""
 							wait = False
 							self._gcount += 1
 
@@ -1098,15 +1077,6 @@ class Sender:
 							CNC.vars["prby"] = float(word[2])
 							CNC.vars["prbz"] = float(word[3])
 							CNC.vars["prbe"] = float(word[4])
-							""" Modified and not merged
-					pat = POSPAT.match(line)
-					if pat:
-						if pat.group(1) == "PRB":
-							CNC.vars["prbx"] = float(pat.group(2))
-							CNC.vars["prby"] = float(pat.group(3))
-							CNC.vars["prbz"] = float(pat.group(4))
-							CNC.vars["prbe"] = float(pat.group(5) or 0.0)
-							"""
 							#if self.running:
 							self.gcode.probe.add(
 								 CNC.vars["prbx"]-CNC.vars["wcox"],
@@ -1130,6 +1100,7 @@ class Sender:
 								CNC.vars["prbx"] = float(pat.group(2))
 								CNC.vars["prby"] = float(pat.group(3))
 								CNC.vars["prbz"] = float(pat.group(4))
+								CNC.vars["prbe"] = float(pat.group(5) or 0.0)
 								#if self.running:
 								self.gcode.probe.add(
 									 CNC.vars["prbx"]
