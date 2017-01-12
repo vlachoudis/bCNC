@@ -941,8 +941,12 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		col,row=0,0
 		self.overrideCombo = tkExtra.Combobox(f, width=8, command=self.overrideComboChange)
 		self.overrideCombo.fill(OVERRIDES)
-		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=EW)
 		tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
+
+		b = Button(f, text="Reset", pady=0, command=self.resetOverride)
+		b.grid(row=row+1, column=col, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Reset override to 100%"))
 
 		col += 1
 		self.overrideScale = Scale(f,
@@ -955,13 +959,13 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				resolution=1)
 		self.overrideScale.bind("<Double-1>", self.resetOverride)
 		self.overrideScale.bind("<Button-3>", self.resetOverride)
-		self.overrideScale.grid(row=row, column=col, columnspan=4, sticky=EW)
+		self.overrideScale.grid(row=row, column=col, rowspan=2, columnspan=4, sticky=EW)
 		tkExtra.Balloon.set(self.overrideScale, _("Set Feed/Rapid/Spindle Override. Right or Double click to reset."))
 
 		self.overrideCombo.set(OVERRIDES[0])
 
 		# ---
-		row += 1
+		row += 2
 		col = 0
 		b = Checkbutton(f, text=_("Spindle"),
 				image=Utils.icons["spinningtop"],
