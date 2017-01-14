@@ -240,7 +240,7 @@ class CNCListbox(Listbox):
 
 		#self.selection_set(ACTIVE)
 		#self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Clone selected blocks
@@ -272,7 +272,7 @@ class CNCListbox(Listbox):
 		else:
 			self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -301,7 +301,7 @@ class CNCListbox(Listbox):
 		self.yview_moveto(ypos)
 		self.selection_set(ACTIVE)
 		self.see(ACTIVE)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Edit active item
@@ -355,7 +355,7 @@ class CNCListbox(Listbox):
 				self.itemconfig(active, foreground=DISABLE_COLOR)
 
 		self.yview_moveto(ypos)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# return active block id
@@ -407,7 +407,7 @@ class CNCListbox(Listbox):
 		self.see(active)
 		self.activate(active)
 		self.edit()
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Insert a new line below cursor
@@ -464,7 +464,7 @@ class CNCListbox(Listbox):
 				self._blockPos[i] += 1	# shift all blocks below by one
 
 		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	def toggleKey(self,event=None):
@@ -479,7 +479,7 @@ class CNCListbox(Listbox):
 			self.activate(self._blockPos[bid])
 			self.selection_set(ACTIVE)
 			self.see(ACTIVE)
-			self.event_generate("<<ListboxSelect>>")
+			self.winfo_toplevel().event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
 	# Button1 clicked
@@ -590,7 +590,7 @@ class CNCListbox(Listbox):
 			self.activate(active)
 			self.see(active)
 
-		self.event_generate("<<Status>>",data="Toggled Expand of selected objects")
+		self.winfo_toplevel().event_generate("<<Status>>",data="Toggled Expand of selected objects")
 
 	# ----------------------------------------------------------------------
 	def _toggleEnable(self, enable=None):
@@ -627,24 +627,24 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			self.activate(active)
 			self.yview_moveto(ypos)
-			self.event_generate("<<ListboxSelect>>")
+			self.winfo_toplevel().event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
 	def enable(self, event=None):
 		self._toggleEnable(True)
-		self.event_generate("<<Status>>",data="Enabled selected objects")
+		self.winfo_toplevel().event_generate("<<Status>>",data="Enabled selected objects")
 
 	# ----------------------------------------------------------------------
 	def disable(self, event=None):
 		self._toggleEnable(False)
-		self.event_generate("<<Status>>",data="Disabled selected objects")
+		self.winfo_toplevel().event_generate("<<Status>>",data="Disabled selected objects")
 
 	# ----------------------------------------------------------------------
 	# toggle state enable/disable
 	# ----------------------------------------------------------------------
 	def toggleEnable(self, event=None):
 		self._toggleEnable()
-		self.event_generate("<<Status>>",data="Toggled Visibility of selected objects")
+		self.winfo_toplevel().event_generate("<<Status>>",data="Toggled Visibility of selected objects")
 
 	# ----------------------------------------------------------------------
 	# change color of a block
@@ -652,7 +652,7 @@ class CNCListbox(Listbox):
 	def changeColor(self, event=None):
 		items = list(map(int,self.curselection()))
 		if not items:
-			self.event_generate("<<Status>>",data="Nothing is selected")
+			self.winfo_toplevel().event_generate("<<Status>>",data="Nothing is selected")
 			return
 
 		# Find initial color
@@ -681,8 +681,8 @@ class CNCListbox(Listbox):
 			self.gcode.addUndo(undoinfo)
 			for bid in blocks:
 				self.gcode[bid].color = color
-			self.event_generate("<<Modified>>")
-		self.event_generate("<<Status>>",data="Changed color of block")
+			self.winfo_toplevel().event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Status>>",data="Changed color of block")
 
 	# ----------------------------------------------------------------------
 	# Select items in the form of (block, item)
@@ -853,7 +853,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderUp(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -865,7 +865,7 @@ class CNCListbox(Listbox):
 		sel = self.gcode.orderDown(items)
 		self.fill()
 		self.select(sel,clear=True,toggle=False)
-		self.event_generate("<<Modified>>")
+		self.winfo_toplevel().event_generate("<<Modified>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
