@@ -337,19 +337,19 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		col += 1
 		self.probeXdir = tkExtra.FloatEntry(lframe(), background="White")
-		self.probeXdir.grid(row=row, column=col, sticky=EW+S)
+		self.probeXdir.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeXdir, _("Probe along X direction"))
 		self.addWidget(self.probeXdir)
 
 		col += 1
 		self.probeYdir = tkExtra.FloatEntry(lframe(), background="White")
-		self.probeYdir.grid(row=row, column=col, sticky=EW+S)
+		self.probeYdir.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeYdir, _("Probe along Y direction"))
 		self.addWidget(self.probeYdir)
 
 		col += 1
 		self.probeZdir = tkExtra.FloatEntry(lframe(), background="White")
-		self.probeZdir.grid(row=row, column=col, sticky=EW+S)
+		self.probeZdir.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeZdir, _("Probe along Z direction"))
 		self.addWidget(self.probeZdir)
 
