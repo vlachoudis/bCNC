@@ -196,16 +196,30 @@ class Application(Toplevel,Sender):
 			self.pages[page.name] = page
 
 		# then add their properties (in separate loop)
+		errors = []
 		for name,page in self.pages.items():
 			for n in Utils.getStr(Utils.__prg__,"%s.ribbon"%(page.name)).split():
-				page.addRibbonGroup(n)
+				try:
+					page.addRibbonGroup(n)
+				except KeyError:
+					errors.append(n)
 
 			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
 				last = n[-1]
-				if last == "*":
-					page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
-				else:
-					page.addPageFrame(n)
+				try:
+					if last == "*":
+						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+					else:
+						page.addPageFrame(n)
+				except KeyError:
+					errors.append(n)
+
+		if errors:
+			tkMessageBox.showwarning("bCNC configuration",
+					"The following pages \"%s\" are found in your " \
+					"${HOME}/.bCNC initialization " \
+					"file, which are either spelled wrongly or " \
+					"no longer exist in bCNC"%(" ".join(errors)),parent=self)
 
 		# remember the editor list widget
 		self.dro      = Page.frames["DRO"]
