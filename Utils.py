@@ -56,9 +56,10 @@ __translations__ = \
 		"French - @ThierryM\n" \
 		"German - @feistus\n" \
 		"Italian - @onekk\n" \
+		"Japanese - @stm32f1\n" \
 		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
-		"Spanish - @carlosgs"
+		"Spanish - @carlosgs\n"
 
 LANGUAGES = {
 		""      : "<system>",
@@ -67,6 +68,7 @@ LANGUAGES = {
 		"es"    : u"Espa\u00f1ol",
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
+		"ja"    : "Japanese",
 		"pt_BR" : "Brazilian - Portuguese",
 		"ru"    : "Russian",
 	}
