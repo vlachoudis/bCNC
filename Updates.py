@@ -64,7 +64,7 @@ class CheckUpdateDialog(Toplevel):
 		self.published = Label(frame, anchor=W)
 		self.published.grid(row=2, column=1, sticky=EW)
 		tkExtra.Balloon.set(self.published,
-			_("Published date of the latest github relase"))
+			_("Published date of the latest github release"))
 
 		frame.grid_columnconfigure(1, weight=1)
 
