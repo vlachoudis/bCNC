@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-15 21:11+0100\n"
+"POT-Creation-Date: 2017-01-22 12:57+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,74 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: Updates.py:47
-msgid "Installed Version:"
-msgstr ""
-
-#: Updates.py:52
-msgid "Running version of bCNC"
-msgstr ""
-
-#: Updates.py:54
-msgid "Latest Github Version:"
-msgstr ""
-
-#: Updates.py:60
-msgid "Latest release version on on github"
-msgstr ""
-
-#: Updates.py:61
-msgid "Published at:"
-msgstr ""
-
-#: Updates.py:67
-msgid "Published date of the latest github relase"
-msgstr ""
-
-#: Updates.py:72
-msgid "Check Interval"
-msgstr ""
-
-#: Updates.py:75
-msgid "Last Check:"
-msgstr ""
-
-#: Updates.py:87
-msgid "Date of last checking"
-msgstr ""
-
-#: Updates.py:89
-msgid "Interval (days):"
-msgstr ""
-
-#: Updates.py:100
-msgid "Days-interval to remind again for checking"
-msgstr ""
-
-#: Updates.py:105 Utils.py:454 FilePage.py:201 bCNC.py:845 bCNC.py:1050
-#: bCNC.py:2037
-msgid "Close"
-msgstr ""
-
-#: Updates.py:111
-msgid "Check Now"
-msgstr ""
-
-#: Updates.py:117
-msgid "Check the web site for new versions of bCNC"
-msgstr ""
-
-#: Updates.py:149
-msgid "Download"
-msgstr ""
-
-#: Updates.py:152
-msgid "Open web browser to download bCNC"
-msgstr ""
-
-#: Updates.py:157
-#, python-format
-msgid "Error %d in connection"
+#: CNCList.py:663 EditorPage.py:148
+msgid "Color"
 msgstr ""
 
 #: Sender.py:95
@@ -968,6 +902,11 @@ msgstr ""
 msgid "Automatic error reporting"
 msgstr ""
 
+#: Utils.py:454 bCNC.py:859 bCNC.py:1064 bCNC.py:2051 Updates.py:105
+#: FilePage.py:201
+msgid "Close"
+msgstr ""
+
 #: Utils.py:458
 msgid "Send report"
 msgstr ""
@@ -1035,133 +974,321 @@ msgstr ""
 msgid "Ok"
 msgstr ""
 
-#: FilePage.py:57 FilePage.py:304
-msgid "File"
+#: ControlPage.py:40
+msgid "Connection"
 msgstr ""
 
-#: FilePage.py:64
-msgid "New"
+#: ControlPage.py:41
+msgid "Hard Reset"
 msgstr ""
 
-#: FilePage.py:68
-msgid "New gcode/dxf file"
+#: ControlPage.py:48
+msgid "Home"
 msgstr ""
 
-#: FilePage.py:77
-msgid "Open existing gcode/dxf file [Ctrl-O]"
+#: ControlPage.py:54
+msgid "Perform a homing cycle [$H]"
 msgstr ""
 
-#: FilePage.py:82 FilePage.py:279 bCNC.py:2029 lib/bFileDialog.py:320
-#: lib/bFileDialog.py:871 lib/bFileDialog.py:975
-msgid "Open"
+#: ControlPage.py:61
+msgid "Unlock"
 msgstr ""
 
-#: FilePage.py:87
-msgid "Open recent file"
+#: ControlPage.py:67
+msgid "Unlock controller [$X]"
 msgstr ""
 
-#: FilePage.py:97
-msgid "Save gcode/dxf file [Ctrl-S]"
+#: ControlPage.py:73
+msgid "Reset"
 msgstr ""
 
-#: FilePage.py:102 lib/bFileDialog.py:905
-msgid "Save"
+#: ControlPage.py:79
+msgid "Software reset of controller [ctrl-x]"
 msgstr ""
 
-#: FilePage.py:107
-msgid "Save gcode/dxf AS"
-msgstr ""
-
-#: FilePage.py:115
-msgid "Options"
-msgstr ""
-
-#: FilePage.py:141
-msgid "Send Error Report"
-msgstr ""
-
-#: FilePage.py:146
-msgid "Updates"
-msgstr ""
-
-#: FilePage.py:153
-msgid "Check Updates"
-msgstr ""
-
-#: FilePage.py:157
-msgid "About"
-msgstr ""
-
-#: FilePage.py:164
-msgid "About the program"
-msgstr ""
-
-#: FilePage.py:171 bCNC.py:2181 bCNC.py:2185 bCNC.py:2198
-msgid "Pendant"
-msgstr ""
-
-#: FilePage.py:176 ControlPage.py:108
+#: ControlPage.py:108 FilePage.py:176
 msgid "Start"
 msgstr ""
 
-#: FilePage.py:183
-msgid "Start pendant"
+#: ControlPage.py:112
+msgid "Run g-code commands from editor to controller"
 msgstr ""
 
-#: FilePage.py:187 ControlPage.py:125
+#: ControlPage.py:117
+msgid "Pause"
+msgstr ""
+
+#: ControlPage.py:121
+msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+msgstr ""
+
+#: ControlPage.py:125 FilePage.py:187
 msgid "Stop"
 msgstr ""
 
-#: FilePage.py:194
-msgid "Stop pendant"
+#: ControlPage.py:129
+msgid "Pause running program and soft reset controller to empty the buffer."
 msgstr ""
 
-#: FilePage.py:205
-msgid "Exit"
+#: ControlPage.py:148
+msgid "Status:"
 msgstr ""
 
-#: FilePage.py:212
-msgid "Close program [Ctrl-Q]"
+#: ControlPage.py:159
+msgid ""
+"Show current state of the machine\n"
+"Click to see details\n"
+"Right-Click to clear alarm/errors"
 msgstr ""
 
-#: FilePage.py:225
-msgid "Port:"
+#: ControlPage.py:167
+msgid "WPos:"
 msgstr ""
 
-#: FilePage.py:231
-msgid "Select (or manual enter) port to connect"
+#: ControlPage.py:177
+msgid "X work position (click to set)"
 msgstr ""
 
-#: FilePage.py:240
-msgid "Baud:"
+#: ControlPage.py:190
+msgid "Y work position (click to set)"
 msgstr ""
 
-#: FilePage.py:245
-msgid "Select connection baud rate"
+#: ControlPage.py:203
+msgid "Z work position (click to set)"
 msgstr ""
 
-#: FilePage.py:252
-msgid "Controller:"
+#: ControlPage.py:211
+msgid "MPos:"
 msgstr ""
 
-#: FilePage.py:259
-msgid "Select controller board"
+#: ControlPage.py:234
+msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
 
-#: FilePage.py:266
-msgid "Connect on startup"
+#: ControlPage.py:243
+msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
 
-#: FilePage.py:269
-msgid "Connect to serial on startup of the program"
+#: ControlPage.py:252
+msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
 
-#: FilePage.py:284
-msgid "Open/Close serial port"
+#: ControlPage.py:258
+msgid "Set WPOS"
 msgstr ""
 
-#: FilePage.py:303
-msgid "File I/O and configuration"
+#: ControlPage.py:265
+msgid "Set WPOS to mouse location"
+msgstr ""
+
+#: ControlPage.py:269
+msgid "Move Gantry"
+msgstr ""
+
+#: ControlPage.py:276
+msgid "Move gantry to mouse location [g]"
+msgstr ""
+
+#: ControlPage.py:287
+msgid "Show Info"
+msgstr ""
+
+#: ControlPage.py:289
+msgid "Clear Message"
+msgstr ""
+
+#: ControlPage.py:293
+msgid "Feed hold"
+msgstr ""
+
+#: ControlPage.py:295
+msgid "Resume"
+msgstr ""
+
+#: ControlPage.py:411
+#, python-format
+msgid "Last error: %s\n"
+msgstr ""
+
+#: ControlPage.py:417
+msgid ""
+"No info available.\n"
+"Please contact the author."
+msgstr ""
+
+#: ControlPage.py:418
+#, python-format
+msgid "State: %s"
+msgstr ""
+
+#: ControlPage.py:445
+msgid "Move +Z"
+msgstr ""
+
+#: ControlPage.py:455
+msgid "Move -X +Y"
+msgstr ""
+
+#: ControlPage.py:464
+msgid "Move +Y"
+msgstr ""
+
+#: ControlPage.py:473
+msgid "Move +X +Y"
+msgstr ""
+
+#: ControlPage.py:482
+msgid "Multiply step by 10"
+msgstr ""
+
+#: ControlPage.py:491
+msgid "Increase step by 1 unit"
+msgstr ""
+
+#: ControlPage.py:506
+msgid "Move -X"
+msgstr ""
+
+#: ControlPage.py:515
+msgid ""
+"Move to Origin.\n"
+"User configurable button.\n"
+"Right click to configure."
+msgstr ""
+
+#: ControlPage.py:524
+msgid "Move +X"
+msgstr ""
+
+#: ControlPage.py:536
+msgid "Step for every move operation"
+msgstr ""
+
+#: ControlPage.py:546
+msgid "Step for Z move operation"
+msgstr ""
+
+#: ControlPage.py:576
+msgid "Move -Z"
+msgstr ""
+
+#: ControlPage.py:585
+msgid "Move -X -Y"
+msgstr ""
+
+#: ControlPage.py:594
+msgid "Move -Y"
+msgstr ""
+
+#: ControlPage.py:603
+msgid "Move +X -Y"
+msgstr ""
+
+#: ControlPage.py:611
+msgid "Divide step by 10"
+msgstr ""
+
+#: ControlPage.py:619
+msgid "Decrease step by 1 unit"
+msgstr ""
+
+#: ControlPage.py:696
+#, python-format
+msgid "Step: %g"
+msgstr ""
+
+#: ControlPage.py:701
+#, python-format
+msgid "Step: %g    Zstep:%g "
+msgstr ""
+
+#: ControlPage.py:825
+#, python-format
+msgid "Switch to workspace %s"
+msgstr ""
+
+#: ControlPage.py:831 ProbePage.py:1455
+msgid "Distance:"
+msgstr ""
+
+#: ControlPage.py:839
+msgid "Distance Mode [G90,G91]"
+msgstr ""
+
+#: ControlPage.py:849
+msgid "Units:"
+msgstr ""
+
+#: ControlPage.py:857
+msgid "Units [G20, G21]"
+msgstr ""
+
+#: ControlPage.py:864 CNCCanvas.py:2008
+msgid "Tool:"
+msgstr ""
+
+#: ControlPage.py:869
+msgid "Tool number [T#]"
+msgstr ""
+
+#: ControlPage.py:873 ControlPage.py:908 ProbePage.py:225
+msgid "set"
+msgstr ""
+
+#: ControlPage.py:881
+msgid "Plane:"
+msgstr ""
+
+#: ControlPage.py:889
+msgid "Plane [G17,G18,G19]"
+msgstr ""
+
+#: ControlPage.py:897
+msgid "Feed:"
+msgstr ""
+
+#: ControlPage.py:904
+msgid "Feed Rate [F#]"
+msgstr ""
+
+#: ControlPage.py:915
+msgid "Mode:"
+msgstr ""
+
+#: ControlPage.py:924
+msgid "Feed Mode [G93, G94, G95]"
+msgstr ""
+
+#: ControlPage.py:945
+msgid "Select override type."
+msgstr ""
+
+#: ControlPage.py:949
+msgid "Reset override to 100%"
+msgstr ""
+
+#: ControlPage.py:963
+msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
+msgstr ""
+
+#: ControlPage.py:970
+msgid "Spindle"
+msgstr ""
+
+#: ControlPage.py:978
+msgid "Start/Stop spindle (M3/M5)"
+msgstr ""
+
+#: ControlPage.py:989
+msgid "Set spindle RPM"
+msgstr ""
+
+#: ControlPage.py:1107
+msgid "CNC communication and control"
+msgstr ""
+
+#: ControlPage.py:1108
+msgid "Control"
 msgstr ""
 
 #: Ribbon.py:483
@@ -1254,10 +1381,6 @@ msgstr ""
 
 #: EditorPage.py:147
 msgid "Edit"
-msgstr ""
-
-#: EditorPage.py:148 CNCList.py:663
-msgid "Color"
 msgstr ""
 
 #: EditorPage.py:149
@@ -1372,7 +1495,7 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: EditorPage.py:303 bCNC.py:1442
+#: EditorPage.py:303 bCNC.py:1456
 msgid "Optimize"
 msgstr ""
 
@@ -1472,7 +1595,7 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: EditorPage.py:478 bCNC.py:890
+#: EditorPage.py:478 bCNC.py:904
 msgid "Statistics"
 msgstr ""
 
@@ -1614,10 +1737,6 @@ msgstr ""
 
 #: ProbePage.py:219
 msgid "Set tool offset for probing"
-msgstr ""
-
-#: ProbePage.py:225 ControlPage.py:873 ControlPage.py:908
-msgid "set"
 msgstr ""
 
 #: ProbePage.py:235
@@ -2010,10 +2129,6 @@ msgstr ""
 msgid "Get current gantry position as machine tool probe location"
 msgstr ""
 
-#: ProbePage.py:1455 ControlPage.py:831
-msgid "Distance:"
-msgstr ""
-
 #: ProbePage.py:1460
 msgid "After a tool change distance to scan starting from ProbeZ"
 msgstr ""
@@ -2132,10 +2247,6 @@ msgstr ""
 msgid "Fit to screen [F]"
 msgstr ""
 
-#: CNCCanvas.py:2008 ControlPage.py:864
-msgid "Tool:"
-msgstr ""
-
 #: CNCCanvas.py:2019
 msgid "Select tool [S]"
 msgstr ""
@@ -2196,7 +2307,7 @@ msgstr ""
 msgid "All accepted"
 msgstr ""
 
-#: bCNC.py:88 bCNC.py:1983
+#: bCNC.py:88 bCNC.py:1997
 msgid "G-Code"
 msgstr ""
 
@@ -2214,231 +2325,240 @@ msgid ""
 "or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
 msgstr ""
 
-#: bCNC.py:497
+#: bCNC.py:511
 msgid "Running"
 msgstr ""
 
-#: bCNC.py:498
+#: bCNC.py:512
 msgid "CNC is currently running, please stop it before."
 msgstr ""
 
-#: bCNC.py:699
+#: bCNC.py:713
 #, python-format
 msgid "About %s"
 msgstr ""
 
-#: bCNC.py:734
+#: bCNC.py:748
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
 msgstr ""
 
-#: bCNC.py:910
+#: bCNC.py:924
 msgid "Enabled GCode"
 msgstr ""
 
-#: bCNC.py:915 bCNC.py:988
+#: bCNC.py:929 bCNC.py:1002
 msgid "Margins X:"
 msgstr ""
 
-#: bCNC.py:948 bCNC.py:1021
+#: bCNC.py:962 bCNC.py:1035
 msgid "# Blocks:"
 msgstr ""
 
-#: bCNC.py:956 bCNC.py:1028
+#: bCNC.py:970 bCNC.py:1042
 msgid "Length:"
 msgstr ""
 
-#: bCNC.py:964
+#: bCNC.py:978
 msgid "Rapid:"
 msgstr ""
 
-#: bCNC.py:972 bCNC.py:1036
+#: bCNC.py:986 bCNC.py:1050
 msgid "Time:"
 msgstr ""
 
-#: bCNC.py:983
+#: bCNC.py:997
 msgid "All GCode"
 msgstr ""
 
-#: bCNC.py:1204
+#: bCNC.py:1218
 msgid "Evaluation error"
 msgstr ""
 
-#: bCNC.py:1279
+#: bCNC.py:1293
 msgid "Direction command error"
 msgstr ""
 
-#: bCNC.py:1280
+#: bCNC.py:1294
 #, python-format
 msgid "Invalid direction %s specified"
 msgstr ""
 
-#: bCNC.py:1443
+#: bCNC.py:1457
 msgid "Please select the blocks of gcode you want to optimize."
 msgstr ""
 
-#: bCNC.py:1586
+#: bCNC.py:1600
 #, python-format
 msgid "EndMill: %s %g"
 msgstr ""
 
-#: bCNC.py:1611
+#: bCNC.py:1625
 #, python-format
 msgid "Invalid user command %s"
 msgstr ""
 
-#: bCNC.py:1647
+#: bCNC.py:1661
 msgid "Nothing to do"
 msgstr ""
 
-#: bCNC.py:1648
+#: bCNC.py:1662
 #, python-format
 msgid "Operation %s requires some gcode to be selected"
 msgstr ""
 
-#: bCNC.py:1690
+#: bCNC.py:1704
 msgid "Operation error"
-msgstr ""
-
-#: bCNC.py:1731
-#, python-format
-msgid "Profile block distance=%g"
-msgstr ""
-
-#: bCNC.py:1744
-msgid "Open paths"
 msgstr ""
 
 #: bCNC.py:1745
 #, python-format
+msgid "Profile block distance=%g"
+msgstr ""
+
+#: bCNC.py:1758
+msgid "Open paths"
+msgstr ""
+
+#: bCNC.py:1759
+#, python-format
 msgid "WARNING: %s"
 msgstr ""
 
-#: bCNC.py:1866
+#: bCNC.py:1880
 msgid "Open file"
 msgstr ""
 
-#: bCNC.py:1882
+#: bCNC.py:1896
 msgid "Save file"
 msgstr ""
 
-#: bCNC.py:1891
+#: bCNC.py:1905
 msgid "File modified"
 msgstr ""
 
-#: bCNC.py:1892
+#: bCNC.py:1906
 msgid "Gcode was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1901
+#: bCNC.py:1915
 msgid "Probe File modified"
 msgstr ""
 
-#: bCNC.py:1902
+#: bCNC.py:1916
 msgid "Probe was modified do you want to save it first?"
 msgstr ""
 
-#: bCNC.py:1925
+#: bCNC.py:1939
 msgid "Existing Autolevel"
 msgstr ""
 
-#: bCNC.py:1926
+#: bCNC.py:1940
 msgid ""
 "Autolevel/probe information already exists.\n"
 "Delete it?"
 msgstr ""
 
-#: bCNC.py:1931
+#: bCNC.py:1945
 #, python-format
 msgid "Loading: %s ..."
 msgstr ""
 
-#: bCNC.py:1952
+#: bCNC.py:1966
 #, python-format
 msgid "'%s' reloaded at '%s'"
 msgstr ""
 
-#: bCNC.py:1954
+#: bCNC.py:1968
 #, python-format
 msgid "'%s' loaded"
 msgstr ""
 
-#: bCNC.py:1960
+#: bCNC.py:1974
 #, python-format
 msgid "'%s' saved"
 msgstr ""
 
-#: bCNC.py:1979
+#: bCNC.py:1993
 msgid "Import Gcode/DXF file"
 msgstr ""
 
-#: bCNC.py:2013
+#: bCNC.py:2027
 msgid "Warning"
 msgstr ""
 
-#: bCNC.py:2014
+#: bCNC.py:2028
 #, python-format
 msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
 msgstr ""
 
-#: bCNC.py:2049
+#: bCNC.py:2043 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
+#: lib/bFileDialog.py:871 lib/bFileDialog.py:975
+msgid "Open"
+msgstr ""
+
+#: bCNC.py:2063
 msgid "Error opening serial"
 msgstr ""
 
-#: bCNC.py:2080
+#: bCNC.py:2094
 msgid "Serial Error"
 msgstr ""
 
-#: bCNC.py:2081
+#: bCNC.py:2095
 msgid "Serial is not connected"
 msgstr ""
 
-#: bCNC.py:2088
+#: bCNC.py:2102
 msgid "Already running"
 msgstr ""
 
-#: bCNC.py:2089
+#: bCNC.py:2103
 msgid "Please stop before"
 msgstr ""
 
-#: bCNC.py:2135
+#: bCNC.py:2149
 msgid "Empty gcode"
 msgstr ""
 
-#: bCNC.py:2136
+#: bCNC.py:2150
 msgid "Not gcode file was loaded"
 msgstr ""
 
-#: bCNC.py:2164
+#: bCNC.py:2178
 msgid "Running..."
 msgstr ""
 
-#: bCNC.py:2182
+#: bCNC.py:2195 bCNC.py:2199 bCNC.py:2212 FilePage.py:171
+msgid "Pendant"
+msgstr ""
+
+#: bCNC.py:2196
 msgid "Pendant started:\n"
 msgstr ""
 
-#: bCNC.py:2186
+#: bCNC.py:2200
 msgid "Pendant already started:\n"
 msgstr ""
 
-#: bCNC.py:2188
+#: bCNC.py:2202
 msgid ""
 "\n"
 "Would you like open it locally?"
 msgstr ""
 
-#: bCNC.py:2198
+#: bCNC.py:2212
 msgid "Pendant stopped"
 msgstr ""
 
-#: bCNC.py:2506
+#: bCNC.py:2520
 msgid "python serial missing"
 msgstr ""
 
-#: bCNC.py:2507
+#: bCNC.py:2521
 msgid ""
 "ERROR: Please install the python pyserial module\n"
 "Windows:\n"
@@ -2449,301 +2569,181 @@ msgid ""
 "\tor dnf install python-pyserial"
 msgstr ""
 
-#: ControlPage.py:40
-msgid "Connection"
+#: Updates.py:47
+msgid "Installed Version:"
 msgstr ""
 
-#: ControlPage.py:41
-msgid "Hard Reset"
+#: Updates.py:52
+msgid "Running version of bCNC"
 msgstr ""
 
-#: ControlPage.py:48
-msgid "Home"
+#: Updates.py:54
+msgid "Latest Github Version:"
 msgstr ""
 
-#: ControlPage.py:54
-msgid "Perform a homing cycle [$H]"
+#: Updates.py:60
+msgid "Latest release version on on github"
 msgstr ""
 
-#: ControlPage.py:61
-msgid "Unlock"
+#: Updates.py:61
+msgid "Published at:"
 msgstr ""
 
-#: ControlPage.py:67
-msgid "Unlock controller [$X]"
+#: Updates.py:67
+msgid "Published date of the latest github release"
 msgstr ""
 
-#: ControlPage.py:73
-msgid "Reset"
+#: Updates.py:72
+msgid "Check Interval"
 msgstr ""
 
-#: ControlPage.py:79
-msgid "Software reset of controller [ctrl-x]"
+#: Updates.py:75
+msgid "Last Check:"
 msgstr ""
 
-#: ControlPage.py:112
-msgid "Run g-code commands from editor to controller"
+#: Updates.py:87
+msgid "Date of last checking"
 msgstr ""
 
-#: ControlPage.py:117
-msgid "Pause"
+#: Updates.py:89
+msgid "Interval (days):"
 msgstr ""
 
-#: ControlPage.py:121
-msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+#: Updates.py:100
+msgid "Days-interval to remind again for checking"
 msgstr ""
 
-#: ControlPage.py:129
-msgid "Pause running program and soft reset controller to empty the buffer."
+#: Updates.py:111
+msgid "Check Now"
 msgstr ""
 
-#: ControlPage.py:148
-msgid "Status:"
+#: Updates.py:117
+msgid "Check the web site for new versions of bCNC"
 msgstr ""
 
-#: ControlPage.py:159
-msgid ""
-"Show current state of the machine\n"
-"Click to see details\n"
-"Right-Click to clear alarm/errors"
+#: Updates.py:149
+msgid "Download"
 msgstr ""
 
-#: ControlPage.py:167
-msgid "WPos:"
+#: Updates.py:152
+msgid "Open web browser to download bCNC"
 msgstr ""
 
-#: ControlPage.py:177
-msgid "X work position (click to set)"
-msgstr ""
-
-#: ControlPage.py:190
-msgid "Y work position (click to set)"
-msgstr ""
-
-#: ControlPage.py:203
-msgid "Z work position (click to set)"
-msgstr ""
-
-#: ControlPage.py:211
-msgid "MPos:"
-msgstr ""
-
-#: ControlPage.py:234
-msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
-
-#: ControlPage.py:243
-msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
-
-#: ControlPage.py:252
-msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
-
-#: ControlPage.py:258
-msgid "Set WPOS"
-msgstr ""
-
-#: ControlPage.py:265
-msgid "Set WPOS to mouse location"
-msgstr ""
-
-#: ControlPage.py:269
-msgid "Move Gantry"
-msgstr ""
-
-#: ControlPage.py:276
-msgid "Move gantry to mouse location [g]"
-msgstr ""
-
-#: ControlPage.py:287
-msgid "Show Info"
-msgstr ""
-
-#: ControlPage.py:289
-msgid "Clear Message"
-msgstr ""
-
-#: ControlPage.py:293
-msgid "Feed hold"
-msgstr ""
-
-#: ControlPage.py:295
-msgid "Resume"
-msgstr ""
-
-#: ControlPage.py:411
+#: Updates.py:157
 #, python-format
-msgid "Last error: %s\n"
+msgid "Error %d in connection"
 msgstr ""
 
-#: ControlPage.py:417
-msgid ""
-"No info available.\n"
-"Please contact the author."
+#: FilePage.py:57 FilePage.py:304
+msgid "File"
 msgstr ""
 
-#: ControlPage.py:418
-#, python-format
-msgid "State: %s"
+#: FilePage.py:64
+msgid "New"
 msgstr ""
 
-#: ControlPage.py:445
-msgid "Move +Z"
+#: FilePage.py:68
+msgid "New gcode/dxf file"
 msgstr ""
 
-#: ControlPage.py:455
-msgid "Move -X +Y"
+#: FilePage.py:77
+msgid "Open existing gcode/dxf file [Ctrl-O]"
 msgstr ""
 
-#: ControlPage.py:464
-msgid "Move +Y"
+#: FilePage.py:87
+msgid "Open recent file"
 msgstr ""
 
-#: ControlPage.py:473
-msgid "Move +X +Y"
+#: FilePage.py:97
+msgid "Save gcode/dxf file [Ctrl-S]"
 msgstr ""
 
-#: ControlPage.py:482
-msgid "Multiply step by 10"
+#: FilePage.py:102 lib/bFileDialog.py:905
+msgid "Save"
 msgstr ""
 
-#: ControlPage.py:491
-msgid "Increase step by 1 unit"
+#: FilePage.py:107
+msgid "Save gcode/dxf AS"
 msgstr ""
 
-#: ControlPage.py:506
-msgid "Move -X"
+#: FilePage.py:115
+msgid "Options"
 msgstr ""
 
-#: ControlPage.py:515
-msgid ""
-"Move to Origin.\n"
-"User configurable button.\n"
-"Right click to configure."
+#: FilePage.py:141
+msgid "Send Error Report"
 msgstr ""
 
-#: ControlPage.py:524
-msgid "Move +X"
+#: FilePage.py:146
+msgid "Updates"
 msgstr ""
 
-#: ControlPage.py:536
-msgid "Step for every move operation"
+#: FilePage.py:153
+msgid "Check Updates"
 msgstr ""
 
-#: ControlPage.py:546
-msgid "Step for Z move operation"
+#: FilePage.py:157
+msgid "About"
 msgstr ""
 
-#: ControlPage.py:576
-msgid "Move -Z"
+#: FilePage.py:164
+msgid "About the program"
 msgstr ""
 
-#: ControlPage.py:585
-msgid "Move -X -Y"
+#: FilePage.py:183
+msgid "Start pendant"
 msgstr ""
 
-#: ControlPage.py:594
-msgid "Move -Y"
+#: FilePage.py:194
+msgid "Stop pendant"
 msgstr ""
 
-#: ControlPage.py:603
-msgid "Move +X -Y"
+#: FilePage.py:205
+msgid "Exit"
 msgstr ""
 
-#: ControlPage.py:611
-msgid "Divide step by 10"
+#: FilePage.py:212
+msgid "Close program [Ctrl-Q]"
 msgstr ""
 
-#: ControlPage.py:619
-msgid "Decrease step by 1 unit"
+#: FilePage.py:225
+msgid "Port:"
 msgstr ""
 
-#: ControlPage.py:696
-#, python-format
-msgid "Step: %g"
+#: FilePage.py:231
+msgid "Select (or manual enter) port to connect"
 msgstr ""
 
-#: ControlPage.py:701
-#, python-format
-msgid "Step: %g    Zstep:%g "
+#: FilePage.py:240
+msgid "Baud:"
 msgstr ""
 
-#: ControlPage.py:825
-#, python-format
-msgid "Switch to workspace %s"
+#: FilePage.py:245
+msgid "Select connection baud rate"
 msgstr ""
 
-#: ControlPage.py:839
-msgid "Distance Mode [G90,G91]"
+#: FilePage.py:252
+msgid "Controller:"
 msgstr ""
 
-#: ControlPage.py:849
-msgid "Units:"
+#: FilePage.py:259
+msgid "Select controller board"
 msgstr ""
 
-#: ControlPage.py:857
-msgid "Units [G20, G21]"
+#: FilePage.py:266
+msgid "Connect on startup"
 msgstr ""
 
-#: ControlPage.py:869
-msgid "Tool number [T#]"
+#: FilePage.py:269
+msgid "Connect to serial on startup of the program"
 msgstr ""
 
-#: ControlPage.py:881
-msgid "Plane:"
+#: FilePage.py:284
+msgid "Open/Close serial port"
 msgstr ""
 
-#: ControlPage.py:889
-msgid "Plane [G17,G18,G19]"
-msgstr ""
-
-#: ControlPage.py:897
-msgid "Feed:"
-msgstr ""
-
-#: ControlPage.py:904
-msgid "Feed Rate [F#]"
-msgstr ""
-
-#: ControlPage.py:915
-msgid "Mode:"
-msgstr ""
-
-#: ControlPage.py:924
-msgid "Feed Mode [G93, G94, G95]"
-msgstr ""
-
-#: ControlPage.py:945
-msgid "Select override type."
-msgstr ""
-
-#: ControlPage.py:949
-msgid "Reset override to 100%"
-msgstr ""
-
-#: ControlPage.py:963
-msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
-msgstr ""
-
-#: ControlPage.py:970
-msgid "Spindle"
-msgstr ""
-
-#: ControlPage.py:978
-msgid "Start/Stop spindle (M3/M5)"
-msgstr ""
-
-#: ControlPage.py:989
-msgid "Set spindle RPM"
-msgstr ""
-
-#: ControlPage.py:1107
-msgid "CNC communication and control"
-msgstr ""
-
-#: ControlPage.py:1108
-msgid "Control"
+#: FilePage.py:303
+msgid "File I/O and configuration"
 msgstr ""
 
 #: TerminalPage.py:25 TerminalPage.py:146

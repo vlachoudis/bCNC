@@ -5,18 +5,19 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: bCNC Japanese\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-21 23:51+0900\n"
-"PO-Revision-Date: 2017-01-22 02:14+0900\n"
-"Language-Team: \n"
+"POT-Creation-Date: 2017-01-22 12:41+0900\n"
+"PO-Revision-Date: 2017-01-22 15:36+0900\n"
+"Last-Translator: Yuki Shigeta <@stm32f1>\n"
+"Language-Team: hoge\n"
+"Language: ja_JP\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
-"Last-Translator: stm32f1 <e129.a1@gmail.com>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"Language: ja\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: Updates.py:47
 msgid "Installed Version:"
@@ -56,11 +57,11 @@ msgstr "前回の更新日"
 
 #: Updates.py:89
 msgid "Interval (days):"
-msgstr "更新の間隔"
+msgstr "更新の間隔 (日)"
 
 #: Updates.py:100
 msgid "Days-interval to remind again for checking"
-msgstr "更新通知の間隔(日)"
+msgstr "更新通知の間隔 (日)"
 
 #: Updates.py:105 Utils.py:454 FilePage.py:201 bCNC.py:845 bCNC.py:1050
 #: bCNC.py:2037
@@ -258,7 +259,7 @@ msgstr ""
 
 #: Sender.py:127
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
-msgstr ""
+msgstr "N lineの値が有効な範囲1 - 9,999,999に収まっていません."
 
 #: Sender.py:128
 msgid ""
@@ -271,6 +272,8 @@ msgid ""
 "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
 "are not supported."
 msgstr ""
+"Grblは,  G54-G59の6つの調整方法をサポートしていますが、 G59.1, G59.2, G59.3 "
+"には対応していません."
 
 #: Sender.py:130
 msgid ""
@@ -417,11 +420,11 @@ msgstr ""
 #: Sender.py:712 ControlPage.py:403
 #, python-format
 msgid "Set workspace %s to %s"
-msgstr ""
+msgstr "ワークスペースを %s から %s に切り替える"
 
 #: Sender.py:786
 msgid "Run ended"
-msgstr ""
+msgstr "実行終了"
 
 #: ToolsPage.py:500
 msgid "Units (inches)"
@@ -429,43 +432,43 @@ msgstr ""
 
 #: ToolsPage.py:501
 msgid "Lasercutter"
-msgstr ""
+msgstr "レーザーカッター"
 
 #: ToolsPage.py:502
 msgid "Acceleration x"
-msgstr ""
+msgstr "x軸 加速度"
 
 #: ToolsPage.py:503
 msgid "Acceleration y"
-msgstr ""
+msgstr "y軸 加速度"
 
 #: ToolsPage.py:504
 msgid "Acceleration z"
-msgstr ""
+msgstr "z軸 加速度"
 
 #: ToolsPage.py:505
 msgid "Feed max x"
-msgstr ""
+msgstr "x軸 最大送り速度"
 
 #: ToolsPage.py:506
 msgid "Feed max y"
-msgstr ""
+msgstr "y軸 最大送り速度"
 
 #: ToolsPage.py:507
 msgid "Feed max z"
-msgstr ""
+msgstr "z軸 最大送り速度"
 
 #: ToolsPage.py:508
 msgid "Travel x"
-msgstr ""
+msgstr "x軸 可動域"
 
 #: ToolsPage.py:509
 msgid "Travel y"
-msgstr ""
+msgstr "y軸 可動域"
 
 #: ToolsPage.py:510
 msgid "Travel z"
-msgstr ""
+msgstr "z軸 可動域"
 
 #: ToolsPage.py:511
 msgid "Decimal digits"
@@ -477,19 +480,19 @@ msgstr ""
 
 #: ToolsPage.py:513
 msgid "Start up"
-msgstr ""
+msgstr "開始"
 
 #: ToolsPage.py:514
 msgid "Spindle min (RPM)"
-msgstr ""
+msgstr "スピンドル 最低回転数 (RPM)"
 
 #: ToolsPage.py:515
 msgid "Spindle max (RPM)"
-msgstr ""
+msgstr "スピンドル 最高回転数 (RPM)"
 
 #: ToolsPage.py:516
 msgid "DRO Zero padding"
-msgstr ""
+msgstr "DRO"
 
 #: ToolsPage.py:517
 msgid "Header gcode"
@@ -797,55 +800,55 @@ msgstr ""
 
 #: ToolsPage.py:966
 msgid "Database"
-msgstr ""
+msgstr "データベース"
 
 #: ToolsPage.py:973
 msgid "Stock"
-msgstr ""
+msgstr "ストック"
 
 #: ToolsPage.py:980
 msgid "Stock material currently on machine"
-msgstr ""
+msgstr "現在の材料設定を保存する"
 
 #: ToolsPage.py:994
 msgid "Editable database of material properties"
-msgstr ""
+msgstr "材料の設定"
 
 #: ToolsPage.py:1008
 msgid "Editable database of EndMills properties"
-msgstr ""
+msgstr "エンドミルの設定"
 
 #: ToolsPage.py:1015
 msgid "Rename"
-msgstr ""
+msgstr "リネーム"
 
 #: ToolsPage.py:1020
 msgid "Edit name of current operation/object"
-msgstr ""
+msgstr "現在の 操作/オブジェクト の名称を変更"
 
 #: ToolsPage.py:1028 EditorPage.py:159 ProbePage.py:421
 msgid "Add"
-msgstr ""
+msgstr "追加"
 
 #: ToolsPage.py:1033
 msgid "Add a new operation/object"
-msgstr ""
+msgstr "新しい 操作/オブジェクト を追加"
 
 #: ToolsPage.py:1041 EditorPage.py:171
 msgid "Clone"
-msgstr ""
+msgstr "複製"
 
 #: ToolsPage.py:1046
 msgid "Clone selected operation/object"
-msgstr ""
+msgstr "選択された 操作/オブジェクト を複製"
 
 #: ToolsPage.py:1054 EditorPage.py:183 ProbePage.py:455
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 #: ToolsPage.py:1059
 msgid "Delete selected operation/object"
-msgstr ""
+msgstr "選択された 操作/オブジェクト を削除"
 
 #: ToolsPage.py:1068
 msgid "CAM"
@@ -853,31 +856,31 @@ msgstr ""
 
 #: ToolsPage.py:1075 EditorPage.py:46 plugins/box.py:316
 msgid "Cut"
-msgstr ""
+msgstr "カット"
 
 #: ToolsPage.py:1082
 msgid "Cut for the full stock thickness selected code"
-msgstr ""
+msgstr "選択された部分を切り取る"
 
 #: ToolsPage.py:1089 plugins/box.py:314
 msgid "Profile"
-msgstr ""
+msgstr "プロファイル"
 
 #: ToolsPage.py:1096
 msgid "Perform a profile operation on selected code"
-msgstr ""
+msgstr "選択された部分にポケット加工"
 
 #: ToolsPage.py:1103
 msgid "Pocket"
-msgstr ""
+msgstr "ポケット"
 
 #: ToolsPage.py:1110
 msgid "Perform a pocket operation on selected code"
-msgstr ""
+msgstr "選択された部分にポケット加工"
 
 #: ToolsPage.py:1117
 msgid "Drill"
-msgstr ""
+msgstr "ドリル"
 
 #: ToolsPage.py:1124
 msgid "Insert a drill cycle on current objects/location"
@@ -885,136 +888,136 @@ msgstr ""
 
 #: ToolsPage.py:1131
 msgid "Tabs"
-msgstr ""
+msgstr "タブ"
 
 #: ToolsPage.py:1138
 msgid "Insert holding tabs"
-msgstr ""
+msgstr "固定タブの挿入"
 
 #: ToolsPage.py:1234 ToolsPage.py:1286
 msgid "Config"
-msgstr ""
+msgstr "設定"
 
 #: ToolsPage.py:1249
 msgid "Change program language restart is required"
-msgstr ""
+msgstr "言語を変更 再起動が必要です"
 
 #: ToolsPage.py:1258 ProbePage.py:104 ProbePage.py:1115
 msgid "Camera"
-msgstr ""
+msgstr "カメラ"
 
 #: ToolsPage.py:1265
 msgid "Camera Configuration"
-msgstr ""
+msgstr "カメラ設定"
 
 #: ToolsPage.py:1272
 msgid "Colors"
-msgstr ""
+msgstr "色"
 
 #: ToolsPage.py:1279
 msgid "Color configuration"
-msgstr ""
+msgstr "色設定"
 
 #: ToolsPage.py:1293
 msgid "Machine configuration for bCNC"
-msgstr ""
+msgstr "bCNC用の装置設定"
 
 #: ToolsPage.py:1300
 msgid "Controller"
-msgstr ""
+msgstr "コントローラー"
 
 #: ToolsPage.py:1307
 msgid "Controller (GRBL) configuration"
-msgstr ""
+msgstr "コントローラー (GRBL) 設定"
 
 #: ToolsPage.py:1314
 msgid "Fonts"
-msgstr ""
+msgstr "フォント"
 
 #: ToolsPage.py:1321
 msgid "Font configuration"
-msgstr ""
+msgstr "フォント設定"
 
 #: ToolsPage.py:1328
 msgid "Shortcuts"
-msgstr ""
+msgstr "ショートカット"
 
 #: ToolsPage.py:1335
 msgid "Shortcuts configuration"
-msgstr ""
+msgstr "ショートカット設定"
 
 #: ToolsPage.py:1366
 msgid "Language change"
-msgstr ""
+msgstr "言語を変更"
 
 #: ToolsPage.py:1367
 msgid "Please restart the program."
-msgstr ""
+msgstr "ソフトを再起動してください"
 
 #: ToolsPage.py:1375
 msgid "Events"
-msgstr ""
+msgstr "イベント"
 
 #: ToolsPage.py:1380
 msgid "User File"
-msgstr ""
+msgstr "ユーザーファイル"
 
 #: ToolsPage.py:1393
 msgid "Execute"
-msgstr ""
+msgstr "実行"
 
 #: ToolsPage.py:1406
 msgid "Value"
-msgstr ""
+msgstr "値"
 
 #: ToolsPage.py:1474
 msgid "GCode manipulation tools and user plugins"
-msgstr ""
+msgstr "Gコードの操作ツール ユーザープラグイン"
 
 #: ToolsPage.py:1475
 msgid "Tools"
-msgstr ""
+msgstr "ツール"
 
 #: Utils.py:416
 msgid "Error Reporting"
-msgstr ""
+msgstr "エラー報告"
 
 #: Utils.py:419 FilePage.py:134
 msgid "Report"
-msgstr ""
+msgstr "報告"
 
 #: Utils.py:422
 #, python-format
 msgid "The following report is about to be send to the author of %s"
-msgstr ""
+msgstr "以下のレポートは作者 %s に送られます"
 
 #: Utils.py:437
 msgid "Your email"
-msgstr ""
+msgstr "メールアドレス"
 
 #: Utils.py:446
 msgid "Automatic error reporting"
-msgstr ""
+msgstr "自動エラー報告送信"
 
 #: Utils.py:458
 msgid "Send report"
-msgstr ""
+msgstr "報告する"
 
 #: Utils.py:524 Utils.py:534
 msgid "Error sending report"
-msgstr ""
+msgstr "送信に失敗"
 
 #: Utils.py:525
 msgid "There was a problem connecting to the web site"
-msgstr ""
+msgstr "webサイトへの接続に問題があります"
 
 #: Utils.py:529
 msgid "Report successfully send"
-msgstr ""
+msgstr "エラー報告の送信に成功しました"
 
 #: Utils.py:530
 msgid "Report was successfully uploaded to web site"
-msgstr ""
+msgstr "報告はウェブサイトに送信されました"
 
 #: Utils.py:535
 #, python-format
@@ -1022,26 +1025,28 @@ msgid ""
 "There was an error sending the report\n"
 "Code=%d %s"
 msgstr ""
+"報告の送信中にエラーが発生しました\n"
+"エラーコード=%d %s"
 
 #: Utils.py:642
 msgid "User configurable button"
-msgstr ""
+msgstr "ユーザーカスタムボタン"
 
 #: Utils.py:648
 msgid "Name:"
-msgstr ""
+msgstr "名称: "
 
 #: Utils.py:652
 msgid "Name to appear on button"
-msgstr ""
+msgstr "ボタンの名称"
 
 #: Utils.py:656
 msgid "Icon:"
-msgstr ""
+msgstr "アイコン:"
 
 #: Utils.py:668
 msgid "Icon to appear on button"
-msgstr ""
+msgstr "ボタンのアイコン"
 
 #: Utils.py:672
 msgid "Tool Tip:"
@@ -1053,40 +1058,40 @@ msgstr ""
 
 #: Utils.py:680 bCNC.py:157
 msgid "Command:"
-msgstr ""
+msgstr "コマンド:"
 
 #: Utils.py:692 lib/bFileDialog.py:344
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: Utils.py:693
 msgid "Ok"
-msgstr ""
+msgstr "決定"
 
 #: FilePage.py:57 FilePage.py:304
 msgid "File"
-msgstr ""
+msgstr "ファイル"
 
 #: FilePage.py:64
 msgid "New"
-msgstr ""
+msgstr "新規作成"
 
 #: FilePage.py:68
 msgid "New gcode/dxf file"
-msgstr ""
+msgstr "新規作成 gcode/dxf"
 
 #: FilePage.py:77
 msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr ""
+msgstr "既存の gcode/dxfファイルを開く [Ctrl-O]"
 
 #: FilePage.py:82 FilePage.py:279 bCNC.py:2029 lib/bFileDialog.py:320
 #: lib/bFileDialog.py:871 lib/bFileDialog.py:975
 msgid "Open"
-msgstr ""
+msgstr "開く"
 
 #: FilePage.py:87
 msgid "Open recent file"
-msgstr ""
+msgstr "履歴から開く"
 
 #: FilePage.py:97
 msgid "Save gcode/dxf file [Ctrl-S]"
@@ -1094,7 +1099,7 @@ msgstr ""
 
 #: FilePage.py:102 lib/bFileDialog.py:905
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: FilePage.py:107
 msgid "Save gcode/dxf AS"
@@ -1102,19 +1107,19 @@ msgstr ""
 
 #: FilePage.py:115
 msgid "Options"
-msgstr ""
+msgstr "設定"
 
 #: FilePage.py:141
 msgid "Send Error Report"
-msgstr ""
+msgstr "エラーを報告"
 
 #: FilePage.py:146
 msgid "Updates"
-msgstr ""
+msgstr "更新"
 
 #: FilePage.py:153
 msgid "Check Updates"
-msgstr ""
+msgstr "更新を確認"
 
 #: FilePage.py:157
 msgid "About"
@@ -1146,43 +1151,43 @@ msgstr ""
 
 #: FilePage.py:205
 msgid "Exit"
-msgstr ""
+msgstr "終了"
 
 #: FilePage.py:212
 msgid "Close program [Ctrl-Q]"
-msgstr ""
+msgstr "プログラムを終了 [Ctrl-Q]"
 
 #: FilePage.py:225
 msgid "Port:"
-msgstr ""
+msgstr "ポート:"
 
 #: FilePage.py:231
 msgid "Select (or manual enter) port to connect"
-msgstr ""
+msgstr "接続するポートを選択 (手動で入力) "
 
 #: FilePage.py:240
 msgid "Baud:"
-msgstr ""
+msgstr "ボーレート:"
 
 #: FilePage.py:245
 msgid "Select connection baud rate"
-msgstr ""
+msgstr "ボーレートを選択"
 
 #: FilePage.py:252
 msgid "Controller:"
-msgstr ""
+msgstr "コントローラー:"
 
 #: FilePage.py:259
 msgid "Select controller board"
-msgstr ""
+msgstr "コントローラーの種類を選択"
 
 #: FilePage.py:266
 msgid "Connect on startup"
-msgstr ""
+msgstr "起動時に接続"
 
 #: FilePage.py:269
 msgid "Connect to serial on startup of the program"
-msgstr ""
+msgstr "プログラムの起動時にシリアルに接続する"
 
 #: FilePage.py:284
 msgid "Open/Close serial port"
@@ -1194,63 +1199,63 @@ msgstr ""
 
 #: Ribbon.py:483
 msgid "New file"
-msgstr ""
+msgstr "新規ファイル"
 
 #: Ribbon.py:489
 msgid "Open file [Ctrl-O]"
-msgstr ""
+msgstr "ファイルを開く [Ctrl-O]"
 
 #: Ribbon.py:495
 msgid "Save all [Ctrl-S]"
-msgstr ""
+msgstr "ずべて保存 [Ctrl-S]"
 
 #: Ribbon.py:501
 msgid "Undo [Ctrl-Z]"
-msgstr ""
+msgstr "戻す [Ctrl-Z]"
 
 #: Ribbon.py:514
 msgid "Redo [Ctrl-Y]"
-msgstr ""
+msgstr "進む [Ctrl-Y]"
 
 #: Ribbon.py:525
 msgid "Help [F1]"
-msgstr ""
+msgstr "ヘルプ [F1]"
 
 #: EditorPage.py:29
 msgid "Clipboard"
-msgstr ""
+msgstr "クリップボード"
 
 #: EditorPage.py:35
 msgid "Paste"
-msgstr ""
+msgstr "貼り付け"
 
 #: EditorPage.py:40
 msgid "Paste [Ctrl-V]"
-msgstr ""
+msgstr "貼り付け [ctrl-V]"
 
 #: EditorPage.py:51
 msgid "Cut [Ctrl-X]"
-msgstr ""
+msgstr "切り取り [Ctrl-X]"
 
 #: EditorPage.py:58
 msgid "Copy"
-msgstr ""
+msgstr "コピー"
 
 #: EditorPage.py:63
 msgid "Copy [Ctrl-C]"
-msgstr ""
+msgstr "コピー [Ctrl-C]"
 
 #: EditorPage.py:72
 msgid "Select"
-msgstr ""
+msgstr "選択"
 
 #: EditorPage.py:79 bCNC.py:95
 msgid "All"
-msgstr ""
+msgstr "すべて"
 
 #: EditorPage.py:84
 msgid "Select all blocks [Ctrl-A]"
-msgstr ""
+msgstr "すべてのブロックを選択 [Ctrl-A]"
 
 #: EditorPage.py:91
 msgid "None"
@@ -1258,39 +1263,39 @@ msgstr ""
 
 #: EditorPage.py:96
 msgid "Unselect all blocks [Ctrl-Shift-A]"
-msgstr ""
+msgstr "すべてのブロックの選択を解除"
 
 #: EditorPage.py:103 EditorPage.py:335 plugins/heightmap.py:57
 msgid "Invert"
-msgstr ""
+msgstr "反転"
 
 #: EditorPage.py:108
 msgid "Invert selection [Ctrl-I]"
-msgstr ""
+msgstr "選択を反転 [Ctrl-I]"
 
 #: EditorPage.py:115
 msgid "Layer"
-msgstr ""
+msgstr "レイヤー"
 
 #: EditorPage.py:120
 msgid "Select all blocks from current layer"
-msgstr ""
+msgstr "現在のレイヤーのすべてのブロックを選択"
 
 #: EditorPage.py:131
 msgid "Filter blocks"
-msgstr ""
+msgstr "ブロックをフィルター"
 
 #: EditorPage.py:147
 msgid "Edit"
-msgstr ""
+msgstr "編集"
 
 #: EditorPage.py:148 CNCList.py:663
 msgid "Color"
-msgstr ""
+msgstr "色"
 
 #: EditorPage.py:149
 msgid "Import"
-msgstr ""
+msgstr "インポート"
 
 #: EditorPage.py:150
 msgid "Inkscape"
@@ -1298,15 +1303,15 @@ msgstr ""
 
 #: EditorPage.py:151
 msgid "Round"
-msgstr ""
+msgstr "ラウンド加工"
 
 #: EditorPage.py:164
 msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
-msgstr ""
+msgstr "新規にブロック, 制御コードを挿入 [Ins or Ctrl-Enter]"
 
 #: EditorPage.py:176
 msgid "Clone selected lines or blocks [Ctrl-D]"
-msgstr ""
+msgstr "選択された直線"
 
 #: EditorPage.py:188
 msgid "Delete selected lines or blocks [Del]"
@@ -3318,51 +3323,51 @@ msgstr ""
 
 #: plugins/tile.py:52
 msgid "Tile error"
-msgstr ""
+msgstr "タイルエラー"
 
 #: plugins/tile.py:53
 msgid "No g-code blocks selected"
-msgstr ""
+msgstr "Gコードのブロックが選択されていません"
 
 #: plugins/tile.py:94
 msgid "Tiled selected blocks"
-msgstr ""
+msgstr "選択範囲にタイルを貼る"
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
-msgstr ""
+msgstr "スピログラフ"
 
 #: plugins/spirograph.py:95
 msgid "Create a spirograph path"
-msgstr ""
+msgstr "スピログラフ加工の作成"
 
 #: plugins/spirograph.py:103
 msgid "External Radius"
-msgstr ""
+msgstr "外径"
 
 #: plugins/spirograph.py:104
 msgid "Internal Radius"
-msgstr ""
+msgstr "内径"
 
 #: plugins/spirograph.py:105
 msgid "Offset radius"
-msgstr ""
+msgstr "半径のオフセット"
 
 #: plugins/spirograph.py:125
 msgid "Generated: Spirograph"
-msgstr ""
+msgstr "生成済み: スピログラフ"
 
 #: plugins/bowl.py:10
 msgid "Bowl"
-msgstr ""
+msgstr "ボール"
 
 #: plugins/bowl.py:101
 msgid "Generate a bowl cavity"
-msgstr ""
+msgstr "ボールのくり抜きを作成"
 
 #: plugins/bowl.py:110
 msgid "Resolution (degrees)"
-msgstr ""
+msgstr "解像度 (角度)"
 
 #: plugins/bowl.py:111
 msgid "Progressive"
@@ -3370,79 +3375,79 @@ msgstr ""
 
 #: plugins/bowl.py:126
 msgid "Generated: BOWL"
-msgstr ""
+msgstr "生成済み: ボール"
 
 #: plugins/bowl.py:128
 msgid "Error: Check the Bowl and End Mill parameters"
-msgstr ""
+msgstr "エラー: ボール,エンドミルのパラメーターを確認してください."
 
 #: plugins/zigzag.py:11
 msgid "Zig-Zag"
-msgstr ""
+msgstr "ジグザグ"
 
 #: plugins/zigzag.py:87
 msgid "Create a Zig-Zag path"
-msgstr ""
+msgstr "ジグザグ加工を作成"
 
 #: plugins/zigzag.py:95
 msgid "Number of lines"
-msgstr ""
+msgstr "直線の数"
 
 #: plugins/zigzag.py:96
 msgid "Line length"
-msgstr ""
+msgstr "直線の長さ"
 
 #: plugins/zigzag.py:97
 msgid "Additional length at start/end"
-msgstr ""
+msgstr "開始,終了時に追加する長さ"
 
 #: plugins/zigzag.py:98
 msgid "Step distance"
-msgstr ""
+msgstr "1ステップの長さ"
 
 #: plugins/zigzag.py:99
 msgid "Corner resolution"
-msgstr ""
+msgstr "コーナーの解像度(細かさ)"
 
 #: plugins/zigzag.py:119
 msgid "Zig-Zag abort: verify Nlines > 0"
-msgstr ""
+msgstr "中止 ジグザグ加工: Nlines > 0 であることを確認してください"
 
 #: plugins/zigzag.py:123
 msgid "Zig-Zag abort: verify LineLen > 0"
-msgstr ""
+msgstr "中止 ジグザグ加工: LineLen > 0 であることを確認してください"
 
 #: plugins/zigzag.py:127
 msgid "Zig-Zag abort: verify Step > 0"
-msgstr ""
+msgstr "中止 ジグザグ加工: Step >=0 であることを確認してください"
 
 #: plugins/zigzag.py:131
 msgid "Zig-Zag abort: verify CornerRes >= 0"
-msgstr ""
+msgstr "中止 ジグザグ加工: CornerRes >= 0 であることを確認してください"
 
 #: plugins/zigzag.py:135
 msgid "Zig-Zag abort: depth must be minor or equal to zero"
-msgstr ""
+msgstr "中止 ジグザグ加工: 深さは,0以上である必要があります."
 
 #: plugins/zigzag.py:144
 msgid "Generated: Zig-Zag"
-msgstr ""
+msgstr "生成済み: ジグザグ"
 
 #: plugins/halftone.py:11
 msgid "Halftone"
-msgstr ""
+msgstr "モノクロ"
 
 #: plugins/halftone.py:33
 msgid "Create halftone pattern from a picture"
-msgstr ""
+msgstr "写真からモノクロのパターンを作成"
 
 #: plugins/halftone.py:44
 msgid "Invert Colors"
-msgstr ""
+msgstr "色を反転"
 
 #: plugins/halftone.py:45
 msgid "Max draw size (Width or Height)"
-msgstr ""
+msgstr "最大サイズ(幅 または 高さ)"
 
 #: plugins/halftone.py:46
 msgid "Cell size"
