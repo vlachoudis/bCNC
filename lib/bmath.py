@@ -1,31 +1,10 @@
-# $Id: bmath.py 3739 2016-03-22 08:14:24Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# All rights not expressly granted under this license are reserved.
-#
-# Installation, use, reproduction, display of the
-# software ("flair"), in source and binary forms, are
-# permitted free of charge on a non-exclusive basis for
-# internal scientific, non-commercial and non-weapon-related
-# use by non-profit organizations only.
-#
-# For commercial use of the software, please contact the main
-# author Vasilis.Vlachoudis@cern.ch for further information.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following
-# conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
+# Please consult the flair documentation for the license
 #
 # DISCLAIMER
 # ~~~~~~~~~~

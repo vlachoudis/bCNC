@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
-# $Id: spline.py 3833 2016-06-23 13:00:48Z bnv $
 #
 # Author: vvlachoudis@gmail.com
 # Date: 20-Oct-2015

@@ -1,31 +1,10 @@
-# $Id: tkDialogs.py 3718 2016-02-04 16:10:06Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# All rights not expressly granted under this license are reserved.
-#
-# Installation, use, reproduction, display of the
-# software ("flair"), in source and binary forms, are
-# permitted free of charge on a non-exclusive basis for
-# internal scientific, non-commercial and non-weapon-related
-# use by non-profit organizations only.
-#
-# For commercial use of the software, please contact the main
-# author Vasilis.Vlachoudis@cern.ch for further information.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following
-# conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
+# Please consult the flair documentation for the license
 #
 # DISCLAIMER
 # ~~~~~~~~~~
@@ -64,11 +43,87 @@ import subprocess
 
 try:
 	from Tkinter import *
+	from Tkinter import _cnfmerge
 except ImportError:
 	from tkinter import *
+	from tkinter import _cnfmerge
 
 import tkExtra
 import bFileDialog
+
+#===============================================================================
+# Similar to the Dialog.py from Tk but transient to master
+#
+# This class displays a dialog box, waits for a button in the dialog
+# to be invoked, then returns the index of the selected button.  If the
+# dialog somehow gets destroyed, -1 is returned.
+#
+# Arguments:
+# w -		Window to use for dialog top-level.
+# title -	Title to display in dialog's decorative frame.
+# text -	Message to display in dialog.
+# bitmap -	Bitmap to display in dialog (empty string means none).
+# default -	Index of button that is to display the default ring
+#		(-1 means none).
+# args -	One or more strings to display in buttons across the
+#		bottom of the dialog box.
+#===============================================================================
+class Dialog(Toplevel):
+	def __init__(self, master=None, cnf={}, **kw):
+		Toplevel.__init__(self, master, class_="Dialog", **kw)
+		self.transient(master)
+		self.title(cnf["title"])
+		self.iconname("Dialog")
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		self.num = cnf["default"]
+
+		cnf = _cnfmerge((cnf, kw))
+
+		# Fill the top part with bitmap and message (use the option
+		# database for -wraplength and -font so that they can be
+		# overridden by the caller).
+		#self.option_add("*Dialog.msg.wrapLength","3i","widgetDefault")
+		#self.option_add("*Dialog.msg.font","TkCaptionFont","widgetDefault")
+
+		fbot = Frame(self, relief=RAISED, bd=1)
+		ftop = Frame(self, relief=RAISED, bd=1)
+		fbot.pack(side=BOTTOM, fill=BOTH)
+		ftop.pack(side=TOP, fill=BOTH, expand=YES)
+		self.tk.call("grid", "anchor", fbot._w, CENTER)
+		#self.grid_anchor(CENTER)
+
+		l = Label(ftop, text=cnf["text"], wraplength="3i", font="TkCaptionFont", justify=LEFT)
+		l.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
+
+		if cnf["bitmap"]:
+			l = Label(ftop, bitmap=cnf["bitmap"])
+			l.pack(side=LEFT, padx="3m", pady="3m")
+
+		# Create a row of buttons at the bottom of the dialog
+		for i,s in enumerate(cnf["strings"]):
+			b = Button(fbot, text=s, command=lambda s=self,n=i:s.close(n))
+			b.bind("<Return>", lambda e : e.widget.invoke())
+			if i==cnf["default"]:
+				b.config(default="active")
+				b.focus_set()
+			else:
+				b.config(default="normal")
+			b.grid(column=i, row=0, sticky=EW, padx=10, pady=4)
+
+		self.bind("<Escape>", lambda e,s=self:s.close())
+		self.bind("<Right>", lambda e : e.widget.event_generate("<Tab>"))
+		self.bind("<Left>",  lambda e : e.widget.event_generate("<Shift-Tab>"))
+
+		self.deiconify()
+		self.wait_visibility()
+		self.grab_set()
+		self.focus_set()
+		self.wait_window()
+
+	#-----------------------------------------------------------------------
+	def close(self, num=-1):
+		self.num = num
+		self.destroy()
 
 #=============================================================================
 # Input dialog
@@ -440,6 +495,7 @@ class Printer(Toplevel):
 
 		self.printToChange()
 
+		self.grab_set()
 		self.wait_window()
 		return self.rc
 

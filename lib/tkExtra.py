@@ -1,32 +1,11 @@
 #!/bin/env python
-# $Id: tkExtra.py 3643 2015-11-13 11:16:20Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# All rights not expressly granted under this license are reserved.
-#
-# Installation, use, reproduction, display of the
-# software ("flair"), in source and binary forms, are
-# permitted free of charge on a non-exclusive basis for
-# internal scientific, non-commercial and non-weapon-related
-# use by non-profit organizations only.
-#
-# For commercial use of the software, please contact the main
-# author Vasilis.Vlachoudis@cern.ch for further information.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following
-# conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
+# Please consult the flair documentation for the license
 #
 # DISCLAIMER
 # ~~~~~~~~~~
@@ -2219,7 +2198,7 @@ class InPlaceEdit:
 		try: self.active = listbox.index(item)
 		except: return
 
-		self.item  = item
+		self.item    = item
 		self.listbox = listbox
 
 		# Create and set value
@@ -2792,7 +2771,7 @@ class PopupList(Toplevel):
 # Combobox
 #=============================================================================
 class Combobox(Frame):
-	def __init__(self, master, label=True, **kwargs):
+	def __init__(self, master, label=True, *args, **kwargs):
 		Frame.__init__(self, master, class_="Combobox")
 		Frame.config(self, padx=0, pady=0)
 
@@ -2801,13 +2780,12 @@ class Combobox(Frame):
 			del kwargs["command"]
 		else:
 			self.command = None
+
 		# Create entry and button
 		if label:
-			cnf = {"relief":GROOVE, "anchor":W}
-			cnf.update(kwargs)
-			self._text = Label(self, **cnf)
+			self._text = Label(self, relief=GROOVE, anchor=W, *args, **kwargs)
 		else:
-			self._text = Entry(self, **kwargs)
+			self._text = Entry(self, *args, **kwargs)
 		self._text.pack(side=LEFT, expand=YES, fill=BOTH)
 
 		# Arrow button
@@ -2856,6 +2834,7 @@ class Combobox(Frame):
 		self._listbox = SearchListbox(self._popup,
 					selectmode=BROWSE,
 					yscrollcommand=sb.set,
+					*args,
 					**kwargs)
 		self._listbox.pack(side=LEFT, expand=YES, fill=BOTH)
 		sb.config(command=self._listbox.yview)
@@ -4219,13 +4198,13 @@ class ExLabelFrame(LabelFrame):
 	def __call__(self): return self.frame
 
 #================================================================================
-# ScrollFrame by Bruno
+# ScrollFrame based on Bruno's implementation
 #================================================================================
 class ScrollFrame(Frame):
 	# ----------------------------------------------------------------------
 	def __init__(self, master=None, stretch=True, cnf={}, **kw):
-		Frame.__init__(self,master,cnf,**kw)
-		self.client = Frame(self,border=0)
+		Frame.__init__(self, master, cnf, **kw)
+		self.client = Frame(self, border=0)
 
 		# width and height of Scrollframe
 		self.W = 1.0
@@ -4239,11 +4218,11 @@ class ScrollFrame(Frame):
 		self.client_w = 1.0
 		self.client_h = 1.0
 
-		# scrollcommands (default)
+		# scroll commands (default)
 		self.xscrollcommand=lambda *args:None
 		self.yscrollcommand=lambda *args:None
 
-		# scrollincrements
+		# scroll increments
 		self.xscrollincrement = 15
 		self.yscrollincrement = 15
 
@@ -4253,12 +4232,14 @@ class ScrollFrame(Frame):
 		self.stretch_y = stretch
 
 		#self.bind("<Expose>",		self.updateScrollRegion)
-		self.bind("<Button-2>",         self.drag)
-		self.bind("<ButtonRelease-2>",  self.dragRelease)
-		self.bind("<Configure>",        self.updateScrollRegion)
+		self.bind("<Configure>",	self.updateScrollRegion)
 
+		self.defaultBinds()
+
+		#w = self.client.winfo_toplevel()
 		self.mult  = 1.0
 		self._drag = None
+		self._startx = self._startx = 0
 
 	# ----------------------------------------------------------------------
 	def cget(self,item):
@@ -4289,28 +4270,79 @@ class ScrollFrame(Frame):
 	def position(self):
 		return self.client_x, self.client_y
 
+	#-------------------------------------------------------------------------------
+	@staticmethod
+	def bindChilds(widget, event, function):
+		for child in widget.winfo_children():
+			ScrollFrame.bindChilds(child, event, function)
+			if not child.bind(event): child.bind(event, function)
+
+	#-------------------------------------------------------------------------------
+	def defaultBinds(self):
+		ScrollFrame.bindChilds(self.client, "<B2-Motion>",	self.drag)
+		ScrollFrame.bindChilds(self.client, "<ButtonRelease-2>",	self.dragRelease)
+		ScrollFrame.bindChilds(self.client, "<Button-4>",	self.scrollUp)
+		ScrollFrame.bindChilds(self.client, "<Button-5>",	self.scrollDown)
+		ScrollFrame.bindChilds(self.client, "<Shift-Button-4>",	self.scrollLeft)
+		ScrollFrame.bindChilds(self.client, "<Shift-Button-5>",	self.scrollRight)
+
+	# ----------------------------------------------------------------------
+	def ischild(self, widget):
+		if widget is None: return False
+		if widget is self.client: return True
+		return self.ischild(widget.master)
+
 	# ----------------------------------------------------------------------
 	def drag(self, event):
 		if self._drag is not None:
-			dx = (event.x - self._drag[0])*self.mult
-			dy = (event.y - self._drag[1])*self.mult
-			self.client_x += dx
-			self.client_y += dy
+			dx = (event.x_root - self._drag[0])*self.mult
+			dy = (event.y_root - self._drag[1])*self.mult
+			self.client_x = int(self._start_x + dx)
+			self.client_y = int(self._start_y + dy)
 			self.updateScrollx()
 			self.updateScrolly()
 			self.client.place_configure(x=self.client_x, y=self.client_y)
 		else:
+			if not self.ischild(event.widget): return
 			self.config(cursor="hand2")
-		self._drag = event.x, event.y
+			self._drag = event.x_root, event.y_root
+			self._start_x = self.client_x
+			self._start_y = self.client_y
+		return "break"
 
 	# ----------------------------------------------------------------------
 	def dragRelease(self, event):
 		self._drag = None
 		self.config(cursor="")
+		return "break"
 
 	# ----------------------------------------------------------------------
-	def xview(self, event, value, units='pages'):
-		if event == "moveto":
+	def scrollUp(self, event):
+		if not self.ischild(event.widget): return
+		self.yview(SCROLL, -1, UNITS)
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def scrollDown(self, event):
+		if not self.ischild(event.widget): return
+		self.yview(SCROLL,  1, UNITS)
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def scrollLeft(self, event):
+		if not self.ischild(event.widget): return
+		self.xview(SCROLL, -1, UNITS)
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def scrollRight(self, event):
+		if not self.ischild(event.widget): return
+		self.xview(SCROLL,  1, UNITS)
+		return "break"
+
+	# ----------------------------------------------------------------------
+	def xview(self, action, value, units='pages'):
+		if action == "moveto":
 			fraction = float(value)
 			if fraction <= 0.0:
 				self.client_x = 0
@@ -4319,7 +4351,7 @@ class ScrollFrame(Frame):
 			else:
 				self.client_x = int(-self.client_w*fraction)
 
-		elif event == "scroll":
+		elif action == "scroll":
 			amount=int(value)
 			if self.client_x == 0 and amount < 0:return
 			if self.W >= self.client_w: return
@@ -4336,8 +4368,8 @@ class ScrollFrame(Frame):
 		self.client.place_configure(x=self.client_x)
 
 	# ----------------------------------------------------------------------
-	def yview(self, event, value, units='pages'):
-		if event == "moveto":
+	def yview(self, action, value, units='pages'):
+		if action == "moveto":
 			fraction=float(value)
 			if fraction <= 0.0:
 				self.client_y = 0
@@ -4346,7 +4378,7 @@ class ScrollFrame(Frame):
 			else:
 				self.client_y = int(-self.client_h*fraction)
 
-		elif event == "scroll":
+		elif action == "scroll":
 			amount=int(value)
 			if self.client_y == 0 and amount < 0:return
 			if self.H >= self.client_h: return
@@ -4398,8 +4430,13 @@ class ScrollFrame(Frame):
 		if low <= 0.0:
 			self.client_x=0
 		elif high >= 1.0:
-			self.client_x=self.W-self.client_w
-			low=-float(self.client_x)/self.client_w
+			if self.client_w > self.W:
+				self.client_x = self.W-self.client_w
+				low  = -float(self.client_x)/self.client_w
+			else:
+				self.client_x = 0
+				low = 0.0
+			high = low+float(self.W)/self.client_w
 		if self.client_w < self.W:
 			self.stretch_x = self.stretch
 		else:
@@ -4418,10 +4455,16 @@ class ScrollFrame(Frame):
 			high = low+float(self.H)/self.client_h
 
 		if low <= 0.0:
-			self.client_y=0
+			self.client_y = 0
 		elif high >= 1.0:
-			self.client_y=self.H-self.client_h
-			low=-float(self.client_y)/self.client_h
+			if self.client_h > self.H:
+				self.client_y = self.H-self.client_h
+				low  = -float(self.client_y)/self.client_h
+			else:
+				self.client_y = 0
+				low = 0.0
+			high = low+float(self.H)/self.client_h
+
 		if self.client_h < self.H:
 			self.stretch_y = self.stretch
 		else:

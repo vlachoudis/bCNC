@@ -1,31 +1,10 @@
-# $Id: undo.py 3595 2015-10-15 14:59:24Z bnv $
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
-#
-# All rights not expressly granted under this license are reserved.
-#
-# Installation, use, reproduction, display of the
-# software ("flair"), in source and binary forms, are
-# permitted free of charge on a non-exclusive basis for
-# internal scientific, non-commercial and non-weapon-related
-# use by non-profit organizations only.
-#
-# For commercial use of the software, please contact the main
-# author Vasilis.Vlachoudis@cern.ch for further information.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following
-# conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
+
+# Please consult the flair documentation for the license
 #
 # DISCLAIMER
 # ~~~~~~~~~~
@@ -154,11 +133,28 @@ def createMultiUndo(*infos):
 		return createListUndo(list(infos))
 	return infos[0]
 
+# =============================================================================
+# UndoInfo list, which permits to append either lists or tuples
+# =============================================================================
+class UndoInfo(list):
+	# ---------------------------------------------------------------------
+	def append(self, info):
+		if isinstance(info, tuple):
+			list.append(self, info)
+		elif isinstance(info, list):
+			self.extend(info)
+		elif info is NullUndo:
+			pass
+		else:
+			raise UndoTypeError("info to append is not a tuple nor a list")
+
+	# ---------------------------------------------------------------------
+	def create(self, text=None):
+		return createListUndo(self, text)
 
 # -----------------------------------------------------------------------------
 def undoAfter(undo_info, after_info):
 	return (undoAfter, undo(undo_info), undo(after_info))
-
 
 # NullUndo: undoinfo that does nothing. Useful when undoinfo has to be
 # returned but nothing has really changed.
