@@ -1098,7 +1098,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments
 	#----------------------------------------------------------------------
-	def fromDxfLayer(self, dxf, layer, units=0):
+	def fromDxf(self, dxf, layer, units=0):
 		for entity in layer:
 			self.color = entity.color()
 			start = dxf.convert(entity.start(), units)

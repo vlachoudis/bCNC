@@ -2372,7 +2372,7 @@ class GCode:
 			if not entities: continue
 			self.importEntityPoints(None, entities, name, enable, layer.color())
 			path = Path(name)
-			path.fromDxfLayer(dxf, entities, units)
+			path.fromDxf(dxf, entities, units)
 			path.removeZeroLength()
 			if path.color is None:
 				path.color = layer.color()
