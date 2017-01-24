@@ -1539,7 +1539,7 @@ class Application(Toplevel,Sender):
 		# STEP [s]: set motion step size to s
 		elif cmd == "STEP":
 			try:
-				self.setStep(float(line[1]))
+				self.control.setStep(float(line[1]))
 			except:
 				pass
 
