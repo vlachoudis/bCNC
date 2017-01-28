@@ -1696,8 +1696,7 @@ class CNC:
 		lines.append("g90")		# restore mode
 		lines.append("g0 x[_x] y[_y]")	# ... x,y position
 		lines.append("g0 z[_z]")	# ... z position
-		lines.append("f[feed]")		# ... feed
-		lines.append("[spindle]")	# ... spindle
+		lines.append("f[feed] [spindle]")# ... feed and spindle
 
 		# remember present tool
 		self._lastTool = self.tool
@@ -2220,8 +2219,7 @@ class GCode:
 			return "".join(line)
 
 		elif isinstance(line, types.CodeType):
-			eval(line,CNC.vars,self.vars)
-			return None
+			return eval(line,CNC.vars,self.vars)
 
 		else:
 			return line
