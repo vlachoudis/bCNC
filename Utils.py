@@ -98,6 +98,8 @@ def loadIcons():
 		name,ext = os.path.splitext(os.path.basename(img))
 		try:
 			icons[name] = PhotoImage(file=img)
+			if getBool("CNC", "doublesizeicon"):
+				icons[name] = icons[name].zoom(2,2)
 		except TclError:
 			pass
 

@@ -768,6 +768,8 @@ class CNC:
 		except: pass
 		try: CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
 		except: pass
+		try: CNC.doublesizeicon = bool(int(config.get(section, "doublesizeicon")))
+		except: pass
 		try: CNC.acceleration_x = float(config.get(section, "acceleration_x"))
 		except: pass
 		try: CNC.acceleration_y = float(config.get(section, "acceleration_y"))
