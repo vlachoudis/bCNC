@@ -348,7 +348,7 @@ class Entity(dict):
 	#----------------------------------------------------------------------
 	def init(self):
 		self._start = None
-		self._end = None
+		self._end   = None
 
 	#----------------------------------------------------------------------
 	def point(self, idx=0):
@@ -416,8 +416,8 @@ class Entity(dict):
 			# Ignore!!
 			self._start = self.point()
 		else:
-			#raise Exception("Cannot handle entity type %s"%(self.type))
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
+			import traceback; traceback.print_stack()
 			self._start = self.point()
 		return self._start
 
@@ -449,8 +449,8 @@ class Entity(dict):
 			# Ignore!!
 			self._end = self.point()
 		else:
-			#raise Exception("Cannot handle entity type %s"%(self.type))
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
+			import traceback; traceback.print_stack()
 			self._end = self.point()
 		return self._end
 
@@ -519,10 +519,82 @@ class Entity(dict):
 			self.type = "LWPOLYLINE"
 		self.init()
 
+	#----------------------------------------------------------------------
+	# Read vertex for POLYLINE
+	# Very bad!!
+	#----------------------------------------------------------------------
+	def readVertex(self, dxf):
+		self[10] = [0.0]
+		self[20] = [0.0]
+		self[30] = [0.0]
+		self[42] = [0.0]
+
+		while True:
+			tag,value = dxf.read()
+			#print tag,value
+			if tag is None: return
+			if tag==0:
+				if value == "SEQEND":
+					# Vertex sequence end
+					tag,value = dxf()
+					if tag!=8: dxf.push(tag,value)
+					return
+				elif value == "VERTEX":
+					self[10].append(0.0)
+					self[20].append(0.0)
+					self[30].append(0.0)
+					self[42].append(0.0)
+				else:
+					raise Exception("Entity %s found in wrong context"%(value))
+
+			elif tag in (10, 20, 30, 42):
+				self[tag][-1] = value
+
+	#----------------------------------------------------------------------
+	# Read entity until next block
+	#----------------------------------------------------------------------
+	def read(self, dxf):
+		while True:
+			tag,value = dxf.read()
+			if tag is None: return
+			if tag==0:
+				if self.type == "POLYLINE":
+					self.readVertex(dxf)
+					return self
+				else:
+					dxf.push(tag,value)
+
+					if self.type in ("ELLIPSE", "SPLINE"):
+						self.convert2Polyline()
+
+					return self
+			elif tag==8:
+				self.name = str(value)
+			else:
+				existing = self.get(tag)
+
+				if tag == 42 and self.type=="LWPOLYLINE":
+					# Replace last value
+					self[42][-1] = value
+				elif existing is None:
+					self[tag] = value
+				elif isinstance(existing,list):
+					existing.append(value)
+				else:
+					self[tag] = [existing, value]
+				# Synchronize optional bulge with number of vertices
+				if tag == 10 and self.type=="LWPOLYLINE":
+					bulge = self.get(42)
+					if bulge is None:
+						self[42] = [0.0]
+					else:
+						self[42].append(0.0)
+
 #==============================================================================
 # DXF layer
 #==============================================================================
 class Layer:
+	#----------------------------------------------------------------------
 	def __init__(self, name, tbl=None):
 		self.name  = name
 		if tbl is None:
@@ -545,6 +617,141 @@ class Layer:
 			return Entity.COLORS[self.table.get(62,0)]
 		except:
 			return None
+
+	#----------------------------------------------------------------------
+	def __repr__(self):
+		return "Layer: %s"%(self.name)
+
+	#----------------------------------------------------------------------
+	# Sort layer in continuation order of entities
+	# where the end of of the previous is the start of the new one
+	#
+	# Add an new special marker for starting an entity with TYPE="START"
+	#----------------------------------------------------------------------
+	def sort(self):
+		new = []
+
+		# Move all points to beginning
+		i = 0
+		while i < len(self.entities):
+			if self.entities[i].type == "POINT":
+				new.append(self.entities[i])
+				del self.entities[i]
+			else:
+				i += 1
+
+		if not self.entities: return
+
+		# ---
+		def pushStart():
+			# Find starting point and add it to the new list
+			start = Entity("START",self.name)
+			start._start = start._end = self.entities[0].start()
+			new.append(start)
+
+		# Push first element as start point
+		pushStart()
+
+		# Repeat until all entities are used
+		while self.entities:
+			# End point
+			ex,ey = new[-1].end()
+			#print
+			#print "*-*",new[-1].start(),new[-1].end()
+
+			# Find the entity that starts after the layer
+			for i,entity in enumerate(self.entities):
+				# Try starting point
+				sx,sy = entity.start()
+				d2 = (sx-ex)**2 + (sy-ey)**2
+				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
+				if d2 < err:
+					new.append(entity)
+					del self.entities[i]
+					break
+
+				# Try ending point (inverse)
+				sx,sy = entity.end()
+				d2 = (sx-ex)**2 + (sy-ey)**2
+				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
+				if d2 < err:
+					entity.invert()
+					new.append(entity)
+					del self.entities[i]
+					break
+
+			else:
+				# Not found push a new start point and
+				pushStart()
+
+		self.entities = new
+
+#==============================================================================
+# DXF Block
+# Block-type flags (bit coded values, may be combined):
+#   1 = This is an anonymous block generated by hatching, associative
+#       dimensioning, other internal operations, or an application.
+#   2 = This block has non-constant attribute definitions (this bit is
+#       not set if the block has any attribute definitions that are
+#       constant, or has no attribute definitions at all).
+#   4 = This block is an external reference (xref).
+#   8 = This block is an xref overlay.
+#  16 = This block is externally dependent.
+#  32 = This is a resolved external reference, or dependent of an external
+#       reference (ignored on input).
+#  64 = This definition is a referenced external reference (ignored on input).
+#==============================================================================
+class Block(dict):
+	#----------------------------------------------------------------------
+	def __init__(self):
+		self.name  = ""
+		self.type  = 0
+		self.layer = "0"
+		self.desc  = ""
+		self.base = Vector()
+		self.layers = {}	# entities per layer diction of lists
+
+	#----------------------------------------------------------------------
+	def __repr__(self):
+		return "Block: %s [%d] Base:%s"%(self.name, self.type, str(self.base))
+
+	#----------------------------------------------------------------------
+	# Read block until next block
+	#----------------------------------------------------------------------
+	def read(self, dxf):
+		while True:
+			tag,value = dxf.read()
+			if tag is None: return
+			if tag==0:
+				if value in ("BLOCK","ENDBLK"):
+					dxf.push(tag,value)
+					return self
+				else:
+					entity = Entity(value)
+					entity.read(dxf)
+					if entity.type in ("HATCH",): continue	# ignore
+					try:
+						layer = self.layers[entity.name]
+					except KeyError:
+						layer = Layer(entity.name)
+						self.layers[entity.name] = layer
+					layer.append(entity)
+			elif tag==3:
+				self.name  = str(value)
+			elif tag==4:
+				self.desc  = str(value)
+			elif tag==8:
+				self.layer = str(value)
+			elif tag==70:
+				self.type  = int(value)
+			elif tag==10:
+				self.base[0] = float(value)
+			elif tag==20:
+				self.base[1] = float(value)
+			elif tag==30:
+				self.base[2] = float(value)
+			else:
+				self[tag] = value
 
 #==============================================================================
 # DXF importer/exporter class
@@ -602,8 +809,16 @@ class DXF:
 		self._f = None
 		if filename:
 			self.open(filename,mode)
+		else:
+			self.init()
+
+	#----------------------------------------------------------------------
+	def init(self):
 		self.title  = "dxf-class"
 		self.units  = DXF.UNITLESS
+		self.layers = {}	# entities per layer diction of lists
+		self.blocks = {}
+		self._saved = None
 		errors.clear()
 
 	#----------------------------------------------------------------------
@@ -634,13 +849,14 @@ class DXF:
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
 		self._f = open(filename, mode)
-		self.layers = {}	# entities per layer diction of lists
-		self._saved = None
+		self.init()
 
 	#----------------------------------------------------------------------
 	def close(self):
 		self._f.close()
 
+	#----------------------------------------------------------------------
+	# Read one pair tag,value either from file or previously saved
 	#----------------------------------------------------------------------
 	def read(self):
 		if self._saved is not None:
@@ -666,9 +882,22 @@ class DXF:
 		return tag,value
 
 	#----------------------------------------------------------------------
-	def push(self, tag, value):
-		self._saved = (tag, value)
+	# peek the next tag,value pair
+	#----------------------------------------------------------------------
+	def peek(self):
+		tag,value = self.read()
+		self.push(tag,value)
+		return tag,value
 
+	#----------------------------------------------------------------------
+	# save the tag, value for the next read
+	# WARNING only one depth is supported
+	#----------------------------------------------------------------------
+	def push(self, tag, value):
+		self._saved = (tag,value)
+
+	#----------------------------------------------------------------------
+	# Read next tag, value pair which must be (t,v) otherwise report error
 	#----------------------------------------------------------------------
 	def mustbe(self, t, v=None):
 		tag,value = self.read()
@@ -682,12 +911,22 @@ class DXF:
 			#raise Exception("DXF expecting %d,%s found %s,%s"%(t,v,str(tag),str(value)))
 
 	#----------------------------------------------------------------------
+	# Skip everything until next entity/block
+	#----------------------------------------------------------------------
+	def skipBlock(self):
+		while True:
+			tag,value = self.read()
+			if tag is None or tag==0:
+				self.push(tag,value)
+				return
+
+	#----------------------------------------------------------------------
 	# Skip section
 	#----------------------------------------------------------------------
 	def skipSection(self):
 		while True:
 			tag,value = self.read()
-			if tag is None or (tag == 0 and value=="ENDSEC"):
+			if tag is None or (tag==0 and value=="ENDSEC"):
 				return
 
 	#----------------------------------------------------------------------
@@ -722,98 +961,20 @@ class DXF:
 					self.units = int(value)
 
 	#----------------------------------------------------------------------
-	# Read vertex for POLYLINE
-	# Very bad!!
-	#----------------------------------------------------------------------
-	def readVertex(self, entity):
-		entity[10] = [0.0]
-		entity[20] = [0.0]
-		entity[30] = [0.0]
-		entity[42] = [0.0]
-
-		while True:
-			tag,value = self.read()
-			#print tag,value
-			if tag is None: return
-			if tag==0:
-				if value == "SEQEND":
-					# Vertex sequence end
-					tag,value = self.read()
-					if tag!=8: self.push(tag,value)
-					return
-				elif value == "VERTEX":
-					entity[10].append(0.0)
-					entity[20].append(0.0)
-					entity[30].append(0.0)
-					entity[42].append(0.0)
-				else:
-					raise Exception("Entity %s found in wrong context"%(value))
-
-			elif tag in (10, 20, 30, 42):
-				entity[tag][-1] = value
-
-	#----------------------------------------------------------------------
-	# Read and return one entity
-	#----------------------------------------------------------------------
-	def readEntity(self):
-		tag, value = self.read()
-		if value == "ENDSEC":
-			return None
-		else:
-			entity = Entity(value)
-
-		n = 0	# counter of vertices
-		while True:
-			tag,value = self.read()
-			#print tag,value
-			if tag is None: return
-			if tag==0:
-				if entity.type == "POLYLINE":
-					self.readVertex(entity)
-					return entity
-				else:
-					self.push(tag,value)
-					return entity
-			elif tag==8:
-				entity.name = str(value)
-			else:
-				existing = entity.get(tag)
-
-				if tag == 42 and entity.type=="LWPOLYLINE":
-					# Replace last value
-					entity[42][-1] = value
-				elif existing is None:
-					entity[tag] = value
-				elif isinstance(existing,list):
-					existing.append(value)
-				else:
-					entity[tag] = [existing, value]
-
-				# Synchronize optional bulge with number of vertices
-				if tag == 10 and entity.type=="LWPOLYLINE":
-					bulge = entity.get(42)
-					if bulge is None:
-						entity[42] = [0.0]
-					else:
-						entity[42].append(0.0)
-
-	#----------------------------------------------------------------------
 	# Read entities section
 	#----------------------------------------------------------------------
 	def readEntities(self):
 		while True:
-			entity = self.readEntity()
-			if entity is None: return
-
+			tag,value = self.read()
+			if tag is None:
+				return
+			elif value == "ENDSEC":
+				return None
+			entity = Entity(value)
+			entity.read(self)
 			#print ">>>",entity
 			#for n,v in entity.items(): print n,":",v
-
-			if entity.type in ("ELLIPSE", "SPLINE"):
-				entity.convert2Polyline()
-
-			elif entity.type in ("HATCH",):
-				continue	# ignore
-
+			if entity.type in ("HATCH",): continue	# ignore
 			try:
 				layer = self.layers[entity.name]
 			except KeyError:
@@ -822,10 +983,33 @@ class DXF:
 			layer.append(entity)
 
 	#----------------------------------------------------------------------
+	# Read blocks section
+	#----------------------------------------------------------------------
+	def readBlocks(self):
+		block = None
+		while True:
+			tag,value = self.read()
+			print ">>>",tag,value
+			if tag is None:
+				return
+			elif tag == 0:
+				if   value == "ENDSEC":
+					return None
+				elif value == "BLOCK":
+					block = Block()
+					block.read(self)
+					self.blocks[block.name] = block
+					print block
+				elif value == "ENDBLK":
+					self.skipBlock()
+				else:
+					error("Unknown %s section in blocks"%(value))
+
+	#----------------------------------------------------------------------
 	# Read one table
 	#----------------------------------------------------------------------
 	def readTable(self):
-		tag, value = self.read()
+		tag,value = self.read()
 		if value == "ENDSEC":
 			return None
 		else:
@@ -865,12 +1049,15 @@ class DXF:
 		if tag != 2:
 			self.push()
 			return None
-		#print "-"*40,value,"-"*40
+		print "-"*40,value,"-"*40
 		if value == "HEADER":
 			self.readHeader()
 
 		elif value == "ENTITIES":
 			self.readEntities()
+
+		elif value == "BLOCKS":
+			self.readBlocks()
 
 		elif value == "TABLES":
 			self.readTables()
@@ -895,64 +1082,9 @@ class DXF:
 	# Add an new special marker for starting an entity with TYPE="START"
 	#----------------------------------------------------------------------
 	def sortLayer(self, name):
-		entities = self.layers[name].entities
-		new   = []
-
-		# Move all points to beginning
-		i = 0
-		while i < len(entities):
-			if entities[i].type == "POINT":
-				new.append(entities[i])
-				del entities[i]
-			else:
-				i += 1
-
-		if not entities: return new
-
-		# ---
-		def pushStart():
-			# Find starting point and add it to the new list
-			start = Entity("START",name)
-			start._start = start._end = entities[0].start()
-			new.append(start)
-
-		# Push first element as start point
-		pushStart()
-
-		# Repeat until all entities are used
-		while entities:
-			# End point
-			ex,ey = new[-1].end()
-			#print
-			#print "*-*",new[-1].start(),new[-1].end()
-
-			# Find the entity that starts after the layer
-			for i,entity in enumerate(entities):
-				# Try starting point
-				sx,sy = entity.start()
-				d2 = (sx-ex)**2 + (sy-ey)**2
-				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
-				if d2 < err:
-					new.append(entity)
-					del entities[i]
-					break
-
-				# Try ending point (inverse)
-				sx,sy = entity.end()
-				d2 = (sx-ex)**2 + (sy-ey)**2
-				err = EPS2 * ((abs(sx)+abs(ex))**2 + (abs(sy)+abs(ey))**2 + 1.0)
-				if d2 < err:
-					entity.invert()
-					new.append(entity)
-					del entities[i]
-					break
-
-			else:
-				# Not found push a new start point and
-				pushStart()
-
-		self.layers[name].entities = new
-		return new
+		layer = self.layers[name]
+		layer.sort()
+		return layer.entities
 
 	#----------------------------------------------------------------------
 	# Write one tag,value pair
