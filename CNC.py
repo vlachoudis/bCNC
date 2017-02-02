@@ -2359,6 +2359,10 @@ class GCode:
 		dxf.readFile()
 		dxf.close()
 
+		# prepare dxf file
+		dxf.sort()
+		dxf.expandBlocks()
+
 		#import time; start = time.time()
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
@@ -2371,7 +2375,7 @@ class GCode:
 		undoinfo = []
 		for name,layer in dxf.layers.items():
 			enable = not bool(layer.isFrozen())
-			entities = dxf.sortLayer(name)
+			entities = dxf.entities(name)	#dxf.sortLayer(name)
 			if not entities: continue
 			self.importEntityPoints(None, entities, name, enable, layer.color())
 			path = Path(name)

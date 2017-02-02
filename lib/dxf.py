@@ -602,9 +602,11 @@ class Layer:
 		else:
 			self.table = tbl
 		self.entities = []
+		self._sorted = False
 
 	#----------------------------------------------------------------------
 	def append(self, item):
+		self._sorted = False
 		self.entities.append(item)
 
 	#----------------------------------------------------------------------
@@ -629,18 +631,25 @@ class Layer:
 	# Add an new special marker for starting an entity with TYPE="START"
 	#----------------------------------------------------------------------
 	def sort(self):
+		if self._sorted: return
+		self._sorted = True
 		new = []
 
 		# Move all points to beginning
 		i = 0
 		while i < len(self.entities):
-			if self.entities[i].type == "POINT":
+			if self.entities[i].type == "POINT" :
+				new.append(self.entities[i])
+				del self.entities[i]
+			elif self.entities[i].type == "INSERT" :
 				new.append(self.entities[i])
 				del self.entities[i]
 			else:
 				i += 1
 
-		if not self.entities: return
+		if not self.entities:
+			self.entities = new
+			return
 
 		# ---
 		def pushStart():
@@ -714,6 +723,11 @@ class Block(dict):
 	#----------------------------------------------------------------------
 	def __repr__(self):
 		return "Block: %s [%d] Base:%s"%(self.name, self.type, str(self.base))
+
+	#----------------------------------------------------------------------
+	def sort(self):
+		for layer in self.layers.values():
+			layer.sort()
 
 	#----------------------------------------------------------------------
 	# Read block until next block
@@ -820,6 +834,10 @@ class DXF:
 		self.blocks = {}
 		self._saved = None
 		errors.clear()
+
+	#----------------------------------------------------------------------
+	def entities(self, name):
+		return self.layers[name].entities
 
 	#----------------------------------------------------------------------
 	# Convert units to another format
@@ -989,7 +1007,7 @@ class DXF:
 		block = None
 		while True:
 			tag,value = self.read()
-			print ">>>",tag,value
+			#print ">>>",tag,value
 			if tag is None:
 				return
 			elif tag == 0:
@@ -999,7 +1017,7 @@ class DXF:
 					block = Block()
 					block.read(self)
 					self.blocks[block.name] = block
-					print block
+					#print block
 				elif value == "ENDBLK":
 					self.skipBlock()
 				else:
@@ -1049,7 +1067,7 @@ class DXF:
 		if tag != 2:
 			self.push()
 			return None
-		print "-"*40,value,"-"*40
+		#print "-"*40,value,"-"*40
 		if value == "HEADER":
 			self.readHeader()
 
@@ -1085,6 +1103,30 @@ class DXF:
 		layer = self.layers[name]
 		layer.sort()
 		return layer.entities
+
+	#----------------------------------------------------------------------
+	def sort(self):
+		for block in self.blocks.values():
+			block.sort()
+		for layer in self.layers.values():
+			layer.sort()
+
+	#----------------------------------------------------------------------
+	# Expand blocks as entities inside layers
+	#----------------------------------------------------------------------
+	def expandBlocks(self):
+		for layer in self.layers.values():
+			for i,entity in reversed(list(enumerate(layer.entities))):
+				if entity.type != "INSERT": continue
+
+				print i
+				del layer.entities[i]
+				block = self.blocks[entity[2]]
+				print block.name, block.type, block.base, entity.point()
+
+				for l in block.layers.values():
+					for e in l.entities:
+						print e
 
 	#----------------------------------------------------------------------
 	# Write one tag,value pair
