@@ -66,7 +66,6 @@ class Entity(dict):
 	PLANAR   = 0x08
 	LINEAR   = 0x10
 
-	SPLINE_SEGMENTS  = 8		# like in librecad
 	ELLIPSE_SEGMENTS = 100
 
 	COLORS   = [ # Acad colors
@@ -466,7 +465,7 @@ class Entity(dict):
 	#
 	# FIXME needs to be adaptive to the precision requested from the saggita
 	#----------------------------------------------------------------------
-	def convert2Polyline(self):
+	def convert2Polyline(self, splineSegs):
 		if self.type == "SPLINE":
 			# Convert to polyline
 			xyz  = zip(self[10], self[20], self[30])
@@ -476,15 +475,20 @@ class Entity(dict):
 			rational = bool(flag & Entity.RATIONAL)
 			planar   = bool(flag & Entity.PLANAR)
 			linear   = bool(flag & Entity.LINEAR)
-			#for n in sorted(self.keys()): print n,"=",self[n]
-			#print "closed=",closed
-			#print "periodic=",periodic
-			#print "rational=",rational
-			#print "planar=",planar
-			#print "linear=",linear
-			#if closed: xyz.append(xyz[0])
+			print "\nSPLINE"
+			print "closed=",closed
+			print "periodic=",periodic
+			print "rational=",rational
+			print "planar=",planar
+			print "linear=",linear
+			print "knotValue=",self[40]
+			for n in sorted(self.keys()): print n,"=",self[n]
+			knots = self[40]
+			#knots.pop(0)	# delete obsolete first
+			#knots.pop()	# ... and last
+			print "knots=",knots
 			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
-					closed, Entity.SPLINE_SEGMENTS)
+					closed, splineSegs, knots)
 			self[10] = xx
 			self[20] = yy
 			self[30] = zz
@@ -602,9 +606,15 @@ class DXF:
 		self._f = None
 		if filename:
 			self.open(filename,mode)
-		self.title  = "dxf-class"
-		self.units  = DXF.UNITLESS
+		self.title      = "dxf-class"
+		self.units      = DXF.UNITLESS
+		self.splineSegs = 8
+		self.vars       = {}
 		errors.clear()
+
+	#----------------------------------------------------------------------
+	def __getitem__(self, var):
+		return self.vars[var]
 
 	#----------------------------------------------------------------------
 	# Convert units to another format
@@ -711,15 +721,20 @@ class DXF:
 				return
 			elif tag == 9:
 				var = value
-			elif tag == 70:
-				if var == "$MEASUREMENT":
-					value = int(value)
-					if value == 0:
-						self.units = DXF.INCHES
-					else:
-						self.units = DXF.MILLIMETERS
-				elif var == "$INSUNITS":
-					self.units = int(value)
+			else:
+				self.vars[var] = value
+				if tag == 70:
+					if var == "$MEASUREMENT":
+						value = int(value)
+						if value == 0:
+							self.units = DXF.INCHES
+						else:
+							self.units = DXF.MILLIMETERS
+					elif var == "$INSUNITS":
+						self.units = int(value)
+
+					elif var == "$SPLINESEGS":
+						self.splineSegs = int(value)
 
 	#----------------------------------------------------------------------
 	# Read vertex for POLYLINE
@@ -809,7 +824,7 @@ class DXF:
 			#for n,v in entity.items(): print n,":",v
 
 			if entity.type in ("ELLIPSE", "SPLINE"):
-				entity.convert2Polyline()
+				entity.convert2Polyline(self.splineSegs)
 
 			elif entity.type in ("HATCH",):
 				continue	# ignore
