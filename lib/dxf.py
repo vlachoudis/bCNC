@@ -571,6 +571,7 @@ class Entity(dict):
 
 			xx = []
 			yy = []
+			if ePhi < sPhi: ePhi += 2.0*math.pi
 			nseg = int((ePhi-sPhi) / math.pi * Entity.ELLIPSE_SEGMENTS)
 			dphi = (ePhi-sPhi)/float(nseg)
 			phi = sPhi
