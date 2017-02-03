@@ -631,9 +631,6 @@ class Entity(dict):
 					return self
 				else:
 					dxf.push(tag,value)
-					if self.type in ("ELLIPSE", "SPLINE"):
-						self.convert2Polyline(dxf.splineSegs)
-
 					return self
 			elif tag==8:
 				self.name = str(value)
@@ -1318,6 +1315,13 @@ class DXF:
 			block.sort()
 		for layer in self.layers.values():
 			layer.sort()
+
+	#----------------------------------------------------------------------
+	def convert2Polylines(self):
+		"""Convert all SPLINES and ELLIPSE to POLYLINEs"""
+		for layer in self.layers.values():
+			for entity in layer.entities:
+				entity.convert2Polyline(self.splineSegs)
 
 	#----------------------------------------------------------------------
 	def expandBlocks(self):

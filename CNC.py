@@ -2361,6 +2361,7 @@ class GCode:
 
 		# prepare dxf file
 		dxf.sort()
+		dxf.convert2Polylines()
 		dxf.expandBlocks()
 
 		#import time; start = time.time()
