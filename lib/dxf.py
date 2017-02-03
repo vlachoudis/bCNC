@@ -66,7 +66,6 @@ class Entity(dict):
 	PLANAR   = 0x08
 	LINEAR   = 0x10
 
-	SPLINE_SEGMENTS  = 8		# like in librecad
 	ELLIPSE_SEGMENTS = 100
 
 	COLORS   = [ # Acad colors
@@ -528,7 +527,7 @@ class Entity(dict):
 	# Convert entity to polyline
 	# FIXME needs to be adaptive to the precision requested from the saggita
 	#----------------------------------------------------------------------
-	def convert2Polyline(self):
+	def convert2Polyline(self, splineSegs):
 		"""Convert complex objects (SPLINE,ELLIPSE) to polylines"""
 		if self.type == "SPLINE":
 			# Convert to polyline
@@ -539,15 +538,20 @@ class Entity(dict):
 			rational = bool(flag & Entity.RATIONAL)
 			planar   = bool(flag & Entity.PLANAR)
 			linear   = bool(flag & Entity.LINEAR)
-			#for n in sorted(self.keys()): print n,"=",self[n]
-			#print "closed=",closed
-			#print "periodic=",periodic
-			#print "rational=",rational
-			#print "planar=",planar
-			#print "linear=",linear
-			#if closed: xyz.append(xyz[0])
+			print "\nSPLINE"
+			print "closed=",closed
+			print "periodic=",periodic
+			print "rational=",rational
+			print "planar=",planar
+			print "linear=",linear
+			print "knotValue=",self[40]
+			for n in sorted(self.keys()): print n,"=",self[n]
+			knots = self[40]
+			#knots.pop(0)	# delete obsolete first
+			#knots.pop()	# ... and last
+			print "knots=",knots
 			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
-					closed, Entity.SPLINE_SEGMENTS)
+					closed, splineSegs, knots)
 			self[10] = xx
 			self[20] = yy
 			self[30] = zz
@@ -627,9 +631,8 @@ class Entity(dict):
 					return self
 				else:
 					dxf.push(tag,value)
-
 					if self.type in ("ELLIPSE", "SPLINE"):
-						self.convert2Polyline()
+						self.convert2Polyline(dxf.splineSegs)
 
 					return self
 			elif tag==8:
@@ -892,12 +895,18 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def init(self):
-		self.title  = "dxf-class"
-		self.units  = DXF.UNITLESS
-		self.layers = {}	# entities per layer diction of lists
-		self.blocks = {}
-		self._saved = None
+		self.title      = "dxf-class"
+		self.units      = DXF.UNITLESS
+		self.layers     = {}	# entities per layer diction of lists
+		self.blocks     = {}
+		self._saved     = None
+		self.splineSegs = 8
+		self.vars       = {}
 		errors.clear()
+
+	#----------------------------------------------------------------------
+	def __getitem__(self, var):
+		return self.vars[var]
 
 	#----------------------------------------------------------------------
 	def entities(self, name):
@@ -1080,15 +1089,20 @@ class DXF:
 				return
 			elif tag == 9:
 				var = value
-			elif tag == 70:
-				if var == "$MEASUREMENT":
-					value = int(value)
-					if value == 0:
-						self.units = DXF.INCHES
-					else:
-						self.units = DXF.MILLIMETERS
-				elif var == "$INSUNITS":
-					self.units = int(value)
+			else:
+				self.vars[var] = value
+				if tag == 70:
+					if var == "$MEASUREMENT":
+						value = int(value)
+						if value == 0:
+							self.units = DXF.INCHES
+						else:
+							self.units = DXF.MILLIMETERS
+					elif var == "$INSUNITS":
+						self.units = int(value)
+
+					elif var == "$SPLINESEGS":
+						self.splineSegs = int(value)
 
 	#----------------------------------------------------------------------
 	def addEntity(self, entity):

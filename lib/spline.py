@@ -177,82 +177,134 @@ class CubicSpline:
 
 # ------------------------------------------------------------------------------
 # Convert a B-spline to polyline with a fixed number of segments
-#
-# FIXME to become adaptive
 # ------------------------------------------------------------------------------
-def spline2Polyline(controlPoints, degree, closed, segments):
-	npts = len(controlPoints)
+def spline2Polyline(xyz, degree, closed, segments, knots):
+	print "len(xyz)=",len(xyz)
+	print "len(knots)=",len(knots)
+	if closed:
+		xyz.extend(xyz[:degree])
+#		k = knots[-1]
+#		for i in range(degree+1):
+#			k += 0.2
+#			knots.append(k + knots[i])
+
+	print "knots=",knots
+
+	# make base-1
+	knots.insert(0, 0)
+
+	npts = len(xyz)
 
 	if degree<1 or degree>3:
 		#print "invalid degree"
 		return None,None,None
 
-	if npts < degree+1:
-		#print "not enough control points"
-		return None,None,None
-
 	# order:
 	k = degree+1
 
-	# resolution:
-	p1 = segments * npts
+	if npts < k:
+		#print "not enough control points"
+		return None,None,None
 
-	# based 1
-	b = [0.0]*(npts*3+1)
+	# resolution:
+	nseg = segments * npts
+
+	# WARNING: base 1
+	b = [0.0]*(npts*3+1)		# polygon points
 	h = [1.0]*(npts+1)		# set all homogeneous weighting factors to 1.0
-	p = [0.0]*(p1*3+1)
+	p = [0.0]*(nseg*3+1)		# returned curved points
 
 	i = 1
-	for pt in controlPoints:
+	for pt in xyz:
 		b[i]   = pt[0]
 		b[i+1] = pt[1]
 		b[i+2] = pt[2]
-
-		#RS_DEBUG->print("RS_Spline::update: b[%d]: %f/%f", i, b[i], b[i+1])
 		i +=3
 
+	#if periodic:
 	if closed:
-		rbsplinu(npts,k,p1,b,h,p)
+		_rbsplinu(npts, k, nseg, b, h, p, knots)
 	else:
-		rbspline(npts,k,p1,b,h,p)
+		_rbspline(npts, k, nseg, b, h, p, knots)
 
 	x = []
 	y = []
 	z = []
-	for i in range(1,3*p1+1,3):
+	for i in range(1,3*nseg+1,3):
 		x.append(p[i])
 		y.append(p[i+1])
 		z.append(p[i+2])
 
+#	for i,xyz in enumerate(zip(x,y,z)):
+#		print i,xyz
+
 	return x,y,z
 
 # ------------------------------------------------------------------------------
-# Generates B-Spline open knot vector with multiplicity
+# Subroutine to generate a B-spline open knot vector with multiplicity
 # equal to the order at the ends.
+#    c            = order of the basis function
+#    n            = the number of defining polygon vertices
+#    n+2          = index of x[] for the first occurence of the maximum knot vector value
+#    n+order      = maximum value of the knot vector -- $n + c$
+#    x[]          = array containing the knot vector
 # ------------------------------------------------------------------------------
-def knot(num, order, knotVector):
-	knotVector[1] = 0
-	for i in range(2, num+order+1):
-		if i>order and i<num + 2:
-			knotVector[i] = knotVector[i-1] + 1
+def _knot(n, order, x):
+	x[1] = 0.0
+	for i in range(2, n+order+1):
+		if i>order and i<n+2:
+			x[i] = x[i-1] + 1.0
 		else:
-			knotVector[i] = knotVector[i-1]
+			x[i] = x[i-1]
 
 # ------------------------------------------------------------------------------
-# Generates rational B-spline basis functions for an open knot vector.
+# Subroutine to generate a B-spline uniform (periodic) knot vector.
+#
+# order        = order of the basis function
+# n            = the number of defining polygon vertices
+# n+order      = maximum value of the knot vector -- $n + order$
+# x[]          = array containing the knot vector
 # ------------------------------------------------------------------------------
-def rbasis(c, t, npts, x, h, r):
+def _knotu(n, order, x):
+	x[1] = 0.0
+	for i in range(2, n+order+1):
+		x[i] = float(i-1)
+
+# ------------------------------------------------------------------------------
+# Subroutine to generate rational B-spline basis functions--open knot vector
+
+# C code for An Introduction to NURBS
+# by David F. Rogers. Copyright (C) 2000 David F. Rogers,
+# All rights reserved.
+
+# Name: rbasis
+# Subroutines called: none
+# Book reference: Chapter 4, Sec. 4. , p 296
+
+#   c        = order of the B-spline basis function
+#   d        = first term of the basis function recursion relation
+#   e        = second term of the basis function recursion relation
+#   h[]      = array containing the homogeneous weights
+#   npts     = number of defining polygon vertices
+#   nplusc   = constant -- npts + c -- maximum number of knot values
+#   r[]      = array containing the rational basis functions
+#              r[1] contains the basis function associated with B1 etc.
+#   t        = parameter value
+#   temp[]   = temporary array
+#   x[]      = knot vector
+# ------------------------------------------------------------------------------
+def _rbasis(c, t, npts, x, h, r):
 	nplusc = npts + c
 	temp = [0.0]*(nplusc+1)
 
-	# calculate the first order nonrational basis functions n[i]
+	# calculate the first order non-rational basis functions n[i]
 	for i in range(1, nplusc):
 		if x[i] <= t < x[i+1]:
 			temp[i] = 1.0
 		else:
 			temp[i] = 0.0
 
-	# calculate the higher order nonrational basis functions
+	# calculate the higher order non-rational basis functions
 	for k in range(2,c+1):
 		for i in range(1,nplusc-k+1):
 			# if the lower order basis function is zero skip the calculation
@@ -269,7 +321,7 @@ def rbasis(c, t, npts, x, h, r):
 			temp[i] = d + e
 
 	# pick up last point
-	if t == x[nplusc]:
+	if t >= x[nplusc]:
 		temp[npts] = 1.0
 
 	# calculate sum for denominator of rational basis functions
@@ -287,14 +339,13 @@ def rbasis(c, t, npts, x, h, r):
 # ------------------------------------------------------------------------------
 # Generates a rational B-spline curve using a uniform open knot vector.
 #
-#	C code for An Introduction to NURBS
-#	by David F. Rogers. Copyright (C) 2000 David F. Rogers,
-#	All rights reserved.
+# C code for An Introduction to NURBS
+# by David F. Rogers. Copyright (C) 2000 David F. Rogers,
+# All rights reserved.
 #
-#	Name: rbspline.c
-#	Language: C
-#	Subroutines called: knot.c, rbasis.c, fmtmul.c
-#	Book reference: Chapter 4, Alg. p. 297
+# Name: rbspline.c
+# Subroutines called: _knot, rbasis
+# Book reference: Chapter 4, Alg. p. 297
 #
 #    b           = array containing the defining polygon vertices
 #                  b[1] contains the x-component of the vertex
@@ -313,75 +364,87 @@ def rbasis(c, t, npts, x, h, r):
 #    t           = parameter value 0 <= t <= npts - k + 1
 #    x[]         = array containing the knot vector
 # ------------------------------------------------------------------------------
-def rbspline(npts, k, p1, b, h, p):
+def _rbspline(npts, k, p1, b, h, p, x):
 	nplusc = npts + k
-
-	x = [0]*(nplusc+1)
-	nbasis = [0.0]*(npts+1)	# zero and re-dimension the knot vector and the basis array
+	nbasis = [0.0]*(npts+1)		# zero and re-dimension the basis array
 
 	# generate the uniform open knot vector
-	knot(npts,k,x)
-
+	if x is None or len(x) != nplusc+1:
+		x = [0.0]*(nplusc+1)
+		_knot(npts, k, x)
 	icount = 0
-
 	# calculate the points on the rational B-spline curve
 	t = 0
 	step = float(x[nplusc])/float(p1-1)
-
 	for i1 in range(1, p1+1):
-		if float(x[nplusc]) - t < 5e-6:
-			t = float(x[nplusc])
-
+		if x[nplusc] - t < 5e-6:
+			t = x[nplusc]
 		# generate the basis function for this value of t
-		rbasis(k,t,npts,x,h,nbasis)
-
+		nbasis = [0.0]*(npts+1)	# zero and re-dimension the knot vector and the basis array
+		_rbasis(k, t, npts, x, h, nbasis)
 		# generate a point on the curve
 		for j in range(1, 4):
 			jcount = j
 			p[icount+j] = 0.0
-
 			# Do local matrix multiplication
 			for i in range(1, npts+1):
 				p[icount+j] +=  nbasis[i]*b[jcount]
 				jcount += 3
-
 		icount += 3
 		t += step
 
 # ------------------------------------------------------------------------------
-def knotu(num, order, knotVector):
-	nplusc = num + order
-	knotVector[1] = 0.0
-	for i in range(2, nplusc+1):
-		knotVector[i] = i-1
-
+# Subroutine to generate a rational B-spline curve using an uniform periodic knot vector
+#
+# C code for An Introduction to NURBS
+# by David F. Rogers. Copyright (C) 2000 David F. Rogers,
+# All rights reserved.
+#
+# Name: rbsplinu.c
+# Subroutines called: _knotu, _rbasis
+# Book reference: Chapter 4, Alg. p. 298
+#
+#   b[]         = array containing the defining polygon vertices
+#                 b[1] contains the x-component of the vertex
+#                 b[2] contains the y-component of the vertex
+#                 b[3] contains the z-component of the vertex
+#   h[]         = array containing the homogeneous weighting factors
+#   k           = order of the B-spline basis function
+#   nbasis      = array containing the basis functions for a single value of t
+#   nplusc      = number of knot values
+#   npts        = number of defining polygon vertices
+#   p[,]        = array containing the curve points
+#                 p[1] contains the x-component of the point
+#                 p[2] contains the y-component of the point
+#                 p[3] contains the z-component of the point
+#   p1          = number of points to be calculated on the curve
+#   t           = parameter value 0 <= t <= npts - k + 1
+#   x[]         = array containing the knot vector
 # ------------------------------------------------------------------------------
-def rbsplinu(npts, k, p1, b, h, p):
+def _rbsplinu(npts, k, p1, b, h, p, x=None):
 	nplusc = npts + k
-
-	x = [0]*(nplusc+1)
-	# zero and redimension the knot vector and the basis array
-	nbasis = [0.0]*(npts+1)
+	nbasis = [0.0]*(npts+1)		# zero and re-dimension the basis array
 	# generate the uniform periodic knot vector
-	knotu(npts,k,x)
+	if x is None or len(x) != nplusc+1:
+		# zero and re dimension the knot vector and the basis array
+		x = [0]*(nplusc+1)
+		_knotu(npts, k, x)
+	print "x=",x
 	icount = 0
-
 	# calculate the points on the rational B-spline curve
 	t = k-1
 	step = (float(npts)-(k-1))/float(p1-1)
-
+	print "len(x)=",len(x),"nplusc=",nplusc
 	for i1 in range(1, p1+1):
-		if float(x[nplusc]) - t < 5e-6:
-			t = float(x[nplusc])
-
+		if x[nplusc] - t < 5e-6:
+			t = x[nplusc]
 		# generate the basis function for this value of t
-		rbasis(k,t,npts,x,h,nbasis)
-
+		nbasis = [0.0]*(npts+1)
+		_rbasis(k, t, npts, x, h, nbasis)
 		# generate a point on the curve
 		for j in range(1,4):
 			jcount = j
 			p[icount+j] = 0.0
-
 			#  Do local matrix multiplication
 			for i in range(1,npts+1):
 				p[icount+j] += nbasis[i]*b[jcount]
