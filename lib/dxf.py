@@ -330,11 +330,11 @@ class Entity(dict):
 
 	#----------------------------------------------------------------------
 	def __init__(self, t, n=None):
+		"""Constructor"""
 		self.type    = t
 		self.name    = n
 		self._invert = False
-		self._start  = None
-		self._end    = None
+		self._initCache()
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -346,18 +346,28 @@ class Entity(dict):
 		return out
 
 	#----------------------------------------------------------------------
-	def init(self):
-		self._start = None
-		self._end   = None
+	def _initCache(self):
+		"""Initialize entity"""
+		self._start  = None
+		self._end    = None
+
+	#----------------------------------------------------------------------
+	def clone(self):
+		"""Create a replica of the entity"""
+		entity = Entity(self.type, self.name)
+		entity.update(self)
+		return entity
 
 	#----------------------------------------------------------------------
 	def point(self, idx=0):
+		"""return 2D point 10+idx,20+idx"""
 		return Vector(self.get(10+idx,0), self.get(20+idx,0))
 	point2D = point
 	center  = point
 
 	#----------------------------------------------------------------------
 	def point3D(self, idx=0):
+		"""return 3D point 10+idx,20+idx"""
 		return Vector(self.get(10+idx), self.get(20+idx), self.get(30+idx))
 
 	#----------------------------------------------------------------------
@@ -410,14 +420,11 @@ class Entity(dict):
 			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 			self._start = Vector(self[10][0], self[20][0])
-		elif self.type in ("POINT", "ELLIPSE"):
-			self._start = self.point()
-		elif self.type == "DIMENSION":
-			# Ignore!!
+		elif self.type in ("POINT", "ELLIPSE", "DIMENSION", "@START"):
 			self._start = self.point()
 		else:
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
-			import traceback; traceback.print_stack()
+			#import traceback; traceback.print_stack()
 			self._start = self.point()
 		return self._start
 
@@ -443,30 +450,86 @@ class Entity(dict):
 				self._end = Vector(self[10][0], self[20][0])
 			else:
 				self._end = Vector(self[10][-1], self[20][-1])
-		elif self.type == "POINT":
-			self._end = self.point()
-		elif self.type == "DIMENSION":
-			# Ignore!!
+		elif self.type in ("POINT", "DIMENSION", "@START"):
 			self._end = self.point()
 		else:
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
-			import traceback; traceback.print_stack()
+			#import traceback; traceback.print_stack()
 			self._end = self.point()
 		return self._end
 
 	#----------------------------------------------------------------------
-	# Invert if needed to allow continuity of motion
-	#----------------------------------------------------------------------
 	def invert(self):
+		"""Invert entity if needed to allow continuity of motion"""
 		self._invert = not self._invert
 		self._start, self._end = self._end, self._start
 
 	#----------------------------------------------------------------------
+	def translate(self, dx, dy=None, dz=None):
+		"""Translate entity by vector dx or (dx,dy,dz) coordinates"""
+		if not isinstance(dx,float):
+			dx,dy,dz = dx
+
+		# add d to self[idx]
+		def add(from_, to_, d):
+			if d is None: return
+			for idx in range(from_,to_):
+				try:
+					value = self[idx]
+					if isinstance(value,list):
+						for i in range(len(value)):
+							value[i] += d
+					else:
+						self[idx] += d
+				except KeyError:
+					return
+		add(10,20,dx)
+		add(20,30,dy)
+		add(30,40,dz)
+		self._initCache()
+
+	#----------------------------------------------------------------------
+	def scale(self, sx, sy=None, sz=None):
+		"""Scale entity by vector sx or (sx,sy,sz) coordinates"""
+		if not isinstance(sx,float):
+			sx,sy,sz = sx
+
+		# multiply by s to self[idx]
+		def mult(from_, to_, s):
+			if s is None or s==1.0: return
+			for idx in range(from_,to_):
+				try:
+					value = self[idx]
+					if isinstance(value,list):
+						for i in range(len(value)):
+							value[i] += s
+					else:
+						self[idx] *= s
+				except KeyError:
+					return
+		mult(10,20,sx)
+		mult(20,30,sy)
+		mult(30,40,sz)
+
+		if self.type in ("ARC","CIRCLE"):
+			# Convert to Ellpise if sx!=sy
+			if abs(sx-sy)>1e-6:
+				error("Non uniform scaling on ARC/CIRCLE is not supported")
+			self[40] *= sx
+
+		self._initCache()
+
+	#----------------------------------------------------------------------
+	def rotate(self, r):
+		"""Rotate entity by angle r"""
+		error("Rotation of blocks is not supported for the moment""")
+
+	#----------------------------------------------------------------------
 	# Convert entity to polyline
-	#
 	# FIXME needs to be adaptive to the precision requested from the saggita
 	#----------------------------------------------------------------------
 	def convert2Polyline(self):
+		"""Convert complex objects (SPLINE,ELLIPSE) to polylines"""
 		if self.type == "SPLINE":
 			# Convert to polyline
 			xyz  = zip(self[10], self[20], self[30])
@@ -517,13 +580,13 @@ class Entity(dict):
 			self[20] = yy
 			self[42] = 0	# bulge FIXME maybe I should use it
 			self.type = "LWPOLYLINE"
-		self.init()
+		self._initCache()
 
 	#----------------------------------------------------------------------
 	# Read vertex for POLYLINE
 	# Very bad!!
 	#----------------------------------------------------------------------
-	def readVertex(self, dxf):
+	def _readVertex(self, dxf):
 		self[10] = [0.0]
 		self[20] = [0.0]
 		self[30] = [0.0]
@@ -554,12 +617,13 @@ class Entity(dict):
 	# Read entity until next block
 	#----------------------------------------------------------------------
 	def read(self, dxf):
+		"""Read entity from a dxf file"""
 		while True:
 			tag,value = dxf.read()
 			if tag is None: return
 			if tag==0:
 				if self.type == "POLYLINE":
-					self.readVertex(dxf)
+					self._readVertex(dxf)
 					return self
 				else:
 					dxf.push(tag,value)
@@ -628,7 +692,7 @@ class Layer:
 	# Sort layer in continuation order of entities
 	# where the end of of the previous is the start of the new one
 	#
-	# Add an new special marker for starting an entity with TYPE="START"
+	# Add an new special marker for starting an entity with TYPE="@START"
 	#----------------------------------------------------------------------
 	def sort(self):
 		if self._sorted: return
@@ -654,7 +718,7 @@ class Layer:
 		# ---
 		def pushStart():
 			# Find starting point and add it to the new list
-			start = Entity("START",self.name)
+			start = Entity("@START",self.name)
 			start._start = start._end = self.entities[0].start()
 			new.append(start)
 
@@ -837,13 +901,12 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def entities(self, name):
+		"""Return all entries for the layer name"""
 		return self.layers[name].entities
 
 	#----------------------------------------------------------------------
-	# Convert units to another format
-	#----------------------------------------------------------------------
 	def convert(self, value, units):
-		# Convert to another type of units
+		"""Convert units to another format"""
 		f = self._TOMM[self.units] / DXF._TOMM[units]
 
 		if isinstance(value,float):
@@ -866,58 +929,111 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def open(self, filename, mode):
+		"""Open filename for reading or writing"""
 		self._f = open(filename, mode)
 		self.init()
 
 	#----------------------------------------------------------------------
 	def close(self):
+		"""Close opened file"""
 		self._f.close()
 
 	#----------------------------------------------------------------------
-	# Read one pair tag,value either from file or previously saved
+	# From the DXF reference manual
+	# http://www.autodesk.com/techpubs/autocad/acad2000/dxf/group_code_value_types_dxf_01.htm
+	#
+	# Code range	python	Group value type
+	# 0-9		str	String. (With the introduction of extended symbol names
+	#			in AutoCAD 2000, the 255 character limit has been lifted.
+	#			There is no explicit limit to the number of bytes per line,
+	#			although most lines should fall within 2049 bytes.)
+	# 10-59		float	Double precision 3D point
+	# 60-79		int	16-bit integer value
+	# 90-99		int	32-bit integer value
+	# 100		str	String (255-character maximum; less for Unicode strings)
+	# 102		str	String (255-character maximum; less for Unicode strings)
+	# 105		str	String representing hexadecimal (hex) handle value
+	# 140-147	float	Double precision scalar floating-point value
+	# 170-175	int	16-bit integer value
+	# 280-289	int	8-bit integer value
+	# 300-309	str	Arbitrary text string
+	# 310-319	str	String representing hex value of binary chunk
+	# 320-329	str	String representing hex handle value
+	# 330-369	str	String representing hex object IDs
+	# 370-379	int	8-bit integer value
+	# 380-389	int	8-bit integer value
+	# 390-399	str	String representing hex handle value
+	# 400-409	int	16-bit integer value
+	# 410-419	str	String
+	# 999		str	Comment (string)
+	# 1000-1009	str	String. (Same limits as indicated with 0-9 code range.)
+	# 1010-1059	float	Floating-point value
+	# 1060-1070	int	16-bit integer value
+	# 1071		int	32-bit integer value
 	#----------------------------------------------------------------------
 	def read(self):
+		"""Read one pair tag,value either from file or previously saved"""
 		if self._saved is not None:
 			tv = self._saved
 			self._saved = None
 			return tv
 
+		# read the tag
 		line = self._f.readline()
 		if not line: return None, None
 		try:
 			tag = int(line.strip())
 		except:
-			error("Error reading line %s\n"%(line))
+			error("Error reading line %s, tag was expected\n"%(line))
 			return None,None
+
+		# and the value
 		value = self._f.readline().strip()
-		try:
-			value = int(value)
-		except:
+
+		# change the type depending on the tag range
+		# float
+		if   10 <= tag <=   59 or \
+		    140 <= tag <=  147 or \
+		    210 <= tag <=  239 or \
+		   1010 <= tag <= 1059:
 			try:
 				value = float(value)
 			except:
-				pass
+				error("Error reading line '%s', tag=%d, floating point expected found \"%s\"\n"%(line,tag,value))
+				return None,None
+
+		# int
+		elif   60 <= tag <=   79 or \
+		       90 <= tag <=   99 or \
+		      170 <= tag <=  175 or \
+		      280 <= tag <=  289 or \
+		      370 <= tag <=  389 or \
+		      400 <= tag <=  409 or \
+		     1060 <= tag <= 1071:
+			try:
+				value = int(value)
+			except:
+				error("Error reading line '%s', tag=%d, integer expected found \"%s\"\n"%(line,tag,value))
+				return None,None
+
 		return tag,value
 
 	#----------------------------------------------------------------------
-	# peek the next tag,value pair
-	#----------------------------------------------------------------------
 	def peek(self):
+		"""peek the next tag,value pair"""
 		tag,value = self.read()
 		self.push(tag,value)
 		return tag,value
 
 	#----------------------------------------------------------------------
-	# save the tag, value for the next read
-	# WARNING only one depth is supported
-	#----------------------------------------------------------------------
 	def push(self, tag, value):
+		"""save the tag, value for the next read
+		WARNING only one depth is supported"""
 		self._saved = (tag,value)
 
 	#----------------------------------------------------------------------
-	# Read next tag, value pair which must be (t,v) otherwise report error
-	#----------------------------------------------------------------------
 	def mustbe(self, t, v=None):
+		"""Read next tag, value pair which must be (t,v) otherwise report error"""
 		tag,value = self.read()
 		if t!=tag:
 			self.push(tag,value)
@@ -929,9 +1045,8 @@ class DXF:
 			#raise Exception("DXF expecting %d,%s found %s,%s"%(t,v,str(tag),str(value)))
 
 	#----------------------------------------------------------------------
-	# Skip everything until next entity/block
-	#----------------------------------------------------------------------
 	def skipBlock(self):
+		"""Skip everything until next entity/block"""
 		while True:
 			tag,value = self.read()
 			if tag is None or tag==0:
@@ -939,18 +1054,16 @@ class DXF:
 				return
 
 	#----------------------------------------------------------------------
-	# Skip section
-	#----------------------------------------------------------------------
 	def skipSection(self):
+		"""Skip section"""
 		while True:
 			tag,value = self.read()
 			if tag is None or (tag==0 and value=="ENDSEC"):
 				return
 
 	#----------------------------------------------------------------------
-	# Read the title as the first item in DXF
-	#----------------------------------------------------------------------
 	def readTitle(self):
+		"""Read the title as the first item in DXF"""
 		tag,value = self.read()
 		if tag == 999:
 			self.title = value
@@ -958,9 +1071,8 @@ class DXF:
 			self.push(tag,value)
 
 	#----------------------------------------------------------------------
-	# Read header section
-	#----------------------------------------------------------------------
 	def readHeader(self):
+		"""Read header section"""
 		var = None
 		while True:
 			tag,value = self.read()
@@ -979,9 +1091,18 @@ class DXF:
 					self.units = int(value)
 
 	#----------------------------------------------------------------------
-	# Read entities section
+	def addEntity(self, entity):
+		"""Add entity to the appropriate layer"""
+		try:
+			layer = self.layers[entity.name]
+		except KeyError:
+			layer = Layer(entity.name)
+			self.layers[entity.name] = layer
+		layer.append(entity)
+
 	#----------------------------------------------------------------------
 	def readEntities(self):
+		"""Read entities section"""
 		while True:
 			tag,value = self.read()
 			if tag is None:
@@ -993,17 +1114,11 @@ class DXF:
 			#print ">>>",entity
 			#for n,v in entity.items(): print n,":",v
 			if entity.type in ("HATCH",): continue	# ignore
-			try:
-				layer = self.layers[entity.name]
-			except KeyError:
-				layer = Layer(entity.name)
-				self.layers[entity.name] = layer
-			layer.append(entity)
+			self.addEntity(entity)
 
 	#----------------------------------------------------------------------
-	# Read blocks section
-	#----------------------------------------------------------------------
 	def readBlocks(self):
+		"""Read blocks section"""
 		block = None
 		while True:
 			tag,value = self.read()
@@ -1024,9 +1139,8 @@ class DXF:
 					error("Unknown %s section in blocks"%(value))
 
 	#----------------------------------------------------------------------
-	# Read one table
-	#----------------------------------------------------------------------
 	def readTable(self):
+		"""Read one table"""
 		tag,value = self.read()
 		if value == "ENDSEC":
 			return None
@@ -1046,9 +1160,8 @@ class DXF:
 				table[tag] = value
 
 	#----------------------------------------------------------------------
-	# Read tables section
-	#----------------------------------------------------------------------
 	def readTables(self):
+		"""Read tables section"""
 		while True:
 			table = self.readTable()
 			if table is None: return
@@ -1058,9 +1171,8 @@ class DXF:
 					self.layers[name] = Layer(name, table)
 
 	#----------------------------------------------------------------------
-	# Read section based on type
-	#----------------------------------------------------------------------
 	def readSection(self):
+		"""Read section based on type"""
 		if not self.mustbe(0,"SECTION"): return None
 		tag,value = self.read()
 		if tag is None: return None
@@ -1094,58 +1206,20 @@ class DXF:
 		self.mustbe(0,"EOF")
 
 	#----------------------------------------------------------------------
-	# Sort layer in continuation order of entities
-	# where the end of of the previous is the start of the new one
-	#
-	# Add an new special marker for starting an entity with TYPE="START"
-	#----------------------------------------------------------------------
-	def sortLayer(self, name):
-		layer = self.layers[name]
-		layer.sort()
-		return layer.entities
-
-	#----------------------------------------------------------------------
-	def sort(self):
-		for block in self.blocks.values():
-			block.sort()
-		for layer in self.layers.values():
-			layer.sort()
-
-	#----------------------------------------------------------------------
-	# Expand blocks as entities inside layers
-	#----------------------------------------------------------------------
-	def expandBlocks(self):
-		for layer in self.layers.values():
-			for i,entity in reversed(list(enumerate(layer.entities))):
-				if entity.type != "INSERT": continue
-
-				print i
-				del layer.entities[i]
-				block = self.blocks[entity[2]]
-				print block.name, block.type, block.base, entity.point()
-
-				for l in block.layers.values():
-					for e in l.entities:
-						print e
-
-	#----------------------------------------------------------------------
-	# Write one tag,value pair
-	#----------------------------------------------------------------------
 	def write(self, tag, value):
+		"""Write one tag,value pair"""
 		self._f.write("%d\n%s\n"%(tag,str(value)))
 
 	#----------------------------------------------------------------------
-	# Write a vector for index idx
-	#----------------------------------------------------------------------
 	def writeVector(self, idx, x, y, z=None):
+		"""Write a vector for index idx"""
 		self.write(10+idx, "%g"%(x))
 		self.write(20+idx, "%g"%(y))
 		if z is not None: self.write(30+idx, "%g"%(z))
 
 	#----------------------------------------------------------------------
-	# Write DXF standard header
-	#----------------------------------------------------------------------
 	def writeHeader(self):
+		"""Write DXF standard header"""
 		self.write(999, self.title)
 		self.write( 0, "SECTION")
 		self.write( 2, "HEADER")
@@ -1168,20 +1242,21 @@ class DXF:
 		self.write( 2,"ENTITIES")
 
 	#----------------------------------------------------------------------
-	# Write End Of File
-	#----------------------------------------------------------------------
 	def writeEOF(self):
+		"""Write End Of File"""
 		self.write( 0, "ENDSEC")
 		self.write( 0, "EOF")
 
 	#----------------------------------------------------------------------
 	def point(self, x, y, name=None):
+		"""Write a point x,y as name"""
 		self.write( 0, "POINT")
 		if name: self.write( 8, name)
 		self.writeVector(0, x, y)
 
 	#----------------------------------------------------------------------
 	def line(self, x0, y0, x1, y1, name=None):
+		"""Write a line (x0,y0),(x1,y1) as name"""
 		self.write( 0, "LINE")
 		if name: self.write( 8, name)
 		self.writeVector(0, x0, y0)
@@ -1189,6 +1264,7 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def circle(self, x, y, r, name=None):
+		"""Write a line (x,y),r as name"""
 		self.write( 0, "CIRCLE")
 		if name: self.write( 8, name)
 		self.writeVector(0, x, y)
@@ -1196,6 +1272,7 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def arc(self, x, y, r, start, end, name=None):
+		"""Write an arc (x,y),r as name"""
 		self.write( 0, "ARC")
 		if name: self.write( 8, name)
 		self.writeVector(0, x, y)
@@ -1206,6 +1283,7 @@ class DXF:
 
 	#----------------------------------------------------------------------
 	def polyline(self, pts, flag=0, name=None):
+		"""Write an polyline from a list of points pts"""
 		self.write( 0, "LWPOLYLINE")
 		if name: self.write( 8, name)
 		self.write(100,"AcDbEntity")
@@ -1214,6 +1292,62 @@ class DXF:
 		self.write(43, 0)	# constant width
 		for x,y in pts:
 			self.writeVector(0,x,y)
+
+	#----------------------------------------------------------------------
+	def sort(self):
+		"""
+		Sort layer in continuation order of entities
+		where the end of of the previous is the start of the new one
+		Add an new special marker for starting an entity with TYPE="START"
+		"""
+		for block in self.blocks.values():
+			block.sort()
+		for layer in self.layers.values():
+			layer.sort()
+
+	#----------------------------------------------------------------------
+	def expandBlocks(self):
+		"""Inline BLOCKS as entities in the appropriate layers"""
+		for layer in self.layers.values():
+			for i,insert in reversed(list(enumerate(layer.entities))):
+				if insert.type != "INSERT": continue
+
+				del layer.entities[i]
+				block = self.blocks[insert[2]]
+
+				for l in block.layers.values():
+					for e in l.entities:
+						enew = e.clone()
+
+						# first check for scaling
+						sx = insert.get(41)
+						sy = insert.get(42)
+						sz = insert.get(43)
+						if sx is not None or sy is not None:
+							enew.scale(sx,sy,sz)
+
+						# followed by the rotation
+						r = insert.get(50,0)
+						if r != 0.0:
+							enew.rotate(r)
+
+						# grid placement
+						nc = insert.get(70,1)	# column count
+						nr = insert.get(71,1)	# row count
+						cs = insert.get(44,0.0)	# column spacing
+						rs = insert.get(45,0.0)	# row spacing
+
+						# last do the translation
+						enew.translate(insert.point3D())
+
+						for j in range(nr):
+							for i in range(nc):
+								if i==0 and j==0:
+									self.addEntity(enew)
+								else:
+									e2 = enew.clone()
+									e2.translate(i*cs,j*rs)
+									self.addEntity(e2)
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
