@@ -183,15 +183,14 @@ def spline2Polyline(xyz, degree, closed, segments, knots):
 	print "len(knots)=",len(knots)
 	if closed:
 		xyz.extend(xyz[:degree])
+		knots = None
 #		k = knots[-1]
 #		for i in range(degree+1):
 #			k += 0.2
 #			knots.append(k + knots[i])
-
-	print "knots=",knots
-
-	# make base-1
-	knots.insert(0, 0)
+	else:
+		# make base-1
+		knots.insert(0, 0)
 
 	npts = len(xyz)
 
@@ -249,13 +248,14 @@ def spline2Polyline(xyz, degree, closed, segments, knots):
 #    n+order      = maximum value of the knot vector -- $n + c$
 #    x[]          = array containing the knot vector
 # ------------------------------------------------------------------------------
-def _knot(n, order, x):
-	x[1] = 0.0
+def _knot(n, order):
+	x = [0.0]*(n+order+1)
 	for i in range(2, n+order+1):
 		if i>order and i<n+2:
 			x[i] = x[i-1] + 1.0
 		else:
 			x[i] = x[i-1]
+	return x
 
 # ------------------------------------------------------------------------------
 # Subroutine to generate a B-spline uniform (periodic) knot vector.
@@ -265,10 +265,11 @@ def _knot(n, order, x):
 # n+order      = maximum value of the knot vector -- $n + order$
 # x[]          = array containing the knot vector
 # ------------------------------------------------------------------------------
-def _knotu(n, order, x):
-	x[1] = 0.0
+def _knotu(n, order):
+	x = [0]*(n+order+1)
 	for i in range(2, n+order+1):
 		x[i] = float(i-1)
+	return x
 
 # ------------------------------------------------------------------------------
 # Subroutine to generate rational B-spline basis functions--open knot vector
@@ -370,8 +371,7 @@ def _rbspline(npts, k, p1, b, h, p, x):
 
 	# generate the uniform open knot vector
 	if x is None or len(x) != nplusc+1:
-		x = [0.0]*(nplusc+1)
-		_knot(npts, k, x)
+		x = _knot(npts, k)
 	icount = 0
 	# calculate the points on the rational B-spline curve
 	t = 0
@@ -427,14 +427,11 @@ def _rbsplinu(npts, k, p1, b, h, p, x=None):
 	# generate the uniform periodic knot vector
 	if x is None or len(x) != nplusc+1:
 		# zero and re dimension the knot vector and the basis array
-		x = [0]*(nplusc+1)
-		_knotu(npts, k, x)
-	print "x=",x
+		x = _knotu(npts, k)
 	icount = 0
 	# calculate the points on the rational B-spline curve
 	t = k-1
 	step = (float(npts)-(k-1))/float(p1-1)
-	print "len(x)=",len(x),"nplusc=",nplusc
 	for i1 in range(1, p1+1):
 		if x[nplusc] - t < 5e-6:
 			t = x[nplusc]
