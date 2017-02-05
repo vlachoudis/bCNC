@@ -959,7 +959,7 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					if self.controller == Utils.GRBL0:
+					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE):
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
