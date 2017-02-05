@@ -1139,12 +1139,11 @@ class Sender:
 					self._gcount += 1
 					if cline: del cline[0]
 					if sline: del sline[0]
-					#print "gcount OK=",self._gcount
 					#print "SLINE:",sline
-					if  self._alarm and not self.running:
-						# turn off alarm for connected status once
-						# a valid gcode event occurs
-						self._alarm = False
+#					if  self._alarm and not self.running:
+#						# turn off alarm for connected status once
+#						# a valid gcode event occurs
+#						self._alarm = False
 
 				elif line[0] == "$":
 					self.log.put((Sender.MSG_RECEIVE, line))
