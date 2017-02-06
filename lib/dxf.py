@@ -545,7 +545,7 @@ class Entity(dict):
 #			print "planar=",planar
 #			print "linear=",linear
 #			print "knotValue=",self[40]
-			for n in sorted(self.keys()): print n,"=",self[n]
+#			for n in sorted(self.keys()): print n,"=",self[n]
 			knots = self[40]
 			#knots.pop(0)	# delete obsolete first
 			#knots.pop()	# ... and last
