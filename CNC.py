@@ -2376,7 +2376,7 @@ class GCode:
 		undoinfo = []
 		for name,layer in dxf.layers.items():
 			enable = not bool(layer.isFrozen())
-			entities = dxf.entities(name)	#dxf.sortLayer(name)
+			entities = dxf.entities(name)
 			if not entities: continue
 			self.importEntityPoints(None, entities, name, enable, layer.color())
 			path = Path(name)

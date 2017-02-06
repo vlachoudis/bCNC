@@ -179,8 +179,8 @@ class CubicSpline:
 # Convert a B-spline to polyline with a fixed number of segments
 # ------------------------------------------------------------------------------
 def spline2Polyline(xyz, degree, closed, segments, knots):
-	print "len(xyz)=",len(xyz)
-	print "len(knots)=",len(knots)
+	#print "len(xyz)=",len(xyz)
+	#print "len(knots)=",len(knots)
 	if closed:
 		xyz.extend(xyz[:degree])
 		knots = None

@@ -643,18 +643,18 @@ class Path(list):
 	# WARNING: the path must be closed otherwise it is meaningless
 	#----------------------------------------------------------------------
 	def isInside(self, P):
-		print "P=",P
+		#print "P=",P
 		minx,miny,maxx,maxy = self.bbox()
-		print "limits:",minx,miny,maxx,maxy
+		#print "limits:",minx,miny,maxx,maxy
 		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]))
 		count = 0
 		PP1 = None	# previous points to avoid double counting
 		PP2 = None
-		print "Line=",line
+		#print "Line=",line
 		for i,segment in enumerate(self):
 			P1,P2 = line.intersect(segment)
-			print
-			print i,segment
+			#print
+			#print i,segment
 			if P1 is not None:
 				if PP1 is None and PP2 is None:
 					count += 1
@@ -678,10 +678,10 @@ class Path(list):
 						count += 1
 					elif PP2 is not None and not eq(P2,PP2):
 						count += 1
-			print P1,P2,count
+			#print P1,P2,count
 			PP1 = P1
 			PP2 = P2
-		print "Count=",count
+		#print "Count=",count
 		return bool(count&1)
 
 	#----------------------------------------------------------------------
