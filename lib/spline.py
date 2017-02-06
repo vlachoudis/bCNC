@@ -179,15 +179,16 @@ class CubicSpline:
 # Convert a B-spline to polyline with a fixed number of segments
 # ------------------------------------------------------------------------------
 def spline2Polyline(xyz, degree, closed, segments, knots):
-	#print "len(xyz)=",len(xyz)
-	#print "len(knots)=",len(knots)
+	# Check if last point coincide with the first one
+	if (bmath.Vector(xyz[0])-bmath.Vector(xyz[-1])).length2() < 1e-10:
+		# it is already closed, treat it as open
+		closed = False
+		# FIXME we should verify if it is periodic,.... but...
+		#       I am not sure :)
+
 	if closed:
 		xyz.extend(xyz[:degree])
 		knots = None
-#		k = knots[-1]
-#		for i in range(degree+1):
-#			k += 0.2
-#			knots.append(k + knots[i])
 	else:
 		# make base-1
 		knots.insert(0, 0)

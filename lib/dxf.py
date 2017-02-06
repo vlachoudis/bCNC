@@ -544,12 +544,8 @@ class Entity(dict):
 #			print "rational=",rational
 #			print "planar=",planar
 #			print "linear=",linear
-#			print "knotValue=",self[40]
 #			for n in sorted(self.keys()): print n,"=",self[n]
 			knots = self[40]
-			#knots.pop(0)	# delete obsolete first
-			#knots.pop()	# ... and last
-#			print "knots=",knots
 			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
 					closed, splineSegs, knots)
 			self[10] = xx
