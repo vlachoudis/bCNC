@@ -177,6 +177,8 @@ class CubicSpline:
 
 # ------------------------------------------------------------------------------
 # Convert a B-spline to polyline with a fixed number of segments
+#
+# FIXME to become adaptive
 # ------------------------------------------------------------------------------
 def spline2Polyline(xyz, degree, closed, segments, knots):
 	# Check if last point coincide with the first one

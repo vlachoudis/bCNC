@@ -3346,7 +3346,9 @@ class HSplitter(Splitter):
 
 	# ----------------------------------------------------------------------
 	def leftFrame(self):  return self.firstFrame()
+	left = leftFrame
 	def rightFrame(self): return self.secondFrame()
+	right = rightFrame
 
 #===============================================================================
 # Vertical Splitter
@@ -3358,7 +3360,9 @@ class VSplitter(Splitter):
 
 	# ----------------------------------------------------------------------
 	def topFrame(self):    return self.firstFrame()
+	top = topFrame
 	def bottomFrame(self): return self.secondFrame()
+	bottom = bottomFrame
 
 #===============================================================================
 # Splitter Node
@@ -4272,15 +4276,22 @@ class ScrollFrame(Frame):
 
 	#-------------------------------------------------------------------------------
 	@staticmethod
-	def bindChilds(widget, event, function):
+	def bindChilds(widget, event, function, ignore=None):
+		if ignore is None: ignore = [event]
 		for child in widget.winfo_children():
-			ScrollFrame.bindChilds(child, event, function)
-			if not child.bind(event): child.bind(event, function)
+			ScrollFrame.bindChilds(child, event, function, ignore)
+			for e in ignore:
+				if child.bind(e) or child.bind_class(child.__class__.__name__,e):
+					break
+			else:
+				child.bind(event, function)
 
 	#-------------------------------------------------------------------------------
 	def defaultBinds(self):
-		ScrollFrame.bindChilds(self.client, "<B2-Motion>",	self.drag)
-		ScrollFrame.bindChilds(self.client, "<ButtonRelease-2>",	self.dragRelease)
+		ignore = ["<2>", "<B2-Motion>", "<ButtonRelease-2>"]
+		ScrollFrame.bindChilds(self.client, "<B2-Motion>",	self.drag, ignore)
+		del ignore[1]	# delete motion that was already assigned
+		ScrollFrame.bindChilds(self.client, "<ButtonRelease-2>",self.dragRelease, ignore)
 		ScrollFrame.bindChilds(self.client, "<Button-4>",	self.scrollUp)
 		ScrollFrame.bindChilds(self.client, "<Button-5>",	self.scrollDown)
 		ScrollFrame.bindChilds(self.client, "<Shift-Button-4>",	self.scrollLeft)

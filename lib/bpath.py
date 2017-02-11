@@ -1102,8 +1102,8 @@ class Path(list):
 				bulge = entity.bulge()
 				if not isinstance(bulge,list): bulge = [bulge]*len(xy)
 				if entity._invert:
-					xy.reverse()
 					# reverse and negate bulge
+					xy.reverse()
 					bulge = [-x for x in bulge[::-1]]
 
 				for i,(x,y) in enumerate(xy[1:]):
@@ -1112,10 +1112,22 @@ class Path(list):
 					if eq(start,end): continue
 					if abs(b)<EPS:
 						self.append(Segment(Segment.LINE, start, end))
+
+					elif abs(b-1.0)<EPS:
+						# Semicircle
+						center = (start+end)/2.0
+						if b<0.0:
+							t  = Segment.CW
+						else:
+							t  = Segment.CCW
+						self.append(Segment(t, start, end, center))
+
 					else:
 						# arc with bulge = b
 						# b = tan(theta/4)
 						theta = 4.0*atan(abs(b))
+						if abs(b)>1.0:
+							theta = 2.0*pi - theta
 						AB = start-end
 						ABlen = AB.length()
 						d = ABlen / 2.0
@@ -1127,6 +1139,8 @@ class Path(list):
 								t  = Segment.CW
 							else:
 								t  = Segment.CCW
+								OC = -OC
+							if abs(b)>1.0:
 								OC = -OC
 							center = Vector(C[0] - OC*AB[1]/ABlen,
 									C[1] + OC*AB[0]/ABlen)

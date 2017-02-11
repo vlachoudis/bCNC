@@ -41,7 +41,7 @@ import math
 import spline
 from bmath import Vector
 
-EPS  = 0.0001
+EPS  = 0.000001
 EPS2 = EPS**2
 
 # Just to avoid repeating errors
@@ -345,10 +345,10 @@ class Entity(dict):
 		return out
 
 	#----------------------------------------------------------------------
-	def _initCache(self):
+	def _initCache(self, s=None, e=None):
 		"""Initialize entity"""
-		self._start  = None
-		self._end    = None
+		self._start  = s
+		self._end    = e
 
 	#----------------------------------------------------------------------
 	def clone(self):
@@ -404,10 +404,31 @@ class Entity(dict):
 	# Return start point
 	#----------------------------------------------------------------------
 	def start(self):
-		if self._start is not None:
+		if self._start is None:
+			self._calcEndPoints()
+		if self._invert:
+			return self._end
+		else:
 			return self._start
-		elif self.type == "LINE":
+
+	#----------------------------------------------------------------------
+	# Return end point
+	#----------------------------------------------------------------------
+	def end(self):
+		if self._end is None:
+			self._calcEndPoints()
+		if self._invert:
+			return self._start
+		else:
+			return self._end
+
+	#----------------------------------------------------------------------
+	# Calculate start and end points
+	#----------------------------------------------------------------------
+	def _calcEndPoints(self):
+		if self.type == "LINE":
 			self._start = self.point()
+			self._end   = self.point(1)
 		elif self.type == "CIRCLE":
 			x,y = self.point()
 			r = self.radius()
@@ -417,45 +438,20 @@ class Entity(dict):
 			r = self.radius()
 			s = math.radians(self.startPhi())
 			self._start = Vector(x+r*math.cos(s), y + r*math.sin(s))
-		elif self.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
-			self._start = Vector(self[10][0], self[20][0])
-		elif self.type in ("POINT", "ELLIPSE", "DIMENSION", "@START"):
-			self._start = self.point()
-		else:
-			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
-			#import traceback; traceback.print_stack()
-			self._start = self.point()
-		return self._start
-
-	#----------------------------------------------------------------------
-	# Return end point
-	#----------------------------------------------------------------------
-	def end(self):
-		if self._end is not None:
-			return self._end
-		elif self.type == "LINE":
-			self._end = self.point(1)
-		elif self.type == "CIRCLE":
-			x,y = self.point()
-			r = self.radius()
-			self._start = self._end = Vector(x+r,y)
-		elif self.type == "ARC":
-			x,y = self.point()
-			r = self.radius()
 			s = math.radians(self.endPhi())
 			self._end = Vector(x+r*math.cos(s), y + r*math.sin(s))
 		elif self.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
+			self._start = Vector(self[10][0], self[20][0])
 			if self.isClosed():
 				self._end = Vector(self[10][0], self[20][0])
 			else:
 				self._end = Vector(self[10][-1], self[20][-1])
-		elif self.type in ("POINT", "DIMENSION", "@START"):
-			self._end = self.point()
+		elif self.type in ("POINT", "ELLIPSE", "DIMENSION", "@START"):
+			self._start = self._end = self.point()
 		else:
 			error("Cannot handle entity type: %s in layer: %s\n"%(self.type, self.name))
 			#import traceback; traceback.print_stack()
-			self._end = self.point()
-		return self._end
+			self._start = self._end = self.point()
 
 	#----------------------------------------------------------------------
 	def invert(self):
@@ -715,8 +711,9 @@ class Layer:
 		# ---
 		def pushStart():
 			# Find starting point and add it to the new list
-			start = Entity("@START",self.name)
-			start._start = start._end = self.entities[0].start()
+			start = Entity("@START", self.name)
+			s = self.entities[0].start()
+			start._initCache(s,s)
 			new.append(start)
 
 		# Push first element as start point
@@ -729,7 +726,7 @@ class Layer:
 			#print
 			#print "*-*",new[-1].start(),new[-1].end()
 
-			# Find the entity that starts after the layer
+			# Find the entity that starts after the last one
 			for i,entity in enumerate(self.entities):
 				# Try starting point
 				sx,sy = entity.start()
@@ -1119,8 +1116,9 @@ class DXF:
 				return None
 			entity = Entity(value)
 			entity.read(self)
-			#print ">>>",entity
-			#for n,v in entity.items(): print n,":",v
+#			print
+#			print ">>>",entity
+#			for n in sorted(entity.keys()): print n,":",entity[n]
 			if entity.type in ("HATCH",): continue	# ignore
 			self.addEntity(entity)
 

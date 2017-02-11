@@ -2311,9 +2311,9 @@ class GCode:
 		self._lastModified = os.stat(self.filename).st_mtime
 		self._modified = False
 		return True
-		
+
 	#----------------------------------------------------------------------
-	# Save in TXT format 
+	# Save in TXT format
 	# -Enabled Blocks only
 	# -Clened from bCNC metadata and comments
 	# -Uppercase
