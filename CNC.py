@@ -3428,6 +3428,7 @@ class GCode:
 				# Convert very small arcs to lines
 				path.convert2Lines(abs(offset)/10.)
 				D = path.direction()
+#				print "Path Direction:",D
 				if D==0: D=1
 #				print "ZERO\n",path
 				opath = path.offset(D*offset, newname)

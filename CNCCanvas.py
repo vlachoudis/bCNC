@@ -1204,7 +1204,10 @@ class CNCCanvas(Canvas):
 			self._cameraCircle2 = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR,
 							dash=(3,3), tag="CrossHair")
 			self.cameraPosition()
-		self.itemconfig(self._cameraImage, image=self.camera.toTk())
+		try:
+			self.itemconfig(self._cameraImage, image=self.camera.toTk())
+		except:
+			pass
 		self._cameraAfter = self.after(100, self.cameraRefresh);
 
 	#-----------------------------------------------------------------------
