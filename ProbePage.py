@@ -546,19 +546,19 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		self.probeXdir.set(Utils.getStr("Probe","x"))
-		self.probeYdir.set(Utils.getStr("Probe","y"))
-		self.probeZdir.set(Utils.getStr("Probe","z"))
-		self.diameter.set(Utils.getStr("Probe", "center"))
-		self.warn = Utils.getBool("Warning","probe",self.warn)
+		self.probeXdir.set(Utils.getStr("Probe", "x"))
+		self.probeYdir.set(Utils.getStr("Probe", "y"))
+		self.probeZdir.set(Utils.getStr("Probe", "z"))
+		self.diameter.set(Utils.getStr("Probe",  "center"))
+		self.warn = Utils.getBool("Warning", "probe", self.warn)
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setFloat("Probe", "x",    self.probeXdir.get())
-		Utils.setFloat("Probe", "y",    self.probeYdir.get())
-		Utils.setFloat("Probe", "z",    self.probeZdir.get())
-		Utils.setFloat("Probe", "center",  self.diameter.get())
-		Utils.setBool("Warning", "probe", self.warn)
+		Utils.setFloat("Probe", "x",      self.probeXdir.get())
+		Utils.setFloat("Probe", "y",      self.probeYdir.get())
+		Utils.setFloat("Probe", "z",      self.probeZdir.get())
+		Utils.setFloat("Probe", "center", self.diameter.get())
+		Utils.setBool("Warning","probe",  self.warn)
 
 	#-----------------------------------------------------------------------
 	def updateProbe(self):
@@ -1089,7 +1089,10 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 			self.switchButton.config(image=Utils.icons["camera32"])
 			self.sendGCode("G92.1")
 			self.app.canvas.cameraSwitch = False
-		self.sendGCode("G0X%gY%gZ%g"%(wx,wy,z))
+		if z is None:
+			self.sendGCode("G0X%gY%g"%(wx,wy))
+		else:
+			self.sendGCode("G0X%gY%gZ%g"%(wx,wy,z))
 
 	#-----------------------------------------------------------------------
 	def switchCamera(self, event=None):
@@ -1214,7 +1217,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
 		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
 		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
-		self.z.set(     Utils.getFloat("Camera", "aligncam_z"))
+		self.z.set(     Utils.getFloat("Camera", "aligncam_z", ""))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
@@ -1241,8 +1244,10 @@ class CameraFrame(CNCRibbon.PageFrame):
 		except ValueError: pass
 		try: self.app.canvas.cameraDy = float(self.dy.get())
 		except ValueError: pass
-		try: self.app.canvas.cameraZ  = float(self.z.get())
-		except ValueError: pass
+		try:
+			self.app.canvas.cameraZ  = float(self.z.get())
+		except ValueError:
+			self.app.canvas.cameraZ  = None
 		self.app.canvas.cameraUpdate()
 
 	#-----------------------------------------------------------------------
