@@ -2079,7 +2079,6 @@ class Application(Toplevel,Sender):
 	# @return true if the compile has to abort
 	#-----------------------------------------------------------------------
 	def checkStop(self):
-		if self._stop: print "CHECK STOP"
 		try:
 			self.update()	# very tricky function of Tk
 		except TclError:
