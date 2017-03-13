@@ -429,6 +429,9 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
 		row,col = 0,0
+		Label(self, text="A").grid(row=row, column=col)
+
+                col += 2
 		Label(self, text="Z").grid(row=row, column=col)
 
 		col += 3
@@ -441,6 +444,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		width=3
 		height=2
 
+		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveAup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +A"))
+		self.addWidget(b)
+
+		col += 2
 		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
 					command=self.moveZup,
 					width=width, height=height,
@@ -498,7 +510,20 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		# ---
 		row += 1
 
-		col = 1
+                col = 0
+		b = Utils.UserButton(self, self.app, 7, text=Unicode.LARGE_CIRCLE,
+					command=self.go2originA,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move A to Origin.\nUser configurable button.\nRight click to configure."))
+		self.addWidget(b)
+
+		col += 1
+                # put spacer between A and Z
+		Label(self, text=" ", width=3, anchor=E).grid(row=row, column=col, sticky=E)
+
+		col += 2
 		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
@@ -572,6 +597,15 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		row += 1
 		col = 0
 
+		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveAdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -A"))
+		self.addWidget(b)
+
+		col += 2
 		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 					command=self.moveZdown,
 					width=width, height=height,
@@ -688,6 +722,19 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.sendGCode("G91G0Z-%s"%(self.zstep.get()))
 		self.sendGCode("G90")
+
+	def moveAup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.sendGCode("G91G0A%s"%(self.zstep.get()))
+		self.sendGCode("G90")
+
+	def moveAdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.sendGCode("G91G0A-%s"%(self.zstep.get()))
+		self.sendGCode("G90")
+
+	def go2originA(self, event=None):
+		self.sendGCode("G90G0A0")
 
 	def go2origin(self, event=None):
 		self.sendGCode("G90G0X0Y0Z0")
