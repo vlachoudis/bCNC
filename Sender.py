@@ -543,7 +543,8 @@ class Sender:
 						stopbits=serial.STOPBITS_ONE,
 						timeout=SERIAL_TIMEOUT,
 						xonxoff=False,
-						rtscts=False)
+						rtscts=True,
+                                                dsrdtr=True)
 		# Toggle DTR to reset Arduino
 		try:
 			self.serial.setDTR(0)
