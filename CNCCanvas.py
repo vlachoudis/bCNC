@@ -260,11 +260,11 @@ class CNCCanvas(Canvas):
 		self.draw_workarea= True
 		self.draw_paths   = True
 		self.draw_rapid   = True		# draw rapid motions
-		self._wx = self._wy = self._wz = 0.	# work position
-		self._dx = self._dy = self._dz = 0.	# work-machine position
+		self._wx = self._wy = self._wz = self._wa= 0.	# work position
+		self._dx = self._dy = self._dz = self._da = 0.	# work-machine position
 
-		self._vx0 = self._vy0 = self._vz0 = 0	# vector move coordinates
-		self._vx1 = self._vy1 = self._vz1 = 0	# vector move coordinates
+		self._vx0 = self._vy0 = self._vz0 = self._va0 = 0	# vector move coordinates
+		self._vx1 = self._vy1 = self._vz1 = self._va1 = 0	# vector move coordinates
 
 		self._orientSelected = None
 

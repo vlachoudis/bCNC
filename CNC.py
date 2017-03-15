@@ -652,18 +652,22 @@ class CNC:
 	developer      = False
 	drozeropad     = 0
 	vars           = {
+			"prba"       : 0.0,
 			"prbx"       : 0.0,
 			"prby"       : 0.0,
 			"prbz"       : 0.0,
 			"prbcmd"     : "G38.2",
 			"prbfeed"    : 10.,
 			"errline"    : "",
+			"wa"         : 0.0,
 			"wx"         : 0.0,
 			"wy"         : 0.0,
 			"wz"         : 0.0,
+			"ma"         : 0.0,
 			"mx"         : 0.0,
 			"my"         : 0.0,
 			"mz"         : 0.0,
+			"wcoa"       : 0.0,
 			"wcox"       : 0.0,
 			"wcoy"       : 0.0,
 			"wcoz"       : 0.0,
@@ -1655,7 +1659,7 @@ class CNC:
 		lines.append("$g")	# remember state and populate variables
 		lines.append("m5")	# stop spindle
 		lines.append("%wait")
-		lines.append("%_x,_y,_z = wx,wy,wz")	# remember position
+		lines.append("%_x,_y,_z,_a = wx,wy,wz,wa")	# remember position
 		lines.append("g53 g0 z[toolchangez]")
 		lines.append("g53 g0 x[toolchangex] y[toolchangey]")
 		lines.append("%wait")

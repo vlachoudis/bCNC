@@ -154,7 +154,7 @@ class DROFrame(CNCRibbon.PageFrame):
 				cursor="hand1",
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
-		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
+		self.state.grid(row=row,column=col, columnspan=4, sticky=EW)
 		tkExtra.Balloon.set(self.state,
 				_("Show current state of the machine\n"
 				  "Click to see details\n"
@@ -167,6 +167,19 @@ class DROFrame(CNCRibbon.PageFrame):
 		Label(self,text=_("WPos:")).grid(row=row,column=col,sticky=E)
 
 		# work
+		col += 1
+		self.awork = Entry(self, font=DROFrame.dro_wpos,
+					background="White",
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.awork.grid(row=row,column=col,padx=1,sticky=EW)
+		tkExtra.Balloon.set(self.awork, _("A work position (click to set)"))
+		self.awork.bind('<FocusIn>',  self.workFocus)
+		self.awork.bind('<Return>',   self.setA)
+		self.awork.bind('<KP_Enter>', self.setA)
+
+		# ---
 		col += 1
 		self.xwork = Entry(self, font=DROFrame.dro_wpos,
 					background="White",
@@ -211,6 +224,10 @@ class DROFrame(CNCRibbon.PageFrame):
 		Label(self,text=_("MPos:")).grid(row=row,column=col,sticky=E)
 
 		col += 1
+		self.amachine = Label(self, font=DROFrame.dro_mpos, background="White", anchor=E)
+		self.amachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
 		self.xmachine = Label(self, font=DROFrame.dro_mpos, background="White",anchor=E)
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
@@ -226,6 +243,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		row += 1
 		col = 1
 
+		self.azero = Button(self, text="A=0",
+				command=self.setA0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.azero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.azero, _("Set A coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(self.azero)
+
+		col += 1
 		self.xzero = Button(self, text="X=0",
 				command=self.setX0,
 				activebackground="LightYellow",
@@ -252,6 +278,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.zzero, _("Set Z coordinate to zero (or to typed coordinate in WPos)"))
 		self.addWidget(self.zzero)
 
+
 		# Set buttons
 		row += 1
 		col = 1
@@ -268,7 +295,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
 		self.addWidget(b)
 
-		#col += 2
+		#col += 3
 		b = Button(f, text=_("Move Gantry"),
 				image=Utils.icons["gantry"],
 				compound=LEFT,
@@ -312,6 +339,9 @@ class DROFrame(CNCRibbon.PageFrame):
 			focus = self.focus_get()
 		except:
 			focus = None
+		if focus is not self.awork:
+			self.awork.delete(0,END)
+			self.awork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wa"]))
 		if focus is not self.xwork:
 			self.xwork.delete(0,END)
 			self.xwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wx"]))
@@ -322,6 +352,7 @@ class DROFrame(CNCRibbon.PageFrame):
 			self.zwork.delete(0,END)
 			self.zwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
 
+		self.amachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["ma"])
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
 		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
 		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
@@ -353,6 +384,10 @@ class DROFrame(CNCRibbon.PageFrame):
 		self._wcsSet(None,None,"0")
 
 	#----------------------------------------------------------------------
+	def setA0(self, event=None):
+		self._wcsSet(None,None,None,"0")
+
+	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
@@ -380,11 +415,20 @@ class DROFrame(CNCRibbon.PageFrame):
 			pass
 
 	#----------------------------------------------------------------------
-	def wcsSet(self, x, y, z):
-		self._wcsSet(x, y, z)
+	def setA(self, event=None):
+		if self.app.running: return
+		try:
+			value = float(eval(self.awork.get(),CNC.vars,self.app.gcode.vars))
+			self._wcsSet(None,None,None,value)
+		except:
+			pass
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
+	def wcsSet(self, x, y, z, a=None):
+		self._wcsSet(x, y, z, a)
+
+	#----------------------------------------------------------------------
+	def _wcsSet(self, x, y, z, a=None):
 		global wcsvar
 		p = wcsvar.get()
 		if p<6:
@@ -400,6 +444,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if x is not None: pos += "X"+str(x)
 		if y is not None: pos += "Y"+str(y)
 		if z is not None: pos += "Z"+str(z)
+		if a is not None: pos += "A"+str(a)
 		cmd += pos
 		self.sendGCode(cmd)
 		self.sendGCode("$#")
