@@ -1028,7 +1028,7 @@ class Sender:
 								CNC.vars["wcoz"] = float(word[3])
 
 						# Machine is Idle buffer is empty stop waiting and go on
-						if wait and not cline and fields[0]=="Idle":
+						if wait and not cline and fields[0] in ("Idle","Check"):
 							wait = False
 							self._gcount += 1
 
@@ -1055,7 +1055,7 @@ class Sender:
 							# stop waiting and go on
 							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
 							#print ">>>", line
-							if wait and not cline and pat.group(1)=="Idle":
+							if wait and not cline and pat.group(1) in ("Idle","Check"):
 								#print ">>>",line
 								wait = False
 								#print "<<< NO MORE WAIT"

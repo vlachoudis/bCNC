@@ -2172,7 +2172,7 @@ class Application(Toplevel,Sender):
 						self.queue.put(line)
 					n += 1
 			self._runLines = n	# set it at the end to be sure that all lines are queued
-		self.queue.put((WAIT,))		# wait at the end fo become idle
+		self.queue.put((WAIT,))		# wait at the end to become idle
 
 		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)
