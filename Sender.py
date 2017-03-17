@@ -215,6 +215,8 @@ class Sender:
 	MSG_RUNEND  =  5	# run ended
 	MSG_CLEAR   =  6	# clear buffer
 
+        xxx = False
+
 	def __init__(self):
 		# Global variables
 		self.history	 = []
@@ -684,17 +686,18 @@ class Sender:
 			self.sendGCode("$RST=#")
 
 	#----------------------------------------------------------------------
-	def goto(self, x=None, y=None, z=None):
+	def goto(self, x=None, y=None, z=None, a=None):
 		cmd = "G90G0"
 		if x is not None: cmd += "X%g"%(x)
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
+		if a is not None: cmd += "A%g"%(a)
 		self.sendGCode("%s"%(cmd))
 
 	#----------------------------------------------------------------------
 	# FIXME Duplicate with ControlPage
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
+	def _wcsSet(self, x, y, z, a):
 		p = WCS.index(CNC.vars["WCS"])
 		if p<6:
 			cmd = "G10L20P%d"%(p+1)
@@ -709,6 +712,7 @@ class Sender:
 		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
 		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
 		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
+		if a is not None: pos += "A"+str(a)
 		cmd += pos
 		self.sendGCode(cmd)
 		self.sendGCode("$#")
@@ -990,7 +994,7 @@ class Sender:
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
 				line = str(self.serial.readline()).strip()
-				#print "<R<",repr(line)
+                                #print "<R<",repr(line)
 				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
 					pass
@@ -1015,8 +1019,18 @@ class Sender:
 								CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 								CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
 								if len(word) > 4:
-									CNC.vars["ma"] = float(word[4])
-									CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+									try:
+										CNC.vars["ma"] = float(word[4])
+										CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+                                                                        except:
+										print repr(line)
+                                                                                self.xxx = True
+										CNC.vars["ma"] = 0.
+										CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+								if self.xxx:
+									self.xxx = False
+									print repr(line)
+
 								self._posUpdate = True
 							elif word[0] == "F":
 								CNC.vars["curfeed"] = float(word[1])

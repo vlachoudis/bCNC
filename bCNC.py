@@ -130,6 +130,8 @@ class Application(Toplevel,Sender):
 		self.statusbar.pack(side=LEFT, fill=X, expand=YES)
 		self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
 
+		self.statusa = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
+		self.statusa.pack(side=RIGHT)
 		self.statusz = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
 		self.statusz.pack(side=RIGHT)
 		self.statusy = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
@@ -488,10 +490,11 @@ class Application(Toplevel,Sender):
 	# Update canvas coordinates
 	#-----------------------------------------------------------------------
 	def updateCanvasCoords(self, event):
-		x,y,z = event.data.split()
+		x,y,z,a = event.data.split()
 		self.statusx["text"] = "X: "+x
 		self.statusy["text"] = "Y: "+y
 		self.statusz["text"] = "Z: "+z
+		self.statusa["text"] = "A: "+a
 
 	#----------------------------------------------------------------------
 	# Accept the user key if not editing any text
@@ -2323,9 +2326,11 @@ class Application(Toplevel,Sender):
 			self.canvas.gantry(CNC.vars["wx"],
 					   CNC.vars["wy"],
 					   CNC.vars["wz"],
+					   CNC.vars["wa"],
 					   CNC.vars["mx"],
 					   CNC.vars["my"],
-					   CNC.vars["mz"])
+					   CNC.vars["mz"],
+					   CNC.vars["ma"])
 			if state=="Run":
 				self.gstate.updateFeed()
 				#self.xxx.updateSpindle()

@@ -37,7 +37,8 @@ VIEW_YZ   = 2
 VIEW_ISO1 = 3
 VIEW_ISO2 = 4
 VIEW_ISO3 = 5
-VIEWS     = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
+VIEW_XAF  = 6
+VIEWS     = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3", "XA (flat)"]
 
 INSERT_WIDTH2 =  3
 GANTRY_R      =  4
@@ -285,7 +286,7 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def setMouseStatus(self, event):
-		data="%.4f %.4f %.4f" % self.canvas2xyz(self.canvasx(event.x), self.canvasy(event.y))
+		data="%.4f %.4f %.4f %.4f" % self.canvas2xyza(self.canvasx(event.x), self.canvasy(event.y))
 		self.event_generate("<<Coords>>", data=data)
 
 	# ----------------------------------------------------------------------
@@ -406,22 +407,25 @@ class CNCCanvas(Canvas):
 		v = cy / self.zoom
 
 		if self.view == VIEW_XY:
-			return u, -v, None
+			return u, -v, None, None
+
+		if self.view == VIEW_XAF:
+			return u, None, None, -v
 
 		elif self.view == VIEW_XZ:
-			return u, None, -v
+			return u, None, -v, None
 
 		elif self.view == VIEW_YZ:
-			return None, u, -v
+			return None, u, -v, None
 
 		elif self.view == VIEW_ISO1:
-			return 0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60), None
+			return 0.5*(u/S60+v/C60), 0.5*(u/S60-v/C60), None, None
 
 		elif self.view == VIEW_ISO2:
-			return 0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60), None
+			return 0.5*(u/S60-v/C60), -0.5*(u/S60+v/C60), None, None
 
 		elif self.view == VIEW_ISO3:
-			return -0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60), None
+			return -0.5*(u/S60+v/C60), -0.5*(u/S60-v/C60), None, None
 
 	# ----------------------------------------------------------------------
 	# Image (pixel) coordinates to machine
@@ -433,16 +437,16 @@ class CNCCanvas(Canvas):
 	# Move gantry to mouse location
 	# ----------------------------------------------------------------------
 	def actionGantry(self, x, y):
-		u,v,w = self.image2Machine(x,y)
-		self.app.goto(u,v,w)
+		u,v,w,a = self.image2Machine(x,y)
+		self.app.goto(u,v,w,a)
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
 	# Set the work coordinates to mouse location
 	# ----------------------------------------------------------------------
 	def actionWPOS(self, x, y):
-		u,v,w = self.image2Machine(x,y)
-		self.app.dro.wcsSet(u,v,w)
+		u,v,w,a = self.image2Machine(x,y)
+		self.app.dro.wcsSet(u,v,w,a)
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
@@ -489,7 +493,7 @@ class CNCCanvas(Canvas):
 					coords[0],coords[2] = coords[2], coords[0]
 					coords[1],coords[3] = coords[3], coords[1]
 					self.coords(self._vector, *coords)
-					self._vx0, self._vy0, self._vz0 = self.canvas2xyz(coords[0], coords[1])
+					self._vx0, self._vy0, self._vz0, self._va0 = self.canvas2xyza(coords[0], coords[1])
 					self._mouseAction = self.action
 					return
 				elif abs(coords[2]-i)<=CLOSE_DISTANCE and abs(coords[3]-j<=CLOSE_DISTANCE):
@@ -518,7 +522,7 @@ class CNCCanvas(Canvas):
 				fill  = RULER_COLOR
 				arrow = BOTH
 			self._vector = self.create_line((i,j,i,j), fill=fill, arrow=arrow)
-			self._vx0, self._vy0, self._vz0 = self.canvas2xyz(i,j)
+			self._vx0, self._vy0, self._vz0, self._va0 = self.canvas2xyza(i,j)
 			self._mouseAction = self.action
 
 		# Move gantry to position
@@ -537,8 +541,8 @@ class CNCCanvas(Canvas):
 		elif self.action == ACTION_ORIGIN:
 			i = self.canvasx(event.x)
 			j = self.canvasy(event.y)
-			x,y,z = self.canvas2xyz(i,j)
-			self.app.insertCommand(_("origin %g %g %g")%(x,y,z),True)
+			x,y,z,a = self.canvas2xyza(i,j)
+			self.app.insertCommand(_("origin %g %g %g %g")%(x,y,z,a),True)
 			self.setActionSelect()
 
 		elif self.action == ACTION_PAN:
@@ -597,12 +601,13 @@ class CNCCanvas(Canvas):
 				self._xp = event.x
 				self._yp = event.y
 
-			self._vx1, self._vy1, self._vz1 = self.canvas2xyz(i,j)
+			self._vx1, self._vy1, self._vz1, self._va1 = self.canvas2xyza(i,j)
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.status(_("dx=%g  dy=%g  dz=%g  length=%g  angle=%g")\
-					% (dx,dy,dz,math.sqrt(dx**2+dy**2+dz**2),
+			da=self._va1-self._va0
+			self.status(_("dx=%g  dy=%g  dz=%g  da=%g  length=%g  angle=%g")\
+					% (dx,dy,dz,da,math.sqrt(dx**2+dy**2+dz**2),
 					math.degrees(math.atan2(dy,dx))))
 
 		elif self._mouseAction == ACTION_PAN:
@@ -676,12 +681,13 @@ class CNCCanvas(Canvas):
 		elif self._mouseAction == ACTION_MOVE:
 			i = self.canvasx(event.x)
 			j = self.canvasy(event.y)
-			self._vx1, self._vy1, self._vz1 = self.canvas2xyz(i,j)
+			self._vx1, self._vy1, self._vz1, self._va1 = self.canvas2xyza(i,j)
 			dx=self._vx1-self._vx0
 			dy=self._vy1-self._vy0
 			dz=self._vz1-self._vz0
-			self.status(_("Move by %g, %g, %g")%(dx,dy,dz))
-			self.app.insertCommand(("move %g %g %g")%(dx,dy,dz),True)
+			da=self._va1-self._va0
+			self.status(_("Move by %g, %g, %g, %g")%(dx,dy,dz,da))
+			self.app.insertCommand(("move %g %g %g %g")%(dx,dy,dz, da),True)
 
 		elif self._mouseAction == ACTION_PAN:
 			self.panRelease(event)
@@ -710,7 +716,7 @@ class CNCCanvas(Canvas):
 	def __test(self, event):
 		i = self.canvasx(event.x)
 		j = self.canvasy(event.y)
-		x,y,z = self.canvas2xyz(i,j)
+		x,y,z,a = self.canvas2xyza(i,j)
 		blocks =  self.app.editor.getSelectedBlocks()
 
 		from bmath import Vector
@@ -976,38 +982,43 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Display gantry
 	#----------------------------------------------------------------------
-	def gantry(self, wx, wy, wz, mx, my, mz):
-		self._lastGantry = (wx,wy,wz)
-		self._drawGantry(*self.plotCoords([(wx,wy,wz)])[0])
+	def gantry(self, wx, wy, wz, wa, mx, my, mz, ma):
+		self._lastGantry = (wx,wy,wz,wa)
+		self._drawGantry(*self.plotCoords([(wx,wy,wz,wa)])[0])
 		if self._cameraImage and self.cameraAnchor==NONE:
 			self.cameraPosition()
 
 		dx = wx-mx
 		dy = wy-my
 		dz = wz-mz
+		da = wa-ma
 		if abs(dx-self._dx) > 0.0001 or \
 		   abs(dy-self._dy) > 0.0001 or \
-		   abs(dz-self._dz) > 0.0001:
+		   abs(dz-self._dz) > 0.0001 or \
+		   abs(da-self._da) > 0.0001:
 			self._dx = dx
 			self._dy = dy
 			self._dz = dz
+			self._da = da
 
 			if not self.draw_workarea: return
 			xmin = self._dx-CNC.travel_x
 			ymin = self._dy-CNC.travel_y
 			zmin = self._dz-CNC.travel_z
+			amin = self._da-CNC.travel_a
 			xmax = self._dx
 			ymax = self._dy
 			zmax = self._dz
+			amax = self._da
 
-			xyz = [(xmin, ymin, 0.),
-			       (xmax, ymin, 0.),
-			       (xmax, ymax, 0.),
-			       (xmin, ymax, 0.),
-			       (xmin, ymin, 0.)]
+			xyza = [(xmin, ymin, 0., 0.),
+			       (xmax, ymin, 0., 0.),
+			       (xmax, ymax, 0., 0.),
+			       (xmin, ymax, 0., 0.),
+			       (xmin, ymin, 0., 0.)]
 
 			coords = []
-			for x,y in self.plotCoords(xyz):
+			for x,y in self.plotCoords(xyza):
 				coords.append(x)
 				coords.append(y)
 			self.coords(self._workarea, *coords)
@@ -1113,12 +1124,12 @@ class CNCCanvas(Canvas):
 		self.delete("info")	# clear any previous information
 		for bid in blocks:
 			block = self.gcode.blocks[bid]
-			xyz = [(block.xmin, block.ymin, 0.),
-			       (block.xmax, block.ymin, 0.),
-			       (block.xmax, block.ymax, 0.),
-			       (block.xmin, block.ymax, 0.),
-			       (block.xmin, block.ymin, 0.)]
-			self.create_line(self.plotCoords(xyz),
+			xyza = [(block.xmin, block.ymin, 0., 0.),
+			        (block.xmax, block.ymin, 0., 0.),
+			        (block.xmax, block.ymax, 0., 0.),
+			        (block.xmin, block.ymax, 0., 0.),
+			        (block.xmin, block.ymin, 0., 0.)]
+			self.create_line(self.plotCoords(xyza),
 					fill=INFO_COLOR,
 					tag="info")
 			xc = (block.xmin + block.xmax)/2.0
@@ -1146,12 +1157,12 @@ class CNCCanvas(Canvas):
 
 			n = 64
 			df = (ef-sf)/float(n)
-			xyz = []
+			xyza = []
 			f = sf
 			for i in range(n+1):
-				xyz.append((xc+r*math.sin(f), yc+r*math.cos(f), 0.))	# towards up
+				xyza.append((xc+r*math.sin(f), yc+r*math.cos(f), 0., 0.))	# towards up
 				f += df
-			self.create_line(self.plotCoords(xyz),
+			self.create_line(self.plotCoords(xyza),
 					fill=INFO_COLOR,
 					width=5,
 					arrow=LAST,
@@ -1286,13 +1297,13 @@ class CNCCanvas(Canvas):
 		self._inDraw  = True
 
 		self.__tzoom = 1.0
-		xyz = self.canvas2xyz(
+		xyza = self.canvas2xyza(
 				self.canvasx(self.winfo_width()/2),
 				self.canvasy(self.winfo_height()/2))
 
 		if view is not None: self.view = view
 
-		self._last = (0.,0.,0.)
+		self._last = (0.,0.,0.,0.)
 		self.initPosition()
 
 		self.drawPaths()
@@ -1307,7 +1318,7 @@ class CNCCanvas(Canvas):
 		if self._gantry2: self.tag_raise(self._gantry2)
 		self._updateScrollBars()
 
-		ij = self.plotCoords([xyz])[0]
+		ij = self.plotCoords([xyza])[0]
 		dx = int(round(self.canvasx(self.winfo_width()/2)  - ij[0]))
 		dy = int(round(self.canvasy(self.winfo_height()/2) - ij[1]))
 		self.scan_mark(0,0)
@@ -1323,7 +1334,7 @@ class CNCCanvas(Canvas):
 		self.delete(ALL)
 		self._cameraImage = None
 		gr = max(3,int(CNC.vars["diameter"]/2.0*self.zoom))
-		if self.view == VIEW_XY:
+		if self.view in (VIEW_XY, VIEW_XAF):
 			self._gantry1 = self.create_oval( (-gr,-gr), ( gr, gr),
 					width=2,
 					outline=GANTRY_COLOR)
@@ -1387,14 +1398,17 @@ class CNCCanvas(Canvas):
 				s = 10.0
 			else:
 				s = 100.0
-		xyz = [(0.,0.,0.), (s, 0., 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
+		xyza = [(0.,0.,0., 0.), (s, 0., 0., 0.)]
+		self.create_line(self.plotCoords(xyza), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
 
-		xyz = [(0.,0.,0.), (0., s, 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1), arrow=LAST)
+		xyza = [(0.,0.,0., 0.), (0., s, 0., 0.)]
+		self.create_line(self.plotCoords(xyza), tag="Axes", fill="Green", dash=(3,1), arrow=LAST)
 
-		xyz = [(0.,0.,0.), (0., 0., s)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
+		xyza = [(0.,0.,0., 0.), (0., 0., s, 0.)]
+		self.create_line(self.plotCoords(xyza), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
+
+		xyza = [(0.,0.,0., 0.), (0., 0., 0., s)]
+		self.create_line(self.plotCoords(xyza), tag="Axes", fill="Orange", dash=(3,1), arrow=LAST)
 
 	#----------------------------------------------------------------------
 	# Draw margins of selected blocks
@@ -1406,24 +1420,24 @@ class CNCCanvas(Canvas):
 		if not self.draw_margin: return
 
 		if CNC.isMarginValid():
-			xyz = [(CNC.vars["xmin"], CNC.vars["ymin"], 0.),
-			       (CNC.vars["xmax"], CNC.vars["ymin"], 0.),
-			       (CNC.vars["xmax"], CNC.vars["ymax"], 0.),
-			       (CNC.vars["xmin"], CNC.vars["ymax"], 0.),
-			       (CNC.vars["xmin"], CNC.vars["ymin"], 0.)]
+			xyza = [(CNC.vars["xmin"], CNC.vars["ymin"], 0., 0.),
+			       (CNC.vars["xmax"], CNC.vars["ymin"], 0., 0.),
+			       (CNC.vars["xmax"], CNC.vars["ymax"], 0., 0.),
+			       (CNC.vars["xmin"], CNC.vars["ymax"], 0., 0.),
+			       (CNC.vars["xmin"], CNC.vars["ymin"], 0., 0.)]
 			self._margin = self.create_line(
-						self.plotCoords(xyz),
+						self.plotCoords(xyza),
 						fill=MARGIN_COLOR)
 			self.tag_lower(self._margin)
 
 		if not CNC.isAllMarginValid(): return
-		xyz = [(CNC.vars["axmin"], CNC.vars["aymin"], 0.),
-		       (CNC.vars["axmax"], CNC.vars["aymin"], 0.),
-		       (CNC.vars["axmax"], CNC.vars["aymax"], 0.),
-		       (CNC.vars["axmin"], CNC.vars["aymax"], 0.),
-		       (CNC.vars["axmin"], CNC.vars["aymin"], 0.)]
+		xyza = [(CNC.vars["axmin"], CNC.vars["aymin"], 0., 0.),
+		       (CNC.vars["axmax"], CNC.vars["aymin"], 0., 0.),
+		       (CNC.vars["axmax"], CNC.vars["aymax"], 0., 0.),
+		       (CNC.vars["axmin"], CNC.vars["aymax"], 0., 0.),
+		       (CNC.vars["axmin"], CNC.vars["aymin"], 0., 0.)]
 		self._amargin = self.create_line(
-					self.plotCoords(xyz),
+					self.plotCoords(xyza),
 					dash=(3,2),
 					fill=MARGIN_COLOR)
 		self.tag_lower(self._amargin)
@@ -1443,14 +1457,14 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Draw a 3D rectangle
 	#----------------------------------------------------------------------
-	def _drawRect(self, xmin, ymin, xmax, ymax, z=0.0, **kwargs):
-		xyz = [(xmin, ymin, z),
-		       (xmax, ymin, z),
-		       (xmax, ymax, z),
-		       (xmin, ymax, z),
-		       (xmin, ymin, z)]
+	def _drawRect(self, xmin, ymin, xmax, ymax, z=0.0, a=0.0, **kwargs):
+		xyza = [(xmin, ymin, z, a),
+		       (xmax, ymin, z, a),
+		       (xmax, ymax, z, a),
+		       (xmin, ymax, z, a),
+		       (xmin, ymin, z, a)]
 		rect = self.create_line(
-				self.plotCoords(xyz),
+				self.plotCoords(xyza),
 				**kwargs),
 		return rect
 
@@ -1464,11 +1478,13 @@ class CNCCanvas(Canvas):
 		xmin = self._dx-CNC.travel_x
 		ymin = self._dy-CNC.travel_y
 		zmin = self._dz-CNC.travel_z
+		amin = self._da-CNC.travel_a
 		xmax = self._dx
 		ymax = self._dy
 		zmax = self._dz
+		amax = self._da
 
-		self._workarea = self._drawRect(xmin, ymin, xmax, ymax, 0., fill=WORK_COLOR, dash=(3,2))
+		self._workarea = self._drawRect(xmin, ymin, xmax, ymax, 0., 0., fill=WORK_COLOR, dash=(3,2))
 		self.tag_lower(self._workarea)
 
 	#----------------------------------------------------------------------
@@ -1484,8 +1500,8 @@ class CNCCanvas(Canvas):
 			ymax = (CNC.vars["aymax"]//10+1)*10
 			for i in range(int(CNC.vars["aymin"]//10), int(CNC.vars["aymax"]//10)+2):
 				y = i*10.0
-				xyz = [(xmin,y,0), (xmax,y,0)]
-				item = self.create_line(self.plotCoords(xyz),
+				xyza = [(xmin,y,0,0), (xmax,y,0,0)]
+				item = self.create_line(self.plotCoords(xyza),
 							tag="Grid",
 							fill=GRID_COLOR,
 							dash=(1,3))
@@ -1493,8 +1509,8 @@ class CNCCanvas(Canvas):
 
 			for i in range(int(CNC.vars["axmin"]//10), int(CNC.vars["axmax"]//10)+2):
 				x = i*10.0
-				xyz = [(x,ymin,0), (x,ymax,0)]
-				item = self.create_line(self.plotCoords(xyz),
+				xyza = [(x,ymin,0,0), (x,ymax,0,0)]
+				item = self.create_line(self.plotCoords(xyza),
 							fill=GRID_COLOR,
 							tag="Grid",
 							dash=(1,3))
@@ -1592,15 +1608,15 @@ class CNCCanvas(Canvas):
 		# Draw probe grid
 		probe = self.gcode.probe
 		for x in bmath.frange(probe.xmin, probe.xmax+0.00001, probe.xstep()):
-			xyz = [(x,probe.ymin,0.), (x,probe.ymax,0.)]
-			item = self.create_line(self.plotCoords(xyz),
+			xyza = [(x,probe.ymin,0.,0.), (x,probe.ymax,0.,0.)]
+			item = self.create_line(self.plotCoords(xyza),
 						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
 
 		for y in bmath.frange(probe.ymin, probe.ymax+0.00001, probe.ystep()):
-			xyz = [(probe.xmin,y,0.), (probe.xmax,y,0.)]
-			item = self.create_line(self.plotCoords(xyz),
+			xyza = [(probe.xmin,y,0.,0.), (probe.xmax,y,0.,0.)]
+			item = self.create_line(self.plotCoords(xyza),
 						tag="Probe",
 						fill='Yellow')
 			self.tag_lower(item)
@@ -1744,7 +1760,7 @@ class CNCCanvas(Canvas):
 						color = block.enable and TAB_COLOR or DISABLE_COLOR
 						item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
 									tab.x+tab.dx/2., tab.y+tab.dy/2.,
-									0., fill=color)
+									0., 0., fill=color)
 						tab.path = item
 						self._items[item[0]] = i,tab
 						self.tag_lower(item)
@@ -1775,9 +1791,9 @@ class CNCCanvas(Canvas):
 						block.addPath(path)
 						if start and self.cnc.gcode in (1,2,3):
 							# Mark as start the first non-rapid motion
-							block.startPath(self.cnc.x, self.cnc.y, self.cnc.z)
+							block.startPath(self.cnc.x, self.cnc.y, self.cnc.z, self.cnc.a)
 							start = False
-				block.endPath(self.cnc.x, self.cnc.y, self.cnc.z)
+				block.endPath(self.cnc.x, self.cnc.y, self.cnc.z, self.cnc.a)
 		except AlarmException:
 			self.status("Rendering takes TOO Long. Interrupted...")
 
@@ -1786,21 +1802,21 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def drawPath(self, block, cmds):
 		self.cnc.motionStart(cmds)
-		xyz = self.cnc.motionPath()
+		xyza = self.cnc.motionPath()
 		self.cnc.motionEnd()
-		if xyz:
-			self.cnc.pathLength(block, xyz)
+		if xyza:
+			self.cnc.pathLength(block, xyza)
 			if self.cnc.gcode in (1,2,3):
-				block.pathMargins(xyz)
+				block.pathMargins(xyza)
 				self.cnc.pathMargins(block)
 			if block.enable:
 				if self.cnc.gcode == 0 and self.draw_rapid:
-					xyz[0] = self._last
-				self._last = xyz[-1]
+					xyza[0] = self._last
+				self._last = xyza[-1]
 			else:
 				if self.cnc.gcode == 0:
 					return None
-			coords = self.plotCoords(xyz)
+			coords = self.plotCoords(xyza)
 			if coords:
 				if block.enable:
 					if block.color:
@@ -1819,30 +1835,32 @@ class CNCCanvas(Canvas):
 		return None
 
 	#----------------------------------------------------------------------
-	# Return plotting coordinates for a 3d xyz path
+	# Return plotting coordinates for a 3d xyza path
 	#
 	# NOTE: Use the Tkinter._flatten() to pass to self.coords() function
 	#----------------------------------------------------------------------
-	def plotCoords(self, xyz):
+	def plotCoords(self, xyza):
 		coords = None
 		if self.view == VIEW_XY:
-			coords = [(p[0]*self.zoom,-p[1]*self.zoom) for p in xyz]
+			coords = [(p[0]*self.zoom,-p[1]*self.zoom) for p in xyza]
+		if self.view == VIEW_XAF:
+			coords = [(p[0]*self.zoom,-p[3]*self.zoom) for p in xyza]
 		elif self.view == VIEW_XZ:
-			coords = [(p[0]*self.zoom,-p[2]*self.zoom) for p in xyz]
+			coords = [(p[0]*self.zoom,-p[2]*self.zoom) for p in xyza]
 		elif self.view == VIEW_YZ:
-			coords = [(p[1]*self.zoom,-p[2]*self.zoom) for p in xyz]
+			coords = [(p[1]*self.zoom,-p[2]*self.zoom) for p in xyza]
 		elif self.view == VIEW_ISO1:
 			coords = [(( p[0]*S60 + p[1]*S60)*self.zoom,
 				   (+p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
-					for p in xyz]
+					for p in xyza]
 		elif self.view == VIEW_ISO2:
 			coords = [(( p[0]*S60 - p[1]*S60)*self.zoom,
 				   (-p[0]*C60 - p[1]*C60 - p[2])*self.zoom)
-					for p in xyz]
+					for p in xyza]
 		elif self.view == VIEW_ISO3:
 			coords = [((-p[0]*S60 - p[1]*S60)*self.zoom,
 				   (-p[0]*C60 + p[1]*C60 - p[2])*self.zoom)
-					for p in xyz]
+					for p in xyza]
 		# Check limits
 		for i,(x,y) in enumerate(coords):
 			if abs(x)>MAXDIST or abs(y)>MAXDIST:
@@ -1856,39 +1874,51 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Canvas to real coordinates
 	#----------------------------------------------------------------------
-	def canvas2xyz(self, i, j):
+	def canvas2xyza(self, i, j):
 		coords = None
 		if self.view == VIEW_XY:
 			x =  i / self.zoom
 			y = -j / self.zoom
 			z = 0
+			a = 0
+
+		if self.view == VIEW_XAF:
+			x =  i / self.zoom
+			y = 0
+			z = 0
+			a = -j / self.zoom
 
 		elif self.view == VIEW_XZ:
 			x =  i / self.zoom
 			y = 0
 			z = -j / self.zoom
+			a = 0
 
 		elif self.view == VIEW_YZ:
 			x = 0
 			y =  i / self.zoom
 			z = -j / self.zoom
+			a = 0
 
 		elif self.view == VIEW_ISO1:
 			x = (i/S60 + j/C60) / self.zoom / 2
 			y = (i/S60 - j/C60) / self.zoom / 2
 			z = 0
+			a = 0
 
 		elif self.view == VIEW_ISO2:
 			x =  (i/S60 - j/C60) / self.zoom / 2
 			y = -(i/S60 + j/C60) / self.zoom / 2
 			z = 0
+			a = 0
 
 		elif self.view == VIEW_ISO3:
 			x = -(i/S60 + j/C60) / self.zoom / 2
 			y = -(i/S60 - j/C60) / self.zoom / 2
 			z = 0
+			a = 0
 
-		return x,y,z
+		return x,y,z,a
 
 #==============================================================================
 # Canvas Frame with toolbar

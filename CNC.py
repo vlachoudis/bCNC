@@ -638,12 +638,15 @@ class CNC:
 	acceleration_x = 25.0	# mm/s^2
 	acceleration_y = 25.0	# mm/s^2
 	acceleration_z = 25.0	# mm/s^2
+	acceleration_a = 25.0	# mm/s^2
 	feedmax_x      = 3000
 	feedmax_y      = 3000
 	feedmax_z      = 2000
+	feedmax_a      = 2000
 	travel_x       = 300
 	travel_y       = 300
 	travel_z       = 60
+	travel_a       = 300
 	accuracy       = 0.02	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
@@ -652,25 +655,25 @@ class CNC:
 	developer      = False
 	drozeropad     = 0
 	vars           = {
-			"prba"       : 0.0,
 			"prbx"       : 0.0,
 			"prby"       : 0.0,
 			"prbz"       : 0.0,
+			"prba"       : 0.0,
 			"prbcmd"     : "G38.2",
 			"prbfeed"    : 10.,
 			"errline"    : "",
-			"wa"         : 0.0,
 			"wx"         : 0.0,
 			"wy"         : 0.0,
 			"wz"         : 0.0,
-			"ma"         : 0.0,
+			"wa"         : 0.0,
 			"mx"         : 0.0,
 			"my"         : 0.0,
 			"mz"         : 0.0,
-			"wcoa"       : 0.0,
+			"ma"         : 0.0,
 			"wcox"       : 0.0,
 			"wcoy"       : 0.0,
 			"wcoz"       : 0.0,
+			"wcoa"       : 0.0,
 			"curfeed"    : 0.0,
 			"curspindle" : 0.0,
 			"_camwx"     : 0.0,
@@ -782,11 +785,15 @@ class CNC:
 		except: pass
 		try: CNC.acceleration_z = float(config.get(section, "acceleration_z"))
 		except: pass
+		try: CNC.acceleration_a = float(config.get(section, "acceleration_a"))
+		except: pass
 		try: CNC.feedmax_x      = float(config.get(section, "feedmax_x"))
 		except: pass
 		try: CNC.feedmax_y      = float(config.get(section, "feedmax_y"))
 		except: pass
 		try: CNC.feedmax_z      = float(config.get(section, "feedmax_z"))
+		except: pass
+		try: CNC.feedmax_a      = float(config.get(section, "feedmax_a"))
 		except: pass
 		try: CNC.travel_x       = float(config.get(section, "travel_x"))
 		except: pass
@@ -794,7 +801,7 @@ class CNC:
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
 		except: pass
-		try: CNC.travel_z       = float(config.get(section, "travel_z"))
+		try: CNC.travel_a       = float(config.get(section, "travel_a"))
 		except: pass
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
@@ -811,12 +818,15 @@ class CNC:
 			CNC.acceleration_x  /= 25.4
 			CNC.acceleration_y  /= 25.4
 			CNC.acceleration_z  /= 25.4
+			CNC.acceleration_a  /= 25.4
 			CNC.feedmax_x       /= 25.4
 			CNC.feedmax_y       /= 25.4
 			CNC.feedmax_z       /= 25.4
+			CNC.feedmax_a       /= 25.4
 			CNC.travel_x        /= 25.4
 			CNC.travel_y        /= 25.4
 			CNC.travel_z        /= 25.4
+			CNC.travel_a        /= 25.4
 
 		section = "Error"
 		for cmd,value in config.items(section):
@@ -831,7 +841,7 @@ class CNC:
 		pass
 
 	#----------------------------------------------------------------------
-	def initPath(self, x=None, y=None, z=None):
+	def initPath(self, x=None, y=None, z=None, a=None):
 		if x is None:
 			self.x = self.xval = 0
 		else:
@@ -844,9 +854,13 @@ class CNC:
 			self.z = self.zval = 0
 		else:
 			self.z = self.zval = z
+		if a is None:
+			self.a = self.aval = 0
+		else:
+			self.a = self.aval = a
 		self.ival = self.jval = self.kval = 0.0
 		self.uval = self.vval = self.wval = 0.0
-		self.dx   = self.dy   = self.dz   = 0.0
+		self.dx   = self.dy   = self.dz   = self.da = 0.0
 		self.di   = self.dj   = self.dk   = 0.0
 		self.rval = 0.0
 		self.pval = 0.0
@@ -1367,18 +1381,19 @@ class CNC:
 	# Create path for one g command
 	#----------------------------------------------------------------------
 	def motionPath(self):
-		xyz = []
+		xyza = []
 
 		# Execute g-code
 		if self.gcode in (0,1):	# fast move or line
 			if self.xval-self.x != 0.0 or \
 			   self.yval-self.y != 0.0 or \
-			   self.zval-self.z != 0.0:
-				xyz.append((self.x,self.y,self.z))
-				xyz.append((self.xval,self.yval,self.zval))
+			   self.zval-self.z != 0.0 or \
+			   self.aval-self.a != 0.0:
+				xyza.append((self.x,self.y,self.z,self.a))
+				xyza.append((self.xval,self.yval,self.zval,self.aval))
 
 		elif self.gcode in (2,3):	# CW=2,CCW=3 circle
-			xyz.append((self.x,self.y,self.z))
+			xyza.append((self.x,self.y,self.z,self.a))
 			uc,vc = self.motionCenter()
 
 			gcode = self.gcode
@@ -1397,6 +1412,14 @@ class CNC:
 				v1 = self.zval
 				w1 = self.yval
 				gcode = 5-gcode	# flip 2-3 when XZ plane is used
+			elif self.plane == XAF:
+				u0 = self.x
+				v0 = self.a
+				w0 = self.z
+				u1 = self.xval
+				v1 = self.aval
+				w1 = self.zval
+				#gcode = 5-gcode	# flip 2-3 when XZ plane is used
 			else:
 				u0 = self.y
 				v0 = self.z
@@ -1426,11 +1449,13 @@ class CNC:
 					w = w0 + (phi-phi0)*ws
 					phi -= df
 					if self.plane == XY:
-						xyz.append((u,v,w))
+						xyza.append((u,v,w))
+					elif self.plane == XAF:
+						xyza.append((u,v,w))
 					elif self.plane == XZ:
-						xyz.append((u,w,v))
+						xyza.append((u,w,v))
 					else:
-						xyz.append((w,u,v))
+						xyza.append((w,u,v))
 			else:
 				if phi1<=phi0+1e-10: phi1 += 2.0*math.pi
 				ws  = (w1-w0)/(phi1-phi0)
@@ -1441,13 +1466,15 @@ class CNC:
 					w = w0 + (phi-phi0)*ws
 					phi += df
 					if self.plane == XY:
-						xyz.append((u,v,w))
+						xyza.append((u,v,w))
+					elif self.plane == XAF:
+						xyza.append((u,v,w))
 					elif self.plane == XZ:
-						xyz.append((u,w,v))
+						xyza.append((u,w,v))
 					else:
-						xyz.append((w,u,v))
+						xyza.append((w,u,v))
 
-			xyz.append((self.xval,self.yval,self.zval))
+			xyza.append((self.xval,self.yval,self.zval,self.aval))
 
 		elif self.gcode==4:		# Dwell
 			self.totalTime = self.pval
@@ -1476,31 +1503,31 @@ class CNC:
 			#print "clearz=",clearz
 			#print "drill=",drill
 
-			x,y,z = self.x, self.y, self.z
-			xyz.append((x,y,z))
+			x,y,z,a = self.x, self.y, self.z, self.a
+			xyza.append((x,y,z,a))
 			if z != clearz:
 				z = clearz
-				xyz.append((x,y,z))
+				xyza.append((x,y,z,a))
 			for l in range(self.lval):
 				# Rapid move parallel to XY
 				x += self.dx
 				y += self.dy
-				xyz.append((x,y,z))
+				xyza.append((x,y,z,a))
 
 				# Rapid move parallel to clearz
 				if self.z > clearz:
-					xyz.append((x,y,clearz))
+					xyza.append((x,y,clearz,a))
 
 				# Drill to z
-				xyz.append((x,y,drill))
+				xyza.append((x,y,drill,a))
 
 				# Move to original position
 				z = clearz
-				xyz.append((x,y,z))	# ???
+				xyza.append((x,y,z,a))	# ???
 
-		#for a in xyz: print a
+		#for a in xyza: print a
 
-		return xyz
+		return xyza
 
 	#----------------------------------------------------------------------
 	# move to end position
@@ -1518,9 +1545,11 @@ class CNC:
 			self.x = self.xval
 			self.y = self.yval
 			self.z = self.zval
+			self.a = self.aval
 			self.dx = 0
 			self.dy = 0
 			self.dz = 0
+			self.da = 0
 
 			if self.gcode >= 2: # reset at the end
 				self.rval = self.ival = self.jval = self.kval = 0.0
@@ -1529,9 +1558,11 @@ class CNC:
 			self.x = 0.0
 			self.y = 0.0
 			self.z = 0.0
+			self.a = 0.0
 			self.dx = 0
 			self.dy = 0
 			self.dz = 0
+			self.da = 0
 
 		# FIXME L is not taken into account for repetitions!!!
 		elif self.gcode in (81,82,83):
@@ -1550,21 +1581,24 @@ class CNC:
 			self.x += self.dx*self.lval
 			self.y += self.dy*self.lval
 			self.z  = retract
+			self.a += self.da*self.lval
 
 			self.xval = self.x
 			self.yval = self.y
+			self.aval = self.a
 			self.dx = 0
 			self.dy = 0
 			self.dz = drill - retract
+			self.da = 0
 
 	#----------------------------------------------------------------------
 	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
-	def pathLength(self, block, xyz):
+	def pathLength(self, block, xyza):
 		# For XY plan
-		p = xyz[0]
+		p = xyza[0]
 		length = 0.0
-		for i in xyz:
+		for i in xyza:
 			length += math.sqrt((i[0]-p[0])**2 + (i[1]-p[1])**2 + (i[2]-p[2])**2)
 			p = i
 
@@ -1968,9 +2002,9 @@ class Block(list):
 		self.color    = None		# Custom color for path
 		self.tabs     = []		# Tabs on block
 		self._path    = []		# canvas drawing paths
-		self.sx = self.sy = self.sz = 0	# start  coordinates
+		self.sx = self.sy = self.sz = self.sa = 0	# start  coordinates
 						# (entry point first non rapid motion)
-		self.ex = self.ey = self.ez = 0	# ending coordinates
+		self.ex = self.ey = self.ez = self.ea = 0	# ending coordinates
 		self.resetPath()
 
 	#----------------------------------------------------------------------
@@ -1987,9 +2021,11 @@ class Block(list):
 		self.sx = src.sx
 		self.sy = src.sy
 		self.sz = src.sz
+		self.sa = src.sa
 		self.ex = src.ex
 		self.ey = src.ey
 		self.ez = src.ez
+		self.ea = src.ea
 
 	#----------------------------------------------------------------------
 	def name(self):
@@ -2130,8 +2166,8 @@ class Block(list):
 	#----------------------------------------------------------------------
 	def resetPath(self):
 		del self._path[:]
-		self.xmin = self.ymin = self.zmin =  1000000.0
-		self.xmax = self.ymax = self.zmax = -1000000.0
+		self.xmin = self.ymin = self.zmin = self.amin = 1000000.0
+		self.xmax = self.ymax = self.zmax = self.amax =-1000000.0
 		self.length = 0.0	# cut length
 		self.rapid  = 0.0	# rapid length
 		self.time   = 0.0
@@ -2152,25 +2188,29 @@ class Block(list):
 			return None
 
 	#----------------------------------------------------------------------
-	def startPath(self, x, y, z):
+	def startPath(self, x, y, z, a):
 		self.sx = x
 		self.sy = y
 		self.sz = z
+		self.sa = a
 
 	#----------------------------------------------------------------------
-	def endPath(self, x, y, z):
+	def endPath(self, x, y, z, a):
 		self.ex = x
 		self.ey = y
 		self.ez = z
+		self.ea = a
 
 	#----------------------------------------------------------------------
-	def pathMargins(self, xyz):
-		self.xmin = min(self.xmin, min([i[0] for i in xyz]))
-		self.ymin = min(self.ymin, min([i[1] for i in xyz]))
-		self.zmin = min(self.zmin, min([i[2] for i in xyz]))
-		self.xmax = max(self.xmax, max([i[0] for i in xyz]))
-		self.ymax = max(self.ymax, max([i[1] for i in xyz]))
-		self.zmax = max(self.zmax, max([i[2] for i in xyz]))
+	def pathMargins(self, xyza):
+		self.xmin = min(self.xmin, min([i[0] for i in xyza]))
+		self.ymin = min(self.ymin, min([i[1] for i in xyza]))
+		self.zmin = min(self.zmin, min([i[2] for i in xyza]))
+		self.amin = min(self.amin, min([i[3] for i in xyza]))
+		self.xmax = max(self.xmax, max([i[0] for i in xyza]))
+		self.ymax = max(self.ymax, max([i[1] for i in xyza]))
+		self.zmax = max(self.zmax, max([i[2] for i in xyza]))
+		self.amax = max(self.amax, max([i[3] for i in xyza]))
 
 #===============================================================================
 # Gcode file
@@ -3909,7 +3949,7 @@ class GCode:
 				newlines.append(line)
 				continue
 			self.cnc.motionStart(cmd)
-			xyz = self.cnc.motionPath()
+			xyza = self.cnc.motionPath()
 			if self.cnc.dx==0.0 and self.cnc.dy==0.0:
 				if self.cnc.z>0.0 and self.cnc.dz>0.0:
 					last = len(newlines)
@@ -4059,8 +4099,8 @@ class GCode:
 						cmds.append(self.fmt('F',self.cnc.feed/self.cnc.unit))
 
 				if autolevel and self.cnc.gcode in (0,1,2,3) and self.cnc.mval==0:
-					xyz = self.cnc.motionPath()
-					if not xyz:
+					xyza = self.cnc.motionPath()
+					if not xyza:
 						# while auto-levelling, do not ignore non-movement
 						# commands, just append the line as-is
 						#lines.append(line)
@@ -4069,24 +4109,25 @@ class GCode:
 					else:
 						extra = ""
 						for c in cmds:
-							if c[0].upper() not in ('G','X','Y','Z','I','J','K','R'):
+							if c[0].upper() not in ('G','X','Y','Z','A','I','J','K','R'):
 								extra += c
-						x1,y1,z1 = xyz[0]
+						x1,y1,z1,a1 = xyza[0]
 						if self.cnc.gcode == 0:
 							g = 0
 						else:
 							g = 1
-						for x2,y2,z2 in xyz[1:]:
-							for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
-								add("G%d%s%s%s%s"%\
+						for x2,y2,z2,a2 in xyza[1:]:
+							for x,y,z,a in self.probe.splitLine(x1,y1,z1,a1,x2,y2,z2,a2):
+								add("G%d%s%s%s%s%s"%\
 									(g,
 									 self.fmt('X',x/self.cnc.unit),
 									 self.fmt('Y',y/self.cnc.unit),
 									 self.fmt('Z',z/self.cnc.unit),
+									 self.fmt('A',z/self.cnc.unit),
 									 extra),
 								    (i,j))
 								extra = ""
-							x1,y1,z1 = x2,y2,z2
+							x1,y1,z1,a1 = x2,y2,z2,a2
 					self.cnc.motionEnd()
 					continue
 				else:
