@@ -312,7 +312,8 @@ class Application(Toplevel,Sender):
 		self.bind('<<EnableToggle>>',	self.editor.toggleEnable)
 		self.bind('<<Enable>>',		self.editor.enable)
 		self.bind('<<Disable>>',	self.editor.disable)
-		self.bind('<<ChangeColor>>',self.editor.changeColor)
+#		self.bind('<<AutoLevel>>',      self.editor.autolevel)
+		self.bind('<<ChangeColor>>',    self.editor.changeColor)
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
@@ -1232,6 +1233,9 @@ class Application(Toplevel,Sender):
 		if rexx.abbrev("ABOUT",cmd,3):
 			self.about()
 
+		elif rexx.abbrev("AUTOLEVEL",cmd,4):
+			self.executeOnSelection("AUTOLEVEL", True)
+
 		# CAM*ERA: camera actions
 		elif rexx.abbrev("CAMERA",cmd,3):
 			# FIXME will make crazy the button state
@@ -1666,7 +1670,9 @@ class Application(Toplevel,Sender):
 		self.busy()
 		sel = None
 		undoinfo = None	# all operations should return undo information
-		if   cmd == "CUT":
+		if   cmd == "AUTOLEVEL":
+			sel = self.gcode.autolevel(items)
+		elif cmd == "CUT":
 			sel = self.gcode.cut(items, *args)
 		elif cmd == "CLOSE":
 			sel = self.gcode.close(items)

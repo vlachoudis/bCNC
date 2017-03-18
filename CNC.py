@@ -2207,6 +2207,10 @@ class GCode:
 	def resetModified(self): self._modified = False
 
 	#----------------------------------------------------------------------
+	def __getitem__(self, item):		return self.blocks[item]
+	def __setitem__(self, item, value):	self.blocks[item] = value
+
+	#----------------------------------------------------------------------
 	# Evaluate code expressions if any and return line
 	#----------------------------------------------------------------------
 	def evaluate(self, line):
@@ -2645,6 +2649,33 @@ class GCode:
 			self.blocks.pop()
 
 	#----------------------------------------------------------------------
+	# Undo/Redo operations
+	#----------------------------------------------------------------------
+	def undo(self):
+		#print ">u>",self.undoredo.undoText()
+		self.undoredo.undo()
+
+	#----------------------------------------------------------------------
+	def redo(self):
+		#print ">r>",self.undoredo.redoText()
+		self.undoredo.redo()
+
+	#----------------------------------------------------------------------
+	def addUndo(self, undoinfo, msg=""):
+		if isinstance(undoinfo,list):
+			if len(undoinfo)==1:
+				self.undoredo.addUndo(undoinfo[0])
+			else:
+				self.undoredo.addUndo(undo.createListUndo(undoinfo,msg))
+		elif undoinfo is not undo.NullUndo:
+			self.undoredo.addUndo(undoinfo)
+		self._modified = True
+
+	#----------------------------------------------------------------------
+	def canUndo(self):	return self.undoredo.canUndo()
+	def canRedo(self):	return self.undoredo.canRedo()
+
+	#----------------------------------------------------------------------
 	# Append a new tab
 	#----------------------------------------------------------------------
 	def addTabUndo(self, bid, tid, tab):
@@ -2930,6 +2961,72 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# Expand block with autolevel information
+	#----------------------------------------------------------------------
+	def autolevelBlock(self, block):
+		new = []
+		autolevel = not self.probe.isEmpty()
+		for line in block:
+			newcmd = []
+			cmds = CNC.compileLine(line)
+			if cmds is None:
+				new.append(line)
+				continue
+			elif isinstance(cmds,str) or isinstance(cmds,unicode):
+				cmds = CNC.breakLine(cmds)
+			else:
+				new.append(line)
+				continue
+
+			self.cnc.motionStart(cmds)
+			if autolevel and self.cnc.gcode in (0,1,2,3) and self.cnc.mval==0:
+				xyz = self.cnc.motionPath()
+				if not xyz:
+					# while auto-levelling, do not ignore non-movement
+					# commands, just append the line as-is
+					new.append(line)
+				else:
+					extra = ""
+					for c in cmds:
+						if c[0].upper() not in ('G','X','Y','Z','I','J','K','R'):
+							extra += c
+					x1,y1,z1 = xyz[0]
+					if self.cnc.gcode == 0:
+						g = 0
+					else:
+						g = 1
+					for x2,y2,z2 in xyz[1:]:
+						for x,y,z in self.probe.splitLine(x1,y1,z1,x2,y2,z2):
+							new.append("G%d%s%s%s%s"%\
+								(g,
+								 self.fmt('X',x/self.cnc.unit),
+								 self.fmt('Y',y/self.cnc.unit),
+								 self.fmt('Z',z/self.cnc.unit),
+								 extra))
+							extra = ""
+						x1,y1,z1 = x2,y2,z2
+				self.cnc.motionEnd()
+			else:
+				self.cnc.motionEnd()
+				new.append(line)
+		return new
+
+	#----------------------------------------------------------------------
+	# Execute autolevel on selected blocks
+	#----------------------------------------------------------------------
+	def autolevel(self, items):
+		undoinfo = []
+		operation = "autolevel"
+		for bid in items:
+			block = self.blocks[bid]
+			if block.name() in ("Header", "Footer"): continue
+			if not block.enable: continue
+			lines = self.autolevelBlock(block)
+			undoinfo.append(self.addBlockOperationUndo(bid, operation))
+			undoinfo.append(self.setBlockLinesUndo(bid, lines))
+		if undoinfo: self.addUndo(undoinfo)
+
+	#----------------------------------------------------------------------
 	# Merge or split blocks depending on motion
 	#
 	# Each block should start with a rapid move and end with a rapid move
@@ -2968,32 +3065,6 @@ class GCode:
 #							#self.blocks.append(Block())
 #							pass
 #				self.cnc.motionEnd()
-
-	#----------------------------------------------------------------------
-	def __getitem__(self, item):		return self.blocks[item]
-	def __setitem__(self, item, value):	self.blocks[item] = value
-
-	#----------------------------------------------------------------------
-	def undo(self):
-		#print ">u>",self.undoredo.undoText()
-		self.undoredo.undo()
-
-	def redo(self):
-		#print ">r>",self.undoredo.redoText()
-		self.undoredo.redo()
-
-	def addUndo(self, undoinfo, msg=""):
-		if isinstance(undoinfo,list):
-			if len(undoinfo)==1:
-				self.undoredo.addUndo(undoinfo[0])
-			else:
-				self.undoredo.addUndo(undo.createListUndo(undoinfo,msg))
-		elif undoinfo is not undo.NullUndo:
-			self.undoredo.addUndo(undoinfo)
-		self._modified = True
-
-	def canUndo(self):	return self.undoredo.canUndo()
-	def canRedo(self):	return self.undoredo.canRedo()
 
 	#----------------------------------------------------------------------
 	# Start a new iterator
@@ -3946,8 +4017,9 @@ class GCode:
 
 				newcmd = []
 				cmds = CNC.compileLine(line)
-				if cmds is None: continue
-				if isinstance(cmds,str) or isinstance(cmds,unicode):
+				if cmds is None:
+					continue
+				elif isinstance(cmds,str) or isinstance(cmds,unicode):
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is

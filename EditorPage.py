@@ -133,7 +133,6 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		self.filterString.bind("<Return>",   self.filter)
 		self.filterString.bind("<KP_Enter>", self.filter)
 
-
 	#-----------------------------------------------------------------------
 	def filter(self, event=None):
 		txt = self.filterString.get()
@@ -145,7 +144,8 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
-			[(_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
+			[(_("Autolevel"), "level",    lambda a=app:a.insertCommand("AUTOLEVEL",True)),
+			 (_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
 			 (_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
 			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True))
