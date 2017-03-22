@@ -1076,7 +1076,7 @@ class Sender:
 							self.gcode.probe.add(
 								 CNC.vars["prbx"]-CNC.vars["wcox"],
 								 CNC.vars["prby"]-CNC.vars["wcoy"],
-								 CNC.vars["prbz"]-CNC.vars["wcoy"])
+								 CNC.vars["prbz"]-CNC.vars["wcoz"])
 							self._probeUpdate = True
 							CNC.vars[word[0]] = word[1:]
 						elif word[0] == "GC":

@@ -312,7 +312,6 @@ class Application(Toplevel,Sender):
 		self.bind('<<EnableToggle>>',	self.editor.toggleEnable)
 		self.bind('<<Enable>>',		self.editor.enable)
 		self.bind('<<Disable>>',	self.editor.disable)
-#		self.bind('<<AutoLevel>>',      self.editor.autolevel)
 		self.bind('<<ChangeColor>>',    self.editor.changeColor)
 
 		# Canvas X-bindings

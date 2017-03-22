@@ -255,24 +255,28 @@ class DROFrame(CNCRibbon.PageFrame):
 		# Set buttons
 		row += 1
 		col = 1
-		b = Button(self, text=_("Set WPOS"),
+		f = Frame(self)
+		f.grid(row=row, column=col, columnspan=3, pady=0, sticky=EW)
+
+		b = Button(f, text=_("Set WPOS"),
 				image=Utils.icons["origin"],
 				compound=LEFT,
 				activebackground="LightYellow",
 				command=lambda s=self: s.event_generate("<<SetWPOS>>"),
 				padx=2, pady=1)
-		b.grid(row=row, column=col, pady=0, sticky=EW)
+		b.pack(side=LEFT,fill=X,expand=YES)
 		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
 		self.addWidget(b)
 
-		col += 2
-		b = Button(self, text=_("Move Gantry"),
+		#col += 2
+		b = Button(f, text=_("Move Gantry"),
 				image=Utils.icons["gantry"],
 				compound=LEFT,
 				activebackground="LightYellow",
 				command=lambda s=self: s.event_generate("<<MoveGantry>>"),
 				padx=2, pady=1)
-		b.grid(row=row, column=col, pady=0, sticky=EW)
+		#b.grid(row=row, column=col, pady=0, sticky=EW)
+		b.pack(side=RIGHT,fill=X,expand=YES)
 		tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
 		self.addWidget(b)
 
