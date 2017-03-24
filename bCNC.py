@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.8"
-__date__    = "15 Jan 2017"
+__version__ = "0.9.9"
+__date__    = "24 Mar 2017"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
