@@ -1021,7 +1021,7 @@ class Sender:
 							elif word[0] == "Ov":
 								CNC.vars["OvFeed"]    = int(word[1])
 								CNC.vars["OvRapid"]   = int(word[2])
-								CNC.vars["OvSpindle"] = int(word[2])
+								CNC.vars["OvSpindle"] = int(word[3])
 							elif word[0] == "WCO":
 								CNC.vars["wcox"] = float(word[1])
 								CNC.vars["wcoy"] = float(word[2])
