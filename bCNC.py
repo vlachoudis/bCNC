@@ -1962,7 +1962,6 @@ class Application(Toplevel,Sender):
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
-			self.canvas.reset()
 			self.draw()
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
