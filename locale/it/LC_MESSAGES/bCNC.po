@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 18:59+0200\n"
-"PO-Revision-Date: 2017-04-03 23:52+0200\n"
+"POT-Creation-Date: 2017-05-06 17:21+0200\n"
+"PO-Revision-Date: 2017-05-06 18:11+0200\n"
 "Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -29,11 +29,11 @@ msgstr "bCNC sta inviando un programma GCode a Grbl"
 
 #: Sender.py:96
 msgid "Grbl is in idle state and waiting for user commands"
-msgstr "Grbl è in attesa di comandi dall'utilizzatore."
+msgstr "Grbl è in attesa di comandi dall'utilizzatore"
 
 #: Sender.py:97
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr "Grbl è in pausa. Clicca su Riprendi (Pausa) per proseguire."
+msgstr "Grbl è in pausa. Clicca su Riprendi (Pausa) per proseguire"
 
 #: Sender.py:98
 msgid ""
@@ -65,7 +65,7 @@ msgstr ""
 
 #: Sender.py:100
 msgid "Connection is established with Grbl"
-msgstr "Connessione con Grbl stabilita."
+msgstr "Connessione con Grbl stabilita"
 
 #: Sender.py:102
 msgid ""
@@ -78,10 +78,12 @@ msgstr ""
 #: Sender.py:104
 msgid "G-code words consist of a letter and a value. Letter was not found."
 msgstr ""
+"Il codice G-code consiste di una lettera e un valore. La lettera non è stata "
+"trovata."
 
 #: Sender.py:105
 msgid "Numeric value format is not valid or missing an expected value."
-msgstr ""
+msgstr "Il formato numerico non è valido o è mancante un valore atteso."
 
 #: Sender.py:106
 msgid "Grbl '$' system command was not recognized or supported."
@@ -90,69 +92,82 @@ msgstr ""
 
 #: Sender.py:107
 msgid "Negative value received for an expected positive value."
-msgstr ""
+msgstr "Ricevuto valore negativo mentre se ne attendeva uno positivo."
 
 #: Sender.py:108
 msgid "Homing cycle is not enabled via settings."
-msgstr ""
+msgstr "Il ciclo di azzeramento non è abilitato dalle impostazioni."
 
 #: Sender.py:109
 msgid "Minimum step pulse time must be greater than 3usec"
-msgstr ""
+msgstr "Il tempo minimo dell'impulso di passo deve essere maggiore di 3usec"
 
 #: Sender.py:110
 msgid "EEPROM read failed. Reset and restored to default values."
-msgstr ""
+msgstr "Lettura EEPROM fallita. Resettato e ripristinato ai valori di default."
 
 #: Sender.py:111
 msgid ""
 "Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
 "operation during a job."
 msgstr ""
+"Comando Grbl '$' non può essere usato a meno che Grbl sia in IDLE. Per "
+"assicurare movimenti fluidi durante il lavoro."
 
 #: Sender.py:112
 msgid "G-code locked out during alarm or jog state"
-msgstr ""
+msgstr "G-code bloccato durante un allarme o nello stato manuale"
 
 #: Sender.py:113
 msgid "Soft limits cannot be enabled without homing also enabled."
 msgstr ""
+"I limiti software non possono essere abilitati senza abilitare anche "
+"l'azzeramento."
 
 #: Sender.py:114
 msgid "Max characters per line exceeded. Line was not processed and executed."
 msgstr ""
+"Numero massimo di caratteri per linea superato. La linea non è stata "
+"processata ne eseguita."
 
 #: Sender.py:115
 msgid ""
 "(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
 "supported."
 msgstr ""
+"(Opzione di compilazione) Il valore dell'impostazione Grbl '$' supera la "
+"frequenza di passo supportata."
 
 #: Sender.py:116
 msgid "Safety door detected as opened and door state initiated."
-msgstr ""
+msgstr "Porte di sicurezza rilevate aperte e stato porte inizializzato."
 
 #: Sender.py:117
 msgid ""
 "(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
 "limit."
 msgstr ""
+"(Solo Grbl-Mega) L'informazione di Build o riga di avvio superano il limite "
+"EEPROM della lunghezza riga."
 
 #: Sender.py:118
 msgid "Jog target exceeds machine travel. Command ignored."
 msgstr ""
+"La destinazione manuale supera il percorso di lavoro della macchina. Comando "
+"ignorato."
 
 #: Sender.py:119
 msgid "Jog command with no '=' or contains prohibited g-code."
-msgstr ""
+msgstr "Comando manuale senza '=' o che contiene G-code proibito."
 
 #: Sender.py:120
 msgid "Unsupported or invalid g-code command found in block."
-msgstr ""
+msgstr "Trovato G-code non supportato o invalido nel blocco."
 
 #: Sender.py:121
 msgid "More than one g-code command from same modal group found in block."
 msgstr ""
+"Più di un comando G-code dello stesso gruppo modale trovato nel blocco."
 
 #: Sender.py:122
 msgid "Feed rate has not yet been set or is undefined."
@@ -160,7 +175,7 @@ msgstr "Velocità di avanzamento non impostata o non è definita."
 
 #: Sender.py:123
 msgid "G-code command in block requires an integer value."
-msgstr ""
+msgstr "Il comando G-code del blocco richiede un valore intero."
 
 #: Sender.py:124
 msgid ""
@@ -179,12 +194,12 @@ msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
 msgstr ""
-"un comando G-Code richiede implicitamente o esplicitamente delle parole di "
+"Un comando G-Code richiede implicitamente o esplicitamente delle parole di "
 "asse XYZ all'interno del blocco, ma non ne è stata riconosciuta nessuna."
 
 #: Sender.py:127
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
-msgstr ""
+msgstr "Il numero di riga N non è valido nell'intorno 1-9.999.999."
 
 #: Sender.py:128
 msgid ""
@@ -200,6 +215,8 @@ msgid ""
 "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
 "are not supported."
 msgstr ""
+"Grbl supporta sei coordinate di lavoro G54-G59. G59.1, G59.2, e G59.3 non "
+"sono supportate."
 
 #: Sender.py:130
 msgid ""
@@ -231,6 +248,9 @@ msgid ""
 "error, if the arc is impossible to generate or if the probe target is the "
 "current position."
 msgstr ""
+"Il comando di movimento ha una destinazione errata. G2,G3 e G38.2 generano "
+"questo errore, se l'arco è impossibile da generare o la destinazione della "
+"sonda è la posizione attuale."
 
 #: Sender.py:134
 msgid ""
@@ -270,25 +290,32 @@ msgstr ""
 
 #: Sender.py:138
 msgid "An invalid tool number sent to the parser"
-msgstr ""
+msgstr "Un numero di utensile errato è stato inviato all'interprete."
 
 #: Sender.py:140
 msgid ""
 "Hard limit triggered. Machine position is likely lost due to sudden and "
 "immediate halt. Re-homing is highly recommended."
 msgstr ""
+"Limite fisco (Hardware) raggiunto. La posizione della macchina è "
+"probabilmente persa a causa dell'alt immediato. Un nuovo azzeramento è "
+"altamente raccomandato."
 
 #: Sender.py:141
 msgid ""
 "G-code motion target exceeds machine travel. Machine position safely "
 "retained. Alarm may be unlocked."
 msgstr ""
+"La destinazione del movimento G-code eccede i limiti della macchina. "
+"Posizione macchina conservata in sicurezza. L'allarme può essere sbloccato."
 
 #: Sender.py:142
 msgid ""
 "Reset while in motion. Grbl cannot guarantee position. Lost steps are "
 "likely. Re-homing is highly recommended."
 msgstr ""
+"Azzeramento durante il movimento. Grbl non può garantire la posizione. "
+"Possibile passi persi. Un nuovo azzeramento è altamente raccomandato."
 
 #: Sender.py:143
 msgid ""
@@ -296,60 +323,79 @@ msgid ""
 "probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
 "triggered."
 msgstr ""
+"Errore sonda. La sonda non è nello stato iniziale atteso prima dell'avvio "
+"del ciclo si sondaggio. Atteso non attivo con G38.2 e G38.3, e attivo con "
+"G38.4 e G38.5."
 
 #: Sender.py:144
 msgid ""
 "Probe fail. Probe did not contact the workpiece within the programmed travel "
 "for G38.2 and G38.4."
 msgstr ""
+"Errore sonda. La sonda non ha toccato il pezzo in lavoro all'interno del "
+"percorso programmato per G38.2 e G38.4."
 
 #: Sender.py:145
 msgid "Homing fail. Reset during active homing cycle."
-msgstr ""
+msgstr "Azzeramento fallito. Reset durante ciclo di azzeramento attivo."
 
 #: Sender.py:146
 msgid "Homing fail. Safety door was opened during active homing cycle."
 msgstr ""
+"Azzeramento fallito. Porte di sicurezza aperte mentre il ciclo di "
+"azzeramento era attivo."
 
 #: Sender.py:147
 msgid ""
 "Homing fail. Cycle failed to clear limit switch when pulling off. Try "
 "increasing pull-off setting or check wiring."
 msgstr ""
+"Azzeramento fallito. Il ciclo non è riuscito a liberare il fine corsa "
+"durante il rilascio. Prova ad aumentare il tempo di rilascio (pull-off) o "
+"controlla il cablaggio."
 
 #: Sender.py:148
 msgid ""
 "Homing fail. Could not find limit switch within search distance. Defined as "
 "1.5 * max_travel on search and 5 * pulloff on locate phases."
 msgstr ""
+"Azzeramento fallito. Non è stato possibile trovare il fine corsa dentro la "
+"distanza di ricerca. 1.5 volte il percorso massimo in ricerca e 5* rilascio "
+"nel trovare la fase."
 
 #: Sender.py:150
 msgid "Hold complete. Ready to resume."
-msgstr ""
+msgstr "Pausa completata. Pronto a ripartire."
 
 #: Sender.py:151
 msgid "Hold in-progress. Reset will throw an alarm."
-msgstr ""
+msgstr "Pausa in corso. Un Reset scatenerà un allarme."
 
 #: Sender.py:152
 msgid "Door closed. Ready to resume."
-msgstr ""
+msgstr "Porte chiuse. Pronto a partire."
 
 #: Sender.py:153
 msgid "Machine stopped. Door still ajar. Can't resume until closed."
 msgstr ""
+"Macchina ferma. Porte ancora socchiuse. Impossibile ripartite fino a che non "
+"sono chiuse."
 
 #: Sender.py:154
 msgid ""
 "Door opened. Hold (or parking retract) in-progress. Reset will throw an "
 "alarm."
 msgstr ""
+"Porte aperte. Pausa (o riposizionamento) in corso. Un Reset scatenerà un "
+"allarme."
 
 #: Sender.py:155
 msgid ""
 "Door closed and resuming. Restoring from park, if applicable. Reset will "
 "throw an alarm."
 msgstr ""
+"Porte chiuse e in ripresa. Ripristino da zona parcheggio, se applicabile. Un "
+"Reset scatenerà un allarme."
 
 #: Sender.py:437
 msgid "unknown command"
@@ -1314,7 +1360,7 @@ msgstr "Modo Velocità [G93, G94, G95]"
 
 #: ControlPage.py:945
 msgid "Select override type."
-msgstr "Seleziona tipo  di Override"
+msgstr "Seleziona tipo di Override."
 
 #: ControlPage.py:949
 msgid "Reset override to 100%"
@@ -1864,7 +1910,7 @@ msgid ""
 "then click on canvas to add the marker."
 msgstr ""
 "Aggiungi un riferimento d'orientamento. Muovi la macchina sul riferimento a "
-"quindi premi sulla vista per aggiungere il riferimento. "
+"quindi premi sulla vista per aggiungere il riferimento."
 
 #: ProbePage.py:436
 msgid "Gcode:"
@@ -1947,7 +1993,7 @@ msgstr "Diametro inserito non valido"
 
 #: ProbePage.py:705
 msgid "Do you want to delete all orientation markers?"
-msgstr "Vuoi cancellare tutti i riferimenti."
+msgstr "Vuoi cancellare tutti i riferimenti?"
 
 #: ProbePage.py:796
 msgid "Min"
@@ -2389,7 +2435,7 @@ msgstr "Pulizia G-Code"
 
 #: bCNC.py:144
 msgid "Controller buffer fill"
-msgstr "Riempimento del buffer del controllore "
+msgstr "Riempimento del buffer del controllore"
 
 #: bCNC.py:171
 msgid ""
@@ -2482,7 +2528,7 @@ msgstr "Niente da fare"
 #: bCNC.py:1662
 #, python-format
 msgid "Operation %s requires some gcode to be selected"
-msgstr "L'Operazione %s richiede che sia selezionato qualche GCode."
+msgstr "L'Operazione %s richiede che sia selezionato qualche GCode"
 
 #: bCNC.py:1704
 msgid "Operation error"
@@ -2696,7 +2742,7 @@ msgstr "Data dell'ultimo controllo"
 
 #: Updates.py:89
 msgid "Interval (days):"
-msgstr "Intervallo (giorni)"
+msgstr "Intervallo (giorni):"
 
 #: Updates.py:100
 msgid "Days-interval to remind again for checking"
@@ -3586,7 +3632,7 @@ msgstr "Generare una scatola con incastri di montaggio"
 
 #: plugins/box.py:307
 msgid "Internal Dimensions"
-msgstr "Dimensioni interne:"
+msgstr "Dimensioni interne"
 
 #: plugins/box.py:308
 msgid "Width Dx"
