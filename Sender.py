@@ -964,7 +964,7 @@ class Sender:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
 							if pat is None and self._newFeed!=0:
-								tosend = "f%g" % (self._newFeed) + tosend
+								tosend = "f%g\n" % (self._newFeed) + tosend
 
 						#Apply override Feed
 						if CNC.vars["_OvFeed"] != 100 and self._newFeed!=0:
