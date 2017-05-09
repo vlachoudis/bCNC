@@ -275,17 +275,22 @@ class Probe:
 		self.makeMatrix()
 		x = self.xmin
 		xstep = self._xstep
-		lines = ["G0Z%.4f"%(CNC.vars["safe"]),
+		lines = ["F%g"%(CNC.vars["feed"]),
+			 "G0Z%.4f"%(CNC.vars["safe"]),
 			 "G0X%.4fY%.4f"%(self.xmin, self.ymin)]
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
+				lines.append("F%g"%(CNC.vars["feed"]))
 				lines.append("G0Z%.4f"%(self.zmax))
 				lines.append("G0X%.4fY%.4f"%(x,y))
+ 				lines.append("%wait")
 				lines.append("%sZ%.4fF%g"%(CNC.vars["prbcmd"], self.zmin, CNC.vars["prbfeed"]))
+ 				lines.append("%wait")
 				x += xstep
 			x -= xstep
 			xstep = -xstep
+		lines.append("F%g"%(CNC.vars["feed"]))
 		lines.append("G0Z%.4f"%(self.zmax))
 		lines.append("G0X%.4fY%.4f"%(self.xmin,self.ymin))
 		return lines
