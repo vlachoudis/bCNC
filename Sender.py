@@ -959,12 +959,12 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE):
+					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE) and not tosend.startswith("$"):
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
 							if pat is None and self._newFeed!=0:
-								tosend = "f%g\n" % (self._newFeed) + tosend
+								tosend = "f%g" % (self._newFeed) + tosend
 
 						#Apply override Feed
 						if CNC.vars["_OvFeed"] != 100 and self._newFeed!=0:
