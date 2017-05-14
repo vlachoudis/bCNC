@@ -954,7 +954,7 @@ class Sender:
 					if isinstance(tosend, unicode):
 						tosend = tosend.encode("ascii","replace")
 
-					#Keep track of last feed
+					# Keep track of last feed
 					pat = FEEDPAT.match(tosend)
 					if pat is not None:
 						self._lastFeed = pat.group(2)
@@ -963,11 +963,12 @@ class Sender:
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
-							if pat is None and self._newFeed!=0:
-								tosend = "f%g" % (self._newFeed) + tosend
+							if pat is None and self._newFeed!=0 \
+							   and not tosend.startswith("$"):
+								tosend = "f%g%s" % (self._newFeed, tosend)
 
-						#Apply override Feed
-						if CNC.vars["_OvFeed"] != 100 and self._newFeed!=0:
+						# Apply override Feed
+						if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
 							pat = FEEDPAT.match(tosend)
 							if pat is not None:
 								try:
