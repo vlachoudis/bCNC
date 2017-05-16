@@ -50,6 +50,7 @@ class Camera:
 	def start(self):
 		if cv is None: return
 		self.camera = cv.VideoCapture(self.idx)
+		s, self.image = self.camera.read()
 		if self.camera is None: return
 		s, self.image = self.camera.read()
 		if not self.camera.isOpened():
