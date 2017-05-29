@@ -534,7 +534,9 @@ class Sender:
 	# Open serial port
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
-		self.serial = serial.Serial(	device,
+		#self.serial = serial.Serial(
+		self.serial = serial.serial_for_url(
+						device,
 						baudrate,
 						bytesize=serial.EIGHTBITS,
 						parity=serial.PARITY_NONE,
