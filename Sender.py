@@ -32,8 +32,9 @@ import Pendant
 
 WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
-SERIAL_POLL   = 0.125	# s
-G_POLL	      = 10	# s
+SERIAL_POLL    = 0.125	# s
+SERIAL_TIMEOUT = 0.5	# s
+G_POLL	       = 10	# s
 RX_BUFFER_SIZE = 128
 
 OV_FEED_100     = chr(0x90)        # Extended override commands
@@ -538,7 +539,7 @@ class Sender:
 						bytesize=serial.EIGHTBITS,
 						parity=serial.PARITY_NONE,
 						stopbits=serial.STOPBITS_ONE,
-						timeout=0.1,
+						timeout=SERIAL_TIMEOUT,
 						xonxoff=False,
 						rtscts=False)
 		# Toggle DTR to reset Arduino
