@@ -958,6 +958,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 						parent=self.winfo_toplevel())
 			error = True
 
+		if probe.xmin >= probe.xmax:
+			if verbose:
+				tkMessageBox.showerror(_("Probe Error"),
+						_("Invalid X range [xmin>=xmax]"),
+						parent=self.winfo_toplevel())
+			error = True
+
 		try:
 			probe.ymin = float(self.probeYmin.get())
 			probe.ymax = float(self.probeYmax.get())
@@ -971,6 +978,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 						parent=self.winfo_toplevel())
 			error = True
 
+		if probe.ymin >= probe.ymax:
+			if verbose:
+				tkMessageBox.showerror(_("Probe Error"),
+						_("Invalid Y range [ymin>=ymax]"),
+						parent=self.winfo_toplevel())
+			error = True
+
 		try:
 			probe.zmin  = float(self.probeZmin.get())
 			probe.zmax  = float(self.probeZmax.get())
@@ -979,6 +993,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 				tkMessageBox.showerror(_("Probe Error"),
 					_("Invalid Z probing region"),
 					parent=self.winfo_toplevel())
+			error = True
+
+		if probe.zmin >= probe.zmax:
+			if verbose:
+				tkMessageBox.showerror(_("Probe Error"),
+						_("Invalid Z range [zmin>=zmax]"),
+						parent=self.winfo_toplevel())
 			error = True
 
 		if ProbeCommonFrame.probeUpdate():
