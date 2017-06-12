@@ -625,39 +625,39 @@ class Path(list):
 		else:
 			A = None
 
-		print
+#		print
 		for i,segment in enumerate(self):
-			print i,segment
+#			print i,segment
 			if segment.type == Segment.LINE:
 				B = segment.AB
-				print "\tA=",A
-				print "\tB=",B
+#				print "\tA=",A
+#				print "\tB=",B
 				if A is not None:
 					phi += atan2(A^B,A*B)
-					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-					print "\tA^B=",A^B,"A*B=",A*B
+#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
+#					print "\tA^B=",A^B,"A*B=",A*B
 				A = B
 			else:
 				B = segment.tangentStart()
-				print "\tA=",A
-				print "\tB=",B
+#				print "\tA=",A
+#				print "\tB=",B
 				if A is not None:
 					phi += atan2(A^B,A*B)
-					print "\tA^B=",A^B,"A*B=",A*B
-					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-					print "\tphi(Start)=",phi,degrees(phi)
+#					print "\tA^B=",A^B,"A*B=",A*B
+#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
+#					print "\tphi(Start)=",phi,degrees(phi)
 				phi += segment.endPhi - segment.startPhi
-				print "\tarc=",segment.endPhi - segment.startPhi, degrees(segment.endPhi - segment.startPhi)
+#				print "\tarc=",segment.endPhi - segment.startPhi, degrees(segment.endPhi - segment.startPhi)
 				A = segment.tangentEnd()
-				print "\ttangenEnd=",A
-			print "\tphi=",phi,degrees(phi)
+#				print "\ttangenEnd=",A
+#			print "\tphi=",phi,degrees(phi)
 
-		print "phi=",phi
+#		print "phi=",phi
 		if phi < 0.0:
-			print "Direction: CW"
+#			print "Direction: CW"
 			return 1
 		else:
-			print "Direction: CCW"
+#			print "Direction: CCW"
 			return -1
 
 	#----------------------------------------------------------------------

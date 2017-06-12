@@ -43,7 +43,7 @@
 # ----------------------------------------------------------------------------
 
 #
-# Deriver from Alex Holkner work for pyglet 
+# Deriver from Alex Holkner work for pyglet
 # Glyph data ported from
 # * http://stevehanov.ca/blog/index.php?id=143
 # the JavaScript code to extract also Glyph data as vector.
@@ -571,18 +571,18 @@ class TruetypeInfo:
 		WE_HAVE_INSTRUCTIONS     = 256
 		USE_MY_METRICS           = 512
 		OVERLAP_COMPONENT        = 1024
-		
+
 		glyph = Glyph()
 		glyph.type = "compound"
 		glyph.components = []
-		
+
 		flags =  MORE_COMPONENTS
 		while flags & MORE_COMPONENTS:
 			flags,g_offset = self._get_data(">H", g_offset)#uint16
-			
+
 			component = GlyphComponent()
 			component.glyphIndex,g_offset = self._get_data(">H", g_offset)#uint16
-			
+
 			arg1 = 0
 			arg2 = 0
 			if ( flags &  ARG_1_AND_2_ARE_WORDS ):
@@ -591,14 +591,14 @@ class TruetypeInfo:
 			else:
 				arg1,g_offset = self._get_data(">B", g_offset)#uint8
 				arg2,g_offset = self._get_data(">B", g_offset)#uint8
-			
+
 			if ( flags & ARGS_ARE_XY_VALUES ):
 				component.e = arg1
 				component.f = arg2
 			else:
 				component.destPointIndex = arg1
 				component.srcPointIndex = arg2
-				
+
 			if ( flags & WE_HAVE_A_SCALE ):
 				component.a,g_offset = self.get2Dot14(g_offset)
 				component.d = component.a
@@ -613,7 +613,7 @@ class TruetypeInfo:
 
 			#add component
 			glyph.components.append(component)
-			
+
 			if ( flags & WE_HAVE_INSTRUCTIONS ):
 				seek,g_offset = self._get_data(">H", g_offset)#uint16
 				g_offset += seek
@@ -621,7 +621,7 @@ class TruetypeInfo:
 		#Create glyph points
 		ceOffset = 0
 		for component in glyph.components:
-			print component.glyphIndex
+#			print component.glyphIndex
 			subGlyph = self._read_glyph(component.glyphIndex)
 			#apply transformation to points
 			#FIX ME: not all transformations (es. scale) are applied correctly
@@ -641,7 +641,7 @@ class TruetypeInfo:
 	def get2Dot14(self,g_offset):
 		v,g_offset = self._get_data(">h", g_offset)#int16
 		return v / (1 << 14),g_offset
-		
+
 	def get_glyph_vector(self,index):
 		"""
 		return glyph data as original vector form
@@ -716,7 +716,7 @@ class TruetypeInfo:
 		normContours.reverse()
 		return normContours
 
-	#Casteljau's Algorithm 
+	#Casteljau's Algorithm
 	def approx_quadratic_bez(self,  p1, p2, p3, t):
 		#p1 = start point
 		#p2 = control point
@@ -774,85 +774,84 @@ def _read_table(*entries):
 				tables.append(_table_class(data, offset))
 				offset += _table_class.size
 			return tables
-
 	return _table_class
 
 
 # Table formats (see references)
 _read_offset_table = _read_table('scalertype:I',
-						'num_tables:H',
-						'search_range:H',
-						'entry_selector:H',
-						'range_shift:H')
+			'num_tables:H',
+			'search_range:H',
+			'entry_selector:H',
+			'range_shift:H')
 
 _read_table_directory_entry = _read_table('tag:4s',
-								'check_sum:I',
-								'offset:I',
-								'length:I')
+				'check_sum:I',
+				'offset:I',
+				'length:I')
 _read_head_table = _read_table('version:i',
-						  'font_revision:i',
-						  'check_sum_adjustment:L',
-						  'magic_number:L',
-						  'flags:H',
-						  'units_per_em:H',
-						  'created:Q',
-						  'modified:Q',
-						  'x_min:h',
-						  'y_min:h',
-						  'x_max:h',
-						  'y_max:h',
-						  'mac_style:H',
-						  'lowest_rec_p_pEM:H',
-						  'font_direction_hint:h',
-						  'index_to_loc_format:h',
-						  'glyph_data_format:h')
+			'font_revision:i',
+			'check_sum_adjustment:L',
+			'magic_number:L',
+			'flags:H',
+			'units_per_em:H',
+			'created:Q',
+			'modified:Q',
+			'x_min:h',
+			'y_min:h',
+			'x_max:h',
+			'y_max:h',
+			'mac_style:H',
+			'lowest_rec_p_pEM:H',
+			'font_direction_hint:h',
+			'index_to_loc_format:h',
+			'glyph_data_format:h')
 
 _read_OS2_table = _read_table('version:H',
-						 'x_avg_char_width:h',
-						 'us_weight_class:H',
-						 'us_width_class:H',
-						 'fs_type:H',
-						 'y_subscript_x_size:h',
-						 'y_subscript_y_size:h',
-						 'y_subscript_x_offset:h',
-						 'y_subscript_y_offset:h',
-						 'y_superscript_x_size:h',
-						 'y_superscript_y_size:h',
-						 'y_superscript_x_offset:h',
-						 'y_superscript_y_offset:h',
-						 'y_strikeout_size:h',
-						 'y_strikeout_position:h',
-						 's_family_class:h',
-						 'panose1:B',
-						 'panose2:B',
-						 'panose3:B',
-						 'panose4:B',
-						 'panose5:B',
-						 'panose6:B',
-						 'panose7:B',
-						 'panose8:B',
-						 'panose9:B',
-						 'panose10:B',
-						 'ul_unicode_range1:L',
-						 'ul_unicode_range2:L',
-						 'ul_unicode_range3:L',
-						 'ul_unicode_range4:L',
-						 'ach_vend_id:I',
-						 'fs_selection:H',
-						 'us_first_char_index:H',
-						 'us_last_char_index:H',
-						 's_typo_ascender:h',
-						 's_typo_descender:h',
-						 's_typo_line_gap:h',
-						 'us_win_ascent:H',
-						 'us_win_descent:H',
-						 'ul_code_page_range1:L',
-						 'ul_code_page_range2:L',
-						 'sx_height:h',
-						 's_cap_height:h',
-						 'us_default_char:H',
-						 'us_break_char:H',
-						 'us_max_context:H')
+			'x_avg_char_width:h',
+			'us_weight_class:H',
+			'us_width_class:H',
+			'fs_type:H',
+			'y_subscript_x_size:h',
+			'y_subscript_y_size:h',
+			'y_subscript_x_offset:h',
+			'y_subscript_y_offset:h',
+			'y_superscript_x_size:h',
+			'y_superscript_y_size:h',
+			'y_superscript_x_offset:h',
+			'y_superscript_y_offset:h',
+			'y_strikeout_size:h',
+			'y_strikeout_position:h',
+			's_family_class:h',
+			'panose1:B',
+			'panose2:B',
+			'panose3:B',
+			'panose4:B',
+			'panose5:B',
+			'panose6:B',
+			'panose7:B',
+			'panose8:B',
+			'panose9:B',
+			'panose10:B',
+			'ul_unicode_range1:L',
+			'ul_unicode_range2:L',
+			'ul_unicode_range3:L',
+			'ul_unicode_range4:L',
+			'ach_vend_id:I',
+			'fs_selection:H',
+			'us_first_char_index:H',
+			'us_last_char_index:H',
+			's_typo_ascender:h',
+			's_typo_descender:h',
+			's_typo_line_gap:h',
+			'us_win_ascent:H',
+			'us_win_descent:H',
+			'ul_code_page_range1:L',
+			'ul_code_page_range2:L',
+			'sx_height:h',
+			's_cap_height:h',
+			'us_default_char:H',
+			'us_break_char:H',
+			'us_max_context:H')
 
 _read_kern_header_table = _read_table('version_num:H',
 								'n_tables:H')
@@ -867,67 +866,67 @@ _read_kern_subtable_header.override_mask = 0x5
 _read_kern_subtable_header.format_mask = 0xf0
 
 _read_kern_subtable_format0 = _read_table('n_pairs:H',
-									'search_range:H',
-									'entry_selector:H',
-									'range_shift:H')
+					'search_range:H',
+					'entry_selector:H',
+					'range_shift:H')
 _read_kern_subtable_format0Pair = _read_table('left:H',
-										'right:H',
-										'value:h')
+						'right:H',
+						'value:h')
 
 _read_cmap_header = _read_table('version:H',
-						   'num_tables:H')
+				   'num_tables:H')
 
 _read_cmap_encoding_record = _read_table('platform_id:H',
-								   'encoding_id:H',
-								   'offset:L')
+					'encoding_id:H',
+					'offset:L')
 
 _read_cmap_format_header = _read_table('format:H',
-								 'length:H')
+					 'length:H')
 _read_cmap_format4Header = _read_table('format:H',
-								  'length:H',
-								  'language:H',
-								  'seg_count_x2:H',
-								  'search_range:H',
-								  'entry_selector:H',
-								  'range_shift:H')
+					'length:H',
+					'language:H',
+					'seg_count_x2:H',
+					'search_range:H',
+					'entry_selector:H',
+					'range_shift:H')
 
 _read_horizontal_header = _read_table('version:i',
-								 'Advance:h',
-								 'Descender:h',
-								 'LineGap:h',
-								 'advance_width_max:H',
-								 'min_left_side_bearing:h',
-								 'min_right_side_bearing:h',
-								 'x_max_extent:h',
-								 'caret_slope_rise:h',
-								 'caret_slope_run:h',
-								 'caret_offset:h',
-								 'reserved1:h',
-								 'reserved2:h',
-								 'reserved3:h',
-								 'reserved4:h',
-								 'metric_data_format:h',
-								 'number_of_h_metrics:H')
+					'Advance:h',
+					'Descender:h',
+					'LineGap:h',
+					'advance_width_max:H',
+					'min_left_side_bearing:h',
+					'min_right_side_bearing:h',
+					'x_max_extent:h',
+					'caret_slope_rise:h',
+					'caret_slope_run:h',
+					'caret_offset:h',
+					'reserved1:h',
+					'reserved2:h',
+					'reserved3:h',
+					'reserved4:h',
+					'metric_data_format:h',
+					'number_of_h_metrics:H')
 
 _read_long_hor_metric = _read_table('advance_width:H',
-							  'lsb:h')
+				  'lsb:h')
 
 _read_naming_table = _read_table('format:H',
-							'count:H',
-							'string_offset:H')
+				 'count:H',
+				 'string_offset:H')
 
 _read_name_record = _read_table('platform_id:H',
-						   'encoding_id:H',
-						   'language_id:H',
-						   'name_id:H',
-						   'length:H',
-						   'offset:H')
+				'encoding_id:H',
+				'language_id:H',
+				'name_id:H',
+				'length:H',
+				'offset:H')
 
 _read_glyph_size_table = _read_table('numContours:h',
-						   'xMin:h',
-						   'yMin:h',
-						   'xMax:h',
-						   'yMax:h')
+				'xMin:h',
+				'yMin:h',
+				'xMax:h',
+				'yMax:h')
 
 class Glyph:
 	def __init__(self):
@@ -940,7 +939,7 @@ class GlyphPoint:
 		self.ON_CURVE = False
 		self.x = x
 		self.y = y
-		
+
 class GlyphComponent:
 	def __init__(self ):
 		self.glyphIndex = 0

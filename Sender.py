@@ -33,7 +33,7 @@ import Pendant
 WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
 SERIAL_POLL    = 0.125	# s
-SERIAL_TIMEOUT = 0.5	# s
+SERIAL_TIMEOUT = 0.10	# s
 G_POLL	       = 10	# s
 RX_BUFFER_SIZE = 128
 
