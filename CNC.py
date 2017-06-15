@@ -2206,11 +2206,11 @@ class Block(list):
 		self.xmin = min(self.xmin, min([i[0] for i in xyza]))
 		self.ymin = min(self.ymin, min([i[1] for i in xyza]))
 		self.zmin = min(self.zmin, min([i[2] for i in xyza]))
-		self.amin = min(self.amin, min([i[3] for i in xyza]))
 		self.xmax = max(self.xmax, max([i[0] for i in xyza]))
 		self.ymax = max(self.ymax, max([i[1] for i in xyza]))
 		self.zmax = max(self.zmax, max([i[2] for i in xyza]))
-		self.amax = max(self.amax, max([i[3] for i in xyza]))
+		self.amin = min(self.amin, min([0.] + [i[3] for i in xyza if len(i) > 3]))
+		self.amax = max(self.amax, max([0.] + [i[3] for i in xyza if len(i) > 3]))
 
 #===============================================================================
 # Gcode file
