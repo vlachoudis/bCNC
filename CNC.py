@@ -829,15 +829,15 @@ class CNC:
 	#----------------------------------------------------------------------
 	def initPath(self, x=None, y=None, z=None):
 		if x is None:
-			self.x = self.xval = 0
+			self.x = self.xval = CNC.vars['wx'] or 0
 		else:
 			self.x = self.xval = x
 		if y is None:
-			self.y = self.yval = 0
+			self.y = self.yval = CNC.vars['wx'] or 0
 		else:
 			self.y = self.yval = y
 		if z is None:
-			self.z = self.zval = 0
+			self.z = self.zval = CNC.vars['wx'] or 0
 		else:
 			self.z = self.zval = z
 		self.ival = self.jval = self.kval = 0.0
