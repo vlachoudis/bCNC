@@ -829,15 +829,15 @@ class CNC:
 	#----------------------------------------------------------------------
 	def initPath(self, x=None, y=None, z=None):
 		if x is None:
-			self.x = self.xval = 0
+			self.x = self.xval = CNC.vars['wx'] or 0
 		else:
 			self.x = self.xval = x
 		if y is None:
-			self.y = self.yval = 0
+			self.y = self.yval = CNC.vars['wx'] or 0
 		else:
 			self.y = self.yval = y
 		if z is None:
-			self.z = self.zval = 0
+			self.z = self.zval = CNC.vars['wx'] or 0
 		else:
 			self.z = self.zval = z
 		self.ival = self.jval = self.kval = 0.0
@@ -1671,6 +1671,15 @@ class CNC:
 			lines.append("g53 g0 z[toolprobez]")
 
 			# fixed WCS
+			if CNC.vars["fastprbfeed"]:
+				prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
+				CNC.vars["prbcmdreverse"] = (CNC.vars["prbcmd"][:-1] +
+							     prb_reverse[CNC.vars["prbcmd"][-1]])
+				currentFeedrate = CNC.vars["fastprbfeed"]
+				while currentFeedrate > CNC.vars["prbfeed"]:
+					lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)
+					lines.append("g91 [prbcmdreverse] f%f z[tooldistance]" % currentFeedrate)
+					currentFeedrate /= 10
 			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
 			if CNC.toolPolicy==2:
