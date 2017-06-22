@@ -886,6 +886,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def alarmClear(self, event=None):
+		print "alarm clear"
 		self._alarm = False
 
 	#-----------------------------------------------------------------------

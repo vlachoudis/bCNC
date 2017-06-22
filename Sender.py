@@ -118,6 +118,7 @@ ERROR_CODES = {
 	"error:14" : _("(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length limit."),
 	"error:15" : _("Jog target exceeds machine travel. Command ignored."),
 	"error:16" : _("Jog command with no '=' or contains prohibited g-code."),
+	"error:17" : _("Laser mode requires PWM output."),
 	"error:20" : _("Unsupported or invalid g-code command found in block."),
 	"error:21" : _("More than one g-code command from same modal group found in block."),
 	"error:22" : _("Feed rate has not yet been set or is undefined."),
@@ -136,7 +137,6 @@ ERROR_CODES = {
 	"error:35" : _("A G2 or G3 arc, traced with the offset definition, is missing the IJK offset word in the selected plane to trace the arc."),
 	"error:36" : _("There are unused, leftover G-code words that aren't used by any command in the block."),
 	"error:37" : _("The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis."),
-	"error:38" : _("An invalid tool number sent to the parser"),
 
 	"ALARM:1" : _("Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended."),
 	"ALARM:2" : _("G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked."),
@@ -155,6 +155,7 @@ ERROR_CODES = {
 	"Door:2" : _("Door opened. Hold (or parking retract) in-progress. Reset will throw an alarm."),
 	"Door:3" : _("Door closed and resuming. Restoring from park, if applicable. Reset will throw an alarm."),
 }
+
 
 # Convert Grbl V1.0 codes to Grbl V0.9
 for e1,e0 in (	("error: Expected command letter", "error:1"),
@@ -619,19 +620,19 @@ class Sender:
 		self.notBusy()
 
 	#----------------------------------------------------------------------
-	def softReset(self):
+	def softReset(self, clearAlarm=True):
 		if self.serial:
 		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
 				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
 		#		self.serial.write(b"reset\n")
 		self.stopProbe()
-		self._alarm = False
+		if clearAlarm: self._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 
 	#----------------------------------------------------------------------
-	def unlock(self):
-		self._alarm = False
+	def unlock(self, clearAlarm=True):
+		if clearAlarm: self._alarm = False
 		self.sendGCode("$X")
 
 	#----------------------------------------------------------------------
@@ -810,10 +811,10 @@ class Sender:
 		# remember and send all G commands
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 		TLO = CNC.vars["TLO"]
-		self.softReset()			# reset controller
+		self.softReset(False)			# reset controller
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			time.sleep(1)
-			self.unlock()
+			self.unlock(False)
 		self.runEnded()
 		self.stopProbe()
 		if G: self.sendGCode(G)			# restore $G
@@ -1001,7 +1002,6 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
-						#print fields
 						if not self._alarm:
 							CNC.vars["state"] = fields[0]
 						for field in fields[1:]:
