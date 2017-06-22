@@ -833,11 +833,11 @@ class CNC:
 		else:
 			self.x = self.xval = x
 		if y is None:
-			self.y = self.yval = CNC.vars['wx'] or 0
+			self.y = self.yval = CNC.vars['wy'] or 0
 		else:
 			self.y = self.yval = y
 		if z is None:
-			self.z = self.zval = CNC.vars['wx'] or 0
+			self.z = self.zval = CNC.vars['wz'] or 0
 		else:
 			self.z = self.zval = z
 		self.ival = self.jval = self.kval = 0.0
