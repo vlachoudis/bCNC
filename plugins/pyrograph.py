@@ -30,8 +30,7 @@ class Pyrograph:
 class Tool(Plugin):
 	__doc__ = _("Create a variable feed path based upon image brightness")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Pyrograph"
+		Plugin.__init__(self, master, "Pyrograph")
 		self.icon  = "pyrograph"
 		self.group = "Artistic"
 

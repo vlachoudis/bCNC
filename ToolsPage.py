@@ -39,9 +39,9 @@ class InPlaceText(tkExtra.InPlaceText):
 # Tools Base class
 #==============================================================================
 class _Base:
-	def __init__(self, master):
+	def __init__(self, master, name=None):
 		self.master    = master
-		self.name      = None
+		self.name      = name
 		self.icon      = None
 		self.plugin    = False
 		self.variables = []		# name, type, default, label
@@ -374,8 +374,8 @@ class _Base:
 # Base class of all databases
 #==============================================================================
 class DataBase(_Base):
-	def __init__(self, master):
-		_Base.__init__(self, master)
+	def __init__(self, master, name):
+		_Base.__init__(self, master, name)
 		self.buttons  = ["add","delete","clone","rename"]
 
 	# ----------------------------------------------------------------------
@@ -440,8 +440,8 @@ class DataBase(_Base):
 
 #==============================================================================
 class Plugin(DataBase):
-	def __init__(self, master):
-		DataBase.__init__(self, master)
+	def __init__(self, master, name):
+		DataBase.__init__(self, master, name)
 		self.plugin = True
 		self.group  = "Macros"
 
@@ -449,13 +449,13 @@ class Plugin(DataBase):
 # Generic ini configuration
 #==============================================================================
 class Ini(_Base):
-	def __init__(self, master, name, vartype):
+	def __init__(self, master, name, vartype, include=(), ignore=()):
 		_Base.__init__(self, master)
 		self.name = name
 
 		# detect variables from ini file
-		self.variables = []
 		for name,value in Utils.config.items(self.name):
+			if name in ignore: continue
 			self.variables.append((name, vartype, value, name))
 
 #------------------------------------------------------------------------------
@@ -467,11 +467,6 @@ class Font(Ini):
 class Color(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Color", "color")
-
-#------------------------------------------------------------------------------
-class Camera(Ini):
-	def __init__(self, master):
-		Ini.__init__(self, master, "Camera", "int")
 
 #------------------------------------------------------------------------------
 class Events(Ini):
@@ -488,6 +483,21 @@ class Shortcut(Ini):
 	def execute(self, app):
 		self.save()
 		app.loadShortcuts()
+
+#------------------------------------------------------------------------------
+class Camera(_Base):
+	def __init__(self, master):
+		_Base.__init__(self, master, "Camera")
+		self.variables = [
+			("aligncam"      , "int",  0    , _("Align Camera"))   ,
+			("aligncam_width", "int",  0    , _("Align Camera Width")),
+			("aligncam_height","int",  0    , _("Align Camera Height")),
+			("aligncam_angle", "0,90,180,270", 0, _("Align Camera Angle")),
+			("webcam"      , "int",  0    , _("Web Camera"))   ,
+			("webcam_width", "int",  0    , _("Web Camera Width")),
+			("webcam_height","int",  0    , _("Web Camera Height")),
+			("webcam_angle", "0,90,180,270", 0, _("Web Camera Angle"))
+		]
 
 #==============================================================================
 # CNC machine configuration
@@ -536,8 +546,7 @@ class Config(_Base):
 #==============================================================================
 class Material(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Material"
+		DataBase.__init__(self, master, "Material")
 		self.variables = [
 			("name",    "db",    "", _("Name")),
 			("comment","str",    "", _("Comment")),
@@ -563,8 +572,7 @@ class Material(DataBase):
 #==============================================================================
 class EndMill(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "EndMill"
+		DataBase.__init__(self, master, "EndMill")
 		self.variables = [
 			("name",       "db",     "", _("Name")),
 			("comment",   "str",     "", _("Comment")),
@@ -593,8 +601,7 @@ class EndMill(DataBase):
 #==============================================================================
 class Stock(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Stock"
+		DataBase.__init__(self, master, "Stock")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("comment",  "str",     "", _("Comment")),
@@ -620,8 +627,7 @@ class Stock(DataBase):
 #==============================================================================
 class Cut(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Cut"
+		DataBase.__init__(self, master, "Cut")
 		self.variables = [
 			("name",         "db" ,    "", _("Name")),
 			("surface",      "mm" ,    "", _("Surface Z")),
@@ -651,8 +657,7 @@ class Cut(DataBase):
 #==============================================================================
 class Drill(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Drill"
+		DataBase.__init__(self, master, "Drill")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("depth",     "mm" ,    "", _("Target Depth")),
@@ -684,8 +689,7 @@ class Drill(DataBase):
 #==============================================================================
 class Profile(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Profile"
+		DataBase.__init__(self, master, "Profile")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -710,8 +714,7 @@ class Profile(DataBase):
 #==============================================================================
 class Pocket(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Pocket"
+		DataBase.__init__(self, master, "Pocket")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -732,8 +735,7 @@ class Pocket(DataBase):
 #==============================================================================
 class Tabs(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master)
-		self.name = "Tabs"
+		DataBase.__init__(self, master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("ntabs",     "int",     5, _("Number of tabs")),
@@ -858,9 +860,9 @@ class Tools:
 		self.listbox = None
 
 		# CNC should be first to load the inches
-		for cls in [ Config, Font, Color, Controller, Cut, Drill, EndMill, Events,
-			     Material, Pocket, Profile, Shortcut, Stock,
-			     Tabs]:
+		for cls in [ Camera, Config, Font, Color, Controller, Cut,
+			     Drill, EndMill, Events, Material, Pocket,
+			     Profile, Shortcut, Stock, Tabs]:
 			tool = cls(self)
 			self.addTool(tool)
 

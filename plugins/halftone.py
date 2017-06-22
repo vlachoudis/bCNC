@@ -32,8 +32,7 @@ except ImportError:
 class Tool(Plugin):
 	__doc__ = _("Create halftone pattern from a picture")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Halftone"
+		Plugin.__init__(self, master, "Halftone")
 		self.icon  = "halftone"
 		self.group = "Artistic"
 

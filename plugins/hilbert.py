@@ -80,8 +80,7 @@ class Hilbert:
 class Tool(Plugin):
 	__doc__ = _("Create a Hilbert path")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Hilbert"
+		Plugin.__init__(self, master, "Hilbert")
 		self.icon  = "hilbert"
 		self.group = "Artistic"
 		self.variables = [

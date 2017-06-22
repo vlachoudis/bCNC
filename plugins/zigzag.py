@@ -28,7 +28,9 @@ class ZigZag:
 		x = 0.
 		y = -StartEndLen
 		points.append((x,y))
-		
+
+		def is_even(num): return (num%2) == 0
+
 		for i in range(Nlines):
 			goingUp = is_even(i)
 			if i > 0 and CornerRes > 0:
@@ -42,19 +44,18 @@ class ZigZag:
 			y = LineLen * goingUp
 			x = Step * i
 			points.append((x,y))
-		
+
 		if goingUp:
 			y = LineLen + StartEndLen
 		else:
 			y = -StartEndLen
-		
+
 		points.append((x,y))
 		if is_even(Nlines): points.append((0,-StartEndLen)) # close the path
 		return points
 
 	#----------------------------------------------------------------------
 	def make(self, Nlines, LineLen, StartEndLen, Step, CornerRes, Depth):
-
 		blocks = []
 		block = Block(self.name)
 
@@ -86,8 +87,7 @@ class ZigZag:
 class Tool(Plugin):
 	__doc__ = _("Create a Zig-Zag path")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Zig-Zag"
+		Plugin.__init__(self, master, "Zig-Zag")
 		self.icon  = "zigzag"
 		self.group = "Artistic"
 		self.variables = [
@@ -142,7 +142,4 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Zig-Zag")
 		app.refresh()
 		app.setStatus(_("Generated: Zig-Zag"))
-
-def is_even(num):
-	return (num%2) == 0
 
