@@ -72,6 +72,7 @@ class Camera:
 		height = Utils.getInt("Camera", self.prefix+"_height",  0)
 		if height: self.camera.set(4, height)
 		self.angle = Utils.getInt("Camera", self.prefix+"_angle")//90 % 4
+		self.rotation = Utils.getFloat("Camera", self.prefix+"_rotation") % 360.0
 #		self.camera.set(38, 3) # CV_CAP_PROP_BUFFERSIZE
 
 	#-----------------------------------------------------------------------
@@ -99,6 +100,13 @@ class Camera:
 	# Rotate image in steps of 90deg
 	#-----------------------------------------------------------------------
 	def rotate90(self, image):
+		if self.rotation > 0:
+		    rows, cols = image.shape[:2]
+		    m = cv.getRotationMatrix2D((cols/2, rows/2), self.rotation,1)
+		    return cv.warpAffine(image, m, (cols,rows),
+			    image,
+			    cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+			    (255, 255, 255))
 		if self.angle == 1:	# 90 deg
 			return cv.transpose(cv.flip(image,1))
 		elif self.angle == 2: # 180 deg
