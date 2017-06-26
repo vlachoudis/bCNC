@@ -1278,15 +1278,15 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
+		self.location.set(Utils.getStr("Camera",  "aligncam_anchor"))
 		self.diameter.set(Utils.getFloat("Camera","aligncam_d"))
-		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
-		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
-		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
-		self.z.set(     Utils.getFloat("Camera", "aligncam_z", ""))
-		self.rotation.set( Utils.getFloat("Camera", "aligncam_rotation"))
-		self.xcenter.set( Utils.getFloat("Camera", "aligncam_xcenter"))
-		self.ycenter.set( Utils.getFloat("Camera", "aligncam_ycenter"))
+		self.scale.set( Utils.getFloat("Camera",  "aligncam_scale"))
+		self.dx.set(    Utils.getFloat("Camera",  "aligncam_dx"))
+		self.dy.set(    Utils.getFloat("Camera",  "aligncam_dy"))
+		self.z.set(     Utils.getFloat("Camera",  "aligncam_z", ""))
+		self.rotation.set(Utils.getFloat("Camera","aligncam_rotation"))
+		self.xcenter.set(Utils.getFloat("Camera", "aligncam_xcenter"))
+		self.ycenter.set(Utils.getFloat("Camera", "aligncam_ycenter"))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
@@ -1686,7 +1686,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		if CNC.vars["fastprbfeed"]:
 			prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
 			CNC.vars["prbcmdreverse"] = (CNC.vars["prbcmd"][:-1] +
-						     prb_reverse[CNC.vars["prbcmd"][-1]])
+						prb_reverse[CNC.vars["prbcmd"][-1]])
 			currentFeedrate = CNC.vars["fastprbfeed"]
 			while currentFeedrate > CNC.vars["prbfeed"]:
 				lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)

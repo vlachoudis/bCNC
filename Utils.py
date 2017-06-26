@@ -46,7 +46,8 @@ import tkExtra
 __www__     = "https://github.com/vlachoudis/bCNC"
 __contribute__ = \
 		"@effer Filippo Rivato\n" \
-		"@carlosgs Carlos Garcia Saura"
+		"@carlosgs Carlos Garcia Saura\n" \
+		"@dguerizec"
 __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \
@@ -70,7 +71,7 @@ LANGUAGES = {
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
 		"ja"    : "Japanese",
-                "zh_tw" : "traditional chinese", 
+		"zh_tw" : "traditional chinese",
 		"pt_BR" : "Brazilian - Portuguese",
 		"ru"    : "Russian",
 	}

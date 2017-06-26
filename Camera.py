@@ -108,20 +108,20 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def rotate90(self, image):
 		if self.rotation > 0:
-		    rows, cols = image.shape[:2]
-                    t = np.float32([
-			[1, 0, -self.xcenter],
-			[0, 1, -self.ycenter]])
-		    image = cv.warpAffine(image,t,(cols,rows), None,
-			    cv.INTER_LINEAR, cv.BORDER_CONSTANT,
-			    (255, 255, 255))
-		    rows, cols = image.shape[:2]
-		    m = cv.getRotationMatrix2D((cols/2, rows/2), self.rotation,1)
-		    return cv.warpAffine(image, m, (cols,rows),
-			    None,
-			    cv.INTER_LINEAR, cv.BORDER_CONSTANT,
-			    (255, 255, 255))
-		if self.angle == 1:	# 90 deg
+			rows, cols = image.shape[:2]
+			t = np.float32([
+				[1, 0, -self.xcenter],
+				[0, 1, -self.ycenter]])
+			image = cv.warpAffine(image,t,(cols,rows), None,
+				cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+				(255, 255, 255))
+			rows, cols = image.shape[:2]
+			m = cv.getRotationMatrix2D((cols/2, rows/2), self.rotation,1)
+			return cv.warpAffine(image, m, (cols,rows),
+				None,
+				cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+				(255, 255, 255))
+		elif self.angle == 1:	# 90 deg
 			return cv.transpose(cv.flip(image,1))
 		elif self.angle == 2: # 180 deg
 			return cv.flip(image,-1)
