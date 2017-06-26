@@ -235,6 +235,8 @@ class CNCCanvas(Canvas):
 		self.camera          = Camera.Camera("aligncam")
 		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
 		self.cameraRotation  = 0.0		# camera Z angle
+		self.cameraXCenter   = 0.0		# camera X center offset
+		self.cameraYCenter   = 0.0		# camera Y center offset
 		self.cameraScale     = 10.0		# camera pixels/unit
 		self.cameraEdge      = False		# edge detection
 		self.cameraR         =  1.5875		# circle radius in units (mm/inched)
@@ -1193,6 +1195,8 @@ class CNCCanvas(Canvas):
 			self.cameraOff()
 			return
                 self.camera.rotation = self.cameraRotation
+                self.camera.xcenter = self.cameraXCenter
+                self.camera.ycenter = self.cameraYCenter
 		if self.cameraEdge: self.camera.canny(50,200)
 		if self.cameraAnchor==NONE or self.zoom/self.cameraScale>1.0:
 			self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)

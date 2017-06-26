@@ -10,6 +10,11 @@ except ImportError:
 	cv = None
 
 try:
+	import numpy as np
+except ImportError:
+	np = None
+
+try:
 	from Tkinter import *
 except ImportError:
 	from tkinter import *
@@ -72,7 +77,9 @@ class Camera:
 		height = Utils.getInt("Camera", self.prefix+"_height",  0)
 		if height: self.camera.set(4, height)
 		self.angle = Utils.getInt("Camera", self.prefix+"_angle")//90 % 4
-		self.rotation = Utils.getFloat("Camera", self.prefix+"_rotation") % 360.0
+		self.rotation = Utils.getFloat("Camera", self.prefix+"_rotation")
+		self.xcenter = Utils.getFloat("Camera", self.prefix+"_xcenter")
+		self.ycenter = Utils.getFloat("Camera", self.prefix+"_ycenter")
 #		self.camera.set(38, 3) # CV_CAP_PROP_BUFFERSIZE
 
 	#-----------------------------------------------------------------------
@@ -102,9 +109,16 @@ class Camera:
 	def rotate90(self, image):
 		if self.rotation > 0:
 		    rows, cols = image.shape[:2]
+                    t = np.float32([
+			[1, 0, -self.xcenter],
+			[0, 1, -self.ycenter]])
+		    image = cv.warpAffine(image,t,(cols,rows), None,
+			    cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+			    (255, 255, 255))
+		    rows, cols = image.shape[:2]
 		    m = cv.getRotationMatrix2D((cols/2, rows/2), self.rotation,1)
 		    return cv.warpAffine(image, m, (cols,rows),
-			    image,
+			    None,
 			    cv.INTER_LINEAR, cv.BORDER_CONSTANT,
 			    (255, 255, 255))
 		if self.angle == 1:	# 90 deg

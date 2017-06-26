@@ -1176,6 +1176,22 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.rotation.bind("<FocusOut>", self.updateValues)
 		tkExtra.Balloon.set(self.rotation, _("Camera rotation [degrees]"))
 		# ----
+		row += 1
+		Label(lframe, text=_("Haircross Offset:")).grid(row=row, column=0, sticky=E)
+		self.xcenter = tkExtra.FloatEntry(lframe, background="White")
+		self.xcenter.grid(row=row, column=1, sticky=EW)
+		self.xcenter.bind("<Return>",   self.updateValues)
+		self.xcenter.bind("<KP_Enter>", self.updateValues)
+		self.xcenter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.xcenter, _("Haircross X offset [unit]"))
+
+		self.ycenter = tkExtra.FloatEntry(lframe, background="White")
+		self.ycenter.grid(row=row, column=2, sticky=EW)
+		self.ycenter.bind("<Return>",   self.updateValues)
+		self.ycenter.bind("<KP_Enter>", self.updateValues)
+		self.ycenter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.ycenter, _("Haircross Y offset [unit]"))
+		# ----
 
 		row += 1
 		Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
@@ -1257,6 +1273,8 @@ class CameraFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
 		Utils.setFloat("Camera", "aligncam_z",     self.z.get())
 		Utils.setFloat("Camera", "aligncam_rotation",     self.rotation.get())
+		Utils.setFloat("Camera", "aligncam_xcenter",     self.xcenter.get())
+		Utils.setFloat("Camera", "aligncam_ycenter",     self.ycenter.get())
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
@@ -1267,6 +1285,8 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
 		self.z.set(     Utils.getFloat("Camera", "aligncam_z", ""))
 		self.rotation.set( Utils.getFloat("Camera", "aligncam_rotation"))
+		self.xcenter.set( Utils.getFloat("Camera", "aligncam_xcenter"))
+		self.ycenter.set( Utils.getFloat("Camera", "aligncam_ycenter"))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
@@ -1286,6 +1306,10 @@ class CameraFrame(CNCRibbon.PageFrame):
 	def updateValues(self, *args):
 		self.app.canvas.cameraAnchor = self.cameraAnchor()
 		try: self.app.canvas.cameraRotation = float(self.rotation.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraXCenter = float(self.xcenter.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraYCenter = float(self.ycenter.get())
 		except ValueError: pass
 		try: self.app.canvas.cameraScale = max(0.0001, float(self.scale.get()))
 		except ValueError: pass
