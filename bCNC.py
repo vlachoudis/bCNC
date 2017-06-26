@@ -63,17 +63,17 @@ import CNCList
 import CNCCanvas
 import webbrowser
 
-from CNCRibbon	  import Page
-from ToolsPage	  import Tools, ToolsPage
-from FilePage	  import FilePage
+from CNCRibbon    import Page
+from ToolsPage    import Tools, ToolsPage
+from FilePage     import FilePage
 from ControlPage  import ControlPage
 from TerminalPage import TerminalPage
-from ProbePage	  import ProbePage
+from ProbePage    import ProbePage
 from EditorPage   import EditorPage
 
 _openserial = True	# override ini parameters
 _device     = None
-_baud	    = None
+_baud       = None
 
 MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms

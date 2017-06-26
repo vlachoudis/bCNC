@@ -1168,6 +1168,32 @@ class CameraFrame(CNCRibbon.PageFrame):
 
 		# ----
 		row += 1
+		Label(lframe, text=_("Rotation:")).grid(row=row, column=0, sticky=E)
+		self.rotation = tkExtra.FloatEntry(lframe, background="White")
+		self.rotation.grid(row=row, column=1, sticky=EW)
+		self.rotation.bind("<Return>",   self.updateValues)
+		self.rotation.bind("<KP_Enter>", self.updateValues)
+		self.rotation.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.rotation, _("Camera rotation [degrees]"))
+		# ----
+		row += 1
+		Label(lframe, text=_("Haircross Offset:")).grid(row=row, column=0, sticky=E)
+		self.xcenter = tkExtra.FloatEntry(lframe, background="White")
+		self.xcenter.grid(row=row, column=1, sticky=EW)
+		self.xcenter.bind("<Return>",   self.updateValues)
+		self.xcenter.bind("<KP_Enter>", self.updateValues)
+		self.xcenter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.xcenter, _("Haircross X offset [unit]"))
+
+		self.ycenter = tkExtra.FloatEntry(lframe, background="White")
+		self.ycenter.grid(row=row, column=2, sticky=EW)
+		self.ycenter.bind("<Return>",   self.updateValues)
+		self.ycenter.bind("<KP_Enter>", self.updateValues)
+		self.ycenter.bind("<FocusOut>", self.updateValues)
+		tkExtra.Balloon.set(self.ycenter, _("Haircross Y offset [unit]"))
+		# ----
+
+		row += 1
 		Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
 		self.scale = tkExtra.FloatEntry(lframe, background="White")
 		self.scale.grid(row=row, column=1, sticky=EW)
@@ -1246,15 +1272,21 @@ class CameraFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Camera", "aligncam_dx",    self.dx.get())
 		Utils.setFloat("Camera", "aligncam_dy",    self.dy.get())
 		Utils.setFloat("Camera", "aligncam_z",     self.z.get())
+		Utils.setFloat("Camera", "aligncam_rotation",     self.rotation.get())
+		Utils.setFloat("Camera", "aligncam_xcenter",     self.xcenter.get())
+		Utils.setFloat("Camera", "aligncam_ycenter",     self.ycenter.get())
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
-		self.location.set(Utils.getStr("Camera", "aligncam_anchor"))
+		self.location.set(Utils.getStr("Camera",  "aligncam_anchor"))
 		self.diameter.set(Utils.getFloat("Camera","aligncam_d"))
-		self.scale.set( Utils.getFloat("Camera", "aligncam_scale"))
-		self.dx.set(    Utils.getFloat("Camera", "aligncam_dx"))
-		self.dy.set(    Utils.getFloat("Camera", "aligncam_dy"))
-		self.z.set(     Utils.getFloat("Camera", "aligncam_z", ""))
+		self.scale.set( Utils.getFloat("Camera",  "aligncam_scale"))
+		self.dx.set(    Utils.getFloat("Camera",  "aligncam_dx"))
+		self.dy.set(    Utils.getFloat("Camera",  "aligncam_dy"))
+		self.z.set(     Utils.getFloat("Camera",  "aligncam_z", ""))
+		self.rotation.set(Utils.getFloat("Camera","aligncam_rotation"))
+		self.xcenter.set(Utils.getFloat("Camera", "aligncam_xcenter"))
+		self.ycenter.set(Utils.getFloat("Camera", "aligncam_ycenter"))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
@@ -1273,6 +1305,12 @@ class CameraFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def updateValues(self, *args):
 		self.app.canvas.cameraAnchor = self.cameraAnchor()
+		try: self.app.canvas.cameraRotation = float(self.rotation.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraXCenter = float(self.xcenter.get())
+		except ValueError: pass
+		try: self.app.canvas.cameraYCenter = float(self.ycenter.get())
+		except ValueError: pass
 		try: self.app.canvas.cameraScale = max(0.0001, float(self.scale.get()))
 		except ValueError: pass
 		try: self.app.canvas.cameraR = float(self.diameter.get())/2.0
@@ -1648,7 +1686,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		if CNC.vars["fastprbfeed"]:
 			prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
 			CNC.vars["prbcmdreverse"] = (CNC.vars["prbcmd"][:-1] +
-						     prb_reverse[CNC.vars["prbcmd"][-1]])
+						prb_reverse[CNC.vars["prbcmd"][-1]])
 			currentFeedrate = CNC.vars["fastprbfeed"]
 			while currentFeedrate > CNC.vars["prbfeed"]:
 				lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)
