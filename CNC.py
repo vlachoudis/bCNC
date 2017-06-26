@@ -1780,7 +1780,7 @@ class CNC:
 				zstep -= peck
 
 				# Drill to z
-				lines.append(CNC.gline(z=z/self.unit,f=self.feed))
+				lines.append(CNC.gline(z=z/self.unit,f=self.feed/self.unit))
 
 			# 82=dwell, 86=boring-stop, 89=boring-dwell
 			if self.gcode in (82,86,89):
@@ -1792,7 +1792,7 @@ class CNC:
 			# Move to original position
 			if self.gcode in (85,89):	# boring cycle
 				z = retract
-				lines.append(CNC.gline(z=z/self.unit,f=self.feed))
+				lines.append(CNC.gline(z=z/self.unit,f=self.feed/self.unit))
 
 			z = clearz
 			lines.append(CNC.grapid(z=z/self.unit))
