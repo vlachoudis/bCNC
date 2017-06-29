@@ -3340,7 +3340,7 @@ class Splitter(Frame):
 # Horizontal Splitter
 #===============================================================================
 class HSplitter(Splitter):
-	"""Horizontal frame spliter"""
+	"""Horizontal frame splitter"""
 	def __init__(self, master, split=0.5, absolute=False):
 		Splitter.__init__(self, master, split, True, absolute)
 
@@ -3354,7 +3354,7 @@ class HSplitter(Splitter):
 # Vertical Splitter
 #===============================================================================
 class VSplitter(Splitter):
-	"""Vertical frame spliter"""
+	"""Vertical frame splitter"""
 	def __init__(self, master, split=0.5, absolute=False):
 		Splitter.__init__(self, master, split, False, absolute)
 
