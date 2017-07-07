@@ -807,6 +807,8 @@ class Sender:
 	# a reset to clear the buffer of the controller
 	#---------------------------------------------------------------------
 	def purgeController(self):
+		self.serial.write(b"!")
+		self.serial.flush()
 		time.sleep(1)
 		# remember and send all G commands
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
