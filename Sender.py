@@ -1138,7 +1138,6 @@ class Sender:
 					CNC.vars["state"] = line
 					if self.running:
 						self._stop = True
-						self.runEnded()
 
 				elif line.find("ok")>=0:
 					self.log.put((Sender.MSG_OK, line))
@@ -1163,7 +1162,6 @@ class Sender:
 					self._stop = True
 					del cline[:]	# After reset clear the buffer counters
 					del sline[:]
-					self.runEnded()
 					CNC.vars["version"] = line.split()[1]
 					# Detect controller
 					if self.controller in (Utils.GRBL0, Utils.GRBL1):
@@ -1177,8 +1175,9 @@ class Sender:
 				self.emptyQueue()
 				tosend = None
 				self.log.put((Sender.MSG_CLEAR, ""))
-				# WARNING if maxint then it means we are still preparing/sending
-				# lines from from bCNC.run(), so don't stop
+				# WARNING if runLines==maxint then it means we are
+				# still preparing/sending lines from from bCNC.run(),
+				# so don't stop
 				if self._runLines != sys.maxint:
 					self._stop = False
 
