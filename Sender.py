@@ -1009,29 +1009,59 @@ class Sender:
 						for field in fields[1:]:
 							word = SPLITPAT.split(field)
 							if word[0] == "MPos":
-								CNC.vars["mx"] = float(word[1])
-								CNC.vars["my"] = float(word[2])
-								CNC.vars["mz"] = float(word[3])
-								CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-								CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-								CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-								self._posUpdate = True
+								try:
+									CNC.vars["mx"] = float(word[1])
+									CNC.vars["my"] = float(word[2])
+									CNC.vars["mz"] = float(word[3])
+									CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
+									CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
+									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+									self._posUpdate = True
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 							elif word[0] == "F":
-								CNC.vars["curfeed"] = float(word[1])
+								try:
+									CNC.vars["curfeed"] = float(word[1])
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 							elif word[0] == "FS":
-								CNC.vars["curfeed"]    = float(word[1])
-								CNC.vars["curspindle"] = float(word[2])
+								try:
+									CNC.vars["curfeed"]    = float(word[1])
+									CNC.vars["curspindle"] = float(word[2])
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 							elif word[0] == "Bf":
-								CNC.vars["planner"] = int(word[1])
-								CNC.vars["rxbytes"] = int(word[2])
+								try:
+									CNC.vars["planner"] = int(word[1])
+									CNC.vars["rxbytes"] = int(word[2])
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 							elif word[0] == "Ov":
-								CNC.vars["OvFeed"]    = int(word[1])
-								CNC.vars["OvRapid"]   = int(word[2])
-								CNC.vars["OvSpindle"] = int(word[3])
+								try:
+									CNC.vars["OvFeed"]    = int(word[1])
+									CNC.vars["OvRapid"]   = int(word[2])
+									CNC.vars["OvSpindle"] = int(word[3])
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 							elif word[0] == "WCO":
-								CNC.vars["wcox"] = float(word[1])
-								CNC.vars["wcoy"] = float(word[2])
-								CNC.vars["wcoz"] = float(word[3])
+								try:
+									CNC.vars["wcox"] = float(word[1])
+									CNC.vars["wcoy"] = float(word[2])
+									CNC.vars["wcoz"] = float(word[3])
+								except ValueError:
+									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									break
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
