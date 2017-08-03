@@ -1017,14 +1017,14 @@ class Sender:
 									CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
 									self._posUpdate = True
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
 							elif word[0] == "F":
 								try:
 									CNC.vars["curfeed"] = float(word[1])
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
@@ -1032,7 +1032,7 @@ class Sender:
 								try:
 									CNC.vars["curfeed"]    = float(word[1])
 									CNC.vars["curspindle"] = float(word[2])
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
@@ -1040,7 +1040,7 @@ class Sender:
 								try:
 									CNC.vars["planner"] = int(word[1])
 									CNC.vars["rxbytes"] = int(word[2])
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
@@ -1049,7 +1049,7 @@ class Sender:
 									CNC.vars["OvFeed"]    = int(word[1])
 									CNC.vars["OvRapid"]   = int(word[2])
 									CNC.vars["OvSpindle"] = int(word[3])
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
@@ -1058,7 +1058,7 @@ class Sender:
 									CNC.vars["wcox"] = float(word[1])
 									CNC.vars["wcoy"] = float(word[2])
 									CNC.vars["wcoz"] = float(word[3])
-								except ValueError:
+								except (ValueError,IndexError):
 									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
 									break
