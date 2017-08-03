@@ -508,7 +508,8 @@ class Config(_Base):
 		self.name = "CNC"
 		self.variables = [
 			("units"         , "bool", 0    , _("Units (inches)"))   ,
-			("lasercutter"   , "bool", 0    , _("Lasercutter"))   ,
+			("lasercutter"   , "bool", 0    , _("Laser Cutter"))   ,
+			("laseradaptive" , "bool", 0    , _("Laser Adaptive Power"))   ,
 			("doublesizeicon", "bool", 0    , _("Double Size Icon"))   ,
 			("acceleration_x", "mm"  , 25.0 , _("Acceleration x"))   ,
 			("acceleration_y", "mm"  , 25.0 , _("Acceleration y"))   ,

@@ -39,10 +39,12 @@ class _RecentMenuButton(Ribbon.MenuButton):
 		for i in range(Utils._maxRecent):
 			filename = Utils.getRecent(i)
 			if filename is None: break
-			fn = os.path.basename(filename)
+			path = os.path.dirname(filename)
+			fn   = os.path.basename(filename)
 			menu.add_command(label="%d %s"%(i+1, fn),
 				compound=LEFT,
 				image=Utils.icons["new"],
+				accelerator=path, # Show as accelerator in order to be aligned
 				command=lambda s=self,i=i: s.event_generate("<<Recent%d>>"%(i)))
 		if i==0: # no entry
 			self.event_generate("<<Open>>")

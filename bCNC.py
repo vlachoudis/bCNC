@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.9"
-__date__    = "24 Mar 2017"
+__version__ = "0.9.10"
+__date__    = "3 Aug 2017"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -2477,13 +2477,19 @@ if __name__ == "__main__":
 						r = 0
 			if r<0:
 				# display list of recent files
+				maxlen = 10
+				for i in range(Utils._maxRecent):
+					try: filename = Utils.getRecent(i)
+					except: continue
+					maxlen = max(maxlen, len(os.path.basename(filename)))
+
 				sys.stdout.write("Recent files:\n")
 				for i in range(Utils._maxRecent):
 					filename = Utils.getRecent(i)
 					if filename is None: break
 					d  = os.path.dirname(filename)
 					fn = os.path.basename(filename)
-					sys.stdout.write("  %2d: %-10s\t%s\n"%(i+1,fn,d))
+					sys.stdout.write("  %2d: %-*s  %s\n"%(i+1,maxlen,fn,d))
 
 				try:
 					sys.stdout.write("Select one: ")

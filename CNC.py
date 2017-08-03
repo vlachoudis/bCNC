@@ -635,6 +635,7 @@ class Orient:
 class CNC:
 	inch           = False
 	lasercutter    = False
+	laseradaptive  = False
 	acceleration_x = 25.0	# mm/s^2
 	acceleration_y = 25.0	# mm/s^2
 	acceleration_z = 25.0	# mm/s^2
@@ -769,6 +770,8 @@ class CNC:
 		try: CNC.inch           = bool(int(config.get(section, "units")))
 		except: pass
 		try: CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
+		except: pass
+		try: CNC.laseradaptive  = bool(int(config.get(section, "laseradaptive")))
 		except: pass
 		try: CNC.doublesizeicon = bool(int(config.get(section, "doublesizeicon")))
 		except: pass
@@ -967,7 +970,10 @@ class CNC:
 	@staticmethod
 	def zenter(z):
 		if CNC.lasercutter:
-			return "m3"
+			if CNC.laseradaptive:
+				return "m4"
+			else:
+				return "m3"
 		else:
 			return "g1 %s %s"%(CNC.fmt("z",z), CNC.fmt("f",CNC.vars["cutfeedz"]))
 
