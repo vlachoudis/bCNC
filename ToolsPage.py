@@ -811,6 +811,7 @@ class Controller(_Base):
 			("grbl_130", "float",  200.,    _("$130 X max travel [mm]")),
 			("grbl_131", "float",  200.,    _("$131 Y max travel [mm]")),
 			("grbl_132", "float",  200.,    _("$132 Z max travel [mm]"))]
+		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
