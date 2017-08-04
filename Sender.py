@@ -582,7 +582,10 @@ class Sender:
 		self._runLines = 0
 		self.thread = None
 		time.sleep(1)
-		self.serial.close()
+		try:
+			self.serial.close()
+		except:
+			pass
 		self.serial = None
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
@@ -991,7 +994,14 @@ class Sender:
 
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
-				line = str(self.serial.readline()).strip()
+				try:
+					line = str(self.serial.readline()).strip()
+				except:
+					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+					self.emptyQueue()
+					self.close()
+					return
+
 				#print "<R<",repr(line)
 				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
@@ -1018,31 +1028,31 @@ class Sender:
 									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
 									self._posUpdate = True
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "F":
 								try:
 									CNC.vars["curfeed"] = float(word[1])
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "FS":
 								try:
 									CNC.vars["curfeed"]    = float(word[1])
 									CNC.vars["curspindle"] = float(word[2])
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "Bf":
 								try:
 									CNC.vars["planner"] = int(word[1])
 									CNC.vars["rxbytes"] = int(word[2])
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "Ov":
 								try:
@@ -1050,8 +1060,8 @@ class Sender:
 									CNC.vars["OvRapid"]   = int(word[2])
 									CNC.vars["OvSpindle"] = int(word[3])
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "WCO":
 								try:
@@ -1059,8 +1069,8 @@ class Sender:
 									CNC.vars["wcoy"] = float(word[2])
 									CNC.vars["wcoz"] = float(word[3])
 								except (ValueError,IndexError):
-									self.vars["state"] = "Garbage receive %s: %s"(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, self.vars["state"]))
+									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 
 						# Machine is Idle buffer is empty stop waiting and go on
