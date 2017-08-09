@@ -395,10 +395,8 @@ class Application(Toplevel,Sender):
 			self.bind('<Down>',		self.control.moveYdown)
 
 		try:
-			self.bind('<KP_Home>',	self.home)
-			self.bind('<KP_End>',	self.control.go2origin)
-			self.bind('<KP_Prior>',	self.control.moveZup)
-			self.bind('<KP_Next>',	self.control.moveZdown)
+			self.bind('<KP_Prior>',		self.control.moveZup)
+			self.bind('<KP_Next>',		self.control.moveZdown)
 
 			if self._swapKeyboard==1:
 				self.bind('<KP_Right>',	self.control.moveYup)
