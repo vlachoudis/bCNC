@@ -2156,14 +2156,21 @@ class Application(Toplevel,Sender):
 				return
 
 			# reset colors
-			for ij in self._paths:
+			before = time.time()
+			for ij in self._paths:	# Slow loop
 				if not ij: continue
 				path = self.gcode[ij[0]].path(ij[1])
 				if path:
-					self.canvas.itemconfig(
-						path,
-						width=1,
-						fill=CNCCanvas.ENABLE_COLOR)
+					color = self.canvas.itemcget(path, "fill")
+					if color != CNCCanvas.ENABLE_COLOR:
+						self.canvas.itemconfig(
+							path,
+							width=1,
+							fill=CNCCanvas.ENABLE_COLOR)
+					# Force a periodic update since this loop can take time
+					if time.time() - before > 0.25:
+						self.update()
+						before = time.time()
 
 			# the buffer of the machine should be empty?
 			self._runLines = len(self._paths) + 1	# plus the wait

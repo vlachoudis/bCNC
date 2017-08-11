@@ -1738,7 +1738,7 @@ class CNCCanvas(Canvas):
 
 		try:
 			n = 1
-			startTime = time.time()
+			startTime = before = time.time()
 			self.cnc.resetAllMargins()
 			drawG = self.draw_rapid or self.draw_paths or self.draw_margin
 			for i,block in enumerate(self.gcode.blocks):
@@ -1760,6 +1760,10 @@ class CNCCanvas(Canvas):
 					if n==0:
 						if time.time() - startTime > DRAW_TIME:
 							raise AlarmException()
+						# Force a periodic update since this loop can take time
+						if time.time() - before > 1.0:
+							self.update()
+							before = time.time()
 						n = 1000
 					try:
 						cmd = self.gcode.evaluate(CNC.compileLine(line))
