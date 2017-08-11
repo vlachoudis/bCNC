@@ -374,7 +374,6 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolClone>>',	tools.clone)
 		self.bind('<<ToolRename>>',	tools.rename)
 
-		self.bind('<Home>',		self.home)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
 
