@@ -570,12 +570,12 @@ class UserButton(Ribbon.LabelButton):
 			Button.__init__(self, master, *args, **kwargs)
 		else:
 			Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
-			self["width"] = 60
 		self.cnc = cnc
 		self.button = button
 		self.get()
 		#self.bind("<Control-Button-1>", self.edit)
-		self.bind("<Button-3>", self.edit)
+		self.bind("<Button-3>",         self.edit)
+		self.bind("<Control-Button-1>", self.edit)
 		self["command"] = self.execute
 
 	# ----------------------------------------------------------------------
