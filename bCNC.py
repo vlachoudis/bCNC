@@ -293,6 +293,8 @@ class Application(Toplevel,Sender):
 
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
+		self.bind("<<AddBlock>>",		self.editor.insertBlock)
+		self.bind("<<AddLine>>",		self.editor.insertLine)
 		self.bind("<<Clone>>",			self.editor.clone)
 		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
 		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)

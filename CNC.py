@@ -2778,10 +2778,11 @@ class GCode:
 	#----------------------------------------------------------------------
 	def addBlockUndo(self, bid, block):
 		if bid is None: bid = len(self.blocks)
-		undoinfo = (self.delBlockUndo, bid)
 		if bid>=len(self.blocks):
+			undoinfo = (self.delBlockUndo, len(self.blocks))
 			self.blocks.append(block)
 		else:
+			undoinfo = (self.delBlockUndo, bid)
 			self.blocks.insert(bid, block)
 		return undoinfo
 
@@ -3157,7 +3158,7 @@ class GCode:
 		undoinfo = []
 		for bid,lid in items:
 			if isinstance(lid,int):
-				undoinfo.append(self.orderDownLineUndo(bid,lid))
+				undoinfo.append(self.orderUpLineUndo(bid,lid))
 				sel.append((bid, lid-1))
 			elif lid is None:
 				undoinfo.append(self.orderUpBlockUndo(bid))

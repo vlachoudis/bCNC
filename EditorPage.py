@@ -154,15 +154,35 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ---
 		col,row=0,0
-		b = Ribbon.LabelButton(self.frame, app, "<<Add>>",
+#		b = Ribbon.LabelButton(self.frame, app, "<<Add>>",
+#				image=Utils.icons["add"],
+#				text=_("Add"),
+#				compound=LEFT,
+#				anchor=W,
+#				background=Ribbon._BACKGROUND)
+#		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+#		tkExtra.Balloon.set(b, _("Insert a new block or line of code [Ins or Ctrl-Enter]"))
+#		self.addWidget(b)
+		b = Ribbon.LabelButton(self.frame, self.app, "<<Add>>",
 				image=Utils.icons["add"],
-				text=_("Add"),
-				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Insert a new block or line of code [Ins or Ctrl-Enter]"))
 		self.addWidget(b)
+
+		menulist = [	(_("Line"),   "add",
+				lambda a=self.app : a.event_generate("<<AddLine>>")),
+				(_("Block"),  "add",
+				lambda a=self.app : a.event_generate("<<AddBlock>>"))]
+		b = Ribbon.MenuButton(self.frame, menulist,
+				text=_("Add"),
+				image=Utils.icons["triangle_down"],
+				compound=RIGHT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col+1, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Insert a new block or line of code [Ins or Ctrl-Enter]"))
 
 		# ---
 		row += 1
@@ -172,7 +192,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Clone selected lines or blocks [Ctrl-D]"))
 		self.addWidget(b)
 
@@ -184,12 +204,12 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Delete selected lines or blocks [Del]"))
 		self.addWidget(b)
 
 		# ---
-		col,row=1,0
+		col,row=2,0
 		b = Ribbon.LabelButton(self.frame, self.app, "<<EnableToggle>>",
 				image=Utils.icons["toggle"],
 				#text=_("Toggle"),
@@ -212,7 +232,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col+1, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Enable or disable blocks of gcode"))
-
 
 		# ---
 		row += 1
