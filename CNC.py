@@ -645,7 +645,7 @@ class CNC:
 	travel_x       = 300
 	travel_y       = 300
 	travel_z       = 60
-	accuracy       = 0.02	# sagitta error during arc conversion
+	accuracy       = 0.01	# sagitta error during arc conversion
 	digits         = 4
 	startup        = "G90"
 	stdexpr        = False	# standard way of defining expressions with []
