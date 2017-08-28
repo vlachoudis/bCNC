@@ -3720,16 +3720,13 @@ class GCode:
 						else:
 							newcmd.append(self.fmt(cmd[0],new[c]))
 					# Append motion commands if not exist and changed
-					if 'I' in new or 'J' in new:
-						check = "XYZIJK"
-					else:
-						check = "XYZ"
+					check = "XYZ"
+					if 'I' in new or 'J' in new or 'K' in new:
+						check += "IJK"
 					for c in check:
-						try:
-							if c not in present and new[c] != old[c]:
+						if c in new:
+							if c not in present or new.get(c) != old.get(c):
 								newcmd.append(self.fmt(c,new[c]))
-						except KeyError:
-							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 
 		# FIXME I should add it later, check all functions using it
