@@ -53,7 +53,7 @@ FEED_MODE     = { "G93" : "1/Time",
 UNITS         = { "G20" : "inch",
 		  "G21" : "mm" }
 PLANE         = { "G17" : "XY",
-		  "G18" : "ZX",
+		  "G18" : "XZ",
 		  "G19" : "YZ" }
 
 # Modal Mode from $G and variable set
@@ -3697,6 +3697,7 @@ class GCode:
 			elif isinstance(lid, int):
 				cmds = CNC.parseLine(block[lid])
 				if cmds is None: continue
+				self.cnc.motionStart(cmds)
 
 				# Collect all values
 				new.clear()
@@ -3723,11 +3724,21 @@ class GCode:
 					check = "XYZ"
 					if 'I' in new or 'J' in new or 'K' in new:
 						check += "IJK"
+					print
+					print "cmds=",cmds
+					print "old=",old
+					print "new=",new
+					print "check=",check, "present=",present
 					for c in check:
-						if c in new:
-							if c not in present or new.get(c) != old.get(c):
+						#if c in new:
+						try:
+							if c not in present and new.get(c) != old.get(c):
 								newcmd.append(self.fmt(c,new[c]))
+						except:
+							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
+					print "newcmd=",newcmd
+				self.cnc.motionEnd()
 
 		# FIXME I should add it later, check all functions using it
 		self.addUndo(undoinfo)
@@ -3767,6 +3778,8 @@ class GCode:
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
 	#----------------------------------------------------------------------
 	def rotateFunc(self, new, old, c, s, x0, y0):
+		if self.cnc.plane == YZ:
+			import pdb; pdb.set_trace()
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
@@ -3776,8 +3789,8 @@ class GCode:
 		if 'I' in new or 'J' in new:
 			i = getValue('I',new,old)
 			j = getValue('J',new,old)
-			new['I'] = c*i - s*j
-			new['J'] = s*i + c*j
+			if self.cnc.plane in (XY, XZ): new['I'] = c*i - s*j
+			if self.cnc.plane in (XY, YZ): new['J'] = s*i + c*j
 		return True
 
 	#----------------------------------------------------------------------
