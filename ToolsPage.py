@@ -140,7 +140,7 @@ class _Base:
 
 			if t=="color":
 				try:
-					self.master.listbox.lists[1].itemconfig(END, background=value)
+					self.master.listbox.listbox(1).itemconfig(END, background=value)
 				except TclError:
 					pass
 
@@ -183,7 +183,7 @@ class _Base:
 	# Edit tool listbox
 	#----------------------------------------------------------------------
 	def edit(self, event=None, rename=False):
-		lb = self.master.listbox.lists[1]
+		lb = self.master.listbox.listbox(1)
 		if event is None or event.type=="2":
 			keyboard = True
 		else:
@@ -1418,7 +1418,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.bindList("<Key-space>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
 #		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
-		self.toolList.lists[1].bind("<ButtonRelease-1>", self.edit)
+		self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
 		self.addWidget(self.toolList)
 
