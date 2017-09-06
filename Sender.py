@@ -1028,14 +1028,14 @@ class Sender:
 									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
 									self._posUpdate = True
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "F":
 								try:
 									CNC.vars["curfeed"] = float(word[1])
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "FS":
@@ -1043,7 +1043,7 @@ class Sender:
 									CNC.vars["curfeed"]    = float(word[1])
 									CNC.vars["curspindle"] = float(word[2])
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "Bf":
@@ -1051,7 +1051,7 @@ class Sender:
 									CNC.vars["planner"] = int(word[1])
 									CNC.vars["rxbytes"] = int(word[2])
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "Ov":
@@ -1060,7 +1060,7 @@ class Sender:
 									CNC.vars["OvRapid"]   = int(word[2])
 									CNC.vars["OvSpindle"] = int(word[3])
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 							elif word[0] == "WCO":
@@ -1069,7 +1069,7 @@ class Sender:
 									CNC.vars["wcoy"] = float(word[2])
 									CNC.vars["wcoz"] = float(word[3])
 								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"(word[0],line)
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
 
