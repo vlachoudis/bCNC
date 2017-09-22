@@ -373,9 +373,9 @@ class Sender:
 
 		# SAFE [z]: safe z to move
 		elif cmd=="SAFE":
-			try: self.cnc.safe = float(line[1])
+			try: CNC.vars["safe"] = float(line[1])
 			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safe)
+			self.statusbar["text"] = "Safe Z= %g"%(CNC.vars["safe"])
 
 		# SA*VE [filename]: save to filename or to default name
 		elif rexx.abbrev("SAVE",cmd,2):
