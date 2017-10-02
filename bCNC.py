@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.10"
-__date__    = "3 Aug 2017"
+__version__ = "0.9.11"
+__date__    = "2 Oct 2017"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -2444,13 +2444,14 @@ if __name__ == "__main__":
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
-			'?b:dDhi:g:rlpPSs:',
-			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud=','run'])
+			'?b:dDfhi:g:rlpPSs:',
+			['help', 'ini=', 'fullscreen', 'recent', 'list','pendant=','serial=','baud=','run'])
 	except getopt.GetoptError:
 		usage(1)
 
-	recent	 = None
-	run	 = False
+	recent     = None
+	run        = False
+	fullscreen = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -2505,6 +2506,9 @@ if __name__ == "__main__":
 			try: recent = Utils.getRecent(r)
 			except: pass
 
+		elif opt in ("-f", "--fullscreen"):
+			fullscreen = True
+
 		elif opt == "-S":
 			_openserial = False
 
@@ -2529,6 +2533,7 @@ if __name__ == "__main__":
 
 	# Start application
 	application = Application(tk)
+	if fullscreen: application.attributes("-fullscreen", True)
 
 	# Parse remaining arguments except files
 	if recent: args.append(recent)

@@ -58,7 +58,6 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-
 GPAT	  = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
@@ -1102,7 +1101,6 @@ class Sender:
 							if 'F' in d:
 							        CNC.vars["curfeed"] = float(d['F'][0])
 							self._posUpdate = True
-
 
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
