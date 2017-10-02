@@ -1078,6 +1078,38 @@ class Sender:
 							wait = False
 							self._gcount += 1
 
+					elif self.controller == Utils.SMOOTHIE:
+							# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
+							ln= line[1:-1] # strip off < .. >
+
+							# split fields
+							l= ln.split('|')
+
+							# strip off status
+							CNC.vars["state"]= l[0]
+
+							# strip of rest into a dict of name: [values,...,]
+							d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in l[1:]] }
+							CNC.vars["mx"] = float(d['MPos'][0])
+							CNC.vars["my"] = float(d['MPos'][1])
+							CNC.vars["mz"] = float(d['MPos'][2])
+							CNC.vars["wx"] = float(d['WPos'][0])
+							CNC.vars["wy"] = float(d['WPos'][1])
+							CNC.vars["wz"] = float(d['WPos'][2])
+							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
+							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
+							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+							if 'F' in d:
+							        CNC.vars["curfeed"] = float(d['F'][0])
+							self._posUpdate = True
+
+
+							# Machine is Idle buffer is empty
+							# stop waiting and go on
+							if wait and not cline and l[0] in ("Idle","Check"):
+							        wait = False
+							        self._gcount += 1
+
 					else:
 						status = False
 						pat = STATUSPAT.match(line)
