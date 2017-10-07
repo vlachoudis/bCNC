@@ -1690,7 +1690,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 			currentFeedrate = CNC.vars["fastprbfeed"]
 			while currentFeedrate > CNC.vars["prbfeed"]:
 				lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)
-				lines.append("g91 [prbcmdreverse] f%f z[tooldistance]" % currentFeedrate)
+				lines.append("g90 [prbcmdreverse] f%f z[toolprobez]" % currentFeedrate)
 				currentFeedrate /= 10
 		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 		lines.append("g4 p1")	# wait a sec
