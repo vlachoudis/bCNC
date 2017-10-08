@@ -63,18 +63,32 @@ class Camera:
 			a function defining the data type, and a CV_CAP_PROP
 			property.
 		"""
-		POSSIBLE_PROPERTIES = {
-			'height'     : (Utils.getInt, cv.CAP_PROP_FRAME_HEIGHT ),
-			'width'      : (Utils.getInt, cv.CAP_PROP_FRAME_WIDTH ),
-			'fps'        : (Utils.getInt, cv.CAP_PROP_FPS ),
-			'codec'      : (Utils.getStr, cv.CAP_PROP_FOURCC ),
-			'brightness' : (Utils.getInt, cv.CAP_PROP_BRIGHTNESS ),
-			'contrast'   : (Utils.getInt, cv.CAP_PROP_CONTRAST ),
-			'saturation' : (Utils.getInt, cv.CAP_PROP_SATURATION ),
-			'hue'        : (Utils.getInt, cv.CAP_PROP_HUE ),
-			'gain'       : (Utils.getInt, cv.CAP_PROP_GAIN ),
-			'exposure'   : (Utils.getInt, cv.CAP_PROP_EXPOSURE ),
-		}
+		try:
+			POSSIBLE_PROPERTIES = {
+				'height'     : (Utils.getInt, cv.CAP_PROP_FRAME_HEIGHT),
+				'width'      : (Utils.getInt, cv.CAP_PROP_FRAME_WIDTH),
+				'fps'        : (Utils.getInt, cv.CAP_PROP_FPS),
+				'codec'      : (Utils.getStr, cv.CAP_PROP_FOURCC),
+				'brightness' : (Utils.getInt, cv.CAP_PROP_BRIGHTNESS),
+				'contrast'   : (Utils.getInt, cv.CAP_PROP_CONTRAST),
+				'saturation' : (Utils.getInt, cv.CAP_PROP_SATURATION),
+				'hue'        : (Utils.getInt, cv.CAP_PROP_HUE),
+				'gain'       : (Utils.getInt, cv.CAP_PROP_GAIN),
+				'exposure'   : (Utils.getInt, cv.CAP_PROP_EXPOSURE),
+			}
+		except:
+			POSSIBLE_PROPERTIES = {
+				'height'     : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_HEIGHT,),
+				'width'      : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_WIDTH,),
+				'fps'        : (Utils.getInt, cv.cv.CV_CAP_PROP_FPS,),
+				'codec'      : (Utils.getStr, cv.cv.CV_CAP_PROP_FOURCC,),
+				'brightness' : (Utils.getInt, cv.cv.CV_CAP_PROP_BRIGHTNESS,),
+				'contrast'   : (Utils.getInt, cv.cv.CV_CAP_PROP_CONTRAST,),
+				'saturation' : (Utils.getInt, cv.cv.CV_CAP_PROP_SATURATION,),
+				'hue'        : (Utils.getInt, cv.cv.CV_CAP_PROP_HUE,),
+				'gain'       : (Utils.getInt, cv.cv.CV_CAP_PROP_GAIN,),
+				'exposure'   : (Utils.getInt, cv.cv.CV_CAP_PROP_EXPOSURE,),
+			}
 
 		UNSPECIFIED = object()
 		properties_set = {}
