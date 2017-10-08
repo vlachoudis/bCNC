@@ -107,8 +107,6 @@ class Tool(Plugin):
 		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
 
-		zSafe = CNC.vars["safe"]
-
 		#Check inputs
 		if holesDistance <=0:
 			app.setStatus(_("Driller abort: Distance must be > 0"))
@@ -197,14 +195,14 @@ class Tool(Plugin):
 
 			for xH,yH,zH in bid:
 				holesCount += 1
-				block.append(CNC.grapid(None,None,zH + zSafe))
+				block.append(CNC.zsafe())
 				block.append(CNC.grapid(xH,yH))
 				if (peck != 0) :
 					z = 0
 					while z > targetDepth:
 							z = max(z-peck, targetDepth)
 							block.append(CNC.zenter(zH + z))
-							block.append(CNC.grapid(None,None,zH + zSafe))
+							block.append(CNC.zsafe())
 				block.append(CNC.zenter(zH + targetDepth))
 				#dwell time only on last pass
 				if dwell != 0:
