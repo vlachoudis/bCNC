@@ -13,6 +13,7 @@ import sys
 #import cgi
 import json
 import urllib
+import tempfile
 import threading
 
 from CNC import CNC
@@ -21,6 +22,11 @@ try:
 	import urlparse
 except ImportError:
 	import urllib.parse as urlparse
+
+try:
+	from PIL import Image
+except ImportError:
+	Image = None
 
 try:
 	import BaseHTTPServer as HTTPServer
@@ -104,6 +110,23 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				f.close()
 			except:
 				pass
+
+		elif page == "/canvas":
+			if not Image:
+				return
+			with tempfile.NamedTemporaryFile(suffix='.ps') as tmp:
+				httpd.app.canvas.postscript(
+					file=tmp.name,
+					colormode='color',
+				)
+				tmp.flush()
+				with tempfile.NamedTemporaryFile(suffix='.gif') as out:
+					Image.open(tmp.name).save(out.name, 'GIF')
+					out.flush()
+					out.seek(0)
+
+					self.do_HEAD(200, content="image/gif")
+					self.wfile.write(out.read())
 
 		elif page == "/camera":
 			if not Camera.hasOpenCV(): return
