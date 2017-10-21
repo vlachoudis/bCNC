@@ -1,3 +1,13 @@
 *.pyc
 lib/*.pyc
 .idea
+tests/bin/*
+tests/lib/*
+tests/include/*
+tests/.Python
+.cache
+bin/*
+lib/*
+include/*
+.Python
+pip-selfcheck.json
