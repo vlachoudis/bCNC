@@ -523,7 +523,7 @@ class ReportDialog(Toplevel):
 		params = urllib.urlencode({"email":email, "desc":desc})
 		headers = {"Content-type": "application/x-www-form-urlencoded",
 			"Accept": "text/plain"}
-		conn = httplib.HTTPConnection("www.fluka.org:80")
+		conn = httplib.HTTPConnection("www.bcnc.org:80")
 		try:
 			conn.request("POST", "/flair/send_email_bcnc.php", params, headers)
 			response = conn.getresponse()

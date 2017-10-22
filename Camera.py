@@ -76,7 +76,7 @@ class Camera:
 				'gain'       : (Utils.getInt, cv.CAP_PROP_GAIN),
 				'exposure'   : (Utils.getInt, cv.CAP_PROP_EXPOSURE),
 			}
-		except:
+		except AttributeError:
 			POSSIBLE_PROPERTIES = {
 				'height'     : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_HEIGHT,),
 				'width'      : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_WIDTH,),
