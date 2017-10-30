@@ -1194,9 +1194,9 @@ class CNCCanvas(Canvas):
 		if not self.camera.read():
 			self.cameraOff()
 			return
-                self.camera.rotation = self.cameraRotation
-                self.camera.xcenter = self.cameraXCenter
-                self.camera.ycenter = self.cameraYCenter
+		self.camera.rotation = self.cameraRotation
+		self.camera.xcenter  = self.cameraXCenter
+		self.camera.ycenter  = self.cameraYCenter
 		if self.cameraEdge: self.camera.canny(50,200)
 		if self.cameraAnchor==NONE or self.zoom/self.cameraScale>1.0:
 			self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)

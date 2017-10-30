@@ -3724,11 +3724,6 @@ class GCode:
 					check = "XYZ"
 					if 'I' in new or 'J' in new or 'K' in new:
 						check += "IJK"
-					print
-					print "cmds=",cmds
-					print "old=",old
-					print "new=",new
-					print "check=",check, "present=",present
 					for c in check:
 						#if c in new:
 						try:
@@ -3737,7 +3732,6 @@ class GCode:
 						except:
 							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
-					print "newcmd=",newcmd
 				self.cnc.motionEnd()
 
 		# FIXME I should add it later, check all functions using it
