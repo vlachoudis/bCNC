@@ -1,5 +1,4 @@
 # -*- coding: ascii -*-
-# $Id$
 #
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015
@@ -16,6 +15,7 @@ import time
 import Utils
 import tkExtra
 import Unicode
+from log import say
 
 _TABFONT    = ("Sans","-14","bold")
 _FONT       = ("Sans","-11")
@@ -37,6 +37,11 @@ _BACKGROUND_GROUP4  = "#B0C0A0"
 _FOREGROUND_GROUP   = "White"
 _ACTIVE_COLOR       = "LightYellow"
 _LABEL_SELECT_COLOR = "#C0FFC0"
+
+# Ribbon show state
+RIBBON_HIDDEN =  0	# Hidden
+RIBBON_SHOWN  =  1	# Displayed
+RIBBON_TEMP   = -1	# Show temporarily
 
 #===============================================================================
 # Frame Group with a button at bottom
@@ -228,10 +233,13 @@ class MenuButton(Button, _KeyboardFocus):
 	#-----------------------------------------------------------------------
 	@staticmethod
 	def createMenuFromList(master, menulist):
-		menu = Menu(master, tearoff=0, activebackground=_ACTIVE_COLOR)
+		mainmenu = menu = Menu(master, tearoff=0, activebackground=_ACTIVE_COLOR)
 		for item in menulist:
 			if item is None:
 				menu.add_separator()
+			elif isinstance(item,str):
+				menu = Menu(mainmenu)
+				mainmenu.add_cascade(label=item, menu=menu)
 			else:
 				name, icon, cmd = item
 				if icon is None: icon = "empty"
@@ -263,6 +271,13 @@ class MenuGroup(LabelGroup):
 			menu.tk_popup(
 				self.winfo_rootx(),
 				self.winfo_rooty() + self.winfo_height())
+
+#===============================================================================
+# Context group for a specific item in the Ribbon
+#===============================================================================
+#class ContextGroup(LabelGroup):
+#	def __init__(self, master, name, **kw):
+#		LabelGroup.__init__(self, master, name, **kw)
 
 #===============================================================================
 # Page Tab buttons
@@ -315,6 +330,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 	_icon_ = None
 	_doc_  = "Tooltip"
 
+	#-----------------------------------------------------------------------
 	def __init__(self, master, **kw):
 		self.master = master
 		self.name   = self._name_
@@ -392,13 +408,13 @@ class Page:		# <--- should be possible to be a toplevel as well
 	# Return the closest widget along a direction
 	#-----------------------------------------------------------------------
 	@staticmethod
-	def __compareDown(x,y,xw,yw):	return yw>y+1
+	def __compareDown(x,y,xw,yw):  return yw>y+1
 	@staticmethod
-	def __compareUp(x,y,xw,yw):	return yw<y-1
+	def __compareUp(x,y,xw,yw):    return yw<y-1
 	@staticmethod
-	def __compareRight(x,y,xw,yw):	return xw>x+1
+	def __compareRight(x,y,xw,yw): return xw>x+1
 	@staticmethod
-	def __compareLeft(x,y,xw,yw):	return xw<x-1
+	def __compareLeft(x,y,xw,yw):  return xw<x-1
 
 	#-----------------------------------------------------------------------
 	@staticmethod
