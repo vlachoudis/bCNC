@@ -89,9 +89,11 @@ _FONT_SECTION = "Font"
 GRBL0      = 0
 GRBL1      = 1
 SMOOTHIE   = 10
+TINYG      = 20
 CONTROLLER = {	"Grbl-V0"  : GRBL0,
 		"Grbl"     : GRBL1,
-		"Smoothie" : SMOOTHIE}
+		"Smoothie" : SMOOTHIE,
+		"TinyG"    : TINYG}
 
 #------------------------------------------------------------------------------
 def loadIcons():

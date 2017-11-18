@@ -11,6 +11,7 @@ __email__   = "vvlachoudis@gmail.com"
 import os
 import re
 import sys
+import json
 import rexx
 import time
 import threading
@@ -70,13 +71,14 @@ VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
 
-STATECOLOR = {	"Alarm"       : "Red",
-		"Run"	      : "LightGreen",
-		"Hold"	      : "Orange",
-		"Hold:0"      : "Orange",
-		"Hold:1"      : "Orange",
-		CONNECTED     : "Orange",
-		NOT_CONNECTED : "OrangeRed"
+STATECOLOR = {	"Alarm"        : "Red",
+		"Run"	       : "LightGreen",
+		"SYSTEM READY" : "LightGreen",
+		"Hold"	       : "Orange",
+		"Hold:0"       : "Orange",
+		"Hold:1"       : "Orange",
+		CONNECTED      : "Orange",
+		NOT_CONNECTED  : "OrangeRed"
 		}
 
 STATE_DESC = {
@@ -535,6 +537,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
 		#self.serial = serial.Serial(
+		xonxoff = self.controller==Utils.TINYG
 		self.serial = serial.serial_for_url(
 						device,
 						baudrate,
@@ -542,27 +545,29 @@ class Sender:
 						parity=serial.PARITY_NONE,
 						stopbits=serial.STOPBITS_ONE,
 						timeout=SERIAL_TIMEOUT,
-						xonxoff=False,
+						xonxoff=xonxoff,
 						rtscts=False)
 		# Toggle DTR to reset Arduino
-		try:
-			self.serial.setDTR(0)
-		except IOError:
-			pass
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
+			try: self.serial.setDTR(0)
+			except IOError: pass
+
 		time.sleep(1)
 		CNC.vars["state"] = CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-		#self.state.config(text=CNC.vars["state"],
-		#		background=CNC.vars["color"])
-		# toss any data already received, see
-		# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
-		self.serial.flushInput()
-		try:
-			self.serial.setDTR(1)
-		except IOError:
-			pass
-		time.sleep(1)
-		self.serial.write(b"\n\n")
+
+		if self.controller in (Utils.GRBL0, Utils.GRBL1):
+			#self.state.config(text=CNC.vars["state"],
+			#		background=CNC.vars["color"])
+			# toss any data already received, see
+			# http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
+			self.serial.flushInput()
+			try:
+				self.serial.setDTR(1)
+			except IOError:
+				pass
+			time.sleep(1)
+			self.serial.write(b"\n\n")
 		self._gcount = 0
 		self._alarm  = True
 		self.thread  = threading.Thread(target=self.serialIO)
@@ -647,40 +652,52 @@ class Sender:
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$$")
 
+	#----------------------------------------------------------------------
 	def viewParameters(self):
-		self.sendGCode("$#")
+		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+			self.sendGCode("$#")
+		elif self.controller == Utils.TinyG:
+			self.sendGCode("$o")
 
+	#----------------------------------------------------------------------
 	def viewState(self):
 		self.sendGCode("$G")
 
+	#----------------------------------------------------------------------
 	def viewBuild(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$I")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"version\n")
 
+	#----------------------------------------------------------------------
 	def viewStartup(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$N")
 
+	#----------------------------------------------------------------------
 	def checkGcode(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$C")
 
+	#----------------------------------------------------------------------
 	def grblHelp(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$")
 		elif self.controller == Utils.SMOOTHIE:
 			self.serial.write(b"help\n")
 
+	#----------------------------------------------------------------------
 	def grblRestoreSettings(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=$")
 
+	#----------------------------------------------------------------------
 	def grblRestoreWCS(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=#")
 
+	#----------------------------------------------------------------------
 	def grblRestoreAll(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			self.sendGCode("$RST=#")
@@ -851,6 +868,8 @@ class Sender:
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
 				self.serial.write(b"?")
+				if self.controller in (Utils.SMOOTHIE, Utils.TINYG):
+					self.serial.write(b"\n")
 				status = True
 				tr = t
 
@@ -996,13 +1015,16 @@ class Sender:
 				try:
 					line = str(self.serial.readline()).strip()
 				except:
+					print str(sys.exc_info()[1])
 					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
 					self.emptyQueue()
-					self.close()
+					#Sender.close(self)
 					return
 
-				#print "<R<",repr(line)
-				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
+				if line:
+					print "<R<",repr(line)
+					print "state=",CNC.vars["state"]
+					#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
 					pass
 
@@ -1139,6 +1161,7 @@ class Sender:
 						else:
 							self.log.put((Sender.MSG_RECEIVE, line))
 
+				# Parameters
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
 					if self.controller == Utils.GRBL1:
@@ -1196,6 +1219,29 @@ class Sender:
 								CNC.vars["G"] = line[1:-1].split()
 								CNC.updateG()
 								self._gUpdate = True
+
+				# Possibly json object from TinyG
+				elif line[0]=="{" and self.controller == Utils.TINYG:
+					reply = json.loads(line)
+					print "reply=",reply
+					if "r" in reply:
+						r = reply["r"]
+						try: CNC.vars["state"] = r["msg"]
+						except KeyError: pass
+						self._posUpdate = True
+
+					if "sr" in reply:
+						r = reply["sr"]
+						print "SR=",r
+						try: CNC.vars["wx"] = float(r["posx"])
+						except KeyError: pass
+						try: CNC.vars["wy"] = float(r["posy"])
+						except KeyError: pass
+						try: CNC.vars["wz"] = float(r["posz"])
+						except KeyError: pass
+						try: CNC.vars["curfeed"] = float(r["feed"])
+						except KeyError: pass
+						self._posUpdate = True
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
