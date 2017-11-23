@@ -867,9 +867,10 @@ class Sender:
 			t = time.time()
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
-				self.serial.write(b"?")
-				if self.controller in (Utils.SMOOTHIE, Utils.TINYG):
-					self.serial.write(b"\n")
+				if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+					self.serial.write(b"?")
+					if self.controller == Utils.SMOOTHIE:
+						self.serial.write(b"\n")
 				status = True
 				tr = t
 
@@ -1018,8 +1019,9 @@ class Sender:
 					print str(sys.exc_info()[1])
 					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
 					self.emptyQueue()
+					continue
 					#Sender.close(self)
-					return
+					#return
 
 				if line:
 					print "<R<",repr(line)
