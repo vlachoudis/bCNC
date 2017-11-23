@@ -38,11 +38,13 @@ class Arc(object):
 		cls._eq_threshold = float(threshold)
 
 	def randomize(self):
-		# Randomize one axis and radius and ensure the arc is different to all others
-		while self in self._used_arcs[self.key]:
+		tries = 100
+		i = 0
+		while self in self._used_arcs[self.key] and i < tries:
 			self.x = random.uniform(self.x - self._eq_threshold, self.x + self._eq_threshold)
 			self.y = random.uniform(self.y - self._eq_threshold, self.y + self._eq_threshold)
-			self.r = random.uniform(self.r - self._eq_threshold/10.0, self.r + self._eq_threshold/10.0)
+			self.r = random.uniform(self.r - self._eq_threshold/3.0, self.r + self._eq_threshold/3.0)
+			i += 1
 		Arc._used_arcs[self.key].append(copy.deepcopy(self))
 
 	def __eq__(self, other):
@@ -68,11 +70,6 @@ class Jigsaw(object):
     
 	@staticmethod
 	def calculate_piece_size(board_width, board_height, number_of_pieces):
-
-		if board_width < board_height:
-			tmp = board_width
-			board_width = board_height
-			board_height = tmp
 
 		board_area = float(board_width * board_height)
 		board_ratio = board_width / board_height
@@ -152,28 +149,21 @@ class Jigsaw(object):
 	def get_piece_tap(cls, x=0, y=0, axis='X', piece_width=100.0, piece_height=100.0, tap_shape = 'basic', inverted=False):
 		flipped = random.choice((0, 1))
 		new_piece, template_width, template_height = cls.get_new_tap_shape(tap_shape, inverted)
-		scale = math.sqrt(piece_width * piece_height) / template_width
+		scale = math.sqrt(piece_width * piece_height) / math.sqrt(template_width * template_height)
 		for i, j in reversed(list(enumerate(new_piece))) if inverted else enumerate(new_piece):
 			# Ensure every arc is different
 			if i > 0 and i < len(new_piece) - 1:
 				j.randomize()
+			if flipped:
+				j.direction = CW if j.direction==CCW else CCW
+				j.y =-j.y
 			if axis == 'Y':
 				tmp = j.x
 				j.x = -j.y
 				j.y = tmp
-				j.x *= piece_width / template_height
-				j.y *= piece_height / template_width
-				j.r *= scale
-				if flipped:
-					j.x =-j.x
-					j.direction = CW if j.direction==CCW else CCW
-			else:
-				j.x *= piece_width / template_width
-				j.y *= piece_height / template_height
-				j.r *= scale
-				if flipped:
-					j.y = -j.y
-					j.direction = CW if j.direction==CCW else CCW
+			j.x *= piece_width / template_width
+			j.y *= piece_height / template_height
+			j.r *= scale
 			j.x += x
 			j.y += y
 				
@@ -220,8 +210,8 @@ class Jigsaw(object):
 		blocks = []
 		block = Block(self.name)
 		random.seed(random_seed)
-		Arc.set_diff_threshold(threshold)
 		Arc.reset_used_arcs()
+		Arc.set_diff_threshold(threshold)
 		puzzle_cuts = self.__class__.make_puzzle_cuts(board_width, board_height, number_of_pieces, tap_shape, threshold)
 
 		
@@ -248,7 +238,6 @@ class Jigsaw(object):
 		block.append(CNC.grapid(x, y))
 
 		for i in range(0, int(self.thickness / self.step_z)):
-			block.append(CNC.zenter(0.0))
 			block.append(CNC.fmt("f",self.cut_feed))
 			block.append(CNC.zenter(-(i + 1) * self.step_z))
 			block.append(CNC.gline(x + board_width, y))
@@ -278,7 +267,7 @@ class Tool(Plugin):
 			("height",        "mm",    800.0,  _("Board height")),
 			("piece_count",  "int",      100, _("Piece count")),
 			("random_seed",  "int",       1, _("Random seed")),
-			("threshold",  "float",     1.2, _("Required difference between pieces")),
+			("threshold",  "float",     1.2, _("Difference between pieces")),
 			("tap_shape",  'basic,heart,anchor', 'basic', _("Shape of the tap"))
 		]
 		self.buttons.append("exe")
