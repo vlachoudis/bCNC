@@ -2678,14 +2678,9 @@ class GCode:
 		self.undoredo.redo()
 
 	#----------------------------------------------------------------------
-	def addUndo(self, undoinfo, msg=""):
-		if isinstance(undoinfo,list):
-			if len(undoinfo)==1:
-				self.undoredo.addUndo(undoinfo[0])
-			else:
-				self.undoredo.addUndo(undo.createListUndo(undoinfo,msg))
-		elif undoinfo is not undo.NullUndo:
-			self.undoredo.addUndo(undoinfo)
+	def addUndo(self, undoinfo, msg=None):
+		if not undoinfo: return
+		self.undoredo.add(undoinfo, msg)
 		self._modified = True
 
 	#----------------------------------------------------------------------
@@ -2867,7 +2862,7 @@ class GCode:
 	# Move block from location src to location dst
 	#----------------------------------------------------------------------
 	def moveBlockUndo(self, src, dst):
-		if src == dst: return undo.NullUndo
+		if src == dst: return None
 		undoinfo = (self.moveBlockUndo, dst, src)
 		if dst > src:
 			self.blocks.insert(dst-1, self.blocks.pop(src))
@@ -2892,7 +2887,7 @@ class GCode:
 	# Move block upwards
 	#----------------------------------------------------------------------
 	def orderUpBlockUndo(self, bid):
-		if bid==0: return undo.NullUndo
+		if bid==0: return None
 		undoinfo = (self.orderDownBlockUndo, bid-1)
 		# swap with the block above
 		before      = self.blocks[bid-1]
@@ -2904,7 +2899,7 @@ class GCode:
 	# Move block downwards
 	#----------------------------------------------------------------------
 	def orderDownBlockUndo(self, bid):
-		if bid>=len(self.blocks)-1: return undo.NullUndo
+		if bid>=len(self.blocks)-1: return None
 		undoinfo = (self.orderUpBlockUndo, bid+1)
 		# swap with the block below
 		after       = self[bid+1]
@@ -2962,7 +2957,7 @@ class GCode:
 	# Move line upwards
 	#----------------------------------------------------------------------
 	def orderUpLineUndo(self, bid, lid):
-		if lid==0: return undo.NullUndo
+		if lid==0: return None
 		block = self.blocks[bid]
 		undoinfo = (self.orderDownLineUndo, bid, lid-1)
 		block.insert(lid-1, block.pop(lid))
@@ -2973,7 +2968,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def orderDownLineUndo(self, bid, lid):
 		block = self.blocks[bid]
-		if lid>=len(block)-1: return undo.NullUndo
+		if lid>=len(block)-1: return None
 		undoinfo = (self.orderUpLineUndo, bid, lid+1)
 		block.insert(lid+1, block.pop(lid))
 		return undoinfo
