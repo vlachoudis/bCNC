@@ -257,8 +257,7 @@ class Tool(Plugin):
 	__doc__ = _("""Jigsaw puzzle generator""")
 
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name = "Jigsaw"
+		Plugin.__init__(self, master, "Jigsaw")
 		self.icon = "jigsaw"
 		self.group = "Generator"
 		self.variables = [
