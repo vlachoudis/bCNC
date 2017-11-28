@@ -818,6 +818,10 @@ class CNC:
 			CNC.travel_z        /= 25.4
 
 		section = "Error"
+		if CNC.drillPolicy == 1:
+			ERROR_HANDLING["G98"] = 1
+			ERROR_HANDLING["G99"] = 1
+
 		for cmd,value in config.items(section):
 			try:
 				ERROR_HANDLING[cmd.upper()] = int(value)
@@ -1683,8 +1687,10 @@ class CNC:
 							     prb_reverse[CNC.vars["prbcmd"][-1]])
 				currentFeedrate = CNC.vars["fastprbfeed"]
 				while currentFeedrate > CNC.vars["prbfeed"]:
-					lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)
-					lines.append("g91 [prbcmdreverse] f%f z[tooldistance]" % currentFeedrate)
+					lines.append("g91 [prbcmd] %s z[-tooldistance]" \
+							% CNC.fmt('f',currentFeedrate))
+					lines.append("[prbcmdreverse] %s z[tooldistance+wz-mz]" \
+							% CNC.fmt('f',currentFeedrate))
 					currentFeedrate /= 10
 			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
@@ -1692,7 +1698,7 @@ class CNC:
 				# Adjust the current WCS to fit to the tool
 				# FIXME could be done dynamically in the code
 				p = WCS.index(CNC.vars["WCS"])+1
-				lines.append("G10L20P%d z[toolheight]"%(p))
+				lines.append("g10l20p%d z[toolheight]"%(p))
 				lines.append("%wait")
 
 			elif CNC.toolPolicy==3:
