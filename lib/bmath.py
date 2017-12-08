@@ -36,11 +36,11 @@ from __future__ import generators
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import math
-import cmath
-from math import *
-import rexx
+#from math import *
+from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 import random
+
+import rexx
 
 # Accuracy for comparison operators
 _accuracy = 1E-15
@@ -49,10 +49,10 @@ _accuracy = 1E-15
 _format = "%12g"
 
 #-------------------------------------------------------------------------------
-def Cmp0(x): return abs(x)<_accuracy
+def Cmp0(x):
+	"""Compare against zero within _accuracy"""
+	return abs(x)<_accuracy
 
-#-------------------------------------------------------------------------------
-# range of floating point numbers
 #-------------------------------------------------------------------------------
 def frange(start,stop,step):
 	"""range(start,stop,step) for floating point numbers"""
@@ -67,23 +67,20 @@ def frange(start,stop,step):
 			x += step
 
 #-------------------------------------------------------------------------------
-# limit in number within a range
-#-------------------------------------------------------------------------------
 def limit(min_, num, max_):
 	"""limit a number within a specific range"""
 	return max(min(num,max_),min_)
 
 #-------------------------------------------------------------------------------
-# dms - degrees from degrees, minutes, seconds
-#-------------------------------------------------------------------------------
 def dms(d,m,s):
+	"""dms - degrees from degrees, minutes, seconds"""
 	return d + m/60.0 + s/3600.0
 
 #-------------------------------------------------------------------------------
-# d2s - degrees to string
-# D2S(angle[,"H"|"M"|"D"|"N"])
-#-------------------------------------------------------------------------------
 def d2s(ang, fmt=""):
+	"""degrees to string
+	D2S(angle[,"H"|"M"|"D"|"N"])
+	"""
 	fmt.capitalize()
 	if ang<0.0:
 		neg = "-"
@@ -108,12 +105,8 @@ def d2s(ang, fmt=""):
 	return HH+":"+MM+":"+SS
 
 #-------------------------------------------------------------------------------
-# Format a number to fit in the minimum space
-#-------------------------------------------------------------------------------
 def format(number, length=10, useExp=False, useD=False):
-	"""
-	Format a number to fit in the minimum space given by length
-	"""
+	""" Format a number to fit in the minimum space given by length"""
 
 	_MAXLEN=22
 
@@ -123,7 +116,7 @@ def format(number, length=10, useExp=False, useD=False):
 	# What should I do
 	# Fields also in the CardWidget are converted with str and
 	# are cut at 12 digits!!!!
-	if isinstance(number, float) or isinstance(number, int):
+	if isinstance(number, (float, int)):
 		number = repr(number).upper()
 	else:
 		number = str(number).strip().upper()
@@ -230,8 +223,6 @@ def format(number, length=10, useExp=False, useD=False):
 		#		E-#	3
 		#		E-##	4
 		#	integer is given as  0.integer
-		#say("\ninteger=",integer,len(integer),length)
-		#say("exponent=",exponent)
 		lint = len(integer)
 		if useExp:
 			mNum = "%s%s%d"%(rexx.insert(".", integer, 1),expE,exponent-1)
@@ -291,7 +282,9 @@ def format(number, length=10, useExp=False, useD=False):
 # Use it with care
 #==============================================================================
 class DefaultDict(dict):
+	"""Dictionary where unknown keys will return a default value"""
 	def __init__(self, default=None):
+		dict.__init__(self)
 		self._default = default
 
 	# ----------------------------------------------------------------------
@@ -299,16 +292,14 @@ class DefaultDict(dict):
 		return self.get(key,self._default)
 
 #==============================================================================
-# Unknown keys will return 0.0
-#==============================================================================
 class ZeroDict(DefaultDict):
+	"""Dictionary where unknown keys will return 0.0"""
 	def __init__(self):
 		DefaultDict.__init__(self, 0.0)
 
 #==============================================================================
-# Unknown keys will return 0.0
-#==============================================================================
 class ZeroIntDict(DefaultDict):
+	"""Dictionary where unknown keys will return 0"""
 	def __init__(self):
 		DefaultDict.__init__(self, 0)
 
@@ -323,11 +314,12 @@ class Vector(list):
 	def __init__(self, x=3, *args):
 		"""Create a new vector,
 		Vector(size), Vector(list), Vector(x,y,z,...)"""
+		list.__init__(self)
 
 		if isinstance(x,int) and not args:
 			for i in range(x):
 				self.append(0.0)
-		elif isinstance(x,list) or isinstance(x,tuple):
+		elif isinstance(x,(list,tuple)):
 			for i in x:
 				self.append(float(i))
 		else:
@@ -351,8 +343,8 @@ class Vector(list):
 		"""Test for equality with vector v within accuracy"""
 		if len(self) != len(v): return False
 		s2 = 0.0
-		for i in range(len(self)):
-			s2 += (self[i]-v[i])**2
+		for a,b in zip(self, v):
+			s2 += (a-b)**2
 		return s2 <= acc**2
 	def __eq__(self, v): return self.eq(v)
 
@@ -360,8 +352,8 @@ class Vector(list):
 	def __neg__(self):
 		"""Negate vector"""
 		new = Vector(len(self))
-		for i in range(len(self)):
-			new[i] = -self[i]
+		for i,s in enumerate(self):
+			new[i] = -s
 		return new
 
 	# ----------------------------------------------------------------------
@@ -430,10 +422,9 @@ class Vector(list):
 	# ----------------------------------------------------------------------
 	def dot(self, v):
 		"""Dot product of 2 vectors"""
-		size = min(len(self),len(v))
 		s = 0.0
-		for i in range(size):
-			s += self[i] * v[i]
+		for a,b in zip(self, v):
+			s += a*b
 		return s
 
 	# ----------------------------------------------------------------------
@@ -451,18 +442,18 @@ class Vector(list):
 	# ----------------------------------------------------------------------
 	def length2(self):
 		"""Return length squared of vector"""
-		s = 0.0
-		for i in range(len(self)):
-			s += self[i]**2
-		return s
+		s2 = 0.0
+		for s in self:
+			s2 += s**2
+		return s2
 
 	# ----------------------------------------------------------------------
 	def length(self):
 		"""Return length of vector"""
-		s = 0.0
-		for i in range(len(self)):
-			s += self[i]**2
-		return sqrt(s)
+		s2 = 0.0
+		for s in self:
+			s2 += s**2
+		return sqrt(s2)
 	__abs__ = length
 
 	# ----------------------------------------------------------------------
@@ -550,6 +541,7 @@ class Vector(list):
 	# @param th polar angle in radians
 	# ----------------------------------------------------------------------
 	def setPolar(self, ma, ph, th):
+		"""Set the vector directly in polar coordinates"""
 		sf = sin(ph)
 		cf = cos(ph)
 		st = sin(th)
@@ -559,43 +551,38 @@ class Vector(list):
 		self[2] = ma*ct
 
 	# ----------------------------------------------------------------------
-	# @return the azimuth angle.
-	# ----------------------------------------------------------------------
 	def phi(self):
+		"""return the azimuth angle."""
 		if Cmp0(self.x()) and Cmp0(self.y()):
 			return 0.0
 		return atan2(self.y(), self.x())
 
 	# ----------------------------------------------------------------------
-	# @return the polar angle.
-	# ----------------------------------------------------------------------
 	def theta(self):
+		"""return the polar angle."""
 		if Cmp0(self.x()) and Cmp0(self.y()) and Cmp0(self.z()):
 			return 0.0
 		return atan2(self.perp(),self.z())
 
 	# ----------------------------------------------------------------------
-	# @return cosine of the polar angle.
-	# ----------------------------------------------------------------------
 	def cosTheta(self):
-		ptot = length()
+		"""return cosine of the polar angle."""
+		ptot = self.length()
 		if Cmp0(ptot):
 			return 1.0
 		else:
 			return self.z()/ptot
 
 	# ----------------------------------------------------------------------
-	# @return the transverse component squared
-	#   (R^2 in cylindrical coordinate system).
-	# ----------------------------------------------------------------------
 	def perp2(self):
-		return self.x() * self.x() + self.y() * self.y();
+		"""return the transverse component squared
+		(R^2 in cylindrical coordinate system)."""
+		return self.x() * self.x() + self.y() * self.y()
 
 	# ----------------------------------------------------------------------
-	# @return the transverse component
-	# (R in cylindrical coordinate system).
-	# ----------------------------------------------------------------------
 	def perp(self):
+		"""@return the transverse component
+		(R in cylindrical coordinate system)."""
 		return sqrt(self.perp2())
 
 #-------------------------------------------------------------------------------
@@ -701,7 +688,7 @@ class Matrix(list):
 		"""m = Matrix.translate(x,y,z|vector)
 		@return a translation matrix"""
 		m = Matrix(4, type=1)
-		if isinstance(x,list) or isinstance(x,tuple):
+		if isinstance(x,(list,tuple)):
 			m[0][3] = x[0]
 			m[1][3] = x[1]
 			m[2][3] = x[2]
@@ -719,7 +706,7 @@ class Matrix(list):
 		m = Matrix(4, type=1)
 		if sy is None: sy = sx
 		if sz is None: sz = sx
-		if isinstance(sx,list) or isinstance(sx,tuple):
+		if isinstance(sx,(list,tuple)):
 			m[0][0] = sx[0]
 			m[1][1] = sx[1]
 			m[2][2] = sx[2]
@@ -894,7 +881,8 @@ class Matrix(list):
 
 	# ----------------------------------------------------------------------
 	def getEulerRotation(self):
-		# ROTX(x) * ROTY(y) * ROTZ(z)
+		"""return the Euler rotation angles
+		ROTX(x) * ROTY(y) * ROTZ(z)"""
 		#  cos(z)*cos(y)
 		#			sin(z)*cos(y)
 		#						-sin(y)
@@ -912,7 +900,8 @@ class Matrix(list):
 	# ----------------------------------------------------------------------
 	@staticmethod
 	def eulerRotation(rx, ry, rz):
-		# ROTX(x) * ROTY(y) * ROTZ(z)
+		"""return a rotation matrix based on the Euler rotation
+		ROTX(x) * ROTY(y) * ROTZ(z)"""
 		m = Matrix(4, type=1)
 		cx = cos(rx)
 		cy = cos(ry)
@@ -935,7 +924,6 @@ class Matrix(list):
 		row[0] =  sz*sx+cz*sy*cx
 		row[1] = -cz*sx+sz*sy*cx
 		row[2] =  cy*cx
-
 		return m
 
 	# ----------------------------------------------------------------------
@@ -1078,7 +1066,7 @@ class Matrix(list):
 
 			# swap rows i,k
 			if i != k:
-				s = -s;   # Change sign of determinate
+				s = -s	# Change sign of determinate
 				for j in range(n):
 					d = M[i][j]
 					M[i][j] = M[k][j]
@@ -1193,6 +1181,8 @@ Matrix.U = Matrix(4, type=1)
 #-------------------------------------------------------------------------------
 class Quaternion(list):
 	def __init__(self, a, b=None, c=None, d=None):
+		list.__init__(self)
+
 		if isinstance(a, Quaternion):
 			self.extend(a)
 
@@ -1588,6 +1578,7 @@ def xcombinations(items, n):
 			for cc in xcombinations(items[:i]+items[i+1:],n-1):
 				yield [items[i]]+cc
 
+#-------------------------------------------------------------------------------
 def xuniqueCombinations(items, n):
 	if n<=0: yield []
 	else:
@@ -1595,6 +1586,7 @@ def xuniqueCombinations(items, n):
 			for cc in xuniqueCombinations(items[i+1:],n-1):
 				yield [items[i]]+cc
 
+#-------------------------------------------------------------------------------
 def xselections(items, n):
 	if n<=0: yield []
 	else:
@@ -1602,6 +1594,7 @@ def xselections(items, n):
 			for ss in xselections(items, n-1):
 				yield [items[i]]+ss
 
+#-------------------------------------------------------------------------------
 def xpermutations(items):
 	return xcombinations(items, len(items))
 
@@ -1866,10 +1859,10 @@ def int2roman(num):
 	ints = (1000, 900,  500, 400, 100,  90, 50,  40, 10,  9,   5,  4,   1)
 	nums = ('M',  'CM', 'D', 'CD','C', 'XC','L','XL','X','IX','V','IV','I')
 	result = ""
-	for i in range(len(ints)):
-		count = int(num / ints[i])
-		result += nums[i] * count
-		num -= ints[i] * count
+	for i,n in zip(ints, nums):
+		count = int(num / i)
+		result += n * count
+		num -= i * count
 	return result
 
 #-------------------------------------------------------------------------------
@@ -1900,119 +1893,11 @@ def roman2int(roman):
 			# there is no next place.
 			pass
 		places.append(value)
-	sum = 0
-	for n in places: sum += n
+	s = 0
+	for n in places: s += n
 
 	# Easiest test for validity...
-	if int2roman(sum) == roman:
-		return sum
+	if int2roman(s) == roman:
+		return s
 	else:
 		raise ValueError('input is not a valid roman numeral: %s' % roman)
-
-#===============================================================================
-if __name__ == "__main__":
-	import sys
-	import pdb
-	from log import say
-
-	for i in range(4,50):
-		num = "-1e-%d"%(i)
-		say(num, repr(float(num)), format(num,10))
-
-	digits="1234567890123456789012345678"
-	for i in range(len(digits)):
-		num = digits[:i]
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-	say()
-	for i in range(len(digits)):
-		num = digits[:i]+".123"
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-	say()
-	for i in range(len(digits)):
-		num = digits[:i]+".1234567890"
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-	say()
-	for i in range(len(digits)):
-		num = "-"+digits[:i]
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-	say()
-	for i in range(len(digits)):
-		num = "-"+digits[:i]+".123"
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-	say()
-	for i in range(len(digits)):
-		num = "-"+digits[:i]+".1234567890"
-		say("%02d %40s |%10s|"%(i, num, format(num,10)))
-
-	say(Vector.O)
-	a = 1.2345678901234567890
-	w = -1e-05
-	say(format(w,22))
-	say(format(a,22))
-	say(Vector.Y.direction(0.0000001))
-	#for i in range(100000):
-	#	v = random3D()
-	#	d1 = v.direction(0.001)
-	#	d2 = v.olddir(0.001)
-	#	if d1!="N": say(d1, d2)
-	#	#if d1!=d2:
-	#	#	say(d1, d2, v)
-	#for i in frange(0.0,1.0,0.1):
-	#	say(i)
-	#say("-------")
-	#for i in frange(1.0,0.0,-0.1):
-	#	say(i)
-	a = Vector(range(5))
-	a.norm()
-	say("a=",a,"len(a)=",a.length())
-	b = Vector(range(5))
-	say("b=",b,"length(b)=",b.length(),"len(b)=",len(b))
-
-	say("matO\n",Matrix.O)
-	say("matU\n",Matrix.U)
-
-	M = Matrix(4)
-	a = Vector(0.1, 0.2, 0.3)
-	M.rotate(radians(45.0), a)
-	say("M\n",M)
-	say("a=",a)
-	say("M*a=",M*a)
-	say("M*X=",M*Vector.X)
-
-	say(d2s(dms(1,2,3.006)))
-
-	M = Matrix([[ 1.0, -2.0, -3.0,	1.0],
-		    [-2.0,  1.0, -2.0, -1.0],
-		    [-3.0, -2.0,  2.0,	2.0],
-		    [ 1.0, -1.0,  2.0,	3.0]] )
-	say("M=\n",M)
-	say("det(M)=",M.det())
-	v,u = eigenvalues(M)
-	say("Eigenvalues=",v)
-	say("Eigenvectors=\n",u)
-	say("uT * diag(v) * u=\n",u.T()*Matrix.diagonal(v)*u)
-
-	say()
-	say("Permutations of 'love'")
-	for p in xpermutations(['l','o','v','e']): say(''.join(p))
-
-	say()
-	say("Combinations of 2 letters from 'love'")
-	for c in xcombinations(['l','o','v','e'],2): say(''.join(c))
-
-	say()
-	say("Unique Combinations of 2 letters from 'love'")
-	for uc in xuniqueCombinations(['l','o','v','e'],2): say(''.join(uc))
-
-	say()
-	say("Selections of 2 letters from 'love'")
-	for s in xselections(['l','o','v','e'],2): say(''.join(s))
-
-	say()
-	say(map(''.join, list(xpermutations('done'))))
-
-	say()
-	say("cubic(x^3-3x^2-10x+24=0)=",cubic(-3.0,-10.0,24.0))
-
-	say()
-	for i in range(1,51): say(i, int2roman(i))

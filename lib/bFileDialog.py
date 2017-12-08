@@ -541,7 +541,7 @@ class FileDialog(Toplevel):
 	# ----------------------------------------------------------------------
 	def fill(self, path=None):
 		self.fileList.delete(0,END)
-		self.fileList.lists[0].resetSearch()
+		self.fileList.listbox(0).resetSearch()
 
 		if path is None: path = self.path
 
@@ -603,7 +603,7 @@ class FileDialog(Toplevel):
 		fn = self.filename.get()
 		if self.seldir: fn = os.path.basename(fn)
 		for i in range(self.fileList.size()):
-			if fn == self.fileList.lists[0].get(i):
+			if fn == self.fileList.listbox(0).get(i):
 				self.fileList.see(i)
 				self.fileList.activate(i)
 				self.fileList.selection_set(i)
@@ -696,7 +696,7 @@ class FileDialog(Toplevel):
 		FileDialog.width   = self.winfo_width()
 		FileDialog.height  = self.winfo_height()
 		FileDialog.sash    = [self.fileList.paneframe.sash_coord(i)[0]
-					for i in range(len(self.fileList.lists)-1)]
+					for i in range(len(self.fileList.listboxes())-1)]
 		tkExtra.ExListbox.resetSearch()
 		self.grab_release()
 		self.destroy()
@@ -789,7 +789,7 @@ class FileDialog(Toplevel):
 		self.fileList.selection_clear(0,END)
 		self.fileList.selection_set(END)
 		self.fileList.activate(END)
-		edit = tkExtra.InPlaceEdit(self.fileList.lists[0])
+		edit = tkExtra.InPlaceEdit(self.fileList.listbox(0))
 		if edit.value:
 			try:
 				os.mkdir(os.path.join(self.path, edit.value))
@@ -811,8 +811,8 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def rename(self,event=None):
-		fn = self.fileList.lists[0].get(ACTIVE)
-		edit = tkExtra.InPlaceEdit(self.fileList.lists[0])
+		fn = self.fileList.listbox(0).get(ACTIVE)
+		edit = tkExtra.InPlaceEdit(self.fileList.listbox(0))
 		if edit.value and edit.value != fn:
 			try:
 				os.rename(os.path.join(self.path, fn),
@@ -831,7 +831,7 @@ class FileDialog(Toplevel):
 		if not sel: return
 		try:
 			for i in sel:
-				fn = self.fileList.lists[0].get(i)
+				fn = self.fileList.listbox(0).get(i)
 				filename = os.path.join(self.path, fn)
 				s = os.lstat(filename)
 				if S_ISDIR(s[ST_MODE]):

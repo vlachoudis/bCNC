@@ -32,8 +32,9 @@ import Pendant
 
 WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
-SERIAL_POLL   = 0.125	# s
-G_POLL	      = 10	# s
+SERIAL_POLL    = 0.125	# s
+SERIAL_TIMEOUT = 0.10	# s
+G_POLL	       = 10	# s
 RX_BUFFER_SIZE = 128
 
 OV_FEED_100     = chr(0x90)        # Extended override commands
@@ -56,7 +57,6 @@ OV_SPINDLE_STOP = chr(0x9E)
 
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
-
 
 GPAT	  = re.compile(r"[A-Za-z]\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
@@ -117,6 +117,7 @@ ERROR_CODES = {
 	"error:14" : _("(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length limit."),
 	"error:15" : _("Jog target exceeds machine travel. Command ignored."),
 	"error:16" : _("Jog command with no '=' or contains prohibited g-code."),
+	"error:17" : _("Laser mode requires PWM output."),
 	"error:20" : _("Unsupported or invalid g-code command found in block."),
 	"error:21" : _("More than one g-code command from same modal group found in block."),
 	"error:22" : _("Feed rate has not yet been set or is undefined."),
@@ -135,7 +136,6 @@ ERROR_CODES = {
 	"error:35" : _("A G2 or G3 arc, traced with the offset definition, is missing the IJK offset word in the selected plane to trace the arc."),
 	"error:36" : _("There are unused, leftover G-code words that aren't used by any command in the block."),
 	"error:37" : _("The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis."),
-	"error:38" : _("An invalid tool number sent to the parser"),
 
 	"ALARM:1" : _("Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended."),
 	"ALARM:2" : _("G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked."),
@@ -154,6 +154,7 @@ ERROR_CODES = {
 	"Door:2" : _("Door opened. Hold (or parking retract) in-progress. Reset will throw an alarm."),
 	"Door:3" : _("Door closed and resuming. Restoring from park, if applicable. Reset will throw an alarm."),
 }
+
 
 # Convert Grbl V1.0 codes to Grbl V0.9
 for e1,e0 in (	("error: Expected command letter", "error:1"),
@@ -371,9 +372,9 @@ class Sender:
 
 		# SAFE [z]: safe z to move
 		elif cmd=="SAFE":
-			try: self.cnc.safe = float(line[1])
+			try: CNC.vars["safe"] = float(line[1])
 			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(self.cnc.safe)
+			self.statusbar["text"] = "Safe Z= %g"%(CNC.vars["safe"])
 
 		# SA*VE [filename]: save to filename or to default name
 		elif rexx.abbrev("SAVE",cmd,2):
@@ -533,12 +534,14 @@ class Sender:
 	# Open serial port
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
-		self.serial = serial.Serial(	device,
+		#self.serial = serial.Serial(
+		self.serial = serial.serial_for_url(
+						device,
 						baudrate,
 						bytesize=serial.EIGHTBITS,
 						parity=serial.PARITY_NONE,
 						stopbits=serial.STOPBITS_ONE,
-						timeout=0.1,
+						timeout=SERIAL_TIMEOUT,
 						xonxoff=False,
 						rtscts=False)
 		# Toggle DTR to reset Arduino
@@ -578,7 +581,10 @@ class Sender:
 		self._runLines = 0
 		self.thread = None
 		time.sleep(1)
-		self.serial.close()
+		try:
+			self.serial.close()
+		except:
+			pass
 		self.serial = None
 		CNC.vars["state"] = NOT_CONNECTED
 		CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
@@ -616,19 +622,19 @@ class Sender:
 		self.notBusy()
 
 	#----------------------------------------------------------------------
-	def softReset(self):
+	def softReset(self, clearAlarm=True):
 		if self.serial:
 		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
 				self.serial.write(b"\030")
 		#	elif self.controller == Utils.SMOOTHIE:
 		#		self.serial.write(b"reset\n")
 		self.stopProbe()
-		self._alarm = False
+		if clearAlarm: self._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 
 	#----------------------------------------------------------------------
-	def unlock(self):
-		self._alarm = False
+	def unlock(self, clearAlarm=True):
+		if clearAlarm: self._alarm = False
 		self.sendGCode("$X")
 
 	#----------------------------------------------------------------------
@@ -803,14 +809,16 @@ class Sender:
 	# a reset to clear the buffer of the controller
 	#---------------------------------------------------------------------
 	def purgeController(self):
+		self.serial.write(b"!")
+		self.serial.flush()
 		time.sleep(1)
 		# remember and send all G commands
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 		TLO = CNC.vars["TLO"]
-		self.softReset()			# reset controller
+		self.softReset(False)			# reset controller
 		if self.controller in (Utils.GRBL0, Utils.GRBL1):
 			time.sleep(1)
-			self.unlock()
+			self.unlock(False)
 		self.runEnded()
 		self.stopProbe()
 		if G: self.sendGCode(G)			# restore $G
@@ -985,7 +993,14 @@ class Sender:
 
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
-				line = str(self.serial.readline()).strip()
+				try:
+					line = str(self.serial.readline()).strip()
+				except:
+					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+					self.emptyQueue()
+					self.close()
+					return
+
 				#print "<R<",repr(line)
 				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
@@ -998,40 +1013,100 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
-						#print fields
 						if not self._alarm:
 							CNC.vars["state"] = fields[0]
 						for field in fields[1:]:
 							word = SPLITPAT.split(field)
 							if word[0] == "MPos":
-								CNC.vars["mx"] = float(word[1])
-								CNC.vars["my"] = float(word[2])
-								CNC.vars["mz"] = float(word[3])
-								CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-								CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-								CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-								self._posUpdate = True
+								try:
+									CNC.vars["mx"] = float(word[1])
+									CNC.vars["my"] = float(word[2])
+									CNC.vars["mz"] = float(word[3])
+									CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
+									CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
+									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+									self._posUpdate = True
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 							elif word[0] == "F":
-								CNC.vars["curfeed"] = float(word[1])
+								try:
+									CNC.vars["curfeed"] = float(word[1])
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 							elif word[0] == "FS":
-								CNC.vars["curfeed"]    = float(word[1])
-								CNC.vars["curspindle"] = float(word[2])
+								try:
+									CNC.vars["curfeed"]    = float(word[1])
+									CNC.vars["curspindle"] = float(word[2])
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 							elif word[0] == "Bf":
-								CNC.vars["planner"] = int(word[1])
-								CNC.vars["rxbytes"] = int(word[2])
+								try:
+									CNC.vars["planner"] = int(word[1])
+									CNC.vars["rxbytes"] = int(word[2])
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 							elif word[0] == "Ov":
-								CNC.vars["OvFeed"]    = int(word[1])
-								CNC.vars["OvRapid"]   = int(word[2])
-								CNC.vars["OvSpindle"] = int(word[3])
+								try:
+									CNC.vars["OvFeed"]    = int(word[1])
+									CNC.vars["OvRapid"]   = int(word[2])
+									CNC.vars["OvSpindle"] = int(word[3])
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 							elif word[0] == "WCO":
-								CNC.vars["wcox"] = float(word[1])
-								CNC.vars["wcoy"] = float(word[2])
-								CNC.vars["wcoz"] = float(word[3])
+								try:
+									CNC.vars["wcox"] = float(word[1])
+									CNC.vars["wcoy"] = float(word[2])
+									CNC.vars["wcoz"] = float(word[3])
+								except (ValueError,IndexError):
+									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+									break
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
 							wait = False
 							self._gcount += 1
+
+					elif self.controller == Utils.SMOOTHIE:
+							# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
+							ln= line[1:-1] # strip off < .. >
+
+							# split fields
+							l= ln.split('|')
+
+							# strip off status
+							CNC.vars["state"]= l[0]
+
+							# strip of rest into a dict of name: [values,...,]
+							d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in l[1:]] }
+							CNC.vars["mx"] = float(d['MPos'][0])
+							CNC.vars["my"] = float(d['MPos'][1])
+							CNC.vars["mz"] = float(d['MPos'][2])
+							CNC.vars["wx"] = float(d['WPos'][0])
+							CNC.vars["wy"] = float(d['WPos'][1])
+							CNC.vars["wz"] = float(d['WPos'][2])
+							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
+							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
+							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+							if 'F' in d:
+							        CNC.vars["curfeed"] = float(d['F'][0])
+							self._posUpdate = True
+
+							# Machine is Idle buffer is empty
+							# stop waiting and go on
+							if wait and not cline and l[0] in ("Idle","Check"):
+							        wait = False
+							        self._gcount += 1
 
 					else:
 						status = False
@@ -1133,7 +1208,6 @@ class Sender:
 					CNC.vars["state"] = line
 					if self.running:
 						self._stop = True
-						self.runEnded()
 
 				elif line.find("ok")>=0:
 					self.log.put((Sender.MSG_OK, line))
@@ -1158,7 +1232,6 @@ class Sender:
 					self._stop = True
 					del cline[:]	# After reset clear the buffer counters
 					del sline[:]
-					self.runEnded()
 					CNC.vars["version"] = line.split()[1]
 					# Detect controller
 					if self.controller in (Utils.GRBL0, Utils.GRBL1):
@@ -1172,8 +1245,9 @@ class Sender:
 				self.emptyQueue()
 				tosend = None
 				self.log.put((Sender.MSG_CLEAR, ""))
-				# WARNING if maxint then it means we are still preparing/sending
-				# lines from from bCNC.run(), so don't stop
+				# WARNING if runLines==maxint then it means we are
+				# still preparing/sending lines from from bCNC.run(),
+				# so don't stop
 				if self._runLines != sys.maxint:
 					self._stop = False
 

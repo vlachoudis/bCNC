@@ -596,7 +596,7 @@ class Entity(dict):
 			if tag==0:
 				if value == "SEQEND":
 					# Vertex sequence end
-					tag,value = dxf()
+					tag,value = dxf.read()
 					if tag!=8: dxf.push(tag,value)
 					return
 				elif value == "VERTEX":

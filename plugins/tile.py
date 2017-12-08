@@ -27,8 +27,7 @@ except ImportError:
 class Tool(Plugin):
 	__doc__ = _("Generate replicas of selected code")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Tile"
+		Plugin.__init__(self, master, "Tile")
 		self.icon  = "tile"
 		self.group = "CAM"
 		self.variables = [

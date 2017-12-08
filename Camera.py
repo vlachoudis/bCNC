@@ -10,6 +10,11 @@ except ImportError:
 	cv = None
 
 try:
+	import numpy as np
+except ImportError:
+	np = None
+
+try:
 	from Tkinter import *
 except ImportError:
 	from tkinter import *
@@ -36,10 +41,70 @@ class Camera:
 		if cv is None: return
 		self.prefix  = prefix
 		self.idx     = Utils.getInt("Camera", prefix)
+		self.props   = self._getCameraProperties(prefix)
 		self.camera  = None
 		self.image   = None
 		self.frozen  = None
 		self.imagetk = None
+
+	def _getCameraProperties(self, prefix):
+		""" Gather user-defined camera configuration properties
+
+		Allows user to specify parameters like::
+
+		    [Camera]
+		    aligncam_height = 640
+		    aligncam_width = 480
+
+		to adjust the capture settings of the 'aligncam' camera.
+
+		:param str prefix: Prefix to gather
+		:returns: Dictionary mapping property suffix with a 2-tuple of
+			a function defining the data type, and a CV_CAP_PROP
+			property.
+		"""
+		try:
+			POSSIBLE_PROPERTIES = {
+				'height'     : (Utils.getInt, cv.CAP_PROP_FRAME_HEIGHT),
+				'width'      : (Utils.getInt, cv.CAP_PROP_FRAME_WIDTH),
+				'fps'        : (Utils.getInt, cv.CAP_PROP_FPS),
+				'codec'      : (Utils.getStr, cv.CAP_PROP_FOURCC),
+				'brightness' : (Utils.getInt, cv.CAP_PROP_BRIGHTNESS),
+				'contrast'   : (Utils.getInt, cv.CAP_PROP_CONTRAST),
+				'saturation' : (Utils.getInt, cv.CAP_PROP_SATURATION),
+				'hue'        : (Utils.getInt, cv.CAP_PROP_HUE),
+				'gain'       : (Utils.getInt, cv.CAP_PROP_GAIN),
+				'exposure'   : (Utils.getInt, cv.CAP_PROP_EXPOSURE),
+			}
+		except AttributeError:
+			POSSIBLE_PROPERTIES = {
+				'height'     : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_HEIGHT,),
+				'width'      : (Utils.getInt, cv.cv.CV_CAP_PROP_FRAME_WIDTH,),
+				'fps'        : (Utils.getInt, cv.cv.CV_CAP_PROP_FPS,),
+				'codec'      : (Utils.getStr, cv.cv.CV_CAP_PROP_FOURCC,),
+				'brightness' : (Utils.getInt, cv.cv.CV_CAP_PROP_BRIGHTNESS,),
+				'contrast'   : (Utils.getInt, cv.cv.CV_CAP_PROP_CONTRAST,),
+				'saturation' : (Utils.getInt, cv.cv.CV_CAP_PROP_SATURATION,),
+				'hue'        : (Utils.getInt, cv.cv.CV_CAP_PROP_HUE,),
+				'gain'       : (Utils.getInt, cv.cv.CV_CAP_PROP_GAIN,),
+				'exposure'   : (Utils.getInt, cv.cv.CV_CAP_PROP_EXPOSURE,),
+			}
+
+		UNSPECIFIED = object()
+		properties_set = {}
+
+		for key, data in POSSIBLE_PROPERTIES.items():
+			fn, prop = data
+			value = fn(
+				'Camera',
+				'_'.join([prefix, key]),
+				default=UNSPECIFIED
+			)
+
+			if value is not UNSPECIFIED:
+				properties_set[prop] = value
+
+		return properties_set
 
 	#-----------------------------------------------------------------------
 	def isOn(self):
@@ -50,6 +115,10 @@ class Camera:
 	def start(self):
 		if cv is None: return
 		self.camera = cv.VideoCapture(self.idx)
+
+		for prop_id, prop_value in self.props.items():
+			self.camera.set(prop_id, prop_value)
+
 		if self.camera is None: return
 		s, self.image = self.camera.read()
 		if not self.camera.isOpened():
@@ -72,6 +141,9 @@ class Camera:
 		height = Utils.getInt("Camera", self.prefix+"_height",  0)
 		if height: self.camera.set(4, height)
 		self.angle = Utils.getInt("Camera", self.prefix+"_angle")//90 % 4
+		self.rotation = Utils.getFloat("Camera", self.prefix+"_rotation")
+		self.xcenter = Utils.getFloat("Camera", self.prefix+"_xcenter")
+		self.ycenter = Utils.getFloat("Camera", self.prefix+"_ycenter")
 #		self.camera.set(38, 3) # CV_CAP_PROP_BUFFERSIZE
 
 	#-----------------------------------------------------------------------
@@ -99,6 +171,21 @@ class Camera:
 	# Rotate image in steps of 90deg
 	#-----------------------------------------------------------------------
 	def rotate90(self, image):
+		if self.rotation > 0:
+			rows, cols = image.shape[:2]
+			m = cv.getRotationMatrix2D((cols/2, rows/2), self.rotation,1)
+			image = cv.warpAffine(image, m, (cols,rows),
+					None,
+					cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+					(255, 255, 255))
+			rows, cols = image.shape[:2]
+			t = np.float32([
+				[1, 0, -self.xcenter],
+				[0, 1, -self.ycenter]])
+			image = cv.warpAffine(image,t,(cols,rows), None,
+					cv.INTER_LINEAR, cv.BORDER_CONSTANT,
+					(255, 255, 255))
+			return image
 		if self.angle == 1:	# 90 deg
 			return cv.transpose(cv.flip(image,1))
 		elif self.angle == 2: # 180 deg

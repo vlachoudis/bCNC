@@ -4,6 +4,7 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+from __future__ import print_function
 import re
 import sys
 try:
@@ -55,6 +56,7 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-Next>",	self.orderDown)
 		self.bind("<Control-Key-p>",	lambda e : "break")
 		self.bind("<Control-Key-n>",	lambda e : "break")
+		self.bind("<Control-Key-D>",	self.dump)
 		self.bind("<Delete>",		self.deleteBlock)
 		self.bind("<BackSpace>",	self.deleteBlock)
 		try:
@@ -65,8 +67,8 @@ class CNCListbox(Listbox):
 		self.bind("<Control-Key-b>",	self.insertBlock)
 		self.bind("<Control-Key-r>",	self.fill)
 
-		self._blockPos = []
-		self._items    = []
+		self._blockPos = []		# listbox position of each block
+		self._items    = []		# each listbox lien which item (bid,lid) shows
 		self.app       = app
 		self.gcode     = app.gcode
 		self.font      = tkFont.nametofont(self.cget("font"))
@@ -120,7 +122,7 @@ class CNCListbox(Listbox):
 
 			self._blockPos.append(y)
 			self.insert(END, block.header())
-			self._items.append((bi,None))
+			self._items.append((bi, None))
 			self.itemconfig(END, background=BLOCK_COLOR)
 			y += 1
 			if not block.enable:
@@ -179,13 +181,13 @@ class CNCListbox(Listbox):
 		# bid,lid push them to self so it can be accessed from addLines()
 		# python3 might fix this with the inner scope
 		try:
-			self.__bid, self.__lid = self._items[self.curselection()[-1]]
+			self._bid, self._lid = self._items[self.curselection()[-1]]
 		except:
 			try:
-				self.__bid, self.__lid = self._items[-1]
+				self._bid, self._lid = self._items[-1]
 			except:
-				self.__bid = 0
-				self.__lid = None
+				self._bid = 0
+				self._lid = None
 
 		selitems = []
 		undoinfo = []
@@ -193,21 +195,24 @@ class CNCListbox(Listbox):
 		def addLines(lines):
 			for line in lines.splitlines():
 				# Create a new block
-				if self.__lid is None:
-					self.__bid += 1
-					self.__lid = MAXINT
+				if self._lid is None:
+					self._bid += 1
+					if self._bid > len(self.gcode.blocks):
+						self._bid = len(self.gcode.blocks)
+					self._lid = MAXINT
 					block = Block()
-					undoinfo.append(self.gcode.addBlockUndo(self.__bid,block))
-					selitems.append((self.__bid, None))
+					undoinfo.append(self.gcode.addBlockUndo(self._bid,block))
+					selitems.append((self._bid, None))
 				else:
-					block = self.gcode.blocks[self.__bid]
+					block = self.gcode.blocks[self._bid]
 
-				if self.__lid == MAXINT:
-					selitems.append((self.__bid, len(block)))
+				if self._lid == MAXINT:
+					self._lid = len(block)
+					selitems.append((self._bid, len(block)))
 				else:
-					self.__lid += 1
-					selitems.append((self.__bid, self.__lid))
-				undoinfo.append(self.gcode.insLineUndo(self.__bid, self.__lid, line))
+					self._lid += 1
+					selitems.append((self._bid, self._lid))
+				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
 
 		try:
 			# try to unpickle it
@@ -217,10 +222,10 @@ class CNCListbox(Listbox):
 					obj = unpickler.load()
 					if isinstance(obj,tuple):
 						block = Block.load(obj)
-						self.__bid += 1
-						undoinfo.append(self.gcode.addBlockUndo(self.__bid, block))
-						selitems.append((self.__bid,None))
-						self.__lid = None
+						self._bid += 1
+						undoinfo.append(self.gcode.addBlockUndo(self._bid, block))
+						selitems.append((self._bid,None))
+						self._lid = None
 					else:
 						addLines(obj)
 			except EOFError:
@@ -392,8 +397,8 @@ class CNCListbox(Listbox):
 
 		block = Block()
 		block.expand = True
-		block.append("G0 X0 Y0")
-		block.append("G1 Z0")
+		block.append("g0 x0 y0")
+		block.append("g1 z0")
 		block.append(CNC.zsafe())
 		self.gcode.addUndo(self.gcode.addBlockUndo(bid,block))
 		self.selection_clear(0,END)
@@ -457,13 +462,25 @@ class CNCListbox(Listbox):
 			self.itemconfig(active, foreground=COMMENT_COLOR)
 		self.yview_moveto(ypos)
 
+		# Add line into code
+
 		# Correct pointers
-		self._items.insert(active, (bid, lid+1))
+		if lid is None:
+			lid = 0
+		else:
+			lid += 1
+		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid, edit.value))
+
+		self._items.insert(active, (bid, lid))
+		for i in range(active+1,len(self._items)):
+			b,l = self._items[i]
+			if b != bid: break
+			if isinstance(l,int):
+				self._items[i] = (b,l+1)
 		for i in range(bid+1, len(self._blockPos)):
 			if self._blockPos[i] is not None:
 				self._blockPos[i] += 1	# shift all blocks below by one
 
-		self.gcode.addUndo(self.gcode.insLineUndo(bid, lid+1, edit.value))
 		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
@@ -878,3 +895,24 @@ class CNCListbox(Listbox):
 		self.fill()
 		# do not send a modified message, no need to redraw
 		return "break"
+
+	# ----------------------------------------------------------------------
+	# Dump list and code, check for mismatch
+	# ----------------------------------------------------------------------
+	def dump(self, event=None):
+		if not CNC.developer: return
+		print("*** LIST ***")
+		for i,sel in enumerate(self.get(0,END)):
+			print(i,sel.encode("ascii","replace"))
+
+		print("\n*** ITEMS ***")
+		for i,item in enumerate(self._items):
+			print(i,item)
+
+		print("\n*** CODE ***")
+		for i, block in enumerate(self.gcode.blocks):
+			print("Block:",i,block.name())
+			for j,line in enumerate(block):
+				print("   %3d %s"%(j,line))
+
+		print("\nBLOCKPOS=",self._blockPos)

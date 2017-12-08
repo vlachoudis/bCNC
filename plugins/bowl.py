@@ -84,7 +84,8 @@ class Bowl:
 		while angle > currAngle+angleInc:
 			currAngle += angleInc
 			radius = r * math.cos(-currAngle)
-			depth  = r * math.sin(-currAngle) - toolRadius # Removes vertical offset (centers the ball tool in Z=0, rather than the tip)
+			# Removes vertical offset (centers the ball tool in Z=0, rather than the tip)
+			depth  = r * math.sin(-currAngle) - toolRadius
 			currDepth = addCircle(radius, depth, currDepth)
 		if angle-currAngle > 0:
 			radius = r * math.cos(-angle)
@@ -100,8 +101,7 @@ class Bowl:
 class Tool(Plugin):
 	__doc__ = _("Generate a bowl cavity")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Bowl"
+		Plugin.__init__(self, master, "Bowl")
 		self.group = "Generator"
 		self.icon  = "bowl"
 		self.variables = [

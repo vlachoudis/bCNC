@@ -32,8 +32,7 @@ class Midi2CNC:
 class Tool(Plugin):
 	__doc__ = _("Sound your machine from a midi file")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Midi2CNC"
+		Plugin.__init__(self, master, "Midi2CNC")
 		self.icon  = "midi2cnc"
 		self.group = "Artistic"
 

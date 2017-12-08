@@ -33,8 +33,7 @@ except ImportError:
 class Tool(Plugin):
 	__doc__ = _("Create sketch based on picture brightness")
 	def __init__(self, master):
-		Plugin.__init__(self, master)
-		self.name  = "Sketch"
+		Plugin.__init__(self, master, "Sketch")
 		self.icon  = "sketch"
 		self.group = "Artistic"
 

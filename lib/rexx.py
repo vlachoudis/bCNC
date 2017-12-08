@@ -169,7 +169,7 @@ def verify(str,ref,match=0,start=0):
 
 # xrange
 def xrange(start,stop):
-	return string.join([chr(x) for x in range(start, stop+1)],"")
+	return "".join([chr(x) for x in range(start, stop+1)])
 
 # isnum - return true if string is number
 def _isnum(str):

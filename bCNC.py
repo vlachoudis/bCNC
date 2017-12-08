@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.9"
-__date__    = "24 Mar 2017"
+__version__ = "0.9.12"
+__date__    = "23 Nov 2017"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -63,17 +63,17 @@ import CNCList
 import CNCCanvas
 import webbrowser
 
-from CNCRibbon	  import Page
-from ToolsPage	  import Tools, ToolsPage
-from FilePage	  import FilePage
+from CNCRibbon    import Page
+from ToolsPage    import Tools, ToolsPage
+from FilePage     import FilePage
 from ControlPage  import ControlPage
 from TerminalPage import TerminalPage
-from ProbePage	  import ProbePage
+from ProbePage    import ProbePage
 from EditorPage   import EditorPage
 
 _openserial = True	# override ini parameters
 _device     = None
-_baud	    = None
+_baud       = None
 
 MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
@@ -293,6 +293,8 @@ class Application(Toplevel,Sender):
 
 		# Editor bindings
 		self.bind("<<Add>>",			self.editor.insertItem)
+		self.bind("<<AddBlock>>",		self.editor.insertBlock)
+		self.bind("<<AddLine>>",		self.editor.insertLine)
 		self.bind("<<Clone>>",			self.editor.clone)
 		self.canvas.bind("<Control-Key-Prior>",	self.editor.orderUp)
 		self.canvas.bind("<Control-Key-Next>",	self.editor.orderDown)
@@ -374,7 +376,6 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolClone>>',	tools.clone)
 		self.bind('<<ToolRename>>',	tools.rename)
 
-		self.bind('<Home>',		self.home)
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
 
@@ -395,10 +396,8 @@ class Application(Toplevel,Sender):
 			self.bind('<Down>',		self.control.moveYdown)
 
 		try:
-			self.bind('<KP_Home>',	self.home)
-			self.bind('<KP_End>',	self.control.go2origin)
-			self.bind('<KP_Prior>',	self.control.moveZup)
-			self.bind('<KP_Next>',	self.control.moveZdown)
+			self.bind('<KP_Prior>',		self.control.moveZup)
+			self.bind('<KP_Next>',		self.control.moveZdown)
 
 			if self._swapKeyboard==1:
 				self.bind('<KP_Right>',	self.control.moveYup)
@@ -1753,7 +1752,10 @@ class Application(Toplevel,Sender):
 	def pocket(self, name=None):
 		tool = self.tools["EndMill"]
 		diameter = self.tools.fromMm(tool["diameter"])
-		stepover = tool["stepover"] / 100.0
+		try:
+			stepover = tool["stepover"] / 100.0
+		except TypeError:
+			stepover = 0.
 
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
@@ -2156,14 +2158,21 @@ class Application(Toplevel,Sender):
 				return
 
 			# reset colors
-			for ij in self._paths:
+			before = time.time()
+			for ij in self._paths:	# Slow loop
 				if not ij: continue
 				path = self.gcode[ij[0]].path(ij[1])
 				if path:
-					self.canvas.itemconfig(
-						path,
-						width=1,
-						fill=CNCCanvas.ENABLE_COLOR)
+					color = self.canvas.itemcget(path, "fill")
+					if color != CNCCanvas.ENABLE_COLOR:
+						self.canvas.itemconfig(
+							path,
+							width=1,
+							fill=CNCCanvas.ENABLE_COLOR)
+					# Force a periodic update since this loop can take time
+					if time.time() - before > 0.25:
+						self.update()
+						before = time.time()
 
 			# the buffer of the machine should be empty?
 			self._runLines = len(self._paths) + 1	# plus the wait
@@ -2401,7 +2410,8 @@ def usage(rc):
 	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
 	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
 	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
-	sys.stdout.write("\t-g #\t\tSet the default geometry\n")
+	sys.stdout.write("\t-f | --fullscreen\tEnable fullscreen mode\n")
+	sys.stdout.write("\t-g #\t\t\tSet the default geometry\n")
 	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
 	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
 	sys.stdout.write("\t-l | --list\t\tList all recently opened files\n")
@@ -2435,13 +2445,14 @@ if __name__ == "__main__":
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
-			'?b:dDhi:g:rlpPSs:',
-			['help', 'ini=', 'recent', 'list','pendant=','serial=','baud=','run'])
+			'?b:dDfhi:g:rlpPSs:',
+			['help', 'ini=', 'fullscreen', 'recent', 'list','pendant=','serial=','baud=','run'])
 	except getopt.GetoptError:
 		usage(1)
 
-	recent	 = None
-	run	 = False
+	recent     = None
+	run        = False
+	fullscreen = False
 	for opt, val in optlist:
 		if opt in ("-h", "-?", "--help"):
 			usage(0)
@@ -2474,13 +2485,19 @@ if __name__ == "__main__":
 						r = 0
 			if r<0:
 				# display list of recent files
+				maxlen = 10
+				for i in range(Utils._maxRecent):
+					try: filename = Utils.getRecent(i)
+					except: continue
+					maxlen = max(maxlen, len(os.path.basename(filename)))
+
 				sys.stdout.write("Recent files:\n")
 				for i in range(Utils._maxRecent):
 					filename = Utils.getRecent(i)
 					if filename is None: break
 					d  = os.path.dirname(filename)
 					fn = os.path.basename(filename)
-					sys.stdout.write("  %2d: %-10s\t%s\n"%(i+1,fn,d))
+					sys.stdout.write("  %2d: %-*s  %s\n"%(i+1,maxlen,fn,d))
 
 				try:
 					sys.stdout.write("Select one: ")
@@ -2489,6 +2506,9 @@ if __name__ == "__main__":
 					pass
 			try: recent = Utils.getRecent(r)
 			except: pass
+
+		elif opt in ("-f", "--fullscreen"):
+			fullscreen = True
 
 		elif opt == "-S":
 			_openserial = False
@@ -2514,6 +2534,7 @@ if __name__ == "__main__":
 
 	# Start application
 	application = Application(tk)
+	if fullscreen: application.attributes("-fullscreen", True)
 
 	# Parse remaining arguments except files
 	if recent: args.append(recent)
