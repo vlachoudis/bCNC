@@ -362,6 +362,14 @@ def comports():
 				comports.append((device,None,None))
 			except OSError:
 				pass
+
+			# Detects windows XP serial ports
+			try:
+				s = serial.Serial(device)
+				s.close()
+				comports.append((device,None,None))
+			except (OSError, serial.SerialException):
+				pass
 	return comports
 
 #===============================================================================
