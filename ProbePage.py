@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
@@ -216,7 +215,10 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		col  = 0
 		Label(frame, text=_("Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
+		self.probeFeedVar = StringVar()
+		self.probeFeedVar.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5,
+								textvariable=self.probeFeedVar)
 		ProbeCommonFrame.probeFeed.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.probeFeed, _("Set probe feed rate"))
 		self.addWidget(ProbeCommonFrame.probeFeed)
@@ -249,7 +251,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		col += 1
 		ProbeCommonFrame.probeCmd = tkExtra.Combobox(frame, True,
 						background="White",
-						width=16)
+						width=16,
+						command=ProbeCommonFrame.probeUpdate)
 		ProbeCommonFrame.probeCmd.grid(row=row, column=col, sticky=EW)
 		ProbeCommonFrame.probeCmd.fill(PROBE_CMD)
 		self.addWidget(ProbeCommonFrame.probeCmd)
@@ -1679,7 +1682,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def calibrate(self, event=None):
-		ProbeCommonFrame.probeUpdate()
 		self.set()
 		if self.check4Errors(): return
 		lines = []
@@ -1713,7 +1715,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 	# FIXME should be replaced with the CNC.toolChange()
 	#-----------------------------------------------------------------------
 	def change(self, event=None):
-		ProbeCommonFrame.probeUpdate()
 		self.set()
 		if self.check4Errors(): return
 		lines = self.app.cnc.toolChange(0)
