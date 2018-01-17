@@ -543,7 +543,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		# -- Separate zstep --
 		try:
 			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(self, width=1, background="White")
+			self.zstep = tkExtra.Combobox(self, width=4, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
 			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
