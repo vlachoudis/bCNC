@@ -1689,10 +1689,10 @@ class CNC:
 				while currentFeedrate > CNC.vars["prbfeed"]:
 					lines.append("g91 [prbcmd] %s z[-tooldistance]" \
 							% CNC.fmt('f',currentFeedrate))
-					lines.append("[prbcmdreverse] %s z[tooldistance+wz-mz]" \
+					lines.append("[prbcmdreverse] %s z1" \
 							% CNC.fmt('f',currentFeedrate))
 					currentFeedrate /= 10
-			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+			lines.append("g91 [prbcmd] f[prbfeed] z-1")
 
 			if CNC.toolPolicy==2:
 				# Adjust the current WCS to fit to the tool
