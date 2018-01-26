@@ -204,7 +204,10 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# Fast Probe Feed
 		Label(frame, text=_("Fast Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
+		self.fastProbeFeed = StringVar()
+		self.fastProbeFeed.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame, background="White", width=5,
+								textvariable=self.fastProbeFeed)
 		ProbeCommonFrame.fastProbeFeed.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.fastProbeFeed, _("Set initial probe feed rate for tool change and calibration"))
 		self.addWidget(ProbeCommonFrame.fastProbeFeed)
