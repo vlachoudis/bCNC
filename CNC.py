@@ -1681,18 +1681,26 @@ class CNC:
 			lines.append("g53 g0 z[toolprobez]")
 
 			# fixed WCS
-			if CNC.vars["fastprbfeed"]:
+			# probe multiple times with decreasing probe feed
+			if CNC.vars["fastprbfeed"] and CNC.vars["fastprbfeed"] > CNC.vars["prbfeed"]:
 				prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
-				CNC.vars["prbcmdreverse"] = (CNC.vars["prbcmd"][:-1] +
-							     prb_reverse[CNC.vars["prbcmd"][-1]])
+				CNC.vars["prbcmdreverse"] = (CNC.vars["prbcmd"][:-1] + prb_reverse[CNC.vars["prbcmd"][-1]])
 				currentFeedrate = CNC.vars["fastprbfeed"]
-				while currentFeedrate > CNC.vars["prbfeed"]:
-					lines.append("g91 [prbcmd] %s z[-tooldistance]" \
-							% CNC.fmt('f',currentFeedrate))
-					lines.append("[prbcmdreverse] %s z[tooldistance+wz-mz]" \
-							% CNC.fmt('f',currentFeedrate))
-					currentFeedrate /= 10
-			lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+				lines.append("g91 [prbcmd] %s z[-tooldistance]" % CNC.fmt('f',currentFeedrate))
+				currentFeedrate /= 10;
+				retract = math.copysign(1, CNC.vars["tooldistance"])
+				while True:
+					if currentFeedrate > CNC.vars["prbfeed"]:
+						lines.append("[prbcmdreverse] %s %s" % (CNC.fmt('f', currentFeedrate), CNC.fmt('z', retract)) )
+						lines.append("[prbcmd] %s %s" % (CNC.fmt('f', currentFeedrate), CNC.fmt('z', -retract)) )
+						currentFeedrate /= 10
+					else:
+						lines.append("[prbcmdreverse] f[prbfeed] %s" % CNC.fmt('z', retract) )
+						lines.append("[prbcmd] f[prbfeed] %s" % CNC.fmt('z', -retract) )
+						break
+			# basic probing
+			else:
+				lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
 
 			if CNC.toolPolicy==2:
 				# Adjust the current WCS to fit to the tool
