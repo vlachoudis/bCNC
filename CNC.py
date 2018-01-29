@@ -3734,6 +3734,9 @@ class GCode:
 							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
 				self.cnc.motionEnd()
+				# reset arc offsets
+				for i in "IJK":
+					if i in old: old[i] = 0.0
 
 		# FIXME I should add it later, check all functions using it
 		self.addUndo(undoinfo)

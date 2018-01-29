@@ -995,7 +995,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.addWidget(b)
 
 		f.grid_columnconfigure(1, weight=1)
-		
+
 		# Coolant control
 
 		self.coolant = BooleanVar()
@@ -1039,12 +1039,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(mistEnable, _("Start mist (M7)"))
 		mistEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
 		self.addWidget(mistEnable)
-
-		
-		
-
-
 		f.grid_columnconfigure(1, weight=1)
+
 	#----------------------------------------------------------------------
 	def overrideChange(self, event=None):
 		n = self.overrideCombo.get()
@@ -1064,7 +1060,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			self.overrideScale.config(to_=100, resolution=25)
 		else:
 			self.overrideScale.config(to_=200, resolution=1)
-
 		self.override.set(CNC.vars["_Ov"+n])
 
 	#----------------------------------------------------------------------
@@ -1133,7 +1128,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def coolantFlood(self, event=None):
 		if self._gUpdate: return
 		# Avoid sending commands before unlocking
-		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED): 
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
 			self.flood.set(FALSE)
 			return
 		self.coolant.set(FALSE)

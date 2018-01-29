@@ -5,8 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-__version__ = "0.9.12"
-__date__    = "23 Nov 2017"
+__version__ = "0.9.13"
+__date__    = "29 Jan 2018"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -2544,7 +2544,7 @@ if __name__ == "__main__":
 	if serial is None:
 		tkMessageBox.showerror(_("python serial missing"),
 			_("ERROR: Please install the python pyserial module\n" \
-			  "Windows:\n\tC:\PythonXX\Scripts\easy_install pyserial\n" \
+			  "Windows:\n\tC:\\PythonXX\\Scripts\\easy_install pyserial\n" \
 			  "Mac:\tpip install pyserial\n" \
 			  "Linux:\tsudo apt-get install python-serial\n" \
 			  "\tor yum install python-serial\n" \
