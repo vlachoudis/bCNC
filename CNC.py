@@ -3682,10 +3682,10 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Modify the lines according to the supplied function and arguments
 	#----------------------------------------------------------------------
-	def process(self, items, func, tabFunc, *args):
+	def modify(self, items, func, tabFunc, *args):
 		undoinfo = []
-		old = {}	# Last value
-		new = {}	# New value
+		old = {}	# Motion commands: Last value
+		new = {}	# Motion commands: New value
 
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
@@ -3704,32 +3704,34 @@ class GCode:
 				new.clear()
 				for cmd in cmds:
 					c = cmd[0].upper()
+					# record only coordinates commands
+					if c not in "XYZIJKR": continue
 					try:
-						new[c] = old[c] = float(cmd[1:])
+						new[c] = old[c] = float(cmd[1:])*self.cnc.unit
 					except:
 						new[c] = old[c] = 0.0
 
 				# Modify values with func
 				if func(new, old, *args):
-					# Reconstruct new cmd
+					# Reconstruct new line
 					newcmd = []
 					present = ""
 					for cmd in cmds:
 						c = cmd[0].upper()
-						present += c
-						if c == "M":	# leave unchanged
+						if c in "XYZIJKR":	# Coordinates
+							newcmd.append(self.fmt(c,new[c]/self.cnc.unit))
+						elif c == "G" and int(cmd[1:]) in (0,1,2,3):	# Motion
+							newcmd.append("G%d"%(self.cnc.gcode))
+						else:	# the rest leave unchanged
 							newcmd.append(cmd)
-						else:
-							newcmd.append(self.fmt(cmd[0],new[c]))
 					# Append motion commands if not exist and changed
 					check = "XYZ"
 					if 'I' in new or 'J' in new or 'K' in new:
 						check += "IJK"
 					for c in check:
-						#if c in new:
 						try:
 							if c not in present and new.get(c) != old.get(c):
-								newcmd.append(self.fmt(c,new[c]))
+								newcmd.append(self.fmt(c,new[c]/self.cnc.unit))
 						except:
 							pass
 					undoinfo.append(self.setLineUndo(bid,lid," ".join(newcmd)))
@@ -3770,14 +3772,12 @@ class GCode:
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
 	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.process(items, self.moveFunc, Tab.move, dx, dy, dz)
+		return self.modify(items, self.moveFunc, Tab.move, dx, dy, dz)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
 	#----------------------------------------------------------------------
 	def rotateFunc(self, new, old, c, s, x0, y0):
-		if self.cnc.plane == YZ:
-			import pdb; pdb.set_trace()
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
@@ -3822,7 +3822,7 @@ class GCode:
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.process(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
+		return self.modify(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Use the orientation information to orient selected code
@@ -3831,7 +3831,7 @@ class GCode:
 		if not self.orient.valid: return "ERROR: Orientation information is not valid"
 		c = math.cos(self.orient.phi)
 		s = math.sin(self.orient.phi)
-		return self.process(items, self.transformFunc, Tab.transform, c, s,
+		return self.modify(items, self.transformFunc, Tab.transform, c, s,
 					self.orient.xo, self.orient.yo)
 
 	#----------------------------------------------------------------------
@@ -3843,11 +3843,9 @@ class GCode:
 			if axis in new:
 				new[axis] = -new[axis]
 				changed = True
-		g = int(getValue('G',new,old))
-		if g==2:
-			new['G'] = 3
-		elif g==3:
-			new['G'] = 2
+		if self.cnc.gcode in (2,3):	# Change  2<->3
+			self.cnc.gcode = 5-self.cnc.gcode
+			changed = True
 		return changed
 
 	#----------------------------------------------------------------------
@@ -3859,22 +3857,20 @@ class GCode:
 			if axis in new:
 				new[axis] = -new[axis]
 				changed = True
-		g = int(getValue('G',new,old))
-		if g==2:
-			new['G'] = 3
-		elif g==3:
-			new['G'] = 2
+		if self.cnc.gcode in (2,3):	# Change  2<->3
+			self.cnc.gcode = 5-self.cnc.gcode
+			changed = True
 		return changed
 
 	#----------------------------------------------------------------------
 	# Mirror horizontally/vertically
 	#----------------------------------------------------------------------
 	def mirrorHLines(self, items):
-		return self.process(items, self.mirrorHFunc, None)
+		return self.modify(items, self.mirrorHFunc, None)
 
 	#----------------------------------------------------------------------
 	def mirrorVLines(self, items):
-		return self.process(items, self.mirrorVFunc, None)
+		return self.modify(items, self.mirrorVFunc, None)
 
 	#----------------------------------------------------------------------
 	# Round all digits with accuracy
@@ -3889,7 +3885,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def roundLines(self, items, acc=None):
 		if acc is not None: CNC.digits = acc
-		return self.process(items, self.roundFunc, None)
+		return self.modify(items, self.roundFunc, None)
 
 	#----------------------------------------------------------------------
 	# Inkscape g-code tools on slice/slice it raises the tool to the
