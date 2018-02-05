@@ -1687,11 +1687,14 @@ class CNC:
 							     prb_reverse[CNC.vars["prbcmd"][-1]])
 				currentFeedrate = CNC.vars["fastprbfeed"]
 				while currentFeedrate > CNC.vars["prbfeed"]:
+					lines.append("%wait")
 					lines.append("g91 [prbcmd] %s z[toolprobez-mz-tooldistance]" \
 							% CNC.fmt('f',currentFeedrate))
+					lines.append("%wait")
 					lines.append("[prbcmdreverse] %s z[toolprobez-mz]" \
 							% CNC.fmt('f',currentFeedrate))
 					currentFeedrate /= 10
+			lines.append("%wait")
 			lines.append("g91 [prbcmd] f[prbfeed] z[toolprobez-mz-tooldistance]")
 
 			if CNC.toolPolicy==2:
