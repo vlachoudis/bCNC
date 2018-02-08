@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC chinese\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-21 21:28+0800\n"
-"PO-Revision-Date: 2018-01-24 21:45+0800\n"
+"PO-Revision-Date: 2018-02-08 14:14+0800\n"
 "Last-Translator: E2D <server@e2d.tw>\n"
 "Language-Team: E2D <engineer2designer@gmail.com>\n"
 "Language: zh_TW\n"
@@ -29,11 +29,11 @@ msgstr "bCNC正在向Grbl发送一个G代码程序"
 
 #: Sender.py:96
 msgid "Grbl is in idle state and waiting for user commands"
-msgstr "Grbl 处于待命状态等待使用者指令"
+msgstr "Grbl 处于待命状态等待用户指令"
 
 #: Sender.py:97
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr "Grbl处于暂停状态。解除（暂停）继续"
+msgstr "Grbl处于暂停状态。点击恢复（暂停）继续工作"
 
 #: Sender.py:98
 msgid ""
@@ -48,14 +48,14 @@ msgid ""
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
 "报警属紧急状态。一旦发生，说明出现严重错误。通常是在机器移动中或将机器移动到"
-"空间外时碰撞到某物而由极限误差引起的。如果Grbl丢失并且无法保证定位或探针命令"
+"空间之外时碰撞到物体时的极限误差而引起的。如果Grbl丢失并且无法定位或探针命令"
 "失败，也会报警。一旦进入报警模式，Grbl将锁定并关闭所有内容，直到用户复位。在"
-"复位后，Grbl将保持报警模式，阻止所有G代码被执行，但允许用户可以手动覆盖消除报"
-"警。这是为了确保用户知道并确认问题，以便采取措施来解决它。"
+"复位后，Grbl将保持报警模式，阻止执行所有G代码，但允许用户手动消除报警。以便用"
+"户获知问题，并采取措施解决。"
 
 #: Sender.py:99
 msgid "Grbl is not connected. Please specify the correct port and click Open."
-msgstr "Grbl未连接。请指定正确的端口，然后单击打开。"
+msgstr "Grbl未连接。请设定正确的端口，然后单击打开。"
 
 #: Sender.py:100
 msgid "Connection is established with Grbl"
@@ -65,15 +65,15 @@ msgstr "与Grbl建立连接"
 msgid ""
 "All is good! Everything in the last line was understood by Grbl and was "
 "successfully processed and executed."
-msgstr "一切OK！到最后一行都能被Grbl辨识，并能够成功处理执行."
+msgstr "一切OK！全部能被Grbl认可并成功处理和执行."
 
 #: Sender.py:104
 msgid "G-code words consist of a letter and a value. Letter was not found."
-msgstr "G代码是由英文字母和数字组成.字符不存在."
+msgstr "G代码是由英文字母和数字组成.该字符不存在."
 
 #: Sender.py:105
 msgid "Numeric value format is not valid or missing an expected value."
-msgstr "数值格式无效或缺少指令值."
+msgstr "数值格式无效或缺少预期值."
 
 #: Sender.py:106
 msgid "Grbl '$' system command was not recognized or supported."
@@ -81,11 +81,11 @@ msgstr "Grbl '$'系统命令无法识别或支持."
 
 #: Sender.py:107
 msgid "Negative value received for an expected positive value."
-msgstr "预期的正数值指令接收到负数值指令."
+msgstr "预期是正值而接收到负值."
 
 #: Sender.py:108
 msgid "Homing cycle is not enabled via settings."
-msgstr "不能通过设置启用回原点动作."
+msgstr "已设置，但归位周期并未启动."
 
 #: Sender.py:109
 msgid "Minimum step pulse time must be greater than 3usec"
@@ -93,35 +93,35 @@ msgstr "最小步进脉冲时间必须大于3微秒（us）"
 
 #: Sender.py:110
 msgid "EEPROM read failed. Reset and restored to default values."
-msgstr "EEPROM读取失败.重置并恢复为预设值."
+msgstr "EEPROM读取失败.重置并恢复预设值."
 
 #: Sender.py:111
 msgid ""
 "Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
 "operation during a job."
-msgstr "当Grbl是不是在待机状态下，Grbl“$”命令不起作用，是保证运行的平稳控制."
+msgstr "当Grbl在待机状态下，Grbl“$”命令不可作用，在加工期间，以确保证运行平稳."
 
 #: Sender.py:112
 msgid "G-code locked out during alarm or jog state"
-msgstr "G代码锁定在报警或慢跑状态"
+msgstr "在报警或点动状态下G代码被锁定"
 
 #: Sender.py:113
 msgid "Soft limits cannot be enabled without homing also enabled."
-msgstr "如果未启用归位，则无法启用软限制."
+msgstr "若未启用归位，则无法启用软限位."
 
 #: Sender.py:114
 msgid "Max characters per line exceeded. Line was not processed and executed."
-msgstr "超过每行的字数限制。此行不处理，将不被执行."
+msgstr "超过每行的最大字数，此行不处理执行."
 
 #: Sender.py:115
 msgid ""
 "(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
 "supported."
-msgstr "（编译选项）Grbl'$'设置值超过支持的最大步进速率."
+msgstr "（编译选项）Grbl'$'设置值超过所支持的最大步进率."
 
 #: Sender.py:116
 msgid "Safety door detected as opened and door state initiated."
-msgstr "检测到安全门打开，门状态启动."
+msgstr "检测到安全门已打开，门状态被初始化."
 
 #: Sender.py:117
 msgid ""
@@ -131,15 +131,15 @@ msgstr "（仅限Grbl-Mega）生成信息或启动行超过EEPROM行长度限制
 
 #: Sender.py:118
 msgid "Jog target exceeds machine travel. Command ignored."
-msgstr "手动操作超出设备的移动的范围，则该命令被忽略."
+msgstr "点动操作超出设备的移动的范围，命令被忽略."
 
 #: Sender.py:119
 msgid "Jog command with no '=' or contains prohibited g-code."
-msgstr "'='无任一手动操作的命令，是已被禁止的G代码."
+msgstr "以非'='或包含禁止的G代码的点动命令."
 
 #: Sender.py:120
 msgid "Unsupported or invalid g-code command found in block."
-msgstr "在块中找到不支持或无效的g代码命令."
+msgstr "在块中有不支持或无效的g代码命令."
 
 #: Sender.py:121
 msgid "More than one g-code command from same modal group found in block."
@@ -147,11 +147,11 @@ msgstr "在块中发现来自相同模态组的多个g-code命令."
 
 #: Sender.py:122
 msgid "Feed rate has not yet been set or is undefined."
-msgstr "进给速率未设置或未定义."
+msgstr "进给率未设置或未定义."
 
 #: Sender.py:123
 msgid "G-code command in block requires an integer value."
-msgstr "块中的G代码命令需要一个整数值."
+msgstr "块中的G代码命令须是整数值."
 
 #: Sender.py:124
 msgid ""
@@ -161,13 +161,13 @@ msgstr "在块中检测到两个都需要使用XYZ轴字的G代码命令."
 
 #: Sender.py:125
 msgid "A G-code word was repeated in the block."
-msgstr "在块中重复G代码字."
+msgstr "在块中重复G代码关键字."
 
 #: Sender.py:126
 msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
-msgstr "G代码命令隐式或显式地应在块中XYZ轴字，但没有检测到."
+msgstr "G代码命令隐式或显式地在块中请求XYZ轴关键字，但没有检测到."
 
 #: Sender.py:127
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
@@ -177,7 +177,7 @@ msgstr "N行号值不在1 - 9,999,999的有效范围内."
 msgid ""
 "A G-code command was sent, but is missing some required P or L value words "
 "in the line."
-msgstr "发送了G代码命令，但在该行中缺少一些必需的P或L值字."
+msgstr "发送G代码命令，但缺少必需的P或L值字."
 
 #: Sender.py:129
 msgid ""
@@ -189,7 +189,7 @@ msgstr "Grbl支持六个工作坐标系G54-G59。不支持G59.1，G59.2和G59.3.
 msgid ""
 "The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
 "be active. A different motion was active."
-msgstr "在G53的G代码指令需G0循迹或G1进给运行模式被激活。不同运行被激活."
+msgstr "G53的G代码命令需激活G0寻迹或G1进给运行模式。但激活了其他运行模式."
 
 #: Sender.py:131
 msgid ""
@@ -209,8 +209,8 @@ msgid ""
 "error, if the arc is impossible to generate or if the probe target is the "
 "current position."
 msgstr ""
-"运动命令的目标无效。G2，G3和G38.2将产生此错误，如果无法生成电弧或探测目标是当"
-"前位置."
+"运动命令目标无效。若无法生成弧或探测目标是当前位置，则G2，G3和G38.2将产生此错"
+"误"
 
 #: Sender.py:134
 msgid ""
@@ -218,8 +218,8 @@ msgid ""
 "when computing the arc geometry. Try either breaking up the arc into semi-"
 "circles or quadrants, or redefine them with the arc offset definition."
 msgstr ""
-"用半径定义跟踪的G2或G3弧在计算弧几何时具有数学误差。尝试将电弧分解为半圆或像"
-"限，或使用电弧偏移定义重新定义它们."
+"用半径定义跟踪的G2或G3弧在计算弧几何时有数学误差。可将弧分解为半圆或像限，或"
+"使用弧偏移定义重新定义它们."
 
 #: Sender.py:135
 msgid ""
@@ -238,29 +238,29 @@ msgid ""
 "The G43.1 dynamic tool length offset command cannot apply an offset to an "
 "axis other than its configured axis. The Grbl default axis is the Z-axis."
 msgstr ""
-"G43.1动态刀具长度补偿命令不能对除其组态轴之外的轴应用偏移。Grbl默认轴为Z轴。"
+"G43.1动态刀具长度补偿命令不能对除其组态轴之外的轴使用偏移。Grbl默认轴为Z轴。"
 
 #: Sender.py:138
 msgid "An invalid tool number sent to the parser"
-msgstr "发送到解析器的无效刀具编号"
+msgstr "无效刀具编号发给了解析器"
 
 #: Sender.py:140
 msgid ""
 "Hard limit triggered. Machine position is likely lost due to sudden and "
 "immediate halt. Re-homing is highly recommended."
-msgstr "硬限制触发。机器位置可能由于突然和立即停止而丢失。强烈推荐重新归位。"
+msgstr "硬限位被触发。机器位置值由于突然和立即停止而丢失。强烈推荐重新归位。"
 
 #: Sender.py:141
 msgid ""
 "G-code motion target exceeds machine travel. Machine position safely "
 "retained. Alarm may be unlocked."
-msgstr "G代码运动目标超出机床行程。机器位置安全保持。报警可能解锁。"
+msgstr "G代码运动目标超出行程。机器保持位置安全。报警可能解锁。"
 
 #: Sender.py:142
 msgid ""
 "Reset while in motion. Grbl cannot guarantee position. Lost steps are "
 "likely. Re-homing is highly recommended."
-msgstr "运动时复位。Grbl不能保证位置。可能丢失步骤。强烈推荐重新归位。"
+msgstr "运动时复位，Grbl不能确保位置，可能丢步。强烈推荐重新归位。"
 
 #: Sender.py:143
 msgid ""
@@ -268,14 +268,14 @@ msgid ""
 "probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
 "triggered."
 msgstr ""
-"探头故障。探头在启动探头循环之前不处于预期的初始状态，其中G38.2和G38.3未触"
-"发，G38.4和G38.5被触发。"
+"探头故障。探头在启动循环探测之前未处于预期初始状态，其中G38.2和G38.3未触发，"
+"而G38.4和G38.5被触发。"
 
 #: Sender.py:144
 msgid ""
 "Probe fail. Probe did not contact the workpiece within the programmed travel "
 "for G38.2 and G38.4."
-msgstr "探头故障。在G38.2和G38.4的编程行程中，探头没有接触工件。"
+msgstr "探头故障。在G38.2和G38.4的编程行程中，探头未接触工件。"
 
 #: Sender.py:145
 msgid "Homing fail. Reset during active homing cycle."
@@ -283,49 +283,48 @@ msgstr "归位失败。在主动归位期间复位。"
 
 #: Sender.py:146
 msgid "Homing fail. Safety door was opened during active homing cycle."
-msgstr "归位失败。在主动归位期间打开安全门。"
+msgstr "归位失败。在主动归位期间安全门被打开。"
 
 #: Sender.py:147
 msgid ""
 "Homing fail. Cycle failed to clear limit switch when pulling off. Try "
 "increasing pull-off setting or check wiring."
-msgstr "归位失败。触碰时，无法清除限位开关。尝试增加触碰设置或检查接线。"
+msgstr "归位失败。触碰时无法清除限位开关。请增加触碰设置或检查接线。"
 
 #: Sender.py:148
 msgid ""
 "Homing fail. Could not find limit switch within search distance. Defined as "
 "1.5 * max_travel on search and 5 * pulloff on locate phases."
 msgstr ""
-"归位失败。在行程内未找到限位开关。行程上设置为1.5 x max_travel，定位上设置为"
-"5 x pulloff."
+"归位失败。在行程内未找到限位开关。行程设置为1.5倍最大行程，定位设置为5倍距离."
 
 #: Sender.py:150
 msgid "Hold complete. Ready to resume."
-msgstr "保持完成。准备恢复。"
+msgstr "暂停结束，准备恢复。"
 
 #: Sender.py:151
 msgid "Hold in-progress. Reset will throw an alarm."
-msgstr "保持进行中。复位会发出报警。"
+msgstr "暂停过程中，复位出现报警。"
 
 #: Sender.py:152
 msgid "Door closed. Ready to resume."
-msgstr "门关闭。准备恢复。"
+msgstr "门关闭，准备恢复。"
 
 #: Sender.py:153
 msgid "Machine stopped. Door still ajar. Can't resume until closed."
-msgstr "机器已停止。门未关闭。直到关闭才能恢复。"
+msgstr "机器已停止，门未关闭。只有关闭才能恢复。"
 
 #: Sender.py:154
 msgid ""
 "Door opened. Hold (or parking retract) in-progress. Reset will throw an "
 "alarm."
-msgstr "门打开。保持（或驻车缩回）进行中。复位会发出报警。"
+msgstr "门打开。暂停（或驻车缩回）中，复位出现报警。"
 
 #: Sender.py:155
 msgid ""
 "Door closed and resuming. Restoring from park, if applicable. Reset will "
 "throw an alarm."
-msgstr "门关闭并恢复。如果可用，将从暂停中恢复。复位将发出报警。"
+msgstr "门关闭后正在恢复。若可用，将从暂停中恢复，复位出现报警。"
 
 #: Sender.py:437
 msgid "unknown command"
@@ -334,12 +333,12 @@ msgstr "未知的命令"
 #: Sender.py:437
 #, python-format
 msgid "Invalid command %s"
-msgstr "命令无效 %s"
+msgstr "%s 命令无效"
 
 #: Sender.py:712 ControlPage.py:403
 #, python-format
 msgid "Set workspace %s to %s"
-msgstr "工作区%s设置在%s"
+msgstr "将工作区%s设置为%s"
 
 #: Sender.py:786
 msgid "Run ended"
@@ -407,7 +406,7 @@ msgstr "主轴最低转速（RPM）"
 
 #: ToolsPage.py:515
 msgid "Spindle max (RPM)"
-msgstr "主轴最大转速（RPM）"
+msgstr "主轴最高转速（RPM）"
 
 #: ToolsPage.py:516
 msgid "DRO Zero padding"
@@ -494,7 +493,7 @@ msgstr "Z轴安全高度"
 
 #: ToolsPage.py:602 ToolsPage.py:626
 msgid "Surface Z"
-msgstr "Z 轴曲面"
+msgstr "Z 轴表面"
 
 #: ToolsPage.py:603
 msgid "Thickness"
@@ -531,7 +530,7 @@ msgstr "编号"
 
 #: ToolsPage.py:679
 msgid "DRILL selected points"
-msgstr "所选的钻头"
+msgstr "所选钻头"
 
 #: ToolsPage.py:690 ToolsPage.py:716 ToolsPage.py:1001
 msgid "End Mill"
@@ -652,16 +651,16 @@ msgstr "$24 归位定点进给速率[mm / min]"
 
 #: ToolsPage.py:792
 msgid "$25 Homing search seek rate [mm/min]"
-msgstr "$25 归位搜索速率[mm / min]"
+msgstr "$25 归位寻迹速率[mm / min]"
 
 # ?
 #: ToolsPage.py:793
 msgid "$26 Homing switch debounce delay, ms"
-msgstr "$26 归位延迟开关，ms"
+msgstr "$26 归位开关延迟时间，ms"
 
 #: ToolsPage.py:794
 msgid "$27 Homing switch pull-off distance [mm]"
-msgstr "$27 归位拉距开关[mm]"
+msgstr "$27 归位开关触碰距离[mm]"
 
 #: ToolsPage.py:795
 msgid "$30 Maximum spindle speed [RPM]"
@@ -739,11 +738,11 @@ msgstr "工件"
 
 #: ToolsPage.py:980
 msgid "Stock material currently on machine"
-msgstr "目前在机器上的工件"
+msgstr "现在机器上的工件材料"
 
 #: ToolsPage.py:994
 msgid "Editable database of material properties"
-msgstr "可编辑的材料属性数据库"
+msgstr "可编辑的材料特性数据库"
 
 #: ToolsPage.py:1008
 msgid "Editable database of EndMills properties"
@@ -763,7 +762,7 @@ msgstr "添加"
 
 #: ToolsPage.py:1033
 msgid "Add a new operation/object"
-msgstr "添加新操作/物件"
+msgstr "添加新操作/对象"
 
 #: ToolsPage.py:1041 EditorPage.py:171
 msgid "Clone"
@@ -791,7 +790,7 @@ msgstr "剪切"
 
 #: ToolsPage.py:1082
 msgid "Cut for the full stock thickness selected code"
-msgstr "对工件厚度所选代码进行切割"
+msgstr "以所选代码对工件进行厚度切割"
 
 #: ToolsPage.py:1089 plugins/box.py:314
 msgid "Profile"
@@ -799,7 +798,7 @@ msgstr "轮廓"
 
 #: ToolsPage.py:1096
 msgid "Perform a profile operation on selected code"
-msgstr "对选定代码进行轮廓操作"
+msgstr "以选定的代码进行轮廓操作"
 
 #: ToolsPage.py:1103
 msgid "Pocket"
@@ -807,7 +806,7 @@ msgstr "紧凑"
 
 #: ToolsPage.py:1110
 msgid "Perform a pocket operation on selected code"
-msgstr "对选定代码进行紧凑操作"
+msgstr "以选定代码进行紧凑操作"
 
 #: ToolsPage.py:1117
 msgid "Drill"
@@ -831,7 +830,7 @@ msgstr "配置"
 
 #: ToolsPage.py:1249
 msgid "Change program language restart is required"
-msgstr "改变程序语言需要重新启动"
+msgstr "改变语言需重新启动"
 
 #: ToolsPage.py:1258 ProbePage.py:104 ProbePage.py:1115
 msgid "Camera"
@@ -968,7 +967,7 @@ msgstr "用户可配置按钮"
 
 #: Utils.py:648
 msgid "Name:"
-msgstr "名称："
+msgstr "名称:"
 
 #: Utils.py:652
 msgid "Name to appear on button"
@@ -976,7 +975,7 @@ msgstr "按钮上显示的名称"
 
 #: Utils.py:656
 msgid "Icon:"
-msgstr "图标："
+msgstr "图标:"
 
 #: Utils.py:668
 msgid "Icon to appear on button"
@@ -1016,7 +1015,7 @@ msgstr "起始点"
 
 #: ControlPage.py:54
 msgid "Perform a homing cycle [$H]"
-msgstr "执行回归过程[$H]"
+msgstr "执行归位过程[$H]"
 
 #: ControlPage.py:61
 msgid "Unlock"
@@ -1040,7 +1039,7 @@ msgstr "启动"
 
 #: ControlPage.py:112
 msgid "Run g-code commands from editor to controller"
-msgstr "将编辑g-code命令发送到控制器"
+msgstr "将编辑器g-code命令发送到控制器"
 
 #: ControlPage.py:117
 msgid "Pause"
@@ -1056,7 +1055,7 @@ msgstr "停止"
 
 #: ControlPage.py:129
 msgid "Pause running program and soft reset controller to empty the buffer."
-msgstr "停止运行，软复位控制器并清空缓冲区。"
+msgstr "暂停运行，控制器软复位并清空缓冲区。"
 
 #: ControlPage.py:148
 msgid "Status:"
@@ -1067,7 +1066,10 @@ msgid ""
 "Show current state of the machine\n"
 "Click to see details\n"
 "Right-Click to clear alarm/errors"
-msgstr "显示机器当前状态，点击查看详情，单击右键解除警报或错误"
+msgstr ""
+"显示机器当前状态\n"
+"点击查看详情\n"
+"右击解除警报/错误"
 
 #: ControlPage.py:167
 msgid "WPos:"
@@ -1136,14 +1138,14 @@ msgstr "恢复"
 #: ControlPage.py:411
 #, python-format
 msgid "Last error: %s\n"
-msgstr "出现错误: %s\n"
+msgstr "%s出现错误：\n"
 
 #: ControlPage.py:417
 msgid ""
 "No info available.\n"
 "Please contact the author."
 msgstr ""
-"未获信息。\n"
+"无可用信息。\n"
 "请联系作者。"
 
 #: ControlPage.py:418
@@ -1185,9 +1187,9 @@ msgid ""
 "User configurable button.\n"
 "Right click to configure."
 msgstr ""
-"移动到原点。\n"
-"用户可配置按钮。\n"
-"右键单击配置。"
+"移动到原点\n"
+"用户可配置按钮\n"
+"右键单击配置"
 
 #: ControlPage.py:524
 msgid "Move +X"
@@ -1229,13 +1231,13 @@ msgstr "递减1个单位步进"
 #: ControlPage.py:696
 #, python-format
 msgid "Step: %g"
-msgstr "Step: %g"
+msgstr "步进: %g"
 
 # 1
 #: ControlPage.py:701
 #, python-format
 msgid "Step: %g    Zstep:%g "
-msgstr "Step: %g    Zstep:%g "
+msgstr "步进: %g    Z步进:%g "
 
 #: ControlPage.py:825
 #, python-format
@@ -1244,7 +1246,7 @@ msgstr "切换到工作区%s"
 
 #: ControlPage.py:831 ProbePage.py:1455
 msgid "Distance:"
-msgstr "距离："
+msgstr "距离:"
 
 #: ControlPage.py:839
 msgid "Distance Mode [G90,G91]"
@@ -1252,7 +1254,7 @@ msgstr "距离模式[G90，G91]"
 
 #: ControlPage.py:849
 msgid "Units:"
-msgstr "单位："
+msgstr "单位:"
 
 #: ControlPage.py:857
 msgid "Units [G20, G21]"
@@ -1280,7 +1282,7 @@ msgstr "平面 [G17,G18,G19]"
 
 #: ControlPage.py:897
 msgid "Feed:"
-msgstr "给进："
+msgstr "给进:"
 
 #: ControlPage.py:904
 msgid "Feed Rate [F#]"
@@ -1332,11 +1334,11 @@ msgstr "新文件"
 
 #: Ribbon.py:489
 msgid "Open file [Ctrl-O]"
-msgstr "打开文件[Ctrl-O键]"
+msgstr "打开文件[Ctrl-O]"
 
 #: Ribbon.py:495
 msgid "Save all [Ctrl-S]"
-msgstr "保存所有文件 [Ctrl-S]"
+msgstr "保存所有 [Ctrl-S]"
 
 #: Ribbon.py:501
 msgid "Undo [Ctrl-Z]"
@@ -1564,7 +1566,7 @@ msgstr "顺时针"
 
 #: EditorPage.py:361
 msgid "Rotate selected gcode clock-wise (-90deg)"
-msgstr "顺时针旋转所选gcode（-90deg）"
+msgstr "依gcode顺时针旋转所-90度"
 
 #: EditorPage.py:368
 msgid "Flip"
@@ -1572,7 +1574,7 @@ msgstr "翻转"
 
 #: EditorPage.py:374
 msgid "Rotate selected gcode by 180deg"
-msgstr "将所选gcode旋转180度"
+msgstr "依gcode旋转180度"
 
 #: EditorPage.py:381
 msgid "CCW"
@@ -1580,7 +1582,7 @@ msgstr "逆时针"
 
 #: EditorPage.py:387
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
-msgstr "逆时针旋转所选gcode（90deg）"
+msgstr "依gcode逆时针旋转90度"
 
 #: EditorPage.py:394
 msgid "Horizontal"
@@ -1700,7 +1702,7 @@ msgstr "探测"
 
 #: ProbePage.py:86
 msgid "Simple probing along a direction"
-msgstr "沿着单方向简单探测"
+msgstr "沿单方向简单探测"
 
 #: ProbePage.py:92 ProbePage.py:790
 msgid "Autolevel"
@@ -1708,7 +1710,7 @@ msgstr "自动水平"
 
 #: ProbePage.py:98
 msgid "Autolevel Z surface"
-msgstr "Z轴面自动水平"
+msgstr "Z轴表面自动找平"
 
 #: ProbePage.py:110
 msgid "Work surface camera view and alignment"
@@ -1716,7 +1718,7 @@ msgstr "工作面相机视角与对齐"
 
 #: ProbePage.py:117
 msgid "Tool"
-msgstr "刀具"
+msgstr "工具"
 
 #: ProbePage.py:123
 msgid "Setup probing for manual tool change"
@@ -1736,7 +1738,7 @@ msgstr "零"
 
 #: ProbePage.py:157
 msgid "Set current location as Z-zero for leveling"
-msgstr "将当前位置设置为Z轴0进行调平"
+msgstr "将当前位置设置为Z轴0点调平"
 
 #: ProbePage.py:164 ProbePage.py:488 TerminalPage.py:29
 msgid "Clear"
@@ -1744,7 +1746,7 @@ msgstr "清除"
 
 #: ProbePage.py:169
 msgid "Clear probe data"
-msgstr "清除探头数据"
+msgstr "清除探针数据"
 
 #: ProbePage.py:176 plugins/heightmap.py:52
 msgid "Scan"
@@ -1752,7 +1754,7 @@ msgstr "扫描"
 
 #: ProbePage.py:183
 msgid "Scan probed area for level information on Z plane"
-msgstr "扫描探测区域以获取Z平面上的电平信息"
+msgstr "扫描探测区域以获取Z平面上的水平信息"
 
 #: ProbePage.py:196
 msgid "Common"
@@ -1781,7 +1783,7 @@ msgstr "探测命令"
 
 #: ProbePage.py:307 ProbePage.py:1425
 msgid "Probe:"
-msgstr "探测："
+msgstr "探测:"
 
 #: ProbePage.py:325
 msgid "Goto"
@@ -1789,11 +1791,11 @@ msgstr "转到"
 
 #: ProbePage.py:332
 msgid "Rapid goto to last probe location"
-msgstr "快速转到最后探测位置"
+msgstr "快速转到探测位置"
 
 #: ProbePage.py:336
 msgid "Pos:"
-msgstr "位置："
+msgstr "位置:"
 
 #: ProbePage.py:341
 msgid "Probe along X direction"
@@ -1813,7 +1815,7 @@ msgstr "执行单一探测过程"
 
 #: ProbePage.py:380
 msgid "Diameter:"
-msgstr "直径："
+msgstr "直径:"
 
 #: ProbePage.py:383
 msgid "Probing ring internal diameter"
@@ -1825,11 +1827,11 @@ msgstr "采用圆来探测中心"
 
 #: ProbePage.py:401 ProbePage.py:509 bCNC.py:93
 msgid "Orient"
-msgstr "方向"
+msgstr "导向"
 
 #: ProbePage.py:407
 msgid "Markers:"
-msgstr "标记："
+msgstr "标记:"
 
 #: ProbePage.py:417
 msgid "Select orientation marker"
@@ -1843,27 +1845,27 @@ msgstr "添加方向标记。先将机器移动到标记位置，然后单击画
 
 #: ProbePage.py:436
 msgid "Gcode:"
-msgstr "Gcode:"
+msgstr "G代码:"
 
 #: ProbePage.py:443
 msgid "GCode X coordinate of orientation point"
-msgstr "GCode取向点的X坐标"
+msgstr "G代码取向点的X坐标"
 
 #: ProbePage.py:451
 msgid "GCode Y coordinate of orientation point"
-msgstr "GCode取向点的Y坐标"
+msgstr "G代码取向点的Y坐标"
 
 #: ProbePage.py:463
 msgid "Delete current marker"
-msgstr "删除现在记号"
+msgstr "删除现标记"
 
 #: ProbePage.py:476
 msgid "Machine X coordinate of orientation point"
-msgstr "机器方向点的X坐标"
+msgstr "机器X坐标原点"
 
 #: ProbePage.py:484
 msgid "Machine Y coordinate of orientation point"
-msgstr "机器方向点的Y坐标"
+msgstr "机器Y坐标原点"
 
 #: ProbePage.py:496 ProbePage.py:704
 msgid "Delete all markers"
@@ -1871,23 +1873,23 @@ msgstr "刪除所有标记"
 
 #: ProbePage.py:501
 msgid "Angle:"
-msgstr "角度："
+msgstr "角度:"
 
 #: ProbePage.py:517
 msgid "Align GCode with the machine markers"
-msgstr "将GCode与机器标记对齐"
+msgstr "将G代码与机器标记对齐"
 
 #: ProbePage.py:522 ProbePage.py:1155
 msgid "Offset:"
-msgstr "偏移："
+msgstr "偏移:"
 
 #: ProbePage.py:535
 msgid "Error:"
-msgstr "错误："
+msgstr "错误:"
 
 #: ProbePage.py:575
 msgid "Probe connected?"
-msgstr "探针连接？"
+msgstr "探针已连接吗？"
 
 #: ProbePage.py:576
 msgid ""
@@ -1987,7 +1989,7 @@ msgstr "Z探测区域无效"
 
 #: ProbePage.py:1007
 msgid "Delete autolevel information"
-msgstr "删除自动水平信息"
+msgstr "删除自动找平信息"
 
 #: ProbePage.py:1008
 msgid "Do you want to delete all autolevel in formation?"
@@ -2021,7 +2023,7 @@ msgstr "开/关冻结图象"
 
 #: ProbePage.py:1120
 msgid "Location:"
-msgstr "位置："
+msgstr "位置:"
 
 #: ProbePage.py:1127
 msgid "Camera location inside canvas"
@@ -2029,15 +2031,15 @@ msgstr "相机位置在画布内"
 
 #: ProbePage.py:1131
 msgid "Scale:"
-msgstr "规模："
+msgstr "幅面:"
 
 #: ProbePage.py:1137
 msgid "Camera scale [pixels / unit]"
-msgstr "相机比例[像素/单位]"
+msgstr "相机幅面[像素/单位]"
 
 #: ProbePage.py:1141
 msgid "Crosshair:"
-msgstr "十字准线："
+msgstr "十字交线："
 
 #: ProbePage.py:1147
 msgid "Camera cross hair diameter [units]"
@@ -2058,11 +2060,11 @@ msgstr "相机与龙门架的偏移"
 # 1
 #: ProbePage.py:1175
 msgid "Spindle Z position when camera was registered"
-msgstr "相机记录时的主轴Z位置"
+msgstr "相机记录后的主轴Z位置"
 
 #: ProbePage.py:1178
 msgid "Register:"
-msgstr "注册："
+msgstr "记录:"
 
 #: ProbePage.py:1179
 msgid "1. Spindle"
@@ -2086,7 +2088,7 @@ msgstr "主轴位置已记录"
 
 #: ProbePage.py:1261
 msgid "Spindle position is not registered"
-msgstr "主轴位置未登记"
+msgstr "主轴位置未记录"
 
 #: ProbePage.py:1262
 msgid "Spindle position must be registered before camera"
@@ -2115,11 +2117,11 @@ msgstr "执行刀具切换"
 
 #: ProbePage.py:1352
 msgid "Manual Tool Change"
-msgstr "刀具手动切换"
+msgstr "手动切换刀具"
 
 #: ProbePage.py:1357
 msgid "Policy:"
-msgstr "政策："
+msgstr "策略:"
 
 #: ProbePage.py:1366
 msgid "Tool change policy"
@@ -2127,7 +2129,7 @@ msgstr "刀具更换策略"
 
 #: ProbePage.py:1372
 msgid "Pause:"
-msgstr "暂停："
+msgstr "暂停:"
 
 #: ProbePage.py:1395
 msgid "Change:"
@@ -2147,11 +2149,11 @@ msgstr "手动切换机器Z位置"
 
 #: ProbePage.py:1415 ProbePage.py:1445
 msgid "get"
-msgstr "获得"
+msgstr "获取"
 
 #: ProbePage.py:1419
 msgid "Get current gantry position as machine tool change location"
-msgstr "把当前龙门架位置作为机器切换位置"
+msgstr "把现龙门架位置作为机器切换位置"
 
 #: ProbePage.py:1429
 msgid "Manual tool change Probing MX location"
@@ -2167,15 +2169,15 @@ msgstr "手动切换探测MZ位置"
 
 #: ProbePage.py:1449
 msgid "Get current gantry position as machine tool probe location"
-msgstr "把当前龙门架位置作为机器探测位置"
+msgstr "把现龙门架位置作为机器探测位置"
 
 #: ProbePage.py:1460
 msgid "After a tool change distance to scan starting from ProbeZ"
-msgstr "从探测Z开始的刀具切换扫描距离"
+msgstr "刀具切换后探测Z扫描的距离"
 
 #: ProbePage.py:1466
 msgid "Calibration:"
-msgstr "校准："
+msgstr "校准:"
 
 # 1
 #: ProbePage.py:1470
@@ -2302,7 +2304,7 @@ msgstr "标尺[R]"
 
 #: CNCCanvas.py:2060
 msgid "Draw:"
-msgstr "绘制："
+msgstr "绘制:"
 
 #: CNCCanvas.py:2069
 msgid "Toggle display of axes"
@@ -2346,7 +2348,7 @@ msgstr "以秒为单位绘制"
 
 #: bCNC.py:87
 msgid "All accepted"
-msgstr "可接受"
+msgstr "接受所有"
 
 #: bCNC.py:88 bCNC.py:1997
 msgid "G-Code"
@@ -2354,7 +2356,7 @@ msgstr "G代码"
 
 #: bCNC.py:89
 msgid "G-Code clean"
-msgstr "清除G-Code"
+msgstr "清除G代码"
 
 #: bCNC.py:144
 msgid "Controller buffer fill"
@@ -2386,15 +2388,15 @@ msgstr "关于 %s"
 msgid ""
 "bCNC/\tAn advanced fully featured\n"
 "\tg-code sender for GRBL."
-msgstr "适宜GRBL的bCNC /先进的全功能g-code发送器."
+msgstr "适宜GRBL的bCNC /先进的全功能g代码发送器."
 
 #: bCNC.py:924
 msgid "Enabled GCode"
-msgstr "启用GCode"
+msgstr "启用G代码"
 
 #: bCNC.py:929 bCNC.py:1002
 msgid "Margins X:"
-msgstr "边距X："
+msgstr "边距X:"
 
 #: bCNC.py:962 bCNC.py:1035
 msgid "# Blocks:"
@@ -2402,19 +2404,19 @@ msgstr "区块:"
 
 #: bCNC.py:970 bCNC.py:1042
 msgid "Length:"
-msgstr "长度："
+msgstr "长度:"
 
 #: bCNC.py:978
 msgid "Rapid:"
-msgstr "速度："
+msgstr "速度:"
 
 #: bCNC.py:986 bCNC.py:1050
 msgid "Time:"
-msgstr "时间："
+msgstr "时间:"
 
 #: bCNC.py:997
 msgid "All GCode"
-msgstr "所有GCode"
+msgstr "所有G代码"
 
 #: bCNC.py:1218
 msgid "Evaluation error"
@@ -2427,13 +2429,13 @@ msgstr "方向指令错误"
 #: bCNC.py:1294
 #, python-format
 msgid "Invalid direction %s specified"
-msgstr "指定方向 %s 无效"
+msgstr "设定方向 %s 无效"
 
 # 20430237204614186053048357412105430618 4868151416 546815748/91740867/86741065148640841586 46584534131608504341054504568545415215416851454141 414141 454101
 # 212112222222222222222222222222222222222222222222222222222222222222222222222455541531131
 #: bCNC.py:1457
 msgid "Please select the blocks of gcode you want to optimize."
-msgstr "请选择要优化的gcode块。"
+msgstr "请选择要优化的g代码块。"
 
 #: bCNC.py:1600
 #, python-format
@@ -2452,7 +2454,7 @@ msgstr "没有执行"
 #: bCNC.py:1662
 #, python-format
 msgid "Operation %s requires some gcode to be selected"
-msgstr "操作%s需要选择gcode"
+msgstr "操作%s需要选择g代码"
 
 #: bCNC.py:1704
 msgid "Operation error"
@@ -2486,7 +2488,7 @@ msgstr "文件已修改"
 
 #: bCNC.py:1906
 msgid "Gcode was modified do you want to save it first?"
-msgstr "Gcode已修改，是否保存它？"
+msgstr "G代码已修改，是否保存它？"
 
 #: bCNC.py:1915
 msgid "Probe File modified"
@@ -2499,7 +2501,7 @@ msgstr "探测已修改，保存它吗？"
 # 174551201850505420821872482148721486328963487531.034512054120421054820421048728765796859595842141254128424887569/*/986532896521486941320.5486120541205432005405481054872105487210548120.3468932.68432.10486312.053486321.035486932.14869432.487631.347812
 #: bCNC.py:1939
 msgid "Existing Autolevel"
-msgstr "现有自动水平探测"
+msgstr "正在自动水平探测"
 
 #: bCNC.py:1940
 msgid ""
@@ -2540,7 +2542,7 @@ msgstr "警告"
 msgid ""
 "Gcode file %s was changed since editing started\n"
 "Reload new version?"
-msgstr "编辑打开后Gcode文件%s已更改，重新加载新版本？"
+msgstr "编辑打开后G代码文件%s已更改，重新加载新版本？"
 
 #: bCNC.py:2043 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
 #: lib/bFileDialog.py:871 lib/bFileDialog.py:975
@@ -2569,11 +2571,11 @@ msgstr "请先停止"
 
 #: bCNC.py:2149
 msgid "Empty gcode"
-msgstr "清空gcode"
+msgstr "清空g代码"
 
 #: bCNC.py:2150
 msgid "Not gcode file was loaded"
-msgstr "未加载gcode文件"
+msgstr "未加载g代码文件"
 
 #: bCNC.py:2178
 msgid "Running..."
@@ -2585,11 +2587,11 @@ msgstr "通信"
 
 #: bCNC.py:2196
 msgid "Pendant started:\n"
-msgstr "通信开始：\n"
+msgstr "通信开始:\n"
 
 #: bCNC.py:2200
 msgid "Pendant already started:\n"
-msgstr "通信已开始：\n"
+msgstr "通信已开始:\n"
 
 #: bCNC.py:2202
 msgid ""
@@ -2625,7 +2627,7 @@ msgstr ""
 
 #: Updates.py:47
 msgid "Installed Version:"
-msgstr "安装的版本："
+msgstr "已安装的版本:"
 
 #: Updates.py:52
 msgid "Running version of bCNC"
@@ -2633,7 +2635,7 @@ msgstr "运行的bCNC版本"
 
 #: Updates.py:54
 msgid "Latest Github Version:"
-msgstr "在Github上的最新版本："
+msgstr "在Github上的最新版本:"
 
 #: Updates.py:60
 msgid "Latest release version on on github"
@@ -2641,7 +2643,7 @@ msgstr "在GitHub上发布的最新版本"
 
 #: Updates.py:61
 msgid "Published at:"
-msgstr "发布时间："
+msgstr "发布时间:"
 
 #: Updates.py:67
 msgid "Published date of the latest github release"
@@ -2653,7 +2655,7 @@ msgstr "检查间隔"
 
 #: Updates.py:75
 msgid "Last Check:"
-msgstr "最后检查："
+msgstr "最后检查:"
 
 #: Updates.py:87
 msgid "Date of last checking"
@@ -2661,7 +2663,7 @@ msgstr "最后检查的日期"
 
 #: Updates.py:89
 msgid "Interval (days):"
-msgstr "间隔时间（天）："
+msgstr "间隔时间(天)"
 
 #: Updates.py:100
 msgid "Days-interval to remind again for checking"
@@ -2754,11 +2756,11 @@ msgstr "停止通信"
 
 #: FilePage.py:205
 msgid "Exit"
-msgstr "结束"
+msgstr "退出"
 
 #: FilePage.py:212
 msgid "Close program [Ctrl-Q]"
-msgstr "退出程序[CTRL-Q]"
+msgstr "关闭程序[CTRL-Q]"
 
 #: FilePage.py:225
 msgid "Port:"
@@ -2786,11 +2788,11 @@ msgstr "选择控制器波特率"
 
 #: FilePage.py:266
 msgid "Connect on startup"
-msgstr "在启动时连接"
+msgstr "启动时连接"
 
 #: FilePage.py:269
 msgid "Connect to serial on startup of the program"
-msgstr "在程序启动时连接到串口"
+msgstr "程序启动时连接到串口"
 
 #: FilePage.py:284
 msgid "Open/Close serial port"
@@ -2866,11 +2868,11 @@ msgstr "$N显示Grbl的启动配置"
 
 #: TerminalPage.py:119
 msgid "Check gcode"
-msgstr "检查gcode"
+msgstr "检查g代码"
 
 #: TerminalPage.py:126
 msgid "$C Enable/Disable checking of gcode"
-msgstr "$C启用/禁用gcode检查"
+msgstr "$C启用/禁用g代码检查"
 
 #: TerminalPage.py:134
 msgid "Help"
@@ -2906,11 +2908,11 @@ msgstr "日期"
 
 #: lib/bFileDialog.py:316
 msgid "File name:"
-msgstr "文件名："
+msgstr "文件名:"
 
 #: lib/bFileDialog.py:323
 msgid "Files of type:"
-msgstr "文件类型："
+msgstr "文件类型:"
 
 #: lib/bFileDialog.py:553 lib/bFileDialog.py:611 lib/bFileDialog.py:818
 #: lib/bFileDialog.py:842 lib/bFileDialog.py:864
@@ -3032,7 +3034,7 @@ msgstr "草图中止：曲线长度必须大于0"
 
 #: plugins/sketch.py:184
 msgid "Sketch abort: Can't read image file"
-msgstr "草图中止：无法读取图象文件"
+msgstr "草图中止：无法读取图像文件"
 
 #: plugins/sketch.py:275
 #, python-format
@@ -3247,11 +3249,11 @@ msgstr "平展中止：平展区域尺寸必须大于0"
 
 #: plugins/flatten.py:46
 msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
-msgstr "平展中止：嘿这只是减法机！检查深度！"
+msgstr "平展中止：这只是减法机！检查深度！"
 
 #: plugins/flatten.py:83
 msgid "Flatten abort: Flatten area is too small for this End Mill."
-msgstr "平展中断：平头区域对于该铣刀太小。"
+msgstr "平展中断：平展区域对于该铣刀太小。"
 
 #: plugins/flatten.py:249
 msgid "Flatten an area in different ways"
@@ -3336,7 +3338,7 @@ msgstr "生成钻机：%d个钻孔"
 
 #: plugins/tile.py:11
 msgid "Tile"
-msgstr "扁平矩形薄板"
+msgstr "扁平薄板"
 
 #: plugins/tile.py:28
 msgid "Generate replicas of selected code"
@@ -3344,7 +3346,7 @@ msgstr "生成所选代码副本"
 
 #: plugins/tile.py:52
 msgid "Tile error"
-msgstr "扁平矩形薄板錯誤"
+msgstr "扁平薄板錯誤"
 
 #: plugins/tile.py:53
 msgid "No g-code blocks selected"
@@ -3380,11 +3382,11 @@ msgstr "生成：螺旋形"
 
 #: plugins/bowl.py:10
 msgid "Bowl"
-msgstr "碗形"
+msgstr "碗状"
 
 #: plugins/bowl.py:101
 msgid "Generate a bowl cavity"
-msgstr "生成碗形凹腔"
+msgstr "生成碗状凹腔"
 
 #: plugins/bowl.py:110
 msgid "Resolution (degrees)"
@@ -3392,15 +3394,15 @@ msgstr "分辨率 (角度)"
 
 #: plugins/bowl.py:111
 msgid "Progressive"
-msgstr "进步"
+msgstr "改进"
 
 #: plugins/bowl.py:126
 msgid "Generated: BOWL"
-msgstr "生成: 碗形"
+msgstr "生成：碗状"
 
 #: plugins/bowl.py:128
 msgid "Error: Check the Bowl and End Mill parameters"
-msgstr "错误：检查碗形和铣刀参数"
+msgstr "错误：检查碗状和铣刀参数"
 
 #: plugins/zigzag.py:11
 msgid "Zig-Zag"
@@ -3420,7 +3422,7 @@ msgstr "线长度"
 
 #: plugins/zigzag.py:97
 msgid "Additional length at start/end"
-msgstr "在开始/结束时的附加长度"
+msgstr "开始/结束时的附加长度"
 
 #: plugins/zigzag.py:98
 msgid "Step distance"
@@ -3573,7 +3575,7 @@ msgstr "生成：图组盒"
 
 #: plugins/text.py:30
 msgid "Create text using a ttf font"
-msgstr "用ttf字体创建文本"
+msgstr "用TTF字体创建文本"
 
 #: plugins/text.py:38
 msgid "Text to generate"
