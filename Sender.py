@@ -204,6 +204,162 @@ for e1,e0 in (	("error: Expected command letter", "error:1"),
 		("ALARM: Homing fail", "ALARM:9") ):
 	ERROR_CODES[e1] = ERROR_CODES[e0]
 
+# TinyG status codes	https://github.com/synthetos/TinyG/wiki/TinyG-Status-Codes
+TINYG_STATUS = {
+		0:	("OK",	"universal OK code"),
+		1:	("ERROR",	"generic error return"),
+		2:	("EAGAIN",	"function would block here"),
+		3:	("NOOP",	"function had no-operation"),
+		4:	("COMPLETE",	"operation is complete"),
+		5:	("TERMINATE",	"operation terminated (gracefully)"),
+		6:	("RESET",	"operation was hard reset (sig kill)"),
+		7:	("EOL",	"returned end-of-line"),
+		8:	("EOF",	"returned end-of-file"),
+		9:	("FILE_NOT_OPEN",	""),
+		10:	("FILE_SIZE_EXCEEDED",	""),
+		11:	("NO_SUCH_DEVICE",	""),
+		12:	("BUFFER_EMPTY",	""),
+		13:	("BUFFER_FULL",	""),
+		14:	("BUFFER_FULL_FATAL",	""),
+		15:	("INITIALIZING",	"initializing - not ready for use"),
+		16:	("ENTERING_BOOT_LOADER",	"emitted by boot loader, not TinyG"),
+		17:	("FUNCTION_IS_STUBBED",	""),
+		#18..19	Reserved
+		# Internal System Errors
+		20:	("INTERNAL_ERROR",	"unrecoverable internal error"),
+		21:	("INTERNAL_RANGE_ERROR",	""),
+		22:	("FLOATING_POINT_ERROR",	"number conversion error"),
+		23:	("DIVIDE_BY_ZERO",	""),
+		24:	("INVALID_ADDRESS",	""),
+		25:	("READ_ONLY_ADDRESS",	""),
+		26:	("INIT_FAIL",	""),
+		27:	("ALARMED",	""),
+		28:	("FAILED_TO_GET_PLANNER_BUFFER",	""),
+		29:	("GENERIC_EXCEPTION_REPORT",	"used for test"),
+		30:	("PREP_LINE_MOVE_TIME_IS_INFINITE",	""),
+		31:	("PREP_LINE_MOVE_TIME_IS_NAN",	""),
+		32:	("FLOAT_IS_INFINITE",	""),
+		33:	("FLOAT_IS_NAN",	""),
+		34:	("PERSISTENCE_ERROR",	""),
+		35:	("BAD_STATUS_REPORT_SETTING",	""),
+		#36..89	Reserved,
+		# Assertion Failures  Build down from (99, "until", "they meet system errors"),
+		90:	("CONFIG_ASSERTION_FAILURE",	""),
+		91:	("XIO_ASSERTION_FAILURE",	""),
+		92:	("ENCODER_ASSERTION_FAILURE",	""),
+		93:	("STEPPER_ASSERTION_FAILURE",	""),
+		94:	("PLANNER_ASSERTION_FAILURE",	""),
+		95:	("CANONICAL_MACHINE",	"ASSERTION_FAILURE"),
+		96:	("CONTROLLER_ASSERTION_FAILURE",	""),
+		97:	("STACK_OVERFLOW",	""),
+		98:	("MEMORY_FAULT",	"generic memory corruption detected"),
+		99:	("GENERIC_ASSERTION_FAILURE",	"unclassified assertion failure"),
+		#Application and Data Input Errors
+		#Generic Data Input Errors
+		100:	("UNRECOGNIZED_NAME",	"parser didn't recognize the command"),
+		101:	("INVALID_OR_MALFORMED_COMMAND",	"malformed line to parser"),
+		102:	("BAD_NUMBER_FORMAT",	"number format error"),
+		103:	("BAD_UNSUPPORTED_TYPE",	"number or JSON type is not supported"),
+		104:	("PARAMETER_IS_READ_ONLY",	"this parameter is read-only - cannot be set"),
+		105:	("PARAMETER_CANNOT_BE_READ",	"this parameter is not readable"),
+		106:	("COMMAND_NOT_ACCEPTED",	"command cannot be accepted at this time"),
+		107:	("INPUT_EXCEEDS_MAX_LENGTH",	"input string too long"),
+		108:	("INPUT_LESS_THAN_MIN_VALUE",	"value is under minimum"),
+		109:	("INPUT_EXCEEDS_MAX_VALUE",	"value is over maximum"),
+		110:	("INPUT_VALUE_RANGE_ERROR",	"value is out-of-range"),
+		111:	("JSON_SYNTAX_ERROR",	"JSON input string is not well formed"),
+		112:	("JSON_TOO_MANY_PAIRS",	"JSON input string has too many pairs"),
+		113:	("JSON_TOO_LONG",	"JSON exceeds buffer size"),
+		#114-129 Reserved
+		#Gcode Errors and Warnings	Most are from NIST
+		130:	("GCODE_GENERIC_INPUT_ERROR",	"generic error for gcode input"),
+		131:	("GCODE_COMMAND_UNSUPPORTED",	"G command is not supported"),
+		132:	("MCODE_COMMAND_UNSUPPORTED",	"M command is not supported"),
+		133:	("GCODE_MODAL_GROUP_VIOLATION",	"gcode modal group error"),
+		134:	("GCODE_AXIS_IS_MISSING",	"requires at least one axis present"),
+		135:	("GCODE_AXIS_CANNOT_BE_PRESENT",	"error if G80 has axis words"),
+		136:	("GCODE_AXIS_IS_INVALID",	"axis specified that's illegal for command"),
+		137:	("GCODE_AXIS_IS_NOT_CONFIGURED",	"WARNING: attempt to program an axis that is disabled"),
+		138:	("GCODE_AXIS_NUMBER_IS_MISSING",	"axis word is missing its value"),
+		139:	("GCODE_AXIS_NUMBER_IS_INVALID",	"axis word value is illegal"),
+		140:	("GCODE_ACTIVE_PLANE_IS_MISSING",	"active plane is not programmed"),
+		141:	("GCODE_ACTIVE_PLANE_IS_INVALID",	"active plane selected not valid for this command"),
+		142:	("GCODE_FEEDRATE_NOT_SPECIFIED",	"move has no feedrate"),
+		143:	("GCODE_INVERSE_TIME_MODE",	"CANNOT_BE_USED	G38.2 and some canned cycles cannot accept inverse time mode"),
+		144:	("GCODE_ROTARY_AXIS",	"CANNOT_BE_USED	G38.2 and some other commands cannot have rotary axes"),
+		145:	("GCODE_G53_WITHOUT_G0_OR_G1",	"G0 or G1 must be active for G53"),
+		146:	("REQUESTED_VELOCITY",	"EXCEEDS_LIMITS"),
+		147:	("CUTTER_COMPENSATION",	"CANNOT_BE_ENABLED"),
+		148:	("PROGRAMMED_POINT",	"SAME_AS_CURRENT_POINT"),
+		149:	("SPINDLE_SPEED_BELOW_MINIMUM",	""),
+		150:	("SPINDLE_SPEED_MAX_EXCEEDED",	""),
+		151:	("S_WORD_IS_MISSING",	""),
+		152:	("S_WORD_IS_INVALID",	""),
+		153:	("SPINDLE_MUST_BE_OFF",	""),
+		154:	("SPINDLE_MUST_BE_TURNING",	"some canned cycles require spindle to be turning when called"),
+		155:	("ARC_SPECIFICATION_ERROR",	"generic arc specification error"),
+		156:	("ARC_AXIS_MISSING",	"FOR_SELECTED_PLANE	arc missing axis (axes) required by selected plane"),
+		157:	("ARC_OFFSETS_MISSING",	"FOR_SELECTED_PLANE	one or both offsets are not specified"),
+		158:	("ARC_RADIUS",	"OUT_OF_TOLERANCE	WARNING - radius arc is too large - accuracy in question"),
+		159:	("ARC_ENDPOINT",	"IS_STARTING_POINT"),
+		160:	("P_WORD_IS_MISSING",	"P must be present for dwells and other functions"),
+		161:	("P_WORD_IS_INVALID",	"generic P value error"),
+		162:	("P_WORD_IS_ZERO",	""),
+		163:	("P_WORD_IS_NEGATIVE",	"dwells require positive P values"),
+		164:	("P_WORD_IS_NOT_AN_INTEGER",	"G10s and other commands require integer P numbers"),
+		165:	("P_WORD_IS_NOT_VALID_TOOL_NUMBER",	""),
+		166:	("D_WORD_IS_MISSING",	""),
+		167:	("D_WORD_IS_INVALID",	""),
+		168:	("E_WORD_IS_MISSING",	""),
+		169:	("E_WORD_IS_INVALID",	""),
+		170:	("H_WORD_IS_MISSING",	""),
+		171:	("H_WORD_IS_INVALID",	""),
+		172:	("L_WORD_IS_MISSING",	""),
+		173:	("L_WORD_IS_INVALID",	""),
+		174:	("Q_WORD_IS_MISSING",	""),
+		175:	("Q_WORD_IS_INVALID",	""),
+		176:	("R_WORD_IS_MISSING",	""),
+		177:	("R_WORD_IS_INVALID",	""),
+		178:	("T_WORD_IS_MISSING",	""),
+		179:	("T_WORD_IS_INVALID",	""),
+		#180-199 Reserved reserved for Gcode errors
+		#TinyG Errors and Warnings
+		200:	("GENERIC_ERROR",	""),
+		201:	("MINIMUM_LENGTH_MOVE",	"move is less than minimum length"),
+		202:	("MINIMUM_TIME_MOVE",	"move is less than minimum time"),
+		203:	("MACHINE_ALARMED",	"machine is alarmed. Command not processed"),
+		204:	("LIMIT_SWITCH_HIT",	"limit switch was hit causing shutdown"),
+		205:	("PLANNER_FAILED_TO_CONVERGE",	"planner can throw this exception"),
+		#206-219 Reserved
+		220:	("SOFT_LIMIT_EXCEEDED",	"soft limit error - axis unspecified"),
+		221:	("SOFT_LIMIT_EXCEEDED_XMIN",	"soft limit error - X minimum"),
+		222:	("SOFT_LIMIT_EXCEEDED_XMAX",	"soft limit error - X maximum"),
+		223:	("SOFT_LIMIT_EXCEEDED_YMIN",	"soft limit error - Y minimum"),
+		224:	("SOFT_LIMIT_EXCEEDED_YMAX",	"soft limit error - Y maximum"),
+		225:	("SOFT_LIMIT_EXCEEDED_ZMIN",	"soft limit error - Z minimum"),
+		226:	("SOFT_LIMIT_EXCEEDED_ZMAX",	"soft limit error - Z maximum"),
+		227:	("SOFT_LIMIT_EXCEEDED_AMIN",	"soft limit error - A minimum"),
+		228:	("SOFT_LIMIT_EXCEEDED_AMAX",	"soft limit error - A maximum"),
+		229:	("SOFT_LIMIT_EXCEEDED_BMIN",	"soft limit error - B minimum"),
+		230:	("SOFT_LIMIT_EXCEEDED_BMAX",	"soft limit error - B maximum"),
+		231:	("SOFT_LIMIT_EXCEEDED_CMIN",	"soft limit error - C minimum"),
+		232:	("SOFT_LIMIT_EXCEEDED_CMAX",	"soft limit error - C maximum"),
+		#233-239 Reserved
+		240:	("HOMING_CYCLE_FAILED", "homing cycle did not complete"),
+		241:	("HOMING_ERROR_BAD_OR_NO_AXIS",	""),
+		242:	("HOMING_ERROR_SWITCH_MISCONFIGURATION",	""),
+		243:	("HOMING_ERROR_ZERO_SEARCH_VELOCITY",	""),
+		244:	("HOMING_ERROR_ZERO_LATCH_VELOCITY",	""),
+		245:	("HOMING_ERROR_TRAVEL_MIN_MAX_IDENTICAL",	""),
+		246:	("HOMING_ERROR_NEGATIVE_LATCH_BACKOFF",	""),
+		247:	("HOMING_ERROR_SEARCH_FAILED",	""),
+		#248 Reserved
+		#249 Reserved
+		250:	("PROBE_CYCLE_FAILED",	"probing cycle did not complete"),
+		251:	("PROBE_ENDPOINT",	"IS_STARTING_POINT"),
+		252:	("JOGGING_CYCLE_FAILED",	"jogging cycle did not complete"),
+	}
+
 #==============================================================================
 # bCNC Sender class
 #==============================================================================
@@ -613,6 +769,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def hardReset(self):
+		print "hardReset"
 		self.busy()
 		if self.serial is not None:
 			if self.controller == Utils.SMOOTHIE:
@@ -628,6 +785,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
+		print "softReset"
 		if self.serial:
 		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
 				self.serial.write(b"\030")
@@ -639,6 +797,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):
+		print "unlock"
 		if clearAlarm: self._alarm = False
 		self.sendGCode("$X")
 
@@ -656,12 +815,15 @@ class Sender:
 	def viewParameters(self):
 		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
 			self.sendGCode("$#")
-		elif self.controller == Utils.TinyG:
+		elif self.controller == Utils.TINYG:
 			self.sendGCode("$o")
 
 	#----------------------------------------------------------------------
 	def viewState(self):
-		self.sendGCode("$G")
+		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+			self.sendGCode("$G")
+		elif self.controller == Utils.TINYG:
+			self.sendGCode("$sys")
 
 	#----------------------------------------------------------------------
 	def viewBuild(self):
@@ -829,18 +991,24 @@ class Sender:
 		self.serial.write(b"!")
 		self.serial.flush()
 		time.sleep(1)
-		# remember and send all G commands
-		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
-		TLO = CNC.vars["TLO"]
-		self.softReset(False)			# reset controller
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			time.sleep(1)
-			self.unlock(False)
-		self.runEnded()
-		self.stopProbe()
-		if G: self.sendGCode(G)			# restore $G
-		self.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
-		self.sendGCode("$G")
+		if self.controller (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+			# remember and send all G commands
+			G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
+			TLO = CNC.vars["TLO"]
+			self.softReset(False)			# reset controller
+			if self.controller in (Utils.GRBL0, Utils.GRBL1):
+				time.sleep(1)
+				self.unlock(False)
+			self.runEnded()
+			self.stopProbe()
+			if G: self.sendGCode(G)			# restore $G
+			self.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
+			self.sendGCode("$G")
+
+		elif self.controller == Utils.TINYG:
+			print "FIXME purgeController"
+			# do nothing for the moment FIXME
+			self.runEnded()
 
 	#----------------------------------------------------------------------
 	# Stop the current run
@@ -851,6 +1019,256 @@ class Sender:
 		# if we are in the process of submitting do not do anything
 		if self._runLines != sys.maxint:
 			self.purgeController()
+
+	#----------------------------------------------------------------------
+	# GRBL1: Check overwrites if somethings needs to be send
+	#----------------------------------------------------------------------
+	def _grbl1_CheckOverwrites(self):
+		CNC.vars["_OvChanged"] = False		# Temporary
+
+		# Check feed
+		diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
+		if diff==0:
+			pass
+		elif CNC.vars["_OvFeed"] == 100:
+			self.serial.write(OV_FEED_100)
+		elif diff >= 10:
+			self.serial.write(OV_FEED_i10)
+			CNC.vars["_OvChanged"] = diff>10
+		elif diff <= -10:
+			self.serial.write(OV_FEED_d10)
+			CNC.vars["_OvChanged"] = diff<-10
+		elif diff >= 1:
+			self.serial.write(OV_FEED_i1)
+			CNC.vars["_OvChanged"] = diff>1
+		elif diff <= -1:
+			self.serial.write(OV_FEED_d1)
+			CNC.vars["_OvChanged"] = diff<-1
+
+		# Check rapid
+		target  = CNC.vars["_OvRapid"]
+		current = CNC.vars["OvRapid"]
+		if target == current:
+			pass
+		elif target == 100:
+			self.serial.write(OV_RAPID_100)
+		elif target == 75:
+			self.serial.write(OV_RAPID_50)	# FIXME
+		elif target == 50:
+			self.serial.write(OV_RAPID_50)
+		elif target == 25:
+			self.serial.write(OV_RAPID_25)
+
+		# Check Spindle
+		diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
+		if diff==0:
+			pass
+		elif CNC.vars["_OvSpindle"] == 100:
+			self.serial.write(OV_SPINDLE_100)
+		elif diff >= 10:
+			self.serial.write(OV_SPINDLE_i10)
+			CNC.vars["_OvChanged"] = diff>10
+		elif diff <= -10:
+			self.serial.write(OV_SPINDLE_d10)
+			CNC.vars["_OvChanged"] = diff<-10
+		elif diff >= 1:
+			self.serial.write(OV_SPINDLE_i1)
+			CNC.vars["_OvChanged"] = diff>1
+		elif diff <= -1:
+			self.serial.write(OV_SPINDLE_d1)
+			CNC.vars["_OvChanged"] = diff<-1
+
+	#-----------------------------------------------------------------------
+	# GRBL0: Parse status lines/fields and update CNC.vars
+	#-----------------------------------------------------------------------
+	def _grbl0_StatusLine(self, pat):
+		if not self._alarm:
+			CNC.vars["state"] = pat.group(1)
+		CNC.vars["mx"] = float(pat.group(2))
+		CNC.vars["my"] = float(pat.group(3))
+		CNC.vars["mz"] = float(pat.group(4))
+		CNC.vars["wx"] = float(pat.group(5))
+		CNC.vars["wy"] = float(pat.group(6))
+		CNC.vars["wz"] = float(pat.group(7))
+		CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
+		CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
+		CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+		self._posUpdate = True
+		if pat.group(1)[:4] != "Hold" and self._msg:
+			self._msg = None
+
+	#-----------------------------------------------------------------------
+	# GRBL0: Parse parameter line
+	#-----------------------------------------------------------------------
+	def _grbl0_ParameterLine(self, line):
+		pat = POSPAT.match(line)
+		if pat:
+			if pat.group(1) == "PRB":
+				CNC.vars["prbx"] = float(pat.group(2))
+				CNC.vars["prby"] = float(pat.group(3))
+				CNC.vars["prbz"] = float(pat.group(4))
+				#if self.running:
+				self.gcode.probe.add(
+					 CNC.vars["prbx"] +CNC.vars["wx"] -CNC.vars["mx"],
+					 CNC.vars["prby"] +CNC.vars["wy"] -CNC.vars["my"],
+					 CNC.vars["prbz"] +CNC.vars["wz"] -CNC.vars["mz"])
+				self._probeUpdate = True
+			CNC.vars[pat.group(1)] = \
+				[float(pat.group(2)),
+				 float(pat.group(3)),
+				 float(pat.group(4))]
+		else:
+			pat = TLOPAT.match(line)
+			if pat:
+				CNC.vars[pat.group(1)] = pat.group(2)
+				self._probeUpdate = True
+			elif DOLLARPAT.match(line):
+				CNC.vars["G"] = line[1:-1].split()
+				CNC.updateG()
+				self._gUpdate = True
+
+	#-----------------------------------------------------------------------
+	# GRBL1: Parse status lines/fields and update CNC.vars
+	#-----------------------------------------------------------------------
+	def _grbl1_StatusLine(self, fields):
+		if not self._alarm:
+			CNC.vars["state"] = fields[0]
+		for field in fields[1:]:
+			word = SPLITPAT.split(field)
+			if word[0] == "MPos":
+				try:
+					CNC.vars["mx"] = float(word[1])
+					CNC.vars["my"] = float(word[2])
+					CNC.vars["mz"] = float(word[3])
+					CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
+					CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
+					CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+					self._posUpdate = True
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+			elif word[0] == "F":
+				try:
+					CNC.vars["curfeed"] = float(word[1])
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+			elif word[0] == "FS":
+				try:
+					CNC.vars["curfeed"]    = float(word[1])
+					CNC.vars["curspindle"] = float(word[2])
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+			elif word[0] == "Bf":
+				try:
+					CNC.vars["planner"] = int(word[1])
+					CNC.vars["rxbytes"] = int(word[2])
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+			elif word[0] == "Ov":
+				try:
+					CNC.vars["OvFeed"]    = int(word[1])
+					CNC.vars["OvRapid"]   = int(word[2])
+					CNC.vars["OvSpindle"] = int(word[3])
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+			elif word[0] == "WCO":
+				try:
+					CNC.vars["wcox"] = float(word[1])
+					CNC.vars["wcoy"] = float(word[2])
+					CNC.vars["wcoz"] = float(word[3])
+				except (ValueError,IndexError):
+					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
+					self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					break
+
+	#-----------------------------------------------------------------------
+	# GRBL1: Parse parameter line
+	#-----------------------------------------------------------------------
+	def _grbl1_ParameterLine(self, line):
+		word = SPLITPAT.split(line[1:-1])
+		#print word
+		if word[0] == "PRB":
+			CNC.vars["prbx"] = float(word[1])
+			CNC.vars["prby"] = float(word[2])
+			CNC.vars["prbz"] = float(word[3])
+			#if self.running:
+			self.gcode.probe.add(
+				 CNC.vars["prbx"]-CNC.vars["wcox"],
+				 CNC.vars["prby"]-CNC.vars["wcoy"],
+				 CNC.vars["prbz"]-CNC.vars["wcoz"])
+			self._probeUpdate = True
+			CNC.vars[word[0]] = word[1:]
+		elif word[0] == "GC":
+			CNC.vars["G"] = word[1].split()
+			CNC.updateG()
+			self._gUpdate = True
+		elif word[0] == "TLO":
+			CNC.vars[word[0]] = word[1]
+			self._probeUpdate = True
+		else:
+			CNC.vars[word[0]] = word[1:]
+
+	#-----------------------------------------------------------------------
+	# SMOOTHIE: Parse status lines/fields and update CNC.vars
+	#-----------------------------------------------------------------------
+	def _smoothie_StatusLine(self, fields):
+		# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
+		# strip off status
+		CNC.vars["state"]= fieldsl[0]
+
+		# strip of rest into a dict of name: [values,...,]
+		d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in fieldsl[1:]] }
+		CNC.vars["mx"] = float(d['MPos'][0])
+		CNC.vars["my"] = float(d['MPos'][1])
+		CNC.vars["mz"] = float(d['MPos'][2])
+		CNC.vars["wx"] = float(d['WPos'][0])
+		CNC.vars["wy"] = float(d['WPos'][1])
+		CNC.vars["wz"] = float(d['WPos'][2])
+		CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
+		CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
+		CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+		if 'F' in d:
+			CNC.vars["curfeed"] = float(d['F'][0])
+		self._posUpdate = True
+
+	#-----------------------------------------------------------------------
+	# TINYG: Parse status lines/fields and update CNC.vars
+	#-----------------------------------------------------------------------
+	def _tinyg_ParseLine(self, line):
+		reply = json.loads(line)
+		print "reply=",str(reply)
+		if "r" in reply:
+			r = reply["r"]
+			try: CNC.vars["state"] = r["msg"]
+			except KeyError: pass
+			self._posUpdate = True
+
+		if "sr" in reply:
+			r = reply["sr"]
+			print "SR=",r
+			try: CNC.vars["wx"] = float(r["posx"])
+			except KeyError: pass
+			try: CNC.vars["wy"] = float(r["posy"])
+			except KeyError: pass
+			try: CNC.vars["wz"] = float(r["posz"])
+			except KeyError: pass
+			try: CNC.vars["curfeed"] = float(r["feed"])
+			except KeyError: pass
+			self._posUpdate = True
+
+		if "f" in reply:
+			print "STATUS=",reply["f"]
+
+		self.log.put((Sender.MSG_OK, line.strip()))
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -876,70 +1294,17 @@ class Sender:
 
 				#If Override change, attach feed
 				if CNC.vars["_OvChanged"] and self.controller == Utils.GRBL1:
-					CNC.vars["_OvChanged"] = False	# Temporary
-					# Check feed
-					diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
-					if diff==0:
-						pass
-					elif CNC.vars["_OvFeed"] == 100:
-						self.serial.write(OV_FEED_100)
-					elif diff >= 10:
-						self.serial.write(OV_FEED_i10)
-						CNC.vars["_OvChanged"] = diff>10
-					elif diff <= -10:
-						self.serial.write(OV_FEED_d10)
-						CNC.vars["_OvChanged"] = diff<-10
-					elif diff >= 1:
-						self.serial.write(OV_FEED_i1)
-						CNC.vars["_OvChanged"] = diff>1
-					elif diff <= -1:
-						self.serial.write(OV_FEED_d1)
-						CNC.vars["_OvChanged"] = diff<-1
-					# Check rapid
-					target  = CNC.vars["_OvRapid"]
-					current = CNC.vars["OvRapid"]
-					if target == current:
-						pass
-					elif target == 100:
-						self.serial.write(OV_RAPID_100)
-					elif target == 75:
-						self.serial.write(OV_RAPID_50)	# FIXME
-					elif target == 50:
-						self.serial.write(OV_RAPID_50)
-					elif target == 25:
-						self.serial.write(OV_RAPID_25)
-					# Check Spindle
-					diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
-					if diff==0:
-						pass
-					elif CNC.vars["_OvSpindle"] == 100:
-						self.serial.write(OV_SPINDLE_100)
-					elif diff >= 10:
-						self.serial.write(OV_SPINDLE_i10)
-						CNC.vars["_OvChanged"] = diff>10
-					elif diff <= -10:
-						self.serial.write(OV_SPINDLE_d10)
-						CNC.vars["_OvChanged"] = diff<-10
-					elif diff >= 1:
-						self.serial.write(OV_SPINDLE_i1)
-						CNC.vars["_OvChanged"] = diff>1
-					elif diff <= -1:
-						self.serial.write(OV_SPINDLE_d1)
-						CNC.vars["_OvChanged"] = diff<-1
+					self._grbl1_CheckOverwrites()
 
 			# Fetch new command to send if...
 			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
-					#print "+++",repr(tosend)
 					if isinstance(tosend, tuple):
-						#print "gcount tuple=",self._gcount
 						# wait to empty the grbl buffer and status is Idle
 						if tosend[0] == WAIT:
 							# Don't count WAIT until we are idle!
 							wait = True
-							#print "+++ WAIT ON"
-							#print "gcount=",self._gcount, self._runLines
 						elif tosend[0] == MSG:
 							# Count executed commands as well
 							self._gcount += 1
@@ -966,8 +1331,6 @@ class Sender:
 							else:
 								# Count executed commands as well
 								self._gcount += 1
-								#print "gcount str=",self._gcount
-							#print "+++ eval=",repr(tosend),type(tosend)
 						except:
 							for s in str(sys.exc_info()[1]).splitlines():
 								self.log.put((Sender.MSG_ERROR,s))
@@ -987,20 +1350,20 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE):
+					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE, Utils.TINYG):
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
 							if pat is None and self._newFeed!=0 \
 							   and not tosend.startswith("$"):
-								tosend = "f%g%s" % (self._newFeed, tosend)
+								tosend = "F%g%s" % (self._newFeed, tosend)
 
 						# Apply override Feed
 						if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
 							pat = FEEDPAT.match(tosend)
 							if pat is not None:
 								try:
-									tosend = "%sf%g%s\n" % \
+									tosend = "%sF%g%s\n" % \
 										(pat.group(1),
 										 self._newFeed,
 										 pat.group(3))
@@ -1030,135 +1393,42 @@ class Sender:
 				if not line:
 					pass
 
+				# Status report
 				elif line[0]=="<":
 					if not status:
 						self.log.put((Sender.MSG_RECEIVE, line))
 
 					elif self.controller == Utils.GRBL1:
 						status = False
-						fields = line[1:-1].split("|")
-						if not self._alarm:
-							CNC.vars["state"] = fields[0]
-						for field in fields[1:]:
-							word = SPLITPAT.split(field)
-							if word[0] == "MPos":
-								try:
-									CNC.vars["mx"] = float(word[1])
-									CNC.vars["my"] = float(word[2])
-									CNC.vars["mz"] = float(word[3])
-									CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-									CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-									self._posUpdate = True
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "F":
-								try:
-									CNC.vars["curfeed"] = float(word[1])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "FS":
-								try:
-									CNC.vars["curfeed"]    = float(word[1])
-									CNC.vars["curspindle"] = float(word[2])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "Bf":
-								try:
-									CNC.vars["planner"] = int(word[1])
-									CNC.vars["rxbytes"] = int(word[2])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "Ov":
-								try:
-									CNC.vars["OvFeed"]    = int(word[1])
-									CNC.vars["OvRapid"]   = int(word[2])
-									CNC.vars["OvSpindle"] = int(word[3])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "WCO":
-								try:
-									CNC.vars["wcox"] = float(word[1])
-									CNC.vars["wcoy"] = float(word[2])
-									CNC.vars["wcoz"] = float(word[3])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-
-						# Machine is Idle buffer is empty stop waiting and go on
+						# strip off < .. > and split fields
+						fields = line[1:-1].split('|')
+						self._grbl1_StatusLine(fields)
+						# Machine is Idle buffer is empty
+						# stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
 							wait = False
 							self._gcount += 1
 
 					elif self.controller == Utils.SMOOTHIE:
-							# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
-							ln= line[1:-1] # strip off < .. >
+						status = False
+						# strip off < .. > and split fields
+						fields = line[1:-1].split('|')
+						self._smoothie_StatusLine(fields)
+						# Machine is Idle buffer is empty
+						# stop waiting and go on
+						if wait and not cline and fields[0] in ("Idle","Check"):
+							wait = False
+							self._gcount += 1
 
-							# split fields
-							l= ln.split('|')
-
-							# strip off status
-							CNC.vars["state"]= l[0]
-
-							# strip of rest into a dict of name: [values,...,]
-							d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in l[1:]] }
-							CNC.vars["mx"] = float(d['MPos'][0])
-							CNC.vars["my"] = float(d['MPos'][1])
-							CNC.vars["mz"] = float(d['MPos'][2])
-							CNC.vars["wx"] = float(d['WPos'][0])
-							CNC.vars["wy"] = float(d['WPos'][1])
-							CNC.vars["wz"] = float(d['WPos'][2])
-							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
-							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
-							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-							if 'F' in d:
-							        CNC.vars["curfeed"] = float(d['F'][0])
-							self._posUpdate = True
-
-							# Machine is Idle buffer is empty
-							# stop waiting and go on
-							if wait and not cline and l[0] in ("Idle","Check"):
-							        wait = False
-							        self._gcount += 1
-
-					else:
+					elif self.controller == Utils.GRBL0:
 						status = False
 						pat = STATUSPAT.match(line)
 						if pat:
-							if not self._alarm:
-								CNC.vars["state"] = pat.group(1)
-							CNC.vars["mx"] = float(pat.group(2))
-							CNC.vars["my"] = float(pat.group(3))
-							CNC.vars["mz"] = float(pat.group(4))
-							CNC.vars["wx"] = float(pat.group(5))
-							CNC.vars["wy"] = float(pat.group(6))
-							CNC.vars["wz"] = float(pat.group(7))
-							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
-							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
-							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-							self._posUpdate = True
-							if pat.group(1)[:4] != "Hold" and self._msg:
-								self._msg = None
-
+							self._grbl0_StatusLine(pat)
 							# Machine is Idle buffer is empty
 							# stop waiting and go on
-							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
-							#print ">>>", line
 							if wait and not cline and pat.group(1) in ("Idle","Check"):
-								#print ">>>",line
 								wait = False
-								#print "<<< NO MORE WAIT"
 								self._gcount += 1
 						else:
 							self.log.put((Sender.MSG_RECEIVE, line))
@@ -1167,65 +1437,15 @@ class Sender:
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
 					if self.controller == Utils.GRBL1:
-						word = SPLITPAT.split(line[1:-1])
-						#print word
-						if word[0] == "PRB":
-							CNC.vars["prbx"] = float(word[1])
-							CNC.vars["prby"] = float(word[2])
-							CNC.vars["prbz"] = float(word[3])
-							#if self.running:
-							self.gcode.probe.add(
-								 CNC.vars["prbx"]-CNC.vars["wcox"],
-								 CNC.vars["prby"]-CNC.vars["wcoy"],
-								 CNC.vars["prbz"]-CNC.vars["wcoz"])
-							self._probeUpdate = True
-							CNC.vars[word[0]] = word[1:]
-						elif word[0] == "GC":
-							CNC.vars["G"] = word[1].split()
-							CNC.updateG()
-							self._gUpdate = True
-						elif word[0] == "TLO":
-							CNC.vars[word[0]] = word[1]
-							self._probeUpdate = True
-						else:
-							CNC.vars[word[0]] = word[1:]
+						self._grbl1_ParameterLine(line)
 					else:
-						pat = POSPAT.match(line)
-						if pat:
-							if pat.group(1) == "PRB":
-								CNC.vars["prbx"] = float(pat.group(2))
-								CNC.vars["prby"] = float(pat.group(3))
-								CNC.vars["prbz"] = float(pat.group(4))
-								#if self.running:
-								self.gcode.probe.add(
-									 CNC.vars["prbx"]
-									+CNC.vars["wx"]
-									-CNC.vars["mx"],
-									 CNC.vars["prby"]
-									+CNC.vars["wy"]
-									-CNC.vars["my"],
-									 CNC.vars["prbz"]
-									+CNC.vars["wz"]
-									-CNC.vars["mz"])
-								self._probeUpdate = True
-							CNC.vars[pat.group(1)] = \
-								[float(pat.group(2)),
-								 float(pat.group(3)),
-								 float(pat.group(4))]
-						else:
-							pat = TLOPAT.match(line)
-							if pat:
-								CNC.vars[pat.group(1)] = pat.group(2)
-								self._probeUpdate = True
-							elif DOLLARPAT.match(line):
-								CNC.vars["G"] = line[1:-1].split()
-								CNC.updateG()
-								self._gUpdate = True
+						self._grbl0_ParameterLine(line)
 
 				# Possibly json object from TinyG
 				elif line[0]=="{" and self.controller == Utils.TINYG:
+					self._tinyg_ParseLine(line)
 					reply = json.loads(line)
-					print "reply=",reply
+					print "reply=",str(reply)
 					if "r" in reply:
 						r = reply["r"]
 						try: CNC.vars["state"] = r["msg"]
@@ -1244,6 +1464,11 @@ class Sender:
 						try: CNC.vars["curfeed"] = float(r["feed"])
 						except KeyError: pass
 						self._posUpdate = True
+
+					if "f" in reply:
+						print "STATUS=",reply["f"]
+
+					self.log.put((Sender.MSG_OK, line.strip()))
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
