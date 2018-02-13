@@ -29,6 +29,11 @@ except:
 	import builtins as __builtin__
 	#__builtin__.unicode = str		# dirty hack for python3
 
+try:
+	import serial
+except:
+	serial = None
+
 __prg__     = "bCNC"
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
@@ -363,6 +368,14 @@ def comports():
 				os.stat(device)
 				comports.append((device,None,None))
 			except OSError:
+				pass
+
+			# Detects windows XP serial ports
+			try:
+				s = serial.Serial(device)
+				s.close()
+				comports.append((device,None,None))
+			except:
 				pass
 	return comports
 

@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
@@ -205,9 +204,14 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# Fast Probe Feed
 		Label(frame, text=_("Fast Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
+		self.fastProbeFeed = StringVar()
+		self.fastProbeFeed.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame,
+							background="White", width=5,
+							textvariable=self.fastProbeFeed)
 		ProbeCommonFrame.fastProbeFeed.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(ProbeCommonFrame.fastProbeFeed, _("Set initial probe feed rate for tool change and calibration"))
+		tkExtra.Balloon.set(ProbeCommonFrame.fastProbeFeed,
+			_("Set initial probe feed rate for tool change and calibration"))
 		self.addWidget(ProbeCommonFrame.fastProbeFeed)
 
 		# ----
@@ -216,7 +220,10 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		col  = 0
 		Label(frame, text=_("Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
+		self.probeFeedVar = StringVar()
+		self.probeFeedVar.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+		ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(frame, background="White", width=5,
+								textvariable=self.probeFeedVar)
 		ProbeCommonFrame.probeFeed.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(ProbeCommonFrame.probeFeed, _("Set probe feed rate"))
 		self.addWidget(ProbeCommonFrame.probeFeed)
@@ -249,7 +256,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		col += 1
 		ProbeCommonFrame.probeCmd = tkExtra.Combobox(frame, True,
 						background="White",
-						width=16)
+						width=16,
+						command=ProbeCommonFrame.probeUpdate)
 		ProbeCommonFrame.probeCmd.grid(row=row, column=col, sticky=EW)
 		ProbeCommonFrame.probeCmd.fill(PROBE_CMD)
 		self.addWidget(ProbeCommonFrame.probeCmd)
@@ -271,8 +279,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def probeUpdate():
 		try:
 			CNC.vars["fastprbfeed"] = float(ProbeCommonFrame.fastProbeFeed.get())
-			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
-			CNC.vars["prbcmd"]  = str(ProbeCommonFrame.probeCmd.get().split()[0])
+			CNC.vars["prbfeed"]     = float(ProbeCommonFrame.probeFeed.get())
+			CNC.vars["prbcmd"]      = str(ProbeCommonFrame.probeCmd.get().split()[0])
 			return False
 		except:
 			return True
@@ -667,16 +675,20 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("%wait")
 		lines.append("tmp=prbx")
 		lines.append("g53 g0 x[prbx+%g]"%(diameter/10))
+		lines.append("%wait")
 		lines.append("%s x%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("g53 g0 x[0.5*(tmp+prbx)]")
+		lines.append("%wait")
 		lines.append("%s y-%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("tmp=prby")
 		lines.append("g53 g0 y[prby+%g]"%(diameter/10))
+		lines.append("%wait")
 		lines.append("%s y%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("g53 g0 y[0.5*(tmp+prby)]")
+		lines.append("%wait")
 		lines.append("g90")
 		self.app.run(lines=lines)
 
@@ -1675,7 +1687,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def calibrate(self, event=None):
-		ProbeCommonFrame.probeUpdate()
 		self.set()
 		if self.check4Errors(): return
 		lines = []
@@ -1689,10 +1700,15 @@ class ToolFrame(CNCRibbon.PageFrame):
 						prb_reverse[CNC.vars["prbcmd"][-1]])
 			currentFeedrate = CNC.vars["fastprbfeed"]
 			while currentFeedrate > CNC.vars["prbfeed"]:
-				lines.append("g91 [prbcmd] f%f z[-tooldistance]" % currentFeedrate)
-				lines.append("g91 [prbcmdreverse] f%f z[tooldistance]" % currentFeedrate)
+				lines.append("%wait")
+				lines.append("g91 [prbcmd] %s z[toolprobez-mz-tooldistance]" \
+						% CNC.fmt('f',currentFeedrate))
+				lines.append("%wait")
+				lines.append("[prbcmdreverse] %s z[toolprobez-mz]" \
+						% CNC.fmt('f',currentFeedrate))
 				currentFeedrate /= 10
-		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		lines.append("%wait")
+		lines.append("g91 [prbcmd] f[prbfeed] z[toolprobez-mz-tooldistance]")
 		lines.append("g4 p1")	# wait a sec
 		lines.append("%wait")
 		lines.append("%global toolheight; toolheight=wz")
@@ -1707,7 +1723,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 	# FIXME should be replaced with the CNC.toolChange()
 	#-----------------------------------------------------------------------
 	def change(self, event=None):
-		ProbeCommonFrame.probeUpdate()
 		self.set()
 		if self.check4Errors(): return
 		lines = self.app.cnc.toolChange(0)

@@ -543,7 +543,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		# -- Separate zstep --
 		try:
 			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(self, width=1, background="White")
+			self.zstep = tkExtra.Combobox(self, width=4, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
 			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
@@ -991,9 +991,54 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				from_=Utils.config.get("CNC","spindlemin"),
 				to_=Utils.config.get("CNC","spindlemax"))
 		tkExtra.Balloon.set(b, _("Set spindle RPM"))
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=row, column=col, sticky=EW, columnspan=3)
 		self.addWidget(b)
 
+		f.grid_columnconfigure(1, weight=1)
+
+		# Coolant control
+
+		self.coolant = BooleanVar()
+		self.mist = BooleanVar()
+		self.flood = BooleanVar()
+
+
+		row += 1
+		col = 0
+		Label(f, text=_("Coolant:")).grid(row=row, column=col, sticky=E)
+		col += 1
+
+		coolantDisable = Checkbutton(f, text=_("OFF"),
+				command=self.coolantOff,
+				indicatoron=False,
+				variable=self.coolant,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(coolantDisable, _("Stop cooling (M9)"))
+		coolantDisable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(coolantDisable)
+
+		col += 1
+		floodEnable = Checkbutton(f, text=_("Flood"),
+				command=self.coolantFlood,
+				indicatoron=False,
+				variable=self.flood,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(floodEnable, _("Start flood (M8)"))
+		floodEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(floodEnable)
+
+		col += 1
+		mistEnable = Checkbutton(f, text=_("Mist"),
+				command=self.coolantMist,
+				indicatoron=False,
+				variable=self.mist,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(mistEnable, _("Start mist (M7)"))
+		mistEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(mistEnable)
 		f.grid_columnconfigure(1, weight=1)
 
 	#----------------------------------------------------------------------
@@ -1015,7 +1060,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			self.overrideScale.config(to_=100, resolution=25)
 		else:
 			self.overrideScale.config(to_=200, resolution=1)
-
 		self.override.set(CNC.vars["_Ov"+n])
 
 	#----------------------------------------------------------------------
@@ -1068,6 +1112,40 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
 		else:
 			self.sendGCode("M5")
+
+	#----------------------------------------------------------------------
+	def coolantMist(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.mist.set(FALSE)
+			return
+		self.coolant.set(FALSE)
+		self.mist.set(TRUE)
+		self.sendGCode("M7")
+
+	#----------------------------------------------------------------------
+	def coolantFlood(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.flood.set(FALSE)
+			return
+		self.coolant.set(FALSE)
+		self.flood.set(TRUE)
+		self.sendGCode("M8")
+
+	#----------------------------------------------------------------------
+	def coolantOff(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.coolant.set(FALSE)
+			return
+		self.flood.set(FALSE)
+		self.mist.set(FALSE)
+		self.coolant.set(TRUE)
+		self.sendGCode("M9")
 
 	#----------------------------------------------------------------------
 	def updateG(self):
