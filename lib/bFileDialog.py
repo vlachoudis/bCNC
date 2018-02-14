@@ -549,7 +549,7 @@ class FileDialog(Toplevel):
 		try:
 			for fn in os.listdir(path):
 				if not self.hidden and fn[0]==".": continue
-				filename = os.path.join(path, fn)
+				filename = os.path.join(str(path), fn)
 				ext, color = fileTypeColor(filename)
 
 				try: s = os.lstat(filename)
