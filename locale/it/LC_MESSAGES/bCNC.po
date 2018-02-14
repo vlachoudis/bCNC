@@ -7,21 +7,87 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-06 17:21+0200\n"
-"PO-Revision-Date: 2017-05-06 18:11+0200\n"
-"Last-Translator: Carlo Dormeletti <carloDOTdormelettiATgmailDOTcom>\n"
+"POT-Creation-Date: 2018-01-29 09:17+0100\n"
+"PO-Revision-Date: 2018-02-14 12:07+0100\n"
+"Last-Translator: @SteveMoto\n"
 "Language-Team: \n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0\n"
+"X-Generator: Poedit 2.0.4\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-Basepath: ../../..\n"
 
-#: CNCList.py:663 EditorPage.py:148
-msgid "Color"
-msgstr "Colore"
+#: Updates.py:47
+msgid "Installed Version:"
+msgstr "Versione installata:"
+
+#: Updates.py:52
+msgid "Running version of bCNC"
+msgstr "Versione in esecuzione di bCNC"
+
+#: Updates.py:54
+msgid "Latest Github Version:"
+msgstr "Ultima versione su Github:"
+
+#: Updates.py:60
+msgid "Latest release version on on github"
+msgstr "Ultimo versione di rilascio su Github"
+
+#: Updates.py:61
+msgid "Published at:"
+msgstr "Publicato in:"
+
+#: Updates.py:67
+msgid "Published date of the latest github release"
+msgstr "Data di publicazione dell'ultimo rilascio su Github"
+
+#: Updates.py:72
+msgid "Check Interval"
+msgstr "Controlla l'intervallo"
+
+#: Updates.py:75
+msgid "Last Check:"
+msgstr "Ultimo controllo:"
+
+#: Updates.py:87
+msgid "Date of last checking"
+msgstr "Data dell'ultimo controllo"
+
+#: Updates.py:89
+msgid "Interval (days):"
+msgstr "Intervallo (giorni):"
+
+#: Updates.py:100
+msgid "Days-interval to remind again for checking"
+msgstr "Giorni-intervallo per un nuovo controllo"
+
+#: Updates.py:105 Utils.py:469 FilePage.py:203 bCNC.py:858 bCNC.py:1063
+#: bCNC.py:2058
+msgid "Close"
+msgstr "Chiudi"
+
+#: Updates.py:111
+msgid "Check Now"
+msgstr "Controllo Ora"
+
+#: Updates.py:117
+msgid "Check the web site for new versions of bCNC"
+msgstr "Controlla il sito web per una nuova versione di bCNC"
+
+#: Updates.py:149
+msgid "Download"
+msgstr "Scarica"
+
+#: Updates.py:152
+msgid "Open web browser to download bCNC"
+msgstr "Apri il browser web per caricare bCNC"
+
+#: Updates.py:157
+#, python-format
+msgid "Error %d in connection"
+msgstr "Errore %d nella connessione"
 
 #: Sender.py:95
 msgid "bCNC is currently sending a gcode program to Grbl"
@@ -161,23 +227,27 @@ msgid "Jog command with no '=' or contains prohibited g-code."
 msgstr "Comando manuale senza '=' o che contiene G-code proibito."
 
 #: Sender.py:120
+msgid "Laser mode requires PWM output."
+msgstr ""
+
+#: Sender.py:121
 msgid "Unsupported or invalid g-code command found in block."
 msgstr "Trovato G-code non supportato o invalido nel blocco."
 
-#: Sender.py:121
+#: Sender.py:122
 msgid "More than one g-code command from same modal group found in block."
 msgstr ""
 "Più di un comando G-code dello stesso gruppo modale trovato nel blocco."
 
-#: Sender.py:122
+#: Sender.py:123
 msgid "Feed rate has not yet been set or is undefined."
 msgstr "Velocità di avanzamento non impostata o non è definita."
 
-#: Sender.py:123
+#: Sender.py:124
 msgid "G-code command in block requires an integer value."
 msgstr "Il comando G-code del blocco richiede un valore intero."
 
-#: Sender.py:124
+#: Sender.py:125
 msgid ""
 "Two G-code commands that both require the use of the XYZ axis words were "
 "detected in the block."
@@ -185,11 +255,11 @@ msgstr ""
 "Due comandi G-Code che richiedono ambedue l'uso di una parola XYZ sono stati "
 "trovati all'interno del blocco."
 
-#: Sender.py:125
+#: Sender.py:126
 msgid "A G-code word was repeated in the block."
 msgstr "Parola G-Code duplicata all'interno del blocco."
 
-#: Sender.py:126
+#: Sender.py:127
 msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
@@ -197,11 +267,11 @@ msgstr ""
 "Un comando G-Code richiede implicitamente o esplicitamente delle parole di "
 "asse XYZ all'interno del blocco, ma non ne è stata riconosciuta nessuna."
 
-#: Sender.py:127
+#: Sender.py:128
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
 msgstr "Il numero di riga N non è valido nell'intorno 1-9.999.999."
 
-#: Sender.py:128
+#: Sender.py:129
 msgid ""
 "A G-code command was sent, but is missing some required P or L value words "
 "in the line."
@@ -210,7 +280,7 @@ msgstr ""
 "una parola della riga. Senza di essa il comando non può essere eseguito. "
 "Verificare il programma G-Code."
 
-#: Sender.py:129
+#: Sender.py:130
 msgid ""
 "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
 "are not supported."
@@ -218,7 +288,7 @@ msgstr ""
 "Grbl supporta sei coordinate di lavoro G54-G59. G59.1, G59.2, e G59.3 non "
 "sono supportate."
 
-#: Sender.py:130
+#: Sender.py:131
 msgid ""
 "The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
 "be active. A different motion was active."
@@ -226,7 +296,7 @@ msgstr ""
 "Il comando G-Code G53 necessita di un Rapido G0 o di un movimento di lavoro "
 "G1 attivo. Un movimento diverso era attivo. "
 
-#: Sender.py:131
+#: Sender.py:132
 msgid ""
 "There are unused axis words in the block and G80 motion mode cancel is "
 "active."
@@ -234,7 +304,7 @@ msgstr ""
 "Esistono delle parole di asse inutilizzate all'interno del blocco e il modo "
 "G80 di cancellazione del movimento (ciclo fisso) è attivo."
 
-#: Sender.py:132
+#: Sender.py:133
 msgid ""
 "A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
 "plane to trace the arc."
@@ -242,7 +312,7 @@ msgstr ""
 "Un movimento di arco G2 o G3 è stato richiesto ma non esiste una parola di "
 "asse all'interno del piano selezionato per tracciare l'arco."
 
-#: Sender.py:133
+#: Sender.py:134
 msgid ""
 "The motion command has an invalid target. G2, G3, and G38.2 generates this "
 "error, if the arc is impossible to generate or if the probe target is the "
@@ -252,7 +322,7 @@ msgstr ""
 "questo errore, se l'arco è impossibile da generare o la destinazione della "
 "sonda è la posizione attuale."
 
-#: Sender.py:134
+#: Sender.py:135
 msgid ""
 "A G2 or G3 arc, traced with the radius definition, had a mathematical error "
 "when computing the arc geometry. Try either breaking up the arc into semi-"
@@ -263,7 +333,7 @@ msgstr ""
 "quarti o semicerchi, oppure ridefinirli usando una interpolazione con "
 "parametri."
 
-#: Sender.py:135
+#: Sender.py:136
 msgid ""
 "A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
 "word in the selected plane to trace the arc."
@@ -271,7 +341,7 @@ msgstr ""
 "Un arco G2 o G3, tracciato con interpolazione con parametri, manca di una "
 "parola IJK all'interno del piano selezionato."
 
-#: Sender.py:136
+#: Sender.py:137
 msgid ""
 "There are unused, leftover G-code words that aren't used by any command in "
 "the block."
@@ -279,7 +349,7 @@ msgstr ""
 "Ci sono delle parole G-Code inutilizzate oppure che non sono usate da nessun "
 "comando all'interno del blocco."
 
-#: Sender.py:137
+#: Sender.py:138
 msgid ""
 "The G43.1 dynamic tool length offset command cannot apply an offset to an "
 "axis other than its configured axis. The Grbl default axis is the Z-axis."
@@ -287,10 +357,6 @@ msgstr ""
 "Il comando G43.1 di compensazione dinamica della lunghezza Utensile non può "
 "applicare una compensazione su di un asse non configurato diverso da quello "
 "di definizione. L'asse per difetto all'interno di Grbl è l'asse Z."
-
-#: Sender.py:138
-msgid "An invalid tool number sent to the parser"
-msgstr "Un numero di utensile errato è stato inviato all'interprete."
 
 #: Sender.py:140
 msgid ""
@@ -397,623 +463,66 @@ msgstr ""
 "Porte chiuse e in ripresa. Ripristino da zona parcheggio, se applicabile. Un "
 "Reset scatenerà un allarme."
 
-#: Sender.py:437
+#: Sender.py:438
 msgid "unknown command"
 msgstr "comando sconosciuto"
 
-#: Sender.py:437
+#: Sender.py:438
 #, python-format
 msgid "Invalid command %s"
 msgstr "Comando %s non valido"
 
-#: Sender.py:712 ControlPage.py:403
+#: Sender.py:718 ControlPage.py:407
 #, python-format
 msgid "Set workspace %s to %s"
 msgstr "Imposta area di lavoro %s a %s"
 
-#: Sender.py:786
+#: Sender.py:792
 msgid "Run ended"
 msgstr "Esecuzione finita"
 
-#: ToolsPage.py:500
-msgid "Units (inches)"
-msgstr "Unità (pollici)"
-
-#: ToolsPage.py:501
-msgid "Lasercutter"
-msgstr "Taglio laser"
-
-#: ToolsPage.py:502
-msgid "Acceleration x"
-msgstr "Accelerazione x"
-
-#: ToolsPage.py:503
-msgid "Acceleration y"
-msgstr "Accelerazione y"
-
-#: ToolsPage.py:504
-msgid "Acceleration z"
-msgstr "Accelerazione z"
-
-#: ToolsPage.py:505
-msgid "Feed max x"
-msgstr "Avanz. max x"
-
-#: ToolsPage.py:506
-msgid "Feed max y"
-msgstr "Avanz. max y"
-
-#: ToolsPage.py:507
-msgid "Feed max z"
-msgstr "Avanz. max z"
-
-#: ToolsPage.py:508
-msgid "Travel x"
-msgstr "Corsa x"
-
-#: ToolsPage.py:509
-msgid "Travel y"
-msgstr "Corsa y"
-
-#: ToolsPage.py:510
-msgid "Travel z"
-msgstr "Corsa z"
-
-#: ToolsPage.py:511
-msgid "Decimal digits"
-msgstr "Numero di decimali"
-
-#: ToolsPage.py:512
-msgid "Plotting Arc accuracy"
-msgstr "Precisione di interpolazione archi"
-
-#: ToolsPage.py:513
-msgid "Start up"
-msgstr "Avviamento"
-
-#: ToolsPage.py:514
-msgid "Spindle min (RPM)"
-msgstr "Rotazione min (RPM)"
-
-#: ToolsPage.py:515
-msgid "Spindle max (RPM)"
-msgstr "Rotazione max (RPM)"
-
-#: ToolsPage.py:516
-msgid "DRO Zero padding"
-msgstr "DRO zeri di riempimento"
-
-#: ToolsPage.py:517
-msgid "Header gcode"
-msgstr "GCode da eseguire all'avvio"
-
-#: ToolsPage.py:518
-msgid "Footer gcode"
-msgstr "GCcode da eseguire alla fine"
-
-#: ToolsPage.py:541 ToolsPage.py:568 ToolsPage.py:598 ToolsPage.py:625
-#: ToolsPage.py:656 ToolsPage.py:689 ToolsPage.py:715 ToolsPage.py:737
-#: ToolsPage.py:1405 lib/bFileDialog.py:293 plugins/sketch.py:42
-#: plugins/pyrograph.py:39 plugins/heightmap.py:49 plugins/midi2cnc.py:50
-#: plugins/hilbert.py:88 plugins/gear.py:164 plugins/flatten.py:256
-#: plugins/driller.py:39 plugins/tile.py:35 plugins/spirograph.py:102
-#: plugins/bowl.py:108 plugins/zigzag.py:94 plugins/halftone.py:41
-#: plugins/box.py:306 plugins/text.py:37
-msgid "Name"
-msgstr "Nome"
-
-#: ToolsPage.py:542 ToolsPage.py:569 ToolsPage.py:599 EditorPage.py:233
-msgid "Comment"
-msgstr "Commento"
-
-#: ToolsPage.py:543 ToolsPage.py:629
-msgid "Feed"
-msgstr "Avanzamento"
-
-#: ToolsPage.py:544 ToolsPage.py:630
-msgid "Plunge Feed"
-msgstr "Avanzamento Verticale"
-
-#: ToolsPage.py:545 ToolsPage.py:628
-msgid "Depth Increment"
-msgstr "Incremento di profondità"
-
-#: ToolsPage.py:570 lib/bFileDialog.py:294
-msgid "Type"
-msgstr "Tipo"
-
-#: ToolsPage.py:571
-msgid "Shape"
-msgstr "Forma"
-
-#: ToolsPage.py:572 ToolsPage.py:600 ToolsPage.py:987
-msgid "Material"
-msgstr "Materiale"
-
-#: ToolsPage.py:573
-msgid "Coating"
-msgstr "Couche"
-
-#: ToolsPage.py:574 plugins/bowl.py:109
-msgid "Diameter"
-msgstr "Diametro"
-
-#: ToolsPage.py:575
-msgid "Mount Axis"
-msgstr "Asse di montaggio"
-
-#: ToolsPage.py:576
-msgid "Flutes"
-msgstr "Taglienti"
-
-#: ToolsPage.py:577
-msgid "Length"
-msgstr "Lunghezza"
-
-#: ToolsPage.py:578
-msgid "Angle"
-msgstr "Angolo"
-
-#: ToolsPage.py:579
-msgid "Stepover %"
-msgstr "Stepover %"
-
-#: ToolsPage.py:601
-msgid "Safe Z"
-msgstr "Quota di sicurezza"
-
-#: ToolsPage.py:602 ToolsPage.py:626
-msgid "Surface Z"
-msgstr "Superficie Z"
-
-#: ToolsPage.py:603
-msgid "Thickness"
-msgstr "Spessore"
-
-#: ToolsPage.py:627 ToolsPage.py:657 plugins/driller.py:41
-#: plugins/spirograph.py:106
-msgid "Target Depth"
-msgstr "Profondità Richiesta"
-
-#: ToolsPage.py:631
-msgid "First cut at surface height"
-msgstr "Prima passata ad altezza superficie"
-
-#: ToolsPage.py:646
-msgid "CUT selected paths"
-msgstr "Percorso Utensile selezionato"
-
-#: ToolsPage.py:658
-msgid "Peck depth"
-msgstr "Profondità di ritrazione"
-
-#: ToolsPage.py:659
-msgid "Dwell (s)"
-msgstr "Tempo di attesa (s)"
-
-#: ToolsPage.py:660
-msgid "Distance (mm)"
-msgstr "Distanza (mm)"
-
-#: ToolsPage.py:661
-msgid "Number"
-msgstr "Numero"
-
-#: ToolsPage.py:679
-msgid "DRILL selected points"
-msgstr "Punti di foratura selezionati"
-
-#: ToolsPage.py:690 ToolsPage.py:716 ToolsPage.py:1001
-msgid "End Mill"
-msgstr "Utensile"
-
-#: ToolsPage.py:691 plugins/pyrograph.py:45
-msgid "Direction"
-msgstr "Direzione"
-
-#: ToolsPage.py:692
-msgid "Additional offset distance"
-msgstr "Distanza supplementare di Offset"
-
-#: ToolsPage.py:693 plugins/box.py:315
-msgid "Overcut"
-msgstr "Sovrataglio"
-
-#: ToolsPage.py:705
-msgid "Generate profile path"
-msgstr "Genera Percorso Utensile per Contorno"
-
-#: ToolsPage.py:727
-msgid "Generate pocket path"
-msgstr "Genera Percorso Utensile per la Tasca"
-
-#: ToolsPage.py:738
-msgid "Number of tabs"
-msgstr "Numero di fermi"
-
-#: ToolsPage.py:739
-msgid "Min. Distance of tabs"
-msgstr "Distanza minima dei fermi"
-
-#: ToolsPage.py:742
-msgid "Height"
-msgstr "Altezza"
-
-#: ToolsPage.py:762
-msgid "Tabs error"
-msgstr "Errore dei fermi"
-
-#: ToolsPage.py:763
-msgid "You cannot have both the number of tabs or distance equal to zero"
-msgstr "Non è possibile avere in numero di fermi o la distanza pari a zero"
-
-#: ToolsPage.py:766
-msgid "Create tabs on blocks"
-msgstr "Crea dei fermi sul blocco di codice"
-
-#: ToolsPage.py:776
-msgid "$0 Step pulse time [us]"
-msgstr "$0 Tempo impulso passo [us]"
-
-#: ToolsPage.py:777
-msgid "$1 Step idle delay [ms]"
-msgstr "$1 Ritardo attesa passo [ms]"
-
-#: ToolsPage.py:778
-msgid "$2 Step pulse invert [mask]"
-msgstr "$2 Inverti il segnale di impulso passo [maschera]"
-
-#: ToolsPage.py:779
-msgid "$3 Step direction invert [mask]"
-msgstr "$3 Inverti il segnale direzione passo [maschera]"
-
-#: ToolsPage.py:780
-msgid "$4 Invert step enable pin"
-msgstr "$4 Inverti il pin di abilitazione passo"
-
-#: ToolsPage.py:781
-msgid "$5 Invert limit pins"
-msgstr "$5 Inverti i pin dei finecorsa"
-
-#: ToolsPage.py:782
-msgid "$6 Invert probe pin"
-msgstr "$6 Inverti il pin della sonda"
-
-#: ToolsPage.py:783
-msgid "$10 Status report options [mask]"
-msgstr "$10 Opzioni segnalazione stato [maschera]"
-
-#: ToolsPage.py:784
-msgid "$11 Junction deviation [mm]"
-msgstr "$11 Deviazione di giunzione [mm]"
-
-#: ToolsPage.py:785
-msgid "$12 Arc tolerance [mm]"
-msgstr "$12 Tolleranza arco [mm]"
-
-#: ToolsPage.py:786
-msgid "$13 Report in inches"
-msgstr "$13 Segnalazioni in pollici"
-
-#: ToolsPage.py:787
-msgid "$20 Soft limits enable"
-msgstr "$20 Limiti software abilitati"
-
-#: ToolsPage.py:788
-msgid "$21 Hard limits enable"
-msgstr "$21 Fine corsa abilitati"
-
-#: ToolsPage.py:789
-msgid "$22 Homing cycle enable"
-msgstr "$22 Abilita ciclo di azzeramento"
-
-#: ToolsPage.py:790
-msgid "$23 Homing direction invert [mask]"
-msgstr "$23 Inverti direzione azzeramento [maschera]"
-
-#: ToolsPage.py:791
-msgid "$24 Homing locate feed rate [mm/min]"
-msgstr "$24 Velocità individuazione zero [mm/min]"
-
-#: ToolsPage.py:792
-msgid "$25 Homing search seek rate [mm/min]"
-msgstr "$25 Velocità ricerca zero [mm/min]"
-
-#: ToolsPage.py:793
-msgid "$26 Homing switch debounce delay, ms"
-msgstr "$27 Finecorsa di azzeramento ritardo anti rimbalzo [ms]"
-
-#: ToolsPage.py:794
-msgid "$27 Homing switch pull-off distance [mm]"
-msgstr "$27 Finecorsa di azzeramento distanza distacco [mm]"
-
-#: ToolsPage.py:795
-msgid "$30 Maximum spindle speed [RPM]"
-msgstr "$30 Velocità massima mandrino [RPM]"
-
-#: ToolsPage.py:796
-msgid "$31 Minimum spindle speed [RPM]"
-msgstr "$31 Velocità minima mandrino [RPM]"
-
-#: ToolsPage.py:797
-msgid "$32 Laser-mode enable"
-msgstr "$32 Abilitazione modalità laser"
-
-#: ToolsPage.py:798
-msgid "$100 X-axis steps per mm"
-msgstr "$100 passi per asse X [mm]"
-
-#: ToolsPage.py:799
-msgid "$101 Y-axis steps per mm"
-msgstr "$101 passi per asse Y [mm]"
-
-#: ToolsPage.py:800
-msgid "$102 Z-axis steps per mm"
-msgstr "$102 passi per asse Z [mm]"
-
-#: ToolsPage.py:801
-msgid "$110 X-axis maximum rate [mm/min]"
-msgstr "$110 Velocità massima asse X [mm/min]"
-
-#: ToolsPage.py:802
-msgid "$111 Y-axis maximum rate [mm/min]"
-msgstr "$111 Velocità massima asse Y [mm/min]"
-
-#: ToolsPage.py:803
-msgid "$112 Z-axis maximum rate [mm/min]"
-msgstr "$112 Velocità massima asse Z [mm/min]"
-
-#: ToolsPage.py:804
-msgid "$120 X-axis acceleration [mm/sec^2]"
-msgstr "$120 Accelerazione asse X [mm/sec^2]"
-
-#: ToolsPage.py:805
-msgid "$121 Y-axis acceleration [mm/sec^2]"
-msgstr "$121 Accelerazione asse Y [mm/sec^2]"
-
-#: ToolsPage.py:806
-msgid "$122 Z-axis acceleration [mm/sec^2]"
-msgstr "$122 Accelerazione asse Z [mm/sec^2]"
-
-#: ToolsPage.py:807
-msgid "$130 X-axis maximum travel [mm]"
-msgstr "$130 Percorso massimo asse X [mm]"
-
-#: ToolsPage.py:808
-msgid "$131 Y-axis maximum travel [mm]"
-msgstr "$131 Percorso massimo asse Y [mm]"
-
-#: ToolsPage.py:809
-msgid "$132 Z-axis maximum travel [mm]"
-msgstr "$132 Percorso massimo asse Z [mm]"
-
-#: ToolsPage.py:966
-msgid "Database"
-msgstr "Database"
-
-#: ToolsPage.py:973
-msgid "Stock"
-msgstr "Grezzo"
-
-#: ToolsPage.py:980
-msgid "Stock material currently on machine"
-msgstr "Grezzo attualmente in macchina"
-
-#: ToolsPage.py:994
-msgid "Editable database of material properties"
-msgstr "Database proprietà dei materiali"
-
-#: ToolsPage.py:1008
-msgid "Editable database of EndMills properties"
-msgstr "Database Utensili"
-
-#: ToolsPage.py:1015
-msgid "Rename"
-msgstr "Rinomina"
-
-#: ToolsPage.py:1020
-msgid "Edit name of current operation/object"
-msgstr "modifica il nome dell'oggetto/operazione attuale"
-
-#: ToolsPage.py:1028 EditorPage.py:159 ProbePage.py:421
-msgid "Add"
-msgstr "Aggiungi"
-
-#: ToolsPage.py:1033
-msgid "Add a new operation/object"
-msgstr "Aggiungi un(a) nuovo oggetto/operazione"
-
-#: ToolsPage.py:1041 EditorPage.py:171
-msgid "Clone"
-msgstr "Clonare"
-
-#: ToolsPage.py:1046
-msgid "Clone selected operation/object"
-msgstr "Duplica l'oggetto/operazione selezionato(a)"
-
-#: ToolsPage.py:1054 EditorPage.py:183 ProbePage.py:455
-msgid "Delete"
-msgstr "Cancella"
-
-#: ToolsPage.py:1059
-msgid "Delete selected operation/object"
-msgstr "Elimina l'oggetto/operazione selezionato(a)"
-
-#: ToolsPage.py:1068
-msgid "CAM"
-msgstr "CAM"
-
-#: ToolsPage.py:1075 EditorPage.py:46 plugins/box.py:316
-msgid "Cut"
-msgstr "Taglia"
-
-#: ToolsPage.py:1082
-msgid "Cut for the full stock thickness selected code"
-msgstr "Taglia per tutti gli spessori selezionati nel GCode"
-
-#: ToolsPage.py:1089 plugins/box.py:314
-msgid "Profile"
-msgstr "Contorno"
-
-#: ToolsPage.py:1096
-msgid "Perform a profile operation on selected code"
-msgstr "Esegue un'operazione di contorno sul codice selezionato"
-
-#: ToolsPage.py:1103
-msgid "Pocket"
-msgstr "Tasca"
-
-#: ToolsPage.py:1110
-msgid "Perform a pocket operation on selected code"
-msgstr "Esegue un'operazione di tasca sul codice selezionato"
-
-#: ToolsPage.py:1117
-msgid "Drill"
-msgstr "Fora"
-
-#: ToolsPage.py:1124
-msgid "Insert a drill cycle on current objects/location"
-msgstr "Inserisce un ciclo di foratura sugli oggetti/posizioni attuali"
-
-#: ToolsPage.py:1131
-msgid "Tabs"
-msgstr "Fermi"
-
-#: ToolsPage.py:1138
-msgid "Insert holding tabs"
-msgstr "Inserire punto di fermo (Holding Tab)"
-
-#: ToolsPage.py:1234 ToolsPage.py:1286
-msgid "Config"
-msgstr "Configura"
-
-#: ToolsPage.py:1249
-msgid "Change program language restart is required"
-msgstr "Modifica Lingua - Riavvio necessario"
-
-#: ToolsPage.py:1258 ProbePage.py:104 ProbePage.py:1115
-msgid "Camera"
-msgstr "Telecamera"
-
-#: ToolsPage.py:1265
-msgid "Camera Configuration"
-msgstr "Configurazione Telecamera"
-
-#: ToolsPage.py:1272
-msgid "Colors"
-msgstr "Colori"
-
-#: ToolsPage.py:1279
-msgid "Color configuration"
-msgstr "Configurazione dei Colori"
-
-#: ToolsPage.py:1293
-msgid "Machine configuration for bCNC"
-msgstr "Configurazione della macchina per bCNC"
-
-#: ToolsPage.py:1300
-msgid "Controller"
-msgstr "Controllore"
-
-#: ToolsPage.py:1307
-msgid "Controller (GRBL) configuration"
-msgstr "Configurazione controllore (GRBL)"
-
-#: ToolsPage.py:1314
-msgid "Fonts"
-msgstr "Font"
-
-#: ToolsPage.py:1321
-msgid "Font configuration"
-msgstr "Configurazione dei font"
-
-#: ToolsPage.py:1328
-msgid "Shortcuts"
-msgstr "Scorciatoie"
-
-#: ToolsPage.py:1335
-msgid "Shortcuts configuration"
-msgstr "Configurazione Scorciatoie"
-
-#: ToolsPage.py:1366
-msgid "Language change"
-msgstr "Cambio lingua"
-
-#: ToolsPage.py:1367
-msgid "Please restart the program."
-msgstr "Si prega di riavviare il programma"
-
-#: ToolsPage.py:1375
-msgid "Events"
-msgstr "Eventi"
-
-#: ToolsPage.py:1380
-msgid "User File"
-msgstr "File Utente"
-
-#: ToolsPage.py:1393
-msgid "Execute"
-msgstr "Esegui"
-
-#: ToolsPage.py:1406
-msgid "Value"
-msgstr "Valori"
-
-#: ToolsPage.py:1474
-msgid "GCode manipulation tools and user plugins"
-msgstr "Strumenti di manipolazione GCode e plugins utente"
-
-#: ToolsPage.py:1475
-msgid "Tools"
-msgstr "Utensile"
-
-#: Utils.py:416
+#: Utils.py:431
 msgid "Error Reporting"
 msgstr "Invio di un Rapporto d'Errore"
 
-#: Utils.py:419 FilePage.py:134
+#: Utils.py:434 FilePage.py:136
 msgid "Report"
 msgstr "Rapporto"
 
-#: Utils.py:422
+#: Utils.py:437
 #, python-format
 msgid "The following report is about to be send to the author of %s"
 msgstr "Il rapporto seguente sta per essere inviato all'autore di %s"
 
-#: Utils.py:437
+#: Utils.py:452
 msgid "Your email"
 msgstr "Vostra Email"
 
-#: Utils.py:446
+#: Utils.py:461
 msgid "Automatic error reporting"
 msgstr "Invio automatico dei rapporti di errore"
 
-#: Utils.py:454 bCNC.py:859 bCNC.py:1064 bCNC.py:2051 Updates.py:105
-#: FilePage.py:201
-msgid "Close"
-msgstr "Chiudi"
-
-#: Utils.py:458
+#: Utils.py:473
 msgid "Send report"
 msgstr "Invia rapporto"
 
-#: Utils.py:524 Utils.py:534
+#: Utils.py:539 Utils.py:549
 msgid "Error sending report"
 msgstr "Invio del rapporto di errore"
 
-#: Utils.py:525
+#: Utils.py:540
 msgid "There was a problem connecting to the web site"
 msgstr "Si è verificato un problema di connessione al sito Web"
 
-#: Utils.py:529
+#: Utils.py:544
 msgid "Report successfully send"
 msgstr "Rapporto inviato con successo"
 
-#: Utils.py:530
+#: Utils.py:545
 msgid "Report was successfully uploaded to web site"
 msgstr "Il Rapporto è stato inviato con successo al sito Web"
 
-#: Utils.py:535
+#: Utils.py:550
 #, python-format
 msgid ""
 "There was an error sending the report\n"
@@ -1022,43 +531,43 @@ msgstr ""
 "Si è verificato un errore durante l'invio del rapport\n"
 "Codice=%d %s"
 
-#: Utils.py:642
+#: Utils.py:657
 msgid "User configurable button"
 msgstr "Bottone configurabile dall'utente"
 
-#: Utils.py:648
+#: Utils.py:663
 msgid "Name:"
 msgstr "Nome"
 
-#: Utils.py:652
+#: Utils.py:667
 msgid "Name to appear on button"
 msgstr "Nome del Bottone"
 
-#: Utils.py:656
+#: Utils.py:671
 msgid "Icon:"
 msgstr "Icona :"
 
-#: Utils.py:668
+#: Utils.py:683
 msgid "Icon to appear on button"
 msgstr "Icona del Bottone"
 
-#: Utils.py:672
+#: Utils.py:687
 msgid "Tool Tip:"
 msgstr "Suggerimento :"
 
-#: Utils.py:676
+#: Utils.py:691
 msgid "Tooltip for button"
 msgstr "Suggerimento per il Bottone"
 
-#: Utils.py:680 bCNC.py:157
+#: Utils.py:695 bCNC.py:157
 msgid "Command:"
 msgstr "Comando :"
 
-#: Utils.py:692 lib/bFileDialog.py:344
+#: Utils.py:707 lib/bFileDialog.py:323
 msgid "Cancel"
 msgstr "Annulla"
 
-#: Utils.py:693
+#: Utils.py:708
 msgid "Ok"
 msgstr "Ok"
 
@@ -1094,7 +603,7 @@ msgstr "Reset"
 msgid "Software reset of controller [ctrl-x]"
 msgstr "Soft-Reset del Controllo [Ctrl-X]"
 
-#: ControlPage.py:108 FilePage.py:176
+#: ControlPage.py:108 FilePage.py:178
 msgid "Start"
 msgstr "Inizia"
 
@@ -1111,7 +620,7 @@ msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
 msgstr ""
 "Metti/Togli  in pausa il lavoro in corso. Invia FEED_HOLD ! o CYCLE_START ~"
 
-#: ControlPage.py:125 FilePage.py:187
+#: ControlPage.py:125 FilePage.py:189
 msgid "Stop"
 msgstr "Ferma"
 
@@ -1167,44 +676,44 @@ msgstr "Azzera Y (o alle coordinate inserite in WPos)"
 msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
 msgstr "Azzera Z (o alle coordinate inserite in WPos)"
 
-#: ControlPage.py:258
+#: ControlPage.py:261
 msgid "Set WPOS"
 msgstr "Imposta WPOS"
 
-#: ControlPage.py:265
+#: ControlPage.py:268
 msgid "Set WPOS to mouse location"
 msgstr "Imposta WPOS nella posizione del mouse"
 
-#: ControlPage.py:269
+#: ControlPage.py:272
 msgid "Move Gantry"
 msgstr "Muovi testa"
 
-#: ControlPage.py:276
+#: ControlPage.py:280
 msgid "Move gantry to mouse location [g]"
 msgstr "Muovi la Testa sulla posizione del mouse [g]"
 
-#: ControlPage.py:287
+#: ControlPage.py:291
 msgid "Show Info"
 msgstr "Mostra Info"
 
-#: ControlPage.py:289
+#: ControlPage.py:293
 msgid "Clear Message"
 msgstr "Pulisci Messaggi"
 
-#: ControlPage.py:293
+#: ControlPage.py:297
 msgid "Feed hold"
 msgstr "Metti in pausa"
 
-#: ControlPage.py:295
+#: ControlPage.py:299
 msgid "Resume"
 msgstr "Riprendi"
 
-#: ControlPage.py:411
+#: ControlPage.py:415
 #, python-format
 msgid "Last error: %s\n"
 msgstr "Ultimo errore : %s\n"
 
-#: ControlPage.py:417
+#: ControlPage.py:421
 msgid ""
 "No info available.\n"
 "Please contact the author."
@@ -1212,40 +721,40 @@ msgstr ""
 "Nessuna informazione disponibile.\n"
 "Contattare l'autore."
 
-#: ControlPage.py:418
+#: ControlPage.py:422
 #, python-format
 msgid "State: %s"
 msgstr "Stato :%s"
 
-#: ControlPage.py:445
+#: ControlPage.py:449
 msgid "Move +Z"
 msgstr "Muovi +Z"
 
-#: ControlPage.py:455
+#: ControlPage.py:459
 msgid "Move -X +Y"
 msgstr "Muovi -X +Y"
 
-#: ControlPage.py:464
+#: ControlPage.py:468
 msgid "Move +Y"
 msgstr "Muovi +Y"
 
-#: ControlPage.py:473
+#: ControlPage.py:477
 msgid "Move +X +Y"
 msgstr "Muovi +X +Y"
 
-#: ControlPage.py:482
+#: ControlPage.py:486
 msgid "Multiply step by 10"
 msgstr "Moltiplica il passo per 10"
 
-#: ControlPage.py:491
+#: ControlPage.py:495
 msgid "Increase step by 1 unit"
 msgstr "Aumenta il passo di 1"
 
-#: ControlPage.py:506
+#: ControlPage.py:510
 msgid "Move -X"
 msgstr "Muovi -X"
 
-#: ControlPage.py:515
+#: ControlPage.py:519
 msgid ""
 "Move to Origin.\n"
 "User configurable button.\n"
@@ -1255,166 +764,1211 @@ msgstr ""
 "Bottone Configurabile dall'utente.\n"
 "Clic-Destro per configurare."
 
-#: ControlPage.py:524
+#: ControlPage.py:528
 msgid "Move +X"
 msgstr "Muovi +X"
 
-#: ControlPage.py:536
+#: ControlPage.py:540
 msgid "Step for every move operation"
 msgstr "Passo per tutti i movimenti"
 
-#: ControlPage.py:546
+#: ControlPage.py:550
 msgid "Step for Z move operation"
 msgstr "Passo per movimenti in Z"
 
-#: ControlPage.py:576
+#: ControlPage.py:580
 msgid "Move -Z"
 msgstr "Muovi -Z"
 
-#: ControlPage.py:585
+#: ControlPage.py:589
 msgid "Move -X -Y"
 msgstr "Muovi -X -Y"
 
-#: ControlPage.py:594
+#: ControlPage.py:598
 msgid "Move -Y"
 msgstr "Muovi -Y"
 
-#: ControlPage.py:603
+#: ControlPage.py:607
 msgid "Move +X -Y"
 msgstr "Muovi +X -Y"
 
-#: ControlPage.py:611
+#: ControlPage.py:615
 msgid "Divide step by 10"
 msgstr "Dividi il passo per 10"
 
-#: ControlPage.py:619
+#: ControlPage.py:623
 msgid "Decrease step by 1 unit"
 msgstr "Diminuisci il passo di 1"
 
-#: ControlPage.py:696
+#: ControlPage.py:700
 #, python-format
 msgid "Step: %g"
 msgstr "Passo : %g"
 
-#: ControlPage.py:701
+#: ControlPage.py:705
 #, python-format
 msgid "Step: %g    Zstep:%g "
 msgstr "Passo : %g\tPasso Z : %g"
 
-#: ControlPage.py:825
+#: ControlPage.py:829
 #, python-format
 msgid "Switch to workspace %s"
 msgstr "Passa allo spazio di lavoro %s"
 
-#: ControlPage.py:831 ProbePage.py:1455
+#: ControlPage.py:835 ProbePage.py:1542
 msgid "Distance:"
 msgstr "Distanza :"
 
-#: ControlPage.py:839
+#: ControlPage.py:843
 msgid "Distance Mode [G90,G91]"
 msgstr "Modo Distanza [G90,G91]"
 
-#: ControlPage.py:849
+#: ControlPage.py:853
 msgid "Units:"
 msgstr "Unità :"
 
-#: ControlPage.py:857
+#: ControlPage.py:861
 msgid "Units [G20, G21]"
 msgstr "Unità [G20, G21]"
 
-#: ControlPage.py:864 CNCCanvas.py:2008
+#: ControlPage.py:868 CNCCanvas.py:2021
 msgid "Tool:"
 msgstr "Strumenti:"
 
-#: ControlPage.py:869
+#: ControlPage.py:873
 msgid "Tool number [T#]"
 msgstr "N° Utensile [T#]"
 
-#: ControlPage.py:873 ControlPage.py:908 ProbePage.py:225
+#: ControlPage.py:877 ControlPage.py:912 ProbePage.py:240
 msgid "set"
 msgstr "imposta"
 
-#: ControlPage.py:881
+#: ControlPage.py:885
 msgid "Plane:"
 msgstr "Piano :"
 
-#: ControlPage.py:889
+#: ControlPage.py:893
 msgid "Plane [G17,G18,G19]"
 msgstr "Piano [G17,G18,G19]"
 
-#: ControlPage.py:897
+#: ControlPage.py:901
 msgid "Feed:"
 msgstr "Avanz :"
 
-#: ControlPage.py:904
+#: ControlPage.py:908
 msgid "Feed Rate [F#]"
 msgstr "Avanzamento [F#]"
 
-#: ControlPage.py:915
+#: ControlPage.py:919
 msgid "Mode:"
 msgstr "Modo :"
 
-#: ControlPage.py:924
+#: ControlPage.py:928
 msgid "Feed Mode [G93, G94, G95]"
 msgstr "Modo Velocità [G93, G94, G95]"
 
-#: ControlPage.py:945
+#: ControlPage.py:949
 msgid "Select override type."
 msgstr "Seleziona tipo di Override."
 
-#: ControlPage.py:949
+#: ControlPage.py:953
 msgid "Reset override to 100%"
 msgstr "Imposta l'override avanzamento al 100%"
 
-#: ControlPage.py:963
+#: ControlPage.py:967
 msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
 msgstr ""
 "Imposta Override per Avanzamento/Rapido/Mandrino. Tasto destro o doppio "
 "click per resettare."
 
-#: ControlPage.py:970
+#: ControlPage.py:974
 msgid "Spindle"
 msgstr "Mandrino"
 
-#: ControlPage.py:978
+#: ControlPage.py:982
 msgid "Start/Stop spindle (M3/M5)"
 msgstr "Avvia/Ferma il mandrino (M3/M5)"
 
-#: ControlPage.py:989
+#: ControlPage.py:993
 msgid "Set spindle RPM"
 msgstr "Imposta la velocità RPM del mandrino"
 
-#: ControlPage.py:1107
+#: ControlPage.py:1111
 msgid "CNC communication and control"
 msgstr "Comunicazione CNC e controllo"
 
-#: ControlPage.py:1108
+#: ControlPage.py:1112
 msgid "Control"
 msgstr "Controllo"
 
-#: Ribbon.py:483
+#: FilePage.py:59 FilePage.py:306
+msgid "File"
+msgstr "File"
+
+#: FilePage.py:66
+msgid "New"
+msgstr "Nuovo"
+
+#: FilePage.py:70
+msgid "New gcode/dxf file"
+msgstr "Nuovo file GCode/DXF"
+
+#: FilePage.py:79
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr "Apri un file GCode/DXF esistente [Ctrl-O]"
+
+#: FilePage.py:84 FilePage.py:281 bCNC.py:2050 lib/bFileDialog.py:299
+#: lib/bFileDialog.py:850 lib/bFileDialog.py:954
+msgid "Open"
+msgstr "Apri"
+
+#: FilePage.py:89
+msgid "Open recent file"
+msgstr "Apri file recenti"
+
+#: FilePage.py:99
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr "Salva file GCode/DXF [Ctrl-S]"
+
+#: FilePage.py:104 lib/bFileDialog.py:884
+msgid "Save"
+msgstr "Salva"
+
+#: FilePage.py:109
+msgid "Save gcode/dxf AS"
+msgstr "Salva GCode/DXF come"
+
+#: FilePage.py:117
+msgid "Options"
+msgstr "Opzioni"
+
+#: FilePage.py:143
+msgid "Send Error Report"
+msgstr "Invia Rapporto di Errore"
+
+#: FilePage.py:148
+msgid "Updates"
+msgstr "Aggiornamenti"
+
+#: FilePage.py:155
+msgid "Check Updates"
+msgstr "Verifica nuove versioni"
+
+#: FilePage.py:159
+msgid "About"
+msgstr "Informazioni"
+
+#: FilePage.py:166
+msgid "About the program"
+msgstr "Informazioni sul programma"
+
+#: FilePage.py:173 bCNC.py:2208 bCNC.py:2212 bCNC.py:2225
+msgid "Pendant"
+msgstr "Pulsantiera"
+
+#: FilePage.py:185
+msgid "Start pendant"
+msgstr "Attiva la pulsantiera"
+
+#: FilePage.py:196
+msgid "Stop pendant"
+msgstr "Ferma la pulsantiera"
+
+#: FilePage.py:207
+msgid "Exit"
+msgstr "Esci"
+
+#: FilePage.py:214
+msgid "Close program [Ctrl-Q]"
+msgstr "Esci dal programma [Ctrl-Q]"
+
+#: FilePage.py:227
+msgid "Port:"
+msgstr "Porta :"
+
+#: FilePage.py:233
+msgid "Select (or manual enter) port to connect"
+msgstr "Scegli (o inserisci) la porta di comunicazione"
+
+#: FilePage.py:242
+msgid "Baud:"
+msgstr "Baud :"
+
+#: FilePage.py:247
+msgid "Select connection baud rate"
+msgstr "Scegli la velocità di connessione in Baud"
+
+#: FilePage.py:254
+msgid "Controller:"
+msgstr "Controllore:"
+
+#: FilePage.py:261
+msgid "Select controller board"
+msgstr "Seleziona la scheda controllore"
+
+#: FilePage.py:268
+msgid "Connect on startup"
+msgstr "Connetti all'avvio"
+
+#: FilePage.py:271
+msgid "Connect to serial on startup of the program"
+msgstr "Connetti la comunicazione seriale all'avvio"
+
+#: FilePage.py:286
+msgid "Open/Close serial port"
+msgstr "Apre/Chiude la comunicazione seriale"
+
+#: FilePage.py:305
+msgid "File I/O and configuration"
+msgstr "File I/O e di configurazione"
+
+#: Ribbon.py:499
 msgid "New file"
 msgstr "Nuovo file"
 
-#: Ribbon.py:489
+#: Ribbon.py:505
 msgid "Open file [Ctrl-O]"
 msgstr "Apri File [Ctrl-O]"
 
-#: Ribbon.py:495
+#: Ribbon.py:511
 msgid "Save all [Ctrl-S]"
 msgstr "Salva tutto [Ctrl-S]"
 
-#: Ribbon.py:501
+#: Ribbon.py:517
 msgid "Undo [Ctrl-Z]"
 msgstr "Annulla [Ctrl-Z]"
 
-#: Ribbon.py:514
+#: Ribbon.py:530
 msgid "Redo [Ctrl-Y]"
 msgstr "Ripristina [Ctrl-Y]"
 
-#: Ribbon.py:525
+#: Ribbon.py:541
 msgid "Help [F1]"
 msgstr "Aiuto [F1]"
+
+#: ProbePage.py:27
+msgid "G38.2 stop on contact else error"
+msgstr "G38.2 F. al cont. altrimenti errore"
+
+#: ProbePage.py:28
+msgid "G38.3 stop on contact"
+msgstr "G38.3 F. al contatto"
+
+#: ProbePage.py:29
+msgid "G38.4 stop on loss contact else error"
+msgstr "G38.4 F. no cont. altrimenti errore"
+
+#: ProbePage.py:30
+msgid "G38.5 stop on loss contact"
+msgstr "G38.5 F. no contatto"
+
+#: ProbePage.py:33
+msgid "Send M6 commands"
+msgstr "Invia i comandi M6"
+
+#: ProbePage.py:34
+msgid "Ignore M6 commands"
+msgstr "Ignora i comandi M6"
+
+#: ProbePage.py:35
+msgid "Manual Tool Change (WCS)"
+msgstr "Cambio Utensile Manuale (WCS)"
+
+#: ProbePage.py:36
+msgid "Manual Tool Change (TLO)"
+msgstr "Cambio Utensile Manuale (TLO)"
+
+#: ProbePage.py:37
+msgid "Manual Tool Change (NoProbe)"
+msgstr "Cambio utensile manuale (Senza sonda)"
+
+#: ProbePage.py:40
+msgid "ONLY before probing"
+msgstr "SOLO prima del sondaggio"
+
+#: ProbePage.py:41
+msgid "BEFORE & AFTER probing"
+msgstr "PRIMA e DOPO il sondaggio"
+
+#: ProbePage.py:72 ProbePage.py:79 ProbePage.py:322 ProbePage.py:379 bCNC.py:92
+msgid "Probe"
+msgstr "Sonda"
+
+#: ProbePage.py:85
+msgid "Simple probing along a direction"
+msgstr "Sondaggio semplice lungo una direzione"
+
+#: ProbePage.py:91 ProbePage.py:813 EditorPage.py:147
+msgid "Autolevel"
+msgstr "Auto livellamento"
+
+#: ProbePage.py:97
+msgid "Autolevel Z surface"
+msgstr "Auto Z livellamento"
+
+#: ProbePage.py:103 ProbePage.py:1162 ToolsPage.py:1300
+msgid "Camera"
+msgstr "Telecamera"
+
+#: ProbePage.py:109
+msgid "Work surface camera view and alignment"
+msgstr "Piano di lavoro telecamera, allineamento e visione"
+
+#: ProbePage.py:116
+msgid "Tool"
+msgstr "Utensile"
+
+#: ProbePage.py:122
+msgid "Setup probing for manual tool change"
+msgstr "Impostazioni sonda per il Cambiamento Utensile Manuale"
+
+#: ProbePage.py:139
+msgid "Margins"
+msgstr "Margini"
+
+#: ProbePage.py:144
+msgid "Get margins from gcode file"
+msgstr "Imposta i margini dal file G-code"
+
+#: ProbePage.py:151
+msgid "Zero"
+msgstr "Zero"
+
+#: ProbePage.py:156
+msgid "Set current location as Z-zero for leveling"
+msgstr "Impostare la posizione attuale come Z-zero per il livellamento"
+
+#: ProbePage.py:163 ProbePage.py:507 TerminalPage.py:29
+msgid "Clear"
+msgstr "Cancella"
+
+#: ProbePage.py:168
+msgid "Clear probe data"
+msgstr "Cancella dati sonda"
+
+#: ProbePage.py:175 plugins/heightmap.py:51
+msgid "Scan"
+msgstr "Scansiona"
+
+#: ProbePage.py:182
+msgid "Scan probed area for level information on Z plane"
+msgstr "Scansiona la zona per acquisire il livellamento del piano in Z"
+
+#: ProbePage.py:195
+msgid "Common"
+msgstr "Comune"
+
+#: ProbePage.py:205
+#, fuzzy
+#| msgid "Probe Feed:"
+msgid "Fast Probe Feed:"
+msgstr "Avanz. sonda:"
+
+#: ProbePage.py:209
+msgid "Set initial probe feed rate for tool change and calibration"
+msgstr ""
+
+#: ProbePage.py:216
+msgid "Probe Feed:"
+msgstr "Avanz. sonda:"
+
+#: ProbePage.py:223
+msgid "Set probe feed rate"
+msgstr "Imposta l'avanzamento per il sondaggio"
+
+#: ProbePage.py:230
+msgid "TLO"
+msgstr "TLO"
+
+#: ProbePage.py:234
+msgid "Set tool offset for probing"
+msgstr "Impostare la compensazione utensile per il sondaggio"
+
+#: ProbePage.py:250
+msgid "Probe Command"
+msgstr "Comando per la sonda"
+
+#: ProbePage.py:326 ProbePage.py:1512
+msgid "Probe:"
+msgstr "Sonda :"
+
+#: ProbePage.py:344
+msgid "Goto"
+msgstr "Vai"
+
+#: ProbePage.py:351
+msgid "Rapid goto to last probe location"
+msgstr "Vai in rapido all'ultima posizione della sonda"
+
+#: ProbePage.py:355
+msgid "Pos:"
+msgstr "Pos :"
+
+#: ProbePage.py:360
+msgid "Probe along X direction"
+msgstr "Sonda lungo X"
+
+#: ProbePage.py:366
+msgid "Probe along Y direction"
+msgstr "Sonda lungo Y"
+
+#: ProbePage.py:372
+msgid "Probe along Z direction"
+msgstr "Sonda lungo Z"
+
+#: ProbePage.py:386
+msgid "Perform a single probe cycle"
+msgstr "Effettua un ciclo di sondaggio semplice"
+
+#: ProbePage.py:396 ProbePage.py:408 EditorPage.py:306
+msgid "Center"
+msgstr "Centra"
+
+#: ProbePage.py:399
+msgid "Diameter:"
+msgstr "Diametro :"
+
+#: ProbePage.py:402
+msgid "Probing ring internal diameter"
+msgstr "Diametro interno dell'anello di sondaggio"
+
+#: ProbePage.py:415
+msgid "Center probing using a ring"
+msgstr "Sondagio centrale usando un anello"
+
+#: ProbePage.py:420 ProbePage.py:528 bCNC.py:93
+msgid "Orient"
+msgstr "Orientamento"
+
+#: ProbePage.py:426
+msgid "Markers:"
+msgstr "Riferimenti:"
+
+#: ProbePage.py:436
+msgid "Select orientation marker"
+msgstr "Seleziona un riferimento d'orientamento"
+
+#: ProbePage.py:440 EditorPage.py:179 ToolsPage.py:1070
+msgid "Add"
+msgstr "Aggiungi"
+
+#: ProbePage.py:448
+msgid ""
+"Add an orientation marker. Jog first the machine to the marker position and "
+"then click on canvas to add the marker."
+msgstr ""
+"Aggiungi un riferimento d'orientamento. Muovi la macchina sul riferimento a "
+"quindi premi sulla vista per aggiungere il riferimento."
+
+#: ProbePage.py:455
+msgid "Gcode:"
+msgstr "Gcode:"
+
+#: ProbePage.py:462
+msgid "GCode X coordinate of orientation point"
+msgstr "Coordinata X GCode del punto d'orientamento"
+
+#: ProbePage.py:470
+msgid "GCode Y coordinate of orientation point"
+msgstr "Coordinata Y GCode del punto d'orientamento"
+
+#: ProbePage.py:474 EditorPage.py:203 ToolsPage.py:1096
+msgid "Delete"
+msgstr "Cancella"
+
+#: ProbePage.py:482
+msgid "Delete current marker"
+msgstr "Cancella il riferimento d'orientamento corrente"
+
+#: ProbePage.py:495
+msgid "Machine X coordinate of orientation point"
+msgstr "Coordinata X macchina del punto d'orientamento"
+
+#: ProbePage.py:503
+msgid "Machine Y coordinate of orientation point"
+msgstr "Coordinata Y macchina del punto d'orientamento"
+
+#: ProbePage.py:515 ProbePage.py:727
+msgid "Delete all markers"
+msgstr "Cancella tutti i riferimenti d'orientamento"
+
+#: ProbePage.py:520
+msgid "Angle:"
+msgstr "Angolo:"
+
+#: ProbePage.py:536
+msgid "Align GCode with the machine markers"
+msgstr "Allinea il GCode con i riferimento della macchina"
+
+#: ProbePage.py:541 ProbePage.py:1228
+msgid "Offset:"
+msgstr "Scostamento:"
+
+#: ProbePage.py:554
+msgid "Error:"
+msgstr "Errore:"
+
+#: ProbePage.py:594
+msgid "Probe connected?"
+msgstr "Sonda collegata?"
+
+#: ProbePage.py:595
+msgid ""
+"Please verify that the probe is connected.\n"
+"\n"
+"Show this message again?"
+msgstr ""
+"Si prega di verificar che la sonda sia corretta\n"
+"\n"
+"Mostrare ancora questo messaggio?"
+
+#: ProbePage.py:606 ProbePage.py:637 ProbePage.py:979 ProbePage.py:986
+#: ProbePage.py:999 ProbePage.py:1006 ProbePage.py:1016 ProbePage.py:1023
+#: ProbePage.py:1030
+msgid "Probe Error"
+msgstr "Errore di sondaggio"
+
+#: ProbePage.py:607 ProbePage.py:1031
+msgid "Invalid probe feed rate"
+msgstr "Avanzamento della sonda non valido"
+
+#: ProbePage.py:638
+msgid "At least one probe direction should be specified"
+msgstr "Deve essere indicata almeno una direzione di sondaggio"
+
+#: ProbePage.py:663
+msgid "Probe Center Error"
+msgstr "Errore di centraggio sonda"
+
+#: ProbePage.py:664
+msgid "Invalid diameter entered"
+msgstr "Diametro inserito non valido"
+
+#: ProbePage.py:728
+msgid "Do you want to delete all orientation markers?"
+msgstr "Vuoi cancellare tutti i riferimenti?"
+
+#: ProbePage.py:819
+msgid "Min"
+msgstr "Min"
+
+#: ProbePage.py:821
+msgid "Max"
+msgstr "Max"
+
+#: ProbePage.py:823
+msgid "Step"
+msgstr "Passo"
+
+#: ProbePage.py:834
+msgid "X minimum"
+msgstr "X minimo"
+
+#: ProbePage.py:840
+msgid "X maximum"
+msgstr "X massimo"
+
+#: ProbePage.py:847
+msgid "X step"
+msgstr "Passo X"
+
+#: ProbePage.py:856
+msgid "X bins"
+msgstr "X spazi"
+
+#: ProbePage.py:866
+msgid "Y minimum"
+msgstr "Y minimo"
+
+#: ProbePage.py:872
+msgid "Y maximum"
+msgstr "Y massimo"
+
+#: ProbePage.py:879
+msgid "Y step"
+msgstr "Passo Y"
+
+#: ProbePage.py:888
+msgid "Y bins"
+msgstr "Y spazi"
+
+#: ProbePage.py:899
+msgid "Z Minimum depth to scan"
+msgstr "Minima Profondità in Z da scansionare"
+
+#: ProbePage.py:905
+msgid "Z safe to move"
+msgstr "Quota di sicurezza Z  per i movimenti"
+
+#: ProbePage.py:980
+msgid "Invalid X probing region"
+msgstr "Area X di sondaggio non valida"
+
+#: ProbePage.py:987
+#, fuzzy
+#| msgid "Invalid X probing region"
+msgid "Invalid X range [xmin>=xmax]"
+msgstr "Area X di sondaggio non valida"
+
+#: ProbePage.py:1000
+msgid "Invalid Y probing region"
+msgstr "Area Y di sondaggio non valida"
+
+#: ProbePage.py:1007
+#, fuzzy
+#| msgid "Invalid Y probing region"
+msgid "Invalid Y range [ymin>=ymax]"
+msgstr "Area Y di sondaggio non valida"
+
+#: ProbePage.py:1017
+msgid "Invalid Z probing region"
+msgstr "Area Z di sondaggio non valida"
+
+#: ProbePage.py:1024
+#, fuzzy
+#| msgid "Invalid Z probing region"
+msgid "Invalid Z range [zmin>=zmax]"
+msgstr "Area Z di sondaggio non valida"
+
+#: ProbePage.py:1051
+msgid "Delete autolevel information"
+msgstr "Cancella le informazioni del livellamento"
+
+#: ProbePage.py:1052
+msgid "Do you want to delete all autolevel in formation?"
+msgstr "Vuoi cancellare tutte le informazioni dell'autolivellamento?"
+
+#: ProbePage.py:1084
+msgid "Switch To"
+msgstr "Passa a"
+
+#: ProbePage.py:1090
+msgid "Switch between camera and spindle"
+msgstr "Passa dalla macchina fotografica al mandrino"
+
+#: ProbePage.py:1096
+msgid "Edge Detection"
+msgstr "Rilevazione dei contorni"
+
+#: ProbePage.py:1103
+msgid "Turn on/off edge detection"
+msgstr "Accendi/Spegni rilevazione dei contorni"
+
+#: ProbePage.py:1109
+msgid "Freeze"
+msgstr "Congela"
+
+#: ProbePage.py:1116
+msgid "Turn on/off freeze image"
+msgstr "Attivare/disattivare il fermo-immagine"
+
+#: ProbePage.py:1167
+msgid "Location:"
+msgstr "Posizione:"
+
+#: ProbePage.py:1174
+msgid "Camera location inside canvas"
+msgstr "Posizione della telecamera nella vista"
+
+#: ProbePage.py:1178
+#, fuzzy
+#| msgid "Location:"
+msgid "Rotation:"
+msgstr "Posizione:"
+
+#: ProbePage.py:1184
+#, fuzzy
+#| msgid "Camera location inside canvas"
+msgid "Camera rotation [degrees]"
+msgstr "Posizione della telecamera nella vista"
+
+#: ProbePage.py:1187
+msgid "Haircross Offset:"
+msgstr ""
+
+#: ProbePage.py:1193
+#, fuzzy
+#| msgid "Camera cross hair diameter [units]"
+msgid "Haircross X offset [unit]"
+msgstr "Diametro della croce della telecamera [unità]"
+
+#: ProbePage.py:1200
+#, fuzzy
+#| msgid "Camera cross hair diameter [units]"
+msgid "Haircross Y offset [unit]"
+msgstr "Diametro della croce della telecamera [unità]"
+
+#: ProbePage.py:1204
+msgid "Scale:"
+msgstr "Scala:"
+
+#: ProbePage.py:1210
+msgid "Camera scale [pixels / unit]"
+msgstr "Scalatura della telecamera [pixel/unità]"
+
+#: ProbePage.py:1214
+msgid "Crosshair:"
+msgstr "Croce:"
+
+#: ProbePage.py:1220
+msgid "Camera cross hair diameter [units]"
+msgstr "Diametro della croce della telecamera [unità]"
+
+#: ProbePage.py:1222
+msgid "Get"
+msgstr "Ottieni"
+
+#: ProbePage.py:1224
+msgid "Get diameter from active endmill"
+msgstr "Ottieni diametro dall'utensile attivo"
+
+#: ProbePage.py:1234 ProbePage.py:1241
+msgid "Camera offset from gantry"
+msgstr "Scostamento  della telecamera dalla posizione attuale"
+
+#: ProbePage.py:1248
+msgid "Spindle Z position when camera was registered"
+msgstr "Posizione Z del mandrino quando la telecamera è stata memorizzata"
+
+#: ProbePage.py:1251
+msgid "Register:"
+msgstr "Memorizza:"
+
+#: ProbePage.py:1252
+msgid "1. Spindle"
+msgstr "1. Mandrino"
+
+#: ProbePage.py:1256
+msgid "Mark spindle position for calculating offset"
+msgstr "Segna la posizione del mandrino per calcolare lo scostamento"
+
+#: ProbePage.py:1258
+msgid "2. Camera"
+msgstr "2. Telecamera"
+
+#: ProbePage.py:1262
+msgid "Mark camera position for calculating offset"
+msgstr "Segna la posizione della telecamera per calcolare lo scostamento"
+
+#: ProbePage.py:1341
+msgid "Spindle position is registered"
+msgstr "La posizione del mandrino è memorizzata"
+
+#: ProbePage.py:1348
+msgid "Spindle position is not registered"
+msgstr "La posizione del mandrino non è registrata"
+
+#: ProbePage.py:1349
+msgid "Spindle position must be registered before camera"
+msgstr ""
+"La posizione del mandrino deve essere registrata prima di quella della "
+"telecamera"
+
+#: ProbePage.py:1355
+msgid "Camera offset is updated"
+msgstr "Scostamento della telecamera aggiornato"
+
+#: ProbePage.py:1414 ProbePage.py:1561
+msgid "Calibrate"
+msgstr "Calibra"
+
+#: ProbePage.py:1420
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr ""
+"Effettua un solo ciclo di Cambio Utensile per impostare il campo di "
+"calibrazione"
+
+#: ProbePage.py:1424
+msgid "Change"
+msgstr "Cambia"
+
+#: ProbePage.py:1430
+msgid "Perform a tool change cycle"
+msgstr "Effettua un ciclo di Cambio Utensile"
+
+#: ProbePage.py:1439
+msgid "Manual Tool Change"
+msgstr "Cambio Utensile manuale"
+
+#: ProbePage.py:1444
+msgid "Policy:"
+msgstr "Politica :"
+
+#: ProbePage.py:1453
+msgid "Tool change policy"
+msgstr "Politica di cambio Utensile"
+
+#: ProbePage.py:1459
+msgid "Pause:"
+msgstr "Pausa :"
+
+#: ProbePage.py:1482
+msgid "Change:"
+msgstr "Cambio :"
+
+#: ProbePage.py:1486
+msgid "Manual tool change Machine X location"
+msgstr "Posizione X per Cambio Utensile Manuale"
+
+#: ProbePage.py:1492
+msgid "Manual tool change Machine Y location"
+msgstr "Posizione Y per Cambio Utensile Manuale"
+
+#: ProbePage.py:1498
+msgid "Manual tool change Machine Z location"
+msgstr "Posizione Z per Cambio Utensile Manuale"
+
+#: ProbePage.py:1502 ProbePage.py:1532
+msgid "get"
+msgstr "acquisisci"
+
+#: ProbePage.py:1506
+msgid "Get current gantry position as machine tool change location"
+msgstr ""
+"Usa la posizione attuale dell'Utensile come posizione di Cambio Utensile"
+
+#: ProbePage.py:1516
+msgid "Manual tool change Probing MX location"
+msgstr "Posizione MX per Cambio Utensile Manuale"
+
+#: ProbePage.py:1522
+msgid "Manual tool change Probing MY location"
+msgstr "Posizione MY per Cambio Utensile Manuale"
+
+#: ProbePage.py:1528
+msgid "Manual tool change Probing MZ location"
+msgstr "Posizione MZ per Cambio Utensile Manuale"
+
+#: ProbePage.py:1536
+msgid "Get current gantry position as machine tool probe location"
+msgstr "Usa la posizione attuale dell'Utensile come posizione della sonda"
+
+#: ProbePage.py:1547
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr "Dopo un cambio Utensile, distanza da sondare partendo dalla Z Sonda"
+
+#: ProbePage.py:1553
+msgid "Calibration:"
+msgstr "Calibrazione :"
+
+#: ProbePage.py:1557
+msgid "Tool probe height"
+msgstr "Altezza di sondaggio Utensile"
+
+#: ProbePage.py:1565
+msgid "Perform a calibration probing to determine the height"
+msgstr "Effettua una calibrazione per determinare l'altezza"
+
+#: ProbePage.py:1616 ProbePage.py:1626 ProbePage.py:1634 ProbePage.py:1642
+#: ProbePage.py:1650
+msgid "Probe Tool Change Error"
+msgstr "Errore durante la modifica dell'Utensile di sondaggio"
+
+#: ProbePage.py:1617
+msgid "Invalid tool change position"
+msgstr "Posizione di Cambio Utensile non valida"
+
+#: ProbePage.py:1627
+msgid "Invalid tool probe location"
+msgstr "Posizione dell'Utensile di sondaggio non valida"
+
+#: ProbePage.py:1635 ProbePage.py:1651
+msgid "Invalid tool scanning distance entered"
+msgstr "Inserita una distanza di scansione errata"
+
+#: ProbePage.py:1643
+msgid "Invalid tool height or not calibrated"
+msgstr "Lunghezza Utensile non valida o non calibrata"
+
+#: ProbePage.py:1746
+msgid "Probe configuration and probing"
+msgstr "Configurazione della sonda e del sondaggio"
+
+#: bCNC.py:87
+msgid "All accepted"
+msgstr "Tutto accettato"
+
+#: bCNC.py:88 bCNC.py:2004
+msgid "G-Code"
+msgstr "G-Code"
+
+#: bCNC.py:89
+msgid "G-Code clean"
+msgstr "Pulizia G-Code"
+
+#: bCNC.py:95 EditorPage.py:79
+msgid "All"
+msgstr "Tutto"
+
+#: bCNC.py:144
+msgid "Controller buffer fill"
+msgstr "Riempimento del buffer del controllore"
+
+#: bCNC.py:171
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+"Linea di comando MDI : Accetta i comandi G-Code o le macro (RESET/HOME...) o "
+"i comandi dell'editor (move, inkscape, round...) [Spazio o Ctrl-Spazio]"
+
+#: bCNC.py:510
+msgid "Running"
+msgstr "In esecuzione"
+
+#: bCNC.py:511
+msgid "CNC is currently running, please stop it before."
+msgstr "CNC è in funzione, si prega di fermarlo."
+
+#: bCNC.py:712
+#, python-format
+msgid "About %s"
+msgstr "A proposito %s"
+
+#: bCNC.py:747
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+"bCNC/\tUn sender completo e avanzato\n"
+"\tdi GCode per GRBL."
+
+#: bCNC.py:903 EditorPage.py:497
+msgid "Statistics"
+msgstr "Statistiche"
+
+#: bCNC.py:923
+msgid "Enabled GCode"
+msgstr "GCode attivo"
+
+#: bCNC.py:928 bCNC.py:1001
+msgid "Margins X:"
+msgstr "Margini X :"
+
+#: bCNC.py:961 bCNC.py:1034
+msgid "# Blocks:"
+msgstr "# Blocchi :"
+
+#: bCNC.py:969 bCNC.py:1041
+msgid "Length:"
+msgstr "Lunghezza :"
+
+#: bCNC.py:977
+msgid "Rapid:"
+msgstr "Rapido:"
+
+#: bCNC.py:985 bCNC.py:1049
+msgid "Time:"
+msgstr "Tempi:"
+
+#: bCNC.py:996
+msgid "All GCode"
+msgstr "Tutto il GCode"
+
+#: bCNC.py:1217
+msgid "Evaluation error"
+msgstr "Errore di valutazione"
+
+#: bCNC.py:1295
+msgid "Direction command error"
+msgstr "Comando di direzione invalido"
+
+#: bCNC.py:1296
+#, python-format
+msgid "Invalid direction %s specified"
+msgstr "Specificata direzione %s invalida"
+
+#: bCNC.py:1458 EditorPage.py:322
+msgid "Optimize"
+msgstr "Ottimizza"
+
+#: bCNC.py:1459
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "Prego selezionare i blocchi di GCode da ottimizzare."
+
+#: bCNC.py:1602
+#, python-format
+msgid "EndMill: %s %g"
+msgstr "Utensile : %s %g"
+
+#: bCNC.py:1627
+#, python-format
+msgid "Invalid user command %s"
+msgstr "Comando utente %s non valido"
+
+#: bCNC.py:1663
+msgid "Nothing to do"
+msgstr "Niente da fare"
+
+#: bCNC.py:1664
+#, python-format
+msgid "Operation %s requires some gcode to be selected"
+msgstr "L'Operazione %s richiede che sia selezionato qualche GCode"
+
+#: bCNC.py:1708
+msgid "Operation error"
+msgstr "Errore d'esecuzione"
+
+#: bCNC.py:1749
+#, python-format
+msgid "Profile block distance=%g"
+msgstr "Distanza del blocco contorno = %g"
+
+#: bCNC.py:1765
+msgid "Open paths"
+msgstr "Percorsi aperti"
+
+#: bCNC.py:1766
+#, python-format
+msgid "WARNING: %s"
+msgstr "ATTENZIONE : %s"
+
+#: bCNC.py:1887
+msgid "Open file"
+msgstr "Apri File"
+
+#: bCNC.py:1903
+msgid "Save file"
+msgstr "Salva File"
+
+#: bCNC.py:1912
+msgid "File modified"
+msgstr "File modificato"
+
+#: bCNC.py:1913
+msgid "Gcode was modified do you want to save it first?"
+msgstr "Il GCode è stato modificato, lo si vuole salvare?"
+
+#: bCNC.py:1922
+msgid "Probe File modified"
+msgstr "File modificato"
+
+#: bCNC.py:1923
+msgid "Probe was modified do you want to save it first?"
+msgstr "Il GCode è stato modificato, lo si vuole salvare?"
+
+#: bCNC.py:1946
+msgid "Existing Autolevel"
+msgstr "Livellamento automatico"
+
+#: bCNC.py:1947
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+"Esistono già informazioni per autolivellamento/sondaggio.\n"
+"Cancellarle?"
+
+#: bCNC.py:1952
+#, python-format
+msgid "Loading: %s ..."
+msgstr "Caricamento : %s ..."
+
+#: bCNC.py:1973
+#, python-format
+msgid "'%s' reloaded at '%s'"
+msgstr "'%s' ricaricato alle '%s'"
+
+#: bCNC.py:1975
+#, python-format
+msgid "'%s' loaded"
+msgstr "'%s' caricato"
+
+#: bCNC.py:1981
+#, python-format
+msgid "'%s' saved"
+msgstr "'%s' salvato"
+
+#: bCNC.py:2000
+msgid "Import Gcode/DXF file"
+msgstr "Importa file GCode/DXF"
+
+#: bCNC.py:2034
+msgid "Warning"
+msgstr "Attenzione"
+
+#: bCNC.py:2035
+#, python-format
+msgid ""
+"Gcode file %s was changed since editing started\n"
+"Reload new version?"
+msgstr ""
+"Il File GCode %s è stato modificato dal momento del caricamento\n"
+"Ricaricare la nuova versione?"
+
+#: bCNC.py:2070
+msgid "Error opening serial"
+msgstr "Errore di apertura della porta seriale"
+
+#: bCNC.py:2100
+msgid "Serial Error"
+msgstr "Errore porta seriale"
+
+#: bCNC.py:2101
+msgid "Serial is not connected"
+msgstr "Porta seriale non connessa"
+
+#: bCNC.py:2108
+msgid "Already running"
+msgstr "Già in funzione"
+
+#: bCNC.py:2109
+msgid "Please stop before"
+msgstr "Prego fermare prima"
+
+#: bCNC.py:2155
+msgid "Empty gcode"
+msgstr "GCode vuoto"
+
+#: bCNC.py:2156
+msgid "Not gcode file was loaded"
+msgstr "Nessun File GCode caricato"
+
+#: bCNC.py:2191
+msgid "Running..."
+msgstr "In Esecuzione..."
+
+#: bCNC.py:2209
+msgid "Pendant started:\n"
+msgstr "Controllo remoto attivato :\n"
+
+#: bCNC.py:2213
+msgid "Pendant already started:\n"
+msgstr "Controllo remoto già attivato :\n"
+
+#: bCNC.py:2215
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+"\n"
+"Volete aprirlo localmente?"
+
+#: bCNC.py:2225
+msgid "Pendant stopped"
+msgstr "Controllo remoto fermato"
+
+#: bCNC.py:2545
+msgid "python serial missing"
+msgstr "python serial non installato"
+
+#: bCNC.py:2546
+msgid ""
+"ERROR: Please install the python pyserial module\n"
+"Windows:\n"
+"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Mac:\tpip install pyserial\n"
+"Linux:\tsudo apt-get install python-serial\n"
+"\tor yum install python-serial\n"
+"\tor dnf install python-pyserial"
+msgstr ""
+"ERRORE: Si prega di installare il modulo python pyserial\n"
+"Windows:\n"
+"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Mac:\tpip install pyserial\n"
+"Linux:\tsudo apt-get install python-serial\n"
+"\tor yum install python-serial\n"
+"\tor dnf install python-pyserial"
 
 #: EditorPage.py:29
 msgid "Clipboard"
@@ -1427,6 +1981,10 @@ msgstr "Incolla"
 #: EditorPage.py:40
 msgid "Paste [Ctrl-V]"
 msgstr "Incolla [Ctrl-V]"
+
+#: EditorPage.py:46 ToolsPage.py:1117 plugins/box.py:315
+msgid "Cut"
+msgstr "Taglia"
 
 #: EditorPage.py:51
 msgid "Cut [Ctrl-X]"
@@ -1444,10 +2002,6 @@ msgstr "Copia [Ctrl-C]"
 msgid "Select"
 msgstr "Seleziona"
 
-#: EditorPage.py:79 bCNC.py:95
-msgid "All"
-msgstr "Tutto"
-
 #: EditorPage.py:84
 msgid "Select all blocks [Ctrl-A]"
 msgstr "Selezionare tutti i blocchi [Ctrl-A]"
@@ -1460,7 +2014,7 @@ msgstr "Nessuno"
 msgid "Unselect all blocks [Ctrl-Shift-A]"
 msgstr "Deselezionare tutti i blocchi  [Ctrl-Shift-A]"
 
-#: EditorPage.py:103 EditorPage.py:335 plugins/heightmap.py:57
+#: EditorPage.py:103 EditorPage.py:354 plugins/heightmap.py:56
 msgid "Invert"
 msgstr "Inverti"
 
@@ -1480,9 +2034,13 @@ msgstr "Seleziona tutti i blocchi dal livello corrente"
 msgid "Filter blocks"
 msgstr "Filtraggio blocchi"
 
-#: EditorPage.py:147
+#: EditorPage.py:146
 msgid "Edit"
 msgstr "Modifica"
+
+#: EditorPage.py:148 CNCList.py:680
+msgid "Color"
+msgstr "Colore"
 
 #: EditorPage.py:149
 msgid "Import"
@@ -1496,1390 +2054,1063 @@ msgstr "Inkscape"
 msgid "Round"
 msgstr "Arrotonda"
 
-#: EditorPage.py:164
+#: EditorPage.py:171 EditorPage.py:185
 msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
 msgstr "Inserisci un nuovo blocco o riga di codice [Ins ou Ctrl-Enter]"
 
+#: EditorPage.py:174
+msgid "Line"
+msgstr ""
+
 #: EditorPage.py:176
+#, fuzzy
+#| msgid "Unlock"
+msgid "Block"
+msgstr "Sblocca"
+
+#: EditorPage.py:191 ToolsPage.py:1083
+msgid "Clone"
+msgstr "Clonare"
+
+#: EditorPage.py:196
 msgid "Clone selected lines or blocks [Ctrl-D]"
 msgstr "Clonare i blocchi o le righe di codice selezionate [Ctrl-D]"
 
-#: EditorPage.py:188
+#: EditorPage.py:208
 msgid "Delete selected lines or blocks [Del]"
 msgstr "Clancellare i blocchi o le righe di codice selezionate [Ctrl-D]"
 
-#: EditorPage.py:200
+#: EditorPage.py:220
 msgid "Toggle enable/disable block of g-code [Ctrl-L]"
 msgstr "Bottone che attiva/disattiva il blocco di righe G-Code [Ctrl-L]"
 
-#: EditorPage.py:203
+#: EditorPage.py:223
 msgid "Enable"
 msgstr "Attiva"
 
-#: EditorPage.py:205
+#: EditorPage.py:225
 msgid "Disable"
 msgstr "Disattiva"
 
-#: EditorPage.py:208
+#: EditorPage.py:228
 msgid "Active"
 msgstr "Attivo"
 
-#: EditorPage.py:214
+#: EditorPage.py:234
 msgid "Enable or disable blocks of gcode"
 msgstr "Attivare o disattivare i blocchi di GCode"
 
-#: EditorPage.py:221
+#: EditorPage.py:240
 msgid "Expand"
 msgstr "Aumenta"
 
-#: EditorPage.py:226
+#: EditorPage.py:245
 msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
 msgstr "Bottone che espande/collassa i blocchi di G-Code [Ctrl-L]"
 
-#: EditorPage.py:239
+#: EditorPage.py:252 ToolsPage.py:591 ToolsPage.py:617 ToolsPage.py:646
+msgid "Comment"
+msgstr "Commento"
+
+#: EditorPage.py:258
 msgid "(Un)Comment selected lines"
 msgstr "(De)Commentare le righe selezionate"
 
-#: EditorPage.py:247 EditorPage.py:254
+#: EditorPage.py:266 EditorPage.py:273
 msgid "Move"
 msgstr "Muovi"
 
-#: EditorPage.py:262
+#: EditorPage.py:281
 msgid "Move objects [M]"
 msgstr "Muovi gli oggetti [M]"
 
-#: EditorPage.py:269
+#: EditorPage.py:288
 msgid "Origin"
 msgstr "Origine"
 
-#: EditorPage.py:277
+#: EditorPage.py:296
 msgid "Move all gcode such as origin is on mouse location [O]"
 msgstr ""
 "Sposta tutto il Gcode in modo che l'origine risulti nella posizione del "
 "mouse [O]"
 
-#: EditorPage.py:283
+#: EditorPage.py:302
 msgid "Top-Left"
 msgstr "Alto-Sinistra"
 
-#: EditorPage.py:284
+#: EditorPage.py:303
 msgid "Left"
 msgstr "Sinistra"
 
-#: EditorPage.py:285
+#: EditorPage.py:304
 msgid "Bottom-Left"
 msgstr "Basso-Sinistra"
 
-#: EditorPage.py:286
+#: EditorPage.py:305
 msgid "Top"
 msgstr "Alto"
 
-#: EditorPage.py:287 ProbePage.py:377 ProbePage.py:389
-msgid "Center"
-msgstr "Centra"
-
-#: EditorPage.py:288
+#: EditorPage.py:307
 msgid "Bottom"
 msgstr "Basso"
 
-#: EditorPage.py:289
+#: EditorPage.py:308
 msgid "Top-Right"
 msgstr "Alto-Destra"
 
-#: EditorPage.py:290
+#: EditorPage.py:309
 msgid "Right"
 msgstr "Destra"
 
-#: EditorPage.py:291
+#: EditorPage.py:310
 msgid "Bottom-Right"
 msgstr "Basso-Destra"
 
-#: EditorPage.py:302 plugins/hilbert.py:90
+#: EditorPage.py:321 plugins/hilbert.py:89
 msgid "Order"
 msgstr "Ordine"
 
-#: EditorPage.py:303 bCNC.py:1456
-msgid "Optimize"
-msgstr "Ottimizza"
-
-#: EditorPage.py:311
+#: EditorPage.py:330
 msgid "Up"
 msgstr "Su"
 
-#: EditorPage.py:316
+#: EditorPage.py:335
 msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
 msgstr "Sposta il G-code selezionato in Alto [Ctrl-Su, Ctrl-PgUp]"
 
-#: EditorPage.py:323
+#: EditorPage.py:342
 msgid "Down"
 msgstr "Giù"
 
-#: EditorPage.py:328
+#: EditorPage.py:347
 msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
 msgstr "Sposta il G-code selezionato in Basso [Ctrl-Giù, Ctrl-PgDn]"
 
-#: EditorPage.py:340
+#: EditorPage.py:359
 msgid "Invert cutting order of selected blocks"
 msgstr "Inverti l'ordine di taglio dei dei blocchi selezionati"
 
-#: EditorPage.py:348
+#: EditorPage.py:367
 msgid "Transform"
 msgstr "Transforma"
 
-#: EditorPage.py:355
+#: EditorPage.py:374
 msgid "CW"
 msgstr "Senso Orario"
 
-#: EditorPage.py:361
+#: EditorPage.py:380
 msgid "Rotate selected gcode clock-wise (-90deg)"
 msgstr "Rotazione in senso orario (di -90°) del G-Code selezionato"
 
-#: EditorPage.py:368
+#: EditorPage.py:387
 msgid "Flip"
 msgstr "Ribalta"
 
-#: EditorPage.py:374
+#: EditorPage.py:393
 msgid "Rotate selected gcode by 180deg"
 msgstr "Rotazione di 180° del G-Code selezionato"
 
-#: EditorPage.py:381
+#: EditorPage.py:400
 msgid "CCW"
 msgstr "Senso Antiorario"
 
-#: EditorPage.py:387
+#: EditorPage.py:406
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
 msgstr "Rotazione in senso antiorario (a 90°) del G-Code selezionato"
 
-#: EditorPage.py:394
+#: EditorPage.py:413
 msgid "Horizontal"
 msgstr "Orizzontale"
 
-#: EditorPage.py:400
+#: EditorPage.py:419
 msgid "Mirror horizontally X=-X selected gcode"
 msgstr "Specchia orizontalmente X=-X il G-Code selezionato"
 
-#: EditorPage.py:407
+#: EditorPage.py:426
 msgid "Vertical"
 msgstr "Verticale"
 
-#: EditorPage.py:413
+#: EditorPage.py:432
 msgid "Mirror vertically Y=-Y selected gcode"
 msgstr "Specchia verticalmente Y=-Y il G-Code selezionato"
 
-#: EditorPage.py:424
+#: EditorPage.py:443
 msgid "Route"
 msgstr "Percorso"
 
-#: EditorPage.py:431
+#: EditorPage.py:450
 msgid "Conventional"
 msgstr "Concorde"
 
-#: EditorPage.py:437
+#: EditorPage.py:456
 msgid "Change cut direction to conventional for selected gcode blocks"
 msgstr ""
 "Cambia la direzione del taglio a concorde per i blocchi di Gcode selezionati"
 
-#: EditorPage.py:444
+#: EditorPage.py:463
 msgid "Climb"
 msgstr "Discorde"
 
-#: EditorPage.py:450
+#: EditorPage.py:469
 msgid "Change cut direction to climb for selected gcode blocks"
 msgstr ""
 "Cambia la direzione del taglio a discorde per i blocchi di Gcode selezionati"
 
-#: EditorPage.py:457
+#: EditorPage.py:476
 msgid "Reverse"
 msgstr "Inverti"
 
-#: EditorPage.py:463
+#: EditorPage.py:482
 msgid "Reverse cut direction for selected gcode blocks"
 msgstr "Inverti la direzione di taglio per i blocchi di GCode selezionati"
 
-#: EditorPage.py:471 EditorPage.py:491
+#: EditorPage.py:490 EditorPage.py:510
 msgid "Info"
 msgstr "Info"
 
-#: EditorPage.py:478 bCNC.py:904
-msgid "Statistics"
-msgstr "Statistiche"
-
-#: EditorPage.py:484
+#: EditorPage.py:503
 msgid "Show statistics for enabled gcode"
 msgstr "Mostra le statistiche per i blocchi Gcode abilitati"
 
-#: EditorPage.py:497
+#: EditorPage.py:516
 msgid "Show cutting information on selected blocks [Ctrl-n]"
 msgstr "Mostra informazioni sul taglio per i blocchi selezionat [Ctrl-n]"
 
-#: EditorPage.py:521
+#: EditorPage.py:540
 msgid "GCode editor"
 msgstr "Editor GCode"
 
-#: EditorPage.py:522
+#: EditorPage.py:541
 msgid "Editor"
 msgstr "Editor"
 
-#: ProbePage.py:28
-msgid "G38.2 stop on contact else error"
-msgstr "G38.2 F. al cont. altrimenti errore"
-
-#: ProbePage.py:29
-msgid "G38.3 stop on contact"
-msgstr "G38.3 F. al contatto"
-
-#: ProbePage.py:30
-msgid "G38.4 stop on loss contact else error"
-msgstr "G38.4 F. no cont. altrimenti errore"
-
-#: ProbePage.py:31
-msgid "G38.5 stop on loss contact"
-msgstr "G38.5 F. no contatto"
-
-#: ProbePage.py:34
-msgid "Send M6 commands"
-msgstr "Invia i comandi M6"
-
-#: ProbePage.py:35
-msgid "Ignore M6 commands"
-msgstr "Ignora i comandi M6"
-
-#: ProbePage.py:36
-msgid "Manual Tool Change (WCS)"
-msgstr "Cambio Utensile Manuale (WCS)"
-
-#: ProbePage.py:37
-msgid "Manual Tool Change (TLO)"
-msgstr "Cambio Utensile Manuale (TLO)"
-
-#: ProbePage.py:38
-msgid "Manual Tool Change (NoProbe)"
-msgstr "Cambio utensile manuale (Senza sonda)"
-
-#: ProbePage.py:41
-msgid "ONLY before probing"
-msgstr "SOLO prima del sondaggio"
-
-#: ProbePage.py:42
-msgid "BEFORE & AFTER probing"
-msgstr "PRIMA e DOPO il sondaggio"
-
-#: ProbePage.py:73 ProbePage.py:80 ProbePage.py:303 ProbePage.py:360 bCNC.py:92
-msgid "Probe"
-msgstr "Sonda"
-
-#: ProbePage.py:86
-msgid "Simple probing along a direction"
-msgstr "Sondaggio semplice lungo una direzione"
-
-#: ProbePage.py:92 ProbePage.py:790
-msgid "Autolevel"
-msgstr "Auto livellamento"
-
-#: ProbePage.py:98
-msgid "Autolevel Z surface"
-msgstr "Auto Z livellamento"
-
-#: ProbePage.py:110
-msgid "Work surface camera view and alignment"
-msgstr "Piano di lavoro telecamera, allineamento e visione"
-
-#: ProbePage.py:117
-msgid "Tool"
-msgstr "Utensile"
-
-#: ProbePage.py:123
-msgid "Setup probing for manual tool change"
-msgstr "Impostazioni sonda per il Cambiamento Utensile Manuale"
-
-#: ProbePage.py:140
-msgid "Margins"
-msgstr "Margini"
-
-#: ProbePage.py:145
-msgid "Get margins from gcode file"
-msgstr "Imposta i margini dal file G-code"
-
-#: ProbePage.py:152
-msgid "Zero"
-msgstr "Zero"
-
-#: ProbePage.py:157
-msgid "Set current location as Z-zero for leveling"
-msgstr "Impostare la posizione attuale come Z-zero per il livellamento"
-
-#: ProbePage.py:164 ProbePage.py:488 TerminalPage.py:29
-msgid "Clear"
-msgstr "Cancella"
-
-#: ProbePage.py:169
-msgid "Clear probe data"
-msgstr "Cancella dati sonda"
-
-#: ProbePage.py:176 plugins/heightmap.py:52
-msgid "Scan"
-msgstr "Scansiona"
-
-#: ProbePage.py:183
-msgid "Scan probed area for level information on Z plane"
-msgstr "Scansiona la zona per acquisire il livellamento del piano in Z"
-
-#: ProbePage.py:196
-msgid "Common"
-msgstr "Comune"
-
-#: ProbePage.py:204
-msgid "Probe Feed:"
-msgstr "Avanz. sonda:"
-
-#: ProbePage.py:208
-msgid "Set probe feed rate"
-msgstr "Imposta l'avanzamento per il sondaggio"
-
-#: ProbePage.py:215
-msgid "TLO"
-msgstr "TLO"
-
-#: ProbePage.py:219
-msgid "Set tool offset for probing"
-msgstr "Impostare la compensazione utensile per il sondaggio"
-
-#: ProbePage.py:235
-msgid "Probe Command"
-msgstr "Comando per la sonda"
-
-#: ProbePage.py:307 ProbePage.py:1425
-msgid "Probe:"
-msgstr "Sonda :"
-
-#: ProbePage.py:325
-msgid "Goto"
-msgstr "Vai"
-
-#: ProbePage.py:332
-msgid "Rapid goto to last probe location"
-msgstr "Vai in rapido all'ultima posizione della sonda"
-
-#: ProbePage.py:336
-msgid "Pos:"
-msgstr "Pos :"
-
-#: ProbePage.py:341
-msgid "Probe along X direction"
-msgstr "Sonda lungo X"
-
-#: ProbePage.py:347
-msgid "Probe along Y direction"
-msgstr "Sonda lungo Y"
-
-#: ProbePage.py:353
-msgid "Probe along Z direction"
-msgstr "Sonda lungo Z"
-
-#: ProbePage.py:367
-msgid "Perform a single probe cycle"
-msgstr "Effettua un ciclo di sondaggio semplice"
-
-#: ProbePage.py:380
-msgid "Diameter:"
-msgstr "Diametro :"
-
-#: ProbePage.py:383
-msgid "Probing ring internal diameter"
-msgstr "Diametro interno dell'anello di sondaggio"
-
-#: ProbePage.py:396
-msgid "Center probing using a ring"
-msgstr "Sondagio centrale usando un anello"
-
-#: ProbePage.py:401 ProbePage.py:509 bCNC.py:93
-msgid "Orient"
-msgstr "Orientamento"
-
-#: ProbePage.py:407
-msgid "Markers:"
-msgstr "Riferimenti:"
-
-#: ProbePage.py:417
-msgid "Select orientation marker"
-msgstr "Seleziona un riferimento d'orientamento"
-
-#: ProbePage.py:429
-msgid ""
-"Add an orientation marker. Jog first the machine to the marker position and "
-"then click on canvas to add the marker."
-msgstr ""
-"Aggiungi un riferimento d'orientamento. Muovi la macchina sul riferimento a "
-"quindi premi sulla vista per aggiungere il riferimento."
-
-#: ProbePage.py:436
-msgid "Gcode:"
-msgstr "Gcode:"
-
-#: ProbePage.py:443
-msgid "GCode X coordinate of orientation point"
-msgstr "Coordinata X GCode del punto d'orientamento"
-
-#: ProbePage.py:451
-msgid "GCode Y coordinate of orientation point"
-msgstr "Coordinata Y GCode del punto d'orientamento"
-
-#: ProbePage.py:463
-msgid "Delete current marker"
-msgstr "Cancella il riferimento d'orientamento corrente"
-
-#: ProbePage.py:476
-msgid "Machine X coordinate of orientation point"
-msgstr "Coordinata X macchina del punto d'orientamento"
-
-#: ProbePage.py:484
-msgid "Machine Y coordinate of orientation point"
-msgstr "Coordinata Y macchina del punto d'orientamento"
-
-#: ProbePage.py:496 ProbePage.py:704
-msgid "Delete all markers"
-msgstr "Cancella tutti i riferimenti d'orientamento"
-
-#: ProbePage.py:501
-msgid "Angle:"
-msgstr "Angolo:"
-
-#: ProbePage.py:517
-msgid "Align GCode with the machine markers"
-msgstr "Allinea il GCode con i riferimento della macchina"
-
-#: ProbePage.py:522 ProbePage.py:1155
-msgid "Offset:"
-msgstr "Scostamento:"
-
-#: ProbePage.py:535
-msgid "Error:"
-msgstr "Errore:"
-
-#: ProbePage.py:575
-msgid "Probe connected?"
-msgstr "Sonda collegata?"
-
-#: ProbePage.py:576
-msgid ""
-"Please verify that the probe is connected.\n"
-"\n"
-"Show this message again?"
-msgstr ""
-"Si prega di verificar che la sonda sia corretta\n"
-"\n"
-"Mostrare ancora questo messaggio?"
-
-#: ProbePage.py:587 ProbePage.py:618 ProbePage.py:956 ProbePage.py:969
-#: ProbePage.py:979 ProbePage.py:986
-msgid "Probe Error"
-msgstr "Errore di sondaggio"
-
-#: ProbePage.py:588 ProbePage.py:987
-msgid "Invalid probe feed rate"
-msgstr "Avanzamento della sonda non valido"
-
-#: ProbePage.py:619
-msgid "At least one probe direction should be specified"
-msgstr "Deve essere indicata almeno una direzione di sondaggio"
-
-#: ProbePage.py:644
-msgid "Probe Center Error"
-msgstr "Errore di centraggio sonda"
-
-#: ProbePage.py:645
-msgid "Invalid diameter entered"
-msgstr "Diametro inserito non valido"
-
-#: ProbePage.py:705
-msgid "Do you want to delete all orientation markers?"
-msgstr "Vuoi cancellare tutti i riferimenti?"
-
-#: ProbePage.py:796
-msgid "Min"
-msgstr "Min"
-
-#: ProbePage.py:798
-msgid "Max"
-msgstr "Max"
-
-#: ProbePage.py:800
-msgid "Step"
-msgstr "Passo"
-
-#: ProbePage.py:811
-msgid "X minimum"
-msgstr "X minimo"
-
-#: ProbePage.py:817
-msgid "X maximum"
-msgstr "X massimo"
-
-#: ProbePage.py:824
-msgid "X step"
-msgstr "Passo X"
-
-#: ProbePage.py:833
-msgid "X bins"
-msgstr "X spazi"
-
-#: ProbePage.py:843
-msgid "Y minimum"
-msgstr "Y minimo"
-
-#: ProbePage.py:849
-msgid "Y maximum"
-msgstr "Y massimo"
-
-#: ProbePage.py:856
-msgid "Y step"
-msgstr "Passo Y"
-
-#: ProbePage.py:865
-msgid "Y bins"
-msgstr "Y spazi"
-
-#: ProbePage.py:876
-msgid "Z Minimum depth to scan"
-msgstr "Minima Profondità in Z da scansionare"
-
-#: ProbePage.py:882
-msgid "Z safe to move"
-msgstr "Quota di sicurezza Z  per i movimenti"
-
-#: ProbePage.py:957
-msgid "Invalid X probing region"
-msgstr "Area X di sondaggio non valida"
-
-#: ProbePage.py:970
-msgid "Invalid Y probing region"
-msgstr "Area Y di sondaggio non valida"
-
-#: ProbePage.py:980
-msgid "Invalid Z probing region"
-msgstr "Area Z di sondaggio non valida"
-
-#: ProbePage.py:1007
-msgid "Delete autolevel information"
-msgstr "Cancella le informazioni del livellamento"
-
-#: ProbePage.py:1008
-msgid "Do you want to delete all autolevel in formation?"
-msgstr "Vuoi cancellare tutte le informazioni dell'autolivellamento?"
-
-#: ProbePage.py:1040
-msgid "Switch To"
-msgstr "Passa a"
-
-#: ProbePage.py:1046
-msgid "Switch between camera and spindle"
-msgstr "Passa dalla macchina fotografica al mandrino"
-
-#: ProbePage.py:1052
-msgid "Edge Detection"
-msgstr "Rilevazione dei contorni"
-
-#: ProbePage.py:1059
-msgid "Turn on/off edge detection"
-msgstr "Accendi/Spegni rilevazione dei contorni"
-
-#: ProbePage.py:1065
-msgid "Freeze"
-msgstr "Congela"
-
-#: ProbePage.py:1072
-msgid "Turn on/off freeze image"
-msgstr "Attivare/disattivare il fermo-immagine"
-
-#: ProbePage.py:1120
-msgid "Location:"
-msgstr "Posizione:"
-
-#: ProbePage.py:1127
-msgid "Camera location inside canvas"
-msgstr "Posizione della telecamera nella vista"
-
-#: ProbePage.py:1131
-msgid "Scale:"
-msgstr "Scala:"
-
-#: ProbePage.py:1137
-msgid "Camera scale [pixels / unit]"
-msgstr "Scalatura della telecamera [pixel/unità]"
-
-#: ProbePage.py:1141
-msgid "Crosshair:"
-msgstr "Croce:"
-
-#: ProbePage.py:1147
-msgid "Camera cross hair diameter [units]"
-msgstr "Diametro della croce della telecamera [unità]"
-
-#: ProbePage.py:1149
-msgid "Get"
-msgstr "Ottieni"
-
-#: ProbePage.py:1151
-msgid "Get diameter from active endmill"
-msgstr "Ottieni diametro dall'utensile attivo"
-
-#: ProbePage.py:1161 ProbePage.py:1168
-msgid "Camera offset from gantry"
-msgstr "Scostamento  della telecamera dalla posizione attuale"
-
-#: ProbePage.py:1175
-msgid "Spindle Z position when camera was registered"
-msgstr "Posizione Z del mandrino quando la telecamera è stata memorizzata"
-
-#: ProbePage.py:1178
-msgid "Register:"
-msgstr "Memorizza:"
-
-#: ProbePage.py:1179
-msgid "1. Spindle"
-msgstr "1. Mandrino"
-
-#: ProbePage.py:1183
-msgid "Mark spindle position for calculating offset"
-msgstr "Segna la posizione del mandrino per calcolare lo scostamento"
-
-#: ProbePage.py:1185
-msgid "2. Camera"
-msgstr "2. Telecamera"
-
-#: ProbePage.py:1189
-msgid "Mark camera position for calculating offset"
-msgstr "Segna la posizione della telecamera per calcolare lo scostamento"
-
-#: ProbePage.py:1254
-msgid "Spindle position is registered"
-msgstr "La posizione del mandrino è memorizzata"
-
-#: ProbePage.py:1261
-msgid "Spindle position is not registered"
-msgstr "La posizione del mandrino non è registrata"
-
-#: ProbePage.py:1262
-msgid "Spindle position must be registered before camera"
-msgstr ""
-"La posizione del mandrino deve essere registrata prima di quella della "
-"telecamera"
-
-#: ProbePage.py:1268
-msgid "Camera offset is updated"
-msgstr "Scostamento della telecamera aggiornato"
-
-#: ProbePage.py:1327 ProbePage.py:1474
-msgid "Calibrate"
-msgstr "Calibra"
-
-#: ProbePage.py:1333
-msgid "Perform a single a tool change cycle to set the calibration field"
-msgstr ""
-"Effettua un solo ciclo di Cambio Utensile per impostare il campo di "
-"calibrazione"
-
-#: ProbePage.py:1337
-msgid "Change"
-msgstr "Cambia"
-
-#: ProbePage.py:1343
-msgid "Perform a tool change cycle"
-msgstr "Effettua un ciclo di Cambio Utensile"
-
-#: ProbePage.py:1352
-msgid "Manual Tool Change"
-msgstr "Cambio Utensile manuale"
-
-#: ProbePage.py:1357
-msgid "Policy:"
-msgstr "Politica :"
-
-#: ProbePage.py:1366
-msgid "Tool change policy"
-msgstr "Politica di cambio Utensile"
-
-#: ProbePage.py:1372
-msgid "Pause:"
-msgstr "Pausa :"
-
-#: ProbePage.py:1395
-msgid "Change:"
-msgstr "Cambio :"
-
-#: ProbePage.py:1399
-msgid "Manual tool change Machine X location"
-msgstr "Posizione X per Cambio Utensile Manuale"
-
-#: ProbePage.py:1405
-msgid "Manual tool change Machine Y location"
-msgstr "Posizione Y per Cambio Utensile Manuale"
-
-#: ProbePage.py:1411
-msgid "Manual tool change Machine Z location"
-msgstr "Posizione Z per Cambio Utensile Manuale"
-
-#: ProbePage.py:1415 ProbePage.py:1445
-msgid "get"
-msgstr "acquisisci"
-
-#: ProbePage.py:1419
-msgid "Get current gantry position as machine tool change location"
-msgstr ""
-"Usa la posizione attuale dell'Utensile come posizione di Cambio Utensile"
-
-#: ProbePage.py:1429
-msgid "Manual tool change Probing MX location"
-msgstr "Posizione MX per Cambio Utensile Manuale"
-
-#: ProbePage.py:1435
-msgid "Manual tool change Probing MY location"
-msgstr "Posizione MY per Cambio Utensile Manuale"
-
-#: ProbePage.py:1441
-msgid "Manual tool change Probing MZ location"
-msgstr "Posizione MZ per Cambio Utensile Manuale"
-
-#: ProbePage.py:1449
-msgid "Get current gantry position as machine tool probe location"
-msgstr "Usa la posizione attuale dell'Utensile come posizione della sonda"
-
-#: ProbePage.py:1460
-msgid "After a tool change distance to scan starting from ProbeZ"
-msgstr "Dopo un cambio Utensile, distanza da sondare partendo dalla Z Sonda"
-
-#: ProbePage.py:1466
-msgid "Calibration:"
-msgstr "Calibrazione :"
-
-#: ProbePage.py:1470
-msgid "Tool probe height"
-msgstr "Altezza di sondaggio Utensile"
-
-#: ProbePage.py:1478
-msgid "Perform a calibration probing to determine the height"
-msgstr "Effettua una calibrazione per determinare l'altezza"
-
-#: ProbePage.py:1529 ProbePage.py:1539 ProbePage.py:1547 ProbePage.py:1555
-#: ProbePage.py:1563
-msgid "Probe Tool Change Error"
-msgstr "Errore durante la modifica dell'Utensile di sondaggio"
-
-#: ProbePage.py:1530
-msgid "Invalid tool change position"
-msgstr "Posizione di Cambio Utensile non valida"
-
-#: ProbePage.py:1540
-msgid "Invalid tool probe location"
-msgstr "Posizione dell'Utensile di sondaggio non valida"
-
-#: ProbePage.py:1548 ProbePage.py:1564
-msgid "Invalid tool scanning distance entered"
-msgstr "Inserita una distanza di scansione errata"
-
-#: ProbePage.py:1556
-msgid "Invalid tool height or not calibrated"
-msgstr "Lunghezza Utensile non valida o non calibrata"
-
-#: ProbePage.py:1650
-msgid "Probe configuration and probing"
-msgstr "Configurazione della sonda e del sondaggio"
-
-#: CNCCanvas.py:357
+#: CNCCanvas.py:360
 msgid "Select objects with mouse"
 msgstr "Scegliere gli oggetti con il mouse"
 
-#: CNCCanvas.py:362
+#: CNCCanvas.py:365
 msgid "Pan viewport"
 msgstr "Scorri la vista"
 
-#: CNCCanvas.py:367
+#: CNCCanvas.py:370
 msgid "Click to set the origin (zero)"
 msgstr "Clicca per impostare l'origine (zero)"
 
-#: CNCCanvas.py:372
+#: CNCCanvas.py:375
 msgid "Move graphically objects"
 msgstr "Muovi gli oggetti graficamente"
 
-#: CNCCanvas.py:378
+#: CNCCanvas.py:381
 msgid "Move CNC gantry to mouse location"
 msgstr "Muovi la Testa sulla posizione del mouse"
 
-#: CNCCanvas.py:384
+#: CNCCanvas.py:387
 msgid "Set mouse location as current machine position (X/Y only)"
 msgstr ""
 "imposta la posizione attuale  del mouse (solo X/Y) come posizione macchina"
 
-#: CNCCanvas.py:389
+#: CNCCanvas.py:392
 msgid "Drag a ruler to measure distances"
 msgstr "Misura la distanza con un righello"
 
-#: CNCCanvas.py:394
+#: CNCCanvas.py:397
 msgid "Add an orientation marker"
 msgstr "Aggiungi un riferimento d'orientamento"
 
-#: CNCCanvas.py:455
+#: CNCCanvas.py:458
 msgid "ERROR: Cannot set X-Y marker  with the current view"
 msgstr ""
 "ERRORE: Impossibile impostare il riferimento d'orientamento X-Y nella vista "
 "corrente"
 
-#: CNCCanvas.py:541
+#: CNCCanvas.py:544
 #, python-format
 msgid "origin %g %g %g"
 msgstr "origine %g %g %g"
 
-#: CNCCanvas.py:604
+#: CNCCanvas.py:607
 #, python-format
 msgid "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
 msgstr "dx=%g  dy=%g  dz=%g  lunghezza=%g  angolo=%g"
 
-#: CNCCanvas.py:683
+#: CNCCanvas.py:686
 #, python-format
 msgid "Move by %g, %g, %g"
 msgstr "Muovi di %g, %g, %g"
 
-#: CNCCanvas.py:1764
+#: CNCCanvas.py:1777
 #, python-format
 msgid ">>> ERROR: %s\n"
 msgstr ">>> ERRORE : %s\n"
 
-#: CNCCanvas.py:1765
+#: CNCCanvas.py:1778
 #, python-format
 msgid "     line: %s\n"
 msgstr "     riga : %s\n"
 
-#: CNCCanvas.py:1991
+#: CNCCanvas.py:2004
 msgid "Change viewing angle"
 msgstr "Modifica l'angolo di visione"
 
-#: CNCCanvas.py:1995
+#: CNCCanvas.py:2008
 msgid "Zoom In [Ctrl-=]"
 msgstr "Zoom +  [Ctrl-=]"
 
-#: CNCCanvas.py:2000
+#: CNCCanvas.py:2013
 msgid "Zoom Out [Ctrl--]"
 msgstr "Zoom - [Ctrl--]"
 
-#: CNCCanvas.py:2005
+#: CNCCanvas.py:2018
 msgid "Fit to screen [F]"
 msgstr "Adatta a schermo [F]"
 
-#: CNCCanvas.py:2019
+#: CNCCanvas.py:2032
 msgid "Select tool [S]"
 msgstr "Scegli Utensile [S]"
 
-#: CNCCanvas.py:2028
+#: CNCCanvas.py:2041
 msgid "Pan viewport [X]"
 msgstr "Scorri la vista [X]"
 
-#: CNCCanvas.py:2054
+#: CNCCanvas.py:2067
 msgid "Ruler [R]"
 msgstr "Righello [R]"
 
-#: CNCCanvas.py:2060
+#: CNCCanvas.py:2073
 msgid "Draw:"
 msgstr "Disegno :"
 
-#: CNCCanvas.py:2069
+#: CNCCanvas.py:2082
 msgid "Toggle display of axes"
 msgstr "Visualizza (o meno) gli assi"
 
-#: CNCCanvas.py:2077
+#: CNCCanvas.py:2090
 msgid "Toggle display of grid lines"
 msgstr "Visualizza (o meno) la griglia"
 
-#: CNCCanvas.py:2085
+#: CNCCanvas.py:2098
 msgid "Toggle display of margins"
 msgstr "Visualizza (o meno) i margini"
 
-#: CNCCanvas.py:2094
+#: CNCCanvas.py:2107
 msgid "Toggle display of probe"
 msgstr "Visualizza (o meno) la sonda"
 
-#: CNCCanvas.py:2102
+#: CNCCanvas.py:2115
 msgid "Toggle display of paths (G1,G2,G3)"
 msgstr "Visualizza (o meno) i percorsi (G1, G2, G3)"
 
-#: CNCCanvas.py:2110
+#: CNCCanvas.py:2123
 msgid "Toggle display of rapid motion (G0)"
 msgstr "Visualizza (o meno)  i movimenti rapidi (G0)"
 
-#: CNCCanvas.py:2118
+#: CNCCanvas.py:2131
 msgid "Toggle display of workarea"
 msgstr "Visualizza (o meno)  l'area di lavoro"
 
-#: CNCCanvas.py:2126
+#: CNCCanvas.py:2139
 msgid "Toggle display of camera"
 msgstr "Visualizza (o meno) la telecamera"
 
-#: CNCCanvas.py:2133
+#: CNCCanvas.py:2146
 msgid "Redraw display [Ctrl-R]"
 msgstr "Ridisegna il display  [Ctrl-R]"
 
-#: CNCCanvas.py:2141
+#: CNCCanvas.py:2154
 msgid "Draw timeout in seconds"
 msgstr "Tempo massimo disegno in secondi"
 
-#: bCNC.py:87
-msgid "All accepted"
-msgstr "Tutto accettato"
-
-#: bCNC.py:88 bCNC.py:1997
-msgid "G-Code"
-msgstr "G-Code"
-
-#: bCNC.py:89
-msgid "G-Code clean"
-msgstr "Pulizia G-Code"
-
-#: bCNC.py:144
-msgid "Controller buffer fill"
-msgstr "Riempimento del buffer del controllore"
-
-#: bCNC.py:171
-msgid ""
-"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
-"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+#: ToolsPage.py:481 ToolsPage.py:493 ToolsPage.py:505
+msgid "F1"
 msgstr ""
-"Linea di comando MDI : Accetta i comandi G-Code o le macro (RESET/HOME...) o "
-"i comandi dell'editor (move, inkscape, round...) [Spazio o Ctrl-Spazio]"
 
-#: bCNC.py:511
-msgid "Running"
-msgstr "In esecuzione"
-
-#: bCNC.py:512
-msgid "CNC is currently running, please stop it before."
-msgstr "CNC è in funzione, si prega di fermarlo."
-
-#: bCNC.py:713
-#, python-format
-msgid "About %s"
-msgstr "A proposito %s"
-
-#: bCNC.py:748
-msgid ""
-"bCNC/\tAn advanced fully featured\n"
-"\tg-code sender for GRBL."
+#: ToolsPage.py:482 ToolsPage.py:494 ToolsPage.py:506
+msgid "F2"
 msgstr ""
-"bCNC/\tUn sender completo e avanzato\n"
-"\tdi GCode per GRBL."
 
-#: bCNC.py:924
-msgid "Enabled GCode"
-msgstr "GCode attivo"
-
-#: bCNC.py:929 bCNC.py:1002
-msgid "Margins X:"
-msgstr "Margini X :"
-
-#: bCNC.py:962 bCNC.py:1035
-msgid "# Blocks:"
-msgstr "# Blocchi :"
-
-#: bCNC.py:970 bCNC.py:1042
-msgid "Length:"
-msgstr "Lunghezza :"
-
-#: bCNC.py:978
-msgid "Rapid:"
-msgstr "Rapido:"
-
-#: bCNC.py:986 bCNC.py:1050
-msgid "Time:"
-msgstr "Tempi:"
-
-#: bCNC.py:997
-msgid "All GCode"
-msgstr "Tutto il GCode"
-
-#: bCNC.py:1218
-msgid "Evaluation error"
-msgstr "Errore di valutazione"
-
-#: bCNC.py:1293
-msgid "Direction command error"
-msgstr "Comando di direzione invalido"
-
-#: bCNC.py:1294
-#, python-format
-msgid "Invalid direction %s specified"
-msgstr "Specificata direzione %s invalida"
-
-#: bCNC.py:1457
-msgid "Please select the blocks of gcode you want to optimize."
-msgstr "Prego selezionare i blocchi di GCode da ottimizzare."
-
-#: bCNC.py:1600
-#, python-format
-msgid "EndMill: %s %g"
-msgstr "Utensile : %s %g"
-
-#: bCNC.py:1625
-#, python-format
-msgid "Invalid user command %s"
-msgstr "Comando utente %s non valido"
-
-#: bCNC.py:1661
-msgid "Nothing to do"
-msgstr "Niente da fare"
-
-#: bCNC.py:1662
-#, python-format
-msgid "Operation %s requires some gcode to be selected"
-msgstr "L'Operazione %s richiede che sia selezionato qualche GCode"
-
-#: bCNC.py:1704
-msgid "Operation error"
-msgstr "Errore d'esecuzione"
-
-#: bCNC.py:1745
-#, python-format
-msgid "Profile block distance=%g"
-msgstr "Distanza del blocco contorno = %g"
-
-#: bCNC.py:1758
-msgid "Open paths"
-msgstr "Percorsi aperti"
-
-#: bCNC.py:1759
-#, python-format
-msgid "WARNING: %s"
-msgstr "ATTENZIONE : %s"
-
-#: bCNC.py:1880
-msgid "Open file"
-msgstr "Apri File"
-
-#: bCNC.py:1896
-msgid "Save file"
-msgstr "Salva File"
-
-#: bCNC.py:1905
-msgid "File modified"
-msgstr "File modificato"
-
-#: bCNC.py:1906
-msgid "Gcode was modified do you want to save it first?"
-msgstr "Il GCode è stato modificato, lo si vuole salvare?"
-
-#: bCNC.py:1915
-msgid "Probe File modified"
-msgstr "File modificato"
-
-#: bCNC.py:1916
-msgid "Probe was modified do you want to save it first?"
-msgstr "Il GCode è stato modificato, lo si vuole salvare?"
-
-#: bCNC.py:1939
-msgid "Existing Autolevel"
-msgstr "Livellamento automatico"
-
-#: bCNC.py:1940
-msgid ""
-"Autolevel/probe information already exists.\n"
-"Delete it?"
+#: ToolsPage.py:483 ToolsPage.py:495 ToolsPage.py:507
+msgid "F3"
 msgstr ""
-"Esistono già informazioni per autolivellamento/sondaggio.\n"
-"Cancellarle?"
 
-#: bCNC.py:1945
-#, python-format
-msgid "Loading: %s ..."
-msgstr "Caricamento : %s ..."
-
-#: bCNC.py:1966
-#, python-format
-msgid "'%s' reloaded at '%s'"
-msgstr "'%s' ricaricato alle '%s'"
-
-#: bCNC.py:1968
-#, python-format
-msgid "'%s' loaded"
-msgstr "'%s' caricato"
-
-#: bCNC.py:1974
-#, python-format
-msgid "'%s' saved"
-msgstr "'%s' salvato"
-
-#: bCNC.py:1993
-msgid "Import Gcode/DXF file"
-msgstr "Importa file GCode/DXF"
-
-#: bCNC.py:2027
-msgid "Warning"
-msgstr "Attenzione"
-
-#: bCNC.py:2028
-#, python-format
-msgid ""
-"Gcode file %s was changed since editing started\n"
-"Reload new version?"
+#: ToolsPage.py:484 ToolsPage.py:496 ToolsPage.py:508
+msgid "F4"
 msgstr ""
-"Il File GCode %s è stato modificato dal momento del caricamento\n"
-"Ricaricare la nuova versione?"
 
-#: bCNC.py:2043 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
-#: lib/bFileDialog.py:871 lib/bFileDialog.py:975
-msgid "Open"
-msgstr "Apri"
-
-#: bCNC.py:2063
-msgid "Error opening serial"
-msgstr "Errore di apertura della porta seriale"
-
-#: bCNC.py:2094
-msgid "Serial Error"
-msgstr "Errore porta seriale"
-
-#: bCNC.py:2095
-msgid "Serial is not connected"
-msgstr "Porta seriale non connessa"
-
-#: bCNC.py:2102
-msgid "Already running"
-msgstr "Già in funzione"
-
-#: bCNC.py:2103
-msgid "Please stop before"
-msgstr "Prego fermare prima"
-
-#: bCNC.py:2149
-msgid "Empty gcode"
-msgstr "GCode vuoto"
-
-#: bCNC.py:2150
-msgid "Not gcode file was loaded"
-msgstr "Nessun File GCode caricato"
-
-#: bCNC.py:2178
-msgid "Running..."
-msgstr "In Esecuzione..."
-
-#: bCNC.py:2195 bCNC.py:2199 bCNC.py:2212 FilePage.py:171
-msgid "Pendant"
-msgstr "Pulsantiera"
-
-#: bCNC.py:2196
-msgid "Pendant started:\n"
-msgstr "Controllo remoto attivato :\n"
-
-#: bCNC.py:2200
-msgid "Pendant already started:\n"
-msgstr "Controllo remoto già attivato :\n"
-
-#: bCNC.py:2202
-msgid ""
-"\n"
-"Would you like open it locally?"
+#: ToolsPage.py:485 ToolsPage.py:497 ToolsPage.py:509
+msgid "F5"
 msgstr ""
-"\n"
-"Volete aprirlo localmente?"
 
-#: bCNC.py:2212
-msgid "Pendant stopped"
-msgstr "Controllo remoto fermato"
-
-#: bCNC.py:2520
-msgid "python serial missing"
-msgstr "python serial non installato"
-
-#: bCNC.py:2521
-msgid ""
-"ERROR: Please install the python pyserial module\n"
-"Windows:\n"
-"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
-"Mac:\tpip install pyserial\n"
-"Linux:\tsudo apt-get install python-serial\n"
-"\tor yum install python-serial\n"
-"\tor dnf install python-pyserial"
+#: ToolsPage.py:486 ToolsPage.py:498 ToolsPage.py:510
+msgid "F6"
 msgstr ""
-"ERRORE: Si prega di installare il modulo python pyserial\n"
-"Windows:\n"
-"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
-"Mac:\tpip install pyserial\n"
-"Linux:\tsudo apt-get install python-serial\n"
-"\tor yum install python-serial\n"
-"\tor dnf install python-pyserial"
 
-#: Updates.py:47
-msgid "Installed Version:"
-msgstr "Versione installata:"
+#: ToolsPage.py:487 ToolsPage.py:499 ToolsPage.py:511
+msgid "F7"
+msgstr ""
 
-#: Updates.py:52
-msgid "Running version of bCNC"
-msgstr "Versione in esecuzione di bCNC"
+#: ToolsPage.py:488 ToolsPage.py:500 ToolsPage.py:512
+msgid "F8"
+msgstr ""
 
-#: Updates.py:54
-msgid "Latest Github Version:"
-msgstr "Ultima versione su Github:"
+#: ToolsPage.py:489 ToolsPage.py:501 ToolsPage.py:513
+msgid "F9"
+msgstr ""
 
-#: Updates.py:60
-msgid "Latest release version on on github"
-msgstr "Ultimo versione di rilascio su Github"
+#: ToolsPage.py:490 ToolsPage.py:502 ToolsPage.py:514
+msgid "F10"
+msgstr ""
 
-#: Updates.py:61
-msgid "Published at:"
-msgstr "Publicato in:"
+#: ToolsPage.py:491 ToolsPage.py:503 ToolsPage.py:515
+msgid "F11"
+msgstr ""
 
-#: Updates.py:67
-msgid "Published date of the latest github release"
-msgstr "Data di publicazione dell'ultimo rilascio su Github"
+#: ToolsPage.py:492 ToolsPage.py:504 ToolsPage.py:516
+msgid "F12"
+msgstr ""
 
-#: Updates.py:72
-msgid "Check Interval"
-msgstr "Controlla l'intervallo"
+#: ToolsPage.py:493 ToolsPage.py:494 ToolsPage.py:495 ToolsPage.py:496
+#: ToolsPage.py:497 ToolsPage.py:498 ToolsPage.py:499 ToolsPage.py:500
+#: ToolsPage.py:501 ToolsPage.py:502 ToolsPage.py:503 ToolsPage.py:504
+msgid "Shift-"
+msgstr ""
 
-#: Updates.py:75
-msgid "Last Check:"
-msgstr "Ultimo controllo:"
+#: ToolsPage.py:505 ToolsPage.py:506 ToolsPage.py:507 ToolsPage.py:508
+#: ToolsPage.py:509 ToolsPage.py:510 ToolsPage.py:511 ToolsPage.py:512
+#: ToolsPage.py:513 ToolsPage.py:514 ToolsPage.py:515 ToolsPage.py:516
+#, fuzzy
+#| msgid "Control"
+msgid "Control-"
+msgstr "Controllo"
 
-#: Updates.py:87
-msgid "Date of last checking"
-msgstr "Data dell'ultimo controllo"
+#: ToolsPage.py:530
+#, fuzzy
+#| msgid "2. Camera"
+msgid "Align Camera"
+msgstr "2. Telecamera"
 
-#: Updates.py:89
-msgid "Interval (days):"
-msgstr "Intervallo (giorni):"
+#: ToolsPage.py:531
+msgid "Align Camera Width"
+msgstr ""
 
-#: Updates.py:100
-msgid "Days-interval to remind again for checking"
-msgstr "Giorni-intervallo per un nuovo controllo"
+#: ToolsPage.py:532
+msgid "Align Camera Height"
+msgstr ""
 
-#: Updates.py:111
-msgid "Check Now"
-msgstr "Controllo Ora"
+#: ToolsPage.py:533
+msgid "Align Camera Angle"
+msgstr ""
 
-#: Updates.py:117
-msgid "Check the web site for new versions of bCNC"
-msgstr "Controlla il sito web per una nuova versione di bCNC"
+#: ToolsPage.py:534
+#, fuzzy
+#| msgid "Camera"
+msgid "Web Camera"
+msgstr "Telecamera"
 
-#: Updates.py:149
-msgid "Download"
-msgstr "Scarica"
+#: ToolsPage.py:535
+msgid "Web Camera Width"
+msgstr ""
 
-#: Updates.py:152
-msgid "Open web browser to download bCNC"
-msgstr "Apri il browser web per caricare bCNC"
+#: ToolsPage.py:536
+msgid "Web Camera Height"
+msgstr ""
 
-#: Updates.py:157
-#, python-format
-msgid "Error %d in connection"
-msgstr "Errore %d nella connessione"
+#: ToolsPage.py:537
+msgid "Web Camera Angle"
+msgstr ""
 
-#: FilePage.py:57 FilePage.py:304
-msgid "File"
-msgstr "File"
+#: ToolsPage.py:548
+msgid "Units (inches)"
+msgstr "Unità (pollici)"
 
-#: FilePage.py:64
-msgid "New"
-msgstr "Nuovo"
+#: ToolsPage.py:549
+#, fuzzy
+#| msgid "Lasercutter"
+msgid "Laser Cutter"
+msgstr "Taglio laser"
 
-#: FilePage.py:68
-msgid "New gcode/dxf file"
-msgstr "Nuovo file GCode/DXF"
+#: ToolsPage.py:550
+msgid "Laser Adaptive Power"
+msgstr ""
 
-#: FilePage.py:77
-msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr "Apri un file GCode/DXF esistente [Ctrl-O]"
+#: ToolsPage.py:551
+msgid "Double Size Icon"
+msgstr ""
 
-#: FilePage.py:87
-msgid "Open recent file"
-msgstr "Apri file recenti"
+#: ToolsPage.py:552
+msgid "Acceleration x"
+msgstr "Accelerazione x"
 
-#: FilePage.py:97
-msgid "Save gcode/dxf file [Ctrl-S]"
-msgstr "Salva file GCode/DXF [Ctrl-S]"
+#: ToolsPage.py:553
+msgid "Acceleration y"
+msgstr "Accelerazione y"
 
-#: FilePage.py:102 lib/bFileDialog.py:905
-msgid "Save"
-msgstr "Salva"
+#: ToolsPage.py:554
+msgid "Acceleration z"
+msgstr "Accelerazione z"
 
-#: FilePage.py:107
-msgid "Save gcode/dxf AS"
-msgstr "Salva GCode/DXF come"
+#: ToolsPage.py:555
+msgid "Feed max x"
+msgstr "Avanz. max x"
 
-#: FilePage.py:115
-msgid "Options"
-msgstr "Opzioni"
+#: ToolsPage.py:556
+msgid "Feed max y"
+msgstr "Avanz. max y"
 
-#: FilePage.py:141
-msgid "Send Error Report"
-msgstr "Invia Rapporto di Errore"
+#: ToolsPage.py:557
+msgid "Feed max z"
+msgstr "Avanz. max z"
 
-#: FilePage.py:146
-msgid "Updates"
-msgstr "Aggiornamenti"
+#: ToolsPage.py:558
+msgid "Travel x"
+msgstr "Corsa x"
 
-#: FilePage.py:153
-msgid "Check Updates"
-msgstr "Verifica nuove versioni"
+#: ToolsPage.py:559
+msgid "Travel y"
+msgstr "Corsa y"
 
-#: FilePage.py:157
-msgid "About"
-msgstr "Informazioni"
+#: ToolsPage.py:560
+msgid "Travel z"
+msgstr "Corsa z"
 
-#: FilePage.py:164
-msgid "About the program"
-msgstr "Informazioni sul programma"
+#: ToolsPage.py:561
+msgid "Decimal digits"
+msgstr "Numero di decimali"
 
-#: FilePage.py:183
-msgid "Start pendant"
-msgstr "Attiva la pulsantiera"
+#: ToolsPage.py:562
+msgid "Plotting Arc accuracy"
+msgstr "Precisione di interpolazione archi"
 
-#: FilePage.py:194
-msgid "Stop pendant"
-msgstr "Ferma la pulsantiera"
+#: ToolsPage.py:563
+msgid "Start up"
+msgstr "Avviamento"
 
-#: FilePage.py:205
-msgid "Exit"
-msgstr "Esci"
+#: ToolsPage.py:564
+msgid "Spindle min (RPM)"
+msgstr "Rotazione min (RPM)"
 
-#: FilePage.py:212
-msgid "Close program [Ctrl-Q]"
-msgstr "Esci dal programma [Ctrl-Q]"
+#: ToolsPage.py:565
+msgid "Spindle max (RPM)"
+msgstr "Rotazione max (RPM)"
 
-#: FilePage.py:225
-msgid "Port:"
-msgstr "Porta :"
+#: ToolsPage.py:566
+msgid "DRO Zero padding"
+msgstr "DRO zeri di riempimento"
 
-#: FilePage.py:231
-msgid "Select (or manual enter) port to connect"
-msgstr "Scegli (o inserisci) la porta di comunicazione"
+#: ToolsPage.py:567
+msgid "Header gcode"
+msgstr "GCode da eseguire all'avvio"
 
-#: FilePage.py:240
-msgid "Baud:"
-msgstr "Baud :"
+#: ToolsPage.py:568
+msgid "Footer gcode"
+msgstr "GCcode da eseguire alla fine"
 
-#: FilePage.py:245
-msgid "Select connection baud rate"
-msgstr "Scegli la velocità di connessione in Baud"
+#: ToolsPage.py:590 ToolsPage.py:616 ToolsPage.py:645 ToolsPage.py:671
+#: ToolsPage.py:701 ToolsPage.py:733 ToolsPage.py:758 ToolsPage.py:779
+#: ToolsPage.py:1447 lib/bFileDialog.py:272 plugins/text.py:36
+#: plugins/pyrograph.py:38 plugins/tile.py:34 plugins/heightmap.py:48
+#: plugins/midi2cnc.py:49 plugins/gear.py:163 plugins/flatten.py:255
+#: plugins/hilbert.py:87 plugins/jigsaw.py:264 plugins/driller.py:38
+#: plugins/box.py:305 plugins/spirograph.py:101 plugins/sketch.py:41
+#: plugins/zigzag.py:94 plugins/halftone.py:40 plugins/bowl.py:108
+msgid "Name"
+msgstr "Nome"
 
-#: FilePage.py:252
-msgid "Controller:"
-msgstr "Controllore:"
+#: ToolsPage.py:592 ToolsPage.py:675
+msgid "Feed"
+msgstr "Avanzamento"
 
-#: FilePage.py:259
-msgid "Select controller board"
-msgstr "Seleziona la scheda controllore"
+#: ToolsPage.py:593 ToolsPage.py:676
+msgid "Plunge Feed"
+msgstr "Avanzamento Verticale"
 
-#: FilePage.py:266
-msgid "Connect on startup"
-msgstr "Connetti all'avvio"
+#: ToolsPage.py:594 ToolsPage.py:674
+msgid "Depth Increment"
+msgstr "Incremento di profondità"
 
-#: FilePage.py:269
-msgid "Connect to serial on startup of the program"
-msgstr "Connetti la comunicazione seriale all'avvio"
+#: ToolsPage.py:618 lib/bFileDialog.py:273
+msgid "Type"
+msgstr "Tipo"
 
-#: FilePage.py:284
-msgid "Open/Close serial port"
-msgstr "Apre/Chiude la comunicazione seriale"
+#: ToolsPage.py:619
+msgid "Shape"
+msgstr "Forma"
 
-#: FilePage.py:303
-msgid "File I/O and configuration"
-msgstr "File I/O e di configurazione"
+#: ToolsPage.py:620 ToolsPage.py:647 ToolsPage.py:1029
+msgid "Material"
+msgstr "Materiale"
+
+#: ToolsPage.py:621
+msgid "Coating"
+msgstr "Couche"
+
+#: ToolsPage.py:622 plugins/bowl.py:109
+msgid "Diameter"
+msgstr "Diametro"
+
+#: ToolsPage.py:623
+msgid "Mount Axis"
+msgstr "Asse di montaggio"
+
+#: ToolsPage.py:624
+msgid "Flutes"
+msgstr "Taglienti"
+
+#: ToolsPage.py:625
+msgid "Length"
+msgstr "Lunghezza"
+
+#: ToolsPage.py:626
+msgid "Angle"
+msgstr "Angolo"
+
+#: ToolsPage.py:627
+msgid "Stepover %"
+msgstr "Stepover %"
+
+#: ToolsPage.py:648
+msgid "Safe Z"
+msgstr "Quota di sicurezza"
+
+#: ToolsPage.py:649 ToolsPage.py:672
+msgid "Surface Z"
+msgstr "Superficie Z"
+
+#: ToolsPage.py:650
+msgid "Thickness"
+msgstr "Spessore"
+
+#: ToolsPage.py:673 ToolsPage.py:702 plugins/driller.py:40
+#: plugins/spirograph.py:105
+msgid "Target Depth"
+msgstr "Profondità Richiesta"
+
+#: ToolsPage.py:677
+msgid "First cut at surface height"
+msgstr "Prima passata ad altezza superficie"
+
+#: ToolsPage.py:692
+msgid "CUT selected paths"
+msgstr "Percorso Utensile selezionato"
+
+#: ToolsPage.py:703
+msgid "Peck depth"
+msgstr "Profondità di ritrazione"
+
+#: ToolsPage.py:704
+msgid "Dwell (s)"
+msgstr "Tempo di attesa (s)"
+
+#: ToolsPage.py:705
+msgid "Distance (mm)"
+msgstr "Distanza (mm)"
+
+#: ToolsPage.py:706
+msgid "Number"
+msgstr "Numero"
+
+#: ToolsPage.py:724
+msgid "DRILL selected points"
+msgstr "Punti di foratura selezionati"
+
+#: ToolsPage.py:734 ToolsPage.py:759 ToolsPage.py:1043
+msgid "End Mill"
+msgstr "Utensile"
+
+#: ToolsPage.py:735 plugins/pyrograph.py:44
+msgid "Direction"
+msgstr "Direzione"
+
+#: ToolsPage.py:736
+msgid "Additional offset distance"
+msgstr "Distanza supplementare di Offset"
+
+#: ToolsPage.py:737 plugins/box.py:314
+msgid "Overcut"
+msgstr "Sovrataglio"
+
+#: ToolsPage.py:749
+msgid "Generate profile path"
+msgstr "Genera Percorso Utensile per Contorno"
+
+#: ToolsPage.py:770
+msgid "Generate pocket path"
+msgstr "Genera Percorso Utensile per la Tasca"
+
+#: ToolsPage.py:780
+msgid "Number of tabs"
+msgstr "Numero di fermi"
+
+#: ToolsPage.py:781
+msgid "Min. Distance of tabs"
+msgstr "Distanza minima dei fermi"
+
+#: ToolsPage.py:784
+msgid "Height"
+msgstr "Altezza"
+
+#: ToolsPage.py:804
+msgid "Tabs error"
+msgstr "Errore dei fermi"
+
+#: ToolsPage.py:805
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr "Non è possibile avere in numero di fermi o la distanza pari a zero"
+
+#: ToolsPage.py:808
+msgid "Create tabs on blocks"
+msgstr "Crea dei fermi sul blocco di codice"
+
+#: ToolsPage.py:818
+msgid "$0 Step pulse time [us]"
+msgstr "$0 Tempo impulso passo [us]"
+
+#: ToolsPage.py:819
+msgid "$1 Step idle delay [ms]"
+msgstr "$1 Ritardo attesa passo [ms]"
+
+#: ToolsPage.py:820
+#, fuzzy
+#| msgid "$2 Step pulse invert [mask]"
+msgid "$2 Step port invert [mask]"
+msgstr "$2 Inverti il segnale di impulso passo [maschera]"
+
+#: ToolsPage.py:821
+#, fuzzy
+#| msgid "$3 Step direction invert [mask]"
+msgid "$3 Direction port invert [mask]"
+msgstr "$3 Inverti il segnale direzione passo [maschera]"
+
+#: ToolsPage.py:822
+#, fuzzy
+#| msgid "$4 Invert step enable pin"
+msgid "$4 Step enable invert"
+msgstr "$4 Inverti il pin di abilitazione passo"
+
+#: ToolsPage.py:823
+#, fuzzy
+#| msgid "$5 Invert limit pins"
+msgid "$5 Limit pins invert"
+msgstr "$5 Inverti i pin dei finecorsa"
+
+#: ToolsPage.py:824
+msgid "$6 Probe pin invert"
+msgstr ""
+
+#: ToolsPage.py:825
+#, fuzzy
+#| msgid "$10 Status report options [mask]"
+msgid "$10 Status report [mask]"
+msgstr "$10 Opzioni segnalazione stato [maschera]"
+
+#: ToolsPage.py:826
+msgid "$11 Junction deviation [mm]"
+msgstr "$11 Deviazione di giunzione [mm]"
+
+#: ToolsPage.py:827
+msgid "$12 Arc tolerance [mm]"
+msgstr "$12 Tolleranza arco [mm]"
+
+#: ToolsPage.py:828
+#, fuzzy
+#| msgid "$13 Report in inches"
+msgid "$13 Report inches"
+msgstr "$13 Segnalazioni in pollici"
+
+#: ToolsPage.py:829
+#, fuzzy
+#| msgid "$20 Soft limits enable"
+msgid "$20 Soft limits"
+msgstr "$20 Limiti software abilitati"
+
+#: ToolsPage.py:830
+#, fuzzy
+#| msgid "$21 Hard limits enable"
+msgid "$21 Hard limits"
+msgstr "$21 Fine corsa abilitati"
+
+#: ToolsPage.py:831
+#, fuzzy
+#| msgid "$22 Homing cycle enable"
+msgid "$22 Homing cycle"
+msgstr "$22 Abilita ciclo di azzeramento"
+
+#: ToolsPage.py:832
+msgid "$23 Homing direction invert [mask]"
+msgstr "$23 Inverti direzione azzeramento [maschera]"
+
+#: ToolsPage.py:833
+#, fuzzy
+#| msgid "$24 Homing locate feed rate [mm/min]"
+msgid "$24 Homing feed [mm/min]"
+msgstr "$24 Velocità individuazione zero [mm/min]"
+
+#: ToolsPage.py:834
+#, fuzzy
+#| msgid "$25 Homing search seek rate [mm/min]"
+msgid "$25 Homing seek [mm/min]"
+msgstr "$25 Velocità ricerca zero [mm/min]"
+
+#: ToolsPage.py:835
+#, fuzzy
+#| msgid "$26 Homing switch debounce delay, ms"
+msgid "$26 Homing debounce [ms]"
+msgstr "$27 Finecorsa di azzeramento ritardo anti rimbalzo [ms]"
+
+#: ToolsPage.py:836
+#, fuzzy
+#| msgid "$27 Homing switch pull-off distance [mm]"
+msgid "$27 Homing pull-off [mm]"
+msgstr "$27 Finecorsa di azzeramento distanza distacco [mm]"
+
+#: ToolsPage.py:837
+#, fuzzy
+#| msgid "$30 Maximum spindle speed [RPM]"
+msgid "$30 Max spindle speed [RPM]"
+msgstr "$30 Velocità massima mandrino [RPM]"
+
+#: ToolsPage.py:838
+#, fuzzy
+#| msgid "$31 Minimum spindle speed [RPM]"
+msgid "$31 Min spindle speed [RPM]"
+msgstr "$31 Velocità minima mandrino [RPM]"
+
+#: ToolsPage.py:839
+#, fuzzy
+#| msgid "$32 Laser-mode enable"
+msgid "$32 Laser mode enable"
+msgstr "$32 Abilitazione modalità laser"
+
+#: ToolsPage.py:840
+#, fuzzy
+#| msgid "$100 X-axis steps per mm"
+msgid "$100 X steps/mm"
+msgstr "$100 passi per asse X [mm]"
+
+#: ToolsPage.py:841
+#, fuzzy
+#| msgid "$101 Y-axis steps per mm"
+msgid "$101 Y steps/mm"
+msgstr "$101 passi per asse Y [mm]"
+
+#: ToolsPage.py:842
+#, fuzzy
+#| msgid "$102 Z-axis steps per mm"
+msgid "$102 Z steps/mm"
+msgstr "$102 passi per asse Z [mm]"
+
+#: ToolsPage.py:843
+#, fuzzy
+#| msgid "$110 X-axis maximum rate [mm/min]"
+msgid "$110 X max rate [mm/min]"
+msgstr "$110 Velocità massima asse X [mm/min]"
+
+#: ToolsPage.py:844
+#, fuzzy
+#| msgid "$111 Y-axis maximum rate [mm/min]"
+msgid "$111 Y max rate [mm/min]"
+msgstr "$111 Velocità massima asse Y [mm/min]"
+
+#: ToolsPage.py:845
+#, fuzzy
+#| msgid "$112 Z-axis maximum rate [mm/min]"
+msgid "$112 Z max rate [mm/min]"
+msgstr "$112 Velocità massima asse Z [mm/min]"
+
+#: ToolsPage.py:846
+#, fuzzy
+#| msgid "$120 X-axis acceleration [mm/sec^2]"
+msgid "$120 X acceleration [mm/sec^2]"
+msgstr "$120 Accelerazione asse X [mm/sec^2]"
+
+#: ToolsPage.py:847
+#, fuzzy
+#| msgid "$121 Y-axis acceleration [mm/sec^2]"
+msgid "$121 Y acceleration [mm/sec^2]"
+msgstr "$121 Accelerazione asse Y [mm/sec^2]"
+
+#: ToolsPage.py:848
+#, fuzzy
+#| msgid "$122 Z-axis acceleration [mm/sec^2]"
+msgid "$122 Z acceleration [mm/sec^2]"
+msgstr "$122 Accelerazione asse Z [mm/sec^2]"
+
+#: ToolsPage.py:849
+#, fuzzy
+#| msgid "$130 X-axis maximum travel [mm]"
+msgid "$130 X max travel [mm]"
+msgstr "$130 Percorso massimo asse X [mm]"
+
+#: ToolsPage.py:850
+#, fuzzy
+#| msgid "$131 Y-axis maximum travel [mm]"
+msgid "$131 Y max travel [mm]"
+msgstr "$131 Percorso massimo asse Y [mm]"
+
+#: ToolsPage.py:851
+#, fuzzy
+#| msgid "$132 Z-axis maximum travel [mm]"
+msgid "$132 Z max travel [mm]"
+msgstr "$132 Percorso massimo asse Z [mm]"
+
+#: ToolsPage.py:1008
+msgid "Database"
+msgstr "Database"
+
+#: ToolsPage.py:1015
+msgid "Stock"
+msgstr "Grezzo"
+
+#: ToolsPage.py:1022
+msgid "Stock material currently on machine"
+msgstr "Grezzo attualmente in macchina"
+
+#: ToolsPage.py:1036
+msgid "Editable database of material properties"
+msgstr "Database proprietà dei materiali"
+
+#: ToolsPage.py:1050
+msgid "Editable database of EndMills properties"
+msgstr "Database Utensili"
+
+#: ToolsPage.py:1057
+msgid "Rename"
+msgstr "Rinomina"
+
+#: ToolsPage.py:1062
+msgid "Edit name of current operation/object"
+msgstr "modifica il nome dell'oggetto/operazione attuale"
+
+#: ToolsPage.py:1075
+msgid "Add a new operation/object"
+msgstr "Aggiungi un(a) nuovo oggetto/operazione"
+
+#: ToolsPage.py:1088
+msgid "Clone selected operation/object"
+msgstr "Duplica l'oggetto/operazione selezionato(a)"
+
+#: ToolsPage.py:1101
+msgid "Delete selected operation/object"
+msgstr "Elimina l'oggetto/operazione selezionato(a)"
+
+#: ToolsPage.py:1110
+msgid "CAM"
+msgstr "CAM"
+
+#: ToolsPage.py:1124
+msgid "Cut for the full stock thickness selected code"
+msgstr "Taglia per tutti gli spessori selezionati nel GCode"
+
+#: ToolsPage.py:1131 plugins/box.py:313
+msgid "Profile"
+msgstr "Contorno"
+
+#: ToolsPage.py:1138
+msgid "Perform a profile operation on selected code"
+msgstr "Esegue un'operazione di contorno sul codice selezionato"
+
+#: ToolsPage.py:1145
+msgid "Pocket"
+msgstr "Tasca"
+
+#: ToolsPage.py:1152
+msgid "Perform a pocket operation on selected code"
+msgstr "Esegue un'operazione di tasca sul codice selezionato"
+
+#: ToolsPage.py:1159
+msgid "Drill"
+msgstr "Fora"
+
+#: ToolsPage.py:1166
+msgid "Insert a drill cycle on current objects/location"
+msgstr "Inserisce un ciclo di foratura sugli oggetti/posizioni attuali"
+
+#: ToolsPage.py:1173
+msgid "Tabs"
+msgstr "Fermi"
+
+#: ToolsPage.py:1180
+msgid "Insert holding tabs"
+msgstr "Inserire punto di fermo (Holding Tab)"
+
+#: ToolsPage.py:1276 ToolsPage.py:1328
+msgid "Config"
+msgstr "Configura"
+
+#: ToolsPage.py:1291
+msgid "Change program language restart is required"
+msgstr "Modifica Lingua - Riavvio necessario"
+
+#: ToolsPage.py:1307
+msgid "Camera Configuration"
+msgstr "Configurazione Telecamera"
+
+#: ToolsPage.py:1314
+msgid "Colors"
+msgstr "Colori"
+
+#: ToolsPage.py:1321
+msgid "Color configuration"
+msgstr "Configurazione dei Colori"
+
+#: ToolsPage.py:1335
+msgid "Machine configuration for bCNC"
+msgstr "Configurazione della macchina per bCNC"
+
+#: ToolsPage.py:1342
+msgid "Controller"
+msgstr "Controllore"
+
+#: ToolsPage.py:1349
+msgid "Controller (GRBL) configuration"
+msgstr "Configurazione controllore (GRBL)"
+
+#: ToolsPage.py:1356
+msgid "Fonts"
+msgstr "Font"
+
+#: ToolsPage.py:1363
+msgid "Font configuration"
+msgstr "Configurazione dei font"
+
+#: ToolsPage.py:1370
+msgid "Shortcuts"
+msgstr "Scorciatoie"
+
+#: ToolsPage.py:1377
+msgid "Shortcuts configuration"
+msgstr "Configurazione Scorciatoie"
+
+#: ToolsPage.py:1408
+msgid "Language change"
+msgstr "Cambio lingua"
+
+#: ToolsPage.py:1409
+msgid "Please restart the program."
+msgstr "Si prega di riavviare il programma"
+
+#: ToolsPage.py:1417
+msgid "Events"
+msgstr "Eventi"
+
+#: ToolsPage.py:1422
+msgid "User File"
+msgstr "File Utente"
+
+#: ToolsPage.py:1435
+msgid "Execute"
+msgstr "Esegui"
+
+#: ToolsPage.py:1448
+msgid "Value"
+msgstr "Valori"
+
+#: ToolsPage.py:1516
+msgid "GCode manipulation tools and user plugins"
+msgstr "Strumenti di manipolazione GCode e plugins utente"
+
+#: ToolsPage.py:1517
+msgid "Tools"
+msgstr "Utensile"
 
 #: TerminalPage.py:25 TerminalPage.py:146
 msgid "Terminal"
@@ -2973,153 +3204,126 @@ msgstr "Comandi nel Buffer"
 msgid "Serial Terminal"
 msgstr "Terminale Seriale"
 
-#: lib/bFileDialog.py:269
+#: lib/bFileDialog.py:248
 msgid "Directory:"
 msgstr "Cartella:"
 
-#: lib/bFileDialog.py:295 plugins/hilbert.py:89
+#: lib/bFileDialog.py:274 plugins/hilbert.py:88
 msgid "Size"
 msgstr "Dimensione"
 
-#: lib/bFileDialog.py:296
+#: lib/bFileDialog.py:275
 msgid "Date"
 msgstr "Data"
 
-#: lib/bFileDialog.py:316
+#: lib/bFileDialog.py:295
 msgid "File name:"
 msgstr "Nome file :"
 
-#: lib/bFileDialog.py:323
+#: lib/bFileDialog.py:302
 msgid "Files of type:"
 msgstr "File di tipo :"
 
-#: lib/bFileDialog.py:553 lib/bFileDialog.py:611 lib/bFileDialog.py:818
-#: lib/bFileDialog.py:842 lib/bFileDialog.py:864
+#: lib/bFileDialog.py:532 lib/bFileDialog.py:590 lib/bFileDialog.py:797
+#: lib/bFileDialog.py:821 lib/bFileDialog.py:843
 msgid "Error"
 msgstr "Errore"
 
-#: lib/bFileDialog.py:554
+#: lib/bFileDialog.py:533
 #, python-format
 msgid "Cannot access path \"%s\""
 msgstr "Impossible accedere al percorso \"%s\""
 
-#: lib/bFileDialog.py:612
+#: lib/bFileDialog.py:591
 #, python-format
 msgid "Error listing folder \"%s\""
 msgstr "Errore visualizzando la cartella \"%s\""
 
-#: lib/bFileDialog.py:806
+#: lib/bFileDialog.py:785
 msgid "NewFolder"
 msgstr "Nuova Cartella"
 
-#: lib/bFileDialog.py:819
+#: lib/bFileDialog.py:798
 #, python-format
 msgid "Error creating folder \"%s\""
 msgstr "Errore durante la creazione della cartella \"%s\""
 
-#: lib/bFileDialog.py:843
+#: lib/bFileDialog.py:822
 #, python-format
 msgid "Error renaming \"%s\" to \"%s\""
 msgstr "Errore rinominando \"%s\" en \"%s\""
 
-#: lib/bFileDialog.py:865
+#: lib/bFileDialog.py:844
 #, python-format
 msgid "Error deleting file \"%s\""
 msgstr "Errore cancellando il file \"%s\""
 
-#: lib/bFileDialog.py:882 lib/bFileDialog.py:891
+#: lib/bFileDialog.py:861 lib/bFileDialog.py:870
 msgid "File does not exist"
 msgstr "Il File non esiste"
 
-#: lib/bFileDialog.py:883 lib/bFileDialog.py:892
+#: lib/bFileDialog.py:862 lib/bFileDialog.py:871
 #, python-format
 msgid "File \"%s\" does not exist"
 msgstr "Il File \"%s\" non esiste"
 
-#: lib/bFileDialog.py:900
+#: lib/bFileDialog.py:879
 msgid "Save As"
 msgstr "Salva Come"
 
-#: lib/bFileDialog.py:911
+#: lib/bFileDialog.py:890
 msgid "File already exists"
 msgstr "File già esistente"
 
-#: lib/bFileDialog.py:912
+#: lib/bFileDialog.py:891
 #, python-format
 msgid "Overwrite existing file %r?"
 msgstr "Sovrascrivere il file eistente %r ?"
 
-#: lib/bFileDialog.py:923
+#: lib/bFileDialog.py:902
 msgid "Choose Directory"
 msgstr "Scegli Cartella"
 
-#: plugins/sketch.py:13
-msgid "Sketch"
-msgstr "Bozza"
+#: plugins/text.py:30
+msgid "Create text using a ttf font"
+msgstr "Crea del testo utilizzando font ttf"
 
-#: plugins/sketch.py:34
-msgid "Create sketch based on picture brightness"
-msgstr "Crea un bozzetto basandosi sulla luminosità di un immagine"
+#: plugins/text.py:37
+msgid "Text to generate"
+msgstr "Testo da generare"
 
-#: plugins/sketch.py:43
-msgid "Grundgy, search radius"
-msgstr "Rozzezza, raggio di ricerca"
-
-#: plugins/sketch.py:44 plugins/pyrograph.py:41 plugins/heightmap.py:50
-#: plugins/halftone.py:51 plugins/text.py:39
+#: plugins/text.py:38 plugins/pyrograph.py:40 plugins/heightmap.py:49
+#: plugins/sketch.py:43 plugins/halftone.py:50
 msgid "Working Depth"
 msgstr "Profondità di lavoro"
 
-#: plugins/sketch.py:45 plugins/pyrograph.py:42 plugins/heightmap.py:51
-msgid "Maximum size"
-msgstr "Dimensione massima"
+#: plugins/text.py:39
+msgid "Font size"
+msgstr "Dimensione carattere"
 
-#: plugins/sketch.py:46
-msgid "Squiggle total count"
-msgstr "Conteggio totale scarabocchi"
+#: plugins/text.py:40
+msgid "Font file"
+msgstr "File Font"
 
-#: plugins/sketch.py:47
-msgid "Squiggle Length"
-msgstr "Lunghezza scarabocchio"
+#: plugins/text.py:41
+msgid "Image to Ascii"
+msgstr "Da immagine ad ASCII"
 
-#: plugins/sketch.py:48 plugins/pyrograph.py:46 plugins/halftone.py:50
-msgid "Draw border"
-msgstr "Disegnare i bordi"
+#: plugins/text.py:42
+msgid "Image chars width"
+msgstr "Caratteri per larghezza immagine"
 
-#: plugins/sketch.py:49 plugins/pyrograph.py:47 plugins/heightmap.py:59
-#: plugins/halftone.py:42
-msgid "Image to process"
-msgstr "Immagine da processare"
+#: plugins/text.py:58
+msgid "Text abort: please input a Font size > 0"
+msgstr "Testo annullato: Inserire una dimensione carattere > 0"
 
-#: plugins/sketch.py:50 plugins/halftone.py:43
-msgid "Channel to analyze"
-msgstr "Canale da analizzare"
+#: plugins/text.py:61
+msgid "Text abort: please select a font file"
+msgstr "Testo annullato: Scegliere un file di font"
 
-#: plugins/sketch.py:142
-msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
-msgstr ""
-"Bozza interrotta: Questo plugin richiede PIL/Pillow per leggere le immagini"
-
-#: plugins/sketch.py:169
-msgid "Sketch abort: Too small to draw anything!"
-msgstr "Bozza interrotta: troppo piccolo per disegnare qualcosa!"
-
-#: plugins/sketch.py:173
-msgid "Sketch abort: Please let me draw at least 1 squiggle"
-msgstr "Bozza interrotta: Fammi disegnare almeno 1 scarabocchio"
-
-#: plugins/sketch.py:177
-msgid "Sketch abort: Squiggle Length must be > 0"
-msgstr "Bozza interrotta: La lunghezza dello scarabocchio deve essere > 0"
-
-#: plugins/sketch.py:184
-msgid "Sketch abort: Can't read image file"
-msgstr "Bozza interrotta: Non riesco a leggere l'immagine"
-
-#: plugins/sketch.py:275
-#, python-format
-msgid "Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d"
-msgstr "Bozza generata dimensioni L=%d x A=%d x lunghezza=%d, Total length:%d"
+#: plugins/text.py:88
+msgid "Text abort: That embarrassing, I can't read this font file!"
+msgstr "Testo annullato: Impossibile leggere il file dei font!"
 
 #: plugins/pyrograph.py:11
 msgid "Pyrograph"
@@ -3130,42 +3334,75 @@ msgid "Create a variable feed path based upon image brightness"
 msgstr ""
 "Crea percorsi ad avanzamento variabile, basati sulla luminosità dell'immagine"
 
-#: plugins/pyrograph.py:40
+#: plugins/pyrograph.py:39
 msgid "Pyrograph tip size"
 msgstr "Dimesione della punta del pirografo"
 
-#: plugins/pyrograph.py:43
+#: plugins/pyrograph.py:41 plugins/heightmap.py:50 plugins/sketch.py:44
+msgid "Maximum size"
+msgstr "Dimensione massima"
+
+#: plugins/pyrograph.py:42
 msgid "Minimum feed"
 msgstr "Avanzamento minimo"
 
-#: plugins/pyrograph.py:44
+#: plugins/pyrograph.py:43
 msgid "Maximum feed"
 msgstr "Avanzamento massimo"
 
-#: plugins/pyrograph.py:56
+#: plugins/pyrograph.py:45 plugins/sketch.py:47 plugins/halftone.py:49
+msgid "Draw border"
+msgstr "Disegnare i bordi"
+
+#: plugins/pyrograph.py:46 plugins/heightmap.py:58 plugins/sketch.py:48
+#: plugins/halftone.py:41
+msgid "Image to process"
+msgstr "Immagine da processare"
+
+#: plugins/pyrograph.py:55
 msgid "Pyrograph abort: This plugin requires PIL/Pillow"
 msgstr "Pirografo annullato: Questo plugin richiede PIL/Pillow"
 
-#: plugins/pyrograph.py:73
+#: plugins/pyrograph.py:72
 msgid "Pyrograph abort: please define a scan Direction"
 msgstr "Pirografo annullato: Definire una Direzione di scan"
 
-#: plugins/pyrograph.py:77
+#: plugins/pyrograph.py:76
 msgid "Pyrograph abort: Tool Size must be > 0"
 msgstr "Pirografo annullato: La dimensione dell'Utensile deve essere > 0"
 
-#: plugins/pyrograph.py:81
+#: plugins/pyrograph.py:80
 msgid "Pyrograph abort: Please check feed rate parameters"
 msgstr "Pirografo annullato: Verificare i parametri di avanzamento"
 
-#: plugins/pyrograph.py:92
+#: plugins/pyrograph.py:91
 msgid "Pyrograph abort: Can't read image file"
 msgstr "Pirografo annullato: impossibile leggere il file"
 
-#: plugins/pyrograph.py:202
+#: plugins/pyrograph.py:201
 #, python-format
 msgid "Generated Pyrograph W=%g x H=%g x D=%g"
 msgstr "Generata Pirografia W=%g x H=%g x D=%g"
+
+#: plugins/tile.py:11
+msgid "Tile"
+msgstr "Piastrellatura"
+
+#: plugins/tile.py:28
+msgid "Generate replicas of selected code"
+msgstr "Generare delle copie del codice selezionato"
+
+#: plugins/tile.py:51
+msgid "Tile error"
+msgstr "Errore di piastrellatura"
+
+#: plugins/tile.py:52
+msgid "No g-code blocks selected"
+msgstr "Nessun blocco G-Code selezionato"
+
+#: plugins/tile.py:93
+msgid "Tiled selected blocks"
+msgstr "Piastrellatura dei blocchi seleztionati"
 
 #: plugins/heightmap.py:17
 msgid "Heightmap"
@@ -3176,40 +3413,40 @@ msgid "Use a brightess map to create a variable Z path"
 msgstr ""
 "Utilizzar una mappa di superficie per creare un percorso con Z variabile"
 
-#: plugins/heightmap.py:54
+#: plugins/heightmap.py:53
 msgid "ScanDir"
 msgstr "ScanDir"
 
-#: plugins/heightmap.py:55
+#: plugins/heightmap.py:54
 msgid "Cut Top"
 msgstr "Taglia Sopra"
 
-#: plugins/heightmap.py:56
+#: plugins/heightmap.py:55
 msgid "Cut Border"
 msgstr "Taglia il Bordo"
 
-#: plugins/heightmap.py:58
+#: plugins/heightmap.py:57
 msgid "Single pass"
 msgstr "Singola passata"
 
-#: plugins/heightmap.py:69
+#: plugins/heightmap.py:68
 msgid "Heightmap abort: This plugin requires PIL/Pillow"
 msgstr "Mappa di superficie annullata: Questo plugin richiede PIL/Pillow"
 
-#: plugins/heightmap.py:78
+#: plugins/heightmap.py:77
 msgid "Heightmap abort: Can't read image file"
 msgstr "Mappa di superficie annullata:: impossibele leggere il file"
 
-#: plugins/heightmap.py:82
+#: plugins/heightmap.py:81
 msgid "Heightmap abort: depth must be < 0"
 msgstr "Mappa di superficie annullata: La profondità deve essere < 0"
 
-#: plugins/heightmap.py:153
+#: plugins/heightmap.py:152
 msgid "Heightmap abort: angle not defined for selected End Mill"
 msgstr ""
 "Mappa di superficie annullata: anggolo non definito per l'Utensile scelto"
 
-#: plugins/heightmap.py:368
+#: plugins/heightmap.py:367
 #, python-format
 msgid "Generated Heightmap %d x %d x %d "
 msgstr "appa di superficie %d x %d x %d generata"
@@ -3218,73 +3455,49 @@ msgstr "appa di superficie %d x %d x %d generata"
 msgid "Sound your machine from a midi file"
 msgstr "Fate suonare alla vostra macchina un file midi"
 
-#: plugins/midi2cnc.py:51
+#: plugins/midi2cnc.py:50
 msgid "Pulse per unit for X"
 msgstr "Impulsi per unità pour X"
 
-#: plugins/midi2cnc.py:52
+#: plugins/midi2cnc.py:51
 msgid "Pulse per unit for Y"
 msgstr "Impulsi per unità per Y"
 
-#: plugins/midi2cnc.py:53
+#: plugins/midi2cnc.py:52
 msgid "Pulse per unit for Z"
 msgstr "Impulsi per unità per Z"
 
-#: plugins/midi2cnc.py:54
+#: plugins/midi2cnc.py:53
 msgid "Maximum X travel"
 msgstr "Massima corsa X"
 
-#: plugins/midi2cnc.py:55
+#: plugins/midi2cnc.py:54
 msgid "Maximum Y travel"
 msgstr "Massima corsa Y"
 
-#: plugins/midi2cnc.py:56
+#: plugins/midi2cnc.py:55
 msgid "Maximum Z travel"
 msgstr "Massima corsa Z"
 
-#: plugins/midi2cnc.py:57
+#: plugins/midi2cnc.py:56
 msgid "Axis to be used"
 msgstr "Asse da utilizzare"
 
-#: plugins/midi2cnc.py:58
+#: plugins/midi2cnc.py:57
 msgid "Midi to process"
 msgstr "Midi da eseguire"
 
-#: plugins/midi2cnc.py:100
+#: plugins/midi2cnc.py:99
 msgid "Error: This plugin requires midiparser.py"
 msgstr "Errore : Questo plugin richiede midiparser.py"
 
-#: plugins/midi2cnc.py:138
+#: plugins/midi2cnc.py:137
 msgid "Error: Sorry can't parse the Midi file."
 msgstr "Errore : Spiacente, impossibile elaborare il file Midi."
 
-#: plugins/midi2cnc.py:296
+#: plugins/midi2cnc.py:295
 msgid "Generated Midi2CNC, ready to play?"
 msgstr "Midi2CNC generato, pronto per l'esecuzione?"
-
-#: plugins/hilbert.py:12
-msgid "Hilbert"
-msgstr "Hilbert"
-
-#: plugins/hilbert.py:81
-msgid "Create a Hilbert path"
-msgstr "Crea una curva di Hilbert"
-
-#: plugins/hilbert.py:91 plugins/zigzag.py:100
-msgid "Depth"
-msgstr "Profondità"
-
-#: plugins/hilbert.py:107
-msgid "Hilbert abort: verify the size"
-msgstr "Hilbert annullato: verifica la dimensione"
-
-#: plugins/hilbert.py:111
-msgid "Hilbert abort: depth must be minor or equal to zero"
-msgstr "Hilbert annulato: la profondità deve essere minore o uguale a zero"
-
-#: plugins/hilbert.py:120
-msgid "Generated: Hilbert"
-msgstr "Generata: Hilbert"
 
 #: plugins/gear.py:11
 msgid "Gear"
@@ -3294,23 +3507,23 @@ msgstr "Ingaranaggio"
 msgid "Generate a spur gear"
 msgstr "Generare un ingranaggio"
 
-#: plugins/gear.py:165
+#: plugins/gear.py:164
 msgid "No of teeth"
 msgstr "N di denti"
 
-#: plugins/gear.py:166
+#: plugins/gear.py:165
 msgid "Pressure angle"
 msgstr "Angolo di pressione"
 
-#: plugins/gear.py:167
+#: plugins/gear.py:166
 msgid "Circular Pitch"
 msgstr "Passo per dente circolare"
 
-#: plugins/gear.py:179
+#: plugins/gear.py:178
 msgid "Create Spur GEAR"
 msgstr "Crea un ingranaggio"
 
-#: plugins/gear.py:181
+#: plugins/gear.py:180
 msgid "Generated: Spur GEAR"
 msgstr "Ingranaggio generato"
 
@@ -3345,41 +3558,109 @@ msgstr ""
 msgid "Flatten an area in different ways"
 msgstr "Spiana una superficie in diversi modi"
 
-#: plugins/flatten.py:257
+#: plugins/flatten.py:256
 msgid "X start"
 msgstr "X di partenza"
 
-#: plugins/flatten.py:258
+#: plugins/flatten.py:257
 msgid "Y start"
 msgstr "Y di partenza"
 
-#: plugins/flatten.py:259
+#: plugins/flatten.py:258
 msgid "Width to flatten"
 msgstr "Larghezza da spianarae"
 
-#: plugins/flatten.py:260
+#: plugins/flatten.py:259
 msgid "Height to flatten"
 msgstr "Altezza da spianare"
 
-#: plugins/flatten.py:261
+#: plugins/flatten.py:260
 msgid "Depth to flatten"
 msgstr "Profondità da spianare"
 
-#: plugins/flatten.py:262
+#: plugins/flatten.py:261
 msgid "Raster border"
 msgstr "Raster border"
 
-#: plugins/flatten.py:263
+#: plugins/flatten.py:262
 msgid "Cut Direction"
 msgstr "Direzione di Taglio"
 
-#: plugins/flatten.py:264
+#: plugins/flatten.py:263
 msgid "Pocket type"
 msgstr "Tipo di Tasca"
 
-#: plugins/flatten.py:290
+#: plugins/flatten.py:289
 msgid "Flatten: Generated flatten surface"
 msgstr "Spianatura: superficie generata"
+
+#: plugins/hilbert.py:12
+msgid "Hilbert"
+msgstr "Hilbert"
+
+#: plugins/hilbert.py:81
+msgid "Create a Hilbert path"
+msgstr "Crea una curva di Hilbert"
+
+#: plugins/hilbert.py:90 plugins/zigzag.py:100
+msgid "Depth"
+msgstr "Profondità"
+
+#: plugins/hilbert.py:106
+msgid "Hilbert abort: verify the size"
+msgstr "Hilbert annullato: verifica la dimensione"
+
+#: plugins/hilbert.py:110
+msgid "Hilbert abort: depth must be minor or equal to zero"
+msgstr "Hilbert annulato: la profondità deve essere minore o uguale a zero"
+
+#: plugins/hilbert.py:119
+msgid "Generated: Hilbert"
+msgstr "Generata: Hilbert"
+
+#: plugins/jigsaw.py:257
+msgid "Jigsaw puzzle generator"
+msgstr ""
+
+#: plugins/jigsaw.py:265
+msgid "Board width"
+msgstr ""
+
+#: plugins/jigsaw.py:266
+#, fuzzy
+#| msgid "Tool probe height"
+msgid "Board height"
+msgstr "Altezza di sondaggio Utensile"
+
+#: plugins/jigsaw.py:267
+msgid "Piece count"
+msgstr ""
+
+#: plugins/jigsaw.py:268
+msgid "Random seed"
+msgstr ""
+
+#: plugins/jigsaw.py:269
+#, fuzzy
+#| msgid "Distance between holes"
+msgid "Difference between pieces"
+msgstr "Distanza tra i fori"
+
+#: plugins/jigsaw.py:270
+msgid "Shape of the tap"
+msgstr ""
+
+#: plugins/jigsaw.py:287
+msgid "Generating puzzle..."
+msgstr ""
+
+#: plugins/jigsaw.py:295
+msgid "Jigsaw puzzle generated in {}s"
+msgstr ""
+
+#: plugins/jigsaw.py:297
+msgid "Error: Check the parameters and your endmill config"
+msgstr ""
 
 #: plugins/driller.py:12
 msgid "Driller"
@@ -3389,58 +3670,82 @@ msgstr "Foratura"
 msgid "Create holes along selected blocks"
 msgstr "Crea dei fori all'interno dei blocchi selezionati"
 
-#: plugins/driller.py:40
+#: plugins/driller.py:39
 msgid "Distance between holes"
 msgstr "Distanza tra i fori"
 
-#: plugins/driller.py:42
+#: plugins/driller.py:41
 msgid "Peck, 0 meas None"
 msgstr "Ritrazioni, 0 significa Nessuno"
 
-#: plugins/driller.py:43
+#: plugins/driller.py:42
 msgid "Dwell time, 0 means None"
 msgstr "Tempo di sosta, 0 significa Nessuno"
 
-#: plugins/driller.py:115
+#: plugins/driller.py:112
 msgid "Driller abort: Distance must be > 0"
 msgstr "Foratura annullata: La distanza deve essere > 0"
 
-#: plugins/driller.py:119
+#: plugins/driller.py:116
 msgid "Driller abort: Peck must be >= 0"
 msgstr "Foratura annullata: La ritrazione deve essere > 0"
 
-#: plugins/driller.py:123
+#: plugins/driller.py:120
 msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
 msgstr "Foratura annullata: Il tempo di sosta deve essere >=0"
 
-#: plugins/driller.py:133
+#: plugins/driller.py:130
 msgid "Driller abort: Please select some path"
 msgstr "Foratura annullata: Scegliete un percorso"
 
-#: plugins/driller.py:223
+#: plugins/driller.py:220
 #, python-format
 msgid "Generated Driller: %d holes"
 msgstr "Foratura generata: %d fori"
 
-#: plugins/tile.py:11
-msgid "Tile"
-msgstr "Piastrellatura"
+#: plugins/box.py:11
+msgid "Box"
+msgstr "Scatola"
 
-#: plugins/tile.py:28
-msgid "Generate replicas of selected code"
-msgstr "Generare delle copie del codice selezionato"
+#: plugins/box.py:299
+msgid "Generate a finger box"
+msgstr "Generare una scatola con incastri di montaggio"
 
-#: plugins/tile.py:52
-msgid "Tile error"
-msgstr "Errore di piastrellatura"
+#: plugins/box.py:306
+msgid "Internal Dimensions"
+msgstr "Dimensioni interne"
 
-#: plugins/tile.py:53
-msgid "No g-code blocks selected"
-msgstr "Nessun blocco G-Code selezionato"
+#: plugins/box.py:307
+msgid "Width Dx"
+msgstr "Larghezza Dx"
 
-#: plugins/tile.py:94
-msgid "Tiled selected blocks"
-msgstr "Piastrellatura dei blocchi seleztionati"
+#: plugins/box.py:308
+msgid "Depth Dy"
+msgstr "Profondità Dy"
+
+#: plugins/box.py:309
+msgid "Height Dz"
+msgstr "Altezza Dz"
+
+#: plugins/box.py:310
+msgid "Fingers Nx"
+msgstr "Incastri Nx"
+
+#: plugins/box.py:311
+msgid "Fingers Ny"
+msgstr "Incastri Ny"
+
+#: plugins/box.py:312
+msgid "Fingers Nz"
+msgstr "Incastri Nz"
+
+#: plugins/box.py:350
+msgid "Create finger BOX"
+msgstr "Crea una scatola assemblata mediante incastri"
+
+#: plugins/box.py:352
+msgid "Generated: BOX with fingers"
+msgstr "Scatola ad incastro generata"
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
@@ -3450,51 +3755,77 @@ msgstr "Spirografo"
 msgid "Create a spirograph path"
 msgstr "Crea un percorso per lo spirografo"
 
-#: plugins/spirograph.py:103
+#: plugins/spirograph.py:102
 msgid "External Radius"
 msgstr "Raggio esterno"
 
-#: plugins/spirograph.py:104
+#: plugins/spirograph.py:103
 msgid "Internal Radius"
 msgstr "Raggio Interno"
 
-#: plugins/spirograph.py:105
+#: plugins/spirograph.py:104
 msgid "Offset radius"
 msgstr "Raggio di offset"
 
-#: plugins/spirograph.py:125
+#: plugins/spirograph.py:124
 msgid "Generated: Spirograph"
 msgstr "Spirograph generato"
 
-#: plugins/bowl.py:10
-msgid "Bowl"
-msgstr "Ciotola"
+#: plugins/sketch.py:13
+msgid "Sketch"
+msgstr "Bozza"
 
-#: plugins/bowl.py:101
-msgid "Generate a bowl cavity"
-msgstr "Generare una ciotola"
+#: plugins/sketch.py:34
+msgid "Create sketch based on picture brightness"
+msgstr "Crea un bozzetto basandosi sulla luminosità di un immagine"
 
-#: plugins/bowl.py:110
-msgid "Resolution (degrees)"
-msgstr "Risoluzione (gradi)"
+#: plugins/sketch.py:42
+msgid "Grundgy, search radius"
+msgstr "Rozzezza, raggio di ricerca"
 
-#: plugins/bowl.py:111
-msgid "Progressive"
-msgstr "Progressivo"
+#: plugins/sketch.py:45
+msgid "Squiggle total count"
+msgstr "Conteggio totale scarabocchi"
 
-#: plugins/bowl.py:126
-msgid "Generated: BOWL"
-msgstr "CIOTOLA generata"
+#: plugins/sketch.py:46
+msgid "Squiggle Length"
+msgstr "Lunghezza scarabocchio"
 
-#: plugins/bowl.py:128
-msgid "Error: Check the Bowl and End Mill parameters"
-msgstr "Errore : Verificare i parametri della ciotola e dell'Utensile"
+#: plugins/sketch.py:49 plugins/halftone.py:42
+msgid "Channel to analyze"
+msgstr "Canale da analizzare"
+
+#: plugins/sketch.py:141
+msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
+msgstr ""
+"Bozza interrotta: Questo plugin richiede PIL/Pillow per leggere le immagini"
+
+#: plugins/sketch.py:168
+msgid "Sketch abort: Too small to draw anything!"
+msgstr "Bozza interrotta: troppo piccolo per disegnare qualcosa!"
+
+#: plugins/sketch.py:172
+msgid "Sketch abort: Please let me draw at least 1 squiggle"
+msgstr "Bozza interrotta: Fammi disegnare almeno 1 scarabocchio"
+
+#: plugins/sketch.py:176
+msgid "Sketch abort: Squiggle Length must be > 0"
+msgstr "Bozza interrotta: La lunghezza dello scarabocchio deve essere > 0"
+
+#: plugins/sketch.py:183
+msgid "Sketch abort: Can't read image file"
+msgstr "Bozza interrotta: Non riesco a leggere l'immagine"
+
+#: plugins/sketch.py:274
+#, python-format
+msgid "Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d"
+msgstr "Bozza generata dimensioni L=%d x A=%d x lunghezza=%d, Total length:%d"
 
 #: plugins/zigzag.py:11
 msgid "Zig-Zag"
 msgstr "Zig-Zag"
 
-#: plugins/zigzag.py:87
+#: plugins/zigzag.py:88
 msgid "Create a Zig-Zag path"
 msgstr "Crea un percorso a Zig-Zag"
 
@@ -3550,157 +3881,107 @@ msgstr "Mezzitono"
 msgid "Create halftone pattern from a picture"
 msgstr "Crea un disegno a mezzitoni da un' immagine"
 
-#: plugins/halftone.py:44
+#: plugins/halftone.py:43
 msgid "Invert Colors"
 msgstr "Inverte i colori"
 
-#: plugins/halftone.py:45
+#: plugins/halftone.py:44
 msgid "Max draw size (Width or Height)"
 msgstr "Dimensione massima disegno(Larghezza o Altezza)"
 
-#: plugins/halftone.py:46
+#: plugins/halftone.py:45
 msgid "Cell size"
 msgstr "Dimensioni cella"
 
-#: plugins/halftone.py:47
+#: plugins/halftone.py:46
 msgid "Max diameter, cap limit"
 msgstr "Diametro massimo, limitante"
 
-#: plugins/halftone.py:48
+#: plugins/halftone.py:47
 msgid "Min diameter, cut off"
 msgstr "Diametro minimo, di esclusione"
 
-#: plugins/halftone.py:49
+#: plugins/halftone.py:48
 msgid "Image rotation angle"
 msgstr "Angolo rotazione immagine"
 
-#: plugins/halftone.py:52
+#: plugins/halftone.py:51
 msgid "Generate for conical end mill"
 msgstr "Genera per fresa conica"
 
-#: plugins/halftone.py:96
+#: plugins/halftone.py:95
 msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
 msgstr ""
 "Mezzitoni interrotto: questo plugin richiedee PIL/Pillow per leggere le "
 "immagini"
 
-#: plugins/halftone.py:116
+#: plugins/halftone.py:115
 msgid "Halftone abort: Size too small to draw anything!"
 msgstr ""
 "Mezzitoni interrotto:  Dimensioni troppo piccole per disegnare  qualcosa"
 
-#: plugins/halftone.py:120
+#: plugins/halftone.py:119
 msgid "Halftone abort: Minimum diameter must be minor then Maximum"
 msgstr ""
 "Mezzitoni interrotto: Il diametro minimo deve essere inferiore di quello "
 "massimo"
 
-#: plugins/halftone.py:124
+#: plugins/halftone.py:123
 msgid "Halftone abort: Maximum diameter too small"
 msgstr "Mezzitoni interrotto: Diametro massimo troppo piccolo"
 
-#: plugins/halftone.py:128
+#: plugins/halftone.py:127
 msgid "Halftone abort: Cell size too small"
 msgstr "Mezzitoni interrotto: Dimensione cella troppo piccola"
 
-#: plugins/halftone.py:138
+#: plugins/halftone.py:137
 msgid "Halftone abort: Angle in V-Cutting end mill is missing"
 msgstr "Mezzitoni interrotto: L'angolo nella fresa conica non è definito"
 
-#: plugins/halftone.py:141
+#: plugins/halftone.py:140
 msgid "Halftone abort: Conical path need V-Cutting end mill"
 msgstr ""
 "Mezzitoni interrotto: Il percorso per frese coniche richiede una fresa "
 "conica selezionata"
 
-#: plugins/halftone.py:149
+#: plugins/halftone.py:148
 msgid "Halftone abort: Can't read image file"
 msgstr "Mezzitoni interrotta: Non riesco a leggere l'immagine"
 
-#: plugins/halftone.py:243
+#: plugins/halftone.py:242
 #, python-format
 msgid "Generated Halftone size W=%d x H=%d x D=%d ,Total points:%i"
 msgstr "Generato Mezzitoni con dimensioni L=%d x A=%d x D=%d ,Totale punti:%i"
 
-#: plugins/box.py:11
-msgid "Box"
-msgstr "Scatola"
+#: plugins/bowl.py:10
+msgid "Bowl"
+msgstr "Ciotola"
 
-#: plugins/box.py:299
-msgid "Generate a finger box"
-msgstr "Generare una scatola con incastri di montaggio"
+#: plugins/bowl.py:102
+msgid "Generate a bowl cavity"
+msgstr "Generare una ciotola"
 
-#: plugins/box.py:307
-msgid "Internal Dimensions"
-msgstr "Dimensioni interne"
+#: plugins/bowl.py:110
+msgid "Resolution (degrees)"
+msgstr "Risoluzione (gradi)"
 
-#: plugins/box.py:308
-msgid "Width Dx"
-msgstr "Larghezza Dx"
+#: plugins/bowl.py:111
+msgid "Progressive"
+msgstr "Progressivo"
 
-#: plugins/box.py:309
-msgid "Depth Dy"
-msgstr "Profondità Dy"
+#: plugins/bowl.py:126
+msgid "Generated: BOWL"
+msgstr "CIOTOLA generata"
 
-#: plugins/box.py:310
-msgid "Height Dz"
-msgstr "Altezza Dz"
+#: plugins/bowl.py:128
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr "Errore : Verificare i parametri della ciotola e dell'Utensile"
 
-#: plugins/box.py:311
-msgid "Fingers Nx"
-msgstr "Incastri Nx"
+#~ msgid "An invalid tool number sent to the parser"
+#~ msgstr "Un numero di utensile errato è stato inviato all'interprete."
 
-#: plugins/box.py:312
-msgid "Fingers Ny"
-msgstr "Incastri Ny"
-
-#: plugins/box.py:313
-msgid "Fingers Nz"
-msgstr "Incastri Nz"
-
-#: plugins/box.py:351
-msgid "Create finger BOX"
-msgstr "Crea una scatola assemblata mediante incastri"
-
-#: plugins/box.py:353
-msgid "Generated: BOX with fingers"
-msgstr "Scatola ad incastro generata"
-
-#: plugins/text.py:30
-msgid "Create text using a ttf font"
-msgstr "Crea del testo utilizzando font ttf"
-
-#: plugins/text.py:38
-msgid "Text to generate"
-msgstr "Testo da generare"
-
-#: plugins/text.py:40
-msgid "Font size"
-msgstr "Dimensione carattere"
-
-#: plugins/text.py:41
-msgid "Font file"
-msgstr "File Font"
-
-#: plugins/text.py:42
-msgid "Image to Ascii"
-msgstr "Da immagine ad ASCII"
-
-#: plugins/text.py:43
-msgid "Image chars width"
-msgstr "Caratteri per larghezza immagine"
-
-#: plugins/text.py:59
-msgid "Text abort: please input a Font size > 0"
-msgstr "Testo annullato: Inserire una dimensione carattere > 0"
-
-#: plugins/text.py:62
-msgid "Text abort: please select a font file"
-msgstr "Testo annullato: Scegliere un file di font"
-
-#: plugins/text.py:89
-msgid "Text abort: That embarrassing, I can't read this font file!"
-msgstr "Testo annullato: Impossibile leggere il file dei font!"
+#~ msgid "$6 Invert probe pin"
+#~ msgstr "$6 Inverti il pin della sonda"
 
 #~ msgid ""
 #~ "G-code is composed of G-code 'words', which consists of a letter followed "
