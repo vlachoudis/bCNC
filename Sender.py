@@ -74,6 +74,7 @@ NOT_CONNECTED = "Not connected"
 STATECOLOR = {	"Alarm"        : "Red",
 		"Run"	       : "LightGreen",
 		"SYSTEM READY" : "LightGreen",
+		"OK"           : "LightYellow",
 		"Hold"	       : "Orange",
 		"Hold:0"       : "Orange",
 		"Hold:1"       : "Orange",
@@ -101,7 +102,7 @@ ERROR_CODES = {
 	NOT_CONNECTED : _("Grbl is not connected. Please specify the correct port and click Open."),
 	CONNECTED     : _("Connection is established with Grbl"),
 
-	"ok" : _("All is good! Everything in the last line was understood by Grbl and was successfully processed and executed."),
+	"ok"       : _("All is good! Everything in the last line was understood by Grbl and was successfully processed and executed."),
 
 	"error:1"  : _("G-code words consist of a letter and a value. Letter was not found."),
 	"error:2"  : _("Numeric value format is not valid or missing an expected value."),
@@ -991,7 +992,7 @@ class Sender:
 		self.serial.write(b"!")
 		self.serial.flush()
 		time.sleep(1)
-		if self.controller (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
 			# remember and send all G commands
 			G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 			TLO = CNC.vars["TLO"]
@@ -1243,9 +1244,7 @@ class Sender:
 	#-----------------------------------------------------------------------
 	# TINYG: Parse status lines/fields and update CNC.vars
 	#-----------------------------------------------------------------------
-	def _tinyg_ParseLine(self, line):
-		reply = json.loads(line)
-		print "reply=",str(reply)
+	def _tinyg_ParseLine(self, reply):
 		if "r" in reply:
 			r = reply["r"]
 			try: CNC.vars["state"] = r["msg"]
@@ -1254,7 +1253,6 @@ class Sender:
 
 		if "sr" in reply:
 			r = reply["sr"]
-			print "SR=",r
 			try: CNC.vars["wx"] = float(r["posx"])
 			except KeyError: pass
 			try: CNC.vars["wy"] = float(r["posy"])
@@ -1264,11 +1262,6 @@ class Sender:
 			try: CNC.vars["curfeed"] = float(r["feed"])
 			except KeyError: pass
 			self._posUpdate = True
-
-		if "f" in reply:
-			print "STATUS=",reply["f"]
-
-		self.log.put((Sender.MSG_OK, line.strip()))
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -1443,32 +1436,29 @@ class Sender:
 
 				# Possibly json object from TinyG
 				elif line[0]=="{" and self.controller == Utils.TINYG:
-					self._tinyg_ParseLine(line)
 					reply = json.loads(line)
-					print "reply=",str(reply)
-					if "r" in reply:
-						r = reply["r"]
-						try: CNC.vars["state"] = r["msg"]
-						except KeyError: pass
-						self._posUpdate = True
-
-					if "sr" in reply:
-						r = reply["sr"]
-						print "SR=",r
-						try: CNC.vars["wx"] = float(r["posx"])
-						except KeyError: pass
-						try: CNC.vars["wy"] = float(r["posy"])
-						except KeyError: pass
-						try: CNC.vars["wz"] = float(r["posz"])
-						except KeyError: pass
-						try: CNC.vars["curfeed"] = float(r["feed"])
-						except KeyError: pass
-						self._posUpdate = True
+					self._tinyg_ParseLine(reply)
+					msg = Sender.MSG_RECEIVE
 
 					if "f" in reply:
-						print "STATUS=",reply["f"]
+						#    0         1         2
+						# revision, status, bytes-read
+						print "status=",reply["f"]
+						if wait and not cline and reply["f"][2]>1:
+							wait = False
+							self._gcount += 1
+						elif reply["f"][2]>1:
+							self._gcount += 1
+							if cline: del cline[0]
+							if sline: del sline[0]
+							msg = Sender.MSG_OK
+							print "<<<<<<<<<<<< OK >>>>>>>>>>>>>>>>>."
+						if reply["f"][1]>0:
+							self._alarm = True
+							msg = Sender.MSG_ERROR
+						CNC.vars["state"] = TINYG_STATUS.get(reply["f"][1],("Unknown",""))[0]
 
-					self.log.put((Sender.MSG_OK, line.strip()))
+					self.log.put((msg, line))
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
@@ -1541,7 +1531,8 @@ class Sender:
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:
-					tosend = b"$G\n"
-					sline.append(tosend)
-					cline.append(len(tosend))
+					if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+						tosend = b"$G\n"
+						sline.append(tosend)
+						cline.append(len(tosend))
 					tg = t
