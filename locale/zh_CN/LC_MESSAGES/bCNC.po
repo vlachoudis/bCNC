@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC chinese\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-29 09:17+0100\n"
-"PO-Revision-Date: 2018-02-14 10:15+0100\n"
+"PO-Revision-Date: 2018-02-14 11:22+0100\n"
 "Last-Translator: @SteveMoto\n"
 "Language-Team: E2D <engineer2designer@gmail.com>\n"
 "Language: zh_TW\n"
@@ -972,11 +972,11 @@ msgstr "帮助 [F1]"
 
 #: ProbePage.py:27
 msgid "G38.2 stop on contact else error"
-msgstr "G38.2停止接触否则出错"
+msgstr "G38.2 停止接触否则出错"
 
 #: ProbePage.py:28
 msgid "G38.3 stop on contact"
-msgstr "G38.3停止接触"
+msgstr "G38.3 停止接触"
 
 #: ProbePage.py:29
 msgid "G38.4 stop on loss contact else error"
@@ -984,7 +984,7 @@ msgstr "G38.4 停止非接触否则出错"
 
 #: ProbePage.py:30
 msgid "G38.5 stop on loss contact"
-msgstr "G38.5停止非接触"
+msgstr "G38.5 停止非接触"
 
 #: ProbePage.py:33
 msgid "Send M6 commands"
