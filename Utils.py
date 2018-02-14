@@ -76,7 +76,8 @@ LANGUAGES = {
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
 		"ja"    : "Japanese",
-		"zh_tw" : "traditional chinese",
+		"zh_tw" : "Traditional Chinese",
+		"zh_cn" : "Simplified Chinese",
 		"pt_BR" : "Brazilian - Portuguese",
 		"ru"    : "Russian",
 	}
