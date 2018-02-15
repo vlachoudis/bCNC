@@ -226,7 +226,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		row += 1
 		col = 1
 
-		self.xzero = Button(self, text="X=0",
+		self.xzero = Button(self, text=_("X=0"),
 				command=self.setX0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -235,7 +235,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.xzero)
 
 		col += 1
-		self.yzero = Button(self, text="Y=0",
+		self.yzero = Button(self, text=_("Y=0"),
 				command=self.setY0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -244,7 +244,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.yzero)
 
 		col += 1
-		self.zzero = Button(self, text="Z=0",
+		self.zzero = Button(self, text=_("Z=0"),
 				command=self.setZ0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -429,10 +429,10 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
 		row,col = 0,0
-		Label(self, text="Z").grid(row=row, column=col)
+		Label(self, text=_("Z")).grid(row=row, column=col)
 
 		col += 3
-		Label(self, text="Y").grid(row=row, column=col)
+		Label(self, text=_("Y")).grid(row=row, column=col)
 
 		# ---
 		row += 1
@@ -487,7 +487,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text="+",
+		b = Button(self, text=_("+"),
 				command=self.incStep,
 				width=3,
 				padx=1, pady=1)
@@ -499,7 +499,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		row += 1
 
 		col = 1
-		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		Label(self, text=_("X"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
 		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
@@ -616,7 +616,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text="-",
+		b = Button(self, text=_("-"),
 					command=self.decStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)
@@ -948,7 +948,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=EW)
 		tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
 
-		b = Button(f, text="Reset", pady=0, command=self.resetOverride)
+		b = Button(f, text=_("Reset"), pady=0, command=self.resetOverride)
 		b.grid(row=row+1, column=col, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Reset override to 100%"))
 

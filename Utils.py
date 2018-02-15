@@ -60,13 +60,14 @@ __credits__ = \
 		"@willadams William Adams"
 __translations__ = \
 		"French - @ThierryM\n" \
-		"German - @feistus\n" \
+		"German - @feistus, @SteveMoto\n" \
 		"Italian - @onekk\n" \
 		"Japanese - @stm32f1\n" \
-                "traditional chinese - @Engineer2Designer\n" \
 		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
-		"Spanish - @carlosgs\n"
+		"Simplified Chinese - @Bluermen\n" \
+		"Spanish - @carlosgs\n" \
+		"Traditional chinese - @Engineer2Designer\n"
 
 LANGUAGES = {
 		""      : "<system>",

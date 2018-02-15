@@ -7,21 +7,87 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bCNC chinese\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-21 21:28+0800\n"
-"PO-Revision-Date: 2017-02-22 02:45+0800\n"
-"Last-Translator: E2D <server@e2d.tw>\n"
+"POT-Creation-Date: 2018-01-29 09:17+0100\n"
+"PO-Revision-Date: 2018-02-14 12:10+0100\n"
+"Last-Translator: @SteveMoto\n"
 "Language-Team: E2D <engineer2designer@gmail.com>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 2.0.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: CNCList.py:663 EditorPage.py:148
-msgid "Color"
-msgstr "顔色"
+#: Updates.py:47
+msgid "Installed Version:"
+msgstr "安裝的版本："
+
+#: Updates.py:52
+msgid "Running version of bCNC"
+msgstr "運行bCNC版本"
+
+#: Updates.py:54
+msgid "Latest Github Version:"
+msgstr "最新版本Github上："
+
+#: Updates.py:60
+msgid "Latest release version on on github"
+msgstr "GitHub上的最新版本"
+
+#: Updates.py:61
+msgid "Published at:"
+msgstr "發佈時間："
+
+#: Updates.py:67
+msgid "Published date of the latest github release"
+msgstr "發布日期最新的github版本"
+
+#: Updates.py:72
+msgid "Check Interval"
+msgstr "檢查間隔"
+
+#: Updates.py:75
+msgid "Last Check:"
+msgstr "最後檢查："
+
+#: Updates.py:87
+msgid "Date of last checking"
+msgstr "最後檢查的日期"
+
+#: Updates.py:89
+msgid "Interval (days):"
+msgstr "間隔時間（天）："
+
+#: Updates.py:100
+msgid "Days-interval to remind again for checking"
+msgstr "間隔設定再次確認"
+
+#: Updates.py:105 Utils.py:469 FilePage.py:203 bCNC.py:858 bCNC.py:1063
+#: bCNC.py:2058
+msgid "Close"
+msgstr "關閉"
+
+#: Updates.py:111
+msgid "Check Now"
+msgstr "再次檢查"
+
+#: Updates.py:117
+msgid "Check the web site for new versions of bCNC"
+msgstr "檢查線上是否有新版本的 bCNC"
+
+#: Updates.py:149
+msgid "Download"
+msgstr "下載"
+
+#: Updates.py:152
+msgid "Open web browser to download bCNC"
+msgstr "打開下載網頁下載 bCNC"
+
+#: Updates.py:157
+#, python-format
+msgid "Error %d in connection"
+msgstr "%d 連接錯誤"
 
 #: Sender.py:95
 msgid "bCNC is currently sending a gcode program to Grbl"
@@ -139,73 +205,77 @@ msgid "Jog command with no '=' or contains prohibited g-code."
 msgstr "'='無任一手動操作的命令，是已被禁止的G代碼"
 
 #: Sender.py:120
+msgid "Laser mode requires PWM output."
+msgstr ""
+
+#: Sender.py:121
 msgid "Unsupported or invalid g-code command found in block."
 msgstr "在塊中找到不支持或無效的g代碼命令。"
 
-#: Sender.py:121
+#: Sender.py:122
 msgid "More than one g-code command from same modal group found in block."
 msgstr "在塊中發現來自相同模態組的多個g-code命令。"
 
-#: Sender.py:122
+#: Sender.py:123
 msgid "Feed rate has not yet been set or is undefined."
 msgstr "進給速率尚未設置或未定義。"
 
-#: Sender.py:123
+#: Sender.py:124
 msgid "G-code command in block requires an integer value."
 msgstr "塊中的G代碼命令需要一個整數值。"
 
-#: Sender.py:124
+#: Sender.py:125
 msgid ""
 "Two G-code commands that both require the use of the XYZ axis words were "
 "detected in the block."
 msgstr "在塊中檢測到兩個都需要使用XYZ軸字的G代碼命令。"
 
-#: Sender.py:125
+#: Sender.py:126
 msgid "A G-code word was repeated in the block."
 msgstr "在塊中重複G代碼字。"
 
-#: Sender.py:126
+#: Sender.py:127
 msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
 msgstr "G代碼命令隱含地或顯式地需要塊中的XYZ軸字，但是沒有檢測到。"
 
-#: Sender.py:127
+#: Sender.py:128
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
 msgstr "N行號值不在1 - 9,999,999的有效範圍內。"
 
-#: Sender.py:128
+#: Sender.py:129
 msgid ""
 "A G-code command was sent, but is missing some required P or L value words "
 "in the line."
 msgstr "發送了G代碼命令，但在該行中缺少一些必需的P或L值字"
 
-#: Sender.py:129
+#: Sender.py:130
 msgid ""
 "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
 "are not supported."
 msgstr "Grbl支持六個工作坐標系G54-G59。 不支持G59.1，G59.2和G59.3。"
 
-#: Sender.py:130
+#: Sender.py:131
 msgid ""
 "The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
 "be active. A different motion was active."
 msgstr ""
 "在G53的G代碼指令要求無論是G0尋求或G1進給運動模式被激活。不同的運動活躍。"
 
-#: Sender.py:131
+#: Sender.py:132
 msgid ""
 "There are unused axis words in the block and G80 motion mode cancel is "
 "active."
 msgstr "程序段中有未使用的軸字，G80運動模式取消激活。"
 
-#: Sender.py:132
+#: Sender.py:133
 msgid ""
 "A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
 "plane to trace the arc."
 msgstr "指令了G2或G3弧，但在所選平面中沒有XYZ軸字以跟踪弧。"
 
-#: Sender.py:133
+#: Sender.py:134
 msgid ""
 "The motion command has an invalid target. G2, G3, and G38.2 generates this "
 "error, if the arc is impossible to generate or if the probe target is the "
@@ -214,7 +284,7 @@ msgstr ""
 "運動命令的目標無效。 G2，G3和G38.2將產生此錯誤，如果無法生成電弧或探測目標是"
 "當前位置。"
 
-#: Sender.py:134
+#: Sender.py:135
 msgid ""
 "A G2 or G3 arc, traced with the radius definition, had a mathematical error "
 "when computing the arc geometry. Try either breaking up the arc into semi-"
@@ -223,28 +293,24 @@ msgstr ""
 "用半徑定義跟踪的G2或G3弧在計算弧幾何時具有數學誤差。 嘗試將電弧分解為半圓或像"
 "限，或使用電弧偏移定義重新定義它們。"
 
-#: Sender.py:135
+#: Sender.py:136
 msgid ""
 "A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
 "word in the selected plane to trace the arc."
 msgstr "使用偏移定義跟踪的G2或G3弧在所選平面中缺少IJK偏移字以跟踪弧。"
 
-#: Sender.py:136
+#: Sender.py:137
 msgid ""
 "There are unused, leftover G-code words that aren't used by any command in "
 "the block."
 msgstr "有未使用的，剩餘的G代碼字，不被塊中的任何命令使用。"
 
-#: Sender.py:137
+#: Sender.py:138
 msgid ""
 "The G43.1 dynamic tool length offset command cannot apply an offset to an "
 "axis other than its configured axis. The Grbl default axis is the Z-axis."
 msgstr ""
 "G43.1動態刀具長度補償命令不能對除其組態軸之外的軸應用偏移。 Grbl默認軸為Z軸。"
-
-#: Sender.py:138
-msgid "An invalid tool number sent to the parser"
-msgstr "發送到解析器的無效工具編號"
 
 #: Sender.py:140
 msgid ""
@@ -329,635 +395,66 @@ msgid ""
 "throw an alarm."
 msgstr "門關閉並恢復。 如果適用，從停放恢復。 復位會發出報警。"
 
-#: Sender.py:437
+#: Sender.py:438
 msgid "unknown command"
 msgstr "未知的命令"
 
-#: Sender.py:437
+#: Sender.py:438
 #, python-format
 msgid "Invalid command %s"
 msgstr "命令無效 %s"
 
-#: Sender.py:712 ControlPage.py:403
+#: Sender.py:718 ControlPage.py:407
 #, python-format
 msgid "Set workspace %s to %s"
 msgstr "將工作區 %s 設置為 %s"
 
-#: Sender.py:786
+#: Sender.py:792
 msgid "Run ended"
 msgstr "運行結束"
 
-#: ToolsPage.py:500
-msgid "Units (inches)"
-msgstr "單位（英寸）"
-
-#: ToolsPage.py:501
-msgid "Lasercutter"
-msgstr "激光切割機"
-
-#: ToolsPage.py:502
-msgid "Acceleration x"
-msgstr "x軸 加速度"
-
-#: ToolsPage.py:503
-msgid "Acceleration y"
-msgstr "y軸 加速度"
-
-#: ToolsPage.py:504
-msgid "Acceleration z"
-msgstr "z軸 加速度"
-
-#: ToolsPage.py:505
-msgid "Feed max x"
-msgstr "x軸 最大進給速率"
-
-#: ToolsPage.py:506
-msgid "Feed max y"
-msgstr "y軸 最大進給速率"
-
-#: ToolsPage.py:507
-msgid "Feed max z"
-msgstr "z軸 最大進給速率"
-
-#: ToolsPage.py:508
-msgid "Travel x"
-msgstr "x軸 可動域"
-
-#: ToolsPage.py:509
-msgid "Travel y"
-msgstr "y軸 可動域"
-
-#: ToolsPage.py:510
-msgid "Travel z"
-msgstr "z軸 可動域"
-
-#: ToolsPage.py:511
-msgid "Decimal digits"
-msgstr "十進制數字"
-
-#: ToolsPage.py:512
-msgid "Plotting Arc accuracy"
-msgstr "繪製弧精度"
-
-#: ToolsPage.py:513
-msgid "Start up"
-msgstr "開始"
-
-#: ToolsPage.py:514
-msgid "Spindle min (RPM)"
-msgstr "主軸最低速度（RPM）"
-
-#: ToolsPage.py:515
-msgid "Spindle max (RPM)"
-msgstr "主軸最大速度（RPM）"
-
-#: ToolsPage.py:516
-msgid "DRO Zero padding"
-msgstr "DRO零填充"
-
-#: ToolsPage.py:517
-msgid "Header gcode"
-msgstr "前置 gcode"
-
-#: ToolsPage.py:518
-msgid "Footer gcode"
-msgstr "後置 gcode"
-
-#: ToolsPage.py:541 ToolsPage.py:568 ToolsPage.py:598 ToolsPage.py:625
-#: ToolsPage.py:656 ToolsPage.py:689 ToolsPage.py:715 ToolsPage.py:737
-#: ToolsPage.py:1405 lib/bFileDialog.py:293 plugins/sketch.py:42
-#: plugins/pyrograph.py:39 plugins/heightmap.py:49 plugins/midi2cnc.py:50
-#: plugins/hilbert.py:88 plugins/gear.py:164 plugins/flatten.py:256
-#: plugins/driller.py:39 plugins/tile.py:35 plugins/spirograph.py:102
-#: plugins/bowl.py:108 plugins/zigzag.py:94 plugins/halftone.py:41
-#: plugins/box.py:306 plugins/text.py:37
-msgid "Name"
-msgstr "名稱"
-
-#: ToolsPage.py:542 ToolsPage.py:569 ToolsPage.py:599 EditorPage.py:233
-msgid "Comment"
-msgstr "註解"
-
-#: ToolsPage.py:543 ToolsPage.py:629
-msgid "Feed"
-msgstr "進刀進給量"
-
-#: ToolsPage.py:544 ToolsPage.py:630
-msgid "Plunge Feed"
-msgstr "下刀進給量"
-
-#: ToolsPage.py:545 ToolsPage.py:628
-msgid "Depth Increment"
-msgstr "深度增量"
-
-#: ToolsPage.py:570 lib/bFileDialog.py:294
-msgid "Type"
-msgstr "類型"
-
-#: ToolsPage.py:571
-msgid "Shape"
-msgstr "形狀"
-
-#: ToolsPage.py:572 ToolsPage.py:600 ToolsPage.py:987
-msgid "Material"
-msgstr "素材"
-
-#: ToolsPage.py:573
-msgid "Coating"
-msgstr "塗層"
-
-#: ToolsPage.py:574 plugins/bowl.py:109
-msgid "Diameter"
-msgstr "直徑"
-
-#: ToolsPage.py:575
-msgid "Mount Axis"
-msgstr "安裝軸"
-
-#: ToolsPage.py:576
-msgid "Flutes"
-msgstr "槽"
-
-#: ToolsPage.py:577
-msgid "Length"
-msgstr "長度"
-
-#: ToolsPage.py:578
-msgid "Angle"
-msgstr "角度"
-
-#: ToolsPage.py:579
-msgid "Stepover %"
-msgstr "步進%"
-
-#: ToolsPage.py:601
-msgid "Safe Z"
-msgstr "安全 Z軸高度"
-
-#: ToolsPage.py:602 ToolsPage.py:626
-msgid "Surface Z"
-msgstr "曲面 Z"
-
-#: ToolsPage.py:603
-msgid "Thickness"
-msgstr "厚度"
-
-#: ToolsPage.py:627 ToolsPage.py:657 plugins/driller.py:41
-#: plugins/spirograph.py:106
-msgid "Target Depth"
-msgstr "目標深度"
-
-#: ToolsPage.py:631
-msgid "First cut at surface height"
-msgstr "表面高度切割"
-
-#: ToolsPage.py:646
-msgid "CUT selected paths"
-msgstr "選選切割路徑"
-
-#: ToolsPage.py:658
-msgid "Peck depth"
-msgstr "深度增量"
-
-#: ToolsPage.py:659
-msgid "Dwell (s)"
-msgstr "停留"
-
-#: ToolsPage.py:660
-msgid "Distance (mm)"
-msgstr "距離（mm）"
-
-#: ToolsPage.py:661
-msgid "Number"
-msgstr "發送到解析器的無效工具編號"
-
-#: ToolsPage.py:679
-msgid "DRILL selected points"
-msgstr "選定的鑽尖"
-
-#: ToolsPage.py:690 ToolsPage.py:716 ToolsPage.py:1001
-msgid "End Mill"
-msgstr "銑刀"
-
-#: ToolsPage.py:691 plugins/pyrograph.py:45
-msgid "Direction"
-msgstr "方向"
-
-#: ToolsPage.py:692
-msgid "Additional offset distance"
-msgstr "附加偏移距離"
-
-#: ToolsPage.py:693 plugins/box.py:315
-msgid "Overcut"
-msgstr "過切"
-
-#: ToolsPage.py:705
-msgid "Generate profile path"
-msgstr "生成配置文件路徑"
-
-#: ToolsPage.py:727
-msgid "Generate pocket path"
-msgstr "生成數據路徑"
-
-#: ToolsPage.py:738
-msgid "Number of tabs"
-msgstr "標籤數"
-
-# ?
-#: ToolsPage.py:739
-msgid "Min. Distance of tabs"
-msgstr "最小的距離"
-
-#: ToolsPage.py:742
-msgid "Height"
-msgstr "高度"
-
-#: ToolsPage.py:762
-msgid "Tabs error"
-msgstr "標籤錯誤"
-
-#: ToolsPage.py:763
-msgid "You cannot have both the number of tabs or distance equal to zero"
-msgstr "您不能同時擁有標籤數量或距離等於零"
-
-#: ToolsPage.py:766
-msgid "Create tabs on blocks"
-msgstr "創建標籤"
-
-#: ToolsPage.py:776
-msgid "$0 Step pulse time [us]"
-msgstr "$0 脈衝時間[us]"
-
-#: ToolsPage.py:777
-msgid "$1 Step idle delay [ms]"
-msgstr "$1 脈衝延遲時間[ms]"
-
-#: ToolsPage.py:778
-msgid "$2 Step pulse invert [mask]"
-msgstr "$2 脈衝反轉[mask]"
-
-#: ToolsPage.py:779
-msgid "$3 Step direction invert [mask]"
-msgstr "$3 步進方向反轉[mask]"
-
-#: ToolsPage.py:780
-msgid "$4 Invert step enable pin"
-msgstr "$4 反轉 step enable pin"
-
-#: ToolsPage.py:781
-msgid "$5 Invert limit pins"
-msgstr "$5 反轉限制引腳"
-
-#: ToolsPage.py:782
-msgid "$6 Invert probe pin"
-msgstr "$6 反轉探頭針引腳"
-
-#: ToolsPage.py:783
-msgid "$10 Status report options [mask]"
-msgstr "$10 狀態報告選項[mask]"
-
-#: ToolsPage.py:784
-msgid "$11 Junction deviation [mm]"
-msgstr "$11 歸零偏差[mm]"
-
-#: ToolsPage.py:785
-msgid "$12 Arc tolerance [mm]"
-msgstr "$12 圖弧公差[mm]"
-
-#: ToolsPage.py:786
-msgid "$13 Report in inches"
-msgstr "$13 以英寸為單位"
-
-# ?
-#: ToolsPage.py:787
-msgid "$20 Soft limits enable"
-msgstr "$20 軟體限位"
-
-# ?
-#: ToolsPage.py:788
-msgid "$21 Hard limits enable"
-msgstr "$21 硬體限位"
-
-# ?
-#: ToolsPage.py:789
-msgid "$22 Homing cycle enable"
-msgstr "$22 原點循環啟用"
-
-# ?
-#: ToolsPage.py:790
-msgid "$23 Homing direction invert [mask]"
-msgstr "$23 回原點方向反轉[mask]"
-
-#: ToolsPage.py:791
-msgid "$24 Homing locate feed rate [mm/min]"
-msgstr "$24 原點位置進給速率[mm / min]"
-
-#: ToolsPage.py:792
-msgid "$25 Homing search seek rate [mm/min]"
-msgstr "$25 原點搜索速率[mm / min]"
-
-# ?
-#: ToolsPage.py:793
-msgid "$26 Homing switch debounce delay, ms"
-msgstr "$26 歸位開關延遲，ms"
-
-#: ToolsPage.py:794
-msgid "$27 Homing switch pull-off distance [mm]"
-msgstr "$27 原點開關拉開距離[mm]"
-
-#: ToolsPage.py:795
-msgid "$30 Maximum spindle speed [RPM]"
-msgstr "$30 最大主軸轉速[RPM]"
-
-#: ToolsPage.py:796
-msgid "$31 Minimum spindle speed [RPM]"
-msgstr "$31 最小主軸轉速[RPM]"
-
-#: ToolsPage.py:797
-msgid "$32 Laser-mode enable"
-msgstr "$32 激光模式啟用"
-
-# ?
-#: ToolsPage.py:798
-msgid "$100 X-axis steps per mm"
-msgstr "$100 X軸步距每毫米"
-
-# ?
-#: ToolsPage.py:799
-msgid "$101 Y-axis steps per mm"
-msgstr "$101 Y軸步距每毫米"
-
-# ?
-#: ToolsPage.py:800
-msgid "$102 Z-axis steps per mm"
-msgstr "$102 Z軸步距每毫米"
-
-#: ToolsPage.py:801
-msgid "$110 X-axis maximum rate [mm/min]"
-msgstr "$110 X軸最大速率[mm / min]"
-
-#: ToolsPage.py:802
-msgid "$111 Y-axis maximum rate [mm/min]"
-msgstr "$111 Y軸最大速率[mm / min]"
-
-#: ToolsPage.py:803
-msgid "$112 Z-axis maximum rate [mm/min]"
-msgstr "$112 Z軸最大速率[mm / min]"
-
-#: ToolsPage.py:804
-msgid "$120 X-axis acceleration [mm/sec^2]"
-msgstr "$ 120 X軸加快速度[mm / sec ^ 2]"
-
-#: ToolsPage.py:805
-msgid "$121 Y-axis acceleration [mm/sec^2]"
-msgstr "$121 Y軸加快速度[mm / sec ^ 2]"
-
-#: ToolsPage.py:806
-msgid "$122 Z-axis acceleration [mm/sec^2]"
-msgstr "$122 Z軸加快速度[mm / sec ^ 2]"
-
-# 1
-#: ToolsPage.py:807
-msgid "$130 X-axis maximum travel [mm]"
-msgstr "$130 X軸最大行程[mm]"
-
-# 1
-#: ToolsPage.py:808
-msgid "$131 Y-axis maximum travel [mm]"
-msgstr "$131 Y軸最大行程[mm]"
-
-# 1
-#: ToolsPage.py:809
-msgid "$132 Z-axis maximum travel [mm]"
-msgstr "$132 Z軸最大行程[mm]"
-
-#: ToolsPage.py:966
-msgid "Database"
-msgstr "資料庫"
-
-#: ToolsPage.py:973
-msgid "Stock"
-msgstr "物料"
-
-#: ToolsPage.py:980
-msgid "Stock material currently on machine"
-msgstr "目前在機器上的物料"
-
-#: ToolsPage.py:994
-msgid "Editable database of material properties"
-msgstr "材料設定"
-
-#: ToolsPage.py:1008
-msgid "Editable database of EndMills properties"
-msgstr "銑刀的設置"
-
-#: ToolsPage.py:1015
-msgid "Rename"
-msgstr "改名"
-
-#: ToolsPage.py:1020
-msgid "Edit name of current operation/object"
-msgstr "編輯當前操作/對象的名稱"
-
-#: ToolsPage.py:1028 EditorPage.py:159 ProbePage.py:421
-msgid "Add"
-msgstr "追加"
-
-#: ToolsPage.py:1033
-msgid "Add a new operation/object"
-msgstr "添加新操作/物件"
-
-#: ToolsPage.py:1041 EditorPage.py:171
-msgid "Clone"
-msgstr "複製"
-
-#: ToolsPage.py:1046
-msgid "Clone selected operation/object"
-msgstr "複製選定的操作/物件"
-
-#: ToolsPage.py:1054 EditorPage.py:183 ProbePage.py:455
-msgid "Delete"
-msgstr "刪除"
-
-#: ToolsPage.py:1059
-msgid "Delete selected operation/object"
-msgstr "刪除選定的操作/物件"
-
-#: ToolsPage.py:1068
-msgid "CAM"
-msgstr "CAM"
-
-#: ToolsPage.py:1075 EditorPage.py:46 plugins/box.py:316
-msgid "Cut"
-msgstr "切割"
-
-#: ToolsPage.py:1082
-msgid "Cut for the full stock thickness selected code"
-msgstr "剪切選擇的部分"
-
-#: ToolsPage.py:1089 plugins/box.py:314
-msgid "Profile"
-msgstr "輪廓"
-
-#: ToolsPage.py:1096
-msgid "Perform a profile operation on selected code"
-msgstr "對所選代碼執行配置文件操作"
-
-#: ToolsPage.py:1103
-msgid "Pocket"
-msgstr "口袋"
-
-#: ToolsPage.py:1110
-msgid "Perform a pocket operation on selected code"
-msgstr "對選定的代碼進行操作口袋"
-
-#: ToolsPage.py:1117
-msgid "Drill"
-msgstr "鑽頭"
-
-#: ToolsPage.py:1124
-msgid "Insert a drill cycle on current objects/location"
-msgstr "在當前對象/位置插入鑽孔周期"
-
-#: ToolsPage.py:1131
-msgid "Tabs"
-msgstr "標籤"
-
-#: ToolsPage.py:1138
-msgid "Insert holding tabs"
-msgstr "將持孔洞標籤"
-
-#: ToolsPage.py:1234 ToolsPage.py:1286
-msgid "Config"
-msgstr "設定"
-
-#: ToolsPage.py:1249
-msgid "Change program language restart is required"
-msgstr "變更語言需要重新啟動"
-
-#: ToolsPage.py:1258 ProbePage.py:104 ProbePage.py:1115
-msgid "Camera"
-msgstr "相機"
-
-#: ToolsPage.py:1265
-msgid "Camera Configuration"
-msgstr "相機設定"
-
-#: ToolsPage.py:1272
-msgid "Colors"
-msgstr "顔色"
-
-#: ToolsPage.py:1279
-msgid "Color configuration"
-msgstr "顔色設定"
-
-#: ToolsPage.py:1293
-msgid "Machine configuration for bCNC"
-msgstr "bCNC設備配置"
-
-#: ToolsPage.py:1300
-msgid "Controller"
-msgstr "控制器"
-
-#: ToolsPage.py:1307
-msgid "Controller (GRBL) configuration"
-msgstr "控制器 (GRBL) 設定"
-
-#: ToolsPage.py:1314
-msgid "Fonts"
-msgstr "字體"
-
-#: ToolsPage.py:1321
-msgid "Font configuration"
-msgstr "字體設定"
-
-#: ToolsPage.py:1328
-msgid "Shortcuts"
-msgstr "快捷鍵"
-
-#: ToolsPage.py:1335
-msgid "Shortcuts configuration"
-msgstr "快捷鍵設定"
-
-#: ToolsPage.py:1366
-msgid "Language change"
-msgstr "變更語言"
-
-#: ToolsPage.py:1367
-msgid "Please restart the program."
-msgstr "請重新啟動軟體。"
-
-#: ToolsPage.py:1375
-msgid "Events"
-msgstr "事件"
-
-#: ToolsPage.py:1380
-msgid "User File"
-msgstr "用戶文件"
-
-#: ToolsPage.py:1393
-msgid "Execute"
-msgstr "執行"
-
-#: ToolsPage.py:1406
-msgid "Value"
-msgstr "値"
-
-#: ToolsPage.py:1474
-msgid "GCode manipulation tools and user plugins"
-msgstr "GCode 操作工具和用戶插件"
-
-#: ToolsPage.py:1475
-msgid "Tools"
-msgstr "工具"
-
-#: Utils.py:416
+#: Utils.py:431
 msgid "Error Reporting"
 msgstr "錯誤報告"
 
-#: Utils.py:419 FilePage.py:134
+#: Utils.py:434 FilePage.py:136
 msgid "Report"
 msgstr "報告"
 
-#: Utils.py:422
+#: Utils.py:437
 #, python-format
 msgid "The following report is about to be send to the author of %s"
 msgstr "以下報告將要發送給 %s 的作者"
 
-#: Utils.py:437
+#: Utils.py:452
 msgid "Your email"
 msgstr "你的E-mail地址"
 
-#: Utils.py:446
+#: Utils.py:461
 msgid "Automatic error reporting"
 msgstr "自動傳輸錯誤報告"
 
-#: Utils.py:454 bCNC.py:859 bCNC.py:1064 bCNC.py:2051 Updates.py:105
-#: FilePage.py:201
-msgid "Close"
-msgstr "關閉"
-
-#: Utils.py:458
+#: Utils.py:473
 msgid "Send report"
 msgstr "發送報告"
 
-#: Utils.py:524 Utils.py:534
+#: Utils.py:539 Utils.py:549
 msgid "Error sending report"
 msgstr "發送報告失敗"
 
-#: Utils.py:525
+#: Utils.py:540
 msgid "There was a problem connecting to the web site"
 msgstr "連接到網站時出現問題"
 
-#: Utils.py:529
+#: Utils.py:544
 msgid "Report successfully send"
 msgstr "報告發送成功"
 
-#: Utils.py:530
+#: Utils.py:545
 msgid "Report was successfully uploaded to web site"
 msgstr "報告已成功上傳到網站"
 
-#: Utils.py:535
+#: Utils.py:550
 #, python-format
 msgid ""
 "There was an error sending the report\n"
@@ -966,43 +463,43 @@ msgstr ""
 "發送報告時出錯\n"
 "代碼=%d %s"
 
-#: Utils.py:642
+#: Utils.py:657
 msgid "User configurable button"
 msgstr "用戶可配置按鈕"
 
-#: Utils.py:648
+#: Utils.py:663
 msgid "Name:"
 msgstr "名稱: "
 
-#: Utils.py:652
+#: Utils.py:667
 msgid "Name to appear on button"
 msgstr "按鈕上顯示的名稱"
 
-#: Utils.py:656
+#: Utils.py:671
 msgid "Icon:"
 msgstr "圖示:"
 
-#: Utils.py:668
+#: Utils.py:683
 msgid "Icon to appear on button"
 msgstr "按鈕上的圖標"
 
-#: Utils.py:672
+#: Utils.py:687
 msgid "Tool Tip:"
 msgstr "工具提示:"
 
-#: Utils.py:676
+#: Utils.py:691
 msgid "Tooltip for button"
 msgstr "按鈕的工具提示"
 
-#: Utils.py:680 bCNC.py:157
+#: Utils.py:695 bCNC.py:157
 msgid "Command:"
 msgstr "命令:"
 
-#: Utils.py:692 lib/bFileDialog.py:344
+#: Utils.py:707 lib/bFileDialog.py:323
 msgid "Cancel"
 msgstr "取消"
 
-#: Utils.py:693
+#: Utils.py:708
 msgid "Ok"
 msgstr "Ok"
 
@@ -1038,7 +535,7 @@ msgstr "Reset"
 msgid "Software reset of controller [ctrl-x]"
 msgstr "控制器軟體復位[ctrl-x]"
 
-#: ControlPage.py:108 FilePage.py:176
+#: ControlPage.py:108 FilePage.py:178
 msgid "Start"
 msgstr "Start"
 
@@ -1054,7 +551,7 @@ msgstr "Pause"
 msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
 msgstr "暫停 發送 FEED_HOLD ! or CYCLE_START ~"
 
-#: ControlPage.py:125 FilePage.py:187
+#: ControlPage.py:125 FilePage.py:189
 msgid "Stop"
 msgstr "Stop"
 
@@ -1108,44 +605,44 @@ msgstr "將Y坐標設置為零(或在WPos中鍵入坐標)"
 msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
 msgstr "將Z坐標設置為零(或在WPos中鍵入坐標)"
 
-#: ControlPage.py:258
+#: ControlPage.py:261
 msgid "Set WPOS"
 msgstr "設置WPOS"
 
-#: ControlPage.py:265
+#: ControlPage.py:268
 msgid "Set WPOS to mouse location"
 msgstr "鼠標點選設置WPOS"
 
-#: ControlPage.py:269
+#: ControlPage.py:272
 msgid "Move Gantry"
 msgstr "移動龍門"
 
-#: ControlPage.py:276
+#: ControlPage.py:280
 msgid "Move gantry to mouse location [g]"
 msgstr "將龍門架移動到鼠標點選位置[g]"
 
-#: ControlPage.py:287
+#: ControlPage.py:291
 msgid "Show Info"
 msgstr "顯示信息"
 
-#: ControlPage.py:289
+#: ControlPage.py:293
 msgid "Clear Message"
 msgstr "清除信息"
 
-#: ControlPage.py:293
+#: ControlPage.py:297
 msgid "Feed hold"
 msgstr "進給保持"
 
-#: ControlPage.py:295
+#: ControlPage.py:299
 msgid "Resume"
 msgstr "恢復"
 
-#: ControlPage.py:411
+#: ControlPage.py:415
 #, python-format
 msgid "Last error: %s\n"
 msgstr "上次錯誤: %s\n"
 
-#: ControlPage.py:417
+#: ControlPage.py:421
 msgid ""
 "No info available.\n"
 "Please contact the author."
@@ -1153,40 +650,40 @@ msgstr ""
 "沒有信息。\n"
 "請聯繫作者。"
 
-#: ControlPage.py:418
+#: ControlPage.py:422
 #, python-format
 msgid "State: %s"
 msgstr "狀態: %s"
 
-#: ControlPage.py:445
+#: ControlPage.py:449
 msgid "Move +Z"
 msgstr "移動 +Z"
 
-#: ControlPage.py:455
+#: ControlPage.py:459
 msgid "Move -X +Y"
 msgstr "移動 -X +Y"
 
-#: ControlPage.py:464
+#: ControlPage.py:468
 msgid "Move +Y"
 msgstr "移動 +Y"
 
-#: ControlPage.py:473
+#: ControlPage.py:477
 msgid "Move +X +Y"
 msgstr "移動 +X +Y"
 
-#: ControlPage.py:482
+#: ControlPage.py:486
 msgid "Multiply step by 10"
 msgstr "乘以10"
 
-#: ControlPage.py:491
+#: ControlPage.py:495
 msgid "Increase step by 1 unit"
 msgstr "逐步增加1個單位"
 
-#: ControlPage.py:506
+#: ControlPage.py:510
 msgid "Move -X"
 msgstr "移動 -X"
 
-#: ControlPage.py:515
+#: ControlPage.py:519
 msgid ""
 "Move to Origin.\n"
 "User configurable button.\n"
@@ -1196,166 +693,1211 @@ msgstr ""
 "用戶可配置按鈕。\n"
 "右鍵單擊以進行配置。"
 
-#: ControlPage.py:524
+#: ControlPage.py:528
 msgid "Move +X"
 msgstr "移動 +X"
 
-#: ControlPage.py:536
+#: ControlPage.py:540
 msgid "Step for every move operation"
 msgstr "每次移動操作的步驟"
 
-#: ControlPage.py:546
+#: ControlPage.py:550
 msgid "Step for Z move operation"
 msgstr "Z移動操作步驟"
 
-#: ControlPage.py:576
+#: ControlPage.py:580
 msgid "Move -Z"
 msgstr "移動 -Z"
 
-#: ControlPage.py:585
+#: ControlPage.py:589
 msgid "Move -X -Y"
 msgstr "移動 -X -Y"
 
-#: ControlPage.py:594
+#: ControlPage.py:598
 msgid "Move -Y"
 msgstr "移動 -Y"
 
-#: ControlPage.py:603
+#: ControlPage.py:607
 msgid "Move +X -Y"
 msgstr "移動 +X -Y"
 
-#: ControlPage.py:611
+#: ControlPage.py:615
 msgid "Divide step by 10"
 msgstr "除以10"
 
-#: ControlPage.py:619
+#: ControlPage.py:623
 msgid "Decrease step by 1 unit"
 msgstr "逐步減少1個單位"
 
 # 1
-#: ControlPage.py:696
+#: ControlPage.py:700
 #, python-format
 msgid "Step: %g"
 msgstr "Step: %g"
 
 # 1
-#: ControlPage.py:701
+#: ControlPage.py:705
 #, python-format
 msgid "Step: %g    Zstep:%g "
 msgstr "Step: %g    Zstep:%g "
 
-#: ControlPage.py:825
+#: ControlPage.py:829
 #, python-format
 msgid "Switch to workspace %s"
 msgstr "切換到工作區 %s"
 
-#: ControlPage.py:831 ProbePage.py:1455
+#: ControlPage.py:835 ProbePage.py:1542
 msgid "Distance:"
 msgstr "距離:"
 
-#: ControlPage.py:839
+#: ControlPage.py:843
 msgid "Distance Mode [G90,G91]"
 msgstr "距離模式[G90,G91]"
 
-#: ControlPage.py:849
+#: ControlPage.py:853
 msgid "Units:"
 msgstr "單位:"
 
-#: ControlPage.py:857
+#: ControlPage.py:861
 msgid "Units [G20, G21]"
 msgstr "單位 [G20, G21]"
 
-#: ControlPage.py:864 CNCCanvas.py:2008
+#: ControlPage.py:868 CNCCanvas.py:2021
 msgid "Tool:"
 msgstr "工具:"
 
-#: ControlPage.py:869
+#: ControlPage.py:873
 msgid "Tool number [T#]"
 msgstr "刀具編號 [T#]"
 
-#: ControlPage.py:873 ControlPage.py:908 ProbePage.py:225
+#: ControlPage.py:877 ControlPage.py:912 ProbePage.py:240
 msgid "set"
 msgstr "組"
 
-#: ControlPage.py:881
+#: ControlPage.py:885
 msgid "Plane:"
 msgstr "平面:"
 
-#: ControlPage.py:889
+#: ControlPage.py:893
 msgid "Plane [G17,G18,G19]"
 msgstr "平面 [G17,G18,G19]"
 
-#: ControlPage.py:897
+#: ControlPage.py:901
 msgid "Feed:"
 msgstr "進料:"
 
-#: ControlPage.py:904
+#: ControlPage.py:908
 msgid "Feed Rate [F#]"
 msgstr "進料速率 [F#]"
 
-#: ControlPage.py:915
+#: ControlPage.py:919
 msgid "Mode:"
 msgstr "模式:"
 
-#: ControlPage.py:924
+#: ControlPage.py:928
 msgid "Feed Mode [G93, G94, G95]"
 msgstr "進料模式 [G93, G94, G95]"
 
-#: ControlPage.py:945
+#: ControlPage.py:949
 msgid "Select override type."
 msgstr "選擇override 類型。"
 
-#: ControlPage.py:949
+#: ControlPage.py:953
 msgid "Reset override to 100%"
 msgstr "將 override 重置為 100%"
 
-#: ControlPage.py:963
+#: ControlPage.py:967
 msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
 msgstr "設置進給/快速/主軸倍率。 右鍵或雙擊重置。"
 
-#: ControlPage.py:970
+#: ControlPage.py:974
 msgid "Spindle"
 msgstr "主軸"
 
-#: ControlPage.py:978
+#: ControlPage.py:982
 msgid "Start/Stop spindle (M3/M5)"
 msgstr "啟動/停止主軸（M3 / M5）"
 
-#: ControlPage.py:989
+#: ControlPage.py:993
 msgid "Set spindle RPM"
 msgstr "設置主軸RPM"
 
-#: ControlPage.py:1107
+#: ControlPage.py:1111
 msgid "CNC communication and control"
 msgstr "CNC通訊和控制"
 
-#: ControlPage.py:1108
+#: ControlPage.py:1112
 msgid "Control"
 msgstr "控制"
 
-#: Ribbon.py:483
+#: FilePage.py:59 FilePage.py:306
+msgid "File"
+msgstr "打開文件"
+
+#: FilePage.py:66
+msgid "New"
+msgstr "新文件"
+
+#: FilePage.py:70
+msgid "New gcode/dxf file"
+msgstr "新規作成 gcode/dxf"
+
+#: FilePage.py:79
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr "打開現有的gcode / dxf文件 [Ctrl-O]"
+
+#: FilePage.py:84 FilePage.py:281 bCNC.py:2050 lib/bFileDialog.py:299
+#: lib/bFileDialog.py:850 lib/bFileDialog.py:954
+msgid "Open"
+msgstr "開"
+
+#: FilePage.py:89
+msgid "Open recent file"
+msgstr "打開最近的文件"
+
+#: FilePage.py:99
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr "保存gcode / dxf文件 [Ctrl-S]"
+
+#: FilePage.py:104 lib/bFileDialog.py:884
+msgid "Save"
+msgstr "保存"
+
+#: FilePage.py:109
+msgid "Save gcode/dxf AS"
+msgstr "保存gcode / dxf AS"
+
+#: FilePage.py:117
+msgid "Options"
+msgstr "設定"
+
+#: FilePage.py:143
+msgid "Send Error Report"
+msgstr "報告錯誤"
+
+#: FilePage.py:148
+msgid "Updates"
+msgstr "更新"
+
+#: FilePage.py:155
+msgid "Check Updates"
+msgstr "檢查更新"
+
+#: FilePage.py:159
+msgid "About"
+msgstr "關於"
+
+#: FilePage.py:166
+msgid "About the program"
+msgstr "關於程序"
+
+#: FilePage.py:173 bCNC.py:2208 bCNC.py:2212 bCNC.py:2225
+msgid "Pendant"
+msgstr "通訊"
+
+#: FilePage.py:185
+msgid "Start pendant"
+msgstr "開始下垂"
+
+#: FilePage.py:196
+msgid "Stop pendant"
+msgstr "停止下垂"
+
+#: FilePage.py:207
+msgid "Exit"
+msgstr "結束"
+
+#: FilePage.py:214
+msgid "Close program [Ctrl-Q]"
+msgstr "退出程序[CTRL-Q]"
+
+#: FilePage.py:227
+msgid "Port:"
+msgstr "Port:"
+
+#: FilePage.py:233
+msgid "Select (or manual enter) port to connect"
+msgstr "選擇端口來連接（手動輸入）"
+
+#: FilePage.py:242
+msgid "Baud:"
+msgstr "Baud:"
+
+#: FilePage.py:247
+msgid "Select connection baud rate"
+msgstr "選擇連接鮑率"
+
+#: FilePage.py:254
+msgid "Controller:"
+msgstr "控制器:"
+
+#: FilePage.py:261
+msgid "Select controller board"
+msgstr "選擇控制器的類型"
+
+#: FilePage.py:268
+msgid "Connect on startup"
+msgstr "在啟動時連接"
+
+#: FilePage.py:271
+msgid "Connect to serial on startup of the program"
+msgstr "在程序啟動時連接到串口"
+
+#: FilePage.py:286
+msgid "Open/Close serial port"
+msgstr "打開/關閉串口"
+
+#: FilePage.py:305
+msgid "File I/O and configuration"
+msgstr "文件I / O和配置"
+
+#: Ribbon.py:499
 msgid "New file"
 msgstr "新文件"
 
-#: Ribbon.py:489
+#: Ribbon.py:505
 msgid "Open file [Ctrl-O]"
 msgstr "打開文件[Ctrl-O鍵]"
 
-#: Ribbon.py:495
+#: Ribbon.py:511
 msgid "Save all [Ctrl-S]"
 msgstr "所有文件保存 [Ctrl-S]"
 
-#: Ribbon.py:501
+#: Ribbon.py:517
 msgid "Undo [Ctrl-Z]"
 msgstr "撤消 [Ctrl-Z]"
 
-#: Ribbon.py:514
+#: Ribbon.py:530
 msgid "Redo [Ctrl-Y]"
 msgstr "重做 [Ctrl-Y]"
 
-#: Ribbon.py:525
+#: Ribbon.py:541
 msgid "Help [F1]"
 msgstr "幫助 [F1]"
+
+#: ProbePage.py:27
+msgid "G38.2 stop on contact else error"
+msgstr "G38.2 停止在接觸時或有其他錯誤"
+
+#: ProbePage.py:28
+msgid "G38.3 stop on contact"
+msgstr "G38.3 停止在接觸時"
+
+#: ProbePage.py:29
+msgid "G38.4 stop on loss contact else error"
+msgstr "G38.4 停止在接觸後或有其他錯誤"
+
+#: ProbePage.py:30
+msgid "G38.5 stop on loss contact"
+msgstr "G38.5  停止在接觸後"
+
+#: ProbePage.py:33
+msgid "Send M6 commands"
+msgstr "發送M6命令"
+
+#: ProbePage.py:34
+msgid "Ignore M6 commands"
+msgstr "忽略M6命令"
+
+#: ProbePage.py:35
+msgid "Manual Tool Change (WCS)"
+msgstr "手動換刀 (WCS)"
+
+#: ProbePage.py:36
+msgid "Manual Tool Change (TLO)"
+msgstr "手動換刀 (TLO)"
+
+#: ProbePage.py:37
+msgid "Manual Tool Change (NoProbe)"
+msgstr "手動換刀 (NoProbe)"
+
+#: ProbePage.py:40
+msgid "ONLY before probing"
+msgstr "只在探測之前"
+
+#: ProbePage.py:41
+msgid "BEFORE & AFTER probing"
+msgstr "探測前和探測後"
+
+#: ProbePage.py:72 ProbePage.py:79 ProbePage.py:322 ProbePage.py:379 bCNC.py:92
+msgid "Probe"
+msgstr "探測"
+
+#: ProbePage.py:85
+msgid "Simple probing along a direction"
+msgstr "沿著一個方向簡單探測"
+
+#: ProbePage.py:91 ProbePage.py:813 EditorPage.py:147
+msgid "Autolevel"
+msgstr "自動水平"
+
+#: ProbePage.py:97
+msgid "Autolevel Z surface"
+msgstr "自動水平在Z表面"
+
+#: ProbePage.py:103 ProbePage.py:1162 ToolsPage.py:1300
+msgid "Camera"
+msgstr "相機"
+
+#: ProbePage.py:109
+msgid "Work surface camera view and alignment"
+msgstr "工作台攝像機視圖和對齊"
+
+#: ProbePage.py:116
+msgid "Tool"
+msgstr "工具:"
+
+#: ProbePage.py:122
+msgid "Setup probing for manual tool change"
+msgstr "設置探測手動換刀"
+
+#: ProbePage.py:139
+msgid "Margins"
+msgstr "邊距"
+
+#: ProbePage.py:144
+msgid "Get margins from gcode file"
+msgstr "從gcode文件獲取邊距"
+
+#: ProbePage.py:151
+msgid "Zero"
+msgstr "零"
+
+#: ProbePage.py:156
+msgid "Set current location as Z-zero for leveling"
+msgstr "將當前位置設置為Z-zero進行調平"
+
+#: ProbePage.py:163 ProbePage.py:507 TerminalPage.py:29
+msgid "Clear"
+msgstr "清除"
+
+#: ProbePage.py:168
+msgid "Clear probe data"
+msgstr "清除探頭數據"
+
+#: ProbePage.py:175 plugins/heightmap.py:51
+msgid "Scan"
+msgstr "掃描"
+
+#: ProbePage.py:182
+msgid "Scan probed area for level information on Z plane"
+msgstr "掃描探測區域以獲取Z平面上的電平信息"
+
+#: ProbePage.py:195
+msgid "Common"
+msgstr "共同"
+
+#: ProbePage.py:205
+#, fuzzy
+#| msgid "Probe Feed:"
+msgid "Fast Probe Feed:"
+msgstr "探針進給速度:"
+
+#: ProbePage.py:209
+msgid "Set initial probe feed rate for tool change and calibration"
+msgstr ""
+
+#: ProbePage.py:216
+msgid "Probe Feed:"
+msgstr "探針進給速度:"
+
+# 1
+#: ProbePage.py:223
+msgid "Set probe feed rate"
+msgstr "設置探頭進給速率"
+
+#: ProbePage.py:230
+msgid "TLO"
+msgstr "TLO"
+
+#: ProbePage.py:234
+msgid "Set tool offset for probing"
+msgstr "設置探測的刀具抵消"
+
+#: ProbePage.py:250
+msgid "Probe Command"
+msgstr "探頭命令"
+
+#: ProbePage.py:326 ProbePage.py:1512
+msgid "Probe:"
+msgstr "探測："
+
+#: ProbePage.py:344
+msgid "Goto"
+msgstr "轉到"
+
+#: ProbePage.py:351
+msgid "Rapid goto to last probe location"
+msgstr "快速轉到最後探測位置"
+
+#: ProbePage.py:355
+msgid "Pos:"
+msgstr "位置："
+
+#: ProbePage.py:360
+msgid "Probe along X direction"
+msgstr "沿X方向探測"
+
+#: ProbePage.py:366
+msgid "Probe along Y direction"
+msgstr "沿Y方向探測"
+
+#: ProbePage.py:372
+msgid "Probe along Z direction"
+msgstr "沿Z方向探測"
+
+#: ProbePage.py:386
+msgid "Perform a single probe cycle"
+msgstr "執行單一次回歸原點"
+
+#: ProbePage.py:396 ProbePage.py:408 EditorPage.py:306
+msgid "Center"
+msgstr "中央"
+
+#: ProbePage.py:399
+msgid "Diameter:"
+msgstr "直徑"
+
+#: ProbePage.py:402
+msgid "Probing ring internal diameter"
+msgstr "探測環內徑"
+
+#: ProbePage.py:415
+msgid "Center probing using a ring"
+msgstr "中心採用環探測"
+
+#: ProbePage.py:420 ProbePage.py:528 bCNC.py:93
+msgid "Orient"
+msgstr "東方"
+
+#: ProbePage.py:426
+msgid "Markers:"
+msgstr "標記："
+
+#: ProbePage.py:436
+msgid "Select orientation marker"
+msgstr "選擇方向標記"
+
+#: ProbePage.py:440 EditorPage.py:179 ToolsPage.py:1070
+msgid "Add"
+msgstr "追加"
+
+#: ProbePage.py:448
+msgid ""
+"Add an orientation marker. Jog first the machine to the marker position and "
+"then click on canvas to add the marker."
+msgstr "添加方向標記。 先將機器移動到標記位置，然後單擊畫布添加標記。"
+
+#: ProbePage.py:455
+msgid "Gcode:"
+msgstr "Gcode:"
+
+#: ProbePage.py:462
+msgid "GCode X coordinate of orientation point"
+msgstr "GCode取向點的X坐標"
+
+#: ProbePage.py:470
+msgid "GCode Y coordinate of orientation point"
+msgstr "GCode取向Y點的坐標"
+
+#: ProbePage.py:474 EditorPage.py:203 ToolsPage.py:1096
+msgid "Delete"
+msgstr "刪除"
+
+#: ProbePage.py:482
+msgid "Delete current marker"
+msgstr "刪除現在記號"
+
+#: ProbePage.py:495
+msgid "Machine X coordinate of orientation point"
+msgstr "機器方向點的X坐標"
+
+#: ProbePage.py:503
+msgid "Machine Y coordinate of orientation point"
+msgstr " 機器方向點的Y坐標"
+
+#: ProbePage.py:515 ProbePage.py:727
+msgid "Delete all markers"
+msgstr "刪除所有標記"
+
+#: ProbePage.py:520
+msgid "Angle:"
+msgstr "角度："
+
+#: ProbePage.py:536
+msgid "Align GCode with the machine markers"
+msgstr "將GCode與機器標記對齊"
+
+#: ProbePage.py:541 ProbePage.py:1228
+msgid "Offset:"
+msgstr "偏移："
+
+#: ProbePage.py:554
+msgid "Error:"
+msgstr "錯誤："
+
+#: ProbePage.py:594
+msgid "Probe connected?"
+msgstr "探頭連接？"
+
+#: ProbePage.py:595
+msgid ""
+"Please verify that the probe is connected.\n"
+"\n"
+"Show this message again?"
+msgstr "請確認探頭連接。再次顯示此消息？"
+
+#: ProbePage.py:606 ProbePage.py:637 ProbePage.py:979 ProbePage.py:986
+#: ProbePage.py:999 ProbePage.py:1006 ProbePage.py:1016 ProbePage.py:1023
+#: ProbePage.py:1030
+msgid "Probe Error"
+msgstr "探頭錯誤"
+
+#: ProbePage.py:607 ProbePage.py:1031
+msgid "Invalid probe feed rate"
+msgstr "無效的探頭進給速度"
+
+#: ProbePage.py:638
+msgid "At least one probe direction should be specified"
+msgstr "應指定的至少一個探針方向"
+
+#: ProbePage.py:663
+msgid "Probe Center Error"
+msgstr "探測誤差"
+
+#: ProbePage.py:664
+msgid "Invalid diameter entered"
+msgstr "輸入無效的直徑"
+
+#: ProbePage.py:728
+msgid "Do you want to delete all orientation markers?"
+msgstr "你要刪除所有方向的標記？"
+
+#: ProbePage.py:819
+msgid "Min"
+msgstr "最小"
+
+#: ProbePage.py:821
+msgid "Max"
+msgstr "最大"
+
+#: ProbePage.py:823
+msgid "Step"
+msgstr "Step"
+
+#: ProbePage.py:834
+msgid "X minimum"
+msgstr "X 最小值"
+
+#: ProbePage.py:840
+msgid "X maximum"
+msgstr "X 最大值"
+
+#: ProbePage.py:847
+msgid "X step"
+msgstr "X step"
+
+#: ProbePage.py:856
+msgid "X bins"
+msgstr "X bins"
+
+#: ProbePage.py:866
+msgid "Y minimum"
+msgstr "Y 最小值"
+
+#: ProbePage.py:872
+msgid "Y maximum"
+msgstr "Y 最大值"
+
+#: ProbePage.py:879
+msgid "Y step"
+msgstr "Y step"
+
+#: ProbePage.py:888
+msgid "Y bins"
+msgstr "Y bins"
+
+#: ProbePage.py:899
+msgid "Z Minimum depth to scan"
+msgstr "Z要掃描的最小深度"
+
+#: ProbePage.py:905
+msgid "Z safe to move"
+msgstr "安全 Z軸高度"
+
+#: ProbePage.py:980
+msgid "Invalid X probing region"
+msgstr "X探測區域無效"
+
+#: ProbePage.py:987
+#, fuzzy
+#| msgid "Invalid X probing region"
+msgid "Invalid X range [xmin>=xmax]"
+msgstr "X探測區域無效"
+
+#: ProbePage.py:1000
+msgid "Invalid Y probing region"
+msgstr "Y探測區域無效"
+
+#: ProbePage.py:1007
+#, fuzzy
+#| msgid "Invalid Y probing region"
+msgid "Invalid Y range [ymin>=ymax]"
+msgstr "Y探測區域無效"
+
+#: ProbePage.py:1017
+msgid "Invalid Z probing region"
+msgstr "Z探測區域無效"
+
+#: ProbePage.py:1024
+#, fuzzy
+#| msgid "Invalid Z probing region"
+msgid "Invalid Z range [zmin>=zmax]"
+msgstr "Z探測區域無效"
+
+#: ProbePage.py:1051
+msgid "Delete autolevel information"
+msgstr "刪除自動水平信息"
+
+#: ProbePage.py:1052
+msgid "Do you want to delete all autolevel in formation?"
+msgstr "是否要刪除所有自動水平？"
+
+#: ProbePage.py:1084
+msgid "Switch To"
+msgstr "切換到"
+
+# 1
+#: ProbePage.py:1090
+msgid "Switch between camera and spindle"
+msgstr "在相機和主軸之間切換"
+
+# 1
+#: ProbePage.py:1096
+msgid "Edge Detection"
+msgstr "邊緣檢測"
+
+#: ProbePage.py:1103
+msgid "Turn on/off edge detection"
+msgstr "打開/關閉邊緣檢測"
+
+#: ProbePage.py:1109
+msgid "Freeze"
+msgstr "凍結"
+
+#: ProbePage.py:1116
+msgid "Turn on/off freeze image"
+msgstr "打開/關閉凍結圖像"
+
+#: ProbePage.py:1167
+msgid "Location:"
+msgstr "位置："
+
+#: ProbePage.py:1174
+msgid "Camera location inside canvas"
+msgstr "相機位置在畫布內"
+
+#: ProbePage.py:1178
+#, fuzzy
+#| msgid "Location:"
+msgid "Rotation:"
+msgstr "位置："
+
+#: ProbePage.py:1184
+#, fuzzy
+#| msgid "Camera location inside canvas"
+msgid "Camera rotation [degrees]"
+msgstr "相機位置在畫布內"
+
+#: ProbePage.py:1187
+msgid "Haircross Offset:"
+msgstr ""
+
+#: ProbePage.py:1193
+#, fuzzy
+#| msgid "Camera cross hair diameter [units]"
+msgid "Haircross X offset [unit]"
+msgstr "相機十字直徑[單位]"
+
+#: ProbePage.py:1200
+#, fuzzy
+#| msgid "Camera cross hair diameter [units]"
+msgid "Haircross Y offset [unit]"
+msgstr "相機十字直徑[單位]"
+
+#: ProbePage.py:1204
+msgid "Scale:"
+msgstr "規模："
+
+#: ProbePage.py:1210
+msgid "Camera scale [pixels / unit]"
+msgstr "相機比例[像素/單位]"
+
+#: ProbePage.py:1214
+msgid "Crosshair:"
+msgstr "十字準線："
+
+#: ProbePage.py:1220
+msgid "Camera cross hair diameter [units]"
+msgstr "相機十字直徑[單位]"
+
+#: ProbePage.py:1222
+msgid "Get"
+msgstr "得到"
+
+#: ProbePage.py:1224
+msgid "Get diameter from active endmill"
+msgstr "從活動端的刀獲得直徑"
+
+#: ProbePage.py:1234 ProbePage.py:1241
+msgid "Camera offset from gantry"
+msgstr "相機偏離龍門架"
+
+# 1
+#: ProbePage.py:1248
+msgid "Spindle Z position when camera was registered"
+msgstr "相機登記時的主軸Z位置"
+
+#: ProbePage.py:1251
+msgid "Register:"
+msgstr "登記："
+
+#: ProbePage.py:1252
+msgid "1. Spindle"
+msgstr "1.主軸"
+
+#: ProbePage.py:1256
+msgid "Mark spindle position for calculating offset"
+msgstr "標記用於計算偏移的主軸位置"
+
+#: ProbePage.py:1258
+msgid "2. Camera"
+msgstr "2.相機"
+
+#: ProbePage.py:1262
+msgid "Mark camera position for calculating offset"
+msgstr "標記攝像機位置以計算偏移"
+
+#: ProbePage.py:1341
+msgid "Spindle position is registered"
+msgstr "記錄主軸位置"
+
+#: ProbePage.py:1348
+msgid "Spindle position is not registered"
+msgstr "主軸位置未登記"
+
+#: ProbePage.py:1349
+msgid "Spindle position must be registered before camera"
+msgstr "主軸位置必須相機前登記"
+
+#: ProbePage.py:1355
+msgid "Camera offset is updated"
+msgstr "相機偏移已更新"
+
+#: ProbePage.py:1414 ProbePage.py:1561
+msgid "Calibrate"
+msgstr "校準"
+
+# 1
+#: ProbePage.py:1420
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr "執行單個刀具更換週期以設置校準字段"
+
+#: ProbePage.py:1424
+msgid "Change"
+msgstr "更改"
+
+#: ProbePage.py:1430
+msgid "Perform a tool change cycle"
+msgstr "執行循環換刀"
+
+#: ProbePage.py:1439
+msgid "Manual Tool Change"
+msgstr "手動換刀"
+
+#: ProbePage.py:1444
+msgid "Policy:"
+msgstr "政策"
+
+#: ProbePage.py:1453
+msgid "Tool change policy"
+msgstr "工具更換策略"
+
+#: ProbePage.py:1459
+msgid "Pause:"
+msgstr "暫停："
+
+#: ProbePage.py:1482
+msgid "Change:"
+msgstr "更改:"
+
+#: ProbePage.py:1486
+msgid "Manual tool change Machine X location"
+msgstr "手動換刀機床X位置"
+
+#: ProbePage.py:1492
+msgid "Manual tool change Machine Y location"
+msgstr "手動換刀機床Y位置"
+
+#: ProbePage.py:1498
+msgid "Manual tool change Machine Z location"
+msgstr "手動換刀機床Z位置"
+
+#: ProbePage.py:1502 ProbePage.py:1532
+msgid "get"
+msgstr "得到"
+
+#: ProbePage.py:1506
+msgid "Get current gantry position as machine tool change location"
+msgstr "使用當前龍門架位置作為機床更換位置"
+
+#: ProbePage.py:1516
+msgid "Manual tool change Probing MX location"
+msgstr "手動換刀探測MX位置"
+
+#: ProbePage.py:1522
+msgid "Manual tool change Probing MY location"
+msgstr "手動換刀檢測MY的位置"
+
+#: ProbePage.py:1528
+msgid "Manual tool change Probing MZ location"
+msgstr "手動換刀探測MZ位置"
+
+#: ProbePage.py:1536
+msgid "Get current gantry position as machine tool probe location"
+msgstr "使用當前龍門架位置作為機床刀具探測位置"
+
+#: ProbePage.py:1547
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr "從ProbeZ開始的刀具更換掃描距離"
+
+#: ProbePage.py:1553
+msgid "Calibration:"
+msgstr "校準："
+
+# 1
+#: ProbePage.py:1557
+msgid "Tool probe height"
+msgstr "刀具探頭高度"
+
+#: ProbePage.py:1565
+msgid "Perform a calibration probing to determine the height"
+msgstr "執行校準探測以確定高度"
+
+#: ProbePage.py:1616 ProbePage.py:1626 ProbePage.py:1634 ProbePage.py:1642
+#: ProbePage.py:1650
+msgid "Probe Tool Change Error"
+msgstr "探頭工具更改錯誤"
+
+#: ProbePage.py:1617
+msgid "Invalid tool change position"
+msgstr "刀具更換位置無效"
+
+#: ProbePage.py:1627
+msgid "Invalid tool probe location"
+msgstr "刀具探頭位置無效"
+
+#: ProbePage.py:1635 ProbePage.py:1651
+msgid "Invalid tool scanning distance entered"
+msgstr "輸入的刀具掃描距離無效"
+
+#: ProbePage.py:1643
+msgid "Invalid tool height or not calibrated"
+msgstr "刀具高度無效或未校準"
+
+#: ProbePage.py:1746
+msgid "Probe configuration and probing"
+msgstr "探頭配置和探測"
+
+#: bCNC.py:87
+msgid "All accepted"
+msgstr "所有被接受的"
+
+#: bCNC.py:88 bCNC.py:2004
+msgid "G-Code"
+msgstr "G-Code"
+
+#: bCNC.py:89
+msgid "G-Code clean"
+msgstr "清理G-Code"
+
+#: bCNC.py:95 EditorPage.py:79
+msgid "All"
+msgstr "所有"
+
+#: bCNC.py:144
+msgid "Controller buffer fill"
+msgstr "控制器緩衝區填充"
+
+# 10010101010101010101010101010101010101010101010101010101010101010101001010101011001010101001010101010010101001101010010101010110010010100101001001010100101001010
+#: bCNC.py:171
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+"MDI命令行：接受g代碼命令或宏命令（RESET / HOME ...）或編輯器命令（move，"
+"inkscape，round ...）[Space或Ctrl-Space]"
+
+#: bCNC.py:510
+msgid "Running"
+msgstr "運行"
+
+#: bCNC.py:511
+msgid "CNC is currently running, please stop it before."
+msgstr "CNC當前正在運行，請先停止。"
+
+#: bCNC.py:712
+#, python-format
+msgid "About %s"
+msgstr "關於 %s"
+
+#: bCNC.py:747
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+"bCNC /\t先進的全功能\n"
+"\tGRBL g-code的發送器。"
+
+#: bCNC.py:903 EditorPage.py:497
+msgid "Statistics"
+msgstr "統計"
+
+#: bCNC.py:923
+msgid "Enabled GCode"
+msgstr "啟用GCode"
+
+#: bCNC.py:928 bCNC.py:1001
+msgid "Margins X:"
+msgstr "邊距X："
+
+#: bCNC.py:961 bCNC.py:1034
+msgid "# Blocks:"
+msgstr "區塊"
+
+#: bCNC.py:969 bCNC.py:1041
+msgid "Length:"
+msgstr "長度："
+
+#: bCNC.py:977
+msgid "Rapid:"
+msgstr "速度："
+
+#: bCNC.py:985 bCNC.py:1049
+msgid "Time:"
+msgstr "時間："
+
+#: bCNC.py:996
+msgid "All GCode"
+msgstr "所有GCode"
+
+#: bCNC.py:1217
+msgid "Evaluation error"
+msgstr "評估錯誤"
+
+#: bCNC.py:1295
+msgid "Direction command error"
+msgstr "方向指令錯誤"
+
+#: bCNC.py:1296
+#, python-format
+msgid "Invalid direction %s specified"
+msgstr "指定的方向 %s 無效"
+
+#: bCNC.py:1458 EditorPage.py:322
+msgid "Optimize"
+msgstr "優化"
+
+# 20430237204614186053048357412105430618 4868151416 546815748/91740867/86741065148640841586 46584534131608504341054504568545415215416851454141 414141 454101
+# 212112222222222222222222222222222222222222222222222222222222222222222222222455541531131
+#: bCNC.py:1459
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "請選擇您要優化的gcode塊。"
+
+#: bCNC.py:1602
+#, python-format
+msgid "EndMill: %s %g"
+msgstr "EndMill: %s %g"
+
+#: bCNC.py:1627
+#, python-format
+msgid "Invalid user command %s"
+msgstr "用戶命令%s無效"
+
+#: bCNC.py:1663
+msgid "Nothing to do"
+msgstr "沒做事"
+
+#: bCNC.py:1664
+#, python-format
+msgid "Operation %s requires some gcode to be selected"
+msgstr "操作%s需要選擇一些gcode"
+
+#: bCNC.py:1708
+msgid "Operation error"
+msgstr "操作錯誤"
+
+#: bCNC.py:1749
+#, python-format
+msgid "Profile block distance=%g"
+msgstr "側面區塊距離=%g"
+
+#: bCNC.py:1765
+msgid "Open paths"
+msgstr "打開路徑"
+
+#: bCNC.py:1766
+#, python-format
+msgid "WARNING: %s"
+msgstr "警告:%s"
+
+#: bCNC.py:1887
+msgid "Open file"
+msgstr "打開文件"
+
+#: bCNC.py:1903
+msgid "Save file"
+msgstr "存檔"
+
+#: bCNC.py:1912
+msgid "File modified"
+msgstr "文件已修改"
+
+#: bCNC.py:1913
+msgid "Gcode was modified do you want to save it first?"
+msgstr "Gcode已修改，你想先保存它嗎？"
+
+#: bCNC.py:1922
+msgid "Probe File modified"
+msgstr "文件修改"
+
+#: bCNC.py:1923
+msgid "Probe was modified do you want to save it first?"
+msgstr "探測被修改，你想保存它嗎？"
+
+# 174551201850505420821872482148721486328963487531.034512054120421054820421048728765796859595842141254128424887569/*/986532896521486941320.5486120541205432005405481054872105487210548120.3468932.68432.10486312.053486321.035486932.14869432.487631.347812
+#: bCNC.py:1946
+msgid "Existing Autolevel"
+msgstr "現有自動水平探測 "
+
+#: bCNC.py:1947
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+"自動水平/探測 信息已存在。\n"
+"刪除它？"
+
+#: bCNC.py:1952
+#, python-format
+msgid "Loading: %s ..."
+msgstr "Loading: %s ..."
+
+#: bCNC.py:1973
+#, python-format
+msgid "'%s' reloaded at '%s'"
+msgstr "'%s' reloaded at '%s'"
+
+#: bCNC.py:1975
+#, python-format
+msgid "'%s' loaded"
+msgstr "'%s' loaded"
+
+#: bCNC.py:1981
+#, python-format
+msgid "'%s' saved"
+msgstr "'%s' saved"
+
+#: bCNC.py:2000
+msgid "Import Gcode/DXF file"
+msgstr "導入Gcode / DXF文件"
+
+#: bCNC.py:2034
+msgid "Warning"
+msgstr "警告"
+
+#: bCNC.py:2035
+#, python-format
+msgid ""
+"Gcode file %s was changed since editing started\n"
+"Reload new version?"
+msgstr ""
+"自編輯開始以來Gcode文件%s 已更改\n"
+"重新載入新版本？"
+
+#: bCNC.py:2070
+msgid "Error opening serial"
+msgstr "錯誤打開串口"
+
+#: bCNC.py:2100
+msgid "Serial Error"
+msgstr "串行錯誤"
+
+#: bCNC.py:2101
+msgid "Serial is not connected"
+msgstr "串行未連接"
+
+#: bCNC.py:2108
+msgid "Already running"
+msgstr "已經運行"
+
+#: bCNC.py:2109
+msgid "Please stop before"
+msgstr "請先停止"
+
+#: bCNC.py:2155
+msgid "Empty gcode"
+msgstr "空gcode"
+
+#: bCNC.py:2156
+msgid "Not gcode file was loaded"
+msgstr "未加載gcode文件"
+
+#: bCNC.py:2191
+msgid "Running..."
+msgstr "運行"
+
+#: bCNC.py:2209
+msgid "Pendant started:\n"
+msgstr "通訊開始：\n"
+
+#: bCNC.py:2213
+msgid "Pendant already started:\n"
+msgstr "通訊已開始：\n"
+
+#: bCNC.py:2215
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+"\n"
+"您要在本地打開嗎?"
+
+#: bCNC.py:2225
+msgid "Pendant stopped"
+msgstr "通訊停止"
+
+#: bCNC.py:2545
+msgid "python serial missing"
+msgstr "python序列丟失"
+
+#: bCNC.py:2546
+msgid ""
+"ERROR: Please install the python pyserial module\n"
+"Windows:\n"
+"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+"Mac:\tpip install pyserial\n"
+"Linux:\tsudo apt-get install python-serial\n"
+"\tor yum install python-serial\n"
+"\tor dnf install python-pyserial"
+msgstr ""
+"錯誤：請安裝python pyserial模塊\n"
+"視窗：\n"
+"C：\\ PythonXX \\ Scripts \\ easy_install pyserial\n"
+"Mac：pip install pyserial\n"
+"Linux：sudo apt-get install python-serial\n"
+"或者yum install python-serial\n"
+"或dnf install python-pyserial"
 
 #: EditorPage.py:29
 msgid "Clipboard"
@@ -1368,6 +1910,10 @@ msgstr "貼上"
 #: EditorPage.py:40
 msgid "Paste [Ctrl-V]"
 msgstr "貼上 [ctrl-V]"
+
+#: EditorPage.py:46 ToolsPage.py:1117 plugins/box.py:315
+msgid "Cut"
+msgstr "切割"
 
 #: EditorPage.py:51
 msgid "Cut [Ctrl-X]"
@@ -1385,10 +1931,6 @@ msgstr "複製 [Ctrl-C]"
 msgid "Select"
 msgstr "選擇"
 
-#: EditorPage.py:79 bCNC.py:95
-msgid "All"
-msgstr "所有"
-
 #: EditorPage.py:84
 msgid "Select all blocks [Ctrl-A]"
 msgstr "選擇所有區塊 [Ctrl-A]"
@@ -1401,7 +1943,7 @@ msgstr "沒有"
 msgid "Unselect all blocks [Ctrl-Shift-A]"
 msgstr "取消所有的區塊 [Ctrl-Shift-A]"
 
-#: EditorPage.py:103 EditorPage.py:335 plugins/heightmap.py:57
+#: EditorPage.py:103 EditorPage.py:354 plugins/heightmap.py:56
 msgid "Invert"
 msgstr "反轉"
 
@@ -1421,9 +1963,13 @@ msgstr "選擇當前層的所有區塊"
 msgid "Filter blocks"
 msgstr "過濾區塊"
 
-#: EditorPage.py:147
+#: EditorPage.py:146
 msgid "Edit"
 msgstr "編輯"
+
+#: EditorPage.py:148 CNCList.py:680
+msgid "Color"
+msgstr "顔色"
 
 #: EditorPage.py:149
 msgid "Import"
@@ -1437,1383 +1983,1068 @@ msgstr "Inkscape"
 msgid "Round"
 msgstr "圓角加工"
 
-#: EditorPage.py:164
+#: EditorPage.py:171 EditorPage.py:185
 msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
 msgstr "插入一個新的區塊或G-code [Ins or Ctrl-Enter]"
 
+#: EditorPage.py:174
+msgid "Line"
+msgstr ""
+
 #: EditorPage.py:176
+#, fuzzy
+#| msgid "Unlock"
+msgid "Block"
+msgstr "Unlock"
+
+#: EditorPage.py:191 ToolsPage.py:1083
+msgid "Clone"
+msgstr "複製"
+
+#: EditorPage.py:196
 msgid "Clone selected lines or blocks [Ctrl-D]"
 msgstr "複製選定的線或區塊 [Ctrl-D]"
 
-#: EditorPage.py:188
+#: EditorPage.py:208
 msgid "Delete selected lines or blocks [Del]"
 msgstr "刪除選定的線或區塊 [Del]"
 
-#: EditorPage.py:200
+#: EditorPage.py:220
 msgid "Toggle enable/disable block of g-code [Ctrl-L]"
 msgstr "切換g-code 的啟用/禁用區塊[Ctrl-L]"
 
-#: EditorPage.py:203
+#: EditorPage.py:223
 msgid "Enable"
 msgstr "啟用"
 
-#: EditorPage.py:205
+#: EditorPage.py:225
 msgid "Disable"
 msgstr "禁用"
 
-#: EditorPage.py:208
+#: EditorPage.py:228
 msgid "Active"
 msgstr "啟動"
 
-#: EditorPage.py:214
+#: EditorPage.py:234
 msgid "Enable or disable blocks of gcode"
 msgstr "啟用或禁用g-code區塊"
 
-#: EditorPage.py:221
+#: EditorPage.py:240
 msgid "Expand"
 msgstr "展開"
 
-#: EditorPage.py:226
+#: EditorPage.py:245
 msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
 msgstr "切換gcode的展開/折疊區塊[Ctrl-E]"
 
-#: EditorPage.py:239
+#: EditorPage.py:252 ToolsPage.py:591 ToolsPage.py:617 ToolsPage.py:646
+msgid "Comment"
+msgstr "註解"
+
+#: EditorPage.py:258
 msgid "(Un)Comment selected lines"
 msgstr "(Un)註釋所選行"
 
-#: EditorPage.py:247 EditorPage.py:254
+#: EditorPage.py:266 EditorPage.py:273
 msgid "Move"
 msgstr "移動"
 
-#: EditorPage.py:262
+#: EditorPage.py:281
 msgid "Move objects [M]"
 msgstr "移動物件 [M]"
 
-#: EditorPage.py:269
+#: EditorPage.py:288
 msgid "Origin"
 msgstr "原點"
 
-#: EditorPage.py:277
+#: EditorPage.py:296
 msgid "Move all gcode such as origin is on mouse location [O]"
 msgstr "移動所有gcode如原點在鼠標位置[O]"
 
-#: EditorPage.py:283
+#: EditorPage.py:302
 msgid "Top-Left"
 msgstr "左上角"
 
-#: EditorPage.py:284
+#: EditorPage.py:303
 msgid "Left"
 msgstr "左"
 
-#: EditorPage.py:285
+#: EditorPage.py:304
 msgid "Bottom-Left"
 msgstr "左下角"
 
-#: EditorPage.py:286
+#: EditorPage.py:305
 msgid "Top"
 msgstr "上"
 
-#: EditorPage.py:287 ProbePage.py:377 ProbePage.py:389
-msgid "Center"
-msgstr "中央"
-
-#: EditorPage.py:288
+#: EditorPage.py:307
 msgid "Bottom"
 msgstr "底部"
 
-#: EditorPage.py:289
+#: EditorPage.py:308
 msgid "Top-Right"
 msgstr "右上角"
 
-#: EditorPage.py:290
+#: EditorPage.py:309
 msgid "Right"
 msgstr "右"
 
-#: EditorPage.py:291
+#: EditorPage.py:310
 msgid "Bottom-Right"
 msgstr "右上角"
 
-#: EditorPage.py:302 plugins/hilbert.py:90
+#: EditorPage.py:321 plugins/hilbert.py:89
 msgid "Order"
 msgstr "Order"
 
-#: EditorPage.py:303 bCNC.py:1456
-msgid "Optimize"
-msgstr "優化"
-
-#: EditorPage.py:311
+#: EditorPage.py:330
 msgid "Up"
 msgstr "上"
 
-#: EditorPage.py:316
+#: EditorPage.py:335
 msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
 msgstr "將所選的g-code向上移動 [Ctrl-Up, Ctrl-PgUp]"
 
-#: EditorPage.py:323
+#: EditorPage.py:342
 msgid "Down"
 msgstr "下"
 
-#: EditorPage.py:328
+#: EditorPage.py:347
 msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
 msgstr "將所選的g-code向下移動 [Ctrl-Down, Ctrl-PgDn]"
 
-#: EditorPage.py:340
+#: EditorPage.py:359
 msgid "Invert cutting order of selected blocks"
 msgstr "反轉所選區塊的切割順序"
 
-#: EditorPage.py:348
+#: EditorPage.py:367
 msgid "Transform"
 msgstr "轉換"
 
-#: EditorPage.py:355
+#: EditorPage.py:374
 msgid "CW"
 msgstr "順時"
 
-#: EditorPage.py:361
+#: EditorPage.py:380
 msgid "Rotate selected gcode clock-wise (-90deg)"
 msgstr "順時針旋轉所選gcode（-90deg）"
 
-#: EditorPage.py:368
+#: EditorPage.py:387
 msgid "Flip"
 msgstr "翻轉"
 
-#: EditorPage.py:374
+#: EditorPage.py:393
 msgid "Rotate selected gcode by 180deg"
 msgstr "將所選gcode旋轉180deg"
 
-#: EditorPage.py:381
+#: EditorPage.py:400
 msgid "CCW"
 msgstr "逆時"
 
-#: EditorPage.py:387
+#: EditorPage.py:406
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
 msgstr "逆時針旋轉所選gcode（90deg）"
 
-#: EditorPage.py:394
+#: EditorPage.py:413
 msgid "Horizontal"
 msgstr "水平"
 
-#: EditorPage.py:400
+#: EditorPage.py:419
 msgid "Mirror horizontally X=-X selected gcode"
 msgstr "水平鏡像X = -X選擇gcode"
 
-#: EditorPage.py:407
+#: EditorPage.py:426
 msgid "Vertical"
 msgstr "垂直"
 
-#: EditorPage.py:413
+#: EditorPage.py:432
 msgid "Mirror vertically Y=-Y selected gcode"
 msgstr "垂直鏡像Y = -Y選擇gcode"
 
-#: EditorPage.py:424
+#: EditorPage.py:443
 msgid "Route"
 msgstr "路線"
 
-#: EditorPage.py:431
+#: EditorPage.py:450
 msgid "Conventional"
 msgstr "慣例"
 
-#: EditorPage.py:437
+#: EditorPage.py:456
 msgid "Change cut direction to conventional for selected gcode blocks"
 msgstr "將選擇的gcode塊的切割方向更改為常規"
 
-#: EditorPage.py:444
+#: EditorPage.py:463
 msgid "Climb"
 msgstr "Climb"
 
-#: EditorPage.py:450
+#: EditorPage.py:469
 msgid "Change cut direction to climb for selected gcode blocks"
 msgstr "將選擇的gcode塊的切割方向更改為非常規"
 
-#: EditorPage.py:457
+#: EditorPage.py:476
 msgid "Reverse"
 msgstr "相反"
 
-#: EditorPage.py:463
+#: EditorPage.py:482
 msgid "Reverse cut direction for selected gcode blocks"
 msgstr "所選gcode塊的反向切割方向"
 
-#: EditorPage.py:471 EditorPage.py:491
+#: EditorPage.py:490 EditorPage.py:510
 msgid "Info"
 msgstr "信息"
 
-#: EditorPage.py:478 bCNC.py:904
-msgid "Statistics"
-msgstr "統計"
-
-#: EditorPage.py:484
+#: EditorPage.py:503
 msgid "Show statistics for enabled gcode"
 msgstr "顯示已啟用gcode的統計信息"
 
-#: EditorPage.py:497
+#: EditorPage.py:516
 msgid "Show cutting information on selected blocks [Ctrl-n]"
 msgstr "顯示所選塊的切削信息[Ctrl-n]"
 
-#: EditorPage.py:521
+#: EditorPage.py:540
 msgid "GCode editor"
 msgstr "G代碼編輯器"
 
-#: EditorPage.py:522
+#: EditorPage.py:541
 msgid "Editor"
 msgstr "編輯"
 
-#: ProbePage.py:28
-msgid "G38.2 stop on contact else error"
-msgstr "G38.2 停止在接觸時或有其他錯誤"
-
-#: ProbePage.py:29
-msgid "G38.3 stop on contact"
-msgstr "G38.3 停止在接觸時"
-
-#: ProbePage.py:30
-msgid "G38.4 stop on loss contact else error"
-msgstr "G38.4 停止在接觸後或有其他錯誤"
-
-#: ProbePage.py:31
-msgid "G38.5 stop on loss contact"
-msgstr "G38.5  停止在接觸後"
-
-#: ProbePage.py:34
-msgid "Send M6 commands"
-msgstr "發送M6命令"
-
-#: ProbePage.py:35
-msgid "Ignore M6 commands"
-msgstr "忽略M6命令"
-
-#: ProbePage.py:36
-msgid "Manual Tool Change (WCS)"
-msgstr "手動換刀 (WCS)"
-
-#: ProbePage.py:37
-msgid "Manual Tool Change (TLO)"
-msgstr "手動換刀 (TLO)"
-
-#: ProbePage.py:38
-msgid "Manual Tool Change (NoProbe)"
-msgstr "手動換刀 (NoProbe)"
-
-#: ProbePage.py:41
-msgid "ONLY before probing"
-msgstr "只在探測之前"
-
-#: ProbePage.py:42
-msgid "BEFORE & AFTER probing"
-msgstr "探測前和探測後"
-
-#: ProbePage.py:73 ProbePage.py:80 ProbePage.py:303 ProbePage.py:360 bCNC.py:92
-msgid "Probe"
-msgstr "探測"
-
-#: ProbePage.py:86
-msgid "Simple probing along a direction"
-msgstr "沿著一個方向簡單探測"
-
-#: ProbePage.py:92 ProbePage.py:790
-msgid "Autolevel"
-msgstr "自動水平"
-
-#: ProbePage.py:98
-msgid "Autolevel Z surface"
-msgstr "自動水平在Z表面"
-
-#: ProbePage.py:110
-msgid "Work surface camera view and alignment"
-msgstr "工作台攝像機視圖和對齊"
-
-#: ProbePage.py:117
-msgid "Tool"
-msgstr "工具:"
-
-#: ProbePage.py:123
-msgid "Setup probing for manual tool change"
-msgstr "設置探測手動換刀"
-
-#: ProbePage.py:140
-msgid "Margins"
-msgstr "邊距"
-
-#: ProbePage.py:145
-msgid "Get margins from gcode file"
-msgstr "從gcode文件獲取邊距"
-
-#: ProbePage.py:152
-msgid "Zero"
-msgstr "零"
-
-#: ProbePage.py:157
-msgid "Set current location as Z-zero for leveling"
-msgstr "將當前位置設置為Z-zero進行調平"
-
-#: ProbePage.py:164 ProbePage.py:488 TerminalPage.py:29
-msgid "Clear"
-msgstr "清除"
-
-#: ProbePage.py:169
-msgid "Clear probe data"
-msgstr "清除探頭數據"
-
-#: ProbePage.py:176 plugins/heightmap.py:52
-msgid "Scan"
-msgstr "掃描"
-
-#: ProbePage.py:183
-msgid "Scan probed area for level information on Z plane"
-msgstr "掃描探測區域以獲取Z平面上的電平信息"
-
-#: ProbePage.py:196
-msgid "Common"
-msgstr "共同"
-
-#: ProbePage.py:204
-msgid "Probe Feed:"
-msgstr "探針進給速度:"
-
-# 1
-#: ProbePage.py:208
-msgid "Set probe feed rate"
-msgstr "設置探頭進給速率"
-
-#: ProbePage.py:215
-msgid "TLO"
-msgstr "TLO"
-
-#: ProbePage.py:219
-msgid "Set tool offset for probing"
-msgstr "設置探測的刀具抵消"
-
-#: ProbePage.py:235
-msgid "Probe Command"
-msgstr "探頭命令"
-
-#: ProbePage.py:307 ProbePage.py:1425
-msgid "Probe:"
-msgstr "探測："
-
-#: ProbePage.py:325
-msgid "Goto"
-msgstr "轉到"
-
-#: ProbePage.py:332
-msgid "Rapid goto to last probe location"
-msgstr "快速轉到最後探測位置"
-
-#: ProbePage.py:336
-msgid "Pos:"
-msgstr "位置："
-
-#: ProbePage.py:341
-msgid "Probe along X direction"
-msgstr "沿X方向探測"
-
-#: ProbePage.py:347
-msgid "Probe along Y direction"
-msgstr "沿Y方向探測"
-
-#: ProbePage.py:353
-msgid "Probe along Z direction"
-msgstr "沿Z方向探測"
-
-#: ProbePage.py:367
-msgid "Perform a single probe cycle"
-msgstr "執行單一次回歸原點"
-
-#: ProbePage.py:380
-msgid "Diameter:"
-msgstr "直徑"
-
-#: ProbePage.py:383
-msgid "Probing ring internal diameter"
-msgstr "探測環內徑"
-
-#: ProbePage.py:396
-msgid "Center probing using a ring"
-msgstr "中心採用環探測"
-
-#: ProbePage.py:401 ProbePage.py:509 bCNC.py:93
-msgid "Orient"
-msgstr "東方"
-
-#: ProbePage.py:407
-msgid "Markers:"
-msgstr "標記："
-
-#: ProbePage.py:417
-msgid "Select orientation marker"
-msgstr "選擇方向標記"
-
-#: ProbePage.py:429
-msgid ""
-"Add an orientation marker. Jog first the machine to the marker position and "
-"then click on canvas to add the marker."
-msgstr "添加方向標記。 先將機器移動到標記位置，然後單擊畫布添加標記。"
-
-#: ProbePage.py:436
-msgid "Gcode:"
-msgstr "Gcode:"
-
-#: ProbePage.py:443
-msgid "GCode X coordinate of orientation point"
-msgstr "GCode取向點的X坐標"
-
-#: ProbePage.py:451
-msgid "GCode Y coordinate of orientation point"
-msgstr "GCode取向Y點的坐標"
-
-#: ProbePage.py:463
-msgid "Delete current marker"
-msgstr "刪除現在記號"
-
-#: ProbePage.py:476
-msgid "Machine X coordinate of orientation point"
-msgstr "機器方向點的X坐標"
-
-#: ProbePage.py:484
-msgid "Machine Y coordinate of orientation point"
-msgstr " 機器方向點的Y坐標"
-
-#: ProbePage.py:496 ProbePage.py:704
-msgid "Delete all markers"
-msgstr "刪除所有標記"
-
-#: ProbePage.py:501
-msgid "Angle:"
-msgstr "角度："
-
-#: ProbePage.py:517
-msgid "Align GCode with the machine markers"
-msgstr "將GCode與機器標記對齊"
-
-#: ProbePage.py:522 ProbePage.py:1155
-msgid "Offset:"
-msgstr "偏移："
-
-#: ProbePage.py:535
-msgid "Error:"
-msgstr "錯誤："
-
-#: ProbePage.py:575
-msgid "Probe connected?"
-msgstr "探頭連接？"
-
-#: ProbePage.py:576
-msgid ""
-"Please verify that the probe is connected.\n"
-"\n"
-"Show this message again?"
-msgstr "請確認探頭連接。再次顯示此消息？"
-
-#: ProbePage.py:587 ProbePage.py:618 ProbePage.py:956 ProbePage.py:969
-#: ProbePage.py:979 ProbePage.py:986
-msgid "Probe Error"
-msgstr "探頭錯誤"
-
-#: ProbePage.py:588 ProbePage.py:987
-msgid "Invalid probe feed rate"
-msgstr "無效的探頭進給速度"
-
-#: ProbePage.py:619
-msgid "At least one probe direction should be specified"
-msgstr "應指定的至少一個探針方向"
-
-#: ProbePage.py:644
-msgid "Probe Center Error"
-msgstr "探測誤差"
-
-#: ProbePage.py:645
-msgid "Invalid diameter entered"
-msgstr "輸入無效的直徑"
-
-#: ProbePage.py:705
-msgid "Do you want to delete all orientation markers?"
-msgstr "你要刪除所有方向的標記？"
-
-#: ProbePage.py:796
-msgid "Min"
-msgstr "最小"
-
-#: ProbePage.py:798
-msgid "Max"
-msgstr "最大"
-
-#: ProbePage.py:800
-msgid "Step"
-msgstr "Step"
-
-#: ProbePage.py:811
-msgid "X minimum"
-msgstr "X 最小值"
-
-#: ProbePage.py:817
-msgid "X maximum"
-msgstr "X 最大值"
-
-#: ProbePage.py:824
-msgid "X step"
-msgstr "X step"
-
-#: ProbePage.py:833
-msgid "X bins"
-msgstr "X bins"
-
-#: ProbePage.py:843
-msgid "Y minimum"
-msgstr "Y 最小值"
-
-#: ProbePage.py:849
-msgid "Y maximum"
-msgstr "Y 最大值"
-
-#: ProbePage.py:856
-msgid "Y step"
-msgstr "Y step"
-
-#: ProbePage.py:865
-msgid "Y bins"
-msgstr "Y bins"
-
-#: ProbePage.py:876
-msgid "Z Minimum depth to scan"
-msgstr "Z要掃描的最小深度"
-
-#: ProbePage.py:882
-msgid "Z safe to move"
-msgstr "安全 Z軸高度"
-
-#: ProbePage.py:957
-msgid "Invalid X probing region"
-msgstr "X探測區域無效"
-
-#: ProbePage.py:970
-msgid "Invalid Y probing region"
-msgstr "Y探測區域無效"
-
-#: ProbePage.py:980
-msgid "Invalid Z probing region"
-msgstr "Z探測區域無效"
-
-#: ProbePage.py:1007
-msgid "Delete autolevel information"
-msgstr "刪除自動水平信息"
-
-#: ProbePage.py:1008
-msgid "Do you want to delete all autolevel in formation?"
-msgstr "是否要刪除所有自動水平？"
-
-#: ProbePage.py:1040
-msgid "Switch To"
-msgstr "切換到"
-
-# 1
-#: ProbePage.py:1046
-msgid "Switch between camera and spindle"
-msgstr "在相機和主軸之間切換"
-
-# 1
-#: ProbePage.py:1052
-msgid "Edge Detection"
-msgstr "邊緣檢測"
-
-#: ProbePage.py:1059
-msgid "Turn on/off edge detection"
-msgstr "打開/關閉邊緣檢測"
-
-#: ProbePage.py:1065
-msgid "Freeze"
-msgstr "凍結"
-
-#: ProbePage.py:1072
-msgid "Turn on/off freeze image"
-msgstr "打開/關閉凍結圖像"
-
-#: ProbePage.py:1120
-msgid "Location:"
-msgstr "位置："
-
-#: ProbePage.py:1127
-msgid "Camera location inside canvas"
-msgstr "相機位置在畫布內"
-
-#: ProbePage.py:1131
-msgid "Scale:"
-msgstr "規模："
-
-#: ProbePage.py:1137
-msgid "Camera scale [pixels / unit]"
-msgstr "相機比例[像素/單位]"
-
-#: ProbePage.py:1141
-msgid "Crosshair:"
-msgstr "十字準線："
-
-#: ProbePage.py:1147
-msgid "Camera cross hair diameter [units]"
-msgstr "相機十字直徑[單位]"
-
-#: ProbePage.py:1149
-msgid "Get"
-msgstr "得到"
-
-#: ProbePage.py:1151
-msgid "Get diameter from active endmill"
-msgstr "從活動端的刀獲得直徑"
-
-#: ProbePage.py:1161 ProbePage.py:1168
-msgid "Camera offset from gantry"
-msgstr "相機偏離龍門架"
-
-# 1
-#: ProbePage.py:1175
-msgid "Spindle Z position when camera was registered"
-msgstr "相機登記時的主軸Z位置"
-
-#: ProbePage.py:1178
-msgid "Register:"
-msgstr "登記："
-
-#: ProbePage.py:1179
-msgid "1. Spindle"
-msgstr "1.主軸"
-
-#: ProbePage.py:1183
-msgid "Mark spindle position for calculating offset"
-msgstr "標記用於計算偏移的主軸位置"
-
-#: ProbePage.py:1185
-msgid "2. Camera"
-msgstr "2.相機"
-
-#: ProbePage.py:1189
-msgid "Mark camera position for calculating offset"
-msgstr "標記攝像機位置以計算偏移"
-
-#: ProbePage.py:1254
-msgid "Spindle position is registered"
-msgstr "記錄主軸位置"
-
-#: ProbePage.py:1261
-msgid "Spindle position is not registered"
-msgstr "主軸位置未登記"
-
-#: ProbePage.py:1262
-msgid "Spindle position must be registered before camera"
-msgstr "主軸位置必須相機前登記"
-
-#: ProbePage.py:1268
-msgid "Camera offset is updated"
-msgstr "相機偏移已更新"
-
-#: ProbePage.py:1327 ProbePage.py:1474
-msgid "Calibrate"
-msgstr "校準"
-
-# 1
-#: ProbePage.py:1333
-msgid "Perform a single a tool change cycle to set the calibration field"
-msgstr "執行單個刀具更換週期以設置校準字段"
-
-#: ProbePage.py:1337
-msgid "Change"
-msgstr "更改"
-
-#: ProbePage.py:1343
-msgid "Perform a tool change cycle"
-msgstr "執行循環換刀"
-
-#: ProbePage.py:1352
-msgid "Manual Tool Change"
-msgstr "手動換刀"
-
-#: ProbePage.py:1357
-msgid "Policy:"
-msgstr "政策"
-
-#: ProbePage.py:1366
-msgid "Tool change policy"
-msgstr "工具更換策略"
-
-#: ProbePage.py:1372
-msgid "Pause:"
-msgstr "暫停："
-
-#: ProbePage.py:1395
-msgid "Change:"
-msgstr "更改:"
-
-#: ProbePage.py:1399
-msgid "Manual tool change Machine X location"
-msgstr "手動換刀機床X位置"
-
-#: ProbePage.py:1405
-msgid "Manual tool change Machine Y location"
-msgstr "手動換刀機床Y位置"
-
-#: ProbePage.py:1411
-msgid "Manual tool change Machine Z location"
-msgstr "手動換刀機床Z位置"
-
-#: ProbePage.py:1415 ProbePage.py:1445
-msgid "get"
-msgstr "得到"
-
-#: ProbePage.py:1419
-msgid "Get current gantry position as machine tool change location"
-msgstr "使用當前龍門架位置作為機床更換位置"
-
-#: ProbePage.py:1429
-msgid "Manual tool change Probing MX location"
-msgstr "手動換刀探測MX位置"
-
-#: ProbePage.py:1435
-msgid "Manual tool change Probing MY location"
-msgstr "手動換刀檢測MY的位置"
-
-#: ProbePage.py:1441
-msgid "Manual tool change Probing MZ location"
-msgstr "手動換刀探測MZ位置"
-
-#: ProbePage.py:1449
-msgid "Get current gantry position as machine tool probe location"
-msgstr "使用當前龍門架位置作為機床刀具探測位置"
-
-#: ProbePage.py:1460
-msgid "After a tool change distance to scan starting from ProbeZ"
-msgstr "從ProbeZ開始的刀具更換掃描距離"
-
-#: ProbePage.py:1466
-msgid "Calibration:"
-msgstr "校準："
-
-# 1
-#: ProbePage.py:1470
-msgid "Tool probe height"
-msgstr "刀具探頭高度"
-
-#: ProbePage.py:1478
-msgid "Perform a calibration probing to determine the height"
-msgstr "執行校準探測以確定高度"
-
-#: ProbePage.py:1529 ProbePage.py:1539 ProbePage.py:1547 ProbePage.py:1555
-#: ProbePage.py:1563
-msgid "Probe Tool Change Error"
-msgstr "探頭工具更改錯誤"
-
-#: ProbePage.py:1530
-msgid "Invalid tool change position"
-msgstr "刀具更換位置無效"
-
-#: ProbePage.py:1540
-msgid "Invalid tool probe location"
-msgstr "刀具探頭位置無效"
-
-#: ProbePage.py:1548 ProbePage.py:1564
-msgid "Invalid tool scanning distance entered"
-msgstr "輸入的刀具掃描距離無效"
-
-#: ProbePage.py:1556
-msgid "Invalid tool height or not calibrated"
-msgstr "刀具高度無效或未校準"
-
-#: ProbePage.py:1650
-msgid "Probe configuration and probing"
-msgstr "探頭配置和探測"
-
-#: CNCCanvas.py:357
+#: CNCCanvas.py:360
 msgid "Select objects with mouse"
 msgstr "使用鼠標選擇對象"
 
-#: CNCCanvas.py:362
+#: CNCCanvas.py:365
 msgid "Pan viewport"
 msgstr "平移視圖"
 
-#: CNCCanvas.py:367
+#: CNCCanvas.py:370
 msgid "Click to set the origin (zero)"
 msgstr "單擊設置原點（零）"
 
-#: CNCCanvas.py:372
+#: CNCCanvas.py:375
 msgid "Move graphically objects"
 msgstr "移動圖形對象"
 
-#: CNCCanvas.py:378
+#: CNCCanvas.py:381
 msgid "Move CNC gantry to mouse location"
 msgstr "將CNC龍門架移動到鼠標位置"
 
-#: CNCCanvas.py:384
+#: CNCCanvas.py:387
 msgid "Set mouse location as current machine position (X/Y only)"
 msgstr "將鼠標位置設置為當前機器位置（僅限X / Y）"
 
-#: CNCCanvas.py:389
+#: CNCCanvas.py:392
 msgid "Drag a ruler to measure distances"
 msgstr "拖動標尺以測量距離"
 
-#: CNCCanvas.py:394
+#: CNCCanvas.py:397
 msgid "Add an orientation marker"
 msgstr "添加方向標記"
 
-#: CNCCanvas.py:455
+#: CNCCanvas.py:458
 msgid "ERROR: Cannot set X-Y marker  with the current view"
 msgstr "錯誤：無法用當前視圖設置X-Y標記"
 
-#: CNCCanvas.py:541
+#: CNCCanvas.py:544
 #, python-format
 msgid "origin %g %g %g"
 msgstr "來源 %g %g %g"
 
-#: CNCCanvas.py:604
+#: CNCCanvas.py:607
 #, python-format
 msgid "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
 msgstr "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
 
-#: CNCCanvas.py:683
+#: CNCCanvas.py:686
 #, python-format
 msgid "Move by %g, %g, %g"
 msgstr "移動 %g, %g, %g"
 
-#: CNCCanvas.py:1764
+#: CNCCanvas.py:1777
 #, python-format
 msgid ">>> ERROR: %s\n"
 msgstr ">>> 錯誤: %s\n"
 
-#: CNCCanvas.py:1765
+#: CNCCanvas.py:1778
 #, python-format
 msgid "     line: %s\n"
 msgstr "     行: %s\n"
 
-#: CNCCanvas.py:1991
+#: CNCCanvas.py:2004
 msgid "Change viewing angle"
 msgstr "更改視角"
 
-#: CNCCanvas.py:1995
+#: CNCCanvas.py:2008
 msgid "Zoom In [Ctrl-=]"
 msgstr "放大[Ctrl- =]"
 
-#: CNCCanvas.py:2000
+#: CNCCanvas.py:2013
 msgid "Zoom Out [Ctrl--]"
 msgstr "縮小[Ctrl--]"
 
-#: CNCCanvas.py:2005
+#: CNCCanvas.py:2018
 msgid "Fit to screen [F]"
 msgstr "適合屏幕[F]"
 
-#: CNCCanvas.py:2019
+#: CNCCanvas.py:2032
 msgid "Select tool [S]"
 msgstr "選擇工具[S]"
 
-#: CNCCanvas.py:2028
+#: CNCCanvas.py:2041
 msgid "Pan viewport [X]"
 msgstr "平移視圖[X]"
 
-#: CNCCanvas.py:2054
+#: CNCCanvas.py:2067
 msgid "Ruler [R]"
 msgstr "標尺[R]"
 
-#: CNCCanvas.py:2060
+#: CNCCanvas.py:2073
 msgid "Draw:"
 msgstr "畫："
 
-#: CNCCanvas.py:2069
+#: CNCCanvas.py:2082
 msgid "Toggle display of axes"
 msgstr "切換軸的顯示"
 
-#: CNCCanvas.py:2077
+#: CNCCanvas.py:2090
 msgid "Toggle display of grid lines"
 msgstr "切換網格線的顯示"
 
-#: CNCCanvas.py:2085
+#: CNCCanvas.py:2098
 msgid "Toggle display of margins"
 msgstr "切換邊距的顯示"
 
-#: CNCCanvas.py:2094
+#: CNCCanvas.py:2107
 msgid "Toggle display of probe"
 msgstr "切換探頭的顯示"
 
-#: CNCCanvas.py:2102
+#: CNCCanvas.py:2115
 msgid "Toggle display of paths (G1,G2,G3)"
 msgstr "切換路徑顯示（G1，G2，G3）"
 
-#: CNCCanvas.py:2110
+#: CNCCanvas.py:2123
 msgid "Toggle display of rapid motion (G0)"
 msgstr "切換顯示快速運動（G0）"
 
-#: CNCCanvas.py:2118
+#: CNCCanvas.py:2131
 msgid "Toggle display of workarea"
 msgstr "切換工作區的顯示"
 
-#: CNCCanvas.py:2126
+#: CNCCanvas.py:2139
 msgid "Toggle display of camera"
 msgstr "切換相機的顯示"
 
-#: CNCCanvas.py:2133
+#: CNCCanvas.py:2146
 msgid "Redraw display [Ctrl-R]"
 msgstr "重繪顯示[Ctrl-R]"
 
-#: CNCCanvas.py:2141
+#: CNCCanvas.py:2154
 msgid "Draw timeout in seconds"
 msgstr "以秒為單位繪製"
 
-#: bCNC.py:87
-msgid "All accepted"
-msgstr "所有被接受的"
-
-#: bCNC.py:88 bCNC.py:1997
-msgid "G-Code"
-msgstr "G-Code"
-
-#: bCNC.py:89
-msgid "G-Code clean"
-msgstr "清理G-Code"
-
-#: bCNC.py:144
-msgid "Controller buffer fill"
-msgstr "控制器緩衝區填充"
-
-# 10010101010101010101010101010101010101010101010101010101010101010101001010101011001010101001010101010010101001101010010101010110010010100101001001010100101001010
-#: bCNC.py:171
-msgid ""
-"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
-"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+#: ToolsPage.py:481 ToolsPage.py:493 ToolsPage.py:505
+msgid "F1"
 msgstr ""
-"MDI命令行：接受g代碼命令或宏命令（RESET / HOME ...）或編輯器命令（move，"
-"inkscape，round ...）[Space或Ctrl-Space]"
 
-#: bCNC.py:511
-msgid "Running"
-msgstr "運行"
-
-#: bCNC.py:512
-msgid "CNC is currently running, please stop it before."
-msgstr "CNC當前正在運行，請先停止。"
-
-#: bCNC.py:713
-#, python-format
-msgid "About %s"
-msgstr "關於 %s"
-
-#: bCNC.py:748
-msgid ""
-"bCNC/\tAn advanced fully featured\n"
-"\tg-code sender for GRBL."
+#: ToolsPage.py:482 ToolsPage.py:494 ToolsPage.py:506
+msgid "F2"
 msgstr ""
-"bCNC /\t先進的全功能\n"
-"\tGRBL g-code的發送器。"
 
-#: bCNC.py:924
-msgid "Enabled GCode"
-msgstr "啟用GCode"
-
-#: bCNC.py:929 bCNC.py:1002
-msgid "Margins X:"
-msgstr "邊距X："
-
-#: bCNC.py:962 bCNC.py:1035
-msgid "# Blocks:"
-msgstr "區塊"
-
-#: bCNC.py:970 bCNC.py:1042
-msgid "Length:"
-msgstr "長度："
-
-#: bCNC.py:978
-msgid "Rapid:"
-msgstr "速度："
-
-#: bCNC.py:986 bCNC.py:1050
-msgid "Time:"
-msgstr "時間："
-
-#: bCNC.py:997
-msgid "All GCode"
-msgstr "所有GCode"
-
-#: bCNC.py:1218
-msgid "Evaluation error"
-msgstr "評估錯誤"
-
-#: bCNC.py:1293
-msgid "Direction command error"
-msgstr "方向指令錯誤"
-
-#: bCNC.py:1294
-#, python-format
-msgid "Invalid direction %s specified"
-msgstr "指定的方向 %s 無效"
-
-# 20430237204614186053048357412105430618 4868151416 546815748/91740867/86741065148640841586 46584534131608504341054504568545415215416851454141 414141 454101
-# 212112222222222222222222222222222222222222222222222222222222222222222222222455541531131
-#: bCNC.py:1457
-msgid "Please select the blocks of gcode you want to optimize."
-msgstr "請選擇您要優化的gcode塊。"
-
-#: bCNC.py:1600
-#, python-format
-msgid "EndMill: %s %g"
-msgstr "EndMill: %s %g"
-
-#: bCNC.py:1625
-#, python-format
-msgid "Invalid user command %s"
-msgstr "用戶命令%s無效"
-
-#: bCNC.py:1661
-msgid "Nothing to do"
-msgstr "沒做事"
-
-#: bCNC.py:1662
-#, python-format
-msgid "Operation %s requires some gcode to be selected"
-msgstr "操作%s需要選擇一些gcode"
-
-#: bCNC.py:1704
-msgid "Operation error"
-msgstr "操作錯誤"
-
-#: bCNC.py:1745
-#, python-format
-msgid "Profile block distance=%g"
-msgstr "側面區塊距離=%g"
-
-#: bCNC.py:1758
-msgid "Open paths"
-msgstr "打開路徑"
-
-#: bCNC.py:1759
-#, python-format
-msgid "WARNING: %s"
-msgstr "警告:%s"
-
-#: bCNC.py:1880
-msgid "Open file"
-msgstr "打開文件"
-
-#: bCNC.py:1896
-msgid "Save file"
-msgstr "存檔"
-
-#: bCNC.py:1905
-msgid "File modified"
-msgstr "文件已修改"
-
-#: bCNC.py:1906
-msgid "Gcode was modified do you want to save it first?"
-msgstr "Gcode已修改，你想先保存它嗎？"
-
-#: bCNC.py:1915
-msgid "Probe File modified"
-msgstr "文件修改"
-
-#: bCNC.py:1916
-msgid "Probe was modified do you want to save it first?"
-msgstr "探測被修改，你想保存它嗎？"
-
-# 174551201850505420821872482148721486328963487531.034512054120421054820421048728765796859595842141254128424887569/*/986532896521486941320.5486120541205432005405481054872105487210548120.3468932.68432.10486312.053486321.035486932.14869432.487631.347812
-#: bCNC.py:1939
-msgid "Existing Autolevel"
-msgstr "現有自動水平探測 "
-
-#: bCNC.py:1940
-msgid ""
-"Autolevel/probe information already exists.\n"
-"Delete it?"
+#: ToolsPage.py:483 ToolsPage.py:495 ToolsPage.py:507
+msgid "F3"
 msgstr ""
-"自動水平/探測 信息已存在。\n"
-"刪除它？"
 
-#: bCNC.py:1945
-#, python-format
-msgid "Loading: %s ..."
-msgstr "Loading: %s ..."
-
-#: bCNC.py:1966
-#, python-format
-msgid "'%s' reloaded at '%s'"
-msgstr "'%s' reloaded at '%s'"
-
-#: bCNC.py:1968
-#, python-format
-msgid "'%s' loaded"
-msgstr "'%s' loaded"
-
-#: bCNC.py:1974
-#, python-format
-msgid "'%s' saved"
-msgstr "'%s' saved"
-
-#: bCNC.py:1993
-msgid "Import Gcode/DXF file"
-msgstr "導入Gcode / DXF文件"
-
-#: bCNC.py:2027
-msgid "Warning"
-msgstr "警告"
-
-#: bCNC.py:2028
-#, python-format
-msgid ""
-"Gcode file %s was changed since editing started\n"
-"Reload new version?"
+#: ToolsPage.py:484 ToolsPage.py:496 ToolsPage.py:508
+msgid "F4"
 msgstr ""
-"自編輯開始以來Gcode文件%s 已更改\n"
-"重新載入新版本？"
 
-#: bCNC.py:2043 FilePage.py:82 FilePage.py:279 lib/bFileDialog.py:320
-#: lib/bFileDialog.py:871 lib/bFileDialog.py:975
-msgid "Open"
-msgstr "開"
-
-#: bCNC.py:2063
-msgid "Error opening serial"
-msgstr "錯誤打開串口"
-
-#: bCNC.py:2094
-msgid "Serial Error"
-msgstr "串行錯誤"
-
-#: bCNC.py:2095
-msgid "Serial is not connected"
-msgstr "串行未連接"
-
-#: bCNC.py:2102
-msgid "Already running"
-msgstr "已經運行"
-
-#: bCNC.py:2103
-msgid "Please stop before"
-msgstr "請先停止"
-
-#: bCNC.py:2149
-msgid "Empty gcode"
-msgstr "空gcode"
-
-#: bCNC.py:2150
-msgid "Not gcode file was loaded"
-msgstr "未加載gcode文件"
-
-#: bCNC.py:2178
-msgid "Running..."
-msgstr "運行"
-
-#: bCNC.py:2195 bCNC.py:2199 bCNC.py:2212 FilePage.py:171
-msgid "Pendant"
-msgstr "通訊"
-
-#: bCNC.py:2196
-msgid "Pendant started:\n"
-msgstr "通訊開始：\n"
-
-#: bCNC.py:2200
-msgid "Pendant already started:\n"
-msgstr "通訊已開始：\n"
-
-#: bCNC.py:2202
-msgid ""
-"\n"
-"Would you like open it locally?"
+#: ToolsPage.py:485 ToolsPage.py:497 ToolsPage.py:509
+msgid "F5"
 msgstr ""
-"\n"
-"您要在本地打開嗎?"
 
-#: bCNC.py:2212
-msgid "Pendant stopped"
-msgstr "通訊停止"
-
-#: bCNC.py:2520
-msgid "python serial missing"
-msgstr "python序列丟失"
-
-#: bCNC.py:2521
-msgid ""
-"ERROR: Please install the python pyserial module\n"
-"Windows:\n"
-"\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
-"Mac:\tpip install pyserial\n"
-"Linux:\tsudo apt-get install python-serial\n"
-"\tor yum install python-serial\n"
-"\tor dnf install python-pyserial"
+#: ToolsPage.py:486 ToolsPage.py:498 ToolsPage.py:510
+msgid "F6"
 msgstr ""
-"錯誤：請安裝python pyserial模塊\n"
-"視窗：\n"
-"C：\\ PythonXX \\ Scripts \\ easy_install pyserial\n"
-"Mac：pip install pyserial\n"
-"Linux：sudo apt-get install python-serial\n"
-"或者yum install python-serial\n"
-"或dnf install python-pyserial"
 
-#: Updates.py:47
-msgid "Installed Version:"
-msgstr "安裝的版本："
+#: ToolsPage.py:487 ToolsPage.py:499 ToolsPage.py:511
+msgid "F7"
+msgstr ""
 
-#: Updates.py:52
-msgid "Running version of bCNC"
-msgstr "運行bCNC版本"
+#: ToolsPage.py:488 ToolsPage.py:500 ToolsPage.py:512
+msgid "F8"
+msgstr ""
 
-#: Updates.py:54
-msgid "Latest Github Version:"
-msgstr "最新版本Github上："
+#: ToolsPage.py:489 ToolsPage.py:501 ToolsPage.py:513
+msgid "F9"
+msgstr ""
 
-#: Updates.py:60
-msgid "Latest release version on on github"
-msgstr "GitHub上的最新版本"
+#: ToolsPage.py:490 ToolsPage.py:502 ToolsPage.py:514
+msgid "F10"
+msgstr ""
 
-#: Updates.py:61
-msgid "Published at:"
-msgstr "發佈時間："
+#: ToolsPage.py:491 ToolsPage.py:503 ToolsPage.py:515
+msgid "F11"
+msgstr ""
 
-#: Updates.py:67
-msgid "Published date of the latest github release"
-msgstr "發布日期最新的github版本"
+#: ToolsPage.py:492 ToolsPage.py:504 ToolsPage.py:516
+msgid "F12"
+msgstr ""
 
-#: Updates.py:72
-msgid "Check Interval"
-msgstr "檢查間隔"
+#: ToolsPage.py:493 ToolsPage.py:494 ToolsPage.py:495 ToolsPage.py:496
+#: ToolsPage.py:497 ToolsPage.py:498 ToolsPage.py:499 ToolsPage.py:500
+#: ToolsPage.py:501 ToolsPage.py:502 ToolsPage.py:503 ToolsPage.py:504
+msgid "Shift-"
+msgstr ""
 
-#: Updates.py:75
-msgid "Last Check:"
-msgstr "最後檢查："
+#: ToolsPage.py:505 ToolsPage.py:506 ToolsPage.py:507 ToolsPage.py:508
+#: ToolsPage.py:509 ToolsPage.py:510 ToolsPage.py:511 ToolsPage.py:512
+#: ToolsPage.py:513 ToolsPage.py:514 ToolsPage.py:515 ToolsPage.py:516
+#, fuzzy
+#| msgid "Control"
+msgid "Control-"
+msgstr "控制"
 
-#: Updates.py:87
-msgid "Date of last checking"
-msgstr "最後檢查的日期"
+#: ToolsPage.py:530
+#, fuzzy
+#| msgid "2. Camera"
+msgid "Align Camera"
+msgstr "2.相機"
 
-#: Updates.py:89
-msgid "Interval (days):"
-msgstr "間隔時間（天）："
+#: ToolsPage.py:531
+msgid "Align Camera Width"
+msgstr ""
 
-#: Updates.py:100
-msgid "Days-interval to remind again for checking"
-msgstr "間隔設定再次確認"
+#: ToolsPage.py:532
+msgid "Align Camera Height"
+msgstr ""
 
-#: Updates.py:111
-msgid "Check Now"
-msgstr "再次檢查"
+#: ToolsPage.py:533
+msgid "Align Camera Angle"
+msgstr ""
 
-#: Updates.py:117
-msgid "Check the web site for new versions of bCNC"
-msgstr "檢查線上是否有新版本的 bCNC"
+#: ToolsPage.py:534
+#, fuzzy
+#| msgid "Camera"
+msgid "Web Camera"
+msgstr "相機"
 
-#: Updates.py:149
-msgid "Download"
-msgstr "下載"
+#: ToolsPage.py:535
+msgid "Web Camera Width"
+msgstr ""
 
-#: Updates.py:152
-msgid "Open web browser to download bCNC"
-msgstr "打開下載網頁下載 bCNC"
+#: ToolsPage.py:536
+msgid "Web Camera Height"
+msgstr ""
 
-#: Updates.py:157
-#, python-format
-msgid "Error %d in connection"
-msgstr "%d 連接錯誤"
+#: ToolsPage.py:537
+msgid "Web Camera Angle"
+msgstr ""
 
-#: FilePage.py:57 FilePage.py:304
-msgid "File"
-msgstr "打開文件"
+#: ToolsPage.py:548
+msgid "Units (inches)"
+msgstr "單位（英寸）"
 
-#: FilePage.py:64
-msgid "New"
-msgstr "新文件"
+#: ToolsPage.py:549
+#, fuzzy
+#| msgid "Lasercutter"
+msgid "Laser Cutter"
+msgstr "激光切割機"
 
-#: FilePage.py:68
-msgid "New gcode/dxf file"
-msgstr "新規作成 gcode/dxf"
+#: ToolsPage.py:550
+msgid "Laser Adaptive Power"
+msgstr ""
 
-#: FilePage.py:77
-msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr "打開現有的gcode / dxf文件 [Ctrl-O]"
+#: ToolsPage.py:551
+msgid "Double Size Icon"
+msgstr ""
 
-#: FilePage.py:87
-msgid "Open recent file"
-msgstr "打開最近的文件"
+#: ToolsPage.py:552
+msgid "Acceleration x"
+msgstr "x軸 加速度"
 
-#: FilePage.py:97
-msgid "Save gcode/dxf file [Ctrl-S]"
-msgstr "保存gcode / dxf文件 [Ctrl-S]"
+#: ToolsPage.py:553
+msgid "Acceleration y"
+msgstr "y軸 加速度"
 
-#: FilePage.py:102 lib/bFileDialog.py:905
-msgid "Save"
-msgstr "保存"
+#: ToolsPage.py:554
+msgid "Acceleration z"
+msgstr "z軸 加速度"
 
-#: FilePage.py:107
-msgid "Save gcode/dxf AS"
-msgstr "保存gcode / dxf AS"
+#: ToolsPage.py:555
+msgid "Feed max x"
+msgstr "x軸 最大進給速率"
 
-#: FilePage.py:115
-msgid "Options"
+#: ToolsPage.py:556
+msgid "Feed max y"
+msgstr "y軸 最大進給速率"
+
+#: ToolsPage.py:557
+msgid "Feed max z"
+msgstr "z軸 最大進給速率"
+
+#: ToolsPage.py:558
+msgid "Travel x"
+msgstr "x軸 可動域"
+
+#: ToolsPage.py:559
+msgid "Travel y"
+msgstr "y軸 可動域"
+
+#: ToolsPage.py:560
+msgid "Travel z"
+msgstr "z軸 可動域"
+
+#: ToolsPage.py:561
+msgid "Decimal digits"
+msgstr "十進制數字"
+
+#: ToolsPage.py:562
+msgid "Plotting Arc accuracy"
+msgstr "繪製弧精度"
+
+#: ToolsPage.py:563
+msgid "Start up"
+msgstr "開始"
+
+#: ToolsPage.py:564
+msgid "Spindle min (RPM)"
+msgstr "主軸最低速度（RPM）"
+
+#: ToolsPage.py:565
+msgid "Spindle max (RPM)"
+msgstr "主軸最大速度（RPM）"
+
+#: ToolsPage.py:566
+msgid "DRO Zero padding"
+msgstr "DRO零填充"
+
+#: ToolsPage.py:567
+msgid "Header gcode"
+msgstr "前置 gcode"
+
+#: ToolsPage.py:568
+msgid "Footer gcode"
+msgstr "後置 gcode"
+
+#: ToolsPage.py:590 ToolsPage.py:616 ToolsPage.py:645 ToolsPage.py:671
+#: ToolsPage.py:701 ToolsPage.py:733 ToolsPage.py:758 ToolsPage.py:779
+#: ToolsPage.py:1447 lib/bFileDialog.py:272 plugins/text.py:36
+#: plugins/pyrograph.py:38 plugins/tile.py:34 plugins/heightmap.py:48
+#: plugins/midi2cnc.py:49 plugins/gear.py:163 plugins/flatten.py:255
+#: plugins/hilbert.py:87 plugins/jigsaw.py:264 plugins/driller.py:38
+#: plugins/box.py:305 plugins/spirograph.py:101 plugins/sketch.py:41
+#: plugins/zigzag.py:94 plugins/halftone.py:40 plugins/bowl.py:108
+msgid "Name"
+msgstr "名稱"
+
+#: ToolsPage.py:592 ToolsPage.py:675
+msgid "Feed"
+msgstr "進刀進給量"
+
+#: ToolsPage.py:593 ToolsPage.py:676
+msgid "Plunge Feed"
+msgstr "下刀進給量"
+
+#: ToolsPage.py:594 ToolsPage.py:674
+msgid "Depth Increment"
+msgstr "深度增量"
+
+#: ToolsPage.py:618 lib/bFileDialog.py:273
+msgid "Type"
+msgstr "類型"
+
+#: ToolsPage.py:619
+msgid "Shape"
+msgstr "形狀"
+
+#: ToolsPage.py:620 ToolsPage.py:647 ToolsPage.py:1029
+msgid "Material"
+msgstr "素材"
+
+#: ToolsPage.py:621
+msgid "Coating"
+msgstr "塗層"
+
+#: ToolsPage.py:622 plugins/bowl.py:109
+msgid "Diameter"
+msgstr "直徑"
+
+#: ToolsPage.py:623
+msgid "Mount Axis"
+msgstr "安裝軸"
+
+#: ToolsPage.py:624
+msgid "Flutes"
+msgstr "槽"
+
+#: ToolsPage.py:625
+msgid "Length"
+msgstr "長度"
+
+#: ToolsPage.py:626
+msgid "Angle"
+msgstr "角度"
+
+#: ToolsPage.py:627
+msgid "Stepover %"
+msgstr "步進%"
+
+#: ToolsPage.py:648
+msgid "Safe Z"
+msgstr "安全 Z軸高度"
+
+#: ToolsPage.py:649 ToolsPage.py:672
+msgid "Surface Z"
+msgstr "曲面 Z"
+
+#: ToolsPage.py:650
+msgid "Thickness"
+msgstr "厚度"
+
+#: ToolsPage.py:673 ToolsPage.py:702 plugins/driller.py:40
+#: plugins/spirograph.py:105
+msgid "Target Depth"
+msgstr "目標深度"
+
+#: ToolsPage.py:677
+msgid "First cut at surface height"
+msgstr "表面高度切割"
+
+#: ToolsPage.py:692
+msgid "CUT selected paths"
+msgstr "選選切割路徑"
+
+#: ToolsPage.py:703
+msgid "Peck depth"
+msgstr "深度增量"
+
+#: ToolsPage.py:704
+msgid "Dwell (s)"
+msgstr "停留"
+
+#: ToolsPage.py:705
+msgid "Distance (mm)"
+msgstr "距離（mm）"
+
+#: ToolsPage.py:706
+msgid "Number"
+msgstr "發送到解析器的無效工具編號"
+
+#: ToolsPage.py:724
+msgid "DRILL selected points"
+msgstr "選定的鑽尖"
+
+#: ToolsPage.py:734 ToolsPage.py:759 ToolsPage.py:1043
+msgid "End Mill"
+msgstr "銑刀"
+
+#: ToolsPage.py:735 plugins/pyrograph.py:44
+msgid "Direction"
+msgstr "方向"
+
+#: ToolsPage.py:736
+msgid "Additional offset distance"
+msgstr "附加偏移距離"
+
+#: ToolsPage.py:737 plugins/box.py:314
+msgid "Overcut"
+msgstr "過切"
+
+#: ToolsPage.py:749
+msgid "Generate profile path"
+msgstr "生成配置文件路徑"
+
+#: ToolsPage.py:770
+msgid "Generate pocket path"
+msgstr "生成數據路徑"
+
+#: ToolsPage.py:780
+msgid "Number of tabs"
+msgstr "標籤數"
+
+# ?
+#: ToolsPage.py:781
+msgid "Min. Distance of tabs"
+msgstr "最小的距離"
+
+#: ToolsPage.py:784
+msgid "Height"
+msgstr "高度"
+
+#: ToolsPage.py:804
+msgid "Tabs error"
+msgstr "標籤錯誤"
+
+#: ToolsPage.py:805
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr "您不能同時擁有標籤數量或距離等於零"
+
+#: ToolsPage.py:808
+msgid "Create tabs on blocks"
+msgstr "創建標籤"
+
+#: ToolsPage.py:818
+msgid "$0 Step pulse time [us]"
+msgstr "$0 脈衝時間[us]"
+
+#: ToolsPage.py:819
+msgid "$1 Step idle delay [ms]"
+msgstr "$1 脈衝延遲時間[ms]"
+
+#: ToolsPage.py:820
+#, fuzzy
+#| msgid "$2 Step pulse invert [mask]"
+msgid "$2 Step port invert [mask]"
+msgstr "$2 脈衝反轉[mask]"
+
+#: ToolsPage.py:821
+#, fuzzy
+#| msgid "$3 Step direction invert [mask]"
+msgid "$3 Direction port invert [mask]"
+msgstr "$3 步進方向反轉[mask]"
+
+#: ToolsPage.py:822
+#, fuzzy
+#| msgid "$4 Invert step enable pin"
+msgid "$4 Step enable invert"
+msgstr "$4 反轉 step enable pin"
+
+#: ToolsPage.py:823
+#, fuzzy
+#| msgid "$5 Invert limit pins"
+msgid "$5 Limit pins invert"
+msgstr "$5 反轉限制引腳"
+
+#: ToolsPage.py:824
+msgid "$6 Probe pin invert"
+msgstr ""
+
+#: ToolsPage.py:825
+#, fuzzy
+#| msgid "$10 Status report options [mask]"
+msgid "$10 Status report [mask]"
+msgstr "$10 狀態報告選項[mask]"
+
+#: ToolsPage.py:826
+msgid "$11 Junction deviation [mm]"
+msgstr "$11 歸零偏差[mm]"
+
+#: ToolsPage.py:827
+msgid "$12 Arc tolerance [mm]"
+msgstr "$12 圖弧公差[mm]"
+
+#: ToolsPage.py:828
+#, fuzzy
+#| msgid "$13 Report in inches"
+msgid "$13 Report inches"
+msgstr "$13 以英寸為單位"
+
+# ?
+#: ToolsPage.py:829
+#, fuzzy
+#| msgid "$20 Soft limits enable"
+msgid "$20 Soft limits"
+msgstr "$20 軟體限位"
+
+# ?
+#: ToolsPage.py:830
+#, fuzzy
+#| msgid "$21 Hard limits enable"
+msgid "$21 Hard limits"
+msgstr "$21 硬體限位"
+
+# ?
+#: ToolsPage.py:831
+#, fuzzy
+#| msgid "$22 Homing cycle enable"
+msgid "$22 Homing cycle"
+msgstr "$22 原點循環啟用"
+
+# ?
+#: ToolsPage.py:832
+msgid "$23 Homing direction invert [mask]"
+msgstr "$23 回原點方向反轉[mask]"
+
+#: ToolsPage.py:833
+#, fuzzy
+#| msgid "$24 Homing locate feed rate [mm/min]"
+msgid "$24 Homing feed [mm/min]"
+msgstr "$24 原點位置進給速率[mm / min]"
+
+#: ToolsPage.py:834
+#, fuzzy
+#| msgid "$25 Homing search seek rate [mm/min]"
+msgid "$25 Homing seek [mm/min]"
+msgstr "$25 原點搜索速率[mm / min]"
+
+# ?
+#: ToolsPage.py:835
+#, fuzzy
+#| msgid "$26 Homing switch debounce delay, ms"
+msgid "$26 Homing debounce [ms]"
+msgstr "$26 歸位開關延遲，ms"
+
+#: ToolsPage.py:836
+#, fuzzy
+#| msgid "$27 Homing switch pull-off distance [mm]"
+msgid "$27 Homing pull-off [mm]"
+msgstr "$27 原點開關拉開距離[mm]"
+
+#: ToolsPage.py:837
+#, fuzzy
+#| msgid "$30 Maximum spindle speed [RPM]"
+msgid "$30 Max spindle speed [RPM]"
+msgstr "$30 最大主軸轉速[RPM]"
+
+#: ToolsPage.py:838
+#, fuzzy
+#| msgid "$31 Minimum spindle speed [RPM]"
+msgid "$31 Min spindle speed [RPM]"
+msgstr "$31 最小主軸轉速[RPM]"
+
+#: ToolsPage.py:839
+#, fuzzy
+#| msgid "$32 Laser-mode enable"
+msgid "$32 Laser mode enable"
+msgstr "$32 激光模式啟用"
+
+# ?
+#: ToolsPage.py:840
+#, fuzzy
+#| msgid "$100 X-axis steps per mm"
+msgid "$100 X steps/mm"
+msgstr "$100 X軸步距每毫米"
+
+# ?
+#: ToolsPage.py:841
+#, fuzzy
+#| msgid "$101 Y-axis steps per mm"
+msgid "$101 Y steps/mm"
+msgstr "$101 Y軸步距每毫米"
+
+# ?
+#: ToolsPage.py:842
+#, fuzzy
+#| msgid "$102 Z-axis steps per mm"
+msgid "$102 Z steps/mm"
+msgstr "$102 Z軸步距每毫米"
+
+#: ToolsPage.py:843
+#, fuzzy
+#| msgid "$110 X-axis maximum rate [mm/min]"
+msgid "$110 X max rate [mm/min]"
+msgstr "$110 X軸最大速率[mm / min]"
+
+#: ToolsPage.py:844
+#, fuzzy
+#| msgid "$111 Y-axis maximum rate [mm/min]"
+msgid "$111 Y max rate [mm/min]"
+msgstr "$111 Y軸最大速率[mm / min]"
+
+#: ToolsPage.py:845
+#, fuzzy
+#| msgid "$112 Z-axis maximum rate [mm/min]"
+msgid "$112 Z max rate [mm/min]"
+msgstr "$112 Z軸最大速率[mm / min]"
+
+#: ToolsPage.py:846
+#, fuzzy
+#| msgid "$120 X-axis acceleration [mm/sec^2]"
+msgid "$120 X acceleration [mm/sec^2]"
+msgstr "$ 120 X軸加快速度[mm / sec ^ 2]"
+
+#: ToolsPage.py:847
+#, fuzzy
+#| msgid "$121 Y-axis acceleration [mm/sec^2]"
+msgid "$121 Y acceleration [mm/sec^2]"
+msgstr "$121 Y軸加快速度[mm / sec ^ 2]"
+
+#: ToolsPage.py:848
+#, fuzzy
+#| msgid "$122 Z-axis acceleration [mm/sec^2]"
+msgid "$122 Z acceleration [mm/sec^2]"
+msgstr "$122 Z軸加快速度[mm / sec ^ 2]"
+
+# 1
+#: ToolsPage.py:849
+#, fuzzy
+#| msgid "$130 X-axis maximum travel [mm]"
+msgid "$130 X max travel [mm]"
+msgstr "$130 X軸最大行程[mm]"
+
+# 1
+#: ToolsPage.py:850
+#, fuzzy
+#| msgid "$131 Y-axis maximum travel [mm]"
+msgid "$131 Y max travel [mm]"
+msgstr "$131 Y軸最大行程[mm]"
+
+# 1
+#: ToolsPage.py:851
+#, fuzzy
+#| msgid "$132 Z-axis maximum travel [mm]"
+msgid "$132 Z max travel [mm]"
+msgstr "$132 Z軸最大行程[mm]"
+
+#: ToolsPage.py:1008
+msgid "Database"
+msgstr "資料庫"
+
+#: ToolsPage.py:1015
+msgid "Stock"
+msgstr "物料"
+
+#: ToolsPage.py:1022
+msgid "Stock material currently on machine"
+msgstr "目前在機器上的物料"
+
+#: ToolsPage.py:1036
+msgid "Editable database of material properties"
+msgstr "材料設定"
+
+#: ToolsPage.py:1050
+msgid "Editable database of EndMills properties"
+msgstr "銑刀的設置"
+
+#: ToolsPage.py:1057
+msgid "Rename"
+msgstr "改名"
+
+#: ToolsPage.py:1062
+msgid "Edit name of current operation/object"
+msgstr "編輯當前操作/對象的名稱"
+
+#: ToolsPage.py:1075
+msgid "Add a new operation/object"
+msgstr "添加新操作/物件"
+
+#: ToolsPage.py:1088
+msgid "Clone selected operation/object"
+msgstr "複製選定的操作/物件"
+
+#: ToolsPage.py:1101
+msgid "Delete selected operation/object"
+msgstr "刪除選定的操作/物件"
+
+#: ToolsPage.py:1110
+msgid "CAM"
+msgstr "CAM"
+
+#: ToolsPage.py:1124
+msgid "Cut for the full stock thickness selected code"
+msgstr "剪切選擇的部分"
+
+#: ToolsPage.py:1131 plugins/box.py:313
+msgid "Profile"
+msgstr "輪廓"
+
+#: ToolsPage.py:1138
+msgid "Perform a profile operation on selected code"
+msgstr "對所選代碼執行配置文件操作"
+
+#: ToolsPage.py:1145
+msgid "Pocket"
+msgstr "口袋"
+
+#: ToolsPage.py:1152
+msgid "Perform a pocket operation on selected code"
+msgstr "對選定的代碼進行操作口袋"
+
+#: ToolsPage.py:1159
+msgid "Drill"
+msgstr "鑽頭"
+
+#: ToolsPage.py:1166
+msgid "Insert a drill cycle on current objects/location"
+msgstr "在當前對象/位置插入鑽孔周期"
+
+#: ToolsPage.py:1173
+msgid "Tabs"
+msgstr "標籤"
+
+#: ToolsPage.py:1180
+msgid "Insert holding tabs"
+msgstr "將持孔洞標籤"
+
+#: ToolsPage.py:1276 ToolsPage.py:1328
+msgid "Config"
 msgstr "設定"
 
-#: FilePage.py:141
-msgid "Send Error Report"
-msgstr "報告錯誤"
+#: ToolsPage.py:1291
+msgid "Change program language restart is required"
+msgstr "變更語言需要重新啟動"
 
-#: FilePage.py:146
-msgid "Updates"
-msgstr "更新"
+#: ToolsPage.py:1307
+msgid "Camera Configuration"
+msgstr "相機設定"
 
-#: FilePage.py:153
-msgid "Check Updates"
-msgstr "檢查更新"
+#: ToolsPage.py:1314
+msgid "Colors"
+msgstr "顔色"
 
-#: FilePage.py:157
-msgid "About"
-msgstr "關於"
+#: ToolsPage.py:1321
+msgid "Color configuration"
+msgstr "顔色設定"
 
-#: FilePage.py:164
-msgid "About the program"
-msgstr "關於程序"
+#: ToolsPage.py:1335
+msgid "Machine configuration for bCNC"
+msgstr "bCNC設備配置"
 
-#: FilePage.py:183
-msgid "Start pendant"
-msgstr "開始下垂"
+#: ToolsPage.py:1342
+msgid "Controller"
+msgstr "控制器"
 
-#: FilePage.py:194
-msgid "Stop pendant"
-msgstr "停止下垂"
+#: ToolsPage.py:1349
+msgid "Controller (GRBL) configuration"
+msgstr "控制器 (GRBL) 設定"
 
-#: FilePage.py:205
-msgid "Exit"
-msgstr "結束"
+#: ToolsPage.py:1356
+msgid "Fonts"
+msgstr "字體"
 
-#: FilePage.py:212
-msgid "Close program [Ctrl-Q]"
-msgstr "退出程序[CTRL-Q]"
+#: ToolsPage.py:1363
+msgid "Font configuration"
+msgstr "字體設定"
 
-#: FilePage.py:225
-msgid "Port:"
-msgstr "Port:"
+#: ToolsPage.py:1370
+msgid "Shortcuts"
+msgstr "快捷鍵"
 
-#: FilePage.py:231
-msgid "Select (or manual enter) port to connect"
-msgstr "選擇端口來連接（手動輸入）"
+#: ToolsPage.py:1377
+msgid "Shortcuts configuration"
+msgstr "快捷鍵設定"
 
-#: FilePage.py:240
-msgid "Baud:"
-msgstr "Baud:"
+#: ToolsPage.py:1408
+msgid "Language change"
+msgstr "變更語言"
 
-#: FilePage.py:245
-msgid "Select connection baud rate"
-msgstr "選擇連接鮑率"
+#: ToolsPage.py:1409
+msgid "Please restart the program."
+msgstr "請重新啟動軟體。"
 
-#: FilePage.py:252
-msgid "Controller:"
-msgstr "控制器:"
+#: ToolsPage.py:1417
+msgid "Events"
+msgstr "事件"
 
-#: FilePage.py:259
-msgid "Select controller board"
-msgstr "選擇控制器的類型"
+#: ToolsPage.py:1422
+msgid "User File"
+msgstr "用戶文件"
 
-#: FilePage.py:266
-msgid "Connect on startup"
-msgstr "在啟動時連接"
+#: ToolsPage.py:1435
+msgid "Execute"
+msgstr "執行"
 
-#: FilePage.py:269
-msgid "Connect to serial on startup of the program"
-msgstr "在程序啟動時連接到串口"
+#: ToolsPage.py:1448
+msgid "Value"
+msgstr "値"
 
-#: FilePage.py:284
-msgid "Open/Close serial port"
-msgstr "打開/關閉串口"
+#: ToolsPage.py:1516
+msgid "GCode manipulation tools and user plugins"
+msgstr "GCode 操作工具和用戶插件"
 
-#: FilePage.py:303
-msgid "File I/O and configuration"
-msgstr "文件I / O和配置"
+#: ToolsPage.py:1517
+msgid "Tools"
+msgstr "工具"
 
 #: TerminalPage.py:25 TerminalPage.py:146
 msgid "Terminal"
@@ -2907,152 +3138,126 @@ msgstr "緩衝命令"
 msgid "Serial Terminal"
 msgstr "串行終端"
 
-#: lib/bFileDialog.py:269
+#: lib/bFileDialog.py:248
 msgid "Directory:"
 msgstr "目錄"
 
-#: lib/bFileDialog.py:295 plugins/hilbert.py:89
+#: lib/bFileDialog.py:274 plugins/hilbert.py:88
 msgid "Size"
 msgstr "尺寸"
 
-#: lib/bFileDialog.py:296
+#: lib/bFileDialog.py:275
 msgid "Date"
 msgstr "日期"
 
-#: lib/bFileDialog.py:316
+#: lib/bFileDialog.py:295
 msgid "File name:"
 msgstr "文件名："
 
-#: lib/bFileDialog.py:323
+#: lib/bFileDialog.py:302
 msgid "Files of type:"
 msgstr "文件類型："
 
-#: lib/bFileDialog.py:553 lib/bFileDialog.py:611 lib/bFileDialog.py:818
-#: lib/bFileDialog.py:842 lib/bFileDialog.py:864
+#: lib/bFileDialog.py:532 lib/bFileDialog.py:590 lib/bFileDialog.py:797
+#: lib/bFileDialog.py:821 lib/bFileDialog.py:843
 msgid "Error"
 msgstr "錯誤"
 
-#: lib/bFileDialog.py:554
+#: lib/bFileDialog.py:533
 #, python-format
 msgid "Cannot access path \"%s\""
 msgstr "無法訪問路徑 \"%s\""
 
-#: lib/bFileDialog.py:612
+#: lib/bFileDialog.py:591
 #, python-format
 msgid "Error listing folder \"%s\""
 msgstr "列出文件夾 \"%s\"時出錯"
 
-#: lib/bFileDialog.py:806
+#: lib/bFileDialog.py:785
 msgid "NewFolder"
 msgstr "新建文件夾"
 
-#: lib/bFileDialog.py:819
+#: lib/bFileDialog.py:798
 #, python-format
 msgid "Error creating folder \"%s\""
 msgstr "創建文件夾\"%s\"時出錯"
 
-#: lib/bFileDialog.py:843
+#: lib/bFileDialog.py:822
 #, python-format
 msgid "Error renaming \"%s\" to \"%s\""
 msgstr "將 \"%s\" 重命名為 \"%s\"時出錯"
 
-#: lib/bFileDialog.py:865
+#: lib/bFileDialog.py:844
 #, python-format
 msgid "Error deleting file \"%s\""
 msgstr "刪除文件 \"%s\"時出錯"
 
-#: lib/bFileDialog.py:882 lib/bFileDialog.py:891
+#: lib/bFileDialog.py:861 lib/bFileDialog.py:870
 msgid "File does not exist"
 msgstr "文件不存在"
 
-#: lib/bFileDialog.py:883 lib/bFileDialog.py:892
+#: lib/bFileDialog.py:862 lib/bFileDialog.py:871
 #, python-format
 msgid "File \"%s\" does not exist"
 msgstr "文件 \"%s\" 不存在"
 
-#: lib/bFileDialog.py:900
+#: lib/bFileDialog.py:879
 msgid "Save As"
 msgstr "另存為"
 
-#: lib/bFileDialog.py:911
+#: lib/bFileDialog.py:890
 msgid "File already exists"
 msgstr "文件已存在"
 
-#: lib/bFileDialog.py:912
+#: lib/bFileDialog.py:891
 #, python-format
 msgid "Overwrite existing file %r?"
 msgstr "覆蓋現有文件 %r?"
 
-#: lib/bFileDialog.py:923
+#: lib/bFileDialog.py:902
 msgid "Choose Directory"
 msgstr "選擇目錄"
 
-#: plugins/sketch.py:13
-msgid "Sketch"
-msgstr "草圖"
+#: plugins/text.py:30
+msgid "Create text using a ttf font"
+msgstr "使用ttf字體創建文本"
 
-#: plugins/sketch.py:34
-msgid "Create sketch based on picture brightness"
-msgstr "基於圖像的明亮創建草圖"
+#: plugins/text.py:37
+msgid "Text to generate"
+msgstr "要生成的文本"
 
-#: plugins/sketch.py:43
-msgid "Grundgy, search radius"
-msgstr "Grunge，搜索半徑"
-
-#: plugins/sketch.py:44 plugins/pyrograph.py:41 plugins/heightmap.py:50
-#: plugins/halftone.py:51 plugins/text.py:39
+#: plugins/text.py:38 plugins/pyrograph.py:40 plugins/heightmap.py:49
+#: plugins/sketch.py:43 plugins/halftone.py:50
 msgid "Working Depth"
 msgstr "工作深度"
 
-#: plugins/sketch.py:45 plugins/pyrograph.py:42 plugins/heightmap.py:51
-msgid "Maximum size"
-msgstr "最大尺寸"
+#: plugins/text.py:39
+msgid "Font size"
+msgstr "字體大小"
 
-#: plugins/sketch.py:46
-msgid "Squiggle total count"
-msgstr "波形總數"
+#: plugins/text.py:40
+msgid "Font file"
+msgstr "字體文件"
 
-#: plugins/sketch.py:47
-msgid "Squiggle Length"
-msgstr "波形長度"
+#: plugins/text.py:41
+msgid "Image to Ascii"
+msgstr "圖像到Ascii"
 
-#: plugins/sketch.py:48 plugins/pyrograph.py:46 plugins/halftone.py:50
-msgid "Draw border"
-msgstr "繪製邊框"
+#: plugins/text.py:42
+msgid "Image chars width"
+msgstr "圖像字符寬度"
 
-#: plugins/sketch.py:49 plugins/pyrograph.py:47 plugins/heightmap.py:59
-#: plugins/halftone.py:42
-msgid "Image to process"
-msgstr "要處理的圖片"
+#: plugins/text.py:58
+msgid "Text abort: please input a Font size > 0"
+msgstr "文本中止：請輸入字體大小> 0"
 
-#: plugins/sketch.py:50 plugins/halftone.py:43
-msgid "Channel to analyze"
-msgstr "頻道分析"
+#: plugins/text.py:61
+msgid "Text abort: please select a font file"
+msgstr "文本中止：請選擇字體文件"
 
-#: plugins/sketch.py:142
-msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
-msgstr "草圖中止：此插件需要PIL / Pillow讀取圖像數據"
-
-#: plugins/sketch.py:169
-msgid "Sketch abort: Too small to draw anything!"
-msgstr "草圖中止：太小繪製任何東西！"
-
-#: plugins/sketch.py:173
-msgid "Sketch abort: Please let me draw at least 1 squiggle"
-msgstr "草圖中止：請讓我畫至少1個波浪"
-
-#: plugins/sketch.py:177
-msgid "Sketch abort: Squiggle Length must be > 0"
-msgstr "草圖中止：波長長度必須大於0"
-
-#: plugins/sketch.py:184
-msgid "Sketch abort: Can't read image file"
-msgstr "草圖中止：無法讀取圖像文件"
-
-#: plugins/sketch.py:275
-#, python-format
-msgid "Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d"
-msgstr "生成草圖大小 寬=%d x 高=%d x 距離=%d, 總長度:%d"
+#: plugins/text.py:88
+msgid "Text abort: That embarrassing, I can't read this font file!"
+msgstr "文本中止：這令人困惑，我不能讀這個字體文件！"
 
 #: plugins/pyrograph.py:11
 msgid "Pyrograph"
@@ -3062,42 +3267,75 @@ msgstr "烙畫"
 msgid "Create a variable feed path based upon image brightness"
 msgstr "基於圖像亮度創建可變進紙路徑"
 
-#: plugins/pyrograph.py:40
+#: plugins/pyrograph.py:39
 msgid "Pyrograph tip size"
 msgstr "烙畫尖端尺寸"
 
-#: plugins/pyrograph.py:43
+#: plugins/pyrograph.py:41 plugins/heightmap.py:50 plugins/sketch.py:44
+msgid "Maximum size"
+msgstr "最大尺寸"
+
+#: plugins/pyrograph.py:42
 msgid "Minimum feed"
 msgstr "最小送料"
 
-#: plugins/pyrograph.py:44
+#: plugins/pyrograph.py:43
 msgid "Maximum feed"
 msgstr "最大進料"
 
-#: plugins/pyrograph.py:56
+#: plugins/pyrograph.py:45 plugins/sketch.py:47 plugins/halftone.py:49
+msgid "Draw border"
+msgstr "繪製邊框"
+
+#: plugins/pyrograph.py:46 plugins/heightmap.py:58 plugins/sketch.py:48
+#: plugins/halftone.py:41
+msgid "Image to process"
+msgstr "要處理的圖片"
+
+#: plugins/pyrograph.py:55
 msgid "Pyrograph abort: This plugin requires PIL/Pillow"
 msgstr "烙話中止：這個插件需要PIL / Pillow"
 
-#: plugins/pyrograph.py:73
+#: plugins/pyrograph.py:72
 msgid "Pyrograph abort: please define a scan Direction"
 msgstr "烙畫中止：請定義掃描方向"
 
-#: plugins/pyrograph.py:77
+#: plugins/pyrograph.py:76
 msgid "Pyrograph abort: Tool Size must be > 0"
 msgstr "烙畫中止：刀具尺寸必須大於0"
 
-#: plugins/pyrograph.py:81
+#: plugins/pyrograph.py:80
 msgid "Pyrograph abort: Please check feed rate parameters"
 msgstr "烙畫中止：請檢查進給速率參數"
 
-#: plugins/pyrograph.py:92
+#: plugins/pyrograph.py:91
 msgid "Pyrograph abort: Can't read image file"
 msgstr "烙畫中止：無法讀取圖像文件"
 
-#: plugins/pyrograph.py:202
+#: plugins/pyrograph.py:201
 #, python-format
 msgid "Generated Pyrograph W=%g x H=%g x D=%g"
 msgstr "生成的烙畫 寬=%g x 高=%g x 深=%g"
+
+#: plugins/tile.py:11
+msgid "Tile"
+msgstr "扁平矩形薄板"
+
+#: plugins/tile.py:28
+msgid "Generate replicas of selected code"
+msgstr "生成所選代碼的副本"
+
+#: plugins/tile.py:51
+msgid "Tile error"
+msgstr "扁平矩形薄板錯誤"
+
+#: plugins/tile.py:52
+msgid "No g-code blocks selected"
+msgstr "未選擇g代碼塊"
+
+#: plugins/tile.py:93
+msgid "Tiled selected blocks"
+msgstr "將一個平鋪在選定範圍"
 
 #: plugins/heightmap.py:17
 msgid "Heightmap"
@@ -3107,39 +3345,39 @@ msgstr "高度圖"
 msgid "Use a brightess map to create a variable Z path"
 msgstr "使用亮度圖創建變量Z路徑"
 
-#: plugins/heightmap.py:54
+#: plugins/heightmap.py:53
 msgid "ScanDir"
 msgstr "ScanDir"
 
-#: plugins/heightmap.py:55
+#: plugins/heightmap.py:54
 msgid "Cut Top"
 msgstr "切頂"
 
-#: plugins/heightmap.py:56
+#: plugins/heightmap.py:55
 msgid "Cut Border"
 msgstr "切邊界"
 
-#: plugins/heightmap.py:58
+#: plugins/heightmap.py:57
 msgid "Single pass"
 msgstr "單程"
 
-#: plugins/heightmap.py:69
+#: plugins/heightmap.py:68
 msgid "Heightmap abort: This plugin requires PIL/Pillow"
 msgstr "高度圖中止：此插件需要PIL /Pillow"
 
-#: plugins/heightmap.py:78
+#: plugins/heightmap.py:77
 msgid "Heightmap abort: Can't read image file"
 msgstr "高度圖中止：無法讀取圖像文件"
 
-#: plugins/heightmap.py:82
+#: plugins/heightmap.py:81
 msgid "Heightmap abort: depth must be < 0"
 msgstr "高度圖中止：深度必須< 0"
 
-#: plugins/heightmap.py:153
+#: plugins/heightmap.py:152
 msgid "Heightmap abort: angle not defined for selected End Mill"
 msgstr "高度圖中止：所選立銑刀未定義角度"
 
-#: plugins/heightmap.py:368
+#: plugins/heightmap.py:367
 #, python-format
 msgid "Generated Heightmap %d x %d x %d "
 msgstr "生成的高度圖 %d x %d x %d "
@@ -3148,73 +3386,49 @@ msgstr "生成的高度圖 %d x %d x %d "
 msgid "Sound your machine from a midi file"
 msgstr "從您的機器發出midi聲音"
 
-#: plugins/midi2cnc.py:51
+#: plugins/midi2cnc.py:50
 msgid "Pulse per unit for X"
 msgstr "每個單位的脈衝為X"
 
-#: plugins/midi2cnc.py:52
+#: plugins/midi2cnc.py:51
 msgid "Pulse per unit for Y"
 msgstr "每個單位的脈衝為Y"
 
-#: plugins/midi2cnc.py:53
+#: plugins/midi2cnc.py:52
 msgid "Pulse per unit for Z"
 msgstr "每個單位的脈衝為Z"
 
-#: plugins/midi2cnc.py:54
+#: plugins/midi2cnc.py:53
 msgid "Maximum X travel"
 msgstr "最大X行程"
 
-#: plugins/midi2cnc.py:55
+#: plugins/midi2cnc.py:54
 msgid "Maximum Y travel"
 msgstr "最大Y行程"
 
-#: plugins/midi2cnc.py:56
+#: plugins/midi2cnc.py:55
 msgid "Maximum Z travel"
 msgstr "最大Z行程"
 
-#: plugins/midi2cnc.py:57
+#: plugins/midi2cnc.py:56
 msgid "Axis to be used"
 msgstr "要使用的軸"
 
-#: plugins/midi2cnc.py:58
+#: plugins/midi2cnc.py:57
 msgid "Midi to process"
 msgstr "Midi來處理"
 
-#: plugins/midi2cnc.py:100
+#: plugins/midi2cnc.py:99
 msgid "Error: This plugin requires midiparser.py"
 msgstr "錯誤：此插件需要midiparser.py"
 
-#: plugins/midi2cnc.py:138
+#: plugins/midi2cnc.py:137
 msgid "Error: Sorry can't parse the Midi file."
 msgstr "錯誤：抱歉，無法解析Midi文件。"
 
-#: plugins/midi2cnc.py:296
+#: plugins/midi2cnc.py:295
 msgid "Generated Midi2CNC, ready to play?"
 msgstr "生成Midi2CNC，準備開始？"
-
-#: plugins/hilbert.py:12
-msgid "Hilbert"
-msgstr "Hilbert"
-
-#: plugins/hilbert.py:81
-msgid "Create a Hilbert path"
-msgstr "創建Hilbert路徑"
-
-#: plugins/hilbert.py:91 plugins/zigzag.py:100
-msgid "Depth"
-msgstr "深度"
-
-#: plugins/hilbert.py:107
-msgid "Hilbert abort: verify the size"
-msgstr "Hilbert中止：驗證大小"
-
-#: plugins/hilbert.py:111
-msgid "Hilbert abort: depth must be minor or equal to zero"
-msgstr "Hilbert 中止：深度必須小於或等於零"
-
-#: plugins/hilbert.py:120
-msgid "Generated: Hilbert"
-msgstr "生成：Hilbert"
 
 #: plugins/gear.py:11
 msgid "Gear"
@@ -3224,23 +3438,23 @@ msgstr "齒輪"
 msgid "Generate a spur gear"
 msgstr "生成正齒輪"
 
-#: plugins/gear.py:165
+#: plugins/gear.py:164
 msgid "No of teeth"
 msgstr "齒的數量"
 
-#: plugins/gear.py:166
+#: plugins/gear.py:165
 msgid "Pressure angle"
 msgstr "壓力角"
 
-#: plugins/gear.py:167
+#: plugins/gear.py:166
 msgid "Circular Pitch"
 msgstr "圓形節距"
 
-#: plugins/gear.py:179
+#: plugins/gear.py:178
 msgid "Create Spur GEAR"
 msgstr "創建正齒輪"
 
-#: plugins/gear.py:181
+#: plugins/gear.py:180
 msgid "Generated: Spur GEAR"
 msgstr "產生：正齒輪"
 
@@ -3272,41 +3486,110 @@ msgstr "平整中斷：平頭區域對於該端銑刀太小。"
 msgid "Flatten an area in different ways"
 msgstr "以不同的方式展開區域"
 
-#: plugins/flatten.py:257
+#: plugins/flatten.py:256
 msgid "X start"
 msgstr "X 開始"
 
-#: plugins/flatten.py:258
+#: plugins/flatten.py:257
 msgid "Y start"
 msgstr "Y 開始"
 
-#: plugins/flatten.py:259
+#: plugins/flatten.py:258
 msgid "Width to flatten"
 msgstr "寬度展平"
 
-#: plugins/flatten.py:260
+#: plugins/flatten.py:259
 msgid "Height to flatten"
 msgstr "高度展平"
 
-#: plugins/flatten.py:261
+#: plugins/flatten.py:260
 msgid "Depth to flatten"
 msgstr "深度展平"
 
-#: plugins/flatten.py:262
+#: plugins/flatten.py:261
 msgid "Raster border"
 msgstr "光柵邊框"
 
-#: plugins/flatten.py:263
+#: plugins/flatten.py:262
 msgid "Cut Direction"
 msgstr "切割方向"
 
-#: plugins/flatten.py:264
+#: plugins/flatten.py:263
 msgid "Pocket type"
 msgstr "口袋型式"
 
-#: plugins/flatten.py:290
+#: plugins/flatten.py:289
 msgid "Flatten: Generated flatten surface"
 msgstr "平整：生成平整表面"
+
+#: plugins/hilbert.py:12
+msgid "Hilbert"
+msgstr "Hilbert"
+
+#: plugins/hilbert.py:81
+msgid "Create a Hilbert path"
+msgstr "創建Hilbert路徑"
+
+#: plugins/hilbert.py:90 plugins/zigzag.py:100
+msgid "Depth"
+msgstr "深度"
+
+#: plugins/hilbert.py:106
+msgid "Hilbert abort: verify the size"
+msgstr "Hilbert中止：驗證大小"
+
+#: plugins/hilbert.py:110
+msgid "Hilbert abort: depth must be minor or equal to zero"
+msgstr "Hilbert 中止：深度必須小於或等於零"
+
+#: plugins/hilbert.py:119
+msgid "Generated: Hilbert"
+msgstr "生成：Hilbert"
+
+#: plugins/jigsaw.py:257
+msgid "Jigsaw puzzle generator"
+msgstr ""
+
+#: plugins/jigsaw.py:265
+msgid "Board width"
+msgstr ""
+
+# 1
+#: plugins/jigsaw.py:266
+#, fuzzy
+#| msgid "Tool probe height"
+msgid "Board height"
+msgstr "刀具探頭高度"
+
+#: plugins/jigsaw.py:267
+msgid "Piece count"
+msgstr ""
+
+#: plugins/jigsaw.py:268
+msgid "Random seed"
+msgstr ""
+
+#: plugins/jigsaw.py:269
+#, fuzzy
+#| msgid "Distance between holes"
+msgid "Difference between pieces"
+msgstr "孔之間的距離"
+
+#: plugins/jigsaw.py:270
+msgid "Shape of the tap"
+msgstr ""
+
+#: plugins/jigsaw.py:287
+msgid "Generating puzzle..."
+msgstr ""
+
+#: plugins/jigsaw.py:295
+msgid "Jigsaw puzzle generated in {}s"
+msgstr ""
+
+#: plugins/jigsaw.py:297
+msgid "Error: Check the parameters and your endmill config"
+msgstr ""
 
 #: plugins/driller.py:12
 msgid "Driller"
@@ -3316,58 +3599,82 @@ msgstr "鑿子"
 msgid "Create holes along selected blocks"
 msgstr "沿著選定塊創建孔"
 
-#: plugins/driller.py:40
+#: plugins/driller.py:39
 msgid "Distance between holes"
 msgstr "孔之間的距離"
 
-#: plugins/driller.py:42
+#: plugins/driller.py:41
 msgid "Peck, 0 meas None"
 msgstr "鑿, 0表示無"
 
-#: plugins/driller.py:43
+#: plugins/driller.py:42
 msgid "Dwell time, 0 means None"
 msgstr "停留時間，0表示無"
 
-#: plugins/driller.py:115
+#: plugins/driller.py:112
 msgid "Driller abort: Distance must be > 0"
 msgstr "鑽機中止：距離必須大於0"
 
-#: plugins/driller.py:119
+#: plugins/driller.py:116
 msgid "Driller abort: Peck must be >= 0"
 msgstr "鑽機中止：鑿必須> = 0"
 
-#: plugins/driller.py:123
+#: plugins/driller.py:120
 msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
 msgstr "鑽機中止：停留時間> = 0，這裡時間只向前運行！"
 
-#: plugins/driller.py:133
+#: plugins/driller.py:130
 msgid "Driller abort: Please select some path"
 msgstr "鑽機中止：請選擇一些路徑"
 
-#: plugins/driller.py:223
+#: plugins/driller.py:220
 #, python-format
 msgid "Generated Driller: %d holes"
 msgstr "生成鑽機: %d 個鑽孔"
 
-#: plugins/tile.py:11
-msgid "Tile"
-msgstr "扁平矩形薄板"
+#: plugins/box.py:11
+msgid "Box"
+msgstr "箱"
 
-#: plugins/tile.py:28
-msgid "Generate replicas of selected code"
-msgstr "生成所選代碼的副本"
+#: plugins/box.py:299
+msgid "Generate a finger box"
+msgstr "創建一組裝箱"
 
-#: plugins/tile.py:52
-msgid "Tile error"
-msgstr "扁平矩形薄板錯誤"
+#: plugins/box.py:306
+msgid "Internal Dimensions"
+msgstr "內部尺寸"
 
-#: plugins/tile.py:53
-msgid "No g-code blocks selected"
-msgstr "未選擇g代碼塊"
+#: plugins/box.py:307
+msgid "Width Dx"
+msgstr "寬度 Dx"
 
-#: plugins/tile.py:94
-msgid "Tiled selected blocks"
-msgstr "將一個平鋪在選定範圍"
+#: plugins/box.py:308
+msgid "Depth Dy"
+msgstr "深度 Dy"
+
+#: plugins/box.py:309
+msgid "Height Dz"
+msgstr "高度 Dz"
+
+#: plugins/box.py:310
+msgid "Fingers Nx"
+msgstr "接著設置 Nx"
+
+#: plugins/box.py:311
+msgid "Fingers Ny"
+msgstr "接著設置 Ny"
+
+#: plugins/box.py:312
+msgid "Fingers Nz"
+msgstr "接著設置NZ"
+
+#: plugins/box.py:350
+msgid "Create finger BOX"
+msgstr "創造組裝盒"
+
+#: plugins/box.py:352
+msgid "Generated: BOX with fingers"
+msgstr "生成: 組裝盒"
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
@@ -3377,51 +3684,76 @@ msgstr "螺旋形"
 msgid "Create a spirograph path"
 msgstr "創建螺旋形路徑"
 
-#: plugins/spirograph.py:103
+#: plugins/spirograph.py:102
 msgid "External Radius"
 msgstr "外徑"
 
-#: plugins/spirograph.py:104
+#: plugins/spirograph.py:103
 msgid "Internal Radius"
 msgstr "内徑"
 
-#: plugins/spirograph.py:105
+#: plugins/spirograph.py:104
 msgid "Offset radius"
 msgstr "偏移半徑"
 
-#: plugins/spirograph.py:125
+#: plugins/spirograph.py:124
 msgid "Generated: Spirograph"
 msgstr "生成：螺旋形"
 
-#: plugins/bowl.py:10
-msgid "Bowl"
-msgstr "球"
+#: plugins/sketch.py:13
+msgid "Sketch"
+msgstr "草圖"
 
-#: plugins/bowl.py:101
-msgid "Generate a bowl cavity"
-msgstr "生成圆形凹陷腔"
+#: plugins/sketch.py:34
+msgid "Create sketch based on picture brightness"
+msgstr "基於圖像的明亮創建草圖"
 
-#: plugins/bowl.py:110
-msgid "Resolution (degrees)"
-msgstr "解像度 (角度)"
+#: plugins/sketch.py:42
+msgid "Grundgy, search radius"
+msgstr "Grunge，搜索半徑"
 
-#: plugins/bowl.py:111
-msgid "Progressive"
-msgstr "進步"
+#: plugins/sketch.py:45
+msgid "Squiggle total count"
+msgstr "波形總數"
 
-#: plugins/bowl.py:126
-msgid "Generated: BOWL"
-msgstr "生成: 圆形凹陷"
+#: plugins/sketch.py:46
+msgid "Squiggle Length"
+msgstr "波形長度"
 
-#: plugins/bowl.py:128
-msgid "Error: Check the Bowl and End Mill parameters"
-msgstr "錯誤：檢查球型和端銑刀參數"
+#: plugins/sketch.py:49 plugins/halftone.py:42
+msgid "Channel to analyze"
+msgstr "頻道分析"
+
+#: plugins/sketch.py:141
+msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
+msgstr "草圖中止：此插件需要PIL / Pillow讀取圖像數據"
+
+#: plugins/sketch.py:168
+msgid "Sketch abort: Too small to draw anything!"
+msgstr "草圖中止：太小繪製任何東西！"
+
+#: plugins/sketch.py:172
+msgid "Sketch abort: Please let me draw at least 1 squiggle"
+msgstr "草圖中止：請讓我畫至少1個波浪"
+
+#: plugins/sketch.py:176
+msgid "Sketch abort: Squiggle Length must be > 0"
+msgstr "草圖中止：波長長度必須大於0"
+
+#: plugins/sketch.py:183
+msgid "Sketch abort: Can't read image file"
+msgstr "草圖中止：無法讀取圖像文件"
+
+#: plugins/sketch.py:274
+#, python-format
+msgid "Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d"
+msgstr "生成草圖大小 寬=%d x 高=%d x 距離=%d, 總長度:%d"
 
 #: plugins/zigzag.py:11
 msgid "Zig-Zag"
 msgstr "彎曲"
 
-#: plugins/zigzag.py:87
+#: plugins/zigzag.py:88
 msgid "Create a Zig-Zag path"
 msgstr "創建彎曲的路徑"
 
@@ -3477,150 +3809,100 @@ msgstr "半色調"
 msgid "Create halftone pattern from a picture"
 msgstr "從圖片創建半色調圖案"
 
-#: plugins/halftone.py:44
+#: plugins/halftone.py:43
 msgid "Invert Colors"
 msgstr "反轉的顏色"
 
-#: plugins/halftone.py:45
+#: plugins/halftone.py:44
 msgid "Max draw size (Width or Height)"
 msgstr "最大繪圖尺寸（寬度或高度）"
 
-#: plugins/halftone.py:46
+#: plugins/halftone.py:45
 msgid "Cell size"
 msgstr "元件大小"
 
-#: plugins/halftone.py:47
+#: plugins/halftone.py:46
 msgid "Max diameter, cap limit"
 msgstr "最大直徑，上限"
 
-#: plugins/halftone.py:48
+#: plugins/halftone.py:47
 msgid "Min diameter, cut off"
 msgstr "最小直徑，切斷"
 
-#: plugins/halftone.py:49
+#: plugins/halftone.py:48
 msgid "Image rotation angle"
 msgstr "圖像旋轉角度"
 
-#: plugins/halftone.py:52
+#: plugins/halftone.py:51
 msgid "Generate for conical end mill"
 msgstr "為圓錐形立銑刀生產"
 
-#: plugins/halftone.py:96
+#: plugins/halftone.py:95
 msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
 msgstr "中斷 Halftone處理：此插件需要PIL/枕頭讀取圖像數據"
 
-#: plugins/halftone.py:116
+#: plugins/halftone.py:115
 msgid "Halftone abort: Size too small to draw anything!"
 msgstr "中斷 Halftone處理：尺寸太小，無法得出任何東西！"
 
-#: plugins/halftone.py:120
+#: plugins/halftone.py:119
 msgid "Halftone abort: Minimum diameter must be minor then Maximum"
 msgstr "中斷 Halftone處理：最小直徑必須是最大值"
 
-#: plugins/halftone.py:124
+#: plugins/halftone.py:123
 msgid "Halftone abort: Maximum diameter too small"
 msgstr "中斷 Halftone處理：最大直徑太小"
 
-#: plugins/halftone.py:128
+#: plugins/halftone.py:127
 msgid "Halftone abort: Cell size too small"
 msgstr "中斷 Halftone處理：區塊太小"
 
-#: plugins/halftone.py:138
+#: plugins/halftone.py:137
 msgid "Halftone abort: Angle in V-Cutting end mill is missing"
 msgstr "中斷 Halftone處理：缺少V型切割端銑刀角度"
 
-#: plugins/halftone.py:141
+#: plugins/halftone.py:140
 msgid "Halftone abort: Conical path need V-Cutting end mill"
 msgstr "中斷 Halftone處理：錐形路徑需要V型切削立銑刀"
 
-#: plugins/halftone.py:149
+#: plugins/halftone.py:148
 msgid "Halftone abort: Can't read image file"
 msgstr "Halftone abort: 無法讀取圖片文件"
 
-#: plugins/halftone.py:243
+#: plugins/halftone.py:242
 #, python-format
 msgid "Generated Halftone size W=%d x H=%d x D=%d ,Total points:%i"
 msgstr "生成圖像尺寸 寬=%d x 高=%d x 深=%d ,總分:%i"
 
-#: plugins/box.py:11
-msgid "Box"
-msgstr "箱"
+#: plugins/bowl.py:10
+msgid "Bowl"
+msgstr "球"
 
-#: plugins/box.py:299
-msgid "Generate a finger box"
-msgstr "創建一組裝箱"
+#: plugins/bowl.py:102
+msgid "Generate a bowl cavity"
+msgstr "生成圆形凹陷腔"
 
-#: plugins/box.py:307
-msgid "Internal Dimensions"
-msgstr "內部尺寸"
+#: plugins/bowl.py:110
+msgid "Resolution (degrees)"
+msgstr "解像度 (角度)"
 
-#: plugins/box.py:308
-msgid "Width Dx"
-msgstr "寬度 Dx"
+#: plugins/bowl.py:111
+msgid "Progressive"
+msgstr "進步"
 
-#: plugins/box.py:309
-msgid "Depth Dy"
-msgstr "深度 Dy"
+#: plugins/bowl.py:126
+msgid "Generated: BOWL"
+msgstr "生成: 圆形凹陷"
 
-#: plugins/box.py:310
-msgid "Height Dz"
-msgstr "高度 Dz"
+#: plugins/bowl.py:128
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr "錯誤：檢查球型和端銑刀參數"
 
-#: plugins/box.py:311
-msgid "Fingers Nx"
-msgstr "接著設置 Nx"
+#~ msgid "An invalid tool number sent to the parser"
+#~ msgstr "發送到解析器的無效工具編號"
 
-#: plugins/box.py:312
-msgid "Fingers Ny"
-msgstr "接著設置 Ny"
-
-#: plugins/box.py:313
-msgid "Fingers Nz"
-msgstr "接著設置NZ"
-
-#: plugins/box.py:351
-msgid "Create finger BOX"
-msgstr "創造組裝盒"
-
-#: plugins/box.py:353
-msgid "Generated: BOX with fingers"
-msgstr "生成: 組裝盒"
-
-#: plugins/text.py:30
-msgid "Create text using a ttf font"
-msgstr "使用ttf字體創建文本"
-
-#: plugins/text.py:38
-msgid "Text to generate"
-msgstr "要生成的文本"
-
-#: plugins/text.py:40
-msgid "Font size"
-msgstr "字體大小"
-
-#: plugins/text.py:41
-msgid "Font file"
-msgstr "字體文件"
-
-#: plugins/text.py:42
-msgid "Image to Ascii"
-msgstr "圖像到Ascii"
-
-#: plugins/text.py:43
-msgid "Image chars width"
-msgstr "圖像字符寬度"
-
-#: plugins/text.py:59
-msgid "Text abort: please input a Font size > 0"
-msgstr "文本中止：請輸入字體大小> 0"
-
-#: plugins/text.py:62
-msgid "Text abort: please select a font file"
-msgstr "文本中止：請選擇字體文件"
-
-#: plugins/text.py:89
-msgid "Text abort: That embarrassing, I can't read this font file!"
-msgstr "文本中止：這令人困惑，我不能讀這個字體文件！"
+#~ msgid "$6 Invert probe pin"
+#~ msgstr "$6 反轉探頭針引腳"
 
 #~ msgid "Published date of the latest github relase"
 #~ msgstr "GitHub最新发布日期"
