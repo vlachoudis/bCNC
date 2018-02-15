@@ -64,6 +64,7 @@ __translations__ = \
 		"Italian - @onekk\n" \
 		"Japanese - @stm32f1\n" \
                 "traditional chinese - @Engineer2Designer\n" \
+                "Simplified Chinese - @Bluermen\n" \
 		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
 		"Spanish - @carlosgs\n"
