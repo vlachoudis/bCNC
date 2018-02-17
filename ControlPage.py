@@ -1180,7 +1180,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def wcsChange(self):
 		global wcsvar
 		self.sendGCode(WCS[wcsvar.get()])
-		self.sendGCode("$G")
+		self.app.viewState()
+		#self.sendGCode("$G")
 
 #===============================================================================
 # Control Page

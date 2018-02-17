@@ -992,7 +992,9 @@ class Sender:
 		self.serial.write(b"!")
 		self.serial.flush()
 		time.sleep(1)
+		print "purgeController", self.controller
 		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
+			print "purgeController GRBL..."
 			# remember and send all G commands
 			G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 			TLO = CNC.vars["TLO"]
