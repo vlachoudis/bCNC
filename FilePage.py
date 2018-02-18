@@ -11,10 +11,8 @@ import os
 
 try:
 	from Tkinter import *
-	import ConfigParser
 except ImportError:
 	from tkinter import *
-	import configparser as ConfigParser
 
 import tkExtra
 

@@ -12,19 +12,14 @@ __name__ = _("Halftone")
 __version__= "0.0.1"
 
 import math
-import time
 
-from CNC import CW,CCW,CNC,Block
+from CNC import CW,CNC,Block
 from ToolsPage import Plugin
 try:
-	from PIL import Image, ImageDraw, ImageStat
+	from PIL import Image, ImageStat
 except ImportError:
 	Image = None
 
-try:
-	import tkMessageBox
-except ImportError:
-	import tkinter.messagebox as tkMessageBox
 
 #==============================================================================
 # Create Halftone

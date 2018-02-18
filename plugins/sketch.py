@@ -14,18 +14,13 @@ __name__ = _("Sketch")
 __version__= "0.0.1"
 
 import math
-import time
+# import time
 import random
 from array import *
 
-from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-try:
-	import tkMessageBox
-except ImportError:
-	import tkinter.messagebox as tkMessageBox
 
 #==============================================================================
 # Create sketch

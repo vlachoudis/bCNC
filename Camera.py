@@ -15,11 +15,6 @@ except ImportError:
 	np = None
 
 try:
-	from Tkinter import *
-except ImportError:
-	from tkinter import *
-
-try:
 	from PIL import Image, ImageTk
 except ImportError:
 	cv = None

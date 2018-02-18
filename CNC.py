@@ -6,12 +6,8 @@
 
 import os
 import re
-import pdb
-import sys
 import math
 import types
-import random
-import string
 
 import undo
 import Unicode
