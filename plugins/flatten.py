@@ -11,7 +11,6 @@ __email__  = "f.rivato@gmail.com"
 __name__ = _("Flatten")
 __version__= "0.0.2"
 
-import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
 

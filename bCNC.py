@@ -11,9 +11,7 @@ __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
 import os
-import re
 import sys
-import pdb
 import time
 import getopt
 import socket
@@ -29,13 +27,11 @@ try:
 	import Tkinter
 	from Queue import *
 	from Tkinter import *
-	import ConfigParser
 	import tkMessageBox
 except ImportError:
 	import tkinter
 	from queue import *
 	from tkinter import *
-	import configparser as ConfigParser
 	import tkinter.messagebox as tkMessageBox
 
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
@@ -50,7 +46,6 @@ Utils.loadConfiguration()
 
 import rexx
 import tkExtra
-import Unicode
 import Updates
 import bFileDialog
 
@@ -59,7 +54,6 @@ import Ribbon
 import Pendant
 from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
 
-import CNCList
 import CNCCanvas
 import webbrowser
 

@@ -7,8 +7,6 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
-import os
-import re
 import time
 import json
 

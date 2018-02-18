@@ -11,11 +11,8 @@ try:
 except ImportError:
 	from tkinter import *
 
-import time
 import Utils
 import tkExtra
-import Unicode
-from log import say
 
 _TABFONT    = ("Sans","-14","bold")
 _FONT       = ("Sans","-11")

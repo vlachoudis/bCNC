@@ -7,7 +7,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
-import time
+# import time
 import math
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
-from CNC import WCS,CNC
+from CNC import CNC
 import Utils
 import Camera
 import Ribbon

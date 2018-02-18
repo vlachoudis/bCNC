@@ -8,8 +8,6 @@
 
 # MIDI Parsing Library for Python.
 
-import sys
-
 TRUE = -1
 FALSE = 0
 

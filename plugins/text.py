@@ -11,8 +11,6 @@ __email__ = "f.rivato@gmail.com"
 __name__ = "Text"
 __version__ = "0.0.1"
 
-import math
-from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
