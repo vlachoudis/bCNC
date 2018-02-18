@@ -565,7 +565,9 @@ class Config(_Base):
 			("spindlemax"    , "int" , 12000, _("Spindle max (RPM)")),
 			("drozeropad"    , "int" , 0    , _("DRO Zero padding")),
 			("header"        , "text" ,   "", _("Header gcode")),
-			("footer"        , "text" ,   "", _("Footer gcode"))
+			("footer"        , "text" ,   "", _("Footer gcode")),
+			("enter"         , "text" ,   "", _("Z enter gcode")),
+			("exit"          , "text" ,   "", _("Z exit gcode"))
 		]
 
 	# ----------------------------------------------------------------------

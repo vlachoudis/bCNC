@@ -648,6 +648,11 @@ class CNC:
 	comment        = ""	# last parsed comment
 	developer      = False
 	drozeropad     = 0
+	startup        = ""
+	header         = ""
+	footer         = ""
+	enter          = ""
+	exit           = ""
 	vars           = {
 			"prbx"       : 0.0,
 			"prby"       : 0.0,
@@ -798,9 +803,11 @@ class CNC:
 		try: CNC.drozeropad     = int(  config.get(section, "drozeropad"))
 		except: pass
 
-		CNC.startup = config.get(section, "startup")
-		CNC.header  = config.get(section, "header")
-		CNC.footer  = config.get(section, "footer")
+		CNC.startup = config.get(section, "startup").strip()
+		CNC.header  = config.get(section, "header").strip()
+		CNC.footer  = config.get(section, "footer").strip()
+		CNC.enter   = config.get(section, "enter").strip()
+		CNC.exit    = config.get(section, "exit").strip()
 
 		if CNC.inch:
 			CNC.acceleration_x  /= 25.4
@@ -969,7 +976,9 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def zenter(z):
-		if CNC.lasercutter:
+		if CNC.zenter:
+			return CNC.enter
+		elif CNC.lasercutter:
 			if CNC.laseradaptive:
 				return "m4"
 			else:
@@ -980,7 +989,9 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def zexit(z):
-		if CNC.lasercutter:
+		if CNC.zexit:
+			return CNC.exit
+		elif CNC.lasercutter:
 			return "m5"
 		else:
 			return "g0 %s"%(CNC.fmt("z",z))
@@ -2190,6 +2201,8 @@ class GCode:
 		self.cnc = CNC()
 		self.header   = ""
 		self.footer   = ""
+		self.enter    = ""
+		self.exit     = ""
 		self.undoredo = undo.UndoRedo()
 		self.probe    = Probe()
 		self.orient   = Orient()
@@ -2367,8 +2380,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def headerFooter(self):
 		if not self.blocks:
-			self.addBlockFromString("Header",self.header)
-			self.addBlockFromString("Footer",self.footer)
+			self.addBlockFromString("Header", self.header)
+			self.addBlockFromString("Footer", self.footer)
 			return True
 		return False
 
@@ -2392,7 +2405,7 @@ class GCode:
 
 		#import time; start = time.time()
 		empty = len(self.blocks)==0
-		if empty: self.addBlockFromString("Header",self.header)
+		if empty: self.addBlockFromString("Header", self.header)
 
 		if CNC.inch:
 			units = DXF.INCHES

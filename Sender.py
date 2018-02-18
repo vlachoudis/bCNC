@@ -789,7 +789,7 @@ class Sender:
 	def softReset(self, clearAlarm=True):
 		print "softReset"
 		if self.serial:
-			if self.controller in (Utils.GRBL, Utils.GRBL1):
+			if self.controller in (Utils.GRBL0, Utils.GRBL1):
 				self.serial.write(b"\030")
 			elif self.controller == Utils.SMOOTHIE:
 				self.serial.write(b"reset\n")
