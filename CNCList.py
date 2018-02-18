@@ -5,8 +5,6 @@
 # Date: 24-Aug-2014
 
 from __future__ import print_function
-import re
-import sys
 try:
 	from cStringIO import StringIO
 except ImportError:
