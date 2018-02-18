@@ -13,7 +13,6 @@ __name__ = _("Driller")
 __version__= "0.0.7"
 
 import math
-from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
