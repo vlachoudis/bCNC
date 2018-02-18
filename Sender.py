@@ -75,6 +75,7 @@ STATECOLOR = {	"Alarm"        : "Red",
 		"Run"	       : "LightGreen",
 		"SYSTEM READY" : "LightGreen",
 		"OK"           : "LightYellow",
+		"Idle"         : "LightYellow",
 		"Hold"	       : "Orange",
 		"Hold:0"       : "Orange",
 		"Hold:1"       : "Orange",
@@ -788,10 +789,14 @@ class Sender:
 	def softReset(self, clearAlarm=True):
 		print "softReset"
 		if self.serial:
-		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
+			if self.controller in (Utils.GRBL, Utils.GRBL1):
 				self.serial.write(b"\030")
-		#	elif self.controller == Utils.SMOOTHIE:
-		#		self.serial.write(b"reset\n")
+			elif self.controller == Utils.SMOOTHIE:
+				self.serial.write(b"reset\n")
+				self.openClose()
+				if self.controller == Utils.SMOOTHIE:
+					time.sleep(6)
+				self.openClose()
 		self.stopProbe()
 		if clearAlarm: self._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
@@ -1226,10 +1231,10 @@ class Sender:
 	def _smoothie_StatusLine(self, fields):
 		# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
 		# strip off status
-		CNC.vars["state"]= fieldsl[0]
+		CNC.vars["state"]= fields[0]
 
 		# strip of rest into a dict of name: [values,...,]
-		d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in fieldsl[1:]] }
+		d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in fields[1:]] }
 		CNC.vars["mx"] = float(d['MPos'][0])
 		CNC.vars["my"] = float(d['MPos'][1])
 		CNC.vars["mz"] = float(d['MPos'][2])
@@ -1282,8 +1287,6 @@ class Sender:
 			if t-tr > SERIAL_POLL:
 				if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
 					self.serial.write(b"?")
-					if self.controller == Utils.SMOOTHIE:
-						self.serial.write(b"\n")
 				status = True
 				tr = t
 
@@ -1381,10 +1384,10 @@ class Sender:
 					#Sender.close(self)
 					#return
 
-				if line:
-					print "<R<",repr(line)
-					print "state=",CNC.vars["state"]
-					#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
+#				if line:
+#					print "<R<",repr(line)
+#					print "state=",CNC.vars["state"]
+#					print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
 					pass
 
