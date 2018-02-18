@@ -793,10 +793,10 @@ class Sender:
 				self.serial.write(b"\030")
 			elif self.controller == Utils.SMOOTHIE:
 				self.serial.write(b"reset\n")
-				self.openClose()
-				if self.controller == Utils.SMOOTHIE:
-					time.sleep(6)
-				self.openClose()
+#				self.openClose()
+#				if self.controller == Utils.SMOOTHIE:
+#					time.sleep(6)
+#				self.openClose()
 		self.stopProbe()
 		if clearAlarm: self._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any

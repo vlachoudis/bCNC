@@ -5,7 +5,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# Please consult the flair documentation for the license
 #
 # DISCLAIMER
 # ~~~~~~~~~~
@@ -2387,6 +2386,10 @@ class InPlaceEdit:
 		self.frame.destroy()
 		return "break"
 
+	# ----------------------------------------------------------------------
+	def ignore(self, event=None):
+		pass
+
 #===============================================================================
 class InPlaceSpinbox(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2594,10 +2597,16 @@ class InPlaceText(InPlaceEdit):
 		InPlaceEdit.defaultBinds(self)
 		self.toplevel.bind("<ButtonRelease-1>", self.clickOk)
 		self.toplevel.bind("<ButtonRelease-3>", self.clickCancel)
-		#self.edit.bind("<ButtonRelease-1>", self.clickOk)
-		#self.edit.bind("<ButtonRelease-3>", self.clickCancel)
-		self.edit.bind("<Shift-Return>", self.shiftReturn)
-		self.edit.bind("<Escape>", self.cancel)
+		#self.edit.bind("<ButtonRelease-1>",    self.clickOk)
+		#self.edit.bind("<ButtonRelease-3>",    self.clickCancel)
+		self.edit.bind("<Shift-Return>",        self.shiftReturn)
+		self.edit.bind("<Escape>",              self.cancel)
+		# bind to an empty function, so it will be consumed
+		# by the Text widget and not send to parent
+		self.edit.bind("<Up>",                  self.ignore)
+		self.edit.bind("<Down>",                self.ignore)
+		self.edit.bind("<Left>",                self.ignore)
+		self.edit.bind("<Right>",               self.ignore)
 
 	# ----------------------------------------------------------------------
 	def createWidget(self):
