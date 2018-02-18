@@ -37,7 +37,6 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
-import string
 
 #-------------------------------------------------------------------------------
 _log = None
