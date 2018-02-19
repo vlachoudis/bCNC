@@ -4,8 +4,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# Please consult the flair documentation for the license
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
@@ -585,6 +583,16 @@ class Vector(list):
 		(R in cylindrical coordinate system)."""
 		return sqrt(self.perp2())
 
+	# ----------------------------------------------------------------------
+	# Return a random 3D vector
+	# ----------------------------------------------------------------------
+	@staticmethod
+	def random():
+		cosTheta = 2.0*random.random()-1.0
+		sinTheta = sqrt(1.0 - cosTheta**2)
+		phi = 2.0*pi*random.random()
+		return Vector(cos(phi)*sinTheta, sin(phi)*sinTheta, cosTheta)
+
 #-------------------------------------------------------------------------------
 # Basic 3D Vectors
 #-------------------------------------------------------------------------------
@@ -592,15 +600,6 @@ Vector.O = Vector(0.0, 0.0, 0.0)
 Vector.X = Vector(1.0, 0.0, 0.0)
 Vector.Y = Vector(0.0, 1.0, 0.0)
 Vector.Z = Vector(0.0, 0.0, 1.0)
-
-#-------------------------------------------------------------------------------
-# Return a random 3D vector
-#-------------------------------------------------------------------------------
-def random3D():
-	cosTheta = 2.0*random.random()-1.0
-	sinTheta = sqrt(1.0 - cosTheta**2)
-	phi = 2.0*pi*random.random()
-	return Vector(cos(phi)*sinTheta, sin(phi)*sinTheta, cosTheta)
 
 # ------------------------------------------------------------------------------
 # Return a random nolor

@@ -5,8 +5,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research
 #
-# Please consult the documentation for the license
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
@@ -638,3 +636,4 @@ MATH_TIMES                                       = u"\u00D7"
 MATH_HEAVY_MULTIPLICATION                        = u"\u2716"
 MATH_OSLASH                                      = u"\u00D8"
 MATH_UP_TACK                                     = u"\u22A5"
+MATH_CROSS_PRODUCT                               = u"\u2A2F"   # x -cross product

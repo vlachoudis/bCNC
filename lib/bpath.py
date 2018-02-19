@@ -6,8 +6,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# Please consult the flair documentation for the license
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
@@ -36,6 +34,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
+import sys
 import time
 from math import *
 from bmath import Vector, quadratic
@@ -880,8 +879,7 @@ class Path(list):
 
 			Op = O
 			prev = segment
-        # import sys
-		# sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
@@ -964,8 +962,7 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-        # import sys
-		# sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -998,8 +995,7 @@ class Path(list):
 					include = path.distance(segment.end) >= chkofs
 #					print "+E+",i, segment.end, path.distance(segment.end)-chkofs, include
 			i += 1
-        # import sys
-		# sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+		#sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# Perform overcut movements on corners, moving at half angle by

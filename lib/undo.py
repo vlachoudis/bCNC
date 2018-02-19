@@ -1,3 +1,4 @@
+# -*- coding: ascii -*-
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~

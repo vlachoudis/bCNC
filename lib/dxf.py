@@ -6,8 +6,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# Please consult the flair documentation for the license
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"

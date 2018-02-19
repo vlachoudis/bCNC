@@ -6,8 +6,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-# Please consult the flair documentation for the license
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
@@ -549,7 +547,7 @@ class FileDialog(Toplevel):
 		try:
 			for fn in os.listdir(path):
 				if not self.hidden and fn[0]==".": continue
-				filename = os.path.join(str(path), fn)
+				filename = os.path.join(path, fn)
 				ext, color = fileTypeColor(filename)
 
 				try: s = os.lstat(filename)
@@ -826,7 +824,7 @@ class FileDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def delete(self):
-		sel = map(int,self.fileList.curselection())
+		sel = list(map(int,self.fileList.curselection()))
 		sel.reverse()
 		if not sel: return
 		try:
