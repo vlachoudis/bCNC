@@ -1938,17 +1938,15 @@ class Application(Toplevel,Sender):
 					self.gcode.probe.init()
 
 		self.setStatus(_("Loading: %s ...")%(filename), True)
-		Sender.load(self,filename)
+		rc = Sender.load(self,filename)
 
 		if ext==".probe":
 			self.autolevel.setValues()
 			self.event_generate("<<DrawProbe>>")
-
 		elif ext==".orient":
 			self.event_generate("<<DrawOrient>>")
 			self.event_generate("<<OrientSelect>>",data=0)
 			self.event_generate("<<OrientUpdate>>")
-
 		else:
 			self.editor.selectClear()
 			self.editor.fill()
@@ -1957,10 +1955,13 @@ class Application(Toplevel,Sender):
 			self.canvas.fit2Screen()
 			Page.frames["Tools"].populate()
 
-		if autoloaded:
-			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
+		if rc:
+			if autoloaded:
+				self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
+			else:
+				self.setStatus(_("'%s' loaded")%(filename))
 		else:
-			self.setStatus(_("'%s' loaded")%(filename))
+			self.setStatus(_("Error loading '%s'")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------

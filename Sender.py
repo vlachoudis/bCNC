@@ -637,21 +637,22 @@ class Sender:
 			if filename is not None:
 				self.gcode.probe.filename = filename
 				self._saveConfigFile()
-			self.gcode.probe.load(filename)
+			rc = self.gcode.probe.load(filename)
 		elif ext == ".orient":
 			# save orientation file
-			self.gcode.orient.load(filename)
+			rc = self.gcode.orient.load(filename)
 		elif ext == ".stl":
 			# FIXME: implements solid import???
 			pass
 		elif ext==".dxf":
 			self.gcode.init()
-			self.gcode.importDXF(filename)
+			rc = self.gcode.importDXF(filename)
 			self._saveConfigFile(filename)
 		else:
-			self.gcode.load(filename)
+			rc = self.gcode.load(filename)
 			self._saveConfigFile()
 		Utils.addRecent(filename)
+		return rc
 
 	#----------------------------------------------------------------------
 	def save(self, filename):
