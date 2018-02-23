@@ -1474,32 +1474,43 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	# Draw coordinates grid
+	# FIXME should become adaptive to the zoom of the screen
 	#----------------------------------------------------------------------
 	def drawGrid(self):
 		self.delete("Grid")
 		if not self.draw_grid: return
 		if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
-			xmin = (CNC.vars["axmin"]//10)  *10
-			xmax = (CNC.vars["axmax"]//10+1)*10
-			ymin = (CNC.vars["aymin"]//10)  *10
-			ymax = (CNC.vars["aymax"]//10+1)*10
-			for i in range(int(CNC.vars["aymin"]//10), int(CNC.vars["aymax"]//10)+2):
-				y = i*10.0
-				xyz = [(xmin,y,0), (xmax,y,0)]
-				item = self.create_line(self.plotCoords(xyz),
-							tag="Grid",
-							fill=GRID_COLOR,
-							dash=(1,3))
-				self.tag_lower(item)
+			dmax = max(CNC.vars["axmax"]-CNC.vars["axmin"],
+				   CNC.vars["aymax"]-CNC.vars["aymin"])
+			if dmax>0.0:
+				dl = int(math.log10(dmax))
+				dg = 10.0**dl	# try grid
+				dd = dmax/dg
+				if dd < 1.3:
+					dg /= 10
+					dd = dmax/dg
+				xmin = (CNC.vars["axmin"]//dg)  *dg
+				xmax = (CNC.vars["axmax"]//dg+1)*dg
+				ymin = (CNC.vars["aymin"]//dg)  *dg
+				ymax = (CNC.vars["aymax"]//dg+1)*dg
 
-			for i in range(int(CNC.vars["axmin"]//10), int(CNC.vars["axmax"]//10)+2):
-				x = i*10.0
-				xyz = [(x,ymin,0), (x,ymax,0)]
-				item = self.create_line(self.plotCoords(xyz),
-							fill=GRID_COLOR,
-							tag="Grid",
-							dash=(1,3))
-				self.tag_lower(item)
+				for i in range(int(CNC.vars["aymin"]//dg), int(CNC.vars["aymax"]//dg)+2):
+					y = i*dg
+					xyz = [(xmin,y,0), (xmax,y,0)]
+					item = self.create_line(self.plotCoords(xyz),
+								tag="Grid",
+								fill=GRID_COLOR,
+								dash=(1,3))
+					self.tag_lower(item)
+
+				for i in range(int(CNC.vars["axmin"]//dg), int(CNC.vars["axmax"]//dg)+2):
+					x = i*dg
+					xyz = [(x,ymin,0), (x,ymax,0)]
+					item = self.create_line(self.plotCoords(xyz),
+								fill=GRID_COLOR,
+								tag="Grid",
+								dash=(1,3))
+					self.tag_lower(item)
 
 	#----------------------------------------------------------------------
 	# Display orientation markers
