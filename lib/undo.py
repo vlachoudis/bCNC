@@ -50,7 +50,7 @@ class UndoRedo:
 	def add(self, undoinfo, msg=None):
 		if not undoinfo: return
 		if msg is not None:
-			if isinstance(undoinfo[0], (str, unicode)):
+			if isinstance(undoinfo[0], str):
 				# replace message
 				undoinfo = (msg,) + undoinfo[1:]
 			elif isinstance(undoinfo,tuple):
@@ -59,14 +59,14 @@ class UndoRedo:
 				undoinfo = (msg,undoinfo)
 			f = 1
 		else:
-			f = int(isinstance(undoinfo[0], (str, unicode)))
+			f = int(isinstance(undoinfo[0], str))
 		assert isinstance(undoinfo,list) or callable(undoinfo[f]) or isinstance(undoinfo[f],list)
 		self.undoList.append(undoinfo)
 		del self.redoList[:]
 
 	#-----------------------------------------------------------------------
 	# Split the undoinfo into [msg, ]func/list [, args]
-	# msg can exists or not check for str/unicode
+	# msg can exists or not check for str
 	# func can be a list or an executable
 	# if func is a list then there are no args
 	# @return always a tuple of 3 with msg, func, args
@@ -75,7 +75,7 @@ class UndoRedo:
 	def _split(undoinfo):
 		if isinstance(undoinfo, list):
 			return None, undoinfo, None
-		elif undoinfo[0] is None or isinstance(undoinfo[0], (str, unicode)):
+		elif undoinfo[0] is None or isinstance(undoinfo[0], str):
 			assert callable(undoinfo[1]) or isinstance(undoinfo[1],list)
 			return undoinfo[0], undoinfo[1], undoinfo[2:]
 		else:
@@ -100,7 +100,7 @@ class UndoRedo:
 #			print "<<< Undo:", undoinfo
 			redoinfo = func(*args)
 #			print ">>> Redo:", redoinfo
-			if isinstance(redoinfo[0],(str,unicode)):
+			if isinstance(redoinfo[0],str):
 				return redoinfo
 			elif msg:
 				return (msg,) + redoinfo
@@ -128,7 +128,7 @@ class UndoRedo:
 	#-----------------------------------------------------------------------
 	def undoText(self):
 		u = self.undoList[-1]
-		if isinstance(u[0], (str,unicode)):
+		if isinstance(u[0], str):
 			return u[0]
 		else:
 			return "undo"
@@ -137,7 +137,7 @@ class UndoRedo:
 	def undoTextList(self):
 		lst = []
 		for u in self.undoList:
-			if isinstance(u[0], (str,unicode)):
+			if isinstance(u[0], str):
 				lst.append(u[0])
 			else:
 				lst.append("undo")

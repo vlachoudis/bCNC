@@ -5,7 +5,6 @@
 # Copyright Vasilis.Vlachoudis@cern.ch for the
 # European Organization for Nuclear Research (CERN)
 #
-#
 # DISCLAIMER
 # ~~~~~~~~~~
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"

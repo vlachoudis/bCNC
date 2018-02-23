@@ -7,12 +7,8 @@
 import math
 import time
 import bmath
-try:
-	from Tkinter import *
-	import Tkinter
-except ImportError:
-	from tkinter import *
-	import tkinter as Tkinter
+import tkinter as tk
+from tkinter import *
 
 from CNC import Tab, CNC
 import Utils
@@ -283,7 +279,6 @@ class CNCCanvas(Canvas):
 	# Set status message
 	# ----------------------------------------------------------------------
 	def status(self, msg):
-		#self.event_generate("<<Status>>", data=msg.encode("utf8"))
 		self.event_generate("<<Status>>", data=msg)
 
 	# ----------------------------------------------------------------------
@@ -1438,7 +1433,7 @@ class CNCCanvas(Canvas):
 	# Change rectangle coordinates
 	#----------------------------------------------------------------------
 	def _rectCoords(self, rect, xmin, ymin, xmax, ymax, z=0.0):
-		self.coords(rect, Tkinter._flatten(self.plotCoords(
+		self.coords(rect, tk._flatten(self.plotCoords(
 			[(xmin, ymin, z),
 			 (xmax, ymin, z),
 			 (xmax, ymax, z),
@@ -1831,7 +1826,7 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	# Return plotting coordinates for a 3d xyz path
 	#
-	# NOTE: Use the Tkinter._flatten() to pass to self.coords() function
+	# NOTE: Use the tk._flatten() to pass to self.coords() function
 	#----------------------------------------------------------------------
 	def plotCoords(self, xyz):
 		coords = None

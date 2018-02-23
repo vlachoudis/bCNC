@@ -4,32 +4,19 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from __future__ import print_function
-try:
-	from cStringIO import StringIO
-except ImportError:
-	from io import StringIO
-try:
-	import cPickle as pickle
-except ImportError:
-	import pickle
-try:
-	from Tkinter import *
-	import tkFont
-except ImportError:
-	from tkinter import *
-	import tkinter.font as tkFont
+import io
+import pickle
+from tkinter import *
+import tkinter.font as tkFont
 
 from CNC import Tab, Block, CNC
 import tkExtra
-#import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
 COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
 from CNCCanvas import TAB_COLOR
-
-MAXINT    = 1000000000	# python3 doesn't have maxint
+from CNC import MAXINT
 
 #==============================================================================
 # CNC Listbox
@@ -151,7 +138,7 @@ class CNCListbox(Listbox):
 	# Copy selected items to clipboard
 	# ----------------------------------------------------------------------
 	def copy(self, event=None):
-		sio = StringIO()
+		sio = io.StringIO()
 		pickler = pickle.Pickler(sio)
 		#sio.write(_PLOT_CLIP)
 		for block,line in self.getCleanSelection():
@@ -214,7 +201,7 @@ class CNCListbox(Listbox):
 
 		try:
 			# try to unpickle it
-			unpickler = pickle.Unpickler(StringIO(clipboard))
+			unpickler = pickle.Unpickler(io.StringIO(clipboard))
 			try:
 				while True:
 					obj = unpickler.load()
@@ -901,7 +888,7 @@ class CNCListbox(Listbox):
 		if not CNC.developer: return
 		print("*** LIST ***")
 		for i,sel in enumerate(self.get(0,END)):
-			print(i,sel.encode("ascii","replace"))
+			print(i,sel)
 
 		print("\n*** ITEMS ***")
 		for i,item in enumerate(self._items):

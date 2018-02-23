@@ -47,6 +47,11 @@ _accuracy = 1E-15
 _format = "%12g"
 
 #-------------------------------------------------------------------------------
+def sign(x):
+	"""Return sign of number"""
+	return int(copysign(1,x))
+
+#-------------------------------------------------------------------------------
 def Cmp0(x):
 	"""Compare against zero within _accuracy"""
 	return abs(x)<_accuracy
@@ -197,7 +202,7 @@ def format(number, length=10, useExp=False, useD=False):
 		r = integer[_MAXLEN]
 		integer = integer[0:_MAXLEN]
 		if r>='5':
-			integer = str(long(integer)+1)
+			integer = str(int(integer)+1)
 			if len(integer) > lint:
 				exponent += 1
 				if len(integer) > _MAXLEN:
@@ -259,7 +264,7 @@ def format(number, length=10, useExp=False, useD=False):
 		if r>='5':
 			lint = len(integer)
 			if lint==0: integer = 0
-			integer = str(long(integer)+1)
+			integer = str(int(integer)+1)
 			if len(integer) > lint:
 				exponent += 1
 
@@ -317,7 +322,7 @@ class Vector(list):
 		if isinstance(x,int) and not args:
 			for i in range(x):
 				self.append(0.0)
-		elif isinstance(x,(list,tuple)):
+		elif isinstance(x,(list,tuple,map)):
 			for i in x:
 				self.append(float(i))
 		else:

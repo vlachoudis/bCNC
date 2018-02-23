@@ -7,15 +7,9 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
-# import time
 import math
-
-try:
-	from Tkinter import *
-	import tkMessageBox
-except ImportError:
-	from tkinter import *
-	import tkinter.messagebox as tkMessageBox
+from tkinter import *
+import tkinter.messagebox as tkMessageBox
 
 from CNC import CNC
 import Utils
@@ -1578,8 +1572,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
-		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -1660,11 +1654,11 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def policyChange(self):
-		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
+		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
 
 	#-----------------------------------------------------------------------
 	def waitChange(self):
-		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
 
 	#-----------------------------------------------------------------------
 	def getChange(self):

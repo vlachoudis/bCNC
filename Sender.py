@@ -27,7 +27,7 @@ try:
 except ImportError:
 	from queue import *
 
-from CNC import WAIT, MSG, UPDATE, WCS, CNC, GCode
+from CNC import WAIT, MSG, UPDATE, WCS, CNC, MAXINT, GCode
 import Utils
 import Pendant
 
@@ -470,8 +470,8 @@ class Sender:
 		#print "<<<",line
 		#try:
 		#	line = self.gcode.evaluate(CNC.compileLine(line,True))
-		#except:
-		#	return "Evaluation error", sys.exc_info()[1]
+		#except Exception as err:
+		#	return "Evaluation error", str(err)
 		#print ">>>",line
 
 		if line is None: return
@@ -623,9 +623,9 @@ class Sender:
 	def _saveConfigFile(self, filename=None):
 		if filename is None:
 			filename = self.gcode.filename
-		Utils.setUtf("File", "dir",   os.path.dirname(os.path.abspath(filename)))
-		Utils.setUtf("File", "file",  os.path.basename(filename))
-		Utils.setUtf("File", "probe", os.path.basename(self.gcode.probe.filename))
+		Utils.setStr("File", "dir",   os.path.dirname(os.path.abspath(filename)))
+		Utils.setStr("File", "file",  os.path.basename(filename))
+		Utils.setStr("File", "probe", os.path.basename(self.gcode.probe.filename))
 
 	#----------------------------------------------------------------------
 	# Load a file into editor
@@ -771,7 +771,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def hardReset(self):
-		print "hardReset"
+		print("hardReset")
 		self.busy()
 		if self.serial is not None:
 			if self.controller == Utils.SMOOTHIE:
@@ -787,7 +787,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
-		print "softReset"
+		print("softReset")
 		if self.serial:
 			if self.controller in (Utils.GRBL0, Utils.GRBL1):
 				self.serial.write(b"\030")
@@ -803,7 +803,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):
-		print "unlock"
+		print("unlock")
 		if clearAlarm: self._alarm = False
 		self.sendGCode("$X")
 
@@ -901,7 +901,6 @@ class Sender:
 		self.sendGCode("$#")
 		self.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
@@ -997,9 +996,9 @@ class Sender:
 		self.serial.write(b"!")
 		self.serial.flush()
 		time.sleep(1)
-		print "purgeController", self.controller
+		print("purgeController", self.controller)
 		if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
-			print "purgeController GRBL..."
+			print("purgeController GRBL...")
 			# remember and send all G commands
 			G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 			TLO = CNC.vars["TLO"]
@@ -1014,7 +1013,7 @@ class Sender:
 			self.sendGCode("$G")
 
 		elif self.controller == Utils.TINYG:
-			print "FIXME purgeController"
+			print("FIXME purgeController")
 			# do nothing for the moment FIXME
 			self.runEnded()
 
@@ -1025,7 +1024,7 @@ class Sender:
 		self.feedHold()
 		self._stop = True
 		# if we are in the process of submitting do not do anything
-		if self._runLines != sys.maxint:
+		if self._runLines != MAXINT:
 			self.purgeController()
 
 	#----------------------------------------------------------------------
@@ -1318,20 +1317,19 @@ class Sender:
 							self._gcount += 1
 						tosend = None
 
-					elif not isinstance(tosend,str) and not isinstance(tosend,unicode):
+					elif not isinstance(tosend,str):
 						try:
 							tosend = self.gcode.evaluate(tosend)
 #							if isinstance(tosend, list):
 #								cline.append(len(tosend[0]))
 #								sline.append(tosend[0])
-							if isinstance(tosend,str) or isinstance(tosend,unicode):
+							if isinstance(tosend,str):
 								tosend += "\n"
 							else:
 								# Count executed commands as well
 								self._gcount += 1
-						except:
-							for s in str(sys.exc_info()[1]).splitlines():
-								self.log.put((Sender.MSG_ERROR,s))
+						except Exception as err:
+							self.log.put((Sender.MSG_ERROR,str(err)))
 							self._gcount += 1
 							tosend = None
 				except Empty:
@@ -1340,9 +1338,6 @@ class Sender:
 				if tosend is not None:
 					# All modification in tosend should be
 					# done before adding it to cline
-					if isinstance(tosend, unicode):
-						tosend = tosend.encode("ascii","replace")
-
 					# Keep track of last feed
 					pat = FEEDPAT.match(tosend)
 					if pat is not None:
@@ -1375,10 +1370,10 @@ class Sender:
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
 				try:
-					line = str(self.serial.readline()).strip()
-				except:
-					print str(sys.exc_info()[1])
-					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+					line = self.serial.readline().strip().decode()
+				except Exception as err:
+					print(str(err))
+					self.log.put((Sender.MSG_RECEIVE, str(err)))
 					self.emptyQueue()
 					continue
 					#Sender.close(self)
@@ -1448,7 +1443,7 @@ class Sender:
 					if "f" in reply:
 						#    0         1         2
 						# revision, status, bytes-read
-						print "status=",reply["f"]
+						print("status=",reply["f"])
 						if wait and not cline and reply["f"][2]>1:
 							wait = False
 							self._gcount += 1
@@ -1457,7 +1452,7 @@ class Sender:
 							if cline: del cline[0]
 							if sline: del sline[0]
 							msg = Sender.MSG_OK
-							print "<<<<<<<<<<<< OK >>>>>>>>>>>>>>>>>."
+							print("<<<<<<<<<<<< OK >>>>>>>>>>>>>>>>>.")
 						if reply["f"][1]>0:
 							self._alarm = True
 							msg = Sender.MSG_ERROR
@@ -1513,10 +1508,10 @@ class Sender:
 				self.emptyQueue()
 				tosend = None
 				self.log.put((Sender.MSG_CLEAR, ""))
-				# WARNING if runLines==maxint then it means we are
+				# WARNING if runLines==MAXINT then it means we are
 				# still preparing/sending lines from from bCNC.run(),
 				# so don't stop
-				if self._runLines != sys.maxint:
+				if self._runLines != MAXINT:
 					self._stop = False
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,
@@ -1529,15 +1524,14 @@ class Sender:
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.controller==Utils.SMOOTHIE: tosend = tosend.upper()
-				self.serial.write(bytes(tosend))
-				#self.serial.write(tosend.encode("utf8"))
+				self.serial.write(tosend.encode("ascii","replace"))
 				#self.serial.flush()
 				self.log.put((Sender.MSG_BUFFER,tosend))
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:
 					if self.controller in (Utils.GRBL0, Utils.GRBL1, Utils.SMOOTHIE):
-						tosend = b"$G\n"
+						tosend = "$G\n"
 						sline.append(tosend)
 						cline.append(len(tosend))
 					tg = t

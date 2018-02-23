@@ -7,12 +7,8 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
-try:
-	from Tkinter import *
-	import tkMessageBox
-except ImportError:
-	from tkinter import *
-	import tkinter.messagebox as tkMessageBox
+from tkinter import *
+import tkinter.messagebox as tkMessageBox
 
 import math
 
@@ -405,7 +401,6 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.sendGCode("$#")
 		self.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
 		self.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------

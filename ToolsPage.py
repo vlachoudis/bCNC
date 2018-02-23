@@ -8,12 +8,8 @@ __author__  = "Vasilis Vlachoudis"
 __email__   = "Vasilis.Vlachoudis@cern.ch"
 
 import traceback
-try:
-	from Tkinter import *
-	import tkMessageBox
-except ImportError:
-	from tkinter import *
-	import tkinter.messagebox as tkMessageBox
+from tkinter import *
+import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
 import os

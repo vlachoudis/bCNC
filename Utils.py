@@ -9,25 +9,14 @@ __email__  = "vvlachoudis@gmail.com"
 
 import os
 import glob
-import traceback
-from log import say
-try:
-	from Tkinter import *
-	import tkFont
-	import tkMessageBox
-	import ConfigParser
-except ImportError:
-	from tkinter import *
-	import tkinter.font as tkFont
-	import tkinter.messagebox as tkMessageBox
-	import configparser as ConfigParser
-
 import gettext
-try:
-	import __builtin__
-except:
-	import builtins as __builtin__
-	#__builtin__.unicode = str		# dirty hack for python3
+import builtins
+import traceback
+import configparser
+from log import say
+from tkinter import *
+import tkinter.font as tkFont
+import tkinter.messagebox as tkMessageBox
 
 try:
 	import serial
@@ -41,9 +30,9 @@ iniUser   = os.path.expanduser("~/.%s" % (__prg__))
 hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 
 # dirty way of substituting the "_" on the builtin namespace
-#__builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).gettext
-__builtin__.N_ = lambda message: message
+#builtins.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
+builtins._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).gettext
+builtins.N_ = lambda message: message
 
 import Ribbon
 import tkExtra
@@ -84,7 +73,7 @@ LANGUAGES = {
 	}
 
 icons     = {}
-config    = ConfigParser.ConfigParser()
+config    = configparser.ConfigParser()
 language  = ""
 
 _errorReport = True
@@ -157,7 +146,7 @@ def saveConfiguration():
 def cleanConfiguration():
 	global config
 	newconfig = config	# Remember config
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 
 	loadConfiguration(True)
 
@@ -168,7 +157,7 @@ def cleanConfiguration():
 				new = newconfig.get(section, item)
 				if value==new:
 					newconfig.remove_option(section, item)
-			except ConfigParser.NoOptionError:
+			except configparser.NoOptionError:
 				pass
 	config = newconfig
 
@@ -185,14 +174,6 @@ def getStr(section, name, default=""):
 	global config
 	try:
 		return config.get(section, name)
-	except:
-		return default
-
-#------------------------------------------------------------------------------
-def getUtf(section, name, default=""):
-	global config
-	try:
-		return config.get(section, name).decode("utf8")
 	except:
 		return default
 
@@ -302,15 +283,6 @@ def setStr(section, name, value):
 	global config
 	config.set(section, name, str(value))
 
-#------------------------------------------------------------------------------
-def setUtf(section, name, value):
-	global config
-	try:
-		s = str(value.encode("utf8"))
-	except:
-		s = str(value)
-	config.set(section, name, s)
-
 setInt   = setStr
 setFloat = setStr
 
@@ -325,11 +297,7 @@ def controllerName(idx):
 # Add Recent
 #-------------------------------------------------------------------------------
 def addRecent(filename):
-	try:
-		sfn = str(os.path.abspath(filename))
-	except UnicodeEncodeError:
-		sfn = filename.encode("utf8")
-
+	sfn = os.path.abspath(filename)
 	last = _maxRecent-1
 	for i in range(_maxRecent):
 		rfn = getRecent(i)
@@ -350,7 +318,7 @@ def addRecent(filename):
 def getRecent(recent):
 	try:
 		return config.get("File","recent.%d"%(recent))
-	except ConfigParser.NoOptionError:
+	except configparser.NoOptionError:
 		return None
 
 #------------------------------------------------------------------------------
@@ -394,8 +362,8 @@ def addException():
 		if len(errors) > 100:
 			# If too many errors are found send the error report
 			ReportDialog(self.widget)
-	except:
-		say(str(sys.exc_info()))
+	except Exception as err:
+		say(str(err))
 
 #===============================================================================
 class CallWrapper:

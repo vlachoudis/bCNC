@@ -23,16 +23,10 @@ try:
 except:
 	serial = None
 
-try:
-	import Tkinter
-	from Queue import *
-	from Tkinter import *
-	import tkMessageBox
-except ImportError:
-	import tkinter
-	from queue import *
-	from tkinter import *
-	import tkinter.messagebox as tkMessageBox
+import tkinter
+from queue import *
+from tkinter import *
+import tkinter.messagebox as tkMessageBox
 
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(PRGPATH, 'lib'))
@@ -49,7 +43,7 @@ import tkExtra
 import Updates
 import bFileDialog
 
-from CNC import WAIT, CNC, GCode
+from CNC import WAIT, CNC, MAXINT, GCode
 import Ribbon
 import Pendant
 from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
@@ -1880,8 +1874,8 @@ class Application(Toplevel,Sender):
 		filename = bFileDialog.askopenfilename(master=self,
 			title=_("Open file"),
 			initialfile=os.path.join(
-					Utils.getUtf("File", "dir"),
-					Utils.getUtf("File", "file")),
+					Utils.getStr("File", "dir"),
+					Utils.getStr("File", "file")),
 			filetypes=FILETYPES)
 		if filename: self.load(filename)
 		return "break"
@@ -1891,11 +1885,11 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def saveDialog(self, event=None):
 		if self.running: return
-		fn, ext = os.path.splitext(Utils.getUtf("File", "file"))
+		fn, ext = os.path.splitext(Utils.getStr("File", "file"))
 		if ext in (".dxf", ".DXF"): ext = ".ngc"
 		filename = bFileDialog.asksaveasfilename(master=self,
 				title=_("Save file"),
-				initialfile=os.path.join(Utils.getUtf("File", "dir"), fn+ext),
+				initialfile=os.path.join(Utils.getStr("File", "dir"), fn+ext),
 				filetypes=FILETYPES)
 		if filename: self.save(filename)
 		return "break"
@@ -1993,8 +1987,8 @@ class Application(Toplevel,Sender):
 			filename = bFileDialog.askopenfilename(master=self,
 				title=_("Import Gcode/DXF file"),
 				initialfile=os.path.join(
-						Utils.getUtf("File", "dir"),
-						Utils.getUtf("File", "file")),
+						Utils.getStr("File", "dir"),
+						Utils.getStr("File", "file")),
 				filetypes=[(_("G-Code"),("*.ngc","*.nc", "*.gcode")),
 					   ("DXF",    "*.dxf"),
 					   ("All","*")])
@@ -2111,7 +2105,7 @@ class Application(Toplevel,Sender):
 		# the buffer of the machine should be empty?
 		self.initRun()
 		self.canvas.clearSelection()
-		self._runLines = sys.maxint	# temporary WARNING this value is used
+		self._runLines = MAXINT		# temporary WARNING this value is used
 						# by Sender._serialIO to check if we
 						# are still sending or we finished
 		self._gcount   = 0		# count executed lines
@@ -2174,7 +2168,7 @@ class Application(Toplevel,Sender):
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):
 				if line is not None:
-					if isinstance(line,str) or isinstance(line,unicode):
+					if isinstance(line,str):
 						self.queue.put(line+"\n")
 					else:
 						self.queue.put(line)
@@ -2421,9 +2415,9 @@ def usage(rc):
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
-	if sys.version_info[0] != 2:
+	if sys.version_info[0] < 3:
 		sys.stdout.write("="*80+"\n")
-		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
+		sys.stdout.write("WARNING: bCNC is running only on python v3.x for the moment\n")
 		sys.stdout.write("="*80+"\n")
 		sys.exit(0)
 	tk = Tk()

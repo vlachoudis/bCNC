@@ -9,13 +9,8 @@ __email__  = "vvlachoudis@gmail.com"
 
 import time
 import json
-
-try:
-	import httplib as http
-	from Tkinter import *
-except ImportError:
-	import http.client as http
-	from tkinter import *
+import http.client as http
+from tkinter import *
 
 import Utils
 import tkExtra

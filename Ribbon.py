@@ -6,10 +6,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
-try:
-	from Tkinter import *
-except ImportError:
-	from tkinter import *
+from tkinter import *
 
 import Utils
 import tkExtra

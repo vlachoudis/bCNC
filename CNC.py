@@ -1633,7 +1633,7 @@ class CNC:
 			newcmd = []
 			cmds = CNC.compileLine(line)
 			if cmds is None: continue
-			if isinstance(cmds,str) or isinstance(cmds,unicode):
+			if isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
 				# either CodeType or tuple, list[] append at it as is
@@ -3003,7 +3003,7 @@ class GCode:
 			if cmds is None:
 				new.append(line)
 				continue
-			elif isinstance(cmds,str) or isinstance(cmds,unicode):
+			elif isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
 				new.append(line)
@@ -4029,7 +4029,7 @@ class GCode:
 
 		def add(line, path):
 			if line is not None:
-				if isinstance(line,str) or isinstance(line,unicode):
+				if isinstance(line,str):
 					queue.put(line+"\n")
 				else:
 					queue.put(line)
@@ -4053,7 +4053,7 @@ class GCode:
 				cmds = CNC.compileLine(line)
 				if cmds is None:
 					continue
-				elif isinstance(cmds,str) or isinstance(cmds,unicode):
+				elif isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is
