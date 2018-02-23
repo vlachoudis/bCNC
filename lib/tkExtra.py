@@ -35,41 +35,24 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import re
+import sys
 import time
+
+try:
+	import Tkinter as tk
+	from tkColorChooser import askcolor
+except ImportError:
+	import tkinter as tk
+	from tkinter.colorchooser import askcolor
+
 import Unicode
 import bFileDialog
 from log import say
 
-try:
-	from Tkinter import *
-	from Tkinter import _setit, _cnfmerge
-	from tkColorChooser import askcolor
-except ImportError:
-	from tkinter import *
-	from tkinter import _setit, _cnfmerge
-	from tkinter.colorchooser import askcolor
-
-ARROW_LEFT     = u"\u2190"
-ARROW_UP       = u"\u2191"
-ARROW_RIGHT    = u"\u2192"
-ARROW_DOWN     = u"\u2193"
-
-CROSS          = u"\u2A2F"	# x -cross product
-MULT           = u"\u00D7"	# x -multiplication
-
-DIAMOND_SQUARE = u"\u26CB"
-
 # Key state codes
-SHIFT_MASK	= 1
-CONTROL_MASK	= 4
-ALT_MASK	= 8
-
-# Ansi escape sequences
-ANSI_CLEAR	= "\033[2J"
-ANSI_BOLD	= "\033[1m"
-ANSI_UNDERLINE	= "\033[4m"
-ANSI_REVERSE	= "\033[7m"
-ANSI_NORMAL	= "\033[m"
+SHIFT_MASK   = 1
+CONTROL_MASK = 4
+ALT_MASK     = 8
 
 # base64.encodestring(open("save.gif","rb").read())
 _SAVEICON = """
@@ -150,11 +133,11 @@ ADs=
 #	widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
 #	widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
 #
-# WARNING: Unfortunatelly it will convert data to STRING!!!
+# WARNING: Unfortunately it will convert data to STRING!!!
 #-------------------------------------------------------------------------------
 def bindEventData(widget, sequence, func, add = None):
 	def _substitute(*args):
-		e = Event()
+		e = tk.Event()
 		nsign, b, t, T, d, W = args
 		try:    e.serial = int(nsign)
 		except: e.serial = nsign
@@ -230,14 +213,14 @@ def _entryPaste(event):
 	"""global replacement for the Entry.paste"""
 	try:
 		event.widget.delete('sel.first', 'sel.last')
-	except TclError:
+	except tk.TclError:
 		pass	# nothing is selected
 
 	# in tk.call() use the widget's string representation event.widget._w
 	# instead of event.widget, which is the widget instance itself
 	try:
 		text = event.widget.tk.call('::tk::GetSelection', event.widget._w, 'CLIPBOARD')
-	except TclError:
+	except tk.TclError:
 		return
 	event.widget.insert('insert', text)
 	event.widget.tk.call('tk::EntrySeeInsert', event.widget._w)
@@ -252,14 +235,14 @@ def _textPaste(event):
 		event.widget.edit_separator()
 	try:
 		event.widget.delete('sel.first', 'sel.last')
-	except TclError:
+	except tk.TclError:
 		pass	# nothing is selected
 
 	# in tk.call() use the widget's string representation event.widget._w
 	# instead of event.widget, which is the widget instance itself
 	try:
 		text = event.widget.tk.call('::tk::GetSelection', event.widget._w, 'CLIPBOARD')
-	except TclError:
+	except tk.TclError:
 		return
 	event.widget.insert('insert', text)
 	if oldSeparator:
@@ -270,16 +253,16 @@ def _textPaste(event):
 
 #-------------------------------------------------------------------------------
 def bindClasses(root):
-	root.bind_class('Entry', '<Control-Key-a>', lambda e: e.widget.selection_range(0,END))
+	root.bind_class('Entry', '<Control-Key-a>', lambda e: e.widget.selection_range(0,tk.END))
 	root.bind_class('Entry', '<<Paste>>', _entryPaste)
 	root.bind_class('Text',  '<<Paste>>', _textPaste)
 
 #===============================================================================
 # LabelEntry. display a label when entry field is empty
 #===============================================================================
-class LabelEntry(Entry):
+class LabelEntry(tk.Entry):
 	def __init__(self, master, label=None, labelcolor=None, **kw):
-		Entry.__init__(self, master, **kw)
+		tk.Entry.__init__(self, master, **kw)
 		self.label  = label
 		self._empty = True
 		self._fg    = self["foreground"]
@@ -295,14 +278,14 @@ class LabelEntry(Entry):
 
 	# ----------------------------------------------------------------------
 	def showLabel(self):
-		self.delete(0,END)
+		self.delete(0, tk.END)
 		self.insert(0, self.label)
 		self["foreground"] = self.labelcolor
 		self._empty = True	# Restore empty since validation will destroy it
 
 	# ----------------------------------------------------------------------
 	def removeLabel(self):
-		self.delete(0,END)
+		self.delete(0,tk.END)
 		self["foreground"] = self._fg
 
 	# ----------------------------------------------------------------------
@@ -335,16 +318,16 @@ class LabelEntry(Entry):
 		if self._empty:
 			return ""
 		else:
-			return Entry.get(self)
+			return tk.Entry.get(self)
 
 #===============================================================================
 # _ValidatingEntry
 #===============================================================================
-class _ValidatingEntry(Entry):
+class _ValidatingEntry(tk.Entry):
 	"""base class for validating entry widgets"""
 	# ----------------------------------------------------------------------
 	def __init__(self, master, value="", **kw):
-		Entry.__init__(self, master, **kw)
+		tk.Entry.__init__(self, master, **kw)
 		self["validate"] = "key"
 		self["validatecommand"] = (self.register(self.validate), '%P')
 
@@ -355,7 +338,7 @@ class _ValidatingEntry(Entry):
 
 	# ----------------------------------------------------------------------
 	def set(self, value):
-		self.delete(0,END)
+		self.delete(0, tk.END)
 		self.insert(0, value)
 
 	# ----------------------------------------------------------------------
@@ -405,7 +388,7 @@ class IntegerEntry(_ValidatingEntry):
 			if value: int(value)
 			return True
 		except ValueError:
-			if value=="+" or value=="-": return True
+			if value in ("+","-"): return True
 		return False
 
 #===============================================================================
@@ -419,14 +402,16 @@ class FloatEntry(_ValidatingEntry):
 			if value: float(value)
 			return True
 		except ValueError:
-			if value=="+" or value=="-" or value=="." or \
-			   value=="+." or value=="-.": return True
+			if value in ("+", "-", ".", "+.", "-."): return True
 			if len(value)>1:
 				last = value[-1]
-				if last=="e" or last=="E": return True
+				if last in ("e","E"):
+					if "e" in value[:-1] or \
+					   "E" in value[:-1]: return False
+					return True
 				plast = value[-2]
-				if (plast=="e" or plast=="E") and \
-				   (last=="-" or last=="+"): return True
+				if plast in ("e","E") and \
+				    last in ("-","+"): return True
 		return False
 
 #===============================================================================
@@ -434,21 +419,24 @@ class FloatEntry(_ValidatingEntry):
 #===============================================================================
 class VectorEntry(_ValidatingEntry):
 	"""accept only vectors"""
+	PAT = re.compile(r"[(),;\[\]]")
 	# ----------------------------------------------------------------------
 	def validate(self, value):
 		# remove from value comma, semicolon, and parenthesis () []
-		for token in re.sub(r"[(),;\[\]]","",value).split():
+		for token in VectorEntry.PAT.sub("",value).split():
 			try:
 				float(token)
 			except ValueError:
-				if token=="+" or token=="-" or token=="." or \
-				   token=="+." or token=="-.": continue
+				if token in ("+","-",".","+.","-."): continue
 				if len(token)>1:
 					last = token[-1]
-					if last=="e" or last=="E": continue
+					if last in ("e","E"):
+						if "e" in token[:-1] or \
+						   "E" in token[:-1]: return False
+						return True
 					plast = token[-2]
-					if (plast=="e" or plast=="E") and \
-					   (last=="-" or last=="+"): continue
+					if plast in ("e","E") and \
+					    last in ("-","+"): return True
 				return False
 		return True
 
@@ -456,7 +444,7 @@ class VectorEntry(_ValidatingEntry):
 	# Get contents as a list
 	# ----------------------------------------------------------------------
 	def getlist(self):
-		return re.sub(r"[(),;\[\]]","",self.get()).split()
+		return VectorEntry.PAT.sub("",self.get()).split()
 
 	# ---------------------------------------------------------------------
 	# Split vector in to a list of widgets
@@ -476,7 +464,7 @@ class VectorEntry(_ValidatingEntry):
 # Auto Scroll Bar
 # Author: Fredrik Lundh <www.pythonware.com>
 #===============================================================================
-class AutoScrollbar(Scrollbar):
+class AutoScrollbar(tk.Scrollbar):
 	# ----------------------------------------------------------------------
 	# a scrollbar that hides itself if it's not needed.  only
 	# works if you use the grid geometry manager.
@@ -486,7 +474,7 @@ class AutoScrollbar(Scrollbar):
 		fhi = float(hi)
 		try:
 			g = self.get()
-		except TclError:
+		except tk.TclError:
 			return
 		if abs(flo-float(g[0]))<=0.001 and abs(fhi-float(g[1]))<=0.001: return
 		if flo <= 0.001 and fhi >= 0.999:
@@ -498,32 +486,32 @@ class AutoScrollbar(Scrollbar):
 
 		elif flo > 0.001 or fhi < 0.999:
 			if self.method==0:
-				Scrollbar.grid(self)
+				tk.Scrollbar.grid(self)
 			else:
-				Scrollbar.pack(self)
-		Scrollbar.set(self, lo, hi)
+				tk.Scrollbar.pack(self)
+		tk.Scrollbar.set(self, lo, hi)
 
 	# ----------------------------------------------------------------------
 	def grid(self, **kw):
 		self.method = 0
-		Scrollbar.grid(self, **kw)
+		tk.Scrollbar.grid(self, **kw)
 
 	# ----------------------------------------------------------------------
 	def pack(self, **kw):
 		self.method = 1
-		Scrollbar.pack(self, **kw)
-		#raise TclError("cannot use pack with this widget")
+		tk.Scrollbar.pack(self, **kw)
+		#raise tk.TclError("cannot use pack with this widget")
 
 	# ----------------------------------------------------------------------
 	def place(self, **kw):
-		raise TclError("cannot use place with this widget")
+		raise tk.TclError("cannot use place with this widget")
 
 #===============================================================================
 # ProgressBar Canvas
 #===============================================================================
-class ProgressBar(Canvas):
+class ProgressBar(tk.Canvas):
 	def __init__(self, master=None, **kw):
-		Canvas.__init__(self, master, **kw)
+		tk.Canvas.__init__(self, master, **kw)
 		#self.config(background="DarkGray")
 		self.currBox = self.create_rectangle(0, 0, 0, 0,
 					fill='Orange',
@@ -534,8 +522,8 @@ class ProgressBar(Canvas):
 		self.text = self.create_text(0,0,
 					text="",
 					fill="White",
-					anchor=CENTER,
-					justify=CENTER)
+					anchor=tk.CENTER,
+					justify=tk.CENTER)
 		self.auto = True
 		self.showTime = True
 
@@ -637,7 +625,7 @@ class ProgressBar(Canvas):
 
 	# ----------------------------------------------------------------------
 	def clear(self):
-		self.setProgress(0, 0);
+		self.setProgress(0, 0)
 
 	# ----------------------------------------------------------------------
 	def setText(self, txt):
@@ -676,7 +664,7 @@ class ProgressBar(Canvas):
 		self.coords(self.currBox, 0, 0, wn, height)
 		self.coords(self.doneBox, 0, 0, wd, height)
 
-		if self.itemcget(self.text, "justify") == CENTER:
+		if self.itemcget(self.text, "justify") == tk.CENTER:
 			self.coords(self.text, width/2, height/2)
 		else:
 			self.coords(self.text, 1,height/2)
@@ -684,7 +672,7 @@ class ProgressBar(Canvas):
 #===============================================================================
 # Extended Listbox
 #===============================================================================
-class ExListbox(Listbox):
+class ExListbox(tk.Listbox):
 	"""Listbox that allows keyboard scanning, and a popup menu"""
 
 	_KEY_TIME_THRESHOLD = 1000	# ms
@@ -695,15 +683,15 @@ class ExListbox(Listbox):
 	_time		    = 0
 
 	def __init__(self, master, **kw):
-		Listbox.__init__(self, master, **kw)
+		tk.Listbox.__init__(self, master, **kw)
 		ExListbox.resetSearch()
-		self._single = kw.get('selectmode','') in [SINGLE, BROWSE]
+		self._single = kw.get('selectmode','') in [tk.SINGLE, tk.BROWSE]
 #		self.bind('<Button-1>', lambda e,s=self:s.focus_set())
 		self.bind('<Key>',	self.handleKey)
 		self.bind('<Home>',	lambda e,s=self:s._scrollTo(0))
-		self.bind('<Prior>',	lambda e,s=self:s._scrollTo(-1, PAGES))
-		self.bind('<Next>',	lambda e,s=self:s._scrollTo( 1, PAGES))
-		self.bind('<End>',	lambda e,s=self:s._scrollTo(END))
+		self.bind('<Prior>',	lambda e,s=self:s._scrollTo(-1, tk.PAGES))
+		self.bind('<Next>',	lambda e,s=self:s._scrollTo( 1, tk.PAGES))
+		self.bind('<End>',	lambda e,s=self:s._scrollTo(tk.END))
 		self.bind('<FocusOut>',	ExListbox._hideSearch)
 		self.bind('<Unmap>',	ExListbox._hideSearch)
 		self.bind('<<Cut>>',	self.copy)
@@ -744,7 +732,7 @@ class ExListbox(Listbox):
 		if ExListbox._searchTop is not None:
 			try:
 				ExListbox._searchTop.withdraw()
-			except TclError:
+			except tk.TclError:
 				ExListbox._searchTop = None
 
 	# ----------------------------------------------------------------------
@@ -757,15 +745,15 @@ class ExListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def _showSearch(self):
 		if ExListbox._searchTop is None:
-			ExListbox._searchTop = Toplevel()
+			ExListbox._searchTop = tk.Toplevel()
 			ExListbox._searchTop.overrideredirect(1)
-			ExListbox._searchLabel = Label(ExListbox._searchTop,
-						anchor=E,
-						relief=SOLID,
+			ExListbox._searchLabel = tk.Label(ExListbox._searchTop,
+						anchor=tk.E,
+						relief=tk.SOLID,
 						background="Yellow",
 						takefocus=False,
 						borderwidth=1)
-			ExListbox._searchLabel.pack(fill=BOTH)
+			ExListbox._searchLabel.pack(fill=tk.BOTH)
 
 		if ExListbox._searchOrig == "":
 			ExListbox._hideSearch()
@@ -793,7 +781,7 @@ class ExListbox(Listbox):
 		if event.keysym in ("Shift_L","Shift_R"):
 			return
 
-		elif len(event.char)==0:
+		elif not event.char:
 			ExListbox._time = 0
 			return
 
@@ -802,7 +790,7 @@ class ExListbox(Listbox):
 		else:
 			ch = event.char
 
-		oldActive = self.index(ACTIVE)
+		oldActive = self.index(tk.ACTIVE)
 		again = False
 
 		# Delete search
@@ -840,23 +828,23 @@ class ExListbox(Listbox):
 		ExListbox._time = event.time
 
 		start  = 0
-		cur    = self.index(ACTIVE)
-		active = unicode(self.get(ACTIVE))
+		cur    = self.index(tk.ACTIVE)
+		active = self.get(tk.ACTIVE)
 
 		if self.ignoreCase:
 			try: active = active.upper()
 			except: pass
-		if len(active)>0:
+		if active:
 			if self.ignoreNonAlpha:
-				for pos in range(len(active)):
-					if active[pos].isalnum() or self.additionalChar.find(active[pos])>=0:
+				for pos,a in enumerate(active):
+					if a.isalnum() or self.additionalChar.find(a)>=0:
 						break
 			else:
 				pos = 0
 			prefix = active[pos:pos+lsearch]
 			if ExListbox._search == prefix:
 				if self._single:
-					self.selection_clear(0, END)
+					self.selection_clear(0, tk.END)
 					self.selection_set(cur)
 				self.activate(cur)
 				self.see(cur)
@@ -870,28 +858,28 @@ class ExListbox(Listbox):
 			if again:
 				start = cur+1
 				again = False
-			#elif oldActive != self.index(ACTIVE):
+			#elif oldActive != self.index(tk.ACTIVE):
 			else:
 				start = 0
 				loop += 1
 
 			for i in range(start, self.size()):
-				item = unicode(self.get(i))
+				item = self.get(i)
 				if self.ignoreCase:
 					try: item = item.upper()
 					except: pass
 
-				if len(item)>0:
+				if item:
 					if self.ignoreNonAlpha:
-						for pos in range(len(item)):
-							if item[pos].isalnum() or self.additionalChar.find(item[pos])>=0:
+						for pos,it in enumerate(item):
+							if it.isalnum() or self.additionalChar.find(it)>=0:
 								break
 					else:
 						pos = 0
 					prefix = item[pos:pos+lsearch]
 					if ExListbox._search == prefix:
 						if self._single:
-							self.selection_clear(0, END)
+							self.selection_clear(0, tk.END)
 							self.selection_set(i)
 						self.activate(i)
 						self.see(i)
@@ -899,7 +887,7 @@ class ExListbox(Listbox):
 						return "break"
 			loop += 1
 
-		if oldActive != self.index(ACTIVE):
+		if oldActive != self.index(tk.ACTIVE):
 			self.activate(oldActive)
 
 	# ----------------------------------------------------------------------
@@ -907,9 +895,9 @@ class ExListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def popupMenu(self, event):
 		"""Create popup menu with default actions"""
-		if self["state"] == DISABLED: return
+		if self["state"] == tk.DISABLED: return
 		self.focus_set()
-		menu=Menu(self, tearoff=0)
+		menu=tk.Menu(self, tearoff=0)
 		if self.usermenu:
 			for entry in self.usermenu:
 				if entry is None:
@@ -921,22 +909,22 @@ class ExListbox(Listbox):
 					else:
 						icon = None
 					menu.add_command(label=name, underline=und,
-							image=icon, compound=LEFT,
+							image=icon, compound=tk.LEFT,
 							command=cmd)
 			if not self._single: menu.add_separator()
 
 		if not self._single:
-			self._ALLICON  = PhotoImage(data=_ALLICON)
-			self._NONEICON = PhotoImage(data=_NONEICON)
-			self._INVICON  = PhotoImage(data=_INVICON)
+			self._ALLICON  = tk.PhotoImage(data=_ALLICON)
+			self._NONEICON = tk.PhotoImage(data=_NONEICON)
+			self._INVICON  = tk.PhotoImage(data=_INVICON)
 			menu.add_command(label='All', underline=0,
-					image=self._ALLICON, compound=LEFT,
+					image=self._ALLICON, compound=tk.LEFT,
 					command=self.selectAll)
 			menu.add_command(label='Clear', underline=0,
-					image=self._NONEICON, compound=LEFT,
+					image=self._NONEICON, compound=tk.LEFT,
 					command=self.selectClear)
 			menu.add_command(label='Invert', underline=0,
-					image=self._INVICON, compound=LEFT,
+					image=self._INVICON, compound=tk.LEFT,
 					command=self.selectInvert)
 
 		menu.tk_popup(event.x_root, event.y_root)
@@ -947,14 +935,14 @@ class ExListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def selectAll(self, event=None):
 		"""Select all items"""
-		self.selection_set(0, END)
+		self.selection_set(0, tk.END)
 		self.event_generate("<<ListboxSelect>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def selectClear(self, event=None):
 		"""Selection Clear"""
-		self.selection_clear(0, END)
+		self.selection_clear(0, tk.END)
 		self.event_generate("<<ListboxSelect>>")
 		return "break"
 
@@ -975,7 +963,7 @@ class ExListbox(Listbox):
 	def getSelected(self):
 		"""return a tuple of active and selected items
 		   for restoring later"""
-		return (self.index(ACTIVE), map(int, self.curselection()))
+		return (self.index(tk.ACTIVE), list(map(int, self.curselection())))
 
 	# ----------------------------------------------------------------------
 	# select active and selected items
@@ -983,7 +971,7 @@ class ExListbox(Listbox):
 	def selectSaved(self, save, default=None):
 		"""selected the saved items.
 		   If list has changed then selected the default item"""
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 
 		if save is not None:
 			self.activate(save[0])
@@ -1008,7 +996,7 @@ class ExListbox(Listbox):
 			self.yview_scroll(pos, unit)
 		else:
 			if self._single:
-				self.selection_clear(0, END)
+				self.selection_clear(0, tk.END)
 				self.selection_set(pos)
 			self.activate(pos)
 			self.see(pos)
@@ -1023,9 +1011,9 @@ class ExListbox(Listbox):
 		"""Set/Change the value of a list item"""
 		try:
 			sel = self.selection_includes(index)
-			act = self.index(ACTIVE)
+			act = self.index(tk.ACTIVE)
 			self.delete(index)
-		except TclError:
+		except tk.TclError:
 			return
 		self.insert(index, value)
 		if sel: self.selection_set(index)
@@ -1039,14 +1027,14 @@ class ExListbox(Listbox):
 		"""Swap two items in the list"""
 		if a>b: a, b = b, a
 
-		at = self.get(a);
-		bt = self.get(b);
+		at = self.get(a)
+		bt = self.get(b)
 
-		self.delete(b);
-		self.delete(a);
+		self.delete(b)
+		self.delete(a)
 
-		self.insert(a, bt);
-		self.insert(b, at);
+		self.insert(a, bt)
+		self.insert(b, at)
 
 	# ----------------------------------------------------------------------
 	# Move up select items by one
@@ -1057,7 +1045,7 @@ class ExListbox(Listbox):
 			if i==0: continue
 			prev = i-1
 			if not self.selection_includes(prev):
-				act = self.index(ACTIVE)
+				act = self.index(tk.ACTIVE)
 				self.swap(prev,i)
 				self.selection_set(prev)
 				if act == i: self.activate(prev)
@@ -1069,22 +1057,22 @@ class ExListbox(Listbox):
 	def moveDown(self):
 		"""Move selected items down"""
 		sz  = self.size()-1
-		lst = map(int,self.curselection())
+		lst = list(map(int,self.curselection()))
 		lst.reverse()
 		for i in lst:
 			if i >= sz: continue
-			next = i+1
-			if not self.selection_includes(next):
-				act = self.index(ACTIVE)
-				self.swap(i,next)
-				self.selection_set(next)
-				if act == i: self.activate(next)
+			next_ = i+1
+			if not self.selection_includes(next_):
+				act = self.index(tk.ACTIVE)
+				self.swap(i,next_)
+				self.selection_set(next_)
+				if act == i: self.activate(next_)
 		self.event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
 	def deleteByName(self, item):
 		"""delete entry by name"""
-		act = self.index(ACTIVE)
+		act = self.index(tk.ACTIVE)
 		for i in range(self.size()-1,-1,-1):
 			it = self.get(i)
 			if it == item:
@@ -1095,8 +1083,8 @@ class ExListbox(Listbox):
 	# Fill the listbox
 	# ----------------------------------------------------------------------
 	def fill(self, items=None):
-		self.delete(0,END)
-		for item in items: self.insert(END, item)
+		self.delete(0,tk.END)
+		for item in items: self.insert(tk.END, item)
 
 	# ----------------------------------------------------------------------
 	# Copy current elements to clipboard
@@ -1127,30 +1115,29 @@ class SearchListbox(ExListbox):
 #	def fill(self, items=None):
 #		del self._items[:]
 #		if items is None:
-#			for item in Listbox.get(self,0,END):
-#				self._items.append(unicode(item))
-#		else:
-#			self.delete(0,END)
-#			for item in items:
-#				item = unicode(item)
+#			for item in tk.Listbox.get(self,0,tk.END):
 #				self._items.append(item)
-#				self.insert(END, item)
+#		else:
+#			self.delete(0,tk.END)
+#			for item in items:
+#				self._items.append(item)
+#				self.insert(tk.END, item)
 #		self._pos = range(len(self._items))
 
 	# ----------------------------------------------------------------------
 	def reset(self):
 		if self._items and ExListbox._search:
 			ExListbox.resetSearch()
-			Listbox.delete(self, 0, END)
+			tk.Listbox.delete(self, 0, tk.END)
 			for item in self._items:
-				Listbox.insert(self, END, item)
+				tk.Listbox.insert(self, tk.END, item)
 			del self._items[:]
 			del self._pos[:]
 
 	# ----------------------------------------------------------------------
 	def handleKey(self, event):
 		"""handle key events for quick searching"""
-		if len(event.char)==0:
+		if not event.char:
 			ExListbox._time = 0
 			return
 
@@ -1184,7 +1171,7 @@ class SearchListbox(ExListbox):
 
 		# Remember time and active
 		ExListbox._time = event.time
-		active = Listbox.get(self,ACTIVE)
+		active = tk.Listbox.get(self,tk.ACTIVE)
 		activepos = 0
 
 		search = ExListbox._search
@@ -1195,107 +1182,107 @@ class SearchListbox(ExListbox):
 
 		# Fill up the list of items
 		if not self._items:
-			for item in Listbox.get(self,0,END):
-				self._items.append(unicode(item))
-			self._pos = range(len(self._items))
+			for item in tk.Listbox.get(self,0,tk.END):
+				self._items.append(item)
+			self._pos = list(range(len(self._items)))
 
 		# if Search string is empty, fill the entire list
 		if not search:
-			Listbox.delete(self, 0, END)
+			tk.Listbox.delete(self, 0, tk.END)
 			for i,item in enumerate(self._items):
 				if active == item: activepos = i
-				Listbox.insert(self, END, item)
-			self._pos = range(len(self._items))
+				tk.Listbox.insert(self, tk.END, item)
+			self._pos = list(range(len(self._items)))
 
 		# Backspace removes one character then we need to expand the list
 		elif backspace:
 			# FIXME I could find the correct position and insert it
 			# instead of delete all and repopulate
-			Listbox.delete(self, 0, END)
+			tk.Listbox.delete(self, 0, tk.END)
 			del self._pos[:]
 			for i,item in enumerate(self._items):
 				if prefix:
 					if self.ignoreCase:
 						if item.upper().startswith(search):
 							if active == item: activepos = i
-							Listbox.insert(self, END, item)
+							tk.Listbox.insert(self, tk.END, item)
 							self._pos.append(i)
 					else:
 						if item.startswith(search):
 							if active == item: activepos = i
-							Listbox.insert(self, END, item)
+							tk.Listbox.insert(self, tk.END, item)
 							self._pos.append(i)
 				else:
 					if self.ignoreCase:
 						if item.upper().find(search)>=0:
 							if active == item: activepos = i
-							Listbox.insert(self, END, item)
+							tk.Listbox.insert(self, tk.END, item)
 							self._pos.append(i)
 					else:
 						if item.find(search)>=0:
 							if active == item: activepos = i
-							Listbox.insert(self, END, item)
+							tk.Listbox.insert(self, tk.END, item)
 							self._pos.append(i)
 		else:
 			# FIXME I could use the fnmatch or re to allow * and ? as pattern
 
 			# If a new character added then shrink the existing list
 			# Scan in reverse order
-			for i in range(Listbox.size(self)-1, -1, -1):
-				item = Listbox.get(self, i)
+			for i in range(tk.Listbox.size(self)-1, -1, -1):
+				item = tk.Listbox.get(self, i)
 				if active == item: activepos = i
 				if self.ignoreCase: item = item.upper()
 				if prefix:
 					if not item.startswith(search):
-						Listbox.delete(self, i)
+						tk.Listbox.delete(self, i)
 						del self._pos[i]
 				else:
 					if item.find(search)<0:
-						Listbox.delete(self, i)
+						tk.Listbox.delete(self, i)
 						del self._pos[i]
 
-		Listbox.selection_clear(self, 0, END)
-		Listbox.selection_set(self, activepos)
-		Listbox.activate(self, activepos)
+		tk.Listbox.selection_clear(self, 0, tk.END)
+		tk.Listbox.selection_set(self, activepos)
+		tk.Listbox.activate(self, activepos)
 
 	# ----------------------------------------------------------------------
 	def insert(self, index, *elements):
 		del self._items[:]
-		return Listbox.insert(self, index, *elements)
+		return tk.Listbox.insert(self, index, *elements)
 
 	# ----------------------------------------------------------------------
 	def delete(self, first, last=None):
 		del self._items[:]
-		return Listbox.delete(self, first, last)
+		return tk.Listbox.delete(self, first, last)
 
 	# ----------------------------------------------------------------------
 	def curselection(self):
 		if self._items:
-			return [self._pos[int(x)] for x in Listbox.curselection(self)]
+			return [self._pos[int(x)] for x in tk.Listbox.curselection(self)]
 		else:
-			return Listbox.curselection(self)
+			return tk.Listbox.curselection(self)
 
 	# ----------------------------------------------------------------------
-	# FIXME needs work to handle, ACTIVE, END...
+	# FIXME needs work to handle, tk.ACTIVE, tk.END...
 	# ----------------------------------------------------------------------
 	def get(self, first, last=None):
 		#say("SearchListbox.get",first,type(first),last,type(last))
 		if not self._items:
-			return Listbox.get(self, first, last)
+			return tk.Listbox.get(self, first, last)
 
-		elif first == ACTIVE:
-			return Listbox.get(self, first, last)
+		elif first == tk.ACTIVE:
+			return tk.Listbox.get(self, first, last)
 
 		elif last is None:
 			return self._items[first]
 
-		elif last == END:
+		elif last == tk.END:
 			last = len(self._items)
 
 		else:
 			last = int(last)+1
 
-		if len(self._items)==0: return ""
+		if not self._items: return ""
 		return self._items[int(first):last]
 
 #===============================================================================
@@ -1304,23 +1291,23 @@ class SearchListbox(ExListbox):
 # Author:	Brent Burley
 # Date:		2001/03/14
 #===============================================================================
-class MultiListbox(Frame):
+class MultiListbox(tk.Frame):
 	"""Multilistbox class"""
 
 	# Add default options if not supplied
 	defopt = (("borderwidth",	0),
-		  ("selectmode",	EXTENDED),
+		  ("selectmode",	tk.EXTENDED),
 		  ("selectborderwidth",	0),
-		  ("relief",		FLAT),
-		  ("exportselection",	FALSE),
-		  ("takefocus",		FALSE))
+		  ("relief",		tk.FLAT),
+		  ("exportselection",	tk.FALSE),
+		  ("takefocus",		tk.FALSE))
 
 	def __init__(self, master, lists, **options):
-		Frame.__init__(self, master)
-		self.paneframe = PanedWindow(self, orient=HORIZONTAL,
+		tk.Frame.__init__(self, master)
+		self.paneframe = tk.PanedWindow(self, orient=tk.HORIZONTAL,
 				showhandle=0, handlepad=0, handlesize=0,
 				sashwidth=2, opaqueresize=1)
-		self.paneframe.pack(side=LEFT, expand=YES, fill=BOTH)
+		self.paneframe.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 		self.paneframe.bind("<Button-1>",	 self._sashMark)
 		self.paneframe.bind("<B1-Motion>",	 self._sashDrag)
 		self.paneframe.bind("<ButtonRelease-1>", self._sashRelease)
@@ -1345,13 +1332,13 @@ class MultiListbox(Frame):
 
 		for l, w, a in lists:
 			#if header:
-			frame = Frame(self.paneframe, border=0)
+			frame = tk.Frame(self.paneframe, border=0)
 			try: self.paneframe.add(frame, minsize=16, stretch=stretch)
 			except: self.paneframe.add(frame, minsize=16)	# tk8.4
 			if header:
-				lbl = Label(frame, text=l, borderwidth=1,
-						relief=RAISED)
-				lbl.pack(fill=X)
+				lbl = tk.Label(frame, text=l, borderwidth=1,
+						relief=tk.RAISED)
+				lbl.pack(fill=tk.X)
 				lbl.bind('<Button-1>', lambda e, s=self, c=col:
 						s.sort(c))
 				self._labels.append(lbl)
@@ -1360,9 +1347,9 @@ class MultiListbox(Frame):
 
 			lb = ExListbox(frame, width=w, **options)
 			#if header:
-			#	lb.pack(expand=YES, fill=BOTH)
+			#	lb.pack(expand=tk.YES, fill=tk.BOTH)
 			#else:
-			lb.pack(side=LEFT, expand=YES, fill=BOTH)
+			lb.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 			self._lists.append(lb)
 
 			lb.bind('<B2-Motion>', lambda e, s=self:
@@ -1370,9 +1357,9 @@ class MultiListbox(Frame):
 			lb.bind('<Button-2>', lambda e, s=self:
 						s._button2(e.x, e.y))
 			lb.bind('<Button-4>', lambda e, s=self:
-						s._scroll(SCROLL, -1, UNITS))
+						s._scroll(tk.SCROLL, -1, tk.UNITS))
 			lb.bind('<Button-5>', lambda e, s=self:
-						s._scroll(SCROLL, 1, UNITS))
+						s._scroll(tk.SCROLL, 1, tk.UNITS))
 			lb.bind('<<ListboxSelect>>', lambda e, s=self, l=lb:
 						s._updateSelect(l))
 			col += 1
@@ -1380,18 +1367,18 @@ class MultiListbox(Frame):
 		self._lists[0]["takefocus"] = True
 
 		if header:
-			frame = Frame(self)
-			frame.pack(side=RIGHT, fill=Y)
-			Label(frame, borderwidth=1, relief=RAISED).pack(fill=X)
+			frame = tk.Frame(self)
+			frame.pack(side=tk.RIGHT, fill=tk.Y)
+			tk.Label(frame, borderwidth=1, relief=tk.RAISED).pack(fill=tk.X)
 
-		self.scrollbar = Scrollbar(frame, orient=VERTICAL,
+		self.scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL,
 				takefocus=False,
 				command=self._scroll)
 
 		if header:
-			self.scrollbar.pack(fill=Y, expand=YES)
+			self.scrollbar.pack(fill=tk.Y, expand=tk.YES)
 		else:
-			self.scrollbar.pack(side=RIGHT, fill=Y)
+			self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 		self._lists[0]['yscrollcommand']=self.scrollbar.set
 		self.activeList   = self._lists[0]
@@ -1415,10 +1402,10 @@ class MultiListbox(Frame):
 		if lst is None: lst = self.activeList
 		ypos = lst.yview()[0]
 		sel = lst.curselection()
-		act = lst.index(ACTIVE)
+		act = lst.index(tk.ACTIVE)
 		for l in self._lists:
 			if l is lst: continue
-			l.selection_clear(0, END)
+			l.selection_clear(0, tk.END)
 			for s in sel:
 				l.selection_set(s)
 			l.activate(act)
@@ -1630,14 +1617,14 @@ class MultiListbox(Frame):
 	# ----------------------------------------------------------------------
 	def selectAll(self, event=None):
 		"""Select all items"""
-		self.selection_set(0, END)
+		self.selection_set(0, tk.END)
 		self.event_generate("<<ListboxSelect>>")
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def selectClear(self, event=None):
 		"""Unselect all items"""
-		self.selection_clear(0, END)
+		self.selection_clear(0, tk.END)
 		self.event_generate("<<ListboxSelect>>")
 		return "break"
 
@@ -1666,7 +1653,7 @@ class MultiListbox(Frame):
 	def focusLeft(self, event=None):
 		listbox = self.focus_get()
 		if listbox is None: return
-		active = listbox.index(ACTIVE)
+		active = listbox.index(tk.ACTIVE)
 		try:
 			lid = self._lists.index(listbox) - 1
 			if lid>=0:
@@ -1679,7 +1666,7 @@ class MultiListbox(Frame):
 	def focusRight(self, event=None):
 		listbox = self.focus_get()
 		if listbox is None: return
-		active = listbox.index(ACTIVE)
+		active = listbox.index(tk.ACTIVE)
 		try:
 			lid = self._lists.index(listbox) + 1
 			if lid < len(self._lists):
@@ -1691,7 +1678,7 @@ class MultiListbox(Frame):
 	# ----------------------------------------------------------------------
 	def sort(self, column, reverse=None):
 		""" Sort by a given column."""
-		if self._lists[0].cget("state") == DISABLED: return
+		if self._lists[0].cget("state") == tk.DISABLED: return
 		if self.sortAssist is None: return
 		if column == self._sortColumn:
 			txt = self._labels[self._sortColumn]["text"][:-1]
@@ -1706,7 +1693,7 @@ class MultiListbox(Frame):
 			if reverse is None:
 				reverse = False
 
-		#elements = self.get(0, END)
+		#elements = self.get(0, tk.END)
 		elements = []
 		lst = self._lists[0]
 		for i in range(self.size()):
@@ -1717,10 +1704,10 @@ class MultiListbox(Frame):
 			item.append(i)				# Include position
 			elements.append(item)
 
-		try: active = int(self.index(ACTIVE))
+		try: active = int(self.index(tk.ACTIVE))
 		except: active = -1
 
-		self.delete(0, END)
+		self.delete(0, tk.END)
 
 		elements.sort(key=self.sortAssist(column), reverse=reverse)
 
@@ -1734,7 +1721,7 @@ class MultiListbox(Frame):
 			self._sortOrder.append(idx)
 			status.append(item.pop())
 
-		self.insert(END, *elements)
+		self.insert(tk.END, *elements)
 
 		for i,s in enumerate(status):
 			if s:
@@ -1785,14 +1772,14 @@ class MultiListbox(Frame):
 #===============================================================================
 class ColorMultiListbox(MultiListbox):
 	# ----------------------------------------------------------------------
-	def sort(self, column, dir=None):
+	def sort(self, column, direction=None):
 		# remember colors
 		colors = {}
 		for i in range(self.size()):
 			colors[self._lists[0].get(i)] = \
 				self._lists[0].itemcget(i, "foreground")
 
-		MultiListbox.sort(self, column, dir)
+		MultiListbox.sort(self, column, direction)
 
 		# set colors
 		for i in range(self.size()):
@@ -1808,19 +1795,19 @@ class ColorMultiListbox(MultiListbox):
 #===============================================================================
 # Image list
 #===============================================================================
-class ImageListbox(Text):
+class ImageListbox(tk.Text):
 	"""ImageListbox widget which can display a list of strings and images"""
 	def __init__(self, master, **options):
-		Text.__init__(self, master, **options)
+		tk.Text.__init__(self, master, **options)
 		self.config(cursor="arrow",
 			tabs="20p",
 			#insertofftime=0,
 			#insertontime=0,
-			wrap=NONE,
+			wrap=tk.NONE,
 			insertwidth=0,
-			takefocus=TRUE,
+			takefocus=tk.TRUE,
 			exportselection=0)
-#			state=DISABLED)
+#			state=tk.DISABLED)
 		self.bind("<Button-1>",		self._button1)
 		self.bind("<Control-Button-1>",	self._controlButton1)
 		self.bind("<Shift-Button-1>",	self._motion1)
@@ -1842,41 +1829,41 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def insert(self, index, icon, text):
 		"""Insert ELEMENTS at INDEX."""
-#		self.config(state=NORMAL)
-		if index != END:
+#		self.config(state=tk.NORMAL)
+		if index != tk.END:
 			index = int(index)
 			sindex = "%d.0"%(index+1)
-			Text.insert(self, sindex, "\t%s\n"%(text))
+			tk.Text.insert(self, sindex, "\t%s\n"%(text))
 			self.image_create(sindex, image=icon)
 			self._selection.insert(index,False)
 		else:
-			self.image_create(END, image=icon)
-			Text.insert(self, END, "\t%s\n"%(text))
+			self.image_create(tk.END, image=icon)
+			tk.Text.insert(self, tk.END, "\t%s\n"%(text))
 			self._selection.append(False)
-#		self.config(state=DISABLED)
+#		self.config(state=tk.DISABLED)
 
 	# ----------------------------------------------------------------------
 	def delete(self, first, last=None):
 		"""Delete items from FIRST to LAST (not included)."""
-		if first == END:
-			Text.delete(self, "end.0", END)
+		if first == tk.END:
+			tk.Text.delete(self, "end.0", tk.END)
 			self._selection.pop()
 			return "break"
-		if first == ACTIVE:
-			first = self.index(ACTIVE)
+		if first == tk.ACTIVE:
+			first = self.index(tk.ACTIVE)
 		if last is None:
 			i = int(first)
 			if 0 <= i < len(self._selection):
-				Text.delete(self, "%d.0"%(i+1), "%d.0 + 1 lines"%(i+1))
+				tk.Text.delete(self, "%d.0"%(i+1), "%d.0 + 1 lines"%(i+1))
 				del self._selection[i]
 			return "break"
 
-		if last == END:
+		if last == tk.END:
 			last = self.size()
 
 		first = int(first)
 		lines = int(last) - first
-		Text.delete(self, "%d.0"%(first+1), "%d.0 + %d lines"%(first+1, lines))
+		tk.Text.delete(self, "%d.0"%(first+1), "%d.0 + %d lines"%(first+1, lines))
 		try:
 			del self._selection[first:last]
 		except IndexError:
@@ -1899,7 +1886,7 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def nearest(self, y):
 		"""Get index of item which is nearest to y coordinate Y."""
-		index = Text.index(self,"@1,%d"%(y))
+		index = tk.Text.index(self,"@1,%d"%(y))
 		i = int(index.split(".")[0])-1
 		if i>= self.size(): i -= 1
 		return i
@@ -1984,8 +1971,8 @@ class ImageListbox(Text):
 		self._selection = [False] * len(self._selection)
 		self.selection_set(self._active)
 		idx = "%d.0"%(self._active+1)
-		Text.see(self, idx)
-		Text.index(self, idx)
+		tk.Text.see(self, idx)
+		tk.Text.index(self, idx)
 		self.event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
@@ -2031,7 +2018,7 @@ class ImageListbox(Text):
 	def selection_set(self, first, last=None):
 		"""Set the selection from FIRST to LAST (not included) without
 		changing the currently selected elements."""
-		if first == END:
+		if first == tk.END:
 			self._selection[-1] = True
 			self._tagSelection()
 			return
@@ -2042,7 +2029,7 @@ class ImageListbox(Text):
 				self._tagSelection()
 			return
 
-		if last == END:
+		if last == tk.END:
 			last = self.size()
 
 		for i in range(int(first), last):
@@ -2054,10 +2041,10 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def see(self, index):
 		"""Scroll such that INDEX is visible."""
-		if index == END:
-			Text.see(self, index)
+		if index == tk.END:
+			tk.Text.see(self, index)
 		else:
-			Text.see(self, "%d.0"%(int(index)+1))
+			tk.Text.see(self, "%d.0"%(int(index)+1))
 
 	# ----------------------------------------------------------------------
 	def _tagSelection(self):
@@ -2066,31 +2053,31 @@ class ImageListbox(Text):
 			if x:
 				self.tag_add("lola", "%d.0"%(i+1), "%d.0 +1 lines"%(i+1))
 		self.tag_configure("lola", foreground="White", background="SteelBlue2")
-		Text.selection_clear(self)
+		tk.Text.selection_clear(self)
 
 	# ----------------------------------------------------------------------
 	#def bbox(self, *args):
 	def bbox(self, index):
 		"""Return a tuple of X1,Y1,X2,Y2 coordinates for a rectangle
 		which encloses the item identified by index in ARGS."""
-		if index == END:
-			return Text.dlineinfo(self,index)[:4]
-		if index == ACTIVE:
+		if index == tk.END:
+			return tk.Text.dlineinfo(self,index)[:4]
+		if index == tk.ACTIVE:
 			index = self.index(index)
-		return Text.bbox(self,"%d.2"%(int(index)+1))
+		return tk.Text.bbox(self,"%d.2"%(int(index)+1))
 
 	# ----------------------------------------------------------------------
 	def dlineinfo(self,index):
-		if index == END:
-			return Text.dlineinfo(self,index)
-		if index == ACTIVE:
+		if index == tk.END:
+			return tk.Text.dlineinfo(self,index)
+		if index == tk.ACTIVE:
 			index = self.index(index)
-		return Text.dlineinfo(self,"%d.0"%(int(index)+1))
+		return tk.Text.dlineinfo(self,"%d.0"%(int(index)+1))
 
 	# ----------------------------------------------------------------------
 	def activate(self, index):
 		"""Activate item identified by INDEX."""
-		if index == END:
+		if index == tk.END:
 			self._active = self.size()-1
 		else:
 			self._active = int(index)
@@ -2098,9 +2085,9 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def get(self, first, last=None):
 		"""Get list of items from FIRST to LAST (not included)."""
-		if first == END:
+		if first == tk.END:
 			first = self.size()-1
-		elif first == ACTIVE:
+		elif first == tk.ACTIVE:
 			first = self._active
 		else:
 			first = int(first)
@@ -2108,14 +2095,14 @@ class ImageListbox(Text):
 		if last is None:
 			if 0 <= first < len(self._selection):
 				first += 1
-				img = Text.image_cget(self, "%d.0"%(first), "image")
-				txt = Text.get(self, "%d.2"%(first), "%d.end"%(first))
+				img = tk.Text.image_cget(self, "%d.0"%(first), "image")
+				txt = tk.Text.get(self, "%d.2"%(first), "%d.end"%(first))
 				return txt
 			return None
 
-		if last == END:
+		if last == tk.END:
 			last = self.size()
-		elif last == ACTIVE:
+		elif last == tk.ACTIVE:
 			last = self._active
 		else:
 			last = int(last)
@@ -2128,9 +2115,9 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def elicit(self, first, last=None):
 		"""Get list of items from FIRST to LAST (not included)."""
-		if first == END:
+		if first == tk.END:
 			first = self.size()-1
-		elif first == ACTIVE:
+		elif first == tk.ACTIVE:
 			first = self._active
 		else:
 			first = int(first)
@@ -2138,14 +2125,14 @@ class ImageListbox(Text):
 		if last is None:
 			if 0 <= first < len(self._selection):
 				first += 1
-				img = Text.image_cget(self, "%d.0"%(first), "image")
-				txt = Text.get(self, "%d.2"%(first), "%d.end"%(first))
+				img = tk.Text.image_cget(self, "%d.0"%(first), "image")
+				txt = tk.Text.get(self, "%d.2"%(first), "%d.end"%(first))
 				return img,txt
 			return None,None
 
-		if last == END:
+		if last == tk.END:
 			last = self.size()
-		elif last == ACTIVE:
+		elif last == tk.ACTIVE:
 			last = self._active
 		else:
 			last = int(last)
@@ -2156,10 +2143,10 @@ class ImageListbox(Text):
 	# ----------------------------------------------------------------------
 	def index(self, index):
 		"""Return index of item identified with INDEX."""
-		if index == ACTIVE:
+		if index == tk.ACTIVE:
 			return self._active
 		else:
-			return Text.index(self,index)
+			return tk.Text.index(self,index)
 
 	# ----------------------------------------------------------------------
 	def scan_mark(self, x, y):
@@ -2203,7 +2190,7 @@ class ImageListbox(Text):
 # Class to edit in place the contents of a listbox
 #===============================================================================
 class InPlaceEdit:
-	def __init__(self, listbox, item=ACTIVE, value=None, x=None, select=True, **kw):
+	def __init__(self, listbox, item=tk.ACTIVE, value=None, x=None, select=True, **kw):
 		# Return value
 		self.value   = None	# Result
 		self.frame   = None
@@ -2220,7 +2207,7 @@ class InPlaceEdit:
 		self.listbox = listbox
 
 		# Create and set value
-		self.frame = Frame(listbox, relief=None)
+		self.frame = tk.Frame(listbox, relief=None)
 		self.createWidget()
 		self.old = self.set(value)
 		self.defaultBinds()
@@ -2235,7 +2222,7 @@ class InPlaceEdit:
 
 		try:
 			self._grab_window = self.frame.grab_current()
-		except TclError:
+		except tk.TclError:
 			self._grab_window = None
 		self.resize()
 		self.show()
@@ -2248,7 +2235,7 @@ class InPlaceEdit:
 			self.frame.grab_set()
 			self.icursor()
 			self.frame.wait_window()
-		except TclError:
+		except tk.TclError:
 			pass
 		#self.listbox.focus_set()
 
@@ -2256,8 +2243,8 @@ class InPlaceEdit:
 	# Override method if another widget is requested
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		self.edit = Entry(self.frame, **self.kw)
-		self.edit.pack(expand=YES, fill=BOTH)
+		self.edit = tk.Entry(self.frame, **self.kw)
+		self.edit.pack(expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 	# ----------------------------------------------------------------------
@@ -2292,9 +2279,9 @@ class InPlaceEdit:
 			self.frame.place(in_=self.listbox,
 					x=x-1, y=y-1,
 					width=w, height=h,
-					bordermode=OUTSIDE)
+					bordermode=tk.OUTSIDE)
 			self.frame.update_idletasks()
-		except TclError:
+		except tk.TclError:
 			pass
 
 	# ----------------------------------------------------------------------
@@ -2304,10 +2291,10 @@ class InPlaceEdit:
 		if self.frame is None: return
 		if value is None:
 			value = self.listbox.get(self.item)
-		self.edit.delete(0, END)
+		self.edit.delete(0, tk.END)
 		self.edit.insert(0, value)
 		if self._select:
-			self.edit.selection_range(0, END)
+			self.edit.selection_range(0, tk.END)
 		return value
 
 	# ----------------------------------------------------------------------
@@ -2324,7 +2311,7 @@ class InPlaceEdit:
 		if self._grab_window is not None:
 			try:
 				self._grab_window.grab_set()
-			except TclError:
+			except tk.TclError:
 				pass
 
 	# ----------------------------------------------------------------------
@@ -2351,7 +2338,7 @@ class InPlaceEdit:
 
 	# ----------------------------------------------------------------------
 	def updateValue(self):
-		if isinstance(self.listbox, Listbox):
+		if isinstance(self.listbox, tk.Listbox):
 			self.listbox.delete(self.active)
 			self.listbox.insert(self.active, self.value)
 
@@ -2361,7 +2348,7 @@ class InPlaceEdit:
 		self.value = self.get()
 		self.frame.unbind('<FocusOut>')
 
-		act = self.listbox.index(ACTIVE)
+		act = self.listbox.index(tk.ACTIVE)
 		sel = self.listbox.selection_includes(self.active)
 		self.updateValue()
 		self.listbox.see(self.active)
@@ -2393,8 +2380,8 @@ class InPlaceEdit:
 class InPlaceSpinbox(InPlaceEdit):
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		self.edit = Spinbox(self.frame, **self.kw)
-		self.edit.pack(expand=YES, fill=BOTH)
+		self.edit = tk.Spinbox(self.frame, **self.kw)
+		self.edit.pack(expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 	# ----------------------------------------------------------------------
@@ -2402,7 +2389,7 @@ class InPlaceSpinbox(InPlaceEdit):
 		if self.frame is None: return
 		if value is None:
 			value = self.listbox.get(self.item)
-		self.edit.delete(0, END)
+		self.edit.delete(0, tk.END)
 		self.edit.insert(0, value)
 		return value
 
@@ -2411,7 +2398,7 @@ class InPlaceInteger(InPlaceEdit):
 	# ----------------------------------------------------------------------
 	def createWidget(self):
 		self.edit = IntegerEntry(self.frame, **self.kw)
-		self.edit.pack(expand=YES, fill=BOTH)
+		self.edit.pack(expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 #===============================================================================
@@ -2419,33 +2406,34 @@ class InPlaceFloat(InPlaceEdit):
 	# ----------------------------------------------------------------------
 	def createWidget(self):
 		self.edit = FloatEntry(self.frame, **self.kw)
-		self.edit.pack(expand=YES, fill=BOTH)
+		self.edit.pack(expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 #===============================================================================
 class InPlaceList(InPlaceEdit):
-	def __init__(self, listbox, item=ACTIVE, value=None, height=None, values=[], **kw):
+	def __init__(self, listbox, item=tk.ACTIVE, value=None, height=None, values=None, **kw):
 		self.values = values
 		self.height = height
+		if values is None: values = []
 		InPlaceEdit.__init__(self, listbox, item, value, **kw)
 
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		self.frame.config(relief=RAISED)
-		sb = Scrollbar(self.frame)
-		sb.pack(side=RIGHT, fill=Y)
+		self.frame.config(relief=tk.RAISED)
+		sb = tk.Scrollbar(self.frame)
+		sb.pack(side=tk.RIGHT, fill=tk.Y)
 		if self.height is None:
 			if len(self.values)<10:
 				self.height = max(len(self.values)+1,3)
 			else:
 				self.height = 10
 		self.edit = ExListbox(self.frame,
-				selectmode=BROWSE,
+				selectmode=tk.BROWSE,
 				height=self.height,
 				#background="White",
 				yscrollcommand=sb.set)
 		sb.config(command=self.edit.yview)
-		self.edit.pack(side=LEFT, fill=BOTH, expand=YES)
+		self.edit.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
 		self.edit.bind('<ButtonRelease-1>', self.ok)
 		self.edit.focus_set()
 
@@ -2456,19 +2444,19 @@ class InPlaceList(InPlaceEdit):
 
 		# Fill&select listbox
 		for item in self.values:
-			self.edit.insert(END, item)
+			self.edit.insert(tk.END, item)
 			if item == value:
-				self.edit.activate(END)
-				self.edit.selection_set(END)
-		if len(self.edit.curselection()) == 0:
+				self.edit.activate(tk.END)
+				self.edit.selection_set(tk.END)
+		if not self.edit.curselection():
 			self.edit.activate(0)
-		self.edit.see(ACTIVE)
+		self.edit.see(tk.ACTIVE)
 		return value
 
 	# ----------------------------------------------------------------------
 	def get(self):
 		cur = self.edit.curselection()
-		if len(cur)>0:
+		if cur:
 			return self.edit.get(cur[0])
 		else:
 			return ""
@@ -2502,20 +2490,20 @@ class InPlaceList(InPlaceEdit):
 			self.frame.place(in_=self.listbox,
 					x=x-1, y=y,
 					width=list_width, height=h,
-					bordermode=OUTSIDE)
+					bordermode=tk.OUTSIDE)
 			self.frame.update_idletasks()
-		except TclError:
+		except tk.TclError:
 			pass
 
 #===============================================================================
 class InPlaceColor(InPlaceEdit):
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		b = Button(self.frame, text="x",
+		b = tk.Button(self.frame, text="x",
 			padx=0, pady=0, command=self.clearColor)
-		b.pack(side=LEFT)
-		self.edit = Button(self.frame, command=self.selectColor)
-		self.edit.pack(side=RIGHT, expand=YES, fill=BOTH)
+		b.pack(side=tk.LEFT)
+		self.edit = tk.Button(self.frame, command=self.selectColor)
+		self.edit.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 	# ----------------------------------------------------------------------
@@ -2542,7 +2530,7 @@ class InPlaceColor(InPlaceEdit):
 				title="Color",
 				initialcolor=self.value,
 				parent=self.listbox.master)
-		except TclError:
+		except tk.TclError:
 			colorStr = None
 		if colorStr is not None:
 			colorStr = str(colorStr)
@@ -2565,7 +2553,7 @@ class InPlaceColor(InPlaceEdit):
 
 #===============================================================================
 class InPlaceMaxLength(InPlaceEdit):
-	def __init__(self, listbox, item=ACTIVE, value=None, maxlength=None, **kw):
+	def __init__(self, listbox, item=tk.ACTIVE, value=None, maxlength=None, **kw):
 		self.maxlength = maxlength
 		InPlaceEdit.__init__(self, listbox, item, value, **kw)
 
@@ -2576,7 +2564,7 @@ class InPlaceMaxLength(InPlaceEdit):
 		self.edit = MaxLengthEntry(self.frame,
 					maxlength=self.maxlength,
 					**self.kw)
-		self.edit.pack(expand=YES, fill=BOTH)
+		self.edit.pack(expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 #===============================================================================
@@ -2588,7 +2576,7 @@ class InPlaceText(InPlaceEdit):
 			self.toplevel.wait_visibility()
 			self.toplevel.grab_set()
 			self.toplevel.wait_window()
-		except TclError:
+		except tk.TclError:
 			pass
 
 	# ----------------------------------------------------------------------
@@ -2609,14 +2597,14 @@ class InPlaceText(InPlaceEdit):
 
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		self.toplevel = Toplevel(self.listbox)
+		self.toplevel = tk.Toplevel(self.listbox)
 		self.toplevel.transient(self.listbox)
 		if sys.platform in ("win32", "win64"):
 			self.toplevel.update_idletasks()
 		self.toplevel.overrideredirect(1)
-		self.edit = Text(self.toplevel, width=70, height=10,
+		self.edit = tk.Text(self.toplevel, width=70, height=10,
 					background="White", undo=True)
-		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
+		self.edit.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 		self.edit.focus_set()
 
 	# ----------------------------------------------------------------------
@@ -2630,7 +2618,7 @@ class InPlaceText(InPlaceEdit):
 		w  = self.listbox.winfo_width()
 		try:
 			self.toplevel.wm_geometry("+%d+%d" % (x,y))
-		except TclError:
+		except tk.TclError:
 			pass
 
 	# ----------------------------------------------------------------------
@@ -2638,15 +2626,15 @@ class InPlaceText(InPlaceEdit):
 		if self.frame is None: return
 		if value is None:
 			value = self.listbox.get(self.item)
-		self.edit.delete("0.0", END)
+		self.edit.delete("0.0", tk.END)
 		self.edit.insert("0.0", value)
-		self.edit.tag_add(SEL, "0.0", END)
+		self.edit.tag_add(tk.SEL, "0.0", tk.END)
 		return value
 
 	# ----------------------------------------------------------------------
 	def get(self):
 		if self.frame is None: return None
-		return self.edit.get("0.0", END).strip()
+		return self.edit.get("0.0", tk.END).strip()
 
 	# ----------------------------------------------------------------------
 	def shiftReturn(self, event):
@@ -2686,22 +2674,22 @@ class InPlaceText(InPlaceEdit):
 #===============================================================================
 class InPlaceFile(InPlaceEdit):
 	# ----------------------------------------------------------------------
-	def __init__(self, listbox, item=ACTIVE, value=None,
+	def __init__(self, listbox, item=tk.ACTIVE, value=None,
 			title=None, filetypes=None,
 			save=True, **kw):
 		self.title = title
 		self.filetypes = filetypes
 		self._save = save
-		self._icon = PhotoImage(data=_SAVEICON)
+		self._icon = tk.PhotoImage(data=_SAVEICON)
 		InPlaceEdit.__init__(self, listbox, item, value, **kw)
 
 	# ----------------------------------------------------------------------
 	def createWidget(self):
-		self.edit = Entry(self.frame, width=5, **self.kw)
-		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
-		b = Button(self.frame, image=self._icon,
+		self.edit = tk.Entry(self.frame, width=5, **self.kw)
+		self.edit.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
+		b = tk.Button(self.frame, image=self._icon,
 			padx=0, pady=0, command=self.fileDialog)
-		b.pack(side=RIGHT)
+		b.pack(side=tk.RIGHT)
 		self.edit.focus_set()
 
 	# ----------------------------------------------------------------------
@@ -2725,8 +2713,8 @@ class InPlaceFile(InPlaceEdit):
 		self.frame.grab_set()
 		#self.frame.bind("<FocusOut>", self.cancel)
 		self._icon = None
-		if len(fn) > 0:
-			self.edit.delete(0, END)
+		if fn:
+			self.edit.delete(0, tk.END)
 			self.edit.insert(0, fn)
 			self.ok()
 		else:
@@ -2736,29 +2724,29 @@ class InPlaceFile(InPlaceEdit):
 # PopupList
 # Show a popup list on a top level and return selected item
 #=============================================================================
-class PopupList(Toplevel):
+class PopupList(tk.Toplevel):
 	def __init__(self, master, items=None, selected=None, **kw):
-		Toplevel.__init__(self, master, **kw)
+		tk.Toplevel.__init__(self, master, **kw)
 		self.selected = selected
 		self.overrideredirect(1)
 		self.transient(master)
 
 		# Create the listbox inside the dropdown window
-		sb = Scrollbar(self)
-		sb.pack(side=RIGHT, fill=Y)
+		sb = tk.Scrollbar(self)
+		sb.pack(side=tk.RIGHT, fill=tk.Y)
 		self._listbox = SearchListbox(self,
-					selectmode=BROWSE,
+					selectmode=tk.BROWSE,
 					yscrollcommand=sb.set)
-		self._listbox.pack(side=LEFT, expand=YES, fill=BOTH)
+		self._listbox.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 		sb.config(command=self._listbox.yview)
 
 		if items:
 			for item in items:
-				self._listbox.insert(END, item)
+				self._listbox.insert(tk.END, item)
 				if selected == item:
-					self._listbox.selection_set(END)
-					self._listbox.activate(END)
-					self.see(ACTIVE)
+					self._listbox.selection_set(tk.END)
+					self._listbox.activate(tk.END)
+					self.see(tk.ACTIVE)
 
 		self._listbox.bind('<Escape>',		self.close)
 		self._listbox.bind('<Return>',		self._select)
@@ -2786,7 +2774,7 @@ class PopupList(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def _select(self, event=None):
-		self.selected = self._listbox.get(ACTIVE)
+		self.selected = self._listbox.get(tk.ACTIVE)
 		self.close()
 
 	# ----------------------------------------------------------------------
@@ -2798,10 +2786,10 @@ class PopupList(Toplevel):
 #=============================================================================
 # Combobox
 #=============================================================================
-class Combobox(Frame):
+class Combobox(tk.Frame):
 	def __init__(self, master, label=True, *args, **kwargs):
-		Frame.__init__(self, master, class_="Combobox")
-		Frame.config(self, padx=0, pady=0)
+		tk.Frame.__init__(self, master, class_="Combobox")
+		tk.Frame.config(self, padx=0, pady=0)
 
 		if "command" in kwargs:
 			self.command = kwargs.get("command")
@@ -2811,20 +2799,20 @@ class Combobox(Frame):
 
 		# Create entry and button
 		if label:
-			self._text = Label(self, relief=GROOVE, anchor=W, *args, **kwargs)
+			self._text = tk.Label(self, relief=tk.GROOVE, anchor=tk.W, *args, **kwargs)
 		else:
-			self._text = Entry(self, *args, **kwargs)
-		self._text.pack(side=LEFT, expand=YES, fill=BOTH)
+			self._text = tk.Entry(self, *args, **kwargs)
+		self._text.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 
 		# Arrow button
-		self._post = IntVar()
+		self._post = tk.IntVar()
 		self._post.trace("w", self._showList)
-		self._arrowBtn = Checkbutton(self,
-			text=u"\u25BC",
+		self._arrowBtn = tk.Checkbutton(self,
+			text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 			variable=self._post,
 			indicatoron=False,
 			padx=2, pady=0)
-		self._arrowBtn.pack(side=RIGHT, fill=Y)
+		self._arrowBtn.pack(side=tk.RIGHT, fill=tk.Y)
 
 		# Bindings
 		self._text.bind('<Up>',       self.postList)
@@ -2848,23 +2836,23 @@ class Combobox(Frame):
 		self._text.bind('<Unmap>', self.unpostList)
 
 		# Create a static popup window with dropdown list
-		self._popup = Toplevel(master)
+		self._popup = tk.Toplevel(master)
 		self._popup.overrideredirect(1)
 		self._popup.transient(master)
 		self._popup.withdraw()
 
 		# Create the listbox inside the dropdown window
-		sb = Scrollbar(self._popup)
-		sb.pack(side=RIGHT, fill=Y)
+		sb = tk.Scrollbar(self._popup)
+		sb.pack(side=tk.RIGHT, fill=tk.Y)
 		for k in ("anchor","justify"):
 			try: del kwargs[k]
 			except KeyError: pass
 		self._listbox = SearchListbox(self._popup,
-					selectmode=BROWSE,
+					selectmode=tk.BROWSE,
 					yscrollcommand=sb.set,
 					*args,
 					**kwargs)
-		self._listbox.pack(side=LEFT, expand=YES, fill=BOTH)
+		self._listbox.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 		sb.config(command=self._listbox.yview)
 
 		# Bind events to the dropdown window.
@@ -2900,7 +2888,7 @@ class Combobox(Frame):
 					self._grab_window.grab_release()
 			except KeyError:
 				pass
-			if self._text.cget("state") == DISABLED:
+			if self._text.cget("state") == tk.DISABLED:
 				self._post.set(False)
 				return
 
@@ -2947,16 +2935,16 @@ class Combobox(Frame):
 	# ----------------------------------------------------------------------
 	def _showSelection(self):
 		lb = self._listbox
-		lb.selection_clear(0,END)
+		lb.selection_clear(0,tk.END)
 		item = self.get()
 		# Test active
-		if lb.get(ACTIVE) != item:
+		if lb.get(tk.ACTIVE) != item:
 			# Scan list
 			for i in range(lb.size()):
 				if item == lb.get(i):
 					lb.activate(i)
-		lb.selection_set(ACTIVE)
-		lb.see(ACTIVE)
+		lb.selection_set(tk.ACTIVE)
+		lb.see(tk.ACTIVE)
 
 	# ----------------------------------------------------------------------
 	# Post list on click
@@ -2976,20 +2964,20 @@ class Combobox(Frame):
 
 	# ----------------------------------------------------------------------
 	def postList(self, event=None):
-		if self._arrowBtn.cget("state") != DISABLED:
+		if self._arrowBtn.cget("state") != tk.DISABLED:
 			self._post.set(True)
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def unpostList(self, event=None):
 		self._listbox.reset()
-		if self._arrowBtn.cget("state") != DISABLED:
+		if self._arrowBtn.cget("state") != tk.DISABLED:
 			self._post.set(False)
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def _togglePost(self, event):
-		if self._text.cget("state") != DISABLED:
+		if self._text.cget("state") != tk.DISABLED:
 			self._post.set( not self._post.get() )
 		return "break"
 
@@ -3000,15 +2988,14 @@ class Combobox(Frame):
 		except KeyError:
 			pass
 		else:
-			if f == self._popup or f == self._listbox:
-				return
+			if f in (self._popup, self._listbox): return
 		self._focus = None
 		self.unpostList()
 
 	# ----------------------------------------------------------------------
 	def _selectUnpost(self, event=None):
 		if self._post.get():
-			sel = self._listbox.get(ACTIVE)
+			sel = self._listbox.get(tk.ACTIVE)
 			self.set(sel)
 			self.unpostList()
 
@@ -3048,7 +3035,7 @@ class Combobox(Frame):
 	# ----------------------------------------------------------------------
 	def get(self, first=None, last=None):
 		if first is None:
-			if isinstance(self._text, Label):
+			if isinstance(self._text, tk.Label):
 				return self._text.cget("text")
 			else:
 				return self._text.get()
@@ -3057,10 +3044,10 @@ class Combobox(Frame):
 
 	# ----------------------------------------------------------------------
 	def set(self, txt):
-		if isinstance(self._text, Label):
+		if isinstance(self._text, tk.Label):
 			self._text.config(text=txt)
 		else:
-			self._text.delete(0, END)
+			self._text.delete(0, tk.END)
 			self._text.insert(0, txt)
 		self._text.update_idletasks()
 		self.invoke()
@@ -3076,14 +3063,14 @@ class Combobox(Frame):
 
 	# ----------------------------------------------------------------------
 	def clearLabel(self):
-		if isinstance(self._text, Label):
+		if isinstance(self._text, tk.Label):
 			self._text.config(text="")
 		else:
-			self._text.delete(0, END)
+			self._text.delete(0, tk.END)
 
 	# ----------------------------------------------------------------------
 	def clearList(self):
-		self._listbox.delete(0, END)
+		self._listbox.delete(0, tk.END)
 
 	# ----------------------------------------------------------------------
 	def insert(self, index, *elements):
@@ -3097,7 +3084,7 @@ class Combobox(Frame):
 	def fill(self, items):
 		self.clearList()
 		for item in items:
-			self._listbox.insert(END, item)
+			self._listbox.insert(tk.END, item)
 
 	# ----------------------------------------------------------------------
 	def select(self, index=None):
@@ -3136,15 +3123,15 @@ class Combobox(Frame):
 #===============================================================================
 # ExOptionMenu
 #===============================================================================
-class ExOptionMenu(OptionMenu):
+class ExOptionMenu(tk.OptionMenu):
 	def __init__(self, master, variable, value, *values, **kwargs):
-		OptionMenu.__init__(self, master, variable, value,
+		tk.OptionMenu.__init__(self, master, variable, value,
 			*values, **kwargs)
 		self.variable = variable
 		self.command  = kwargs.get("command")
 
 	# ----------------------------------------------------------------------
-	def delete(self, from_=0, to_=END):
+	def delete(self, from_=0, to_=tk.END):
 		"""Delete items from menu"""
 		self["menu"].delete(from_, to_)
 
@@ -3153,7 +3140,7 @@ class ExOptionMenu(OptionMenu):
 		"""Add an extra value to the menu"""
 		menu = self["menu"]
 		menu.add_command(label=value,
-			command=_setit(self.variable, value, None))
+			command=tk._setit(self.variable, value, None))
 
 	# ----------------------------------------------------------------------
 	def set(self, valueList, value=None):
@@ -3162,24 +3149,24 @@ class ExOptionMenu(OptionMenu):
 		valueList - list of new options
 		value - initial value to set the optionmenu's menubutton to
 		"""
-		self['menu'].delete(0, END)
+		self['menu'].delete(0, tk.END)
 		for item in valueList:
 			self['menu'].add_command(label=item,
-				command=_setit(self.variable, item, self.command))
+				command=tk._setit(self.variable, item, self.command))
 		if value:
 			self.variable.set(value)
 
 #===============================================================================
 # Splitter Frame
 #===============================================================================
-class Splitter(Frame):
+class Splitter(tk.Frame):
 	"""Base class for horizontal or vertical frame splitter"""
 	def __init__(self, master, split=0.5, horizontal=True, absolute=False):
-		Frame.__init__(self, master, class_="Splitter")
+		tk.Frame.__init__(self, master, class_="Splitter")
 
-		self.f1 = Frame(self, bd=1, relief=SUNKEN)
-		self.f2 = Frame(self, bd=1, relief=SUNKEN)
-		self.dragFrame = Frame(self, bd=1, relief=GROOVE)
+		self.f1 = tk.Frame(self, bd=1, relief=tk.SUNKEN)
+		self.f2 = tk.Frame(self, bd=1, relief=tk.SUNKEN)
+		self.dragFrame = tk.Frame(self, bd=1, relief=tk.GROOVE)
 
 		self.dragFrame.bind("<B1-Motion>",       self.motion)	   # Overridden
 		self.dragFrame.bind("<ButtonRelease-1>", self.placeChilds) # Overridden
@@ -3431,7 +3418,7 @@ class _SplitNode:
 
 	# ----------------------------------------------------------------------
 	def makeSplit(self, master, drag):
-		self.split = Frame(master, bd=1, relief=GROOVE)
+		self.split = tk.Frame(master, bd=1, relief=tk.GROOVE)
 		self.split.bind("<B1-Motion>",drag)
 		#split.bind("<ButtonRelease-1>", self.placeChilds)
 		#split.bind("<Double-Button-1>", self.toggle)
@@ -3449,10 +3436,10 @@ class _SplitNode:
 #===============================================================================
 # Tree Splitter allows any nesting of splitting using a tree structure
 #===============================================================================
-class TreeSplitter(Frame):
+class TreeSplitter(tk.Frame):
 	"""Splitter using a tree structure"""
 	def __init__(self, master, **kw):
-		Frame.__init__(self, master, class_="TreeSplitter", **kw)
+		tk.Frame.__init__(self, master, class_="TreeSplitter", **kw)
 		self.tree      = None
 		self.width     =  3
 		self.border    = 0.01
@@ -3472,7 +3459,7 @@ class TreeSplitter(Frame):
 	def add(self, parent, child, pos=0.5, hori=True):
 		node = self.node(child)
 		if node is not None: return node
-		if isinstance(parent, Widget):
+		if isinstance(parent, tk.Widget):
 			parent = self.node(parent)
 		node = self._add(parent, child, pos, hori)
 		self.placeChilds()
@@ -3519,7 +3506,7 @@ class TreeSplitter(Frame):
 	# Remove a child from the frame
 	# ----------------------------------------------------------------------
 	def remove(self, node):
-		if isinstance(node,Widget):
+		if isinstance(node,tk.Widget):
 			node = self.node(node)
 			if node is None: return
 		if node.child is self._maxchild: self._maxchild = None
@@ -3610,7 +3597,7 @@ class TreeSplitter(Frame):
 			self.removeAll()
 			stack = []
 			for item in rpn:
-				if isinstance(item, Widget):
+				if isinstance(item, tk.Widget):
 					stack.append(_SplitNode(None, item))
 				else:
 					try:
@@ -3945,8 +3932,8 @@ class TreeSplitter(Frame):
 							self._drag_x_root,
 							self._drag_y_root)
 				if self._drag:
-					self._dragFrame = Frame(self._drag.child.master,
-								relief=RIDGE,
+					self._dragFrame = tk.Frame(self._drag.child.master,
+								relief=tk.RIDGE,
 								borderwidth=2*self.width,
 								bg="LightYellow")
 
@@ -4093,8 +4080,8 @@ class Balloon:
 	# set a balloon message to a widget
 	# ----------------------------------------------------------------------
 	@staticmethod
-	def set(widget, help):
-		widget._help = help
+	def set(widget, help_):
+		widget._help = help_
 		widget.bind('<Any-Enter>', Balloon.enter)
 		widget.bind('<Any-Leave>', Balloon.leave)
 		widget.bind('<Key>',	   Balloon.hide)
@@ -4116,7 +4103,7 @@ class Balloon:
 		try:
 			if Balloon._top.winfo_ismapped():
 				Balloon._top.withdraw()
-		except TclError:
+		except tk.TclError:
 			Balloon._top = None
 	hide=leave
 
@@ -4134,13 +4121,13 @@ class Balloon:
 			if Balloon._widget is None: return
 			widget = Balloon._widget
 			if Balloon._top is None:
-				Balloon._top = Toplevel()
+				Balloon._top = tk.Toplevel()
 				Balloon._top.overrideredirect(1)
-				Balloon._msg = Message(Balloon._top,
+				Balloon._msg = tk.Message(Balloon._top,
 						aspect=300,
 						foreground=Balloon.foreground,
 						background=Balloon.background,
-						relief=SOLID,
+						relief=tk.SOLID,
 						borderwidth=1,
 						font=Balloon.font)
 				Balloon._msg.pack()
@@ -4174,13 +4161,13 @@ class Balloon:
 			if move:
 				Balloon._top.wm_geometry("+%d+%d" % (x,y))
 
-		except TclError:
+		except tk.TclError:
 			Balloon._top = None
 
 #===============================================================================
 # A LabelFrame that can collapse/expand
 #===============================================================================
-class ExLabelFrame(LabelFrame):
+class ExLabelFrame(tk.LabelFrame):
 	def __init__(self, master, *args, **kwargs):
 		if "command" in kwargs:
 			self.command = kwargs.get("command")
@@ -4188,9 +4175,9 @@ class ExLabelFrame(LabelFrame):
 		else:
 			self.command = None
 
-		LabelFrame.__init__(self, master, *args, **kwargs)
-		self.frame = Frame(self)
-		self.frame.pack(expand=YES, fill=BOTH)
+		tk.LabelFrame.__init__(self, master, *args, **kwargs)
+		self.frame = tk.Frame(self)
+		self.frame.pack(expand=tk.YES, fill=tk.BOTH)
 		self.bind("<Button-1>", self. click)
 		if self["height"]==0:
 			self["height"] = 20
@@ -4217,7 +4204,7 @@ class ExLabelFrame(LabelFrame):
 	# ----------------------------------------------------------------------
 	def expand(self):
 		self["width"] = self.width
-		self.frame.pack(fill=BOTH)
+		self.frame.pack(fill=tk.BOTH)
 		lbl = self["text"]
 		if lbl[-1] in (Unicode.BLACK_UP_POINTING_TRIANGLE, Unicode.BLACK_DOWN_POINTING_TRIANGLE):
 			self["text"] = lbl[:-1]
@@ -4232,11 +4219,12 @@ class ExLabelFrame(LabelFrame):
 #================================================================================
 # ScrollFrame based on Bruno's implementation
 #================================================================================
-class ScrollFrame(Frame):
+class ScrollFrame(tk.Frame):
 	# ----------------------------------------------------------------------
-	def __init__(self, master=None, stretch=True, cnf={}, **kw):
-		Frame.__init__(self, master, cnf, **kw)
-		self.client = Frame(self, border=0)
+	def __init__(self, master=None, stretch=True, cnf=None, **kw):
+		if cnf is None: cnf={}
+		tk.Frame.__init__(self, master, cnf, **kw)
+		self.client = tk.Frame(self, border=0)
 
 		# width and height of Scrollframe
 		self.W = 1.0
@@ -4276,7 +4264,7 @@ class ScrollFrame(Frame):
 	# ----------------------------------------------------------------------
 	def cget(self,item):
 		if not hasattr(self,item):
-			return Frame.cget(self,item)
+			return tk.Frame.cget(self,item)
 		else:
 			getattr(self,item)
 	__getitem__ = cget
@@ -4285,10 +4273,10 @@ class ScrollFrame(Frame):
 
 	# ----------------------------------------------------------------------
 	def configure(self,cnf=None,**kw):
-		if kw: cnf=_cnfmerge((cnf,kw))
+		if kw: cnf=tk._cnfmerge((cnf,kw))
 		for key in cnf.keys():
 			if not hasattr(self,key):
-				Frame.configure(self,cnf)
+				tk.Frame.configure(self,cnf)
 			else:
 				setattr(self,key,cnf[key])
 	config=configure
@@ -4358,25 +4346,25 @@ class ScrollFrame(Frame):
 	# ----------------------------------------------------------------------
 	def scrollUp(self, event):
 		if not self.ischild(event.widget): return
-		self.yview(SCROLL, -1, UNITS)
+		self.yview(tk.SCROLL, -1, tk.UNITS)
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def scrollDown(self, event):
 		if not self.ischild(event.widget): return
-		self.yview(SCROLL,  1, UNITS)
+		self.yview(tk.SCROLL,  1, tk.UNITS)
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def scrollLeft(self, event):
 		if not self.ischild(event.widget): return
-		self.xview(SCROLL, -1, UNITS)
+		self.xview(tk.SCROLL, -1, tk.UNITS)
 		return "break"
 
 	# ----------------------------------------------------------------------
 	def scrollRight(self, event):
 		if not self.ischild(event.widget): return
-		self.xview(SCROLL,  1, UNITS)
+		self.xview(tk.SCROLL,  1, tk.UNITS)
 		return "break"
 
 	# ----------------------------------------------------------------------
@@ -4512,7 +4500,7 @@ class ScrollFrame(Frame):
 
 	# ----------------------------------------------------------------------
 	def updateScrollRegion(self, *args):
-		if len(self.client.children):
+		if self.client.children:
 			self.client_w = self.client.winfo_reqwidth()
 			self.client_h = self.client.winfo_reqheight()
 			self.W = self.winfo_width()
@@ -4551,23 +4539,23 @@ class AlreadyExists(Exception): pass
 #===============================================================================
 # A page tab frame button
 #===============================================================================
-class PageTab(Frame):
+class PageTab(tk.Frame):
 	"""
 	a 'page tab' like framed button
 	"""
 
 	# ----------------------------------------------------------------------
 	def __init__(self, parent):
-		Frame.__init__(self, parent, borderwidth=2, relief=RIDGE)
-		self.button=Radiobutton(self, padx=5, pady=2, takefocus=FALSE,
-			indicatoron=FALSE, highlightthickness=0,
+		tk.Frame.__init__(self, parent, borderwidth=2, relief=tk.RIDGE)
+		self.button=tk.Radiobutton(self, padx=5, pady=2, takefocus=tk.FALSE,
+			indicatoron=tk.FALSE, highlightthickness=0,
 			borderwidth=0, selectcolor=self.cget('bg'))
-		self.button.pack(fill=BOTH)
+		self.button.pack(fill=tk.BOTH)
 
 #===============================================================================
 # Tab pages
 #===============================================================================
-class TabPageSet(Frame):
+class TabPageSet(tk.Frame):
 	"""
 	a set of 'pages' with TabButtons for controlling their display
 	"""
@@ -4580,23 +4568,23 @@ class TabPageSet(Frame):
 		specified in desired page order. The first page will be the default
 		and first active page.
 		"""
-		Frame.__init__(self, parent, kw)
+		tk.Frame.__init__(self, parent, kw)
 		self.grid_location(0, 0)
 
-		self.tabBar=Frame(self)
+		self.tabBar=tk.Frame(self)
 		self.top = top
 		self.hidetext = hidetext
 
 		if top:
 			self.columnconfigure(0, weight=1)
 			self.rowconfigure(1, weight=1)
-			self.tabBar.grid(row=0, column=0, sticky=EW)
+			self.tabBar.grid(row=0, column=0, sticky=tk.EW)
 		else:
 			self.columnconfigure(1, weight=1)
 			self.rowconfigure(0, weight=1)
-			self.tabBar.grid(row=0, column=0, sticky=NSEW)
+			self.tabBar.grid(row=0, column=0, sticky=tk.NSEW)
 
-		self.activePage=StringVar(self)
+		self.activePage=tk.StringVar(self)
 		self.defaultPage=''
 		self.pages={}
 		for name in pageNames:
@@ -4622,13 +4610,13 @@ class TabPageSet(Frame):
 		## pop up the active 'tab' only
 		for page in self.pages.keys():
 			tab = self.pages[page]['tab']
-			tab.config(relief=RIDGE)
+			tab.config(relief=tk.RIDGE)
 			tab.button.config(background="DarkGray",
 					activebackground="DarkGray")
 			if self.hidetext: tab.button.config(text="")
 
 		tab = self.pages[self.getActivePage()]['tab']
-		tab.config(relief=RAISED)
+		tab.config(relief=tk.RAISED)
 		tab.button.config(
 			background="LightGray",
 			activebackground="LightGray")
@@ -4650,10 +4638,10 @@ class TabPageSet(Frame):
 
 		self.pages[pageName]={
 			'tab' : PageTab(self.tabBar),
-			'page': Frame(self, borderwidth=2, relief=RAISED) }
+			'page': tk.Frame(self, borderwidth=2, relief=tk.RAISED) }
 		if icon:
 			self.pages[pageName]['tab'].button.config(text=pageName,
-				image=icon, compound=LEFT)
+				image=icon, compound=tk.LEFT)
 			self.icons = True
 		else:
 			self.pages[pageName]['tab'].button.config(text=pageName)
@@ -4662,11 +4650,11 @@ class TabPageSet(Frame):
 				variable=self.activePage,
 				value=pageName)
 		if self.top:
-			self.pages[pageName]['tab'].pack(side=LEFT)
-			self.pages[pageName]['page'].grid(row=1, column=0, sticky=NSEW)
+			self.pages[pageName]['tab'].pack(side=tk.LEFT)
+			self.pages[pageName]['page'].grid(row=1, column=0, sticky=tk.NSEW)
 		else:
-			self.pages[pageName]['tab'].pack(side=TOP, fill=X)
-			self.pages[pageName]['page'].grid(row=0, column=1, sticky=NSEW)
+			self.pages[pageName]['tab'].pack(side=tk.TOP, fill=tk.X)
+			self.pages[pageName]['page'].grid(row=0, column=1, sticky=tk.NSEW)
 
 		if len(self.pages)==1: # adding first page
 			self.defaultPage=pageName
@@ -4681,7 +4669,7 @@ class TabPageSet(Frame):
 		self.pages[pageName]['page'].grid_forget()
 		self.pages[pageName]['tab'].destroy()
 		self.pages[pageName]['page'].destroy()
-		del(self.pages[pageName])
+		del self.pages[pageName]
 		# handle removing last remaining, or default, or active page
 		if not self.pages: # removed last remaining page
 			self.defaultPage=''
@@ -4705,62 +4693,62 @@ class TabPageSet(Frame):
 
 #===============================================================================
 if __name__ == "__main__":
-	root = Tk()
-	frame = Frame(root)
-	frame.pack(side=TOP, fill=X)
+	root = tk.Tk()
+	frame = tk.Frame(root)
+	frame.pack(side=tk.TOP, fill=tk.X)
 
 	p = ProgressBar(frame, background="DarkGray", height=24)
-	p.pack(side=TOP, fill=X)
+	p.pack(side=tk.TOP, fill=tk.X)
 	def addProg(ev):
 		global p
 		p.setProgress(p.getProgress()[0]+10.0)
-		p.autoText()
+		p.autoText("Test")
 	p.bind('<1>', addProg)
 
-	frame = Frame(root)
-	frame.pack(side=BOTTOM, expand=YES, fill=BOTH)
+	frame = tk.Frame(root)
+	frame.pack(side=tk.BOTTOM, expand=tk.YES, fill=tk.BOTH)
 	hsplit	= HSplitter(frame, 0.7)
 	vsplitL = VSplitter(hsplit.leftFrame(), 0.5)
 	vsplitR = VSplitter(hsplit.rightFrame(), 0.3)
 
-	Label(vsplitL.topFrame(), text='MultiListbox').pack()
+	tk.Label(vsplitL.topFrame(), text='MultiListbox').pack()
 	mlb = MultiListbox(vsplitL.topFrame(),
 			(('Subject', 40, None),
 			 ('Sender', 20, None),
 			 ('Date', 10, None)))
 	for i in range(100):
-		mlb.insert(END, ('%d Important Message' % i,
+		mlb.insert(tk.END, ('%d Important Message' % i,
 				'John Doe', '10/10/%04d' % (1900+i)))
-	mlb.pack(expand=YES, fill=BOTH)
+	mlb.pack(expand=tk.YES, fill=tk.BOTH)
 
-	l = Label(vsplitL.bottomFrame(), text="Combobox")
-	l.pack(side=TOP)
+	l = tk.Label(vsplitL.bottomFrame(), text="Combobox")
+	l.pack(side=tk.TOP)
 	cb = Combobox(vsplitL.bottomFrame(), label=True)
-	cb.pack(side=BOTTOM, expand=YES, fill=X)
+	cb.pack(side=tk.BOTTOM, expand=tk.YES, fill=tk.X)
 	cb.fill(("one","two","three","four", "fix-six-seven-eight-nine-ten"))
 	cb.select(0)
 
-	Label(vsplitR.topFrame(), text='SearchListbox').pack()
-	lb = SearchListbox(vsplitR.topFrame(), selectmode=BROWSE,
-		exportselection=FALSE)
-	lb.insert(END,"Starting")
-	lb.insert(END,"Loading card database")
-	lb.insert(END,"Loading isotopes database")
-	lb.insert(END,"Layout initialization")
-	lb.insert(END,"Layout create Tree list")
-	lb.insert(END,"--Initialize Tk")
-	lb.insert(END,"After initialization of Tk")
-	lb.insert(END,"Creating frames")
-	lb.insert(END,"Creation of windows...")
-	lb.insert(END,"Writing ini file")
-	lb.insert(END,"Exiting program")
+	tk.Label(vsplitR.topFrame(), text='SearchListbox').pack()
+	lb = SearchListbox(vsplitR.topFrame(), selectmode=tk.BROWSE,
+		exportselection=tk.FALSE)
+	lb.insert(tk.END,"Starting")
+	lb.insert(tk.END,"Loading card database")
+	lb.insert(tk.END,"Loading isotopes database")
+	lb.insert(tk.END,"Layout initialization")
+	lb.insert(tk.END,"Layout create Tree list")
+	lb.insert(tk.END,"--Initialize Tk")
+	lb.insert(tk.END,"After initialization of Tk")
+	lb.insert(tk.END,"Creating frames")
+	lb.insert(tk.END,"Creation of windows...")
+	lb.insert(tk.END,"Writing ini file")
+	lb.insert(tk.END,"Exiting program")
 #	lb.fill()
-	lb.pack(expand=YES, fill=BOTH)
+	lb.pack(expand=tk.YES, fill=tk.BOTH)
 	lb.focus_set()
 	lb.ignoreCase	  = True
 #	lb.ignoreNonAlpha = False
 
-#	v = StringVar()
+#	v = tk.StringVar()
 #	lst = ["One", "Two", "Three", "Four"]
 #	v.set("One")
 #	o = ExOptionMenu(vsplitR.bottomFrame(), v, *lst)
@@ -4773,22 +4761,22 @@ if __name__ == "__main__":
 	#test dialog
 	frame = vsplitR.bottomFrame()
 	tabPage=TabPageSet(frame, pageNames=['Foobar','Baz'])
-	tabPage.pack(expand=TRUE, fill=BOTH)
-	Label(tabPage['Foobar'], text='Foo', pady=20).pack()
-	Label(tabPage['Foobar'], text='Bar', pady=20).pack()
-	Label(tabPage['Baz'], text='Baz').pack()
-	entryPgName=Entry(frame)
-	buttonAdd=Button(frame, text='Add Page',
+	tabPage.pack(expand=tk.TRUE, fill=tk.BOTH)
+	tk.Label(tabPage['Foobar'], text='Foo', pady=20).pack()
+	tk.Label(tabPage['Foobar'], text='Bar', pady=20).pack()
+	tk.Label(tabPage['Baz'], text='Baz').pack()
+	entryPgName=tk.Entry(frame)
+	buttonAdd=tk.Button(frame, text='Add Page',
 		command=lambda:tabPage.addPage(entryPgName.get()))
-	buttonRemove=Button(frame, text='Remove Page',
+	buttonRemove=tk.Button(frame, text='Remove Page',
 		command=lambda:tabPage.removePage(entryPgName.get()))
-	labelPgName=Label(frame, text='name of page to add/remove:')
+	labelPgName=tk.Label(frame, text='name of page to add/remove:')
 	buttonAdd.pack(padx=5, pady=5)
 	buttonRemove.pack(padx=5, pady=5)
 	labelPgName.pack(padx=5)
 	entryPgName.pack(padx=5)
 	tabPage.changePage()
-	b = Button(root, text="Exit", command=root.destroy)
+	b = tk.Button(root, text="Exit", command=root.destroy)
 	Balloon.set(b, "Push me to exit")
 	b.pack()
 	e = FloatEntry(root)

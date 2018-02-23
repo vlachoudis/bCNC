@@ -3992,7 +3992,7 @@ class GCode:
 		#pprint(matrix)
 
 		best = [0]
-		unvisited = range(1,n)
+		unvisited = list(range(1,n))
 		while unvisited:
 			last = best[-1]
 			row = matrix[last]
