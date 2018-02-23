@@ -1958,15 +1958,15 @@ class Application(Toplevel,Sender):
 			Page.frames["Tools"].populate()
 
 		if autoloaded:
-			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
+			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
 		else:
-			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
+			self.setStatus(_("'%s' loaded")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
+		self.setStatus(_("'%s' saved")%(filename))
 		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------

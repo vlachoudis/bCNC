@@ -2081,10 +2081,7 @@ class Block(list):
 				or  Unicode.BLACK_RIGHT_POINTING_TRIANGLE
 		v = self.enable and Unicode.BALLOT_BOX_WITH_X \
 				or  Unicode.BALLOT_BOX
-		try:
-			return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
-		except UnicodeDecodeError:
-			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
+		return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
 
 	#----------------------------------------------------------------------
 	def write(self, f):
