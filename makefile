@@ -13,5 +13,6 @@ tags:
 clean:
 	rm -f ${NAME}.pot
 	rm -f *.pyc *.pyo
+	rm -rf __pycache__ lib/__pycache__ plugins/__pycache__
 	rm -f lib/*.pyc lib/*.pyo
 	rm -f plugins/*.pyc plugins/*.pyo
