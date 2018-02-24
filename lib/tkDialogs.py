@@ -36,14 +36,10 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 import sys
 import time
 import subprocess
-
 try:
-	from Tkinter import *
-	from Tkinter import _cnfmerge
+	import Tkinter as tk
 except ImportError:
-	from tkinter import *
-	from tkinter import _cnfmerge
-
+	import tkinter as tk
 import tkExtra
 import bFileDialog
 
@@ -64,16 +60,16 @@ import bFileDialog
 # args -	One or more strings to display in buttons across the
 #		bottom of the dialog box.
 #===============================================================================
-class Dialog(Toplevel):
+class Dialog(tk.Toplevel):
 	def __init__(self, master=None, cnf={}, **kw):
-		Toplevel.__init__(self, master, class_="Dialog", **kw)
+		tk.Toplevel.__init__(self, master, class_="Dialog", **kw)
 		self.transient(master)
 		self.title(cnf["title"])
 		self.iconname("Dialog")
 		self.protocol("WM_DELETE_WINDOW", self.close)
 		self.num = cnf["default"]
 
-		cnf = _cnfmerge((cnf, kw))
+		cnf = tk._cnfmerge((cnf, kw))
 
 		# Fill the top part with bitmap and message (use the option
 		# database for -wraplength and -font so that they can be
@@ -81,30 +77,30 @@ class Dialog(Toplevel):
 		#self.option_add("*Dialog.msg.wrapLength","3i","widgetDefault")
 		#self.option_add("*Dialog.msg.font","TkCaptionFont","widgetDefault")
 
-		fbot = Frame(self, relief=RAISED, bd=1)
-		ftop = Frame(self, relief=RAISED, bd=1)
-		fbot.pack(side=BOTTOM, fill=BOTH)
-		ftop.pack(side=TOP, fill=BOTH, expand=YES)
-		self.tk.call("grid", "anchor", fbot._w, CENTER)
+		fbot = tk.Frame(self, relief=tk.RAISED, bd=1)
+		ftop = tk.Frame(self, relief=tk.RAISED, bd=1)
+		fbot.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		ftop.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
+		self.tk.call("grid", "anchor", fbot._w, tk.CENTER)
 		#self.grid_anchor(CENTER)
 
-		l = Label(ftop, text=cnf["text"], wraplength="3i", font="TkCaptionFont", justify=LEFT)
-		l.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
+		l = tk.Label(ftop, text=cnf["text"], wraplength="3i", font="TkCaptionFont", justify=tk.LEFT)
+		l.pack(side=tk.RIGHT, fill=tk.BOTH, expand=tk.YES, padx="3m", pady="3m")
 
 		if cnf["bitmap"]:
-			l = Label(ftop, bitmap=cnf["bitmap"])
-			l.pack(side=LEFT, padx="3m", pady="3m")
+			l = tk.Label(ftop, bitmap=cnf["bitmap"])
+			l.pack(side=tk.LEFT, padx="3m", pady="3m")
 
 		# Create a row of buttons at the bottom of the dialog
 		for i,s in enumerate(cnf["strings"]):
-			b = Button(fbot, text=s, command=lambda s=self,n=i:s.close(n))
+			b = tk.Button(fbot, text=s, command=lambda s=self,n=i:s.close(n))
 			b.bind("<Return>", lambda e : e.widget.invoke())
 			if i==cnf["default"]:
 				b.config(default="active")
 				b.focus_set()
 			else:
 				b.config(default="normal")
-			b.grid(column=i, row=0, sticky=EW, padx=10, pady=4)
+			b.grid(column=i, row=0, sticky=tk.EW, padx=10, pady=4)
 
 		self.bind("<Escape>", lambda e,s=self:s.close())
 		self.bind("<Right>", lambda e : e.widget.event_generate("<Tab>"))
@@ -124,7 +120,7 @@ class Dialog(Toplevel):
 #=============================================================================
 # Input dialog
 #=============================================================================
-class InputDialog(Toplevel):
+class InputDialog(tk.Toplevel):
 	"""
 	Input dialog:
 	valid types:
@@ -133,42 +129,42 @@ class InputDialog(Toplevel):
 		spin  = Spin box with limits from_, to_
 		float = any float
 	"""
-	def __init__(self, master, title, message, input="",
+	def __init__(self, master, title, message, inp="",
 			type_="str", from_=None, to_=None):
 
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.transient(master)
-		Label(self, text=message, justify=LEFT).pack(
-			expand=YES, fill=BOTH, side=TOP)
+		tk.Label(self, text=message, justify=tk.LEFT).pack(
+			expand=tk.YES, fill=tk.BOTH, side=tk.TOP)
 
 		if type_ == "int":
 			self.entry = tkExtra.IntegerEntry(self)
-			self.entry.insert(0,input)
+			self.entry.insert(0,inp)
 			w = self.entry
 
 		elif type_ == "float":
 			self.entry = tkExtra.FloatEntry(self)
-			self.entry.insert(0,input)
+			self.entry.insert(0,inp)
 			w = self.entry
 
 		elif type_ == "spin":
-			self.entry = IntVar()
-			self.entry.set(input)
-			w = Spinbox(self, text=self.entry, from_=from_, to_=to_)
+			self.entry = tk.IntVar()
+			self.entry.set(inp)
+			w = tk.Spinbox(self, text=self.entry, from_=from_, to_=to_)
 
 		else:	# default str
-			self.entry = Entry(self)
-			self.entry.insert(0, input)
+			self.entry = tk.Entry(self)
+			self.entry.insert(0, inp)
 			w = self.entry
 
-		w.pack(padx=5, expand=YES, fill=X)
+		w.pack(padx=5, expand=tk.YES, fill=tk.X)
 
-		frame = Frame(self)
-		b = Button(frame, text="Cancel", command=self.cancel)
-		b.pack(side=RIGHT, pady=5)
-		b = Button(frame, text="Ok", command=self.ok)
-		b.pack(side=RIGHT, pady=5)
-		frame.pack(fill=X)
+		frame = tk.Frame(self)
+		b = tk.Button(frame, text="Cancel", command=self.cancel)
+		b.pack(side=tk.RIGHT, pady=5)
+		b = tk.Button(frame, text="Ok", command=self.ok)
+		b.pack(side=tk.RIGHT, pady=5)
+		frame.pack(fill=tk.X)
 
 		self.input = None
 		self.bind("<Return>", self.ok)
@@ -201,80 +197,80 @@ class InputDialog(Toplevel):
 #=============================================================================
 # Find/Replace dialog
 #=============================================================================
-class FindReplaceDialog(Toplevel):
+class FindReplaceDialog(tk.Toplevel):
 	def __init__(self, master, replace=True):
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.transient(master)
 		self.replace  = replace
-		self.caseVar = IntVar()
+		self.caseVar = tk.IntVar()
 
-		main_frame = Frame(self)
-		main_frame.pack(side=TOP, fill=BOTH, expand=YES)
+		main_frame = tk.Frame(self)
+		main_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
 
-		bottom_frame = Frame(main_frame)
-		bottom_frame.pack(side=BOTTOM, padx=10, pady=5)
+		bottom_frame = tk.Frame(main_frame)
+		bottom_frame.pack(side=tk.BOTTOM, padx=10, pady=5)
 
-		btn = Button(bottom_frame, text="Find", underline=0,
+		btn = tk.Button(bottom_frame, text="Find", underline=0,
 					width=8, command=self._find)
-		btn.pack(side=LEFT)
+		btn.pack(side=tk.LEFT)
 
 		if self.replace:
 			self.title('Replace')
 
-			btn = Button(bottom_frame,
+			btn = tk.Button(bottom_frame,
 					text="Replace", underline=0,
 					width=8, command=self._replace)
-			btn.pack(side=LEFT)
+			btn.pack(side=tk.LEFT)
 
-			btn = Button(bottom_frame,
+			btn = tk.Button(bottom_frame,
 					text="Replace All", underline=8,
 					width=8, command=self._replaceAll)
-			btn.pack(side=LEFT)
+			btn.pack(side=tk.LEFT)
 
 		else:
 			self.title("Find")
 
-		btn = Button(bottom_frame,
+		btn = tk.Button(bottom_frame,
 				text = "Close", underline=0,
 				width=8, command=self._close)
-		btn.pack(side=RIGHT)
+		btn.pack(side=tk.RIGHT)
 
-		top_frame = Frame(main_frame)
-		top_frame.pack(side=LEFT, fill=BOTH, expand=YES,
+		top_frame = tk.Frame(main_frame)
+		top_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES,
 					padx=10, pady=5)
-		findString_frame = Frame(top_frame)
-		findString_frame.pack(side=TOP, fill=X)
+		findString_frame = tk.Frame(top_frame)
+		findString_frame.pack(side=tk.TOP, fill=tk.X)
 
-		label = Label(findString_frame,
+		label = tk.Label(findString_frame,
 				text='Find string: ',
 				width=12)
-		label.pack(side=LEFT)
+		label.pack(side=tk.LEFT)
 
-		self.findString_entry = Entry(findString_frame,
+		self.findString_entry = tk.Entry(findString_frame,
 			background="White")
-		self.findString_entry.pack(side=RIGHT, fill=X, expand=YES)
+		self.findString_entry.pack(side=tk.RIGHT, fill=tk.X, expand=tk.YES)
 
 		if self.replace:
-			replaceString_frame = Frame(top_frame)
-			replaceString_frame.pack(side=TOP, fill=X)
+			replaceString_frame = tk.Frame(top_frame)
+			replaceString_frame.pack(side=tk.TOP, fill=tk.X)
 
-			label = Label(replaceString_frame,
+			label = tk.Label(replaceString_frame,
 					text='Replace to: ',
 					width=12)
-			label.pack(side=LEFT)
+			label.pack(side=tk.LEFT)
 
-			self.replaceString_entry = Entry(replaceString_frame,
+			self.replaceString_entry = tk.Entry(replaceString_frame,
 				background="White")
-			self.replaceString_entry.pack(side=RIGHT, fill=X, expand=YES)
+			self.replaceString_entry.pack(side=tk.RIGHT, fill=tk.X, expand=tk.YES)
 
-		options_frame = Frame(top_frame)
-		options_frame.pack(side=TOP, fill=X)
-		self.case_check = Checkbutton(options_frame,
+		options_frame = tk.Frame(top_frame)
+		options_frame.pack(side=tk.TOP, fill=tk.X)
+		self.case_check = tk.Checkbutton(options_frame,
 					text     = 'Match case? ',
 					onvalue  = 0,
 					offvalue = 1,
 					variable = self.caseVar)
-		self.case_check.pack(side = RIGHT)
+		self.case_check.pack(side = tk.RIGHT)
 		self.case_check.deselect()
 
 		self.bind('<Escape>', self._close)
@@ -293,9 +289,9 @@ class FindReplaceDialog(Toplevel):
 	def show(self, find=None, replace=None, replaceAll=None, target=None):
 		if target:
 			self.findString_entry.insert('0', target)
-			self.findString_entry.select_range('0',END)
+			self.findString_entry.select_range('0',tk.END)
 		else:
-			self.findString_entry.delete('0', END)
+			self.findString_entry.delete('0', tk.END)
 		self.objFind       = find
 		self.objReplace    = replace
 		self.objReplaceAll = replaceAll
@@ -335,7 +331,7 @@ class FindReplaceDialog(Toplevel):
 #=============================================================================
 # Printer dialog
 #=============================================================================
-class Printer(Toplevel):
+class Printer(tk.Toplevel):
 	PAPER_FORMAT = { "A3" : (29.7, 42.0),
 			 "B3" : (35.3, 50.0),
 			 "A4" :	(21.0, 29.7),
@@ -352,97 +348,97 @@ class Printer(Toplevel):
 	copies    = 1
 
 	def __init__(self, master):
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.transient(master)
 		self.title('Print')
 
-		self.printCmd  = IntVar()
+		self.printCmd  = tk.IntVar()
 		self.printCmd.set(Printer.printTo)
-		self.landscapeVar = IntVar()
+		self.landscapeVar = tk.IntVar()
 		self.landscapeVar.set(Printer.landscape)
-		self.paperVar     = StringVar()
+		self.paperVar     = tk.StringVar()
 		self.paperVar.set(Printer.paper)
-		self.copiesVar    = IntVar()
+		self.copiesVar    = tk.IntVar()
 		self.copiesVar.set(Printer.copies)
 
 		#self.geometry('+265+230')
 
 		# -----
-		frame = LabelFrame(self, text="Print To")
-		frame.pack(side=TOP, fill=BOTH, expand=YES)
+		frame = tk.LabelFrame(self, text="Print To")
+		frame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
 
-		b = Radiobutton(frame, text="Printer:",
+		b = tk.Radiobutton(frame, text="Printer:",
 			variable=self.printCmd, value=1,
 			command=self.printToChange)
-		b.grid(row=0, column=0, sticky=W)
+		b.grid(row=0, column=0, sticky=tk.W)
 
 		self.printer_combo = tkExtra.Combobox(frame, width=30)
-		self.printer_combo.grid(row=0, column=1, columnspan=2, sticky=EW)
+		self.printer_combo.grid(row=0, column=1, columnspan=2, sticky=tk.EW)
 		self.fillPrinters()
 
-		self.cmd_label = Label(frame, text="Command:")
-		self.cmd_label.grid(row=1, column=0, sticky=E)
+		self.cmd_label = tk.Label(frame, text="Command:")
+		self.cmd_label.grid(row=1, column=0, sticky=tk.E)
 
-		self.cmd_entry = Entry(frame, background="White", width=30)
-		self.cmd_entry.grid(row=1, column=1, columnspan=2, sticky=EW)
+		self.cmd_entry = tk.Entry(frame, background="White", width=30)
+		self.cmd_entry.grid(row=1, column=1, columnspan=2, sticky=tk.EW)
 		self.cmd_entry.insert(0, Printer.cmd)
 
-		b = Radiobutton(frame, text="File Name:",
+		b = tk.Radiobutton(frame, text="File Name:",
 			variable=self.printCmd, value=0,
 			command=self.printToChange)
-		b.grid(row=2, column=0, sticky=W)
+		b.grid(row=2, column=0, sticky=tk.W)
 
-		self.file_entry = Entry(frame, background="White", width=25)
-		self.file_entry.grid(row=2, column=1, sticky=EW)
+		self.file_entry = tk.Entry(frame, background="White", width=25)
+		self.file_entry.grid(row=2, column=1, sticky=tk.EW)
 
-		self.browse_btn = Button(frame, text="Browse",
+		self.browse_btn = tk.Button(frame, text="Browse",
 				command=self.browse)
-		self.browse_btn.grid(row=2, column=2, sticky=EW)
+		self.browse_btn.grid(row=2, column=2, sticky=tk.EW)
 		frame.grid_columnconfigure(1, weight=1)
 
 		# ------
-		frame = LabelFrame(self, text="Options")
-		frame.pack(fill=BOTH)
+		frame = tk.LabelFrame(self, text="Options")
+		frame.pack(fill=tk.BOTH)
 
 		row = 0
-		l = Label(frame, text="Orientation")
-		l.grid(row=row, column=0, sticky=E)
+		l = tk.Label(frame, text="Orientation")
+		l.grid(row=row, column=0, sticky=tk.E)
 
-		b = Radiobutton(frame, text="Portrait",
+		b = tk.Radiobutton(frame, text="Portrait",
 			variable=self.landscapeVar, value=0)
-		b.grid(row=row, column=1, sticky=W)
+		b.grid(row=row, column=1, sticky=tk.W)
 
-		b = Radiobutton(frame, text="Landscape",
+		b = tk.Radiobutton(frame, text="Landscape",
 			variable=self.landscapeVar, value=1)
-		b.grid(row=row, column=2, columnspan=2, sticky=W)
+		b.grid(row=row, column=2, columnspan=2, sticky=tk.W)
 
 		row += 1
-		l = Label(frame, text="Paper Size")
-		l.grid(row=row, column=0, sticky=E)
+		l = tk.Label(frame, text="Paper Size")
+		l.grid(row=row, column=0, sticky=tk.E)
 
 		paperlist = sorted(Printer.PAPER_FORMAT.keys())
-		o = OptionMenu(frame, self.paperVar, *paperlist)
-		o.grid(row=row, column=1, sticky=W)
+		o = tk.OptionMenu(frame, self.paperVar, *paperlist)
+		o.grid(row=row, column=1, sticky=tk.W)
 
-		l = Label(frame, text="Copies")
-		l.grid(row=row, column=2, sticky=E)
+		l = tk.Label(frame, text="Copies")
+		l.grid(row=row, column=2, sticky=tk.E)
 
-		s = Spinbox(frame, text=self.copiesVar, from_=1, to=100,
+		s = tk.Spinbox(frame, text=self.copiesVar, from_=1, to=100,
 				background="White", width=3)
-		s.grid(row=row, column=3, sticky=W)
+		s.grid(row=row, column=3, sticky=tk.W)
 
 		frame.grid_columnconfigure(1, weight=1)
 		frame.grid_columnconfigure(3, weight=1)
 
 		# -------
-		frame = Frame(self)
-		frame.pack(fill=X)
+		frame = tk.Frame(self)
+		frame.pack(fill=tk.X)
 
-		b = Button(frame, text="Cancel", command=self.cancel)
-		b.pack(side=RIGHT)
+		b = tk.Button(frame, text="Cancel", command=self.cancel)
+		b.pack(side=tk.RIGHT)
 
-		b = Button(frame, text="Print", command=self.ok)
-		b.pack(side=RIGHT)
+		b = tk.Button(frame, text="Print", command=self.ok)
+		b.pack(side=tk.RIGHT)
 
 		self.bind('<Return>', self.ok)
 		self.bind('<Escape>', self.cancel)
@@ -459,10 +455,10 @@ class Printer(Toplevel):
 			try:
 				f = open("/etc/printcap","r")
 				for line in f:
-					if len(line)==0: continue
+					if not line: continue
 					if line[0] == '#': continue
 					field = line.split(":")
-					self.printer_combo.insert(END, field[0])
+					self.printer_combo.insert(tk.END, field[0])
 					if Printer.printer == "":
 						Printer.printer = field[0]
 				f.close()
@@ -478,11 +474,11 @@ class Printer(Toplevel):
 		self.rc = False
 		self.hnd = None
 
-		self.cmd_entry.config(state=NORMAL)
-		self.file_entry.config(state=NORMAL)
-		self.cmd_entry.delete(0, END)
+		self.cmd_entry.config(state=tk.NORMAL)
+		self.file_entry.config(state=tk.NORMAL)
+		self.cmd_entry.delete(0, tk.END)
 		self.cmd_entry.insert(0, Printer.cmd)
-		self.file_entry.delete(0, END)
+		self.file_entry.delete(0, tk.END)
 		self.file_entry.insert(0, Printer.filename)
 
 		self.printCmd.set(Printer.printTo)
@@ -515,17 +511,17 @@ class Printer(Toplevel):
 	# --------------------------------------------------------------------
 	def printToChange(self):
 		if self.printCmd.get():
-			self.printer_combo.config(state=NORMAL)
-			self.cmd_label.config(state=NORMAL)
-			self.cmd_entry.config(state=NORMAL)
-			self.file_entry.config(state=DISABLED)
-			self.browse_btn.config(state=DISABLED)
+			self.printer_combo.config(state=tk.NORMAL)
+			self.cmd_label.config(state=tk.NORMAL)
+			self.cmd_entry.config(state=tk.NORMAL)
+			self.file_entry.config(state=tk.DISABLED)
+			self.browse_btn.config(state=tk.DISABLED)
 		else:
-			self.printer_combo.config(state=DISABLED)
-			self.cmd_label.config(state=DISABLED)
-			self.cmd_entry.config(state=DISABLED)
-			self.file_entry.config(state=NORMAL)
-			self.browse_btn.config(state=NORMAL)
+			self.printer_combo.config(state=tk.DISABLED)
+			self.cmd_label.config(state=tk.DISABLED)
+			self.cmd_entry.config(state=tk.DISABLED)
+			self.file_entry.config(state=tk.NORMAL)
+			self.browse_btn.config(state=tk.NORMAL)
 
 	# --------------------------------------------------------------------
 	def browse(self):
@@ -534,8 +530,8 @@ class Printer(Toplevel):
 				filetypes=[("Postscript file","*.ps"),
 					("Encapsulated postscript file","*.eps"),
 					("All","*")])
-		if len(fn) > 0:
-			self.file_entry.delete(0, END)
+		if fn:
+			self.file_entry.delete(0, tk.END)
 			self.file_entry.insert(0, fn)
 
 	# --------------------------------------------------------------------
@@ -590,17 +586,17 @@ class Printer(Toplevel):
 #=============================================================================
 # Show progress information
 #=============================================================================
-class ProgressDialog(Toplevel):
+class ProgressDialog(tk.Toplevel):
 	def __init__(self, master, title):
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.transient(master)
 		self.title(title)
 		self.bar = tkExtra.ProgressBar(self, width=200, height=24, background="DarkGray")
-		self.bar.pack(side=TOP, expand=YES, fill=X)
-		self.label = Label(self, width=60)
-		self.label.pack(side=TOP, expand=YES, fill=BOTH)
-		b = Button(self, text="Stop", foreground="Darkred", command=self.stop)
-		b.pack(side=BOTTOM, fill=X, pady=2)
+		self.bar.pack(side=tk.TOP, expand=tk.YES, fill=tk.X)
+		self.label = tk.Label(self, width=60)
+		self.label.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
+		b = tk.Button(self, text="Stop", foreground="Darkred", command=self.stop)
+		b.pack(side=tk.BOTTOM, fill=tk.X, pady=2)
 		self.ended = False
 
 		self.bind("<Escape>", self.stop)
@@ -643,7 +639,7 @@ class ProgressDialog(Toplevel):
 
 #=============================================================================
 if __name__ == "__main__":
-	root = Tk()
+	root = tk.Tk()
 	sd = Printer(root)
 	sd = FindReplaceDialog(root)
 	#print("FindReplace=",sd.show(None,"Hello"))

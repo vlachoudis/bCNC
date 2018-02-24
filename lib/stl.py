@@ -66,9 +66,9 @@ def normal(v1,v2,v3):
 #simple function to create sets of three vertices
 def triangulate(vertices):
 	n=len(vertices)
-	if(n==3):
+	if n==3:
 		return vertices
-	elif n < 3:
+	elif n<3:
 			facets = triangulate(facet)
 			self.add_facets(facets)
 	else:
@@ -97,7 +97,6 @@ def triangulate(vertices):
 			self.add_facet([bottom[len(bottom)-1],bottom[0],top[0],top[len(bottom)-1]])
 
 			self.add_facet(top)
-
 
 class ASCII_STL_Writer:
 	""" Export 3D objects build of 3 or 4 vertices as ASCII STL file.
