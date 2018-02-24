@@ -4,7 +4,6 @@
 # Author: vvlachoudis@gmail.com
 # Date: 20-Oct-2015
 
-import sys
 import bmath
 
 #===============================================================================
@@ -170,9 +169,9 @@ class CubicSpline:
 	# Return evaluated derivative at x using coefficients C
 	#-----------------------------------------------------------------------
 	def derivative(self, C, x):
-		a = 3.0*C[0]			# derivative coefficients
-		b = 2.0*C[1]			# ... for sampling with rejection
-		c =     C[2]
+		#a = 3.0*C[0]			# derivative coefficients
+		#b = 2.0*C[1]			# ... for sampling with rejection
+		#c =     C[2]
 		return (3.0*C[0]*x + 2.0*C[1])*x + C[2]
 
 # ------------------------------------------------------------------------------
@@ -453,17 +452,18 @@ def _rbsplinu(npts, k, p1, b, h, p, x=None):
 		t += step
 
 # =============================================================================
-if __name__ == "__main__":
-	SPLINE_SEGMENTS = 20
-	from dxf import DXF
-#	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
-	dxf = DXF(sys.argv[1],"r")
-	dxf.readFile()
-	dxf.close()
-	for name,layer in dxf.layers.items():
-		for entity in layer.entities:
-			if entity.type == "SPLINE":
-				xy = zip(entity[10], entity[20])
-				x,y = spline2Polyline(xy, int(entity[71]), True, SPLINE_SEGMENTS)
-				#for a,b in zip(x,y):
-				#	print a,b
+#if __name__ == "__main__":
+#	import sys
+#	SPLINE_SEGMENTS = 20
+#	from dxf import DXF
+##	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
+#	dxf = DXF(sys.argv[1],"r")
+#	dxf.readFile()
+#	dxf.close()
+#	for name,layer in dxf.layers.items():
+#		for entity in layer.entities:
+#			if entity.type == "SPLINE":
+#				xy = zip(entity[10], entity[20])
+#				x,y = spline2Polyline(xy, int(entity[71]), True, SPLINE_SEGMENTS)
+#				#for a,b in zip(x,y):
+#				#	print a,b
