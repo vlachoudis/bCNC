@@ -29,6 +29,10 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
+# Date:         15-Oct-2017
+
+__author__ = "Vasilis Vlachoudis"
+__email__  = "Vasilis.Vlachoudis@cern.ch"
 
 #===============================================================================
 # Undo Redo Class
@@ -53,10 +57,10 @@ class UndoRedo:
 			if isinstance(undoinfo[0], str):
 				# replace message
 				undoinfo = (msg,) + undoinfo[1:]
-			elif isinstance(undoinfo,tuple):
+			elif isinstance(undoinfo, tuple):
 				undoinfo = (msg,) + undoinfo
 			else:
-				undoinfo = (msg,undoinfo)
+				undoinfo = (msg, undoinfo)
 			f = 1
 		else:
 			f = int(isinstance(undoinfo[0], str))
@@ -137,7 +141,7 @@ class UndoRedo:
 	def undoTextList(self):
 		lst = []
 		for u in self.undoList:
-			if isinstance(u[0], str):
+			if isinstance(u[0], str) and u[0]:
 				lst.append(u[0])
 			else:
 				lst.append("undo")

@@ -6,7 +6,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
-from tkinter import *
+import tkinter as tk
 
 import Utils
 import tkExtra
@@ -40,9 +40,9 @@ RIBBON_TEMP   = -1	# Show temporarily
 #===============================================================================
 # Frame Group with a button at bottom
 #===============================================================================
-class LabelGroup(Frame):
+class LabelGroup(tk.Frame):
 	def __init__(self, master, name, command=None, **kw):
-		Frame.__init__(self, master, **kw)
+		tk.Frame.__init__(self, master, **kw)
 		self.name = name
 		self.config(	#bg="Green",
 				background=_BACKGROUND,
@@ -51,16 +51,16 @@ class LabelGroup(Frame):
 				pady=0)
 
 		# right frame as a separator
-		f = Frame(self, borderwidth=2, relief=GROOVE, background=_BACKGROUND_DISABLE)
-		f.pack(side=RIGHT, fill=Y, padx=0, pady=0)
+		f = tk.Frame(self, borderwidth=2, relief=tk.GROOVE, background=_BACKGROUND_DISABLE)
+		f.pack(side=tk.RIGHT, fill=tk.Y, padx=0, pady=0)
 
 		# frame to insert the buttons
-		self.frame = Frame(self,
+		self.frame = tk.Frame(self,
 				#bg="Orange",
 				background=_BACKGROUND,
 				padx=0,
 				pady=0)
-		self.frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=0, pady=0)
+		self.frame.pack(side=tk.TOP, expand=tk.TRUE, fill=tk.BOTH, padx=0, pady=0)
 
 		if command:
 			self.label = LabelButton(self, self, "<<%s>>"%(name), text=name)
@@ -71,15 +71,15 @@ class LabelGroup(Frame):
 				highlightthickness=0,
 				borderwidth=0,
 				pady=0,
-				compound=RIGHT)
+				compound=tk.RIGHT)
 		else:
-			self.label = Label(self, text=_(name),
+			self.label = tk.Label(self, text=_(name),
 					font       = _FONT,
 					foreground = _FOREGROUND_GROUP,
 					background = _BACKGROUND_GROUP,
 					padx=2,
 					pady=0)	# Button takes 1px for border width
-		self.label.pack(side=BOTTOM, fill=X, pady=0)
+		self.label.pack(side=tk.BOTTOM, fill=tk.X, pady=0)
 
 	#-----------------------------------------------------------------------
 	def grid2rows(self):
@@ -115,10 +115,10 @@ class _KeyboardFocus:
 #===============================================================================
 # Button with Label that generates a Virtual Event or calls a command
 #===============================================================================
-class LabelButton(Button, _KeyboardFocus):
+class LabelButton(tk.Button, _KeyboardFocus):
 	def __init__(self, master, recipient=None, event=None, **kw):
-		Button.__init__(self, master, **kw)
-		self.config(	relief           = FLAT,
+		tk.Button.__init__(self, master, **kw)
+		self.config(	relief           = tk.FLAT,
 				activebackground = _ACTIVE_COLOR,
 				font             = _FONT,
 				borderwidth      = 1,
@@ -139,14 +139,14 @@ class LabelButton(Button, _KeyboardFocus):
 		self._recipient.event_generate(self._event)
 
 #===============================================================================
-class LabelCheckbutton(Checkbutton, _KeyboardFocus):
+class LabelCheckbutton(tk.Checkbutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
-		Checkbutton.__init__(self, master, **kw)
+		tk.Checkbutton.__init__(self, master, **kw)
 		self.config(	selectcolor        = _LABEL_SELECT_COLOR,
 				activebackground   = _ACTIVE_COLOR,
 				background         = _BACKGROUND,
-				indicatoron        = FALSE,
-				relief             = FLAT,
+				indicatoron        = tk.FALSE,
+				relief             = tk.FLAT,
 				borderwidth        = 0,
 				highlightthickness = 0,
 				padx               = 0,
@@ -156,14 +156,14 @@ class LabelCheckbutton(Checkbutton, _KeyboardFocus):
 		_KeyboardFocus._bind(self)
 
 #===============================================================================
-class LabelRadiobutton(Radiobutton, _KeyboardFocus):
+class LabelRadiobutton(tk.Radiobutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
-		Radiobutton.__init__(self, master, **kw)
+		tk.Radiobutton.__init__(self, master, **kw)
 		self.config(
 			selectcolor        = _LABEL_SELECT_COLOR,
 			activebackground   = _ACTIVE_COLOR,
 			background         = _BACKGROUND,
-			indicatoron        = FALSE,
+			indicatoron        = tk.FALSE,
 			borderwidth        = 0,
 			highlightthickness = 0,
 			pady               = 0,
@@ -176,21 +176,21 @@ class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 	def __init__(self, master, **kw):
 		tkExtra.Combobox.__init__(self, master, **kw)
 		self.config(background=_BACKGROUND, font=_FONT)
-		Frame.config(self, background=_BACKGROUND, padx=0, pady=0)
+		tk.Frame.config(self, background=_BACKGROUND, padx=0, pady=0)
 		_KeyboardFocus._bind(self)
 
 	#-----------------------------------------------------------------------
 	def _focusOut(self, event):
 		self.config(background = _BACKGROUND) #self.__backgroundColor)
-		Frame.config(self, background= _BACKGROUND) #self.__backgroundColor)
+		tk.Frame.config(self, background= _BACKGROUND) #self.__backgroundColor)
 
 #===============================================================================
 # Button with Label that popup a menu
 #===============================================================================
-class MenuButton(Button, _KeyboardFocus):
+class MenuButton(tk.Button, _KeyboardFocus):
 	def __init__(self, master, menulist, **kw):
-		Button.__init__(self, master, **kw)
-		self.config(	relief           = FLAT,
+		tk.Button.__init__(self, master, **kw)
+		self.config(	relief           = tk.FLAT,
 				activebackground = _ACTIVE_COLOR,
 				font             = _FONT,
 				borderwidth      = 0,
@@ -227,19 +227,19 @@ class MenuButton(Button, _KeyboardFocus):
 	#-----------------------------------------------------------------------
 	@staticmethod
 	def createMenuFromList(master, menulist):
-		mainmenu = menu = Menu(master, tearoff=0, activebackground=_ACTIVE_COLOR)
+		mainmenu = menu = tk.Menu(master, tearoff=0, activebackground=_ACTIVE_COLOR)
 		for item in menulist:
 			if item is None:
 				menu.add_separator()
 			elif isinstance(item,str):
-				menu = Menu(mainmenu)
+				menu = tk.Menu(mainmenu)
 				mainmenu.add_cascade(label=item, menu=menu)
 			else:
 				name, icon, cmd = item
 				if icon is None: icon = "empty"
 				menu.add_command(label=name,
 						image=Utils.icons[icon],
-						compound=LEFT,
+						compound=tk.LEFT,
 						command=cmd)
 		return menu
 
@@ -276,13 +276,13 @@ class MenuGroup(LabelGroup):
 #===============================================================================
 # Page Tab buttons
 #===============================================================================
-class TabButton(Radiobutton):
+class TabButton(tk.Radiobutton):
 	def __init__(self, master, **kw):
-		Radiobutton.__init__(self, master, **kw)
+		tk.Radiobutton.__init__(self, master, **kw)
 		self.config(	selectcolor        = _BACKGROUND,
 				activebackground   = _ACTIVE_COLOR,
-				indicatoron        = FALSE,
-				relief             = FLAT,
+				indicatoron        = tk.FALSE,
+				relief             = tk.FLAT,
 				font               = _TABFONT,
 				borderwidth        = 0,
 				highlightthickness = 0,
@@ -355,7 +355,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 	# FIXME XXX SHOULD BE REMOVED
 	#-----------------------------------------------------------------------
 	def createPage(self):
-		self.page = Frame(self.master._pageFrame)
+		self.page = tk.Frame(self.master._pageFrame)
 		return self.page
 
 	#-----------------------------------------------------------------------
@@ -382,16 +382,16 @@ class Page:		# <--- should be possible to be a toplevel as well
 		if self.page is None: return
 
 		if self.canUndo():
-			state = NORMAL
+			state = tk.NORMAL
 		else:
-			state = DISABLED
+			state = tk.DISABLED
 		self.master.tool["undo"].config(state=state)
 		self.master.tool["undolist"].config(state=state)
 
 		if self.canRedo():
-			state = NORMAL
+			state = tk.NORMAL
 		else:
-			state = DISABLED
+			state = tk.DISABLED
 		self.master.tool["redo"].config(state=state)
 
 	#-----------------------------------------------------------------------
@@ -419,7 +419,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 		for child in widget.winfo_children():
 			for class_ in Page._motionClasses:
 				if isinstance(child, class_):
-					if child["state"] == DISABLED: continue
+					if child["state"] == tk.DISABLED: continue
 					xw = child.winfo_rootx()
 					yw = child.winfo_rooty()
 					if compare(x,y,xw,yw):
@@ -472,82 +472,82 @@ class Page:		# <--- should be possible to be a toplevel as well
 #===============================================================================
 # TabRibbonFrame
 #===============================================================================
-class TabRibbonFrame(Frame):
+class TabRibbonFrame(tk.Frame):
 	def __init__(self, master, **kw):
-		Frame.__init__(self, master, kw)
+		tk.Frame.__init__(self, master, kw)
 		self.config(background=_BACKGROUND_DISABLE)
 
 		self.oldActive  = None
-		self.activePage = StringVar(self)
+		self.activePage = tk.StringVar(self)
 		self.tool       = {}
 		self.pages      = {}
 
 		# === Top frame with buttons ===
-		frame = Frame(self, background=_BACKGROUND_DISABLE)
-		frame.pack(side=TOP, fill=X)
+		frame = tk.Frame(self, background=_BACKGROUND_DISABLE)
+		frame.pack(side=tk.TOP, fill=tk.X)
 
 		# --- Basic buttons ---
 		b = LabelButton(frame, self, "<<New>>",
 				image=Utils.icons["new"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("New file"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
 		b = LabelButton(frame, self, "<<Open>>",
 				image=Utils.icons["load"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("Open file [Ctrl-O]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
 		b = LabelButton(frame, self, "<<Save>>",
 				image=Utils.icons["save"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("Save all [Ctrl-S]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
 		b = LabelButton(frame, self, "<<Undo>>",
 				image=Utils.icons["undo"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("Undo [Ctrl-Z]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 		self.tool["undo"] = b
 
 		b = LabelButton(frame, image=Utils.icons["triangle_down"],
 				command=self.undolist,
 				background=_BACKGROUND_DISABLE)
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 		self.tool["undolist"] = b
 
 		b = LabelButton(frame, self, "<<Redo>>",
 				image=Utils.icons["redo"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("Redo [Ctrl-Y]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 		self.tool["redo"] = b
 
-		Label(frame, image=Utils.icons["sep"],
-				background=_BACKGROUND_DISABLE).pack(side=LEFT, padx=3)
+		tk.Label(frame, image=Utils.icons["sep"],
+				background=_BACKGROUND_DISABLE).pack(side=tk.LEFT, padx=3)
 
 		# --- Help ---
 		b = LabelButton(frame, self, "<<Help>>",
 				image=Utils.icons["info"],
 				background=_BACKGROUND_DISABLE)
 		tkExtra.Balloon.set(b, _("Help [F1]"))
-		b.pack(side=RIGHT, padx=2)
+		b.pack(side=tk.RIGHT, padx=2)
 
-		Label(frame, image=Utils.icons["sep"],
-				background=_BACKGROUND_DISABLE).pack(side=RIGHT, padx=3)
+		tk.Label(frame, image=Utils.icons["sep"],
+				background=_BACKGROUND_DISABLE).pack(side=tk.RIGHT, padx=3)
 
 		# --- TabBar ---
-		self._tabFrame = Frame(frame, background=_BACKGROUND_DISABLE)
-		self._tabFrame.pack(side=LEFT, fill=BOTH, expand=YES)
+		self._tabFrame = tk.Frame(frame, background=_BACKGROUND_DISABLE)
+		self._tabFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
 
 		# ==== Ribbon Frame ====
-		self._ribbonFrame = Frame(self,
+		self._ribbonFrame = tk.Frame(self,
 						background=_BACKGROUND,
 						pady=0,
-						relief=RAISED)
-		self._ribbonFrame.pack(fill=BOTH, expand=YES, padx=0, pady=0)
+						relief=tk.RAISED)
+		self._ribbonFrame.pack(fill=tk.BOTH, expand=tk.YES, padx=0, pady=0)
 
 		self.setPageFrame(None)
 
@@ -565,18 +565,18 @@ class TabRibbonFrame(Frame):
 	#-----------------------------------------------------------------------
 	# Add page to the tabs
 	#-----------------------------------------------------------------------
-	def addPage(self, page, side=LEFT):
+	def addPage(self, page, side=tk.LEFT):
 		self.pages[page.name] = page
 		page._tab = TabButton(self._tabFrame,
 				image    = page._icon,
 				text     = _(page.name),
-				compound = LEFT,
+				compound = tk.LEFT,
 				value    = page.name,
 				variable = self.activePage,
 				command  = self.changePage)
 		tkExtra.Balloon.set(page._tab, page.__doc__)
 
-		page._tab.pack(side=side, fill=Y, padx=5)
+		page._tab.pack(side=side, fill=tk.Y, padx=5)
 
 	# ----------------------------------------------------------------------
 	# Unpack the old page

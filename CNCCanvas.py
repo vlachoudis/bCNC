@@ -1,19 +1,17 @@
-# -*- coding: ascii -*-
-# $Id: CNCCanvas.py,v 1.7 2014/10/15 15:04:06 bnv Exp $
 #
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
+#
 
 import math
 import time
-import bmath
 import tkinter as tk
-from tkinter import *
 
-from CNC import Tab, CNC
+import bmath
 import Utils
 import Camera
 import tkExtra
+from CNC import Tab, CNC
 
 # Probe mapping we need PIL and numpy
 try:
@@ -137,16 +135,16 @@ class AlarmException(Exception):
 #==============================================================================
 # Drawing canvas
 #==============================================================================
-class CNCCanvas(Canvas):
+class CNCCanvas(tk.Canvas):
 	def __init__(self, master, app, *kw, **kwargs):
-		Canvas.__init__(self, master, *kw, **kwargs)
+		tk.Canvas.__init__(self, master, *kw, **kwargs)
 
 		# Global variables
 		self.view  = 0
 		self.app   = app
 		self.cnc   = app.cnc
 		self.gcode = app.gcode
-		self.actionVar = IntVar()
+		self.actionVar = tk.IntVar()
 
 		# Canvas binding
 		self.bind('<Configure>',	self.configureEvent)
@@ -229,7 +227,7 @@ class CNCCanvas(Canvas):
 		self._probe       = None
 
 		self.camera          = Camera.Camera("aligncam")
-		self.cameraAnchor    = CENTER		# Camera anchor location "" for gantry
+		self.cameraAnchor    = tk.CENTER		# Camera anchor location "" for gantry
 		self.cameraRotation  = 0.0		# camera Z angle
 		self.cameraXCenter   = 0.0		# camera X center offset
 		self.cameraYCenter   = 0.0		# camera Y center offset
@@ -302,7 +300,6 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def handleKey(self, event):
-		ctrl  = event.state & CONTROL_MASK
 		if event.char == "a":
 			self.event_generate("<<SelectAll>>")
 		elif event.char == "A":
@@ -508,13 +505,13 @@ class CNCCanvas(Canvas):
 						self._mouseAction = ACTION_SELECT_SINGLE
 						return
 					fill  = MOVE_COLOR
-					arrow = LAST
+					arrow = tk.LAST
 				except:
 					self._mouseAction = ACTION_SELECT_SINGLE
 					return
 			else:
 				fill  = RULER_COLOR
-				arrow = BOTH
+				arrow = tk.BOTH
 			self._vector = self.create_line((i,j,i,j), fill=fill, arrow=arrow)
 			self._vx0, self._vy0, self._vz0 = self.canvas2xyz(i,j)
 			self._mouseAction = self.action
@@ -664,7 +661,6 @@ class CNCCanvas(Canvas):
 							self.selectMarker(i)
 							return
 						#i = self.find_below(i)
-						pass
 			if not items: return
 
 			self.app.select(items, self._mouseAction==ACTION_SELECT_DOUBLE,
@@ -773,13 +769,13 @@ class CNCCanvas(Canvas):
 
 	#----------------------------------------------------------------------
 	def xview(self, *args):
-		ret = Canvas.xview(self, *args)
+		ret = tk.Canvas.xview(self, *args)
 		if args: self.cameraPosition()
 		return ret
 
 	#----------------------------------------------------------------------
 	def yview(self, *args):
-		ret = Canvas.yview(self, *args)
+		ret = tk.Canvas.yview(self, *args)
 		if args: self.cameraPosition()
 		return ret
 
@@ -805,16 +801,16 @@ class CNCCanvas(Canvas):
 
 	# ----------------------------------------------------------------------
 	def panLeft(self, event=None):
-		self.xview(SCROLL, -1, UNITS)
+		self.xview(tk.SCROLL, -1, tk.UNITS)
 
 	def panRight(self, event=None):
-		self.xview(SCROLL,  1, UNITS)
+		self.xview(tk.SCROLL,  1, tk.UNITS)
 
 	def panUp(self, event=None):
-		self.yview(SCROLL, -1, UNITS)
+		self.yview(tk.SCROLL, -1, tk.UNITS)
 
 	def panDown(self, event=None):
-		self.yview(SCROLL,  1, UNITS)
+		self.yview(tk.SCROLL,  1, tk.UNITS)
 
 	# ----------------------------------------------------------------------
 	# Delay zooming to cascade multiple zoom actions
@@ -967,9 +963,9 @@ class CNCCanvas(Canvas):
 
 		if item is not None and item != self._lastActive:
 			if self._lastActive is not None:
-				self.itemconfig(self._lastActive, arrow=NONE)
+				self.itemconfig(self._lastActive, arrow=tk.NONE)
 			self._lastActive = item
-			self.itemconfig(self._lastActive, arrow=LAST)
+			self.itemconfig(self._lastActive, arrow=tk.LAST)
 
 	#----------------------------------------------------------------------
 	# Display gantry
@@ -977,7 +973,7 @@ class CNCCanvas(Canvas):
 	def gantry(self, wx, wy, wz, mx, my, mz):
 		self._lastGantry = (wx,wy,wz)
 		self._drawGantry(*self.plotCoords([(wx,wy,wz)])[0])
-		if self._cameraImage and self.cameraAnchor==NONE:
+		if self._cameraImage and self.cameraAnchor==tk.NONE:
 			self.cameraPosition()
 
 		dx = wx-mx
@@ -993,10 +989,10 @@ class CNCCanvas(Canvas):
 			if not self.draw_workarea: return
 			xmin = self._dx-CNC.travel_x
 			ymin = self._dy-CNC.travel_y
-			zmin = self._dz-CNC.travel_z
+			#zmin = self._dz-CNC.travel_z
 			xmax = self._dx
 			ymax = self._dy
-			zmax = self._dz
+			#zmax = self._dz
 
 			xyz = [(xmin, ymin, 0.),
 			       (xmax, ymin, 0.),
@@ -1015,7 +1011,7 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def clearSelection(self):
 		if self._lastActive is not None:
-			self.itemconfig(self._lastActive, arrow=NONE)
+			self.itemconfig(self._lastActive, arrow=tk.NONE)
 			self._lastActive = None
 
 		for i in self.find_withtag("sel"):
@@ -1152,7 +1148,7 @@ class CNCCanvas(Canvas):
 			self.create_line(self.plotCoords(xyz),
 					fill=INFO_COLOR,
 					width=5,
-					arrow=LAST,
+					arrow=tk.LAST,
 					arrowshape=(32,40,12),
 					tag="info")
 
@@ -1193,7 +1189,7 @@ class CNCCanvas(Canvas):
 		self.camera.xcenter  = self.cameraXCenter
 		self.camera.ycenter  = self.cameraYCenter
 		if self.cameraEdge: self.camera.canny(50,200)
-		if self.cameraAnchor==NONE or self.zoom/self.cameraScale>1.0:
+		if self.cameraAnchor==tk.NONE or self.zoom/self.cameraScale>1.0:
 			self.camera.resize(self.zoom/self.cameraScale, self._cameraMaxWidth, self._cameraMaxHeight)
 		if self._cameraImage is None:
 			self._cameraImage = self.create_image((0,0), tag="CameraImage")
@@ -1209,7 +1205,7 @@ class CNCCanvas(Canvas):
 			self.itemconfig(self._cameraImage, image=self.camera.toTk())
 		except:
 			pass
-		self._cameraAfter = self.after(100, self.cameraRefresh);
+		self._cameraAfter = self.after(100, self.cameraRefresh)
 
 	#-----------------------------------------------------------------------
 	def cameraFreeze(self, freeze):
@@ -1236,7 +1232,7 @@ class CNCCanvas(Canvas):
 		hc //= 2
 		x = w//2		# everything on center
 		y = h//2
-		if self.cameraAnchor == NONE:
+		if self.cameraAnchor == tk.NONE:
 			if self._lastGantry is not None:
 				x,y = self.plotCoords([self._lastGantry])[0]
 			else:
@@ -1246,14 +1242,14 @@ class CNCCanvas(Canvas):
 				y -= self.cameraDy * self.zoom
 			r  = self.cameraR  * self.zoom
 		else:
-			if self.cameraAnchor != CENTER:
-				if N in self.cameraAnchor:
+			if self.cameraAnchor != tk.CENTER:
+				if tk.N in self.cameraAnchor:
 					y = hc
-				elif S in self.cameraAnchor:
+				elif tk.S in self.cameraAnchor:
 					y = h-hc
-				if W in self.cameraAnchor:
+				if tk.W in self.cameraAnchor:
 					x = wc
-				elif E in self.cameraAnchor:
+				elif tk.E in self.cameraAnchor:
 					x = w-wc
 			x = self.canvasx(x)
 			y = self.canvasy(y)
@@ -1321,7 +1317,7 @@ class CNCCanvas(Canvas):
 	#----------------------------------------------------------------------
 	def initPosition(self):
 		self.configure(background=CANVAS_COLOR)
-		self.delete(ALL)
+		self.delete(tk.ALL)
 		self._cameraImage = None
 		gr = max(3,int(CNC.vars["diameter"]/2.0*self.zoom))
 		if self.view == VIEW_XY:
@@ -1389,13 +1385,13 @@ class CNCCanvas(Canvas):
 			else:
 				s = 100.0
 		xyz = [(0.,0.,0.), (s, 0., 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=LAST)
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Red", dash=(3,1), arrow=tk.LAST)
 
 		xyz = [(0.,0.,0.), (0., s, 0.)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1), arrow=LAST)
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Green", dash=(3,1), arrow=tk.LAST)
 
 		xyz = [(0.,0.,0.), (0., 0., s)]
-		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=LAST)
+		self.create_line(self.plotCoords(xyz), tag="Axes", fill="Blue",  dash=(3,1), arrow=tk.LAST)
 
 	#----------------------------------------------------------------------
 	# Draw margins of selected blocks
@@ -1464,10 +1460,10 @@ class CNCCanvas(Canvas):
 
 		xmin = self._dx-CNC.travel_x
 		ymin = self._dy-CNC.travel_y
-		zmin = self._dz-CNC.travel_z
+		#zmin = self._dz-CNC.travel_z
 		xmax = self._dx
 		ymax = self._dy
-		zmax = self._dz
+		#zmax = self._dz
 
 		self._workarea = self._drawRect(xmin, ymin, xmax, ymax, 0., fill=WORK_COLOR, dash=(3,2))
 		self.tag_lower(self._workarea)
@@ -1587,7 +1583,7 @@ class CNCCanvas(Canvas):
 			try:
 				for item in self.gcode.orient.paths[self._orientSelected]:
 					self.itemconfig(item, width=2)
-			except (IndexError, TclError):
+			except (IndexError, tk.TclError):
 				pass
 
 	#----------------------------------------------------------------------
@@ -1622,7 +1618,7 @@ class CNCCanvas(Canvas):
 			item = self.create_text(uv,
 						text="%.*f"%(CNC.digits,probe.points[i][2]),
 						tag="Probe",
-						justify=CENTER,
+						justify=tk.CENTER,
 						fill=PROBE_TEXT_COLOR)
 			self.tag_lower(item)
 
@@ -1779,8 +1775,8 @@ class CNCCanvas(Canvas):
 							cmd = CNC.breakLine(cmd)
 					except AlarmException:
 						raise
-					except:
-						sys.stderr.write(_(">>> ERROR: %s\n")%(str(sys.exc_info()[1])))
+					except Exception as ex:
+						sys.stderr.write(_(">>> ERROR: %s\n")%(str(ex)))
 						sys.stderr.write(_("     line: %s\n")%(line))
 						cmd = None
 					if cmd is None or not drawG:
@@ -1909,35 +1905,35 @@ class CNCCanvas(Canvas):
 #==============================================================================
 # Canvas Frame with toolbar
 #==============================================================================
-class CanvasFrame(Frame):
+class CanvasFrame(tk.Frame):
 	def __init__(self, master, app, *kw, **kwargs):
-		Frame.__init__(self, master, *kw, **kwargs)
+		tk.Frame.__init__(self, master, *kw, **kwargs)
 		self.app = app
 
-		self.draw_axes   = BooleanVar()
-		self.draw_grid   = BooleanVar()
-		self.draw_margin = BooleanVar()
-		self.draw_probe  = BooleanVar()
-		self.draw_paths  = BooleanVar()
-		self.draw_rapid  = BooleanVar()
-		self.draw_workarea=BooleanVar()
-		self.draw_camera = BooleanVar()
-		self.view  = StringVar()
+		self.draw_axes   = tk.BooleanVar()
+		self.draw_grid   = tk.BooleanVar()
+		self.draw_margin = tk.BooleanVar()
+		self.draw_probe  = tk.BooleanVar()
+		self.draw_paths  = tk.BooleanVar()
+		self.draw_rapid  = tk.BooleanVar()
+		self.draw_workarea=tk.BooleanVar()
+		self.draw_camera = tk.BooleanVar()
+		self.view  = tk.StringVar()
 
 		self.loadConfig()
 
 		self.view.trace('w', self.viewChange)
 
-		toolbar = Frame(self, relief=RAISED)
-		toolbar.grid(row=0, column=0, columnspan=2, sticky=EW)
+		toolbar = tk.Frame(self, relief=tk.RAISED)
+		toolbar.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
 
 		self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
-		self.canvas.grid(row=1, column=0, sticky=NSEW)
-		sb = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
-		sb.grid(row=1, column=1, sticky=NS)
+		self.canvas.grid(row=1, column=0, sticky=tk.NSEW)
+		sb = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
+		sb.grid(row=1, column=1, sticky=tk.NS)
 		self.canvas.config(yscrollcommand=sb.set)
-		sb = Scrollbar(self, orient=HORIZONTAL, command=self.canvas.xview)
-		sb.grid(row=2, column=0, sticky=EW)
+		sb = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.canvas.xview)
+		sb.grid(row=2, column=0, sticky=tk.EW)
 		self.canvas.config(xscrollcommand=sb.set)
 
 		self.createCanvasToolbar(toolbar)
@@ -2003,154 +1999,154 @@ class CanvasFrame(Frame):
 	# Canvas toolbar FIXME XXX should be moved to CNCCanvas
 	#----------------------------------------------------------------------
 	def createCanvasToolbar(self, toolbar):
-		b = OptionMenu(toolbar, self.view, *VIEWS)
+		b = tk.OptionMenu(toolbar, self.view, *VIEWS)
 		b.config(padx=0, pady=1)
 		b.unbind("F10")
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 		tkExtra.Balloon.set(b, _("Change viewing angle"))
 
-		b = Button(toolbar, image=Utils.icons["zoom_in"],
+		b = tk.Button(toolbar, image=Utils.icons["zoom_in"],
 				command=self.canvas.menuZoomIn)
 		tkExtra.Balloon.set(b, _("Zoom In [Ctrl-=]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Button(toolbar, image=Utils.icons["zoom_out"],
+		b = tk.Button(toolbar, image=Utils.icons["zoom_out"],
 				command=self.canvas.menuZoomOut)
 		tkExtra.Balloon.set(b, _("Zoom Out [Ctrl--]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Button(toolbar, image=Utils.icons["zoom_on"],
+		b = tk.Button(toolbar, image=Utils.icons["zoom_on"],
 				command=self.canvas.fit2Screen)
 		tkExtra.Balloon.set(b, _("Fit to screen [F]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		Label(toolbar, text=_("Tool:"),
+		tk.Label(toolbar, text=_("Tool:"),
 				image=Utils.icons["sep"],
-				compound=LEFT).pack(side=LEFT, padx=2)
+				compound=tk.LEFT).pack(side=tk.LEFT, padx=2)
 		# -----
 		# Tools
 		# -----
-		b = Radiobutton(toolbar, image=Utils.icons["select"],
-					indicatoron=FALSE,
+		b = tk.Radiobutton(toolbar, image=Utils.icons["select"],
+					indicatoron=tk.FALSE,
 					variable=self.canvas.actionVar,
 					value=ACTION_SELECT,
 					command=self.canvas.setActionSelect)
 		tkExtra.Balloon.set(b, _("Select tool [S]"))
 		self.addWidget(b)
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Radiobutton(toolbar, image=Utils.icons["pan"],
-					indicatoron=FALSE,
+		b = tk.Radiobutton(toolbar, image=Utils.icons["pan"],
+					indicatoron=tk.FALSE,
 					variable=self.canvas.actionVar,
 					value=ACTION_PAN,
 					command=self.canvas.setActionPan)
 		tkExtra.Balloon.set(b, _("Pan viewport [X]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-#		b = Radiobutton(toolbar, image=Utils.icons["gantry"],
-#					indicatoron=FALSE,
+#		b = tk.Radiobutton(toolbar, image=Utils.icons["gantry"],
+#					indicatoron=tk.FALSE,
 #					variable=self.canvas.actionVar,
 #					value=ACTION_GANTRY,
 #					command=self.canvas.setActionGantry)
 #		tkExtra.Balloon.set(b, _("Move gantry [g]"))
 #		self.addWidget(b)
-#		b.pack(side=LEFT)
+#		b.pack(side=tk.LEFT)
 #
-#		b = Radiobutton(toolbar, image=Utils.icons["origin"],
-#					indicatoron=FALSE,
+#		b = tk.Radiobutton(toolbar, image=Utils.icons["origin"],
+#					indicatoron=tk.FALSE,
 #					variable=self.canvas.actionVar,
 #					value=ACTION_WPOS,
 #					command=self.canvas.setActionWPOS)
 #		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
 #		self.addWidget(b)
-#		b.pack(side=LEFT)
+#		b.pack(side=tk.LEFT)
 
-		b = Radiobutton(toolbar, image=Utils.icons["ruler"],
-					indicatoron=FALSE,
+		b = tk.Radiobutton(toolbar, image=Utils.icons["ruler"],
+					indicatoron=tk.FALSE,
 					variable=self.canvas.actionVar,
 					value=ACTION_RULER,
 					command=self.canvas.setActionRuler)
 		tkExtra.Balloon.set(b, _("Ruler [R]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
 		# -----------
 		# Draw flags
 		# -----------
-		Label(toolbar, text=_("Draw:"),
+		tk.Label(toolbar, text=_("Draw:"),
 				image=Utils.icons["sep"],
-				compound=LEFT).pack(side=LEFT, padx=2)
+				compound=tk.LEFT).pack(side=tk.LEFT, padx=2)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["axes"],
 				indicatoron=False,
 				variable=self.draw_axes,
 				command=self.drawAxes)
 		tkExtra.Balloon.set(b, _("Toggle display of axes"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["grid"],
 				indicatoron=False,
 				variable=self.draw_grid,
 				command=self.drawGrid)
 		tkExtra.Balloon.set(b, _("Toggle display of grid lines"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["margins"],
 				indicatoron=False,
 				variable=self.draw_margin,
 				command=self.drawMargin)
 		tkExtra.Balloon.set(b, _("Toggle display of margins"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				text="P",
 				image=Utils.icons["measure"],
 				indicatoron=False,
 				variable=self.draw_probe,
 				command=self.drawProbe)
 		tkExtra.Balloon.set(b, _("Toggle display of probe"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["endmill"],
 				indicatoron=False,
 				variable=self.draw_paths,
 				command=self.toggleDrawFlag)
 		tkExtra.Balloon.set(b, _("Toggle display of paths (G1,G2,G3)"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["rapid"],
 				indicatoron=False,
 				variable=self.draw_rapid,
 				command=self.toggleDrawFlag)
 		tkExtra.Balloon.set(b, _("Toggle display of rapid motion (G0)"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["workspace"],
 				indicatoron=False,
 				variable=self.draw_workarea,
 				command=self.drawWorkarea)
 		tkExtra.Balloon.set(b, _("Toggle display of workarea"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
-		b = Checkbutton(toolbar,
+		b = tk.Checkbutton(toolbar,
 				image=Utils.icons["camera"],
 				indicatoron=False,
 				variable=self.draw_camera,
 				command=self.drawCamera)
 		tkExtra.Balloon.set(b, _("Toggle display of camera"))
-		b.pack(side=LEFT)
-		if Camera.cv is None: b.config(state=DISABLED)
+		b.pack(side=tk.LEFT)
+		if Camera.cv is None: b.config(state=tk.DISABLED)
 
-		b = Button(toolbar,
+		b = tk.Button(toolbar,
 				image=Utils.icons["refresh"],
 				command=self.viewChange)
 		tkExtra.Balloon.set(b, _("Redraw display [Ctrl-R]"))
-		b.pack(side=LEFT)
+		b.pack(side=tk.LEFT)
 
 		# -----------
 		self.drawTime = tkExtra.Combobox(toolbar,
@@ -2160,8 +2156,8 @@ class CanvasFrame(Frame):
 		tkExtra.Balloon.set(self.drawTime, _("Draw timeout in seconds"))
 		self.drawTime.fill(["inf", "1", "2", "3", "5", "10", "20", "30", "60", "120"])
 		self.drawTime.set(DRAW_TIME)
-		self.drawTime.pack(side=RIGHT)
-		Label(toolbar, text=_("Timeout:")).pack(side=RIGHT)
+		self.drawTime.pack(side=tk.RIGHT)
+		tk.Label(toolbar, text=_("Timeout:")).pack(side=tk.RIGHT)
 
 	#----------------------------------------------------------------------
 	def redraw(self, event=None):

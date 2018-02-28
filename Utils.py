@@ -1,20 +1,19 @@
-# -*- coding: ascii -*-
-# $Id$
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
+# Author: Vasilis.Vlachoudis@cern.ch
 # Date:	16-Apr-2015
+#
 
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import os
+import sys
 import glob
 import gettext
 import builtins
 import traceback
 import configparser
-from log import say
-from tkinter import *
+import tkinter as tk
 import tkinter.font as tkFont
 import tkinter.messagebox as tkMessageBox
 
@@ -98,16 +97,16 @@ def loadIcons():
 	for img in glob.glob("%s%sicons%s*.gif"%(prgpath,os.sep,os.sep)):
 		name,ext = os.path.splitext(os.path.basename(img))
 		try:
-			icons[name] = PhotoImage(file=img)
+			icons[name] = tk.PhotoImage(file=img)
 			if getBool("CNC", "doublesizeicon"):
 				icons[name] = icons[name].zoom(2,2)
-		except TclError:
+		except tk.TclError:
 			pass
 
 #------------------------------------------------------------------------------
 def delIcons():
 	global icons
-	if len(icons) > 0:
+	if icons:
 		for i in icons.values():
 			del i
 		icons = {}	# needed otherwise it complains on deleting the icons
@@ -201,7 +200,7 @@ def getBool(section, name, default=False):
 def makeFont(name, value=None):
 	try:
 		font = tkFont.Font(name=name, exists=True)
-	except TclError:
+	except tk.TclError:
 		font = tkFont.Font(name=name)
 		font.delete_font = False
 	except AttributeError:
@@ -363,7 +362,7 @@ def addException():
 			# If too many errors are found send the error report
 			ReportDialog(self.widget)
 	except Exception as err:
-		say(str(err))
+		print(str(err))
 
 #===============================================================================
 class CallWrapper:
@@ -386,8 +385,8 @@ class CallWrapper:
 		#except SystemExit, msg:	# python2.4 syntax
 		#except SystemExit as msg:	# python3 syntax
 		#	raise SystemExit(msg)
-		except SystemExit:		# both
-			raise SystemExit(sys.exc_info()[1])
+		except SystemExit as ex:	# both
+			raise SystemExit(ex)
 		except KeyboardInterrupt:
 			pass
 		except:
@@ -396,61 +395,61 @@ class CallWrapper:
 #===============================================================================
 # Error message reporting dialog
 #===============================================================================
-class ReportDialog(Toplevel):
+class ReportDialog(tk.Toplevel):
 	_shown = False	# avoid re-entry when multiple errors are displayed
 
 	def __init__(self, master):
 		if ReportDialog._shown: return
 		ReportDialog._shown = True
 
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		if master is not None: self.transient(master)
 		self.title(_("Error Reporting"))
 
 		# Label Frame
-		frame = LabelFrame(self, text=_("Report"))
-		frame.pack(side=TOP, expand=YES, fill=BOTH)
+		frame = tk.LabelFrame(self, text=_("Report"))
+		frame.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
 
-		l = Label(frame, text=_("The following report is about to be send "\
-				"to the author of %s")%(__name__), justify=LEFT, anchor=W)
-		l.pack(side=TOP)
+		l = tk.Label(frame, text=_("The following report is about to be send "\
+				"to the author of %s")%(__name__), justify=tk.LEFT, anchor=tk.W)
+		l.pack(side=tk.TOP)
 
-		self.text = Text(frame, background="White")
-		self.text.pack(side=LEFT, expand=YES, fill=BOTH)
+		self.text = tk.Text(frame, background="White")
+		self.text.pack(side=tk.LEFT, expand=tk.YES, fill=tk.BOTH)
 
-		sb = Scrollbar(frame, orient=VERTICAL, command=self.text.yview)
-		sb.pack(side=RIGHT, fill=Y)
+		sb = tk.Scrollbar(frame, orient=tk.VERTICAL, command=self.text.yview)
+		sb.pack(side=tk.RIGHT, fill=tk.Y)
 		self.text.config(yscrollcommand=sb.set)
 
 		# email frame
-		frame = Frame(self)
-		frame.pack(side=TOP, fill=X)
+		frame = tk.Frame(self)
+		frame.pack(side=tk.TOP, fill=tk.X)
 
-		l = Label(frame, text=_("Your email"))
-		l.pack(side=LEFT)
+		l = tk.Label(frame, text=_("Your email"))
+		l.pack(side=tk.LEFT)
 
-		self.email = Entry(frame, background="White")
-		self.email.pack(side=LEFT, expand=YES, fill=X)
+		self.email = tk.Entry(frame, background="White")
+		self.email.pack(side=tk.LEFT, expand=tk.YES, fill=tk.X)
 
 		# Automatic error reporting
-		self.err = BooleanVar()
+		self.err = tk.BooleanVar()
 		self.err.set(_errorReport)
-		b = Checkbutton(frame, text=_("Automatic error reporting"),
-			variable=self.err, anchor=E, justify=RIGHT)
-		b.pack(side=RIGHT)
+		b = tk.Checkbutton(frame, text=_("Automatic error reporting"),
+			variable=self.err, anchor=tk.E, justify=tk.RIGHT)
+		b.pack(side=tk.RIGHT)
 
 		# Buttons
-		frame = Frame(self)
-		frame.pack(side=BOTTOM, fill=X)
+		frame = tk.Frame(self)
+		frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-		b = Button(frame, text=_("Close"),
-				compound=LEFT,
+		b = tk.Button(frame, text=_("Close"),
+				compound=tk.LEFT,
 				command=self.cancel)
-		b.pack(side=RIGHT)
-		b = Button(frame, text=_("Send report"),
-				compound=LEFT,
+		b.pack(side=tk.RIGHT)
+		b = tk.Button(frame, text=_("Send report"),
+				compound=tk.LEFT,
 				command=self.send)
-		b.pack(side=RIGHT)
+		b.pack(side=tk.RIGHT)
 
 		from bCNC import __version__, __date__
 
@@ -460,8 +459,8 @@ class ReportDialog(Toplevel):
 			"Last Change : %s"%(__date__),
 			"Platform    : %s"%(sys.platform),
 			"Python      : %s"%(sys.version),
-			"TkVersion   : %s"%(TkVersion),
-			"TclVersion  : %s"%(TclVersion),
+			"TkVersion   : %s"%(tk.TkVersion),
+			"TclVersion  : %s"%(tk.TclVersion),
 			"\nTraceback:" ]
 		for e in errors:
 			if e!="" and e[-1] == "\n":
@@ -499,7 +498,7 @@ class ReportDialog(Toplevel):
 		import httplib, urllib
 		global errors
 		email = self.email.get()
-		desc  = self.text.get('1.0', END).strip()
+		desc  = self.text.get('1.0', tk.END).strip()
 
 		# Send information
 		self.config(cursor="watch")
@@ -552,7 +551,7 @@ class UserButton(Ribbon.LabelButton):
 
 	def __init__(self, master, cnc, button, *args, **kwargs):
 		if button == 0:
-			Button.__init__(self, master, *args, **kwargs)
+			tk.Button.__init__(self, master, *args, **kwargs)
 		else:
 			Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
 		self.cnc = cnc
@@ -573,7 +572,7 @@ class UserButton(Ribbon.LabelButton):
 		#if icon == "":
 		#	icon = icons.get("empty","")
 		self["image"] = icons.get(self.icon(),icons["material"])
-		self["compound"] = LEFT
+		self["compound"] = tk.LEFT
 		tooltip = self.tooltip()
 		if not tooltip: tooltip = UserButton.TOOLTIP
 		tkExtra.Balloon.set(self, tooltip)
@@ -627,28 +626,28 @@ class UserButton(Ribbon.LabelButton):
 #===============================================================================
 # User Configurable Buttons
 #===============================================================================
-class UserButtonDialog(Toplevel):
+class UserButtonDialog(tk.Toplevel):
 	NONE = "<none>"
 	def __init__(self, master, button):
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.title(_("User configurable button"))
 		self.transient(master)
 		self.button = button
 
 		# Name
 		row,col = 0,0
-		Label(self, text=_("Name:")).grid(row=row, column=col, sticky=E)
+		tk.Label(self, text=_("Name:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		self.name = Entry(self, background="White")
-		self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
+		self.name = tk.Entry(self, background="White")
+		self.name.grid(row=row, column=col, columnspan=2, sticky=tk.EW)
 		tkExtra.Balloon.set(self.name, _("Name to appear on button"))
 
 		# Icon
 		row,col = row+1,0
-		Label(self, text=_("Icon:")).grid(row=row, column=col, sticky=E)
+		tk.Label(self, text=_("Icon:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		self.icon = Label(self, relief=RAISED)
-		self.icon.grid(row=row, column=col, sticky=EW)
+		self.icon = tk.Label(self, relief=tk.RAISED)
+		self.icon.grid(row=row, column=col, sticky=tk.EW)
 		col += 1
 		self.iconCombo = tkExtra.Combobox(self, True,
 					width=5,
@@ -656,33 +655,33 @@ class UserButtonDialog(Toplevel):
 		lst = list(sorted(icons.keys()))
 		lst.insert(0,UserButtonDialog.NONE)
 		self.iconCombo.fill(lst)
-		self.iconCombo.grid(row=row, column=col, sticky=EW)
+		self.iconCombo.grid(row=row, column=col, sticky=tk.EW)
 		tkExtra.Balloon.set(self.iconCombo, _("Icon to appear on button"))
 
 		# Tooltip
 		row,col = row+1,0
-		Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
+		tk.Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		self.tooltip = Entry(self, background="White")
-		self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
+		self.tooltip = tk.Entry(self, background="White")
+		self.tooltip.grid(row=row, column=col, columnspan=2, sticky=tk.EW)
 		tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
 
 		# Tooltip
 		row,col = row+1,0
-		Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N+E)
+		tk.Label(self, text=_("Command:")).grid(row=row, column=col, sticky=tk.NE)
 		col += 1
-		self.command = Text(self, background="White", width=40, height=10)
-		self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
+		self.command = tk.Text(self, background="White", width=40, height=10)
+		self.command.grid(row=row, column=col, columnspan=2, sticky=tk.EW)
 
 		self.grid_columnconfigure(2,weight=1)
 		self.grid_rowconfigure(row,weight=1)
 
 		# Actions
 		row += 1
-		f = Frame(self)
-		f.grid(row=row, column=0, columnspan=3, sticky=EW)
-		Button(f, text=_("Cancel"), command=self.cancel).pack(side=RIGHT)
-		Button(f, text=_("Ok"),     command=self.ok).pack(side=RIGHT)
+		f = tk.Frame(self)
+		f.grid(row=row, column=0, columnspan=3, sticky=tk.EW)
+		tk.Button(f, text=_("Cancel"), command=self.cancel).pack(side=tk.RIGHT)
+		tk.Button(f, text=_("Ok"),     command=self.ok).pack(side=tk.RIGHT)
 
 		# Set variables
 		self.name.insert(0,self.button.name())
@@ -709,7 +708,7 @@ class UserButtonDialog(Toplevel):
 		if icon == UserButtonDialog.NONE: icon = ""
 		config.set("Buttons", "icon.%d"%(n), icon)
 		config.set("Buttons", "tooltip.%d"%(n), self.tooltip.get().strip())
-		config.set("Buttons", "command.%d"%(n), self.command.get("1.0",END).strip())
+		config.set("Buttons", "command.%d"%(n), self.command.get("1.0",tk.END).strip())
 		self.destroy()
 
 	# ----------------------------------------------------------------------

@@ -13,20 +13,18 @@ __email__   = "vvlachoudis@gmail.com"
 import os
 import sys
 import time
+import queue
 import getopt
 import socket
 import traceback
+import tkinter as tk
+import tkinter.messagebox as tkMessageBox
 from datetime import datetime
 
 try:
 	import serial
 except:
 	serial = None
-
-import tkinter
-from queue import *
-from tkinter import *
-import tkinter.messagebox as tkMessageBox
 
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(PRGPATH, 'lib'))
@@ -70,10 +68,18 @@ RX_BUFFER_SIZE = 128
 
 MAX_HISTORY  = 500
 
-#ZERO = ["G28", "G30", "G92"]
-
-FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
-		(_("G-Code"),("*.ngc","*.nc", "*.tap", "*.gcode")),
+FILETYPES = [	(_("All accepted"), (	"*.ngc",
+					"*.nc",
+					"*.tap",
+					"*.gcode",
+					"*.dxf",
+					"*.probe",
+					"*.orient",
+					"*.stl")),
+		(_("G-Code"),	("*.ngc",
+				"*.nc",
+				"*.tap",
+				"*.gcode")),
 		(_("G-Code clean"),("*.txt")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
@@ -87,9 +93,9 @@ geometry = None
 #==============================================================================
 # Main Application window
 #==============================================================================
-class Application(Toplevel,Sender):
+class Application(tk.Toplevel,Sender):
 	def __init__(self, master, **kw):
-		Toplevel.__init__(self, master, **kw)
+		tk.Toplevel.__init__(self, master, **kw)
 		Sender.__init__(self)
 
 		if sys.platform == "win32":
@@ -105,47 +111,47 @@ class Application(Toplevel,Sender):
 
 		# --- Ribbon ---
 		self.ribbon = Ribbon.TabRibbonFrame(self)
-		self.ribbon.pack(side=TOP, fill=X)
+		self.ribbon.pack(side=tk.TOP, fill=tk.X)
 
 		# Main frame
-		self.paned = PanedWindow(self, orient=HORIZONTAL)
-		self.paned.pack(fill=BOTH, expand=YES)
+		self.paned = tk.PanedWindow(self, orient=tk.HORIZONTAL)
+		self.paned.pack(fill=tk.BOTH, expand=tk.YES)
 
 		# Status bar
-		frame = Frame(self)
-		frame.pack(side=BOTTOM, fill=X)
-		self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
-		self.statusbar.pack(side=LEFT, fill=X, expand=YES)
-		self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
+		frame = tk.Frame(self)
+		frame.pack(side=tk.BOTTOM, fill=tk.X)
+		self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=tk.SUNKEN)
+		self.statusbar.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES)
+		self.statusbar.configText(fill="DarkBlue", justify=tk.LEFT, anchor=tk.W)
 
-		self.statusz = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
-		self.statusz.pack(side=RIGHT)
-		self.statusy = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
-		self.statusy.pack(side=RIGHT)
-		self.statusx = Label(frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10)
-		self.statusx.pack(side=RIGHT)
+		self.statusz = tk.Label(frame, foreground="DarkRed", relief=tk.SUNKEN, anchor=tk.W, width=10)
+		self.statusz.pack(side=tk.RIGHT)
+		self.statusy = tk.Label(frame, foreground="DarkRed", relief=tk.SUNKEN, anchor=tk.W, width=10)
+		self.statusy.pack(side=tk.RIGHT)
+		self.statusx = tk.Label(frame, foreground="DarkRed", relief=tk.SUNKEN, anchor=tk.W, width=10)
+		self.statusx.pack(side=tk.RIGHT)
 
 		# Buffer bar
-		self.bufferbar = tkExtra.ProgressBar(frame, height=20, width=40, relief=SUNKEN)
-		self.bufferbar.pack(side=RIGHT, expand=NO)
+		self.bufferbar = tkExtra.ProgressBar(frame, height=20, width=40, relief=tk.SUNKEN)
+		self.bufferbar.pack(side=tk.RIGHT, expand=tk.NO)
 		self.bufferbar.setLimits(0, 100)
 		tkExtra.Balloon.set(self.bufferbar,_("Controller buffer fill"))
 
 		# --- Left side ---
-		frame = Frame(self.paned)
+		frame = tk.Frame(self.paned)
 		self.paned.add(frame) #, minsize=340)
 
-		pageframe = Frame(frame)
-		pageframe.pack(side=TOP, expand=YES, fill=BOTH)
+		pageframe = tk.Frame(frame)
+		pageframe.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
 		self.ribbon.setPageFrame(pageframe)
 
 		# Command bar
-		f = Frame(frame)
-		f.pack(side=BOTTOM, fill=X)
-		self.cmdlabel = Label(f, text=_("Command:"))
-		self.cmdlabel.pack(side=LEFT)
-		self.command = Entry(f, relief=SUNKEN, background="White")
-		self.command.pack(side=RIGHT, fill=X, expand=YES)
+		f = tk.Frame(frame)
+		f.pack(side=tk.BOTTOM, fill=tk.X)
+		self.cmdlabel = tk.Label(f, text=_("Command:"))
+		self.cmdlabel.pack(side=tk.LEFT)
+		self.command = tk.Entry(f, relief=tk.SUNKEN, background="White")
+		self.command.pack(side=tk.RIGHT, fill=tk.X, expand=tk.YES)
 		self.command.bind("<Return>",		self.cmdExecute)
 		self.command.bind("<Up>",		self.commandHistoryUp)
 		self.command.bind("<Down>",		self.commandHistoryDown)
@@ -162,12 +168,12 @@ class Application(Toplevel,Sender):
 		self.widgets.append(self.command)
 
 		# --- Right side ---
-		frame = Frame(self.paned)
+		frame = tk.Frame(self.paned)
 		self.paned.add(frame)
 
 		# --- Canvas ---
 		self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
-		self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
+		self.canvasFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.YES)
 		#self.paned.add(self.canvasFrame)
 # XXX FIXME do I need the self.canvas?
 		self.canvas = self.canvasFrame.canvas
@@ -196,7 +202,7 @@ class Application(Toplevel,Sender):
 				last = n[-1]
 				try:
 					if last == "*":
-						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+						page.addPageFrame(n[:-1],fill=tk.BOTH,expand=tk.TRUE)
 					else:
 						page.addPageFrame(n)
 				except KeyError:
@@ -225,9 +231,9 @@ class Application(Toplevel,Sender):
 			last = name[-1]
 			if last == '>':
 				name = name[:-1]
-				side = RIGHT
+				side = tk.RIGHT
 			else:
-				side = LEFT
+				side = tk.LEFT
 			self.ribbon.addPage(self.pages[name],side)
 
 		# Restore last page
@@ -235,8 +241,10 @@ class Application(Toplevel,Sender):
 		self.ribbon.changePage(Utils.getStr(Utils.__prg__,"page", "File"))
 
 		probe = Page.frames["Probe:Probe"]
-		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
-		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
+		tkExtra.bindEventData(self, "<<OrientSelect>>",
+				lambda e,f=probe: f.selectMarker(int(e.data)))
+		tkExtra.bindEventData(self, '<<OrientChange>>',
+				lambda e,s=self: s.canvas.orientChange(int(e.data)))
 		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
 
 		# Global bindings
@@ -402,7 +410,7 @@ class Application(Toplevel,Sender):
 				self.bind('<KP_Left>',	self.control.moveXdown)
 				self.bind('<KP_Up>',	self.control.moveYup)
 				self.bind('<KP_Down>',	self.control.moveYdown)
-		except TclError:
+		except tk.TclError:
 			pass
 
 		self.bind('<Key-plus>',		self.control.incStep)
@@ -425,7 +433,7 @@ class Application(Toplevel,Sender):
 		self.bind('<Key-asciitilde>',	self.resume)
 
 		for x in self.widgets:
-			if isinstance(x,Entry):
+			if isinstance(x,tk.Entry):
 				x.bind("<Escape>", self.canvasFocus)
 
 		self.bind('<FocusIn>',		self.focusIn)
@@ -486,14 +494,13 @@ class Application(Toplevel,Sender):
 	def acceptKey(self, skipRun=False):
 		if not skipRun and self.running: return False
 		focus = self.focus_get()
-		if isinstance(focus, Entry) or \
-		   isinstance(focus, Spinbox) or \
-		   isinstance(focus, Listbox) or \
-		   isinstance(focus, Text): return False
+		if isinstance(focus, (tk.Entry, tk.Spinbox, tk.Listbox, tk.Text)):
+			return False
 		return True
 
 	#-----------------------------------------------------------------------
 	def quit(self, event=None):
+		global root
 		if self.running and self._quit<1:
 			tkMessageBox.showinfo(_("Running"),
 				_("CNC is currently running, please stop it before."),
@@ -502,16 +509,14 @@ class Application(Toplevel,Sender):
 			return
 		del self.widgets[:]
 
-		if self.fileModified():
-			return
-
+		if self.fileModified(): return
 		self.canvas.cameraOff()
 		Sender.quit(self)
 		self.saveConfig()
 		self.destroy()
 		if Utils.errors and Utils._errorReport:
 			Utils.ReportDialog.sendErrorReport()
-		tk.destroy()
+		root.destroy()
 
 	# ---------------------------------------------------------------------
 	def configWidgets(self, var, value):
@@ -519,7 +524,7 @@ class Application(Toplevel,Sender):
 			if isinstance(w,tuple):
 				try:
 					w[0].entryconfig(w[1], state=value)
-				except TclError:
+				except tk.TclError:
 					pass
 			elif isinstance(w,tkExtra.Combobox):
 				w.configure(state=value)
@@ -531,19 +536,19 @@ class Application(Toplevel,Sender):
 		try:
 			self.config(cursor="watch")
 			self.update_idletasks()
-		except TclError:
+		except tk.TclError:
 			pass
 
 	# ----------------------------------------------------------------------
 	def notBusy(self):
 		try:
 			self.config(cursor="")
-		except TclError:
+		except tk.TclError:
 			pass
 
 	# ---------------------------------------------------------------------
 	def enable(self):
-		self.configWidgets("state",NORMAL)
+		self.configWidgets("state",tk.NORMAL)
 		self.statusbar.clear()
 		self.statusbar.config(background="LightGray")
 		self.bufferbar.clear()
@@ -552,7 +557,7 @@ class Application(Toplevel,Sender):
 
 	# ---------------------------------------------------------------------
 	def disable(self):
-		self.configWidgets("state",DISABLED)
+		self.configWidgets("state",tk.DISABLED)
 
 	# ----------------------------------------------------------------------
 	# Check for updates
@@ -573,7 +578,6 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def showUserFile(self):
 		webbrowser.open(Utils.iniUser)
-		#os.startfile(Utils.iniUser)
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
@@ -592,10 +596,10 @@ class Application(Toplevel,Sender):
 			pass
 
 		# read Tk fonts to initialize them
-		font = Utils.getFont("TkDefaultFont")
-		font = Utils.getFont("TkFixedFont")
-		font = Utils.getFont("TkMenuFont")
-		font = Utils.getFont("TkTextFont")
+		Utils.getFont("TkDefaultFont")
+		Utils.getFont("TkFixedFont")
+		Utils.getFont("TkMenuFont")
+		Utils.getFont("TkTextFont")
 
 		self._swapKeyboard = Utils.getInt("Control", "swap", 0)
 
@@ -676,7 +680,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def undo(self, event=None):
 		if not self.running and self.gcode.canUndo():
-			self.gcode.undo();
+			self.gcode.undo()
 			self.editor.fill()
 			self.drawAfter()
 		return "break"
@@ -684,7 +688,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def redo(self, event=None):
 		if not self.running and self.gcode.canRedo():
-			self.gcode.redo();
+			self.gcode.redo()
 			self.editor.fill()
 			self.drawAfter()
 		return "break"
@@ -695,7 +699,7 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def about(self, event=None, timer=None):
-		toplevel = Toplevel(self)
+		toplevel = tk.Toplevel(self)
 		toplevel.transient(self)
 		toplevel.title(_("About %s") % (Utils.__prg__))
 		if sys.platform == "win32":
@@ -706,144 +710,144 @@ class Application(Toplevel,Sender):
 		bg = "#707070"
 		fg = "#ffffff"
 
-		font1 = 'Helvetica -32 bold'
+		#font1 = 'Helvetica -32 bold'
 		font2 = 'Helvetica -12'
 		font3 = 'Helvetica -10'
 
-		frame = Frame(toplevel, borderwidth=2,
-				relief=SUNKEN, background=bg)
-		frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
+		frame = tk.Frame(toplevel, borderwidth=2,
+				relief=tk.SUNKEN, background=bg)
+		frame.pack(side=tk.TOP, expand=tk.TRUE, fill=tk.BOTH, padx=5, pady=5)
 
 		# -----
 		row = 0
-		l = Label(frame, image=Utils.icons["bCNC"],
+		l = tk.Label(frame, image=Utils.icons["bCNC"],
 				foreground=fg, background=bg,
-				relief=RAISED,
+				relief=tk.RAISED,
 				padx=0, pady=0)
 		l.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
 
 		# -----
 		#row += 1
-		#l = Label(frame, text=Utils.__prg__,
+		#l = tk.Label(frame, text=Utils.__prg__,
 		#		foreground=fg, background=bg,
 		#		font=font1)
-		#l.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=5)
+		#l.grid(row=row, column=0, columnspan=2, sticky=tk.W, padx=10, pady=5)
 
 		# -----
 		row += 1
-		l = Label(frame, text=\
+		l = tk.Label(frame, text=\
 				_("bCNC/\tAn advanced fully featured\n" \
 				  "\tg-code sender for GRBL."),
 				font = font3,
-				foreground=fg, background=bg, justify=LEFT)
-		l.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
+				foreground=fg, background=bg, justify=tk.LEFT)
+		l.grid(row=row, column=0, columnspan=2, sticky=tk.W, padx=10, pady=1)
 
 		# -----
 		row += 1
-		f = Frame(frame, borderwidth=1, relief=SUNKEN,
+		f = tk.Frame(frame, borderwidth=1, relief=tk.SUNKEN,
 			height=2, background=bg)
-		f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
+		f.grid(row=row, column=0, columnspan=2, sticky=tk.EW, padx=5, pady=5)
 
 		# -----
 		row += 1
-		l = Label(frame, text='www:',
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text='www:',
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+		l.grid(row=row, column=0, sticky=tk.E, padx=10, pady=2)
 
-		l = Label(frame, text=Utils.__www__,
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text=Utils.__www__,
+				foreground=fg, background=bg, justify=tk.LEFT,
 				activeforeground="Blue",
 				font=font2, cursor="hand1")
-		l.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+		l.grid(row=row, column=1, sticky=tk.W, padx=2, pady=2)
 		l.bind('<Button-1>', lambda e : webbrowser.open(Utils.__www__))
 
 		# -----
 		row += 1
-		l = Label(frame, text='email:',
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text='email:',
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+		l.grid(row=row, column=0, sticky=tk.E, padx=10, pady=2)
 
-		l = Label(frame, text=__email__,
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text=__email__,
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=1, sticky=W, padx=2, pady=2)
-
-		# -----
-		row += 1
-		l = Label(frame, text='author:',
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
-
-		l = Label(frame, text=__author__,
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+		l.grid(row=row, column=1, sticky=tk.W, padx=2, pady=2)
 
 		# -----
 		row += 1
-		l = Label(frame, text='contributors:',
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text='author:',
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+		l.grid(row=row, column=0, sticky=tk.NE, padx=10, pady=2)
 
-		l = Label(frame, text=Utils.__contribute__,
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text=__author__,
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
-
-		# -----
-		row += 1
-		l = Label(frame, text='translations:',
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
-
-		l = Label(frame, text=Utils.__translations__,
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
 
 		# -----
 		row += 1
-		l = Label(frame, text='credits:',
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text='contributors:',
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+		l.grid(row=row, column=0, sticky=tk.NE, padx=10, pady=2)
 
-		l = Label(frame, text=Utils.__credits__,
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text=Utils.__contribute__,
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
-
-		# -----
-		row += 1
-		l = Label(frame, text='version:',
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
-
-		l = Label(frame, text=__version__,
-				foreground=fg, background=bg, justify=LEFT,
-				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
 
 		# -----
 		row += 1
-		l = Label(frame, text='last change:',
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text='translations:',
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+		l.grid(row=row, column=0, sticky=tk.NE, padx=10, pady=2)
 
-		l = Label(frame, text=__date__,
-				foreground=fg, background=bg, justify=LEFT,
+		l = tk.Label(frame, text=Utils.__translations__,
+				foreground=fg, background=bg, justify=tk.LEFT,
 				font=font2)
-		l.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = tk.Label(frame, text='credits:',
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=tk.NE, padx=10, pady=2)
+
+		l = tk.Label(frame, text=Utils.__credits__,
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = tk.Label(frame, text='version:',
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=tk.E, padx=10, pady=2)
+
+		l = tk.Label(frame, text=__version__,
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
+
+		# -----
+		row += 1
+		l = tk.Label(frame, text='last change:',
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=0, sticky=tk.E, padx=10, pady=2)
+
+		l = tk.Label(frame, text=__date__,
+				foreground=fg, background=bg, justify=tk.LEFT,
+				font=font2)
+		l.grid(row=row, column=1, sticky=tk.NW, padx=2, pady=2)
 
 		closeFunc = lambda e=None,t=toplevel: t.destroy()
-		b = Button(toplevel, text=_("Close"), command=closeFunc)
+		b = tk.Button(toplevel, text=_("Close"), command=closeFunc)
 		b.pack(pady=5)
 		frame.grid_columnconfigure(1, weight=1)
 
@@ -886,7 +890,7 @@ class Application(Toplevel,Sender):
 	# FIXME Very primitive
 	#-----------------------------------------------------------------------
 	def showStats(self, event=None):
-		toplevel = Toplevel(self)
+		toplevel = tk.Toplevel(self)
 		toplevel.transient(self)
 		toplevel.title(_("Statistics"))
 
@@ -908,147 +912,147 @@ class Application(Toplevel,Sender):
 				t += block.time
 
 		# ===========
-		frame = LabelFrame(toplevel, text=_("Enabled GCode"), foreground="DarkRed")
-		frame.pack(fill=BOTH)
+		frame = tk.LabelFrame(toplevel, text=_("Enabled GCode"), foreground="DarkRed")
+		frame.pack(fill=tk.BOTH)
 
 		# ---
 		row, col = 0,0
-		Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["xmin"], CNC.vars["xmax"],
 			 CNC.vars["xmax"] -CNC.vars["xmin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["ymin"], CNC.vars["ymax"],
 			 CNC.vars["ymax"] -CNC.vars["ymin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["zmin"], CNC.vars["zmax"],
 			 CNC.vars["zmax"] -CNC.vars["zmin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text=str(e),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text=str(e),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g %s" % (l, unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text="%g %s" % (l, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g %s" % (r, unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text="%g %s" % (r, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
 		h,m = divmod(t, 60)	# t in min
 		s = (m-int(m))*60
-		Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		frame.grid_columnconfigure(1, weight=1)
 
 
 		# ===========
-		frame = LabelFrame(toplevel, text=_("All GCode"), foreground="DarkRed")
-		frame.pack(fill=BOTH)
+		frame = tk.LabelFrame(toplevel, text=_("All GCode"), foreground="DarkRed")
+		frame.pack(fill=tk.BOTH)
 
 		# ---
 		row, col = 0,0
-		Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["axmin"], CNC.vars["axmax"],
 			 CNC.vars["axmax"] -CNC.vars["axmin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["aymin"], CNC.vars["aymax"],
 			 CNC.vars["aymax"] -CNC.vars["aymin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g .. %g [%g] %s" % \
+		tk.Label(frame, text="%g .. %g [%g] %s" % \
 			(CNC.vars["azmin"], CNC.vars["azmax"],
 			 CNC.vars["azmax"] -CNC.vars["azmin"],
 			 unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text=str(len(self.gcode.blocks)),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text=str(len(self.gcode.blocks)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
-		Label(frame, text="%g %s" % (self.cnc.totalLength, unit),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text="%g %s" % (self.cnc.totalLength, unit),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		# ---
 		row += 1
 		col = 0
-		Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+		tk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=tk.E)
 		col += 1
 		h,m = divmod(self.cnc.totalTime, 60)	# t in min
 		s = (m-int(m))*60
-		Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
-			foreground="DarkBlue").grid(row=row, column=col, sticky=W)
+		tk.Label(frame, text="%d:%02d:%02d s" % (int(h),int(m),int(s)),
+			foreground="DarkBlue").grid(row=row, column=col, sticky=tk.W)
 
 		frame.grid_columnconfigure(1, weight=1)
 
 		# ===========
-		frame = Frame(toplevel)
-		frame.pack(fill=X)
+		frame = tk.Frame(toplevel)
+		frame.pack(fill=tk.X)
 
 		closeFunc = lambda e=None,t=toplevel: t.destroy()
-		b = Button(frame, text=_("Close"), command=closeFunc)
+		b = tk.Button(frame, text=_("Close"), command=closeFunc)
 		b.pack(pady=5)
 		frame.grid_columnconfigure(1, weight=1)
 
@@ -1168,7 +1172,7 @@ class Application(Toplevel,Sender):
 
 	# ----------------------------------------------------------------------
 	def insertCommand(self, cmd, execute=False):
-		self.command.delete(0,END)
+		self.command.delete(0,tk.END)
 		self.command.insert(0,cmd)
 		if execute: self.commandExecute(False)
 
@@ -1190,7 +1194,7 @@ class Application(Toplevel,Sender):
 
 		if len(self.history)>MAX_HISTORY:
 			self.history.pop(0)
-		self.command.delete(0,END)
+		self.command.delete(0,tk.END)
 		self.execute(line)
 
 	#-----------------------------------------------------------------------
@@ -1365,7 +1369,8 @@ class Application(Toplevel,Sender):
 #			except: pass
 #			try: self.feed = float(line[3])
 #			except: pass
-#			self.setStatus(_("Height: %g  Depth-per-pass: %g  Feed: %g")%(self.height,self.depth_pass, self.feed))
+#			self.setStatus(_("Height: %g  Depth-per-pass: %g  Feed: %g")% \
+#				(self.height,self.depth_pass, self.feed))
 
 		# MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
 		elif rexx.abbrev("MIRROR",cmd,3):
@@ -1655,7 +1660,6 @@ class Application(Toplevel,Sender):
 
 		self.busy()
 		sel = None
-		undoinfo = None	# all operations should return undo information
 		if   cmd == "AUTOLEVEL":
 			sel = self.gcode.autolevel(items)
 		elif cmd == "CUT":
@@ -1789,7 +1793,7 @@ class Application(Toplevel,Sender):
 	# FIXME why it is not called?
 	#-----------------------------------------------------------------------
 	def commandKey(self, event):
-		if event.char or event.keysym in ("BackSpace"):
+		if event.char or event.keysym == "BackSpace":
 			self._historyPos    = None
 			self._historySearch = None
 
@@ -1814,7 +1818,7 @@ class Application(Toplevel,Sender):
 					self._historyPos = i
 					break
 
-		self.command.delete(0,END)
+		self.command.delete(0,tk.END)
 		self.command.insert(0,self.history[self._historyPos])
 
 	#-----------------------------------------------------------------------
@@ -1835,7 +1839,7 @@ class Application(Toplevel,Sender):
 					self._historyPos = i
 					break
 
-		self.command.delete(0,END)
+		self.command.delete(0,tk.END)
 		if self._historyPos is not None:
 			self.command.insert(0,self.history[self._historyPos])
 
@@ -2066,7 +2070,7 @@ class Application(Toplevel,Sender):
 		Sender.close(self)
 		try:
 			self.dro.updateState()
-		except TclError:
+		except tk.TclError:
 			pass
 
 	#-----------------------------------------------------------------------
@@ -2077,7 +2081,7 @@ class Application(Toplevel,Sender):
 	def checkStop(self):
 		try:
 			self.update()	# very tricky function of Tk
-		except TclError:
+		except tk.TclError:
 			pass
 		return self._stop
 
@@ -2230,14 +2234,14 @@ class Application(Toplevel,Sender):
 				#print "<<<",msg,line,"\n" in line
 
 				if msg == Sender.MSG_BUFFER:
-					self.buffer.insert(END, line)
+					self.buffer.insert(tk.END, line)
 
 				elif msg == Sender.MSG_SEND:
-					self.terminal.insert(END, line)
-					self.terminal.itemconfig(END, foreground="Blue")
+					self.terminal.insert(tk.END, line)
+					self.terminal.itemconfig(tk.END, foreground="Blue")
 
 				elif msg == Sender.MSG_RECEIVE:
-					self.terminal.insert(END, line)
+					self.terminal.insert(tk.END, line)
 					if self._insertCount:
 						# when counting is started, then continue
 						self._insertCount += 1
@@ -2252,11 +2256,11 @@ class Application(Toplevel,Sender):
 							pos = self.terminal.size()-self._insertCount
 							self._insertCount = 0
 						else:
-							pos = END
+							pos = tk.END
 						self.terminal.insert(pos, self.buffer.get(0))
 						self.terminal.itemconfig(pos, foreground="Blue")
 						self.buffer.delete(0)
-					self.terminal.insert(END, line)
+					self.terminal.insert(tk.END, line)
 
 				elif msg == Sender.MSG_ERROR:
 					if self.terminal.size()>0:
@@ -2264,39 +2268,39 @@ class Application(Toplevel,Sender):
 							pos = self.terminal.size()-self._insertCount
 							self._insertCount = 0
 						else:
-							pos = END
+							pos = tk.END
 						self.terminal.insert(pos, self.buffer.get(0))
 						self.terminal.itemconfig(pos, foreground="Blue")
 						self.buffer.delete(0)
-					self.terminal.insert(END, line)
-					self.terminal.itemconfig(END, foreground="Red")
+					self.terminal.insert(tk.END, line)
+					self.terminal.itemconfig(tk.END, foreground="Red")
 
 				elif msg == Sender.MSG_RUNEND:
-					self.terminal.insert(END, line)
-					self.terminal.itemconfig(END, foreground="Magenta")
+					self.terminal.insert(tk.END, line)
+					self.terminal.itemconfig(tk.END, foreground="Magenta")
 					self.setStatus(line)
 					self.enable()
 
 				elif msg == Sender.MSG_CLEAR:
-					self.buffer.delete(0,END)
+					self.buffer.delete(0,tk.END)
 
 				else:
 					# Unknown?
-					self.buffer.insert(END, line)
-					self.terminal.itemconfig(END, foreground="Magenta")
+					self.buffer.insert(tk.END, line)
+					self.terminal.itemconfig(tk.END, foreground="Magenta")
 
 				if self.terminal.size() > 1000:
 					self.terminal.delete(0,500)
-			except Empty:
+			except queue.Empty:
 				break
 
-		if inserted: self.terminal.see(END)
+		if inserted: self.terminal.see(tk.END)
 
 		# Check pendant
 		try:
 			cmd = self.pendant.get_nowait()
 			self.execute(cmd)
-		except Empty:
+		except queue.Empty:
 			pass
 
 		# Load file from pendant
@@ -2394,41 +2398,38 @@ class Application(Toplevel,Sender):
 def usage(rc):
 	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
-	sys.stdout.write("Usage: [options] [filename...]\n\n")
-	sys.stdout.write("Options:\n")
-	sys.stdout.write("\t-b # | --baud #\t\tSet the baud rate\n")
-	sys.stdout.write("\t-d\t\t\tEnable developer features\n")
-	sys.stdout.write("\t-D\t\t\tDisable developer features\n")
-	sys.stdout.write("\t-f | --fullscreen\tEnable fullscreen mode\n")
-	sys.stdout.write("\t-g #\t\t\tSet the default geometry\n")
-	sys.stdout.write("\t-h | -? | --help\tThis help page\n")
-	sys.stdout.write("\t-i # | --ini #\t\tAlternative ini file for testing\n")
-	sys.stdout.write("\t-l | --list\t\tList all recently opened files\n")
-	sys.stdout.write("\t-p # | --pendant #\tOpen pendant to specified port\n")
-	sys.stdout.write("\t-P\t\t\tDo not start pendant\n")
-	sys.stdout.write("\t-r | --recent\t\tLoad the most recent file opened\n")
-	sys.stdout.write("\t-R #\t\t\tLoad the recent file matching the argument\n")
-	sys.stdout.write("\t-s # | --serial #\tOpen serial port specified\n")
-	sys.stdout.write("\t-S\t\t\tDo not open serial port\n")
-	sys.stdout.write("\t--run\t\t\tDirectly run the file once loaded\n")
-	sys.stdout.write("\n")
+	print("Usage: [options] [filename...]\n")
+	print("Options:")
+	print("\t-b # | --baud #\t\tSet the baud rate")
+	print("\t-d\t\t\tEnable developer features")
+	print("\t-D\t\t\tDisable developer features")
+	print("\t-f | --fullscreen\tEnable fullscreen mode")
+	print("\t-g #\t\t\tSet the default geometry")
+	print("\t-h | -? | --help\tThis help page")
+	print("\t-i # | --ini #\t\tAlternative ini file for testing")
+	print("\t-l | --list\t\tList all recently opened files")
+	print("\t-p # | --pendant #\tOpen pendant to specified port")
+	print("\t-P\t\t\tDo not start pendant")
+	print("\t-r | --recent\t\tLoad the most recent file opened")
+	print("\t-R #\t\t\tLoad the recent file matching the argument")
+	print("\t-s # | --serial #\tOpen serial port specified")
+	print("\t-S\t\t\tDo not open serial port")
+	print("\t--run\t\t\tDirectly run the file once loaded")
+	print("")
 	sys.exit(rc)
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
 	if sys.version_info[0] < 3:
-		sys.stdout.write("="*80+"\n")
-		sys.stdout.write("WARNING: bCNC is running only on python v3.x for the moment\n")
-		sys.stdout.write("="*80+"\n")
+		print("="*80+"")
+		print("WARNING: bCNC is running only on python v3.x for the moment")
+		print("="*80+"")
 		sys.exit(0)
-	tk = Tk()
-	tk.withdraw()
-	try:
-		Tkinter.CallWrapper = Utils.CallWrapper
-	except:
-		tkinter.CallWrapper = Utils.CallWrapper
+	root = tk.Tk()
+	root.withdraw()
+	tk.CallWrapper = Utils.CallWrapper
 
-	tkExtra.bindClasses(tk)
+	tkExtra.bindClasses(root)
 	Utils.loadIcons()
 
 	# Parse arguments
@@ -2480,7 +2481,7 @@ if __name__ == "__main__":
 					except: continue
 					maxlen = max(maxlen, len(os.path.basename(filename)))
 
-				sys.stdout.write("Recent files:\n")
+				print("Recent files:")
 				for i in range(Utils._maxRecent):
 					filename = Utils.getRecent(i)
 					if filename is None: break
@@ -2522,7 +2523,7 @@ if __name__ == "__main__":
 			run = True
 
 	# Start application
-	application = Application(tk)
+	application = Application(root)
 	if fullscreen: application.attributes("-fullscreen", True)
 
 	# Parse remaining arguments except files
@@ -2545,7 +2546,7 @@ if __name__ == "__main__":
 		application.run()
 
 	try:
-		tk.mainloop()
+		root.mainloop()
 	except KeyboardInterrupt:
 		application.quit()
 

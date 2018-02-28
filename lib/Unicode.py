@@ -32,6 +32,9 @@
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	04-Sep-2014
 
+__author__ = "Vasilis Vlachoudis"
+__email__  = "Vasilis.Vlachoudis@cern.ch"
+
 # Greek characters http://en.wikipedia.org/wiki/List_of_Unicode_characters
 GREEK_NUMERAL_SIGN                                  = u"\u0374"
 GREEK_LOWER_NUMERAL_SIGN                            = u"\u0375"

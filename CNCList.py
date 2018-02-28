@@ -6,24 +6,23 @@
 
 import io
 import pickle
-from tkinter import *
-import tkinter.font as tkFont
+import tkinter as tk
+import tkinter.font as Font
 
-from CNC import Tab, Block, CNC
 import tkExtra
+from CNCCanvas import TAB_COLOR
+from CNC import Tab, Block, CNC, MAXINT
 
 BLOCK_COLOR   = "LightYellow"
 COMMENT_COLOR = "Blue"
 DISABLE_COLOR = "Gray"
-from CNCCanvas import TAB_COLOR
-from CNC import MAXINT
 
 #==============================================================================
 # CNC Listbox
 #==============================================================================
-class CNCListbox(Listbox):
+class CNCListbox(tk.Listbox):
 	def __init__(self, master, app, *kw, **kwargs):
-		Listbox.__init__(self, master, *kw, **kwargs)
+		tk.Listbox.__init__(self, master, *kw, **kwargs)
 		self.bind("<Button-1>",		self.button1)
 		self.bind("<ButtonRelease-1>",	self.release1)
 		self.bind("<Double-1>",		self.double)
@@ -56,7 +55,7 @@ class CNCListbox(Listbox):
 		self._items    = []		# each listbox lien which item (bid,lid) shows
 		self.app       = app
 		self.gcode     = app.gcode
-		self.font      = tkFont.nametofont(self.cget("font"))
+		self.font      = Font.nametofont(self.cget("font"))
 		self._ystart   = 0
 		self._double   = False	# double clicked handled
 		self._hadfocus = False
@@ -75,9 +74,9 @@ class CNCListbox(Listbox):
 		"""Set/Change the value of a list item"""
 		try:
 			sel = self.selection_includes(index)
-			act = self.index(ACTIVE)
+			act = self.index(tk.ACTIVE)
 			self.delete(index)
-		except TclError:
+		except tk.TclError:
 			return
 		self.insert(index, value)
 		if sel: self.selection_set(index)
@@ -88,11 +87,11 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def fill(self, event=None):
 		ypos = self.yview()[0]
-		act = self.index(ACTIVE)
+		act = self.index(tk.ACTIVE)
 
 		#sel = self.curselection()
 		items = self.getSelection()
-		self.delete(0,END)
+		self.delete(0,tk.END)
 
 		del self._blockPos[:]
 		del self._items[:]
@@ -106,26 +105,26 @@ class CNCListbox(Listbox):
 						continue
 
 			self._blockPos.append(y)
-			self.insert(END, block.header())
+			self.insert(tk.END, block.header())
 			self._items.append((bi, None))
-			self.itemconfig(END, background=BLOCK_COLOR)
+			self.itemconfig(tk.END, background=BLOCK_COLOR)
 			y += 1
 			if not block.enable:
-				self.itemconfig(END, foreground=DISABLE_COLOR)
+				self.itemconfig(tk.END, foreground=DISABLE_COLOR)
 			if not block.expand: continue
 
 			for tab in block.tabs:
 				line = str(tab)
-				self.insert(END, line)
+				self.insert(tk.END, line)
 				self._items.append((bi, tab))
-				self.itemconfig(END, foreground=TAB_COLOR)
+				self.itemconfig(tk.END, foreground=TAB_COLOR)
 				y += 1
 
 			for lj,line in enumerate(block):
-				self.insert(END, line)
+				self.insert(tk.END, line)
 				y += 1
 				if line and line[0] in ("(","%"):
-					self.itemconfig(END, foreground=COMMENT_COLOR)
+					self.itemconfig(tk.END, foreground=COMMENT_COLOR)
 				self._items.append((bi, lj))
 
 		self.select(items)
@@ -223,13 +222,13 @@ class CNCListbox(Listbox):
 
 		self.gcode.addUndo(undoinfo)
 
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		self.fill()
 		self.yview_moveto(ypos)
 		self.select(selitems, clear=True)
 
-		#self.selection_set(ACTIVE)
-		#self.see(ACTIVE)
+		#self.selection_set(tk.ACTIVE)
+		#self.see(tk.ACTIVE)
 		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
@@ -241,7 +240,7 @@ class CNCListbox(Listbox):
 
 		ypos = self.yview()[0]
 		undoinfo = []
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		pos = self._items[sel[-1]][0]+1
 		blocks = []
 		for i in reversed(sel):
@@ -260,8 +259,8 @@ class CNCListbox(Listbox):
 			self.selectBlocks(blocks)
 			self.activate(self._blockPos[blocks[-1]])
 		else:
-			self.selection_set(ACTIVE)
-		self.see(ACTIVE)
+			self.selection_set(tk.ACTIVE)
+		self.see(tk.ACTIVE)
 		self.winfo_toplevel().event_generate("<<Modified>>")
 		return "break"
 
@@ -286,18 +285,18 @@ class CNCListbox(Listbox):
 				undoinfo.append(self.gcode.delBlockUndo(bid))
 		self.gcode.addUndo(undoinfo)
 
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		self.fill()
 		self.yview_moveto(ypos)
-		self.selection_set(ACTIVE)
-		self.see(ACTIVE)
+		self.selection_set(tk.ACTIVE)
+		self.see(tk.ACTIVE)
 		self.winfo_toplevel().event_generate("<<Modified>>")
 
 	# ----------------------------------------------------------------------
 	# Edit active item
 	# ----------------------------------------------------------------------
 	def edit(self, event=None):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		txt = self.get(active)
 		if event:
 			x = event.x
@@ -351,7 +350,7 @@ class CNCListbox(Listbox):
 	# return active block id
 	# ----------------------------------------------------------------------
 	def activeBlock(self):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		if self._items:
 			bid, lid = self._items[active]
 		else:
@@ -362,9 +361,9 @@ class CNCListbox(Listbox):
 	# Insert a line or a block
 	# ----------------------------------------------------------------------
 	def insertItem(self, event=None):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		if active is None: return
-		if len(self._items)==0 or self._items[active][1] is None:
+		if not self._items or self._items[active][1] is None:
 			self.insertBlock()
 		else:
 			self.insertLine()
@@ -373,7 +372,7 @@ class CNCListbox(Listbox):
 	# Insert New Block
 	# ----------------------------------------------------------------------
 	def insertBlock(self, event=None):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		if self._items:
 			bid, lid = self._items[active]
 			bid += 1
@@ -386,7 +385,7 @@ class CNCListbox(Listbox):
 		block.append("g1 z0")
 		block.append(CNC.zsafe())
 		self.gcode.addUndo(self.gcode.addBlockUndo(bid,block))
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		self.fill()
 		# find location of new block
 		while active < self.size():
@@ -403,9 +402,9 @@ class CNCListbox(Listbox):
 	# Insert a new line below cursor
 	# ----------------------------------------------------------------------
 	def insertLine(self, event=None):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		if active is None: return
-		if len(self._items)==0:
+		if not self._items:
 			self.insertBlock()
 			return
 
@@ -423,7 +422,7 @@ class CNCListbox(Listbox):
 		active += 1
 
 		self.insert(active,"")
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		self.activate(active)
 		self.selection_set(active)
 		self.see(active)
@@ -471,16 +470,16 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def toggleKey(self,event=None):
 		if not self._items: return
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		bid,lid = self._items[active]
 		if lid is None:
 			self.toggleExpand()
 		else:
 			# Go to header
-			self.selection_clear(0,END)
+			self.selection_clear(0,tk.END)
 			self.activate(self._blockPos[bid])
-			self.selection_set(ACTIVE)
-			self.see(ACTIVE)
+			self.selection_set(tk.ACTIVE)
+			self.see(tk.ACTIVE)
 			self.winfo_toplevel().event_generate("<<ListboxSelect>>")
 
 	# ----------------------------------------------------------------------
@@ -513,7 +512,7 @@ class CNCListbox(Listbox):
 			return
 
 		self._double = False
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 
 		# from a single click
 		y = self.nearest(event.y)
@@ -570,7 +569,7 @@ class CNCListbox(Listbox):
 		if not self._items: return None
 		items  = list(map(int,self.curselection()))
 		expand = None
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		bactive,lactive = self._items[active]
 		blocks = []
 		undoinfo = []
@@ -584,7 +583,7 @@ class CNCListbox(Listbox):
 
 		if undoinfo:
 			self.gcode.addUndo(undoinfo)
-			self.selection_clear(0,END)
+			self.selection_clear(0,tk.END)
 			self.fill()
 			active = self._blockPos[bactive]
 			for bid in blocks:
@@ -598,7 +597,7 @@ class CNCListbox(Listbox):
 	def _toggleEnable(self, enable=None):
 		if not self._items: return None
 		items    = list(map(int,self.curselection()))
-		active   = self.index(ACTIVE)
+		active   = self.index(tk.ACTIVE)
 		ypos     = self.yview()[0]
 		undoinfo = []
 		blocks   = []
@@ -665,7 +664,7 @@ class CNCListbox(Listbox):
 				title=_("Color"),
 				initialcolor=self.gcode[bid].color,
 				parent=self)
-		except TclError:
+		except tk.TclError:
 			color = None
 		if color is None: return
 
@@ -691,7 +690,7 @@ class CNCListbox(Listbox):
 	# ----------------------------------------------------------------------
 	def select(self, items, double=False, clear=False, toggle=True):
 		if clear:
-			self.selection_clear(0,END)
+			self.selection_clear(0,tk.END)
 			toggle = False
 		first = None
 
@@ -732,7 +731,7 @@ class CNCListbox(Listbox):
 					continue
 
 			else:
-				raise
+				raise Exception("Select error")
 				#continue
 
 			if y is None: continue
@@ -760,7 +759,7 @@ class CNCListbox(Listbox):
 		while True:
 			bid += 1
 			if bid >= len(self._blockPos):
-				end = END
+				end = tk.END
 				break
 			elif self._blockPos[bid] is not None:
 				end = self._blockPos[bid]-1
@@ -769,17 +768,17 @@ class CNCListbox(Listbox):
 
 	# ----------------------------------------------------------------------
 	def selectBlocks(self, blocks):
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 		for bid in blocks:
 			self.selectBlock(bid)
 
 	# ----------------------------------------------------------------------
 	def selectAll(self):
-		self.selection_set(0,END)
+		self.selection_set(0,tk.END)
 
 	# ----------------------------------------------------------------------
 	def selectClear(self):
-		self.selection_clear(0,END)
+		self.selection_clear(0,tk.END)
 
 	# ----------------------------------------------------------------------
 	def selectInvert(self):
@@ -837,7 +836,7 @@ class CNCListbox(Listbox):
 
 	# ----------------------------------------------------------------------
 	def getActive(self):
-		active = self.index(ACTIVE)
+		active = self.index(tk.ACTIVE)
 		if active is None: return None
 		if not self.selection_includes(active):
 			try:
@@ -887,7 +886,7 @@ class CNCListbox(Listbox):
 	def dump(self, event=None):
 		if not CNC.developer: return
 		print("*** LIST ***")
-		for i,sel in enumerate(self.get(0,END)):
+		for i,sel in enumerate(self.get(0,tk.END)):
 			print(i,sel)
 
 		print("\n*** ITEMS ***")

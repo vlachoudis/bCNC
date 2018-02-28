@@ -38,11 +38,17 @@ import sys
 
 #-------------------------------------------------------------------------------
 _log = None
-def set(l):
+_err = None
+
+def set(l,e=None):
+	"""set logging function"""
 	global _log
 	_log = l
+	_err = e if e else _log
 
+#-------------------------------------------------------------------------------
 def say(*kw):
+	"""say/print a message"""
 	global _log
 	txt = " ".join(map(str,kw))
 	if _log:
@@ -50,5 +56,17 @@ def say(*kw):
 	else:
 		sys.stdout.write("%s\n"%(txt))
 
+#-------------------------------------------------------------------------------
+def error(*kw):
+	"""display an error message"""
+	global _err
+	txt = " ".join(map(str,kw))
+	if _err:
+		_err(txt)
+	else:
+		sys.stderr.write("%s\n"%(txt))
+
+#-------------------------------------------------------------------------------
 def null(*kw):
+	"""empty log function"""
 	pass

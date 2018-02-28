@@ -34,9 +34,8 @@ from __future__ import generators
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-#from math import *
-from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 import random
+from math import acos, asin, atan2, copysign, cos, degrees, fmod, hypot, pi, pow, radians, sin, sqrt
 
 import rexx
 
@@ -78,6 +77,16 @@ def limit(min_, num, max_):
 def dms(d,m,s):
 	"""dms - degrees from degrees, minutes, seconds"""
 	return d + m/60.0 + s/3600.0
+
+#-------------------------------------------------------------------------------
+def cbrt(x):
+	"""cubic root, this cubic root routine handles negative arguments"""
+	if x == 0.0:
+		return 0
+	elif x > 0.0:
+		return pow(x, 1./3.)
+	else:
+		return -pow(-x, 1./3.)
 
 #-------------------------------------------------------------------------------
 def d2s(ang, fmt=""):

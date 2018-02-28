@@ -7,7 +7,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
-from tkinter import *
+import tkinter as tk
 
 import Ribbon
 import tkExtra
@@ -66,18 +66,18 @@ class ButtonMenuGroup(Ribbon.MenuGroup, _LinkApp):
 #===============================================================================
 # Page, Frame
 #===============================================================================
-class PageFrame(Frame, _LinkApp):
+class PageFrame(tk.Frame, _LinkApp):
 	def __init__(self, master, name, app):
-		Frame.__init__(self, master)
+		tk.Frame.__init__(self, master)
 		_LinkApp.__init__(self, app)
 		self.name = name
 
 #===============================================================================
 # Page, LabelFrame
 #===============================================================================
-class PageLabelFrame(LabelFrame, _LinkApp):
+class PageLabelFrame(tk.LabelFrame, _LinkApp):
 	def __init__(self, master, name, app):
-		LabelFrame.__init__(self, master, text=name, foreground="DarkBlue")
+		tk.LabelFrame.__init__(self, master, text=name, foreground="DarkBlue")
 		_LinkApp.__init__(self, app)
 		self.name = name
 
@@ -136,12 +136,12 @@ class Page(Ribbon.Page):
 
 	#----------------------------------------------------------------------
 	def addRibbonGroup(self, name, **args):
-		if not args: args = {"side":LEFT, "fill":BOTH}
+		if not args: args = {"side":tk.LEFT, "fill":tk.BOTH}
 		self.ribbons.append((Page.groups[name], args))
 
 	#----------------------------------------------------------------------
 	def addPageFrame(self, name, **args):
-		if not args: args = {"side":TOP, "fill":BOTH}
+		if not args: args = {"side":tk.TOP, "fill":tk.BOTH}
 		if isinstance(name,str):
 			self.frames.append((Page.frames[name], args))
 		else:

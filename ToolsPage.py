@@ -8,7 +8,7 @@ __author__  = "Vasilis Vlachoudis"
 __email__   = "Vasilis.Vlachoudis@cern.ch"
 
 import traceback
-from tkinter import *
+import tkinter as tk
 import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
@@ -20,7 +20,6 @@ import Ribbon
 import tkExtra
 import Unicode
 import CNCRibbon
-
 from CNC import CNC
 
 _EXE_FONT = ("Helvetica",12,"bold")
@@ -111,7 +110,7 @@ class _Base:
 
 	# ----------------------------------------------------------------------
 	def populate(self):
-		self.master.listbox.delete(0,END)
+		self.master.listbox.delete(0,tk.END)
 		for n, t, d, l in self.variables:
 			value = self[n]
 			if t == "bool":
@@ -132,17 +131,17 @@ class _Base:
 					value = ""
 			#elif t == "list":
 			#	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
-			self.master.listbox.insert(END, (l, value))
+			self.master.listbox.insert(tk.END, (l, value))
 
 			if t=="color":
 				try:
-					self.master.listbox.listbox(1).itemconfig(END, background=value)
-				except TclError:
+					self.master.listbox.listbox(1).itemconfig(tk.END, background=value)
+				except tk.TclError:
 					pass
 
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
-		self.master.listbox.selection_clear(0,END)
+		self.master.listbox.selection_clear(0,tk.END)
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.see(active)
@@ -152,13 +151,13 @@ class _Base:
 
 	#----------------------------------------------------------------------
 	def _editPrev(self):
-		active = self.master.listbox.index(ACTIVE)-1
+		active = self.master.listbox.index(tk.ACTIVE)-1
 		if active<0: return
 		self._sendReturn(active)
 
 	#----------------------------------------------------------------------
 	def _editNext(self):
-		active = self.master.listbox.index(ACTIVE)+1
+		active = self.master.listbox.index(tk.ACTIVE)+1
 		if active>=self.master.listbox.size(): return
 		self._sendReturn(active)
 
@@ -186,13 +185,13 @@ class _Base:
 			keyboard = False
 		if keyboard:
 			# keyboard event
-			active = lb.index(ACTIVE)
+			active = lb.index(tk.ACTIVE)
 		else:
 			active = lb.nearest(event.y)
 			self.master.listbox.activate(active)
 
 		ypos = lb.yview()[0]	# remember y position
-		save = lb.get(ACTIVE)
+		save = lb.get(tk.ACTIVE)
 
 		n, t, d, l = self.variables[active]
 
@@ -236,8 +235,8 @@ class _Base:
 			edit = tkExtra.InPlaceColor(lb)
 			if edit.value is not None:
 				try:
-					lb.itemconfig(ACTIVE, background=edit.value)
-				except TclError:
+					lb.itemconfig(tk.ACTIVE, background=edit.value)
+				except tk.TclError:
 					pass
 		else:
 			edit = tkExtra.InPlaceEdit(lb)
@@ -428,7 +427,7 @@ class DataBase(_Base):
 	# Rename current item
 	# ----------------------------------------------------------------------
 	def rename(self):
-		self.master.listbox.selection_clear(0,END)
+		self.master.listbox.selection_clear(0,tk.END)
 		self.master.listbox.selection_set(0)
 		self.master.listbox.activate(0)
 		self.master.listbox.see(0)
@@ -891,7 +890,7 @@ class Tools:
 		self.gcode  = gcode
 		self.inches = False
 		self.digits = 4
-		self.active = StringVar()
+		self.active = tk.StringVar()
 
 		self.tools   = {}
 		self.buttons = {}
@@ -993,9 +992,9 @@ class Tools:
 	# ----------------------------------------------------------------------
 	def activateButtons(self, tool):
 		for btn in self.buttons.values():
-			btn.config(state=DISABLED)
+			btn.config(state=tk.DISABLED)
 		for name in tool.buttons:
-			self.buttons[name].config(state=NORMAL)
+			self.buttons[name].config(state=tk.NORMAL)
 		self.buttons["exe"].config(text=self.active.get())
 
 #===============================================================================
@@ -1011,12 +1010,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["stock32"],
 				text=_("Stock"),
-				compound=TOP,
-				anchor=W,
+				compound=tk.TOP,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Stock",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Stock material currently on machine"))
 		self.addWidget(b)
 
@@ -1025,12 +1024,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["material"],
 				text=_("Material"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Material",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Editable database of material properties"))
 		self.addWidget(b)
 
@@ -1039,12 +1038,12 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["endmill"],
 				text=_("End Mill"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="EndMill",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Editable database of EndMills properties"))
 		self.addWidget(b)
 
@@ -1053,10 +1052,10 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolRename>>",
 				image=Utils.icons["rename"],
 				text=_("Rename"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Edit name of current operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("rename",b)
@@ -1066,10 +1065,10 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolAdd>>",
 				image=Utils.icons["add"],
 				text=_("Add"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Add a new operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("add",b)
@@ -1079,10 +1078,10 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolClone>>",
 				image=Utils.icons["clone"],
 				text=_("Clone"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Clone selected operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("clone",b)
@@ -1092,10 +1091,10 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelButton(self.frame, app, "<<ToolDelete>>",
 				image=Utils.icons["x"],
 				text=_("Delete"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Delete selected operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("delete",b)
@@ -1113,12 +1112,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["cut32"],
 				text=_("Cut"),
-				compound=TOP,
-				anchor=W,
+				compound=tk.TOP,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Cut",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Cut for the full stock thickness selected code"))
 		self.addWidget(b)
 
@@ -1127,12 +1126,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["profile32"],
 				text=_("Profile"),
-				compound=TOP,
-				anchor=W,
+				compound=tk.TOP,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Profile",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Perform a profile operation on selected code"))
 		self.addWidget(b)
 
@@ -1141,12 +1140,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["pocket"],
 				text=_("Pocket"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Pocket",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Perform a pocket operation on selected code"))
 		self.addWidget(b)
 
@@ -1155,12 +1154,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["drill"],
 				text=_("Drill"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Drill",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Insert a drill cycle on current objects/location"))
 		self.addWidget(b)
 
@@ -1169,12 +1168,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["tab"],
 				text=_("Tabs"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Tabs",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Insert holding tabs"))
 		self.addWidget(b)
 
@@ -1188,12 +1187,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 			b = Ribbon.LabelRadiobutton(self.frame,
 					image=Utils.icons[tool.icon],
 					text=tool.name,
-					compound=LEFT,
-					anchor=W,
+					compound=tk.LEFT,
+					anchor=tk.W,
 					variable=app.tools.active,
 					value=tool.name,
 					background=Ribbon._BACKGROUND)
-			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+			b.grid(row=row, column=col, padx=2, pady=0, sticky=tk.NSEW)
 			tkExtra.Balloon.set(b, tool.__doc__)
 			self.addWidget(b)
 
@@ -1204,10 +1203,10 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 
 	#----------------------------------------------------------------------
 	def createMenu(self):
-		menu = Menu(self, tearoff=0)
+		menu = tk.Menu(self, tearoff=0)
 		#for group in ("Artistic", "Generator", "Macros"):
 		for group in ("Artistic", "Generator"):
-			submenu = Menu(menu, tearoff=0)
+			submenu = tk.Menu(menu, tearoff=0)
 			menu.add_cascade(label=group, menu=submenu)
 			# Find plugins in the plugins directory and load them
 			for tool in self.app.tools.pluginList():
@@ -1215,7 +1214,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 				submenu.add_radiobutton(
 						label=tool.name,
 						image=Utils.icons[tool.icon],
-						compound=LEFT,
+						compound=tk.LEFT,
 						variable=self.app.tools.active,
 						value=tool.name)
 		return menu
@@ -1236,12 +1235,12 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 #			b = Ribbon.LabelRadiobutton(self.frame,
 #					image=Utils.icons[tool.icon],
 #					text=tool.name,
-#					compound=LEFT,
-#					anchor=W,
+#					compound=tk.LEFT,
+#					anchor=tk.W,
 #					variable=app.tools.active,
 #					value=tool.name,
 #					background=Ribbon._BACKGROUND)
-#			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+#			b.grid(row=row, column=col, padx=2, pady=0, sticky=tk.NSEW)
 #			tkExtra.Balloon.set(b, tool.__doc__)
 #			self.addWidget(b)
 #
@@ -1276,16 +1275,16 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ===
 		col,row=0,0
-		f = Frame(self.frame)
-		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=NSEW)
+		f = tk.Frame(self.frame)
+		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=tk.NSEW)
 
-		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
-		b.pack(side=LEFT)
+		b = tk.Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
+		b.pack(side=tk.LEFT)
 
 		self.language = Ribbon.LabelCombobox(f,
 				command=self.languageChange,
 				width=16)
-		self.language.pack(side=RIGHT, fill=X, expand=YES)
+		self.language.pack(side=tk.RIGHT, fill=tk.X, expand=tk.YES)
 		tkExtra.Balloon.set(self.language, _("Change program language restart is required"))
 		self.addWidget(self.language)
 
@@ -1296,12 +1295,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["camera"],
 				text=_("Camera"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Camera",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
@@ -1310,12 +1309,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["color"],
 				text=_("Colors"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Color",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Color configuration"))
 		self.addWidget(b)
 
@@ -1324,12 +1323,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["config"],
 				text=_("Config"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="CNC",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
 		self.addWidget(b)
 
@@ -1338,12 +1337,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["arduino"],
 				text=_("Controller"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Controller",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
 		self.addWidget(b)
 
@@ -1352,12 +1351,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["font"],
 				text=_("Fonts"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Font",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Font configuration"))
 		self.addWidget(b)
 
@@ -1366,12 +1365,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["shortcut"],
 				text=_("Shortcuts"),
-				compound=LEFT,
-				anchor=W,
+				compound=tk.LEFT,
+				anchor=tk.W,
 				variable=app.tools.active,
 				value="Shortcut",
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
 		self.addWidget(b)
 #
@@ -1380,12 +1379,12 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 #		b = Ribbon.LabelRadiobutton(self.frame,
 #				image=Utils.icons["event"],
 #				text=_("Events"),
-#				compound=LEFT,
-#				anchor=W,
+#				compound=tk.LEFT,
+#				anchor=tk.W,
 #				variable=app.tools.active,
 #				value="Events",
 #				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+#		b.grid(row=row, column=col, padx=1, pady=0, sticky=tk.NSEW)
 #		tkExtra.Balloon.set(b, _("Events configuration"))
 #		self.addWidget(b)
 
@@ -1410,15 +1409,15 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 
 	#----------------------------------------------------------------------
 	def createMenu(self):
-		menu = Menu(self, tearoff=0)
+		menu = tk.Menu(self, tearoff=0)
 		menu.add_radiobutton(
 				label=_("Events"),
-				image=Utils.icons["event"], compound=LEFT,
+				image=Utils.icons["event"], compound=tk.LEFT,
 				variable=self.app.tools.active,
 				value="Events")
 		menu.add_command(
 				label=_("User File"),
-				image=Utils.icons["about"], compound=LEFT,
+				image=Utils.icons["about"], compound=tk.LEFT,
 				command=self.app.showUserFile)
 		return menu
 
@@ -1430,15 +1429,15 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
 		self.tools = app.tools
 
-		b = Button(self, text=_("Execute"),
+		b = tk.Button(self, text=_("Execute"),
 				image=Utils.icons["gear"],
-				compound=LEFT,
+				compound=tk.LEFT,
 				foreground="DarkRed",
 				activeforeground="DarkRed",
 				activebackground="LightYellow",
 				font=_EXE_FONT,
 				command=self.execute)
-		b.pack(side=TOP, fill=X)
+		b.pack(side=tk.TOP, fill=tk.X)
 		self.tools.addButton("exe",b)
 
 		self.toolList = tkExtra.MultiListbox(self,
@@ -1448,7 +1447,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 stretch = "last",
 					 background = "White")
 		self.toolList.sortAssist = None
-		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=tk.YES)
 		self.toolList.bindList("<Double-1>",	self.edit)
 		self.toolList.bindList("<Return>",	self.edit)
 		self.toolList.bindList("<Key-space>",	self.edit)

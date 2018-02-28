@@ -9,8 +9,8 @@ __email__  = "vvlachoudis@gmail.com"
 
 import time
 import json
+import tkinter as tk
 import http.client as http
-from tkinter import *
 
 import Utils
 import tkExtra
@@ -18,9 +18,9 @@ import tkExtra
 #===============================================================================
 # Check for updates of bCNC
 #===============================================================================
-class CheckUpdateDialog(Toplevel):
+class CheckUpdateDialog(tk.Toplevel):
 	def __init__(self, master, version):
-		Toplevel.__init__(self, master)
+		tk.Toplevel.__init__(self, master)
 		self.title("Check for updates")
 		self.transient(master)
 
@@ -28,45 +28,45 @@ class CheckUpdateDialog(Toplevel):
 		self.version  = version
 
 		# -----
-		l = Label(self, image=Utils.icons["bCNC"],
-				relief=RAISED,
+		l = tk.Label(self, image=Utils.icons["bCNC"],
+				relief=tk.RAISED,
 				padx=0, pady=0)
-		l.pack(side=TOP, fill=BOTH)
+		l.pack(side=tk.TOP, fill=tk.BOTH)
 
 		# ----
-		frame = LabelFrame(self, text="Version", padx=3, pady=5)
-		frame.pack(side=TOP, fill=BOTH)
+		frame = tk.LabelFrame(self, text="Version", padx=3, pady=5)
+		frame.pack(side=tk.TOP, fill=tk.BOTH)
 
-		l = Label(frame, text=_("Installed Version:"))
-		l.grid(row=0, column=0, sticky=E, pady=1)
+		l = tk.Label(frame, text=_("Installed Version:"))
+		l.grid(row=0, column=0, sticky=tk.E, pady=1)
 
-		l = Label(frame, text=version, anchor=W)
-		l.grid(row=0, column=1, sticky=EW)
+		l = tk.Label(frame, text=version, anchor=tk.W)
+		l.grid(row=0, column=1, sticky=tk.EW)
 		tkExtra.Balloon.set(l, _("Running version of bCNC"))
 
-		l = Label(frame, text=_("Latest Github Version:"))
-		l.grid(row=1, column=0, sticky=E, pady=1)
+		l = tk.Label(frame, text=_("Latest Github Version:"))
+		l.grid(row=1, column=0, sticky=tk.E, pady=1)
 
-		self.webversion = Label(frame, anchor=W)
-		self.webversion.grid(row=1, column=1, sticky=EW)
+		self.webversion = tk.Label(frame, anchor=tk.W)
+		self.webversion.grid(row=1, column=1, sticky=tk.EW)
 		tkExtra.Balloon.set(self.webversion,
 			_("Latest release version on on github"))
-		l = Label(frame, text=_("Published at:"))
-		l.grid(row=2, column=0, sticky=E, pady=1)
+		l = tk.Label(frame, text=_("Published at:"))
+		l.grid(row=2, column=0, sticky=tk.E, pady=1)
 
-		self.published = Label(frame, anchor=W)
-		self.published.grid(row=2, column=1, sticky=EW)
+		self.published = tk.Label(frame, anchor=tk.W)
+		self.published.grid(row=2, column=1, sticky=tk.EW)
 		tkExtra.Balloon.set(self.published,
 			_("Published date of the latest github release"))
 
 		frame.grid_columnconfigure(1, weight=1)
 
 		# ----
-		frame = LabelFrame(self, text=_("Check Interval"), padx=3, pady=5)
-		frame.pack(fill=BOTH)
+		frame = tk.LabelFrame(self, text=_("Check Interval"), padx=3, pady=5)
+		frame.pack(fill=tk.BOTH)
 
-		l = Label(frame, text=_("Last Check:"))
-		l.grid(row=0, column=0, sticky=E, pady=1)
+		l = tk.Label(frame, text=_("Last Check:"))
+		l.grid(row=0, column=0, sticky=tk.E, pady=1)
 
 		# Last check
 		lastCheck = Utils.getInt(Utils.__prg__,"lastcheck",0)
@@ -75,37 +75,37 @@ class CheckUpdateDialog(Toplevel):
 		else:
 			lastCheckStr = time.asctime(time.localtime(lastCheck))
 
-		l = Label(frame, text=lastCheckStr, anchor=W)
-		l.grid(row=0, column=1, sticky=EW)
+		l = tk.Label(frame, text=lastCheckStr, anchor=tk.W)
+		l.grid(row=0, column=1, sticky=tk.EW)
 		tkExtra.Balloon.set(l, _("Date of last checking"))
 
-		l = Label(frame, text=_("Interval (days):"))
-		l.grid(row=1, column=0, sticky=E, pady=1)
+		l = tk.Label(frame, text=_("Interval (days):"))
+		l.grid(row=1, column=0, sticky=tk.E, pady=1)
 
 		checkInt = Utils.getInt(Utils.__prg__,"checkinterval",30)
-		self.checkInterval = IntVar()
+		self.checkInterval = tk.IntVar()
 		self.checkInterval.set(checkInt)
 
-		s = Spinbox(frame, text=self.checkInterval, from_=0, to_=365,
+		s = tk.Spinbox(frame, text=self.checkInterval, from_=0, to_=365,
 				background="White")
-		s.grid(row=1, column=1, sticky=EW)
+		s.grid(row=1, column=1, sticky=tk.EW)
 		frame.grid_columnconfigure(1, weight=1)
 		tkExtra.Balloon.set(s, _("Days-interval to remind again for checking"))
 
 		# ----
-		frame = Frame(self)
-		frame.pack(side=BOTTOM,fill=X)
-		b = Button(frame,text=_("Close"),
+		frame = tk.Frame(self)
+		frame.pack(side=tk.BOTTOM,fill=tk.X)
+		b = tk.Button(frame,text=_("Close"),
 				image=Utils.icons["x"],
-				compound=LEFT,
+				compound=tk.LEFT,
 				command=self.later)
-		b.pack(side=RIGHT)
+		b.pack(side=tk.RIGHT)
 
-		self.checkButton = Button(frame,text=_("Check Now"),
+		self.checkButton = tk.Button(frame,text=_("Check Now"),
 				image=Utils.icons["global"],
-				compound=LEFT,
+				compound=tk.LEFT,
 				command=self.check)
-		self.checkButton.pack(side=RIGHT)
+		self.checkButton.pack(side=tk.RIGHT)
 		tkExtra.Balloon.set(self.checkButton,
 				_("Check the web site for new versions of bCNC"))
 
@@ -144,12 +144,12 @@ class CheckUpdateDialog(Toplevel):
 						command=self.download)
 				tkExtra.Balloon.set(self.checkButton, _("Open web browser to download bCNC"))
 			else:
-				self.checkButton.config(state=DISABLED)
+				self.checkButton.config(state=tk.DISABLED)
 
 		else:
 			self.webversion.config(text=_("Error %d in connection")%(r.status))
 
-		#self.laterButton.config(state=DISABLED)
+		#self.laterButton.config(state=tk.DISABLED)
 
 		# Save today as lastcheck date
 		Utils.config.set(Utils.__prg__,
@@ -191,9 +191,9 @@ def need2Check():
 	return lastCheck + checkInt*86400 < int(time.time())
 
 #===============================================================================
-if __name__ == "__main__":
-	tk = Tk()
-	Utils.loadIcons()
-	Utils.loadConfiguration()
-	dlg = CheckUpdateDialog(tk,0)
-	tk.mainloop()
+#if __name__ == "__main__":
+#	root = tk.Tk()
+#	Utils.loadIcons()
+#	Utils.loadConfiguration()
+#	dlg = CheckUpdateDialog(root,0)
+#	root.mainloop()

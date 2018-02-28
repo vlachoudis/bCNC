@@ -10,10 +10,9 @@ __email__   = "vvlachoudis@gmail.com"
 
 import os
 import re
-import sys
 import json
-import rexx
 import time
+import queue
 import threading
 import webbrowser
 
@@ -22,12 +21,9 @@ try:
 	import serial
 except:
 	serial = None
-try:
-	from Queue import *
-except ImportError:
-	from queue import *
 
 from CNC import WAIT, MSG, UPDATE, WCS, CNC, MAXINT, GCode
+import rexx
 import Utils
 import Pendant
 
@@ -383,9 +379,9 @@ class Sender:
 		self.gcode = GCode()
 		self.cnc   = self.gcode.cnc
 
-		self.log	 = Queue()	# Log queue returned from GRBL
-		self.queue	 = Queue()	# Command queue to be send to GRBL
-		self.pendant	 = Queue()	# Command queue to be executed from Pendant
+		self.log	 = queue.Queue()	# Log queue returned from GRBL
+		self.queue	 = queue.Queue()	# Command queue to be send to GRBL
+		self.pendant	 = queue.Queue()	# Command queue to be executed from Pendant
 		self.serial	 = None
 		self.thread	 = None
 		self.controller  = Utils.CONTROLLER["Grbl"]
@@ -534,7 +530,8 @@ class Sender:
 		elif cmd=="SAFE":
 			try: CNC.vars["safe"] = float(line[1])
 			except: pass
-			self.statusbar["text"] = "Safe Z= %g"%(CNC.vars["safe"])
+			self.event_generate("<<Status>>",
+				data=_("Safe Z= %g"%(CNC.vars["safe"])))
 
 		# SA*VE [filename]: save to filename or to default name
 		elif rexx.abbrev("SAVE",cmd,2):
@@ -772,7 +769,6 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def hardReset(self):
-		print("hardReset")
 		self.busy()
 		if self.serial is not None:
 			if self.controller == Utils.SMOOTHIE:
@@ -947,7 +943,7 @@ class Sender:
 		while self.queue.qsize()>0:
 			try:
 				self.queue.get_nowait()
-			except Empty:
+			except queue.Empty:
 				break
 
 	#----------------------------------------------------------------------
@@ -1138,7 +1134,7 @@ class Sender:
 	#-----------------------------------------------------------------------
 	# GRBL1: Parse status lines/fields and update CNC.vars
 	#-----------------------------------------------------------------------
-	def _grbl1_StatusLine(self, fields):
+	def _grbl1_StatusLine(self, fields, line):
 		if not self._alarm:
 			CNC.vars["state"] = fields[0]
 		for field in fields[1:]:
@@ -1329,11 +1325,11 @@ class Sender:
 							else:
 								# Count executed commands as well
 								self._gcount += 1
-						except Exception as err:
-							self.log.put((Sender.MSG_ERROR,str(err)))
+						except Exception as ex:
+							self.log.put((Sender.MSG_ERROR,str(ex)))
 							self._gcount += 1
 							tosend = None
-				except Empty:
+				except queue.Empty:
 					break
 
 				if tosend is not None:
@@ -1372,13 +1368,10 @@ class Sender:
 			if self.serial.inWaiting() or tosend is None:
 				try:
 					line = self.serial.readline().strip().decode()
-				except Exception as err:
-					print(str(err))
+				except Exception as ex:
 					self.log.put((Sender.MSG_RECEIVE, str(err)))
 					self.emptyQueue()
 					continue
-					#Sender.close(self)
-					#return
 
 #				if line:
 #					print "<R<",repr(line)
@@ -1396,7 +1389,7 @@ class Sender:
 						status = False
 						# strip off < .. > and split fields
 						fields = line[1:-1].split('|')
-						self._grbl1_StatusLine(fields)
+						self._grbl1_StatusLine(fields, line)
 						# Machine is Idle buffer is empty
 						# stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
