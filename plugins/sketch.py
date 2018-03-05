@@ -27,7 +27,7 @@ from ToolsPage import Plugin
 class Tool(Plugin):
 	__doc__ = _("Create sketch based on picture brightness")
 	def __init__(self, master):
-		Plugin.__init__(self, master, "Sketch")
+		super().__init__(master, "Sketch")
 		self.icon  = "sketch"
 		self.group = "Artistic"
 

@@ -42,7 +42,7 @@ RIBBON_TEMP   = -1	# Show temporarily
 #===============================================================================
 class LabelGroup(tk.Frame):
 	def __init__(self, master, name, command=None, **kw):
-		tk.Frame.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.name = name
 		self.config(	#bg="Green",
 				background=_BACKGROUND,
@@ -474,7 +474,7 @@ class Page:		# <--- should be possible to be a toplevel as well
 #===============================================================================
 class TabRibbonFrame(tk.Frame):
 	def __init__(self, master, **kw):
-		tk.Frame.__init__(self, master, kw)
+		super().__init__(master, kw)
 		self.config(background=_BACKGROUND_DISABLE)
 
 		self.oldActive  = None

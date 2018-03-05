@@ -20,7 +20,7 @@ from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 #===============================================================================
 class ClipboardGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Clipboard"), app)
+		super().__init__(master, N_("Clipboard"), app)
 		self.grid2rows()
 
 		# ---
@@ -63,7 +63,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class SelectGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Select"), app)
+		super().__init__(master, N_("Select"), app)
 		self.grid3rows()
 
 		# ---
@@ -137,7 +137,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Edit"), app,
+		super().__init__(master, N_("Edit"), app,
 			[(_("Autolevel"), "level",    lambda a=app:a.insertCommand("AUTOLEVEL",True)),
 			 (_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
 			 (_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
@@ -257,7 +257,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class MoveGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Move"), app)
+		super().__init__(master, N_("Move"), app)
 		self.grid3rows()
 
 		# ===
@@ -312,7 +312,7 @@ class MoveGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class OrderGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Order"), app,
+		super().__init__(master, N_("Order"), app,
 			[(_("Optimize"),  "optimize", lambda a=app:a.insertCommand("OPTIMIZE",True)),
 			])
 		self.grid2rows()
@@ -358,7 +358,7 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class TransformGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Transform"), app)
+		super().__init__(master, N_("Transform"), app)
 		self.grid3rows()
 
 		# ---
@@ -434,7 +434,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class RouteGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Route"), app)
+		super().__init__(master, N_("Route"), app)
 		self.grid3rows()
 
 		# ---
@@ -481,7 +481,7 @@ class RouteGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class InfoGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Info"), app)
+		super().__init__(master, N_("Info"), app)
 		self.grid2rows()
 
 		# ---
@@ -515,7 +515,7 @@ class InfoGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class EditorFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Editor", app)
+		super().__init__(master, "Editor", app)
 		self.editor = CNCList.CNCListbox(self, app,
 						selectmode=tk.EXTENDED,
 						exportselection=0,

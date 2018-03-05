@@ -94,7 +94,7 @@ geometry = None
 #==============================================================================
 class Application(tk.Toplevel,Sender):
 	def __init__(self, master, **kw):
-		tk.Toplevel.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		Sender.__init__(self)
 
 		if sys.platform == "win32":

@@ -1907,7 +1907,7 @@ class CNCCanvas(tk.Canvas):
 #==============================================================================
 class CanvasFrame(tk.Frame):
 	def __init__(self, master, app, *kw, **kwargs):
-		tk.Frame.__init__(self, master, *kw, **kwargs)
+		super().__init__(master, *kw, **kwargs)
 		self.app = app
 
 		self.draw_axes   = tk.BooleanVar()

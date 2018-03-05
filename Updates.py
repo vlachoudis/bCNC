@@ -19,7 +19,7 @@ import tkExtra
 #===============================================================================
 class CheckUpdateDialog(tk.Toplevel):
 	def __init__(self, master, version):
-		tk.Toplevel.__init__(self, master)
+		super().__init__(master)
 		self.title("Check for updates")
 		self.transient(master)
 

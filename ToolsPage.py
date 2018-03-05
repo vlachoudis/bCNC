@@ -369,7 +369,7 @@ class _Base:
 #==============================================================================
 class DataBase(_Base):
 	def __init__(self, master, name):
-		_Base.__init__(self, master, name)
+		super().__init__(master, name)
 		self.buttons  = ["add","delete","clone","rename"]
 
 	# ----------------------------------------------------------------------
@@ -435,7 +435,7 @@ class DataBase(_Base):
 #==============================================================================
 class Plugin(DataBase):
 	def __init__(self, master, name):
-		DataBase.__init__(self, master, name)
+		super().__init__(master, name)
 		self.plugin = True
 		self.group  = "Macros"
 
@@ -444,7 +444,7 @@ class Plugin(DataBase):
 #==============================================================================
 class Ini(_Base):
 	def __init__(self, master, name, vartype, include=(), ignore=()):
-		_Base.__init__(self, master)
+		super().__init__(master)
 		self.name = name
 
 		# detect variables from ini file
@@ -455,22 +455,22 @@ class Ini(_Base):
 #------------------------------------------------------------------------------
 class Font(Ini):
 	def __init__(self, master):
-		Ini.__init__(self, master, "Font", "str")
+		super().__init__(master, "Font", "str")
 
 #------------------------------------------------------------------------------
 class Color(Ini):
 	def __init__(self, master):
-		Ini.__init__(self, master, "Color", "color")
+		super().__init__(master, "Color", "color")
 
 #------------------------------------------------------------------------------
 class Events(Ini):
 	def __init__(self, master):
-		Ini.__init__(self, master, "Events", "str")
+		super().__init__(master, "Events", "str")
 
 #------------------------------------------------------------------------------
 class Shortcut(_Base):
 	def __init__(self, master):
-		_Base.__init__(self, master, "Shortcut")
+		super().__init__(master, "Shortcut")
 		self.variables = [
 			("F1",		"str",	"help"	, _("F1")),
 			("F2",		"str",	"edit"	, _("F2")),
@@ -519,7 +519,7 @@ class Shortcut(_Base):
 #------------------------------------------------------------------------------
 class Camera(_Base):
 	def __init__(self, master):
-		_Base.__init__(self, master, "Camera")
+		super().__init__(master, "Camera")
 		self.variables = [
 			("aligncam"      , "int",  0    , _("Align Camera"))   ,
 			("aligncam_width", "int",  0    , _("Align Camera Width")),
@@ -536,7 +536,7 @@ class Camera(_Base):
 #==============================================================================
 class Config(_Base):
 	def __init__(self, master):
-		_Base.__init__(self, master)
+		super().__init__(master)
 		self.name = "CNC"
 		self.variables = [
 			("units"         , "bool", 0    , _("Units (inches)"))   ,
@@ -581,7 +581,7 @@ class Config(_Base):
 #==============================================================================
 class Material(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Material")
+		super().__init__(master, "Material")
 		self.variables = [
 			("name",    "db",    "", _("Name")),
 			("comment","str",    "", _("Comment")),
@@ -607,7 +607,7 @@ class Material(DataBase):
 #==============================================================================
 class EndMill(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "EndMill")
+		super().__init__(master, "EndMill")
 		self.variables = [
 			("name",       "db",     "", _("Name")),
 			("comment",   "str",     "", _("Comment")),
@@ -636,7 +636,7 @@ class EndMill(DataBase):
 #==============================================================================
 class Stock(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Stock")
+		super().__init__(master, "Stock")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("comment",  "str",     "", _("Comment")),
@@ -662,7 +662,7 @@ class Stock(DataBase):
 #==============================================================================
 class Cut(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Cut")
+		super().__init__(master, "Cut")
 		self.variables = [
 			("name",         "db" ,    "", _("Name")),
 			("surface",      "mm" ,    "", _("Surface Z")),
@@ -692,7 +692,7 @@ class Cut(DataBase):
 #==============================================================================
 class Drill(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Drill")
+		super().__init__(master, "Drill")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("depth",     "mm" ,    "", _("Target Depth")),
@@ -724,7 +724,7 @@ class Drill(DataBase):
 #==============================================================================
 class Profile(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Profile")
+		super().__init__(master, "Profile")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -749,7 +749,7 @@ class Profile(DataBase):
 #==============================================================================
 class Pocket(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Pocket")
+		super().__init__(master, "Pocket")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -770,7 +770,7 @@ class Pocket(DataBase):
 #==============================================================================
 class Tabs(DataBase):
 	def __init__(self, master):
-		DataBase.__init__(self, master, "Tabs")
+		super().__init__(master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("ntabs",     "int",     5, _("Number of tabs")),
@@ -808,7 +808,7 @@ class Tabs(DataBase):
 #==============================================================================
 class Controller(_Base):
 	def __init__(self, master):
-		_Base.__init__(self, master)
+		super().__init__(master)
 		self.name = "Controller"
 		self.variables = [
 			("grbl_0",   "int",     10,     _("$0 Step pulse time [us]")),
@@ -1001,7 +1001,7 @@ class Tools:
 #===============================================================================
 class DataBaseGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Database"), app)
+		super().__init__(master, N_("Database"), app)
 		self.grid3rows()
 
 		# ---
@@ -1103,7 +1103,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CAMGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("CAM"), app)
+		super().__init__(master, N_("CAM"), app)
 		self.grid3rows()
 
 		# ===
@@ -1223,7 +1223,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 #class PluginsGroup(CNCRibbon.ButtonGroup):
 #	def __init__(self, master, group, app):
-#		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
+#		super().__init__(master, group, app)
 #		self.grid3rows()
 #
 #		col,row=0,0
@@ -1268,8 +1268,8 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		#CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app)
+		#super().__init__(master, N_("Config"), app)
+		super().__init__(master, N_("Config"), app)
 		self.grid3rows()
 
 		# ===
@@ -1425,7 +1425,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 #==============================================================================
 class ToolsFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
+		super().__init__(master, "Tools", app)
 		self.tools = app.tools
 
 		b = tk.Button(self, text=_("Execute"),

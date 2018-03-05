@@ -67,7 +67,7 @@ class ButtonMenuGroup(Ribbon.MenuGroup, _LinkApp):
 #===============================================================================
 class PageFrame(tk.Frame, _LinkApp):
 	def __init__(self, master, name, app):
-		tk.Frame.__init__(self, master)
+		super().__init__(master)
 		_LinkApp.__init__(self, app)
 		self.name = name
 

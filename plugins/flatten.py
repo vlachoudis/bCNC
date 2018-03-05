@@ -246,7 +246,7 @@ class Flatten:
 class Tool(Plugin):
 	__doc__ = _("Flatten an area in different ways")
 	def __init__(self, master):
-		Plugin.__init__(self, master, "Flatten")
+		super().__init__(master, "Flatten")
 		self.icon  = "flatten"
 		self.group = "CAM"
 		self.variables = [

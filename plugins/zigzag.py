@@ -86,7 +86,7 @@ class ZigZag:
 class Tool(Plugin):
 	__doc__ = _("Create a Zig-Zag path")
 	def __init__(self, master):
-		Plugin.__init__(self, master, "Zig-Zag")
+		super().__init__(master, "Zig-Zag")
 		self.icon  = "zigzag"
 		self.group = "Artistic"
 		self.variables = [

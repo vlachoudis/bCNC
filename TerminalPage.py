@@ -18,7 +18,7 @@ import CNCRibbon
 #===============================================================================
 class TerminalGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Terminal"), app)
+		super().__init__(master, N_("Terminal"), app)
 
 		b = Ribbon.LabelButton(self.frame, self, "<<TerminalClear>>",
 				image=Utils.icons["clean32"],
@@ -33,7 +33,7 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Commands"), app,
+		super().__init__(master, N_("Commands"), app,
 			[(_("Restore Settings"),  "grbl_settings",  app.grblRestoreSettings),
 			 (_("Restore Workspace"), "grbl_params",    app.grblRestoreWCS),
 			 (_("Restore All"),	  "reset",	    app.grblRestoreAll),
@@ -139,7 +139,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, N_("Terminal"), app)
+		super().__init__(master, N_("Terminal"), app)
 
 		# ---
 		self.terminal = tk.Listbox(self,

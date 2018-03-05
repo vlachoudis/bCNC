@@ -155,7 +155,7 @@ class Gear:
 class Tool(Plugin):
 	__doc__ = _("Generate a spur gear")
 	def __init__(self, master):
-		Plugin.__init__(self, master, "Gear")
+		super().__init__(master, "Gear")
 		self.icon  = "gear"
 		self.group = "Generator"
 		self.variables = [

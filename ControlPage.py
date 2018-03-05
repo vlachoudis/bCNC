@@ -28,7 +28,7 @@ OVERRIDES = ["Feed", "Rapid", "Spindle"]
 #===============================================================================
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Connection"), app,
+		super().__init__(master, N_("Connection"), app,
 			[(_("Hard Reset"),  "reset",     app.hardReset) ])
 		self.grid2rows()
 
@@ -75,7 +75,7 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 #===============================================================================
 class UserGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "User", app)
+		super().__init__(master, "User", app)
 		self.grid3rows()
 
 		n = Utils.getInt("Buttons","n",6)
@@ -92,7 +92,7 @@ class UserGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class RunGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
+		super().__init__(master, "Run", app)
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Run>>",
 				image=Utils.icons["start32"],
@@ -128,7 +128,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	dro_mpos   = ('Helvetica',12)
 
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "DRO", app)
+		super().__init__(master, "DRO", app)
 
 		DROFrame.dro_status = Utils.getFont("dro.status", DROFrame.dro_status)
 		DROFrame.dro_wpos   = Utils.getFont("dro.wpos",   DROFrame.dro_wpos)
@@ -416,7 +416,7 @@ class DROFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
+		super().__init__(master, "Control", app)
 
 		row,col = 0,0
 		tk.Label(self, text=_("Z")).grid(row=row, column=col)

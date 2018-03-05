@@ -62,7 +62,7 @@ CAMERA_LOCATION_ORDER = [
 #===============================================================================
 class ProbeTabGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, N_("Probe"), app)
+		super().__init__(master, N_("Probe"), app)
 
 		self.tab = tk.StringVar()
 		# ---
@@ -121,7 +121,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class AutolevelGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Autolevel", app)
+		super().__init__(master, "Probe:Autolevel", app)
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 		self.grid3rows()
 
@@ -183,7 +183,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	probeCmd  = None
 
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
+		super().__init__(master, "ProbeCommon", app)
 
 		lframe = tkExtra.ExLabelFrame(self, text=_("Common"), foreground="DarkBlue")
 		lframe.pack(side=tk.TOP, fill=tk.X)
@@ -312,7 +312,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ProbeFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
+		super().__init__(master, "Probe:Probe", app)
 
 		#----------------------------------------------------------------
 		# Single probe
@@ -806,7 +806,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class AutolevelFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
+		super().__init__(master, "Probe:Autolevel", app)
 
 		lframe = tk.LabelFrame(self, text=_("Autolevel"), foreground="DarkBlue")
 		lframe.pack(side=tk.TOP, fill=tk.X)
@@ -1067,7 +1067,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class CameraGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
+		super().__init__(master, "Probe:Camera", app)
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 		self.grid3rows()
 
@@ -1154,7 +1154,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class CameraFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
+		super().__init__(master, "Probe:Camera", app)
 
 		# ==========
 		lframe = tk.LabelFrame(self, text=_("Camera"), foreground="DarkBlue")
@@ -1404,7 +1404,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ToolGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
-		CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Tool", app)
+		super().__init__(master, "Probe:Tool", app)
 		self.label["background"] = Ribbon._BACKGROUND_GROUP2
 
 		b = Ribbon.LabelButton(self.frame, self, "<<ToolCalibrate>>",
@@ -1432,7 +1432,7 @@ class ToolGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class ToolFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Probe:Tool", app)
+		super().__init__(master, "Probe:Tool", app)
 
 		lframe = tk.LabelFrame(self, text=_("Manual Tool Change"), foreground="DarkBlue")
 		lframe.pack(side=tk.TOP, fill=tk.X)
@@ -1726,7 +1726,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 ##===============================================================================
 #class HelpFrame(CNCRibbon.PageFrame):
 #	def __init__(self, master, app):
-#		CNCRibbon.PageFrame.__init__(self, master, "Help", app)
+#		super().__init__(master, "Help", app)
 #
 #		lframe = tkExtra.ExLabelFrame(self, text="Help", foreground="DarkBlue")
 #		lframe.pack(side=tk.TOP, fill=tk.X)

@@ -402,7 +402,7 @@ class ReportDialog(tk.Toplevel):
 		if ReportDialog._shown: return
 		ReportDialog._shown = True
 
-		tk.Toplevel.__init__(self, master)
+		super().__init__(master)
 		if master is not None: self.transient(master)
 		self.title(_("Error Reporting"))
 
@@ -629,7 +629,7 @@ class UserButton(Ribbon.LabelButton):
 class UserButtonDialog(tk.Toplevel):
 	NONE = "<none>"
 	def __init__(self, master, button):
-		tk.Toplevel.__init__(self, master)
+		super().__init__(master)
 		self.title(_("User configurable button"))
 		self.transient(master)
 		self.button = button
