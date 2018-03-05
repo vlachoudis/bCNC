@@ -1,5 +1,4 @@
-# -*- coding: ascii -*-
-# $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
+# -*- coding: utf-8 -*-
 #
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
@@ -15,7 +14,7 @@ import Unicode
 from dxf   import DXF
 from stl   import Binary_STL_Writer
 from bpath import eq,Path, Segment
-from bmath import *
+from bmath import solveOverDetermined, Matrix, Vector
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -181,7 +180,7 @@ class Probe:
 		def read(f):
 			while True:
 				line = f.readline()
-				if len(line)==0: raise
+				if not line: raise Exception("ERROR reading probe information")
 				line = line.strip()
 				if line: return map(float, line.split())
 
@@ -567,7 +566,7 @@ class Orient:
 
 		del self.errors[:]
 
-		for i,(xm,ym,x,y) in enumerate(self.markers):
+		for xm,ym,x,y in self.markers:
 			dx = c*x - s*y + self.xo - xm
 			dy = s*x + c*y + self.yo - ym
 			err = sqrt(dx**2 + dy**2)
@@ -674,7 +673,6 @@ class CNC:
 			"_camwx"     : 0.0,
 			"_camwy"     : 0.0,
 			"G"          : [],
-			"TLO"        : 0.0,
 			"motion"     : "G0",
 			"WCS"        : "G54",
 			"plane"      : "G17",
@@ -866,7 +864,6 @@ class CNC:
 		self.absolute    = True		# G90/G91     absolute/relative motion
 		self.arcabsolute = False	# G90.1/G91.1 absolute/relative arc
 		self.retractz    = True		# G98/G99     retract to Z or R
-		self.gcode       = None
 		self.plane       = XY
 		self.feed        = 0		# Actual gcode feed rate (not to confuse with cutfeed
 		self.totalLength = 0.0
@@ -947,7 +944,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def glinev(g, v, feed=None):
-		pairs = zip("xyz",v)
+		pairs = list(zip("xyz",v))
 		if feed is not None:
 			pairs.append(("f",feed))
 		return CNC.gcode(g, pairs)
@@ -1010,7 +1007,7 @@ class CNC:
 	@staticmethod
 	def parseLine(line):
 		# skip empty lines
-		if len(line)==0 or line[0] in ("%","(","#",";"):
+		if not line or line[0] in ("%","(","#",";"):
 			return None
 
 		# remove comments
@@ -1132,8 +1129,8 @@ class CNC:
 			elif ch=='=':
 				# check for assignments (FIXME very bad)
 				if not out and braket==0 and paren==0:
-					for i in " ()-+*/^$":
-						if i in cmd:
+					for j in " ()-+*/^$":
+						if j in cmd:
 							cmd += ch
 							break
 					else:
@@ -1166,7 +1163,7 @@ class CNC:
 		if cmd: out.append(cmd)
 
 		# return output commands
-		if len(out)==0:
+		if not out:
 			return None
 		if len(out)>1:
 			return out
@@ -1629,7 +1626,7 @@ class CNC:
 	@staticmethod
 	def compile(program):
 		lines = []
-		for j,line in enumerate(program):
+		for line in program:
 			newcmd = []
 			cmds = CNC.compileLine(line)
 			if cmds is None: continue
@@ -2061,7 +2058,7 @@ class Block(list):
 					found = True
 
 			# remove all empty
-			ops = filter(lambda x:x!="", ops)
+			ops = [x for x in ops if x!=""]
 
 			if not found:
 				ops.append(operation)
@@ -2072,7 +2069,6 @@ class Block(list):
 	# Add a new operation to the block's name
 	#----------------------------------------------------------------------
 	def addOperation(self, operation, remove=None):
-		n = self.name()
 		self._name = Block.operationName(self.name(), operation, remove)
 
 	#----------------------------------------------------------------------
@@ -2279,7 +2275,7 @@ class GCode:
 			pat = BLOCKPAT.match(line)
 			if pat:
 				value = pat.group(2).strip()
-				if not self.blocks or len(self.blocks[-1]):
+				if not self.blocks or self.blocks[-1]:
 					self.blocks.append(Block(value))
 				else:
 					self.blocks[-1]._name = value
@@ -2676,8 +2672,8 @@ class GCode:
 		if not self.blocks: return
 		# Delete last block if empty
 		last = self.blocks[-1]
-		if len(last)==1 and len(last[0])==0: del last[0]
-		if len(self.blocks[-1])==0:
+		if len(last)==1 and not last[0]: del last[0]
+		if not self.blocks[-1]:
 			self.blocks.pop()
 
 	#----------------------------------------------------------------------
@@ -2743,9 +2739,9 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
-	def setAllBlocksUndo(self, blocks=[]):
+	def setAllBlocksUndo(self, blocks=None):
 		undoinfo = [self.setAllBlocksUndo, self.blocks]
-		self.blocks = blocks
+		self.blocks = blocks if blocks else []
 		return undoinfo
 
 	#----------------------------------------------------------------------
@@ -2807,7 +2803,6 @@ class GCode:
 	# Delete a whole block
 	#----------------------------------------------------------------------
 	def delBlockUndo(self, bid):
-		lines = [x for x in self.blocks[bid]]
 		block = self.blocks.pop(bid)
 		undoinfo = (self.addBlockUndo, bid, block)
 		return undoinfo
@@ -2995,7 +2990,6 @@ class GCode:
 		new = []
 		autolevel = not self.probe.isEmpty()
 		for line in block:
-			newcmd = []
 			cmds = CNC.compileLine(line)
 			if cmds is None:
 				new.append(line)
@@ -3247,7 +3241,7 @@ class GCode:
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
 			if distance is None and number==0:
-				for i,line in enumerate(block):
+				for line in block:
 					cmds = CNC.parseLine(line)
 					if cmds is None:
 						lines.append(line)
@@ -3379,7 +3373,6 @@ class GCode:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 			block.enable = True
-			newpath = []
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
 				if cutFromTop:
@@ -3484,7 +3477,6 @@ class GCode:
 	# return XXX
 	#----------------------------------------------------------------------
 	def info(self, bid):
-		block = self.blocks[bid]
 		paths = self.toPath(bid)
 		if not paths:
 			return None, 1
@@ -3904,7 +3896,7 @@ class GCode:
 	# FIXME needs re-working...
 	#----------------------------------------------------------------------
 	def inkscapeLines(self):
-		undoinfo = []
+		#undoinfo = []
 
 		# Loop over all blocks
 		self.initPath()
@@ -3925,7 +3917,7 @@ class GCode:
 				newlines.append(line)
 				continue
 			self.cnc.motionStart(cmd)
-			xyz = self.cnc.motionPath()
+			self.cnc.motionPath()
 			if self.cnc.dx==0.0 and self.cnc.dy==0.0:
 				if self.cnc.z>0.0 and self.cnc.dz>0.0:
 					last = len(newlines)
@@ -4007,8 +3999,7 @@ class GCode:
 		#print "best=",best
 
 		undoinfo = []
-		for i in range(len(best)):
-			b = best[i]
+		for i,b in enumerate(best):
 			if i==b: continue
 			ptr = best.index(i)
 			# swap i,b in items
@@ -4055,7 +4046,7 @@ class GCode:
 				else:
 					# either CodeType or tuple, list[] append at it as is
 					#lines.append(cmds)
-					if isinstance(cmds,types.CodeType) or isinstance(cmds,int):
+					if isinstance(cmds, (types.CodeType,int)):
 						add(cmds, None)
 					else:
 						add(cmds, (i,j))
@@ -4122,8 +4113,8 @@ class GCode:
 					self.cnc.motionEnd()
 
 				if expand is not None:
-					for line in expand:
-						add(line, None)
+					for l in expand:
+						add(l, None)
 					expand = None
 					continue
 				elif skip:

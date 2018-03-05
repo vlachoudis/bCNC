@@ -1,5 +1,4 @@
 #!/bin/env python
-# $Id: Updates.py 3349 2014-11-28 14:09:26Z bnv $
 
 # Author: vvlachoudis@gmail.com
 # Date:	5-Apr-2007

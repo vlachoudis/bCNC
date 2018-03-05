@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~

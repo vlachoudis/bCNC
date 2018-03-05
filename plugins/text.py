@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# -*- coding: ascii -*-
-# $Id$
+# -*- coding: utf-8 -*-
 #
 # Author:	Filippo Rivato
 # Date: December 2015

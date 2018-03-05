@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# -*- coding: ascii -*-
-# $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
+# -*- coding: utf-8 -*-
 #
 # Author: vvlachoudis@gmail.com
 # Date: 17-Jun-2015

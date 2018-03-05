@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# -*- coding: ascii -*-
-# $Id$
+# -*- coding: utf-8 -*-
 #
 # Author:	https://github.com/carlosgs
 # Date:	14-Sep-2015

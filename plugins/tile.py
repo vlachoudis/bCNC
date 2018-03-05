@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# -*- coding: ascii -*-
-# $Id$
+# -*- coding: utf-8 -*-
 #
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	20-Aug-2015
