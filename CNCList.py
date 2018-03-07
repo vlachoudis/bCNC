@@ -21,7 +21,7 @@ DISABLE_COLOR = "Gray"
 #==============================================================================
 class CNCListbox(tk.Listbox):
 	def __init__(self, master, app, *kw, **kwargs):
-		tk.Listbox.__init__(self, master, *kw, **kwargs)
+		super().__init__(master, *kw, **kwargs)
 		self.bind("<Button-1>",		self.button1)
 		self.bind("<ButtonRelease-1>",	self.release1)
 		self.bind("<Double-1>",		self.double)

@@ -26,7 +26,7 @@ _EXE_FONT = ("Helvetica",12,"bold")
 #===============================================================================
 class InPlaceText(tkExtra.InPlaceText):
 	def defaultBinds(self):
-		tkExtra.InPlaceText.defaultBinds(self)
+		super().defaultBinds()
 		self.edit.bind("<Escape>", self.ok)
 
 #==============================================================================
@@ -879,7 +879,7 @@ class Controller(_Base):
 					self.values[n] = int(CNC.vars[n])
 			except KeyError:
 				pass
-		_Base.populate(self)
+		super().populate()
 
 #==============================================================================
 # Tools container class

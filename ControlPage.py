@@ -791,7 +791,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 class StateFrame(CNCRibbon.PageExLabelFrame):
 	def __init__(self, master, app):
 		global wcsvar
-		CNCRibbon.PageExLabelFrame.__init__(self, master, "State", app)
+		super().__init__(master, "State", app)
 		self._gUpdate = False
 
 		# State

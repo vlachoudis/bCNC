@@ -98,7 +98,7 @@ class Page(Ribbon.Page):
 
 	def __init__(self, master, app, **kw):
 		self.app = app
-		Ribbon.Page.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.register()
 
 	#----------------------------------------------------------------------

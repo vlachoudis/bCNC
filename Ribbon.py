@@ -141,7 +141,7 @@ class LabelButton(tk.Button, _KeyboardFocus):
 #===============================================================================
 class LabelCheckbutton(tk.Checkbutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
-		tk.Checkbutton.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.config(	selectcolor        = _LABEL_SELECT_COLOR,
 				activebackground   = _ACTIVE_COLOR,
 				background         = _BACKGROUND,
@@ -158,7 +158,7 @@ class LabelCheckbutton(tk.Checkbutton, _KeyboardFocus):
 #===============================================================================
 class LabelRadiobutton(tk.Radiobutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
-		tk.Radiobutton.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.config(
 			selectcolor        = _LABEL_SELECT_COLOR,
 			activebackground   = _ACTIVE_COLOR,
@@ -174,7 +174,7 @@ class LabelRadiobutton(tk.Radiobutton, _KeyboardFocus):
 #===============================================================================
 class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 	def __init__(self, master, **kw):
-		tkExtra.Combobox.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.config(background=_BACKGROUND, font=_FONT)
 		tk.Frame.config(self, background=_BACKGROUND, padx=0, pady=0)
 		_KeyboardFocus._bind(self)
@@ -248,7 +248,7 @@ class MenuButton(tk.Button, _KeyboardFocus):
 #===============================================================================
 class MenuGroup(LabelGroup):
 	def __init__(self, master, name, menulist=None, **kw):
-		LabelGroup.__init__(self, master, name, command=self._showMenu, **kw)
+		super().__init__(master, name, command=self._showMenu, **kw)
 		self._menulist = menulist
 
 	#-----------------------------------------------------------------------
@@ -271,14 +271,14 @@ class MenuGroup(LabelGroup):
 #===============================================================================
 #class ContextGroup(LabelGroup):
 #	def __init__(self, master, name, **kw):
-#		LabelGroup.__init__(self, master, name, **kw)
+#		super().__init__(master, name, **kw)
 
 #===============================================================================
 # Page Tab buttons
 #===============================================================================
 class TabButton(tk.Radiobutton):
 	def __init__(self, master, **kw):
-		tk.Radiobutton.__init__(self, master, **kw)
+		super().__init__(master, **kw)
 		self.config(	selectcolor        = _BACKGROUND,
 				activebackground   = _ACTIVE_COLOR,
 				indicatoron        = tk.FALSE,

@@ -553,7 +553,7 @@ class UserButton(Ribbon.LabelButton):
 		if button == 0:
 			tk.Button.__init__(self, master, *args, **kwargs)
 		else:
-			Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
+			super().__init__(master, *args, **kwargs)
 		self.cnc = cnc
 		self.button = button
 		self.get()

@@ -137,7 +137,7 @@ class AlarmException(Exception):
 #==============================================================================
 class CNCCanvas(tk.Canvas):
 	def __init__(self, master, app, *kw, **kwargs):
-		tk.Canvas.__init__(self, master, *kw, **kwargs)
+		super().__init__(master, *kw, **kwargs)
 
 		# Global variables
 		self.view  = 0
@@ -769,13 +769,13 @@ class CNCCanvas(tk.Canvas):
 
 	#----------------------------------------------------------------------
 	def xview(self, *args):
-		ret = tk.Canvas.xview(self, *args)
+		ret = super().xview(*args)
 		if args: self.cameraPosition()
 		return ret
 
 	#----------------------------------------------------------------------
 	def yview(self, *args):
-		ret = tk.Canvas.yview(self, *args)
+		ret = super().yview(*args)
 		if args: self.cameraPosition()
 		return ret
 

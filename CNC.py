@@ -2136,7 +2136,7 @@ class Block(list):
 		if self._name is None and ("id:" in line) and ("End" not in line):
 			pat = IDPAT.match(line)
 			if pat: self._name = pat.group(1)
-		list.append(self, line)
+		super().append(line)
 
 	#----------------------------------------------------------------------
 	def resetPath(self):
