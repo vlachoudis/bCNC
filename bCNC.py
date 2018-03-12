@@ -20,6 +20,13 @@ import tkinter as tk
 import tkinter.messagebox as tkMessageBox
 from datetime import datetime
 
+# Fix dpi blur in Windows 10 #772
+try:
+	from ctypes import windll
+	windll.shcore.SetProcessDpiAwareness(1)
+except ImportError:
+	pass
+
 try:
 	import serial
 except:
