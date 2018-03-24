@@ -652,7 +652,7 @@ class TruetypeInfo:
 			self._glyph_vectors[index] = self._read_glyph(index)
 		return self._glyph_vectors[index]
 
-	def get_glyph_contours(self,index):
+	def get_glyph_contours(self,index,closed):
 		"""
 		get glyph vector data and convert to list of contours
 		"""
@@ -707,7 +707,8 @@ class TruetypeInfo:
 						normContLine.append(GlyphPoint(p.x,p.y))
 					i+=2
 					continue
-			normContLine.append(GlyphPoint(newCont[-1].x,newCont[-1].y))
+                        if (closed):
+                        	normContLine.append(GlyphPoint(newCont[-1].x,newCont[-1].y))
 
 			#add normalized contour to all contours
 			normContours.append(normContLine)
