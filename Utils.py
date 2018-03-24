@@ -29,6 +29,11 @@ except:
 	import builtins as __builtin__
 	#__builtin__.unicode = str		# dirty hack for python3
 
+try:
+	import serial
+except:
+	serial = None
+
 __prg__     = "bCNC"
 prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
@@ -55,13 +60,14 @@ __credits__ = \
 		"@willadams William Adams"
 __translations__ = \
 		"French - @ThierryM\n" \
-		"German - @feistus\n" \
+		"German - @feistus, @SteveMoto\n" \
 		"Italian - @onekk\n" \
 		"Japanese - @stm32f1\n" \
-                "traditional chinese - @Engineer2Designer\n" \
 		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
-		"Spanish - @carlosgs\n"
+		"Simplified Chinese - @Bluermen\n" \
+		"Spanish - @carlosgs\n" \
+		"Traditional chinese - @Engineer2Designer\n"
 
 LANGUAGES = {
 		""      : "<system>",
@@ -71,7 +77,8 @@ LANGUAGES = {
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
 		"ja"    : "Japanese",
-		"zh_tw" : "traditional chinese",
+		"zh_tw" : "Traditional Chinese",
+		"zh_cn" : "Simplified Chinese",
 		"pt_BR" : "Brazilian - Portuguese",
 		"ru"    : "Russian",
 	}
@@ -368,7 +375,7 @@ def comports():
 				s = serial.Serial(device)
 				s.close()
 				comports.append((device,None,None))
-			except (OSError, serial.SerialException):
+			except:
 				pass
 	return comports
 

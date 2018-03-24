@@ -36,11 +36,8 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import os
 import re
 import time
-import signal
-import string
 import Unicode
 import bFileDialog
 from log import say

@@ -35,10 +35,8 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import os
 import sys
 import time
-import string
 import subprocess
 
 try:

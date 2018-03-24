@@ -12,7 +12,7 @@ __name__ = _("Gear")
 
 import math
 from bmath import Vector
-from CNC import CW,CCW,CNC,Block
+from CNC import CW,CNC,Block
 from ToolsPage import Plugin
 
 #==============================================================================

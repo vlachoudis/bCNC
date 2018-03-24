@@ -13,7 +13,6 @@ __name__ = _("Spirograph")
 __version__= "0.0.1"
 
 import math
-from bmath import Vector
 from CNC import CNC,Block
 from ToolsPage import Plugin
 from fractions import gcd

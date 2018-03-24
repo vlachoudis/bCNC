@@ -7,7 +7,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
 import sys
-import time
+# import time
 import math
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
-from CNC import WCS,CNC
+from CNC import CNC
 import Utils
 import Camera
 import Ribbon
@@ -204,9 +204,14 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 		# Fast Probe Feed
 		Label(frame, text=_("Fast Probe Feed:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame, background="White", width=5)
+		self.fastProbeFeed = StringVar()
+		self.fastProbeFeed.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+		ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(frame,
+							background="White", width=5,
+							textvariable=self.fastProbeFeed)
 		ProbeCommonFrame.fastProbeFeed.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(ProbeCommonFrame.fastProbeFeed, _("Set initial probe feed rate for tool change and calibration"))
+		tkExtra.Balloon.set(ProbeCommonFrame.fastProbeFeed,
+			_("Set initial probe feed rate for tool change and calibration"))
 		self.addWidget(ProbeCommonFrame.fastProbeFeed)
 
 		# ----
@@ -274,8 +279,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def probeUpdate():
 		try:
 			CNC.vars["fastprbfeed"] = float(ProbeCommonFrame.fastProbeFeed.get())
-			CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
-			CNC.vars["prbcmd"]  = str(ProbeCommonFrame.probeCmd.get().split()[0])
+			CNC.vars["prbfeed"]     = float(ProbeCommonFrame.probeFeed.get())
+			CNC.vars["prbcmd"]      = str(ProbeCommonFrame.probeCmd.get().split()[0])
 			return False
 		except:
 			return True
@@ -1695,12 +1700,15 @@ class ToolFrame(CNCRibbon.PageFrame):
 						prb_reverse[CNC.vars["prbcmd"][-1]])
 			currentFeedrate = CNC.vars["fastprbfeed"]
 			while currentFeedrate > CNC.vars["prbfeed"]:
-				lines.append("g91 [prbcmd] %s z[-tooldistance]" \
+				lines.append("%wait")
+				lines.append("g91 [prbcmd] %s z[toolprobez-mz-tooldistance]" \
 						% CNC.fmt('f',currentFeedrate))
-				lines.append("[prbcmdreverse] %s z[tooldistance+wz-mz]" \
+				lines.append("%wait")
+				lines.append("[prbcmdreverse] %s z[toolprobez-mz]" \
 						% CNC.fmt('f',currentFeedrate))
 				currentFeedrate /= 10
-		lines.append("g91 [prbcmd] f[prbfeed] z[-tooldistance]")
+		lines.append("%wait")
+		lines.append("g91 [prbcmd] f[prbfeed] z[toolprobez-mz-tooldistance]")
 		lines.append("g4 p1")	# wait a sec
 		lines.append("%wait")
 		lines.append("%global toolheight; toolheight=wz")

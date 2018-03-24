@@ -226,7 +226,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		row += 1
 		col = 1
 
-		self.xzero = Button(self, text="X=0",
+		self.xzero = Button(self, text=_("X=0"),
 				command=self.setX0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -235,7 +235,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.xzero)
 
 		col += 1
-		self.yzero = Button(self, text="Y=0",
+		self.yzero = Button(self, text=_("Y=0"),
 				command=self.setY0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -244,7 +244,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.yzero)
 
 		col += 1
-		self.zzero = Button(self, text="Z=0",
+		self.zzero = Button(self, text=_("Z=0"),
 				command=self.setZ0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
@@ -429,10 +429,10 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
 
 		row,col = 0,0
-		Label(self, text="Z").grid(row=row, column=col)
+		Label(self, text=_("Z")).grid(row=row, column=col)
 
 		col += 3
-		Label(self, text="Y").grid(row=row, column=col)
+		Label(self, text=_("Y")).grid(row=row, column=col)
 
 		# ---
 		row += 1
@@ -487,7 +487,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text="+",
+		b = Button(self, text=_("+"),
 				command=self.incStep,
 				width=3,
 				padx=1, pady=1)
@@ -499,7 +499,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		row += 1
 
 		col = 1
-		Label(self, text="X", width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		Label(self, text=_("X"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
 		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
@@ -616,7 +616,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text="-",
+		b = Button(self, text=_("-"),
 					command=self.decStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)
@@ -948,7 +948,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.overrideCombo.grid(row=row, column=col, pady=0, sticky=EW)
 		tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
 
-		b = Button(f, text="Reset", pady=0, command=self.resetOverride)
+		b = Button(f, text=_("Reset"), pady=0, command=self.resetOverride)
 		b.grid(row=row+1, column=col, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Reset override to 100%"))
 
@@ -991,9 +991,54 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				from_=Utils.config.get("CNC","spindlemin"),
 				to_=Utils.config.get("CNC","spindlemax"))
 		tkExtra.Balloon.set(b, _("Set spindle RPM"))
-		b.grid(row=row, column=col, sticky=EW)
+		b.grid(row=row, column=col, sticky=EW, columnspan=3)
 		self.addWidget(b)
 
+		f.grid_columnconfigure(1, weight=1)
+
+		# Coolant control
+
+		self.coolant = BooleanVar()
+		self.mist = BooleanVar()
+		self.flood = BooleanVar()
+
+
+		row += 1
+		col = 0
+		Label(f, text=_("Coolant:")).grid(row=row, column=col, sticky=E)
+		col += 1
+
+		coolantDisable = Checkbutton(f, text=_("OFF"),
+				command=self.coolantOff,
+				indicatoron=False,
+				variable=self.coolant,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(coolantDisable, _("Stop cooling (M9)"))
+		coolantDisable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(coolantDisable)
+
+		col += 1
+		floodEnable = Checkbutton(f, text=_("Flood"),
+				command=self.coolantFlood,
+				indicatoron=False,
+				variable=self.flood,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(floodEnable, _("Start flood (M8)"))
+		floodEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(floodEnable)
+
+		col += 1
+		mistEnable = Checkbutton(f, text=_("Mist"),
+				command=self.coolantMist,
+				indicatoron=False,
+				variable=self.mist,
+				padx=1,
+				pady=0)
+		tkExtra.Balloon.set(mistEnable, _("Start mist (M7)"))
+		mistEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
+		self.addWidget(mistEnable)
 		f.grid_columnconfigure(1, weight=1)
 
 	#----------------------------------------------------------------------
@@ -1015,7 +1060,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			self.overrideScale.config(to_=100, resolution=25)
 		else:
 			self.overrideScale.config(to_=200, resolution=1)
-
 		self.override.set(CNC.vars["_Ov"+n])
 
 	#----------------------------------------------------------------------
@@ -1068,6 +1112,40 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			self.sendGCode("M3 S%d"%(self.spindleSpeed.get()))
 		else:
 			self.sendGCode("M5")
+
+	#----------------------------------------------------------------------
+	def coolantMist(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.mist.set(FALSE)
+			return
+		self.coolant.set(FALSE)
+		self.mist.set(TRUE)
+		self.sendGCode("M7")
+
+	#----------------------------------------------------------------------
+	def coolantFlood(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.flood.set(FALSE)
+			return
+		self.coolant.set(FALSE)
+		self.flood.set(TRUE)
+		self.sendGCode("M8")
+
+	#----------------------------------------------------------------------
+	def coolantOff(self, event=None):
+		if self._gUpdate: return
+		# Avoid sending commands before unlocking
+		if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
+			self.coolant.set(FALSE)
+			return
+		self.flood.set(FALSE)
+		self.mist.set(FALSE)
+		self.coolant.set(TRUE)
+		self.sendGCode("M9")
 
 	#----------------------------------------------------------------------
 	def updateG(self):

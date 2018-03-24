@@ -36,7 +36,6 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import sys
 import time
 from math import *
 from bmath import Vector, quadratic
@@ -881,7 +880,8 @@ class Path(list):
 
 			Op = O
 			prev = segment
-		#sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
+        # import sys
+		# sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
@@ -964,7 +964,8 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-		#sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
+        # import sys
+		# sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -997,7 +998,8 @@ class Path(list):
 					include = path.distance(segment.end) >= chkofs
 #					print "+E+",i, segment.end, path.distance(segment.end)-chkofs, include
 			i += 1
-		#sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+        # import sys
+		# sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# Perform overcut movements on corners, moving at half angle by
