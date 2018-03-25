@@ -36,6 +36,7 @@ class Tool(Plugin):
 				("Depth",       "mm",    0.0, _("Working Depth")),
 				("FontSize",    "mm",   10.0, _("Font size")),
 				("FontFile",    "file",   "", _("Font file")),
+                                ("Closed",      "bool", True, _("Close Contours")),
 				("ImageToAscii","file",   "", _("Image to Ascii")),
 				("CharsWidth",  "int",    80, _("Image chars width"))]
 		self.buttons.append("exe")
@@ -48,6 +49,7 @@ class Tool(Plugin):
 		depth         = self.fromMm("Depth")
 		textToWrite   = self["Text"]
 		fontFileName  = self["FontFile"]
+                closed        = self["Closed"]
 		imageFileName = self["ImageToAscii"]
 		charsWidth    = self["CharsWidth"]
 
@@ -111,9 +113,9 @@ class Tool(Plugin):
 					k = kern[(glyphIndx,glyphIndxLast)] #FIXME: use kern for offset??
 
 				#Get glyph contours as line segmentes and draw them
-				gc = font.get_glyph_contours(glyphIndx)
+				gc = font.get_glyph_contours(glyphIndx,closed)
 				if(not gc):
-					gc = font.get_glyph_contours(0)#standard glyph for missing glyphs (complex glyph)
+					gc = font.get_glyph_contours(0,closed)#standard glyph for missing glyphs (complex glyph)
 				if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
 					self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
 
