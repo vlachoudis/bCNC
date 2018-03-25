@@ -35,7 +35,7 @@ class Tool(Plugin):
 				("Depth",       "mm",    0.0, _("Working Depth")),
 				("FontSize",    "mm",   10.0, _("Font size")),
 				("FontFile",    "file",   "", _("Font file")),
-                                ("Closed",      "bool", True, _("Close Contours")),
+				("Closed",      "bool", True, _("Close Contours")),
 				("ImageToAscii","file",   "", _("Image to Ascii")),
 				("CharsWidth",  "int",    80, _("Image chars width"))]
 		self.buttons.append("exe")
@@ -48,7 +48,7 @@ class Tool(Plugin):
 		depth         = self.fromMm("Depth")
 		textToWrite   = self["Text"]
 		fontFileName  = self["FontFile"]
-                closed        = self["Closed"]
+		closed        = self["Closed"]
 		imageFileName = self["ImageToAscii"]
 		charsWidth    = self["CharsWidth"]
 
