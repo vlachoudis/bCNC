@@ -3723,6 +3723,7 @@ class GCode:
 							newcmd.append("G%d"%(self.cnc.gcode))
 						else:	# the rest leave unchanged
 							newcmd.append(cmd)
+						present += c
 					# Append motion commands if not exist and changed
 					check = "XYZ"
 					if 'I' in new or 'J' in new or 'K' in new:

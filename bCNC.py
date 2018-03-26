@@ -1378,7 +1378,8 @@ class Application(Toplevel,Sender):
 			if len(line)==1: return "break"
 			line1 = line[1].upper()
 			#if nothing is selected:
-			self.editor.selectAll()
+			if not self.editor.curselection():
+				self.editor.selectAll()
 			if rexx.abbrev("HORIZONTAL",line1):
 				self.executeOnSelection("MIRRORH", False)
 			elif rexx.abbrev("VERTICAL",line1):
