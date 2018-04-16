@@ -1,46 +1,19 @@
-#!/usr/bin/python
-# -*- coding: ascii -*-
-#
-# Copyright and User License
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Copyright Vasilis.Vlachoudis@cern.ch for the
-# European Organization for Nuclear Research (CERN)
-#
-# Please consult the flair documentation for the license
-#
-# DISCLAIMER
-# ~~~~~~~~~~
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
-# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
-# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
-# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
-# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
-# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
-#
-# LIMITATION OF LIABILITY
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
-# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
-# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
-# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
-# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
-# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
-# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	10-Mar-2015
+# -*- coding: utf-8 -*-
+#
+# Copyright European Organization for Nuclear Research (CERN)
+# All rights reserved
+#
+# Author: Vasilis.Vlachoudis@cern.ch
+# Date:   10-Mar-2015
+
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-import time
-from math import *
+from math import atan, atan2, cos, degrees, pi, sin, sqrt
 from bmath import Vector, quadratic
 
-EPS   = 1E-7
+EPS   = 1E-6
 EPS2  = EPS*EPS
 EPSV  = 0.00001
 EPSV2 = EPSV**2
@@ -78,7 +51,7 @@ class Segment:
 		self.type    = t
 		self.start   = s
 		self.end     = e
-		self.cross   = False	# end point is a path cross point
+		self.cross   = False	# end point is a path crossing point
 		self._inside = None	# auxiliary variable for tab operations
 		self.AB = self.end-self.start
 		if self.type==Segment.LINE:
@@ -554,7 +527,8 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
-		return "%s:\n\t%s"%(self.name, "\n\t".join(["%3d: %s"%(i,x) for i,x in enumerate(self)]))
+		return "%s:\n\t%s"%(self.name, "\n\t".join([
+			"%3d: %s"%(i,x) for i,x in enumerate(self)]))
 
 	#----------------------------------------------------------------------
 	def calcBBox(self):
@@ -625,7 +599,7 @@ class Path(list):
 			A = None
 
 #		print
-		for i,segment in enumerate(self):
+		for segment in self:
 #			print i,segment
 			if segment.type == Segment.LINE:
 				B = segment.AB
@@ -684,14 +658,15 @@ class Path(list):
 	#----------------------------------------------------------------------
 	def isInside(self, P):
 		#print "P=",P
-		minx,miny,maxx,maxy = self.bbox()
+		#minx,miny,maxx,maxy = self.bbox()
+		maxx = self.bbox()[2]
 		#print "limits:",minx,miny,maxx,maxy
 		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]))
 		count = 0
 		PP1 = None	# previous points to avoid double counting
 		PP2 = None
 		#print "Line=",line
-		for i,segment in enumerate(self):
+		for segment in self:
 			P1,P2 = line.intersect(segment)
 			#print
 			#print i,segment
@@ -740,7 +715,7 @@ class Path(list):
 	# Split path into contours
 	#----------------------------------------------------------------------
 	def split2contours(self):
-		if len(self)==0: return []
+		if not self: return []
 
 		path = Path(self.name, self.color)
 		paths = [path]
@@ -808,7 +783,7 @@ class Path(list):
 	# Return path with offset
 	#----------------------------------------------------------------------
 	def offset(self, offset, name=None):
-		start = time.time()
+		#start = time.time()
 		if name is None: name = self.name
 		path = Path(name, self.color)
 
@@ -824,12 +799,11 @@ class Path(list):
 			O  = segment.orthogonalStart()
 			So = segment.start + O*offset
 			# Join with the previous edge
-			inside = False
+#			inside = False
 			if Eo is not None and eq(Eo,So):
 				# possibly a full circle
 				if segment.type != Segment.LINE and len(self)==1:
 					path.append(Segment(segment.type, Eo, So, segment.center))
-					opt = 1
 #					print "*0*",path[-1]
 
 			elif Op is not None:
@@ -839,13 +813,13 @@ class Path(list):
 				#if (prev.type!=Segment.LINE and segment.type!=Segment.LINE) or \
 				if  (abs(cross)>EPSV or dot<0.0) and cross*offset >= 0:
 					# either a circle
-					t = offset>0 and Segment.CW or Segment.CCW
+					t = Segment.CW if offset> 0 else Segment.CCW
 					path.append(Segment(t, Eo, So, segment.start))
 #					print "*A*",path[-1]
 				else:
 					# or a straight line if inside
 					path.append(Segment(Segment.LINE, Eo, So))
-					inside = True
+#					inside = True
 #					print "*B*",path[-1]
 
 			# connect with previous point
@@ -880,15 +854,14 @@ class Path(list):
 
 			Op = O
 			prev = segment
-        # import sys
-		# sys.stdout.write("# path.offset: %g\n"%(time.time()-start))
+		#print("# path.offset: %g\n"%(time.time()-start))
 		return path
 
 	#----------------------------------------------------------------------
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
-		start = time.time()
+#		start = time.time()
 		i = 0
 		while i<len(self)-2:
 			j = i+2
@@ -910,6 +883,7 @@ class Path(list):
 					if isinstance(split,int):
 						self[j+split].cross = True
 					else:
+#						print ">1>", i,j,split
 						self.insert(j+1,split)
 						self[j].cross = True
 						j += 1
@@ -921,6 +895,7 @@ class Path(list):
 						if isp<0: isp = len(self)-1
 						self[isp].cross = True
 					else:
+#						print ">2>", i,j,split
 						self.insert(i+1,split)
 						self[i].cross = True
 
@@ -931,6 +906,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[j+split].cross = True
 						else:
+#							print ">3>", i,j,split
 							self.insert(j+1, split)
 							self[j].cross = True
 							j += 1
@@ -939,6 +915,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[j+1+split].cross = True
 						else:
+#							print ">4>", i,j,split
 							self.insert(j+2, split)
 							self[j+1].cross = True
 							j += 1
@@ -950,6 +927,7 @@ class Path(list):
 							if isp<0: isp = len(self)-1
 							self[isp].cross = True
 						else:
+#							print ">5>", i,j,split
 							self.insert(i+1, split)
 							self[i].cross = True
 					else:
@@ -957,6 +935,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[i+1+split].cross = True
 						else:
+#							print ">6>", i,j,split
 							self.insert(i+2, split)
 							self[i+1].cross = True
 				#if P1 or P2: print ">>>",self
@@ -964,8 +943,7 @@ class Path(list):
 				j += 1
 			# move to next step
 			i += 1
-        # import sys
-		# sys.stdout.write("# path.intersect: %g\n"%(time.time()-start))
+		#print("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -998,8 +976,7 @@ class Path(list):
 					include = path.distance(segment.end) >= chkofs
 #					print "+E+",i, segment.end, path.distance(segment.end)-chkofs, include
 			i += 1
-        # import sys
-		# sys.stdout.write("# path.removeExcluded: %g\n"%(time.time()-start))
+		#print("# path.removeExcluded: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
 	# Perform overcut movements on corners, moving at half angle by
@@ -1134,7 +1111,8 @@ class Path(list):
 				self.append(Segment(Segment.CCW, start, end, center))
 
 			elif entity.type == "ARC":
-				t = entity._invert and Segment.CW or Segment.CCW
+#				t = entity._invert and Segment.CW or Segment.CCW
+				t = Segment.CW if entity._invert else Segment.CCW
 				center = dxf.convert(entity.center(), units)
 				self.append(Segment(t, start, end, center))
 
