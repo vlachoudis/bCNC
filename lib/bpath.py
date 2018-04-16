@@ -1,43 +1,19 @@
 
 # -*- coding: utf-8 -*-
 #
-# Copyright and User License
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Copyright Vasilis.Vlachoudis@cern.ch for the
-# European Organization for Nuclear Research (CERN)
+# Copyright European Organization for Nuclear Research (CERN)
+# All rights reserved
 #
-# DISCLAIMER
-# ~~~~~~~~~~
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
-# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
-# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
-# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
-# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
-# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
-#
-# LIMITATION OF LIABILITY
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
-# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
-# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
-# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
-# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
-# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
-# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# Author: Vasilis.Vlachoudis@cern.ch
+# Date:   10-Mar-2015
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	10-Mar-2015
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from math import atan, atan2, cos, degrees, pi, sin, sqrt
 from bmath import Vector, quadratic
 
-EPS   = 1E-7
+EPS   = 1E-6
 EPS2  = EPS*EPS
 EPSV  = 0.00001
 EPSV2 = EPSV**2
@@ -75,7 +51,7 @@ class Segment:
 		self.type    = t
 		self.start   = s
 		self.end     = e
-		self.cross   = False	# end point is a path cross point
+		self.cross   = False	# end point is a path crossing point
 		self._inside = None	# auxiliary variable for tab operations
 		self.AB = self.end-self.start
 		if self.type==Segment.LINE:
@@ -907,6 +883,7 @@ class Path(list):
 					if isinstance(split,int):
 						self[j+split].cross = True
 					else:
+#						print ">1>", i,j,split
 						self.insert(j+1,split)
 						self[j].cross = True
 						j += 1
@@ -918,6 +895,7 @@ class Path(list):
 						if isp<0: isp = len(self)-1
 						self[isp].cross = True
 					else:
+#						print ">2>", i,j,split
 						self.insert(i+1,split)
 						self[i].cross = True
 
@@ -928,6 +906,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[j+split].cross = True
 						else:
+#							print ">3>", i,j,split
 							self.insert(j+1, split)
 							self[j].cross = True
 							j += 1
@@ -936,6 +915,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[j+1+split].cross = True
 						else:
+#							print ">4>", i,j,split
 							self.insert(j+2, split)
 							self[j+1].cross = True
 							j += 1
@@ -947,6 +927,7 @@ class Path(list):
 							if isp<0: isp = len(self)-1
 							self[isp].cross = True
 						else:
+#							print ">5>", i,j,split
 							self.insert(i+1, split)
 							self[i].cross = True
 					else:
@@ -954,6 +935,7 @@ class Path(list):
 						if isinstance(split,int):
 							self[i+1+split].cross = True
 						else:
+#							print ">6>", i,j,split
 							self.insert(i+2, split)
 							self[i+1].cross = True
 				#if P1 or P2: print ">>>",self

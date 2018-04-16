@@ -2048,16 +2048,16 @@ class Application(tk.Toplevel,Sender):
 		if self.serial is not None:
 			self.close()
 			serialPage.connectBtn.config(text=_("Open"),
-						background="LightGreen",
-						activebackground="LightGreen")
+						background="Salmon",
+						activebackground="Salmon")
 		else:
 			serialPage = Page.frames["Serial"]
 			device	 = _device or serialPage.portCombo.get()
 			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
 				serialPage.connectBtn.config(text=_("Close"),
-							background="Salmon",
-							activebackground="Salmon")
+						background="LightGreen",
+						activebackground="LightGreen")
 				self.enable()
 
 	#-----------------------------------------------------------------------
