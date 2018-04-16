@@ -1,36 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright and User License
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Copyright Vasilis.Vlachoudis@cern.ch for the
-# European Organization for Nuclear Research (CERN)
+# Copyright European Organization for Nuclear Research (CERN)
+# All rights reserved
 #
-# DISCLAIMER
-# ~~~~~~~~~~
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
-# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
-# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
-# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
-# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
-# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
-#
-# LIMITATION OF LIABILITY
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
-# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
-# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
-# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
-# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
-# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
-# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# Author: Vasilis.Vlachoudis@cern.ch
+# Date:   10-Mar-2015
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	10-Mar-2015
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
@@ -528,17 +504,17 @@ class Entity(dict):
 			xyz      = list(zip(self[10], self[20], self[30]))
 			flag     = int(self.get(70,0))
 			closed   = bool(flag & Entity.CLOSED)
-			periodic = bool(flag & Entity.PERIODIC)
-			rational = bool(flag & Entity.RATIONAL)
-			planar   = bool(flag & Entity.PLANAR)
-			linear   = bool(flag & Entity.LINEAR)
+#			periodic = bool(flag & Entity.PERIODIC)
+#			rational = bool(flag & Entity.RATIONAL)
+#			planar   = bool(flag & Entity.PLANAR)
+#			linear   = bool(flag & Entity.LINEAR)
 #			print "\nSPLINE"
 #			print "closed=",closed
 #			print "periodic=",periodic
 #			print "rational=",rational
 #			print "planar=",planar
 #			print "linear=",linear
-#			for n in sorted(self.keys()): print n,"=",self[n]
+#			for n in sorted(self): print n,"=",self[n]
 			knots = self[40]
 			xx,yy,zz = spline.spline2Polyline(xyz, int(self[71]),
 					closed, splineSegs, knots)
@@ -1116,7 +1092,7 @@ class DXF:
 			entity.read(self)
 #			print
 #			print ">>>",entity
-#			for n in sorted(entity.keys()): print n,":",entity[n]
+#			for n in sorted(entity): print n,":",entity[n]
 			if entity.type in ("HATCH",): continue	# ignore
 			self.addEntity(entity)
 
@@ -1181,7 +1157,7 @@ class DXF:
 		tag,value = self.read()
 		if tag is None: return None
 		if tag != 2:
-			self.push()
+			self.push(tag,value)
 			return None
 		#print "-"*40,value,"-"*40
 		if value == "HEADER":
