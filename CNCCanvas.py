@@ -1745,7 +1745,7 @@ class CNCCanvas(Canvas):
 				start = True	# start location found
 				block.resetPath()
 				# Draw block tabs
-				if self.draw_margin:
+				if self.draw_paths:
 					for tab in block.tabs:
 						color = block.enable and TAB_COLOR or DISABLE_COLOR
 						item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
