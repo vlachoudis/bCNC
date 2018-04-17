@@ -1,52 +1,30 @@
 #
-# Copyright and User License
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Copyright Vasilis.Vlachoudis@cern.ch for the
-# European Organization for Nuclear Research (CERN)
+# Copyright European Organization for Nuclear Research (CERN)
+# All rights reserved
 #
-# Please consult the flair documentation for the license
-#
-# DISCLAIMER
-# ~~~~~~~~~~
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
-# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
-# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
-# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
-# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
-# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
-#
-# LIMITATION OF LIABILITY
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
-# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
-# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
-# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
-# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
-# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
-# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# Author: Vasilis.Vlachoudis@cern.ch
+# Date:   15-May-2004
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	15-May-2004
 from __future__ import generators
 
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
-#from math import *
-from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 import random
+from math import acos, asin, atan2, copysign, cos, degrees, fmod, hypot, pi, pow, radians, sin, sqrt
 
 import rexx
 
 # Accuracy for comparison operators
 _accuracy = 1E-15
 
-# Formating
-_format = "%12g"
+# Formatting
+_format = "%15g"
+
+#-------------------------------------------------------------------------------
+def sign(x):
+	"""Return sign of number"""
+	return int(copysign(1,x))
 
 #-------------------------------------------------------------------------------
 def Cmp0(x):
@@ -75,6 +53,16 @@ def limit(min_, num, max_):
 def dms(d,m,s):
 	"""dms - degrees from degrees, minutes, seconds"""
 	return d + m/60.0 + s/3600.0
+
+#-------------------------------------------------------------------------------
+def cbrt(x):
+	"""cubic root, this cubic root routine handles negative arguments"""
+	if x == 0.0:
+		return 0
+	elif x > 0.0:
+		return pow(x, 1./3.)
+	else:
+		return -pow(-x, 1./3.)
 
 #-------------------------------------------------------------------------------
 def d2s(ang, fmt=""):
@@ -319,7 +307,7 @@ class Vector(list):
 		if isinstance(x,int) and not args:
 			for i in range(x):
 				self.append(0.0)
-		elif isinstance(x,(list,tuple)):
+		elif isinstance(x,(list,tuple,map)):
 			for i in x:
 				self.append(float(i))
 		else:
@@ -336,6 +324,10 @@ class Vector(list):
 
 	# ----------------------------------------------------------------------
 	def __repr__(self):
+		return "[%s]"%(", ".join([repr(x) for x in self]))
+
+	# ----------------------------------------------------------------------
+	def __str__(self):
 		return "[%s]"%(", ".join([(_format%(x)).strip() for x in self]))
 
 	# ----------------------------------------------------------------------
@@ -585,6 +577,16 @@ class Vector(list):
 		(R in cylindrical coordinate system)."""
 		return sqrt(self.perp2())
 
+	# ----------------------------------------------------------------------
+	# Return a random 3D vector
+	# ----------------------------------------------------------------------
+	@staticmethod
+	def random():
+		cosTheta = 2.0*random.random()-1.0
+		sinTheta = sqrt(1.0 - cosTheta**2)
+		phi = 2.0*pi*random.random()
+		return Vector(cos(phi)*sinTheta, sin(phi)*sinTheta, cosTheta)
+
 #-------------------------------------------------------------------------------
 # Basic 3D Vectors
 #-------------------------------------------------------------------------------
@@ -592,15 +594,6 @@ Vector.O = Vector(0.0, 0.0, 0.0)
 Vector.X = Vector(1.0, 0.0, 0.0)
 Vector.Y = Vector(0.0, 1.0, 0.0)
 Vector.Z = Vector(0.0, 0.0, 1.0)
-
-#-------------------------------------------------------------------------------
-# Return a random 3D vector
-#-------------------------------------------------------------------------------
-def random3D():
-	cosTheta = 2.0*random.random()-1.0
-	sinTheta = sqrt(1.0 - cosTheta**2)
-	phi = 2.0*pi*random.random()
-	return Vector(cos(phi)*sinTheta, sin(phi)*sinTheta, cosTheta)
 
 # ------------------------------------------------------------------------------
 # Return a random nolor
@@ -749,8 +742,27 @@ class Matrix(list):
 			raise Exception("Matrix.make() works only on Matrix(3x3) or Matrix(4x4)")
 
 	# ----------------------------------------------------------------------
+	def __repr__(self):
+		"""Multi line string representation of matrix"""
+		s = ""
+		for i in range(self.rows):
+			if i==0:
+				first="/"
+				last="\\"
+			elif i==self.rows-1:
+				first="\\"
+				last="/"
+			else:
+				first=last="|"
+			s += first
+			for j in range(self.cols):
+				s += " " + repr(self[i][j])
+			s += " " + last + "\n"
+		return s
+
+	# ----------------------------------------------------------------------
 	def __str__(self):
-		"""Multiline string representation of matrix"""
+		"""Multi line string representation of matrix"""
 		s = ""
 		for i in range(self.rows):
 			if i==0:
@@ -778,7 +790,7 @@ class Matrix(list):
 		f.write("# columns: %d\n"%(self.cols))
 		for i in range(self.rows):
 			for j in range(self.cols):
-				f.write("%s "%(str(self[i][j])))
+				f.write("%s "%(repr(self[i][j])))
 			f.write("\n")
 		f.close()
 
