@@ -1,34 +1,10 @@
 #
-# Copyright and User License
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Copyright Vasilis.Vlachoudis@cern.ch for the
-# European Organization for Nuclear Research (CERN)
+# Copyright European Organization for Nuclear Research (CERN)
+# All rights reserved
 #
-# DISCLAIMER
-# ~~~~~~~~~~
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
-# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, OF
-# SATISFACTORY QUALITY, AND FITNESS FOR A PARTICULAR PURPOSE
-# OR USE ARE DISCLAIMED. THE COPYRIGHT HOLDERS AND THE
-# AUTHORS MAKE NO REPRESENTATION THAT THE SOFTWARE AND
-# MODIFICATIONS THEREOF, WILL NOT INFRINGE ANY PATENT,
-# COPYRIGHT, TRADE SECRET OR OTHER PROPRIETARY RIGHT.
-#
-# LIMITATION OF LIABILITY
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# THE COPYRIGHT HOLDERS AND THE AUTHORS SHALL HAVE NO
-# LIABILITY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL,
-# CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
-# CHARACTER INCLUDING, WITHOUT LIMITATION, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES, LOSS OF USE, DATA OR PROFITS,
-# OR BUSINESS INTERRUPTION, HOWEVER CAUSED AND ON ANY THEORY
-# OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
-# LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# Author: Vasilis.Vlachoudis@cern.ch
+# Date:   15-May-2004
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	15-May-2004
 from __future__ import generators
 
 __author__ = "Vasilis Vlachoudis"
@@ -42,8 +18,8 @@ import rexx
 # Accuracy for comparison operators
 _accuracy = 1E-15
 
-# Formating
-_format = "%12g"
+# Formatting
+_format = "%15g"
 
 #-------------------------------------------------------------------------------
 def sign(x):
@@ -348,6 +324,10 @@ class Vector(list):
 
 	# ----------------------------------------------------------------------
 	def __repr__(self):
+		return "[%s]"%(", ".join([repr(x) for x in self]))
+
+	# ----------------------------------------------------------------------
+	def __str__(self):
 		return "[%s]"%(", ".join([(_format%(x)).strip() for x in self]))
 
 	# ----------------------------------------------------------------------
@@ -762,8 +742,27 @@ class Matrix(list):
 			raise Exception("Matrix.make() works only on Matrix(3x3) or Matrix(4x4)")
 
 	# ----------------------------------------------------------------------
+	def __repr__(self):
+		"""Multi line string representation of matrix"""
+		s = ""
+		for i in range(self.rows):
+			if i==0:
+				first="/"
+				last="\\"
+			elif i==self.rows-1:
+				first="\\"
+				last="/"
+			else:
+				first=last="|"
+			s += first
+			for j in range(self.cols):
+				s += " " + repr(self[i][j])
+			s += " " + last + "\n"
+		return s
+
+	# ----------------------------------------------------------------------
 	def __str__(self):
-		"""Multiline string representation of matrix"""
+		"""Multi line string representation of matrix"""
 		s = ""
 		for i in range(self.rows):
 			if i==0:
@@ -791,7 +790,7 @@ class Matrix(list):
 		f.write("# columns: %d\n"%(self.cols))
 		for i in range(self.rows):
 			for j in range(self.cols):
-				f.write("%s "%(str(self[i][j])))
+				f.write("%s "%(repr(self[i][j])))
 			f.write("\n")
 		f.close()
 
