@@ -13,9 +13,9 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 from math import atan, atan2, cos, degrees, pi, sin, sqrt
 from bmath import Vector, quadratic
 
-EPS   = 1E-6
+EPS   = 1E-7		# strict tolerances for operations
 EPS2  = EPS*EPS
-EPSV  = 0.00001
+EPSV  = 0.00001		# relaxed tolerances for vectors
 EPSV2 = EPSV**2
 PI2   = 2.0*pi
 
@@ -53,7 +53,7 @@ class Segment:
 		self.end     = e
 		self.cross   = False	# end point is a path crossing point
 		self._inside = None	# auxiliary variable for tab operations
-		self.AB = self.end-self.start
+		self.AB      = self.end-self.start	# vector from start to end
 		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:
@@ -202,14 +202,15 @@ class Segment:
 			c = ""
 		if self.type == Segment.LINE:
 			return "%s %s %s%s L:%g"%(Segment._TYPES[self.type-1],
-					self.start, self.end, c, self.length())
+					repr(self.start), repr(self.end), c, self.length())
 		else:
-			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g"%(Segment._TYPES[self.type-1], \
-				self.start, self.end, c, \
-				self.center, self.radius, \
-				degrees(self.startPhi), \
-				degrees(self.endPhi),
-				self.length())
+			return "%s %s %s%s C:%s R:%g Phi:[%g..%g] L:%g" % \
+				(Segment._TYPES[self.type-1], \
+				 repr(self.start), repr(self.end), c, \
+				 self.center, self.radius, \
+				 degrees(self.startPhi), \
+				 degrees(self.endPhi),
+				 self.length())
 
 	#----------------------------------------------------------------------
 	# Return a point ON the segment in the middle
@@ -421,9 +422,11 @@ class Segment:
 			if d<=EPS2 or d>=self.radius+other.radius: return None,None
 			#x = (d**2 + self.radius**2 - other.radius**2) / (2.*d)
 			if abs(d)<abs(self.radius):
-				x = (self.radius**2 + (d+other.radius)*(d-other.radius)) / (2.*d)
+				x = (self.radius**2 + \
+				    (d+other.radius)*(d-other.radius)) / (2.*d)
 			else:
-				x = (d**2 + (self.radius+other.radius)*(self.radius-other.radius)) / (2.*d)
+				x = (d**2 + \
+				    (self.radius+other.radius)*(self.radius-other.radius)) / (2.*d)
 
 			diff = (self.radius-x)*(self.radius+x)
 			if diff<-EPS: return None,None
@@ -620,7 +623,8 @@ class Path(list):
 #					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
 #					print "\tphi(Start)=",phi,degrees(phi)
 				phi += segment.endPhi - segment.startPhi
-#				print "\tarc=",segment.endPhi - segment.startPhi, degrees(segment.endPhi - segment.startPhi)
+#				print "\tarc=",segment.endPhi - segment.startPhi, \
+#					degrees(segment.endPhi - segment.startPhi)
 				A = segment.tangentEnd()
 #				print "\ttangenEnd=",A
 #			print "\tphi=",phi,degrees(phi)
@@ -865,6 +869,7 @@ class Path(list):
 		i = 0
 		while i<len(self)-2:
 			j = i+2
+			skipi = 0	# number of newly added segments to skip
 			while j<len(self):
 				P1,P2 = self[i].intersect(self[j])
 				#if P1 is not None or P2 is not None:
@@ -879,6 +884,10 @@ class Path(list):
 
 				if P1 is not None:
 					# Split the higher segment
+#					print
+#					print ">0",i,j,"P1=",repr(P1),"P2=",repr(P2)
+#					print ">a>",self[i]
+#					print ">b>",self[j]
 					split = self[j].split(P1)
 					if isinstance(split,int):
 						self[j+split].cross = True
@@ -886,7 +895,7 @@ class Path(list):
 #						print ">1>", i,j,split
 						self.insert(j+1,split)
 						self[j].cross = True
-						j += 1
+						j += 1	# skip newly inserted j+1 segment
 
 					# Split the lower segment
 					split = self[i].split(P1)
@@ -898,6 +907,7 @@ class Path(list):
 #						print ">2>", i,j,split
 						self.insert(i+1,split)
 						self[i].cross = True
+						skipi += 1 # skip newly inserted i+1 segment
 
 				# Check the two high segments where P2 can go
 				if P2 is not None:
@@ -909,7 +919,7 @@ class Path(list):
 #							print ">3>", i,j,split
 							self.insert(j+1, split)
 							self[j].cross = True
-							j += 1
+							j += 1	# skip newly inserted j+1 segment
 					else:
 						split = self[j+1].split(P2)
 						if isinstance(split,int):
@@ -918,7 +928,7 @@ class Path(list):
 #							print ">4>", i,j,split
 							self.insert(j+2, split)
 							self[j+1].cross = True
-							j += 1
+							j += 1	# skip newly inserted j+1 segment
 
 					if self[i].inside(P2):
 						split = self[i].split(P2)
@@ -930,6 +940,7 @@ class Path(list):
 #							print ">5>", i,j,split
 							self.insert(i+1, split)
 							self[i].cross = True
+							skipi += 1 # skip newly inserted i+1 segment
 					else:
 						split = self[i+1].split(P2)
 						if isinstance(split,int):
@@ -938,11 +949,12 @@ class Path(list):
 #							print ">6>", i,j,split
 							self.insert(i+2, split)
 							self[i+1].cross = True
+							skipi += 1 # skip newly inserted i+1 segment
 				#if P1 or P2: print ">>>",self
 				# move to next segment
 				j += 1
 			# move to next step
-			i += 1
+			i += 1 + skipi
 		#print("# path.intersect: %g\n"%(time.time()-start))
 
 	#----------------------------------------------------------------------
@@ -971,7 +983,8 @@ class Path(list):
 					include = path.distance(self[i+1].midPoint()) >= chkofs
 					#if not include:
 					#	include = path.distance(segment.end) >= chkofs
-#					print "+M+",i, segment.end, path.distance(self[i+1].midPoint())-chkofs, include
+#					print "+M+",i, segment.end, \
+#						path.distance(self[i+1].midPoint())-chkofs, include
 				else:
 					include = path.distance(segment.end) >= chkofs
 #					print "+E+",i, segment.end, path.distance(segment.end)-chkofs, include
@@ -995,7 +1008,9 @@ class Path(list):
 			O  = segment.orthogonalStart()
 			if Op is not None:
 				cross = O[0]*Op[1]-O[1]*Op[0]
-				if prev.type==Segment.LINE and segment.type==Segment.LINE and cross*offset < -EPSV:
+				if prev.type==Segment.LINE \
+				   and segment.type==Segment.LINE \
+				   and cross*offset < -EPSV:
 					# find direction
 					D = O+Op
 					D.normalize()
@@ -1118,7 +1133,8 @@ class Path(list):
 
 			elif entity.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
-				xy = list(zip(dxf.convert(entity[10],units), dxf.convert(entity[20],units)))
+				xy = list(zip(dxf.convert(entity[10],units), 
+					      dxf.convert(entity[20],units)))
 				if entity.isClosed(): xy.append(xy[0])
 				bulge = entity.bulge()
 				if not isinstance(bulge,list): bulge = [bulge]*len(xy)
