@@ -307,7 +307,7 @@ class Vector(list):
 		if isinstance(x,int) and not args:
 			for i in range(x):
 				self.append(0.0)
-		elif isinstance(x,(list,tuple,map)):
+		elif isinstance(x,(list,tuple)):
 			for i in x:
 				self.append(float(i))
 		else:
