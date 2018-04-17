@@ -2200,7 +2200,6 @@ class GCode:
 	def init(self):
 		self.filename = ""
 		self.blocks   = []		# list of blocks
-#		self.tabs     = []		# list of tabs
 		self.vars.clear()
 		self.undoredo.reset()
 #		self.probe.init()
@@ -2259,11 +2258,6 @@ class GCode:
 	# add new line to list create block if necessary
 	#----------------------------------------------------------------------
 	def _addLine(self, line):
-#		if line.startswith("(Tab:"):
-#			items = map(float,line.replace("(Tab:","").replace(")","").split())
-#			self.tabs.append(Tab(*items))
-#			return
-
 		if line.startswith("(Block-name:"):
 			self._blocksExist = True
 			pat = BLOCKPAT.match(line)
@@ -2328,9 +2322,6 @@ class GCode:
 		except:
 			return False
 
-		# write tabs if any
-#		for tab in self.tabs:
-#			f.write("(Tab:%g %g %g %g %g)\n"%(tab.xmin, tab.ymin, tab.xmax, tab.ymax, tab.z))
 		for block in self.blocks:
 			block.write(f)
 		f.close()
