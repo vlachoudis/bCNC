@@ -10,6 +10,7 @@
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
+from operator import itemgetter
 from math import atan, atan2, cos, degrees, pi, sin, sqrt
 from bmath import Vector, quadratic
 
@@ -51,9 +52,10 @@ class Segment:
 		self.type    = t
 		self.start   = s
 		self.end     = e
-		self.cross   = False	# end point is a path crossing point
+		self._cross  = False	# end point is a path crossing point
 		self._inside = None	# auxiliary variable for tab operations
 		self.AB      = self.end-self.start	# vector from start to end
+#		self._chk    = []
 		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:
@@ -196,7 +198,7 @@ class Segment:
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
-		if self.cross:
+		if self._cross:
 			c = "x"
 		else:
 			c = ""
@@ -335,6 +337,23 @@ class Segment:
 			return True
 		else:
 			return self._insideArc(P)
+
+	#----------------------------------------------------------------------
+	# return a increasing number LINE:length2 or CW/CCW:angle of point P
+	# on the segment wrt to the start point. Useful for sorting points
+	# on segments @see Path.intersectSelf()
+	#----------------------------------------------------------------------
+	def order(self, P):
+		if self.type == Segment.LINE:
+			return (P-self.start).length2()
+
+		phi = atan2(P[1]-self.center[1], P[0]-self.center[0])
+		if self.type==Segment.CW:
+			if phi < self.endPhi-EPS/self.radius: phi += PI2
+			return self.startPhi - phi
+		elif self.type==Segment.CCW:
+			if phi < self.startPhi-EPS/self.radius: phi += PI2
+			return phi - self.startPhi
 
 	#----------------------------------------------------------------------
 	# Intersect a line segment with an arc
@@ -500,14 +519,14 @@ class Segment:
 			return -1
 
 		elif eq2(P,self.end,EPS):
-			self.cross = True
+			self._cross = True
 			return 0
 
 		new = Segment(self.type, P, self.end)
-		new.cross  = self.cross
-		self.cross = False
-		self.end   = P
-		self.AB    = self.end - self.start
+		new._cross  = self._cross
+		self._cross = False
+		self.end    = P
+		self.AB     = self.end - self.start
 		if self.type>Segment.LINE:
 			new.setCenter(self.center) #, self.radius, None, self.endPhi)
 			self.setCenter(self.center) #, self.radius, self.startPhi, new.startPhi)
@@ -865,97 +884,46 @@ class Path(list):
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
-#		start = time.time()
-		i = 0
-		while i<len(self)-2:
-			j = i+2
-			skipi = 0	# number of newly added segments to skip
-			while j<len(self):
-				P1,P2 = self[i].intersect(self[j])
-				#if P1 is not None or P2 is not None:
-				#	print i,j,"P1=",P1,"P2=",P2
-				#if i==2 and j==4:
-				#	import pdb; pdb.set_trace()
-				#	P1,P2 = self[i].intersect(self[j])
+		points = []	# list of intersection (segment#, order, point) pair
+		def addPoint(i, P):
+			# FIXME maybe add sorted and check for duplicates?
+			if eq2(P,self[i].start,EPS): return
+			if eq2(P,self[i].end,EPS):   return
+			oi = self[i].order(P)
+			points.append((i,oi,P))
 
+		# Find all interesection points
+		for i,si in enumerate(self[:-2]):
+			if si.type==Segment.LINE and self[i+1].type==Segment.LINE:
+				j = i+2
+			else:
+				j = i+1
+			while j<len(self):
+				P1,P2 = si.intersect(self[j])
 				# skip doublet solution
 				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
 					P2 = None
-
-				if P1 is not None:
-					# Split the higher segment
-#					print
-#					print ">0",i,j,"P1=",repr(P1),"P2=",repr(P2)
-#					print ">a>",self[i]
-#					print ">b>",self[j]
-					split = self[j].split(P1)
-					if isinstance(split,int):
-						self[j+split].cross = True
-					else:
-#						print ">1>", i,j,split
-						self.insert(j+1,split)
-						self[j].cross = True
-						j += 1	# skip newly inserted j+1 segment
-
-					# Split the lower segment
-					split = self[i].split(P1)
-					if isinstance(split,int):
-						isp = i+split
-						if isp<0: isp = len(self)-1
-						self[isp].cross = True
-					else:
-#						print ">2>", i,j,split
-						self.insert(i+1,split)
-						self[i].cross = True
-						skipi += 1 # skip newly inserted i+1 segment
-
-				# Check the two high segments where P2 can go
-				if P2 is not None:
-					if self[j].inside(P2):
-						split = self[j].split(P2)
-						if isinstance(split,int):
-							self[j+split].cross = True
-						else:
-#							print ">3>", i,j,split
-							self.insert(j+1, split)
-							self[j].cross = True
-							j += 1	# skip newly inserted j+1 segment
-					else:
-						split = self[j+1].split(P2)
-						if isinstance(split,int):
-							self[j+1+split].cross = True
-						else:
-#							print ">4>", i,j,split
-							self.insert(j+2, split)
-							self[j+1].cross = True
-							j += 1	# skip newly inserted j+1 segment
-
-					if self[i].inside(P2):
-						split = self[i].split(P2)
-						if isinstance(split,int):
-							isp = i+split
-							if isp<0: isp = len(self)-1
-							self[isp].cross = True
-						else:
-#							print ">5>", i,j,split
-							self.insert(i+1, split)
-							self[i].cross = True
-							skipi += 1 # skip newly inserted i+1 segment
-					else:
-						split = self[i+1].split(P2)
-						if isinstance(split,int):
-							self[i+1+split].cross = True
-						else:
-#							print ">6>", i,j,split
-							self.insert(i+2, split)
-							self[i+1].cross = True
-							skipi += 1 # skip newly inserted i+1 segment
-				#if P1 or P2: print ">>>",self
-				# move to next segment
+				if P1:
+					addPoint(i,P1)
+					addPoint(j,P1)
+				if P2:
+					addPoint(i,P2)
+					addPoint(j,P2)
 				j += 1
-			# move to next step
-			i += 1 + skipi
-		#print("# path.intersect: %g\n"%(time.time()-start))
+
+		# sort accoring to index, and position of point
+		def cmpOrder(A, B):
+			if A[0] != B[0]: return cmp(A[0],B[0])
+			return cmp(A[1], B[1])
+		points.sort(cmp=cmpOrder)
+
+		# split paths
+		for i,o,P in reversed(points):
+			split = self[i].split(P)
+			if not isinstance(split,int):
+				self.insert(i+1,split)
+				self[i]._cross = True
+		return points
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
@@ -974,7 +942,7 @@ class Path(list):
 #				print "remove", self[i]
 				del self[i]
 				i -= 1
-			if segment.cross:	# segment.end is a crossing point
+			if segment._cross:	# segment.end is a crossing point
 				include = not include
 				#if include:
 				# Check middle of next path
