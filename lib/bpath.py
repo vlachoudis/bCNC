@@ -910,7 +910,6 @@ class Path(list):
 					addPoint(j,P2)
 				j += 1
 
-
 		# sort accoring to index, and position of point
 		points.sort(key=itemgetter(0,1))
 
