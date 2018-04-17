@@ -3514,11 +3514,16 @@ class GCode:
 				opath = path.offset(D*offset, newname)
 #				print "OFFSET\n",opath
 				if opath:
+#					import time
+#					t0 = time.time()
 					opath.intersectSelf()
+#					t1=time.time(); print "intersectSelf",t1-t0; t0=t1
 #					print "INTERSECT\n",opath
 					opath.removeExcluded(path, D*offset)
+#					t1=time.time(); print "removeExcluded",t1-t0; t0=t1
 #					print "EXCLUDE\n",opath
 					opath.removeZeroLength(abs(offset)/100.)
+#					t1=time.time(); print "removeZeroLength",t1-t0; t0=t1
 #					print "REMOVE\n",opath
 				opath = opath.split2contours()
 				if opath:
