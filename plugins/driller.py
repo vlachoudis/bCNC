@@ -10,7 +10,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Driller")
-__version__= "0.0.7"
+__version__= "0.0.8"
 
 import math
 from CNC import CNC,Block
@@ -34,11 +34,12 @@ class Tool(Plugin):
 		self.group = "CAM"
 
 		self.variables = [
-			("name",          "db",   "", _("Name")),
-			("HolesDistance", "mm", 10.0, _("Distance between holes")),
-			("TargetDepth",   "mm",  0.0, _("Target Depth")),
-			("Peck",          "mm",  0.0, _("Peck, 0 meas None")),
-			("Dwell",      "float",  0.0, _("Dwell time, 0 means None")),
+			("name",          "db",    "",    _("Name")),
+			("HolesDistance", "mm",    10.0,  _("Distance between holes")),
+			("TargetDepth",   "mm",    0.0,   _("Target Depth")),
+			("Peck",          "mm",    0.0,   _("Peck, 0 meas None")),
+			("Dwell",         "float", 0.0,   _("Dwell time, 0 means None")),
+      ("useAnchor",     "bool",  False, _("Use anchor")),
 		]
 		self.buttons.append("exe")
 
@@ -105,9 +106,10 @@ class Tool(Plugin):
 		targetDepth = self.fromMm("TargetDepth")
 		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
+		useAnchor = self["useAnchor"]
 
 		#Check inputs
-		if holesDistance <=0:
+		if holesDistance <=0 and useAnchor == False:
 			app.setStatus(_("Driller abort: Distance must be > 0"))
 			return
 
@@ -138,47 +140,55 @@ class Tool(Plugin):
 			if len(bidSegment)==0:
 				continue
 
-			#Summ all path length
-			fullPathLength = 0.0
-			for s in bidSegment:
-				fullPathLength += s[3]
+			if useAnchor == True:
+				bidHoles = []
+				for idx, anchor in enumerate(bidSegment):
+					if idx > 0:
+						newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
+						bidHoles.append(newHolePoint)
 
-			#Calc rest
-			holes = fullPathLength // holesDistance
-			rest = fullPathLength - (holesDistance * (holes))
-			#Travel along the path
-			elapsedLength = rest / 2.0 #equaly distribute rest, as option???
-			bidHoles = []
-			while elapsedLength <= fullPathLength:
-				#Search best segment to apply line interpolation
-				bestSegment = bidSegment[0]
-				segmentsSum = 0.0
-				perc = 0.0
+			else:
+				#Summ all path length
+				fullPathLength = 0.0
 				for s in bidSegment:
-					bestSegment = s
-					segmentLength = bestSegment[3]
-					perc = (elapsedLength-segmentsSum) / segmentLength
-					segmentsSum += segmentLength
-					if segmentsSum > elapsedLength : break
+					fullPathLength += s[3]
 
-				#Fist point
-				x1 = bestSegment[0][0]
-				y1 = bestSegment[0][1]
-				z1 = bestSegment[0][2]
-				#Last point
-				x2 = bestSegment[1][0]
-				y2 = bestSegment[1][1]
-				z2 = bestSegment[1][2]
+				#Calc rest
+				holes = fullPathLength // holesDistance
+				rest = fullPathLength - (holesDistance * (holes))
+				#Travel along the path
+				elapsedLength = rest / 2.0 #equaly distribute rest, as option???
+				bidHoles = []
+				while elapsedLength <= fullPathLength:
+					#Search best segment to apply line interpolation
+					bestSegment = bidSegment[0]
+					segmentsSum = 0.0
+					perc = 0.0
+					for s in bidSegment:
+						bestSegment = s
+						segmentLength = bestSegment[3]
+						perc = (elapsedLength-segmentsSum) / segmentLength
+						segmentsSum += segmentLength
+						if segmentsSum > elapsedLength : break
 
-				#Check if segment is not excluded
-				if not bestSegment[2]:
-					newHolePoint = (x1 + perc*(x2-x1) ,
-						y1 + perc*(y2-y1),
-						z1 + perc*(z2-z1))
-					bidHoles.append(newHolePoint)
+					#Fist point
+					x1 = bestSegment[0][0]
+					y1 = bestSegment[0][1]
+					z1 = bestSegment[0][2]
+					#Last point
+					x2 = bestSegment[1][0]
+					y2 = bestSegment[1][1]
+					z2 = bestSegment[1][2]
 
-				#Go to next hole
-				elapsedLength += holesDistance
+					#Check if segment is not excluded
+					if not bestSegment[2]:
+						newHolePoint = (x1 + perc*(x2-x1) ,
+							y1 + perc*(y2-y1),
+							z1 + perc*(z2-z1))
+						bidHoles.append(newHolePoint)
+
+					#Go to next hole
+					elapsedLength += holesDistance
 
 			#Add bidHoles to allHoles
 			allHoles.append(bidHoles)
@@ -187,7 +197,7 @@ class Tool(Plugin):
 		n = self["name"]
 		if not n or n=="default": n="Driller"
 		blocks = []
-		block = Block(self.name)
+		block = Block(n)
 
 		holesCount = 0
 		for bid in allHoles:
