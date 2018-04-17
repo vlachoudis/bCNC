@@ -59,6 +59,7 @@ __credits__ = \
 		"@onekk Carlo\n" \
 		"@willadams William Adams"
 __translations__ = \
+		"Dutch - @hypothermic\n" \
 		"French - @ThierryM\n" \
 		"German - @feistus, @SteveMoto\n" \
 		"Italian - @onekk\n" \
@@ -77,6 +78,7 @@ LANGUAGES = {
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
 		"ja"    : "Japanese",
+		"nl"    : "Nederlands",
 		"zh_tw" : "Traditional Chinese",
 		"zh_cn" : "Simplified Chinese",
 		"pt_BR" : "Brazilian - Portuguese",
