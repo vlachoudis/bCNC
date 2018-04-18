@@ -923,37 +923,45 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
-	# @param include defines the first segment if it is to be included or not
+	# @param include defines the first segment if it is to be included
+	# or not
 	#----------------------------------------------------------------------
 	def removeExcluded(self, path, offset):
-#		start = time.time()
 		chkofs = abs(offset)*(1.0-EPS)
-		include = path.distance(self[0].midPoint()) >= chkofs
+
+		#--------------------------------------------------------------
+		# Search if point P is closer than chkofs or not
+		#--------------------------------------------------------------
+		def isClose(P, last):
+			# search in the close vicinity first
+			i0 = last-10
+			if i0<0: i0 += len(path)
+			for i in range(i0, len(path)):
+				if path[i].distance(P) < chkofs:
+					return False, i
+			for i in range(i0):
+				if path[i].distance(P) < chkofs:
+					return False, i
+#			for x in path:
+#				if x.distance(P) < chkofs:
+#					return False
+			return True, last
+
+		last = 0
+		include, last = isClose(self[0].midPoint(), last)
 		i = 0
 		while i < len(self):
-			segment = self[i]
-#			if eq(segment.B,Vector(47.805, 17.1293)):
-#				import pdb; pdb.set_trace()
+			cross = self[i]._cross
 			if not include:
-#				print "remove", self[i]
 				del self[i]
 				i -= 1
-			if segment._cross:	# segment.B is a crossing point
-				include = not include
-				#if include:
-				# Check middle of next path
-				if i+1<len(self):
-#					print "Check:",self[i+1]
-					include = path.distance(self[i+1].midPoint()) >= chkofs
-					#if not include:
-					#	include = path.distance(segment.B) >= chkofs
-#					print "+M+",i, segment.B, \
-#						path.distance(self[i+1].midPoint())-chkofs, include
-				else:
-					include = path.distance(segment.B) >= chkofs
-#					print "+E+",i, segment.B, path.distance(segment.B)-chkofs, include
 			i += 1
-		#print("# path.removeExcluded: %g\n"%(time.time()-start))
+			if cross:	# end of self[i] is a crossing point
+				# FIXME Can become more intelligent
+				#    check if really it crosses the segment
+				#    or it goes back (only touching)
+				# Check middle of next path
+				include,last = isClose(self[i%len(self)].midPoint(), last)
 
 	#----------------------------------------------------------------------
 	# Perform overcut movements on corners, moving at half angle by
@@ -1041,14 +1049,13 @@ class Path(list):
 			#if eq(self[i].A, [227.286, 151.109]): import pdb; pdb.set_trace()
 			if self[i].length() < eps:
 				start = self[i].A
-
 				del self[i]
 				# Join segments
 				if 0<i<len(self):
 					self[i].setStart(start)
 				continue
 
-			# Convert to line segments with small saggita
+			# Convert to line segments ones with small saggita
 			if self[i].type != Segment.LINE:
 				if self[i].type == Segment.CCW:
 					df = self[i].endPhi - self[i].startPhi
