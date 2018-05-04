@@ -247,12 +247,11 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
 		# ---
 		row += 1
-		b = Ribbon.LabelButton(self.frame,
+		b = Ribbon.LabelButton(self.frame, self.app,  "<<Comment>>",
 				image=Utils.icons["comment"],
 				text=_("Comment"),
 				compound=LEFT,
 				anchor=W,
-				state=DISABLED,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("(Un)Comment selected lines"))
