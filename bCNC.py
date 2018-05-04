@@ -317,6 +317,7 @@ class Application(tk.Toplevel,Sender):
 		self.bind('<<Enable>>',		self.editor.enable)
 		self.bind('<<Disable>>',	self.editor.disable)
 		self.bind('<<ChangeColor>>',    self.editor.changeColor)
+		self.bind('<<Comment>>',		self.editor.commentRow)
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)

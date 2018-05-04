@@ -8,6 +8,7 @@ import pickle
 import tkinter as tk
 import tkinter.font as Font
 
+import re
 import tkExtra
 from CNCCanvas import TAB_COLOR
 from CNC import Tab, Block, CNC, MAXINT
@@ -645,6 +646,28 @@ class CNCListbox(tk.Listbox):
 	def toggleEnable(self, event=None):
 		self._toggleEnable()
 		self.winfo_toplevel().event_generate("<<Status>>",data="Toggled Visibility of selected objects")
+
+	# ----------------------------------------------------------------------
+	# comment uncomment row
+	# ----------------------------------------------------------------------
+	def commentRow(self, event=None):
+		if not self._items: return
+		all_items = self._items
+		sel_items = list(map(int,self.curselection()))
+		mreg = re.compile("^\((.*)\)$")
+		change = False
+		for i in sel_items:
+			my_item = all_items[i]
+			if my_item[1] is not None:
+				change = True
+				#check for ()
+				line = self.gcode[my_item[0]][my_item[1]]
+				m = mreg.search(line)
+				if m is None:
+					self.gcode[my_item[0]][my_item[1]] = "("+line+")"
+				else:
+					self.gcode[my_item[0]][my_item[1]] = m.group(1)
+		if change: self.fill()
 
 	# ----------------------------------------------------------------------
 	# change color of a block
