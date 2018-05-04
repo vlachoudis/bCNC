@@ -52,7 +52,8 @@ __www__     = "https://github.com/vlachoudis/bCNC"
 __contribute__ = \
 		"@effer Filippo Rivato\n" \
 		"@carlosgs Carlos Garcia Saura\n" \
-		"@dguerizec"
+		"@dguerizec\n" \
+		"@MARIOBASZ"
 __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \
