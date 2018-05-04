@@ -4,8 +4,8 @@
 # Author:  @Mariobasz
 # Date:  04-05-2018
 
-__author__ = "@Mariobasz"
-__email__  = "my.mail@gmail.com"  #<<< here put an email where plugins users can contact you
+__author__ = "Mario Basz"
+__email__  = "mariob_1960@yahoo.com.ar"  #<<< here put an email where plugins users can contact you
 
 #Here import the libraries you need, these are necessary to modify the code
 from CNC import CNC,Block
