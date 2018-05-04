@@ -53,6 +53,7 @@ __contribute__ = \
 		"@effer Filippo Rivato\n" \
 		"@carlosgs Carlos Garcia Saura\n" \
 		"@dguerizec\n" \
+		"@buschhardt\n" \
 		"@MARIOBASZ"
 __credits__ = \
 		"@1bigpig\n" \
