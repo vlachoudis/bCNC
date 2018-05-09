@@ -10,8 +10,10 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Driller")
-__version__= "0.0.8"
+__version__= "0.0.9"
 
+import os.path
+import re
 import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
@@ -39,9 +41,78 @@ class Tool(Plugin):
 			("TargetDepth",   "mm",    0.0,   _("Target Depth")),
 			("Peck",          "mm",    0.0,   _("Peck, 0 meas None")),
 			("Dwell",         "float", 0.0,   _("Dwell time, 0 means None")),
-      ("useAnchor",     "bool",  False, _("Use anchor")),
+			("useAnchor",     "bool",  False, _("Use anchor")),
+			("File"  ,        "file" , "",    _("Excellon-File")),
 		]
 		self.buttons.append("exe")
+
+	# Excellon Coordsconvert
+	def coord2float(self, text, unitinch):
+		if unitinch==True: return int(text)*0.0001
+		#unit mm
+		if len(text)==5: return int(text)*0.01
+		if len(text)==6: return int(text)*0.001
+
+	#convert to systemsetting
+	def convunit(self, value, unitinch):
+		if unitinch==CNC.inch: return value
+		if unitinch==True and CNC.inch==False: return value*25.4
+		if unitinch==False and CNC.inch: return value/25.4
+
+	# Excellon Import
+	def excellonimport(self, filename, app):
+		fo = open(filename,"r")
+		header = None
+		current_tool = None
+		incrementcoord = False
+		unitinch = True
+		data = {"tools":{}}
+		targetDepth = self.fromMm("TargetDepth")
+		for row in fo.readlines():
+			line = row.strip()
+			if len(line)!=0:
+				if line[0]!=";":
+					#read header
+					if line=="M48": header = True
+					if header==True:
+						if (line=="INCH" or line=="METRIC"): unitinch = line=="INCH"
+						if (line=="M95" or line=="%"): header = False
+						if line[0]=="T":
+							#tools
+							m = re.match('(T\d+)C(.+)',line)
+							data["tools"][m.group(1)]={"diameter":float(m.group(2)),"holes":[]}
+						if line=="ICI": incrementcoord = True
+					if header==False:
+						if line[0]=="T": current_tool = line
+						if line[0]=="X":
+							m = re.match('X(\d+)Y(\d+)',line)
+							# convert to system
+							x = self.convunit( self.coord2float(m.group(1), unitinch), unitinch)
+							y = self.convunit( self.coord2float(m.group(2), unitinch), unitinch)
+							if incrementcoord==True:
+								if len(data["tools"][current_tool]["holes"])==0:
+									prevx = 0
+									prevy = 0
+								else:
+									prevx = data["tools"][current_tool]["holes"][-1][0]
+									prevy = data["tools"][current_tool]["holes"][-1][1]
+								x = x + prevx
+								y = y + prevy
+							data["tools"][current_tool]["holes"].append((x,y,targetDepth))
+
+		unittext = 'inch' if CNC.inch else 'mm'
+		n = self["name"]
+		if not n or n=="default": n="Driller"
+		holesCounter = 0
+		blocks = []
+		for tool in data["tools"]:
+			dia = self.convunit(data["tools"][tool]["diameter"], unitinch)
+			blockholes = [data["tools"][tool]["holes"]]
+			block,holesCount = self.create_block(blockholes ,n+" ("+str(dia)+" "+unittext+")")
+			holesCounter = holesCounter+holesCount
+			blocks.append(block)
+
+		self.finish_blocks(app, blocks, holesCounter)
 
 	# Calc line length -----------------------------------------------------
 	def calcSegmentLength(self, xyz):
@@ -103,10 +174,10 @@ class Tool(Plugin):
 	def execute(self, app):
 		#Get inputs
 		holesDistance = self.fromMm("HolesDistance")
-		targetDepth = self.fromMm("TargetDepth")
 		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
 		useAnchor = self["useAnchor"]
+		excellonFileName = self["File"]
 
 		#Check inputs
 		if holesDistance <=0 and useAnchor == False:
@@ -119,6 +190,13 @@ class Tool(Plugin):
 
 		if dwell <0:
 			app.setStatus(_("Driller abort: Dwell time >= 0, here time runs only forward!"))
+			return
+
+		if excellonFileName != "":
+			if os.path.isfile(excellonFileName):
+				self.excellonimport(excellonFileName, app)
+			else:
+				app.setStatus(_("Driller abort: Excellon-File not a file"))
 			return
 
 		# Get selected blocks from editor
@@ -194,14 +272,21 @@ class Tool(Plugin):
 			allHoles.append(bidHoles)
 
 		#Write gcommands from allSegments to the drill block
+		blocks = []
 		n = self["name"]
 		if not n or n=="default": n="Driller"
-		blocks = []
-		block = Block(n)
+		block,holesCount = self.create_block(allHoles,n)
+		blocks.append(block)
+		self.finish_blocks(app, blocks, holesCount)
 
+	#Write gcommands from allHoles to the drill block
+	def create_block(self, holes, name):
+		targetDepth = self.fromMm("TargetDepth")
+		peck = self.fromMm("Peck")
+		dwell = self["Dwell"]
+		block = Block(name)
 		holesCount = 0
-		for bid in allHoles:
-
+		for bid in holes:
 			for xH,yH,zH in bid:
 				holesCount += 1
 				block.append(CNC.zsafe())
@@ -209,21 +294,21 @@ class Tool(Plugin):
 				if (peck != 0) :
 					z = 0
 					while z > targetDepth:
-							z = max(z-peck, targetDepth)
-							block.append(CNC.zenter(zH + z))
-							block.append(CNC.zsafe())
+						z = max(z-peck, targetDepth)
+						block.append(CNC.zenter(zH + z))
+						block.append(CNC.zsafe())
 				block.append(CNC.zenter(zH + targetDepth))
 				#dwell time only on last pass
 				if dwell != 0:
-						block.append(CNC.gcode(4, [("P",dwell)]))
-
+					block.append(CNC.gcode(4, [("P",dwell)]))
 		#Gcode Zsafe on finish
 		block.append(CNC.zsafe())
-		blocks.append(block)
+		return (block,holesCount)
 
-		#Insert created block
+	#Insert created blocks
+	def finish_blocks(self, app, blocks, numberholes):
 		active = app.activeBlock()
 		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Driller")
 		app.refresh()
-		app.setStatus(_("Generated Driller: %d holes")%holesCount)
+		app.setStatus(_("Generated Driller: %d holes")%numberholes)
