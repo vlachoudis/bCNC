@@ -30,6 +30,8 @@
 __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar" 
 
+# Version 0.2
+
 # A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt 
 
 #Here import the libraries you need, these are necessary to modify the code  
@@ -226,11 +228,11 @@ class Tool(Plugin):
 			app.setStatus(_("Helical Abort: Please selecte Entry and Exit type"))
 			return
 
-		elif clearanceEntry < 0 or ClearanceEntry == "":
+		elif clearanceEntry < 0 or clearanceEntry == "":
 			app.setStatus(_("Helical Abort: Entry Edge Clearence may be positive"))
 			return
 
-		elif clearanceExit < 0 or ClearanceExit == "":
+		elif clearanceExit < 0 or clearanceExit == "":
 			app.setStatus(_("Helical Abort: Exit Edge Clearence may be positive"))
 			return
 # 		------------------------------------------------------------------------------------------------------------------		
