@@ -10,11 +10,12 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Driller")
-__version__= "0.0.9"
+__version__= "0.0.10"
 
 import os.path
 import re
 import math
+from collections import OrderedDict
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
@@ -107,6 +108,7 @@ class Tool(Plugin):
 		blocks = []
 		for tool in data["tools"]:
 			dia = self.convunit(data["tools"][tool]["diameter"], unitinch)
+			#duplicates shouldnt in the list - remove unnessesary
 			blockholes = [data["tools"][tool]["holes"]]
 			block,holesCount = self.create_block(blockholes ,n+" ("+str(dia)+" "+unittext+")")
 			holesCounter = holesCounter+holesCount
@@ -224,7 +226,6 @@ class Tool(Plugin):
 					if idx > 0:
 						newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
 						bidHoles.append(newHolePoint)
-
 			else:
 				#Summ all path length
 				fullPathLength = 0.0
@@ -267,7 +268,8 @@ class Tool(Plugin):
 
 					#Go to next hole
 					elapsedLength += holesDistance
-
+			#remove duplicates
+			bidHoles = list(OrderedDict.fromkeys(bidHoles))
 			#Add bidHoles to allHoles
 			allHoles.append(bidHoles)
 
