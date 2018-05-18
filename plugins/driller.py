@@ -229,7 +229,7 @@ class Tool(Plugin):
 
 						else:
 							newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
-							bidHoles.append(newHolePoint)
+						bidHoles.append(newHolePoint)
 			else:
 				#Summ all path length
 				fullPathLength = 0.0
