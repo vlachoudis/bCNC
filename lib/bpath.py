@@ -934,7 +934,7 @@ class Path(list):
 		#--------------------------------------------------------------
 		def isClose(P, last):
 			# search in the close vicinity first
-			i0 = last-10
+			i0 = last-min(10, len(path))
 			if i0<0: i0 += len(path)
 			for i in range(i0, len(path)):
 				if path[i].distance(P) < chkofs:
