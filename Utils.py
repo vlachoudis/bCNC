@@ -66,11 +66,12 @@ __translations__ = \
 		"German - @feistus, @SteveMoto\n" \
 		"Italian - @onekk\n" \
 		"Japanese - @stm32f1\n" \
+		"Korean - @jjayd\n" \
 		"Portuguese - @moacirbmn \n" \
 		"Russian - @minithc\n" \
 		"Simplified Chinese - @Bluermen\n" \
 		"Spanish - @carlosgs\n" \
-		"Traditional chinese - @Engineer2Designer\n"
+		"Traditional Chinese - @Engineer2Designer\n"
 
 LANGUAGES = {
 		""      : "<system>",
@@ -80,11 +81,12 @@ LANGUAGES = {
 		"fr"    : u"Fran\u00e7ais",
 		"it"    : "Italiano",
 		"ja"    : "Japanese",
+		"kr"    : "Korean",
 		"nl"    : "Nederlands",
-		"zh_tw" : "Traditional Chinese",
-		"zh_cn" : "Simplified Chinese",
 		"pt_BR" : "Brazilian - Portuguese",
 		"ru"    : "Russian",
+		"zh_cn" : "Simplified Chinese",
+		"zh_tw" : "Traditional Chinese",
 	}
 
 icons     = {}
