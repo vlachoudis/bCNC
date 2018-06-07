@@ -8,97 +8,97 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-29 09:17+0100\n"
-"PO-Revision-Date: 2018-06-06 01:37+0900\n"
+"PO-Revision-Date: 2018-06-07 16:55+0900\n"
+"Last-Translator: SuinLee <dooinee@gmail.com>\n"
 "Language-Team: \n"
+"Language: ko_KR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.7\n"
-"Last-Translator: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language: ko_KR\n"
 
 #: Updates.py:47
 msgid "Installed Version:"
-msgstr ""
+msgstr "설치된 버전:"
 
 #: Updates.py:52
 msgid "Running version of bCNC"
-msgstr ""
+msgstr "bCNC의 러닝 버전"
 
 #: Updates.py:54
 msgid "Latest Github Version:"
-msgstr ""
+msgstr "최신 Github 버전:"
 
 #: Updates.py:60
 msgid "Latest release version on on github"
-msgstr ""
+msgstr "Github에 최신 발포된 버전"
 
 #: Updates.py:61
 msgid "Published at:"
-msgstr ""
+msgstr "발포된 곳"
 
 #: Updates.py:67
 msgid "Published date of the latest github release"
-msgstr ""
+msgstr "최신 GitHub 발포 날짜"
 
 #: Updates.py:72
 msgid "Check Interval"
-msgstr ""
+msgstr "검토 간격"
 
 #: Updates.py:75
 msgid "Last Check:"
-msgstr ""
+msgstr "마지막 검토:"
 
 #: Updates.py:87
 msgid "Date of last checking"
-msgstr ""
+msgstr "마지막 검토 날짜"
 
 #: Updates.py:89
 msgid "Interval (days):"
-msgstr ""
+msgstr "간격 (일) :"
 
 #: Updates.py:100
 msgid "Days-interval to remind again for checking"
-msgstr ""
+msgstr "검토를 위한 리마인드 날짜 간격"
 
 #: Updates.py:105 Utils.py:469 FilePage.py:203 bCNC.py:858 bCNC.py:1063
 #: bCNC.py:2058
 msgid "Close"
-msgstr ""
+msgstr "닫기"
 
 #: Updates.py:111
 msgid "Check Now"
-msgstr ""
+msgstr "현재 검토"
 
 #: Updates.py:117
 msgid "Check the web site for new versions of bCNC"
-msgstr ""
+msgstr "bCNC의 새로운 버전을 위한 웹 사이트 검토"
 
 #: Updates.py:149
 msgid "Download"
-msgstr ""
+msgstr "다운로드"
 
 #: Updates.py:152
 msgid "Open web browser to download bCNC"
-msgstr ""
+msgstr "bCNC 다운을 위한 웹 브라우저 열기"
 
 #: Updates.py:157
 #, python-format
 msgid "Error %d in connection"
-msgstr ""
+msgstr "연결에서 %d 에러"
 
 #: Sender.py:95
 msgid "bCNC is currently sending a gcode program to Grbl"
-msgstr ""
+msgstr "bCNC는 최근 Grbl로 gcode 프로그램을 보내고 있습니다."
 
 #: Sender.py:96
 msgid "Grbl is in idle state and waiting for user commands"
-msgstr ""
+msgstr "Grbl이 유휴 상태에서 사용자 명령을 기다리고 있습니다."
 
 #: Sender.py:97
 msgid "Grbl is on hold state. Click on resume (pause) to continue"
-msgstr ""
+msgstr "Grbl이 붙들어진 상태입니다. 계속하려면 재시작(멈춤) 버튼을 누르시오."
 
 #: Sender.py:98
 msgid ""
@@ -112,160 +112,188 @@ msgid ""
 "user to override the alarm manually. This is to ensure the user knows and "
 "acknowledges the problem and has taken steps to fix or account for it."
 msgstr ""
+"알람이 비상 사태입니다. 무언가 잘못되었습니다. 일반적으로 기계가 움직이거나 "
+"기계 공간 밖으로 이동하여 무언가에 충돌하려고 할 때 한계 오류로 인해 발생합니"
+"다. 또한 Grbl이 손실되어 위치를 보장할 수 없거나 검사 명령이 실패한 경우 문제"
+"를 보고합니다. 알람 모드가 되면 Grbl은 사용자가 재설정을 할 때까지 모든 것을 "
+"잠그고 종료합니다. 리셋 후에도 Grbl은 알람 모드로 유지되고 모든 G 코드가 실행"
+"되는 것을 차단하지만 사용자가 수동으로 알람을 무시할 수 있습니다. 이는 사용자"
+"가 문제를 알고 인식하고 수정 또는 조치를 취하도록 보장하기 위한 것입니다."
 
 #: Sender.py:99
 msgid "Grbl is not connected. Please specify the correct port and click Open."
 msgstr ""
+"Grbl이 연결되지 않았습니다. 올바른 포트를 지정하고 열기를 클릭하십시오."
 
 #: Sender.py:100
 msgid "Connection is established with Grbl"
-msgstr ""
+msgstr "Grbl과 연결됩니다."
 
 #: Sender.py:102
 msgid ""
 "All is good! Everything in the last line was understood by Grbl and was "
 "successfully processed and executed."
 msgstr ""
+"모두 좋습니다! 마지막 라인까지 모든 것을 Grbl이 이해했으며 성공적으로 처리되"
+"고 실행되었습니다."
 
 #: Sender.py:104
 msgid "G-code words consist of a letter and a value. Letter was not found."
-msgstr ""
+msgstr "G 코드 단어는 문자와 값으로 구성됩니다. 문자를 찾을 수 없습니다."
 
 #: Sender.py:105
 msgid "Numeric value format is not valid or missing an expected value."
-msgstr ""
+msgstr "숫자 값 형식이 유효하지 않거나 예상 값이 누락되었습니다."
 
 #: Sender.py:106
 msgid "Grbl '$' system command was not recognized or supported."
-msgstr ""
+msgstr "Grbl '$' 시스템 명령이 인식되거나 지원되지 않습니다."
 
 #: Sender.py:107
 msgid "Negative value received for an expected positive value."
-msgstr ""
+msgstr "양수 값이 예상되나 음수 값이 수신되었습니다."
 
 #: Sender.py:108
 msgid "Homing cycle is not enabled via settings."
-msgstr ""
+msgstr "원점 복귀 싸이클은 설정을 통해 가능하지 않습니다."
 
 #: Sender.py:109
 msgid "Minimum step pulse time must be greater than 3usec"
-msgstr ""
+msgstr "최소 스텝 펄스 시간은 3usec보다 커야합니다."
 
 #: Sender.py:110
 msgid "EEPROM read failed. Reset and restored to default values."
-msgstr ""
+msgstr "EEPROM 읽기가 실패했습니다. 재설정하고 기본값으로 복원하시오."
 
 #: Sender.py:111
 msgid ""
 "Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
 "operation during a job."
 msgstr ""
+"Grbl '$' 명령은 Grbl이 유휴 상태가 아니면 사용할 수 없습니다. 작업 중 원활한 "
+"작동을 보장하시오."
 
 #: Sender.py:112
 msgid "G-code locked out during alarm or jog state"
-msgstr ""
+msgstr "알람 또는 조그 상태 중 G 코드 잠김"
 
 #: Sender.py:113
 msgid "Soft limits cannot be enabled without homing also enabled."
-msgstr ""
+msgstr "원점 복귀를 사용할 수 없으면 소프트 제한 또한 사용할 수 없습니다."
 
 #: Sender.py:114
 msgid "Max characters per line exceeded. Line was not processed and executed."
 msgstr ""
+"한 줄당 최대 글자 수를 초과했습니다. 라인이 처리되고 실행되지 않았습니다."
 
 #: Sender.py:115
 msgid ""
 "(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
 "supported."
-msgstr ""
+msgstr "(컴파일 옵션) Grbl '$ '설정 값이 지원되는 최대 스텝 속도를 초과합니다."
 
 #: Sender.py:116
 msgid "Safety door detected as opened and door state initiated."
-msgstr ""
+msgstr "안전 도어가 열린 상태로 감지되고 도어 상태가 시작되었습니다."
 
 #: Sender.py:117
 msgid ""
 "(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
 "limit."
 msgstr ""
+"(오직 Grbl-Mega에서) 빌드 정보 또는 시작 라인이 EEPROM 라인 길이 제한을 초과"
+"했습니다."
 
 #: Sender.py:118
 msgid "Jog target exceeds machine travel. Command ignored."
-msgstr ""
+msgstr "조그 타겟이 기계 주행 거리를 초과합니다. 명령이 무시되었습니다."
 
 #: Sender.py:119
 msgid "Jog command with no '=' or contains prohibited g-code."
-msgstr ""
+msgstr "조그 명령에 '='가 없거나 금지된 g 코드가 포함되어 있습니다."
 
 #: Sender.py:120
 msgid "Laser mode requires PWM output."
-msgstr ""
+msgstr "레이저 모드는 PWM 출력이 필요합니다."
 
 #: Sender.py:121
 msgid "Unsupported or invalid g-code command found in block."
-msgstr ""
+msgstr "지원되지 않거나 유효하지 않은 g 코드 명령이 블록에서 발견되었습니다."
 
 #: Sender.py:122
 msgid "More than one g-code command from same modal group found in block."
 msgstr ""
+"블록에 있는 동일한 모달 그룹에서 하나 이상의 g-code 명령이 발견되었습니다."
 
 #: Sender.py:123
 msgid "Feed rate has not yet been set or is undefined."
-msgstr ""
+msgstr "이송 속도가 아직 설정되지 않았거나 정의되지 않았습니다."
 
 #: Sender.py:124
 msgid "G-code command in block requires an integer value."
-msgstr ""
+msgstr "블록의 G 코드 명령에는 정수 값이 필요합니다."
 
 #: Sender.py:125
 msgid ""
 "Two G-code commands that both require the use of the XYZ axis words were "
 "detected in the block."
 msgstr ""
+"XYZ 축 단어를 사용해야 하는 두 개의 G 코드 명령이 블록에서 감지되었습니다."
 
 #: Sender.py:126
 msgid "A G-code word was repeated in the block."
-msgstr ""
+msgstr "G 코드 단어가 블록에서 반복되었습니다."
 
 #: Sender.py:127
 msgid ""
 "A G-code command implicitly or explicitly requires XYZ axis words in the "
 "block, but none were detected."
 msgstr ""
+"암시적 또는 명시적으로 G 코드 명령은 블록에서 XYZ 축 단어를 필요로 하지만 감"
+"지된 것은 없습니다."
 
 #: Sender.py:128
 msgid "N line number value is not within the valid range of 1 - 9,999,999."
-msgstr ""
+msgstr "N행 번호 값이 1 - 9,999,999의 유효 범위 내에 있지 않습니다."
 
 #: Sender.py:129
 msgid ""
 "A G-code command was sent, but is missing some required P or L value words "
 "in the line."
 msgstr ""
+"G 코드 명령이 전송되었지만 회선에서 일부 필수 P 또는 L 값 단어가 누락되었습니"
+"다."
 
 #: Sender.py:130
 msgid ""
 "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
 "are not supported."
 msgstr ""
+"Grbl은 6개의 작업 좌표계 G54-G59를 지원합니다. G59.1, G59.2 및 G59.3은 지원되"
+"지 않습니다."
 
 #: Sender.py:131
 msgid ""
 "The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
 "be active. A different motion was active."
 msgstr ""
+"G53 G 코드 명령은 G0 찾기 또는 G1 피드 동작 모드를 활성화해야합니다. 다른 동"
+"작이 활성화되었습니다."
 
 #: Sender.py:132
 msgid ""
 "There are unused axis words in the block and G80 motion mode cancel is "
 "active."
 msgstr ""
+"블록에 사용되지 않은 축 단어가 있으며 G80 모션 모드 취소가 활성화됩니다."
 
 #: Sender.py:133
 msgid ""
 "A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
 "plane to trace the arc."
 msgstr ""
+"G2 또는 G3 호가 명령되었지만 호를 추적하기 위해 선택된 평면에 XYZ 축 단어가 "
+"없습니다."
 
 #: Sender.py:134
 msgid ""
@@ -273,6 +301,8 @@ msgid ""
 "error, if the arc is impossible to generate or if the probe target is the "
 "current position."
 msgstr ""
+"동작 명령에 잘못된 대상이 있습니다. 호를 생성 할 수 없거나 프로브 타겟이 현"
+"재 위치인 경우 G2, G3 및 G38.2가 이 오류를 생성합니다."
 
 #: Sender.py:135
 msgid ""
@@ -280,42 +310,55 @@ msgid ""
 "when computing the arc geometry. Try either breaking up the arc into semi-"
 "circles or quadrants, or redefine them with the arc offset definition."
 msgstr ""
+"반지름 정의로 추적 한 G2 또는 G3 호에는 호 형상을 계산할 때 수학적 오류가 있"
+"었습니다. 호를 반원형 또는 사분원형으로 분해하거나 아크 오프셋 정의로 다시 정"
+"의하십시오."
 
 #: Sender.py:136
 msgid ""
 "A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
 "word in the selected plane to trace the arc."
 msgstr ""
+"오프세 정의로 추적한 G2 또는 G3 호에 선택한 평면에서 호를 추적할 IJK 옵셋 단"
+"어가 누락되었습니다."
 
 #: Sender.py:137
 msgid ""
 "There are unused, leftover G-code words that aren't used by any command in "
 "the block."
-msgstr ""
+msgstr "블록의 명령에 사용되지 않은 남은 G 코드 단어가 있습니다."
 
 #: Sender.py:138
 msgid ""
 "The G43.1 dynamic tool length offset command cannot apply an offset to an "
 "axis other than its configured axis. The Grbl default axis is the Z-axis."
 msgstr ""
+"G43.1 동적 공구 길이 오프셋 명령은 구성된 축 이외의 축에 오프셋을 적용 할 수 "
+"없습니다. Grbl 기본 축은 Z축입니다."
 
 #: Sender.py:140
 msgid ""
 "Hard limit triggered. Machine position is likely lost due to sudden and "
 "immediate halt. Re-homing is highly recommended."
 msgstr ""
+"하드 제한이 발동되었습니다. 기계 위치는 갑작스럽고 즉각적인 정지로 인해 손실"
+"될 수 있습니다. 리 호밍 (re-homing)을 적극 권장합니다."
 
 #: Sender.py:141
 msgid ""
 "G-code motion target exceeds machine travel. Machine position safely "
 "retained. Alarm may be unlocked."
 msgstr ""
+"G 코드 모션 타겟이 기계 주행 거리를 초과합니다. 기계 위치는 안전하게 유지됩니"
+"다. 알람은 잠금 해제 될 수 있습니다."
 
 #: Sender.py:142
 msgid ""
 "Reset while in motion. Grbl cannot guarantee position. Lost steps are "
 "likely. Re-homing is highly recommended."
 msgstr ""
+"동작 중 재설정합니다. Grbl은 위치를 보장할 수 없습니다. 분실된 단계가있을 수 "
+"있습니다. 리 호밍 (re-homing)을 적극 권장합니다."
 
 #: Sender.py:143
 msgid ""
@@ -323,119 +366,134 @@ msgid ""
 "probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
 "triggered."
 msgstr ""
+"프로브가 실패합니다. 프로브 사이클을 시작하기 전에 프로브가 예상된 초기 상태"
+"가 아닙니다. 여기서 G38.2 및 G38.3은 발동되지 않고 G38.4 및 G38.5가 발동됩니"
+"다."
 
 #: Sender.py:144
 msgid ""
 "Probe fail. Probe did not contact the workpiece within the programmed travel "
 "for G38.2 and G38.4."
 msgstr ""
+"프로브가 실패합니다. 프로브가 G38.2 및 G38.4의 프로그래밍 된 이동 범위 내에"
+"서 공작물과 접촉하지 않았습니다."
 
 #: Sender.py:145
 msgid "Homing fail. Reset during active homing cycle."
-msgstr ""
+msgstr "호밍(Homing)이 실패합니다. 활성 원점 복귀 사이클 중에 재설정하십시오."
 
 #: Sender.py:146
 msgid "Homing fail. Safety door was opened during active homing cycle."
 msgstr ""
+"호밍(Homing)이 실패합니다. 활성 원점 복귀 사이클 중에 안전 도어가 열렸습니다."
 
 #: Sender.py:147
 msgid ""
 "Homing fail. Cycle failed to clear limit switch when pulling off. Try "
 "increasing pull-off setting or check wiring."
 msgstr ""
+"호밍(Homing)이 실패합니다. 당겨주기 할 때 사이클이 한계 스위치를 지우지 못했"
+"습니다. pull-off 설정을 늘리거나 배선을 점검하십시오."
 
 #: Sender.py:148
 msgid ""
 "Homing fail. Could not find limit switch within search distance. Defined as "
 "1.5 * max_travel on search and 5 * pulloff on locate phases."
 msgstr ""
+"호밍(Homing)은 실패합니다. 검색 거리 내에 리미트 스위치를 찾을 수 없습니다. "
+"검색 시 1.5 * max_travel과 위치 단계에서 5 * pulloff로 정의됩니다."
 
 #: Sender.py:150
 msgid "Hold complete. Ready to resume."
-msgstr ""
+msgstr "잠시만 기다려주세요. 다시 시작할 준비가 되었습니다."
 
 #: Sender.py:151
 msgid "Hold in-progress. Reset will throw an alarm."
-msgstr ""
+msgstr "진행 중입니다. 리셋하면 알람이 울립니다."
 
 #: Sender.py:152
 msgid "Door closed. Ready to resume."
-msgstr ""
+msgstr "문이 닫혔습니다. 다시 시작할 준비가 되었습니다."
 
 #: Sender.py:153
 msgid "Machine stopped. Door still ajar. Can't resume until closed."
 msgstr ""
+"기계가 중지되었습니다. 아직 문 열려 있습니다. 닫을 때까지 재개할 수 없습니다."
 
 #: Sender.py:154
 msgid ""
 "Door opened. Hold (or parking retract) in-progress. Reset will throw an "
 "alarm."
 msgstr ""
+"문이 열렸습니다. 보류 (또는 주차 취소)가 진행 중입니다. 리셋하면 알람이 울립"
+"니다."
 
 #: Sender.py:155
 msgid ""
 "Door closed and resuming. Restoring from park, if applicable. Reset will "
 "throw an alarm."
 msgstr ""
+"문 닫힘 및 다시 시작됩니다. 해당되는 경우 주차장에서 복원합니다. 리셋하면 알"
+"람이 울립니다."
 
 #: Sender.py:438
 msgid "unknown command"
-msgstr ""
+msgstr "알 수 없는 명령"
 
 #: Sender.py:438
 #, python-format
 msgid "Invalid command %s"
-msgstr ""
+msgstr "잘못된 명령 %s"
 
 #: Sender.py:718 ControlPage.py:407
 #, python-format
 msgid "Set workspace %s to %s"
-msgstr ""
+msgstr "작업 공간 %s을 %s로 설정하십시오"
 
 #: Sender.py:792
 msgid "Run ended"
-msgstr ""
+msgstr "실행 종료됨"
 
 #: Utils.py:431
 msgid "Error Reporting"
-msgstr ""
+msgstr "오류 보고"
 
 #: Utils.py:434 FilePage.py:136
 msgid "Report"
-msgstr ""
+msgstr "보고"
 
 #: Utils.py:437
 #, python-format
 msgid "The following report is about to be send to the author of %s"
-msgstr ""
+msgstr "다음 보고는 % s의 작성자에게 보내질 것입니다."
 
 #: Utils.py:452
 msgid "Your email"
-msgstr ""
+msgstr "당신의 email"
 
 #: Utils.py:461
 msgid "Automatic error reporting"
-msgstr ""
+msgstr "자동 오류 보고"
 
 #: Utils.py:473
 msgid "Send report"
-msgstr ""
+msgstr "오류 보내기"
 
 #: Utils.py:539 Utils.py:549
 msgid "Error sending report"
-msgstr ""
+msgstr "전송 오류 보고"
 
 #: Utils.py:540
 msgid "There was a problem connecting to the web site"
-msgstr ""
+msgstr "웹 사이트에 연결하는 중에 문제가 발생했습니다."
 
 #: Utils.py:544
 msgid "Report successfully send"
-msgstr ""
+msgstr "보고가 성공적으로 전달되었습니다."
 
 #: Utils.py:545
 msgid "Report was successfully uploaded to web site"
-msgstr ""
+msgstr "보고가 성공적으로 웹 사이트에 업로드되었습니다."
 
 #: Utils.py:550
 #, python-format
@@ -443,106 +501,112 @@ msgid ""
 "There was an error sending the report\n"
 "Code=%d %s"
 msgstr ""
+"보고서를 보내는 중 오류가 발생했습니다.\n"
+"코드 = % d % s"
 
 #: Utils.py:657
 msgid "User configurable button"
-msgstr ""
+msgstr "사용자가 구성 할 수 있는 버튼"
 
 #: Utils.py:663
 msgid "Name:"
-msgstr ""
+msgstr "이름:"
 
 #: Utils.py:667
 msgid "Name to appear on button"
-msgstr ""
+msgstr "버튼에 표시할 이름"
 
 #: Utils.py:671
 msgid "Icon:"
-msgstr ""
+msgstr "아이콘:"
 
 #: Utils.py:683
 msgid "Icon to appear on button"
-msgstr ""
+msgstr "버튼에 표시할 아이콘"
 
 #: Utils.py:687
 msgid "Tool Tip:"
-msgstr ""
+msgstr "도구 설명:"
 
 #: Utils.py:691
 msgid "Tooltip for button"
-msgstr ""
+msgstr "버튼 설명"
 
 #: Utils.py:695 bCNC.py:157
 msgid "Command:"
-msgstr ""
+msgstr "명령어:"
 
 #: Utils.py:707 lib/bFileDialog.py:323
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 #: Utils.py:708
 msgid "Ok"
-msgstr ""
+msgstr "승인"
 
 #: ControlPage.py:40
 msgid "Connection"
-msgstr ""
+msgstr "연결"
 
 #: ControlPage.py:41
 msgid "Hard Reset"
-msgstr ""
+msgstr "하드 리셋"
 
 #: ControlPage.py:48
 msgid "Home"
-msgstr ""
+msgstr "홈"
 
 #: ControlPage.py:54
 msgid "Perform a homing cycle [$H]"
-msgstr ""
+msgstr "원점 복귀주기 수행 [$ H]"
 
 #: ControlPage.py:61
 msgid "Unlock"
-msgstr ""
+msgstr "잠금 해제"
 
 #: ControlPage.py:67
 msgid "Unlock controller [$X]"
-msgstr ""
+msgstr "컨트롤러 잠금 해제 [$ X]"
 
 #: ControlPage.py:73
 msgid "Reset"
-msgstr ""
+msgstr "재설정"
 
 #: ControlPage.py:79
 msgid "Software reset of controller [ctrl-x]"
-msgstr ""
+msgstr "컨트롤러의 소프트웨어 리셋 [ctrl-x]"
 
 #: ControlPage.py:108 FilePage.py:178
 msgid "Start"
-msgstr ""
+msgstr "시작"
 
 #: ControlPage.py:112
 msgid "Run g-code commands from editor to controller"
-msgstr ""
+msgstr "편집기에서 컨트롤러로 g 코드 명령 실행"
 
 #: ControlPage.py:117
 msgid "Pause"
-msgstr ""
+msgstr "일시정지"
 
 #: ControlPage.py:121
 msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
 msgstr ""
+"실행중인 프로그램을 일시 중지합니다. FEED_HOLD 또는 CYCLE_START ~ 중 하나를 "
+"보냅니다."
 
 #: ControlPage.py:125 FilePage.py:189
 msgid "Stop"
-msgstr ""
+msgstr "중단"
 
 #: ControlPage.py:129
 msgid "Pause running program and soft reset controller to empty the buffer."
 msgstr ""
+"실행중인 프로그램을 일시 중지하고 소프트 재설정 제어기를 사용하여 버퍼를 비웁"
+"니다."
 
 #: ControlPage.py:148
 msgid "Status:"
-msgstr ""
+msgstr "상태:"
 
 #: ControlPage.py:159
 msgid ""
@@ -550,114 +614,119 @@ msgid ""
 "Click to see details\n"
 "Right-Click to clear alarm/errors"
 msgstr ""
+"기계의 현재 상태를 표시합니다.\n"
+"세부 정보를 보려면 클릭하십시오.\n"
+"알람 / 오류를 지우려면 마우스 오른쪽 버튼을 클릭하십시오."
 
 #: ControlPage.py:167
 msgid "WPos:"
-msgstr ""
+msgstr "작업위치:"
 
 #: ControlPage.py:177
 msgid "X work position (click to set)"
-msgstr ""
+msgstr "X 작업 위치 (클릭하여 설정)"
 
 #: ControlPage.py:190
 msgid "Y work position (click to set)"
-msgstr ""
+msgstr "Y 작업 위치 (클릭하여 설정)"
 
 #: ControlPage.py:203
 msgid "Z work position (click to set)"
-msgstr ""
+msgstr "Z 작업 위치 (클릭하여 설정)"
 
 #: ControlPage.py:211
 msgid "MPos:"
-msgstr ""
+msgstr "Mpos:"
 
 #: ControlPage.py:234
 msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
 
 #: ControlPage.py:243
 msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
+msgstr "Y 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
 
 #: ControlPage.py:252
 msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
+msgstr "Z 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
 
 #: ControlPage.py:261
 msgid "Set WPOS"
-msgstr ""
+msgstr "WPOS 설정"
 
 #: ControlPage.py:268
 msgid "Set WPOS to mouse location"
-msgstr ""
+msgstr "WPOS를 마우스 위치로 설정"
 
 #: ControlPage.py:272
 msgid "Move Gantry"
-msgstr ""
+msgstr "갠트리 이동"
 
 #: ControlPage.py:280
 msgid "Move gantry to mouse location [g]"
-msgstr ""
+msgstr "갠트리를 마우스 위치로 이동 [g]"
 
 #: ControlPage.py:291
 msgid "Show Info"
-msgstr ""
+msgstr "정보 표시"
 
 #: ControlPage.py:293
 msgid "Clear Message"
-msgstr ""
+msgstr "메시지 지우기"
 
 #: ControlPage.py:297
 msgid "Feed hold"
-msgstr ""
+msgstr "피드 보류"
 
 #: ControlPage.py:299
 msgid "Resume"
-msgstr ""
+msgstr "재시작"
 
 #: ControlPage.py:415
 #, python-format
 msgid "Last error: %s\n"
-msgstr ""
+msgstr "마지막 에러: %s\n"
 
 #: ControlPage.py:421
 msgid ""
 "No info available.\n"
 "Please contact the author."
 msgstr ""
+"정보가 없습니다.\n"
+"저자에게 연락하십시오."
 
 #: ControlPage.py:422
 #, python-format
 msgid "State: %s"
-msgstr ""
+msgstr "상태 : %s"
 
 #: ControlPage.py:449
 msgid "Move +Z"
-msgstr ""
+msgstr "+Z 이동"
 
 #: ControlPage.py:459
 msgid "Move -X +Y"
-msgstr ""
+msgstr "-X + Y 이동"
 
 #: ControlPage.py:468
 msgid "Move +Y"
-msgstr ""
+msgstr "+Y 이동"
 
 #: ControlPage.py:477
 msgid "Move +X +Y"
-msgstr ""
+msgstr "+X +Y 이동"
 
 #: ControlPage.py:486
 msgid "Multiply step by 10"
-msgstr ""
+msgstr "10 단계씩 곱하기"
 
 #: ControlPage.py:495
 msgid "Increase step by 1 unit"
-msgstr ""
+msgstr "1 단위 단계 증가"
 
 #: ControlPage.py:510
 msgid "Move -X"
-msgstr ""
+msgstr "-X 이동"
 
 #: ControlPage.py:519
 msgid ""
@@ -665,322 +734,327 @@ msgid ""
 "User configurable button.\n"
 "Right click to configure."
 msgstr ""
+"원점으로 이동합니다.\n"
+"사용자가 구성 할 수 있는 버튼.\n"
+"마우스 오른쪽 버튼을 클릭하여 구성하십시오."
 
 #: ControlPage.py:528
 msgid "Move +X"
-msgstr ""
+msgstr "+X 이동"
 
 #: ControlPage.py:540
 msgid "Step for every move operation"
-msgstr ""
+msgstr "모든 이동 작업을 위한 단계"
 
 #: ControlPage.py:550
 msgid "Step for Z move operation"
-msgstr ""
+msgstr "Z 이동 작업을 위한 단계"
 
 #: ControlPage.py:580
 msgid "Move -Z"
-msgstr ""
+msgstr "-Z 이동"
 
 #: ControlPage.py:589
 msgid "Move -X -Y"
-msgstr ""
+msgstr "-X -Y 이동"
 
 #: ControlPage.py:598
 msgid "Move -Y"
-msgstr ""
+msgstr "-Y 이동"
 
 #: ControlPage.py:607
 msgid "Move +X -Y"
-msgstr ""
+msgstr "+X -Y 이동"
 
 #: ControlPage.py:615
 msgid "Divide step by 10"
-msgstr ""
+msgstr "10 단계씩 나눕니다."
 
 #: ControlPage.py:623
 msgid "Decrease step by 1 unit"
-msgstr ""
+msgstr "1 단위씩 단계 감소"
 
 #: ControlPage.py:700
 #, python-format
 msgid "Step: %g"
-msgstr ""
+msgstr "단계: %g"
 
 #: ControlPage.py:705
 #, python-format
 msgid "Step: %g    Zstep:%g "
-msgstr ""
+msgstr "단계 : %g    Z단계 : %g "
 
 #: ControlPage.py:829
 #, python-format
 msgid "Switch to workspace %s"
-msgstr ""
+msgstr "작업 공간 % s (으)로 전환하십시오."
 
 #: ControlPage.py:835 ProbePage.py:1542
 msgid "Distance:"
-msgstr ""
+msgstr "거리:"
 
 #: ControlPage.py:843
 msgid "Distance Mode [G90,G91]"
-msgstr ""
+msgstr "거리 모드 [G90, G91]"
 
 #: ControlPage.py:853
 msgid "Units:"
-msgstr ""
+msgstr "단위:"
 
 #: ControlPage.py:861
 msgid "Units [G20, G21]"
-msgstr ""
+msgstr "단위 [G20, G21]"
 
 #: ControlPage.py:868 CNCCanvas.py:2021
 msgid "Tool:"
-msgstr ""
+msgstr "도구:"
 
 #: ControlPage.py:873
 msgid "Tool number [T#]"
-msgstr ""
+msgstr "도구 숫자 [T#]"
 
 #: ControlPage.py:877 ControlPage.py:912 ProbePage.py:240
 msgid "set"
-msgstr ""
+msgstr "설정"
 
 #: ControlPage.py:885
 msgid "Plane:"
-msgstr ""
+msgstr "평면:"
 
 #: ControlPage.py:893
 msgid "Plane [G17,G18,G19]"
-msgstr ""
+msgstr "평면 [G17,G18,G19]"
 
 #: ControlPage.py:901
 msgid "Feed:"
-msgstr ""
+msgstr "공급:"
 
 #: ControlPage.py:908
 msgid "Feed Rate [F#]"
-msgstr ""
+msgstr "공급률 [F#]"
 
 #: ControlPage.py:919
 msgid "Mode:"
-msgstr ""
+msgstr "모드:"
 
 #: ControlPage.py:928
 msgid "Feed Mode [G93, G94, G95]"
-msgstr ""
+msgstr "공급 모드 [G93, G94, G95]"
 
 #: ControlPage.py:949
 msgid "Select override type."
-msgstr ""
+msgstr "오버라이드의 유형을 선택하십시오."
 
 #: ControlPage.py:953
 msgid "Reset override to 100%"
-msgstr ""
+msgstr "오버라이드를 100 %로 재설정"
 
 #: ControlPage.py:967
 msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
 msgstr ""
+"급지 / 급속 / 스핀들 오버라이드를 설정하십시오. 오른쪽 또는 더블 클릭하여 재"
+"설정하십시오."
 
 #: ControlPage.py:974
 msgid "Spindle"
-msgstr ""
+msgstr "스핀들"
 
 #: ControlPage.py:982
 msgid "Start/Stop spindle (M3/M5)"
-msgstr ""
+msgstr "스핀들 시작 / 정지 (M3/M5)"
 
 #: ControlPage.py:993
 msgid "Set spindle RPM"
-msgstr ""
+msgstr "스핀들 회전 수 설정"
 
 #: ControlPage.py:1111
 msgid "CNC communication and control"
-msgstr ""
+msgstr "CNC 통신 및 제어"
 
 #: ControlPage.py:1112
 msgid "Control"
-msgstr ""
+msgstr "통제"
 
 #: FilePage.py:59 FilePage.py:306
 msgid "File"
-msgstr ""
+msgstr "파일"
 
 #: FilePage.py:66
 msgid "New"
-msgstr ""
+msgstr "새로 생성"
 
 #: FilePage.py:70
 msgid "New gcode/dxf file"
-msgstr ""
+msgstr "새로운 gcode/dxf 파일"
 
 #: FilePage.py:79
 msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr ""
+msgstr "기존 gcode / dxf 파일 열기 [Ctrl-O]"
 
 #: FilePage.py:84 FilePage.py:281 bCNC.py:2050 lib/bFileDialog.py:299
 #: lib/bFileDialog.py:850 lib/bFileDialog.py:954
 msgid "Open"
-msgstr ""
+msgstr "열기"
 
 #: FilePage.py:89
 msgid "Open recent file"
-msgstr ""
+msgstr "최신 파일 열기"
 
 #: FilePage.py:99
 msgid "Save gcode/dxf file [Ctrl-S]"
-msgstr ""
+msgstr "gcode/dxf 파일 저장 [Ctrl-S]"
 
 #: FilePage.py:104 lib/bFileDialog.py:884
 msgid "Save"
-msgstr ""
+msgstr "저장"
 
 #: FilePage.py:109
 msgid "Save gcode/dxf AS"
-msgstr ""
+msgstr "gcode / dxf AS 저장"
 
 #: FilePage.py:117
 msgid "Options"
-msgstr ""
+msgstr "옵션"
 
 #: FilePage.py:143
 msgid "Send Error Report"
-msgstr ""
+msgstr "에러 보고 보내기"
 
 #: FilePage.py:148
 msgid "Updates"
-msgstr ""
+msgstr "업데이트"
 
 #: FilePage.py:155
 msgid "Check Updates"
-msgstr ""
+msgstr "업데이트 확인"
 
 #: FilePage.py:159
 msgid "About"
-msgstr ""
+msgstr "대하여"
 
 #: FilePage.py:166
 msgid "About the program"
-msgstr ""
+msgstr "프로그램에 대하여"
 
 #: FilePage.py:173 bCNC.py:2208 bCNC.py:2212 bCNC.py:2225
 msgid "Pendant"
-msgstr ""
+msgstr "팬던트"
 
 #: FilePage.py:185
 msgid "Start pendant"
-msgstr ""
+msgstr "시작 팬던트"
 
 #: FilePage.py:196
 msgid "Stop pendant"
-msgstr ""
+msgstr "정지 펜던트"
 
 #: FilePage.py:207
 msgid "Exit"
-msgstr ""
+msgstr "나가기"
 
 #: FilePage.py:214
 msgid "Close program [Ctrl-Q]"
-msgstr ""
+msgstr "프로그램 닫기 [Ctrl-Q]"
 
 #: FilePage.py:227
 msgid "Port:"
-msgstr ""
+msgstr "포트:"
 
 #: FilePage.py:233
 msgid "Select (or manual enter) port to connect"
-msgstr ""
+msgstr "연결할 포트를 선택하거나 직접 입력하십시오."
 
 #: FilePage.py:242
 msgid "Baud:"
-msgstr ""
+msgstr "Baud:"
 
 #: FilePage.py:247
 msgid "Select connection baud rate"
-msgstr ""
+msgstr "연결 속도 선택"
 
 #: FilePage.py:254
 msgid "Controller:"
-msgstr ""
+msgstr "컨트롤러:"
 
 #: FilePage.py:261
 msgid "Select controller board"
-msgstr ""
+msgstr "컨트롤러 보드 선택"
 
 #: FilePage.py:268
 msgid "Connect on startup"
-msgstr ""
+msgstr "시작시 연결"
 
 #: FilePage.py:271
 msgid "Connect to serial on startup of the program"
-msgstr ""
+msgstr "프로그램 시작시 포트 연결"
 
 #: FilePage.py:286
 msgid "Open/Close serial port"
-msgstr ""
+msgstr "시리얼 포트 열기 / 닫기"
 
 #: FilePage.py:305
 msgid "File I/O and configuration"
-msgstr ""
+msgstr "파일 I / O 및 구성"
 
 #: Ribbon.py:499
 msgid "New file"
-msgstr ""
+msgstr "새로운 파일"
 
 #: Ribbon.py:505
 msgid "Open file [Ctrl-O]"
-msgstr ""
+msgstr "파일 열기 [Ctrl-O]"
 
 #: Ribbon.py:511
 msgid "Save all [Ctrl-S]"
-msgstr ""
+msgstr "모두 저장 [Ctrl-S]"
 
 #: Ribbon.py:517
 msgid "Undo [Ctrl-Z]"
-msgstr ""
+msgstr "실행 취소 [Ctrl-Z]"
 
 #: Ribbon.py:530
 msgid "Redo [Ctrl-Y]"
-msgstr ""
+msgstr "다시 실행 [Ctrl-Y]"
 
 #: Ribbon.py:541
 msgid "Help [F1]"
-msgstr ""
+msgstr "도움말 [F1]"
 
 #: ProbePage.py:27
 msgid "G38.2 stop on contact else error"
-msgstr ""
+msgstr "G38.2 접속 중지 오류"
 
 #: ProbePage.py:28
 msgid "G38.3 stop on contact"
-msgstr ""
+msgstr "G38.3 접속 중단"
 
 #: ProbePage.py:29
 msgid "G38.4 stop on loss contact else error"
-msgstr ""
+msgstr "G38.4 연결 없음으로 인한 접촉 중지 오류"
 
 #: ProbePage.py:30
 msgid "G38.5 stop on loss contact"
-msgstr ""
+msgstr "G38.5 연결 없음시 중단"
 
 #: ProbePage.py:33
 msgid "Send M6 commands"
-msgstr ""
+msgstr "M6 명령 보내기"
 
 #: ProbePage.py:34
 msgid "Ignore M6 commands"
-msgstr ""
+msgstr "M6 명령 무시 "
 
 #: ProbePage.py:35
 msgid "Manual Tool Change (WCS)"
-msgstr ""
+msgstr "수동 도구 교환 (WCS)"
 
 #: ProbePage.py:36
 msgid "Manual Tool Change (TLO)"
-msgstr ""
+msgstr "수동 도구 교환 (TLO)"
 
 #: ProbePage.py:37
 msgid "Manual Tool Change (NoProbe)"
-msgstr ""
+msgstr "수동 도구 교환 (NoProbe)"
 
 #: ProbePage.py:40
 msgid "ONLY before probing"
@@ -1255,7 +1329,7 @@ msgstr "최대"
 
 #: ProbePage.py:823
 msgid "Step"
-msgstr "단ㄱ"
+msgstr "단계"
 
 #: ProbePage.py:834
 msgid "X minimum"
