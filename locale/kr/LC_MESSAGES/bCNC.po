@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-29 09:17+0100\n"
-"PO-Revision-Date: 2018-06-09 00:43+0900\n"
+"PO-Revision-Date: 2018-06-09 00:46+0900\n"
 "Last-Translator: Hokeun CHA <chahg0129@naver.com>\n"
 "Language-Team: \n"
 "Language: ko_KR\n"
@@ -3841,8 +3841,8 @@ msgstr "점진적"
 
 #: plugins/bowl.py:126
 msgid "Generated: BOWL"
-msgstr "생성완료 : 통"
+msgstr "생성완료 : Bowl"
 
 #: plugins/bowl.py:128
 msgid "Error: Check the Bowl and End Mill parameters"
-msgstr "오류 : Bowl과 엔드 밀 매개 변수 확ㅇ"
+msgstr "오류 : Bowl과 엔드 밀 매개 변수 확인"
