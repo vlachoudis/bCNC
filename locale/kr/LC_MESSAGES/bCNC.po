@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-29 09:17+0100\n"
-"PO-Revision-Date: 2018-06-07 16:55+0900\n"
-"Last-Translator: SuinLee <dooinee@gmail.com>\n"
+"PO-Revision-Date: 2018-06-09 00:43+0900\n"
+"Last-Translator: Hokeun CHA <chahg0129@naver.com>\n"
 "Language-Team: \n"
 "Language: ko_KR\n"
 "MIME-Version: 1.0\n"
@@ -1892,7 +1892,9 @@ msgstr "펜던트가 이미 시작되었습니다\n"
 msgid ""
 "\n"
 "Would you like open it locally?"
-msgstr "로컬로 열어 보시겠습니까?"
+msgstr ""
+"\n"
+"로컬로 열어 보시겠습니까?"
 
 #: bCNC.py:2225
 msgid "Pendant stopped"
@@ -1994,548 +1996,552 @@ msgstr "색깔"
 
 #: EditorPage.py:149
 msgid "Import"
-msgstr ""
+msgstr "들여오기"
 
 #: EditorPage.py:150
 msgid "Inkscape"
-msgstr ""
+msgstr "잉크 스케이프"
 
 #: EditorPage.py:151
 msgid "Round"
-msgstr ""
+msgstr "둥글게"
 
 #: EditorPage.py:171 EditorPage.py:185
 msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
-msgstr ""
+msgstr "새로운 블록이나 코드 삽입p[lns 또는 Ctrl-Enter]"
 
 #: EditorPage.py:174
 msgid "Line"
-msgstr ""
+msgstr "선"
 
 #: EditorPage.py:176
 msgid "Block"
-msgstr ""
+msgstr "블록"
 
 #: EditorPage.py:191 ToolsPage.py:1083
 msgid "Clone"
-msgstr ""
+msgstr "복제"
 
 #: EditorPage.py:196
 msgid "Clone selected lines or blocks [Ctrl-D]"
-msgstr ""
+msgstr "선택된 선 또는 블록 복제[Ctrl-D]"
 
 #: EditorPage.py:208
 msgid "Delete selected lines or blocks [Del]"
-msgstr ""
+msgstr "선택된 선 또는 블록 삭제[Del]"
 
 #: EditorPage.py:220
 msgid "Toggle enable/disable block of g-code [Ctrl-L]"
-msgstr ""
+msgstr "G 코드의 활성화/비활성화 토글"
 
 #: EditorPage.py:223
 msgid "Enable"
-msgstr ""
+msgstr "활성화"
 
 #: EditorPage.py:225
 msgid "Disable"
-msgstr ""
+msgstr "비활성화"
 
 #: EditorPage.py:228
 msgid "Active"
-msgstr ""
+msgstr "작동"
 
 #: EditorPage.py:234
 msgid "Enable or disable blocks of gcode"
-msgstr ""
+msgstr "g코드의 블록 활성화 또는 비활성화"
 
 #: EditorPage.py:240
 msgid "Expand"
-msgstr ""
+msgstr "확장"
 
 #: EditorPage.py:245
 msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
-msgstr ""
+msgstr "g코드의 블록 확장 또는 축소 토글[Ctrl-E]"
 
 #: EditorPage.py:252 ToolsPage.py:591 ToolsPage.py:617 ToolsPage.py:646
 msgid "Comment"
-msgstr ""
+msgstr "주석"
 
 #: EditorPage.py:258
 msgid "(Un)Comment selected lines"
-msgstr ""
+msgstr "선택된 행에 주석 달기 또는 해제"
 
 #: EditorPage.py:266 EditorPage.py:273
 msgid "Move"
-msgstr ""
+msgstr "이동"
 
 #: EditorPage.py:281
 msgid "Move objects [M]"
-msgstr ""
+msgstr "물체 이동[M]"
 
 #: EditorPage.py:288
 msgid "Origin"
-msgstr ""
+msgstr "원본"
 
 #: EditorPage.py:296
 msgid "Move all gcode such as origin is on mouse location [O]"
-msgstr ""
+msgstr "마우스 위치로 모든 g코드 옮기기[O]"
 
 #: EditorPage.py:302
 msgid "Top-Left"
-msgstr ""
+msgstr "왼쪽 상단"
 
 #: EditorPage.py:303
 msgid "Left"
-msgstr ""
+msgstr "왼쪽"
 
 #: EditorPage.py:304
 msgid "Bottom-Left"
-msgstr ""
+msgstr "왼쪽 아래"
 
 #: EditorPage.py:305
 msgid "Top"
-msgstr ""
+msgstr "위"
 
 #: EditorPage.py:307
 msgid "Bottom"
-msgstr ""
+msgstr "아래"
 
 #: EditorPage.py:308
 msgid "Top-Right"
-msgstr ""
+msgstr "오른쪽 위"
 
 #: EditorPage.py:309
 msgid "Right"
-msgstr ""
+msgstr "오른쪽"
 
 #: EditorPage.py:310
 msgid "Bottom-Right"
-msgstr ""
+msgstr "오른쪽 아래"
 
 #: EditorPage.py:321 plugins/hilbert.py:89
 msgid "Order"
-msgstr ""
+msgstr "명령"
 
 #: EditorPage.py:330
 msgid "Up"
-msgstr ""
+msgstr "위"
 
 #: EditorPage.py:335
 msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
-msgstr ""
+msgstr "선택된 g코드 위로 옮기기[Ctrl-Up, Ctrl-PgUp]"
 
 #: EditorPage.py:342
 msgid "Down"
-msgstr ""
+msgstr "아래"
 
 #: EditorPage.py:347
 msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
-msgstr ""
+msgstr "선택된 g코드 아래로 옮기기[Ctrl-Down, Ctrl-PgDn]"
 
 #: EditorPage.py:359
 msgid "Invert cutting order of selected blocks"
-msgstr ""
+msgstr "선택된 블록들 반전시키기"
 
 #: EditorPage.py:367
 msgid "Transform"
-msgstr ""
+msgstr "변형"
 
 #: EditorPage.py:374
 msgid "CW"
-msgstr ""
+msgstr "CW"
 
 #: EditorPage.py:380
 msgid "Rotate selected gcode clock-wise (-90deg)"
-msgstr ""
+msgstr "선택된 g코드 시계방향으로 회전시키키(-90도)"
 
 #: EditorPage.py:387
 msgid "Flip"
-msgstr ""
+msgstr "뒤집기"
 
 #: EditorPage.py:393
 msgid "Rotate selected gcode by 180deg"
-msgstr ""
+msgstr "선택된 g코드 180도 회전시키기"
 
 #: EditorPage.py:400
 msgid "CCW"
-msgstr ""
+msgstr "CCW"
 
 #: EditorPage.py:406
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
 msgstr ""
+"선택된 g코드 반시계방향으로 회전시키키(\n"
+"90도)"
 
 #: EditorPage.py:413
 msgid "Horizontal"
-msgstr ""
+msgstr "수평"
 
 #: EditorPage.py:419
 msgid "Mirror horizontally X=-X selected gcode"
-msgstr ""
+msgstr "선택된 g코드 X축에서 -X축으로 수평 반전"
 
 #: EditorPage.py:426
 msgid "Vertical"
-msgstr ""
+msgstr "수직"
 
 #: EditorPage.py:432
 msgid "Mirror vertically Y=-Y selected gcode"
-msgstr ""
+msgstr "선택된 g코드 Y축에서 -Y축으로 수직 반전"
 
 #: EditorPage.py:443
 msgid "Route"
-msgstr ""
+msgstr "노선"
 
 #: EditorPage.py:450
 msgid "Conventional"
-msgstr ""
+msgstr "기존의"
 
 #: EditorPage.py:456
 msgid "Change cut direction to conventional for selected gcode blocks"
-msgstr ""
+msgstr "선택된 g코드 블록의 기존 절단 방향 바꾸기"
 
 #: EditorPage.py:463
 msgid "Climb"
-msgstr ""
+msgstr "역방향"
 
 #: EditorPage.py:469
 msgid "Change cut direction to climb for selected gcode blocks"
-msgstr ""
+msgstr "선택된 g코드 블록의 절단 방향 역방향으로 바꾸기"
 
 #: EditorPage.py:476
 msgid "Reverse"
-msgstr ""
+msgstr "반전"
 
 #: EditorPage.py:482
 msgid "Reverse cut direction for selected gcode blocks"
-msgstr ""
+msgstr "선택된 g코드 블록의 절단 방향 반전시키기"
 
 #: EditorPage.py:490 EditorPage.py:510
 msgid "Info"
-msgstr ""
+msgstr "정보"
 
 #: EditorPage.py:503
 msgid "Show statistics for enabled gcode"
-msgstr ""
+msgstr "활성화된 g코드의 통계보기"
 
 #: EditorPage.py:516
 msgid "Show cutting information on selected blocks [Ctrl-n]"
-msgstr ""
+msgstr "선택된 블록의 절단 정보 보기[Ctrl-N]"
 
 #: EditorPage.py:540
 msgid "GCode editor"
-msgstr ""
+msgstr "G코드 편집기"
 
 #: EditorPage.py:541
 msgid "Editor"
-msgstr ""
+msgstr "편집기"
 
 #: CNCCanvas.py:360
 msgid "Select objects with mouse"
-msgstr ""
+msgstr "마우스로 물체 선택"
 
 #: CNCCanvas.py:365
 msgid "Pan viewport"
-msgstr ""
+msgstr "시점 상하 회전"
 
 #: CNCCanvas.py:370
 msgid "Click to set the origin (zero)"
-msgstr ""
+msgstr "초기화 버튼(zero)"
 
 #: CNCCanvas.py:375
 msgid "Move graphically objects"
-msgstr ""
+msgstr "도표로 물체 이동"
 
 #: CNCCanvas.py:381
 msgid "Move CNC gantry to mouse location"
-msgstr ""
+msgstr "CNC 갠트리 마우스 위치로 이동"
 
 #: CNCCanvas.py:387
 msgid "Set mouse location as current machine position (X/Y only)"
-msgstr ""
+msgstr "마우스 위치현재 기계 위치로 놓기(X/Y만)"
 
 #: CNCCanvas.py:392
 msgid "Drag a ruler to measure distances"
-msgstr ""
+msgstr "거리 측정을 위한 자 드래그"
 
 #: CNCCanvas.py:397
 msgid "Add an orientation marker"
-msgstr ""
+msgstr "방향 표식 추가"
 
 #: CNCCanvas.py:458
 msgid "ERROR: Cannot set X-Y marker  with the current view"
-msgstr ""
+msgstr "에러 : 현재 시점에서는 X-Y표식을 놓을 수 없습니다"
 
 #: CNCCanvas.py:544
 #, python-format
 msgid "origin %g %g %g"
-msgstr ""
+msgstr "원본 %g %g %g"
 
 #: CNCCanvas.py:607
 #, python-format
 msgid "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
 msgstr ""
+"dx=%g  dy=%g  dz=%g  길이=%g  각도\n"
+"=%g"
 
 #: CNCCanvas.py:686
 #, python-format
 msgid "Move by %g, %g, %g"
-msgstr ""
+msgstr "%g, %g, %g로 이동"
 
 #: CNCCanvas.py:1777
 #, python-format
 msgid ">>> ERROR: %s\n"
-msgstr ""
+msgstr ">>>에러:%s\n"
 
 #: CNCCanvas.py:1778
 #, python-format
 msgid "     line: %s\n"
-msgstr ""
+msgstr "줄:%s\n"
 
 #: CNCCanvas.py:2004
 msgid "Change viewing angle"
-msgstr ""
+msgstr "보는 각도 변경"
 
 #: CNCCanvas.py:2008
 msgid "Zoom In [Ctrl-=]"
-msgstr ""
+msgstr "줌인[Ctrl-=]"
 
 #: CNCCanvas.py:2013
 msgid "Zoom Out [Ctrl--]"
-msgstr ""
+msgstr "줌아웃[Ctrl--]"
 
 #: CNCCanvas.py:2018
 msgid "Fit to screen [F]"
-msgstr ""
+msgstr "화면에 맞추기[F]"
 
 #: CNCCanvas.py:2032
 msgid "Select tool [S]"
-msgstr ""
+msgstr "도구 선택[S]"
 
 #: CNCCanvas.py:2041
 msgid "Pan viewport [X]"
-msgstr ""
+msgstr "뷰포트 상하반전[X]"
 
 #: CNCCanvas.py:2067
 msgid "Ruler [R]"
-msgstr ""
+msgstr "자[R]"
 
 #: CNCCanvas.py:2073
 msgid "Draw:"
-msgstr ""
+msgstr "그리기:"
 
 #: CNCCanvas.py:2082
 msgid "Toggle display of axes"
-msgstr ""
+msgstr "축 표시 토글"
 
 #: CNCCanvas.py:2090
 msgid "Toggle display of grid lines"
-msgstr ""
+msgstr "그리드 라인 표시 토글"
 
 #: CNCCanvas.py:2098
 msgid "Toggle display of margins"
-msgstr ""
+msgstr "여백 표시 토글"
 
 #: CNCCanvas.py:2107
 msgid "Toggle display of probe"
-msgstr ""
+msgstr "조사 표시 토글"
 
 #: CNCCanvas.py:2115
 msgid "Toggle display of paths (G1,G2,G3)"
-msgstr ""
+msgstr "경로 표시 토글(G1,G2,G3)"
 
 #: CNCCanvas.py:2123
 msgid "Toggle display of rapid motion (G0)"
-msgstr ""
+msgstr "빠른 행동 표시 토글(G0)"
 
 #: CNCCanvas.py:2131
 msgid "Toggle display of workarea"
-msgstr ""
+msgstr "작업영역 표시 토글"
 
 #: CNCCanvas.py:2139
 msgid "Toggle display of camera"
-msgstr ""
+msgstr "카메라 표시 토글"
 
 #: CNCCanvas.py:2146
 msgid "Redraw display [Ctrl-R]"
-msgstr ""
+msgstr "표시 다시 그리기 [Ctrl-R]"
 
 #: CNCCanvas.py:2154
 msgid "Draw timeout in seconds"
-msgstr ""
+msgstr "타임아웃 초단위로 그리기"
 
 #: ToolsPage.py:481 ToolsPage.py:493 ToolsPage.py:505
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: ToolsPage.py:482 ToolsPage.py:494 ToolsPage.py:506
 msgid "F2"
-msgstr ""
+msgstr "F2"
 
 #: ToolsPage.py:483 ToolsPage.py:495 ToolsPage.py:507
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: ToolsPage.py:484 ToolsPage.py:496 ToolsPage.py:508
 msgid "F4"
-msgstr ""
+msgstr "F4"
 
 #: ToolsPage.py:485 ToolsPage.py:497 ToolsPage.py:509
 msgid "F5"
-msgstr ""
+msgstr "F5"
 
 #: ToolsPage.py:486 ToolsPage.py:498 ToolsPage.py:510
 msgid "F6"
-msgstr ""
+msgstr "F6"
 
 #: ToolsPage.py:487 ToolsPage.py:499 ToolsPage.py:511
 msgid "F7"
-msgstr ""
+msgstr "F7"
 
 #: ToolsPage.py:488 ToolsPage.py:500 ToolsPage.py:512
 msgid "F8"
-msgstr ""
+msgstr "F8"
 
 #: ToolsPage.py:489 ToolsPage.py:501 ToolsPage.py:513
 msgid "F9"
-msgstr ""
+msgstr "F9"
 
 #: ToolsPage.py:490 ToolsPage.py:502 ToolsPage.py:514
 msgid "F10"
-msgstr ""
+msgstr "F10"
 
 #: ToolsPage.py:491 ToolsPage.py:503 ToolsPage.py:515
 msgid "F11"
-msgstr ""
+msgstr "F11"
 
 #: ToolsPage.py:492 ToolsPage.py:504 ToolsPage.py:516
 msgid "F12"
-msgstr ""
+msgstr "F12"
 
 #: ToolsPage.py:493 ToolsPage.py:494 ToolsPage.py:495 ToolsPage.py:496
 #: ToolsPage.py:497 ToolsPage.py:498 ToolsPage.py:499 ToolsPage.py:500
 #: ToolsPage.py:501 ToolsPage.py:502 ToolsPage.py:503 ToolsPage.py:504
 msgid "Shift-"
-msgstr ""
+msgstr "Shift-"
 
 #: ToolsPage.py:505 ToolsPage.py:506 ToolsPage.py:507 ToolsPage.py:508
 #: ToolsPage.py:509 ToolsPage.py:510 ToolsPage.py:511 ToolsPage.py:512
 #: ToolsPage.py:513 ToolsPage.py:514 ToolsPage.py:515 ToolsPage.py:516
 msgid "Control-"
-msgstr ""
+msgstr "Control-"
 
 #: ToolsPage.py:530
 msgid "Align Camera"
-msgstr ""
+msgstr "카메라 정렬"
 
 #: ToolsPage.py:531
 msgid "Align Camera Width"
-msgstr ""
+msgstr "카메라 너비 맞추기"
 
 #: ToolsPage.py:532
 msgid "Align Camera Height"
-msgstr ""
+msgstr "카메라 높이 맞추기"
 
 #: ToolsPage.py:533
 msgid "Align Camera Angle"
-msgstr ""
+msgstr "카메라 각도 맞추기"
 
 #: ToolsPage.py:534
 msgid "Web Camera"
-msgstr ""
+msgstr "웹 카메라"
 
 #: ToolsPage.py:535
 msgid "Web Camera Width"
-msgstr ""
+msgstr "웹 카메라 너비"
 
 #: ToolsPage.py:536
 msgid "Web Camera Height"
-msgstr ""
+msgstr "웹 카메라 높이"
 
 #: ToolsPage.py:537
 msgid "Web Camera Angle"
-msgstr ""
+msgstr "웹 카메라 각도"
 
 #: ToolsPage.py:548
 msgid "Units (inches)"
-msgstr ""
+msgstr "단위(인치)"
 
 #: ToolsPage.py:549
 msgid "Laser Cutter"
-msgstr ""
+msgstr "레이저 커터"
 
 #: ToolsPage.py:550
 msgid "Laser Adaptive Power"
-msgstr ""
+msgstr "레이저 적응력"
 
 #: ToolsPage.py:551
 msgid "Double Size Icon"
-msgstr ""
+msgstr "두배 크기 아이콘"
 
 #: ToolsPage.py:552
 msgid "Acceleration x"
-msgstr ""
+msgstr "가속도 x"
 
 #: ToolsPage.py:553
 msgid "Acceleration y"
-msgstr ""
+msgstr "가속도 y"
 
 #: ToolsPage.py:554
 msgid "Acceleration z"
-msgstr ""
+msgstr "가속도 z"
 
 #: ToolsPage.py:555
 msgid "Feed max x"
-msgstr ""
+msgstr "최대 피드 X"
 
 #: ToolsPage.py:556
 msgid "Feed max y"
-msgstr ""
+msgstr "최대 피드 y"
 
 #: ToolsPage.py:557
 msgid "Feed max z"
-msgstr ""
+msgstr "최대 피드 z"
 
 #: ToolsPage.py:558
 msgid "Travel x"
-msgstr ""
+msgstr "이동 x"
 
 #: ToolsPage.py:559
 msgid "Travel y"
-msgstr ""
+msgstr "이동 y"
 
 #: ToolsPage.py:560
 msgid "Travel z"
-msgstr ""
+msgstr "이동 z"
 
 #: ToolsPage.py:561
 msgid "Decimal digits"
-msgstr ""
+msgstr "10진수"
 
 #: ToolsPage.py:562
 msgid "Plotting Arc accuracy"
-msgstr ""
+msgstr "아크 정확도 정리"
 
 #: ToolsPage.py:563
 msgid "Start up"
-msgstr ""
+msgstr "시작"
 
 #: ToolsPage.py:564
 msgid "Spindle min (RPM)"
-msgstr ""
+msgstr "최소 스핀들(RPM)"
 
 #: ToolsPage.py:565
 msgid "Spindle max (RPM)"
-msgstr ""
+msgstr "최대 스핀들(RPM)"
 
 #: ToolsPage.py:566
 msgid "DRO Zero padding"
-msgstr ""
+msgstr "DRO 제로 패딩"
 
 #: ToolsPage.py:567
 msgid "Header gcode"
-msgstr ""
+msgstr "g코드 머리글"
 
 #: ToolsPage.py:568
 msgid "Footer gcode"
-msgstr ""
+msgstr "g코드 바닥글"
 
 #: ToolsPage.py:590 ToolsPage.py:616 ToolsPage.py:645 ToolsPage.py:671
 #: ToolsPage.py:701 ToolsPage.py:733 ToolsPage.py:758 ToolsPage.py:779
@@ -2546,1292 +2552,1297 @@ msgstr ""
 #: plugins/box.py:305 plugins/spirograph.py:101 plugins/sketch.py:41
 #: plugins/zigzag.py:94 plugins/halftone.py:40 plugins/bowl.py:108
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: ToolsPage.py:592 ToolsPage.py:675
 msgid "Feed"
-msgstr ""
+msgstr "피드"
 
 #: ToolsPage.py:593 ToolsPage.py:676
 msgid "Plunge Feed"
-msgstr ""
+msgstr "급경사 피드"
 
 #: ToolsPage.py:594 ToolsPage.py:674
 msgid "Depth Increment"
-msgstr ""
+msgstr "깊이 증분"
 
 #: ToolsPage.py:618 lib/bFileDialog.py:273
 msgid "Type"
-msgstr ""
+msgstr "형태"
 
 #: ToolsPage.py:619
 msgid "Shape"
-msgstr ""
+msgstr "모양"
 
 #: ToolsPage.py:620 ToolsPage.py:647 ToolsPage.py:1029
 msgid "Material"
-msgstr ""
+msgstr "재료"
 
 #: ToolsPage.py:621
 msgid "Coating"
-msgstr ""
+msgstr "코팅"
 
 #: ToolsPage.py:622 plugins/bowl.py:109
 msgid "Diameter"
-msgstr ""
+msgstr "직경"
 
 #: ToolsPage.py:623
 msgid "Mount Axis"
-msgstr ""
+msgstr "마운트 축"
 
 #: ToolsPage.py:624
 msgid "Flutes"
-msgstr ""
+msgstr "플루트"
 
 #: ToolsPage.py:625
 msgid "Length"
-msgstr ""
+msgstr "길이"
 
 #: ToolsPage.py:626
 msgid "Angle"
-msgstr ""
+msgstr "각도"
 
 #: ToolsPage.py:627
 msgid "Stepover %"
-msgstr ""
+msgstr "스텝오버 %"
 
 #: ToolsPage.py:648
 msgid "Safe Z"
-msgstr ""
+msgstr "세이프 Z"
 
 #: ToolsPage.py:649 ToolsPage.py:672
 msgid "Surface Z"
-msgstr ""
+msgstr "표면 Z"
 
 #: ToolsPage.py:650
 msgid "Thickness"
-msgstr ""
+msgstr "두께"
 
 #: ToolsPage.py:673 ToolsPage.py:702 plugins/driller.py:40
 #: plugins/spirograph.py:105
 msgid "Target Depth"
-msgstr ""
+msgstr "목표 깊이"
 
 #: ToolsPage.py:677
 msgid "First cut at surface height"
-msgstr ""
+msgstr "표면 높이에서 첫 번째 절단"
 
 #: ToolsPage.py:692
 msgid "CUT selected paths"
-msgstr ""
+msgstr "선택된 경로 삭제"
 
 #: ToolsPage.py:703
 msgid "Peck depth"
-msgstr ""
+msgstr "펙 깊이"
 
 #: ToolsPage.py:704
 msgid "Dwell (s)"
-msgstr ""
+msgstr "일시정지"
 
 #: ToolsPage.py:705
 msgid "Distance (mm)"
-msgstr ""
+msgstr "거리(mm)"
 
 #: ToolsPage.py:706
 msgid "Number"
-msgstr ""
+msgstr "번호"
 
 #: ToolsPage.py:724
 msgid "DRILL selected points"
-msgstr ""
+msgstr "드릴 선택된 지점"
 
 #: ToolsPage.py:734 ToolsPage.py:759 ToolsPage.py:1043
 msgid "End Mill"
-msgstr ""
+msgstr "밀 끝내기"
 
 #: ToolsPage.py:735 plugins/pyrograph.py:44
 msgid "Direction"
-msgstr ""
+msgstr "방향"
 
 #: ToolsPage.py:736
 msgid "Additional offset distance"
-msgstr ""
+msgstr "추가 오프센 거리"
 
 #: ToolsPage.py:737 plugins/box.py:314
 msgid "Overcut"
-msgstr ""
+msgstr "오버 컷"
 
 #: ToolsPage.py:749
 msgid "Generate profile path"
-msgstr ""
+msgstr "프로필 경로 생성"
 
 #: ToolsPage.py:770
 msgid "Generate pocket path"
-msgstr ""
+msgstr "포켓 경로 생성"
 
 #: ToolsPage.py:780
 msgid "Number of tabs"
-msgstr ""
+msgstr "탭의 숫자"
 
 #: ToolsPage.py:781
 msgid "Min. Distance of tabs"
-msgstr ""
+msgstr "탭의 최단 경로"
 
 #: ToolsPage.py:784
 msgid "Height"
-msgstr ""
+msgstr "높이"
 
 #: ToolsPage.py:804
 msgid "Tabs error"
-msgstr ""
+msgstr "탭 에러"
 
 #: ToolsPage.py:805
 msgid "You cannot have both the number of tabs or distance equal to zero"
-msgstr ""
+msgstr "탭 수나 거리를 모두 0으로 설정할 수는 없습니다"
 
 #: ToolsPage.py:808
 msgid "Create tabs on blocks"
-msgstr ""
+msgstr "블록에 탭 만들기"
 
 #: ToolsPage.py:818
 msgid "$0 Step pulse time [us]"
-msgstr ""
+msgstr "%0 단계 펄스 시간[us]"
 
 #: ToolsPage.py:819
 msgid "$1 Step idle delay [ms]"
-msgstr ""
+msgstr "$1 단계 지연 시간[ms]"
 
 #: ToolsPage.py:820
 msgid "$2 Step port invert [mask]"
-msgstr ""
+msgstr "$2 단계 포트 반전[mask]"
 
 #: ToolsPage.py:821
 msgid "$3 Direction port invert [mask]"
-msgstr ""
+msgstr "$3 방향 포트 반전[mask]"
 
 #: ToolsPage.py:822
 msgid "$4 Step enable invert"
-msgstr ""
+msgstr "$4 반전 가능 단계"
 
 #: ToolsPage.py:823
 msgid "$5 Limit pins invert"
-msgstr ""
+msgstr "$5 핀 반전 제한"
 
 #: ToolsPage.py:824
 msgid "$6 Probe pin invert"
-msgstr ""
+msgstr "$6 핀 반전 확인"
 
 #: ToolsPage.py:825
 msgid "$10 Status report [mask]"
-msgstr ""
+msgstr "$10 상태 보고서[mask]"
 
 #: ToolsPage.py:826
 msgid "$11 Junction deviation [mm]"
-msgstr ""
+msgstr "$11 접합무 편차[mm]"
 
 #: ToolsPage.py:827
 msgid "$12 Arc tolerance [mm]"
-msgstr ""
+msgstr "$12 아크 공차"
 
 #: ToolsPage.py:828
 msgid "$13 Report inches"
-msgstr ""
+msgstr "$13 인치 보고"
 
 #: ToolsPage.py:829
 msgid "$20 Soft limits"
-msgstr ""
+msgstr "$20 종류 제한"
 
 #: ToolsPage.py:830
 msgid "$21 Hard limits"
-msgstr ""
+msgstr "$21 엄격한 제한"
 
 #: ToolsPage.py:831
 msgid "$22 Homing cycle"
-msgstr ""
+msgstr "$22 원점 복귀주기"
 
 #: ToolsPage.py:832
 msgid "$23 Homing direction invert [mask]"
-msgstr ""
+msgstr "$23 원점 방향 반전[mask]"
 
 #: ToolsPage.py:833
 msgid "$24 Homing feed [mm/min]"
-msgstr ""
+msgstr "#24 귀환 피드[mm/min]"
 
 #: ToolsPage.py:834
 msgid "$25 Homing seek [mm/min]"
-msgstr ""
+msgstr "#25 귀환 찾기[mm/min]"
 
 #: ToolsPage.py:835
 msgid "$26 Homing debounce [ms]"
-msgstr ""
+msgstr "$26 원점 복귀 논쟁 "
 
 #: ToolsPage.py:836
 msgid "$27 Homing pull-off [mm]"
-msgstr ""
+msgstr "$27 원점 잡아당기기[mm]"
 
 #: ToolsPage.py:837
 msgid "$30 Max spindle speed [RPM]"
-msgstr ""
+msgstr "$30 최대 스핀들 속도[RPM]"
 
 #: ToolsPage.py:838
 msgid "$31 Min spindle speed [RPM]"
-msgstr ""
+msgstr "$31 최소 스핀들 속도[RPM]"
 
 #: ToolsPage.py:839
 msgid "$32 Laser mode enable"
-msgstr ""
+msgstr "$32 레이저 모드 허용"
 
 #: ToolsPage.py:840
 msgid "$100 X steps/mm"
-msgstr ""
+msgstr "$100 X stpes/mm"
 
 #: ToolsPage.py:841
 msgid "$101 Y steps/mm"
-msgstr ""
+msgstr "$101 Y steps/mm"
 
 #: ToolsPage.py:842
 msgid "$102 Z steps/mm"
-msgstr ""
+msgstr "$102 Z steps/mm"
 
 #: ToolsPage.py:843
 msgid "$110 X max rate [mm/min]"
-msgstr ""
+msgstr "$110 X최대 비율[mm/min]"
 
 #: ToolsPage.py:844
 msgid "$111 Y max rate [mm/min]"
-msgstr ""
+msgstr "$111 Y최대 비율[mm/min]"
 
 #: ToolsPage.py:845
 msgid "$112 Z max rate [mm/min]"
-msgstr ""
+msgstr "$112 Z최대 비율[mm/min]"
 
 #: ToolsPage.py:846
 msgid "$120 X acceleration [mm/sec^2]"
-msgstr ""
+msgstr "$120 X 가속도[mm/sec^2]"
 
 #: ToolsPage.py:847
 msgid "$121 Y acceleration [mm/sec^2]"
-msgstr ""
+msgstr "$121 Y 가속도[mm/sec^2]"
 
 #: ToolsPage.py:848
 msgid "$122 Z acceleration [mm/sec^2]"
-msgstr ""
+msgstr "$122 Z가속도[mm/sec^2]"
 
 #: ToolsPage.py:849
 msgid "$130 X max travel [mm]"
-msgstr ""
+msgstr "$130 X 최대 트래블[mm]"
 
 #: ToolsPage.py:850
 msgid "$131 Y max travel [mm]"
-msgstr ""
+msgstr "$131 Y 최대 트래블[mm]"
 
 #: ToolsPage.py:851
 msgid "$132 Z max travel [mm]"
-msgstr ""
+msgstr "$132 Z 최대 트래블[mm]"
 
 #: ToolsPage.py:1008
 msgid "Database"
-msgstr ""
+msgstr "데이터베이스"
 
 #: ToolsPage.py:1015
 msgid "Stock"
-msgstr ""
+msgstr "스톡"
 
 #: ToolsPage.py:1022
 msgid "Stock material currently on machine"
-msgstr ""
+msgstr "현재 기계 재고 있음"
 
 #: ToolsPage.py:1036
 msgid "Editable database of material properties"
-msgstr ""
+msgstr "편집 가능한 소재의 데이터 베이스"
 
 #: ToolsPage.py:1050
 msgid "Editable database of EndMills properties"
-msgstr ""
+msgstr "편집가능한 엔드빌의 데이터베이스"
 
 #: ToolsPage.py:1057
 msgid "Rename"
-msgstr ""
+msgstr "이름 수정"
 
 #: ToolsPage.py:1062
 msgid "Edit name of current operation/object"
-msgstr ""
+msgstr "현재 작업 / 객체 이름 편집"
 
 #: ToolsPage.py:1075
 msgid "Add a new operation/object"
-msgstr ""
+msgstr "새로운 작업 / 객체 만들기"
 
 #: ToolsPage.py:1088
 msgid "Clone selected operation/object"
-msgstr ""
+msgstr "선택된 작업 / 객체 복사"
 
 #: ToolsPage.py:1101
 msgid "Delete selected operation/object"
-msgstr ""
+msgstr "산택된 작업 / 객체 삭제"
 
 #: ToolsPage.py:1110
 msgid "CAM"
-msgstr ""
+msgstr "CAM"
 
 #: ToolsPage.py:1124
 msgid "Cut for the full stock thickness selected code"
-msgstr ""
+msgstr "선택된 코드의 전체 스톡 구께 절단"
 
 #: ToolsPage.py:1131 plugins/box.py:313
 msgid "Profile"
-msgstr ""
+msgstr "프로필"
 
 #: ToolsPage.py:1138
 msgid "Perform a profile operation on selected code"
-msgstr ""
+msgstr "선택된 코드의 프로필 작업 실행"
 
 #: ToolsPage.py:1145
 msgid "Pocket"
-msgstr ""
+msgstr "포켓"
 
 #: ToolsPage.py:1152
 msgid "Perform a pocket operation on selected code"
-msgstr ""
+msgstr "선택한 코드에 주머지 막업 수행"
 
 #: ToolsPage.py:1159
 msgid "Drill"
-msgstr ""
+msgstr "드릴"
 
 #: ToolsPage.py:1166
 msgid "Insert a drill cycle on current objects/location"
-msgstr ""
+msgstr "현재 오브젝트/위치에 드릴 사이클 삽입"
 
 #: ToolsPage.py:1173
 msgid "Tabs"
-msgstr ""
+msgstr "탭 "
 
 #: ToolsPage.py:1180
 msgid "Insert holding tabs"
-msgstr ""
+msgstr "대기 탭을 삽입"
 
 #: ToolsPage.py:1276 ToolsPage.py:1328
 msgid "Config"
-msgstr ""
+msgstr "구성"
 
 #: ToolsPage.py:1291
 msgid "Change program language restart is required"
-msgstr ""
+msgstr "프로그램의 언어를 바꾸려면 재시작해야 합니다."
 
 #: ToolsPage.py:1307
 msgid "Camera Configuration"
-msgstr ""
+msgstr "카메라 구성"
 
 #: ToolsPage.py:1314
 msgid "Colors"
-msgstr ""
+msgstr "색상"
 
 #: ToolsPage.py:1321
 msgid "Color configuration"
-msgstr ""
+msgstr "색상 구성 "
 
 #: ToolsPage.py:1335
 msgid "Machine configuration for bCNC"
-msgstr ""
+msgstr "bCNC의 기계 구성"
 
 #: ToolsPage.py:1342
 msgid "Controller"
-msgstr ""
+msgstr "컨트롤러"
 
 #: ToolsPage.py:1349
 msgid "Controller (GRBL) configuration"
-msgstr ""
+msgstr "컨트롤러(GRBL) 구성"
 
 #: ToolsPage.py:1356
 msgid "Fonts"
-msgstr ""
+msgstr "글꼴 "
 
 #: ToolsPage.py:1363
 msgid "Font configuration"
-msgstr ""
+msgstr "글꼴 구성"
 
 #: ToolsPage.py:1370
 msgid "Shortcuts"
-msgstr ""
+msgstr "바로가기"
 
 #: ToolsPage.py:1377
 msgid "Shortcuts configuration"
-msgstr ""
+msgstr "바로가기 구성"
 
 #: ToolsPage.py:1408
 msgid "Language change"
-msgstr ""
+msgstr "언어 변경"
 
 #: ToolsPage.py:1409
 msgid "Please restart the program."
-msgstr ""
+msgstr "프로그램을 재시작 하십시오."
 
 #: ToolsPage.py:1417
 msgid "Events"
-msgstr ""
+msgstr "이벤트"
 
 #: ToolsPage.py:1422
 msgid "User File"
-msgstr ""
+msgstr "사용자 파일 "
 
 #: ToolsPage.py:1435
 msgid "Execute"
-msgstr ""
+msgstr "실행"
 
 #: ToolsPage.py:1448
 msgid "Value"
-msgstr ""
+msgstr "값/가치"
 
 #: ToolsPage.py:1516
 msgid "GCode manipulation tools and user plugins"
-msgstr ""
+msgstr "G코드 조작도구 및 사용자 플러그인 "
 
 #: ToolsPage.py:1517
 msgid "Tools"
-msgstr ""
+msgstr "도구"
 
 #: TerminalPage.py:25 TerminalPage.py:146
 msgid "Terminal"
-msgstr ""
+msgstr "터미널"
 
 #: TerminalPage.py:33
 msgid "Clear terminal"
-msgstr ""
+msgstr "터미널 삭제"
 
 #: TerminalPage.py:40
 msgid "Commands"
-msgstr ""
+msgstr "커맨드"
 
 #: TerminalPage.py:41
 msgid "Restore Settings"
-msgstr ""
+msgstr "설정 복원"
 
 #: TerminalPage.py:42
 msgid "Restore Workspace"
-msgstr ""
+msgstr "작업 공간 복원 "
 
 #: TerminalPage.py:43
 msgid "Restore All"
-msgstr ""
+msgstr "모두 복원"
 
 #: TerminalPage.py:54
 msgid "Settings"
-msgstr ""
+msgstr "설정"
 
 #: TerminalPage.py:61
 msgid "$$ Display settings of Grbl"
-msgstr ""
+msgstr "$$ GRBL 설정 보기"
 
 #: TerminalPage.py:67
 msgid "Parameters"
-msgstr ""
+msgstr "매개 변수"
 
 #: TerminalPage.py:73
 msgid "$# Display parameters of Grbl"
-msgstr ""
+msgstr "$# GRBL 매개 변수 보기"
 
 #: TerminalPage.py:79
 msgid "State"
-msgstr ""
+msgstr "상태"
 
 #: TerminalPage.py:85
 msgid "$G Display state of Grbl"
-msgstr ""
+msgstr "$G GRBL의 상태 보기"
 
 #: TerminalPage.py:93
 msgid "Build"
-msgstr ""
+msgstr "빌드"
 
 #: TerminalPage.py:99
 msgid "$I Display build information of Grbl"
-msgstr ""
+msgstr "$l GRBL의 빌드 정보 보기"
 
 #: TerminalPage.py:105
 msgid "Startup"
-msgstr ""
+msgstr "시작"
 
 #: TerminalPage.py:112
 msgid "$N Display startup configuration of Grbl"
-msgstr ""
+msgstr "$N GRBL의 시작 구성 보기"
 
 #: TerminalPage.py:119
 msgid "Check gcode"
-msgstr ""
+msgstr "G코드 확인"
 
 #: TerminalPage.py:126
 msgid "$C Enable/Disable checking of gcode"
-msgstr ""
+msgstr "$C G코드 확인 켜기/끄기"
 
 #: TerminalPage.py:134
 msgid "Help"
-msgstr ""
+msgstr "도움말"
 
 #: TerminalPage.py:140
 msgid "$ Display build information of Grbl"
-msgstr ""
+msgstr "$ GRBL의 빌드 정보 보기"
 
 #: TerminalPage.py:159
 msgid "Terminal communication with controller"
-msgstr ""
+msgstr "컨트롤러와 터미널 통신"
 
 #: TerminalPage.py:170
 msgid "Buffered commands"
-msgstr ""
+msgstr "버퍼된 커맨드"
 
 #: TerminalPage.py:194
 msgid "Serial Terminal"
-msgstr ""
+msgstr "시리얼 터미널"
 
 #: lib/bFileDialog.py:248
 msgid "Directory:"
-msgstr ""
+msgstr "디렉토리:"
 
 #: lib/bFileDialog.py:274 plugins/hilbert.py:88
 msgid "Size"
-msgstr ""
+msgstr "크기"
 
 #: lib/bFileDialog.py:275
 msgid "Date"
-msgstr ""
+msgstr "날짜"
 
 #: lib/bFileDialog.py:295
 msgid "File name:"
-msgstr ""
+msgstr "파일 이름:"
 
 #: lib/bFileDialog.py:302
 msgid "Files of type:"
-msgstr ""
+msgstr "파일 타입:"
 
 #: lib/bFileDialog.py:532 lib/bFileDialog.py:590 lib/bFileDialog.py:797
 #: lib/bFileDialog.py:821 lib/bFileDialog.py:843
 msgid "Error"
-msgstr ""
+msgstr "오류"
 
 #: lib/bFileDialog.py:533
 #, python-format
 msgid "Cannot access path \"%s\""
-msgstr ""
+msgstr "경로 \"% s\"에 접근 할 수 없습니다."
 
 #: lib/bFileDialog.py:591
 #, python-format
 msgid "Error listing folder \"%s\""
-msgstr ""
+msgstr "폴더 \"% s\"을 (를) 나열하는 중 오류가 발생했습니다."
 
 #: lib/bFileDialog.py:785
 msgid "NewFolder"
-msgstr ""
+msgstr "새 폴더"
 
 #: lib/bFileDialog.py:798
 #, python-format
 msgid "Error creating folder \"%s\""
-msgstr ""
+msgstr "폴더 \"% s\"을 (를) 만드는 중 오류가 발생했습니다."
 
 #: lib/bFileDialog.py:822
 #, python-format
 msgid "Error renaming \"%s\" to \"%s\""
-msgstr ""
+msgstr "\"% s\"의 이름을 \"% s\"(으)로 변경하는 중 오류가 발생했습니다."
 
 #: lib/bFileDialog.py:844
 #, python-format
 msgid "Error deleting file \"%s\""
-msgstr ""
+msgstr "\"% s\"파일을 삭제하는 중 오류가 발생했습니다."
 
 #: lib/bFileDialog.py:861 lib/bFileDialog.py:870
 msgid "File does not exist"
-msgstr ""
+msgstr "파일이 존재하지 않습니다."
 
 #: lib/bFileDialog.py:862 lib/bFileDialog.py:871
 #, python-format
 msgid "File \"%s\" does not exist"
-msgstr ""
+msgstr "\"% s\"파일이 존재하지 않습니다."
 
 #: lib/bFileDialog.py:879
 msgid "Save As"
-msgstr ""
+msgstr "다른이름으로 저장"
 
 #: lib/bFileDialog.py:890
 msgid "File already exists"
-msgstr ""
+msgstr "이미 존재하는 파일입니다."
 
 #: lib/bFileDialog.py:891
 #, python-format
 msgid "Overwrite existing file %r?"
-msgstr ""
+msgstr "기존 파일 % rㅇ 덮어 쓰시겠습니까?"
 
 #: lib/bFileDialog.py:902
 msgid "Choose Directory"
-msgstr ""
+msgstr "디렉토리를 선택하세요."
 
 #: plugins/text.py:30
 msgid "Create text using a ttf font"
-msgstr ""
+msgstr "ttf 글꼴을 사용하여 텍스트 만들기"
 
 #: plugins/text.py:37
 msgid "Text to generate"
-msgstr ""
+msgstr "생성할 텍스트"
 
 #: plugins/text.py:38 plugins/pyrograph.py:40 plugins/heightmap.py:49
 #: plugins/sketch.py:43 plugins/halftone.py:50
 msgid "Working Depth"
-msgstr ""
+msgstr "작업 깊이"
 
 #: plugins/text.py:39
 msgid "Font size"
-msgstr ""
+msgstr "글꼴 크기"
 
 #: plugins/text.py:40
 msgid "Font file"
-msgstr ""
+msgstr "글꼴 파일"
 
 #: plugins/text.py:41
 msgid "Image to Ascii"
-msgstr ""
+msgstr "이미지에서 아스키로"
 
 #: plugins/text.py:42
 msgid "Image chars width"
-msgstr ""
+msgstr "이미지 문자 너비"
 
 #: plugins/text.py:58
 msgid "Text abort: please input a Font size > 0"
-msgstr ""
+msgstr "텍스트 중단 : 글꼴 크기가 0보다 커야합니다."
 
 #: plugins/text.py:61
 msgid "Text abort: please select a font file"
-msgstr ""
+msgstr "텍스트 중단 : 글꼴 파일을 선택하세요."
 
 #: plugins/text.py:88
 msgid "Text abort: That embarrassing, I can't read this font file!"
-msgstr ""
+msgstr "텍스트 중단 : 당황스럽네요, 이 글꼴 파일을 읽을 수 없습니다."
 
 #: plugins/pyrograph.py:11
 msgid "Pyrograph"
-msgstr ""
+msgstr "파이로그래프"
 
 #: plugins/pyrograph.py:31
 msgid "Create a variable feed path based upon image brightness"
-msgstr ""
+msgstr "이미지 밝기에 따라 가변 피드 경로 생성"
 
 #: plugins/pyrograph.py:39
 msgid "Pyrograph tip size"
-msgstr ""
+msgstr "파이로그래프 팁 크기"
 
 #: plugins/pyrograph.py:41 plugins/heightmap.py:50 plugins/sketch.py:44
 msgid "Maximum size"
-msgstr ""
+msgstr "최대 크기"
 
 #: plugins/pyrograph.py:42
 msgid "Minimum feed"
-msgstr ""
+msgstr "최소 피드"
 
 #: plugins/pyrograph.py:43
 msgid "Maximum feed"
-msgstr ""
+msgstr "최대 피드"
 
 #: plugins/pyrograph.py:45 plugins/sketch.py:47 plugins/halftone.py:49
 msgid "Draw border"
-msgstr ""
+msgstr "경계선 그리기"
 
 #: plugins/pyrograph.py:46 plugins/heightmap.py:58 plugins/sketch.py:48
 #: plugins/halftone.py:41
 msgid "Image to process"
-msgstr ""
+msgstr "처리할 이미지"
 
 #: plugins/pyrograph.py:55
 msgid "Pyrograph abort: This plugin requires PIL/Pillow"
-msgstr ""
+msgstr "파이로그래프 중단 :이 플러그인에ㄴ PIL/Pillow가 필요합니다."
 
 #: plugins/pyrograph.py:72
 msgid "Pyrograph abort: please define a scan Direction"
-msgstr ""
+msgstr "파이로그래프 중단 : 스캔 방향을 설정하세요."
 
 #: plugins/pyrograph.py:76
 msgid "Pyrograph abort: Tool Size must be > 0"
-msgstr ""
+msgstr "파이로그래프 중단 : 도구 크기는 0보다 커야합니다."
 
 #: plugins/pyrograph.py:80
 msgid "Pyrograph abort: Please check feed rate parameters"
-msgstr ""
+msgstr "파이로그래프 중단 : 이송 속도 매개 변수를 확인하십시오."
 
 #: plugins/pyrograph.py:91
 msgid "Pyrograph abort: Can't read image file"
-msgstr ""
+msgstr "파이로그래프 중단 : 이미지 파일을 읽을 수 없습니다."
 
 #: plugins/pyrograph.py:201
 #, python-format
 msgid "Generated Pyrograph W=%g x H=%g x D=%g"
-msgstr ""
+msgstr "생성 된 파이로그래프 W=%g x H=%g x D=%g"
 
 #: plugins/tile.py:11
 msgid "Tile"
-msgstr ""
+msgstr "타일"
 
 #: plugins/tile.py:28
 msgid "Generate replicas of selected code"
-msgstr ""
+msgstr "선택한 코드의 복사본 생성"
 
 #: plugins/tile.py:51
 msgid "Tile error"
-msgstr ""
+msgstr "타일 오류"
 
 #: plugins/tile.py:52
 msgid "No g-code blocks selected"
-msgstr ""
+msgstr "선택된 G코드 블록이 없습니다."
 
 #: plugins/tile.py:93
 msgid "Tiled selected blocks"
-msgstr ""
+msgstr "바둑판식으로 선택된 블록"
 
 #: plugins/heightmap.py:17
 msgid "Heightmap"
-msgstr ""
+msgstr "높이지도 "
 
 #: plugins/heightmap.py:41
 msgid "Use a brightess map to create a variable Z path"
-msgstr ""
+msgstr "밝기 맵을 사용하여 변수 Z 경로 만들기"
 
 #: plugins/heightmap.py:53
 msgid "ScanDir"
-msgstr ""
+msgstr "스캔 디렉토리"
 
 #: plugins/heightmap.py:54
 msgid "Cut Top"
-msgstr ""
+msgstr "상단 자르기"
 
 #: plugins/heightmap.py:55
 msgid "Cut Border"
-msgstr ""
+msgstr "테두리 자르기"
 
 #: plugins/heightmap.py:57
 msgid "Single pass"
-msgstr ""
+msgstr "단일 패스"
 
 #: plugins/heightmap.py:68
 msgid "Heightmap abort: This plugin requires PIL/Pillow"
-msgstr ""
+msgstr "높이 지도 중단 : 이 플러그인은 PIL/Pillow가 필요합니다."
 
 #: plugins/heightmap.py:77
 msgid "Heightmap abort: Can't read image file"
-msgstr ""
+msgstr "높이 지도 중단 : 이미지 파일을 읽을 수 없습니다."
 
 #: plugins/heightmap.py:81
 msgid "Heightmap abort: depth must be < 0"
-msgstr ""
+msgstr "높이 지도 중단 : 깊이가 0보다 작아야 합니다."
 
 #: plugins/heightmap.py:152
 msgid "Heightmap abort: angle not defined for selected End Mill"
-msgstr ""
+msgstr "높이 지도 중단 : 선택된 엔드 밀에서 각도가 정의되지 않았습니다."
 
 #: plugins/heightmap.py:367
 #, python-format
 msgid "Generated Heightmap %d x %d x %d "
-msgstr ""
+msgstr "생성된 높이 지도 %d x %d x %d"
 
 #: plugins/midi2cnc.py:33
 msgid "Sound your machine from a midi file"
-msgstr ""
+msgstr "기계 소리를 미디어 파일로 재생합니다."
 
 #: plugins/midi2cnc.py:50
 msgid "Pulse per unit for X"
-msgstr ""
+msgstr "X에 대한 단위당 펄스"
 
 #: plugins/midi2cnc.py:51
 msgid "Pulse per unit for Y"
-msgstr ""
+msgstr "Y에 대한 단위당 펄스"
 
 #: plugins/midi2cnc.py:52
 msgid "Pulse per unit for Z"
-msgstr ""
+msgstr "Z에 대한 단위당 펄스"
 
 #: plugins/midi2cnc.py:53
 msgid "Maximum X travel"
-msgstr ""
+msgstr "최대 X 이동"
 
 #: plugins/midi2cnc.py:54
 msgid "Maximum Y travel"
-msgstr ""
+msgstr "최대 Y 이동"
 
 #: plugins/midi2cnc.py:55
 msgid "Maximum Z travel"
-msgstr ""
+msgstr "최대 Z 이동"
 
 #: plugins/midi2cnc.py:56
 msgid "Axis to be used"
-msgstr ""
+msgstr "사용할 축"
 
 #: plugins/midi2cnc.py:57
 msgid "Midi to process"
-msgstr ""
+msgstr "처리할 미디어"
 
 #: plugins/midi2cnc.py:99
 msgid "Error: This plugin requires midiparser.py"
-msgstr ""
+msgstr "오류 : 이 플러그인에는 midiparser.py가 필요합니다."
 
 #: plugins/midi2cnc.py:137
 msgid "Error: Sorry can't parse the Midi file."
-msgstr ""
+msgstr "오류 : 죄송하지만 미디 파일을 구문 분석 할 수 없습니다."
 
 #: plugins/midi2cnc.py:295
 msgid "Generated Midi2CNC, ready to play?"
-msgstr ""
+msgstr "Midi2CNC 파일을 생성하였습니다. 재생하시겠습니까.?"
 
 #: plugins/gear.py:11
 msgid "Gear"
-msgstr ""
+msgstr "기어"
 
 #: plugins/gear.py:157
 msgid "Generate a spur gear"
-msgstr ""
+msgstr "평 기어 생성"
 
 #: plugins/gear.py:164
 msgid "No of teeth"
-msgstr ""
+msgstr "톱니의 수"
 
 #: plugins/gear.py:165
 msgid "Pressure angle"
-msgstr ""
+msgstr "압력 각"
 
 #: plugins/gear.py:166
 msgid "Circular Pitch"
-msgstr ""
+msgstr "원형 피치"
 
 #: plugins/gear.py:178
 msgid "Create Spur GEAR"
-msgstr ""
+msgstr "평 기어 만들기"
 
 #: plugins/gear.py:180
 msgid "Generated: Spur GEAR"
-msgstr ""
+msgstr "생성완료 : 평 기어"
 
 #: plugins/flatten.py:11
 msgid "Flatten"
-msgstr ""
+msgstr "전개"
 
 #: plugins/flatten.py:34
 msgid "Flatten abort: Cut Direction is undefined"
-msgstr ""
+msgstr "전개 중단 : 절단 방향이 정의되지 않았습니다."
 
 #: plugins/flatten.py:38
 msgid "Flatten abort: Pocket Type is undefined"
-msgstr ""
+msgstr "전개 중단 : 포켓 유형이 정의되지 않았습니다."
 
 #: plugins/flatten.py:42
 msgid "Flatten abort: Flatten Area dimensions must be > 0"
-msgstr ""
+msgstr "전개 중단 : 전개 된 영역 크기는 0보다 커야합니다."
 
 #: plugins/flatten.py:46
 msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
-msgstr ""
+msgstr "전개 중단 : 이 기계는 감산 기계에서만 사용됩니다! 깊이를 확인하세요!"
 
 #: plugins/flatten.py:83
 msgid "Flatten abort: Flatten area is too small for this End Mill."
-msgstr ""
+msgstr "전개 중단 : 이 엔드 밀에서는 전개 영역이 너무 작습니다."
 
 #: plugins/flatten.py:249
 msgid "Flatten an area in different ways"
-msgstr ""
+msgstr "여러 가지 방법으로 영역 전개하기"
 
 #: plugins/flatten.py:256
 msgid "X start"
-msgstr ""
+msgstr "X 시작"
 
 #: plugins/flatten.py:257
 msgid "Y start"
-msgstr ""
+msgstr "Y 시작"
 
 #: plugins/flatten.py:258
 msgid "Width to flatten"
-msgstr ""
+msgstr "너비 전개"
 
 #: plugins/flatten.py:259
 msgid "Height to flatten"
-msgstr ""
+msgstr "높이 전개"
 
 #: plugins/flatten.py:260
 msgid "Depth to flatten"
-msgstr ""
+msgstr "깊이 전개"
 
 #: plugins/flatten.py:261
 msgid "Raster border"
-msgstr ""
+msgstr "래스터 경계선"
 
 #: plugins/flatten.py:262
 msgid "Cut Direction"
-msgstr ""
+msgstr "절단 방향"
 
 #: plugins/flatten.py:263
 msgid "Pocket type"
-msgstr ""
+msgstr "포켓 타입"
 
 #: plugins/flatten.py:289
 msgid "Flatten: Generated flatten surface"
-msgstr ""
+msgstr "전개 : 생성된 전개 표면"
 
 #: plugins/hilbert.py:12
 msgid "Hilbert"
-msgstr ""
+msgstr "힐버트"
 
 #: plugins/hilbert.py:81
 msgid "Create a Hilbert path"
-msgstr ""
+msgstr "힐버트 경로 만들기"
 
 #: plugins/hilbert.py:90 plugins/zigzag.py:100
 msgid "Depth"
-msgstr ""
+msgstr "깊이"
 
 #: plugins/hilbert.py:106
 msgid "Hilbert abort: verify the size"
-msgstr ""
+msgstr "힐버트 중단 : 크기를 확인하세요."
 
 #: plugins/hilbert.py:110
 msgid "Hilbert abort: depth must be minor or equal to zero"
-msgstr ""
+msgstr "힐버트 중단 : 깊이는 0보다 작거나 같아야 합니다."
 
 #: plugins/hilbert.py:119
 msgid "Generated: Hilbert"
-msgstr ""
+msgstr "생성완료 : 힐버트"
 
 #: plugins/jigsaw.py:257
 msgid "Jigsaw puzzle generator"
-msgstr ""
+msgstr "조각그림 생성기"
 
 #: plugins/jigsaw.py:265
 msgid "Board width"
-msgstr ""
+msgstr "보드 너비"
 
 #: plugins/jigsaw.py:266
 msgid "Board height"
-msgstr ""
+msgstr "보드 높이"
 
 #: plugins/jigsaw.py:267
 msgid "Piece count"
-msgstr ""
+msgstr "조각 수"
 
 #: plugins/jigsaw.py:268
 msgid "Random seed"
-msgstr ""
+msgstr "임의 시드"
 
 #: plugins/jigsaw.py:269
 msgid "Difference between pieces"
-msgstr ""
+msgstr "조각 간 차이"
 
 #: plugins/jigsaw.py:270
 msgid "Shape of the tap"
-msgstr ""
+msgstr "마개의 모양"
 
 #: plugins/jigsaw.py:287
 msgid "Generating puzzle..."
-msgstr ""
+msgstr "퍼즐 생성중..."
 
 #: plugins/jigsaw.py:295
 msgid "Jigsaw puzzle generated in {}s"
-msgstr ""
+msgstr "{}s에서 생성된 조각그림 퍼즐"
 
 #: plugins/jigsaw.py:297
 msgid "Error: Check the parameters and your endmill config"
-msgstr ""
+msgstr "오류 : 매개 변수 및 엔드 밀 구성을 확인하세요."
 
 #: plugins/driller.py:12
 msgid "Driller"
-msgstr ""
+msgstr "드릴러"
 
 #: plugins/driller.py:31
 msgid "Create holes along selected blocks"
-msgstr ""
+msgstr "선택한 블록을 따라 구멍 만들기"
 
 #: plugins/driller.py:39
 msgid "Distance between holes"
-msgstr ""
+msgstr "구멍 간 거리"
 
 #: plugins/driller.py:41
 msgid "Peck, 0 meas None"
-msgstr ""
+msgstr "펙, 0은 없음을 의미합니다."
 
 #: plugins/driller.py:42
 msgid "Dwell time, 0 means None"
-msgstr ""
+msgstr "휴지 시간, 0은 없음을 의미합니다."
 
 #: plugins/driller.py:112
 msgid "Driller abort: Distance must be > 0"
-msgstr ""
+msgstr "드릴러 중단 : 거리는 0보다 커야합니다."
 
 #: plugins/driller.py:116
 msgid "Driller abort: Peck must be >= 0"
-msgstr ""
+msgstr "드릴러 중단 : 펙은 0보다 크거나 같아야 합니다."
 
 #: plugins/driller.py:120
 msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
 msgstr ""
+"드릴러 중단 : 휴지 시간이 영보다 크거나 같으면 시간은 앞으로만 움직입니다!"
 
 #: plugins/driller.py:130
 msgid "Driller abort: Please select some path"
-msgstr ""
+msgstr "드릴러 중단 : 경로를 선택하세요."
 
 #: plugins/driller.py:220
 #, python-format
 msgid "Generated Driller: %d holes"
-msgstr ""
+msgstr "생성된 드릴러 : %d 구멍"
 
 #: plugins/box.py:11
 msgid "Box"
-msgstr ""
+msgstr "박스"
 
 #: plugins/box.py:299
 msgid "Generate a finger box"
-msgstr ""
+msgstr "손가락 박스 생성"
 
 #: plugins/box.py:306
 msgid "Internal Dimensions"
-msgstr ""
+msgstr "내부 치수"
 
 #: plugins/box.py:307
 msgid "Width Dx"
-msgstr ""
+msgstr "Dx 너비"
 
 #: plugins/box.py:308
 msgid "Depth Dy"
-msgstr ""
+msgstr "Dy 깊이"
 
 #: plugins/box.py:309
 msgid "Height Dz"
-msgstr ""
+msgstr "Dz 높이"
 
 #: plugins/box.py:310
 msgid "Fingers Nx"
-msgstr ""
+msgstr "손가락 Nx"
 
 #: plugins/box.py:311
 msgid "Fingers Ny"
-msgstr ""
+msgstr "손가락 Ny"
 
 #: plugins/box.py:312
 msgid "Fingers Nz"
-msgstr ""
+msgstr "손가락 Nz"
 
 #: plugins/box.py:350
 msgid "Create finger BOX"
-msgstr ""
+msgstr "손가락 박스 생성"
 
 #: plugins/box.py:352
 msgid "Generated: BOX with fingers"
-msgstr ""
+msgstr "생성완료 : 손가락 박스"
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
-msgstr ""
+msgstr "스피로그래프"
 
 #: plugins/spirograph.py:95
 msgid "Create a spirograph path"
-msgstr ""
+msgstr "스피로그래프 경로 생성"
 
 #: plugins/spirograph.py:102
 msgid "External Radius"
-msgstr ""
+msgstr "외부 반경"
 
 #: plugins/spirograph.py:103
 msgid "Internal Radius"
-msgstr ""
+msgstr "내부 반경"
 
 #: plugins/spirograph.py:104
 msgid "Offset radius"
-msgstr ""
+msgstr "오프셋 반경"
 
 #: plugins/spirograph.py:124
 msgid "Generated: Spirograph"
-msgstr ""
+msgstr "생성완료 : 스피로그래프"
 
 #: plugins/sketch.py:13
 msgid "Sketch"
-msgstr ""
+msgstr "스케치"
 
 #: plugins/sketch.py:34
 msgid "Create sketch based on picture brightness"
-msgstr ""
+msgstr "그림 밝기에 따라 스케치 생성"
 
 #: plugins/sketch.py:42
 msgid "Grundgy, search radius"
-msgstr ""
+msgstr "검색 반경"
 
 #: plugins/sketch.py:45
 msgid "Squiggle total count"
-msgstr ""
+msgstr "총 개수를 늘리십시오."
 
 #: plugins/sketch.py:46
 msgid "Squiggle Length"
-msgstr ""
+msgstr "길이를 늘리십시오."
 
 #: plugins/sketch.py:49 plugins/halftone.py:42
 msgid "Channel to analyze"
-msgstr ""
+msgstr "분석할 채널"
 
 #: plugins/sketch.py:141
 msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
 msgstr ""
+"스케치 중단 : 이 플러그인에서 이미지 데이터를 읽으려면 PIL/Pillow가 필요합니"
+"다."
 
 #: plugins/sketch.py:168
 msgid "Sketch abort: Too small to draw anything!"
-msgstr ""
+msgstr "스케치 중단 : 너무 작아서 아무것도 그리지 못합니다!"
 
 #: plugins/sketch.py:172
 msgid "Sketch abort: Please let me draw at least 1 squiggle"
-msgstr ""
+msgstr "스케치 중단 : 최소한 1개의 선을 그려주십시오."
 
 #: plugins/sketch.py:176
 msgid "Sketch abort: Squiggle Length must be > 0"
-msgstr ""
+msgstr "스케치 중단 : 선 길이는 0보다 커야합니다."
 
 #: plugins/sketch.py:183
 msgid "Sketch abort: Can't read image file"
-msgstr ""
+msgstr "스케치 중단 : 이미지 파일을 읽을 수 없습니다."
 
 #: plugins/sketch.py:274
 #, python-format
 msgid "Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d"
-msgstr ""
+msgstr "생성된 스케치 크기 W=%d x H=%d x 거리=%d, 총 길이 : %d"
 
 #: plugins/zigzag.py:11
 msgid "Zig-Zag"
-msgstr ""
+msgstr "지그재그"
 
 #: plugins/zigzag.py:88
 msgid "Create a Zig-Zag path"
-msgstr ""
+msgstr "지그재그 경로 생성"
 
 #: plugins/zigzag.py:95
 msgid "Number of lines"
-msgstr ""
+msgstr "라인 수"
 
 #: plugins/zigzag.py:96
 msgid "Line length"
-msgstr ""
+msgstr "라인 길이"
 
 #: plugins/zigzag.py:97
 msgid "Additional length at start/end"
-msgstr ""
+msgstr "시작/종료시 추가 길이"
 
 #: plugins/zigzag.py:98
 msgid "Step distance"
-msgstr ""
+msgstr "단계 거리"
 
 #: plugins/zigzag.py:99
 msgid "Corner resolution"
-msgstr ""
+msgstr "코너 해상도"
 
 #: plugins/zigzag.py:119
 msgid "Zig-Zag abort: verify Nlines > 0"
-msgstr ""
+msgstr "지그재그 중단 : 라인의 수는 0보다 커야합니다."
 
 #: plugins/zigzag.py:123
 msgid "Zig-Zag abort: verify LineLen > 0"
-msgstr ""
+msgstr "지그재그 중단 : 라인의 길이는 0보다 커야합니다."
 
 #: plugins/zigzag.py:127
 msgid "Zig-Zag abort: verify Step > 0"
-msgstr ""
+msgstr "지그재그 중단 : 단계는 0보다 커야합니다."
 
 #: plugins/zigzag.py:131
 msgid "Zig-Zag abort: verify CornerRes >= 0"
-msgstr ""
+msgstr "지그재그 중단 : 코너 해상도는 0보다 크거나 같아야 합니다."
 
 #: plugins/zigzag.py:135
 msgid "Zig-Zag abort: depth must be minor or equal to zero"
-msgstr ""
+msgstr "지그재그 중단 : 깊이는 0보다 작거나 같아야 합니다."
 
 #: plugins/zigzag.py:144
 msgid "Generated: Zig-Zag"
-msgstr ""
+msgstr "생성완료 : 지그재그"
 
 #: plugins/halftone.py:11
 msgid "Halftone"
-msgstr ""
+msgstr "하프톤"
 
 #: plugins/halftone.py:33
 msgid "Create halftone pattern from a picture"
-msgstr ""
+msgstr "그림에서 하프톤 패턴 만들기"
 
 #: plugins/halftone.py:43
 msgid "Invert Colors"
-msgstr ""
+msgstr "색상 반전"
 
 #: plugins/halftone.py:44
 msgid "Max draw size (Width or Height)"
-msgstr ""
+msgstr "최대 그림 크기(너비 또는 높이)"
 
 #: plugins/halftone.py:45
 msgid "Cell size"
-msgstr ""
+msgstr "셀 크기"
 
 #: plugins/halftone.py:46
 msgid "Max diameter, cap limit"
-msgstr ""
+msgstr "최대 지름, 한도"
 
 #: plugins/halftone.py:47
 msgid "Min diameter, cut off"
-msgstr ""
+msgstr "최소 지름"
 
 #: plugins/halftone.py:48
 msgid "Image rotation angle"
-msgstr ""
+msgstr "이미지 회전 각도"
 
 #: plugins/halftone.py:51
 msgid "Generate for conical end mill"
-msgstr ""
+msgstr "원추형 엔드 밀 생성"
 
 #: plugins/halftone.py:95
 msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
 msgstr ""
+"하프톤 중단 : 이 플러그인에서 이미지 데이터를 읽으려면 PIL/Pillow가 필요합니"
+"다."
 
 #: plugins/halftone.py:115
 msgid "Halftone abort: Size too small to draw anything!"
-msgstr ""
+msgstr "하프톤 중단 : 사이즈가 작아서 아무것도 그릴 수 없습니다!"
 
 #: plugins/halftone.py:119
 msgid "Halftone abort: Minimum diameter must be minor then Maximum"
-msgstr ""
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
 
 #: plugins/halftone.py:123
 msgid "Halftone abort: Maximum diameter too small"
-msgstr ""
+msgstr "하프톤 중단 : 최대 지름이 너무 작습니다."
 
 #: plugins/halftone.py:127
 msgid "Halftone abort: Cell size too small"
-msgstr ""
+msgstr "하프톤 중단 : 셀 크기가 너무 작습니다."
 
 #: plugins/halftone.py:137
 msgid "Halftone abort: Angle in V-Cutting end mill is missing"
-msgstr ""
+msgstr "하프톤 중단 : V-절단 엔드 밀의 각도가 누락되었습니다."
 
 #: plugins/halftone.py:140
 msgid "Halftone abort: Conical path need V-Cutting end mill"
-msgstr ""
+msgstr "하프톤 중단 : V-절단 엔드 밀에 원추형 경로가 필요합니다."
 
 #: plugins/halftone.py:148
 msgid "Halftone abort: Can't read image file"
-msgstr ""
+msgstr "하프톤 중단 : 이미지 파일을 읽을 수 없습니다."
 
 #: plugins/halftone.py:242
 #, python-format
 msgid "Generated Halftone size W=%d x H=%d x D=%d ,Total points:%i"
-msgstr ""
+msgstr "생성된 하프톤 크기 W=%d x H=%d x D=%d, 총 포인트 %i"
 
 #: plugins/bowl.py:10
 msgid "Bowl"
-msgstr ""
+msgstr "Bowl"
 
 #: plugins/bowl.py:102
 msgid "Generate a bowl cavity"
-msgstr ""
+msgstr "Bowl 구멍 생성"
 
 #: plugins/bowl.py:110
 msgid "Resolution (degrees)"
-msgstr ""
+msgstr "해상도(도)"
 
 #: plugins/bowl.py:111
 msgid "Progressive"
-msgstr ""
+msgstr "점진적"
 
 #: plugins/bowl.py:126
 msgid "Generated: BOWL"
-msgstr ""
+msgstr "생성완료 : 통"
 
 #: plugins/bowl.py:128
 msgid "Error: Check the Bowl and End Mill parameters"
-msgstr ""
+msgstr "오류 : Bowl과 엔드 밀 매개 변수 확ㅇ"
