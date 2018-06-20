@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-17 23:44+0200\n"
-"PO-Revision-Date: 2018-06-18 12:09+0200\n"
+"PO-Revision-Date: 2018-06-19 14:45+0200\n"
 "Last-Translator: @SteveMoto\n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -527,7 +527,7 @@ msgstr "Laser-Cutter"
 
 #: ToolsPage.py:550
 msgid "Laser Adaptive Power"
-msgstr ""
+msgstr "Laser-Anpassungsfähigkeit"
 
 #: ToolsPage.py:551
 msgid "Double Size Icon"
@@ -1490,11 +1490,11 @@ msgstr "Mindestens eine Richtung muss für das Antasten angegeben werden"
 
 #: ProbePage.py:668
 msgid "Probe Center Error"
-msgstr ""
+msgstr "Fehler bei Antasten mit Abtastring"
 
 #: ProbePage.py:669
 msgid "Invalid diameter entered"
-msgstr "Ungültiger Durchmesser eingegeben"
+msgstr "Ungültigen Durchmesser eingegeben"
 
 #: ProbePage.py:733
 msgid "Do you want to delete all orientation markers?"
@@ -1925,7 +1925,7 @@ msgstr "M-Pos:"
 
 #: ControlPage.py:229
 msgid "X=0"
-msgstr ""
+msgstr "X=0"
 
 #: ControlPage.py:234
 msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
@@ -1934,7 +1934,7 @@ msgstr ""
 
 #: ControlPage.py:238
 msgid "Y=0"
-msgstr ""
+msgstr "Y=0"
 
 #: ControlPage.py:243
 msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
@@ -1943,7 +1943,7 @@ msgstr ""
 
 #: ControlPage.py:247
 msgid "Z=0"
-msgstr ""
+msgstr "Z=0"
 
 #: ControlPage.py:252
 msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
@@ -2002,11 +2002,11 @@ msgstr "Status: %s"
 
 #: ControlPage.py:432
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
 #: ControlPage.py:435
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: ControlPage.py:449
 msgid "Move +Z"
@@ -2030,7 +2030,7 @@ msgstr "Schritt mit 10 multiplizieren"
 
 #: ControlPage.py:490
 msgid "+"
-msgstr ""
+msgstr "+"
 
 #: ControlPage.py:495
 msgid "Increase step by 1 unit"
@@ -2038,7 +2038,7 @@ msgstr "Schritt um 1 Einheit erhöhen"
 
 #: ControlPage.py:502
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: ControlPage.py:510
 msgid "Move -X"
@@ -2088,7 +2088,7 @@ msgstr "Schritt durch 10 teilen"
 
 #: ControlPage.py:619
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: ControlPage.py:623
 msgid "Decrease step by 1 unit"
@@ -2182,31 +2182,31 @@ msgstr "Spindel-Drehzahl (U/min) festlegen"
 
 #: ControlPage.py:1008
 msgid "Coolant:"
-msgstr ""
+msgstr "Kühlmittel:"
 
 #: ControlPage.py:1011
 msgid "OFF"
-msgstr ""
+msgstr "Aus"
 
 #: ControlPage.py:1017
 msgid "Stop cooling (M9)"
-msgstr ""
+msgstr "Kühlmittel ausschalten (M9)"
 
 #: ControlPage.py:1022
 msgid "Flood"
-msgstr ""
+msgstr "Spülung"
 
 #: ControlPage.py:1028
 msgid "Start flood (M8)"
-msgstr ""
+msgstr "Kühlmittel-Spülung einschalten (M8)"
 
 #: ControlPage.py:1033
 msgid "Mist"
-msgstr ""
+msgstr "Nebel"
 
 #: ControlPage.py:1039
 msgid "Start mist (M7)"
-msgstr ""
+msgstr "Kühl-Nebel einschalten (M7)"
 
 #: ControlPage.py:1189
 msgid "CNC communication and control"
@@ -2307,7 +2307,7 @@ msgstr "Neuen Block oder neue Zeile in G-Code einfügen [Einfg oder Strg+Enter]"
 
 #: EditorPage.py:174
 msgid "Line"
-msgstr ""
+msgstr "G-Code Zeile"
 
 #: EditorPage.py:176
 msgid "Block"
@@ -2669,10 +2669,8 @@ msgid "Draw timeout in seconds"
 msgstr "Zeitlimit für Aktualisierung des Display (s)"
 
 #: CNCCanvas.py:2158
-#, fuzzy
-#| msgid "Time:"
 msgid "Timeout:"
-msgstr "Zeit:"
+msgstr "Auszeit:"
 
 #: bCNC.py:81
 msgid "All accepted"
@@ -3470,11 +3468,11 @@ msgstr "Scan-Richtung"
 
 #: plugins/heightmap.py:50
 msgid "Cut Top"
-msgstr ""
+msgstr "Reduziere Scanspitzen"
 
 #: plugins/heightmap.py:51
 msgid "Cut Border"
-msgstr ""
+msgstr "Umfang / Rand abschneiden"
 
 #: plugins/heightmap.py:53
 msgid "Single pass"
@@ -3623,7 +3621,7 @@ msgstr "Planfräsen abgebrochen: Flächenabmessungen müssen > 0 sein"
 
 #: plugins/flatten.py:45
 msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
-msgstr "Planfräsen abgebrochen: Die Tiefe muss < oder = 0 sein"
+msgstr "Planfräsen abgebrochen: Die Tiefe muss < oder = 0 sein!"
 
 #: plugins/flatten.py:82
 msgid "Flatten abort: Flatten area is too small for this End Mill."
@@ -3694,11 +3692,11 @@ msgstr "Verweilzeit (s), (0=keine)"
 
 #: plugins/driller.py:45
 msgid "Use anchor"
-msgstr ""
+msgstr "Anker verwenden"
 
 #: plugins/driller.py:46
 msgid "Excellon-File"
-msgstr ""
+msgstr "Excellon-Datei"
 
 #: plugins/driller.py:186
 msgid "Driller abort: Distance must be > 0"
@@ -3710,11 +3708,11 @@ msgstr "Bohrer angehalten: Vorschubunterbrechung muss > oder = 0 sein"
 
 #: plugins/driller.py:194
 msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
-msgstr "Bohrer angehalten: Verweilzeit muss > oder = 0 sein"
+msgstr "Bohrer angehalten: Verweilzeit muss > oder = 0 sein!"
 
 #: plugins/driller.py:201
 msgid "Driller abort: Excellon-File not a file"
-msgstr ""
+msgstr "Bohrer angehalten: Excellon-Datei ist keine Datei"
 
 #: plugins/driller.py:211
 msgid "Driller abort: Please select some path"
@@ -3727,43 +3725,44 @@ msgstr "Generiert: Bohrer - %d Löcher"
 
 #: plugins/jigsaw.py:257
 msgid "Jigsaw puzzle generator"
-msgstr ""
+msgstr "Puzzle-Generator"
 
 #: plugins/jigsaw.py:265
 msgid "Board width"
-msgstr ""
+msgstr "Breite in mm"
 
 #: plugins/jigsaw.py:266
 msgid "Board height"
-msgstr ""
+msgstr "Höhe in mm"
 
 #: plugins/jigsaw.py:267
 msgid "Piece count"
-msgstr ""
+msgstr "Anzahl Teile"
 
 #: plugins/jigsaw.py:268
 msgid "Random seed"
-msgstr ""
+msgstr "Zufallsgenerator Initial-Wert"
 
 #: plugins/jigsaw.py:269
 msgid "Difference between pieces"
-msgstr ""
+msgstr "Unterschiedlichkeit der Teile"
 
 #: plugins/jigsaw.py:270
 msgid "Shape of the tap"
-msgstr ""
+msgstr "Form der Zapfen"
 
 #: plugins/jigsaw.py:287
 msgid "Generating puzzle..."
-msgstr ""
+msgstr "Erzeuge Puzzle..."
 
 #: plugins/jigsaw.py:295
 msgid "Jigsaw puzzle generated in {}s"
-msgstr ""
+msgstr "Puzzle erzeugt in {}s"
 
 #: plugins/jigsaw.py:297
 msgid "Error: Check the parameters and your endmill config"
 msgstr ""
+"Fehler: Überprüfe die Parameter-Werte und die Schaftfräser-Einstellungen"
 
 #: plugins/box.py:11
 msgid "Box"
@@ -3811,127 +3810,108 @@ msgstr "Generiert: Box mit Zinken"
 
 #: plugins/Helical_Descent.py:49
 msgid "This is my Helical Descent"
-msgstr ""
+msgstr "Spiralen mit Helixinterpolation erzeugen"
 
 #: plugins/Helical_Descent.py:59
-#, fuzzy
-#| msgid "Tiled selected blocks"
 msgid "Selected Block"
-msgstr "Markierte G-Code Blöcke wurden gekachelt"
+msgstr "Markierte G-Code Blöcke (Editor)"
 
 #: plugins/Helical_Descent.py:60
 msgid "X Initial"
-msgstr ""
+msgstr "X Startwert (mm)"
 
 #: plugins/Helical_Descent.py:61
 msgid "Y Initial"
-msgstr ""
+msgstr "Y Startwert (mm)"
 
 #: plugins/Helical_Descent.py:62
 msgid "Z Initial"
-msgstr ""
+msgstr "Z Startwert (mm)"
 
 #: plugins/Helical_Descent.py:63
-#, fuzzy
-#| msgid "Diameter"
 msgid "Diameter Cut"
-msgstr "Durchmesser"
+msgstr "Spiral-Durchmesser"
 
 #: plugins/Helical_Descent.py:66
 msgid "Drop by lap"
-msgstr ""
+msgstr "Steigung je Runde (mm)"
 
 #: plugins/Helical_Descent.py:67
-#, fuzzy
-#| msgid "Working Depth"
 msgid "Final Depth"
-msgstr "Arbeitstiefe"
+msgstr "Endtiefe (mm)"
 
 #: plugins/Helical_Descent.py:68
 msgid "Z Feed Multiplier"
-msgstr ""
+msgstr "Z Vorschub Multiplikator"
 
 #: plugins/Helical_Descent.py:69
 msgid "Helical Type"
-msgstr ""
+msgstr "Spiralform"
 
 #: plugins/Helical_Descent.py:70
 msgid "Entry and Exit"
-msgstr ""
+msgstr "Eintritt und Austritt"
 
 #: plugins/Helical_Descent.py:71
 msgid "Entry Edge Clearance"
-msgstr ""
+msgstr "Eintritt-Randfreiheit"
 
 #: plugins/Helical_Descent.py:72
 msgid "Exit Edge Clearance"
-msgstr ""
+msgstr "Austritt-Randfreiheit"
 
 #: plugins/Helical_Descent.py:73
 msgid "Returns to safe Z"
-msgstr ""
+msgstr "Zurück zur sicheren Z-Höhe"
 
 #: plugins/Helical_Descent.py:204
 msgid "If block selected false, please make a value of x"
 msgstr ""
+"Wenn G-Code Block falsch gewählt wurde, bitte einen Wert für X eingeben"
 
 #: plugins/Helical_Descent.py:208
-#, fuzzy
-#| msgid "Driller abort: Please select some path"
 msgid "Helical Abort: Please select helical type"
-msgstr "Bohrer angehalten: Ein Pfad muss ausgewählt werden"
+msgstr "Spirale abgebrochen: Bitte eine Spiralform auswählen"
 
 #: plugins/Helical_Descent.py:212
-#, fuzzy
-#| msgid "Halftone abort: Minimum diameter must be minor then Maximum"
 msgid "Helical Abort: Helix diameter must be greater than the end mill"
 msgstr ""
-"Halbton abgebrochen: Min. Durchmesser muss kleiner als Max. Durchmesser sein"
+"Spirale abgebrochen: Spiralen-Durchmesser muss größer als Fräser-Durchmesser "
+"sein"
 
 #: plugins/Helical_Descent.py:216
-#, fuzzy
-#| msgid "Halftone abort: Minimum diameter must be minor then Maximum"
 msgid "Helical Abort: Helix diameter must be positive"
-msgstr ""
-"Halbton abgebrochen: Min. Durchmesser muss kleiner als Max. Durchmesser sein"
+msgstr "Spirale abgebrochen: Spiralen-Durchmesser muss ein positiver Wert sein"
 
 #: plugins/Helical_Descent.py:220
-#, fuzzy
-#| msgid "Heightmap abort: depth must be < 0"
 msgid "Helical Abort: Drop must be greater than 0"
-msgstr "Heightmap abgebrochen: Die Tiefe muss < 0 sein"
+msgstr "Spirale abgebrochen: Steigung je Runde muss größer 0 sein"
 
 #: plugins/Helical_Descent.py:224
-#, fuzzy
-#| msgid "Minimum step pulse time must be greater than 3usec"
 msgid "Helical Abort: Z Feed Multiplier must be greater than 0"
-msgstr "Die minimale Schrittimpulszeit muss größer als 3 µs sein"
+msgstr "Spirale abgebrochen: Z Vorschub Multiplikator muss größer 0 sein"
 
 #: plugins/Helical_Descent.py:228
-#, fuzzy
-#| msgid "Text abort: please select a font file"
 msgid "Helical Abort: Please selecte Entry and Exit type"
-msgstr "Text abgebrochen: Bitte eine Schriftartendatei auswählen"
+msgstr "Spirale abgebrochen: Die Angabe für Ein- und Austritt fehlt"
 
 #: plugins/Helical_Descent.py:232
 msgid "Helical Abort: Entry Edge Clearence may be positive"
 msgstr ""
+"Spirale abgebrochen: Eintritt-Randfreiheit muss ein positiver Wert sein"
 
 #: plugins/Helical_Descent.py:236
 msgid "Helical Abort: Exit Edge Clearence may be positive"
 msgstr ""
+"Spirale abgebrochen: Austritt-Randfreiheit muss ein positiver Wert sein"
 
 #: plugins/Helical_Descent.py:255
-#, fuzzy
-#| msgid "Driller abort: Please select some path"
 msgid "Helical abort: Please select some path"
-msgstr "Bohrer angehalten: Ein Pfad muss ausgewählt werden"
+msgstr "Spirale abgebrochen: Ein Pfad muss ausgewählt werden"
 
 #: plugins/Helical_Descent.py:395
-#, fuzzy
-#| msgid "Generated: Hilbert"
 msgid "Generated: Helical_Descent Result"
-msgstr "Generiert: Hilbert"
+msgstr "Generiert: Spirale"
 
 #: plugins/spirograph.py:12
 msgid "Spirograph"
@@ -4130,7 +4110,7 @@ msgstr "Schriftartendatei"
 
 #: plugins/text.py:39
 msgid "Close Contours"
-msgstr ""
+msgstr "Konturen schließen"
 
 #: plugins/text.py:40
 msgid "Image to Ascii"
