@@ -59,6 +59,7 @@ __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \
 		"@onekk Carlo\n" \
+		"@SteveMoto\n" \
 		"@willadams William Adams"
 __translations__ = \
 		"Dutch - @hypothermic\n" \
