@@ -174,7 +174,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Start"),
-				image=Utils.icons["startPendant"],
+				image=Utils.icons["start_pendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.startPendant,
@@ -185,7 +185,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Stop"),
-				image=Utils.icons["stopPendant"],
+				image=Utils.icons["stop_pendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.stopPendant,
@@ -275,7 +275,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		row  = 0
 
 		self.connectBtn = Ribbon.LabelButton(self,
-				image=Utils.icons["serial32"],
+				image=Utils.icons["serial48"],
 				text=_("Open"),
 				compound=TOP,
 				command=lambda s=self : s.event_generate("<<Connect>>"),
