@@ -426,7 +426,7 @@ class DROFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", app)
+		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", _("Control"), app)
 
 		row,col = 0,0
 		Label(self, text=_("Z")).grid(row=row, column=col)
@@ -803,7 +803,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 class StateFrame(CNCRibbon.PageExLabelFrame):
 	def __init__(self, master, app):
 		global wcsvar
-		CNCRibbon.PageExLabelFrame.__init__(self, master, "State", app)
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "State", _("State"), app)
 		self._gUpdate = False
 
 		# State

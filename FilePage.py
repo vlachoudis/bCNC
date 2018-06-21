@@ -216,8 +216,7 @@ class CloseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class SerialFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageLabelFrame.__init__(self, master, "Serial", app)
-
+		CNCRibbon.PageLabelFrame.__init__(self, master, "Serial", _("Serial"), app)
 		self.autostart = BooleanVar()
 
 		# ---
