@@ -292,15 +292,15 @@ class MoveGroup(CNCRibbon.ButtonMenuGroup):
 	#----------------------------------------------------------------------
 	def createMenu(self):
 		menu = tk.Menu(self, tearoff=0)
-		for i,n,c in (  ("TL",     _("Top-Left"),    "MOVE TL"),
-				("LC",     _("Left"),        "MOVE LC"),
-				("BL",     _("Bottom-Left"), "MOVE BL"),
-				("TC",     _("Top"),         "MOVE TC"),
+		for i,n,c in (  ("tl",     _("Top-Left"),    "MOVE TL"),
+				("lc",     _("Left"),        "MOVE LC"),
+				("bl",     _("Bottom-Left"), "MOVE BL"),
+				("tc",     _("Top"),         "MOVE TC"),
 				("center", _("Center"),      "MOVE CENTER"),
-				("BC",     _("Bottom"),      "MOVE BC"),
-				("TR",     _("Top-Right"),   "MOVE TR"),
-				("RC",     _("Right"),       "MOVE RC"),
-				("BR",     _("Bottom-Right"),"MOVE BR")):
+				("bc",     _("Bottom"),      "MOVE BC"),
+				("tr",     _("Top-Right"),   "MOVE TR"),
+				("rc",     _("Right"),       "MOVE RC"),
+				("br",     _("Bottom-Right"),"MOVE BR")):
 			menu.add_command(label=n,
 					image=Utils.icons[i], compound=tk.LEFT,
 					command=lambda a=self.app,c=c:a.insertCommand(c,True))
@@ -363,7 +363,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate90"],
+				image=Utils.icons["rotate_90"],
 				text=_("CW"),
 				compound=tk.LEFT,
 				anchor=tk.W,
@@ -376,7 +376,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate180"],
+				image=Utils.icons["rotate_180"],
 				text=_("Flip"),
 				compound=tk.LEFT,
 				anchor=tk.W,
@@ -389,7 +389,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate270"],
+				image=Utils.icons["rotate_270"],
 				text=_("CCW"),
 				compound=tk.LEFT,
 				anchor=tk.W,
@@ -402,7 +402,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["flip-horizontal"],
+				image=Utils.icons["flip_horizontal"],
 				text=_("Horizontal"),
 				compound=tk.LEFT,
 				anchor=tk.W,
@@ -415,7 +415,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["flip-vertical"],
+				image=Utils.icons["flip_vertical"],
 				text=_("Vertical"),
 				compound=tk.LEFT,
 				anchor=tk.W,
