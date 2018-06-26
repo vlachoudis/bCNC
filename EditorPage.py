@@ -123,7 +123,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col, row = 0,2
 		self.filterString = tkExtra.LabelEntry(self.frame,
-				"Filter",
+				_("Filter"),
 				"DarkGray",
 				background="White",
 				width=16)
