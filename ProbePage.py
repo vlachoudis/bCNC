@@ -827,7 +827,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		col += 1
 		Label(lframe, text=_("Step")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="N").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("N")).grid(row=row, column=col, sticky=EW)
 
 		# --- X ---
 		row += 1
