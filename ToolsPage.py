@@ -674,7 +674,9 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
-			("cutFromTop", "bool" , False, _("First cut at surface height"))
+			("cutFromTop", "bool" , False, _("First cut at surface height")),
+			("helix", "bool" , False, _("Helical cut")),
+			("helixBottom", "bool" , True, _("Helical with bottom"))
 		]
 		self.buttons.append("exe")
 
@@ -688,7 +690,9 @@ class Cut(DataBase):
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
 		cutFromTop = self["cutFromTop"]
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop)
+		helix = self["helix"]
+		helixBottom = self["helixBottom"]
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
