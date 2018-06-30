@@ -1709,7 +1709,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#-----------------------------------------------------------------------
-	def profile(self, direction=None, offset=0.0, overcut=False, name=None):
+	def profile(self, direction=None, offset=0.0, overcut=False, name=None, pocket=False):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1733,7 +1733,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.profile(blocks, ofs*sign, overcut, name)
+		msg = self.gcode.profile(blocks, ofs*sign, overcut, name, pocket)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),

@@ -3501,7 +3501,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset, overcut=False, name=None):
+	def profile(self, blocks, offset, overcut=False, name=None, pocket=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -3563,6 +3563,7 @@ class GCode:
 
 		# return new blocks inside the blocks list
 		del blocks[:]
+		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name)
 		blocks.extend(newblocks)
 		return msg
 

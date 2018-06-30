@@ -738,7 +738,8 @@ class Profile(DataBase):
 			("endmill",   "db" ,    "", _("End Mill")),
 			("direction","inside,outside" , "outside", _("Direction")),
 			("offset",   "float",  0.0, _("Additional offset distance")),
-			("overcut",  "bool",     1, _("Overcut"))
+			("overcut",  "bool",     1, _("Overcut")),
+			("pocket",  "bool",     0, _("Pocket"))
 		]
 		self.buttons.append("exe")
 
@@ -748,8 +749,9 @@ class Profile(DataBase):
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
 		name = self["name"]
+		pocket = self["pocket"]
 		if name=="default" or name=="": name=None
-		app.profile(direction, self["offset"], self["overcut"], name)
+		app.profile(direction, self["offset"], self["overcut"], name, pocket)
 		app.setStatus(_("Generate profile path"))
 
 #==============================================================================
