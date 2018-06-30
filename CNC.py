@@ -3563,7 +3563,9 @@ class GCode:
 
 		# return new blocks inside the blocks list
 		del blocks[:]
-		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name)
+		# TODO: Not sure how to make the pocket block to cut before profile (to reduce machine load when cuting to dimension)
+		# Idealy it should be generated as single block containing both pocket and profile
+		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name, True)
 		blocks.extend(newblocks)
 		return msg
 
@@ -3624,7 +3626,7 @@ class GCode:
 	# make a pocket on block
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def pocket(self, blocks, diameter, stepover, name):
+	def pocket(self, blocks, diameter, stepover, name, nested=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -3662,7 +3664,7 @@ class GCode:
 				new = len(newblocks)-before
 				for i in range(before):
 					newblocks[i] += new
-				self.blocks[bid].enable = False
+				if not nested: self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
 
 		# return new blocks inside the blocks list
