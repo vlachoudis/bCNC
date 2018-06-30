@@ -3370,8 +3370,10 @@ class GCode:
 				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
 		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "cut"
+			if helix: opname = "helicut"
 		else:
 			opname = "cut:%g"%(depth)
+			if helix: opname = "helicut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
 		for bid in items:
