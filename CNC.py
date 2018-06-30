@@ -2581,7 +2581,10 @@ class GCode:
 			x,y = path[0].A
 			if z is None: z = self.cnc["surface"]
 			if entry:
-				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if stepz is 0: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				else:
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz+stepz,7)))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz,7)))
 			if stepz is 0: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
@@ -3325,10 +3328,10 @@ class GCode:
 
 			if not helix: self.fromPath(path, newblock, z, entry, exit)
 			else:
-				exit = False
+				if helixBottom: exit = False
 				self.fromPath(path, newblock, z, entry, exit, stepz)
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, entry, exit, 0)
+		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True, 0)
 		return newblock
 
 	#----------------------------------------------------------------------
