@@ -1284,8 +1284,12 @@ class Application(Toplevel,Sender):
 		# DIR*ECTION
 		elif rexx.abbrev("DIRECTION", cmd, 3):
 			if rexx.abbrev("CLIMB", line[1].upper(), 2):
-				direction = -1
+				direction = -2
 			elif rexx.abbrev("CONVENTIONAL", line[1].upper(), 2):
+				direction =  2
+			elif rexx.abbrev("CW", line[1].upper(), 2):
+				direction =  -1
+			elif rexx.abbrev("CCW", line[1].upper(), 2):
 				direction =  1
 			else:
 				tkMessageBox.showerror(_("Direction command error"),

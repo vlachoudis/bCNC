@@ -2412,6 +2412,7 @@ class GCode:
 						li = i
 						llen = p.length()
 				longest = opath.pop(li)
+				if longest._direction(longest.isClosed())==1: longest.invert() #turn path to CCW (conventional when milling outside)
 
 				# Can be time consuming
 				if GCode.LOOP_MERGE:
@@ -3462,7 +3463,7 @@ class GCode:
 	def reverse(self, items):
 		undoinfo = []
 		operation = "reverse"
-		remove = ["cut","climb","conventional"]
+		remove = ["cut","climb","conventional","cw","ccw"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3478,11 +3479,21 @@ class GCode:
 	#----------------------------------------------------------------------
 	def cutDirection(self, items, direction=1):
 		undoinfo = []
+
+		#Right now bCNC can't properly distinguish between climb and conventional, so just do cw/ccw for now
+		#TODO: We should redirect to CW or CCW based on operation name (wether it's in/pocket or out)
+		#	Conventional = CW for inside profiles and pockets, CCW for outside profiles
+		#	Climb = CCW for inside profiles and pockets, CW for outside profiles
+		#	In such case it's OK to set operation to "conventional/climb", in other cases
+		#	error should be displayed and user should use CW/CCW in other cases this gets very confusing!
+		if direction==2: direction=1
+		if direction==-2: direction=-1
+
 		if direction==1:
-			operation = "conventional"
+			operation = "ccw"
 		else:
-			operation = "climb"
-		remove = ["cut","reverse","climb","conventional"]
+			operation = "cw"
+		remove = ["cut","reverse","climb","conventional","cw","ccw"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3528,8 +3539,10 @@ class GCode:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
 					newname = Block.operationName(path.name, "out")
+					if path._direction(path.isClosed())==1: path.invert() #turn path to CCW (conventional when milling outside)
 				else:
 					newname = Block.operationName(path.name, "in")
+					if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				if not path.isClosed():
 					m = "Path: '%s' is OPEN"%(path.name)
@@ -3660,6 +3673,8 @@ class GCode:
 				path.removeZeroLength(abs(diameter)/100.)
 				# Convert very small arcs to lines
 				path.convert2Lines(abs(diameter)/10.)
+
+				if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				D = path.direction()
 				if D==0: D=1

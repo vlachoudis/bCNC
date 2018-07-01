@@ -481,6 +481,32 @@ class RouteGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Reverse cut direction for selected gcode blocks"))
 		self.addWidget(b)
 
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate_90"],
+				text=_("Cut CW"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CW", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to CW for selected gcode blocks"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate_270"],
+				text=_("Cut CCW"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CCW", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to CCW for selected gcode blocks"))
+		self.addWidget(b)
+
 #===============================================================================
 # Info Group
 #===============================================================================
