@@ -256,6 +256,7 @@ class Application(Toplevel,Sender):
 
 		self.bind('<<New>>',		self.newFile)
 		self.bind('<<Open>>',		self.loadDialog)
+		self.bind('<<Import>>',		lambda x,s=self: s.importFile())
 		self.bind('<<Save>>',		self.saveAll)
 		self.bind('<<SaveAs>>',		self.saveDialog)
 		self.bind('<<Reload>>',		self.reload)
