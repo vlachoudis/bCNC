@@ -2547,8 +2547,13 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# create a block from Path
+        # @param z	I       ending depth
+        # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=True, exit=True, stepz=0):
+	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None):
+		#if zstart is None: zstart = z #Cut nonhelical cut like ramp with zero angle (= remove special case in future?)
+		if zstart is not None: zstep = abs(z-zstart)
+
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -2581,16 +2586,17 @@ class GCode:
 			x,y = path[0].A
 			if z is None: z = self.cnc["surface"]
 			if entry:
-				if stepz is 0: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if zstart is None: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 				else:
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz+stepz,7)))
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz,7)))
-			if stepz is 0: block.append(CNC.zenter(z))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
+			if zstart is None: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
-			zh = z + stepz;
+			zh = zstart;
 			for segment in path:
-				zh -= (segment.length()/path.length())*stepz
+				if zstart is not None:
+					zh -= (segment.length()/path.length())*zstep
 				if prevInside is not segment._inside:
 					if segment._inside is None:
 						block.append(CNC.zenter(z))
@@ -2599,7 +2605,7 @@ class GCode:
 						block.append(CNC.zexit(segment._inside.z))
 						setfeed = True
 					prevInside = segment._inside
-				if stepz is 0: addSegment(segment)
+				if zstart is None: addSegment(segment)
 				else: addSegment(segment, zh)
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
@@ -3311,7 +3317,7 @@ class GCode:
 		exit   = False
 
 		# Mark in which tab we are inside
-		if block.tabs:
+		if block.tabs and not helix: #TODO: tabs currently not supported for helical cuts :-(
 			# Mark everything as outside
 			for tab in block.tabs:
 				tab.create(CNC.vars["diameter"])
@@ -3321,17 +3327,26 @@ class GCode:
 			z = max(z-stepz, depth)
 			if not closed:
 				# on open paths always enter exit
-				entry = exit = True
-			elif abs(z-depth)<1e-7:
+				if not helix: entry = exit = True
+			if abs(z-depth)<1e-7:
 				# last pass
 				exit = True
 
-			if not helix: self.fromPath(path, newblock, z, entry, exit)
+			if not helix:
+				self.fromPath(path, newblock, z, entry, exit)
 			else:
 				if helixBottom: exit = False
-				self.fromPath(path, newblock, z, entry, exit, stepz)
+				if closed:
+					self.fromPath(path, newblock, z, entry, exit, z+stepz)
+				else:
+					#Cut open path back and forth while descending
+					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz)
+					path.invert()
+					print(exit)
+					self.fromPath(path, newblock, z, False, exit, z+stepz/2)
+					path.invert()
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True, 0)
+		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True)
 		return newblock
 
 	#----------------------------------------------------------------------
