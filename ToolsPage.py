@@ -674,7 +674,9 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
-			("cutFromTop", "bool" , False, _("First cut at surface height"))
+			("cutFromTop", "bool" , False, _("First cut at surface height")),
+			("helix", "bool" , False, _("Helical cut")),
+			("helixBottom", "bool" , True, _("Helical with bottom"))
 		]
 		self.buttons.append("exe")
 
@@ -688,7 +690,9 @@ class Cut(DataBase):
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
 		cutFromTop = self["cutFromTop"]
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop)
+		helix = self["helix"]
+		helixBottom = self["helixBottom"]
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -734,7 +738,8 @@ class Profile(DataBase):
 			("endmill",   "db" ,    "", _("End Mill")),
 			("direction","inside,outside" , "outside", _("Direction")),
 			("offset",   "float",  0.0, _("Additional offset distance")),
-			("overcut",  "bool",     1, _("Overcut"))
+			("overcut",  "bool",     1, _("Overcut")),
+			("pocket",  "bool",     0, _("Pocket"))
 		]
 		self.buttons.append("exe")
 
@@ -744,8 +749,9 @@ class Profile(DataBase):
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
 		name = self["name"]
+		pocket = self["pocket"]
 		if name=="default" or name=="": name=None
-		app.profile(direction, self["offset"], self["overcut"], name)
+		app.profile(direction, self["offset"], self["overcut"], name, pocket)
 		app.setStatus(_("Generate profile path"))
 
 #==============================================================================

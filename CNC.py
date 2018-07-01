@@ -2548,36 +2548,49 @@ class GCode:
 	#----------------------------------------------------------------------
 	# create a block from Path
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=True, exit=True):
+	def fromPath(self, path, block=None, z=None, entry=True, exit=True, stepz=0):
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
 			else:
 				block = Block(path[0].name)
 
-		def addSegment(segment):
+		def addSegment(segment, z=None):
 			x,y = segment.B
 			if segment.type == Segment.LINE:
 				x,y = segment.B
-				block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if z is None: block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				else: block.append("g1 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z,7)))
+
 			elif segment.type in (Segment.CW, Segment.CCW):
 				ij = segment.C - segment.A
 				if abs(ij[0])<1e-5: ij[0] = 0.
 				if abs(ij[1])<1e-5: ij[1] = 0.
-				block.append("g%d %s %s %s %s" % \
-					(segment.type,
-					 self.fmt("x",x,7), self.fmt("y",y,7),
-					 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+				if z is None:
+					block.append("g%d %s %s %s %s" % \
+						(segment.type,
+						 self.fmt("x",x,7), self.fmt("y",y,7),
+						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+				else:
+					block.append("g%d %s %s %s %s %s" % \
+						(segment.type,
+						 self.fmt("x",x,7), self.fmt("y",y,7),
+						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7)))
 
 		if isinstance(path, Path):
 			x,y = path[0].A
 			if z is None: z = self.cnc["surface"]
 			if entry:
-				block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-			block.append(CNC.zenter(z))
+				if stepz is 0: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				else:
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz+stepz,7)))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz,7)))
+			if stepz is 0: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
+			zh = z + stepz;
 			for segment in path:
+				zh -= (segment.length()/path.length())*stepz
 				if prevInside is not segment._inside:
 					if segment._inside is None:
 						block.append(CNC.zenter(z))
@@ -2586,7 +2599,8 @@ class GCode:
 						block.append(CNC.zexit(segment._inside.z))
 						setfeed = True
 					prevInside = segment._inside
-				addSegment(segment)
+				if stepz is 0: addSegment(segment)
+				else: addSegment(segment, zh)
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
 #					x,y = segment.B
@@ -3291,7 +3305,7 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -3312,8 +3326,12 @@ class GCode:
 				# last pass
 				exit = True
 
-			self.fromPath(path, newblock, z, entry, exit)
+			if not helix: self.fromPath(path, newblock, z, entry, exit)
+			else:
+				if helixBottom: exit = False
+				self.fromPath(path, newblock, z, entry, exit, stepz)
 			entry = False
+		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True, 0)
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3332,7 +3350,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3352,8 +3370,10 @@ class GCode:
 				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
 		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "cut"
+			if helix: opname = "helicut"
 		else:
 			opname = "cut:%g"%(depth)
+			if helix: opname = "helicut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
 		for bid in items:
@@ -3364,9 +3384,9 @@ class GCode:
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
@@ -3481,7 +3501,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def profile(self, blocks, offset, overcut=False, name=None):
+	def profile(self, blocks, offset, overcut=False, name=None, pocket=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -3543,6 +3563,9 @@ class GCode:
 
 		# return new blocks inside the blocks list
 		del blocks[:]
+		# TODO: Not sure how to make the pocket block to cut before profile (to reduce machine load when cuting to dimension)
+		# Idealy it should be generated as single block containing both pocket and profile
+		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name, True)
 		blocks.extend(newblocks)
 		return msg
 
@@ -3603,7 +3626,7 @@ class GCode:
 	# make a pocket on block
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def pocket(self, blocks, diameter, stepover, name):
+	def pocket(self, blocks, diameter, stepover, name, nested=False):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -3641,7 +3664,7 @@ class GCode:
 				new = len(newblocks)-before
 				for i in range(before):
 					newblocks[i] += new
-				self.blocks[bid].enable = False
+				if not nested: self.blocks[bid].enable = False
 		self.addUndo(undoinfo)
 
 		# return new blocks inside the blocks list

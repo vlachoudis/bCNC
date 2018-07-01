@@ -54,7 +54,8 @@ __contribute__ = \
 		"@carlosgs Carlos Garcia Saura\n" \
 		"@dguerizec\n" \
 		"@buschhardt\n" \
-		"@MARIOBASZ"
+		"@MARIOBASZ\n" \
+		"@harvie Tomas Mudrunka"
 __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \

@@ -123,7 +123,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col, row = 0,2
 		self.filterString = tkExtra.LabelEntry(self.frame,
-				"Filter",
+				_("Filter"),
 				"DarkGray",
 				background="White",
 				width=16)
@@ -147,7 +147,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 			[(_("Autolevel"), "level",    lambda a=app:a.insertCommand("AUTOLEVEL",True)),
 			 (_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
 			 (_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
-			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
+			 (_("Postprocess Inkscape g-code"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True))
 			])
 		self.grid3rows()
