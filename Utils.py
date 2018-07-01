@@ -59,6 +59,7 @@ __contribute__ = \
 __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \
+		"@Harvie Tomas Mudrunka\n" \
 		"@onekk Carlo\n" \
 		"@SteveMoto\n" \
 		"@willadams William Adams"
