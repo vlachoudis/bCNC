@@ -608,53 +608,39 @@ class Path(list):
 		return self._direction(True)
 
 	#----------------------------------------------------------------------
-	# Return -1/+1 even for open paths
+	# Return -1/+1 even for open paths (experimental, but seems to work better, than previous version)
 	#----------------------------------------------------------------------
 	def _direction(self, closed=True):
-		#TODO: this seems to give wrong result in some cases (eg. for rectangles with overcuts)
 
-		phi = 0.0
+		def dircalc(A,B):
+			dir = (B[0] - A[0])*(B[1] + A[1])
+			#print("point", A[0], A[1], B[0], B[1],"\t",dir)
+			#print("g1 x"+str(A[0])+" y"+str(A[1]))
+			#print("g1 x"+str(B[0])+" y"+str(B[1]))
+			return dir
 
-		if closed:
-			A = self[-1].tangentEnd()
-		else:
-			A = None
 
-#		print
+		sum = 0
+		cwarc = 0
+
 		for segment in self:
-#			print i,segment
-			if segment.type == Segment.LINE:
-				B = segment.AB
-#				print "\tA=",A
-#				print "\tB=",B
-				if A is not None:
-					phi += atan2(A^B,A*B)
-#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-#					print "\tA^B=",A^B,"A*B=",A*B
-				A = B
-			else:
-				B = segment.tangentStart()
-#				print "\tA=",A
-#				print "\tB=",B
-				if A is not None:
-					phi += atan2(A^B,A*B)
-#					print "\tA^B=",A^B,"A*B=",A*B
-#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-#					print "\tphi(Start)=",phi,degrees(phi)
-				phi += segment.endPhi - segment.startPhi
-#				print "\tarc=",segment.endPhi - segment.startPhi, \
-#					degrees(segment.endPhi - segment.startPhi)
-				A = segment.tangentEnd()
-#				print "\ttangenEnd=",A
-#			print "\tphi=",phi,degrees(phi)
+			if segment.type == Segment.CW: cwarc += segment.length()
+			if segment.type == Segment.CCW: cwarc -= segment.length()
 
-#		print "phi=",phi
-		if phi < 0.0:
-#			print "Direction: CW"
-			return 1
-		else:
-#			print "Direction: CCW"
-			return -1
+			A = segment.A
+			B = segment.B
+			if A is not None and B is not None:
+				sum += dircalc(A,B)
+
+		#Return
+		if sum < 0: sum = -1	#CCW
+		if sum > 0: sum = 1	#CW
+		if sum == 0:
+			if cwarc < 0: sum = -1	#CCW
+			if cwarc > 0: sum = 1	#CW
+		#if sum == 0: sum = 1	#CW if undecided?
+		#print("Sum ", sum)
+		return sum
 
 	#----------------------------------------------------------------------
 	# @return the bounding box of the path (very crude)
