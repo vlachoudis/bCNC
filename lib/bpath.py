@@ -609,6 +609,7 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# Return -1/+1 even for open paths (experimental, but seems to work better, than previous version)
+	# https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
 	#----------------------------------------------------------------------
 	def _direction(self, closed=True):
 
