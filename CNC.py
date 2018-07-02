@@ -2552,8 +2552,18 @@ class GCode:
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
 	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None):
-		#if zstart is None: zstart = z #Cut nonhelical cut like ramp with zero angle (= remove special case in future?)
-		if zstart is not None: zstep = abs(z-zstart)
+		if z is None: z = self.cnc["surface"]
+		#Decide if doing helix (ramp) or not
+		helix = True
+		if zstart is None:
+			#Cut nonhelical cut like ramp with zero angle
+			#= Remove special case, this will allow to remove the code for flat cutting in future
+			#This effectively disable old non-helical cuting code and makes it possible to remove it
+			#If this turns out to be working, all code conditioned by helix==False can be removed
+			helix = True #set this to False in case of problems to reenable legacy code
+			zstart = z
+		#Calculate helix step
+		zstep = abs(z-zstart)
 
 		if block is None:
 			if isinstance(path, Path):
@@ -2585,29 +2595,35 @@ class GCode:
 
 		if isinstance(path, Path):
 			x,y = path[0].A
-			if z is None: z = self.cnc["surface"]
 			if entry:
-				if zstart is None: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if not helix: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 				else:
 					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
 					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
-			if zstart is None: block.append(CNC.zenter(z))
+			if not helix or z == zstart: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
 			zh = zstart;
 			for segment in path:
-				if zstart is not None:
+				nextseg = True
+				if helix:
+					zhprev = zh
+					#This is where you can modify the ramp of the helix:
 					zh -= (segment.length()/path.length())*zstep
 				if prevInside is not segment._inside:
+					#This is where tabs are entered and exited:
 					if segment._inside is None:
-						block.append(CNC.zenter(z))
+						if helix: block.append(CNC.zenter(zhprev))
+						else: block.append(CNC.zenter(z))
 						setfeed = True
 					elif segment._inside.z > z:
 						block.append(CNC.zexit(segment._inside.z))
+						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
+						nextseg = False
 						setfeed = True
 					prevInside = segment._inside
-				if zstart is None: addSegment(segment)
-				else: addSegment(segment, zh)
+				if not helix: addSegment(segment)
+				elif nextseg: addSegment(segment, zh)
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
 #					x,y = segment.B
@@ -3318,7 +3334,7 @@ class GCode:
 		exit   = False
 
 		# Mark in which tab we are inside
-		if block.tabs and not helix: #TODO: tabs currently not supported for helical cuts :-(
+		if block.tabs:
 			# Mark everything as outside
 			for tab in block.tabs:
 				tab.create(CNC.vars["diameter"])
@@ -3343,7 +3359,6 @@ class GCode:
 					#Cut open path back and forth while descending
 					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz)
 					path.invert()
-					print(exit)
 					self.fromPath(path, newblock, z, False, exit, z+stepz/2)
 					path.invert()
 			entry = False
