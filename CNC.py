@@ -3593,7 +3593,7 @@ class GCode:
 		del blocks[:]
 		# TODO: Not sure how to make the pocket block to cut before profile (to reduce machine load when cuting to dimension)
 		# Idealy it should be generated as single block containing both pocket and profile
-		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name, True)
+		if pocket: msg = msg + self.pocket(newblocks, abs(offset), CNC.vars["stepover"]/50, name, True)
 		blocks.extend(newblocks)
 		return msg
 
