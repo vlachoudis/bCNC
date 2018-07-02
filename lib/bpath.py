@@ -632,13 +632,22 @@ class Path(list):
 			if A is not None and B is not None:
 				sum += dircalc(A,B)
 
-		#Return
+		#Decide direction
 		if sum < 0: sum = -1	#CCW
 		if sum > 0: sum = 1	#CW
+
+		#Arcs (and therefore circles) are now treated as lines (linear approximation)
+		#If we can't decide based on points, we will compare amount of distance traveled in CW and CCW arcs
+		#This is kinda heuristic. If we ever need better results, there's way to do it:
+		#Just split all arcs into 10 smaller arcs before processing.
+		#That will vastly increase the resolution of linear approximation.
+		#If you know to split arcs, plese do it. For now we have this heuristic:
+
 		if sum == 0:
 			if cwarc < 0: sum = -1	#CCW
 			if cwarc > 0: sum = 1	#CW
-		#if sum == 0: sum = 1	#CW if undecided?
+
+		#if sum == 0: sum = 1	#CW if still undecided?
 		#print("Sum ", sum)
 		return sum
 
