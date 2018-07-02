@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #
 # Copyright European Organization for Nuclear Research (CERN)
@@ -612,6 +611,8 @@ class Path(list):
 	# Return -1/+1 even for open paths
 	#----------------------------------------------------------------------
 	def _direction(self, closed=True):
+		#TODO: this seems to give wrong result in some cases (eg. for rectangles with overcuts)
+
 		phi = 0.0
 
 		if closed:

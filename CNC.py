@@ -2412,6 +2412,7 @@ class GCode:
 						li = i
 						llen = p.length()
 				longest = opath.pop(li)
+				if longest._direction(longest.isClosed())==1: longest.invert() #turn path to CCW (conventional when milling outside)
 
 				# Can be time consuming
 				if GCode.LOOP_MERGE:
@@ -2547,8 +2548,23 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# create a block from Path
+        # @param z	I       ending depth
+        # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=True, exit=True, stepz=0):
+	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None, ramp=0):
+		if z is None: z = self.cnc["surface"]
+		#Decide if doing helix (ramp) or not
+		helix = True
+		if zstart is None:
+			#Cut nonhelical cut like ramp with zero angle
+			#= Remove special case, this will allow to remove the code for flat cutting in future
+			#This effectively disable old non-helical cuting code and makes it possible to remove it
+			#If this turns out to be working, all code conditioned by helix==False can be removed
+			helix = True #set this to False in case of problems to reenable legacy code
+			zstart = z
+		#Calculate helix step
+		zstep = abs(z-zstart)
+
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -2579,28 +2595,38 @@ class GCode:
 
 		if isinstance(path, Path):
 			x,y = path[0].A
-			if z is None: z = self.cnc["surface"]
 			if entry:
-				if stepz is 0: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if not helix: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 				else:
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz+stepz,7)))
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z+stepz,7)))
-			if stepz is 0: block.append(CNC.zenter(z))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
+					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
+			if not helix or z == zstart: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
-			zh = z + stepz;
+			zh = zstart;
 			for segment in path:
-				zh -= (segment.length()/path.length())*stepz
+				nextseg = True
+				if helix:
+					zhprev = zh
+					#This is where you can modify the ramp of the helix:
+					if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
+					elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
+					else: zh -= (segment.length()/path.length())*zstep #full helix (default)
+					zh = max(zh, z) #Never cut deeper than z!
 				if prevInside is not segment._inside:
+					#This is where tabs are entered and exited:
 					if segment._inside is None:
-						block.append(CNC.zenter(z))
+						if helix: block.append(CNC.zenter(zhprev))
+						else: block.append(CNC.zenter(z))
 						setfeed = True
 					elif segment._inside.z > z:
 						block.append(CNC.zexit(segment._inside.z))
+						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
+						nextseg = False
 						setfeed = True
 					prevInside = segment._inside
-				if stepz is 0: addSegment(segment)
-				else: addSegment(segment, zh)
+				if not helix: addSegment(segment)
+				elif nextseg: addSegment(segment, zh)
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
 #					x,y = segment.B
@@ -3305,7 +3331,7 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -3321,17 +3347,25 @@ class GCode:
 			z = max(z-stepz, depth)
 			if not closed:
 				# on open paths always enter exit
-				entry = exit = True
-			elif abs(z-depth)<1e-7:
+				if not helix: entry = exit = True
+			if abs(z-depth)<1e-7:
 				# last pass
 				exit = True
 
-			if not helix: self.fromPath(path, newblock, z, entry, exit)
+			if not helix:
+				self.fromPath(path, newblock, z, entry, exit)
 			else:
 				if helixBottom: exit = False
-				self.fromPath(path, newblock, z, entry, exit, stepz)
+				if closed:
+					self.fromPath(path, newblock, z, entry, exit, z+stepz, ramp)
+				else:
+					#Cut open path back and forth while descending
+					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz, ramp)
+					path.invert()
+					self.fromPath(path, newblock, z, False, exit, z+stepz/2, ramp)
+					path.invert()
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True, 0)
+		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True)
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3350,7 +3384,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3384,9 +3418,9 @@ class GCode:
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
@@ -3447,7 +3481,7 @@ class GCode:
 	def reverse(self, items):
 		undoinfo = []
 		operation = "reverse"
-		remove = ["cut","climb","conventional"]
+		remove = ["cut","climb","conventional","cw","ccw"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3463,11 +3497,21 @@ class GCode:
 	#----------------------------------------------------------------------
 	def cutDirection(self, items, direction=1):
 		undoinfo = []
+
+		#Right now bCNC can't properly distinguish between climb and conventional, so just do cw/ccw for now
+		#TODO: We should redirect to CW or CCW based on operation name (wether it's in/pocket or out)
+		#	Conventional = CW for inside profiles and pockets, CCW for outside profiles
+		#	Climb = CCW for inside profiles and pockets, CW for outside profiles
+		#	In such case it's OK to set operation to "conventional/climb", in other cases
+		#	error should be displayed and user should use CW/CCW in other cases this gets very confusing!
+		if direction==2: direction=1
+		if direction==-2: direction=-1
+
 		if direction==1:
-			operation = "conventional"
+			operation = "ccw"
 		else:
-			operation = "climb"
-		remove = ["cut","reverse","climb","conventional"]
+			operation = "cw"
+		remove = ["cut","reverse","climb","conventional","cw","ccw"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3513,8 +3557,10 @@ class GCode:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
 					newname = Block.operationName(path.name, "out")
+					if path._direction(path.isClosed())==1: path.invert() #turn path to CCW (conventional when milling outside)
 				else:
 					newname = Block.operationName(path.name, "in")
+					if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				if not path.isClosed():
 					m = "Path: '%s' is OPEN"%(path.name)
@@ -3565,7 +3611,7 @@ class GCode:
 		del blocks[:]
 		# TODO: Not sure how to make the pocket block to cut before profile (to reduce machine load when cuting to dimension)
 		# Idealy it should be generated as single block containing both pocket and profile
-		if pocket: msg = msg + self.pocket(newblocks, offset, CNC.vars["stepover"]/50, name, True)
+		if pocket: msg = msg + self.pocket(newblocks, abs(offset), CNC.vars["stepover"]/50, name, True)
 		blocks.extend(newblocks)
 		return msg
 
@@ -3645,6 +3691,8 @@ class GCode:
 				path.removeZeroLength(abs(diameter)/100.)
 				# Convert very small arcs to lines
 				path.convert2Lines(abs(diameter)/10.)
+
+				if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				D = path.direction()
 				if D==0: D=1
