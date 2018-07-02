@@ -1676,7 +1676,7 @@ class Application(Toplevel,Sender):
 		elif cmd == "CLOSE":
 			sel = self.gcode.close(items)
 		elif cmd == "DIRECTION":
-			self.gcode.cutDirection(items, *args)
+			sel = self.gcode.cutDirection(items, *args)
 		elif cmd == "DRILL":
 			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":

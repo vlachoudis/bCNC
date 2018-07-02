@@ -3504,6 +3504,11 @@ class GCode:
 		#	Climb = CCW for inside profiles and pockets, CW for outside profiles
 		#	In such case it's OK to set operation to "conventional/climb", in other cases
 		#	error should be displayed and user should use CW/CCW in other cases this gets very confusing!
+
+		msg = None
+		if abs(direction) > 1:
+			msg = "Beware that Conventional/Climb feature currently only works correctly for outside shapes!\n"
+			msg += "If not sure, please use CW/CCW until this gets fixed."
 		if direction==2: direction=1
 		if direction==-2: direction=-1
 
@@ -3523,6 +3528,8 @@ class GCode:
 				undoinfo.append(self.addBlockOperationUndo(bid, operation,remove))
 				undoinfo.append(self.setBlockLinesUndo(bid, block))
 		self.addUndo(undoinfo)
+
+		return msg
 
 	#----------------------------------------------------------------------
 	# Return information for a block
