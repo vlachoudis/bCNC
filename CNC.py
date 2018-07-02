@@ -3620,7 +3620,14 @@ class GCode:
 	#----------------------------------------------------------------------
 	def _pocket(self, path, diameter, stepover, depth):
 		#print "_pocket",depth
-		if depth>10000: return None
+
+		#python's internal recursion limit hit us before bCNC's limit came to place
+		#so i increased python's limit to bCNC's limit + 100
+		maxdepth=10000
+		import sys
+		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+100))
+
+		if depth>maxdepth: return None
 		if depth == 0:
 			offset = diameter / 2.0
 		else:
