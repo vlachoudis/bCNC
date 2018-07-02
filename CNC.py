@@ -2433,7 +2433,7 @@ class GCode:
 						li = i
 						llen = p.length()
 				longest = opath.pop(li)
-				if longest._direction(longest.isClosed())==1: longest.invert() #turn path to CCW (conventional when milling outside)
+				if longest._direction(longest.isClosed())==-1: longest.invert() #turn path to CW (conventional when milling outside)
 
 				# Can be time consuming
 				if GCode.LOOP_MERGE:
@@ -3609,10 +3609,10 @@ class GCode:
 				if name is not None:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
-					newname = Block.operationName(path.name, "out")
+					newname = Block.operationName(path.name, "out,conventional,ccw")
 					if path._direction(path.isClosed())==1: path.invert() #turn path to CCW (conventional when milling outside)
 				else:
-					newname = Block.operationName(path.name, "in")
+					newname = Block.operationName(path.name, "in,conventional,cw")
 					if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				if not path.isClosed():
