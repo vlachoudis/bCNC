@@ -3602,6 +3602,9 @@ class GCode:
 		undoinfo = []
 		msg = ""
 		newblocks = []
+
+		remove = ["cut","reverse","climb","conventional","cw","ccw","in","out"]
+
 		for bid in reversed(blocks):
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
@@ -3609,10 +3612,10 @@ class GCode:
 				if name is not None:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
-					newname = Block.operationName(path.name, "out,conventional,ccw")
+					newname = Block.operationName(path.name, "out,conventional,ccw", remove)
 					if path._direction(path.isClosed())==1: path.invert() #turn path to CCW (conventional when milling outside)
 				else:
-					newname = Block.operationName(path.name, "in,conventional,cw")
+					newname = Block.operationName(path.name, "in,conventional,cw", remove)
 					if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
 
 				if not path.isClosed():
@@ -3756,10 +3759,12 @@ class GCode:
 
 				D = path.direction()
 				if D==0: D=1
+
+				remove = ["cut","reverse","climb","conventional","cw","ccw","pocket"]
 				if name is None:
-					path.name = Block.operationName(path.name, "pocket")
+					path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
 				else:
-					path.name = Block.operationName(path.name, name)
+					path.name = Block.operationName(path.name, name, remove)
 
 				newpath.extend(self._pocket(path, -D*diameter, stepover, 0))
 
