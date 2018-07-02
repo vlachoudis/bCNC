@@ -2014,6 +2014,27 @@ class Block(list):
 			return pat.group(1).strip()
 
 	#----------------------------------------------------------------------
+	# Tests if block contains operation type
+	#----------------------------------------------------------------------
+	def operationTest(self, op, name=None):
+		if name is None: name = self.name()
+		pat = OPPAT.match(name)
+		if pat is not None:
+			ops = pat.group(2)
+			ops = re.split('\W+', ops)
+			if op in ops: return True
+		return False
+
+	#----------------------------------------------------------------------
+	# Tests if block contains operation on inside of the part (-1), outside (1), or can't decide (0)
+	#----------------------------------------------------------------------
+	def operationSide(self, name=None):
+		if self.operationTest('pocket', name): return -1
+		if self.operationTest('in', name) and not self.operationTest('out', name): return -1
+		if self.operationTest('out', name) and not self.operationTest('in', name): return 1
+		return 0
+
+	#----------------------------------------------------------------------
 	# @return the new name with an operation (static)
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -3480,11 +3501,20 @@ class GCode:
 	#----------------------------------------------------------------------
 	def reverse(self, items):
 		undoinfo = []
-		operation = "reverse"
-		remove = ["cut","climb","conventional","cw","ccw"]
+		remove = ["cut","climb","conventional","cw","ccw","reverse"]
 		for bid in items:
+			operation = "reverse"
+
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
+
+			#Not sure if this is good idea...
+			#Might get confusing if something goes wrong, but seems to work fine
+			if self.blocks[bid].operationTest('conventional'): operation+= ",climb"
+			if self.blocks[bid].operationTest('climb'): operation+= ",conventional"
+			if self.blocks[bid].operationTest('cw'): operation+= ",ccw"
+			if self.blocks[bid].operationTest('ccw'): operation+= ",cw"
+
 			for path in self.toPath(bid):
 				path.invert()
 				newpath.append(path)
@@ -3495,33 +3525,49 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
+	# Change cut direction
+	# -1	CW
+	# 1	CCW
+	# 2	Conventional = CW for inside profiles and pockets, CCW for outside profiles
+	# -2	Climb = CCW for inside profiles and pockets, CW for outside profiles
+	#----------------------------------------------------------------------
 	def cutDirection(self, items, direction=1):
+
 		undoinfo = []
-
-		#Right now bCNC can't properly distinguish between climb and conventional, so just do cw/ccw for now
-		#TODO: We should redirect to CW or CCW based on operation name (wether it's in/pocket or out)
-		#	Conventional = CW for inside profiles and pockets, CCW for outside profiles
-		#	Climb = CCW for inside profiles and pockets, CW for outside profiles
-		#	In such case it's OK to set operation to "conventional/climb", in other cases
-		#	error should be displayed and user should use CW/CCW in other cases this gets very confusing!
-
 		msg = None
-		if abs(direction) > 1:
-			msg = "Beware that Conventional/Climb feature currently only works correctly for outside shapes!\n"
-			msg += "If not sure, please use CW/CCW until this gets fixed."
-		if direction==2: direction=1
-		if direction==-2: direction=-1
 
-		if direction==1:
-			operation = "ccw"
-		else:
-			operation = "cw"
 		remove = ["cut","reverse","climb","conventional","cw","ccw"]
 		for bid in items:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
+
+			opdir = direction
+			operation = ""
+
+			#Decide conventional/climb/error:
+			side = self.blocks[bid].operationSide()
+			if abs(direction)>1 and side is 0:
+				msg = "Conventional/Climb feature only works for paths with 'in/out/pocket' tags!\n"
+				msg += "Some of the selected paths were not taged (or are both in+out). You can still use CW/CCW for them."
+				continue
+			if direction==2:
+				operation = "conventional,"
+				if side==-1: opdir=-1 #inside CW
+				if side==1: opdir=1 #outside CCW
+			elif direction==-2:
+				operation = "climb,"
+				if side==-1: opdir=1 #inside CCW
+				if side==1: opdir=-1 #outside CW
+
+			#Decide CW/CCW tag
+			if opdir==1:
+				operation += "ccw"
+			elif opdir==-1:
+				operation += "cw"
+
+			#Process paths
 			newpath = []
 			for path in self.toPath(bid):
-				if path._direction(path.isClosed())==direction: path.invert()
+				if path._direction(path.isClosed())==opdir: path.invert()
 				newpath.append(path)
 			if newpath:
 				block = self.fromPath(newpath)
