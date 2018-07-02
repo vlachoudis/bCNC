@@ -676,7 +676,8 @@ class Cut(DataBase):
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("helix", "bool" , False, _("Helical cut")),
-			("helixBottom", "bool" , True, _("Helical with bottom"))
+			("helixBottom", "bool" , True, _("Helical with bottom")),
+			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)"))
 		]
 		self.buttons.append("exe")
 
@@ -692,7 +693,9 @@ class Cut(DataBase):
 		cutFromTop = self["cutFromTop"]
 		helix = self["helix"]
 		helixBottom = self["helixBottom"]
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom)
+		ramp = self["ramp"]
+		if ramp < 0: ramp = self.master.fromMm(float(ramp))
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================

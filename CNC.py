@@ -2551,7 +2551,7 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None):
+	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None, ramp=0):
 		if z is None: z = self.cnc["surface"]
 		#Decide if doing helix (ramp) or not
 		helix = True
@@ -2609,7 +2609,10 @@ class GCode:
 				if helix:
 					zhprev = zh
 					#This is where you can modify the ramp of the helix:
-					zh -= (segment.length()/path.length())*zstep
+					if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
+					elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
+					else: zh -= (segment.length()/path.length())*zstep #full helix (default)
+					zh = max(zh, z) #Never cut deeper than z!
 				if prevInside is not segment._inside:
 					#This is where tabs are entered and exited:
 					if segment._inside is None:
@@ -3328,7 +3331,7 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -3354,12 +3357,12 @@ class GCode:
 			else:
 				if helixBottom: exit = False
 				if closed:
-					self.fromPath(path, newblock, z, entry, exit, z+stepz)
+					self.fromPath(path, newblock, z, entry, exit, z+stepz, ramp)
 				else:
 					#Cut open path back and forth while descending
-					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz)
+					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz, ramp)
 					path.invert()
-					self.fromPath(path, newblock, z, False, exit, z+stepz/2)
+					self.fromPath(path, newblock, z, False, exit, z+stepz/2, ramp)
 					path.invert()
 			entry = False
 		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True)
@@ -3381,7 +3384,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3415,9 +3418,9 @@ class GCode:
 			newblock = Block(block.name())
 			for path in self.toPath(bid):
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
