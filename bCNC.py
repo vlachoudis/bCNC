@@ -1288,9 +1288,9 @@ class Application(Toplevel,Sender):
 			elif rexx.abbrev("CONVENTIONAL", line[1].upper(), 2):
 				direction =  2
 			elif rexx.abbrev("CW", line[1].upper(), 2):
-				direction =  -1
-			elif rexx.abbrev("CCW", line[1].upper(), 2):
 				direction =  1
+			elif rexx.abbrev("CCW", line[1].upper(), 2):
+				direction =  -1
 			else:
 				tkMessageBox.showerror(_("Direction command error"),
 					_("Invalid direction %s specified"%(line[1])),
@@ -1676,7 +1676,7 @@ class Application(Toplevel,Sender):
 		elif cmd == "CLOSE":
 			sel = self.gcode.close(items)
 		elif cmd == "DIRECTION":
-			self.gcode.cutDirection(items, *args)
+			sel = self.gcode.cutDirection(items, *args)
 		elif cmd == "DRILL":
 			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":
