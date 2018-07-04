@@ -3434,43 +3434,68 @@ class GCode:
 	# @param dx	width of tabs
 	# @param dy	depth of tabs
 	# @param z	height of tabs
+	# @param isl	create tabs from islands?
 	#----------------------------------------------------------------------
-	def createTabs(self, items, ntabs, dtabs, dx, dy, z):
+	def createTabs(self, items, ntabs, dtabs, dx, dy, z, isl=False):
+		msg = None
 		undoinfo = []
-		if ntabs==0 and dtabs==0: return
+		if ntabs==0 and dtabs==0 and not isl: return
+
+		#Get list of islands and remove them from items
+		islands = []
+		for bid in items:
+			if self.blocks[bid].operationTest('island'):
+				islands.append(bid)
+				items.remove(bid)
+		if isl and not items: msg = "You must select toolpaths along with islands!"
+
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
-			for path in self.toPath(bid):
-				length = path.length()
-				d = max(length / float(ntabs), dtabs)
-				# running length
-				s = d/2.	# start from half distance to add first tab
-				for segment in path:
-					l = segment.length()
-					# if we haven't reach d
-					if s+l < d:
-						s += l
-						continue
-					n = 0
-					while True:
-						n += 1
-						remain = n*d - s
-						if remain > l:
-							s = d-(remain-l)
-							break
-						if segment.type == Segment.LINE:
-							P = segment.A + (remain/l)*segment.AB
-						else:
-							if segment.type == Segment.CW:
-								phi = segment.startPhi - remain / segment.radius
+
+
+			if isl:
+				#Add island tabs
+				if not islands: msg = "You must select islands along with toolpaths!"
+
+				for island in islands:
+					tab = Tab()
+					tab.path = self.toPath(island)[0]
+					undoinfo.append(self.addTabUndo(bid,0,tab))
+			else:
+				#Add regular tabs
+				for path in self.toPath(bid):
+					length = path.length()
+					d = max(length / float(ntabs), dtabs)
+					# running length
+					s = d/2.	# start from half distance to add first tab
+					for segment in path:
+						l = segment.length()
+						# if we haven't reach d
+						if s+l < d:
+							s += l
+							continue
+						n = 0
+						while True:
+							n += 1
+							remain = n*d - s
+							if remain > l:
+								s = d-(remain-l)
+								break
+							if segment.type == Segment.LINE:
+								P = segment.A + (remain/l)*segment.AB
 							else:
-								phi = segment.startPhi + remain / segment.radius
-							P = Vector(segment.C[0] + segment.radius*math.cos(phi),
-								   segment.C[1] + segment.radius*math.sin(phi))
-						tab = Tab(P[0],P[1],dx,dy,z)
-						undoinfo.append(self.addTabUndo(bid,0,tab))
+								if segment.type == Segment.CW:
+									phi = segment.startPhi - remain / segment.radius
+								else:
+									phi = segment.startPhi + remain / segment.radius
+								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
+									segment.C[1] + segment.radius*math.sin(phi))
+							tab = Tab(P[0],P[1],dx,dy,z)
+							undoinfo.append(self.addTabUndo(bid,0,tab))
 		self.addUndo(undoinfo)
+
+		return msg
 
 	#----------------------------------------------------------------------
 	# Reverse direction of cut

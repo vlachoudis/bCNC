@@ -1598,7 +1598,9 @@ class Application(Toplevel,Sender):
 			except:	dy = tabs.fromMm("dy")
 			try:	z = float(line[5])
 			except:	z = tabs.fromMm("z")
-			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+			try:	islands = bool(line[6])
+			except:	islands = False
+			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
 
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):
@@ -1713,7 +1715,7 @@ class Application(Toplevel,Sender):
 		elif cmd == "ROTATE":
 			self.gcode.rotateLines(items, *args)
 		elif cmd == "TABS":
-			self.gcode.createTabs(items, *args)
+			sel = self.gcode.createTabs(items, *args)
 
 		# Fill listbox and update selection
 		self.editor.fill()

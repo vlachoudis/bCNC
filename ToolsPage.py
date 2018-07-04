@@ -786,6 +786,7 @@ class Tabs(DataBase):
 		DataBase.__init__(self, master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
+			("islands",   "bool", False, _("Create tabs from selected islands?")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
@@ -813,7 +814,9 @@ class Tabs(DataBase):
 			tkMessageBox.showerror(_("Tabs error"),
 				_("You cannot have both the number of tabs or distance equal to zero"))
 
-		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+		islands = self["islands"]
+
+		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
