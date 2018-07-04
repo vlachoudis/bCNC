@@ -1353,6 +1353,17 @@ class Application(Toplevel,Sender):
 				self.editor.selectAll()
 			self.executeOnSelection("INKSCAPE", True)
 
+		# ISLAND set or toggle island tag
+		elif rexx.abbrev("ISLAND", cmd, 3):
+			if len(line) > 1:
+				if line[1].upper() == "1":
+					isl = True
+				else:
+					isl = False
+			else:
+				isl = None
+			self.executeOnSelection("ISLAND", True, isl)
+
 		# ISO1: switch to ISO1 projection
 		elif cmd=="ISO1":
 			self.canvasFrame.viewISO1()
@@ -1683,6 +1694,8 @@ class Application(Toplevel,Sender):
 			self.gcode.orderLines(items, *args)
 		elif cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
+		elif cmd == "ISLAND":
+			self.gcode.island(items, *args)
 		elif cmd == "MIRRORH":
 			self.gcode.mirrorHLines(items)
 		elif cmd == "MIRRORV":

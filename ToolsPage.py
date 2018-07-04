@@ -1192,6 +1192,20 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		# ---
 		col += 1
 		row  = 0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["tab"],
+				text=_("Island"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("ISLAND",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Toggle island"))
+		self.addWidget(b)
+
+		# ---
+		col += 1
+		row  = 0
 		# Find plugins in the plugins directory and load them
 		for tool in app.tools.pluginList():
 			if tool.group != "CAM": continue

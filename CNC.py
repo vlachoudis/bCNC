@@ -3583,6 +3583,31 @@ class GCode:
 		return msg
 
 	#----------------------------------------------------------------------
+	# Toggle or set island tag on block
+	#----------------------------------------------------------------------
+	def island(self, items, island=None):
+
+		undoinfo = []
+		remove = ["island"]
+		for bid in items:
+			isl = island
+
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
+
+			if isl is None: isl = not self.blocks[bid].operationTest('island')
+			if isl:
+				tag = 'island'
+				self.blocks[bid].color = '#ff0000'
+			else:
+				tag = ''
+				self.blocks[bid].color = None
+
+			undoinfo.append(self.addBlockOperationUndo(bid, tag,remove))
+			#undoinfo.append(self.setBlockLinesUndo(bid, block))
+
+		self.addUndo(undoinfo)
+
+	#----------------------------------------------------------------------
 	# Return information for a block
 	# return XXX
 	#----------------------------------------------------------------------
