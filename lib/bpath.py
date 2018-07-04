@@ -600,6 +600,17 @@ class Path(list):
 		return min([x.distance(P) for x in self])
 
 	#----------------------------------------------------------------------
+	# Change path direction:
+	#	+1 for Segment.CW
+	#	-1 for Segment.CCW
+	#----------------------------------------------------------------------
+	def directionSet(self, opdir):
+		curdir = self._direction(self.isClosed())
+		if curdir == 0: return False
+		if curdir != 0 and curdir != opdir: self.invert()
+		return True
+
+	#----------------------------------------------------------------------
 	# Return:
 	#	-1 for Segment.CCW closed path
 	#        0 for open path

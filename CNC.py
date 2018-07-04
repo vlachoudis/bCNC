@@ -3526,12 +3526,12 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	# Change cut direction
-	# -1	CW
-	# 1	CCW
+	# 1	CW
+	# -1	CCW
 	# 2	Conventional = CW for inside profiles and pockets, CCW for outside profiles
 	# -2	Climb = CCW for inside profiles and pockets, CW for outside profiles
 	#----------------------------------------------------------------------
-	def cutDirection(self, items, direction=1):
+	def cutDirection(self, items, direction=-1):
 
 		undoinfo = []
 		msg = None
@@ -3551,23 +3551,24 @@ class GCode:
 				continue
 			if direction==2:
 				operation = "conventional,"
-				if side==-1: opdir=-1 #inside CW
-				if side==1: opdir=1 #outside CCW
+				if side==-1: opdir=1 #inside CW
+				if side==1: opdir=-1 #outside CCW
 			elif direction==-2:
 				operation = "climb,"
-				if side==-1: opdir=1 #inside CCW
-				if side==1: opdir=-1 #outside CW
+				if side==-1: opdir=-1 #inside CCW
+				if side==1: opdir=1 #outside CW
 
 			#Decide CW/CCW tag
 			if opdir==1:
-				operation += "ccw"
-			elif opdir==-1:
 				operation += "cw"
+			elif opdir==-1:
+				operation += "ccw"
 
 			#Process paths
 			newpath = []
 			for path in self.toPath(bid):
-				if path._direction(path.isClosed())==opdir: path.invert()
+				if not path.directionSet(opdir):
+					msg = "Error determining direction of path!"
 				newpath.append(path)
 			if newpath:
 				block = self.fromPath(newpath)
