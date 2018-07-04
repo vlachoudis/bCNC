@@ -898,6 +898,9 @@ class CNC:
 	@staticmethod
 	def fmt(c, v, d=None):
 		if d is None: d = CNC.digits
+		#Don't know why, but in some cases floats are not truncated by format string unless rounded
+		#I guess it's vital idea to round them rather than truncate anyway!
+		v = round(v, d)
 		return ("%s%*f"%(c,d,v)).rstrip("0").rstrip(".")
 
 	#----------------------------------------------------------------------
@@ -2596,8 +2599,9 @@ class GCode:
 			x,y = segment.B
 			if segment.type == Segment.LINE:
 				x,y = segment.B
-				if z is None: block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
-				else: block.append("g1 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z,7)))
+				#rounding problem from #903 was manifesting here. Had to lower the decimal precision to CNC.digits
+				if z is None: block.append("g1 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
+				else: block.append("g1 %s %s %s)"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",z)))
 
 			elif segment.type in (Segment.CW, Segment.CCW):
 				ij = segment.C - segment.A
@@ -2606,21 +2610,21 @@ class GCode:
 				if z is None:
 					block.append("g%d %s %s %s %s" % \
 						(segment.type,
-						 self.fmt("x",x,7), self.fmt("y",y,7),
-						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+						 self.fmt("x",x), self.fmt("y",y),
+						 self.fmt("i",ij[0]),self.fmt("j",ij[1])))
 				else:
 					block.append("g%d %s %s %s %s %s" % \
 						(segment.type,
-						 self.fmt("x",x,7), self.fmt("y",y,7),
-						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7)))
+						 self.fmt("x",x), self.fmt("y",y),
+						 self.fmt("i",ij[0]),self.fmt("j",ij[1]),self.fmt("z",z)))
 
 		if isinstance(path, Path):
 			x,y = path[0].A
 			if entry:
-				if not helix: block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+				if not helix: block.append("g0 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
 				else:
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
-					block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
+					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",CNC.vars["safe"])))
+					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",zstart)))
 			if not helix or z == zstart: block.append(CNC.zenter(z))
 			setfeed = True
 			prevInside = None
@@ -2642,7 +2646,7 @@ class GCode:
 						setfeed = True
 					elif segment._inside.z > z:
 						block.append(CNC.zexit(segment._inside.z))
-						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
+						block.append("g1 %s %s"%(self.fmt("x",segment.B[0]),self.fmt("y",segment.B[1])))
 						nextseg = False
 						setfeed = True
 					prevInside = segment._inside
@@ -2651,15 +2655,15 @@ class GCode:
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
 #					x,y = segment.B
-#					block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+#					block.append("g1 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
 #				elif segment.type in (Segment.CW, Segment.CCW):
 #					ij = segment.C - segment.A
 #					if abs(ij[0])<1e-5: ij[0] = 0.
 #					if abs(ij[1])<1e-5: ij[1] = 0.
 #					block.append("g%d %s %s %s %s" % \
 #						(segment.type,
-#						 self.fmt("x",x,7), self.fmt("y",y,7),
-#						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7)))
+#						 self.fmt("x",x), self.fmt("y",y),
+#						 self.fmt("i",ij[0]),self.fmt("j",ij[1])))
 
 				if setfeed:
 					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
