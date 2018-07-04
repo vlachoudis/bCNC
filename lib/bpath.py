@@ -86,6 +86,8 @@ class Segment:
 	# Correct arc so radius, center, start and end point to match
 	#----------------------------------------------------------------------
 	def correct(self):
+		if self.type == Segment.LINE: return #There's no use for this on lines
+
 		if self.AB.length2()>EPS:
 			# Correct center by finding the intersection of the
 			# orthogonal line from the middle of the start-end segment
