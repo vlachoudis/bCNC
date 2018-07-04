@@ -86,9 +86,9 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		b = Ribbon.LabelButton(self.frame, self, "<<Import>>",
 				image=Utils.icons["import32"],
 				text=_("Import"),
-				compound=TOP,
+				compound=tk.TOP,
 				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("Import gcode/dxf file"))
 		self.addWidget(b)
 
