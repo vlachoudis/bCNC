@@ -64,9 +64,9 @@ class Tool(Plugin):
 
 
 		active = app.activeBlock()
-                app.gcode.insBlocks(active, blocks, "Trochoidal created") #<<< insert blocks over active block in the editor
-                app.refresh()                                                                                           #<<< refresh editor
-                app.setStatus(_("Generated: Trochoidal"))                           #<<< feed back result
+		app.gcode.insBlocks(active, blocks, "Trochoidal created") #<<< insert blocks over active block in the editor
+		app.refresh()                                                                                           #<<< refresh editor
+		app.setStatus(_("Generated: Trochoidal"))                           #<<< feed back result
 		#app.gcode.blocks.append(block)
 
 
@@ -92,11 +92,11 @@ class Tool(Plugin):
 			pos=min(segment.length(), i)
 
 			c = self.pol2car(pos, phi, segment.A)
-                	d = self.pol2car(radius, phi+deg2rad(90*u), c)
-                	ij = self.pol2car(radius, phi+deg2rad(-90*u))
+			d = self.pol2car(radius, phi+deg2rad(90*u), c)
+			ij = self.pol2car(radius, phi+deg2rad(-90*u))
 
 			block.append("g1 x"+str(d[0])+" y"+str(d[1]))
-        	        block.append(arc+" x"+str(d[0])+" y"+str(d[1])+" i"+str(ij[0])+" j"+str(ij[1]))
+			block.append(arc+" x"+str(d[0])+" y"+str(d[1])+" i"+str(ij[0])+" j"+str(ij[1]))
 
 			i+=step
 		return block
