@@ -2567,6 +2567,7 @@ class GCode:
 			else:
 				block = Block(path[0].name)
 
+		#Generate g-code for single path segment
 		def addSegment(segment, z=None):
 			x,y = segment.B
 			if segment.type == Segment.LINE:
@@ -2610,20 +2611,24 @@ class GCode:
 					elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
 					else: zh -= (segment.length()/path.length())*zstep #full helix (default)
 					zh = max(zh, z) #Never cut deeper than z!
-				if prevInside is not segment._inside:
-					#This is where tabs are entered and exited:
-					if segment._inside is None:
+
+				#This is where tabs are entered and exited:
+				if prevInside is not segment._inside: #test if boundary of tab was crossed
+					if segment._inside is None: #if we need to enter the toolpath after clearing the tab
 						if helix: block.append(CNC.zenter(zhprev))
 						else: block.append(CNC.zenter(z))
 						setfeed = True
-					elif segment._inside.z > z:
+					elif segment._inside.z > z: #if we need to go higher in order to clear the tab
 						block.append(CNC.zexit(segment._inside.z))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0]),self.fmt("y",segment.B[1])))
 						nextseg = False
 						setfeed = True
 					prevInside = segment._inside
+
+				#Cut next segment of toolpath
 				if not helix: addSegment(segment)
 				elif nextseg: addSegment(segment, zh)
+
 #				x,y = segment.B
 #				if segment.type == Segment.LINE:
 #					x,y = segment.B
