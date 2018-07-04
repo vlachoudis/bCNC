@@ -135,7 +135,7 @@ class Tool(Plugin):
 		#generate intersected path
 		newisland = Path("new")
 		A = None
-		for i in xrange(first,len(islandpath)+first):
+		for i in xrange(first,2*len(islandpath)+first):
         		j = i%len(islandpath)
 			segment = islandpath[j]
 			if segment.length()<EPS: continue #ignore zero length segments
