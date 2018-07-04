@@ -880,6 +880,7 @@ class Path(list):
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
+		#FIXME: maybe use intersectPath() to implement this??
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
@@ -906,6 +907,41 @@ class Path(list):
 					addPoint(i,P2)
 					addPoint(j,P2)
 				j += 1
+
+		# sort accoring to index, and position of point
+		points.sort(key=itemgetter(0,1))
+
+		# split paths
+		for i,o,P in reversed(points):
+			split = self[i].split(P)
+			if not isinstance(split,int):
+				self.insert(i+1,split)
+				self[i]._cross = True
+		return points
+
+	#----------------------------------------------------------------------
+	# intersect path with other path and mark all intersections
+	#----------------------------------------------------------------------
+	def intersectPath(self, path):
+		points = []	# list of intersection (segment#, order, point) pair
+		def addPoint(i, P):
+			# FIXME maybe add sorted and check for duplicates?
+			if eq2(P,self[i].A,EPS): return
+			if eq2(P,self[i].B,EPS):   return
+			oi = self[i].order(P)
+			points.append((i,oi,P))
+
+		# Find all interesection points
+		for i,si in enumerate(self):
+			for cut in path:
+				P1,P2 = si.intersect(cut)
+				# skip doublet solution
+				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+					P2 = None
+				if P1:
+					addPoint(i,P1)
+				if P2:
+					addPoint(i,P2)
 
 		# sort accoring to index, and position of point
 		points.sort(key=itemgetter(0,1))
