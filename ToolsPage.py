@@ -1196,7 +1196,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		col += 1
 		row  = 0
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["tab"],
+				image=Utils.icons["island"],
 				text=_("Island"),
 				compound=LEFT,
 				anchor=W,
