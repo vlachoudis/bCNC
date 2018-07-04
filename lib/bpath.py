@@ -935,7 +935,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# intersect path with other path and mark all intersections
 	#----------------------------------------------------------------------
-	def intersectPath(self, path):
+	def intersectPath(self, path, setinside=None):
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
@@ -965,6 +965,12 @@ class Path(list):
 			if not isinstance(split,int):
 				self.insert(i+1,split)
 				self[i]._cross = True
+
+		if setinside is not None:
+			for i,si in enumerate(self):
+				if path.isInside(si.midPoint()): si._inside = setinside
+				else: si._inside = None
+
 		return points
 
 	#----------------------------------------------------------------------
