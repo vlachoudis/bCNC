@@ -83,6 +83,17 @@ class FileGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		col,row=2,0
+		b = Ribbon.LabelButton(self.frame, self, "<<Import>>",
+				image=Utils.icons["import32"],
+				text=_("Import"),
+				compound=TOP,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Import gcode/dxf file"))
+		self.addWidget(b)
+
+		# ---
+		col,row=3,0
 		b = Ribbon.LabelButton(self.frame, self, "<<Save>>",
 				image=Utils.icons["save32"],
 				command=app.save,
@@ -91,7 +102,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Save gcode/dxf file [Ctrl-S]"))
 		self.addWidget(b)
 
-		col,row=2,2
+		col,row=3,2
 		b = Ribbon.LabelButton(self.frame, self, "<<SaveAs>>",
 				text=_("Save"),
 				image=Utils.icons["triangle_down"],
@@ -210,7 +221,7 @@ class CloseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class SerialFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		super().__init__(master, "Serial", app)
+		super().__init__(master, "Serial", _("Serial"), app)
 
 		self.autostart = tk.BooleanVar()
 

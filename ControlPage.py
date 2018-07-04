@@ -416,7 +416,7 @@ class DROFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ControlFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		super().__init__(master, "Control", app)
+		super().__init__(master, "Control", _("Control"), app)
 
 		row,col = 0,0
 		tk.Label(self, text=_("Z")).grid(row=row, column=col)
@@ -791,7 +791,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 class StateFrame(CNCRibbon.PageExLabelFrame):
 	def __init__(self, master, app):
 		global wcsvar
-		super().__init__(master, "State", app)
+		super().__init__(master, "State", _("State"), app)
 		self._gUpdate = False
 
 		# State
