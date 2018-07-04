@@ -33,7 +33,6 @@ class Tool(Plugin):
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
-
 	# ----------------------------------------------------------------------
 	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
@@ -47,19 +46,17 @@ class Tool(Plugin):
 		bid = app.editor.getSelectedBlocks()[1]
 		xislandpath = app.gcode.toPath(bid)[0]
 
-
-
 		xbasepath.intersectPath(xislandpath)
 		xislandpath.intersectPath(xbasepath)
 
 		#xnewisland = self.pathBoolIntersection(xbasepath, xislandpath)
 		xnewisland = self.pathBoolIntersection(xislandpath, xbasepath)
 
-                #pth = Path("temp")
+		#pth = Path("temp")
 		#basepath.invert()
-                #pth.extend(basepath)
-                #pth.extend(basepath)
-                ##pth.invert()
+		#pth.extend(basepath)
+		#pth.extend(basepath)
+		##pth.invert()
 
 
 		block = Block("diff")
@@ -72,20 +69,16 @@ class Tool(Plugin):
 
 
 		active = app.activeBlock()
-                app.gcode.insBlocks(active, blocks, "Diff") #<<< insert blocks over active block in the editor
-                app.refresh()                                                                                           #<<< refresh editor
-                app.setStatus(_("Generated: Diff"))                           #<<< feed back result
+		app.gcode.insBlocks(active, blocks, "Diff") #<<< insert blocks over active block in the editor
+		app.refresh()                                                                                           #<<< refresh editor
+		app.setStatus(_("Generated: Diff"))                           #<<< feed back result
 		#app.gcode.blocks.append(block)
-
 
 ##############################################
 
 
 	def pol2car(self, r, phi, a=[0,0]):
 		return [round(a[0]+r*cos(phi),4),round(a[1]+r*sin(phi),4)]
-
-
-
 
 	def findSegment(self, path,A,B): #FIXME: not used for now...
 		for seg in path:
@@ -136,7 +129,7 @@ class Tool(Plugin):
 		newisland = Path("new")
 		A = None
 		for i in xrange(first,2*len(islandpath)+first):
-        		j = i%len(islandpath)
+			j = i%len(islandpath)
 			segment = islandpath[j]
 			if segment.length()<EPS: continue #ignore zero length segments
 			if not basepath.isInside(segment.midPoint()):
