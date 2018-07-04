@@ -11,11 +11,15 @@ import types
 
 import undo
 import Unicode
+import pickle
+import json
+import binascii
 
 from dxf   import DXF
 from stl   import Binary_STL_Writer
 from bpath import eq,Path, Segment
 from bmath import *
+from copy  import deepcopy
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -1822,103 +1826,96 @@ class CNC:
 # a class holding tab information and necessary functions to break a segment
 #===============================================================================
 class Tab:
-	def __init__(self, x, y, dx, dy, z):
-		self.x  = x			# x,y limits of a square tab
-		self.y  = y
-		self.dx = dx
-		self.dy = dy
-		self.z  = z			# z to raise within the tab
-		self.path = None
+	def __init__(self, x=0, y=0, dx=0, dy=0, z=0):
+		self.z = z
+		self.path = Path("tab")
+
+		#compensate for cutter radius the lame way:
+		r = CNC.vars["diameter"]/2
+		dx = dx/2. + r
+		dy = dy/2. + r
+
+		A = A0 = Vector(x-dx, y-dy)
+		B = Vector(x+dx, y-dy)
+		self.path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = Vector(x+dx, y+dy)
+		self.path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = Vector(x-dx, y+dy)
+		self.path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = A0
+		self.path.append(Segment(Segment.LINE, A, B))
+
+		#compensate for cutter radius the cool way:
+		#self.path = self.path.offset(r) #path not correct...
+
 
 	#----------------------------------------------------------------------
 	def copy(self, src):
-		self.x  = src.x			# x,y limits of a square tab
-		self.y  = src.y
-		self.dx = src.dx
-		self.dy = src.dy
-		self.z  = src.z			# z to raise within the tab
+		self.z  = src.z
+		self.path  = deepcopy(src.path)
 
 	#----------------------------------------------------------------------
 	def __str__(self):
-		return "Tab([%g, %g] x [%g, %g] z=%g)" % \
-			(self.x, self.y, self.dx, self.dy, self.z)
+		#FIXME: some more user friendly serialization
+		#print ("str_self", self, self.path, self.z)
+		#return "Tab([%g, %g] x [%g, %g] z=%g)" % \
+		#	(self.x, self.y, self.dx, self.dy, self.z)
+		return binascii.b2a_base64(pickle.dumps(self)).strip()
+
+
+
 
 	#----------------------------------------------------------------------
-	# parse and return parameters of the __str__(function above)
+	# parse and return output of the __str__() so it can be fed to restore()
 	#----------------------------------------------------------------------
-	@staticmethod
-	def parse(s):
-		# replace all non digits to space, split and convert to float
-		return map(float, re.sub("[^0-9.]"," ",s).split())
-
-	#----------------------------------------------------------------------
-	# Tab string entry in listbox
-	#----------------------------------------------------------------------
-#	def entry(self):
-#		return "Tab: %g %g %g %g %g"
-
-	#----------------------------------------------------------------------
-	# Correct tab for min/max
-	#----------------------------------------------------------------------
-#	def correct(self):
-#		if self.xmin > self.xmax:
-#			self.xmin, self.xmax = self.xmax, self.xmin
-#		if self.ymin > self.ymax:
-#			self.ymin, self.ymax = self.ymax, self.ymin
+	#@staticmethod
+	def parse(self, s):
+		#print("parse", s)
+		return pickle.loads(binascii.a2b_base64(s))
 
 	#----------------------------------------------------------------------
 	def save(self):
-		return self.x, self.y, self.dx, self.dy, self.z
+		return str(self);
 
 	#----------------------------------------------------------------------
 	def restore(self, params):
-		self.x  = params[0]
-		self.y  = params[1]
-		self.dx = params[2]
-		self.dy = params[3]
-		self.z  = params[4]
+		self.z = params.z
+		self.path = params.path
+		#self.path = Path("tab")
+		#self.path.join(params.path)
+		#self.path.calcBBox()
 
-	#----------------------------------------------------------------------
+	##----------------------------------------------------------------------
 	def move(self, dx, dy, dz=None):
-		self.x += dx
-		self.y += dy
+		#FIXME Path class should have some method for moving paths.
+		print("FIXME tab move")
+	#	return
+	#	#self.x += dx
+	#	#self.y += dy
 
-	#----------------------------------------------------------------------
+	##----------------------------------------------------------------------
 	def transform(self, c, s, xo, yo):
-		xn = c*self.x - s*self.y + xo
-		yn = s*self.x + c*self.y + yo
-		self.x = xn
-		self.y = yn
+		print("FIXME tab transform")
+		return
+	#	#xn = c*self.x - s*self.y + xo
+	#	#yn = s*self.x + c*self.y + yo
+	#	#self.x = xn
+	#	#self.y = yn
 
 	#----------------------------------------------------------------------
 	# Create 4 line segment of the tab
 	#----------------------------------------------------------------------
 	def create(self, diameter=0.0):
-		r = diameter/2.0
-		self.segments = []
-
-		dx = self.dx/2. + r
-		dy = self.dy/2. + r
-
-		A = A0 = Vector(self.x-dx, self.y-dy)
-		B = Vector(self.x+dx, self.y-dy)
-		self.segments.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(self.x+dx, self.y+dy)
-		self.segments.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(self.x-dx, self.y+dy)
-		self.segments.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = A0
-		self.segments.append(Segment(Segment.LINE, A, B))
+		return
 
 	#----------------------------------------------------------------------
 	# return true if a point is inside the tab or not
 	#----------------------------------------------------------------------
 	def inside(self, P):
-		return self.x-self.dx/2. <= P[0] <= self.x+self.dx/2. and \
-		       self.y-self.dy/2. <= P[1] <= self.y+self.dy/2.
+		return self.path.isInside(P)
 
 	#----------------------------------------------------------------------
 	# Split and introduce new segments that fall inside the tabs
@@ -1926,35 +1923,10 @@ class Tab:
 	# whether they are in or out
 	#----------------------------------------------------------------------
 	def split(self, path):
-		for A in self.segments:
-			i = 0	# starting point
-			while i<len(path):
-				split = False
-				B = path[i]
-				P1,P2 = A.intersect(B)
-				if P1 is not None:
-					C = B.split(P1)
-					if not isinstance(C,int):
-						path.insert(i+1,C)
-						split = True
-
-				if P2 is not None and (P1 is None or not eq(P1,P2)):
-					if B.inside(P2):
-						j = i
-					else:
-						j = i+1
-
-					C = path[j].split(P2)
-					if not isinstance(C,int):
-						path.insert(j+1,C)
-						split = True
-
-				if split: continue # restart from same location
-				i += 1
-
-		for s in path:
-			if s._inside is None and self.inside(s.midPoint()):
-				s._inside = self
+		#if not isinstance(self.path, Path):
+		#	print("not bpath: ", type(self.path))
+		#	return
+		path.intersectPath(self.path, self)
 
 #===============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
@@ -1989,9 +1961,8 @@ class Block(list):
 		self.enable = src.enable
 		self.expand = src.expand
 		self.color  = src.color
-		self.tabs   = []
-		for tab in src.tabs:
-			self.tabs.append(Tab(tab.x, tab.y, tab.dx, tab.dy, tab.z))
+		self.tabs   = deepcopy(src.tabs)
+		#self.tabs   = []
 		self[:]     = src[:]
 		self._path  = []
 		self.sx = src.sx
@@ -2107,8 +2078,7 @@ class Block(list):
 		if self.color:
 			f.write("(Block-color: %s)\n"%(self.color))
 		for tab in self.tabs:
-			f.write("(Block-tab: %g %g %g %g %g)\n"% \
-				(tab.x, tab.y, tab.dx, tab.dy, tab.z))
+			f.write("(Block-tab: %s)\n"%(str(tab).strip()))
 		f.write("%s\n"%("\n".join(self)))
 
 	#----------------------------------------------------------------------
@@ -2147,8 +2117,10 @@ class Block(list):
 					self.enable = bool(int(value))
 					return
 				elif name=="tab":
-					items = map(float,value.split())
-					self.tabs.append(Tab(*items))
+					#items = map(float,value.split())
+					newtab = Tab()
+					newtab.restore(newtab.parse(value))
+					self.tabs.append(newtab)
 					return
 				elif name=="color":
 					self.color = value

@@ -1747,11 +1747,16 @@ class CNCCanvas(Canvas):
 				# Draw block tabs
 				if self.draw_paths:
 					for tab in block.tabs:
+						#from bpath import Path
+						#if not isinstance(tab.path, Path):
+						#	print("cnv not bpath: ", type(tab.path))
+						#	continue
 						color = block.enable and TAB_COLOR or DISABLE_COLOR
-						item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
-									tab.x+tab.dx/2., tab.y+tab.dy/2.,
+						minx,miny,maxx,maxy = tab.path.bbox()
+						item = self._drawRect(	minx, miny,
+									maxx, maxy,
 									0., fill=color)
-						tab.path = item
+						#tab.path = item
 						self._items[item[0]] = i,tab
 						self.tag_lower(item)
 				# Draw block

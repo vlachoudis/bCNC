@@ -969,7 +969,7 @@ class Path(list):
 		if setinside is not None:
 			for i,si in enumerate(self):
 				if path.isInside(si.midPoint()): si._inside = setinside
-				else: si._inside = None
+				#else: si._inside = None
 
 		return points
 
