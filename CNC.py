@@ -2433,7 +2433,7 @@ class GCode:
 						li = i
 						llen = p.length()
 				longest = opath.pop(li)
-				if longest._direction(longest.isClosed())==-1: longest.invert() #turn path to CW (conventional when milling outside)
+				longest.directionSet(1) #turn path to CW (conventional when milling outside)
 
 				# Can be time consuming
 				if GCode.LOOP_MERGE:
@@ -3614,10 +3614,10 @@ class GCode:
 					newname = Block.operationName(path.name, name)
 				elif offset>0:
 					newname = Block.operationName(path.name, "out,conventional,ccw", remove)
-					if path._direction(path.isClosed())==1: path.invert() #turn path to CCW (conventional when milling outside)
+					path.directionSet(-1) #turn path to CCW (conventional when milling outside)
 				else:
 					newname = Block.operationName(path.name, "in,conventional,cw", remove)
-					if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
+					path.directionSet(1) #turn path to CW (conventional when milling inside)
 
 				if not path.isClosed():
 					m = "Path: '%s' is OPEN"%(path.name)
@@ -3756,7 +3756,7 @@ class GCode:
 				# Convert very small arcs to lines
 				path.convert2Lines(abs(diameter)/10.)
 
-				if path._direction(path.isClosed())==-1: path.invert() #turn path to CW (conventional when milling inside)
+				path.directionSet(1) #turn path to CW (conventional when milling inside)
 
 				D = path.direction()
 				if D==0: D=1
