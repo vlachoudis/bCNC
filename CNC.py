@@ -3433,21 +3433,21 @@ class GCode:
 
 		#Get list of islands and remove them from items
 		islands = []
-		for bid in items:
-			if self.blocks[bid].operationTest('island'):
-				islands.append(bid)
-				items.remove(bid)
-		if isl and not items: msg = "You must select toolpaths along with islands!"
+		if isl:
+			for bid in items:
+				if self.blocks[bid].operationTest('island'):
+					islands.append(bid)
+			for island in islands:
+				items.remove(island)
+			if not items: msg = "You must select toolpaths along with islands!"
+			if not islands: msg = "You must select islands along with toolpaths!"
 
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
-
 			if isl:
 				#Add island tabs
-				if not islands: msg = "You must select islands along with toolpaths!"
-
 				for island in islands:
 					tab = Tab()
 					tab.path = self.toPath(island)[0]
