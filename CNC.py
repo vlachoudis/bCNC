@@ -2598,9 +2598,12 @@ class GCode:
 				else:
 					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",CNC.vars["safe"])))
 					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",zstart)))
+				block.append("(entered)")
 			if not helix or z == zstart: block.append(CNC.zenter(z))
+
 			setfeed = True
 			prevInside = None
+			ztab = None
 			zh = zstart;
 			for segment in path:
 				nextseg = True
@@ -2614,11 +2617,15 @@ class GCode:
 
 				#This is where tabs are entered and exited:
 				if prevInside is not segment._inside: #test if boundary of tab was crossed
-					if segment._inside is None: #if we need to enter the toolpath after clearing the tab
+					if segment._inside is None: #if we need to enter the toolpath after done clearing the tab
+						ztab = None
+						block.append("(tab down "+str(zh)+")")
 						if helix: block.append(CNC.zenter(zhprev))
 						else: block.append(CNC.zenter(z))
 						setfeed = True
 					elif segment._inside.z > z: #if we need to go higher in order to clear the tab
+						ztab = segment._inside.z
+						block.append("(tab up "+str(ztab)+")")
 						block.append(CNC.zexit(segment._inside.z))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0]),self.fmt("y",segment.B[1])))
 						nextseg = False
@@ -2627,25 +2634,14 @@ class GCode:
 
 				#Cut next segment of toolpath
 				if not helix: addSegment(segment)
-				elif nextseg: addSegment(segment, zh)
+				elif nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
 
-#				x,y = segment.B
-#				if segment.type == Segment.LINE:
-#					x,y = segment.B
-#					block.append("g1 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
-#				elif segment.type in (Segment.CW, Segment.CCW):
-#					ij = segment.C - segment.A
-#					if abs(ij[0])<1e-5: ij[0] = 0.
-#					if abs(ij[1])<1e-5: ij[1] = 0.
-#					block.append("g%d %s %s %s %s" % \
-#						(segment.type,
-#						 self.fmt("x",x), self.fmt("y",y),
-#						 self.fmt("i",ij[0]),self.fmt("j",ij[1])))
-
+				#Set feed if needed
 				if setfeed:
 					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
 					setfeed = False
 			if exit:
+				block.append("(exiting)")
 				block.append(CNC.zsafe())
 		else:
 			for p in path:
