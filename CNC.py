@@ -2574,7 +2574,7 @@ class GCode:
 				x,y = segment.B
 				#rounding problem from #903 was manifesting here. Had to lower the decimal precision to CNC.digits
 				if z is None: block.append("g1 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
-				else: block.append("g1 %s %s %s)"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",z)))
+				else: block.append("g1 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",z)))
 
 			elif segment.type in (Segment.CW, Segment.CCW):
 				ij = segment.C - segment.A
