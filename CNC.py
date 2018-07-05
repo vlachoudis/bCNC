@@ -2549,15 +2549,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None, ramp=0):
 		if z is None: z = self.cnc["surface"]
-		#Decide if doing helix (ramp) or not
-		helix = True
-		if zstart is None:
-			#Cut nonhelical cut like ramp with zero angle
-			#= Remove special case, this will allow to remove the code for flat cutting in future
-			#This effectively disable old non-helical cuting code and makes it possible to remove it
-			#If this turns out to be working, all code conditioned by helix==False can be removed
-			helix = True #set this to False in case of problems to reenable legacy code
-			zstart = z
+		if zstart is None: zstart = z
+
 		#Calculate helix step
 		zstep = abs(z-zstart)
 
@@ -2594,12 +2587,10 @@ class GCode:
 		if isinstance(path, Path):
 			x,y = path[0].A
 			if entry:
-				if not helix: block.append("g0 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
-				else:
-					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",CNC.vars["safe"])))
-					block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",zstart)))
+				block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",CNC.vars["safe"])))
+				block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",zstart)))
 				block.append("(entered)")
-			if not helix or z == zstart: block.append(CNC.zenter(z))
+			if z == zstart: block.append(CNC.zenter(z))
 
 			setfeed = True
 			prevInside = None
@@ -2607,21 +2598,20 @@ class GCode:
 			zh = zstart;
 			for segment in path:
 				nextseg = True
-				if helix:
-					zhprev = zh
-					#This is where you can modify the ramp of the helix:
-					if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
-					elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
-					else: zh -= (segment.length()/path.length())*zstep #full helix (default)
-					zh = max(zh, z) #Never cut deeper than z!
+
+				zhprev = zh
+				#This is where you can modify the ramp of the helix:
+				if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
+				elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
+				else: zh -= (segment.length()/path.length())*zstep #full helix (default)
+				zh = max(zh, z) #Never cut deeper than z!
 
 				#This is where tabs are entered and exited:
 				if prevInside is not segment._inside: #test if boundary of tab was crossed
 					if segment._inside is None: #if we need to enter the toolpath after done clearing the tab
 						ztab = None
 						block.append("(tab down "+str(zh)+")")
-						if helix: block.append(CNC.zenter(zhprev))
-						else: block.append(CNC.zenter(z))
+						block.append(CNC.zenter(zhprev))
 						setfeed = True
 					elif segment._inside.z > z: #if we need to go higher in order to clear the tab
 						ztab = segment._inside.z
@@ -2633,8 +2623,7 @@ class GCode:
 					prevInside = segment._inside
 
 				#Cut next segment of toolpath
-				if not helix: addSegment(segment)
-				elif nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
+				if nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
 
 				#Set feed if needed
 				if setfeed:
