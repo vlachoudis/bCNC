@@ -30,6 +30,7 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("cw"    ,    "bool" ,    True, _("Clockwise")),
 			("circ"    ,    "bool" ,    False, _("Circular")),
+			("entry"    ,    "bool" ,    False, _("Trochoid entry (prepare for helicut)")),
 			("rdoc"    ,    "mm" ,    "0.2", _("Radial depth of cut (<= cutter D * 0.4)")),
 			("dia"    ,    "mm" ,    "3", _("Trochoid diameter (<= cutter D)"))
 		]
@@ -54,12 +55,22 @@ class Tool(Plugin):
 
 			block = Block("trochoid")
 
+			entry = self["entry"]
 			for segment in path:
 				#print(segment.A)
 				#block.append("g0 x0 y0")
 				#block.append("g1 x10 y10")
 				#block.append("g1 x20 y10")
 				#block.append("g0 x0 y0")
+				if entry:
+					eblock = Block("trochoid-in")
+					eblock.append("G0 Z0")
+					eblock.append("G0 x"+str(segment.A[0])+" y"+str(segment.A[1]-radius))
+					eblock.append("G2 x"+str(segment.A[0])+" y"+str(segment.A[1]-radius)+" i"+str(0)+" j"+str(radius))
+					blocks.append(eblock)
+					entry = False
+
+				block.append("G0 Z0")
 				block.extend(self.trochoid(segment, rdoc, radius, cw, circ))
 
 			blocks.append(block)

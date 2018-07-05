@@ -2601,7 +2601,7 @@ class GCode:
 			prevInside = None
 			ztab = None
 			zh = zstart;
-			for segment in path:
+			for sid,segment in enumerate(path):
 				nextseg = True
 
 				zhprev = zh
