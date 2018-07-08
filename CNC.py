@@ -3323,7 +3323,7 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[]):
 		closed = path.isClosed()
 		entry  = True
 		exit   = False
@@ -3335,6 +3335,15 @@ class GCode:
 				tab.create(CNC.vars["diameter"])
 				tab.split(path)
 
+		#Mark in which island we are inside
+		islparam = Tab()
+		islparam.path = None
+		islparam.z = CNC.vars["safe"]
+		if islandPaths:
+			for island in islandPaths:
+				path.intersectPath(island, islparam)
+
+		#iterate over depth passes:
 		while z > depth:
 			z = max(z-stepz, depth)
 			if not closed:
@@ -3376,7 +3385,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3402,17 +3411,43 @@ class GCode:
 			if helix: opname = "helicut:%g"%(depth)
 		stepz = abs(stepz)
 		undoinfo = []
+
+		#Get list of islands and remove them from items
+		islands = []
+		islandPaths = []
+		if islandsLeave:
+			for bid,block in enumerate(self.blocks):
+				if islandsSelectedOnly and bid not in items: continue
+				if block.operationTest('island'):
+					islands.append(bid)
+					for islandPath in self.toPath(bid):
+						islandPaths.append(islandPath)
+		#Remove islands from paths to cut if not requested
+		if not islandsCut and islands:
+			for island in islands:
+				if island in items: items.remove(island)
+		#Check if there are any paths left
+		if not items: return "You must select toolpaths along with islands!"
+
+
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 			block.enable = True
 			newpath = []
 			newblock = Block(block.name())
+
+			#Do not apply islands on islands:
+			islandPathsClean = islandPaths
+			if bid in items and bid in islands:
+				islandPathsClean = []
+
 			for path in self.toPath(bid):
+
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
