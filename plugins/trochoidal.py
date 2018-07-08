@@ -29,6 +29,8 @@ class Tool(Plugin):
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("cw"    ,    "bool" ,    True, _("Clockwise")),
+			("circ"    ,    "bool" ,    False, _("Circular")),
+			("entry"    ,    "bool" ,    False, _("Trochoid entry (prepare for helicut)")),
 			("rdoc"    ,    "mm" ,    "0.2", _("Radial depth of cut (<= cutter D * 0.4)")),
 			("dia"    ,    "mm" ,    "3", _("Trochoid diameter (<= cutter D)"))
 		]
@@ -36,12 +38,13 @@ class Tool(Plugin):
 
 
 	# ----------------------------------------------------------------------
-	# This method is executed when user presses the plugin execute button 
+	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		rdoc = self["rdoc"]
 		radius = self["dia"]/2
 		cw = self["cw"]
+		circ = self["circ"]
 
 		#print("go!")
 		blocks  = []
@@ -52,13 +55,23 @@ class Tool(Plugin):
 
 			block = Block("trochoid")
 
+			entry = self["entry"]
 			for segment in path:
 				#print(segment.A)
 				#block.append("g0 x0 y0")
 				#block.append("g1 x10 y10")
 				#block.append("g1 x20 y10")
 				#block.append("g0 x0 y0")
-				block.extend(self.trochoid(segment, rdoc, radius, cw))
+				if entry:
+					eblock = Block("trochoid-in")
+					eblock.append("G0 Z0")
+					eblock.append("G0 x"+str(segment.A[0])+" y"+str(segment.A[1]-radius))
+					eblock.append("G2 x"+str(segment.A[0])+" y"+str(segment.A[1]-radius)+" i"+str(0)+" j"+str(radius))
+					blocks.append(eblock)
+					entry = False
+
+				block.append("G0 Z0")
+				block.extend(self.trochoid(segment, rdoc, radius, cw, circ))
 
 			blocks.append(block)
 
@@ -73,7 +86,7 @@ class Tool(Plugin):
 	def pol2car(self, r, phi, a=[0,0]):
 		return [round(a[0]+r*cos(phi),4),round(a[1]+r*sin(phi),4)]
 
-	def trochoid(self, segment, step, radius, cw=True):
+	def trochoid(self, segment, step, radius, cw=True, circular=False):
 		#TODO: handle arc segments
 
 		block = []
@@ -93,10 +106,18 @@ class Tool(Plugin):
 
 			c = self.pol2car(pos, phi, segment.A)
 			d = self.pol2car(radius, phi+deg2rad(90*u), c)
+			e = self.pol2car(radius, phi+deg2rad(-90*u), c)
+			f = self.pol2car(-radius, phi, e)
 			ij = self.pol2car(radius, phi+deg2rad(-90*u))
 
 			block.append("g1 x"+str(d[0])+" y"+str(d[1]))
-			block.append(arc+" x"+str(d[0])+" y"+str(d[1])+" i"+str(ij[0])+" j"+str(ij[1]))
+			if circular:
+				block.append(arc+" x"+str(d[0])+" y"+str(d[1])+" i"+str(ij[0])+" j"+str(ij[1]))
+			else:
+				#TODO: remove sharp corners
+				block.append(arc+" x"+str(e[0])+" y"+str(e[1])+" i"+str(ij[0])+" j"+str(ij[1]))
+				block.append("g1 x"+str(f[0])+" y"+str(f[1]))
+				block.append("g1 x"+str(d[0])+" y"+str(d[1]))
 
 			i+=step
 		return block
