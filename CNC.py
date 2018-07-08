@@ -2081,7 +2081,7 @@ class Block(list):
 			f.write("(Block-tab: %s)\n"%(str(tab).strip()))
 		for line in self:
 			if self.enable: f.write("%s\n"%(line))
-			else: f.write("(Block-X: %s)\n"%(line))
+			else: f.write("(Block-X: %s)\n"%(line.replace('(','[').replace(')',']')))
 
 	#----------------------------------------------------------------------
 	# Return a dump object for pickler
@@ -2128,7 +2128,7 @@ class Block(list):
 					self.color = value
 					return
 				elif name=="X": #uncomment
-					list.append(self, value)
+					list.append(self, value.replace('[','(').replace(']',')'))
 					return
 		if self._name is None and ("id:" in line) and ("End" not in line):
 			pat = IDPAT.match(line)
