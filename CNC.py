@@ -3518,6 +3518,7 @@ class GCode:
 		undoinfo = []
 		if ntabs==0 and dtabs==0: return
 
+		tablocks = []
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
@@ -3528,7 +3529,6 @@ class GCode:
 				continue
 
 			else:
-				tablocks = []
 				tablock = Block("%s [tab,island,minz:%f]"%(block.nameNop(), z))
 				#tablock.color = "#FF0000"
 				tablock.color = "orange"
@@ -3570,7 +3570,7 @@ class GCode:
 								undoinfo.append(self.addTabUndo(bid,0,tab))
 				if isl:
 					tablocks.append(tablock)
-					self.insBlocks(bid+1, tablocks, "Tabs created")
+		self.insBlocks(bid+1, tablocks, "Tabs created")
 		self.addUndo(undoinfo)
 
 		return msg
