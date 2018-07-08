@@ -3522,7 +3522,7 @@ class GCode:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
-			#update minz for islands/tabs
+			#update minz for selected islands/tabs rather than doing tabs of tabs
 			if block.operationTest('island'):
 				block._name='%s [island,minz:%f]'%(block.nameNop(), z)
 				continue
