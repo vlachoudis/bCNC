@@ -53,7 +53,7 @@ class Segment:
 		self.B    = e
 		self.AB   = self.B-self.A	# vector from start to end
 		self._cross  = False		# end point is a path crossing point
-		self._inside = None		# auxiliary variable for tab operations
+		self._inside = None		# auxiliary variable for tab and island operations
 		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:

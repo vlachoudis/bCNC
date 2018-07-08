@@ -2000,6 +2000,20 @@ class Block(list):
 		return False
 
 	#----------------------------------------------------------------------
+	# Get block operation value
+	#----------------------------------------------------------------------
+	def operationGet(self, op, name=None):
+		if name is None: name = self.name()
+		pat = OPPAT.match(name)
+		if pat is not None:
+			ops = pat.group(2)
+			ops = re.split(',', ops)
+			for opp in ops:
+				t = re.split(':',opp)
+				if t[0] == op: return t[1]
+		return None
+
+	#----------------------------------------------------------------------
 	# Tests if block contains operation on inside of the part (-1), outside (1), or can't decide (0)
 	#----------------------------------------------------------------------
 	def operationSide(self, name=None):
@@ -3338,9 +3352,10 @@ class GCode:
 		#Mark in which island we are inside
 		islparam = Tab()
 		islparam.path = None
-		islparam.z = CNC.vars["safe"]
+		#islparam.z = CNC.vars["safe"]
 		if islandPaths:
 			for island in islandPaths:
+				islparam.z = island._inside
 				path.intersectPath(island, islparam)
 
 		#iterate over depth passes:
@@ -3419,8 +3434,14 @@ class GCode:
 			for bid,block in enumerate(self.blocks):
 				if islandsSelectedOnly and bid not in items: continue
 				if block.operationTest('island'):
+					#determine island height
+					islz = self.cnc["safe"]
+					if block.operationGet('minz') is not None:
+						islz = float(block.operationGet('minz'))
+					print("minz", islz)
 					islands.append(bid)
 					for islandPath in self.toPath(bid):
+						islandPath._inside=islz
 						islandPaths.append(islandPath)
 		#Remove islands from paths to cut if not requested
 		if not islandsCut and islands:
@@ -3457,6 +3478,31 @@ class GCode:
 		if feed  is not None: self.cnc["cutfeed"]  = feed
 		if feedz is not None: self.cnc["cutfeedz"] = feedz
 
+
+	def createTab(self, x=0, y=0, dx=0, dy=0, z=0):
+		path = Path("tab")
+
+		#compensate for cutter radius the lame way:
+		r = CNC.vars["diameter"]/2
+		dx = dx/2. + r
+		dy = dy/2. + r
+
+		A = A0 = Vector(x-dx, y-dy)
+		B = Vector(x+dx, y-dy)
+		path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = Vector(x+dx, y+dy)
+		path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = Vector(x-dx, y+dy)
+		path.append(Segment(Segment.LINE, A, B))
+		A = B
+		B = A0
+		path.append(Segment(Segment.LINE, A, B))
+
+		return path
+
+
 	#----------------------------------------------------------------------
 	# Create tabs to selected blocks
 	# @param ntabs	number of tabs
@@ -3464,35 +3510,23 @@ class GCode:
 	# @param dx	width of tabs
 	# @param dy	depth of tabs
 	# @param z	height of tabs
-	# @param isl	create tabs from islands?
+	# @param isl	create tabs in form of islands?
 	#----------------------------------------------------------------------
-	def createTabs(self, items, ntabs, dtabs, dx, dy, z, isl=False):
+	def createTabs(self, items, ntabs, dtabs, dx, dy, z, isl=True):
 		msg = None
 		undoinfo = []
-		if ntabs==0 and dtabs==0 and not isl: return
-
-		#Get list of islands and remove them from items
-		islands = []
-		if isl:
-			for bid in items:
-				if self.blocks[bid].operationTest('island'):
-					islands.append(bid)
-			for island in islands:
-				items.remove(island)
-			if not items: msg = "You must select toolpaths along with islands!"
-			if not islands: msg = "You must select islands along with toolpaths!"
+		if ntabs==0 and dtabs==0: return
 
 		for bid in items:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
-			if isl:
-				#Add island tabs
-				for island in islands:
-					tab = Tab()
-					tab.path = self.toPath(island)[0]
-					undoinfo.append(self.addTabUndo(bid,0,tab))
 			else:
+				tablocks = []
+				tablock = Block("tabs [island,minz:%d]"%(z))
+				#tablock.color = "#FF0000"
+				tablock.color = "orange"
+
 				#Add regular tabs
 				for path in self.toPath(bid):
 					length = path.length()
@@ -3521,8 +3555,16 @@ class GCode:
 									phi = segment.startPhi + remain / segment.radius
 								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
 									segment.C[1] + segment.radius*math.sin(phi))
-							tab = Tab(P[0],P[1],dx,dy,z)
-							undoinfo.append(self.addTabUndo(bid,0,tab))
+
+							if isl: #Make island tabs
+								tabpath = self.createTab(P[0],P[1],dx,dy,z)
+								tablock.extend(self.fromPath(tabpath, None, None, True, False))
+							else: #Make legacy tabs
+								tab = Tab(P[0],P[1],dx,dy,z)
+								undoinfo.append(self.addTabUndo(bid,0,tab))
+				if isl:
+					tablocks.append(tablock)
+					self.insBlocks(bid+1, tablocks, "Tabs created")
 		self.addUndo(undoinfo)
 
 		return msg
