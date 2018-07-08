@@ -55,6 +55,8 @@ class Tool(Plugin):
 			block = Block("trochoid")
 
 			entry = self["entry"]
+
+			A=path[0].A
 			for segment in path:
 				#print(segment.A)
 				#block.append("g0 x0 y0")
@@ -70,7 +72,20 @@ class Tool(Plugin):
 					entry = False
 
 				block.append("G0 Z0")
-				block.extend(self.trochoid(segment, rdoc, radius, cw, circ))
+
+				phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
+
+				#TODO: handle arc segments
+				i=0
+				while i<(segment.length()+rdoc):
+					pos=min(segment.length(), i)
+
+					B = self.pol2car(pos, phi, segment.A)
+					block.extend(self.trochoid(A,B,radius,cw,circ))
+					A = B
+
+					i+=rdoc
+
 
 			blocks.append(block)
 
@@ -82,12 +97,12 @@ class Tool(Plugin):
 		#app.gcode.blocks.append(block)
 
 
+	#Convert polar to cartesian and add that to existing vector
 	def pol2car(self, r, phi, a=[0,0]):
 		return [round(a[0]+r*cos(phi),4),round(a[1]+r*sin(phi),4)]
 
-	def trochoid(self, segment, step, radius, cw=True, circular=False):
-		#TODO: handle arc segments
-
+	#Generate single trochoidal element between two points
+	def trochoid(self, A, B, radius, cw=True, circular=False):
 		block = []
 
 		if cw:
@@ -97,26 +112,28 @@ class Tool(Plugin):
 			u = -1
 			arc = "G3"
 
-		phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
 
-		i=0
-		while i<(segment.length()+step):
-			pos=min(segment.length(), i)
+		phi = atan2(B[1]-A[1], B[0]-A[0])
+		step = sqrt((A[0]-B[0])**2+(A[1]-B[1])**2)
 
-			c = self.pol2car(pos, phi, segment.A)
-			d = self.pol2car(radius, phi+radians(90*u), c)
-			e = self.pol2car(radius, phi+radians(-90*u), c)
-			f = self.pol2car(-step, phi, e)
-			ij = self.pol2car(radius, phi+radians(-90*u))
+		l = self.pol2car(radius, phi+radians(90*u))
+		r = self.pol2car(radius, phi+radians(-90*u))
+		al = self.pol2car(radius, phi+radians(90*u), A)
+		ar = self.pol2car(radius, phi+radians(-90*u), A)
+		bl = self.pol2car(radius, phi+radians(90*u), B)
+		br = self.pol2car(radius, phi+radians(-90*u), B)
 
-			block.append("g1 x"+str(d[0])+" y"+str(d[1]))
-			if circular:
-				block.append(arc+" x"+str(d[0])+" y"+str(d[1])+" i"+str(ij[0])+" j"+str(ij[1]))
-			else:
-				#TODO: remove sharp corners
-				block.append(arc+" x"+str(e[0])+" y"+str(e[1])+" i"+str(ij[0])+" j"+str(ij[1]))
-				block.append("g1 x"+str(f[0])+" y"+str(f[1]))
-				block.append("g1 x"+str(d[0])+" y"+str(d[1]))
+		#TODO: improve strategies
+		if circular:
+			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
+			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
+			block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(r[0])+" j"+str(r[1]))
+		else:
+			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
+			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
+			block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1]))
+			block.append("g1 x"+str(ar[0])+" y"+str(ar[1]))
+			block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" i"+str(l[0])+" j"+str(l[1]))
+			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
 
-			i+=step
 		return block
