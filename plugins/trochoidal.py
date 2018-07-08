@@ -15,7 +15,6 @@ import re
 from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
-from numpy import deg2rad
 
 class Tool(Plugin):
 	__doc__ = _("""Trochoidal g-code postprocessor""")			#<<< This comment will be show as tooltip for the ribbon button
@@ -105,10 +104,10 @@ class Tool(Plugin):
 			pos=min(segment.length(), i)
 
 			c = self.pol2car(pos, phi, segment.A)
-			d = self.pol2car(radius, phi+deg2rad(90*u), c)
-			e = self.pol2car(radius, phi+deg2rad(-90*u), c)
+			d = self.pol2car(radius, phi+radians(90*u), c)
+			e = self.pol2car(radius, phi+radians(-90*u), c)
 			f = self.pol2car(-step, phi, e)
-			ij = self.pol2car(radius, phi+deg2rad(-90*u))
+			ij = self.pol2car(radius, phi+radians(-90*u))
 
 			block.append("g1 x"+str(d[0])+" y"+str(d[1]))
 			if circular:

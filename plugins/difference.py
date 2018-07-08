@@ -15,7 +15,6 @@ import re
 from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
-from numpy import deg2rad
 from bpath import EPS,eq,Path, Segment
 from copy import deepcopy
 
