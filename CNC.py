@@ -2566,13 +2566,13 @@ class GCode:
 				block = Block(path[0].name)
 
 		#Generate g-code for single path segment
-		def addSegment(segment, z=None):
+		def addSegment(segment, z=None, cm=""):
 			x,y = segment.B
 			if segment.type == Segment.LINE:
 				x,y = segment.B
 				#rounding problem from #903 was manifesting here. Had to lower the decimal precision to CNC.digits
-				if z is None: block.append("g1 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
-				else: block.append("g1 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",z)))
+				if z is None: block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7))+cm)
+				else: block.append("g1 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z,7))+cm)
 
 			elif segment.type in (Segment.CW, Segment.CCW):
 				ij = segment.C - segment.A
@@ -2581,19 +2581,19 @@ class GCode:
 				if z is None:
 					block.append("g%d %s %s %s %s" % \
 						(segment.type,
-						 self.fmt("x",x), self.fmt("y",y),
-						 self.fmt("i",ij[0]),self.fmt("j",ij[1])))
+						 self.fmt("x",x,7), self.fmt("y",y,7),
+						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7))+cm)
 				else:
 					block.append("g%d %s %s %s %s %s" % \
 						(segment.type,
-						 self.fmt("x",x), self.fmt("y",y),
-						 self.fmt("i",ij[0]),self.fmt("j",ij[1]),self.fmt("z",z)))
+						 self.fmt("x",x,7), self.fmt("y",y,7),
+						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
 		if isinstance(path, Path):
 			x,y = path[0].A
 			if entry:
-				block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",CNC.vars["safe"])))
-				block.append("g0 %s %s %s"%(self.fmt("x",x),self.fmt("y",y),self.fmt("z",zstart)))
+				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
+				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
 				block.append("(entered)")
 			if z == zstart: block.append(CNC.zenter(z))
 
@@ -2622,7 +2622,7 @@ class GCode:
 						ztab = segment._inside.z
 						block.append("(tab up "+str(ztab)+")")
 						block.append(CNC.zexit(segment._inside.z))
-						block.append("g1 %s %s"%(self.fmt("x",segment.B[0]),self.fmt("y",segment.B[1])))
+						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
 						nextseg = False
 						setfeed = True
 					prevInside = segment._inside
