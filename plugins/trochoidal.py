@@ -107,7 +107,7 @@ class Tool(Plugin):
 			c = self.pol2car(pos, phi, segment.A)
 			d = self.pol2car(radius, phi+deg2rad(90*u), c)
 			e = self.pol2car(radius, phi+deg2rad(-90*u), c)
-			f = self.pol2car(-radius, phi, e)
+			f = self.pol2car(-step, phi, e)
 			ij = self.pol2car(radius, phi+deg2rad(-90*u))
 
 			block.append("g1 x"+str(d[0])+" y"+str(d[1]))
