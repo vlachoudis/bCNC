@@ -3444,6 +3444,7 @@ class GCode:
 						islandPath._inside=islz
 						islandPaths.append(islandPath)
 		#Remove islands from paths to cut if not requested
+		#TODO: maybe also remove all islands with "tab" tag
 		if not islandsCut and islands:
 			for island in islands:
 				if island in items: items.remove(island)
@@ -3521,9 +3522,14 @@ class GCode:
 			block = self.blocks[bid]
 			if block.name() in ("Header", "Footer"): continue
 
+			#update minz for islands/tabs
+			if block.operationTest('island'):
+				block._name='%s [island,minz:%f]'%(block.nameNop(), z)
+				continue
+
 			else:
 				tablocks = []
-				tablock = Block("tabs [island,minz:%d]"%(z))
+				tablock = Block("%s [tab,island,minz:%f]"%(block.nameNop(), z))
 				#tablock.color = "#FF0000"
 				tablock.color = "orange"
 
