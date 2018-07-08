@@ -123,6 +123,26 @@ class Tool(Plugin):
 		bl = self.pol2car(radius, phi+radians(90*u), B)
 		br = self.pol2car(radius, phi+radians(-90*u), B)
 
+		# This schematic drawing represents naming convention
+		# of points and vectors calculated in previous block
+		#
+		#    <--L---
+		#          ---R-->
+		#
+		#        *   *
+		#     *         *
+		#    *           *
+		#   BL     B     BR
+		#    *           *
+		#    *     ^     *
+		#    *     |     *
+		#    *     |     *
+		#    *           *
+		#   AL     A     AR
+		#    *           *
+		#     *         *
+		#        *   *
+
 		#TODO: improve strategies
 		if circular:
 			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
