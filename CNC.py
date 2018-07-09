@@ -3950,6 +3950,7 @@ class GCode:
 		undoinfo = []
 		old = {}	# Motion commands: Last value
 		new = {}	# Motion commands: New value
+		relative = False
 
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
@@ -3967,6 +3968,8 @@ class GCode:
 				# Collect all values
 				new.clear()
 				for cmd in cmds:
+					if cmd.upper() == 'G91': relative = True
+					if cmd.upper() == 'G90': relative = False
 					c = cmd[0].upper()
 					# record only coordinates commands
 					if c not in "XYZIJKR": continue
@@ -3976,7 +3979,7 @@ class GCode:
 						new[c] = old[c] = 0.0
 
 				# Modify values with func
-				if func(new, old, *args):
+				if func(new, old, relative, *args):
 					# Reconstruct new line
 					newcmd = []
 					present = ""
@@ -4011,7 +4014,8 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
-	def moveFunc(self, new, old, dx, dy, dz):
+	def moveFunc(self, new, old, relative, dx, dy, dz):
+		if relative: return False
 		changed = False
 		if 'X' in new:
 			changed = True
@@ -4042,7 +4046,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
 	#----------------------------------------------------------------------
-	def rotateFunc(self, new, old, c, s, x0, y0):
+	def rotateFunc(self, new, old, relative, c, s, x0, y0):
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
@@ -4062,7 +4066,7 @@ class GCode:
 	#	 yn = s*x + c*y + yo
 	# it is like the rotate but the rotation center is not defined
 	#----------------------------------------------------------------------
-	def transformFunc(self, new, old, c, s, xo, yo):
+	def transformFunc(self, new, old, relative, c, s, xo, yo):
 		if 'X' not in new and 'Y' not in new: return False
 		x = getValue('X',new,old)
 		y = getValue('Y',new,old)
@@ -4102,7 +4106,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Mirror Horizontal
 	#----------------------------------------------------------------------
-	def mirrorHFunc(self, new, old, *kw):
+	def mirrorHFunc(self, new, old, relative, *kw):
 		changed = False
 		for axis in 'XI':
 			if axis in new:
@@ -4116,7 +4120,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Mirror Vertical
 	#----------------------------------------------------------------------
-	def mirrorVFunc(self, new, old, *kw):
+	def mirrorVFunc(self, new, old, relative, *kw):
 		changed = False
 		for axis in 'YJ':
 			if axis in new:
@@ -4140,7 +4144,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Round all digits with accuracy
 	#----------------------------------------------------------------------
-	def roundFunc(self, new, old):
+	def roundFunc(self, new, old, relative):
 		for name,value in new.items():
 			new[name] = round(value,CNC.digits)
 		return bool(new)
