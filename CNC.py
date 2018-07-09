@@ -2623,15 +2623,16 @@ class GCode:
 			#test if not starting in tab/island!
 			ztab = getSegmentZTab(path[0], z)
 
-			#Enter toolpath (rapid to zsafe over beginning of path)
+			#Enter toolpath (rapid to beginning of path)
 			if entry:
 				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
-				#block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",max(zstart, ztab),7)))
-				block.append("(entered)")
+			else:
+				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",max(zstart, ztab),7)))
+			block.append("(entered)")
 
 			#descend to pass (plunge to beginning of path)
 			block.append("(pass %f)"%(max(zh, ztab)))
-			block.append(CNC.zenter(max(zh, ztab)))
+			block.append(CNC.zenter(max(zh, ztab))+" %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 
 			#Loop over segments
 			setfeed = True
@@ -3600,7 +3601,7 @@ class GCode:
 
 							if isl: #Make island tabs
 								tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-								tablock.extend(self.fromPath(tabpath, None, None, True, False))
+								tablock.extend(self.fromPath(tabpath, None, None, False, False))
 								tablock.append("( ---------- cut-here ---------- )")
 							else: #Make legacy tabs
 								tab = Tab(P[0],P[1],dx,dy,z)
