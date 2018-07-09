@@ -2623,16 +2623,22 @@ class GCode:
 			#test if not starting in tab/island!
 			ztab = getSegmentZTab(path[0], z)
 
-			#Enter toolpath (rapid to beginning of path)
-			if entry:
-				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
-			else:
-				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",max(zstart, ztab),7)))
-			block.append("(entered)")
+			#Retract to zsafe
+			if entry: block.append("g0 %s"%(self.fmt("z",CNC.vars["safe"],7)))
 
-			#descend to pass (plunge to beginning of path)
+			#Rapid to beginning of the path
+			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
+
+			#Descend to pass (plunge to the beginning of path)
+			if entry:
+				#if entry feed to Z
+				block.append(CNC.zenter(max(zh, ztab)))
+			else:
+				#without entry just rapid to Z
+				block.append("g0 %s"%(self.fmt("z",max(zh, ztab),7)))
+
+			#Begin pass
 			block.append("(pass %f)"%(max(zh, ztab)))
-			block.append(CNC.zenter(max(zh, ztab))+" %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
 
 			#Loop over segments
 			setfeed = True
