@@ -3438,7 +3438,6 @@ class GCode:
 					islz = self.cnc["safe"]
 					if block.operationGet('minz') is not None:
 						islz = float(block.operationGet('minz'))
-					print("minz", islz)
 					islands.append(bid)
 					for islandPath in self.toPath(bid):
 						islandPath._inside=islz
@@ -3565,10 +3564,12 @@ class GCode:
 							if isl: #Make island tabs
 								tabpath = self.createTab(P[0],P[1],dx,dy,z)
 								tablock.extend(self.fromPath(tabpath, None, None, True, False))
+								tablock.append("( ---------- cut-here ---------- )")
 							else: #Make legacy tabs
 								tab = Tab(P[0],P[1],dx,dy,z)
 								undoinfo.append(self.addTabUndo(bid,0,tab))
 				if isl:
+					del tablock[-1] #remove last cut-here
 					tablocks.append(tablock)
 		self.insBlocks(bid+1, tablocks, "Tabs created")
 		self.addUndo(undoinfo)
