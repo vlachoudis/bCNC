@@ -1600,9 +1600,9 @@ class Application(Toplevel,Sender):
 			except:	dy = tabs.fromMm("dy")
 			try:	z = float(line[5])
 			except:	z = tabs.fromMm("z")
-			try:	islands = bool(line[6])
-			except:	islands = False
-			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
+			try:	circular = bool(line[6])
+			except:	circular = True
+			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circular)
 
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):

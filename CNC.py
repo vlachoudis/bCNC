@@ -2616,12 +2616,6 @@ class GCode:
 		if isinstance(path, Path):
 			x,y = path[0].A
 
-			#Enter toolpath
-			if entry:
-				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
-				#block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
-				block.append("(entered)")
-
 			#decide if flat or ramp/helical:
 			if z == zstart:	zh=z
 			elif zstart is not None: zh = zstart
@@ -2629,7 +2623,13 @@ class GCode:
 			#test if not starting in tab/island!
 			ztab = getSegmentZTab(path[0], z)
 
-			#descend to pass
+			#Enter toolpath (rapid to zsafe over beginning of path)
+			if entry:
+				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
+				#block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",max(zstart, ztab),7)))
+				block.append("(entered)")
+
+			#descend to pass (plunge to beginning of path)
 			block.append("(pass %f)"%(max(zh, ztab)))
 			block.append(CNC.zenter(max(zh, ztab)))
 
@@ -2656,8 +2656,8 @@ class GCode:
 						block.append(CNC.zenter(max(zhprev,ztab)))
 						setfeed = True
 					else: #if we need to go higher in order to clear the tab
-						block.append("(tab up "+str(ztab)+")")
-						block.append(CNC.zexit(ztab))
+						block.append("(tab up "+str(max(zh, ztab))+")")
+						block.append(CNC.zexit(max(zh, ztab)))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
 						nextseg = False
 						setfeed = True
@@ -3506,7 +3506,7 @@ class GCode:
 		if feedz is not None: self.cnc["cutfeedz"] = feedz
 
 
-	def createTab(self, x=0, y=0, dx=0, dy=0, z=0):
+	def createTab(self, x=0, y=0, dx=0, dy=0, z=0, circ=True):
 		path = Path("tab")
 
 		#compensate for cutter radius the lame way:
@@ -3514,18 +3514,27 @@ class GCode:
 		dx = dx/2. + r
 		dy = dy/2. + r
 
-		A = A0 = Vector(x-dx, y-dy)
-		B = Vector(x+dx, y-dy)
-		path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x+dx, y+dy)
-		path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x-dx, y+dy)
-		path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = A0
-		path.append(Segment(Segment.LINE, A, B))
+		if not circ:
+			#Square tabs (intersect better with trochoids)
+			A = A0 = Vector(x-dx, y-dy)
+			B = Vector(x+dx, y-dy)
+			path.append(Segment(Segment.LINE, A, B))
+			A = B
+			B = Vector(x+dx, y+dy)
+			path.append(Segment(Segment.LINE, A, B))
+			A = B
+			B = Vector(x-dx, y+dy)
+			path.append(Segment(Segment.LINE, A, B))
+			A = B
+			B = A0
+			path.append(Segment(Segment.LINE, A, B))
+		else:
+			#Circular tabs (intersect better with angled lines)
+			A = Vector(x-max(dx,dy), y)
+			C = Vector(x,y)
+			seg = Segment(Segment.CCW, A, A)
+			seg.setCenter(C)
+			path.append(seg)
 
 		return path
 
@@ -3539,7 +3548,8 @@ class GCode:
 	# @param z	height of tabs
 	# @param isl	create tabs in form of islands?
 	#----------------------------------------------------------------------
-	def createTabs(self, items, ntabs, dtabs, dx, dy, z, isl=True):
+	def createTabs(self, items, ntabs, dtabs, dx, dy, z, circ=True):
+		isl=True
 		msg = None
 		undoinfo = []
 		if ntabs==0 and dtabs==0: return
@@ -3589,7 +3599,7 @@ class GCode:
 									segment.C[1] + segment.radius*math.sin(phi))
 
 							if isl: #Make island tabs
-								tabpath = self.createTab(P[0],P[1],dx,dy,z)
+								tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
 								tablock.extend(self.fromPath(tabpath, None, None, True, False))
 								tablock.append("( ---------- cut-here ---------- )")
 							else: #Make legacy tabs
