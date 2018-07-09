@@ -2582,12 +2582,15 @@ class GCode:
 		#Generate g-code for single path segment
 		def addSegment(segment, z=None, cm=""):
 			x,y = segment.B
+
+			#Generate LINE
 			if segment.type == Segment.LINE:
 				x,y = segment.B
 				#rounding problem from #903 was manifesting here. Had to lower the decimal precision to CNC.digits
 				if z is None: block.append("g1 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7))+cm)
 				else: block.append("g1 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",z,7))+cm)
 
+			#Generate ARCS
 			elif segment.type in (Segment.CW, Segment.CCW):
 				ij = segment.C - segment.A
 				if abs(ij[0])<1e-5: ij[0] = 0.
@@ -2603,43 +2606,62 @@ class GCode:
 						 self.fmt("x",x,7), self.fmt("y",y,7),
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
+		#Get island height of segment
+		def getSegmentZTab(segment, altz=None):
+			if segment._inside is not None:
+				return segment._inside.z
+			else: return altz
+
+		#Generate block from path
 		if isinstance(path, Path):
 			x,y = path[0].A
+
+			#Enter toolpath
 			if entry:
 				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",CNC.vars["safe"],7)))
-				block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
+				#block.append("g0 %s %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7),self.fmt("z",zstart,7)))
 				block.append("(entered)")
-			if z == zstart: block.append(CNC.zenter(z))
 
+			#decide if flat or ramp/helical:
+			if z == zstart:	zh=z
+			elif zstart is not None: zh = zstart
+
+			#test if not starting in tab/island!
+			ztab = getSegmentZTab(path[0], z)
+
+			#descend to pass
+			block.append("(pass %f)"%(max(zh, ztab)))
+			block.append(CNC.zenter(max(zh, ztab)))
+
+			#Loop over segments
 			setfeed = True
-			prevInside = None
-			ztab = None
-			zh = zstart;
+			ztabprev = None
 			for sid,segment in enumerate(path):
 				nextseg = True
-
 				zhprev = zh
+
 				#This is where you can modify the ramp of the helix:
 				if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
 				elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
 				else: zh -= (segment.length()/path.length())*zstep #full helix (default)
 				zh = max(zh, z) #Never cut deeper than z!
 
-				#This is where tabs are entered and exited:
-				if prevInside is not segment._inside: #test if boundary of tab was crossed
-					if segment._inside is None: #if we need to enter the toolpath after done clearing the tab
-						ztab = None
-						block.append("(tab down "+str(zh)+")")
-						block.append(CNC.zenter(zhprev))
+				#Get tab height
+				ztab = getSegmentZTab(segment)
+
+				#Retract over tabs
+				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
+					if ztab is None or ztab < ztabprev: #if we need to enter the toolpath after done clearing the tab
+						block.append("(tab down "+str(max(zhprev,ztab))+")")
+						block.append(CNC.zenter(max(zhprev,ztab)))
 						setfeed = True
-					elif segment._inside.z > z: #if we need to go higher in order to clear the tab
-						ztab = segment._inside.z
+					else: #if we need to go higher in order to clear the tab
 						block.append("(tab up "+str(ztab)+")")
-						block.append(CNC.zexit(segment._inside.z))
+						block.append(CNC.zexit(ztab))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
 						nextseg = False
 						setfeed = True
-					prevInside = segment._inside
+				ztabprev = ztab
 
 				#Cut next segment of toolpath
 				if nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
@@ -2648,12 +2670,17 @@ class GCode:
 				if setfeed:
 					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
 					setfeed = False
+
+			#Exit toolpath
 			if exit:
 				block.append("(exiting)")
 				block.append(CNC.zsafe())
+
+		#Recursion for multiple paths
 		else:
 			for p in path:
 				self.fromPath(p, block)
+
 		return block
 
 	#----------------------------------------------------------------------
