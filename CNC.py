@@ -2566,7 +2566,7 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=True, exit=True, zstart=None, ramp=0):
+	def fromPath(self, path, block=None, z=None, entry=False, exit=True, zstart=None, ramp=0):
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
