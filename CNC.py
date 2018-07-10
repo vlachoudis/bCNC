@@ -975,22 +975,22 @@ class CNC:
 	# Enter to material or start the laser
 	#----------------------------------------------------------------------
 	@staticmethod
-	def zenter(z):
+	def zenter(z, d=None):
 		if CNC.lasercutter:
 			if CNC.laseradaptive:
 				return "m4"
 			else:
 				return "m3"
 		else:
-			return "g1 %s %s"%(CNC.fmt("z",z), CNC.fmt("f",CNC.vars["cutfeedz"]))
+			return "g1 %s %s"%(CNC.fmt("z",z,d), CNC.fmt("f",CNC.vars["cutfeedz"]))
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def zexit(z):
+	def zexit(z, d=None):
 		if CNC.lasercutter:
 			return "m5"
 		else:
-			return "g0 %s"%(CNC.fmt("z",z))
+			return "g0 %s"%(CNC.fmt("z",z,d))
 
 	#----------------------------------------------------------------------
 	# gcode to go to z-safe
@@ -2632,7 +2632,7 @@ class GCode:
 			#Descend to pass (plunge to the beginning of path)
 			if entry:
 				#if entry feed to Z
-				block.append(CNC.zenter(max(zh, ztab)))
+				block.append(CNC.zenter(max(zh, ztab),7))
 			else:
 				#without entry just rapid to Z
 				block.append("g0 %s"%(self.fmt("z",max(zh, ztab),7)))
@@ -2660,11 +2660,11 @@ class GCode:
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
 					if ztab is None or ztab < ztabprev: #if we need to enter the toolpath after done clearing the tab
 						block.append("(tab down "+str(max(zhprev,ztab))+")")
-						block.append(CNC.zenter(max(zhprev,ztab)))
+						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
 					else: #if we need to go higher in order to clear the tab
 						block.append("(tab up "+str(max(zh, ztab))+")")
-						block.append(CNC.zexit(max(zh, ztab)))
+						block.append(CNC.zexit(max(zh, ztab),7))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
 						nextseg = False
 						setfeed = True
