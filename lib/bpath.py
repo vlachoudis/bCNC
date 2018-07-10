@@ -53,7 +53,7 @@ class Segment:
 		self.B    = e
 		self.AB   = self.B-self.A	# vector from start to end
 		self._cross  = False		# end point is a path crossing point
-		self._inside = None		# auxiliary variable for tab and island operations
+		self._inside = []		# auxiliary variable for tab and island operations
 		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:
@@ -968,8 +968,7 @@ class Path(list):
 
 		if setinside is not None:
 			for i,si in enumerate(self):
-				if path.isInside(si.midPoint()): si._inside = setinside
-				#else: si._inside = None
+				if path.isInside(si.midPoint()): si._inside.append(setinside)
 
 		return points
 

@@ -2608,8 +2608,8 @@ class GCode:
 
 		#Get island height of segment
 		def getSegmentZTab(segment, altz=None):
-			if segment._inside is not None:
-				return segment._inside.z
+			if segment._inside:
+				return max(segment._inside)
 			else: return altz
 
 		#Generate block from path
@@ -3384,13 +3384,9 @@ class GCode:
 				tab.split(path)
 
 		#Mark in which island we are inside
-		islparam = Tab()
-		islparam.path = None
-		#islparam.z = CNC.vars["safe"]
 		if islandPaths:
 			for island in islandPaths:
-				islparam.z = island._inside
-				path.intersectPath(island, islparam)
+				path.intersectPath(island, island._inside)
 
 		#iterate over depth passes:
 		while z > depth:
