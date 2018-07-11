@@ -17,8 +17,8 @@ from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 
-#FIXME: not sure how to force bCNC to import from bCNC/lib before system
-#	if having conflicts with system libs, you can try this:
+#FIXME: not sure how to force bCNC to prefer importing from bCNC/lib to importing from system
+#	if having conflicts with system libs, you can try this. It helped for me:
 #	pip2 uninstall meshcut stl ply itertools utils
 
 import os
@@ -79,6 +79,7 @@ class Tool(Plugin):
 		block = Block("slice %f"%(float(z)))
 
 		#FIXME: decide if stl or ply and load mesh using proper method
+		# STL slicing example: https://github.com/julienr/meshcut/blob/master/examples/1_stl_sphere_cut.py
 		with open(file) as f:
 			verts, faces, _ = ply.load_ply(f)
 
