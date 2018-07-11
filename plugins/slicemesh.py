@@ -82,7 +82,8 @@ class Tool(Plugin):
 			while z >= 0:
 				#print(_("Slicing %f / %f"%(z,zmax)))
 				app.setStatus(_("Slicing %f / %f : %s"%(z,zmax,file)), True)
-				blocks.append(self.slice(verts, faces, z, zout))
+				block = self.slice(verts, faces, z, zout)
+				if block is not None: blocks.append(block)
 				z -= zstep
 
 		#Insert blocks to bCNC
@@ -142,6 +143,7 @@ class Tool(Plugin):
 			block.append("( ---------- cut-here ---------- )")
 		if block: del block[-1]
 
+		if not block: block = None
 		return block
 
 	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
