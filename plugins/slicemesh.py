@@ -66,8 +66,12 @@ class Tool(Plugin):
 
 		blocks = []
 
+		#Load mesh
 		app.setStatus(_("Loading mesh: %s"%(file)), True)
 		verts, faces = self.loadMesh(file)
+
+		#Rotate/flip mesh
+		#self.transformMesh(verts, 2, 1, 1, -1)
 
 		if zstep <= 0:
 			#cut only single layer if zstep <= 0
@@ -103,6 +107,13 @@ class Tool(Plugin):
 			return None
 
 		return verts, faces
+
+
+	#Rotate or flip mesh
+	def transformMesh(self, verts, a, b=0, ia=1, ib=1):
+		for vert in verts:
+			vert[a], vert[b] = ia*vert[b], ib*vert[a]
+
 
 	def slice(self, verts, faces, z, zout=None):
 		block = Block("slice %f"%(float(z)))
