@@ -42,6 +42,7 @@ class Tool(Plugin):
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice")),
+			("flat"    ,    "bool" ,    True, _("Get flat slice")),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)")),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"))
 		]
@@ -55,6 +56,10 @@ class Tool(Plugin):
 		file = self["file"]
 		zstep = self["zstep"]
 		zmax = self["zmax"]
+		flat = self["flat"]
+
+		zout = None
+		if flat: zout = 0
 
 		blocks = []
 
@@ -65,7 +70,7 @@ class Tool(Plugin):
 			#loop over multiple layers if zstep > 0
 			z = 0
 			while z <= zmax:
-				blocks.append(self.slice(file, z))
+				blocks.append(self.slice(file, z, zout))
 				z += zstep
 
 		#Insert blocks to bCNC
@@ -75,7 +80,7 @@ class Tool(Plugin):
 		app.setStatus(_("Mesh sliced"))                           #<<< feed back result
 
 
-	def slice(self, file, z):
+	def slice(self, file, z, zout=None):
 		block = Block("slice %f"%(float(z)))
 
 		#FIXME: decide if stl or ply and load mesh using proper method
@@ -83,18 +88,27 @@ class Tool(Plugin):
 		with open(file) as f:
 			verts, faces, _ = ply.load_ply(f)
 
+		#FIXME: slice along different axes
 		plane_orig = (z, 0, 0) #z height to slice
 		plane_norm = (1, 0, 0)
 
+		#Crosscut
 		contours = meshcut.cross_section(verts, faces, plane_orig, plane_norm)
 
+		#Flatten contours
+		if zout is not None:
+			for contour in contours:
+				for segment in contour:
+					segment[0] = zout
+
+		#Contours to G-code
 		for contour in contours:
 			#print(contour)
 			first = contour[0]
-			block.append("g0 x%f y%f"%(first[1],first[2]))
+			block.append("g0 x%f y%f z%f"%(first[1],first[2],first[0]))
 			for segment in contour:
-				block.append("g1 x%f y%f"%(segment[1],segment[2]))
-			block.append("g1 x%f y%f"%(first[1],first[2]))
+				block.append("g1 x%f y%f z%f"%(segment[1],segment[2],segment[0]))
+			block.append("g1 x%f y%f z%f"%(first[1],first[2],segment[0]))
 			block.append("( ---------- cut-here ---------- )")
 		if block: del block[-1]
 
