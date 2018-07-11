@@ -70,6 +70,8 @@ class Tool(Plugin):
 			#loop over multiple layers if zstep > 0
 			z = 0
 			while z <= zmax:
+				print(_("Slicing %f / %f"%(z,zmax)))
+				#app.setStatus(_("Slicing %f / %f"%(z,zmax))) #This is not working without return :(
 				blocks.append(self.slice(file, z, zout))
 				z += zstep
 
