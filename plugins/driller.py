@@ -224,11 +224,7 @@ class Tool(Plugin):
 				bidHoles = []
 				for idx, anchor in enumerate(bidSegment):
 					if idx > 0:
-						if idx ==1 and anchor[0][0] == anchor[1][0] and anchor[0][1] == anchor[1][1]: 
-							newHolePoint = anchor[1][0],anchor[1][1],anchor[1][2]
-
-						else:
-							newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
+						newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
 						bidHoles.append(newHolePoint)
 			else:
 				#Summ all path length

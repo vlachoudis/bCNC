@@ -123,7 +123,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col, row = 0,2
 		self.filterString = tkExtra.LabelEntry(self.frame,
-				"Filter",
+				_("Filter"),
 				"DarkGray",
 				background="White",
 				width=16)
@@ -147,7 +147,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 			[(_("Autolevel"), "level",    lambda a=app:a.insertCommand("AUTOLEVEL",True)),
 			 (_("Color"),     "color",    lambda a=app:a.event_generate("<<ChangeColor>>")),
 			 (_("Import"),    "load",     lambda a=app:a.insertCommand("IMPORT",True)),
-			 (_("Inkscape"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
+			 (_("Postprocess Inkscape g-code"),  "inkscape", lambda a=app:a.insertCommand("INKSCAPE all",True)),
 			 (_("Round"),     "digits",   lambda s=app:s.insertCommand("ROUND", True))
 			])
 		self.grid3rows()
@@ -298,15 +298,15 @@ class MoveGroup(CNCRibbon.ButtonMenuGroup):
 	#----------------------------------------------------------------------
 	def createMenu(self):
 		menu = Menu(self, tearoff=0)
-		for i,n,c in (  ("TL",     _("Top-Left"),    "MOVE TL"),
-				("LC",     _("Left"),        "MOVE LC"),
-				("BL",     _("Bottom-Left"), "MOVE BL"),
-				("TC",     _("Top"),         "MOVE TC"),
+		for i,n,c in (  ("tl",     _("Top-Left"),    "MOVE TL"),
+				("lc",     _("Left"),        "MOVE LC"),
+				("bl",     _("Bottom-Left"), "MOVE BL"),
+				("tc",     _("Top"),         "MOVE TC"),
 				("center", _("Center"),      "MOVE CENTER"),
-				("BC",     _("Bottom"),      "MOVE BC"),
-				("TR",     _("Top-Right"),   "MOVE TR"),
-				("RC",     _("Right"),       "MOVE RC"),
-				("BR",     _("Bottom-Right"),"MOVE BR")):
+				("bc",     _("Bottom"),      "MOVE BC"),
+				("tr",     _("Top-Right"),   "MOVE TR"),
+				("rc",     _("Right"),       "MOVE RC"),
+				("br",     _("Bottom-Right"),"MOVE BR")):
 			menu.add_command(label=n,
 					image=Utils.icons[i], compound=LEFT,
 					command=lambda a=self.app,c=c:a.insertCommand(c,True))
@@ -369,7 +369,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate90"],
+				image=Utils.icons["rotate_90"],
 				text=_("CW"),
 				compound=LEFT,
 				anchor=W,
@@ -382,7 +382,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate180"],
+				image=Utils.icons["rotate_180"],
 				text=_("Flip"),
 				compound=LEFT,
 				anchor=W,
@@ -395,7 +395,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["rotate270"],
+				image=Utils.icons["rotate_270"],
 				text=_("CCW"),
 				compound=LEFT,
 				anchor=W,
@@ -408,7 +408,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["flip-horizontal"],
+				image=Utils.icons["flip_horizontal"],
 				text=_("Horizontal"),
 				compound=LEFT,
 				anchor=W,
@@ -421,7 +421,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 		# ---
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
-				image=Utils.icons["flip-vertical"],
+				image=Utils.icons["flip_vertical"],
 				text=_("Vertical"),
 				compound=LEFT,
 				anchor=W,
@@ -479,6 +479,32 @@ class RouteGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Reverse cut direction for selected gcode blocks"))
+		self.addWidget(b)
+
+		# ---
+		col,row=1,0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate_90"],
+				text=_("Cut CW"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CW", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to CW for selected gcode blocks"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["rotate_270"],
+				text=_("Cut CCW"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("DIRECTION CCW", True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Change cut direction to CCW for selected gcode blocks"))
 		self.addWidget(b)
 
 #===============================================================================

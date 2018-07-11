@@ -256,6 +256,7 @@ class Application(Toplevel,Sender):
 
 		self.bind('<<New>>',		self.newFile)
 		self.bind('<<Open>>',		self.loadDialog)
+		self.bind('<<Import>>',		lambda x,s=self: s.importFile())
 		self.bind('<<Save>>',		self.saveAll)
 		self.bind('<<SaveAs>>',		self.saveDialog)
 		self.bind('<<Reload>>',		self.reload)
@@ -1283,9 +1284,13 @@ class Application(Toplevel,Sender):
 		# DIR*ECTION
 		elif rexx.abbrev("DIRECTION", cmd, 3):
 			if rexx.abbrev("CLIMB", line[1].upper(), 2):
-				direction = -1
+				direction = -2
 			elif rexx.abbrev("CONVENTIONAL", line[1].upper(), 2):
+				direction =  2
+			elif rexx.abbrev("CW", line[1].upper(), 2):
 				direction =  1
+			elif rexx.abbrev("CCW", line[1].upper(), 2):
+				direction =  -1
 			else:
 				tkMessageBox.showerror(_("Direction command error"),
 					_("Invalid direction %s specified"%(line[1])),
@@ -1347,6 +1352,17 @@ class Application(Toplevel,Sender):
 			if len(line)>1 and rexx.abbrev("ALL",line[1].upper()):
 				self.editor.selectAll()
 			self.executeOnSelection("INKSCAPE", True)
+
+		# ISLAND set or toggle island tag
+		elif rexx.abbrev("ISLAND", cmd, 3):
+			if len(line) > 1:
+				if line[1].upper() == "1":
+					isl = True
+				else:
+					isl = False
+			else:
+				isl = None
+			self.executeOnSelection("ISLAND", True, isl)
 
 		# ISO1: switch to ISO1 projection
 		elif cmd=="ISO1":
@@ -1582,7 +1598,9 @@ class Application(Toplevel,Sender):
 			except:	dy = tabs.fromMm("dy")
 			try:	z = float(line[5])
 			except:	z = tabs.fromMm("z")
-			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+			try:	islands = bool(line[6])
+			except:	islands = False
+			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
 
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):
@@ -1671,13 +1689,15 @@ class Application(Toplevel,Sender):
 		elif cmd == "CLOSE":
 			sel = self.gcode.close(items)
 		elif cmd == "DIRECTION":
-			self.gcode.cutDirection(items, *args)
+			sel = self.gcode.cutDirection(items, *args)
 		elif cmd == "DRILL":
 			sel = self.gcode.drill(items, *args)
 		elif cmd == "ORDER":
 			self.gcode.orderLines(items, *args)
 		elif cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
+		elif cmd == "ISLAND":
+			self.gcode.island(items, *args)
 		elif cmd == "MIRRORH":
 			self.gcode.mirrorHLines(items)
 		elif cmd == "MIRRORV":
@@ -1695,7 +1715,7 @@ class Application(Toplevel,Sender):
 		elif cmd == "ROTATE":
 			self.gcode.rotateLines(items, *args)
 		elif cmd == "TABS":
-			self.gcode.createTabs(items, *args)
+			sel = self.gcode.createTabs(items, *args)
 
 		# Fill listbox and update selection
 		self.editor.fill()
@@ -1709,7 +1729,7 @@ class Application(Toplevel,Sender):
 		self.setStatus("%s %s"%(cmd," ".join([str(a) for a in args if a is not None])))
 
 	#-----------------------------------------------------------------------
-	def profile(self, direction=None, offset=0.0, overcut=False, name=None):
+	def profile(self, direction=None, offset=0.0, overcut=False, name=None, pocket=False):
 		tool = self.tools["EndMill"]
 		ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		sign = 1.0
@@ -1733,7 +1753,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.profile(blocks, ofs*sign, overcut, name)
+		msg = self.gcode.profile(blocks, ofs*sign, overcut, name, pocket)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),

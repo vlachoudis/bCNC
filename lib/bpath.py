@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #
 # Copyright European Organization for Nuclear Research (CERN)
@@ -87,6 +86,8 @@ class Segment:
 	# Correct arc so radius, center, start and end point to match
 	#----------------------------------------------------------------------
 	def correct(self):
+		if self.type == Segment.LINE: return #There's no use for this on lines
+
 		if self.AB.length2()>EPS:
 			# Correct center by finding the intersection of the
 			# orthogonal line from the middle of the start-end segment
@@ -599,6 +600,17 @@ class Path(list):
 		return min([x.distance(P) for x in self])
 
 	#----------------------------------------------------------------------
+	# Change path direction:
+	#	+1 for Segment.CW
+	#	-1 for Segment.CCW
+	#----------------------------------------------------------------------
+	def directionSet(self, opdir):
+		curdir = self._direction(self.isClosed())
+		if curdir == 0: return False
+		if curdir != 0 and curdir != opdir: self.invert()
+		return True
+
+	#----------------------------------------------------------------------
 	# Return:
 	#	-1 for Segment.CCW closed path
 	#        0 for open path
@@ -609,51 +621,49 @@ class Path(list):
 		return self._direction(True)
 
 	#----------------------------------------------------------------------
-	# Return -1/+1 even for open paths
+	# Return -1/+1 even for open paths (experimental, but seems to work better, than previous version)
+	# https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
 	#----------------------------------------------------------------------
 	def _direction(self, closed=True):
-		phi = 0.0
 
-		if closed:
-			A = self[-1].tangentEnd()
-		else:
-			A = None
+		def dircalc(A,B):
+			dir = (B[0] - A[0])*(B[1] + A[1])
+			#print("point", A[0], A[1], B[0], B[1],"\t",dir)
+			#print("g1 x"+str(A[0])+" y"+str(A[1]))
+			#print("g1 x"+str(B[0])+" y"+str(B[1]))
+			return dir
 
-#		print
+
+		sum = 0
+		cwarc = 0
+
 		for segment in self:
-#			print i,segment
-			if segment.type == Segment.LINE:
-				B = segment.AB
-#				print "\tA=",A
-#				print "\tB=",B
-				if A is not None:
-					phi += atan2(A^B,A*B)
-#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-#					print "\tA^B=",A^B,"A*B=",A*B
-				A = B
-			else:
-				B = segment.tangentStart()
-#				print "\tA=",A
-#				print "\tB=",B
-				if A is not None:
-					phi += atan2(A^B,A*B)
-#					print "\tA^B=",A^B,"A*B=",A*B
-#					print "\tdphi=",atan2(A^B,A*B),degrees(atan2(A^B,A*B))
-#					print "\tphi(Start)=",phi,degrees(phi)
-				phi += segment.endPhi - segment.startPhi
-#				print "\tarc=",segment.endPhi - segment.startPhi, \
-#					degrees(segment.endPhi - segment.startPhi)
-				A = segment.tangentEnd()
-#				print "\ttangenEnd=",A
-#			print "\tphi=",phi,degrees(phi)
+			if segment.type == Segment.CW: cwarc += segment.length()
+			if segment.type == Segment.CCW: cwarc -= segment.length()
 
-#		print "phi=",phi
-		if phi < 0.0:
-#			print "Direction: CW"
-			return 1
-		else:
-#			print "Direction: CCW"
-			return -1
+			A = segment.A
+			B = segment.B
+			if A is not None and B is not None:
+				sum += dircalc(A,B)
+
+		#Decide direction
+		if sum < 0: sum = -1	#CCW
+		if sum > 0: sum = 1	#CW
+
+		#Arcs (and therefore circles) are now treated as lines (linear approximation)
+		#If we can't decide based on points, we will compare amount of distance traveled in CW and CCW arcs
+		#This is kinda heuristic. If we ever need better results, there's way to do it:
+		#Just split all arcs into 10 smaller arcs before processing.
+		#That will vastly increase the resolution of linear approximation.
+		#If you know to split arcs, plese do it. For now we have this heuristic:
+
+		if sum == 0:
+			if cwarc < 0: sum = -1	#CCW
+			if cwarc > 0: sum = 1	#CW
+
+		#if sum == 0: sum = 1	#CW if still undecided?
+		#print("Sum ", sum)
+		return sum
 
 	#----------------------------------------------------------------------
 	# @return the bounding box of the path (very crude)
@@ -883,6 +893,7 @@ class Path(list):
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
+		#FIXME: maybe use intersectPath() to implement this??
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
@@ -922,6 +933,47 @@ class Path(list):
 		return points
 
 	#----------------------------------------------------------------------
+	# intersect path with other path and mark all intersections
+	#----------------------------------------------------------------------
+	def intersectPath(self, path, setinside=None):
+		points = []	# list of intersection (segment#, order, point) pair
+		def addPoint(i, P):
+			# FIXME maybe add sorted and check for duplicates?
+			if eq2(P,self[i].A,EPS): return
+			if eq2(P,self[i].B,EPS):   return
+			oi = self[i].order(P)
+			points.append((i,oi,P))
+
+		# Find all interesection points
+		for i,si in enumerate(self):
+			for cut in path:
+				P1,P2 = si.intersect(cut)
+				# skip doublet solution
+				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+					P2 = None
+				if P1:
+					addPoint(i,P1)
+				if P2:
+					addPoint(i,P2)
+
+		# sort accoring to index, and position of point
+		points.sort(key=itemgetter(0,1))
+
+		# split paths
+		for i,o,P in reversed(points):
+			split = self[i].split(P)
+			if not isinstance(split,int):
+				self.insert(i+1,split)
+				self[i]._cross = True
+
+		if setinside is not None:
+			for i,si in enumerate(self):
+				if path.isInside(si.midPoint()): si._inside = setinside
+				#else: si._inside = None
+
+		return points
+
+	#----------------------------------------------------------------------
 	# remove the excluded segments from an intersect path
 	# @param include defines the first segment if it is to be included
 	# or not
@@ -934,7 +986,7 @@ class Path(list):
 		#--------------------------------------------------------------
 		def isClose(P, last):
 			# search in the close vicinity first
-			i0 = last-10
+			i0 = last-min(10, len(path))
 			if i0<0: i0 += len(path)
 			for i in range(i0, len(path)):
 				if path[i].distance(P) < chkofs:

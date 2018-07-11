@@ -490,7 +490,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		row += 1
 		col = 0
 
-		Label(lframe(), text="WPos:").grid(row=row, column=col, sticky=E)
+		Label(lframe(), text=_("WPos:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.xm_orient = tkExtra.FloatEntry(lframe(), background="White")
 		self.xm_orient.grid(row=row, column=col, sticky=EW)
@@ -827,12 +827,12 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		col += 1
 		Label(lframe, text=_("Step")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="N").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("N")).grid(row=row, column=col, sticky=EW)
 
 		# --- X ---
 		row += 1
 		col = 0
-		Label(lframe, text="X:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.probeXmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeXmin.grid(row=row, column=col, sticky=EW)
@@ -864,7 +864,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		# --- Y ---
 		row += 1
 		col  = 0
-		Label(lframe, text="Y:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.probeYmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeYmin.grid(row=row, column=col, sticky=EW)
@@ -897,7 +897,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		row += 1
 		col  = 0
 
-		Label(lframe, text="Z:").grid(row=row, column=col, sticky=E)
+		Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
 		col += 1
 		self.probeZmin = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeZmin.grid(row=row, column=col, sticky=EW)
@@ -1475,11 +1475,11 @@ class ToolFrame(CNCRibbon.PageFrame):
 		# ----
 		row += 1
 		col  = 1
-		Label(lframe, text="MX").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("MX")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="MY").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("MY")).grid(row=row, column=col, sticky=EW)
 		col += 1
-		Label(lframe, text="MZ").grid(row=row, column=col, sticky=EW)
+		Label(lframe, text=_("MZ")).grid(row=row, column=col, sticky=EW)
 
 		# --- Tool Change position ---
 		row += 1

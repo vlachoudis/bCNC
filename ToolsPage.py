@@ -674,7 +674,10 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
-			("cutFromTop", "bool" , False, _("First cut at surface height"))
+			("cutFromTop", "bool" , False, _("First cut at surface height")),
+			("helix", "bool" , False, _("Helical cut")),
+			("helixBottom", "bool" , True, _("Helical with bottom")),
+			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)"))
 		]
 		self.buttons.append("exe")
 
@@ -688,7 +691,11 @@ class Cut(DataBase):
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
 		cutFromTop = self["cutFromTop"]
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop)
+		helix = self["helix"]
+		helixBottom = self["helixBottom"]
+		ramp = self["ramp"]
+		if ramp < 0: ramp = self.master.fromMm(float(ramp))
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -734,7 +741,8 @@ class Profile(DataBase):
 			("endmill",   "db" ,    "", _("End Mill")),
 			("direction","inside,outside" , "outside", _("Direction")),
 			("offset",   "float",  0.0, _("Additional offset distance")),
-			("overcut",  "bool",     1, _("Overcut"))
+			("overcut",  "bool",     1, _("Overcut")),
+			("pocket",  "bool",     0, _("Pocket"))
 		]
 		self.buttons.append("exe")
 
@@ -744,8 +752,9 @@ class Profile(DataBase):
 			self.master["endmill"].makeCurrent(self["endmill"])
 		direction = self["direction"]
 		name = self["name"]
+		pocket = self["pocket"]
 		if name=="default" or name=="": name=None
-		app.profile(direction, self["offset"], self["overcut"], name)
+		app.profile(direction, self["offset"], self["overcut"], name, pocket)
 		app.setStatus(_("Generate profile path"))
 
 #==============================================================================
@@ -777,6 +786,7 @@ class Tabs(DataBase):
 		DataBase.__init__(self, master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
+			("islands",   "bool", False, _("Create tabs from selected islands?")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
@@ -804,7 +814,9 @@ class Tabs(DataBase):
 			tkMessageBox.showerror(_("Tabs error"),
 				_("You cannot have both the number of tabs or distance equal to zero"))
 
-		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+		islands = self["islands"]
+
+		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
@@ -1178,6 +1190,20 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Insert holding tabs"))
+		self.addWidget(b)
+
+		# ---
+		col += 1
+		row  = 0
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["island"],
+				text=_("Island"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=app:s.insertCommand("ISLAND",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Toggle island"))
 		self.addWidget(b)
 
 		# ---

@@ -89,6 +89,17 @@ class FileGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		col,row=2,0
+		b = Ribbon.LabelButton(self.frame, self, "<<Import>>",
+				image=Utils.icons["import32"],
+				text=_("Import"),
+				compound=TOP,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Import gcode/dxf file"))
+		self.addWidget(b)
+
+		# ---
+		col,row=3,0
 		b = Ribbon.LabelButton(self.frame, self, "<<Save>>",
 				image=Utils.icons["save32"],
 				command=app.save,
@@ -97,7 +108,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Save gcode/dxf file [Ctrl-S]"))
 		self.addWidget(b)
 
-		col,row=2,2
+		col,row=3,2
 		b = Ribbon.LabelButton(self.frame, self, "<<SaveAs>>",
 				text=_("Save"),
 				image=Utils.icons["triangle_down"],
@@ -174,7 +185,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		col,row=0,0
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Start"),
-				image=Utils.icons["startPendant"],
+				image=Utils.icons["start_pendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.startPendant,
@@ -185,7 +196,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
 				text=_("Stop"),
-				image=Utils.icons["stopPendant"],
+				image=Utils.icons["stop_pendant"],
 				compound=LEFT,
 				anchor=W,
 				command=app.stopPendant,
@@ -216,8 +227,7 @@ class CloseGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class SerialFrame(CNCRibbon.PageLabelFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageLabelFrame.__init__(self, master, "Serial", app)
-
+		CNCRibbon.PageLabelFrame.__init__(self, master, "Serial", _("Serial"), app)
 		self.autostart = BooleanVar()
 
 		# ---
@@ -275,7 +285,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		row  = 0
 
 		self.connectBtn = Ribbon.LabelButton(self,
-				image=Utils.icons["serial32"],
+				image=Utils.icons["serial48"],
 				text=_("Open"),
 				compound=TOP,
 				command=lambda s=self : s.event_generate("<<Connect>>"),

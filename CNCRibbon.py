@@ -79,8 +79,8 @@ class PageFrame(Frame, _LinkApp):
 # Page, LabelFrame
 #===============================================================================
 class PageLabelFrame(LabelFrame, _LinkApp):
-	def __init__(self, master, name, app):
-		LabelFrame.__init__(self, master, text=name, foreground="DarkBlue")
+	def __init__(self, master, name, name_alias_lng, app):
+		LabelFrame.__init__(self, master, text=name_alias_lng, foreground="DarkBlue")
 		_LinkApp.__init__(self, app)
 		self.name = name
 
@@ -88,8 +88,8 @@ class PageLabelFrame(LabelFrame, _LinkApp):
 # Page, ExLabelFrame
 #===============================================================================
 class PageExLabelFrame(tkExtra.ExLabelFrame, _LinkApp):
-	def __init__(self, master, name, app):
-		tkExtra.ExLabelFrame.__init__(self, master, text=name, foreground="DarkBlue")
+	def __init__(self, master, name, name_alias_lng, app):
+		tkExtra.ExLabelFrame.__init__(self, master, text=name_alias_lng, foreground="DarkBlue")
 		_LinkApp.__init__(self, app)
 		self.name = name
 
