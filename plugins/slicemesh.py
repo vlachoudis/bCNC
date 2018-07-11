@@ -68,12 +68,12 @@ class Tool(Plugin):
 			blocks.append(self.slice(file, zmax))
 		else:
 			#loop over multiple layers if zstep > 0
-			z = 0
-			while z <= zmax:
+			z = zmax
+			while z >= 0:
 				print(_("Slicing %f / %f"%(z,zmax)))
 				#app.setStatus(_("Slicing %f / %f"%(z,zmax))) #This is not working without return :(
 				blocks.append(self.slice(file, z, zout))
-				z += zstep
+				z -= zstep
 
 		#Insert blocks to bCNC
 		active = app.activeBlock()
