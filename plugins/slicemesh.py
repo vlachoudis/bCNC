@@ -108,8 +108,8 @@ class Tool(Plugin):
 		block = Block("slice %f"%(float(z)))
 
 		#FIXME: slice along different axes
-		plane_orig = (z, 0, 0) #z height to slice
-		plane_norm = (1, 0, 0)
+		plane_orig = (0, 0, z) #z height to slice
+		plane_norm = (0, 0, 1)
 
 		#Crosscut
 		contours = meshcut.cross_section(verts, faces, plane_orig, plane_norm)
@@ -118,16 +118,16 @@ class Tool(Plugin):
 		if zout is not None:
 			for contour in contours:
 				for segment in contour:
-					segment[0] = zout
+					segment[2] = zout
 
 		#Contours to G-code
 		for contour in contours:
 			#print(contour)
 			first = contour[0]
-			block.append("g0 x%f y%f z%f"%(first[1],first[2],first[0]))
+			block.append("g0 x%f y%f z%f"%(first[0],first[1],first[2]))
 			for segment in contour:
-				block.append("g1 x%f y%f z%f"%(segment[1],segment[2],segment[0]))
-			block.append("g1 x%f y%f z%f"%(first[1],first[2],segment[0]))
+				block.append("g1 x%f y%f z%f"%(segment[0],segment[1],segment[2]))
+			block.append("g1 x%f y%f z%f"%(first[0],first[1],segment[2]))
 			block.append("( ---------- cut-here ---------- )")
 		if block: del block[-1]
 
