@@ -23,11 +23,13 @@ from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians,
 
 import os
 import numpy as np
+import numpy.linalg as la
 import itertools
 import utils
 import ply
 import stl
 import meshcut
+import scipy.spatial.distance as spdist
 
 
 class Tool(Plugin):
@@ -63,6 +65,8 @@ class Tool(Plugin):
 
 		blocks = []
 
+		verts, faces = self.loadMesh(file)
+
 		if zstep <= 0:
 			#cut only single layer if zstep <= 0
 			blocks.append(self.slice(file, zmax))
@@ -71,8 +75,8 @@ class Tool(Plugin):
 			z = zmax
 			while z >= 0:
 				#print(_("Slicing %f / %f"%(z,zmax)))
-				app.setStatus(_("Slicing %f / %f"%(z,zmax)), True)
-				blocks.append(self.slice(file, z, zout))
+				app.setStatus(_("Slicing %f / %f : %s"%(z,zmax,file)), True)
+				blocks.append(self.slice(verts, faces, z, zout))
 				z -= zstep
 
 		#Insert blocks to bCNC
@@ -82,13 +86,24 @@ class Tool(Plugin):
 		app.setStatus(_("Mesh sliced"))                           #<<< feed back result
 
 
-	def slice(self, file, z, zout=None):
-		block = Block("slice %f"%(float(z)))
+	def loadMesh(self, file):
+		#Decide on filetype
+		fn, fext = os.path.splitext(file)
+		fext = fext.upper()
 
-		#FIXME: decide if stl or ply and load mesh using proper method
-		# STL slicing example: https://github.com/julienr/meshcut/blob/master/examples/1_stl_sphere_cut.py
-		with open(file) as f:
-			verts, faces, _ = ply.load_ply(f)
+		if fext=='.STL':
+			verts, faces = self.load_stl(file)
+		elif fext=='.PLY':
+			with open(file) as f:
+				verts, faces, _ = ply.load_ply(f)
+		else:
+			print("unknown file extension",fext)
+			return None
+
+		return verts, faces
+
+	def slice(self, verts, faces, z, zout=None):
+		block = Block("slice %f"%(float(z)))
 
 		#FIXME: slice along different axes
 		plane_orig = (z, 0, 0) #z height to slice
@@ -115,3 +130,57 @@ class Tool(Plugin):
 		if block: del block[-1]
 
 		return block
+
+	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
+		"""
+		Will merge vertices that are closer than close_epsilon.
+
+		Warning, this has a O(n^2) memory usage because we compute the full
+		vert-to-vert distance matrix. If you have a large mesh, might want
+		to use some kind of spatial search structure like an octree or some fancy
+		hashing scheme
+
+		Returns: new_verts, new_faces
+		"""
+		# Pairwise distance between verts
+		D = spdist.cdist(verts, verts)
+
+		# Compute a mapping from old to new : for each input vert, store the index
+		# of the new vert it will be merged into
+		close_epsilon = 1e-5
+		old2new = np.zeros(D.shape[0], dtype=np.int)
+		# A mask indicating if a vertex has already been merged into another
+		merged_verts = np.zeros(D.shape[0], dtype=np.bool)
+		new_verts = []
+		for i in range(D.shape[0]):
+			if merged_verts[i]:
+				continue
+			else:
+				# The vertices that will be merged into this one
+				merged = np.flatnonzero(D[i, :] < close_epsilon)
+				old2new[merged] = len(new_verts)
+				new_verts.append(verts[i])
+				merged_verts[merged] = True
+
+		new_verts = np.array(new_verts)
+
+		# Recompute face indices to index in new_verts
+		new_faces = np.zeros((len(faces), 3), dtype=np.int)
+		for i, f in enumerate(faces):
+			new_faces[i] = (old2new[f[0]], old2new[f[1]], old2new[f[2]])
+
+		# again, plot with utils.trimesh3d(new_verts, new_faces)
+		return new_verts, new_faces
+
+
+	def load_stl(self, stl_fname):
+		#import stl
+		m = stl.mesh.Mesh.from_file(stl_fname)
+
+		# Flatten our vert array to Nx3 and generate corresponding faces array
+		verts = m.vectors.reshape(-1, 3)
+		faces = np.arange(len(verts)).reshape(-1, 3)
+
+		verts, faces = self.merge_close_vertices(verts, faces)
+		return verts, faces
+

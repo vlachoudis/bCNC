@@ -4,8 +4,6 @@ MeshCut ( https://github.com/julienr/meshcut )
 	lib/mescut.py
 	lib/ply.py
 	lib/utils.py
-STL ( https://pypi.org/project/stl )
-	lib/stl.py
 
 This is the text of their original license:
 
