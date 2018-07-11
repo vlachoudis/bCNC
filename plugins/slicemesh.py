@@ -8,28 +8,29 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
-import math
+#import math
 import os.path
-import re
+#import re
 from CNC import CNC,Block
 from ToolsPage import Plugin
-from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
+#from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 
 #FIXME: not sure how to force bCNC to prefer importing from bCNC/lib to importing from system
 #	if having conflicts with system libs, you can try this. It helped for me:
-#	pip2 uninstall meshcut stl ply itertools utils
+#	pip2 uninstall meshcut stl ply itertools utils python-utils
+#	pip2 install scipy numpy
 
 import os
 import numpy as np
-import numpy.linalg as la
-import itertools
-import utils
-import ply
-import stl
+#import numpy.linalg as la
+#import itertools
+#import utils
 import meshcut
-import scipy.spatial.distance as spdist
+import ply
+import stl #FIXME: write smaller STL parser
+import scipy.spatial.distance as spdist #stl only, FIXME: can be easily rewritten as internal method
 
 
 class Tool(Plugin):
@@ -65,6 +66,7 @@ class Tool(Plugin):
 
 		blocks = []
 
+		app.setStatus(_("Loading mesh: %s"%(file)), True)
 		verts, faces = self.loadMesh(file)
 
 		if zstep <= 0:
