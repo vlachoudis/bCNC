@@ -49,11 +49,11 @@ class Tool(Plugin):
 
 	# Excellon Coordsconvert
 	def coord2float(self, text, unitinch):
-		if '.' in text: return float(text)*0.1
+		if '.' in text: return float(text)
 		if unitinch==True: return float(text)*0.0001
 		#unit mm
-		if len(text)==5: return int(text)*0.01
-		if len(text)==6: return int(text)*0.001
+		if len(text)==(6 if text[0]=='-' else 5): return int(text)*0.01
+		if len(text)==(7 if text[0]=='-' else 6): return int(text)*0.001
 
 	#convert to systemsetting
 	def convunit(self, value, unitinch):
@@ -77,7 +77,7 @@ class Tool(Plugin):
 					#read header
 					if line=="M48": header = True
 					if header==True:
-						if (line=="INCH" or line=="METRIC"): unitinch = line=="INCH"
+						if (line.startswith("INCH") or line.startswith("METRIC")): unitinch = line.startswith("INCH")
 						if (line=="M95" or line=="%"): header = False
 						if line[0]=="T":
 							#tools
