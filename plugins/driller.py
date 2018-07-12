@@ -49,7 +49,8 @@ class Tool(Plugin):
 
 	# Excellon Coordsconvert
 	def coord2float(self, text, unitinch):
-		if unitinch==True: return int(text)*0.0001
+		if '.' in text: return float(text)*0.1
+		if unitinch==True: return float(text)*0.0001
 		#unit mm
 		if len(text)==5: return int(text)*0.01
 		if len(text)==6: return int(text)*0.001
@@ -86,7 +87,7 @@ class Tool(Plugin):
 					if header==False:
 						if line[0]=="T": current_tool = line
 						if line[0]=="X":
-							m = re.match('X(\d+)Y(\d+)',line)
+							m = re.match(r'X([\d\.-]+)Y([\d\.-]+)',line)
 							# convert to system
 							x = self.convunit( self.coord2float(m.group(1), unitinch), unitinch)
 							y = self.convunit( self.coord2float(m.group(2), unitinch), unitinch)
