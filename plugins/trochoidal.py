@@ -77,6 +77,8 @@ class Tool(Plugin):
 				phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
 
 				#TODO: handle arc segments
+				#if segment.type == Segment.LINE:
+				#if segment.type in (Segment.CW, Segment.CCW):
 				i=0
 				while i<(segment.length()+rdoc):
 					pos=min(segment.length(), i)
