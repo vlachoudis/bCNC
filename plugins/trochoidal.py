@@ -83,7 +83,7 @@ class Tool(Plugin):
 				while i<(segment.length()+rdoc):
 					pos=min(segment.length(), i)
 
-					B = self.pol2car(pos, phi, segment.A)
+					B = segment.distPoint(pos)
 					block.extend(self.trochoid(A,B,radius,cw,circ))
 					A = B
 

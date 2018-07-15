@@ -215,15 +215,27 @@ class Segment:
 				 self.length())
 
 	#----------------------------------------------------------------------
-	# Return a point ON the segment in the middle
+	# Return a point ON the segment in the middle (= factor 0.5) or different
 	#----------------------------------------------------------------------
-	def midPoint(self):
+	def midPoint(self, factor=None):
+		if factor is None:
+			factor=0.5
+
 		if self.type == Segment.LINE:
-			return 0.5*(self.A + self.B)
+			return (self.A*(1-factor) + self.B*factor)
 		else:
-			phi = 0.5*(self.startPhi + self.endPhi)
+			phi = (self.startPhi*(1-factor) + self.endPhi*factor)
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
+
+	#----------------------------------------------------------------------
+	# Return a point ON the segment at distance traveled from A to B (or B to A when negative)
+	#----------------------------------------------------------------------
+	def distPoint(self, dist):
+		factor = min(max(abs(dist)/self.length(), 0), 1)
+		if dist < 0:
+			factor = 1-factor
+		return self.midPoint(factor)
 
 	#----------------------------------------------------------------------
 	# return segment length
