@@ -30,6 +30,7 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("cw"    ,    "bool" ,    True, _("Clockwise")),
 			("circ"    ,    "bool" ,    False, _("Circular")),
+			("evenspacing"    ,    "bool" ,    True, _("Even spacing across segment")),
 			("entry"    ,    "bool" ,    False, _("Trochoid entry (prepare for helicut)")),
 			("rdoc"    ,    "mm" ,    "0.2", _("Radial depth of cut (<= cutter D * 0.4)")),
 			("dia"    ,    "mm" ,    "3", _("Trochoid diameter (<= cutter D)"))
@@ -45,6 +46,7 @@ class Tool(Plugin):
 		radius = self["dia"]/2
 		cw = self["cw"]
 		circ = self["circ"]
+		evenspacing = self["evenspacing"]
 
 		#print("go!")
 		blocks  = []
@@ -79,15 +81,25 @@ class Tool(Plugin):
 				#TODO: handle arc segments
 				#if segment.type == Segment.LINE:
 				#if segment.type in (Segment.CW, Segment.CCW):
+
+				#Compensate for uneven spacing
+				srdoc = rdoc
+				if evenspacing:
+					subsegs = segment.length()//rdoc
+					remainder = segment.length()%rdoc
+					if remainder != 0:
+						srdoc = segment.length()/(subsegs+1)
+
+				#Loop over subsegmnents of segment
 				i=0
-				while i<(segment.length()+rdoc):
+				while i<(segment.length()+srdoc):
 					pos=min(segment.length(), i)
 
 					B = segment.distPoint(pos)
 					block.extend(self.trochoid(A,B,radius,cw,circ))
 					A = B
 
-					i+=rdoc
+					i+=srdoc
 
 
 			blocks.append(block)
