@@ -53,7 +53,7 @@ class Segment:
 		self.B    = e
 		self.AB   = self.B-self.A	# vector from start to end
 		self._cross  = False		# end point is a path crossing point
-		self._inside = None		# auxiliary variable for tab operations
+		self._inside = []		# auxiliary variable for tab and island operations
 		if self.type==Segment.LINE:
 			self.calcBBox()
 		elif c is not None:
@@ -215,15 +215,27 @@ class Segment:
 				 self.length())
 
 	#----------------------------------------------------------------------
-	# Return a point ON the segment in the middle
+	# Return a point ON the segment in the middle (= factor 0.5) or different
 	#----------------------------------------------------------------------
-	def midPoint(self):
+	def midPoint(self, factor=None):
+		if factor is None:
+			factor=0.5
+
 		if self.type == Segment.LINE:
-			return 0.5*(self.A + self.B)
+			return (self.A*(1-factor) + self.B*factor)
 		else:
-			phi = 0.5*(self.startPhi + self.endPhi)
+			phi = (self.startPhi*(1-factor) + self.endPhi*factor)
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
+
+	#----------------------------------------------------------------------
+	# Return a point ON the segment at distance traveled from A to B (or B to A when negative)
+	#----------------------------------------------------------------------
+	def distPoint(self, dist):
+		factor = min(max(abs(dist)/self.length(), 0), 1)
+		if dist < 0:
+			factor = 1-factor
+		return self.midPoint(factor)
 
 	#----------------------------------------------------------------------
 	# return segment length
@@ -968,8 +980,7 @@ class Path(list):
 
 		if setinside is not None:
 			for i,si in enumerate(self):
-				if path.isInside(si.midPoint()): si._inside = setinside
-				#else: si._inside = None
+				if path.isInside(si.midPoint()): si._inside.append(setinside)
 
 		return points
 
@@ -1050,6 +1061,54 @@ class Path(list):
 			Op = prev.orthogonalEnd()
 			i += 1
 
+	#----------------------------------------------------------------------
+	def trochovercut(self, offset, overcut, adaptative, adaptedRadius):
+		if self.isClosed():
+			prev = self[-1]
+			Op = prev.orthogonalEnd()
+		else:
+			prev = None
+			Op   = None	# previous orthogonal
+		i = 0
+		while i<len(self):
+			segment = self[i]
+			O  = segment.orthogonalStart()
+			if Op is not None:
+				cross = O[0]*Op[1]-O[1]*Op[0]
+				if prev.type==Segment.LINE and segment.type==Segment.LINE and cross*offset < -EPSV:
+					# find direction
+					D = O+Op
+					D.normalize()
+					if offset>0.0: D = -D
+
+					Dpolice = D *0.00001 
+
+					costheta = O*Op
+					costheta2 = sqrt((1.0+costheta)/2.0)
+					distance = abs(offset)*(1.0/costheta2-1.0)
+					if overcut == 1 and adaptative == 0:
+						pass
+					#	distance =  float(abs(adaptedRadius))
+					if overcut == 0 and adaptative == 1:
+					#	distance =  abs(adaptedRadius)
+						distance = abs(adaptedRadius)*(1.0/costheta2-1.0)
+						distance +=  abs(adaptedRadius)
+					elif  overcut == 1 and adaptative == 1:
+						distance +=  abs(adaptedRadius)
+					D *= distance
+					if adaptative:
+						self.insert(i,Segment(Segment.LINE, segment.A, segment.A + Dpolice))
+						self.insert(i+1, Segment(Segment.LINE, segment.A+Dpolice, segment.A))
+						self.insert(i+2,Segment(Segment.LINE, segment.A, segment.A + D))
+						self.insert(i+3, Segment(Segment.LINE, segment.A+D, segment.A))
+						i += 4
+					else:
+						self.insert(i,Segment(Segment.LINE, segment.A, segment.A + D))
+						self.insert(i+1, Segment(Segment.LINE, segment.A+D, segment.A))
+						i += 2
+			prev = segment
+			Op = prev.orthogonalEnd()
+			i += 1
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P
 	# else return None
