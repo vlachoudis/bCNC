@@ -677,7 +677,10 @@ class Cut(DataBase):
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
-			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)"))
+			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
+			("islandsLeave", "bool" , True, _("Leave islands uncut")),
+			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
+			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
 		]
 		self.buttons.append("exe")
 
@@ -695,7 +698,10 @@ class Cut(DataBase):
 		helixBottom = self["helixBottom"]
 		ramp = self["ramp"]
 		if ramp < 0: ramp = self.master.fromMm(float(ramp))
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp)
+		islandsLeave = self["islandsLeave"]
+		islandsCut = self["islandsCut"]
+		islandsSelectedOnly = self["islandsSelectedOnly"]
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -786,7 +792,7 @@ class Tabs(DataBase):
 		DataBase.__init__(self, master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("islands",   "bool", False, _("Create tabs from selected islands?")),
+			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
@@ -814,9 +820,9 @@ class Tabs(DataBase):
 			tkMessageBox.showerror(_("Tabs error"),
 				_("You cannot have both the number of tabs or distance equal to zero"))
 
-		islands = self["islands"]
+		circ = self["circ"]
 
-		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
+		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================

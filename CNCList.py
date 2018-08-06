@@ -685,6 +685,51 @@ class CNCListbox(Listbox):
 		if change: self.fill()
 
 	# ----------------------------------------------------------------------
+	# splitBlocks
+	# ----------------------------------------------------------------------
+	def joinBlocks(self, event=None):
+		if not self._items: return
+		all_items = self._items
+		sel_items = list(map(int,self.curselection()))
+		change = True
+		bl = Block(self.gcode[sel_items[0]].name())
+		for bid in sel_items:
+			for line in self.gcode[bid]:
+				bl.append(line)
+			bl.append("( ---------- cut-here ---------- )")
+		del bl[-1]
+		self.gcode.addUndo(self.gcode.addBlockUndo(bid+1,bl))
+		if change: self.fill()
+		self.deleteBlock()
+		self.winfo_toplevel().event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
+	# splitBlocks
+	# ----------------------------------------------------------------------
+	def splitBlocks(self, event=None):
+		if not self._items: return
+		all_items = self._items
+		sel_items = list(map(int,self.curselection()))
+		change = True
+		newblocks = []
+		for bid in sel_items:
+			bl = Block(self.gcode[bid].name())
+			for line in self.gcode[bid]:
+				if line == "( ---------- cut-here ---------- )":
+					#newblocks.append(bl)
+					#self.insertBlock(bl)
+					self.gcode.addUndo(self.gcode.addBlockUndo(bid+1,bl))
+					bl = Block(self.gcode[bid].name())
+				else:
+					bl.append(line)
+		self.gcode.addUndo(self.gcode.addBlockUndo(bid+1,bl))
+		#newblocks.append(bl)
+		#self.gcode.extend(newblocks)
+		if change: self.fill()
+		self.deleteBlock()
+		self.winfo_toplevel().event_generate("<<Modified>>")
+
+	# ----------------------------------------------------------------------
 	# change color of a block
 	# ----------------------------------------------------------------------
 	def changeColor(self, event=None):
