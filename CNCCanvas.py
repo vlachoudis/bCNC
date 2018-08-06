@@ -46,6 +46,7 @@ MARGIN_COLOR  = "Magenta"
 GRID_COLOR    = "Gray"
 BOX_SELECT    = "Cyan"
 TAB_COLOR     = "DarkOrange"
+TABS_COLOR    = "Orange"
 WORK_COLOR    = "Orange"
 CAMERA_COLOR  = "Cyan"
 CANVAS_COLOR  = "White"
@@ -1067,7 +1068,7 @@ class CNCCanvas(tk.Canvas):
 		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
 		self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
 		self.itemconfig("sel3", width=2, fill=TAB_COLOR)
-		self.itemconfig("sel4", width=2, fill=TAB_COLOR)
+		self.itemconfig("sel4", width=2, fill=TABS_COLOR)
 		for i in SELECTION_TAGS: self.tag_raise(i)
 		self.drawMargin()
 
@@ -1438,6 +1439,20 @@ class CNCCanvas(tk.Canvas):
 			)))
 
 	#----------------------------------------------------------------------
+	# Draw a 3D path
+	#----------------------------------------------------------------------
+	def _drawPath(self, path, z=0.0, **kwargs):
+		xyz = []
+		for segment in path:
+			xyz.append((segment.A[0], segment.A[1], z))
+			xyz.append((segment.B[0], segment.B[1], z))
+		rect = self.create_line(
+				self.plotCoords(xyz),
+				**kwargs),
+		return rect
+
+
+	#----------------------------------------------------------------------
 	# Draw a 3D rectangle
 	#----------------------------------------------------------------------
 	def _drawRect(self, xmin, ymin, xmax, ymax, z=0.0, **kwargs):
@@ -1743,17 +1758,34 @@ class CNCCanvas(tk.Canvas):
 			startTime = before = time.time()
 			self.cnc.resetAllMargins()
 			drawG = self.draw_rapid or self.draw_paths or self.draw_margin
+			bid = self.app.editor.getSelectedBlocks()
 			for i,block in enumerate(self.gcode.blocks):
+				if i in bid: selected=True
+				else: selected = False
 				start = True	# start location found
 				block.resetPath()
 				# Draw block tabs
 				if self.draw_paths:
 					for tab in block.tabs:
-						color = block.enable and TAB_COLOR or DISABLE_COLOR
-						item = self._drawRect(	tab.x-tab.dx/2., tab.y-tab.dy/2.,
-									tab.x+tab.dx/2., tab.y+tab.dy/2.,
-									0., fill=color)
-						tab.path = item
+						#from bpath import Path
+						#if not isinstance(tab.path, Path):
+						#	print("cnv not bpath: ", type(tab.path))
+						#	continue
+
+						#Set width and color for tabs
+						#FIXME: For some reason the width/color updates only when i manualy click redraw button
+						if block.enable:
+							width = 2
+							if selected:
+								color = TABS_COLOR
+							else:
+								color = TAB_COLOR
+						else:
+							width = 1
+							color = DISABLE_COLOR
+
+						#Draw
+						item = self._drawPath(tab.path,	0., fill=color, width=width)
 						self._items[item[0]] = i,tab
 						self.tag_lower(item)
 				# Draw block

@@ -250,6 +250,29 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=tk.NSEW)
 		tkExtra.Balloon.set(b, _("(Un)Comment selected lines"))
 		self.addWidget(b)
+		# ---
+		col += 2
+		row = 0
+		b = Ribbon.LabelButton(self.frame, self.app,  "<<Join>>",
+				image=Utils.icons["union"],
+				text=_("Join"),
+				compound=tk.LEFT,
+				anchor=tk.W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=tk.NSEW)
+		tkExtra.Balloon.set(b, _("Join selected blocks"))
+		self.addWidget(b)
+		# ---
+		row += 1
+		b = Ribbon.LabelButton(self.frame, self.app,  "<<Split>>",
+				image=Utils.icons["cut"],
+				text=_("Split"),
+				compound=tk.LEFT,
+				anchor=tk.W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=tk.NSEW)
+		tkExtra.Balloon.set(b, _("Split selected blocks"))
+		self.addWidget(b)
 
 #===============================================================================
 # Move Group

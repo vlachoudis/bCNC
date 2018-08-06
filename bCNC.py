@@ -318,7 +318,9 @@ class Application(tk.Toplevel,Sender):
 		self.bind('<<Enable>>',		self.editor.enable)
 		self.bind('<<Disable>>',	self.editor.disable)
 		self.bind('<<ChangeColor>>',    self.editor.changeColor)
-		self.bind('<<Comment>>',		self.editor.commentRow)
+		self.bind('<<Comment>>',	self.editor.commentRow)
+		self.bind('<<Join>>',		self.editor.joinBlocks)
+		self.bind('<<Split>>',		self.editor.splitBlocks)
 
 		# Canvas X-bindings
 		self.bind("<<ViewChange>>",	self.viewChange)
@@ -1357,6 +1359,17 @@ class Application(tk.Toplevel,Sender):
 				self.editor.selectAll()
 			self.executeOnSelection("INKSCAPE", True)
 
+		# ISLAND set or toggle island tag
+		elif rexx.abbrev("ISLAND", cmd, 3):
+			if len(line) > 1:
+				if line[1].upper() == "1":
+					isl = True
+				else:
+					isl = False
+			else:
+				isl = None
+			self.executeOnSelection("ISLAND", True, isl)
+
 		# ISO1: switch to ISO1 projection
 		elif cmd=="ISO1":
 			self.canvasFrame.viewISO1()
@@ -1592,7 +1605,9 @@ class Application(tk.Toplevel,Sender):
 			except:	dy = tabs.fromMm("dy")
 			try:	z = float(line[5])
 			except:	z = tabs.fromMm("z")
-			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z)
+			try:	circular = bool(line[6])
+			except:	circular = True
+			self.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circular)
 
 		# TERM*INAL: switch to terminal tab
 		elif rexx.abbrev("TERMINAL",cmd,4):
@@ -1687,6 +1702,8 @@ class Application(tk.Toplevel,Sender):
 			self.gcode.orderLines(items, *args)
 		elif cmd == "INKSCAPE":
 			self.gcode.inkscapeLines()
+		elif cmd == "ISLAND":
+			self.gcode.island(items, *args)
 		elif cmd == "MIRRORH":
 			self.gcode.mirrorHLines(items)
 		elif cmd == "MIRRORV":
@@ -1704,7 +1721,7 @@ class Application(tk.Toplevel,Sender):
 		elif cmd == "ROTATE":
 			self.gcode.rotateLines(items, *args)
 		elif cmd == "TABS":
-			self.gcode.createTabs(items, *args)
+			sel = self.gcode.createTabs(items, *args)
 
 		# Fill listbox and update selection
 		self.editor.fill()
@@ -1775,7 +1792,45 @@ class Application(tk.Toplevel,Sender):
 		self.draw()
 		self.notBusy()
 #		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
+	#-----------------------------------------------------------------------
+	def trochprofile(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, name=None):
+	#	tool = self.tools["EndMill"]
+	#	ofs  = self.tools.fromMm(tool["diameter"])/2.0
+		adaptedRadius = float(adaptedRadius)
+		ofs = float(cutDiam)/2.0
+		sign = 1.0
 
+		if direction is None:
+			pass
+		elif rexx.abbrev("INSIDE",direction.upper()):
+			sign = -1.0
+		elif rexx.abbrev("OUTSIDE",direction.upper()):
+			sign = 1.0
+		elif rexx.abbrev("ON",direction.upper()):
+			ofs = 0
+		else:
+			try:
+				ofs = float(direction)/2.0
+			except:
+				pass
+
+		# additional offset
+		try: ofs += float(offset)
+		except: pass
+
+		self.busy()
+		blocks = self.editor.getSelectedBlocks()
+		# on return we have the blocks with the new blocks to select
+		msg = self.gcode.trochprofile(blocks, ofs*sign, overcut, adaptative, adaptedRadius, name)
+		if msg:
+			tkMessageBox.showwarning("Open paths",
+					"WARNING: %s"%(msg),
+					parent=self)
+		self.editor.fill()
+		self.editor.selectBlocks(blocks)
+		self.draw()
+		self.notBusy()
+		self.setStatus(_("Profile block distance=%g")%(ofs*sign))
 #	#-----------------------------------------------------------------------
 #	def tabAdded(self, event=None):
 #		tools = Page.frames["Tools"]
