@@ -1825,7 +1825,7 @@ class Application(Toplevel,Sender):
 		msg2 = adaptative
 		if msg2:
 			tkMessageBox.showwarning("Adaptative",
-					"WARNING: Adaptive route generated, but Trocoidal still does not implement it. Usig The route will give wrong results in the corners!",
+					"WARNING: Adaptive route generated, but Trocoidal still does not implement it. Use will give wrong results in the corners!",
 					parent=self)
 	
 		self.editor.fill()
