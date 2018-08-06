@@ -35,13 +35,13 @@ class Tool(Plugin):
 
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-	        ("CutDiam" ,"float", 10.0, _("Trochoid Diameter")),
+	        ("CutDiam" ,"float", 6.0, _("Trochoid Diameter")),
 			("Direction","inside,outside,on" , "outside", _("Direction")),
 			("Offset",   "float",  0.0, _("Additional offset distance")),
 			("endmill",   "db" ,    "", _("End Mill")),
 			("Adaptative",  "bool",1,   _("Adaptative")),
 			("Overcut",  "bool",     0, _("Overcut")),
-			("cornerdiameter",  "float",    10, _("Diameter safe to corner %"))
+			("cornerdiameter",  "float",    10, _("Diameter safe to corner %")),
 		]
 		self.buttons.append("exe")
 
@@ -49,8 +49,13 @@ class Tool(Plugin):
 	def execute(self, app):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
-		cornerdiameter = CNC.vars["diameter"]*(1+self["cornerdiameter"]/100.0)
+		cornerdiameter = self["cornerdiameter"]
+		if cornerdiameter == "": 
+			cornerdiameter == 10.0
+		cornerdiameter = min(100, cornerdiameter)/100.0
+		cornerdiameter = CNC.vars["diameter"]*(1+cornerdiameter)
 		cornerradius = (self["CutDiam"] - cornerdiameter) /2.0
+		cornerradius = max(0, cornerradius)
 #		adaptedRadius = (self["CutDiam"] - CNC.vars["diameter"])/2.0
 
 		direction = self["Direction"]
@@ -58,7 +63,10 @@ class Tool(Plugin):
 		if name=="default" or name=="": name=None
 #		app.trochprofile(direction, self["offset"], self["overcut"], name)
 #		app.trochprofile(self["CutDiam"], direction, self["Offset"], self["Overcut"], self["Adaptative"], adaptedRadius, name)
-		app.trochprofile(self["CutDiam"], direction, self["Offset"], self["Overcut"], self["Adaptative"], cornerradius, name)
+		
+	
+
+		app.trochprofile_bcnc(self["CutDiam"], direction, self["Offset"], self["Overcut"], self["Adaptative"], cornerradius, name)
 		app.setStatus(_("Generate Trochoidal Profile path"))
 
 #==============================================================================
