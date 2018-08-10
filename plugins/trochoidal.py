@@ -33,7 +33,8 @@ class Tool(Plugin):
 			("evenspacing"    ,    "bool" ,    True, _("Even spacing across segment")),
 			("entry"    ,    "bool" ,    False, _("Trochoid entry (prepare for helicut)")),
 			("rdoc"    ,    "mm" ,    "0.2", _("Radial depth of cut (<= cutter D * 0.4)")),
-			("dia"    ,    "mm" ,    "3", _("Trochoid diameter (<= cutter D)"))
+			("dia"    ,    "mm" ,    "3", _("Trochoid diameter (<= cutter D)")),
+			("feed"    ,    "mm" ,    "2000", _("Feedrate"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -42,6 +43,7 @@ class Tool(Plugin):
 	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
 	def execute(self, app):
+		feed = self["feed"]
 		rdoc = self["rdoc"]
 		radius = self["dia"]/2
 		cw = self["cw"]
@@ -74,6 +76,7 @@ class Tool(Plugin):
 					blocks.append(eblock)
 					entry = False
 
+				block.append("F"+str(feed))
 				block.append("G0 Z0")
 
 				phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
