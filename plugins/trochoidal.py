@@ -50,6 +50,12 @@ class Tool(Plugin):
 		circ = self["circ"]
 		evenspacing = self["evenspacing"]
 
+		if cw: cwtext = 'cw'
+		else: cwtext = 'ccw'
+
+		if cw: arcg = 'g2'
+		else: arcg = 'g3'
+
 		#print("go!")
 		blocks  = []
 		for bid in app.editor.getSelectedBlocks():
@@ -57,11 +63,14 @@ class Tool(Plugin):
 			path = app.gcode.toPath(bid)[0]
 			#print(path)
 
-			block = Block("trochoid")
+			block = Block("trochoid "+cwtext+" "+str(radius*2)+"+"+str(rdoc))
+			block.append("F"+str(feed))
 
 			entry = self["entry"]
 
 			A=path[0].A
+			block.append("g0 x"+str(A[0])+" y"+str(A[1]))
+			block.append("G1 Z0")
 			for segment in path:
 				#print(segment.A)
 				#block.append("g0 x0 y0")
@@ -76,8 +85,9 @@ class Tool(Plugin):
 					blocks.append(eblock)
 					entry = False
 
-				block.append("F"+str(feed))
-				block.append("G0 Z0")
+				#Continuity BEGINING
+				block.append("g1 x"+str(segment.A[0])+" y"+str(segment.A[1]))
+				#block.append(arcg+" x"+str(segment.A[0])+" y"+str(segment.A[1])+" r"+str(radius/2))
 
 				phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
 
@@ -104,6 +114,9 @@ class Tool(Plugin):
 
 					i+=srdoc
 
+				#Continuity END
+				#block.append("g1 x"+str(segment.B[0])+" y"+str(segment.B[1]))
+				block.append(arcg+" x"+str(segment.B[0])+" y"+str(segment.B[1])+" r"+str(radius/2))
 
 			blocks.append(block)
 
@@ -167,6 +180,7 @@ class Tool(Plugin):
 			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
 			block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(r[0])+" j"+str(r[1]))
 		else:
+			#block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" r"+str(radius/2))
 			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
 			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
 			block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1]))
