@@ -1013,8 +1013,12 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
-						if not self._alarm:
-							CNC.vars["state"] = fields[0]
+
+						#FIXME: not sure why this was here, but it was breaking stuff
+						#(eg.: pause button #773 and status display)
+						#if not self._alarm:
+						CNC.vars["state"] = fields[0]
+
 						for field in fields[1:]:
 							word = SPLITPAT.split(field)
 							if word[0] == "MPos":
