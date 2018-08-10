@@ -255,6 +255,26 @@ class DROFrame(CNCRibbon.PageFrame):
 		# Set buttons
 		row += 1
 		col = 1
+		self.xyzero = Button(self, text=_("XY=0"),
+				command=self.setXY0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.xyzero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(self.xyzero, _("Set XY coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(self.xyzero)
+
+		col += 1
+		self.xyzzero = Button(self, text=_("XYZ=0"),
+				command=self.setXYZ0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		self.xyzzero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
+		tkExtra.Balloon.set(self.xyzzero, _("Set XYZ coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(self.xyzzero)
+
+		# Set buttons
+		row += 1
+		col = 1
 		f = Frame(self)
 		f.grid(row=row, column=col, columnspan=3, pady=0, sticky=EW)
 
@@ -351,6 +371,14 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
 		self._wcsSet(None,None,"0")
+
+	#----------------------------------------------------------------------
+	def setXY0(self, event=None):
+		self._wcsSet("0","0",None)
+
+	#----------------------------------------------------------------------
+	def setXYZ0(self, event=None):
+		self._wcsSet("0","0","0")
 
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
