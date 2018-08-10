@@ -693,6 +693,15 @@ class Path(list):
 		return minx,miny,maxx,maxy
 
 	#----------------------------------------------------------------------
+	# @return the center of the path (based on bbox)
+	#----------------------------------------------------------------------
+	def center(self):
+		minx,miny,maxx,maxy = self.bbox()
+		x=(minx+maxx)/2
+		y=(miny+maxy)/2
+		return x,y
+
+	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
 	# The solution is determined by the number N of crossings of a horizontal
 	# line starting from the point P(x,y)
