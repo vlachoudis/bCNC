@@ -712,6 +712,7 @@ class Drill(DataBase):
 		DataBase.__init__(self, master, "Drill")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
+			("center",    "bool" ,  True, _("Drill in center only")),
 			("depth",     "mm" ,    "", _("Target Depth")),
 			("peck",      "mm" ,    "", _("Peck depth")),
 			("dwell",     "float" , "", _("Dwell (s)")),
@@ -725,6 +726,7 @@ class Drill(DataBase):
 		h = self.fromMm("depth", None)
 		p = self.fromMm("peck",  None)
 		e = self.fromMm("distance", None)
+		c = self["center"]
 		try:
 			d = self["dwell"]
 		except:
@@ -733,7 +735,7 @@ class Drill(DataBase):
 			n = int(self["number"])
 		except:
 			n = 0
-		app.executeOnSelection("DRILL", True, h, p, d, e, n)
+		app.executeOnSelection("DRILL", True, h, p, d, e, n, c)
 		app.setStatus(_("DRILL selected points"))
 
 #==============================================================================

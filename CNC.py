@@ -3266,7 +3266,7 @@ class GCode:
 	# Depth increment
 	# Retract height=safe height
 	#----------------------------------------------------------------------
-	def drill(self, items, depth=None, peck=None, dwell=None, distance=None, number=0):
+	def drill(self, items, depth=None, peck=None, dwell=None, distance=None, number=0, center=True):
 		# find the penetration points and drill
 		# skip all g1 movements on the horizontal plane
 		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
@@ -3307,7 +3307,16 @@ class GCode:
 			self.initPath(bid)
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
-			if distance is None and number==0:
+
+			if center:
+				#Drill in center only
+				for path in self.toPath(bid):
+					x,y = path.center()
+					lines.append("g0 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
+					drillHole(lines)
+
+			elif distance is None and number==0:
+				#Drill on path begining only
 				for i,line in enumerate(block):
 					cmds = CNC.parseLine(line)
 					if cmds is None:
@@ -3327,7 +3336,9 @@ class GCode:
 						pass
 					self.cnc.motionEnd()
 			else:
+				#Drill multiple holes along path
 				for path in self.toPath(bid):
+
 					length = path.length()
 					if number>0:
 						distance = length / float(number)
@@ -3348,6 +3359,8 @@ class GCode:
 							if remain > l:
 								s = distance-(remain-l)
 								break
+							#FIXME:	Rewrite this to use new method segment.distPoint(pos) from lib/bpath.py
+							#	See trochoidal plugin for more!
 							if segment.type == Segment.LINE:
 								P = segment.A + (remain/l)*segment.AB
 							else:
