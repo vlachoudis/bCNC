@@ -2537,7 +2537,15 @@ class GCode:
 		# get only first path that enters the surface
 		# ignore the deeper ones
 		z1st = None
+		passno = 0
 		for line in block:
+			#flatten helical paths
+			line = re.sub(r"\s?z-?[0-9\.]+","",line)
+
+			#break after first depth pass
+			if line[:5] == "(pass": passno+=1
+			if passno > 1: break
+
 			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.motionStart(cmds)
