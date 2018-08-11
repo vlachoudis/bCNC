@@ -113,7 +113,7 @@ CONTROLLER = {	"Grbl-V0"  : GRBL0,
 def loadIcons():
 	global icons
 	icons = {}
-	for img in glob.glob("%s%sicons%s*.gif"%(prgpath,os.sep,os.sep)):
+	for img in glob.glob("%s%sicons%s*.png"%(prgpath,os.sep,os.sep)):
 		name,ext = os.path.splitext(os.path.basename(img))
 		try:
 			icons[name] = PhotoImage(file=img)
