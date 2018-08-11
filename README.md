@@ -64,6 +64,12 @@ installation directory.
     - moving, rotating, mirroring the g-code
 - Web pendant to be used via smart phones
 
+# Debuging
+You can use following command to connect to debug serial traffic.
+ttyUSB0 is real HW, ttyUSB23 is gonna be new fake device to which you'll connect the bCNC in order to intercept trafic:
+
+    interceptty -l /dev/ttyUSB0 /dev/ttyUSB23 | interceptty-nicedump
+
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in
   an early stage of development.  Hence there should be plenty of bugs not yet
