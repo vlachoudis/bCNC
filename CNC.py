@@ -3411,8 +3411,10 @@ class GCode:
 
 		#Mark in which island we are inside
 		if islandPaths:
-			for island in islandPaths:
-				path.intersectPath(island, island._inside)
+			for island in reversed(islandPaths):
+				path.intersectPath(island)
+			for island in reversed(islandPaths):
+				path.markInside(island, island._inside)
 
 		#iterate over depth passes:
 		while z > depth:

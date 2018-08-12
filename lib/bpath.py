@@ -954,6 +954,13 @@ class Path(list):
 		return points
 
 	#----------------------------------------------------------------------
+	# mark all segments of intersected path that lay inside another path
+	#----------------------------------------------------------------------
+	def markInside(self, path, setinside):
+		for i,si in enumerate(self):
+			if path.isInside(si.midPoint()): si._inside.append(setinside)
+
+	#----------------------------------------------------------------------
 	# intersect path with other path and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectPath(self, path, setinside=None):
@@ -987,9 +994,11 @@ class Path(list):
 				self.insert(i+1,split)
 				self[i]._cross = True
 
+		#Mark inside segments
+		#FIXME: for some reason this fails if doing multiple intersections
+		#	in such case you have to intersect all paths and then mark them using markInside() additionaly
 		if setinside is not None:
-			for i,si in enumerate(self):
-				if path.isInside(si.midPoint()): si._inside.append(setinside)
+			self.markInside(path, setinside)
 
 		return points
 
