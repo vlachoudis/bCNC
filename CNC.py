@@ -2543,8 +2543,13 @@ class GCode:
 			line = re.sub(r"\s?z-?[0-9\.]+","",line)
 
 			#break after first depth pass
+			if line == "( ---------- cut-here ---------- )":
+				passno=0
+				if path:
+					paths.append(path)
+					path = Path(block.name())
 			if line[:5] == "(pass": passno+=1
-			if passno > 1: break
+			if passno > 1: continue
 
 			cmds = CNC.parseLine(line)
 			if cmds is None: continue
