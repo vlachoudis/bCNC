@@ -2671,11 +2671,11 @@ class GCode:
 
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
-					if ztab is None or ztab < ztabprev: #if we need to enter the toolpath after done clearing the tab
+					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
 						block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
-					else: #if we need to go higher in order to clear the tab
+					elif zh < ztab or zhprev < ztab: #if we need to go higher in order to clear the tab
 						block.append("(tab up "+str(max(zh, ztab))+")")
 						block.append(CNC.zexit(max(zh, ztab),7))
 						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
