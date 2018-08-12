@@ -2657,7 +2657,6 @@ class GCode:
 			setfeed = True
 			ztabprev = None
 			for sid,segment in enumerate(path):
-				nextseg = True
 				zhprev = zh
 
 				#This is where you can modify the ramp of the helix:
@@ -2678,13 +2677,11 @@ class GCode:
 					elif zh < ztab or zhprev < ztab: #if we need to go higher in order to clear the tab
 						block.append("(tab up "+str(max(zh, ztab))+")")
 						block.append(CNC.zexit(max(zh, ztab),7))
-						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
-						nextseg = False
 						setfeed = True
 				ztabprev = ztab
 
 				#Cut next segment of toolpath
-				if nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
+				addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
 
 				#Set feed if needed
 				if setfeed:
