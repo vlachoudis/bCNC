@@ -1021,6 +1021,11 @@ class Tools:
 			self.buttons[name].config(state=NORMAL)
 		self.buttons["exe"].config(text=self.active.get())
 
+		#Update execute button with plugin icon if available
+		icon = self.tools[self.active.get().upper()].icon
+		if icon is None: icon = "gear"
+		self.buttons["exe"].config(image=Utils.icons[icon])
+
 #===============================================================================
 # DataBase Group
 #===============================================================================
