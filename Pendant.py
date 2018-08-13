@@ -102,8 +102,8 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/icon":
 			if arg is None: return
-			self.do_HEAD(200, content="image/gif")
-			filename = os.path.join(iconpath, arg["name"]+".gif")
+			self.do_HEAD(200, content="image/png")
+			filename = os.path.join(iconpath, arg["name"]+".png")
 			try:
 				f = open(filename,"rb")
 				self.wfile.write(f.read())
@@ -120,15 +120,15 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				)
 				tmp.flush()
 				try:
-					with tempfile.NamedTemporaryFile(suffix='.gif') as out:
-						Image.open(tmp.name).save(out.name, 'GIF')
+					with tempfile.NamedTemporaryFile(suffix='.png') as out:
+						Image.open(tmp.name).save(out.name, 'PNG')
 						out.flush()
 						out.seek(0)
-						self.do_HEAD(200, content="image/gif")
+						self.do_HEAD(200, content="image/png")
 						self.wfile.write(out.read())
 				except:
-					self.do_HEAD(200, content="image/gif")
-					filename = os.path.join(iconpath, "warn.gif")
+					self.do_HEAD(200, content="image/png")
+					filename = os.path.join(iconpath, "warn.png")
 					try:
 						f = open(filename,"rb")
 						self.wfile.write(f.read())

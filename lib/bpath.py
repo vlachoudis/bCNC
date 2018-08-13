@@ -368,6 +368,23 @@ class Segment:
 			return phi - self.startPhi
 
 	#----------------------------------------------------------------------
+	# Intersect a line with line
+	#----------------------------------------------------------------------
+	def _intersectLineLine(self, other):
+		# check for intersection
+		DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
+		if abs(DD)<EPS2: return None,None
+
+		Dt = -(other.A[0]-self.A[0])*other.AB[1] + \
+		      (other.A[1]-self.A[1])*other.AB[0]
+		t = Dt/DD
+		P = self.AB*t + self.A
+		if self.minx<=P[0]<=self.maxx and other.minx<=P[0]<=other.maxx and \
+		   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:
+			return P,None
+		return None,None
+
+	#----------------------------------------------------------------------
 	# Intersect a line segment with an arc
 	#----------------------------------------------------------------------
 	def _intersectLineArc(self, arc):
@@ -418,6 +435,41 @@ class Segment:
 		return P1,P2
 
 	#----------------------------------------------------------------------
+	# Intersect a circle with circle
+	#----------------------------------------------------------------------
+	def _intersectCircleCircle(self, other):
+		# Circle circle intersection
+		CC = other.C - self.C
+		d = CC.norm()
+		if d<=EPS2 or d>=self.radius+other.radius: return None,None
+		#x = (d**2 + self.radius**2 - other.radius**2) / (2.*d)
+		if abs(d)<abs(self.radius):
+			x = (self.radius**2 + \
+			    (d+other.radius)*(d-other.radius)) / (2.*d)
+		else:
+			x = (d**2 + \
+			    (self.radius+other.radius)*(self.radius-other.radius)) / (2.*d)
+
+		diff = (self.radius-x)*(self.radius+x)
+		if diff<-EPS: return None,None
+		elif diff<EPS: diff = 0.0
+		y = sqrt(diff)
+
+		O = CC.orthogonal()
+
+		P1 = self.C + x*CC + y*O
+		if not self._insideArc(P1) or not other._insideArc(P1):
+			P1 = None
+
+		P2 = self.C + x*CC - y*O
+		if not self._insideArc(P2) or not other._insideArc(P2):
+			P2 = None
+
+		# force P1 to have always the solution if any
+		if P1 is None: return P2,None
+		return P1,P2
+
+	#----------------------------------------------------------------------
 	# Intersect with another segment
 	# returns two points
 	#----------------------------------------------------------------------
@@ -427,18 +479,7 @@ class Segment:
 		if max(self.miny,other.miny) > min(self.maxy,other.maxy): return None,None
 
 		if self.type==Segment.LINE and other.type==Segment.LINE:
-			# check for intersection
-			DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
-			if abs(DD)<EPS2: return None,None
-
-			Dt = -(other.A[0]-self.A[0])*other.AB[1] + \
-			      (other.A[1]-self.A[1])*other.AB[0]
-			t = Dt/DD
-			P = self.AB*t + self.A
-			if self.minx<=P[0]<=self.maxx and other.minx<=P[0]<=other.maxx and \
-			   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:
-				return P,None
-			return None,None
+			return self._intersectLineLine(other)
 
 		elif self.type==Segment.LINE and other.type!=Segment.LINE:
 			return self._intersectLineArc(other)
@@ -447,36 +488,7 @@ class Segment:
 			return other._intersectLineArc(self)
 
 		elif self.type!=Segment.LINE and other.type!=Segment.LINE:
-			# Circle circle intersection
-			CC = other.C - self.C
-			d = CC.norm()
-			if d<=EPS2 or d>=self.radius+other.radius: return None,None
-			#x = (d**2 + self.radius**2 - other.radius**2) / (2.*d)
-			if abs(d)<abs(self.radius):
-				x = (self.radius**2 + \
-				    (d+other.radius)*(d-other.radius)) / (2.*d)
-			else:
-				x = (d**2 + \
-				    (self.radius+other.radius)*(self.radius-other.radius)) / (2.*d)
-
-			diff = (self.radius-x)*(self.radius+x)
-			if diff<-EPS: return None,None
-			elif diff<EPS: diff = 0.0
-			y = sqrt(diff)
-
-			O = CC.orthogonal()
-
-			P1 = self.C + x*CC + y*O
-			if not self._insideArc(P1) or not other._insideArc(P1):
-				P1 = None
-
-			P2 = self.C + x*CC - y*O
-			if not self._insideArc(P2) or not other._insideArc(P2):
-				P2 = None
-
-			# force P1 to have always the solution if any
-			if P1 is None: return P2,None
-			return P1,P2
+			return self._intersectCircleCircle(other)
 
 	#----------------------------------------------------------------------
 	# Return minimum distance of P from segment
@@ -693,6 +705,15 @@ class Path(list):
 		return minx,miny,maxx,maxy
 
 	#----------------------------------------------------------------------
+	# @return the center of the path (based on bbox)
+	#----------------------------------------------------------------------
+	def center(self):
+		minx,miny,maxx,maxy = self.bbox()
+		x=(minx+maxx)/2
+		y=(miny+maxy)/2
+		return x,y
+
+	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
 	# The solution is determined by the number N of crossings of a horizontal
 	# line starting from the point P(x,y)
@@ -705,7 +726,9 @@ class Path(list):
 		#minx,miny,maxx,maxy = self.bbox()
 		maxx = self.bbox()[2]
 		#print "limits:",minx,miny,maxx,maxy
-		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]))
+		#FIXME: this is strange. adding +1000 to line endpoint changes the outcome of method
+		#	i've found that doing this works around some unknown problem in most cases, but it's not really ideal solution
+		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]+1000))
 		count = 0
 		PP1 = None	# previous points to avoid double counting
 		PP2 = None
@@ -945,6 +968,13 @@ class Path(list):
 		return points
 
 	#----------------------------------------------------------------------
+	# mark all segments of intersected path that lay inside another path
+	#----------------------------------------------------------------------
+	def markInside(self, path, setinside):
+		for i,si in enumerate(self):
+			if path.isInside(si.midPoint()): si._inside.append(setinside)
+
+	#----------------------------------------------------------------------
 	# intersect path with other path and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectPath(self, path, setinside=None):
@@ -978,9 +1008,11 @@ class Path(list):
 				self.insert(i+1,split)
 				self[i]._cross = True
 
+		#Mark inside segments
+		#FIXME: for some reason this fails if doing multiple intersections
+		#	in such case you have to intersect all paths and then mark them using markInside() additionaly
 		if setinside is not None:
-			for i,si in enumerate(self):
-				if path.isInside(si.midPoint()): si._inside.append(setinside)
+			self.markInside(path, setinside)
 
 		return points
 
