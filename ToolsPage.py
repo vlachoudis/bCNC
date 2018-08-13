@@ -444,6 +444,7 @@ class Plugin(DataBase):
 		DataBase.__init__(self, master, name)
 		self.plugin = True
 		self.group  = "Macros"
+		self.oneshot = False
 
 #==============================================================================
 # Generic ini configuration
@@ -1221,7 +1222,18 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		for tool in app.tools.pluginList():
 			if tool.group != "CAM": continue
 			# ===
-			b = Ribbon.LabelRadiobutton(self.frame,
+			if tool.oneshot:
+				#print("oneshot", tool.name)
+				b = Ribbon.LabelButton(self.frame,
+					image=Utils.icons[tool.icon],
+					text=_(tool.name),
+					compound=LEFT,
+					anchor=W,
+					command=lambda s=self,a=app,t=tool:a.tools[t.name.upper()].execute(a),
+					#command=tool.execute,
+					background=Ribbon._BACKGROUND)
+			else:
+				b = Ribbon.LabelRadiobutton(self.frame,
 					image=Utils.icons[tool.icon],
 					text=tool.name,
 					compound=LEFT,
@@ -1229,6 +1241,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 					variable=app.tools.active,
 					value=tool.name,
 					background=Ribbon._BACKGROUND)
+
 			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 			tkExtra.Balloon.set(b, tool.__doc__)
 			self.addWidget(b)
@@ -1248,8 +1261,16 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 			# Find plugins in the plugins directory and load them
 			for tool in self.app.tools.pluginList():
 				if tool.group != group: continue
-				submenu.add_radiobutton(
-						label=tool.name,
+				if tool.oneshot:
+					submenu.add_command(
+						label=_(tool.name),
+						image=Utils.icons[tool.icon],
+						compound=LEFT,
+						command=lambda s=self,a=self.app,t=tool:a.tools[t.name.upper()].execute(a)
+						)
+				else:
+					submenu.add_radiobutton(
+						label=_(tool.name),
 						image=Utils.icons[tool.icon],
 						compound=LEFT,
 						variable=self.app.tools.active,

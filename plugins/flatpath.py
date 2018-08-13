@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("FlatPath")
-__version__ = "0.1"
+__version__ = "0.2"
 
 import math
 import os.path
@@ -21,15 +21,15 @@ class Tool(Plugin):
 	__doc__ = _("""Flatten the path""")			#<<< This comment will be show as tooltip for the ribbon button
 	def __init__(self, master):
 		Plugin.__init__(self, master,"FlatPath")
-		#Helical_Descent: is the name of the plugin show in the tool ribbon button
 		self.icon = "flatpath"			#<<< This is the name of png file used as icon for the ribbon button. It will be search in the "icons" subfolder
 		self.group = "CAM"	#<<< This is the name of group that plugin belongs
+		self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
-		self.variables = [			#<<< Define a list of components for the GUI
-			("name"    ,    "db" ,    "", _("Name"))							#used to store plugin settings in the internal database
-		]
-		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
+		#self.variables = [			#<<< Define a list of components for the GUI
+		#	("name"    ,    "db" ,    "", _("Name"))							#used to store plugin settings in the internal database
+		#]
+		#self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
 
 	# ----------------------------------------------------------------------
@@ -59,5 +59,3 @@ class Tool(Plugin):
 		app.refresh()                                                                                           #<<< refresh editor
 		app.setStatus(_("Generated: Flat"))                           #<<< feed back result
 		#app.gcode.blocks.append(block)
-
-
