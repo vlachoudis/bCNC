@@ -1279,7 +1279,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 	def createMenu(self):
 		menu = Menu(self, tearoff=0)
 		#for group in ("Artistic", "Generator", "Macros"):
-		for group in ("Artistic", "Generator"):
+		for group in ("Artistic", "Generator", "Development"):
 			submenu = Menu(menu, tearoff=0)
 			menu.add_cascade(label=group, menu=submenu)
 			# Find plugins in the plugins directory and load them
