@@ -44,10 +44,10 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice")),
-			("flat"    ,    "bool" ,    True, _("Get flat slice")),
-			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)")),
-			("zmax"    ,    "mm" ,    "1", _("maximum Z height"))
+			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice"), "What file to slice"),
+			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
+			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)"), "Distance between layers of slices"),
+			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 		self.help = '''This plugin can slice meshes

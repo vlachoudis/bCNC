@@ -116,7 +116,8 @@ class _Base:
 	# ----------------------------------------------------------------------
 	def populate(self):
 		self.master.listbox.delete(0,END)
-		for n, t, d, l in self.variables:
+		for var in self.variables:
+			n, t, d, l = var[:4]
 			value = self[n]
 			if t == "bool":
 				if value:
@@ -164,7 +165,7 @@ class _Base:
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.see(active)
-		n, t, d, l = self.variables[active]
+		n, t, d, l = self.variables[active][:4]
 		if t=="bool": return	# Forbid changing value of bool
 		self.master.listbox.event_generate("<Return>")
 
@@ -212,7 +213,7 @@ class _Base:
 		ypos = lb.yview()[0]	# remember y position
 		save = lb.get(ACTIVE)
 
-		n, t, d, l = self.variables[active]
+		n, t, d, l = self.variables[active][:4]
 
 		if t == "int":
 			edit = tkExtra.InPlaceInteger(lb)
@@ -312,7 +313,8 @@ class _Base:
 	def load(self):
 		# Load lists
 		lists = []
-		for n, t, d, l in self.variables:
+		for var in self.variables:
+			n, t, d, l = var[:4]
 			if t=="list":
 				lists.append(n)
 		if lists:
@@ -338,11 +340,13 @@ class _Base:
 			for i in range(self.n):
 				key = "name.%d"%(i)
 				self.values[key] = Utils.getStr(self.name, key)
-				for n, t, d, l in self.variables:
+				for var in self.variables:
+					n, t, d, l = var[:4]
 					key = "%s.%d"%(n,i)
 					self.values[key] = self._get(key, t, d)
 		else:
-			for n, t, d, l in self.variables:
+			for var in self.variables:
+				n, t, d, l = var[:4]
 				self.values[n] = self._get(n, t, d)
 		self.update()
 
@@ -369,12 +373,14 @@ class _Base:
 				if value is None: break
 				Utils.setStr(self.name, key, value)
 
-				for n, t, d, l in self.variables:
+				for var in self.variables:
+					n, t, d, l = var[:4]
 					key = "%s.%d"%(n,i)
 					Utils.setStr(self.name, key,
 						str(self.values.get(key,d)))
 		else:
-			for n, t, d, l in self.variables:
+			for var in self.variables:
+				n, t, d, l = var[:4]
 				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
@@ -408,7 +414,8 @@ class DataBase(_Base):
 	# ----------------------------------------------------------------------
 	def delete(self):
 		if self.n==0: return
-		for n, t, d, l in self.variables:
+		for var in self.variables:
+			n, t, d, l = var[:4]
 			for i in range(self.current, self.n):
 				try:
 					self.values["%s.%d"%(n,i)] = self.values["%s.%d"%(n,i+1)]
@@ -428,7 +435,8 @@ class DataBase(_Base):
 	# ----------------------------------------------------------------------
 	def clone(self):
 		if self.n==0: return
-		for n, t, d, l in self.variables:
+		for var in self.variables:
+			n, t, d, l = var[:4]
 			try:
 				if n=="name":
 					self.values["%s.%d"%(n,self.n)] = \
@@ -911,7 +919,8 @@ class Controller(_Base):
 
 	# ----------------------------------------------------------------------
 	def populate(self):
-		for n, t, d, l in self.variables:
+		for var in self.variables:
+			n, t, d, l = var[:4]
 			try:
 				if t=="float":
 					self.values[n] = float(CNC.vars[n])
@@ -1530,7 +1539,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 background = "White")
 		self.toolList.sortAssist = None
 		self.toolList.pack(fill=BOTH, expand=YES)
-		self.toolList.bindList("<Double-1>",	self.edit)
+		self.toolList.bindList("<Double-1>",	self.help)
 		self.toolList.bindList("<Return>",	self.edit)
 		self.toolList.bindList("<Key-space>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
@@ -1558,6 +1567,25 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		tool.update()
 		self.tools.activateButtons(tool)
 	populate = change
+
+	#----------------------------------------------------------------------
+	# Edit tool listbox
+	#----------------------------------------------------------------------
+	def help(self, event=None, rename=False):
+		#lb = self.master.listbox.listbox(1)
+		#print("help",item)
+		#tkMessageBox.showinfo("Help for "+item, "Help for "+item)
+		item = self.toolList.get(self.toolList.curselection())[0]
+		for var in self.tools.getActive().variables:
+			if var[3] == item or _(var[3]) == item:
+				varname = var[0]
+				helpname = "Help for ("+varname+") "+item
+				if len(var) > 4 and var[4] is not None:
+					helptext = var[4]
+				else:
+					helptext = helpname+':\nnot available yet!'
+				tkMessageBox.showinfo(helpname, helptext)
+
 
 	#----------------------------------------------------------------------
 	# Edit tool listbox
