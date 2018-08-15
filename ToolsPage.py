@@ -148,7 +148,7 @@ class _Base:
 		self.master.toolHelp.pack_forget()
 		self.master.toolHelp.config(state=NORMAL)
 		self.master.toolHelp.delete(1.0, END)
-		if self.help is not None:
+		if hasattr(self, 'help') and self.help is not None:
 			for line in self.help.splitlines():
 				if len(line) > 0 and line[0] == '#':
 					self.master.toolHelp.image_create(END,image=Utils.icons[line[1:]])
