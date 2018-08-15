@@ -150,7 +150,7 @@ class _Base:
 		self.master.toolHelp.delete(1.0, END)
 		if hasattr(self, 'help') and self.help is not None:
 			for line in self.help.splitlines():
-				if len(line) > 0 and line[0] == '#':
+				if len(line) > 0 and line[0] == '#' and line[1:] in Utils.icons.keys():
 					self.master.toolHelp.image_create(END,image=Utils.icons[line[1:]])
 					self.master.toolHelp.insert(END, '\n')
 				else:
