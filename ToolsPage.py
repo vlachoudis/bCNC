@@ -144,6 +144,20 @@ class _Base:
 				except TclError:
 					pass
 
+		#Load help
+		self.master.toolHelp.pack_forget()
+		self.master.toolHelp.config(state=NORMAL)
+		self.master.toolHelp.delete(1.0, END)
+		if self.help is not None:
+			for line in self.help.splitlines():
+				if len(line) > 0 and line[0] == '#':
+					self.master.toolHelp.image_create(END,image=Utils.icons[line[1:]])
+					self.master.toolHelp.insert(END, '\n')
+				else:
+					self.master.toolHelp.insert(END, line+'\n')
+			self.master.toolHelp.pack()
+		self.master.toolHelp.config(state=DISABLED)
+
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
 		self.master.listbox.selection_clear(0,END)
@@ -445,6 +459,7 @@ class Plugin(DataBase):
 		self.plugin = True
 		self.group  = "Macros"
 		self.oneshot = False
+		self.help = None
 
 #==============================================================================
 # Generic ini configuration
@@ -952,6 +967,10 @@ class Tools:
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):
 		self.listbox = listbox
+
+	# ----------------------------------------------------------------------
+	def setToolHelp(self, toolHelp):
+		self.toolHelp = toolHelp
 
 	# ----------------------------------------------------------------------
 	def __getitem__(self, name):
@@ -1510,7 +1529,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 stretch = "last",
 					 background = "White")
 		self.toolList.sortAssist = None
-		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.pack(fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.edit)
 		self.toolList.bindList("<Return>",	self.edit)
 		self.toolList.bindList("<Key-space>",	self.edit)
@@ -1519,6 +1538,12 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
 		self.addWidget(self.toolList)
+
+		self.toolHelp = Text(self, height=5)
+		#self.toolHelp.pack()
+		self.addWidget(self.toolHelp)
+		self.toolHelp.config(state=DISABLED)
+		self.tools.setToolHelp(self.toolHelp)
 
 		app.tools.active.trace('w',self.change)
 		self.change()

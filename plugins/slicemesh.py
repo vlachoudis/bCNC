@@ -50,6 +50,15 @@ class Tool(Plugin):
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
+		self.help = '''This plugin can slice meshes
+#mesh
+
+It has following features:
+
++ file: STL or PLY file
++ flat: Z=0 for all layer
++ zstep: layer height
+'''
 
 
 	# ----------------------------------------------------------------------
