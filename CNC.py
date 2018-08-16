@@ -3210,35 +3210,13 @@ class GCode:
 					if number>0:
 						distance = length / float(number)
 					s = 0.0			# running length
-					P = path[0].A
-					lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
-					drillHole(lines)
-					for segment in path:
-						l = segment.length()
-						# if we haven't reach 'distance'
-						if s+l < distance:
-							s += l
-							continue
-						n = 0
-						while True:
-							n += 1
-							remain = n*distance - s
-							if remain > l:
-								s = distance-(remain-l)
-								break
-							#FIXME:	Rewrite this to use new method segment.distPoint(pos) from lib/bpath.py
-							#	See trochoidal plugin for more!
-							if segment.type == Segment.LINE:
-								P = segment.A + (remain/l)*segment.AB
-							else:
-								if segment.type == Segment.CW:
-									phi = segment.startPhi - remain / segment.radius
-								else:
-									phi = segment.startPhi + remain / segment.radius
-								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
-									   segment.C[1] + segment.radius*math.sin(phi))
-							lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
-							drillHole(lines)
+
+                                        while s < length:
+                                                P = path.distPoint(s)
+                                                s += distance
+						lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
+						drillHole(lines)
+
 			undoinfo.append(self.setBlockLinesUndo(bid,lines))
 		self.addUndo(undoinfo)
 
