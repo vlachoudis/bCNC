@@ -2472,6 +2472,13 @@ class GCode:
 		#Calculate helix step
 		zstep = abs(z-zstart)
 
+		helixfeed = self.cnc["cutfeed"]
+		if zstep > 0:
+			#Compensate helix feed, so we never plunge too fast on short/steep paths
+			rampratio = zstep/path.length()
+			helixfeed2 = round(self.cnc["cutfeedz"]/rampratio)
+			helixfeed = min(self.cnc["cutfeed"], helixfeed2)
+
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -2571,7 +2578,7 @@ class GCode:
 
 				#Set feed if needed
 				if setfeed:
-					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
+					block[-1] += " %s"%(self.fmt("f",round(helixfeed)))
 					setfeed = False
 
 			#Exit toolpath
