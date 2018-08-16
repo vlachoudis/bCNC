@@ -158,18 +158,20 @@ class _Base:
 					varhelpheader=False
 				varhelp += '* '+var[0].upper()+': '+var[3]+'\n'+var[4]+'\n\n'
 
-		self.master.toolHelp.pack_forget()
-		self.master.toolHelp.config(state=NORMAL)
-		self.master.toolHelp.delete(1.0, END)
+		self.master.widget['toolHelp'].pack_forget()
+		self.master.widget['scroll'].pack_forget()
+		self.master.widget['toolHelp'].config(state=NORMAL)
+		self.master.widget['toolHelp'].delete(1.0, END)
 		if len(varhelp) > 0:
 			for line in varhelp.splitlines():
 				if len(line) > 0 and line[0] == '#' and line[1:] in Utils.images.keys():
-					self.master.toolHelp.image_create(END,image=Utils.images[line[1:]])
-					self.master.toolHelp.insert(END, '\n')
+					self.master.widget['toolHelp'].image_create(END,image=Utils.images[line[1:]])
+					self.master.widget['toolHelp'].insert(END, '\n')
 				else:
-					self.master.toolHelp.insert(END, line+'\n')
-			self.master.toolHelp.pack()
-		self.master.toolHelp.config(state=DISABLED)
+					self.master.widget['toolHelp'].insert(END, line+'\n')
+			self.master.widget['scroll'].pack(side=RIGHT, fill=Y)
+			self.master.widget['toolHelp'].pack()
+		self.master.widget['toolHelp'].config(state=DISABLED)
 
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
@@ -954,6 +956,7 @@ class Tools:
 
 		self.tools   = {}
 		self.buttons = {}
+		self.widget = {}
 		self.listbox = None
 
 		# CNC should be first to load the inches
@@ -990,8 +993,8 @@ class Tools:
 		self.listbox = listbox
 
 	# ----------------------------------------------------------------------
-	def setToolHelp(self, toolHelp):
-		self.toolHelp = toolHelp
+	def setWidget(self, name, widget):
+		self.widget[name] = widget
 
 	# ----------------------------------------------------------------------
 	def __getitem__(self, name):
@@ -1560,11 +1563,16 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.tools.setListbox(self.toolList)
 		self.addWidget(self.toolList)
 
+
 		self.toolHelp = Text(self, height=5)
+		self.scroll = Scrollbar(self, command=self.toolHelp.yview)
+		self.toolHelp.configure(yscrollcommand=self.scroll.set)
+		#self.scroll.pack(side=RIGHT, fill=Y)
 		#self.toolHelp.pack()
 		self.addWidget(self.toolHelp)
 		self.toolHelp.config(state=DISABLED)
-		self.tools.setToolHelp(self.toolHelp)
+		self.tools.setWidget("toolHelp" ,self.toolHelp)
+		self.tools.setWidget("scroll" ,self.scroll)
 
 		app.tools.active.trace('w',self.change)
 		self.change()
