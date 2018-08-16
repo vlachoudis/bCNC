@@ -2472,14 +2472,21 @@ class GCode:
 		#Calculate helix step
 		zstep = abs(z-zstart)
 
+		#Preprocess ramp
+		if ramp>0: ramp = abs(ramp)*CNC.vars["diameter"] #n times tool diameter
+		if ramp<0: ramp = abs(ramp) #absolute
+		if ramp==0: ramp = path.length() #full helix (default)
+
+		#Calculate helical feedrate
 		helixfeed = self.cnc["cutfeed"]
 		if zstep > 0:
 			#Compensate helix feed, so we never plunge too fast on short/steep paths
 			#FIXME: Add UI to disable this feature??? Not sure if that's needed.
-			rampratio = zstep/path.length()
+			rampratio = zstep/min(path.length(),ramp)
 			helixfeed2 = round(self.cnc["cutfeedz"]/rampratio)
 			helixfeed = min(self.cnc["cutfeed"], helixfeed2)
 
+		#
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -2550,14 +2557,19 @@ class GCode:
 			#Loop over segments
 			setfeed = True
 			ztabprev = None
+			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh
 
-				#This is where you can modify the ramp of the helix:
-				if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
-				elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
-				else: zh -= (segment.length()/path.length())*zstep #full helix (default)
+				#Ramp down
+				zh -= (segment.length()/ramp)*zstep #ramp
 				zh = max(zh, z) #Never cut deeper than z!
+
+				#Reset feedrate if not ramping anymore
+				if zh == zhprev and ramping:
+					helixfeed = self.cnc["cutfeed"]
+					setfeed = True
+					ramping = False
 
 				#Get tab height
 				ztab = getSegmentZTab(segment)
