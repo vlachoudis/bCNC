@@ -3452,33 +3452,15 @@ class GCode:
 					d = max(length / float(ntabs), dtabs)
 					# running length
 					s = d/2.	# start from half distance to add first tab
-					for segment in path:
-						l = segment.length()
-						# if we haven't reach d
-						if s+l < d:
-							s += l
-							continue
-						n = 0
-						while True:
-							n += 1
-							remain = n*d - s
-							if remain > l:
-								s = d-(remain-l)
-								break
-							if segment.type == Segment.LINE:
-								P = segment.A + (remain/l)*segment.AB
-							else:
-								if segment.type == Segment.CW:
-									phi = segment.startPhi - remain / segment.radius
-								else:
-									phi = segment.startPhi + remain / segment.radius
-								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
-									segment.C[1] + segment.radius*math.sin(phi))
 
-							#Make island tabs
-							tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-							tablock.extend(self.fromPath(tabpath, None, None, False, False))
-							tablock.append("( ---------- cut-here ---------- )")
+					while s <= length:
+						P = path.distPoint(s)
+						s += d
+						#Make island tabs
+						tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
+						tablock.extend(self.fromPath(tabpath, None, None, False, False))
+						tablock.append("( ---------- cut-here ---------- )")
+
 				del tablock[-1] #remove last cut-here
 				tablocks.append(tablock)
 		self.insBlocks(bid+1, tablocks, "Tabs created")

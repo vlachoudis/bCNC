@@ -713,6 +713,17 @@ class Path(list):
 		y=(miny+maxy)/2
 		return x,y
 
+        #----------------------------------------------------------------------
+        # Return a point ON the path at distance traveled from A to B (or B to A when negative)
+        #----------------------------------------------------------------------
+	def distPoint(self, dist):
+		if dist < 0:
+			dist = self.length() + dist
+		for segment in self:
+			if dist-segment.length() <= 0:
+				return segment.distPoint(dist)
+			dist -= segment.length()
+
 	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
 	# The solution is determined by the number N of crossings of a horizontal
