@@ -146,11 +146,23 @@ class _Base:
 					pass
 
 		#Load help
+		varhelp = ''
+		if hasattr(self, 'help') and self.help is not None:
+			varhelp += self.help
+
+		varhelpheader=True
+		for var in self.variables:
+			if len(var) > 4:
+				if varhelpheader:
+					varhelp += '\n=== Module options ===\n\n'
+					varhelpheader=False
+				varhelp += '* '+var[0].upper()+': '+var[3]+'\n'+var[4]+'\n\n'
+
 		self.master.toolHelp.pack_forget()
 		self.master.toolHelp.config(state=NORMAL)
 		self.master.toolHelp.delete(1.0, END)
-		if hasattr(self, 'help') and self.help is not None:
-			for line in self.help.splitlines():
+		if len(varhelp) > 0:
+			for line in varhelp.splitlines():
 				if len(line) > 0 and line[0] == '#' and line[1:] in Utils.icons.keys():
 					self.master.toolHelp.image_create(END,image=Utils.icons[line[1:]])
 					self.master.toolHelp.insert(END, '\n')
