@@ -2475,6 +2475,7 @@ class GCode:
 		helixfeed = self.cnc["cutfeed"]
 		if zstep > 0:
 			#Compensate helix feed, so we never plunge too fast on short/steep paths
+			#FIXME: Add UI to disable this feature??? Not sure if that's needed.
 			rampratio = zstep/path.length()
 			helixfeed2 = round(self.cnc["cutfeedz"]/rampratio)
 			helixfeed = min(self.cnc["cutfeed"], helixfeed2)
