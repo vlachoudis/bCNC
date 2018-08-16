@@ -1823,112 +1823,6 @@ class CNC:
 		return lines
 
 #===============================================================================
-# a class holding tab information and necessary functions to break a segment
-#===============================================================================
-class Tab:
-	def __init__(self, x=0, y=0, dx=0, dy=0, z=0):
-		self.z = z
-		self.path = Path("tab")
-
-		#compensate for cutter radius the lame way:
-		r = CNC.vars["diameter"]/2
-		dx = dx/2. + r
-		dy = dy/2. + r
-
-		A = A0 = Vector(x-dx, y-dy)
-		B = Vector(x+dx, y-dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x+dx, y+dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x-dx, y+dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = A0
-		self.path.append(Segment(Segment.LINE, A, B))
-
-		#compensate for cutter radius the cool way:
-		#self.path = self.path.offset(r) #path not correct...
-
-
-	#----------------------------------------------------------------------
-	def copy(self, src):
-		self.z  = src.z
-		self.path  = deepcopy(src.path)
-
-	#----------------------------------------------------------------------
-	def __str__(self):
-		#FIXME: some more user friendly serialization
-		#print ("str_self", self, self.path, self.z)
-		#return "Tab([%g, %g] x [%g, %g] z=%g)" % \
-		#	(self.x, self.y, self.dx, self.dy, self.z)
-		return binascii.b2a_base64(pickle.dumps(self)).strip()
-
-
-
-
-	#----------------------------------------------------------------------
-	# parse and return output of the __str__() so it can be fed to restore()
-	#----------------------------------------------------------------------
-	#@staticmethod
-	def parse(self, s):
-		#print("parse", s)
-		return pickle.loads(binascii.a2b_base64(s))
-
-	#----------------------------------------------------------------------
-	def save(self):
-		return str(self);
-
-	#----------------------------------------------------------------------
-	def restore(self, params):
-		self.z = params.z
-		self.path = params.path
-		#self.path = Path("tab")
-		#self.path.join(params.path)
-		#self.path.calcBBox()
-
-	##----------------------------------------------------------------------
-	def move(self, dx, dy, dz=None):
-		#FIXME Path class should have some method for moving paths.
-		print("FIXME tab move")
-	#	return
-	#	#self.x += dx
-	#	#self.y += dy
-
-	##----------------------------------------------------------------------
-	def transform(self, c, s, xo, yo):
-		print("FIXME tab transform")
-		return
-	#	#xn = c*self.x - s*self.y + xo
-	#	#yn = s*self.x + c*self.y + yo
-	#	#self.x = xn
-	#	#self.y = yn
-
-	#----------------------------------------------------------------------
-	# Create 4 line segment of the tab
-	#----------------------------------------------------------------------
-	def create(self, diameter=0.0):
-		return
-
-	#----------------------------------------------------------------------
-	# return true if a point is inside the tab or not
-	#----------------------------------------------------------------------
-	def inside(self, P):
-		return self.path.isInside(P)
-
-	#----------------------------------------------------------------------
-	# Split and introduce new segments that fall inside the tabs
-	# All segments will be marked with an extra field "inside"
-	# whether they are in or out
-	#----------------------------------------------------------------------
-	def split(self, path):
-		#if not isinstance(self.path, Path):
-		#	print("not bpath: ", type(self.path))
-		#	return
-		path.intersectPath(self.path, self)
-
-#===============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
 # - Basic shape from the first rapid move command to the last rapid z raise
@@ -1948,7 +1842,6 @@ class Block(list):
 		self.enable   = True		# Enabled/Visible in drawing
 		self.expand   = False		# Expand in editor
 		self.color    = None		# Custom color for path
-		self.tabs     = []		# Tabs on block
 		self._path    = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates
 						# (entry point first non rapid motion)
@@ -1961,8 +1854,6 @@ class Block(list):
 		self.enable = src.enable
 		self.expand = src.expand
 		self.color  = src.color
-		self.tabs   = deepcopy(src.tabs)
-		#self.tabs   = []
 		self[:]     = src[:]
 		self._path  = []
 		self.sx = src.sx
@@ -2091,8 +1982,6 @@ class Block(list):
 		f.write("(Block-enable: %d)\n"%(int(self.enable)))
 		if self.color:
 			f.write("(Block-color: %s)\n"%(self.color))
-		for tab in self.tabs:
-			f.write("(Block-tab: %s)\n"%(str(tab).strip()))
 		for line in self:
 			if self.enable: f.write("%s\n"%(line))
 			else: f.write("(Block-X: %s)\n"%(line.replace('(','[').replace(')',']')))
@@ -2133,10 +2022,7 @@ class Block(list):
 					self.enable = bool(int(value))
 					return
 				elif name=="tab":
-					#items = map(float,value.split())
-					newtab = Tab()
-					newtab.restore(newtab.parse(value))
-					self.tabs.append(newtab)
+					print("FIXME: convert legacy tabs loaded from file to new g-code island tabs?")
 					return
 				elif name=="color":
 					self.color = value
@@ -2774,33 +2660,6 @@ class GCode:
 	def canRedo(self):	return self.undoredo.canRedo()
 
 	#----------------------------------------------------------------------
-	# Append a new tab
-	#----------------------------------------------------------------------
-	def addTabUndo(self, bid, tid, tab):
-		block = self.blocks[bid]
-		if tid<0 or tid>=len(block.tabs):
-			undoinfo = (self.delTabUndo, bid, len(block.tabs))
-			block.tabs.append(tab)
-		else:
-			undoinfo = (self.delTabUndo, bid, tid)
-			block.tabs.insert(tid, tab)
-		return undoinfo
-
-	#----------------------------------------------------------------------
-	def delTabUndo(self, bid, tid):
-		block = self.blocks[bid]
-		undoinfo = (self.addTabUndo, bid, tid, block.tabs[tid])
-		del block.tabs[tid]
-		return undoinfo
-
-	#----------------------------------------------------------------------
-	def tabSetUndo(self, bid, tid, params):
-		tab = self.blocks[bid].tabs[tid]
-		undoinfo = (self.tabSetUndo, bid, tid, tab.save())
-		tab.restore(params)
-		return undoinfo
-
-	#----------------------------------------------------------------------
 	# Change all lines in editor
 	#----------------------------------------------------------------------
 	def setLinesUndo(self, lines):
@@ -3204,8 +3063,6 @@ class GCode:
 		for bid,lid in items:
 			if lid is None:
 				block = self.blocks[bid]
-				for i in block.tabs:
-					yield bid,i
 				for i in range(len(block)):
 					yield bid,i
 			else:
@@ -3399,13 +3256,6 @@ class GCode:
 		entry  = True
 		exit   = False
 
-		# Mark in which tab we are inside
-		if block.tabs:
-			# Mark everything as outside
-			for tab in block.tabs:
-				tab.create(CNC.vars["diameter"])
-				tab.split(path)
-
 		#Mark in which island we are inside
 		if islandPaths:
 			for island in reversed(islandPaths):
@@ -3577,7 +3427,6 @@ class GCode:
 	# @param isl	create tabs in form of islands?
 	#----------------------------------------------------------------------
 	def createTabs(self, items, ntabs, dtabs, dx, dy, z, circ=True):
-		isl=True
 		msg = None
 		undoinfo = []
 		if ntabs==0 and dtabs==0: return
@@ -3626,16 +3475,12 @@ class GCode:
 								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
 									segment.C[1] + segment.radius*math.sin(phi))
 
-							if isl: #Make island tabs
-								tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-								tablock.extend(self.fromPath(tabpath, None, None, False, False))
-								tablock.append("( ---------- cut-here ---------- )")
-							else: #Make legacy tabs
-								tab = Tab(P[0],P[1],dx,dy,z)
-								undoinfo.append(self.addTabUndo(bid,0,tab))
-				if isl:
-					del tablock[-1] #remove last cut-here
-					tablocks.append(tablock)
+							#Make island tabs
+							tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
+							tablock.extend(self.fromPath(tabpath, None, None, False, False))
+							tablock.append("( ---------- cut-here ---------- )")
+				del tablock[-1] #remove last cut-here
+				tablocks.append(tablock)
 		self.insBlocks(bid+1, tablocks, "Tabs created")
 		self.addUndo(undoinfo)
 
@@ -4058,12 +3903,7 @@ class GCode:
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
 
-			if isinstance(lid, Tab) and tabFunc is not None:
-				tid = block.tabs.index(lid)
-				undoinfo.append(self.tabSetUndo(bid, tid, lid.save()))
-				tabFunc(lid, *args)
-
-			elif isinstance(lid, int):
+			if isinstance(lid, int):
 				cmds = CNC.parseLine(block[lid])
 				if cmds is None: continue
 				self.cnc.motionStart(cmds)
@@ -4144,7 +3984,7 @@ class GCode:
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
 	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.modify(items, self.moveFunc, Tab.move, dx, dy, dz)
+		return self.modify(items, self.moveFunc, None, dx, dy, dz)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
@@ -4194,7 +4034,7 @@ class GCode:
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.modify(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
+		return self.modify(items, self.rotateFunc, None, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Use the orientation information to orient selected code
@@ -4203,7 +4043,7 @@ class GCode:
 		if not self.orient.valid: return "ERROR: Orientation information is not valid"
 		c = math.cos(self.orient.phi)
 		s = math.sin(self.orient.phi)
-		return self.modify(items, self.transformFunc, Tab.transform, c, s,
+		return self.modify(items, self.transformFunc, None, c, s,
 					self.orient.xo, self.orient.yo)
 
 	#----------------------------------------------------------------------
