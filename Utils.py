@@ -122,6 +122,18 @@ def loadIcons():
 		except TclError:
 			pass
 
+	#Images
+	global images
+	images = {}
+	for img in glob.glob("%s%simages%s*.png"%(prgpath,os.sep,os.sep)):
+		name,ext = os.path.splitext(os.path.basename(img))
+		try:
+			images[name] = PhotoImage(file=img)
+			if getBool("CNC", "doublesizeicon"):
+				images[name] = images[name].zoom(2,2)
+		except TclError:
+			pass
+
 #------------------------------------------------------------------------------
 def delIcons():
 	global icons
