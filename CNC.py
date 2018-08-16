@@ -2465,7 +2465,7 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=False, exit=True, zstart=None, ramp=0):
+	def fromPath(self, path, block=None, z=None, entry=False, exit=True, zstart=None, ramp=None, comments=True):
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
@@ -2473,6 +2473,7 @@ class GCode:
 		zstep = abs(z-zstart)
 
 		#Preprocess ramp
+		if ramp is None: ramp = 0
 		if ramp>0: ramp = abs(ramp)*CNC.vars["diameter"] #n times tool diameter
 		if ramp<0: ramp = abs(ramp) #absolute
 		if ramp==0: ramp = path.length() #full helix (default)
@@ -2552,7 +2553,7 @@ class GCode:
 				block.append("g0 %s"%(self.fmt("z",max(zh, ztab),7)))
 
 			#Begin pass
-			block.append("(pass %f)"%(max(zh, ztab)))
+			if comments: block.append("(pass %f)"%(max(zh, ztab)))
 
 			#Loop over segments
 			setfeed = True
@@ -2577,11 +2578,11 @@ class GCode:
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
 					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
-						block.append("(tab down "+str(max(zhprev,ztab))+")")
+						if comments: block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
 					elif zh < ztab or zhprev < ztab: #if we need to go higher in order to clear the tab
-						block.append("(tab up "+str(max(zh, ztab))+")")
+						if comments: block.append("(tab up "+str(max(zh, ztab))+")")
 						block.append(CNC.zexit(max(zh, ztab),7))
 						setfeed = True
 				ztabprev = ztab
@@ -2596,7 +2597,7 @@ class GCode:
 
 			#Exit toolpath
 			if exit:
-				block.append("(exiting)")
+				if comments: block.append("(exiting)")
 				block.append(CNC.zsafe())
 
 		#Recursion for multiple paths
@@ -3456,7 +3457,7 @@ class GCode:
 						s += d
 						#Make island tabs
 						tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-						tablock.extend(self.fromPath(tabpath, None, None, False, False))
+						tablock.extend(self.fromPath(tabpath, None, None, False, False, None, None, False))
 						tablock.append("( ---------- cut-here ---------- )")
 
 				del tablock[-1] #remove last cut-here
