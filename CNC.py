@@ -2465,7 +2465,7 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=False, exit=True, zstart=None, ramp=None, comments=True):
+	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True):
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
@@ -2539,7 +2539,7 @@ class GCode:
 			ztab = getSegmentZTab(path[0], z)
 
 			#Retract to zsafe
-			if entry: block.append("g0 %s"%(self.fmt("z",CNC.vars["safe"],7)))
+			if retract: block.append("g0 %s"%(self.fmt("z",CNC.vars["safe"],7)))
 
 			#Rapid to beginning of the path
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
@@ -3252,6 +3252,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[]):
 		closed = path.isClosed()
+		zigzag = True
 		entry  = True
 		exit   = False
 
@@ -3263,29 +3264,33 @@ class GCode:
 				path.markInside(island, island._inside)
 
 		#iterate over depth passes:
+		retract = True
 		while z > depth:
 			z = max(z-stepz, depth)
-			if not closed:
-				# on open paths always enter exit
-				if not helix: entry = exit = True
+
 			if abs(z-depth)<1e-7:
 				# last pass
 				exit = True
 
 			if not helix:
-				self.fromPath(path, newblock, z, entry, exit)
+				if zigzag:
+					self.fromPath(path, newblock, z, retract, True, exit)
+					if not closed: path.invert()
+				else:
+					self.fromPath(path, newblock, z, True, True, exit)
 			else:
 				if helixBottom: exit = False
 				if closed:
-					self.fromPath(path, newblock, z, entry, exit, z+stepz, ramp)
+					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp)
 				else:
 					#Cut open path back and forth while descending
-					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz, ramp)
+					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp)
 					path.invert()
-					self.fromPath(path, newblock, z, False, exit, z+stepz/2, ramp)
+					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp)
 					path.invert()
+			retract = False
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True)
+		if helix and helixBottom: self.fromPath(path, newblock, z, retract, entry, True)
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3457,7 +3462,7 @@ class GCode:
 						s += d
 						#Make island tabs
 						tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-						tablock.extend(self.fromPath(tabpath, None, None, False, False, None, None, False))
+						tablock.extend(self.fromPath(tabpath, None, None, False, False, False, None, None, False))
 						tablock.append("( ---------- cut-here ---------- )")
 
 				del tablock[-1] #remove last cut-here
