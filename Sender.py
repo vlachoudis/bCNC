@@ -512,8 +512,10 @@ class Sender:
 			self.gcode.probe.saveAsSTL(filename)
 		elif ext == ".dxf":
 			return self.gcode.saveDXF(filename)
+		elif ext == ".svg":
+			return self.gcode.saveSVG(filename)
 		elif ext == ".txt":
-			#save gcode as txt (only enable blocks and no bCNC metadata)
+			#save gcode as txt (only enabled blocks and no bCNC metadata)
 			return self.gcode.saveTXT(filename)
 		else:
 			if filename is not None:

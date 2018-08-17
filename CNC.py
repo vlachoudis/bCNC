@@ -2383,6 +2383,56 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
+	# Save in SVG format
+	#----------------------------------------------------------------------
+	def saveSVG(self, filename):
+		try:
+			svg = open(filename,"w")
+		except:
+			return False
+		#if CNC.inch:
+		#	dxf.units = DXF.INCHES
+		#else:
+		#	dxf.units = DXF.MILLIMETERS
+
+		svg.write('<svg height="%s" width="%s">\n'%(500, 500))
+		for block in self.blocks:
+			name = block.name()
+			color = block.color
+			if color is None: color = 'black'
+			width = 2
+			if ":" in name: name = name.split(":")[0]
+			svg.write("<!-- Block: %s -->\n"%(name))
+			for line in block:
+				cmds = CNC.parseLine(line)
+				if cmds is None: continue
+				self.cnc.motionStart(cmds)
+				if self.cnc.gcode == 1:	# line
+					#dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
+					svg.write('\t<path d="M %s %s L %s %s" stroke="%s" stroke-width="%s" fill="none" />\n'%(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, color, width))
+				elif self.cnc.gcode in (2,3):	# arc
+					xc,yc = self.cnc.motionCenter()
+					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
+					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
+					arcSweep = ephi - sphi
+					arcSweep = 0 if arcSweep <= math.radians(180) else 1
+					if self.cnc.gcode==2:
+						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+						#dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
+						#self.cnc.x, self.cnc.y, self.cnc.rval, self.cnc.rval, 0, 0, self.cnc.xval, self.cnc.yval
+						svg.write('\t<path d="M %s %s A %s %s %s %s %s %s %s" stroke="%s" stroke-width="%s" fill="none" />\n'%(self.cnc.x, self.cnc.y, self.cnc.rval, self.cnc.rval, 0, arcSweep, 0, self.cnc.xval, self.cnc.yval, color, width))
+					else:
+						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+						#dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
+						#svg.write('\t<path d="M %s %s L %s %s" stroke="red" stroke-width="2" fill="none" />\n'%(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval))
+						svg.write('\t<path d="M %s %s A %s %s %s %s %s %s %s" stroke="%s" stroke-width="%s" fill="none" />\n'%(self.cnc.x, self.cnc.y, self.cnc.rval, self.cnc.rval, 0, arcSweep, 0, self.cnc.xval, self.cnc.yval, color, width))
+				self.cnc.motionEnd()
+		#dxf.writeEOF()
+		svg.write('</svg>\n')
+		svg.close()
+		return True
+
+	#----------------------------------------------------------------------
 	# Import POINTS from entities
 	#----------------------------------------------------------------------
 	def importEntityPoints(self, pos, entities, name, enable=True, color=None):
