@@ -3252,7 +3252,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[]):
 		closed = path.isClosed()
-		zigzag = True
+		zigzag = True #FIXME: Add UI to set this?
 		entry  = True
 		exit   = False
 
