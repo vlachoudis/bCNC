@@ -46,6 +46,7 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice"), "What file to slice"),
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
+			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
@@ -71,6 +72,7 @@ It has following features:
 		zmin = self["zmin"]
 		zmax = self["zmax"]
 		flat = self["flat"]
+		faceup = self["faceup"]
 
 		zout = None
 		if flat: zout = 0
@@ -82,8 +84,20 @@ It has following features:
 		verts, faces = self.loadMesh(file)
 
 		#Rotate/flip mesh
-		#self.transformMesh(verts, 2, 1, 1, -1)
+		if faceup == 'Z':
+			pass
+		elif faceup == '-Z':
+			self.transformMesh(verts, 2, 2, -1, -1)
+		elif faceup == 'X':
+			self.transformMesh(verts, 2, 0,  1,  1)
+		elif faceup == '-X':
+			self.transformMesh(verts, 2, 0,  1, -1)
+		elif faceup == 'Y':
+			self.transformMesh(verts, 2, 1,  1,  1)
+		elif faceup == '-Y':
+			self.transformMesh(verts, 2, 1,  1, -1)
 
+		#Slice
 		if zstep <= 0:
 			#cut only single layer if zstep <= 0
 			blocks.append(self.slice(file, zmin))
