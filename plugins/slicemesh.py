@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 #import math
 import os.path
