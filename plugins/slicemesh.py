@@ -46,6 +46,7 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice"), "What file to slice"),
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
+			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
@@ -73,6 +74,7 @@ It has following features:
 		zmax = self["zmax"]
 		flat = self["flat"]
 		faceup = self["faceup"]
+		cam3d = self["cam3d"]
 
 		zout = None
 		if flat: zout = 0
@@ -97,20 +99,24 @@ It has following features:
 		elif faceup == '-Y':
 			self.transformMesh(verts, 2, 1,  1, -1)
 
+		axes = ['z']
+		if cam3d: axes = ['x','y','z']
+
 		#Slice
-		if zstep <= 0:
-			#cut only single layer if zstep <= 0
-			blocks.append(self.slice(file, zmin))
-		else:
-			zmin, zmax = min(zmin,zmax), max(zmin,zmax) #make sure zmin<zmax
-			#loop over multiple layers if zstep > 0
-			z = zmax
-			while z >= zmin:
-				#print(_("Slicing %f / %f"%(z,zmax)))
-				app.setStatus(_("Slicing %f in %f -> %f of %s"%(z,zmin,zmax,file)), True)
-				block = self.slice(verts, faces, z, zout)
-				if block is not None: blocks.append(block)
-				z -= abs(zstep)
+		for axis in axes:
+			if zstep <= 0:
+				#cut only single layer if zstep <= 0
+				blocks.append(self.slice(file, zmin))
+			else:
+				zmin, zmax = min(zmin,zmax), max(zmin,zmax) #make sure zmin<zmax
+				#loop over multiple layers if zstep > 0
+				z = zmax
+				while z >= zmin:
+					#print(_("Slicing %f / %f"%(z,zmax)))
+					app.setStatus(_("Slicing %s %f in %f -> %f of %s"%(axis,z,zmin,zmax,file)), True)
+					block = self.slice(verts, faces, z, zout, axis)
+					if block is not None: blocks.append(block)
+					z -= abs(zstep)
 
 		#Insert blocks to bCNC
 		active = app.activeBlock()
@@ -142,12 +148,19 @@ It has following features:
 			vert[a], vert[b] = ia*vert[b], ib*vert[a]
 
 
-	def slice(self, verts, faces, z, zout=None):
-		block = Block("slice %f"%(float(z)))
+	def slice(self, verts, faces, z, zout=None, axis='z'):
+		block = Block("slice %s%f"%(axis,float(z)))
 
 		#FIXME: slice along different axes
-		plane_orig = (0, 0, z) #z height to slice
-		plane_norm = (0, 0, 1)
+		if axis == 'x':
+			plane_orig = (z, 0, 0)
+			plane_norm = (1, 0, 0)
+		elif axis == 'y':
+			plane_orig = (0, z, 0)
+			plane_norm = (0, 1, 0)
+		else:
+			plane_orig = (0, 0, z) #z height to slice
+			plane_norm = (0, 0, 1)
 
 		#Crosscut
 		contours = meshcut.cross_section(verts, faces, plane_orig, plane_norm)
