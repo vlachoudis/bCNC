@@ -47,6 +47,7 @@ class Tool(Plugin):
 			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice"), "What file to slice"),
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)"), "Distance between layers of slices"),
+			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
@@ -67,6 +68,7 @@ It has following features:
 	def execute(self, app):
 		file = self["file"]
 		zstep = self["zstep"]
+		zmin = self["zmin"]
 		zmax = self["zmax"]
 		flat = self["flat"]
 
@@ -84,16 +86,17 @@ It has following features:
 
 		if zstep <= 0:
 			#cut only single layer if zstep <= 0
-			blocks.append(self.slice(file, zmax))
+			blocks.append(self.slice(file, zmin))
 		else:
+			zmin, zmax = min(zmin,zmax), max(zmin,zmax) #make sure zmin<zmax
 			#loop over multiple layers if zstep > 0
 			z = zmax
-			while z >= 0:
+			while z >= zmin:
 				#print(_("Slicing %f / %f"%(z,zmax)))
-				app.setStatus(_("Slicing %f / %f : %s"%(z,zmax,file)), True)
+				app.setStatus(_("Slicing %f in %f -> %f of %s"%(z,zmin,zmax,file)), True)
 				block = self.slice(verts, faces, z, zout)
 				if block is not None: blocks.append(block)
-				z -= zstep
+				z -= abs(zstep)
 
 		#Insert blocks to bCNC
 		active = app.activeBlock()
