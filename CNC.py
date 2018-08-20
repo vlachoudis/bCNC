@@ -2448,12 +2448,20 @@ class GCode:
 			width = 2
 			if ":" in name: name = name.split(":")[0]
 			svgpath = ''
+			lastx, lasty = 0, 0
+			firstx, firsty = None, None
 			for line in block:
 				cmds = CNC.parseLine(line)
 				if cmds is None: continue
 				self.cnc.motionStart(cmds)
+
 				if self.cnc.gcode == 0:	# rapid line (move)
 					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval, 'M')
+				else:
+					lastx, lasty = self.cnc.xval, self.cnc.yval
+					if firstx is None:
+						firstx, firsty = self.cnc.x, self.cnc.y
+
 				if self.cnc.gcode == 1:	# line
 					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval)
 
@@ -2469,8 +2477,11 @@ class GCode:
 						svgpath += svgArc(scale, self.cnc.gcode, self.cnc.rval, self.cnc.x, -self.cnc.y, midx, -midy, xc, -yc)
 					#Finish arc
 					svgpath += svgArc(scale, self.cnc.gcode, self.cnc.rval, midx, -midy, self.cnc.xval, -self.cnc.yval, xc, -yc)
-
 				self.cnc.motionEnd()
+
+			if firstx == lastx and firsty == lasty:
+				svgpath += '\tZ\n'
+
 			if len(svgpath) > 0:
 				svg.write("\t<!-- Block: %s -->\n"%(name))
 				svg.write('\t<path d="\n%s\t" stroke="%s" stroke-width="%s" fill="none" />\n'%(svgpath, color, width))
