@@ -2419,8 +2419,8 @@ class GCode:
 		svg.write('<svg viewBox="%s %s %s %s">\n'%((minx*scale)-padding, (-maxy*scale)-padding, ((maxx-minx)*scale)+padding*2, ((maxy-miny)*scale)+padding*2))
 		#svg.write('\t<path d="M %s %s L %s %s" stroke="%s" stroke-width="%s" fill="none" />\n'%(minx*scale, -miny*scale, maxx*scale, -maxy*scale, "pink", 2)) #Bounding box debug
 
-		def svgLine(scale, ax, ay, bx, by):
-			return('\tM %s %s L %s %s\n'%(ax*scale, ay*scale, bx*scale, by*scale))
+		def svgLine(scale, px, py, type='L'):
+			return('\t%s %s %s\n'%(type, px*scale, py*scale))
 
 		def svgArc(scale, gcode, r, ax, ay, bx, by, cx, cy):
 			sphi = math.atan2(ay-yc, ax-xc)
@@ -2431,11 +2431,13 @@ class GCode:
 			if gcode==2:
 				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 				#dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
-				return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 1, bx*scale, by*scale))
+				#return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 1, bx*scale, by*scale))
+				return('\tA %s %s %s %s %s %s %s\n'%(r*scale, r*scale, 0, arcSweep, 1, bx*scale, by*scale))
 			else:
 				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 				#dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
-				return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 0, bx*scale, by*scale))
+				#return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 0, bx*scale, by*scale))
+				return('\tA %s %s %s %s %s %s %s\n'%(r*scale, r*scale, 0, arcSweep, 0, bx*scale, by*scale))
 
 
 		for block in self.blocks:
@@ -2450,9 +2452,10 @@ class GCode:
 				cmds = CNC.parseLine(line)
 				if cmds is None: continue
 				self.cnc.motionStart(cmds)
+				if self.cnc.gcode == 0:	# rapid line (move)
+					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval, 'M')
 				if self.cnc.gcode == 1:	# line
-					#dxf.line(self.cnc.x, self.cnc.y, self.cnc.xval, self.cnc.yval, name)
-					svgpath += svgLine(scale, self.cnc.x, -self.cnc.y, self.cnc.xval, -self.cnc.yval)
+					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval)
 
 				elif self.cnc.gcode in (2,3):	# arc
 					xc,yc = self.cnc.motionCenter()
