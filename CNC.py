@@ -1976,12 +1976,17 @@ class Block(list):
 			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
 
 	#----------------------------------------------------------------------
-	def write(self, f):
-		f.write("(Block-name: %s)\n"%(self.name()))
-		f.write("(Block-expand: %d)\n"%(int(self.expand)))
-		f.write("(Block-enable: %d)\n"%(int(self.enable)))
+	def write_header(self):
+		header = ''
+		header += "(Block-name: %s)\n"%(self.name())
+		header += "(Block-expand: %d)\n"%(int(self.expand))
+		header += "(Block-enable: %d)\n"%(int(self.enable))
 		if self.color:
-			f.write("(Block-color: %s)\n"%(self.color))
+			header += "(Block-color: %s)\n"%(self.color)
+		return header
+
+	def write(self, f):
+		f.write(self.write_header())
 		for line in self:
 			if self.enable: f.write("%s\n"%(line))
 			else: f.write("(Block-X: %s)\n"%(line.replace('(','[').replace(')',']')))
@@ -2450,6 +2455,8 @@ class GCode:
 			svgpath = ''
 			lastx, lasty = 0, 0
 			firstx, firsty = None, None
+
+			#Write paths
 			for line in block:
 				cmds = CNC.parseLine(line)
 				if cmds is None: continue
@@ -2483,7 +2490,8 @@ class GCode:
 				svgpath += '\tZ\n'
 
 			if len(svgpath) > 0:
-				svg.write("\t<!-- Block: %s -->\n"%(name))
+				for line in block.write_header().splitlines():
+					svg.write("\t<!-- %s -->\n"%(line))
 				svg.write('\t<path d="\n%s\t" stroke="%s" stroke-width="%s" fill="none" />\n'%(svgpath, color, width))
 
 		#dxf.writeEOF()
