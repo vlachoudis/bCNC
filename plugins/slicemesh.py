@@ -56,11 +56,9 @@ class Tool(Plugin):
 		self.help = '''This plugin can slice meshes
 #mesh
 
-It has following features:
-
-+ file: STL or PLY file
-+ flat: Z=0 for all layer
-+ zstep: layer height
+Currently it supports following formats:
+STL (Binary and ASCII)
+PLY (ASCII only)
 '''
 
 
