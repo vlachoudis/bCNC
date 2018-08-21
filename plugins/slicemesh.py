@@ -22,6 +22,11 @@ from ToolsPage import Plugin
 #	pip2 uninstall meshcut stl ply itertools utils python-utils
 #	pip2 install scipy numpy
 
+#If needed trimesh supports following formats:
+#binary/ASCII STL, Wavefront OBJ, ASCII OFF, binary/ASCII PLY, GLTF/GLB 2.0, 3MF, XAML, 3DXML, etc.
+#https://github.com/mikedh/trimesh
+#but it depends on numpy, scipy and networkx
+
 import os
 import numpy as np
 #import numpy.linalg as la
