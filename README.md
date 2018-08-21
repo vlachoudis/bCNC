@@ -13,9 +13,11 @@ You will need the following packages to run bCNC
   Depending your python/OS it can either be already installed,
   or under the names tkinter, python-tkinter, python-tk
 - pyserial or under the name python-serial, python-pyserial
+- numpy
 - Optionally:
 - python-imaging-tk: the PIL libraries for autolevel height map
 - python-opencv: for webcam streaming on web pendant
+- scipy: for 100 times faster 3D mesh slicing
 
 Expand the directory or download it from github
 and run the bCNC command
