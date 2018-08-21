@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import io
 import os
-import enum
+#import enum
 import numpy
 import struct
 import logging
@@ -23,7 +23,7 @@ except ImportError:  # pragma: no cover
 logger = logging.getLogger(__name__)
 
 
-class Mode(enum.IntEnum):
+class Mode():
     #: Automatically detect whether the output is a TTY, if so, write ASCII
     #: otherwise write BINARY
     AUTOMATIC = 0

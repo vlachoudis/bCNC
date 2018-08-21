@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import enum
+#import enum
 import math
 import numpy
 import logging
@@ -18,7 +18,7 @@ VECTORS = 3
 DIMENSIONS = 3
 
 
-class Dimension(enum.IntEnum):
+class Dimension():
     #: X index (for example, `mesh.v0[0][X]`)
     X = 0
     #: Y index (for example, `mesh.v0[0][Y]`)
@@ -33,7 +33,7 @@ Y = Dimension.Y
 Z = Dimension.Z
 
 
-class RemoveDuplicates(enum.Enum):
+class RemoveDuplicates():
     '''
     Choose whether to remove no duplicates, leave only a single of the
     duplicates or remove all duplicates (leaving holes).
@@ -182,7 +182,7 @@ class BaseMesh(logger.Logged, collections.Mapping):
         if remove_empty_areas:
             data = self.remove_empty_areas(data)
 
-        if RemoveDuplicates.map(remove_duplicate_polygons).value:
+        if RemoveDuplicates.map(remove_duplicate_polygons):
             data = self.remove_duplicate_polygons(data,
                                                   remove_duplicate_polygons)
 
