@@ -28,7 +28,7 @@ import numpy as np
 #import itertools
 #import utils
 import meshcut
-import ply
+import ply #FIXME: write PLY parser which supports binary PLY files (currently can only do ASCII PLY)
 import stl #FIXME: write smaller STL parser
 import scipy.spatial.distance as spdist #stl only, FIXME: can be easily rewritten as internal method
 
