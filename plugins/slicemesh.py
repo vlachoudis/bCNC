@@ -30,8 +30,6 @@ import numpy as np
 import meshcut
 import ply #FIXME: write PLY parser which supports binary PLY files (currently can only do ASCII PLY)
 import stl #FIXME: write smaller STL parser
-import scipy.spatial.distance as spdist #stl only, FIXME: can be easily rewritten as internal method
-
 
 class Tool(Plugin):
 	__doc__ = _("""STL/PLY Slicer""")			#<<< This comment will be show as tooltip for the ribbon button
@@ -66,6 +64,7 @@ PLY (ASCII only)
 	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
 	def execute(self, app):
+		self.app = app
 		file = self["file"]
 		zstep = self["zstep"]
 		zmin = self["zmin"]
@@ -80,7 +79,7 @@ PLY (ASCII only)
 		blocks = []
 
 		#Load mesh
-		app.setStatus(_("Loading mesh: %s"%(file)), True)
+		self.app.setStatus(_("Loading mesh: %s"%(file)), True)
 		verts, faces = self.loadMesh(file)
 
 		#Rotate/flip mesh
@@ -111,7 +110,7 @@ PLY (ASCII only)
 				z = zmax
 				while z >= zmin:
 					#print(_("Slicing %f / %f"%(z,zmax)))
-					app.setStatus(_("Slicing %s %f in %f -> %f of %s"%(axis,z,zmin,zmax,file)), True)
+					self.app.setStatus(_("Slicing %s %f in %f -> %f of %s"%(axis,z,zmin,zmax,file)), True)
 					block = self.slice(verts, faces, z, zout, axis)
 					if block is not None: blocks.append(block)
 					z -= abs(zstep)
@@ -183,6 +182,9 @@ PLY (ASCII only)
 		if not block: block = None
 		return block
 
+	def vert_dist(self, A, B):
+		return ((B[0]-A[0])**2+(B[1]-A[1])**2+(B[2]-A[2])**2)**(1.0/2)
+
 	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
 		"""
 		Will merge vertices that are closer than close_epsilon.
@@ -195,7 +197,24 @@ PLY (ASCII only)
 		Returns: new_verts, new_faces
 		"""
 		# Pairwise distance between verts
-		D = spdist.cdist(verts, verts)
+		#Use SciPy, otherwise use fallback
+		try:
+			import scipy.spatial.distance as spdist
+			D = spdist.cdist(verts, verts)
+		except ImportError:
+			#FIXME: This is VERY SLOW:
+			D = np.empty((len(verts), len(verts)), dtype=np.float64)
+			for i,v in enumerate(verts):
+				self.app.setStatus(_("Calculating distance %d of %d (SciPy not installed => using SLOW AF fallback method)"%(i,len(verts))), True)
+				#print(i,len(verts))
+				for j in range(i,len(verts)):
+					D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
+					#D[j][i] = D[i][j] = la.norm(verts[j]-v)
+
+		#Test
+		print(len(verts), len(D), len(D[0]))
+		#print(D)
+		#print(spdist.cdist(verts, verts))
 
 		# Compute a mapping from old to new : for each input vert, store the index
 		# of the new vert it will be merged into
