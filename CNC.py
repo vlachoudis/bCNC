@@ -15,11 +15,12 @@ import pickle
 import json
 import binascii
 
-from dxf   import DXF
-from bstl  import Binary_STL_Writer
-from bpath import eq,Path, Segment
-from bmath import *
-from copy  import deepcopy
+from dxf	import DXF
+from bstl	import Binary_STL_Writer
+from bpath	import eq,Path, Segment
+from bmath	import *
+from copy	import deepcopy
+from svgcode	import SVGcode
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -2388,6 +2389,33 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
+	# Get scaling factor for SVG files
+	#----------------------------------------------------------------------
+	def SVGscale(self):
+		dpi=96 #same as inkscape 0.9x (according to jscut)
+		if not CNC.inch: dpi = round(dpi/25.4,7)
+		return dpi
+
+	#----------------------------------------------------------------------
+	# Load SVG file into gcode
+	#----------------------------------------------------------------------
+	def importSVG(self, filename):
+		#try:
+		svgcode = SVGcode(filename)
+		#except:
+		#	return False
+
+		empty = len(self.blocks)==0
+		if empty: self.addBlockFromString("Header",self.header)
+
+		#FIXME: UI to set SVG subdivratio
+		for path in svgcode.get_gcode(self.SVGscale(), 10):
+			self.addBlockFromString(path['id'],path['path'])
+
+		if empty: self.addBlockFromString("Footer",self.footer)
+		return True
+
+	#----------------------------------------------------------------------
 	# get document margins
 	#----------------------------------------------------------------------
 	def getMargins(self):
@@ -2400,7 +2428,6 @@ class GCode:
 				minx,miny,maxx,maxy = min(minx,minx2), min(miny,miny2), max(maxx,maxx2), max(maxy,maxy2)
 		return minx,miny,maxx,maxy
 
-
 	#----------------------------------------------------------------------
 	# Save in SVG format
 	#----------------------------------------------------------------------
@@ -2411,9 +2438,7 @@ class GCode:
 			return False
 
 		padding = 10
-		dpi=96 #same as inkscape 0.9x (according to jscut)
-		if not CNC.inch: dpi = round(dpi/25.4,7)
-		scale=dpi
+		scale=SVGscale()
 
 		#Get bounding box of document
 		minx,miny,maxx,maxy = self.getMargins()

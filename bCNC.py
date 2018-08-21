@@ -2066,6 +2066,8 @@ class Application(Toplevel,Sender):
 			gcode = GCode()
 			if ext == ".dxf":
 				gcode.importDXF(filename)
+			elif ext == ".svg":
+				gcode.importSVG(filename)
 			else:
 				gcode.load(filename)
 			sel = self.editor.getSelectedBlocks()

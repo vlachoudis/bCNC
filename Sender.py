@@ -488,6 +488,10 @@ class Sender:
 			self.gcode.init()
 			self.gcode.importDXF(filename)
 			self._saveConfigFile(filename)
+		elif ext==".svg":
+			self.gcode.init()
+			self.gcode.importSVG(filename)
+			self._saveConfigFile(filename)
 		else:
 			self.gcode.load(filename)
 			self._saveConfigFile()
