@@ -1,0 +1,102 @@
+Changelog
+=========
+
+
+3.0 (2018-08-14)
+----------------
+
+- Dropped support for Python 3.1 and 3.2. It still works, but it may stop.
+  Added support for Python 3.6. Dropped support for Jython, it's not
+  supported by Travis, and hasn't seen  a release in over a year.
+
+- #33: Move commands are now preserved when parsed.
+
+- Subpaths are no longer merged even if they are joined.
+
+- #30: Arcs where the endpoint is the same as the start point caused a crash.
+  The SVG specs say that it instead should be the equavalent of skipping
+  that section, which now is the case.
+
+
+2.2 (2016-10-15)
+----------------
+
+- Don't add a line when closing a path if it's not needed.
+
+
+2.1.1 (2016-02-28)
+------------------
+
+- #18: QuadraticBeziers could get a DivideByZero error under certain
+  circumstances. [MTician]
+
+- Accept an error parameter to Path.point() to be able to
+  control error vs performance setting. [saschwarz]
+
+- #25: Arc's could create a MathDomain error under certain circumstances.
+
+- #17: Set last_command always.
+
+
+2.0.1 (2015-10-17)
+------------------
+
+- #20: The doctext for the closed() setter was incorrect.
+
+- #19: Fixed so tests didn't use relative paths. [danstender]
+
+
+2.0 (2015-05-15)
+----------------
+
+- Nothing changed yet.
+
+
+2.0b1 (2014-11-06)
+------------------
+
+- Added a Path.d() function to generate the Path's d attribute.
+
+- Added is_smooth_from() on QubicBezier and QuadradicBezier.
+
+- Path()'s now have a .closed property.
+
+- Fixed the representation so it's parseable.
+
+- The calculations for CubicBezier and Arc segments are now recursive,
+  and will end when a specific accuracy has been achieved.
+  This is somewhat faster for Arcs and somewhat slower for CubicBezier.
+  However, you can now specify an accuracy, so if you want faster but
+  looser calculations, you can have that.
+
+- 't' segments (smooth, relative QuadraticBeziers) whose previous segment was
+  not a QuadraticBezier would get an incorrect control point.
+
+
+1.2 (2014-11-01)
+----------------
+
+- New Quadradic Bezier implementation. [Justin Gruenberg]
+
+- Solved issue #6: Z close path behavior. [abcjjy]
+
+
+1.1 (2013-10-19)
+----------------
+
+- Floats with negative exponents work again.
+
+- New tokenizer that is around 20 times faster.
+
+
+1.0 (2013-05-28)
+----------------
+
+- Solved issue #2: Paths with negative values and no spaces didn't work.
+  [regebro]
+
+
+1.0b1 (2013-02-03)
+------------------
+
+- Original release.
