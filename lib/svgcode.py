@@ -1,6 +1,7 @@
 # SVGcode 0.1
 # Converts SVG paths to g-code
 # (c) 2018 - Tomas 'Harvie' Mudrunka
+# https://github.com/harvie
 # License: GPLv2+
 
 # Usage:
