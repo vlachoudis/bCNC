@@ -481,9 +481,10 @@ class Sender:
 		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.load(filename)
-		elif ext == ".stl":
+		elif ext == ".stl" or ext == ".ply":
 			# FIXME: implements solid import???
-			pass
+			import tkMessageBox
+			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in Tools->SliceMesh.")
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
