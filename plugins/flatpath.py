@@ -21,7 +21,7 @@ class Tool(Plugin):
 	__doc__ = _("""Flatten the path""")			#<<< This comment will be show as tooltip for the ribbon button
 	def __init__(self, master):
 		Plugin.__init__(self, master,"FlatPath")
-		self.icon = "flatpath"			#<<< This is the name of png file used as icon for the ribbon button. It will be search in the "icons" subfolder
+		self.icon = "flatpath"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
 		self.group = "CAM"	#<<< This is the name of group that plugin belongs
 		self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
