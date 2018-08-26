@@ -190,6 +190,17 @@ PLY (ASCII only)
 	def vert_dist(self, A, B):
 		return ((B[0]-A[0])**2+(B[1]-A[1])**2+(B[2]-A[2])**2)**(1.0/2)
 
+	def vert_dist_matrix(self, verts):
+		#FIXME: This is VERY SLOW:
+		D = np.empty((len(verts), len(verts)), dtype=np.float64)
+		for i,v in enumerate(verts):
+			self.app.setStatus(_("Calculating distance %d of %d (SciPy not installed => using SLOW AF fallback method)"%(i,len(verts))), True)
+			#print(i,len(verts))
+			for j in range(i,len(verts)):
+				D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
+				#D[j][i] = D[i][j] = la.norm(verts[j]-v)
+		return D
+
 	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
 		"""
 		Will merge vertices that are closer than close_epsilon.
@@ -202,19 +213,12 @@ PLY (ASCII only)
 		Returns: new_verts, new_faces
 		"""
 		# Pairwise distance between verts
-		#Use SciPy, otherwise use fallback
+		#Use SciPy, otherwise use slow fallback
 		try:
 			import scipy.spatial.distance as spdist
 			D = spdist.cdist(verts, verts)
 		except ImportError:
-			#FIXME: This is VERY SLOW:
-			D = np.empty((len(verts), len(verts)), dtype=np.float64)
-			for i,v in enumerate(verts):
-				self.app.setStatus(_("Calculating distance %d of %d (SciPy not installed => using SLOW AF fallback method)"%(i,len(verts))), True)
-				#print(i,len(verts))
-				for j in range(i,len(verts)):
-					D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
-					#D[j][i] = D[i][j] = la.norm(verts[j]-v)
+			D = self.vert_dist_matrix(verts)
 
 		#Test
 		print(len(verts), len(D), len(D[0]))
