@@ -188,18 +188,37 @@ PLY (ASCII only)
 		return block
 
 	def vert_dist(self, A, B):
+		#return np.sqrt(np.sum(np.square(B-A)))
 		return ((B[0]-A[0])**2+(B[1]-A[1])**2+(B[2]-A[2])**2)**(1.0/2)
 
 	def vert_dist_matrix(self, verts):
 		#FIXME: This is VERY SLOW:
 		D = np.empty((len(verts), len(verts)), dtype=np.float64)
 		for i,v in enumerate(verts):
-			self.app.setStatus(_("Calculating distance %d of %d (SciPy not installed => using SLOW AF fallback method)"%(i,len(verts))), True)
-			#print(i,len(verts))
-			for j in range(i,len(verts)):
-				D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
-				#D[j][i] = D[i][j] = la.norm(verts[j]-v)
+			self.app.setStatus(_("Calculating distance %d of %d (SciPy not installed => using SLOW fallback method)"%(i,len(verts))), True)
+			D[i] = D[:,i] = np.sqrt(np.sum(np.square(verts-verts[i]), axis=1))
+			#for j in range(i,len(verts)):
+			#	D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
+			#	#D[j][i] = D[i][j] = la.norm(verts[j]-v)
 		return D
+
+	def ext_arrs(self, A,B, precision="float64"):
+		nA,dim = A.shape
+		A_ext = np.ones((nA,dim*3),dtype=precision)
+		A_ext[:,dim:2*dim] = A
+		A_ext[:,2*dim:] = A**2
+
+		nB = B.shape[0]
+		B_ext = np.ones((dim*3,nB),dtype=precision)
+		B_ext[:dim] = (B**2).T
+		B_ext[dim:2*dim] = -2.0*B.T
+		return A_ext, B_ext
+
+	def pdist_squareformed_numpy_v2(self, a):
+		A_ext, B_ext = self.ext_arrs(a,a)
+		dist = A_ext.dot(B_ext)
+		np.fill_diagonal(dist,0)
+		return np.abs(dist)
 
 	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
 		"""
@@ -219,6 +238,7 @@ PLY (ASCII only)
 			D = spdist.cdist(verts, verts)
 		except ImportError:
 			D = self.vert_dist_matrix(verts)
+			#D = np.sqrt(self.pdist_squareformed_numpy_v2(verts))
 
 		#Test
 		print(len(verts), len(D), len(D[0]))
