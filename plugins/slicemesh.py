@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 #import math
 import os.path
@@ -51,7 +51,7 @@ class Tool(Plugin):
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
 			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
-			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = single)"), "Distance between layers of slices"),
+			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
 		]
@@ -108,17 +108,17 @@ PLY (ASCII only)
 		for axis in axes:
 			if zstep <= 0:
 				#cut only single layer if zstep <= 0
-				blocks.append(self.slice(file, zmin))
-			else:
-				zmin, zmax = min(zmin,zmax), max(zmin,zmax) #make sure zmin<zmax
-				#loop over multiple layers if zstep > 0
-				z = zmax
-				while z >= zmin:
-					#print(_("Slicing %f / %f"%(z,zmax)))
-					self.app.setStatus(_("Slicing %s %f in %f -> %f of %s"%(axis,z,zmin,zmax,file)), True)
-					block = self.slice(verts, faces, z, zout, axis)
-					if block is not None: blocks.append(block)
-					z -= abs(zstep)
+				zmax = zmin
+				zstep = 1
+			zmin, zmax = min(zmin,zmax), max(zmin,zmax) #make sure zmin<zmax
+			#loop over multiple layers if zstep > 0
+			z = zmax
+			while z >= zmin:
+				#print(_("Slicing %f / %f"%(z,zmax)))
+				self.app.setStatus(_("Slicing %s %f in %f -> %f of %s"%(axis,z,zmin,zmax,file)), True)
+				block = self.slice(verts, faces, z, zout, axis)
+				if block is not None: blocks.append(block)
+				z -= abs(zstep)
 
 		#Insert blocks to bCNC
 		active = app.activeBlock()
@@ -202,23 +202,12 @@ PLY (ASCII only)
 			#	#D[j][i] = D[i][j] = la.norm(verts[j]-v)
 		return D
 
-	def ext_arrs(self, A,B, precision="float64"):
-		nA,dim = A.shape
-		A_ext = np.ones((nA,dim*3),dtype=precision)
-		A_ext[:,dim:2*dim] = A
-		A_ext[:,2*dim:] = A**2
-
-		nB = B.shape[0]
-		B_ext = np.ones((dim*3,nB),dtype=precision)
-		B_ext[:dim] = (B**2).T
-		B_ext[dim:2*dim] = -2.0*B.T
-		return A_ext, B_ext
-
-	def pdist_squareformed_numpy_v2(self, a):
-		A_ext, B_ext = self.ext_arrs(a,a)
-		dist = A_ext.dot(B_ext)
+	def pdist_squareformed_numpy(self, a):
+		#Thanks to Divakar Roy (@droyed) https://stackoverflow.com/questions/52030458/vectorized-spatial-distance-in-python-using-numpy
+		a_sumrows = np.einsum('ij,ij->i',a,a)
+		dist = a_sumrows[:,None] + a_sumrows -2*np.dot(a,a.T)
 		np.fill_diagonal(dist,0)
-		return np.abs(dist)
+		return dist
 
 	def merge_close_vertices(self, verts, faces, close_epsilon=1e-5):
 		"""
@@ -232,13 +221,13 @@ PLY (ASCII only)
 		Returns: new_verts, new_faces
 		"""
 		# Pairwise distance between verts
+		verts = np.array(verts, dtype=np.float64)
 		#Use SciPy, otherwise use slow fallback
 		try:
 			import scipy.spatial.distance as spdist
 			D = spdist.cdist(verts, verts)
 		except ImportError:
-			D = self.vert_dist_matrix(verts)
-			#D = np.sqrt(self.pdist_squareformed_numpy_v2(verts))
+			D = np.sqrt(np.abs(self.pdist_squareformed_numpy(verts)))
 
 		#Test
 		print(len(verts), len(D), len(D[0]))
@@ -283,4 +272,3 @@ PLY (ASCII only)
 
 		verts, faces = self.merge_close_vertices(verts, faces)
 		return verts, faces
-
