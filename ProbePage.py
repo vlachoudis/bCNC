@@ -153,7 +153,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Set current location as Z-zero for leveling"))
+		tkExtra.Balloon.set(b, _("Set current XY location as autoleveling Z-zero (recalculate probed data to be relative to this XY origin point)"))
 		self.addWidget(b)
 
 		# ---
