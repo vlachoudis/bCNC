@@ -17,7 +17,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
-from CNC import CNC
+from CNC import CNC, Block
 import Utils
 import Camera
 import Ribbon
@@ -394,6 +394,54 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lframe().grid_columnconfigure(1,weight=1)
 		lframe().grid_columnconfigure(2,weight=1)
 		lframe().grid_columnconfigure(3,weight=1)
+
+		#----------------------------------------------------------------
+		# Record point
+		#----------------------------------------------------------------
+		#FIXME: don't know how to expand/collapse this group
+
+		recframe = tkExtra.ExLabelFrame(self, text=_("Record"), foreground="DarkBlue")
+		recframe.pack(side=TOP, expand=YES, fill=X)
+
+		#Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
+		#self.diameter = tkExtra.FloatEntry(lframe(), background="White")
+		#self.diameter.pack(side=LEFT, expand=YES, fill=X)
+
+		self.recz=IntVar()
+		self.reczb = Checkbutton(recframe, text=_("Z"),
+			variable=self.recz, #onvalue=1, offvalue=0,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.reczb.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.reczb)
+
+		self.rr = Button(recframe, text=_("RAPID"),
+			command=self.recordRapid,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe, text=_("FEED"),
+			command=self.recordFeed,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe, text=_("POINT"),
+			command=self.recordPoint,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe, text=_("FINISH"),
+			command=self.recordFinishAll,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
 
 		#----------------------------------------------------------------
 		# Center probing
@@ -807,6 +855,57 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def selectMarker(self, marker):
 		self.orientUpdateScale()
 		self.scale_orient.set(marker+1)
+
+	def recordAppend(self, line):
+		hasblock = None
+		for bid,block in enumerate(self.app.gcode):
+			if block._name == 'recording':
+				hasblock = bid
+				eblock = block
+
+		if hasblock is None:
+			hasblock = -1
+			eblock = Block('recording')
+			self.app.gcode.insBlocks(hasblock, [eblock], "Recorded point")
+
+		eblock.append(line)
+                self.app.refresh()
+                self.app.setStatus(_("Pointrec"))
+
+		#print "hello",x,y,z
+		#print self.app.editor.getSelectedBlocks()
+
+	def recordCoords(self, gcode='G0', point=False):
+		#print "Z",self.recz.get()
+                x = CNC.vars["wx"]
+                y = CNC.vars["wy"]
+                z = CNC.vars["wz"]
+
+		coords = "X%s Y%s"%(x, y)
+		if self.recz.get() == 1:
+			coords += " Z%s"%(z)
+
+		if point:
+			self.recordAppend('G0 Z%s'%(CNC.vars["safe"]))
+		self.recordAppend('%s %s'%(gcode, coords))
+		if point:
+			self.recordAppend('G1 Z0')
+
+	def recordRapid(self):
+		self.recordCoords()
+
+	def recordFeed(self):
+		self.recordCoords('G1')
+
+	def recordPoint(self):
+		self.recordCoords('G0', True)
+
+	def recordFinishAll(self):
+		for bid,block in enumerate(self.app.gcode):
+			if block._name == 'recording':
+				self.app.gcode.setBlockNameUndo(bid, 'recorded')
+                self.app.refresh()
+                self.app.setStatus(_("Finished recording"))
 
 #===============================================================================
 # Autolevel Frame
