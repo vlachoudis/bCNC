@@ -322,6 +322,65 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
 		#----------------------------------------------------------------
+		# Record point
+		#----------------------------------------------------------------
+
+		recframe = tkExtra.ExLabelFrame(self, text=_("Record"), foreground="DarkBlue")
+		recframe.pack(side=TOP, expand=YES, fill=X)
+
+		#Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
+		#self.diameter = tkExtra.FloatEntry(lframe(), background="White")
+		#self.diameter.pack(side=LEFT, expand=YES, fill=X)
+
+		self.recz=IntVar()
+		self.reczb = Checkbutton(recframe(), text=_("Z"),
+			variable=self.recz, #onvalue=1, offvalue=0,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.reczb.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.reczb)
+
+		self.rr = Button(recframe(), text=_("RAPID"),
+			command=self.recordRapid,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("FEED"),
+			command=self.recordFeed,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("POINT"),
+			command=self.recordPoint,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("CIRCLE"),
+			command=self.recordCircle,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("FINISH"),
+			command=self.recordFinishAll,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.recsiz = tkExtra.FloatEntry(recframe(), background="White")
+		self.recsiz.set(10)
+                self.recsiz.pack(side=BOTTOM, expand=YES, fill=X)
+                self.addWidget(self.recsiz)
+
+		#----------------------------------------------------------------
 		# Single probe
 		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Probe"), foreground="DarkBlue")
@@ -394,54 +453,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lframe().grid_columnconfigure(1,weight=1)
 		lframe().grid_columnconfigure(2,weight=1)
 		lframe().grid_columnconfigure(3,weight=1)
-
-		#----------------------------------------------------------------
-		# Record point
-		#----------------------------------------------------------------
-		#FIXME: don't know how to expand/collapse this group
-
-		recframe = tkExtra.ExLabelFrame(self, text=_("Record"), foreground="DarkBlue")
-		recframe.pack(side=TOP, expand=YES, fill=X)
-
-		#Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
-		#self.diameter = tkExtra.FloatEntry(lframe(), background="White")
-		#self.diameter.pack(side=LEFT, expand=YES, fill=X)
-
-		self.recz=IntVar()
-		self.reczb = Checkbutton(recframe, text=_("Z"),
-			variable=self.recz, #onvalue=1, offvalue=0,
-			activebackground="LightYellow",
-			padx=2, pady=1)
-		self.reczb.pack(side=LEFT, expand=YES, fill=X)
-		self.addWidget(self.reczb)
-
-		self.rr = Button(recframe, text=_("RAPID"),
-			command=self.recordRapid,
-			activebackground="LightYellow",
-			padx=2, pady=1)
-		self.rr.pack(side=LEFT, expand=YES, fill=X)
-		self.addWidget(self.rr)
-
-		self.rr = Button(recframe, text=_("FEED"),
-			command=self.recordFeed,
-			activebackground="LightYellow",
-			padx=2, pady=1)
-		self.rr.pack(side=LEFT, expand=YES, fill=X)
-		self.addWidget(self.rr)
-
-		self.rr = Button(recframe, text=_("POINT"),
-			command=self.recordPoint,
-			activebackground="LightYellow",
-			padx=2, pady=1)
-		self.rr.pack(side=LEFT, expand=YES, fill=X)
-		self.addWidget(self.rr)
-
-		self.rr = Button(recframe, text=_("FINISH"),
-			command=self.recordFinishAll,
-			activebackground="LightYellow",
-			padx=2, pady=1)
-		self.rr.pack(side=LEFT, expand=YES, fill=X)
-		self.addWidget(self.rr)
 
 		#----------------------------------------------------------------
 		# Center probing
@@ -899,6 +910,21 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 	def recordPoint(self):
 		self.recordCoords('G0', True)
+
+	def recordCircle(self):
+		r = float(self.recsiz.get())
+		#self.recordCoords('G02 R%s'%(r))
+                x = CNC.vars["wx"]-r
+                y = CNC.vars["wy"]
+                z = CNC.vars["wz"]
+
+		coords = "X%s Y%s"%(x, y)
+		if self.recz.get() == 1:
+			coords += " Z%s"%(z)
+
+		#self.recordAppend('G0 %s R%s'%(coords, r))
+		self.recordAppend('G0 %s'%(coords))
+		self.recordAppend('G02 %s I%s'%(coords, r))
 
 	def recordFinishAll(self):
 		for bid,block in enumerate(self.app.gcode):
