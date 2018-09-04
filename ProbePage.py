@@ -337,6 +337,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			variable=self.recz, #onvalue=1, offvalue=0,
 			activebackground="LightYellow",
 			padx=2, pady=1)
+		tkExtra.Balloon.set(self.reczb, _("Record Z coordinate?"))
 		self.reczb.pack(side=LEFT, expand=YES, fill=X)
 		self.addWidget(self.reczb)
 
@@ -376,6 +377,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.rr)
 
 		self.recsiz = tkExtra.FloatEntry(recframe(), background="White")
+		tkExtra.Balloon.set(self.recsiz, _("Circle radius"))
 		self.recsiz.set(10)
                 self.recsiz.pack(side=BOTTOM, expand=YES, fill=X)
                 self.addWidget(self.recsiz)
