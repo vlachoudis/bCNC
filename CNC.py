@@ -3624,7 +3624,7 @@ class GCode:
 			operation = "reverse"
 
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
-			newpath = []
+			newpath = Path(self.blocks[bid].name())
 
 			#Not sure if this is good idea...
 			#Might get confusing if something goes wrong, but seems to work fine
@@ -3635,7 +3635,7 @@ class GCode:
 
 			for path in self.toPath(bid):
 				path.invert()
-				newpath.append(path)
+				newpath.extend(path)
 			if newpath:
 				block = self.fromPath(newpath)
 				undoinfo.append(self.addBlockOperationUndo(bid, operation, remove))
