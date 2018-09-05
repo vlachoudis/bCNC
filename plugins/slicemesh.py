@@ -51,6 +51,7 @@ class Tool(Plugin):
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
 			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
+			("scale"    ,    "int" ,    "1", _("scale factor"), "Size will be multiplied by this factor"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
@@ -76,6 +77,7 @@ PLY (ASCII only)
 		zmax = self["zmax"]
 		flat = self["flat"]
 		faceup = self["faceup"]
+		scale = self["scale"]
 		cam3d = self["cam3d"]
 
 		zout = None
@@ -100,6 +102,11 @@ PLY (ASCII only)
 			self.transformMesh(verts, 2, 1,  1,  1)
 		elif faceup == '-Y':
 			self.transformMesh(verts, 2, 1,  1, -1)
+
+		if scale != 1:
+			#FIXME: maybe use some numpy magic like verts = verts*scale ?
+			for vert in verts:
+				vert[0], vert[1], vert[2] = vert[0]*scale, vert[1]*scale, vert[2]*scale
 
 		axes = ['z']
 		if cam3d: axes = ['x','y','z']
@@ -146,6 +153,7 @@ PLY (ASCII only)
 
 	#Rotate or flip mesh
 	def transformMesh(self, verts, a, b=0, ia=1, ib=1):
+		#FIXME: use numpy vectorization?
 		for vert in verts:
 			vert[a], vert[b] = ia*vert[b], ib*vert[a]
 
