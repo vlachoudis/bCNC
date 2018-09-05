@@ -2438,7 +2438,7 @@ class GCode:
 			return False
 
 		padding = 10
-		scale=SVGscale()
+		scale=self.SVGscale()
 
 		#Get bounding box of document
 		minx,miny,maxx,maxy = self.getMargins()
