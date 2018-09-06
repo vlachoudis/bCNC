@@ -1194,6 +1194,63 @@ class Path(list):
 		return merged
 
 	#----------------------------------------------------------------------
+	# return eulerian path
+	#----------------------------------------------------------------------
+	def eulerize(self):
+
+		def eulerPath(graph):
+			# counting the number of vertices with odd degree
+			odd = [ x for x in graph.keys() if len(graph[x])&1 ]
+			odd.append( graph.keys()[0] )
+
+			if len(odd)>3:
+				return None
+
+			stack = [ odd[0] ]
+			path = []
+
+			# main algorithm
+			while stack:
+				v = stack[-1]
+				if graph[v]:
+					u = graph[v][0]
+					stack.append(u)
+					# deleting edge u-v
+					del graph[u][ graph[u].index(v) ]
+					del graph[v][0]
+				else:
+					path.append( stack.pop() )
+
+			return path
+
+
+		eulg = {}
+		for i,segi in enumerate(self):
+			eulg[i] = []
+		for i,segi in enumerate(self):
+			for j,segj in enumerate(self):
+				if i == j: continue
+				if segi.B == segj.A or segi.A == segj.B:
+					if j not in eulg[i]: eulg[i].append(j)
+				if segi.B == segj.B or segi.A == segj.A:
+					if j not in eulg[i]: eulg[i].append(j)
+
+		eulp = eulerPath(eulg)
+		del eulp[-1]
+
+		eulpath = Path("euler")
+		lastb = None
+		for i in eulp:
+			seg = self[i]
+			if lastb is not None and lastb != seg.A:
+				seg.invert()
+			eulpath.append(seg)
+			lastb = seg.B
+
+		return eulpath
+
+
+	#----------------------------------------------------------------------
 	# Remove zero length segments
 	# Replace small arcs with lines
 	#----------------------------------------------------------------------

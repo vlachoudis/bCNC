@@ -17,6 +17,7 @@ from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 from bpath import EPS,eq,Path, Segment
+from bmath import Vector
 from copy import deepcopy
 
 class Tool(Plugin):
@@ -44,11 +45,11 @@ class Tool(Plugin):
 		paths_base = []
 		paths_isl = []
 
-		for bid in app.editor.getSelectedBlocks():
-			if app.gcode[bid].operationTest('island'):
-				paths_isl.extend(app.gcode.toPath(bid))
-			else:
-				paths_base.extend(app.gcode.toPath(bid))
+		#for bid in app.editor.getSelectedBlocks():
+		#	if app.gcode[bid].operationTest('island'):
+		#		paths_isl.extend(app.gcode.toPath(bid))
+		#	else:
+		#		paths_base.extend(app.gcode.toPath(bid))
 
 		#bid = app.editor.getSelectedBlocks()[0]
 		#xbasepath = app.gcode.toPath(bid)[0]
@@ -59,17 +60,30 @@ class Tool(Plugin):
 		#paths_base[0].intersectPath(paths_isl[0])
 		#paths_isl[0].intersectPath(paths_base[0])
 
-		for base in paths_base:
-			for island in paths_isl:
-				base = self.pathBoolIntersection(base, island)
+		#for base in paths_base:
+		#	for island in paths_isl:
+		#		base = self.pathBoolIntersection(base, island)
 
-			block = Block("diff")
-			block.extend(app.gcode.fromPath(base))
-			blocks.append(block)
+		#	block = Block("diff")
+		#	block.extend(app.gcode.fromPath(base))
+		#	blocks.append(block)
 
 		#block = Block("diff")
 		#block.extend(app.gcode.fromPath(pth))
 		#blocks.append(block)
+
+
+		eul = Path("diff")
+		eul.append(Segment(Segment.LINE, Vector(10,10), Vector(10,20)))
+		eul.append(Segment(Segment.LINE, Vector(20,10), Vector(20,20)))
+		eul.append(Segment(Segment.LINE, Vector(10,10), Vector(20,10)))
+		eul.append(Segment(Segment.LINE, Vector(10,20), Vector(20,20)))
+
+		eulpath = eul.eulerize()
+
+		block = Block("diff")
+		block.extend(app.gcode.fromPath(eulpath))
+		blocks.append(block)
 
 
 		#active = app.activeBlock()
