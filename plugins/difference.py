@@ -41,36 +41,39 @@ class Tool(Plugin):
 		#print("go!")
 		blocks  = []
 
-		bid = app.editor.getSelectedBlocks()[0]
-		xbasepath = app.gcode.toPath(bid)[0]
+		paths_base = []
+		paths_isl = []
 
-		bid = app.editor.getSelectedBlocks()[1]
-		xislandpath = app.gcode.toPath(bid)[0]
+		for bid in app.editor.getSelectedBlocks():
+			if app.gcode[bid].operationTest('island'):
+				paths_isl.extend(app.gcode.toPath(bid))
+			else:
+				paths_base.extend(app.gcode.toPath(bid))
 
-		xbasepath.intersectPath(xislandpath)
-		xislandpath.intersectPath(xbasepath)
+		#bid = app.editor.getSelectedBlocks()[0]
+		#xbasepath = app.gcode.toPath(bid)[0]
 
-		#xnewisland = self.pathBoolIntersection(xbasepath, xislandpath)
-		xnewisland = self.pathBoolIntersection(xislandpath, xbasepath)
+		#bid = app.editor.getSelectedBlocks()[1]
+		#xislandpath = app.gcode.toPath(bid)[0]
 
-		#pth = Path("temp")
-		#basepath.invert()
-		#pth.extend(basepath)
-		#pth.extend(basepath)
-		##pth.invert()
+		#paths_base[0].intersectPath(paths_isl[0])
+		#paths_isl[0].intersectPath(paths_base[0])
 
+		for base in paths_base:
+			for island in paths_isl:
+				base = self.pathBoolIntersection(base, island)
 
-		block = Block("diff")
-		block.extend(app.gcode.fromPath(xnewisland))
-		blocks.append(block)
+			block = Block("diff")
+			block.extend(app.gcode.fromPath(base))
+			blocks.append(block)
 
 		#block = Block("diff")
 		#block.extend(app.gcode.fromPath(pth))
 		#blocks.append(block)
 
 
-		active = app.activeBlock()
-		app.gcode.insBlocks(active, blocks, "Diff") #<<< insert blocks over active block in the editor
+		#active = app.activeBlock()
+		app.gcode.insBlocks(-1, blocks, "Diff") #<<< insert blocks over active block in the editor
 		app.refresh()                                                                                           #<<< refresh editor
 		app.setStatus(_("Generated: Diff"))                           #<<< feed back result
 		#app.gcode.blocks.append(block)
@@ -81,47 +84,50 @@ class Tool(Plugin):
 	def pol2car(self, r, phi, a=[0,0]):
 		return [round(a[0]+r*cos(phi),4),round(a[1]+r*sin(phi),4)]
 
-	def findSegment(self, path,A,B): #FIXME: not used for now...
-		for seg in path:
-			if seg.A == A and seg.B == B:
-				return seg
-			elif seg.A == B and seg.B == A:
-				seg.invert()
-				return seg
-			else: return Segment(1, A, B)
+	#def findSegment(self, path,A,B): #FIXME: not used for now...
+	#	for seg in path:
+	#		if seg.A == A and seg.B == B:
+	#			return seg
+	#		elif seg.A == B and seg.B == A:
+	#			seg.invert()
+	#			return seg
+	#		else: return Segment(1, A, B)
 
-	def findSubpath(self, path,A,B):
+	def findSubpath(self, path,A,B ,inside):
 		path = deepcopy(path)
-		newpath = self._findSubpath(path,A,B)
+		newpath = self._findSubpath(path,A,B,inside)
 		if newpath is None:
 			path.invert()
-			newpath = self._findSubpath(path,A,B)
+			newpath = self._findSubpath(path,A,B,inside)
 		return newpath
 
-	def _findSubpath(self, path,A,B):
+	def _findSubpath(self, path,A,B, inside):
 		print("finding", A, B)
 
 		sub = None
 		for i in xrange(0,len(path)*2): #iterate twice with wrap around
 			j = i%len(path)
 			seg = path[j]
+			if inside.isInside(seg.midPoint()):
 
-			if eq(seg.A,A): sub = Path("subp")
-			print("seg", sub is None, seg)
-			if sub is not None: sub.append(seg)
-			if eq(seg.B,B): break
+				if eq(seg.A,A): sub = Path("subp")
+				print("seg", sub is None, seg)
+				if sub is not None: sub.append(seg)
+				if eq(seg.B,B): break
 
 		print("found", sub)
 		return sub
 
 	def pathBoolIntersection(self, basepath, islandpath):
+		basepath.intersectPath(islandpath)
+		islandpath.intersectPath(basepath)
 		#basepath = deepcopy(basepath)
 		#islandpath = deepcopy(islandpath)
 
 		#find first intersecting segment
 		first = None
-		for i,segment in enumerate(islandpath):
-			if basepath.isInside(segment.midPoint()): first = i
+		for i,segment in enumerate(basepath):
+			if islandpath.isInside(segment.midPoint()): first = i
 		if first is None:
 			print("not intersecting paths")
 			return None
@@ -129,19 +135,20 @@ class Tool(Plugin):
 		#generate intersected path
 		newisland = Path("new")
 		A = None
-		for i in xrange(first,2*len(islandpath)+first):
-			j = i%len(islandpath)
-			segment = islandpath[j]
+		for i in xrange(first,2*len(basepath)+first):
+			j = i%len(basepath)
+			segment = basepath[j]
 			if segment.length()<EPS: continue #ignore zero length segments
-			if not basepath.isInside(segment.midPoint()):
+			if not islandpath.isInside(segment.midPoint()):
 				if A is None:
 					A = segment.A
+				newisland.append(segment)
 			else:
 				if A is not None:
-					newisland.extend(self.findSubpath(basepath,A,segment.A))
+					newisland.extend(self.findSubpath(islandpath,A,segment.A,basepath))
 					print("new",newisland)
 					A = None
-				newisland.append(segment)
+				#newisland.append(segment)
 		#for i,seg in enumerate(newisland):
 		#	newisland[i].correct();
 		print("new2",newisland)
