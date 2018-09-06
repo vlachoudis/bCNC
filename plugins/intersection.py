@@ -25,7 +25,7 @@ class Tool(Plugin):
 		Plugin.__init__(self, master,"Intersection")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button
 		self.icon = "intersection"			#<<< This is the name of png file used as icon for the ribbon button. It will be search in the "icons" subfolder
-		self.group = "CAM"	#<<< This is the name of group that plugin belongs
+		self.group = "Development"	#<<< This is the name of group that plugin belongs
 		self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
