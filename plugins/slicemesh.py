@@ -162,7 +162,7 @@ PLY (ASCII only)
 
 	def slice(self, verts, faces, z, zout=None, axis='z'):
 		tags = '[slice]'
-		if axis=='z': tags = '[slice,island,minz:%f]'%(float(z))
+		if axis=='z': tags = '[slice,minz:%f]'%(float(z))
 		block = Block("slice %s%f %s"%(axis,float(z),tags))
 
 		#FIXME: slice along different axes
