@@ -1230,9 +1230,9 @@ class Path(list):
 		for i,segi in enumerate(self):
 			for j,segj in enumerate(self):
 				if i == j: continue
-				if segi.B == segj.A or segi.A == segj.B:
+				if eq(segi.B,segj.A) or eq(segi.A,segj.B):
 					if j not in eulg[i]: eulg[i].append(j)
-				if segi.B == segj.B or segi.A == segj.A:
+				if eq(segi.B,segj.B) or eq(segi.A,segj.A):
 					if j not in eulg[i]: eulg[i].append(j)
 
 		eulp = eulerPath(eulg)
@@ -1242,7 +1242,8 @@ class Path(list):
 		lastb = None
 		for i in eulp:
 			seg = self[i]
-			if lastb is not None and lastb != seg.A:
+			#if lastb is not None and lastb != seg.A:
+			if lastb is not None and not eq(lastb,seg.A):
 				seg.invert()
 			eulpath.append(seg)
 			lastb = seg.B

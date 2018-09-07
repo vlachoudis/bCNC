@@ -45,11 +45,11 @@ class Tool(Plugin):
 		paths_base = []
 		paths_isl = []
 
-		#for bid in app.editor.getSelectedBlocks():
-		#	if app.gcode[bid].operationTest('island'):
-		#		paths_isl.extend(app.gcode.toPath(bid))
-		#	else:
-		#		paths_base.extend(app.gcode.toPath(bid))
+		for bid in app.editor.getSelectedBlocks():
+			if app.gcode[bid].operationTest('island'):
+				paths_isl.extend(app.gcode.toPath(bid))
+			else:
+				paths_base.extend(app.gcode.toPath(bid))
 
 		#bid = app.editor.getSelectedBlocks()[0]
 		#xbasepath = app.gcode.toPath(bid)[0]
@@ -60,30 +60,48 @@ class Tool(Plugin):
 		#paths_base[0].intersectPath(paths_isl[0])
 		#paths_isl[0].intersectPath(paths_base[0])
 
-		#for base in paths_base:
-		#	for island in paths_isl:
-		#		base = self.pathBoolIntersection(base, island)
+		for base in paths_base:
+			for island in paths_isl:
+				base.intersectPath(island)
+				island.intersectPath(base)
 
-		#	block = Block("diff")
-		#	block.extend(app.gcode.fromPath(base))
-		#	blocks.append(block)
+				newbase = Path("diff")
+
+				#Add segments from outside of islands:
+				for i,seg in enumerate(base):
+					if not island.isInside(seg.midPoint()):
+						newbase.append(seg)
+
+				#Add segments from islands to base
+				for i,seg in enumerate(island):
+					if base.isInside(seg.midPoint()): #and base.isInside(seg.A) and base.isInside(seg.B):
+						newbase.append(seg)
+
+				#Eulerize
+				base = newbase.eulerize()
+
+			print base
+			#base = base.eulerize()
+			block = Block("diff")
+			block.extend(app.gcode.fromPath(base))
+			blocks.append(block)
 
 		#block = Block("diff")
 		#block.extend(app.gcode.fromPath(pth))
 		#blocks.append(block)
 
 
-		eul = Path("diff")
-		eul.append(Segment(Segment.LINE, Vector(10,10), Vector(10,20)))
-		eul.append(Segment(Segment.LINE, Vector(20,10), Vector(20,20)))
-		eul.append(Segment(Segment.LINE, Vector(10,10), Vector(20,10)))
-		eul.append(Segment(Segment.LINE, Vector(10,20), Vector(20,20)))
+		#eul = Path("diff")
+		#eul.append(Segment(Segment.LINE, Vector(10,10), Vector(10,20)))
+		#eul.append(Segment(Segment.LINE, Vector(20,10), Vector(20,20)))
+		#eul.append(Segment(Segment.LINE, Vector(10,10), Vector(20,10)))
+		#eul.append(Segment(Segment.LINE, Vector(10,20), Vector(20,20)))
 
-		eulpath = eul.eulerize()
+		#eulpath = eul.eulerize()
 
-		block = Block("diff")
-		block.extend(app.gcode.fromPath(eulpath))
-		blocks.append(block)
+		#block = Block("diff")
+		#block.extend(app.gcode.fromPath(eulpath))
+		#blocks.append(block)
 
 
 		#active = app.activeBlock()
