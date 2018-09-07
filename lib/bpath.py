@@ -1206,7 +1206,10 @@ class Path(list):
 			odd.append( graph.keys()[0] )
 
 			if len(odd)>3:
-				return None
+				#return None
+				print("Failed to find eulerian path! Using non-eulerized path instead!")
+				#FIXME: Probably we should at least find some non-eulerian paths instead?
+				return graph
 
 			stack = [ odd[0] ]
 			path = []
