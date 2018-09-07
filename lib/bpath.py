@@ -29,8 +29,6 @@ def eq(A,B,acc=EPS):
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
-eq2 = eq
-
 #==============================================================================
 # Segment
 #==============================================================================
@@ -329,7 +327,7 @@ class Segment:
 			if phi < self.startPhi-EPS/self.radius: phi += PI2
 			if phi <= self.endPhi + EPS/self.radius:
 				return True
-		if eq2(self.A,P,EPS) or eq2(self.B,P,EPS):
+		if eq(self.A,P,EPS) or eq(self.B,P,EPS):
 			return True
 		return False
 
@@ -532,11 +530,11 @@ class Segment:
 	# Split segment at point P and return second part
 	#----------------------------------------------------------------------
 	def split(self, P):
-		if eq2(P,self.A,EPS):
+		if eq(P,self.A,EPS):
 			# XXX should flag previous segment as cross
 			return -1
 
-		elif eq2(P,self.B,EPS):
+		elif eq(P,self.B,EPS):
 			self._cross = True
 			return 0
 
@@ -937,8 +935,8 @@ class Path(list):
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
-			if eq2(P,self[i].A,EPS): return
-			if eq2(P,self[i].B,EPS):   return
+			if eq(P,self[i].A,EPS): return
+			if eq(P,self[i].B,EPS):   return
 			oi = self[i].order(P)
 			points.append((i,oi,P))
 
@@ -951,7 +949,7 @@ class Path(list):
 			while j<len(self):
 				P1,P2 = si.intersect(self[j])
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+				if P1 is not None and P2 is not None and eq(P1,P2,EPS):
 					P2 = None
 				if P1:
 					addPoint(i,P1)
@@ -986,8 +984,8 @@ class Path(list):
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
-			if eq2(P,self[i].A,EPS): return
-			if eq2(P,self[i].B,EPS):   return
+			if eq(P,self[i].A,EPS): return
+			if eq(P,self[i].B,EPS):   return
 			oi = self[i].order(P)
 			points.append((i,oi,P))
 
@@ -996,7 +994,7 @@ class Path(list):
 			for cut in path:
 				P1,P2 = si.intersect(cut)
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+				if P1 is not None and P2 is not None and eq(P1,P2,EPS):
 					P2 = None
 				if P1:
 					addPoint(i,P1)
@@ -1320,7 +1318,7 @@ class Path(list):
 			i += 1
 
 		# Join last and first node if closed
-		if self and eq2(self[0].A, self[-1].B, eps):
+		if self and eq(self[0].A, self[-1].B, eps):
 			self[-1].setEnd(self[0].A)
 
 	#----------------------------------------------------------------------
