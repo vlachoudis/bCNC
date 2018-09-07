@@ -1197,7 +1197,7 @@ class Path(list):
 	# return eulerian path
 	#----------------------------------------------------------------------
 	def eulerize(self):
-
+		#Find eulerian path in graph
 		def eulerPath(graph):
 			# counting the number of vertices with odd degree
 			odd = [ x for x in graph.keys() if len(graph[x])&1 ]
@@ -1224,25 +1224,33 @@ class Path(list):
 			return path
 
 
+		#Encode bpath to graph
+		#	bpath segments	-> graph nodes
+		#	bpath points	-> graph edges
+		#	(yes it's confusing, but it has to be this way)
 		eulg = {}
 		for i,segi in enumerate(self):
 			eulg[i] = []
 		for i,segi in enumerate(self):
 			for j,segj in enumerate(self):
 				if i == j: continue
+				#TODO: some of these are probably redundant, for now i left it here to be safe:
 				if eq(segi.B,segj.A) or eq(segi.A,segj.B):
 					if j not in eulg[i]: eulg[i].append(j)
 				if eq(segi.B,segj.B) or eq(segi.A,segj.A):
 					if j not in eulg[i]: eulg[i].append(j)
 
-		eulp = eulerPath(eulg)
-		del eulp[-1]
+		#FIXME: split to multiple graphs if there are subgraphs without interconnecting edges!
 
+		#Find eulerian path in graph
+		eulp = eulerPath(eulg)
+		del eulp[-1] #Delete last item of that graph
+
+		#Reconstruct bpath from eulerian graph
 		eulpath = Path("euler")
 		lastb = None
 		for i in eulp:
 			seg = self[i]
-			#if lastb is not None and lastb != seg.A:
 			if lastb is not None and not eq(lastb,seg.A):
 				seg.invert()
 			eulpath.append(seg)
