@@ -4,6 +4,7 @@
 # All rights reserved
 #
 # Author: Vasilis.Vlachoudis@cern.ch
+# Contributor: @harvie Tomas Mudrunka (2018)
 # Date:   10-Mar-2015
 
 __author__ = "Vasilis Vlachoudis"
@@ -22,20 +23,13 @@ PI2   = 2.0*pi
 #------------------------------------------------------------------------------
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
-def eq(A,B):
+def eq(A,B,acc=EPS):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
-	err = EPSV2 * ((abs(A[0])+abs(B[0]))**2 + \
+	err = acc*acc * ((abs(A[0])+abs(B[0]))**2 + \
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
-#------------------------------------------------------------------------------
-# Compare two Vectors if they are the same
-#------------------------------------------------------------------------------
-def eq2(A,B,acc):
-	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
-	err = acc*acc*((abs(A[0])+abs(B[0]))**2 + \
-		       (abs(A[1])+abs(B[1]))**2 + 1.0)
-	return d2<err
+eq2 = eq
 
 #==============================================================================
 # Segment
