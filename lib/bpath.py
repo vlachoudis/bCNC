@@ -1194,10 +1194,10 @@ class Path(list):
 		return merged
 
 	#----------------------------------------------------------------------
-	# return eulerian path
+	# return eulerian paths
 	#----------------------------------------------------------------------
 	def eulerize(self, single=False):
-		#Find eulerian path in graph
+		#Find eulerian path of graph
 		def eulerPath(graph):
 			# counting the number of vertices with odd degree
 			odd = [ x for x in graph.keys() if len(graph[x])&1 ]
