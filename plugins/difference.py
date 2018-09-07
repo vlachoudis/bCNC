@@ -60,8 +60,11 @@ class Tool(Plugin):
 		#paths_base[0].intersectPath(paths_isl[0])
 		#paths_isl[0].intersectPath(paths_base[0])
 
-		for base in paths_base:
-			for island in paths_isl:
+		for island in paths_isl:
+			paths_newbase = []
+			while len(paths_base) > 0:
+				base = paths_base.pop()
+
 				base.intersectPath(island)
 				island.intersectPath(base)
 
@@ -78,8 +81,10 @@ class Tool(Plugin):
 						newbase.append(seg)
 
 				#Eulerize
-				base = newbase.eulerize(True)
+				paths_newbase.extend(newbase.eulerize())
+			paths_base = paths_newbase
 
+		for base in paths_base:
 			print base
 			#base = base.eulerize(True)
 			block = Block("diff")
