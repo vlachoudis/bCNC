@@ -78,10 +78,10 @@ class Tool(Plugin):
 						newbase.append(seg)
 
 				#Eulerize
-				base = newbase.eulerize()
+				base = newbase.eulerize(True)
 
 			print base
-			#base = base.eulerize()
+			#base = base.eulerize(True)
 			block = Block("diff")
 			block.extend(app.gcode.fromPath(base))
 			blocks.append(block)
@@ -97,7 +97,7 @@ class Tool(Plugin):
 		#eul.append(Segment(Segment.LINE, Vector(10,10), Vector(20,10)))
 		#eul.append(Segment(Segment.LINE, Vector(10,20), Vector(20,20)))
 
-		#eulpath = eul.eulerize()
+		#eulpath = eul.eulerize(True)
 
 		#block = Block("diff")
 		#block.extend(app.gcode.fromPath(eulpath))

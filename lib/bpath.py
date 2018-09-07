@@ -1196,7 +1196,7 @@ class Path(list):
 	#----------------------------------------------------------------------
 	# return eulerian path
 	#----------------------------------------------------------------------
-	def eulerize(self):
+	def eulerize(self, single=False):
 		#Find eulerian path in graph
 		def eulerPath(graph):
 			# counting the number of vertices with odd degree
@@ -1223,7 +1223,6 @@ class Path(list):
 
 			return path
 
-
 		#Encode bpath to graph
 		#	bpath segments	-> graph nodes
 		#	bpath points	-> graph edges
@@ -1240,24 +1239,47 @@ class Path(list):
 				if eq(segi.B,segj.B) or eq(segi.A,segj.A):
 					if j not in eulg[i]: eulg[i].append(j)
 
-		#FIXME: split to multiple graphs if there are subgraphs without interconnecting edges!
+		def getFirstSubGraph(graph):
+			if len(graph) == 0: return None
+			subg = {}
+			todo = [graph.keys()[0]]
+			while len(todo) > 0:
+				if todo[0] in graph.keys():
+					subg[todo[0]] = graph[todo[0]]
+					todo.extend(graph[todo[0]])
+					del graph[todo[0]]
+				del todo[0]
+			return subg
 
-		#Find eulerian path in graph
-		eulp = eulerPath(eulg)
-		del eulp[-1] #Delete last item of that graph
+		#Split to multiple graphs if there are subgraphs without interconnecting edges!
+		subgs = []
+		subg = getFirstSubGraph(eulg)
+		while subg is not None:
+			print "subgraph",subg
+			subgs.append(subg)
+			subg = getFirstSubGraph(eulg)
 
-		#Reconstruct bpath from eulerian graph
-		eulpath = Path("euler")
-		lastb = None
-		for i in eulp:
-			seg = self[i]
-			if lastb is not None and not eq(lastb,seg.A):
-				seg.invert()
-			eulpath.append(seg)
-			lastb = seg.B
+		eulpaths = []
+		for eulg in subgs:
+			#Find eulerian path in graph
+			eulp = eulerPath(eulg)
+			del eulp[-1] #Delete last item of that graph
 
-		return eulpath
+			#Reconstruct bpath from eulerian graph
+			eulpath = Path("euler")
+			lastb = None
+			for i in eulp:
+				seg = self[i]
+				if lastb is not None and not eq(lastb,seg.A):
+					seg.invert()
+				eulpath.append(seg)
+				lastb = seg.B
 
+			eulpaths.append(eulpath)
+
+		if single:
+			return eulpaths[0]
+		return eulpaths
 
 	#----------------------------------------------------------------------
 	# Remove zero length segments
