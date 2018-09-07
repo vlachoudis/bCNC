@@ -1265,6 +1265,7 @@ class Path(list):
 		for eulg in subgs:
 			#Find eulerian path in graph
 			eulp = eulerPath(eulg)
+			print "eulerpath",eulp
 			del eulp[-1] #Delete last item of that graph
 
 			#Reconstruct bpath from eulerian graph
@@ -1280,7 +1281,11 @@ class Path(list):
 			eulpaths.append(eulpath)
 
 		if single:
-			return eulpaths[0]
+			#return eulpaths[0]
+			eulpath = Path("euler")
+			for p in eulpaths:
+				eulpath.extend(p)
+			return eulpath
 		return eulpaths
 
 	#----------------------------------------------------------------------
