@@ -1241,6 +1241,7 @@ class Path(list):
 				if eq(segi.B,segj.B) or eq(segi.A,segj.A):
 					if j not in eulg[i]: eulg[i].append(j)
 
+		#Return first subgraph from graph
 		def getFirstSubGraph(graph):
 			if len(graph) == 0: return None
 			subg = {}
@@ -1266,24 +1267,29 @@ class Path(list):
 			#Find eulerian path in graph
 			eulp = eulerPath(eulg)
 			print "eulerpath",eulp
-			del eulp[-1] #Delete last item of that graph
 
 			#Reconstruct bpath from eulerian graph
 			eulpath = Path("euler")
-			lastb = None
+			lastb = self[eulp[-1]].B
+			print "--------"
 			for i in eulp:
 				seg = self[i]
-				if lastb is not None and not eq(lastb,seg.A):
+				if not eq(lastb,seg.A):
 					seg.invert()
+					#seg._cross=False
+				print(seg)
 				eulpath.append(seg)
 				lastb = seg.B
+			del eulpath[0]
 
 			eulpaths.append(eulpath)
 
+		#Return path(s)
 		if single:
-			#return eulpaths[0]
+			return eulpaths[0]
 			eulpath = Path("euler")
 			for p in eulpaths:
+				print "path",p
 				eulpath.extend(p)
 			return eulpath
 		return eulpaths
