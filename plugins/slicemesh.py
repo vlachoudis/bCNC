@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 #import math
 import os.path
@@ -52,6 +52,7 @@ class Tool(Plugin):
 			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
 			("scale"    ,    "int" ,    "1", _("scale factor"), "Size will be multiplied by this factor"),
+			("zoff"  ,    "int" ,    "0", _("z offset"), "This will be added to Z"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
@@ -78,6 +79,7 @@ PLY (ASCII only)
 		flat = self["flat"]
 		faceup = self["faceup"]
 		scale = self["scale"]
+		zoff = self["zoff"]
 		cam3d = self["cam3d"]
 
 		zout = None
@@ -103,10 +105,10 @@ PLY (ASCII only)
 		elif faceup == '-Y':
 			self.transformMesh(verts, 2, 1,  1, -1)
 
-		if scale != 1:
+		if scale != 1 or zoff != 0:
 			#FIXME: maybe use some numpy magic like verts = verts*scale ?
 			for vert in verts:
-				vert[0], vert[1], vert[2] = vert[0]*scale, vert[1]*scale, vert[2]*scale
+				vert[0], vert[1], vert[2] = vert[0]*scale, vert[1]*scale, (vert[2]*scale)+zoff
 
 		axes = ['z']
 		if cam3d: axes = ['x','y','z']
@@ -159,7 +161,9 @@ PLY (ASCII only)
 
 
 	def slice(self, verts, faces, z, zout=None, axis='z'):
-		block = Block("slice %s%f"%(axis,float(z)))
+		tags = '[slice]'
+		if axis=='z': tags = '[slice,island,minz:%f]'%(float(z))
+		block = Block("slice %s%f %s"%(axis,float(z),tags))
 
 		#FIXME: slice along different axes
 		if axis == 'x':
