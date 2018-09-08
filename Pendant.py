@@ -52,7 +52,9 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 	#----------------------------------------------------------------------
 	def log_message(self, fmt, *args):
 		# Only requests to the main page log them, all other ignore
-		if args[0].startswith("GET / "):
+		if args[0].startswith("GET / ") or args[0].startswith("GET /send"):
+			args = list(args)
+			args[0] = self.address_string()+'" : "'+args[0]
 			HTTPServer.BaseHTTPRequestHandler.log_message(self, fmt, *args)
 
 	#----------------------------------------------------------------------
