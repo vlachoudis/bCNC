@@ -797,13 +797,28 @@ class Profile(DataBase):
 		self.icon = "profile"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("endmill",   "db" ,    "", _("End Mill")),
-			("direction","inside,outside" , "outside", _("Direction")),
+			("endmill",   "db" ,    "", _("End Mill"), _('Size of this endmill will be used as offset distance')),
+			("direction","inside,outside" , "outside", _("Direction"), _('Should we machine on inside or outside of the shape?')),
 			("offset",   "float",  0.0, _("Additional offset distance")),
-			("overcut",  "bool",     1, _("Overcut")),
-			("pocket",  "bool",     0, _("Pocket"))
+			("overcut",  "bool",     1, _("Overcut"), _('Sets if we want to overcut or not.')),
+			("pocket",  "bool",     0, _("Pocket"), _('Generate pocket after profiling? Usefull for making pockets with overcuts.'))
 		]
 		self.buttons.append("exe")
+                self.help = '''This plugin offsets shapes to create toolpaths for profiling operation.
+Shape needs to be offset by the radius of endmill to get cut correctly.
+
+Currently we have two modes.
+
+Without overcut:
+#overcut-without
+
+And with overcut:
+#overcut-with
+
+Blue is the original shape from CAD
+Turqoise is the generated toolpath
+Grey is simulation of how part will look after machining
+'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
