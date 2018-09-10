@@ -862,7 +862,7 @@ class Tabs(DataBase):
 		self.icon = "tab"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)")),
+			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)"), _("You should only use circular tabs, they are better in all ways. I've left the rectangles here just so people can experiment and get used to circular ones, but i think they can be safely deprecated.")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
