@@ -783,6 +783,9 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# Split path into contours
+	# This not only SPLITs path to contours,
+	# it also takes unsorted segments and JOINs them to closed loops if possible
+	# FIXME: If this is true, this should be probably called reconstructContours()
 	#----------------------------------------------------------------------
 	def split2contours(self):
 		if not self: return []
