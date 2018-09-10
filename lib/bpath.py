@@ -1215,6 +1215,7 @@ class Path(list):
 	# return eulerian paths
 	# It takes bpath with random segments and tries to order and invert them
 	# to create longest possible continuous toolpaths that actually makes sense
+	# FIXME: This probably can be replaced with split2contours() and i've just reinvented wheel LOL
 	#----------------------------------------------------------------------
 	def eulerize(self, single=False):
 		#Find eulerian path of graph

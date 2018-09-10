@@ -51,15 +51,6 @@ class Tool(Plugin):
 			else:
 				paths_base.extend(app.gcode.toPath(bid))
 
-		#bid = app.editor.getSelectedBlocks()[0]
-		#xbasepath = app.gcode.toPath(bid)[0]
-
-		#bid = app.editor.getSelectedBlocks()[1]
-		#xislandpath = app.gcode.toPath(bid)[0]
-
-		#paths_base[0].intersectPath(paths_isl[0])
-		#paths_isl[0].intersectPath(paths_base[0])
-
 		for island in paths_isl:
 			paths_newbase = []
 			while len(paths_base) > 0:
@@ -82,6 +73,7 @@ class Tool(Plugin):
 
 				#Eulerize
 				paths_newbase.extend(newbase.eulerize())
+				#paths_newbase.extend(newbase.split2contours())
 			paths_base = paths_newbase
 
 		for base in paths_base:
@@ -90,24 +82,6 @@ class Tool(Plugin):
 			block = Block("diff")
 			block.extend(app.gcode.fromPath(base))
 			blocks.append(block)
-
-		#block = Block("diff")
-		#block.extend(app.gcode.fromPath(pth))
-		#blocks.append(block)
-
-
-		#eul = Path("diff")
-		#eul.append(Segment(Segment.LINE, Vector(10,10), Vector(10,20)))
-		#eul.append(Segment(Segment.LINE, Vector(20,10), Vector(20,20)))
-		#eul.append(Segment(Segment.LINE, Vector(10,10), Vector(20,10)))
-		#eul.append(Segment(Segment.LINE, Vector(10,20), Vector(20,20)))
-
-		#eulpath = eul.eulerize(True)
-
-		#block = Block("diff")
-		#block.extend(app.gcode.fromPath(eulpath))
-		#blocks.append(block)
-
 
 		#active = app.activeBlock()
 		app.gcode.insBlocks(-1, blocks, "Diff") #<<< insert blocks over active block in the editor
