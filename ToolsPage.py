@@ -717,12 +717,20 @@ class Cut(DataBase):
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
 			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
-			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)")),
+			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
 			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
 			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
 		]
 		self.buttons.append("exe")
+		self.help = '''Cut selected toolpath into Z depth of stock material.
+
+For short paths, you should probably use helical cut with bottom and ramp of 0.
+For long toolpaths and pocketing you should use helical cut with bottom and ramp of 5 to 10, or non-helical cut.
+
+If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
+If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
+'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
