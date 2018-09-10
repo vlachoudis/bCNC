@@ -2607,7 +2607,7 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True):
+	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True, exitpoint=None):
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
@@ -2740,6 +2740,8 @@ class GCode:
 			#Exit toolpath
 			if exit:
 				if comments: block.append("(exiting)")
+				if exitpoint is not None:
+					block.append('g1 %s %s'%(self.fmt("x",exitpoint[0]),self.fmt("y",exitpoint[1])))
 				block.append(CNC.zsafe())
 
 		#Recursion for multiple paths
@@ -3392,11 +3394,20 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[]):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[], exitpoint=None):
 		closed = path.isClosed()
 		zigzag = True #FIXME: Add UI to set this?
 		entry  = True
 		exit   = False
+
+		#Calculate exit point for thread milling
+		centr = Vector(path.center())
+		if exitpoint == 1:
+			exitpoint = centr
+		elif exitpoint == -1:
+			exitpoint = path[-1].B+(path[-1].B-centr)
+		else:
+			exitpoint = None
 
 		#Mark in which island we are inside
 		if islandPaths:
@@ -3416,23 +3427,23 @@ class GCode:
 
 			if not helix:
 				if zigzag:
-					self.fromPath(path, newblock, z, retract, True, exit)
+					self.fromPath(path, newblock, z, retract, True, exit, exitpoint=exitpoint)
 					if not closed: path.invert()
 				else:
-					self.fromPath(path, newblock, z, True, True, exit)
+					self.fromPath(path, newblock, z, True, True, exit, exitpoint=exitpoint)
 			else:
 				if helixBottom: exit = False
 				if closed:
-					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp)
+					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp, exitpoint=exitpoint)
 				else:
 					#Cut open path back and forth while descending
-					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp)
+					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp, exitpoint=exitpoint)
 					path.invert()
-					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp)
+					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp, exitpoint=exitpoint)
 					path.invert()
 			retract = False
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, retract, entry, True)
+		if helix and helixBottom: self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint)
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3451,7 +3462,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3462,6 +3473,7 @@ class GCode:
 		if feedz is not None:
 			self.cnc["cutfeedz"],feedz = feedz, self.cnc["cutfeedz"]
 
+		#Test if cutting within stock boundaries
 		if surface > self.cnc["surface"]:
 			return "ERROR: Starting cut height is higher than stock surface. " \
 				"Please change stock surface in Tools->Stock or cut depth."
@@ -3469,12 +3481,15 @@ class GCode:
 			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
 				"Please change stock surface in Tools->Stock or cut depth." \
 				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
+
+		#Determine operation block name
 		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "cut"
 			if helix: opname = "helicut"
 		else:
 			opname = "cut:%g"%(depth)
 			if helix: opname = "helicut:%g"%(depth)
+
 		stepz = abs(stepz)
 		undoinfo = []
 
@@ -3517,9 +3532,9 @@ class GCode:
 			for path in self.toPath(bid):
 
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))

@@ -716,6 +716,7 @@ class Cut(DataBase):
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
 			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
+			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
 			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
 			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
@@ -739,7 +740,16 @@ class Cut(DataBase):
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly)
+
+		exitpoint = self["exitpoint"]
+		if exitpoint == "inside":
+			exitpoint = 1
+		elif exitpoint == "outside":
+			exitpoint = -1
+		else:
+			exitpoint = None
+
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
