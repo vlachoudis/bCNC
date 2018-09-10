@@ -3783,34 +3783,8 @@ class GCode:
 						if msg: msg += "\n"
 						msg += m
 
-#				print "ORIGINAL\n",path
-				# Remove tiny segments
-				path.removeZeroLength(abs(offset)/100.)
-				# Convert very small arcs to lines
-				path.convert2Lines(abs(offset)/10.)
-				D = path.direction()
-#				print "Path Direction:",D
-				if D==0: D=1
-#				print "ZERO\n",path
-				opath = path.offset(D*offset, newname)
-#				print "OFFSET\n",opath
+				opath = path.offsetClean(offset, overcut, newname)
 				if opath:
-#					import time
-#					t0 = time.time()
-					opath.intersectSelf()
-#					t1=time.time(); print "intersectSelf",t1-t0; t0=t1
-#					print "INTERSECT\n",opath
-					opath.removeExcluded(path, D*offset)
-#					t1=time.time(); print "removeExcluded",t1-t0; t0=t1
-#					print "EXCLUDE\n",opath
-					opath.removeZeroLength(abs(offset)/100.)
-#					t1=time.time(); print "removeZeroLength",t1-t0; t0=t1
-#					print "REMOVE\n",opath
-				opath = opath.split2contours()
-				if opath:
-					if overcut:
-						for p in opath:
-							p.overcut(D*offset)
 					newpath.extend(opath)
 			if newpath:
 				# remember length to shift all new blocks the are inserted before
@@ -3848,8 +3822,6 @@ class GCode:
 		else:
 			offset = diameter*stepover
 
-#		print
-#		print "PATH=",path
 		opath = path.offset(offset)
 
 		if not opath: return None

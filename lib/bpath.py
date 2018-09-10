@@ -928,6 +928,32 @@ class Path(list):
 		return path
 
 	#----------------------------------------------------------------------
+	# Return path with offset and cleanup
+	#----------------------------------------------------------------------
+	def offsetClean(self, offset, overcut=False, name=None):
+		path = self #deepcopy??
+		# Remove tiny segments
+		path.removeZeroLength(abs(offset)/100.)
+		# Convert very small arcs to lines
+		path.convert2Lines(abs(offset)/10.)
+		# Determine offset direction
+		D = path.direction()
+		if D==0: D=1
+		# Offset
+		opath = path.offset(D*offset, name)
+		# Post clean
+		if opath:
+			opath.intersectSelf()
+			opath.removeExcluded(path, D*offset)
+			opath.removeZeroLength(abs(offset)/100.)
+			opath = opath.split2contours()
+			if overcut:
+				for p in opath:
+					p.overcut(D*offset)
+
+		return opath
+
+	#----------------------------------------------------------------------
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
