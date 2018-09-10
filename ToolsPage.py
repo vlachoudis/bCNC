@@ -720,6 +720,7 @@ class Cut(DataBase):
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
 			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
+			("islandsCompensate", "bool", False, _("Compensate islands for cutter radius"), _("Add additional margin/offset around islands to compensate for endmill radius. This is automaticaly done for all islands if they are marked as tabs.")),
 			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
 		]
 		self.buttons.append("exe")
@@ -749,6 +750,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
+		islandsCompensate = self["islandsCompensate"]
 
 		exitpoint = self["exitpoint"]
 		if exitpoint == "inside":
@@ -758,7 +760,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		else:
 			exitpoint = None
 
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint)
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, islandsCompensate)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -881,6 +883,10 @@ class Tabs(DataBase):
 		]
 		self.buttons.append("exe")
 		self.help ='''Create tabs, which will be left uncut to hold the part in place after cutting.
+
+Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
+
+Note that tabs used to be square, but if there was diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
 '''
 
 	# ----------------------------------------------------------------------

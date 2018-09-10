@@ -3462,7 +3462,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None, islandsCompensate=False):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3500,14 +3500,22 @@ class GCode:
 			for bid,block in enumerate(self.blocks):
 				if islandsSelectedOnly and bid not in items: continue
 				if block.operationTest('island'):
+					islands.append(bid)
 					#determine island height
 					islz = self.cnc["safe"]
 					if block.operationGet('minz') is not None:
 						islz = float(block.operationGet('minz'))
-					islands.append(bid)
+					#determine if we should offset island (tabs are always offset)
+					isloffset=False
+					if islandsCompensate or block.operationTest('tab'):
+						isloffset=True
+					#load island paths
 					for islandPath in self.toPath(bid):
+						#compensate for cutter diameter if needed
+						if isloffset: islandPath = islandPath.offsetClean(CNC.vars["diameter"]/2)[0]
 						islandPath._inside=islz
 						islandPaths.append(islandPath)
+
 		#Remove islands from paths to cut if not requested
 		#TODO: maybe also remove all islands with "tab" tag
 		if not islandsCut and islands:
@@ -3574,7 +3582,8 @@ class GCode:
 			path.append(seg)
 
 		#compensate for cutter radius
-		path = path.offsetClean(CNC.vars["diameter"]/2)[0]
+		#update: this is now done right before cutting, so no need to do it here!
+		#path = path.offsetClean(CNC.vars["diameter"]/2)[0]
 
 		return path
 
