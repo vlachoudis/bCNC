@@ -928,7 +928,7 @@ class Path(list):
 		return path
 
 	#----------------------------------------------------------------------
-	# Return path with offset and cleanup
+	# Return path with offset, overcuts and cleanup
 	#----------------------------------------------------------------------
 	def offsetClean(self, offset, overcut=False, name=None):
 		path = self #deepcopy??
