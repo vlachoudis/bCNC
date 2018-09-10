@@ -3548,10 +3548,8 @@ class GCode:
 	def createTab(self, x=0, y=0, dx=0, dy=0, z=0, circ=True):
 		path = Path("tab")
 
-		#compensate for cutter radius the lame way:
-		r = CNC.vars["diameter"]/2
-		dx = dx/2. + r
-		dy = dy/2. + r
+		dx = dx/2.
+		dy = dy/2.
 
 		if not circ:
 			#Square tabs (intersect better with trochoids)
@@ -3574,6 +3572,9 @@ class GCode:
 			seg = Segment(Segment.CCW, A, A)
 			seg.setCenter(C)
 			path.append(seg)
+
+		#compensate for cutter radius
+		path = path.offsetClean(CNC.vars["diameter"]/2)[0]
 
 		return path
 
