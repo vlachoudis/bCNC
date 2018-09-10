@@ -851,6 +851,8 @@ class Pocket(DataBase):
 			("endmill",   "db" ,    "", _("End Mill")),
 		]
 		self.buttons.append("exe")
+		self.help = '''Remove all material inside selected shape
+'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -878,6 +880,8 @@ class Tabs(DataBase):
 			("z",         "mm",   -3.0, _("Height"))
 		]
 		self.buttons.append("exe")
+		self.help ='''Create tabs, which will be left uncut to hold the part in place after cutting.
+'''
 
 	# ----------------------------------------------------------------------
 	def execute(self,app):
