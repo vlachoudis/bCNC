@@ -705,6 +705,7 @@ class Stock(DataBase):
 class Cut(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Cut")
+		self.icon = "cut"
 		self.variables = [
 			("name",         "db" ,    "", _("Name")),
 			("surface",      "mm" ,    "", _("Surface Z")),
@@ -758,6 +759,7 @@ class Cut(DataBase):
 class Drill(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Drill")
+		self.icon = "drill"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("center",    "bool" ,  True, _("Drill in center only")),
@@ -792,6 +794,7 @@ class Drill(DataBase):
 class Profile(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Profile")
+		self.icon = "profile"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -819,6 +822,7 @@ class Profile(DataBase):
 class Pocket(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Pocket")
+		self.icon = "pocket"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -840,6 +844,7 @@ class Pocket(DataBase):
 class Tabs(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Tabs")
+		self.icon = "tab"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)")),
