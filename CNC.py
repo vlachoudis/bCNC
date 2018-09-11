@@ -2028,7 +2028,7 @@ class Block(list):
 					self.enable = bool(int(value))
 					return
 				elif name=="tab":
-					print("FIXME: convert legacy tabs loaded from file to new g-code island tabs?")
+					#Handled elsewhere
 					return
 				elif name=="color":
 					self.color = value
@@ -2175,6 +2175,18 @@ class GCode:
 				else:
 					self.blocks[-1]._name = value
 				return
+
+		#FIXME: Code to import legacy tabs can be probably removed in year 2020 or so:
+		if line.startswith("(Block-tab:"):
+			pat = BLOCKPAT.match(line)
+			if pat:
+				value = pat.group(2).strip()
+				items = map(float,value.split())
+				tablock = Block("legacy [tab,island,minz:%f]"%(items[4]))
+				tablock.color = "orange"
+				tablock.extend(self.createTab(*items))
+				self.insBlocks(-1, [tablock], "Legacy tab")
+				print("WARNING: Converted legacy tabs loaded from file to new g-code island tabs: %s"%(tablock._name))
 
 		if not self.blocks:
 			self.blocks.append(Block("Header"))
@@ -3585,7 +3597,7 @@ class GCode:
 		#update: this is now done right before cutting, so no need to do it here!
 		#path = path.offsetClean(CNC.vars["diameter"]/2)[0]
 
-		return path
+		return self.fromPath(path, None, None, False, False, False, None, None, False)
 
 
 	#----------------------------------------------------------------------
@@ -3628,8 +3640,7 @@ class GCode:
 						P = path.distPoint(s)
 						s += d
 						#Make island tabs
-						tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-						tablock.extend(self.fromPath(tabpath, None, None, False, False, False, None, None, False))
+						tablock.extend(self.createTab(P[0],P[1],dx,dy,z,circ))
 						tablock.append("( ---------- cut-here ---------- )")
 
 				del tablock[-1] #remove last cut-here
