@@ -2707,7 +2707,8 @@ class GCode:
 				block.append("g0 %s"%(self.fmt("z",max(zh, ztab),7)))
 
 			#Begin pass
-			if comments: block.append("(pass %f)"%(max(zh, ztab)))
+			#if comments: block.append("(pass %f)"%(max(zh, ztab)))
+			if comments: block.append("(entered)")
 
 			#Loop over segments
 			setfeed = True
@@ -3406,7 +3407,8 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[], exitpoint=None):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[], exitpoint=None, springPass=False):
+		prec = 1e-7
 		closed = path.isClosed()
 		zigzag = True #FIXME: Add UI to set this?
 		entry  = True
@@ -3430,32 +3432,53 @@ class GCode:
 
 		#iterate over depth passes:
 		retract = True
-		while z > depth:
+		while (z-depth)>prec:
+			#Go one step lower
 			z = max(z-stepz, depth)
 
-			if abs(z-depth)<1e-7:
-				# last pass
+			#Detect last pass of loop
+			if abs(z-depth)<prec:
 				exit = True
 
+			#Do not exit before helixbottom or springpass (they will exit anyway...)
+			if springPass or (helix and helixBottom):
+				exit = False
+
+			#Helical/Ramp cuts
 			if not helix:
+				newblock.append("(pass %f)"%(z))
 				if zigzag:
 					self.fromPath(path, newblock, z, retract, True, exit, exitpoint=exitpoint)
 					if not closed: path.invert()
 				else:
 					self.fromPath(path, newblock, z, True, True, exit, exitpoint=exitpoint)
+			#Flat cuts:
 			else:
 				if helixBottom: exit = False
 				if closed:
+					newblock.append("(pass %f to %f)"%(z+stepz, z))
 					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp, exitpoint=exitpoint)
 				else:
 					#Cut open path back and forth while descending
+					newblock.append("(pass %f to %f)"%(z+stepz, z+zstepz/2))
 					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp, exitpoint=exitpoint)
 					path.invert()
+					newblock.append("(pass %f to %f)"%(z+stepz/2, z))
 					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp, exitpoint=exitpoint)
 					path.invert()
+
 			retract = False
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint)
+
+		#Do spring pass or helixbottom
+		if springPass or (helix and helixBottom):
+			if springPass:
+				path.invert()
+				newblock.append("(pass %f spring)"%(z))
+			else:
+				newblock.append("(pass %f bottom)"%(z))
+			self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint)
+
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3474,7 +3497,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None, islandsCompensate=False):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None, springPass=False, islandsCompensate=False):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3552,9 +3575,9 @@ class GCode:
 			for path in self.toPath(bid):
 
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))

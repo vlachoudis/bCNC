@@ -717,6 +717,7 @@ class Cut(DataBase):
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
 			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
+			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
 			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
@@ -747,6 +748,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		helixBottom = self["helixBottom"]
 		ramp = self["ramp"]
 		if ramp < 0: ramp = self.master.fromMm(float(ramp))
+		springPass = self["spring"]
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
@@ -760,7 +762,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		else:
 			exitpoint = None
 
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, islandsCompensate)
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, springPass, islandsCompensate)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
