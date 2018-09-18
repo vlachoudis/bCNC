@@ -3408,7 +3408,6 @@ class GCode:
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
 	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[], exitpoint=None, springPass=False):
-		prec = 1e-7
 		closed = path.isClosed()
 		zigzag = True #FIXME: Add UI to set this?
 		entry  = True
@@ -3432,12 +3431,12 @@ class GCode:
 
 		#iterate over depth passes:
 		retract = True
-		while (z-depth)>prec:
+		while (z-depth)>(stepz/3):
 			#Go one step lower
 			z = max(z-stepz, depth)
 
 			#Detect last pass of loop
-			if abs(z-depth)<prec:
+			if abs(z-depth)<(stepz/3):
 				exit = True
 
 			#Do not exit before helixbottom or springpass (they will exit anyway...)
