@@ -1646,6 +1646,26 @@ class Application(Toplevel,Sender):
 			for line in cmd.splitlines():
 				self.execute(line)
 
+		# RR*APID:
+		elif rexx.abbrev("RRAPID",cmd,2):
+			Page.frames["Probe:Probe"].recordRapid()
+
+		# RF*EED:
+		elif rexx.abbrev("RFEED",cmd,2):
+			Page.frames["Probe:Probe"].recordFeed()
+
+		# RP*OINT:
+		elif rexx.abbrev("RPOINT",cmd,2):
+			Page.frames["Probe:Probe"].recordPoint()
+
+		# RC*IRCLE:
+		elif rexx.abbrev("RCIRCLE",cmd,2):
+			Page.frames["Probe:Probe"].recordCircle()
+
+		# RFI*NISH:
+		elif rexx.abbrev("RFINISH",cmd,3):
+			Page.frames["Probe:Probe"].recordFinishAll()
+
 		# XY: switch to XY view
 		# YX: switch to XY view
 		elif cmd in ("XY","YX"):
