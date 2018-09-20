@@ -268,6 +268,18 @@ class Probe:
 		return self._ystep
 
 	#----------------------------------------------------------------------
+	# Return the code needed to scan margins for autoleveling
+	#----------------------------------------------------------------------
+	def scanMargins(self):
+		lines = []
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymin))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymax))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmax, self.ymax))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmax, self.ymin))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymin))
+		return lines
+
+	#----------------------------------------------------------------------
 	# Return the code needed to scan for autoleveling
 	#----------------------------------------------------------------------
 	def scan(self):

@@ -169,6 +169,19 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		self.addWidget(b)
 
 		# ---
+		row = 0
+		col += 2
+		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScanMargins>>",
+				image=Utils.icons["margins"],
+				text=_("Scan Margins"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Scan Autolevel Margins"))
+		self.addWidget(b)
+
+		# ---
 		col,row=1,0
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScan>>",
 				image=Utils.icons["gear32"],
@@ -1195,6 +1208,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.event_generate("<<DrawProbe>>")
 		# absolute
 		self.app.run(lines=self.app.gcode.probe.scan())
+
+	#-----------------------------------------------------------------------
+	# Scan autolevel margins
+	#-----------------------------------------------------------------------
+	def scanMargins(self, event=None):
+		if self.change(): return
+		self.app.run(lines=self.app.gcode.probe.scanMargins())
 
 #===============================================================================
 # Camera Group

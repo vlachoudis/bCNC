@@ -328,6 +328,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<AutolevelZero>>',	self.autolevel.setZero)
 		self.bind('<<AutolevelClear>>',	self.autolevel.clear)
 		self.bind('<<AutolevelScan>>',	self.autolevel.scan)
+		self.bind('<<AutolevelScanMargins>>',	self.autolevel.scanMargins)
 
 		self.bind('<<CameraOn>>',	self.canvas.cameraOn)
 		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
