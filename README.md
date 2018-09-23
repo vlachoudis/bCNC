@@ -2,7 +2,7 @@ bCNC
 ====
 
 GRBL CNC command sender, autoleveler, g-code editor, digitizer, CAM
-and swiss army knife for all your hobby CNC needs.
+and swiss army knife for all your CNC needs.
 
 An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
 
