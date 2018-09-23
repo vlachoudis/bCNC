@@ -53,7 +53,7 @@ installation directory.
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
-  - basic **CAM** features (profiling, pocketing, drilling, flat/helical/ramp cutting, thread milling)
+  - basic **CAM** features (profiling, pocketing, drilling, flat/helical/ramp cutting, thread milling, cutout tabs)
   - User g-code plugins:
     - bowl generator
     - finger joint box generator
