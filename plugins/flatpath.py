@@ -47,7 +47,7 @@ class Tool(Plugin):
 			#blocks.append(nblock)
 
 			eblock = Block("flat "+app.gcode[bid].name())
-			eblock = app.gcode.fromPath(app.gcode.toPath(bid),eblock)
+			eblock = app.gcode.fromPath(app.gcode.toPath(bid)[0],eblock)
 			blocks.append(eblock)
 
 
