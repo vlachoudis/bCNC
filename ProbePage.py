@@ -418,6 +418,20 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
+                self.probeautogotonext = False
+                self.probeautogoto=IntVar()
+                self.autogoto = Checkbutton(lframe(), "",
+                        variable=self.probeautogoto, #onvalue=1, offvalue=0,
+                        activebackground="LightYellow",
+                        padx=2, pady=1)
+		self.autogoto.select()
+                tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
+                #self.autogoto.pack(side=LEFT, expand=YES, fill=X)
+		self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
+                self.addWidget(self.autogoto)
+
+		# ---
+		col += 1
 		b = Button(lframe(),
 				image=Utils.icons["rapid"],
 				text=_("Goto"),
@@ -452,7 +466,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.probeZdir)
 
 		# ---
-		col += 1
+		col += 2
 		b = Button(lframe(), #"<<Probe>>",
 				image=Utils.icons["probe32"],
 				text=_("Probe"),
@@ -665,7 +679,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			self._probeY["text"] = CNC.vars.get("prby")
 			self._probeZ["text"] = CNC.vars.get("prbz")
 		except:
-			pass
+			return
+
+		if self.probeautogotonext:
+			self.probeautogotonext = False
+			self.goto2Probe()
+
 
 	#-----------------------------------------------------------------------
 	def warnMessage(self):
@@ -681,6 +700,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	# Probe one Point
 	#-----------------------------------------------------------------------
 	def probe(self, event=None):
+		if self.probeautogoto.get() == 1:
+			self.probeautogotonext = True
+
 		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror(_("Probe Error"),
 				_("Invalid probe feed rate"),
