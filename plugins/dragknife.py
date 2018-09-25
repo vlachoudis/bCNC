@@ -30,7 +30,9 @@ class Tool(Plugin):
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("offset", "mm", "3", _("dragknife offset")),
-			("angle", "float", "20", _("angle threshold"))
+			("angle", "float", "20", _("angle threshold")),
+			("swivelz", "mm", "0", _("swivel height")),
+			("feed", "mm", "200", _("feedrate"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -41,6 +43,8 @@ class Tool(Plugin):
 	def execute(self, app):
 		dragoff = self.fromMm("offset")
 		angleth = self.fromMm("angle")
+		swivelz = self.fromMm("swivelz")
+		feed = self.fromMm("feed")
 
 		#print("go!")
 		blocks  = []
@@ -65,8 +69,10 @@ class Tool(Plugin):
 						npath.append(Segment(Segment.LINE, seg.B, overcut))
 						arca = Segment(Segment.CW, overcut, next.distPoint(dragoff))
 						arca.setCenter(seg.B)
+						if swivelz !=0: arca._inside = [swivelz]
 						arcb = Segment(Segment.CCW, overcut, next.distPoint(dragoff))
 						arcb.setCenter(seg.B)
+						if swivelz !=0: arcb._inside = [swivelz]
 						if arca.length() < arcb.length():
 							npath.append(arca)
 						else:
