@@ -255,7 +255,6 @@ class Segment:
 		shortened = Segment(self.type, self.extrapolatePoint(dist), self.B)
 		if self.type != Segment.LINE:
 			shortened.setCenter(self.C)
-			print self.C, shortened.C
 		return shortened
 
 	#----------------------------------------------------------------------
