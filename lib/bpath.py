@@ -207,16 +207,20 @@ class Segment:
 				 self.length())
 
 	#----------------------------------------------------------------------
-	# Return a point ON the segment in the middle (= factor 0.5) or different
+	# Return a point ON the segment (or extrapolated outside of it) at distance traveled from A (or B)
 	#----------------------------------------------------------------------
-	def midPoint(self, factor=None):
-		if factor is None:
-			factor=0.5
-
+	def extrapolatePoint(self, dist, B=False):
 		if self.type == Segment.LINE:
-			return (self.A*(1-factor) + self.B*factor)
+			if not B:
+				return self.A+(self.tangentStart()*dist)
+			else:
+				return self.B+(self.tangentStart()*dist)
 		else:
-			phi = (self.startPhi*(1-factor) + self.endPhi*factor)
+			raddist = dist/self.radius
+			if not B:
+				phi = self.startPhi+raddist
+			else:
+				phi = self.endPhi+raddist
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
 
@@ -224,10 +228,16 @@ class Segment:
 	# Return a point ON the segment at distance traveled from A to B (or B to A when negative)
 	#----------------------------------------------------------------------
 	def distPoint(self, dist):
-		factor = min(max(abs(dist)/self.length(), 0), 1)
-		if dist < 0:
-			factor = 1-factor
-		return self.midPoint(factor)
+		if dist >= 0:
+			return self.extrapolatePoint(dist)
+		else:
+			return self.extrapolatePoint(abs(dist), True)
+
+	#----------------------------------------------------------------------
+	# Return a point ON the segment in the middle (= factor 0.5) or different
+	#----------------------------------------------------------------------
+	def midPoint(self):
+		return self.extrapolatePoint(self.length()/2)
 
 	#----------------------------------------------------------------------
 	# return segment length
