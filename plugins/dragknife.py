@@ -67,13 +67,21 @@ class Tool(Plugin):
 				else:
 					npath.append(seg)
 
+				shortened = False
 				if len(opath) > i+1:
 					next = opath[i+1]
 					angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
 					if angle > angleth:
 						shortened = True
-						overcut = seg.suffixSegment(dragoff)
-						npath.append(overcut)
+					last = False
+				else:
+					shortened = True
+					last = True
+
+				if shortened:
+					overcut = seg.suffixSegment(dragoff)
+					npath.append(overcut)
+					if not last:
 						arca = Segment(Segment.CW, overcut.B, next.extrapolatePoint(dragoff))
 						arca.setCenter(seg.B)
 						if swivelz !=0: arca._inside = [swivelz]
