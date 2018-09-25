@@ -59,18 +59,25 @@ class Tool(Plugin):
 			eblock = Block("drag "+app.gcode[bid].name())
 			opath = app.gcode.toPath(bid)[0]
 			npath = Path("dragknife "+app.gcode[bid].name())
+			shortened = False
 			for i,seg in enumerate(opath):
-				npath.append(seg)
+				if shortened:
+					npath.append(seg.shortenedSegment(dragoff))
+					shortened = False
+				else:
+					npath.append(seg)
+
 				if len(opath) > i+1:
 					next = opath[i+1]
 					angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
 					if angle > angleth:
-						overcut = seg.B+(seg.tangentStart()*dragoff)
-						npath.append(Segment(Segment.LINE, seg.B, overcut))
-						arca = Segment(Segment.CW, overcut, next.distPoint(dragoff))
+						shortened = True
+						overcut = seg.suffixSegment(dragoff)
+						npath.append(overcut)
+						arca = Segment(Segment.CW, overcut.B, next.extrapolatePoint(dragoff))
 						arca.setCenter(seg.B)
 						if swivelz !=0: arca._inside = [swivelz]
-						arcb = Segment(Segment.CCW, overcut, next.distPoint(dragoff))
+						arcb = Segment(Segment.CCW, overcut.B, next.extrapolatePoint(dragoff))
 						arcb.setCenter(seg.B)
 						if swivelz !=0: arcb._inside = [swivelz]
 						if arca.length() < arcb.length():

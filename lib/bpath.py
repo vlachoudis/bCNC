@@ -240,6 +240,25 @@ class Segment:
 		return self.extrapolatePoint(self.length()/2)
 
 	#----------------------------------------------------------------------
+	# Return segment, which naturaly continues this segment
+	#----------------------------------------------------------------------
+	def suffixSegment(self, dist):
+		suffix = Segment(self.type, self.B, self.extrapolatePoint(dist, True))
+		if self.type != Segment.LINE:
+			suffix.setCenter(self.C)
+		return suffix
+
+	#----------------------------------------------------------------------
+	# Return segment, which naturaly continues this segment
+	#----------------------------------------------------------------------
+	def shortenedSegment(self, dist):
+		shortened = Segment(self.type, self.extrapolatePoint(dist), self.B)
+		if self.type != Segment.LINE:
+			shortened.setCenter(self.C)
+			print self.C, shortened.C
+		return shortened
+
+	#----------------------------------------------------------------------
 	# return segment length
 	#----------------------------------------------------------------------
 	def length(self):
