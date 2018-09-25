@@ -29,7 +29,8 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("offset", "mm", "3", _("dragknife offset"))
+			("offset", "mm", "3", _("dragknife offset")),
+			("angle", "float", "20", _("angle threshold"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -39,6 +40,7 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		dragoff = self.fromMm("offset")
+		angleth = self.fromMm("angle")
 
 		#print("go!")
 		blocks  = []
@@ -55,18 +57,20 @@ class Tool(Plugin):
 			npath = Path("dragknife "+app.gcode[bid].name())
 			for i,seg in enumerate(opath):
 				npath.append(seg)
-				overcut = seg.B+(seg.tangentStart()*dragoff)
-				npath.append(Segment(Segment.LINE, seg.B, overcut))
 				if len(opath) > i+1:
 					next = opath[i+1]
-					arca = Segment(Segment.CW, overcut, next.distPoint(dragoff))
-					arca.setCenter(seg.B)
-					arcb = Segment(Segment.CCW, overcut, next.distPoint(dragoff))
-					arcb.setCenter(seg.B)
-					if arca.length() < arcb.length():
-						npath.append(arca)
-					else:
-						npath.append(arcb)
+					angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
+					if angle > angleth:
+						overcut = seg.B+(seg.tangentStart()*dragoff)
+						npath.append(Segment(Segment.LINE, seg.B, overcut))
+						arca = Segment(Segment.CW, overcut, next.distPoint(dragoff))
+						arca.setCenter(seg.B)
+						arcb = Segment(Segment.CCW, overcut, next.distPoint(dragoff))
+						arcb.setCenter(seg.B)
+						if arca.length() < arcb.length():
+							npath.append(arca)
+						else:
+							npath.append(arcb)
 
 			eblock = app.gcode.fromPath(npath,eblock)
 			blocks.append(eblock)
