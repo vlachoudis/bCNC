@@ -252,7 +252,11 @@ class Segment:
 	# Return segment, which naturaly continues this segment
 	#----------------------------------------------------------------------
 	def shortenedSegment(self, dist):
-		shortened = Segment(self.type, self.extrapolatePoint(dist), self.B)
+		start = self.extrapolatePoint(dist)
+		end = self.B
+		if dist >= self.length():
+			end = start
+		shortened = Segment(self.type, start, end)
 		if self.type != Segment.LINE:
 			shortened.setCenter(self.C)
 		return shortened

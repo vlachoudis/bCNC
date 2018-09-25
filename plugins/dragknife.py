@@ -44,7 +44,7 @@ class Tool(Plugin):
 		dragoff = self.fromMm("offset")
 		angleth = self.fromMm("angle")
 		swivelz = self.fromMm("swivelz")
-		feed = self.fromMm("feed")
+		CNC.vars["cutfeed"] = self.fromMm("feed")
 
 		#print("go!")
 		blocks  = []
