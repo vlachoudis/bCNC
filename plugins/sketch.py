@@ -11,7 +11,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Sketch")
-__version__= "0.5.0"
+__version__= "0.5.1"
 
 import math
 # import time
@@ -40,6 +40,7 @@ class Tool(Plugin):
 			("SquiggleTotal" ,   "int" ,       300, _("Squiggle total count")),
 			("SquiggleLength",    "mm" ,     400.0, _("Squiggle Length")),
 			("Fading",           "int" ,         4, _("Fading force")),
+			("Max_light",        "int" ,         256, _("Maximum light")),
 			("DrawBorder",       "bool",     False, _("Draw border")),
 			("Casual",           "bool",     True, _("Casual first point")),
 			("File"  ,          "file" ,        "", _("Image to process")),
@@ -166,6 +167,7 @@ class Tool(Plugin):
 		channel = self["Channel"]
 		casual = self["Casual"]
 		fading = self["Fading"]
+		max_light = self["Max_light"]
 
 		radius = 1
 		if grundgy == "Low":
@@ -181,7 +183,11 @@ class Tool(Plugin):
 		if maxSize < 1:
 			app.setStatus(_("Sketch abort: Too small to draw anything!"))
 			return
-
+		
+		if max_light >256:
+			app.setStatus(_("The maximum illumination shouldn't be more than 250!"))
+			return
+		
 		if squiggleTotal < 1:
 			app.setStatus(_("Sketch abort: Please let me draw at least 1 squiggle"))
 			return
@@ -215,7 +221,9 @@ class Tool(Plugin):
 
 		img = img.transpose(Image.FLIP_TOP_BOTTOM) #ouput correct image
 		pix = img.load()
-
+		#Init repetition
+		repetition = []
+		repetition = img.load()
 		#Get image size
 		self.imgWidth, self.imgHeight =  img.size
 		self.ratio = 1
@@ -226,7 +234,6 @@ class Tool(Plugin):
 
 		#Init blocks
 		blocks = []
-
 		#Border block
 		block = Block("%s-border"%(self.name))
 		block.enable = drawBorder
@@ -240,6 +247,7 @@ class Tool(Plugin):
 		block.append(CNC.gline(0,0))
 		blocks.append(block)
 
+        
 		#Draw block
 		block = Block(self.name)
 		block.append("(Sketch size W=%d x H=%d x distance=%d)" %
@@ -259,6 +267,8 @@ class Tool(Plugin):
 			#start = time.time()
 			x,y = self.findFirst(pix, False, casual)
 			#print 'Find mostest: %f' % (time.time() - start)
+			if pix[x,y]>max_light:
+				continue
 			#move there
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(x*self.ratio, y*self.ratio))
@@ -271,6 +281,8 @@ class Tool(Plugin):
 			s = 0
 			while (s < squiggleLength):
 				x,y,distance = self.findInRange(x, y, pix, radius)
+				if pix[x,y]>max_light:
+					break
 				s+= max(1,distance*self.ratio)  #add traveled distance
 				#move there
 				block.append(CNC.gline(x*self.ratio,y*self.ratio))
