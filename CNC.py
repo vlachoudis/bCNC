@@ -4350,6 +4350,8 @@ class GCode:
 				y2 = block.sy
 				dx = x1-x2
 				dy = y1-y2
+				dx/=CNC.feedmax_x
+				dy/=CNC.feedmax_y
 				matrix[i][j] = sqrt(dx*dx + dy*dy)
 		#from pprint import pprint
 		#pprint(matrix)
