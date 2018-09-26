@@ -262,6 +262,7 @@ class Tool(Plugin):
 		x,y = self.findFirst(pix, True, casual)
 
 		#startAll = time.time()
+		total_line=0
 		for c in range(squiggleTotal):
 			#print c,x,y
 			#start = time.time()
@@ -269,6 +270,7 @@ class Tool(Plugin):
 			#print 'Find mostest: %f' % (time.time() - start)
 			if pix[x,y]>max_light:
 				continue
+			total_line+=1;
 			#move there
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(x*self.ratio, y*self.ratio))
@@ -297,7 +299,7 @@ class Tool(Plugin):
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Sketch")
 		app.refresh()
-		app.setStatus(_("Generated Sketch size W=%d x H=%d x distance=%d, Total length:%d") %
-			(self.imgWidth*self.ratio  , self.imgHeight*self.ratio , depth, squiggleTotal*squiggleLength))
+		app.setStatus(_("Generated Sketch size W=%d x H=%d x distance=%d, Total line:%i, Total length:%d") %
+			(self.imgWidth*self.ratio  , self.imgHeight*self.ratio , depth, total_line, squiggleTotal*squiggleLength))
 		#img.save('test.png')
 		#print 'Time: %f' % (time.time() - startAll)
