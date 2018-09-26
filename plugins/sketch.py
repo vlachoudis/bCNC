@@ -234,6 +234,14 @@ class Tool(Plugin):
 
 		#Init blocks
 		blocks = []
+		
+		#Info block
+		block = Block("Info")
+		block.append("(Sketch size W=%d x H=%d x distance=%d)" %
+			(self.imgWidth * self.ratio  , self.imgHeight * self.ratio  , depth))
+		block.append("(Channel = %s)" %(channel))
+		blocks.append(block)
+		
 		#Border block
 		block = Block("%s-border"%(self.name))
 		block.enable = drawBorder
@@ -247,12 +255,6 @@ class Tool(Plugin):
 		block.append(CNC.gline(0,0))
 		blocks.append(block)
 
-        
-		#Draw block
-		block = Block(self.name)
-		block.append("(Sketch size W=%d x H=%d x distance=%d)" %
-			 (self.imgWidth * self.ratio  , self.imgHeight * self.ratio  , depth))
-		block.append("(Channel = %s)" %(channel))
 		#choose a nice starting point
 		x = self.imgWidth / 4.
 		y = self.imgHeight / 4.
@@ -265,12 +267,13 @@ class Tool(Plugin):
 		total_line=0
 		total_length=0
 		for c in range(squiggleTotal):
-			#print c,x,y
-			#start = time.time()
 			x,y = self.findFirst(pix, False, casual)
-			#print 'Find mostest: %f' % (time.time() - start)
 			if pix[x,y]>max_light:
 				continue
+			block = Block(self.name)
+			#print c,x,y
+			#start = time.time()
+
 			total_line+=1;
 			total_length+=1
 			#move there
@@ -293,12 +296,10 @@ class Tool(Plugin):
 				block.append(CNC.gline(x*self.ratio,y*self.ratio))
 				self.fadePixel(x, y, pix, fading) #adjustbrightness int the bright map
 			#tool up
-			block.append(CNC.zsafe())
 			#print 'Squiggle: %f' % (time.time() - start)
-
-		#Gcode Zsafe
-		block.append(CNC.zsafe())
-		blocks.append(block)
+			#Gcode Zsafe
+			block.append(CNC.zsafe())
+			blocks.append(block)
 		active = app.activeBlock()
 		app.gcode.insBlocks(active, blocks, "Sketch")
 		app.refresh()
