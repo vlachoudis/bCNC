@@ -263,6 +263,7 @@ class Tool(Plugin):
 
 		#startAll = time.time()
 		total_line=0
+		total_length=0
 		for c in range(squiggleTotal):
 			#print c,x,y
 			#start = time.time()
@@ -271,6 +272,7 @@ class Tool(Plugin):
 			if pix[x,y]>max_light:
 				continue
 			total_line+=1;
+			total_length+=1
 			#move there
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(x*self.ratio, y*self.ratio))
@@ -286,6 +288,7 @@ class Tool(Plugin):
 				if pix[x,y]>max_light:
 					break
 				s+= max(1,distance*self.ratio)  #add traveled distance
+				total_length+=1
 				#move there
 				block.append(CNC.gline(x*self.ratio,y*self.ratio))
 				self.fadePixel(x, y, pix, fading) #adjustbrightness int the bright map
@@ -300,6 +303,6 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Sketch")
 		app.refresh()
 		app.setStatus(_("Generated Sketch size W=%d x H=%d x distance=%d, Total line:%i, Total length:%d") %
-			(self.imgWidth*self.ratio  , self.imgHeight*self.ratio , depth, total_line, squiggleTotal*squiggleLength))
+			(self.imgWidth*self.ratio  , self.imgHeight*self.ratio , depth, total_line, total_length))
 		#img.save('test.png')
 		#print 'Time: %f' % (time.time() - startAll)
