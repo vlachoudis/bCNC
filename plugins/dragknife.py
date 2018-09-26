@@ -57,41 +57,40 @@ class Tool(Plugin):
 			#blocks.append(nblock)
 
 			eblock = Block("drag "+app.gcode[bid].name())
-			opath = app.gcode.toPath(bid)[0]
+			opath = app.gcode.toPath(bid)[0].linearize()
 			npath = Path("dragknife "+app.gcode[bid].name())
-			shortened = False
-			for i,seg in enumerate(opath):
-				if shortened:
-					npath.append(seg.shortenedSegment(dragoff))
-					shortened = False
-				else:
-					npath.append(seg)
 
-				shortened = False
+			pprev = opath[0].A
+			for i,seg in enumerate(opath):
+				#Go to next tangent
+				pnext = seg.extrapolatePoint(dragoff, True)
+				npath.append(Segment(Segment.LINE, pprev, pnext))
+
+				#pprev = pnext
+				#continue
+
+				#Test if we need swivel
+				swivel = False
 				if len(opath) > i+1:
 					next = opath[i+1]
 					angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
 					if angle > angleth:
-						shortened = True
-					last = False
-				else:
-					shortened = True
-					last = True
+						swivel = True
 
-				if shortened:
-					overcut = seg.suffixSegment(dragoff)
-					npath.append(overcut)
-					if not last:
-						arca = Segment(Segment.CW, overcut.B, next.extrapolatePoint(dragoff))
-						arca.setCenter(seg.B)
-						if swivelz !=0: arca._inside = [swivelz]
-						arcb = Segment(Segment.CCW, overcut.B, next.extrapolatePoint(dragoff))
-						arcb.setCenter(seg.B)
-						if swivelz !=0: arcb._inside = [swivelz]
-						if arca.length() < arcb.length():
-							npath.append(arca)
-						else:
-							npath.append(arcb)
+				#Do swivel
+				if swivel:
+					arca = Segment(Segment.CW, pnext, seg.B+(next.tangentStart()*dragoff))
+					arca.setCenter(seg.B)
+					if swivelz !=0: arca._inside = [swivelz]
+					arcb = Segment(Segment.CCW, pnext, seg.B+(next.tangentStart()*dragoff))
+					arcb.setCenter(seg.B)
+					if swivelz !=0: arcb._inside = [swivelz]
+					if arca.length() < arcb.length():
+						npath.append(arca)
+					else:
+						npath.append(arcb)
+
+				pprev = pnext
 
 			eblock = app.gcode.fromPath(npath,eblock)
 			blocks.append(eblock)
