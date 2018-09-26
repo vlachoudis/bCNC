@@ -11,7 +11,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from operator import itemgetter
-from math import atan, atan2, cos, degrees, pi, sin, sqrt
+from math import atan, atan2, cos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 
 EPS   = 1E-7		# strict tolerances for operations
@@ -221,6 +221,8 @@ class Segment:
 				phi = self.startPhi+raddist
 			else:
 				phi = self.endPhi+raddist
+			if self.type == Segment.CW:
+				phi = -phi
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
 
@@ -260,6 +262,23 @@ class Segment:
 		if self.type != Segment.LINE:
 			shortened.setCenter(self.C)
 		return shortened
+
+	#----------------------------------------------------------------------
+	# Linearize this segment and return resulted segments
+	#----------------------------------------------------------------------
+	def linearize(self, maxseg=1):
+		#linearized = Path("linearized segment", None)
+		linearized = []
+		if self.type == Segment.CW or self.type == Segment.CCW:
+			count = int(ceil(self.length() / maxseg))
+			step = self.length() / count
+			#print "---"
+			for i in range(0,count):
+				#print i, self.length(), i*step, (i+1)*step
+				linearized.append(Segment(Segment.LINE, self.distPoint(i*step), self.distPoint((i+1)*step)))
+		else:
+			linearized.append(self)
+		return linearized
 
 	#----------------------------------------------------------------------
 	# return segment length
@@ -747,6 +766,12 @@ class Path(list):
 			if dist-segment.length() <= 0:
 				return segment.distPoint(dist)
 			dist -= segment.length()
+
+	def linearize(self, maxseg=1):
+		linearized = Path(self.name, self.color)
+		for seg in self:
+			linearized.extend(seg.linearize(maxseg))
+		return linearized
 
 	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
