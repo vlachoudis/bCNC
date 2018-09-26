@@ -32,7 +32,8 @@ class Tool(Plugin):
 			("offset", "mm", "3", _("dragknife offset")),
 			("angle", "float", "20", _("angle threshold")),
 			("swivelz", "mm", "0", _("swivel height")),
-			("feed", "mm", "200", _("feedrate"))
+			("feed", "mm", "200", _("feedrate")),
+			("precision", "mm", "0.3", _("precision (mm)"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -44,6 +45,7 @@ class Tool(Plugin):
 		dragoff = self.fromMm("offset")
 		angleth = self.fromMm("angle")
 		swivelz = self.fromMm("swivelz")
+		precision = self.fromMm("precision")
 		CNC.vars["cutfeed"] = self.fromMm("feed")
 
 		#print("go!")
@@ -57,7 +59,7 @@ class Tool(Plugin):
 			#blocks.append(nblock)
 
 			eblock = Block("drag "+app.gcode[bid].name())
-			opath = app.gcode.toPath(bid)[0].linearize()
+			opath = app.gcode.toPath(bid)[0].linearize(precision)
 			npath = Path("dragknife "+app.gcode[bid].name())
 
 			pprev = opath[0].A
