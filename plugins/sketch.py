@@ -11,7 +11,7 @@ __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Sketch")
-__version__= "0.0.1"
+__version__= "0.5.0"
 
 import math
 # import time
@@ -39,30 +39,48 @@ class Tool(Plugin):
 			("MaxSize"  ,         "mm" ,     250.0, _("Maximum size")),
 			("SquiggleTotal" ,   "int" ,       300, _("Squiggle total count")),
 			("SquiggleLength",    "mm" ,     400.0, _("Squiggle Length")),
-			("DrawBorder",      "bool",      False, _("Draw border")),
+			("Fading",           "int" ,         4, _("Fading force")),
+			("DrawBorder",       "bool",     False, _("Draw border")),
+			("Casual",           "bool",     True, _("Casual first point")),
 			("File"  ,          "file" ,        "", _("Image to process")),
 			("Channel","Luminance,Red,Green,Blue" ,"Luminance", _("Channel to analyze")),
 		]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
-	def findFirst(self, pix, scanAll):
-		most = 256
-		for x in xrange(2,self.imgWidth - 2):
-			for y in xrange(2,self.imgHeight - 2):
+	def findFirst(self, pix, scanAll, casual):
+		most = 0
+		if casual:
+			for e in xrange(1,300):
+				x = random.randint(2,self.imgWidth - 3)
+				y = random.randint(2,self.imgHeight - 3)
 				val = pix[x,y]
-
+				if most == 0:
+					most = val
+					bestX = x
+					bestY = y
 				if val < most:
 					most = val
 					bestX = x
 					bestY = y
 				if (val <= self.mostest) and not scanAll:
 					self.mostest = most
-					return bestX,bestY
-
-		self.mostest = most
+					bestX = x
+					bestY = y
+		else:
+			most = pix[2,2]
+			bestX = 2
+			bestY = 2
+			for x in xrange(2,self.imgWidth - 2):
+				for y in xrange(2,self.imgHeight - 2):
+					val = pix[x,y]
+					if val < most:
+						most = val
+						bestX = x
+						bestY = y
+					if (val <= self.mostest) and not scanAll:
+						self.mostest = most
 		return bestX,bestY
-
 	# ----------------------------------------------------------------------
 	def findInRange(self, startX, startY, pix, maxRange):
 		xmin = int(max(2, startX - maxRange))
@@ -74,57 +92,56 @@ class Tool(Plugin):
 		bestY = startY
 		distance=1
 
-		most = 256
+		most = pix[startX,startY]
 		for x in xrange(xmin,xmax):
 			for y in xrange(ymin,ymax):
 				distance = math.sqrt((startX - x)**2 + (startY -y)**2)
 				if(distance > maxRange):
 					continue
 				val = pix[x,y]
-				val += (random.random()*2.)  #avoid ugly straight lines, steal time
+				#val += (random.random()*2.)  #avoid ugly straight lines, steal time
 				if val < most:
 					most = val
 					bestX = x
 					bestY = y
 				if most <= self.mostest:
 					self.mostest = most
-					return bestX, bestY, distance
 		return bestX, bestY, distance
 
-	def fadePixel(self, x, y, pix):
-		pix[x,y] +=40
-		pix[x+1,y] +=16
-		pix[x-1,y] +=16
-		pix[x,y+1] +=16
-		pix[x,y-1] +=16
-		pix[x+1,y+1] +=8
-		pix[x-1,y-1] +=8
-		pix[x-1,y+1] +=8
-		pix[x+1,y-1] +=8
+	def fadePixel(self, x, y, pix, fad):
+		pix[x,y] +=10*fad
+		pix[x+1,y] +=4*fad
+		pix[x-1,y] +=4*fad
+		pix[x,y+1] +=4*fad
+		pix[x,y-1] +=4*fad
+		pix[x+1,y+1] +=3*fad
+		pix[x-1,y-1] +=3*fad
+		pix[x-1,y+1] +=3*fad
+		pix[x+1,y-1] +=3*fad
 
-		#pix[x-2,y-2] +=4
-		pix[x-2,y-1] +=4
-		pix[x-2,y-0] +=4
-		pix[x-2,y+1] +=4
-		#pix[x-2,y+2] +=4
+		pix[x-2,y-2] +=1*fad
+		pix[x-2,y-1] +=2*fad
+		pix[x-2,y-0] +=2*fad
+		pix[x-2,y+1] +=2*fad
+		pix[x-2,y+2] +=1*fad
 
-		#pix[x+2,y-2] +=4
-		pix[x+2,y-1] +=4
-		pix[x+2,y-0] +=4
-		pix[x+2,y+1] +=4
-		#pix[x+2,y+2] +=4
+		pix[x+2,y-2] +=1*fad
+		pix[x+2,y-1] +=2*fad
+		pix[x+2,y-0] +=2*fad
+		pix[x+2,y+1] +=2*fad
+		pix[x+2,y+2] +=1*fad
 
-		#pix[x-2,y-2] +=4
-		pix[x-1,y-2] +=4
-		pix[x-0,y-2] +=4
-		pix[x+1,y+2] +=4
-		#pix[x+2,y+2] +=4
+		pix[x-2,y-2] +=1*fad
+		pix[x-1,y-2] +=2*fad
+		pix[x-0,y-2] +=2*fad
+		pix[x+1,y+2] +=2*fad
+		pix[x+2,y+2] +=1*fad
 
-		#pix[x-2,y+2] +=4
-		pix[x-1,y+2] +=4
-		pix[x-0,y+2] +=4
-		pix[x+1,y+2] +=4
-		#pix[x+2,y+2] +=4
+		pix[x-2,y+2] +=1*fad
+		pix[x-1,y+2] +=2*fad
+		pix[x-0,y+2] +=2*fad
+		pix[x+1,y+2] +=2*fad
+		pix[x+2,y+2] +=1*fad
 
 
 
@@ -147,6 +164,8 @@ class Tool(Plugin):
 		depth = self["Depth"]
 		drawBorder = self["DrawBorder"]
 		channel = self["Channel"]
+		casual = self["Casual"]
+		fading = self["Fading"]
 
 		radius = 1
 		if grundgy == "Low":
@@ -232,13 +251,13 @@ class Tool(Plugin):
 
 		#First round search in all image
 		self.mostest = 256
-		x,y = self.findFirst(pix, True)
+		x,y = self.findFirst(pix, True, casual)
 
 		#startAll = time.time()
 		for c in range(squiggleTotal):
 			#print c,x,y
 			#start = time.time()
-			x,y = self.findFirst(pix, False)
+			x,y = self.findFirst(pix, False, casual)
 			#print 'Find mostest: %f' % (time.time() - start)
 			#move there
 			block.append(CNC.zsafe())
@@ -255,7 +274,7 @@ class Tool(Plugin):
 				s+= max(1,distance*self.ratio)  #add traveled distance
 				#move there
 				block.append(CNC.gline(x*self.ratio,y*self.ratio))
-				self.fadePixel(x, y, pix) #adjustbrightness int the bright map
+				self.fadePixel(x, y, pix, fading) #adjustbrightness int the bright map
 			#tool up
 			block.append(CNC.zsafe())
 			#print 'Squiggle: %f' % (time.time() - start)
