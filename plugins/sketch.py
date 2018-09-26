@@ -99,7 +99,7 @@ class Tool(Plugin):
 				if(distance > maxRange):
 					continue
 				val = pix[x,y]
-				#val += (random.random()*2.)  #avoid ugly straight lines, steal time
+				val += (random.random()*2.)  #avoid ugly straight lines, steal time
 				if val < most:
 					most = val
 					bestX = x
