@@ -62,7 +62,7 @@ class Tool(Plugin):
 			opath = app.gcode.toPath(bid)[0].linearize(precision)
 			npath = Path("dragknife "+app.gcode[bid].name())
 
-			pprev = opath[0].A
+			pprev = opath[0].extrapolatePoint(dragoff)
 			for i,seg in enumerate(opath):
 				#Go to next tangent
 				pnext = seg.extrapolatePoint(dragoff, True)
@@ -75,9 +75,11 @@ class Tool(Plugin):
 				swivel = False
 				if len(opath) > i+1:
 					next = opath[i+1]
-					angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
-					if angle > angleth:
-						swivel = True
+				else:
+					next = opath[0]
+				angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
+				if angle > angleth:
+					swivel = True
 
 				#Do swivel
 				if swivel:
