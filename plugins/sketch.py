@@ -52,7 +52,7 @@ class Tool(Plugin):
 	def findFirst(self, pix, scanAll, casual):
 		most = 0
 		if casual:
-			for e in xrange(1,300):
+			for e in xrange(1,500):
 				x = random.randint(2,self.imgWidth - 3)
 				y = random.randint(2,self.imgHeight - 3)
 				val = pix[x,y]
