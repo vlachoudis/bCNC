@@ -444,6 +444,7 @@ class Plugin(DataBase):
 		DataBase.__init__(self, master, name)
 		self.plugin = True
 		self.group  = "Macros"
+		self.oneshot = False
 
 #==============================================================================
 # Generic ini configuration
@@ -677,7 +678,10 @@ class Cut(DataBase):
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
-			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)"))
+			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
+			("islandsLeave", "bool" , True, _("Leave islands uncut")),
+			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
+			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
 		]
 		self.buttons.append("exe")
 
@@ -695,7 +699,10 @@ class Cut(DataBase):
 		helixBottom = self["helixBottom"]
 		ramp = self["ramp"]
 		if ramp < 0: ramp = self.master.fromMm(float(ramp))
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp)
+		islandsLeave = self["islandsLeave"]
+		islandsCut = self["islandsCut"]
+		islandsSelectedOnly = self["islandsSelectedOnly"]
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -706,6 +713,7 @@ class Drill(DataBase):
 		DataBase.__init__(self, master, "Drill")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
+			("center",    "bool" ,  True, _("Drill in center only")),
 			("depth",     "mm" ,    "", _("Target Depth")),
 			("peck",      "mm" ,    "", _("Peck depth")),
 			("dwell",     "float" , "", _("Dwell (s)")),
@@ -719,6 +727,7 @@ class Drill(DataBase):
 		h = self.fromMm("depth", None)
 		p = self.fromMm("peck",  None)
 		e = self.fromMm("distance", None)
+		c = self["center"]
 		try:
 			d = self["dwell"]
 		except:
@@ -727,7 +736,7 @@ class Drill(DataBase):
 			n = int(self["number"])
 		except:
 			n = 0
-		app.executeOnSelection("DRILL", True, h, p, d, e, n)
+		app.executeOnSelection("DRILL", True, h, p, d, e, n, c)
 		app.setStatus(_("DRILL selected points"))
 
 #==============================================================================
@@ -786,7 +795,7 @@ class Tabs(DataBase):
 		DataBase.__init__(self, master, "Tabs")
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("islands",   "bool", False, _("Create tabs from selected islands?")),
+			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
@@ -814,9 +823,9 @@ class Tabs(DataBase):
 			tkMessageBox.showerror(_("Tabs error"),
 				_("You cannot have both the number of tabs or distance equal to zero"))
 
-		islands = self["islands"]
+		circ = self["circ"]
 
-		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, islands)
+		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
 		app.setStatus(_("Create tabs on blocks"))
 
 #==============================================================================
@@ -1011,6 +1020,11 @@ class Tools:
 		for name in tool.buttons:
 			self.buttons[name].config(state=NORMAL)
 		self.buttons["exe"].config(text=self.active.get())
+
+		#Update execute button with plugin icon if available
+		icon = self.tools[self.active.get().upper()].icon
+		if icon is None: icon = "gear"
+		self.buttons["exe"].config(image=Utils.icons[icon])
 
 #===============================================================================
 # DataBase Group
@@ -1213,7 +1227,18 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		for tool in app.tools.pluginList():
 			if tool.group != "CAM": continue
 			# ===
-			b = Ribbon.LabelRadiobutton(self.frame,
+			if tool.oneshot:
+				#print("oneshot", tool.name)
+				b = Ribbon.LabelButton(self.frame,
+					image=Utils.icons[tool.icon],
+					text=_(tool.name),
+					compound=LEFT,
+					anchor=W,
+					command=lambda s=self,a=app,t=tool:a.tools[t.name.upper()].execute(a),
+					#command=tool.execute,
+					background=Ribbon._BACKGROUND)
+			else:
+				b = Ribbon.LabelRadiobutton(self.frame,
 					image=Utils.icons[tool.icon],
 					text=tool.name,
 					compound=LEFT,
@@ -1221,6 +1246,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 					variable=app.tools.active,
 					value=tool.name,
 					background=Ribbon._BACKGROUND)
+
 			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
 			tkExtra.Balloon.set(b, tool.__doc__)
 			self.addWidget(b)
@@ -1240,8 +1266,16 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 			# Find plugins in the plugins directory and load them
 			for tool in self.app.tools.pluginList():
 				if tool.group != group: continue
-				submenu.add_radiobutton(
-						label=tool.name,
+				if tool.oneshot:
+					submenu.add_command(
+						label=_(tool.name),
+						image=Utils.icons[tool.icon],
+						compound=LEFT,
+						command=lambda s=self,a=self.app,t=tool:a.tools[t.name.upper()].execute(a)
+						)
+				else:
+					submenu.add_radiobutton(
+						label=_(tool.name),
 						image=Utils.icons[tool.icon],
 						compound=LEFT,
 						variable=self.app.tools.active,

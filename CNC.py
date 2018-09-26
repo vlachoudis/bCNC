@@ -2537,7 +2537,20 @@ class GCode:
 		# get only first path that enters the surface
 		# ignore the deeper ones
 		z1st = None
+		passno = 0
 		for line in block:
+			#flatten helical paths
+			line = re.sub(r"\s?z-?[0-9\.]+","",line)
+
+			#break after first depth pass
+			if line == "( ---------- cut-here ---------- )":
+				passno=0
+				if path:
+					paths.append(path)
+					path = Path(block.name())
+			if line[:5] == "(pass": passno+=1
+			if passno > 1: continue
+
 			cmds = CNC.parseLine(line)
 			if cmds is None: continue
 			self.cnc.motionStart(cmds)
@@ -2644,7 +2657,6 @@ class GCode:
 			setfeed = True
 			ztabprev = None
 			for sid,segment in enumerate(path):
-				nextseg = True
 				zhprev = zh
 
 				#This is where you can modify the ramp of the helix:
@@ -2658,20 +2670,18 @@ class GCode:
 
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
-					if ztab is None or ztab < ztabprev: #if we need to enter the toolpath after done clearing the tab
+					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
 						block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
-					else: #if we need to go higher in order to clear the tab
+					elif zh < ztab or zhprev < ztab: #if we need to go higher in order to clear the tab
 						block.append("(tab up "+str(max(zh, ztab))+")")
 						block.append(CNC.zexit(max(zh, ztab),7))
-						block.append("g1 %s %s"%(self.fmt("x",segment.B[0],7),self.fmt("y",segment.B[1],7)))
-						nextseg = False
 						setfeed = True
 				ztabprev = ztab
 
 				#Cut next segment of toolpath
-				if nextseg: addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
+				addSegment(segment, max(zh, ztab)) #Never cut deeper than tabs!
 
 				#Set feed if needed
 				if setfeed:
@@ -3266,7 +3276,7 @@ class GCode:
 	# Depth increment
 	# Retract height=safe height
 	#----------------------------------------------------------------------
-	def drill(self, items, depth=None, peck=None, dwell=None, distance=None, number=0):
+	def drill(self, items, depth=None, peck=None, dwell=None, distance=None, number=0, center=True):
 		# find the penetration points and drill
 		# skip all g1 movements on the horizontal plane
 		if depth is None: depth = self.cnc["surface"]-self.cnc["thickness"]
@@ -3307,7 +3317,16 @@ class GCode:
 			self.initPath(bid)
 			self.cnc.z = self.cnc.zval = 1000.0
 			lines = []
-			if distance is None and number==0:
+
+			if center:
+				#Drill in center only
+				for path in self.toPath(bid):
+					x,y = path.center()
+					lines.append("g0 %s %s"%(self.fmt("x",x),self.fmt("y",y)))
+					drillHole(lines)
+
+			elif distance is None and number==0:
+				#Drill on path begining only
 				for i,line in enumerate(block):
 					cmds = CNC.parseLine(line)
 					if cmds is None:
@@ -3327,7 +3346,9 @@ class GCode:
 						pass
 					self.cnc.motionEnd()
 			else:
+				#Drill multiple holes along path
 				for path in self.toPath(bid):
+
 					length = path.length()
 					if number>0:
 						distance = length / float(number)
@@ -3348,6 +3369,8 @@ class GCode:
 							if remain > l:
 								s = distance-(remain-l)
 								break
+							#FIXME:	Rewrite this to use new method segment.distPoint(pos) from lib/bpath.py
+							#	See trochoidal plugin for more!
 							if segment.type == Segment.LINE:
 								P = segment.A + (remain/l)*segment.AB
 							else:
@@ -3385,8 +3408,10 @@ class GCode:
 
 		#Mark in which island we are inside
 		if islandPaths:
-			for island in islandPaths:
-				path.intersectPath(island, island._inside)
+			for island in reversed(islandPaths):
+				path.intersectPath(island)
+			for island in reversed(islandPaths):
+				path.markInside(island, island._inside)
 
 		#iterate over depth passes:
 		while z > depth:

@@ -8,6 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("Difference")
+__version__ = "0.0.1"
 
 import math
 import os.path
@@ -15,7 +16,6 @@ import re
 from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
-from numpy import deg2rad
 from bpath import EPS,eq,Path, Segment
 from copy import deepcopy
 
@@ -24,8 +24,9 @@ class Tool(Plugin):
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Difference")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button
-		self.icon = "diff"			#<<< This is the name of gif file used as icon for the ribbon button. It will be search in the "icons" subfolder
+		self.icon = "diff"			#<<< This is the name of png file used as icon for the ribbon button. It will be search in the "icons" subfolder
 		self.group = "CAM"	#<<< This is the name of group that plugin belongs
+		self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
