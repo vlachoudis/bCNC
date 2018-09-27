@@ -55,10 +55,15 @@ class Tool(Plugin):
 
 			for i,seg in enumerate(opath):
 				#Compute difference tangential angle between two neighbor segments
-				angle = degrees(abs( seg.tangentStart().phi() - opath[i-1].tangentEnd().phi() ))
+				angle = degrees(acos(seg.tangentStart().dot(opath[i-1].tangentEnd())))
 
 				#Do swivel if needed
 				if angle > angleth:
+					#if angle >= 0:
+					#	arcdir = Segment.CW
+					#else:
+					#	arcdir = Segment.CCW
+
 					arca = Segment(Segment.CW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
 					arcb = Segment(Segment.CCW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
 
