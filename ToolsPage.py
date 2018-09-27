@@ -592,7 +592,11 @@ class Material(DataBase):
 			("comment","str",    "", _("Comment")),
 			("feed",    "mm"  , 10., _("Feed")),
 			("feedz",   "mm"  ,  1., _("Plunge Feed")),
-			("stepz",   "mm"  ,  1., _("Depth Increment"))
+			("stepz",   "mm"  ,  1., _("Depth Increment")),
+			("zretract", "mm" ,   1.0, _("Z Distance before contact")),
+			("feedbeforecontact", "int" ,   80, _("Z Feed before contact %")),
+			("hardcrust", "mm" ,   1.0, _("Hard crust thickness")),
+			("hardcrustfeed",  "int", 70, _("Hard crust Z Feed %"))
 		 ]
 
 	# ----------------------------------------------------------------------
@@ -605,6 +609,10 @@ class Material(DataBase):
 			self.master.cnc()["cutfeed"]  = self.fromMm("feed")
 			self.master.cnc()["cutfeedz"] = self.fromMm("feedz")
 			self.master.cnc()["stepz"]    = self.fromMm("stepz")
+			self.master.cnc()["zretract"] = self.fromMm("zretract")
+			self.master.cnc()["feedbeforecontact"] = self["feedbeforecontact"]
+			self.master.cnc()["hardcrust"] = self.fromMm("hardcrust")
+			self.master.cnc()["hardcrustfeed"] = self["hardcrustfeed"]	
 		return False
 
 #==============================================================================
@@ -625,7 +633,8 @@ class EndMill(DataBase):
 			("flutes",    "int",      2, _("Flutes")),
 			("length",     "mm",   20.0, _("Length")),
 			("angle",   "float",     "", _("Angle")),
-			("stepover","float",   40.0, _("Stepover %"))
+			("stepover","float",   40.0, _("Stepover %")),
+			("endmillthikness",    "mm", "", _("Thikness"))
 		]
 
 	# ----------------------------------------------------------------------
