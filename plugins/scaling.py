@@ -159,36 +159,19 @@ class Tool(Plugin):
 #		if not n or n=="default": n="Trochoidal_3D"
 		n="Scaling"
 		scal_block = Block(n)
-		phi=oldphi=0
-		oldsegm=[[0,0,0],[0,0,0]]
 
-#		segments ---------------------------------------------
 		for idx, segm in enumerate(bidSegment):
 			if idx >= 0:
-	#			if cw:
-	#				u = 1
-	#				arc = "G2"
-	#			else:
-	#				u = -1
-	#				arc = "G3"				
-#		////////////---------------------------------------------------------------------
-#		information: ---------------------------------------------------------------------
-				segLength = self.calcSegmentLength(segm)
-	#			    ---------------------------------------------
-	#				////////----------------------------------------------------------------------
 				if idx == 0:
-#					scal_block.append("(M06 T0 "+str(toolradius*2.0)+" mm)")
 					scal_block.append("M03")
 					scal_block.append("S "+str(rpm))
 					scal_block.append(CNC.zsafe())
 					scal_block.append("F "+str(feed))
-#					if (segm[1][1]-segm[0][1]==0 and segm[1][0]-segm[0][0]==0):
-#						phi=12345
 					scal_block.append("(--------------------------------------------------)")
 
 				B=self.scaling(segm)
 
-				if segm[0][2]> surface and segm[1][2]>surface:
+				if segm[0][2]> surface and segm[1][2]>=surface:
 					scal_block.append("g0 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
 				else:
 					scal_block.append("g1 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
