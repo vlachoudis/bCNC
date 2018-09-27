@@ -281,6 +281,25 @@ class Segment:
 		return linearized
 
 	#----------------------------------------------------------------------
+	# Return tangential offset of this segment
+	#----------------------------------------------------------------------
+	def tangentialOffset(self, distance):
+		#self.A = self.A + ( self.tangentStart() * distance )
+		#self.B = self.B + ( self.tangentEnd() * distance )
+		#self.correct()
+
+		seg = Segment(
+			self.type,
+			self.A + ( self.tangentStart() * distance ),
+			self.B + ( self.tangentEnd() * distance )
+			)
+
+		if self.type != Segment.LINE:
+			seg.setCenter(self.C)
+
+		return seg
+
+	#----------------------------------------------------------------------
 	# return segment length
 	#----------------------------------------------------------------------
 	def length(self):

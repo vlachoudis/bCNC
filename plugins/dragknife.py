@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("DragKnife")
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 
 import math
 import os.path
@@ -32,8 +32,7 @@ class Tool(Plugin):
 			("offset", "mm", "3", _("dragknife offset")),
 			("angle", "float", "20", _("angle threshold")),
 			("swivelz", "mm", "0", _("swivel height")),
-			("feed", "mm", "200", _("feedrate")),
-			("precision", "mm", "0.3", _("precision (mm)"))
+			("feed", "mm", "200", _("feedrate"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -45,58 +44,35 @@ class Tool(Plugin):
 		dragoff = self.fromMm("offset")
 		angleth = self.fromMm("angle")
 		swivelz = self.fromMm("swivelz")
-		precision = self.fromMm("precision")
 		CNC.vars["cutfeed"] = self.fromMm("feed")
 
-		#print("go!")
 		blocks  = []
 		for bid in app.editor.getSelectedBlocks():
 			if len(app.gcode.toPath(bid)) < 1: continue
 
-			#nblock = Block("flat "+app.gcode[bid].name())
-			#for i in app.gcode[bid]:
-			#	nblock.append(re.sub(r"\s?z-?[0-9\.]+","",i))
-			#blocks.append(nblock)
+			opath = app.gcode.toPath(bid)[0]
+			npath = Path("dragknife %s: %s"%(dragoff,app.gcode[bid].name()))
 
-			eblock = Block("drag "+app.gcode[bid].name())
-			opath = app.gcode.toPath(bid)[0].linearize(precision)
-			npath = Path("dragknife "+app.gcode[bid].name())
-
-			pprev = opath[0].extrapolatePoint(dragoff)
 			for i,seg in enumerate(opath):
-				#Go to next tangent
-				pnext = seg.extrapolatePoint(dragoff, True)
-				npath.append(Segment(Segment.LINE, pprev, pnext))
+				#Compute difference tangential angle between two neighbor segments
+				angle = degrees(abs( seg.tangentStart().phi() - opath[i-1].tangentEnd().phi() ))
 
-				#pprev = pnext
-				#continue
-
-				#Test if we need swivel
-				swivel = False
-				if len(opath) > i+1:
-					next = opath[i+1]
-				else:
-					next = opath[0]
-				angle = degrees(abs( seg.tangentEnd().phi() - next.tangentStart().phi() ))
+				#Do swivel if needed
 				if angle > angleth:
-					swivel = True
+					arca = Segment(Segment.CW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
+					arcb = Segment(Segment.CCW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
 
-				#Do swivel
-				if swivel:
-					arca = Segment(Segment.CW, pnext, seg.B+(next.tangentStart()*dragoff))
-					arca.setCenter(seg.B)
+					if arcb.length() < arca.length():
+						arca = arcb
+
 					if swivelz !=0: arca._inside = [swivelz]
-					arcb = Segment(Segment.CCW, pnext, seg.B+(next.tangentStart()*dragoff))
-					arcb.setCenter(seg.B)
-					if swivelz !=0: arcb._inside = [swivelz]
-					if arca.length() < arcb.length():
-						npath.append(arca)
-					else:
-						npath.append(arcb)
+					npath.append(arca)
 
-				pprev = pnext
+				#Append segment with tangential offset
+				npath.append(seg.tangentialOffset(dragoff))
 
-			eblock = app.gcode.fromPath(npath,eblock)
+
+			eblock = app.gcode.fromPath(npath)
 			blocks.append(eblock)
 
 
