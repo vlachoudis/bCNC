@@ -53,22 +53,25 @@ class Tool(Plugin):
 			opath = app.gcode.toPath(bid)[0]
 			npath = Path("dragknife %s: %s"%(dragoff,app.gcode[bid].name()))
 
+			#Generate path with tangential lag for dragknife operation
 			for i,seg in enumerate(opath):
-				#Compute difference tangential angle between two neighbor segments
-				angle = degrees(acos(seg.tangentStart().dot(opath[i-1].tangentEnd())))
+				#Get adjacent tangential vectors in this point
+				TA = opath[i-1].tangentEnd()
+				TB = seg.tangentStart()
 
-				#Do swivel if needed
-				if angle > angleth:
-					#if angle >= 0:
-					#	arcdir = Segment.CW
-					#else:
-					#	arcdir = Segment.CCW
+				#Compute difference between tangential vectors of two neighbor segments
+				angle = degrees(acos(TA.dot(TB)))
 
-					arca = Segment(Segment.CW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
-					arcb = Segment(Segment.CCW, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
+				#Compute swivel direction
+				arcdir = ( TA[0] * TB[1] ) - ( TA[1] * TB[0] )
+				if arcdir < 0:
+					arcdir = Segment.CW
+				else:
+					arcdir = Segment.CCW
 
-					if arcb.length() < arca.length():
-						arca = arcb
+				#Append swivel if needed
+				if abs(angle) > angleth:
+					arca = Segment(arcdir, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
 
 					if swivelz !=0: arca._inside = [swivelz]
 					npath.append(arca)
