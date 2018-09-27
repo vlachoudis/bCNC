@@ -767,6 +767,9 @@ class Path(list):
 				return segment.distPoint(dist)
 			dist -= segment.length()
 
+        #----------------------------------------------------------------------
+        # Return linearized path (arcs are subdivided to lines)
+        #----------------------------------------------------------------------
 	def linearize(self, maxseg=1):
 		linearized = Path(self.name, self.color)
 		for seg in self:
