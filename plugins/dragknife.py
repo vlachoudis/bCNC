@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("DragKnife")
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 import math
 import os.path
