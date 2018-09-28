@@ -135,8 +135,8 @@ class Tool(Plugin):
 		pix[x-2,y-2] +=1*fad
 		pix[x-1,y-2] +=2*fad
 		pix[x-0,y-2] +=2*fad
-		pix[x+1,y+2] +=2*fad
-		pix[x+2,y+2] +=1*fad
+		pix[x+1,y-2] +=2*fad
+		pix[x+2,y-2] +=1*fad
 
 		pix[x-2,y+2] +=1*fad
 		pix[x-1,y+2] +=2*fad
