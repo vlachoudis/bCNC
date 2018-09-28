@@ -216,13 +216,14 @@ class Segment:
 			else:
 				return self.B+(self.tangentStart()*dist)
 		else:
+			if self.type == Segment.CW:
+				dist = -dist
+
 			raddist = dist/self.radius
 			if not B:
 				phi = self.startPhi+raddist
 			else:
 				phi = self.endPhi+raddist
-			if self.type == Segment.CW:
-				phi = -phi
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
 
@@ -266,10 +267,11 @@ class Segment:
 	#----------------------------------------------------------------------
 	# Linearize this segment and return resulted segments
 	#----------------------------------------------------------------------
-	def linearize(self, maxseg=1):
+	def linearize(self, maxseg=1, splitlines=False):
+		#self.correct()
 		#linearized = Path("linearized segment", None)
 		linearized = []
-		if self.type == Segment.CW or self.type == Segment.CCW:
+		if splitlines or self.type == Segment.CW or self.type == Segment.CCW:
 			count = int(ceil(self.length() / maxseg))
 			step = self.length() / count
 			#print "---"
@@ -789,10 +791,10 @@ class Path(list):
         #----------------------------------------------------------------------
         # Return linearized path (arcs are subdivided to lines)
         #----------------------------------------------------------------------
-	def linearize(self, maxseg=1):
+	def linearize(self, maxseg=1, splitlines=False):
 		linearized = Path(self.name, self.color)
 		for seg in self:
-			linearized.extend(seg.linearize(maxseg))
+			linearized.extend(seg.linearize(maxseg, splitlines))
 		return linearized
 
 	#----------------------------------------------------------------------
