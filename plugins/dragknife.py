@@ -30,12 +30,12 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("offset", "mm", "3", _("dragknife offset")),
-			("angle", "float", "20", _("angle threshold")),
-			("swivelz", "mm", "0", _("swivel height")),
-			("feed", "mm", "200", _("feedrate")),
+			("offset", "mm", 3, _("dragknife offset")),
+			("angle", "float", 20, _("angle threshold")),
+			("swivelz", "mm", 0, _("swivel height")),
+			("feed", "mm", 200, _("feedrate")),
 			("simulate", "bool", False, _("simulate")),
-			("simpreci", "mm", "0.5", _("simulation precision"))
+			("simpreci", "mm", 0.5, _("simulation precision"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -45,11 +45,11 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		dragoff = self.fromMm("offset")
-		angleth = self.fromMm("angle")
+		angleth = self["angle"]
 		swivelz = self.fromMm("swivelz")
 		CNC.vars["cutfeed"] = self.fromMm("feed")
 		simulate = self["simulate"]
-		simpreci = self.fromMm("simpreci")
+		simpreci = self["simpreci"]
 
 		blocks  = []
 		for bid in app.editor.getSelectedBlocks():
