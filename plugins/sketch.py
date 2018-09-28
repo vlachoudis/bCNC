@@ -43,7 +43,8 @@ class Tool(Plugin):
 			("Max_light",        "int" ,         256, _("Maximum light")),
 			("DrawBorder",       "bool",     False, _("Draw border")),
 			("Casual",           "bool",     True, _("Casual first point")),
-			("File"  ,          "file" ,        "", _("Image to process")),
+			("Repetition",       "bool",     False, _("Repetition of a point")),
+			("File"  ,           "file" ,        "", _("Image to process")),
 			("Channel","Luminance,Red,Green,Blue" ,"Luminance", _("Channel to analyze")),
 		]
 		self.buttons.append("exe")
@@ -109,41 +110,74 @@ class Tool(Plugin):
 					self.mostest = most
 		return bestX, bestY, distance
 
-	def fadePixel(self, x, y, pix, fad):
+	def fadePixel(self, x, y, pix, fad, repetition):
+		if (repetition == False):
+			pix[x,y] = 256
 		pix[x,y] +=10*fad
-		pix[x+1,y] +=4*fad
-		pix[x-1,y] +=4*fad
-		pix[x,y+1] +=4*fad
-		pix[x,y-1] +=4*fad
-		pix[x+1,y+1] +=3*fad
-		pix[x-1,y-1] +=3*fad
-		pix[x-1,y+1] +=3*fad
-		pix[x+1,y-1] +=3*fad
+		pix[x+1,y] +=6*fad
+		pix[x-1,y] +=6*fad
+		pix[x,y+1] +=6*fad
+		pix[x,y-1] +=6*fad
+		pix[x+1,y+1] +=5*fad
+		pix[x-1,y-1] +=5*fad
+		pix[x-1,y+1] +=5*fad
+		pix[x+1,y-1] +=5*fad
 
-		pix[x-2,y-2] +=1*fad
-		pix[x-2,y-1] +=2*fad
-		pix[x-2,y-0] +=2*fad
-		pix[x-2,y+1] +=2*fad
-		pix[x-2,y+2] +=1*fad
+		pix[x-2,y-2] +=3*fad
+		pix[x-2,y-1] +=4*fad
+		pix[x-2,y-0] +=4*fad
+		pix[x-2,y+1] +=4*fad
+		pix[x-2,y+2] +=3*fad
 
-		pix[x+2,y-2] +=1*fad
-		pix[x+2,y-1] +=2*fad
-		pix[x+2,y-0] +=2*fad
-		pix[x+2,y+1] +=2*fad
-		pix[x+2,y+2] +=1*fad
+		pix[x+2,y-2] +=3*fad
+		pix[x+2,y-1] +=4*fad
+		pix[x+2,y-0] +=4*fad
+		pix[x+2,y+1] +=4*fad
+		pix[x+2,y+2] +=3*fad
 
-		pix[x-2,y-2] +=1*fad
-		pix[x-1,y-2] +=2*fad
-		pix[x-0,y-2] +=2*fad
-		pix[x+1,y-2] +=2*fad
-		pix[x+2,y-2] +=1*fad
+		pix[x-2,y-2] +=3*fad
+		pix[x-1,y-2] +=4*fad
+		pix[x-0,y-2] +=4*fad
+		pix[x+1,y-2] +=4*fad
+		pix[x+2,y-2] +=3*fad
 
-		pix[x-2,y+2] +=1*fad
-		pix[x-1,y+2] +=2*fad
-		pix[x-0,y+2] +=2*fad
-		pix[x+1,y+2] +=2*fad
-		pix[x+2,y+2] +=1*fad
+		pix[x-2,y+2] +=3*fad
+		pix[x-1,y+2] +=4*fad
+		pix[x-0,y+2] +=4*fad
+		pix[x+1,y+2] +=4*fad
+		pix[x+2,y+2] +=3*fad
+		
+		pix[x-3,y-3] +=1*fad
+		pix[x-3,y-2] +=1*fad
+		pix[x-3,y-1] +=2*fad
+		pix[x-3,y-0] +=2*fad
+		pix[x-3,y+1] +=2*fad
+		pix[x-3,y+2] +=1*fad
+		pix[x-3,y+3] +=1*fad
 
+		pix[x+3,y-3] +=1*fad
+		pix[x+3,y-2] +=2*fad
+		pix[x+3,y-1] +=2*fad
+		pix[x+3,y-0] +=2*fad
+		pix[x+3,y+1] +=2*fad
+		pix[x+3,y+2] +=2*fad
+		pix[x+3,y+3] +=1*fad
+
+		pix[x-3,y-3] +=1*fad
+		pix[x-2,y-3] +=2*fad
+		pix[x-1,y-3] +=2*fad
+		pix[x-0,y-3] +=2*fad
+		pix[x+1,y-3] +=2*fad
+		pix[x+2,y-3] +=2*fad
+		pix[x+3,y-3] +=1*fad
+
+		pix[x-3,y+3] +=1*fad
+		pix[x-2,y+3] +=2*fad
+		pix[x-1,y+3] +=2*fad
+		pix[x-0,y+3] +=2*fad
+		pix[x+1,y+3] +=2*fad
+		pix[x+2,y+3] +=2*fad
+		pix[x+3,y+3] +=1*fad
 
 
 	# ----------------------------------------------------------------------
@@ -168,6 +202,7 @@ class Tool(Plugin):
 		casual = self["Casual"]
 		fading = self["Fading"]
 		max_light = self["Max_light"]
+		repetition = self["Repetition"]
 
 		radius = 1
 		if grundgy == "Low":
@@ -221,9 +256,6 @@ class Tool(Plugin):
 
 		img = img.transpose(Image.FLIP_TOP_BOTTOM) #ouput correct image
 		pix = img.load()
-		#Init repetition
-		repetition = []
-		repetition = img.load()
 		#Get image size
 		self.imgWidth, self.imgHeight =  img.size
 		self.ratio = 1
@@ -294,7 +326,7 @@ class Tool(Plugin):
 				total_length+=1
 				#move there
 				block.append(CNC.gline(x*self.ratio,y*self.ratio))
-				self.fadePixel(x, y, pix, fading) #adjustbrightness int the bright map
+				self.fadePixel(x, y, pix, fading, repetition) #adjustbrightness int the bright map
 			#tool up
 			#print 'Squiggle: %f' % (time.time() - start)
 			#Gcode Zsafe
