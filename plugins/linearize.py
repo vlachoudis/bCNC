@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("Linearize")
-__version__ = "0.1"
+__version__ = "0.2"
 
 import math
 import os.path
@@ -30,6 +30,7 @@ class Tool(Plugin):
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("maxseg", "mm", "1", _("segment size")),
+			("splitlines", "bool", False, _("subdiv lines"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -39,6 +40,7 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		maxseg = self.fromMm("maxseg")
+		splitlines = self["splitlines"]
 
 		#print("go!")
 		blocks  = []
@@ -52,7 +54,7 @@ class Tool(Plugin):
 
 			eblock = Block("lin "+app.gcode[bid].name())
 			opath = app.gcode.toPath(bid)[0]
-			npath = opath.linearize(maxseg)
+			npath = opath.linearize(maxseg, splitlines)
 			eblock = app.gcode.fromPath(npath,eblock)
 			blocks.append(eblock)
 
