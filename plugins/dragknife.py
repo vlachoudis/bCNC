@@ -33,9 +33,9 @@ class Tool(Plugin):
 			("offset", "mm", 3, _("dragknife offset"), _("distance from dragknife rotation center to the tip of the blade")),
 			("angle", "float", 20, _("angle threshold"), _("do not perform pivot action for angles smaller than this")),
 			("swivelz", "mm", 0, _("swivel height"), _("retract to this height for pivots (useful for thick materials, you should enter number slightly lower than material thickness)")),
-			("initdir", "X+,Y+,Y-,X-,none", "X+", _("initial direction"), _("direction that knife blade is facing before and after cut. Eg.: if you set this to X+, then the knifes rotation axis should be on the right side of the tip. Meaning that the knife is ready to cut towards right immediately without pivoting.")),
+			("initdir", "X+,Y+,Y-,X-,none", "X+", _("initial direction"), _("direction that knife blade is facing before and after cut. Eg.: if you set this to X+, then the knifes rotation axis should be on the right side of the tip. Meaning that the knife is ready to cut towards right immediately without pivoting. If you cut multiple shapes in single operation, it's important to have this set consistently across all of them.")),
 			("feed", "mm", 200, _("feedrate")),
-			("simulate", "bool", False, _("simulate"), _("Use this option to simulate cuting of dragknife path. Resulting shape will reflect what shape will actuall be cut. This should reverse the dragknife procedure and give you back the original shape from dragknife g-code.")),
+			("simulate", "bool", False, _("simulate"), _("Use this option to simulate cuting of dragknife path. Resulting shape will reflect what shape will actuall be cut. This should reverse the dragknife procedure and give you back the original shape from g-code that was previously processed for dragknife.")),
 			("simpreci", "mm", 0.5, _("simulation precision"), _("Simulation is currently approximated by using lots of short lines. This is the length of these lines."))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
