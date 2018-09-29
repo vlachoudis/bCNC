@@ -1,0 +1,10 @@
+Lennart Regebro <regebro@gmail.com>, Original Author
+
+Justin Gruenberg implemented the Quadradic Bezier calculations and
+provided suggestions and feedback about the d() function.
+
+Michiel Schallig suggested calculating length by recursive straight-line
+approximations, which enables you to choose between accuracy or speed.
+Steve Schwarz added an error argument to make that choice an argument.
+
+Thanks also to bug fixers Martin R, abcjjy, Daniel Stender and MTician.

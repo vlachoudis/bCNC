@@ -1,16 +1,19 @@
 Following components were sublicensed from MIT to bCNC's license (GPLv2):
 
 MeshCut ( https://github.com/julienr/meshcut )
+Copyright (c) 2015 Julien Rebetez
 	lib/mescut.py
 	lib/ply.py
 	lib/utils.py
 
+svg.path ( https://github.com/regebro/svg.path )
+Copyright (c) 2013-2014 Lennart Regebro
+	lib/svg/*
+
+
 This is the text of their original license:
 
-
 The MIT License (MIT)
-
-Copyright (c) 2015 Julien Rebetez
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -17,7 +17,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
-from CNC import CNC
+from CNC import CNC, Block
 import Utils
 import Camera
 import Ribbon
@@ -153,7 +153,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				anchor=W,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Set current location as Z-zero for leveling"))
+		tkExtra.Balloon.set(b, _("Set current XY location as autoleveling Z-zero (recalculate probed data to be relative to this XY origin point)"))
 		self.addWidget(b)
 
 		# ---
@@ -166,6 +166,19 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Clear probe data"))
+		self.addWidget(b)
+
+		# ---
+		row = 0
+		col += 2
+		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScanMargins>>",
+				image=Utils.icons["margins"],
+				text=_("Scan Margins"),
+				compound=LEFT,
+				anchor=W,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Scan Autolevel Margins"))
 		self.addWidget(b)
 
 		# ---
@@ -322,6 +335,67 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
 		#----------------------------------------------------------------
+		# Record point
+		#----------------------------------------------------------------
+
+		recframe = tkExtra.ExLabelFrame(self, text=_("Record"), foreground="DarkBlue")
+		recframe.pack(side=TOP, expand=YES, fill=X)
+
+		#Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
+		#self.diameter = tkExtra.FloatEntry(lframe(), background="White")
+		#self.diameter.pack(side=LEFT, expand=YES, fill=X)
+
+		self.recz=IntVar()
+		self.reczb = Checkbutton(recframe(), text=_("Z"),
+			variable=self.recz, #onvalue=1, offvalue=0,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		tkExtra.Balloon.set(self.reczb, _("Record Z coordinate?"))
+		self.reczb.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.reczb)
+
+		self.rr = Button(recframe(), text=_("RAPID"),
+			command=self.recordRapid,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("FEED"),
+			command=self.recordFeed,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("POINT"),
+			command=self.recordPoint,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("CIRCLE"),
+			command=self.recordCircle,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.rr = Button(recframe(), text=_("FINISH"),
+			command=self.recordFinishAll,
+			activebackground="LightYellow",
+			padx=2, pady=1)
+		self.rr.pack(side=LEFT, expand=YES, fill=X)
+		self.addWidget(self.rr)
+
+		self.recsiz = tkExtra.FloatEntry(recframe(), background="White")
+		tkExtra.Balloon.set(self.recsiz, _("Circle radius"))
+		self.recsiz.set(10)
+                self.recsiz.pack(side=BOTTOM, expand=YES, fill=X)
+                self.addWidget(self.recsiz)
+
+		#----------------------------------------------------------------
 		# Single probe
 		#----------------------------------------------------------------
 		lframe = tkExtra.ExLabelFrame(self, text=_("Probe"), foreground="DarkBlue")
@@ -341,6 +415,20 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		col += 1
 		self._probeZ = Label(lframe(), foreground="DarkBlue", background="gray90")
 		self._probeZ.grid(row=row, column=col, padx=1, sticky=EW+S)
+
+		# ---
+		col += 1
+                self.probeautogotonext = False
+                self.probeautogoto=IntVar()
+                self.autogoto = Checkbutton(lframe(), "",
+                        variable=self.probeautogoto, #onvalue=1, offvalue=0,
+                        activebackground="LightYellow",
+                        padx=2, pady=1)
+		self.autogoto.select()
+                tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
+                #self.autogoto.pack(side=LEFT, expand=YES, fill=X)
+		self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
+                self.addWidget(self.autogoto)
 
 		# ---
 		col += 1
@@ -378,7 +466,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.probeZdir)
 
 		# ---
-		col += 1
+		col += 2
 		b = Button(lframe(), #"<<Probe>>",
 				image=Utils.icons["probe32"],
 				text=_("Probe"),
@@ -591,7 +679,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			self._probeY["text"] = CNC.vars.get("prby")
 			self._probeZ["text"] = CNC.vars.get("prbz")
 		except:
-			pass
+			return
+
+		if self.probeautogotonext:
+			self.probeautogotonext = False
+			self.goto2Probe()
+
 
 	#-----------------------------------------------------------------------
 	def warnMessage(self):
@@ -607,6 +700,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	# Probe one Point
 	#-----------------------------------------------------------------------
 	def probe(self, event=None):
+		if self.probeautogoto.get() == 1:
+			self.probeautogotonext = True
+
 		if ProbeCommonFrame.probeUpdate():
 			tkMessageBox.showerror(_("Probe Error"),
 				_("Invalid probe feed rate"),
@@ -807,6 +903,72 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def selectMarker(self, marker):
 		self.orientUpdateScale()
 		self.scale_orient.set(marker+1)
+
+	def recordAppend(self, line):
+		hasblock = None
+		for bid,block in enumerate(self.app.gcode):
+			if block._name == 'recording':
+				hasblock = bid
+				eblock = block
+
+		if hasblock is None:
+			hasblock = -1
+			eblock = Block('recording')
+			self.app.gcode.insBlocks(hasblock, [eblock], "Recorded point")
+
+		eblock.append(line)
+                self.app.refresh()
+                self.app.setStatus(_("Pointrec"))
+
+		#print "hello",x,y,z
+		#print self.app.editor.getSelectedBlocks()
+
+	def recordCoords(self, gcode='G0', point=False):
+		#print "Z",self.recz.get()
+                x = CNC.vars["wx"]
+                y = CNC.vars["wy"]
+                z = CNC.vars["wz"]
+
+		coords = "X%s Y%s"%(x, y)
+		if self.recz.get() == 1:
+			coords += " Z%s"%(z)
+
+		if point:
+			self.recordAppend('G0 Z%s'%(CNC.vars["safe"]))
+		self.recordAppend('%s %s'%(gcode, coords))
+		if point:
+			self.recordAppend('G1 Z0')
+
+	def recordRapid(self):
+		self.recordCoords()
+
+	def recordFeed(self):
+		self.recordCoords('G1')
+
+	def recordPoint(self):
+		self.recordCoords('G0', True)
+
+	def recordCircle(self):
+		r = float(self.recsiz.get())
+		#self.recordCoords('G02 R%s'%(r))
+                x = CNC.vars["wx"]-r
+                y = CNC.vars["wy"]
+                z = CNC.vars["wz"]
+
+		coords = "X%s Y%s"%(x, y)
+		if self.recz.get() == 1:
+			coords += " Z%s"%(z)
+
+		#self.recordAppend('G0 %s R%s'%(coords, r))
+		self.recordAppend('G0 %s'%(coords))
+		self.recordAppend('G02 %s I%s'%(coords, r))
+
+	def recordFinishAll(self):
+		for bid,block in enumerate(self.app.gcode):
+			if block._name == 'recording':
+				self.app.gcode.setBlockNameUndo(bid, 'recorded')
+                self.app.refresh()
+                self.app.setStatus(_("Finished recording"))
 
 #===============================================================================
 # Autolevel Frame
@@ -1068,6 +1230,13 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		self.event_generate("<<DrawProbe>>")
 		# absolute
 		self.app.run(lines=self.app.gcode.probe.scan())
+
+	#-----------------------------------------------------------------------
+	# Scan autolevel margins
+	#-----------------------------------------------------------------------
+	def scanMargins(self, event=None):
+		if self.change(): return
+		self.app.run(lines=self.app.gcode.probe.scanMargins())
 
 #===============================================================================
 # Camera Group
