@@ -797,6 +797,83 @@ class Path(list):
 			linearized.extend(seg.linearize(maxseg, splitlines))
 		return linearized
 
+        #----------------------------------------------------------------------
+        # Return arcfited path
+        #----------------------------------------------------------------------
+	def arcFit(self, prec=0.5):
+		def arcdir(A,B):
+			TA = tmpath[0].tangentEnd()
+			TB = tmpath[1].tangentStart()
+			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
+				return 1
+			return 0
+
+		def pdist(A,B):
+			return sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
+
+		def circle3center(A,B,C):
+			try:
+				xDelta_a = B[0] - A[0]
+				yDelta_a = B[1] - A[1]
+				xDelta_b = C[0] - B[0]
+				yDelta_b = C[1] - B[1]
+				center = Vector(0, 0)
+
+				aSlope = yDelta_a/xDelta_a
+				bSlope = yDelta_b/xDelta_b
+				center[0] = (aSlope*bSlope*(A[1] - C[1]) + bSlope*(A[0] + B[0]) - aSlope*(B[0]+C[0]) )/(2* (bSlope-aSlope) )
+				center[1] = -1*(center[0] - (A[0]+B[0])/2)/aSlope +  (A[1]+B[1])/2
+
+				return center
+			except:
+				return None
+
+		npath = Path(self.name, self.color)
+		i = 0
+		while i < len(self):
+			found = False
+			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
+				tmpath = [self[i],self[i+1]]
+				C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
+				if C is not None:
+					r = pdist(tmpath[0].B, C)
+					arcd = arcdir(tmpath[0], tmpath[1])
+
+					j = i
+					while j < len(self):
+						print "A"
+						if self[j].type != Segment.LINE: break
+						print "B",self[j].A, C
+						if abs(pdist(self[j].A, C) - r) > prec: break
+						print "C"
+						if abs(pdist(self[j].B, C) - r) > prec: break
+						print "D"
+						if arcdir(tmpath[-1],self[j]) != arcd: break
+						print "E"
+						tmpath.append(self[j])
+						j += 1
+
+					if len(tmpath) > 10:
+						print "found"
+						found = True
+						#npath.extend(tmpath)
+						if arcd:
+							arcd = Segment.CW
+						else:
+							arcd = Segment.CCW
+
+						#npath.append(Segment(Segment.LINE, tmpath[0].A, tmpath[-1].B))
+						npath.append(Segment(arcd, tmpath[0].A, tmpath[-1].B, C))
+						i = j-1
+
+			if not found:
+				npath.append(self[i])
+			i+=1
+
+		return npath
+
+
+
 	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
 	# The solution is determined by the number N of crossings of a horizontal
