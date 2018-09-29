@@ -29,6 +29,7 @@ from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
+_NOZSTEP = 'XY'
 
 OVERRIDES = ["Feed", "Rapid", "Spindle"]
 
@@ -574,7 +575,9 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 			self.zstep = tkExtra.Combobox(self, width=4, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
-			self.zstep.fill(map(float, Utils.config.get("Control","zsteplist").split()))
+			zsl = [_NOZSTEP]
+			zsl.extend(map(float, Utils.config.get("Control","zsteplist").split()))
+			self.zstep.fill(zsl)
 			tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
 			self.addWidget(self.zstep)
 		except:
@@ -667,6 +670,16 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 	#----------------------------------------------------------------------
 	# Jogging
 	#----------------------------------------------------------------------
+	def getStep(self, axis='x'):
+		if axis == 'z':
+			zs = self.zstep.get()
+			if zs == _NOZSTEP:
+				return self.step.get()
+			else:
+				return zs
+		else:
+			return self.step.get()
+
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		self.sendGCode("G91G0X%s"%(self.step.get()))
@@ -709,12 +722,12 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z%s"%(self.zstep.get()))
+		self.sendGCode("G91G0Z%s"%(self.getStep('z')))
 		self.sendGCode("G90")
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z-%s"%(self.zstep.get()))
+		self.sendGCode("G91G0Z-%s"%(self.getStep('z')))
 		self.sendGCode("G90")
 
 	def go2origin(self, event=None):
@@ -751,7 +764,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step+power
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
+		if self.zstep is not self.step and self.zstep.get() != _NOZSTEP:
 			step, power = ControlFrame._stepPower(self.zstep.get())
 			zs = step+power
 			if zs<_LOWSTEP: zs = _LOWSTEP
@@ -768,7 +781,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if s<=0.0: s = step-power/10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
+		if self.zstep is not self.step and self.zstep.get() != _NOZSTEP:
 			step, power = ControlFrame._stepPower(self.zstep.get())
 			zs = step-power
 			if zs<=0.0: zs = step-power/10.0
@@ -785,7 +798,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step*10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
+		if self.zstep is not self.step and self.zstep.get() != _NOZSTEP:
 			step, power = ControlFrame._stepPower(self.zstep.get())
 			zs = step*10.0
 			if zs<_LOWSTEP: zs = _LOWSTEP
@@ -801,7 +814,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		s = step/10.0
 		if s<_LOWSTEP: s = _LOWSTEP
 		elif s>_HIGHSTEP: s = _HIGHSTEP
-		if self.zstep is not self.step:
+		if self.zstep is not self.step and self.zstep.get() != _NOZSTEP:
 			step, power = ControlFrame._stepPower(self.zstep.get())
 			zs = step/10.0
 			if zs<_LOWSTEP: zs = _LOWSTEP

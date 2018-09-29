@@ -1,7 +1,8 @@
 bCNC
 ====
 
-GRBL CNC command sender, autoleveler and g-code editor
+GRBL CNC command sender, autoleveler, g-code editor, digitizer, CAM
+and swiss army knife for all your CNC needs.
 
 An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
 
@@ -13,9 +14,11 @@ You will need the following packages to run bCNC
   Depending your python/OS it can either be already installed,
   or under the names tkinter, python-tkinter, python-tk
 - pyserial or under the name python-serial, python-pyserial
+- numpy
 - Optionally:
 - python-imaging-tk: the PIL libraries for autolevel height map
 - python-opencv: for webcam streaming on web pendant
+- scipy: for 100 times faster 3D mesh slicing
 
 Expand the directory or download it from github
 and run the bCNC command
@@ -32,7 +35,7 @@ installation directory.
 
 # Features:
 - simple and intuitive interface for small screens
-- import/export **g-code** and **dxf** files
+- import/export **g-code**, **dxf** and **svg** files
 - fast g-code sender (works nicely on RPi and old hardware)
 - workspace configuration (G54..G59 commands)
 - user configurable buttons
@@ -42,14 +45,15 @@ installation directory.
   - simple probing
   - center finder with a probing ring
   - **auto leveling**, Z-probing and auto leveling by altering the g-code during
-    sending.
+    sending (or permanently autoleveling the g-code file).
   - height color map display
+  - create g-code by joging and recording points (can even use camera for this)
   - **manual tool change** expansion and automatic tool length probing
   - **canned cycles** expansion
 - Various Tools:
   - user configurable database of materials, endmills, stock
   - properties database of materials, stock, end mills etc..
-  - basic **CAM** features (profiling, pocketing, cutting, drilling)
+  - basic **CAM** features (profiling, pocketing, drilling, flat/helical/ramp cutting, thread milling, cutout tabs, drag knife)
   - User g-code plugins:
     - bowl generator
     - finger joint box generator

@@ -4,13 +4,14 @@
 # All rights reserved
 #
 # Author: Vasilis.Vlachoudis@cern.ch
+# Contributor: @harvie Tomas Mudrunka (2018)
 # Date:   10-Mar-2015
 
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from operator import itemgetter
-from math import atan, atan2, cos, degrees, pi, sin, sqrt
+from math import atan, atan2, cos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 
 EPS   = 1E-7		# strict tolerances for operations
@@ -22,18 +23,9 @@ PI2   = 2.0*pi
 #------------------------------------------------------------------------------
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
-def eq(A,B):
+def eq(A,B,acc=EPS):
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
-	err = EPSV2 * ((abs(A[0])+abs(B[0]))**2 + \
-		       (abs(A[1])+abs(B[1]))**2 + 1.0)
-	return d2<err
-
-#------------------------------------------------------------------------------
-# Compare two Vectors if they are the same
-#------------------------------------------------------------------------------
-def eq2(A,B,acc):
-	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
-	err = acc*acc*((abs(A[0])+abs(B[0]))**2 + \
+	err = acc*acc * ((abs(A[0])+abs(B[0]))**2 + \
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
 
@@ -215,16 +207,23 @@ class Segment:
 				 self.length())
 
 	#----------------------------------------------------------------------
-	# Return a point ON the segment in the middle (= factor 0.5) or different
+	# Return a point ON the segment (or extrapolated outside of it) at distance traveled from A (or B)
 	#----------------------------------------------------------------------
-	def midPoint(self, factor=None):
-		if factor is None:
-			factor=0.5
-
+	def extrapolatePoint(self, dist, B=False):
 		if self.type == Segment.LINE:
-			return (self.A*(1-factor) + self.B*factor)
+			if not B:
+				return self.A+(self.tangentStart()*dist)
+			else:
+				return self.B+(self.tangentStart()*dist)
 		else:
-			phi = (self.startPhi*(1-factor) + self.endPhi*factor)
+			if self.type == Segment.CW:
+				dist = -dist
+
+			raddist = dist/self.radius
+			if not B:
+				phi = self.startPhi+raddist
+			else:
+				phi = self.endPhi+raddist
 			return Vector(	self.C[0] + self.radius*cos(phi),
 					self.C[1] + self.radius*sin(phi))
 
@@ -232,10 +231,75 @@ class Segment:
 	# Return a point ON the segment at distance traveled from A to B (or B to A when negative)
 	#----------------------------------------------------------------------
 	def distPoint(self, dist):
-		factor = min(max(abs(dist)/self.length(), 0), 1)
-		if dist < 0:
-			factor = 1-factor
-		return self.midPoint(factor)
+		if dist >= 0:
+			return self.extrapolatePoint(dist)
+		else:
+			return self.extrapolatePoint(abs(dist), True)
+
+	#----------------------------------------------------------------------
+	# Return a point ON the segment in the middle (= factor 0.5) or different
+	#----------------------------------------------------------------------
+	def midPoint(self):
+		return self.extrapolatePoint(self.length()/2)
+
+	#----------------------------------------------------------------------
+	# Return segment, which naturaly continues this segment
+	#----------------------------------------------------------------------
+	def suffixSegment(self, dist):
+		suffix = Segment(self.type, self.B, self.extrapolatePoint(dist, True))
+		if self.type != Segment.LINE:
+			suffix.setCenter(self.C)
+		return suffix
+
+	#----------------------------------------------------------------------
+	# Return segment, which naturaly continues this segment
+	#----------------------------------------------------------------------
+	def shortenedSegment(self, dist):
+		start = self.extrapolatePoint(dist)
+		end = self.B
+		if dist >= self.length():
+			end = start
+		shortened = Segment(self.type, start, end)
+		if self.type != Segment.LINE:
+			shortened.setCenter(self.C)
+		return shortened
+
+	#----------------------------------------------------------------------
+	# Linearize this segment and return resulted segments
+	#----------------------------------------------------------------------
+	def linearize(self, maxseg=1, splitlines=False):
+		#self.correct()
+		#linearized = Path("linearized segment", None)
+		linearized = []
+		if splitlines or self.type == Segment.CW or self.type == Segment.CCW:
+			count = int(ceil(self.length() / maxseg))
+			step = self.length() / count
+			#print "---"
+			for i in range(0,count):
+				#print i, self.length(), i*step, (i+1)*step
+				linearized.append(Segment(Segment.LINE, self.distPoint(i*step), self.distPoint((i+1)*step)))
+		else:
+			linearized.append(self)
+		return linearized
+
+	#----------------------------------------------------------------------
+	# Return tangential offset of this segment
+	#----------------------------------------------------------------------
+	def tangentialOffset(self, distance):
+		#self.A = self.A + ( self.tangentStart() * distance )
+		#self.B = self.B + ( self.tangentEnd() * distance )
+		#self.correct()
+
+		seg = Segment(
+			self.type,
+			self.A + ( self.tangentStart() * distance ),
+			self.B + ( self.tangentEnd() * distance )
+			)
+
+		if self.type != Segment.LINE:
+			seg.setCenter(self.C)
+
+		return seg
 
 	#----------------------------------------------------------------------
 	# return segment length
@@ -335,7 +399,7 @@ class Segment:
 			if phi < self.startPhi-EPS/self.radius: phi += PI2
 			if phi <= self.endPhi + EPS/self.radius:
 				return True
-		if eq2(self.A,P,EPS) or eq2(self.B,P,EPS):
+		if eq(self.A,P,EPS) or eq(self.B,P,EPS):
 			return True
 		return False
 
@@ -538,11 +602,11 @@ class Segment:
 	# Split segment at point P and return second part
 	#----------------------------------------------------------------------
 	def split(self, P):
-		if eq2(P,self.A,EPS):
+		if eq(P,self.A,EPS):
 			# XXX should flag previous segment as cross
 			return -1
 
-		elif eq2(P,self.B,EPS):
+		elif eq(P,self.B,EPS):
 			self._cross = True
 			return 0
 
@@ -713,6 +777,26 @@ class Path(list):
 		y=(miny+maxy)/2
 		return x,y
 
+        #----------------------------------------------------------------------
+        # Return a point ON the path at distance traveled from A to B (or B to A when negative)
+        #----------------------------------------------------------------------
+	def distPoint(self, dist):
+		if dist < 0:
+			dist = self.length() + dist
+		for segment in self:
+			if dist-segment.length() <= 0:
+				return segment.distPoint(dist)
+			dist -= segment.length()
+
+        #----------------------------------------------------------------------
+        # Return linearized path (arcs are subdivided to lines)
+        #----------------------------------------------------------------------
+	def linearize(self, maxseg=1, splitlines=False):
+		linearized = Path(self.name, self.color)
+		for seg in self:
+			linearized.extend(seg.linearize(maxseg, splitlines))
+		return linearized
+
 	#----------------------------------------------------------------------
 	# Return true if point P(x,y) is inside the path
 	# The solution is determined by the number N of crossings of a horizontal
@@ -780,6 +864,9 @@ class Path(list):
 
 	#----------------------------------------------------------------------
 	# Split path into contours
+	# This not only SPLITs path to contours,
+	# it also takes unsorted segments and JOINs them to closed loops if possible
+	# FIXME: If this is true, this should be probably called reconstructContours()
 	#----------------------------------------------------------------------
 	def split2contours(self):
 		if not self: return []
@@ -925,6 +1012,32 @@ class Path(list):
 		return path
 
 	#----------------------------------------------------------------------
+	# Return path with offset, overcuts and cleanup
+	#----------------------------------------------------------------------
+	def offsetClean(self, offset, overcut=False, name=None):
+		path = self #deepcopy??
+		# Remove tiny segments
+		path.removeZeroLength(abs(offset)/100.)
+		# Convert very small arcs to lines
+		path.convert2Lines(abs(offset)/10.)
+		# Determine offset direction
+		D = path.direction()
+		if D==0: D=1
+		# Offset
+		opath = path.offset(D*offset, name)
+		# Post clean
+		if opath:
+			opath.intersectSelf()
+			opath.removeExcluded(path, D*offset)
+			opath.removeZeroLength(abs(offset)/100.)
+			opath = opath.split2contours()
+			if overcut:
+				for p in opath:
+					p.overcut(D*offset)
+
+		return opath
+
+	#----------------------------------------------------------------------
 	# intersect path with self and mark all intersections
 	#----------------------------------------------------------------------
 	def intersectSelf(self):
@@ -932,8 +1045,8 @@ class Path(list):
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
-			if eq2(P,self[i].A,EPS): return
-			if eq2(P,self[i].B,EPS):   return
+			if eq(P,self[i].A,EPS): return
+			if eq(P,self[i].B,EPS):   return
 			oi = self[i].order(P)
 			points.append((i,oi,P))
 
@@ -946,7 +1059,7 @@ class Path(list):
 			while j<len(self):
 				P1,P2 = si.intersect(self[j])
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+				if P1 is not None and P2 is not None and eq(P1,P2,EPS):
 					P2 = None
 				if P1:
 					addPoint(i,P1)
@@ -981,8 +1094,8 @@ class Path(list):
 		points = []	# list of intersection (segment#, order, point) pair
 		def addPoint(i, P):
 			# FIXME maybe add sorted and check for duplicates?
-			if eq2(P,self[i].A,EPS): return
-			if eq2(P,self[i].B,EPS):   return
+			if eq(P,self[i].A,EPS): return
+			if eq(P,self[i].B,EPS):   return
 			oi = self[i].order(P)
 			points.append((i,oi,P))
 
@@ -991,7 +1104,7 @@ class Path(list):
 			for cut in path:
 				P1,P2 = si.intersect(cut)
 				# skip doublet solution
-				if P1 is not None and P2 is not None and eq2(P1,P2,EPS):
+				if P1 is not None and P2 is not None and eq(P1,P2,EPS):
 					P2 = None
 				if P1:
 					addPoint(i,P1)
@@ -1183,6 +1296,111 @@ class Path(list):
 		return merged
 
 	#----------------------------------------------------------------------
+	# return eulerian paths
+	# It takes bpath with random segments and tries to order and invert them
+	# to create longest possible continuous toolpaths that actually makes sense
+	# FIXME: This probably can be replaced with split2contours() and i've just reinvented wheel LOL
+	#----------------------------------------------------------------------
+	def eulerize(self, single=False):
+		#Find eulerian path of graph
+		def eulerPath(graph):
+			# counting the number of vertices with odd degree
+			odd = [ x for x in graph.keys() if len(graph[x])&1 ]
+			odd.append( graph.keys()[0] )
+
+			if len(odd)>3:
+				#return None
+				print("Failed to find eulerian path! Using non-eulerized path instead!")
+				#FIXME: Probably we should at least find some non-eulerian paths instead?
+				return graph
+
+			stack = [ odd[0] ]
+			path = []
+
+			# main algorithm
+			while stack:
+				v = stack[-1]
+				if graph[v]:
+					u = graph[v][0]
+					stack.append(u)
+					# deleting edge u-v
+					del graph[u][ graph[u].index(v) ]
+					del graph[v][0]
+				else:
+					path.append( stack.pop() )
+
+			return path
+
+		#Encode bpath to graph
+		#	bpath segments	-> graph nodes
+		#	bpath points	-> graph edges
+		#	(yes it's confusing, but it has to be this way)
+		eulg = {}
+		for i,segi in enumerate(self):
+			eulg[i] = []
+		for i,segi in enumerate(self):
+			for j,segj in enumerate(self):
+				if i == j: continue
+				#TODO: some of these are probably redundant, for now i left it here to be safe:
+				if eq(segi.B,segj.A) or eq(segi.A,segj.B):
+					if j not in eulg[i]: eulg[i].append(j)
+				if eq(segi.B,segj.B) or eq(segi.A,segj.A):
+					if j not in eulg[i]: eulg[i].append(j)
+
+		#Return first subgraph from graph
+		def getFirstSubGraph(graph):
+			if len(graph) == 0: return None
+			subg = {}
+			todo = [graph.keys()[0]]
+			while len(todo) > 0:
+				if todo[0] in graph.keys():
+					subg[todo[0]] = graph[todo[0]]
+					todo.extend(graph[todo[0]])
+					del graph[todo[0]]
+				del todo[0]
+			return subg
+
+		#Split to multiple graphs if there are subgraphs without interconnecting edges!
+		subgs = []
+		subg = getFirstSubGraph(eulg)
+		while subg is not None:
+			print "subgraph",subg
+			subgs.append(subg)
+			subg = getFirstSubGraph(eulg)
+
+		eulpaths = []
+		for eulg in subgs:
+			#Find eulerian path in graph
+			eulp = eulerPath(eulg)
+			print "eulerpath",eulp
+
+			#Reconstruct bpath from eulerian graph
+			eulpath = Path("euler")
+			lastb = self[eulp[-1]].B
+			print "--------"
+			for i in eulp:
+				seg = self[i]
+				if not eq(lastb,seg.A):
+					seg.invert()
+					#seg._cross=False
+				print(seg)
+				eulpath.append(seg)
+				lastb = seg.B
+			del eulpath[0]
+
+			eulpaths.append(eulpath)
+
+		#Return path(s)
+		if single:
+			return eulpaths[0]
+			eulpath = Path("euler")
+			for p in eulpaths:
+				print "path",p
+				eulpath.extend(p)
+			return eulpath
+		return eulpaths
+
+	#----------------------------------------------------------------------
 	# Remove zero length segments
 	# Replace small arcs with lines
 	#----------------------------------------------------------------------
@@ -1211,7 +1429,7 @@ class Path(list):
 			i += 1
 
 		# Join last and first node if closed
-		if self and eq2(self[0].A, self[-1].B, eps):
+		if self and eq(self[0].A, self[-1].B, eps):
 			self[-1].setEnd(self[0].A)
 
 	#----------------------------------------------------------------------

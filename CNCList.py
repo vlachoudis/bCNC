@@ -20,7 +20,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter.font as tkFont
 
-from CNC import Tab, Block, CNC
+from CNC import Block, CNC
 import tkExtra
 import re
 #import tkDialogs
@@ -127,13 +127,6 @@ class CNCListbox(Listbox):
 			if not block.enable:
 				self.itemconfig(END, foreground=DISABLE_COLOR)
 			if not block.expand: continue
-
-			for tab in block.tabs:
-				line = str(tab)
-				self.insert(END, line)
-				self._items.append((bi, tab))
-				self.itemconfig(END, foreground=TAB_COLOR)
-				y += 1
 
 			for lj,line in enumerate(block):
 				self.insert(END, line)
@@ -292,10 +285,6 @@ class CNCListbox(Listbox):
 			bid, lid = self._items[i]
 			if isinstance(lid,int):
 				undoinfo.append(self.gcode.delLineUndo(bid, lid))
-			elif isinstance(lid,Tab):
-				block = self.gcode[bid]
-				tid = block.tabs.index(lid)
-				undoinfo.append(self.gcode.delTabUndo(bid,tid))
 			else:
 				undoinfo.append(self.gcode.delBlockUndo(bid))
 		self.gcode.addUndo(undoinfo)
@@ -341,15 +330,6 @@ class CNCListbox(Listbox):
 			self.set(active, edit.value)
 			if edit.value and edit.value[0] in ("(","%"):
 				self.itemconfig(active, foreground=COMMENT_COLOR)
-
-		elif isinstance(lid,Tab):
-			#try:
-				block = self.gcode[bid]
-				tid = block.tabs.index(lid)
-				params = Tab.parse(edit.value)
-				self.gcode.addUndo(self.gcode.tabSetUndo(bid, tid, params))
-			#except:
-			#	pass
 
 		else:
 			self.gcode.addUndo(self.gcode.setBlockNameUndo(bid, edit.value))
@@ -424,15 +404,6 @@ class CNCListbox(Listbox):
 			return
 
 		bid, lid = self._items[active]
-
-		# Add new line if the last Tab is selected
-		if isinstance(lid,Tab):
-			block = self.gcode[bid]
-			tid = block.tabs.index(lid)
-			if tid == len(block.tabs)-1:
-				lid = 0
-			else:
-				return
 
 		active += 1
 
@@ -801,16 +772,7 @@ class CNCListbox(Listbox):
 
 			elif isinstance(lid,int):
 				# find line of block
-				y = self._blockPos[bid]+1 + len(block.tabs) + lid
-
-			elif isinstance(lid,Tab):
-				# select the appropriate tab
-				try:
-					idx = block.tabs.index(lid)
-					y = self._blockPos[bid]+1 + idx
-				except IndexError:
-					#print "Tab",tab,"not found"
-					continue
+				y = self._blockPos[bid]+1 + lid
 
 			else:
 				raise

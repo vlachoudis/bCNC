@@ -59,7 +59,7 @@ __contribute__ = \
 __credits__ = \
 		"@1bigpig\n" \
 		"@chamnit Sonny Jeon\n" \
-		"@Harvie Tomas Mudrunka\n" \
+		"@harvie Tomas Mudrunka\n" \
 		"@onekk Carlo\n" \
 		"@SteveMoto\n" \
 		"@willadams William Adams"
@@ -113,12 +113,24 @@ CONTROLLER = {	"Grbl-V0"  : GRBL0,
 def loadIcons():
 	global icons
 	icons = {}
-	for img in glob.glob("%s%sicons%s*.png"%(prgpath,os.sep,os.sep)):
+	for img in glob.glob("%s%sicons%s*.gif"%(prgpath,os.sep,os.sep)):
 		name,ext = os.path.splitext(os.path.basename(img))
 		try:
 			icons[name] = PhotoImage(file=img)
 			if getBool("CNC", "doublesizeicon"):
 				icons[name] = icons[name].zoom(2,2)
+		except TclError:
+			pass
+
+	#Images
+	global images
+	images = {}
+	for img in glob.glob("%s%simages%s*.gif"%(prgpath,os.sep,os.sep)):
+		name,ext = os.path.splitext(os.path.basename(img))
+		try:
+			images[name] = PhotoImage(file=img)
+			if getBool("CNC", "doublesizeicon"):
+				images[name] = images[name].zoom(2,2)
 		except TclError:
 			pass
 

@@ -15,11 +15,12 @@ import pickle
 import json
 import binascii
 
-from dxf   import DXF
-from bstl  import Binary_STL_Writer
-from bpath import eq,Path, Segment
-from bmath import *
-from copy  import deepcopy
+from dxf	import DXF
+from bstl	import Binary_STL_Writer
+from bpath	import eq,Path, Segment
+from bmath	import *
+from copy	import deepcopy
+from svgcode	import SVGcode
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -265,6 +266,18 @@ class Probe:
 	def ystep(self):
 		self._ystep = (self.ymax-self.ymin)/float(self.yn-1)
 		return self._ystep
+
+	#----------------------------------------------------------------------
+	# Return the code needed to scan margins for autoleveling
+	#----------------------------------------------------------------------
+	def scanMargins(self):
+		lines = []
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymin))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymax))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmax, self.ymax))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmax, self.ymin))
+		lines.append("G0 X%.4f Y%.4f"%(self.xmin, self.ymin))
+		return lines
 
 	#----------------------------------------------------------------------
 	# Return the code needed to scan for autoleveling
@@ -1823,112 +1836,6 @@ class CNC:
 		return lines
 
 #===============================================================================
-# a class holding tab information and necessary functions to break a segment
-#===============================================================================
-class Tab:
-	def __init__(self, x=0, y=0, dx=0, dy=0, z=0):
-		self.z = z
-		self.path = Path("tab")
-
-		#compensate for cutter radius the lame way:
-		r = CNC.vars["diameter"]/2
-		dx = dx/2. + r
-		dy = dy/2. + r
-
-		A = A0 = Vector(x-dx, y-dy)
-		B = Vector(x+dx, y-dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x+dx, y+dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = Vector(x-dx, y+dy)
-		self.path.append(Segment(Segment.LINE, A, B))
-		A = B
-		B = A0
-		self.path.append(Segment(Segment.LINE, A, B))
-
-		#compensate for cutter radius the cool way:
-		#self.path = self.path.offset(r) #path not correct...
-
-
-	#----------------------------------------------------------------------
-	def copy(self, src):
-		self.z  = src.z
-		self.path  = deepcopy(src.path)
-
-	#----------------------------------------------------------------------
-	def __str__(self):
-		#FIXME: some more user friendly serialization
-		#print ("str_self", self, self.path, self.z)
-		#return "Tab([%g, %g] x [%g, %g] z=%g)" % \
-		#	(self.x, self.y, self.dx, self.dy, self.z)
-		return binascii.b2a_base64(pickle.dumps(self)).strip()
-
-
-
-
-	#----------------------------------------------------------------------
-	# parse and return output of the __str__() so it can be fed to restore()
-	#----------------------------------------------------------------------
-	#@staticmethod
-	def parse(self, s):
-		#print("parse", s)
-		return pickle.loads(binascii.a2b_base64(s))
-
-	#----------------------------------------------------------------------
-	def save(self):
-		return str(self);
-
-	#----------------------------------------------------------------------
-	def restore(self, params):
-		self.z = params.z
-		self.path = params.path
-		#self.path = Path("tab")
-		#self.path.join(params.path)
-		#self.path.calcBBox()
-
-	##----------------------------------------------------------------------
-	def move(self, dx, dy, dz=None):
-		#FIXME Path class should have some method for moving paths.
-		print("FIXME tab move")
-	#	return
-	#	#self.x += dx
-	#	#self.y += dy
-
-	##----------------------------------------------------------------------
-	def transform(self, c, s, xo, yo):
-		print("FIXME tab transform")
-		return
-	#	#xn = c*self.x - s*self.y + xo
-	#	#yn = s*self.x + c*self.y + yo
-	#	#self.x = xn
-	#	#self.y = yn
-
-	#----------------------------------------------------------------------
-	# Create 4 line segment of the tab
-	#----------------------------------------------------------------------
-	def create(self, diameter=0.0):
-		return
-
-	#----------------------------------------------------------------------
-	# return true if a point is inside the tab or not
-	#----------------------------------------------------------------------
-	def inside(self, P):
-		return self.path.isInside(P)
-
-	#----------------------------------------------------------------------
-	# Split and introduce new segments that fall inside the tabs
-	# All segments will be marked with an extra field "inside"
-	# whether they are in or out
-	#----------------------------------------------------------------------
-	def split(self, path):
-		#if not isinstance(self.path, Path):
-		#	print("not bpath: ", type(self.path))
-		#	return
-		path.intersectPath(self.path, self)
-
-#===============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
 # - Basic shape from the first rapid move command to the last rapid z raise
@@ -1948,7 +1855,6 @@ class Block(list):
 		self.enable   = True		# Enabled/Visible in drawing
 		self.expand   = False		# Expand in editor
 		self.color    = None		# Custom color for path
-		self.tabs     = []		# Tabs on block
 		self._path    = []		# canvas drawing paths
 		self.sx = self.sy = self.sz = 0	# start  coordinates
 						# (entry point first non rapid motion)
@@ -1961,8 +1867,6 @@ class Block(list):
 		self.enable = src.enable
 		self.expand = src.expand
 		self.color  = src.color
-		self.tabs   = deepcopy(src.tabs)
-		#self.tabs   = []
 		self[:]     = src[:]
 		self._path  = []
 		self.sx = src.sx
@@ -2085,14 +1989,17 @@ class Block(list):
 			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
 
 	#----------------------------------------------------------------------
-	def write(self, f):
-		f.write("(Block-name: %s)\n"%(self.name()))
-		f.write("(Block-expand: %d)\n"%(int(self.expand)))
-		f.write("(Block-enable: %d)\n"%(int(self.enable)))
+	def write_header(self):
+		header = ''
+		header += "(Block-name: %s)\n"%(self.name())
+		header += "(Block-expand: %d)\n"%(int(self.expand))
+		header += "(Block-enable: %d)\n"%(int(self.enable))
 		if self.color:
-			f.write("(Block-color: %s)\n"%(self.color))
-		for tab in self.tabs:
-			f.write("(Block-tab: %s)\n"%(str(tab).strip()))
+			header += "(Block-color: %s)\n"%(self.color)
+		return header
+
+	def write(self, f):
+		f.write(self.write_header())
 		for line in self:
 			if self.enable: f.write("%s\n"%(line))
 			else: f.write("(Block-X: %s)\n"%(line.replace('(','[').replace(')',']')))
@@ -2133,10 +2040,7 @@ class Block(list):
 					self.enable = bool(int(value))
 					return
 				elif name=="tab":
-					#items = map(float,value.split())
-					newtab = Tab()
-					newtab.restore(newtab.parse(value))
-					self.tabs.append(newtab)
+					#Handled elsewhere
 					return
 				elif name=="color":
 					self.color = value
@@ -2283,6 +2187,18 @@ class GCode:
 				else:
 					self.blocks[-1]._name = value
 				return
+
+		#FIXME: Code to import legacy tabs can be probably removed in year 2020 or so:
+		if line.startswith("(Block-tab:"):
+			pat = BLOCKPAT.match(line)
+			if pat:
+				value = pat.group(2).strip()
+				items = map(float,value.split())
+				tablock = Block("legacy [tab,island,minz:%f]"%(items[4]))
+				tablock.color = "orange"
+				tablock.extend(self.createTab(*items))
+				self.insBlocks(-1, [tablock], "Legacy tab")
+				print("WARNING: Converted legacy tabs loaded from file to new g-code island tabs: %s"%(tablock._name))
 
 		if not self.blocks:
 			self.blocks.append(Block("Header"))
@@ -2497,6 +2413,142 @@ class GCode:
 		return True
 
 	#----------------------------------------------------------------------
+	# Get scaling factor for SVG files
+	#----------------------------------------------------------------------
+	def SVGscale(self):
+		dpi=96 #same as inkscape 0.9x (according to jscut)
+		if not CNC.inch: dpi = round(dpi/25.4,7)
+		return dpi
+
+	#----------------------------------------------------------------------
+	# Load SVG file into gcode
+	#----------------------------------------------------------------------
+	def importSVG(self, filename):
+		#try:
+		svgcode = SVGcode(filename)
+		#except:
+		#	return False
+
+		empty = len(self.blocks)==0
+		if empty: self.addBlockFromString("Header",self.header)
+
+		#FIXME: UI to set SVG subdivratio
+		for path in svgcode.get_gcode(self.SVGscale(), 10, CNC.digits):
+			self.addBlockFromString(path['id'],path['path'])
+
+		if empty: self.addBlockFromString("Footer",self.footer)
+		return True
+
+	#----------------------------------------------------------------------
+	# get document margins
+	#----------------------------------------------------------------------
+	def getMargins(self):
+		#Get bounding box of document
+		minx,miny,maxx,maxy = 0,0,0,0
+		for i,block in enumerate(self.blocks):
+			paths = self.toPath(i)
+			for path in paths:
+				minx2,miny2,maxx2,maxy2 = path.bbox()
+				minx,miny,maxx,maxy = min(minx,minx2), min(miny,miny2), max(maxx,maxx2), max(maxy,maxy2)
+		return minx,miny,maxx,maxy
+
+	#----------------------------------------------------------------------
+	# Save in SVG format
+	#----------------------------------------------------------------------
+	def saveSVG(self, filename):
+		try:
+			svg = open(filename,"w")
+		except:
+			return False
+
+		padding = 10
+		scale=self.SVGscale()
+
+		#Get bounding box of document
+		minx,miny,maxx,maxy = self.getMargins()
+		#centerx = (minx+maxx)/2
+		#centery = (miny+maxy)/2
+
+		svg.write('<!-- SVG generated by bCNC: https://github.com/vlachoudis/bCNC -->\n')
+		svg.write('<svg viewBox="%s %s %s %s">\n'%((minx*scale)-padding, (-maxy*scale)-padding, ((maxx-minx)*scale)+padding*2, ((maxy-miny)*scale)+padding*2))
+		#svg.write('\t<path d="M %s %s L %s %s" stroke="%s" stroke-width="%s" fill="none" />\n'%(minx*scale, -miny*scale, maxx*scale, -maxy*scale, "pink", 2)) #Bounding box debug
+
+		def svgLine(scale, px, py, type='L'):
+			return('\t%s %s %s\n'%(type, px*scale, py*scale))
+
+		def svgArc(scale, gcode, r, ax, ay, bx, by, cx, cy):
+			sphi = math.atan2(ay-yc, ax-xc)
+			ephi = math.atan2(by-yc, bx-xc)
+			arcSweep = ephi - sphi
+			arcSweep = 0 if arcSweep <= math.radians(180) else 1
+			#Arc
+			if gcode==2:
+				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+				#dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
+				#return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 1, bx*scale, by*scale))
+				return('\tA %s %s %s %s %s %s %s\n'%(r*scale, r*scale, 0, arcSweep, 1, bx*scale, by*scale))
+			else:
+				if ephi<=sphi+1e-10: ephi += 2.0*math.pi
+				#dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
+				#return('\tM %s %s A %s %s %s %s %s %s %s\n'%(ax*scale, ay*scale, r*scale, r*scale, 0, arcSweep, 0, bx*scale, by*scale))
+				return('\tA %s %s %s %s %s %s %s\n'%(r*scale, r*scale, 0, arcSweep, 0, bx*scale, by*scale))
+
+
+		for block in self.blocks:
+
+			name = block.name()
+			color = block.color
+			if color is None: color = 'black'
+			width = 2
+			if ":" in name: name = name.split(":")[0]
+			svgpath = ''
+			lastx, lasty = 0, 0
+			firstx, firsty = None, None
+
+			#Write paths
+			for line in block:
+				cmds = CNC.parseLine(line)
+				if cmds is None: continue
+				self.cnc.motionStart(cmds)
+
+				if self.cnc.gcode == 0:	# rapid line (move)
+					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval, 'M')
+				else:
+					lastx, lasty = self.cnc.xval, self.cnc.yval
+					if firstx is None:
+						firstx, firsty = self.cnc.x, self.cnc.y
+
+				if self.cnc.gcode == 1:	# line
+					svgpath += svgLine(scale, self.cnc.xval, -self.cnc.yval)
+
+				elif self.cnc.gcode in (2,3):	# arc
+					xc,yc = self.cnc.motionCenter()
+
+					#In case of full circle, we need to split circle in two arcs:
+					midx = self.cnc.x
+					midy = self.cnc.y
+					if self.cnc.y==self.cnc.yval and self.cnc.x==self.cnc.xval: #is full circle?
+						midx = self.cnc.x+(xc-self.cnc.x)*2
+						midy = self.cnc.y+(yc-self.cnc.y)*2
+						svgpath += svgArc(scale, self.cnc.gcode, self.cnc.rval, self.cnc.x, -self.cnc.y, midx, -midy, xc, -yc)
+					#Finish arc
+					svgpath += svgArc(scale, self.cnc.gcode, self.cnc.rval, midx, -midy, self.cnc.xval, -self.cnc.yval, xc, -yc)
+				self.cnc.motionEnd()
+
+			if firstx == lastx and firsty == lasty:
+				svgpath += '\tZ\n'
+
+			if len(svgpath) > 0:
+				for line in block.write_header().splitlines():
+					svg.write("\t<!-- %s -->\n"%(line))
+				svg.write('\t<path d="\n%s\t" stroke="%s" stroke-width="%s" fill="none" />\n'%(svgpath, color, width))
+
+		#dxf.writeEOF()
+		svg.write('</svg>\n')
+		svg.close()
+		return True
+
+	#----------------------------------------------------------------------
 	# Import POINTS from entities
 	#----------------------------------------------------------------------
 	def importEntityPoints(self, pos, entities, name, enable=True, color=None):
@@ -2579,13 +2631,29 @@ class GCode:
         # @param z	I       ending depth
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
-	def fromPath(self, path, block=None, z=None, entry=False, exit=True, zstart=None, ramp=0):
+	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True, exitpoint=None):
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
 		#Calculate helix step
 		zstep = abs(z-zstart)
 
+		#Preprocess ramp
+		if ramp is None: ramp = 0
+		if ramp>0: ramp = abs(ramp)*CNC.vars["diameter"] #n times tool diameter
+		if ramp<0: ramp = abs(ramp) #absolute
+		if ramp==0: ramp = path.length() #full helix (default)
+
+		#Calculate helical feedrate
+		helixfeed = self.cnc["cutfeed"]
+		if zstep > 0:
+			#Compensate helix feed, so we never plunge too fast on short/steep paths
+			#FIXME: Add UI to disable this feature??? Not sure if that's needed.
+			rampratio = zstep/min(path.length(),ramp)
+			helixfeed2 = round(self.cnc["cutfeedz"]/rampratio)
+			helixfeed = min(self.cnc["cutfeed"], helixfeed2)
+
+		#
 		if block is None:
 			if isinstance(path, Path):
 				block = Block(path.name)
@@ -2637,7 +2705,7 @@ class GCode:
 			ztab = getSegmentZTab(path[0], z)
 
 			#Retract to zsafe
-			if entry: block.append("g0 %s"%(self.fmt("z",CNC.vars["safe"],7)))
+			if retract: block.append("g0 %s"%(self.fmt("z",CNC.vars["safe"],7)))
 
 			#Rapid to beginning of the path
 			block.append("g0 %s %s"%(self.fmt("x",x,7),self.fmt("y",y,7)))
@@ -2651,19 +2719,25 @@ class GCode:
 				block.append("g0 %s"%(self.fmt("z",max(zh, ztab),7)))
 
 			#Begin pass
-			block.append("(pass %f)"%(max(zh, ztab)))
+			#if comments: block.append("(pass %f)"%(max(zh, ztab)))
+			if comments: block.append("(entered)")
 
 			#Loop over segments
 			setfeed = True
 			ztabprev = None
+			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh
 
-				#This is where you can modify the ramp of the helix:
-				if ramp>0: zh -= (segment.length()/(abs(ramp)*CNC.vars["diameter"]))*zstep #n times tool diameter
-				elif ramp<0: zh -= (segment.length()/abs(ramp))*zstep #absolute
-				else: zh -= (segment.length()/path.length())*zstep #full helix (default)
+				#Ramp down
+				zh -= (segment.length()/ramp)*zstep #ramp
 				zh = max(zh, z) #Never cut deeper than z!
+
+				#Reset feedrate if not ramping anymore
+				if zh == zhprev and ramping:
+					helixfeed = self.cnc["cutfeed"]
+					setfeed = True
+					ramping = False
 
 				#Get tab height
 				ztab = getSegmentZTab(segment)
@@ -2671,11 +2745,11 @@ class GCode:
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
 					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
-						block.append("(tab down "+str(max(zhprev,ztab))+")")
+						if comments: block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
 					elif zh < ztab or zhprev < ztab: #if we need to go higher in order to clear the tab
-						block.append("(tab up "+str(max(zh, ztab))+")")
+						if comments: block.append("(tab up "+str(max(zh, ztab))+")")
 						block.append(CNC.zexit(max(zh, ztab),7))
 						setfeed = True
 				ztabprev = ztab
@@ -2685,12 +2759,14 @@ class GCode:
 
 				#Set feed if needed
 				if setfeed:
-					block[-1] += " %s"%(self.fmt("f",self.cnc["cutfeed"]))
+					block[-1] += " %s"%(self.fmt("f",round(helixfeed)))
 					setfeed = False
 
 			#Exit toolpath
 			if exit:
-				block.append("(exiting)")
+				if comments: block.append("(exiting)")
+				if exitpoint is not None:
+					block.append('g1 %s %s'%(self.fmt("x",exitpoint[0]),self.fmt("y",exitpoint[1])))
 				block.append(CNC.zsafe())
 
 		#Recursion for multiple paths
@@ -2772,33 +2848,6 @@ class GCode:
 	#----------------------------------------------------------------------
 	def canUndo(self):	return self.undoredo.canUndo()
 	def canRedo(self):	return self.undoredo.canRedo()
-
-	#----------------------------------------------------------------------
-	# Append a new tab
-	#----------------------------------------------------------------------
-	def addTabUndo(self, bid, tid, tab):
-		block = self.blocks[bid]
-		if tid<0 or tid>=len(block.tabs):
-			undoinfo = (self.delTabUndo, bid, len(block.tabs))
-			block.tabs.append(tab)
-		else:
-			undoinfo = (self.delTabUndo, bid, tid)
-			block.tabs.insert(tid, tab)
-		return undoinfo
-
-	#----------------------------------------------------------------------
-	def delTabUndo(self, bid, tid):
-		block = self.blocks[bid]
-		undoinfo = (self.addTabUndo, bid, tid, block.tabs[tid])
-		del block.tabs[tid]
-		return undoinfo
-
-	#----------------------------------------------------------------------
-	def tabSetUndo(self, bid, tid, params):
-		tab = self.blocks[bid].tabs[tid]
-		undoinfo = (self.tabSetUndo, bid, tid, tab.save())
-		tab.restore(params)
-		return undoinfo
 
 	#----------------------------------------------------------------------
 	# Change all lines in editor
@@ -3204,8 +3253,6 @@ class GCode:
 		for bid,lid in items:
 			if lid is None:
 				block = self.blocks[bid]
-				for i in block.tabs:
-					yield bid,i
 				for i in range(len(block)):
 					yield bid,i
 			else:
@@ -3353,35 +3400,13 @@ class GCode:
 					if number>0:
 						distance = length / float(number)
 					s = 0.0			# running length
-					P = path[0].A
-					lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
-					drillHole(lines)
-					for segment in path:
-						l = segment.length()
-						# if we haven't reach 'distance'
-						if s+l < distance:
-							s += l
-							continue
-						n = 0
-						while True:
-							n += 1
-							remain = n*distance - s
-							if remain > l:
-								s = distance-(remain-l)
-								break
-							#FIXME:	Rewrite this to use new method segment.distPoint(pos) from lib/bpath.py
-							#	See trochoidal plugin for more!
-							if segment.type == Segment.LINE:
-								P = segment.A + (remain/l)*segment.AB
-							else:
-								if segment.type == Segment.CW:
-									phi = segment.startPhi - remain / segment.radius
-								else:
-									phi = segment.startPhi + remain / segment.radius
-								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
-									   segment.C[1] + segment.radius*math.sin(phi))
-							lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
-							drillHole(lines)
+
+                                        while s < length:
+                                                P = path.distPoint(s)
+                                                s += distance
+						lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
+						drillHole(lines)
+
 			undoinfo.append(self.setBlockLinesUndo(bid,lines))
 		self.addUndo(undoinfo)
 
@@ -3394,17 +3419,20 @@ class GCode:
 	# @param depth	I	ending depth
 	# @param stepz	I	stepping in z
 	#----------------------------------------------------------------------
-	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[]):
+	def cutPath(self, newblock, block, path, z, depth, stepz, helix=False, helixBottom=True, ramp=0, islandPaths=[], exitpoint=None, springPass=False):
 		closed = path.isClosed()
+		zigzag = True #FIXME: Add UI to set this?
 		entry  = True
 		exit   = False
 
-		# Mark in which tab we are inside
-		if block.tabs:
-			# Mark everything as outside
-			for tab in block.tabs:
-				tab.create(CNC.vars["diameter"])
-				tab.split(path)
+		#Calculate exit point for thread milling
+		centr = Vector(path.center())
+		if exitpoint == 1:
+			exitpoint = centr
+		elif exitpoint == -1:
+			exitpoint = path[-1].B+(path[-1].B-centr)
+		else:
+			exitpoint = None
 
 		#Mark in which island we are inside
 		if islandPaths:
@@ -3414,29 +3442,54 @@ class GCode:
 				path.markInside(island, island._inside)
 
 		#iterate over depth passes:
-		while z > depth:
+		retract = True
+		while (z-depth)>(stepz/3):
+			#Go one step lower
 			z = max(z-stepz, depth)
-			if not closed:
-				# on open paths always enter exit
-				if not helix: entry = exit = True
-			if abs(z-depth)<1e-7:
-				# last pass
+
+			#Detect last pass of loop
+			if abs(z-depth)<(stepz/3):
 				exit = True
 
+			#Do not exit before helixbottom or springpass (they will exit anyway...)
+			if springPass or (helix and helixBottom):
+				exit = False
+
+			#Helical/Ramp cuts
 			if not helix:
-				self.fromPath(path, newblock, z, entry, exit)
+				newblock.append("(pass %f)"%(z))
+				if zigzag:
+					self.fromPath(path, newblock, z, retract, True, exit, exitpoint=exitpoint)
+					if not closed: path.invert()
+				else:
+					self.fromPath(path, newblock, z, True, True, exit, exitpoint=exitpoint)
+			#Flat cuts:
 			else:
 				if helixBottom: exit = False
 				if closed:
-					self.fromPath(path, newblock, z, entry, exit, z+stepz, ramp)
+					newblock.append("(pass %f to %f)"%(z+stepz, z))
+					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp, exitpoint=exitpoint)
 				else:
 					#Cut open path back and forth while descending
-					self.fromPath(path, newblock, z+stepz/2, entry, False, z+stepz, ramp)
+					newblock.append("(pass %f to %f)"%(z+stepz, z+zstepz/2))
+					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp, exitpoint=exitpoint)
 					path.invert()
-					self.fromPath(path, newblock, z, False, exit, z+stepz/2, ramp)
+					newblock.append("(pass %f to %f)"%(z+stepz/2, z))
+					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp, exitpoint=exitpoint)
 					path.invert()
+
+			retract = False
 			entry = False
-		if helix and helixBottom: self.fromPath(path, newblock, z, entry, True)
+
+		#Do spring pass or helixbottom
+		if springPass or (helix and helixBottom):
+			if springPass:
+				path.invert()
+				newblock.append("(pass %f spring)"%(z))
+			else:
+				newblock.append("(pass %f bottom)"%(z))
+			self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint)
+
 		return newblock
 
 	#----------------------------------------------------------------------
@@ -3455,7 +3508,7 @@ class GCode:
 	# Create a cut my replicating the initial top-only path multiple times
 	# until the maximum height
 	#----------------------------------------------------------------------
-	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True):
+	def cut(self, items, depth=None, stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None, springPass=False, islandsCompensate=False):
 		if surface is None: surface = self.cnc["surface"]
 		if stepz is None:   stepz = self.cnc["stepz"]
 		if depth is None:   depth = surface - self.cnc["thickness"]
@@ -3466,6 +3519,7 @@ class GCode:
 		if feedz is not None:
 			self.cnc["cutfeedz"],feedz = feedz, self.cnc["cutfeedz"]
 
+		#Test if cutting within stock boundaries
 		if surface > self.cnc["surface"]:
 			return "ERROR: Starting cut height is higher than stock surface. " \
 				"Please change stock surface in Tools->Stock or cut depth."
@@ -3473,12 +3527,15 @@ class GCode:
 			return  "ERROR: Cut depth %g outside stock surface: %g .. %g\n" \
 				"Please change stock surface in Tools->Stock or cut depth." \
 				%(depth, self.cnc["surface"], self.cnc["surface"]-self.cnc["thickness"])
+
+		#Determine operation block name
 		if abs(depth - (self.cnc["surface"]-self.cnc["thickness"])) < 1e-7:
 			opname = "cut"
 			if helix: opname = "helicut"
 		else:
 			opname = "cut:%g"%(depth)
 			if helix: opname = "helicut:%g"%(depth)
+
 		stepz = abs(stepz)
 		undoinfo = []
 
@@ -3489,14 +3546,22 @@ class GCode:
 			for bid,block in enumerate(self.blocks):
 				if islandsSelectedOnly and bid not in items: continue
 				if block.operationTest('island'):
+					islands.append(bid)
 					#determine island height
 					islz = self.cnc["safe"]
 					if block.operationGet('minz') is not None:
 						islz = float(block.operationGet('minz'))
-					islands.append(bid)
+					#determine if we should offset island (tabs are always offset)
+					isloffset=False
+					if islandsCompensate or block.operationTest('tab'):
+						isloffset=True
+					#load island paths
 					for islandPath in self.toPath(bid):
+						#compensate for cutter diameter if needed
+						if isloffset: islandPath = islandPath.offsetClean(CNC.vars["diameter"]/2)[0]
 						islandPath._inside=islz
 						islandPaths.append(islandPath)
+
 		#Remove islands from paths to cut if not requested
 		#TODO: maybe also remove all islands with "tab" tag
 		if not islandsCut and islands:
@@ -3521,9 +3586,9 @@ class GCode:
 			for path in self.toPath(bid):
 
 				if cutFromTop:
-					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
+					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 				else:
-					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean)
+					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 			if newblock:
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
@@ -3537,10 +3602,8 @@ class GCode:
 	def createTab(self, x=0, y=0, dx=0, dy=0, z=0, circ=True):
 		path = Path("tab")
 
-		#compensate for cutter radius the lame way:
-		r = CNC.vars["diameter"]/2
-		dx = dx/2. + r
-		dy = dy/2. + r
+		dx = dx/2.
+		dy = dy/2.
 
 		if not circ:
 			#Square tabs (intersect better with trochoids)
@@ -3564,7 +3627,11 @@ class GCode:
 			seg.setCenter(C)
 			path.append(seg)
 
-		return path
+		#compensate for cutter radius
+		#update: this is now done right before cutting, so no need to do it here!
+		#path = path.offsetClean(CNC.vars["diameter"]/2)[0]
+
+		return self.fromPath(path, None, None, False, False, False, None, None, False)
 
 
 	#----------------------------------------------------------------------
@@ -3577,7 +3644,6 @@ class GCode:
 	# @param isl	create tabs in form of islands?
 	#----------------------------------------------------------------------
 	def createTabs(self, items, ntabs, dtabs, dx, dy, z, circ=True):
-		isl=True
 		msg = None
 		undoinfo = []
 		if ntabs==0 and dtabs==0: return
@@ -3603,39 +3669,16 @@ class GCode:
 					d = max(length / float(ntabs), dtabs)
 					# running length
 					s = d/2.	# start from half distance to add first tab
-					for segment in path:
-						l = segment.length()
-						# if we haven't reach d
-						if s+l < d:
-							s += l
-							continue
-						n = 0
-						while True:
-							n += 1
-							remain = n*d - s
-							if remain > l:
-								s = d-(remain-l)
-								break
-							if segment.type == Segment.LINE:
-								P = segment.A + (remain/l)*segment.AB
-							else:
-								if segment.type == Segment.CW:
-									phi = segment.startPhi - remain / segment.radius
-								else:
-									phi = segment.startPhi + remain / segment.radius
-								P = Vector(segment.C[0] + segment.radius*math.cos(phi),
-									segment.C[1] + segment.radius*math.sin(phi))
 
-							if isl: #Make island tabs
-								tabpath = self.createTab(P[0],P[1],dx,dy,z,circ)
-								tablock.extend(self.fromPath(tabpath, None, None, False, False))
-								tablock.append("( ---------- cut-here ---------- )")
-							else: #Make legacy tabs
-								tab = Tab(P[0],P[1],dx,dy,z)
-								undoinfo.append(self.addTabUndo(bid,0,tab))
-				if isl:
-					del tablock[-1] #remove last cut-here
-					tablocks.append(tablock)
+					while s <= length:
+						P = path.distPoint(s)
+						s += d
+						#Make island tabs
+						tablock.extend(self.createTab(P[0],P[1],dx,dy,z,circ))
+						tablock.append("( ---------- cut-here ---------- )")
+
+				del tablock[-1] #remove last cut-here
+				tablocks.append(tablock)
 		self.insBlocks(bid+1, tablocks, "Tabs created")
 		self.addUndo(undoinfo)
 
@@ -3651,7 +3694,7 @@ class GCode:
 			operation = "reverse"
 
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
-			newpath = []
+			newpath = Path(self.blocks[bid].name())
 
 			#Not sure if this is good idea...
 			#Might get confusing if something goes wrong, but seems to work fine
@@ -3662,7 +3705,7 @@ class GCode:
 
 			for path in self.toPath(bid):
 				path.invert()
-				newpath.append(path)
+				newpath.extend(path)
 			if newpath:
 				block = self.fromPath(newpath)
 				undoinfo.append(self.addBlockOperationUndo(bid, operation, remove))
@@ -3795,34 +3838,8 @@ class GCode:
 						if msg: msg += "\n"
 						msg += m
 
-#				print "ORIGINAL\n",path
-				# Remove tiny segments
-				path.removeZeroLength(abs(offset)/100.)
-				# Convert very small arcs to lines
-				path.convert2Lines(abs(offset)/10.)
-				D = path.direction()
-#				print "Path Direction:",D
-				if D==0: D=1
-#				print "ZERO\n",path
-				opath = path.offset(D*offset, newname)
-#				print "OFFSET\n",opath
+				opath = path.offsetClean(offset, overcut, newname)
 				if opath:
-#					import time
-#					t0 = time.time()
-					opath.intersectSelf()
-#					t1=time.time(); print "intersectSelf",t1-t0; t0=t1
-#					print "INTERSECT\n",opath
-					opath.removeExcluded(path, D*offset)
-#					t1=time.time(); print "removeExcluded",t1-t0; t0=t1
-#					print "EXCLUDE\n",opath
-					opath.removeZeroLength(abs(offset)/100.)
-#					t1=time.time(); print "removeZeroLength",t1-t0; t0=t1
-#					print "REMOVE\n",opath
-				opath = opath.split2contours()
-				if opath:
-					if overcut:
-						for p in opath:
-							p.overcut(D*offset)
 					newpath.extend(opath)
 			if newpath:
 				# remember length to shift all new blocks the are inserted before
@@ -3860,8 +3877,6 @@ class GCode:
 		else:
 			offset = diameter*stepover
 
-#		print
-#		print "PATH=",path
 		opath = path.offset(offset)
 
 		if not opath: return None
@@ -4058,12 +4073,7 @@ class GCode:
 		for bid,lid in self.iterate(items):
 			block = self.blocks[bid]
 
-			if isinstance(lid, Tab) and tabFunc is not None:
-				tid = block.tabs.index(lid)
-				undoinfo.append(self.tabSetUndo(bid, tid, lid.save()))
-				tabFunc(lid, *args)
-
-			elif isinstance(lid, int):
+			if isinstance(lid, int):
 				cmds = CNC.parseLine(block[lid])
 				if cmds is None: continue
 				self.cnc.motionStart(cmds)
@@ -4144,7 +4154,7 @@ class GCode:
 	# Move position by dx,dy,dz
 	#----------------------------------------------------------------------
 	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.modify(items, self.moveFunc, Tab.move, dx, dy, dz)
+		return self.modify(items, self.moveFunc, None, dx, dy, dz)
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
@@ -4194,7 +4204,7 @@ class GCode:
 		if ang in (0.0,90.0,180.0,270.0,-90.0,-180.0,-270.0):
 			c = round(c)	# round numbers to avoid nasty extra digits
 			s = round(s)
-		return self.modify(items, self.rotateFunc, Tab.transform, c, s, x0, y0)
+		return self.modify(items, self.rotateFunc, None, c, s, x0, y0)
 
 	#----------------------------------------------------------------------
 	# Use the orientation information to orient selected code
@@ -4203,7 +4213,7 @@ class GCode:
 		if not self.orient.valid: return "ERROR: Orientation information is not valid"
 		c = math.cos(self.orient.phi)
 		s = math.sin(self.orient.phi)
-		return self.modify(items, self.transformFunc, Tab.transform, c, s,
+		return self.modify(items, self.transformFunc, None, c, s,
 					self.orient.xo, self.orient.yo)
 
 	#----------------------------------------------------------------------
@@ -4350,6 +4360,8 @@ class GCode:
 				y2 = block.sy
 				dx = x1-x2
 				dy = y1-y2
+				dx/=CNC.feedmax_x
+				dy/=CNC.feedmax_y
 				matrix[i][j] = sqrt(dx*dx + dy*dy)
 		#from pprint import pprint
 		#pprint(matrix)
