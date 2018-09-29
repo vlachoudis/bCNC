@@ -3443,7 +3443,7 @@ class GCode:
 
 		#iterate over depth passes:
 		retract = True
-		while (z-depth)>(stepz/3):
+		while (z-depth)>1e-7:
 			#Go one step lower
 			z = max(z-stepz, depth)
 
