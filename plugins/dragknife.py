@@ -126,7 +126,8 @@ This fact introduces the need for preprocessing the g-code to account with that 
 					dist = sqrt((seg.B[0]-prevknife[0])**2+(seg.B[1]-prevknife[1])**2)
 					move = ( seg.B - prevknife ).unit() * ( dist - dragoff )
 					newknife = prevknife + move
-					npath.append(Segment(Segment.LINE, prevknife, newknife))
+					if not eq(newknife, prevknife):
+						npath.append(Segment(Segment.LINE, prevknife, newknife))
 					prevknife = newknife
 
 
