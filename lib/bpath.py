@@ -844,6 +844,7 @@ class Path(list):
 						if self[j].type != Segment.LINE: break
 						if abs(pdist(self[j].A, C) - r) > prec: break
 						if abs(pdist(self[j].B, C) - r) > prec: break
+						if abs(pdist(self[j].midPoint(), C) - r) > prec: break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
 						j += 1
@@ -879,6 +880,7 @@ class Path(list):
 				tmpath = [self[i]]
 				j = i+1
 				while(j < len(self)):
+					if not self[j].type == Segment.LINE: break
 					TB = self[j].tangentEnd()
 					if not eq(tmpath[-1].B, self[j].A): break
 					if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
