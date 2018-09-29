@@ -3753,15 +3753,13 @@ class GCode:
 				operation += "ccw"
 
 			#Process paths
-			newpath = []
 			for path in self.toPath(bid):
 				if not path.directionSet(opdir):
 					msg = "Error determining direction of path!"
-				newpath.append(path)
-			if newpath:
-				block = self.fromPath(newpath)
-				undoinfo.append(self.addBlockOperationUndo(bid, operation,remove))
-				undoinfo.append(self.setBlockLinesUndo(bid, block))
+				if path:
+					block = self.fromPath(path)
+					undoinfo.append(self.addBlockOperationUndo(bid, operation,remove))
+					undoinfo.append(self.setBlockLinesUndo(bid, block))
 		self.addUndo(undoinfo)
 
 		return msg
