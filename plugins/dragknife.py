@@ -102,7 +102,6 @@ class Tool(Plugin):
 					#Append swivel if needed (also always do entry/exit)
 					if abs(angle) > angleth or i == 0 or i == len(opath)-1:
 						arca = Segment(arcdir, prevseg.tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, prevseg.B)
-						print "arc", arca.length()
 
 						if swivelz !=0: arca._inside = [swivelz]
 						npath.append(arca)
