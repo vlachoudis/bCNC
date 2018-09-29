@@ -116,8 +116,7 @@ class _Base:
 	# ----------------------------------------------------------------------
 	def populate(self):
 		self.master.listbox.delete(0,END)
-		for var in self.variables:
-			n, t, d, l = var[:4]
+		for n, t, d, l in self.variables:
 			value = self[n]
 			if t == "bool":
 				if value:
@@ -145,41 +144,13 @@ class _Base:
 				except TclError:
 					pass
 
-		#Load help
-		varhelp = ''
-		if hasattr(self, 'help') and self.help is not None:
-			varhelp += self.help
-
-		varhelpheader=True
-		for var in self.variables:
-			if len(var) > 4:
-				if varhelpheader:
-					varhelp += '\n=== Module options ===\n\n'
-					varhelpheader=False
-				varhelp += '* '+var[0].upper()+': '+var[3]+'\n'+var[4]+'\n\n'
-
-		self.master.widget['toolHelp'].pack_forget()
-		self.master.widget['scroll'].pack_forget()
-		self.master.widget['toolHelp'].config(state=NORMAL)
-		self.master.widget['toolHelp'].delete(1.0, END)
-		if len(varhelp) > 0:
-			for line in varhelp.splitlines():
-				if len(line) > 0 and line[0] == '#' and line[1:] in Utils.images.keys():
-					self.master.widget['toolHelp'].image_create(END,image=Utils.images[line[1:]])
-					self.master.widget['toolHelp'].insert(END, '\n')
-				else:
-					self.master.widget['toolHelp'].insert(END, line+'\n')
-			self.master.widget['scroll'].pack(side=RIGHT, fill=Y)
-			self.master.widget['toolHelp'].pack()
-		self.master.widget['toolHelp'].config(state=DISABLED)
-
 	#----------------------------------------------------------------------
 	def _sendReturn(self, active):
 		self.master.listbox.selection_clear(0,END)
 		self.master.listbox.selection_set(active)
 		self.master.listbox.activate(active)
 		self.master.listbox.see(active)
-		n, t, d, l = self.variables[active][:4]
+		n, t, d, l = self.variables[active]
 		if t=="bool": return	# Forbid changing value of bool
 		self.master.listbox.event_generate("<Return>")
 
@@ -227,7 +198,7 @@ class _Base:
 		ypos = lb.yview()[0]	# remember y position
 		save = lb.get(ACTIVE)
 
-		n, t, d, l = self.variables[active][:4]
+		n, t, d, l = self.variables[active]
 
 		if t == "int":
 			edit = tkExtra.InPlaceInteger(lb)
@@ -327,8 +298,7 @@ class _Base:
 	def load(self):
 		# Load lists
 		lists = []
-		for var in self.variables:
-			n, t, d, l = var[:4]
+		for n, t, d, l in self.variables:
 			if t=="list":
 				lists.append(n)
 		if lists:
@@ -354,13 +324,11 @@ class _Base:
 			for i in range(self.n):
 				key = "name.%d"%(i)
 				self.values[key] = Utils.getStr(self.name, key)
-				for var in self.variables:
-					n, t, d, l = var[:4]
+				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
 					self.values[key] = self._get(key, t, d)
 		else:
-			for var in self.variables:
-				n, t, d, l = var[:4]
+			for n, t, d, l in self.variables:
 				self.values[n] = self._get(n, t, d)
 		self.update()
 
@@ -387,14 +355,12 @@ class _Base:
 				if value is None: break
 				Utils.setStr(self.name, key, value)
 
-				for var in self.variables:
-					n, t, d, l = var[:4]
+				for n, t, d, l in self.variables:
 					key = "%s.%d"%(n,i)
 					Utils.setStr(self.name, key,
 						str(self.values.get(key,d)))
 		else:
-			for var in self.variables:
-				n, t, d, l = var[:4]
+			for n, t, d, l in self.variables:
 				Utils.setStr(self.name, n, str(self.values.get(n,d)))
 
 	# ----------------------------------------------------------------------
@@ -428,8 +394,7 @@ class DataBase(_Base):
 	# ----------------------------------------------------------------------
 	def delete(self):
 		if self.n==0: return
-		for var in self.variables:
-			n, t, d, l = var[:4]
+		for n, t, d, l in self.variables:
 			for i in range(self.current, self.n):
 				try:
 					self.values["%s.%d"%(n,i)] = self.values["%s.%d"%(n,i+1)]
@@ -449,8 +414,7 @@ class DataBase(_Base):
 	# ----------------------------------------------------------------------
 	def clone(self):
 		if self.n==0: return
-		for var in self.variables:
-			n, t, d, l = var[:4]
+		for n, t, d, l in self.variables:
 			try:
 				if n=="name":
 					self.values["%s.%d"%(n,self.n)] = \
@@ -481,7 +445,6 @@ class Plugin(DataBase):
 		self.plugin = True
 		self.group  = "Macros"
 		self.oneshot = False
-		self.help = None
 
 #==============================================================================
 # Generic ini configuration
@@ -629,11 +592,7 @@ class Material(DataBase):
 			("comment","str",    "", _("Comment")),
 			("feed",    "mm"  , 10., _("Feed")),
 			("feedz",   "mm"  ,  1., _("Plunge Feed")),
-			("stepz",   "mm"  ,  1., _("Depth Increment")),
-			("zretract", "mm" ,   1.0, _("Z Distance before contact")),
-			("feedbeforecontact", "int" ,   80, _("Z Feed before contact %")),
-			("hardcrust", "mm" ,   1.0, _("Hard crust thickness")),
-			("hardcrustfeed",  "int", 70, _("Hard crust Z Feed %"))
+			("stepz",   "mm"  ,  1., _("Depth Increment"))
 		 ]
 
 	# ----------------------------------------------------------------------
@@ -646,10 +605,6 @@ class Material(DataBase):
 			self.master.cnc()["cutfeed"]  = self.fromMm("feed")
 			self.master.cnc()["cutfeedz"] = self.fromMm("feedz")
 			self.master.cnc()["stepz"]    = self.fromMm("stepz")
-			self.master.cnc()["zretract"] = self.fromMm("zretract")
-			self.master.cnc()["feedbeforecontact"] = self["feedbeforecontact"]
-			self.master.cnc()["hardcrust"] = self.fromMm("hardcrust")
-			self.master.cnc()["hardcrustfeed"] = self["hardcrustfeed"]	
 		return False
 
 #==============================================================================
@@ -670,8 +625,7 @@ class EndMill(DataBase):
 			("flutes",    "int",      2, _("Flutes")),
 			("length",     "mm",   20.0, _("Length")),
 			("angle",   "float",     "", _("Angle")),
-			("stepover","float",   40.0, _("Stepover %")),
-			("endmillthikness",    "mm", "", _("Thikness"))
+			("stepover","float",   40.0, _("Stepover %"))
 		]
 
 	# ----------------------------------------------------------------------
@@ -714,7 +668,6 @@ class Stock(DataBase):
 class Cut(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Cut")
-		self.icon = "cut"
 		self.variables = [
 			("name",         "db" ,    "", _("Name")),
 			("surface",      "mm" ,    "", _("Surface Z")),
@@ -726,22 +679,11 @@ class Cut(DataBase):
 			("helix", "bool" , False, _("Helical cut")),
 			("helixBottom", "bool" , True, _("Helical with bottom")),
 			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
-			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
-			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
 			("islandsSelectedOnly", "bool" , True, _("Only leave selected islands uncut")),
-			("islandsCompensate", "bool", False, _("Compensate islands for cutter radius"), _("Add additional margin/offset around islands to compensate for endmill radius. This is automaticaly done for all islands if they are marked as tabs.")),
 			("islandsCut", "bool" , True, _("Cut contours of selected islands"))
 		]
 		self.buttons.append("exe")
-		self.help = '''Cut selected toolpath into Z depth of stock material.
-
-For short paths, you should probably use helical cut with bottom and ramp of 0.
-For long toolpaths and pocketing you should use helical cut with bottom and ramp of 5 to 10, or non-helical cut.
-
-If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
-If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
-'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -757,21 +699,10 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		helixBottom = self["helixBottom"]
 		ramp = self["ramp"]
 		if ramp < 0: ramp = self.master.fromMm(float(ramp))
-		springPass = self["spring"]
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
-		islandsCompensate = self["islandsCompensate"]
-
-		exitpoint = self["exitpoint"]
-		if exitpoint == "inside":
-			exitpoint = 1
-		elif exitpoint == "outside":
-			exitpoint = -1
-		else:
-			exitpoint = None
-
-		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, springPass, islandsCompensate)
+		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly)
 		app.setStatus(_("CUT selected paths"))
 
 #==============================================================================
@@ -780,7 +711,6 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 class Drill(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Drill")
-		self.icon = "drill"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("center",    "bool" ,  True, _("Drill in center only")),
@@ -815,31 +745,15 @@ class Drill(DataBase):
 class Profile(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Profile")
-		self.icon = "profile"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("endmill",   "db" ,    "", _("End Mill"), _('Size of this endmill will be used as offset distance')),
-			("direction","inside,outside" , "outside", _("Direction"), _('Should we machine on inside or outside of the shape?')),
+			("endmill",   "db" ,    "", _("End Mill")),
+			("direction","inside,outside" , "outside", _("Direction")),
 			("offset",   "float",  0.0, _("Additional offset distance")),
-			("overcut",  "bool",     1, _("Overcut"), _('Sets if we want to overcut or not.')),
-			("pocket",  "bool",     0, _("Pocket"), _('Generate pocket after profiling? Usefull for making pockets with overcuts.'))
+			("overcut",  "bool",     1, _("Overcut")),
+			("pocket",  "bool",     0, _("Pocket"))
 		]
 		self.buttons.append("exe")
-                self.help = '''This plugin offsets shapes to create toolpaths for profiling operation.
-Shape needs to be offset by the radius of endmill to get cut correctly.
-
-Currently we have two modes.
-
-Without overcut:
-#overcut-without
-
-And with overcut:
-#overcut-with
-
-Blue is the original shape from CAD
-Turqoise is the generated toolpath
-Grey is simulation of how part will look after machining
-'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -858,14 +772,11 @@ Grey is simulation of how part will look after machining
 class Pocket(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Pocket")
-		self.icon = "pocket"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
 		]
 		self.buttons.append("exe")
-		self.help = '''Remove all material inside selected shape
-'''
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -882,10 +793,9 @@ class Pocket(DataBase):
 class Tabs(DataBase):
 	def __init__(self, master):
 		DataBase.__init__(self, master, "Tabs")
-		self.icon = "tab"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)"), _("You should only use circular tabs, they are better in all ways. I've left the rectangles here just so people can experiment and get used to circular ones, but i think they can be safely deprecated.")),
+			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
 			("dx",        "mm",    5.0,   "Dx"),
@@ -893,12 +803,6 @@ class Tabs(DataBase):
 			("z",         "mm",   -3.0, _("Height"))
 		]
 		self.buttons.append("exe")
-		self.help ='''Create tabs, which will be left uncut to hold the part in place after cutting.
-
-Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
-
-Note that tabs used to be square, but if there was diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
-'''
 
 	# ----------------------------------------------------------------------
 	def execute(self,app):
@@ -992,8 +896,7 @@ class Controller(_Base):
 
 	# ----------------------------------------------------------------------
 	def populate(self):
-		for var in self.variables:
-			n, t, d, l = var[:4]
+		for n, t, d, l in self.variables:
 			try:
 				if t=="float":
 					self.values[n] = float(CNC.vars[n])
@@ -1015,7 +918,6 @@ class Tools:
 
 		self.tools   = {}
 		self.buttons = {}
-		self.widget = {}
 		self.listbox = None
 
 		# CNC should be first to load the inches
@@ -1050,10 +952,6 @@ class Tools:
 	# ----------------------------------------------------------------------
 	def setListbox(self, listbox):
 		self.listbox = listbox
-
-	# ----------------------------------------------------------------------
-	def setWidget(self, name, widget):
-		self.widget[name] = widget
 
 	# ----------------------------------------------------------------------
 	def __getitem__(self, name):
@@ -1362,7 +1260,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 	def createMenu(self):
 		menu = Menu(self, tearoff=0)
 		#for group in ("Artistic", "Generator", "Macros"):
-		for group in ("Artistic", "Generator", "Development"):
+		for group in ("Artistic", "Generator"):
 			submenu = Menu(menu, tearoff=0)
 			menu.add_cascade(label=group, menu=submenu)
 			# Find plugins in the plugins directory and load them
@@ -1612,8 +1510,8 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 stretch = "last",
 					 background = "White")
 		self.toolList.sortAssist = None
-		self.toolList.pack(fill=BOTH, expand=YES)
-		self.toolList.bindList("<Double-1>",	self.help)
+		self.toolList.pack(side=BOTTOM, fill=BOTH, expand=YES)
+		self.toolList.bindList("<Double-1>",	self.edit)
 		self.toolList.bindList("<Return>",	self.edit)
 		self.toolList.bindList("<Key-space>",	self.edit)
 #		self.toolList.bindList("<Key-space>",	self.commandFocus)
@@ -1621,17 +1519,6 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
 		self.tools.setListbox(self.toolList)
 		self.addWidget(self.toolList)
-
-
-		self.toolHelp = Text(self, height=5)
-		self.scroll = Scrollbar(self, command=self.toolHelp.yview)
-		self.toolHelp.configure(yscrollcommand=self.scroll.set)
-		#self.scroll.pack(side=RIGHT, fill=Y)
-		#self.toolHelp.pack()
-		self.addWidget(self.toolHelp)
-		self.toolHelp.config(state=DISABLED)
-		self.tools.setWidget("toolHelp" ,self.toolHelp)
-		self.tools.setWidget("scroll" ,self.scroll)
 
 		app.tools.active.trace('w',self.change)
 		self.change()
@@ -1646,25 +1533,6 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		tool.update()
 		self.tools.activateButtons(tool)
 	populate = change
-
-	#----------------------------------------------------------------------
-	# Edit tool listbox
-	#----------------------------------------------------------------------
-	def help(self, event=None, rename=False):
-		#lb = self.master.listbox.listbox(1)
-		#print("help",item)
-		#tkMessageBox.showinfo("Help for "+item, "Help for "+item)
-		item = self.toolList.get(self.toolList.curselection())[0]
-		for var in self.tools.getActive().variables:
-			if var[3] == item or _(var[3]) == item:
-				varname = var[0]
-				helpname = "Help for ("+varname+") "+item
-				if len(var) > 4 and var[4] is not None:
-					helptext = var[4]
-				else:
-					helptext = helpname+':\nnot available yet!'
-				tkMessageBox.showinfo(helpname, helptext)
-
 
 	#----------------------------------------------------------------------
 	# Edit tool listbox
