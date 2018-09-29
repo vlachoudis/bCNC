@@ -33,6 +33,7 @@ class Tool(Plugin):
 			("offset", "mm", 3, _("dragknife offset")),
 			("angle", "float", 20, _("angle threshold")),
 			("swivelz", "mm", 0, _("swivel height")),
+			("initdir", "X+,Y+,Y-,X-,none", "X+", _("initial direction")),
 			("feed", "mm", 200, _("feedrate")),
 			("simulate", "bool", False, _("simulate")),
 			("simpreci", "mm", 0.5, _("simulation precision"))
@@ -47,9 +48,21 @@ class Tool(Plugin):
 		dragoff = self.fromMm("offset")
 		angleth = self["angle"]
 		swivelz = self.fromMm("swivelz")
+		initdir = self["initdir"]
 		CNC.vars["cutfeed"] = self.fromMm("feed")
 		simulate = self["simulate"]
 		simpreci = self["simpreci"]
+
+		def initPoint(P, dir, offset):
+			if dir == 'X+':
+				P[0]+=offset
+			elif dir == 'X-':
+				P[0]-=offset
+			elif dir == 'Y+':
+				P[1]+=offset
+			elif dir == 'Y-':
+				P[1]-=offset
+			return P
 
 		blocks  = []
 		for bid in app.editor.getSelectedBlocks():
@@ -89,7 +102,7 @@ class Tool(Plugin):
 			elif simulate:
 
 				opath = opath.linearize(simpreci, True)
-				prevknife = opath[0].A
+				prevknife = initPoint(opath[0].A, initdir, -dragoff)
 				for seg in opath:
 					dist = sqrt((seg.B[0]-prevknife[0])**2+(seg.B[1]-prevknife[1])**2)
 					move = ( seg.B - prevknife ).unit() * ( dist - dragoff )
