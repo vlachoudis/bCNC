@@ -800,7 +800,7 @@ class Path(list):
         #----------------------------------------------------------------------
         # Return arcfited path
         #----------------------------------------------------------------------
-	def arcFit(self, prec=0.5):
+	def arcFit(self, prec=0.5, numseg=10):
 		def arcdir(A,B):
 			TA = tmpath[0].tangentEnd()
 			TB = tmpath[1].tangentStart()
@@ -841,20 +841,14 @@ class Path(list):
 
 					j = i
 					while j < len(self):
-						print "A"
 						if self[j].type != Segment.LINE: break
-						print "B",self[j].A, C
 						if abs(pdist(self[j].A, C) - r) > prec: break
-						print "C"
 						if abs(pdist(self[j].B, C) - r) > prec: break
-						print "D"
 						if arcdir(tmpath[-1],self[j]) != arcd: break
-						print "E"
 						tmpath.append(self[j])
 						j += 1
 
-					if len(tmpath) > 10:
-						print "found"
+					if len(tmpath) > numseg:
 						found = True
 						#npath.extend(tmpath)
 						if arcd:
@@ -864,11 +858,42 @@ class Path(list):
 
 						#npath.append(Segment(Segment.LINE, tmpath[0].A, tmpath[-1].B))
 						npath.append(Segment(arcd, tmpath[0].A, tmpath[-1].B, C))
-						i = j-1
+						i = j
 
 			if not found:
 				npath.append(self[i])
-			i+=1
+				i+=1
+
+		return npath
+
+        #----------------------------------------------------------------------
+        # Return path with merged adjacent lines. It's good to use before arc fiting
+        #----------------------------------------------------------------------
+	def mergeLines(self, prec=0.5):
+		#FIXME: use precision (currently stuff within eq() is merged)
+		npath = Path(self.name, self.color)
+		i = 0
+		while i < len(self):
+			found = False
+			if self[i].type == Segment.LINE:
+				tmpath = [self[i]]
+				j = i+1
+				while(j < len(self)):
+					TB = self[j].tangentEnd()
+					if not eq(tmpath[-1].B, self[j].A): break
+					if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
+
+					tmpath.append(self[j])
+					j += 1
+
+				if len(tmpath) > 1:
+					found = True
+					npath.append(Segment(Segment.LINE, tmpath[0].A, tmpath[-1].B))
+					i = j
+
+			if not found:
+				npath.append(self[i])
+				i+=1
 
 		return npath
 

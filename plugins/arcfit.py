@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("ArcFit")
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 import math
 import os.path
@@ -29,7 +29,8 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("maxseg", "mm", "1", _("segment size"))
+			("preci", "mm", 0.5, _("precision (mm)")),
+			("numseg", "int", 10, _("minimal number of segments to create arc"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
@@ -38,7 +39,8 @@ class Tool(Plugin):
 	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		maxseg = self.fromMm("maxseg")
+		preci = self.fromMm("preci")
+		numseg = self["numseg"]
 
 		#print("go!")
 		blocks  = []
@@ -52,7 +54,8 @@ class Tool(Plugin):
 
 			eblock = Block("fit "+app.gcode[bid].name())
 			opath = app.gcode.toPath(bid)[0]
-			npath = opath.arcFit(maxseg)
+			npath = opath.mergeLines(preci)
+			npath = npath.arcFit(preci, numseg)
 			eblock = app.gcode.fromPath(npath,eblock)
 			blocks.append(eblock)
 
