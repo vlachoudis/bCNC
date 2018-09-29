@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("DragKnife")
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 import math
 import os.path
@@ -54,6 +54,8 @@ class Tool(Plugin):
 		simpreci = self["simpreci"]
 
 		def initPoint(P, dir, offset):
+			P = Vector(P[0], P[1])
+
 			if dir == 'X+':
 				P[0]+=offset
 			elif dir == 'X-':
@@ -73,10 +75,18 @@ class Tool(Plugin):
 
 			if not simulate:
 
+				#Entry vector
+				ventry = Segment(Segment.LINE, initPoint(opath[0].A, initdir, -dragoff), opath[0].A)
+
+				#Exit vector
+				vexit = Segment(Segment.LINE, opath[-1].B, initPoint(opath[-1].B, initdir, dragoff))
+				opath.append(vexit)
+
+				prevseg = ventry
 				#Generate path with tangential lag for dragknife operation
 				for i,seg in enumerate(opath):
 					#Get adjacent tangential vectors in this point
-					TA = opath[i-1].tangentEnd()
+					TA = prevseg.tangentEnd()
 					TB = seg.tangentStart()
 
 					#Compute difference between tangential vectors of two neighbor segments
@@ -89,15 +99,19 @@ class Tool(Plugin):
 					else:
 						arcdir = Segment.CCW
 
-					#Append swivel if needed
-					if abs(angle) > angleth:
-						arca = Segment(arcdir, opath[i-1].tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, opath[i-1].B)
+					#Append swivel if needed (also always do entry/exit)
+					if abs(angle) > angleth or i == 0 or i == len(opath)-1:
+						arca = Segment(arcdir, prevseg.tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, prevseg.B)
+						print "arc", arca.length()
 
 						if swivelz !=0: arca._inside = [swivelz]
 						npath.append(arca)
 
 					#Append segment with tangential offset
-					npath.append(seg.tangentialOffset(dragoff))
+					if i < len(opath)-1:
+						npath.append(seg.tangentialOffset(dragoff))
+
+					prevseg = seg
 
 			elif simulate:
 
