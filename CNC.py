@@ -2588,7 +2588,6 @@ class GCode:
 
 		# get only first path that enters the surface
 		# ignore the deeper ones
-		z1st = None
 		passno = 0
 		for line in block:
 			#flatten helical paths
@@ -2612,15 +2611,12 @@ class GCode:
 					paths.append(path)
 					path = Path(block.name())
 			elif self.cnc.gcode == 1:	# line
-				if z1st is None: z1st = self.cnc.zval
-				if (self.cnc.dx != 0.0 or self.cnc.dy != 0.0) and abs(self.cnc.zval-z1st)<0.0001:
+				if (self.cnc.dx != 0.0 or self.cnc.dy != 0.0):
 					path.append(Segment(1, start, end))
 			elif self.cnc.gcode in (2,3):	# arc
-				if z1st is None: z1st = self.cnc.zval
-				if abs(self.cnc.z-z1st)<0.0001:
-					xc,yc = self.cnc.motionCenter()
-					center = Vector(xc,yc)
-					path.append(Segment(self.cnc.gcode, start,end, center))
+				xc,yc = self.cnc.motionCenter()
+				center = Vector(xc,yc)
+				path.append(Segment(self.cnc.gcode, start,end, center))
 			self.cnc.motionEnd()
 			start = end
 		if path: paths.append(path)
