@@ -714,7 +714,7 @@ class Cut(DataBase):
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
 			("strategy",     "flat,helical+bottom,ramp+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
-			("ramp", "int" , 10, _("Ramp length positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
+			("ramp", "int" , 10, _("Ramp length"), _("positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this)")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
@@ -726,8 +726,8 @@ class Cut(DataBase):
 		self.buttons.append("exe")
 		self.help = '''Cut selected toolpath into Z depth of stock material.
 
-For short paths, you should probably use helical cut with bottom and ramp of 0.
-For long toolpaths and pocketing you should use helical cut with bottom and ramp of 5 to 10, or non-helical cut.
+For short paths, you should probably use helical cut with bottom.
+For long toolpaths and pocketing you should use ramp cut (length around 10), or flat cut.
 
 If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
 If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
