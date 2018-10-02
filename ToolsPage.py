@@ -727,7 +727,8 @@ class Cut(DataBase):
 		self.help = '''Cut selected toolpath into Z depth of stock material.
 
 For short paths, you should probably use helical cut with bottom.
-For long toolpaths and pocketing you should use ramp cut (length around 10), or flat cut.
+For long toolpaths and pocketing you should use ramp cut (length around 10).
+Also there's classic flat cuting strategy, but that will lead to plunging straight down to material, which is not really desirable (especially when milling harder materials).
 
 If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
 If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
