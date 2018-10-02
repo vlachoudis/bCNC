@@ -3430,6 +3430,11 @@ class GCode:
 		if ramp<0: ramp = abs(ramp) #absolute
 		if ramp == 0: ramp = None #No ramp
 
+		#Decide if we do splitpass
+		splitpass = False
+		if not closed and ((ramp is None) or (ramp*3 >= path.length())):
+			splitpass = True
+
 		#Calculate exit point for thread milling
 		centr = Vector(path.center())
 		if exitpoint == 1:
@@ -3460,7 +3465,7 @@ class GCode:
 			if springPass or (helix and helixBottom):
 				exit = False
 
-			#Helical/Ramp cuts
+			#Flat cuts:
 			if not helix:
 				newblock.append("(pass %f)"%(z))
 				if zigzag:
@@ -3468,15 +3473,17 @@ class GCode:
 					if not closed: path.invert()
 				else:
 					self.fromPath(path, newblock, z, True, True, exit, exitpoint=exitpoint)
-			#Flat cuts:
+
+			#Helical/Ramp cuts:
 			else:
 				if helixBottom: exit = False
-				if closed:
+
+				if not splitpass:
 					newblock.append("(pass %f to %f)"%(z+stepz, z))
 					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp, exitpoint=exitpoint)
 				else:
 					#Cut open path back and forth while descending
-					newblock.append("(pass %f to %f)"%(z+stepz, z+zstepz/2))
+					newblock.append("(pass %f to %f)"%(z+stepz, z+stepz/2))
 					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp, exitpoint=exitpoint)
 					path.invert()
 					newblock.append("(pass %f to %f)"%(z+stepz/2, z))
@@ -3494,6 +3501,8 @@ class GCode:
 				newblock.append("(pass %f spring)"%(z))
 			else:
 				newblock.append("(pass %f bottom)"%(z))
+
+			if splitpass: path.invert() #Fixes split ramp case
 			self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint, truncate=ramp)
 
 		return newblock
