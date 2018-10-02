@@ -713,7 +713,7 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
-			("strategy",     "flat,helical+bottom,ramp+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
+			("strategy",     "flat,helical+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
 			("ramp", "int" , 10, _("Ramp length"), _("positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this)")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
@@ -765,12 +765,13 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		#Decide if ramp
 		ramp = 0
 		if strategy in ['ramp+bottom','ramp']:
+			helixBottom = True
 			ramp = self["ramp"]
 			if ramp < 0: ramp = self.master.fromMm(float(ramp))
 
 		#Decide if bottom
 		helixBottom = False
-		if strategy in ['helical+bottom','ramp+bottom']:
+		if strategy in ['helical+bottom','ramp+bottom','ramp']:
 			helixBottom = True
 
 		#Decide exit point
