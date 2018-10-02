@@ -3444,7 +3444,7 @@ class GCode:
 			z = max(z-stepz, depth)
 
 			#Detect last pass of loop
-			if abs(z-depth)<(stepz/3):
+			if abs(z-depth)<1e-7:
 				exit = True
 
 			#Do not exit before helixbottom or springpass (they will exit anyway...)
