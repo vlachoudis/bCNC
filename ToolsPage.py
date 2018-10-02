@@ -713,10 +713,9 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
+			("strategy",     "flat,helical+bottom,ramp+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
+			("ramp", "int" , 10, _("Ramp length positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
-			("helix", "bool" , False, _("Helical cut")),
-			("helixBottom", "bool" , True, _("Helical with bottom")),
-			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
 			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
@@ -736,24 +735,45 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
+		#Cuting dimensions
 		surface = self.fromMm("surface", None)
 		depth   = self.fromMm("depth", None)
 		step    = self.fromMm("stepz", None)
+
+		#Cuting speed
 		try:    feed = self.fromMm("feed", None)
 		except: feed = None
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
+
+		#Cuting strategy
+		strategy = self["strategy"]
 		cutFromTop = self["cutFromTop"]
-		helix = self["helix"]
-		helixBottom = self["helixBottom"]
-		ramp = self["ramp"]
-		if ramp < 0: ramp = self.master.fromMm(float(ramp))
 		springPass = self["spring"]
+
+		#Islands
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
 		islandsCompensate = self["islandsCompensate"]
 
+		#Decide if helix or ramp
+		helix = False
+		if strategy in ['helical+bottom','helical','ramp+bottom','ramp']:
+			helix = True
+
+		#Decide if ramp
+		ramp = 0
+		if strategy in ['ramp+bottom','ramp']:
+			ramp = self["ramp"]
+			if ramp < 0: ramp = self.master.fromMm(float(ramp))
+
+		#Decide if bottom
+		helixBottom = False
+		if strategy in ['helical+bottom','ramp+bottom']:
+			helixBottom = True
+
+		#Decide exit point
 		exitpoint = self["exitpoint"]
 		if exitpoint == "inside":
 			exitpoint = 1
@@ -762,6 +782,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		else:
 			exitpoint = None
 
+		#Execute cut
 		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, springPass, islandsCompensate)
 		app.setStatus(_("CUT selected paths"))
 
