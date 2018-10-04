@@ -731,7 +731,9 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.sendGCode("G90")
 
 	def go2origin(self, event=None):
-		self.sendGCode("G90G0X0Y0Z0")
+		self.sendGCode("G90")
+		self.sendGCode("G0X0Y0")
+		self.sendGCode("G0Z0")
 
 	#----------------------------------------------------------------------
 	def setStep(self, s, zs=None):

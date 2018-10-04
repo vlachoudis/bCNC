@@ -31,6 +31,8 @@ except:
 	numpy    = None
 	RESAMPLE = None
 
+ANTIALIAS_CHEAP = True
+
 VIEW_XY   = 0
 VIEW_XZ   = 1
 VIEW_YZ   = 2
@@ -138,7 +140,7 @@ class AlarmException(Exception):
 #==============================================================================
 # Drawing canvas
 #==============================================================================
-class CNCCanvas(Canvas):
+class CNCCanvas(Canvas, object):
 	def __init__(self, master, app, *kw, **kwargs):
 		Canvas.__init__(self, master, *kw, **kwargs)
 
@@ -267,6 +269,44 @@ class CNCCanvas(Canvas):
 		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.reset()
 		self.initPosition()
+
+	#Calculate arguments for antialiasing
+	def antialias_args(self, args, winc=0.5, cw=2):
+		nargs = {}
+
+		#set defaults
+		nargs['width'] = 1
+		nargs['fill'] = "#000"
+
+		#get original args
+		for arg in args:
+			nargs[arg] = args[arg]
+		if nargs['width'] == 0:
+			nargs['width'] = 1
+
+		#calculate width
+		nargs['width'] += winc
+
+		#calculate color
+		#cbg = self.winfo_rgb(CANVAS_COLOR)
+		cbg = self.winfo_rgb(self.cget("bg"))
+		cfg = list(self.winfo_rgb(nargs['fill']))
+		#print cbg, cfg
+		cfg[0] = (cfg[0] + cbg[0]*cw)/(cw+1)
+		cfg[1] = (cfg[1] + cbg[1]*cw)/(cw+1)
+		cfg[2] = (cfg[2] + cbg[2]*cw)/(cw+1)
+		nargs['fill'] = '#%02x%02x%02x' % (cfg[0]/256, cfg[1]/256, cfg[2]/256)
+		#nargs['fill'] = '#AAA'
+		#print cfg, nargs['fill']
+
+		return nargs
+
+	#Override alias method if antialiasing enabled:
+	if ANTIALIAS_CHEAP:
+		def create_line(self, *args, **kwargs):
+			nkwargs = self.antialias_args(kwargs)
+			super(CNCCanvas, self).create_line(*args, **nkwargs)
+			return super(CNCCanvas, self).create_line(*args, **kwargs)
 
 	# ----------------------------------------------------------------------
 	def reset(self):

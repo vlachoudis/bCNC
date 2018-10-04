@@ -722,10 +722,9 @@ class Cut(DataBase):
 			("stepz"  ,      "mm" ,    "", _("Depth Increment")),
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
+			("strategy",     "flat,helical+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
+			("ramp", "int" , 10, _("Ramp length"), _("positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this)")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
-			("helix", "bool" , False, _("Helical cut")),
-			("helixBottom", "bool" , True, _("Helical with bottom")),
-			("ramp", "int" , 0, _("Ramp length (0 = full helix default, positive = relative to tool diameter (5 to 10 makes sense), negative = absolute distance)")),
 			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
 			("islandsLeave", "bool" , True, _("Leave islands uncut")),
@@ -736,8 +735,9 @@ class Cut(DataBase):
 		self.buttons.append("exe")
 		self.help = '''Cut selected toolpath into Z depth of stock material.
 
-For short paths, you should probably use helical cut with bottom and ramp of 0.
-For long toolpaths and pocketing you should use helical cut with bottom and ramp of 5 to 10, or non-helical cut.
+For short paths, you should probably use helical cut with bottom.
+For long toolpaths and pocketing you should use ramp cut (length around 10).
+Also there's classic flat cuting strategy, but that will lead to plunging straight down to material, which is not really desirable (especially when milling harder materials).
 
 If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
 If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
@@ -745,24 +745,46 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
+		#Cuting dimensions
 		surface = self.fromMm("surface", None)
 		depth   = self.fromMm("depth", None)
 		step    = self.fromMm("stepz", None)
+
+		#Cuting speed
 		try:    feed = self.fromMm("feed", None)
 		except: feed = None
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
+
+		#Cuting strategy
+		strategy = self["strategy"]
 		cutFromTop = self["cutFromTop"]
-		helix = self["helix"]
-		helixBottom = self["helixBottom"]
-		ramp = self["ramp"]
-		if ramp < 0: ramp = self.master.fromMm(float(ramp))
 		springPass = self["spring"]
+
+		#Islands
 		islandsLeave = self["islandsLeave"]
 		islandsCut = self["islandsCut"]
 		islandsSelectedOnly = self["islandsSelectedOnly"]
 		islandsCompensate = self["islandsCompensate"]
 
+		#Decide if helix or ramp
+		helix = False
+		if strategy in ['helical+bottom','helical','ramp+bottom','ramp']:
+			helix = True
+
+		#Decide if ramp
+		ramp = 0
+		if strategy in ['ramp+bottom','ramp']:
+			helixBottom = True
+			ramp = self["ramp"]
+			if ramp < 0: ramp = self.master.fromMm(float(ramp))
+
+		#Decide if bottom
+		helixBottom = False
+		if strategy in ['helical+bottom','ramp+bottom','ramp']:
+			helixBottom = True
+
+		#Decide exit point
 		exitpoint = self["exitpoint"]
 		if exitpoint == "inside":
 			exitpoint = 1
@@ -771,6 +793,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		else:
 			exitpoint = None
 
+		#Execute cut
 		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, springPass, islandsCompensate)
 		app.setStatus(_("CUT selected paths"))
 
