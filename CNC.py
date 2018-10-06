@@ -806,8 +806,6 @@ class CNC:
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
 		except: pass
-		try: CNC.travel_z       = float(config.get(section, "travel_z"))
-		except: pass
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
 		try: CNC.digits         = int(  config.get(section, "round"))
