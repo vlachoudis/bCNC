@@ -1082,6 +1082,17 @@ class Sender:
 									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
+							elif word[0] == "Pn":
+								try:
+									if 'S' in word[1]:
+										if CNC.vars["state"] == 'Idle':
+											print "Stream requested by CYCLE START machine button"
+											self.event_generate("<<Run>>")
+										else:
+											print "Ignoring machine stream request, because of state: ", CNC.vars["state"]
+								except (ValueError,IndexError):
+									break
+
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
