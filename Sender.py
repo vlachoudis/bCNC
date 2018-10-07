@@ -1085,11 +1085,11 @@ class Sender:
 							elif word[0] == "Pn":
 								try:
 									if 'S' in word[1]:
-										if CNC.vars["state"] == 'Idle':
+										if CNC.vars["state"] == 'Idle' and not self.running:
 											print "Stream requested by CYCLE START machine button"
 											self.event_generate("<<Run>>")
 										else:
-											print "Ignoring machine stream request, because of state: ", CNC.vars["state"]
+											print "Ignoring machine stream request, because of state: ", CNC.vars["state"], self.running
 								except (ValueError,IndexError):
 									break
 
