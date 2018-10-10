@@ -502,13 +502,12 @@ class Sender:
 	def save(self, filename):
 		fn,ext = os.path.splitext(filename)
 		ext = ext.lower()
-		if ext == ".probe":
+		if ext == ".probe" or ext == ".xyz":
 			# save probe
-			if filename is not None:
-				self.gcode.probe.filename = filename
-				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
-				self.gcode.probe.save()
+				self.gcode.probe.save(filename)
+			if filename is not None:
+				self._saveConfigFile()
 		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.save(filename)
