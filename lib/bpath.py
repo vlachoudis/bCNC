@@ -835,17 +835,22 @@ class Path(list):
 			if abs(pdist(seg.midPoint(), C) - r) > prec: return False
 			return True
 
+		def path2arc(tmpath):
+			C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
+			if C is not None:
+				r = pdist(tmpath[0].B, C)
+				arcd = arcdir(tmpath[0], tmpath[1])
+				return C, r, arcd
+			return None, None, None
+
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
 			found = False
 			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
 				tmpath = [self[i],self[i+1]]
-				C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
+				C, r, arcd = path2arc(tmpath)
 				if C is not None:
-					r = pdist(tmpath[0].B, C)
-					arcd = arcdir(tmpath[0], tmpath[1])
-
 					j = i
 					while j < len(self):
 						if not testFit(self[j], prec, C, r): break
