@@ -726,6 +726,7 @@ class CNC:
 			"cutfeedz"   : 500.,	# Material feed for cutting
 			"safe"       : 3.,
 			"state"      : "",
+			"pins"       : "",
 			"msg"        : "",
 			"stepz"      : 1.,
 			"surface"    : 0.,

@@ -1019,6 +1019,7 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
+						CNC.vars["pins"] = ""
 
 						#FIXME: not sure why this was here, but it was breaking stuff
 						#(eg.: pause button #773 and status display)
@@ -1083,6 +1084,7 @@ class Sender:
 									break
 							elif word[0] == "Pn":
 								try:
+									CNC.vars["pins"] = word[1]
 									if 'S' in word[1]:
 										if CNC.vars["state"] == 'Idle' and not self.running:
 											print "Stream requested by CYCLE START machine button"
