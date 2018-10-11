@@ -802,6 +802,7 @@ class Path(list):
         #----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
 		def arcdir(A,B):
+			#FIXME: here is some bug. A and B is not used at all, but it works better this way. Have to figure out what's going on
 			TA = tmpath[0].tangentEnd()
 			TB = tmpath[1].tangentStart()
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
@@ -847,6 +848,7 @@ class Path(list):
 		i = 0
 		while i < len(self):
 			found = False
+			#FIXME: allow to merge lines with existing arcs when arc fitting
 			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
 				tmpath = [self[i],self[i+1]]
 				C, r, arcd = path2arc(tmpath)
@@ -856,6 +858,7 @@ class Path(list):
 						if not testFit(self[j], prec, C, r): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
+						#FIXME: recalculate C and r (Center and radius) each time new segment is added to arc (use mean values for C and r)
 						j += 1
 
 					if len(tmpath) > numseg:
