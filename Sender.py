@@ -58,7 +58,7 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-GPAT	  = re.compile(r"[A-Za-z]\s*-?\d+.*")
+GPAT	  = re.compile(r"[A-Za-z]\s*[-+]?\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
