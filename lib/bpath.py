@@ -828,6 +828,13 @@ class Path(list):
 			except:
 				return None
 
+		def testFit(seg, prec, C, r, dir=None):
+			if seg.type != Segment.LINE: return False
+			if abs(pdist(seg.A, C) - r) > prec: return False
+			if abs(pdist(seg.B, C) - r) > prec: return False
+			if abs(pdist(seg.midPoint(), C) - r) > prec: return False
+			return True
+
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
@@ -841,10 +848,7 @@ class Path(list):
 
 					j = i
 					while j < len(self):
-						if self[j].type != Segment.LINE: break
-						if abs(pdist(self[j].A, C) - r) > prec: break
-						if abs(pdist(self[j].B, C) - r) > prec: break
-						if abs(pdist(self[j].midPoint(), C) - r) > prec: break
+						if not testFit(self[j], prec, C, r): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
 						j += 1
