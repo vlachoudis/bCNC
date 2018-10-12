@@ -802,6 +802,7 @@ class Path(list):
         #----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
 		def arcdir(A,B):
+			#FIXME: here is some bug. A and B is not used at all, but it works better this way. Have to figure out what's going on
 			TA = tmpath[0].tangentEnd()
 			TB = tmpath[1].tangentStart()
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
@@ -828,25 +829,36 @@ class Path(list):
 			except:
 				return None
 
+		def testFit(seg, prec, C, r, dir=None):
+			if seg.type != Segment.LINE: return False
+			if abs(pdist(seg.A, C) - r) > prec: return False
+			if abs(pdist(seg.B, C) - r) > prec: return False
+			if abs(pdist(seg.midPoint(), C) - r) > prec: return False
+			return True
+
+		def path2arc(tmpath):
+			C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
+			if C is not None:
+				r = pdist(tmpath[0].B, C)
+				arcd = arcdir(tmpath[0], tmpath[1])
+				return C, r, arcd
+			return None, None, None
+
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
 			found = False
+			#FIXME: allow to merge lines with existing arcs when arc fitting
 			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
 				tmpath = [self[i],self[i+1]]
-				C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
+				C, r, arcd = path2arc(tmpath)
 				if C is not None:
-					r = pdist(tmpath[0].B, C)
-					arcd = arcdir(tmpath[0], tmpath[1])
-
 					j = i
 					while j < len(self):
-						if self[j].type != Segment.LINE: break
-						if abs(pdist(self[j].A, C) - r) > prec: break
-						if abs(pdist(self[j].B, C) - r) > prec: break
-						if abs(pdist(self[j].midPoint(), C) - r) > prec: break
+						if not testFit(self[j], prec, C, r): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
+						#FIXME: recalculate C and r (Center and radius) each time new segment is added to arc (use mean values for C and r)
 						j += 1
 
 					if len(tmpath) > numseg:

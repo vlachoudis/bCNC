@@ -58,7 +58,7 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-GPAT	  = re.compile(r"[A-Za-z]\d+.*")
+GPAT	  = re.compile(r"[A-Za-z]\s*[-+]?\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
@@ -502,13 +502,12 @@ class Sender:
 	def save(self, filename):
 		fn,ext = os.path.splitext(filename)
 		ext = ext.lower()
-		if ext == ".probe":
+		if ext == ".probe" or ext == ".xyz":
 			# save probe
-			if filename is not None:
-				self.gcode.probe.filename = filename
-				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
-				self.gcode.probe.save()
+				self.gcode.probe.save(filename)
+			if filename is not None:
+				self._saveConfigFile()
 		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.save(filename)
@@ -1020,6 +1019,7 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
+						CNC.vars["pins"] = ""
 
 						#FIXME: not sure why this was here, but it was breaking stuff
 						#(eg.: pause button #773 and status display)
@@ -1084,6 +1084,7 @@ class Sender:
 									break
 							elif word[0] == "Pn":
 								try:
+									CNC.vars["pins"] = word[1]
 									if 'S' in word[1]:
 										if CNC.vars["state"] == 'Idle' and not self.running:
 											print "Stream requested by CYCLE START machine button"

@@ -78,12 +78,12 @@ MAX_HISTORY  = 500
 
 #ZERO = ["G28", "G30", "G92"]
 
-FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
+FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl", "*.svg")),
 		(_("G-Code"),("*.ngc","*.nc", "*.tap", "*.gcode")),
 		(_("G-Code clean"),("*.txt")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
-		(_("Probe"),  "*.probe"),
+		(_("Probe"),  ("*.probe", "*.xyz")),
 		(_("Orient"), "*.orient"),
 		("STL",       "*.stl"),
 		(_("All"),    "*")]

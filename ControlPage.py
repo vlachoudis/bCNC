@@ -325,6 +325,8 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def updateState(self):
 		msg = self.app._msg or CNC.vars["state"]
+		if CNC.vars["pins"] is not None and CNC.vars["pins"] != "":
+			msg += " ["+CNC.vars["pins"]+"]"
 		self.state.config(text=msg, background=CNC.vars["color"])
 
 	#----------------------------------------------------------------------

@@ -217,13 +217,19 @@ class Probe:
 	# Save level information to file
 	#----------------------------------------------------------------------
 	def save(self, filename=None):
-		if filename is not None:
+		if filename is None:
+			filename = self.filename
+
+		fn,ext = os.path.splitext(filename)
+		ext = ext.lower()
+
+		f = open(filename,"w")
+		if ext != '.xyz':
 			self.filename = filename
-		f = open(self.filename,"w")
-		f.write("%g %g %d\n"%(self.xmin, self.xmax, self.xn))
-		f.write("%g %g %d\n"%(self.ymin, self.ymax, self.yn))
-		f.write("%g %g %g\n"%(self.zmin, self.zmax, CNC.vars["prbfeed"]))
-		f.write("\n\n")
+			f.write("%g %g %d\n"%(self.xmin, self.xmax, self.xn))
+			f.write("%g %g %d\n"%(self.ymin, self.ymax, self.yn))
+			f.write("%g %g %g\n"%(self.zmin, self.zmax, CNC.vars["prbfeed"]))
+			f.write("\n\n")
 		for j in range(self.yn):
 			y = self.ymin + self._ystep*j
 			for i in range(self.xn):
@@ -720,6 +726,7 @@ class CNC:
 			"cutfeedz"   : 500.,	# Material feed for cutting
 			"safe"       : 3.,
 			"state"      : "",
+			"pins"       : "",
 			"msg"        : "",
 			"stepz"      : 1.,
 			"surface"    : 0.,
@@ -803,8 +810,6 @@ class CNC:
 		try: CNC.travel_x       = float(config.get(section, "travel_x"))
 		except: pass
 		try: CNC.travel_y       = float(config.get(section, "travel_y"))
-		except: pass
-		try: CNC.travel_z       = float(config.get(section, "travel_z"))
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
 		except: pass
