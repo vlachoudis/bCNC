@@ -11,7 +11,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from operator import itemgetter
-from math import atan, atan2, cos, degrees, pi, sin, sqrt, floor, ceil
+from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 
 EPS   = 1E-7		# strict tolerances for operations
@@ -801,12 +801,15 @@ class Path(list):
         # Return arcfited path
         #----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
-		def arcdir(A,B):
-			TA = A.tangentEnd()
-			TB = B.tangentStart()
+		def vecdir(TA,TB):
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
 				return 1
 			return 0
+
+		def arcdir(A,B):
+			TA = A.tangentEnd()
+			TB = B.tangentStart()
+			return vecdir(TA,TB)
 
 		def pdist(A,B):
 			return sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
@@ -828,12 +831,39 @@ class Path(list):
 			except:
 				return None
 
+		def arcd2seg(arcd):
+			if arcd:
+				return Segment.CW
+			return Segment.CCW
+
 		def testFit(path, prec, C, r, dir=None):
+			#Small radiuses need more precision
+			prec = min(prec, r/4)
+
+			#arc = Segment(arcd2seg(arcd), path[0].A, path[-1].B, C)
+			#if len(path) > 1 and abs(path.length() - arc.length()) > prec: return False
+
+			#for i in range(1,len(path)):
+				#TA = path[i-1].tangentEnd()
+				#TB = path[i].tangentStart()
+				#if degrees(abs(acos(TA.dot(TB)))) > 1: return False
+				#if arcdir(path[i-1], path[i]) != dir:
+				#	print "wrong direction, bug in algo"
+				#	return False
+
 			for seg in path:
 				if seg.type != Segment.LINE: return False
 				if abs(pdist(seg.A, C) - r) > prec: return False
 				if abs(pdist(seg.B, C) - r) > prec: return False
 				if abs(pdist(seg.midPoint(), C) - r) > prec: return False
+
+				#Test wraparound
+				CV = C - seg.midPoint()
+				CV.normalize()
+				if vecdir(seg.tangentStart(), CV) != dir:
+					print "wrapped around"
+					return False
+
 			return True
 
 		def path2arc(tmpath):
@@ -861,6 +891,12 @@ class Path(list):
 
 			return C, r, arcd
 
+		def path2gc(path):
+			print "(Block-name: debug)"
+			print "g0 x%f y%f"%(path[0].A[0], path[0].A[1])
+			for seg in path:
+				print "g1 x%f y%f"%(seg.B[0], seg.B[1])
+
 
 		#Debug
 		#arcd = arcdir(self[-1], self[0])
@@ -877,16 +913,17 @@ class Path(list):
 			found = False
 			#FIXME: allow to merge lines with existing arcs when arc fitting
 			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
-				tmpath = [self[i],self[i+1]]
+				tmpath = Path('tmp')
+				tmpath.extend([self[i],self[i+1]])
 				C, r, arcd = path2arc(tmpath)
 				if C is not None:
 					j = i+2
 					while j < len(self):
-						if not testFit([self[j]], prec, C, r): break
+						if not testFit([self[j]], prec, C, r, arcd): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
 						Co, ro, ign = path2arc(tmpath)
-						if testFit(tmpath, prec, Co, ro):
+						if testFit(tmpath, prec, Co, ro, arcd):
 							#print "upd", len(tmpath), C, r, Co, ro
 							C, r = Co, ro
 						j += 1
@@ -894,13 +931,9 @@ class Path(list):
 					if len(tmpath) > numseg:
 						found = True
 						#npath.extend(tmpath)
-						if arcd:
-							arcd = Segment.CW
-						else:
-							arcd = Segment.CCW
-
 						#npath.append(Segment(Segment.LINE, tmpath[0].A, tmpath[-1].B))
-						npath.append(Segment(arcd, tmpath[0].A, tmpath[-1].B, C))
+						npath.append(Segment(arcd2seg(arcd), tmpath[0].A, tmpath[-1].B, C))
+						#path2gc(tmpath)
 						i = j
 
 			if not found:
