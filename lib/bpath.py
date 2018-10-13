@@ -802,9 +802,8 @@ class Path(list):
         #----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
 		def arcdir(A,B):
-			#FIXME: here is some bug. A and B is not used at all, but it works better this way. Have to figure out what's going on
-			TA = tmpath[0].tangentEnd()
-			TB = tmpath[1].tangentStart()
+			TA = A.tangentEnd()
+			TB = B.tangentStart()
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
 				return 1
 			return 0
@@ -844,6 +843,16 @@ class Path(list):
 				return C, r, arcd
 			return None, None, None
 
+
+		#Debug
+		#arcd = arcdir(self[-1], self[0])
+		#for i in range(1,len(self)):
+		#	narcd = arcdir(self[i-1], self[i])
+		#	if narcd != arcd:
+		#		print(arcd, narcd, self[i].A)
+		#	arcd = narcd
+
+
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
@@ -853,7 +862,7 @@ class Path(list):
 				tmpath = [self[i],self[i+1]]
 				C, r, arcd = path2arc(tmpath)
 				if C is not None:
-					j = i
+					j = i+2
 					while j < len(self):
 						if not testFit(self[j], prec, C, r): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
