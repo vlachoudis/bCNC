@@ -82,6 +82,7 @@ class Tool(Plugin):
 		allBlocks = app.gcode.blocks
 
 		for bid in selectedBlock:
+#			print("len", bid)
 			bidSegments = []
 			block = allBlocks[bid]
 			if block.name() in ("Header", "Footer"): continue
@@ -150,34 +151,34 @@ class Tool(Plugin):
 		allSegments = self.extractAllSegments(app,selBlocks)
 
 		#Create holes locations
-#		allHoles=[]
+		all_blocks=[]
 		for bidSegment in allSegments:
 			if len(bidSegment)==0:
 				continue
-		blocks = []
-		n = self["name"]
-#		if not n or n=="default": n="Trochoidal_3D"
-		n="Scaling"
-		scal_block = Block(n)
+	#		all_blocks = []
+			n = self["name"]
+	#		if not n or n=="default": n="Trochoidal_3D"
+			n="Scaling"
+			bid_block = Block(n)
 
-		for idx, segm in enumerate(bidSegment):
-			if idx >= 0:
+			for idx, segm in enumerate(bidSegment):
+	#			if idx >= 0:
+	#			bid_block.append("(idx "+str(idx)+" -------------- )")
 				if idx == 0:
-					scal_block.append("M03")
-					scal_block.append("S "+str(rpm))
-					scal_block.append(CNC.zsafe())
-					scal_block.append("F "+str(feed))
-					scal_block.append("(--------------------------------------------------)")
-
+					bid_block.append("M03")
+					bid_block.append("S "+str(rpm))
+					bid_block.append(CNC.zsafe())
+					bid_block.append("F "+str(feed))
+					bid_block.append("(-------------------)")
 				B=self.scaling(segm)
 
 				if segm[0][2]> surface and segm[1][2]>=surface:
-					scal_block.append("g0 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
+					bid_block.append("g0 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
 				else:
-					scal_block.append("g1 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
-		scal_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
-		blocks.append(scal_block)
-		self.finish_blocks(app, blocks)
+					bid_block.append("g1 x "+str(B[0])+" y "+str(B[1])+ " z "+str(B[2]))
+			bid_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
+			all_blocks.append(bid_block)
+		self.finish_blocks(app, all_blocks)
 	#--------------------------------------------------------------
 
 
