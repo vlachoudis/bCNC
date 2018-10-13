@@ -828,20 +828,38 @@ class Path(list):
 			except:
 				return None
 
-		def testFit(seg, prec, C, r, dir=None):
-			if seg.type != Segment.LINE: return False
-			if abs(pdist(seg.A, C) - r) > prec: return False
-			if abs(pdist(seg.B, C) - r) > prec: return False
-			if abs(pdist(seg.midPoint(), C) - r) > prec: return False
+		def testFit(path, prec, C, r, dir=None):
+			for seg in path:
+				if seg.type != Segment.LINE: return False
+				if abs(pdist(seg.A, C) - r) > prec: return False
+				if abs(pdist(seg.B, C) - r) > prec: return False
+				if abs(pdist(seg.midPoint(), C) - r) > prec: return False
 			return True
 
 		def path2arc(tmpath):
-			C = circle3center(tmpath[0].A, tmpath[0].B, tmpath[1].B)
-			if C is not None:
-				r = pdist(tmpath[0].B, C)
-				arcd = arcdir(tmpath[0], tmpath[1])
-				return C, r, arcd
-			return None, None, None
+			#Find direction
+			arcd = arcdir(tmpath[0], tmpath[1])
+
+			#Find center
+			cnt = 0
+			C = Vector(0,0)
+			for i in range(1, len(tmpath)):
+				Ct = circle3center(tmpath[i-1].A, tmpath[i-1].B, tmpath[i].B)
+				if Ct is not None:
+					cnt += 1
+					C += Ct
+			if cnt < 1:
+				return None, None, None
+			C /= cnt
+
+			#Find radius
+			r = 0
+			for seg in tmpath:
+				r += pdist(seg.A, C)
+				r += pdist(seg.B, C)
+			r /= len(tmpath)*2
+
+			return C, r, arcd
 
 
 		#Debug
@@ -864,10 +882,13 @@ class Path(list):
 				if C is not None:
 					j = i+2
 					while j < len(self):
-						if not testFit(self[j], prec, C, r): break
+						if not testFit([self[j]], prec, C, r): break
 						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
-						#FIXME: recalculate C and r (Center and radius) each time new segment is added to arc (use mean values for C and r)
+						Co, ro, ign = path2arc(tmpath)
+						if testFit(tmpath, prec, Co, ro):
+							#print "upd", len(tmpath), C, r, Co, ro
+							C, r = Co, ro
 						j += 1
 
 					if len(tmpath) > numseg:
