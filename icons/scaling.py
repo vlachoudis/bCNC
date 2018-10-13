@@ -31,7 +31,7 @@ class Tool(Plugin):
 	__doc__ = _("Scaling the selected block")
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Scaling")
-		self.icon  = "scale"
+		self.icon  = "scaling"
 		self.group = "CAM"
 
 		self.variables = [
