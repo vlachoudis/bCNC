@@ -968,6 +968,7 @@ class Path(list):
 					#if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
 
 					#Test if we do not divert too far from original direction (within specified precision)
+					#FIXME: reevaluate fit for each added segment, do not stick to original tangent only.
 					teorend = tmpath[0].A + (tmpath[0].tangentStart() * plen)
 					teordst = teorend - self[j].B
 					teordst = sqrt(teordst[0]**2 + teordst[1]**2)

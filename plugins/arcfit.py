@@ -40,6 +40,7 @@ This plugin can reverse the output of "linearize" plugin, which does the opposit
 This is not really meant to fillet sharp corners. But rather to reduce the number of g-code lines while preserving the toolpath shape.
 This can be also useful for postprocessing of imported splines. Splines have to be subdivided to short lines when importing and this can simplify the resulting code.
 Another usecase is to postprocess mesh slices as STL/PLY format is based on triangles, it will never perfectly describe circles and arcs. You can use this plugin to simplify/smooth shapes imported from 3D mesh files.
+Before this plugin tries to fit arcs it also tries to fit and merge longest possible lines within given precision.
 """
 
 
