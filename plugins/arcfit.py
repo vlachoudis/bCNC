@@ -30,7 +30,7 @@ class Tool(Plugin):
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("preci", "mm", 0.5, _("precision (mm)")),
-			("numseg", "int", 2, _("minimal number of segments to create arc"))
+			("numseg", "int", 3, _("minimal number of segments to create arc"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 
