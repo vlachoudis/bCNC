@@ -953,11 +953,8 @@ class Path(list):
 			if self[i].type == Segment.LINE:
 				tmpath = Path('tmp')
 				tmpath.extend([self[i]])
-				plen = tmpath.length()
 				j = i+1
 				while(j < len(self)):
-					plen += self[j].length()
-
 					#Test if next segment is line
 					if not self[j].type == Segment.LINE: break
 
@@ -967,12 +964,12 @@ class Path(list):
 					#Test if lines are EXACTLY parallel (not a good idea, we want little bit of give)
 					#if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
 
-					#Test if we do not divert too far from original direction (within specified precision)
-					#FIXME: reevaluate fit for each added segment, do not stick to original tangent only.
-					teorend = tmpath[0].A + (tmpath[0].tangentStart() * plen)
-					teordst = teorend - self[j].B
-					teordst = sqrt(teordst[0]**2 + teordst[1]**2)
-					if teordst > prec: break
+					#Test if no point diverts too far from proposed fited line (within specified precision)
+					fit = Segment(Segment.LINE, tmpath[0].A, self[j].B)
+					toofar = False
+					for seg in tmpath:
+						if fit.distance(seg.B) > prec: toofar = True
+					if toofar: break
 
 					tmpath.append(self[j])
 					j += 1
