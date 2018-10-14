@@ -64,6 +64,10 @@ Another usecase is to postprocess mesh slices as STL/PLY format is based on tria
 			opath = app.gcode.toPath(bid)[0]
 			npath = opath.mergeLines(preci)
 			npath = npath.arcFit(preci, numseg)
+			if npath.length() <= 0:
+				#FIXME: not sure how this could happen
+				print "Warning: ignoring zero length path!"
+				continue
 			eblock = app.gcode.fromPath(npath,eblock)
 			blocks.append(eblock)
 

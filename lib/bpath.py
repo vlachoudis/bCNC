@@ -861,7 +861,7 @@ class Path(list):
 				CV = C - seg.midPoint()
 				CV.normalize()
 				if vecdir(seg.tangentStart(), CV) != dir:
-					print "wrapped around"
+					#print "wrapped around"
 					return False
 
 			return True
