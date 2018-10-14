@@ -33,6 +33,14 @@ class Tool(Plugin):
 			("numseg", "int", 3, _("minimal number of segments to create arc"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
+		self.help = """
+This plugin will try to simplify the g-code by replacing amounts of short subsequent lines by one long arc.
+There are some precision tunables which will allow you to define how much the resulting arc can differ from orignal lines.
+This plugin can reverse the output of "linearize" plugin, which does the opposite.
+This is not really meant to fillet sharp corners. But rather to reduce the number of g-code lines while preserving the toolpath shape.
+This can be also useful for postprocessing of imported splines. Splines have to be subdivided to short lines when importing and this can simplify the resulting code.
+Another usecase is to postprocess mesh slices as STL/PLY format is based on triangles, it will never perfectly describe circles and arcs. You can use this plugin to simplify/smooth shapes imported from 3D mesh files.
+"""
 
 
 	# ----------------------------------------------------------------------
