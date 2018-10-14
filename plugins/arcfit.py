@@ -29,8 +29,8 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("preci", "mm", 0.5, _("arc precision (mm)")),
-			("linpreci", "mm", 0.001, _("line precision (mm)")),
+			("preci", "mm", 0.5, _("arc precision (mm)"), _("how precisely must arc fit. set to 0 to disable arc fitting")),
+			("linpreci", "mm", 0.001, _("line precision (mm)"), _("how precisely must line fit. set to 0 to disable line fitting, but at least some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can be fit")),
 			("numseg", "int", 3, _("minimal number of segments to create arc"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
@@ -43,7 +43,6 @@ This can be also useful for postprocessing of imported splines. Splines have to 
 Another usecase is to postprocess mesh slices as STL/PLY format is based on triangles, it will never perfectly describe circles and arcs. You can use this plugin to simplify/smooth shapes imported from 3D mesh files.
 Before this plugin tries to fit arcs it also tries to fit and merge longest possible lines within given precision. Line precision should be set much lower than arc precision, otherwise the line merging algorithm will "eat" lines that belong to arcs. Unless you want to do massive shape simplification and don't mind loosing details.
 """
-
 
 	# ----------------------------------------------------------------------
 	# This method is executed when user presses the plugin execute button
