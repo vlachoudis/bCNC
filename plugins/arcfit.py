@@ -29,7 +29,8 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("preci", "mm", 0.5, _("precision (mm)")),
+			("preci", "mm", 0.5, _("arc precision (mm)")),
+			("linpreci", "mm", 0.001, _("line precision (mm)")),
 			("numseg", "int", 3, _("minimal number of segments to create arc"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
@@ -40,7 +41,7 @@ This plugin can reverse the output of "linearize" plugin, which does the opposit
 This is not really meant to fillet sharp corners. But rather to reduce the number of g-code lines while preserving the toolpath shape.
 This can be also useful for postprocessing of imported splines. Splines have to be subdivided to short lines when importing and this can simplify the resulting code.
 Another usecase is to postprocess mesh slices as STL/PLY format is based on triangles, it will never perfectly describe circles and arcs. You can use this plugin to simplify/smooth shapes imported from 3D mesh files.
-Before this plugin tries to fit arcs it also tries to fit and merge longest possible lines within given precision.
+Before this plugin tries to fit arcs it also tries to fit and merge longest possible lines within given precision. Line precision should be set much lower than arc precision, otherwise the line merging algorithm will "eat" lines that belong to arcs. Unless you want to do massive shape simplification and don't mind loosing details.
 """
 
 
@@ -49,6 +50,7 @@ Before this plugin tries to fit arcs it also tries to fit and merge longest poss
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		preci = self.fromMm("preci")
+		linpreci = self.fromMm("linpreci")
 		numseg = self["numseg"]
 
 		#print("go!")
@@ -63,7 +65,7 @@ Before this plugin tries to fit arcs it also tries to fit and merge longest poss
 
 			eblock = Block("fit "+app.gcode[bid].name())
 			opath = app.gcode.toPath(bid)[0]
-			npath = opath.mergeLines(preci)
+			npath = opath.mergeLines(linpreci)
 			npath = npath.arcFit(preci, numseg)
 			if npath.length() <= 0:
 				#FIXME: not sure how this could happen
