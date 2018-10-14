@@ -946,19 +946,32 @@ class Path(list):
         # Return path with merged adjacent lines. It's good to use before arc fiting
         #----------------------------------------------------------------------
 	def mergeLines(self, prec=0.5):
-		#FIXME: use precision (currently stuff within eq() is merged)
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
 			found = False
 			if self[i].type == Segment.LINE:
-				tmpath = [self[i]]
+				tmpath = Path('tmp')
+				tmpath.extend([self[i]])
+				plen = tmpath.length()
 				j = i+1
 				while(j < len(self)):
+					plen += self[j].length()
+
+					#Test if next segment is line
 					if not self[j].type == Segment.LINE: break
-					TB = self[j].tangentEnd()
+
+					#Test if there is continuity between lines
 					if not eq(tmpath[-1].B, self[j].A): break
-					if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
+
+					#Test if lines are EXACTLY parallel (not a good idea, we want little bit of give)
+					#if not eq(tmpath[0].tangentEnd(), self[j].tangentEnd()): break
+
+					#Test if we do not divert too far from original direction (within specified precision)
+					teorend = tmpath[0].A + (tmpath[0].tangentStart() * plen)
+					teordst = teorend - self[j].B
+					teordst = sqrt(teordst[0]**2 + teordst[1]**2)
+					if teordst > prec: break
 
 					tmpath.append(self[j])
 					j += 1
