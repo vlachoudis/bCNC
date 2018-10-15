@@ -806,10 +806,15 @@ class Path(list):
 				return 1
 			return 0
 
-		def arcdir(A,B):
+		def arcsteer(A,B):
 			TA = A.tangentEnd()
 			TB = B.tangentStart()
 			return vecdir(TA,TB)
+
+		def arcdir(seg, C):
+			CV = C - seg.midPoint()
+			CV.normalize()
+			return vecdir(seg.tangentStart(), CV)
 
 		def pdist(A,B):
 			return sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
@@ -843,33 +848,21 @@ class Path(list):
 			#arc = Segment(arcd2seg(arcd), path[0].A, path[-1].B, C)
 			#if len(path) > 1 and abs(path.length() - arc.length()) > prec: return False
 
-			#for i in range(1,len(path)):
-				#TA = path[i-1].tangentEnd()
-				#TB = path[i].tangentStart()
-				#if degrees(abs(acos(TA.dot(TB)))) > 1: return False
-				#if arcdir(path[i-1], path[i]) != dir:
-				#	print "wrong direction, bug in algo"
-				#	return False
-
 			for seg in path:
 				if seg.type != Segment.LINE: return False
 				if abs(pdist(seg.A, C) - r) > prec: return False
 				if abs(pdist(seg.B, C) - r) > prec: return False
 				if abs(pdist(seg.midPoint(), C) - r) > prec: return False
 
-				#Test wraparound
-				CV = C - seg.midPoint()
-				CV.normalize()
-				if vecdir(seg.tangentStart(), CV) != dir:
-					#print "wrapped around"
+				#Test direction
+				if arcdir(seg, C) != dir:
+					#print "wrong direction"
 					return False
 
 			return True
 
-		def path2arc(tmpath):
-			#Find direction
-			arcd = arcdir(tmpath[0], tmpath[1])
 
+		def path2arc(tmpath):
 			#Find center
 			cnt = 0
 			C = Vector(0,0)
@@ -881,6 +874,9 @@ class Path(list):
 			if cnt < 1:
 				return None, None, None
 			C /= cnt
+
+			#Find direction
+			arcd = arcdir(tmpath[0], C)
 
 			#Find radius
 			r = 0
@@ -898,15 +894,6 @@ class Path(list):
 				print "g1 x%f y%f"%(seg.B[0], seg.B[1])
 
 
-		#Debug
-		#arcd = arcdir(self[-1], self[0])
-		#for i in range(1,len(self)):
-		#	narcd = arcdir(self[i-1], self[i])
-		#	if narcd != arcd:
-		#		print(arcd, narcd, self[i].A)
-		#	arcd = narcd
-
-
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
@@ -921,7 +908,6 @@ class Path(list):
 					j = i+2
 					while j < len(self):
 						if not testFit([self[j]], prec, C, r, arcd): break
-						if arcdir(tmpath[-1],self[j]) != arcd: break
 						tmpath.append(self[j])
 						Co, ro, ign = path2arc(tmpath)
 						if testFit(tmpath, prec, Co, ro, arcd):

@@ -63,8 +63,8 @@ Before this plugin tries to fit arcs it also tries to fit and merge longest poss
 			#blocks.append(nblock)
 
 			eblock = Block("fit "+app.gcode[bid].name())
-			opath = app.gcode.toPath(bid)[0]
-			npath = opath.mergeLines(linpreci)
+			npath = app.gcode.toPath(bid)[0]
+			npath = npath.mergeLines(linpreci)
 			npath = npath.arcFit(preci, numseg)
 			if npath.length() <= 0:
 				#FIXME: not sure how this could happen
