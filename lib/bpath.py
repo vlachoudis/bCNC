@@ -842,6 +842,8 @@ class Path(list):
 			return Segment.CCW
 
 		def testFit(path, prec, C, r, dir=None):
+			if C is None or r is None: return False
+
 			#Small radiuses need more precision
 			prec = min(prec, r/4)
 
@@ -903,8 +905,8 @@ class Path(list):
 				tmpath = Path('tmp')
 				tmpath.extend([self[i],self[i+1]])
 				C, r, arcd = path2arc(tmpath)
-				#FIXME: define arc without need for arcd, so we can fit arcs without fiting lines first
-				if C is not None and testFit(tmpath, prec, C, r, arcd):
+				#FIXME: define arc in way that would enable us to fit arcs without fitting lines first
+				if testFit(tmpath, prec, C, r, arcd):
 					j = i+2
 					while j < len(self):
 						if not testFit([self[j]], prec, C, r, arcd): break
