@@ -29,10 +29,18 @@ class Tool(Plugin):
 		#Name, Type , Default value, Description
 		self.variables = [			#<<< Define a list of components for the GUI
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
-			("maxseg", "mm", "1", _("segment size")),
-			("splitlines", "bool", False, _("subdiv lines"))
+			("maxseg", "mm", "1", _("segment size"), _("Maximal length of resulting lines, smaller number means more precise output and longer g-code. Length will be automaticaly truncated to be even across whole subdivided segment.")),
+			("splitlines", "bool", False, _("subdiv lines"), _("Also subdivide the lines. Otherwise only arcs and splines will be subdivided"))
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
+		self.help = """
+This plugin will subdivide the toolpath in such way, that all segments are broken to very short lines, which means that there will be no arcs or splines.
+This is exact opposite of "arcfit" plugin. This is not very usefull for common CNC operation. However this might be useful when you need to proces arcs in CAD/CAM software which only support straight lines.
+It usualy happens that new development features and plugins in bCNC only support straight lines and they add support for arcs later. So if you are early adopter of development features or encounter arc-related bug, you might try to use this plugin to convert your g-code to lines before working using these new features.
+Also if you are working with some primitive motion controller, which only supports straight lines (G1). You might use this plugin to preprocess the g-code to get support for arcs (G2 and G3).
+
+If you set the segment size large enough, you can even use this to create inscribed polygons in arcs and circles.
+"""
 
 
 	# ----------------------------------------------------------------------
