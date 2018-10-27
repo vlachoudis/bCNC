@@ -192,7 +192,7 @@ PLY (ASCII only)
 			block.append("g0 x%f y%f z%f"%(first[0],first[1],first[2]))
 			for segment in contour:
 				block.append("g1 x%f y%f z%f"%(segment[0],segment[1],segment[2]))
-			block.append("g1 x%f y%f z%f"%(first[0],first[1],segment[2]))
+			block.append("g1 x%f y%f z%f"%(first[0],first[1],first[2]))
 			block.append("( ---------- cut-here ---------- )")
 		if block: del block[-1]
 
