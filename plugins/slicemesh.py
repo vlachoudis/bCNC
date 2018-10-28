@@ -188,11 +188,11 @@ PLY (ASCII only)
 		#Contours to G-code
 		for contour in contours:
 			#print(contour)
-			first = contour[0]
-			block.append("g0 x%f y%f z%f"%(first[0],first[1],first[2]))
+			gtype = 0
 			for segment in contour:
-				block.append("g1 x%f y%f z%f"%(segment[0],segment[1],segment[2]))
-			block.append("g1 x%f y%f z%f"%(first[0],first[1],first[2]))
+				block.append("g%s x%f y%f z%f"%(gtype, segment[0],segment[1],segment[2]))
+				gtype = 1
+			block.append("g1 x%f y%f z%f"%(contour[0][0],contour[0][1],contour[0][2])) #Close shape
 			block.append("( ---------- cut-here ---------- )")
 		if block: del block[-1]
 
