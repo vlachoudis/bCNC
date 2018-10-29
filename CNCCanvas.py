@@ -14,7 +14,7 @@ except ImportError:
 	from tkinter import *
 	import tkinter as Tkinter
 
-from CNC import Tab, CNC
+from CNC import CNC
 import Utils
 import Camera
 import tkExtra
@@ -30,6 +30,8 @@ try:
 except:
 	numpy    = None
 	RESAMPLE = None
+
+ANTIALIAS_CHEAP = True
 
 VIEW_XY   = 0
 VIEW_XZ   = 1
@@ -87,8 +89,6 @@ ACTION_WPOS          = 23
 ACTION_RULER         = 30
 ACTION_ADDORIENT     = 31
 
-#ACTION_ADDTAB        = 40
-
 SHIFT_MASK   = 1
 CONTROL_MASK = 4
 ALT_MASK     = 8
@@ -116,8 +116,6 @@ MOUSE_CURSOR = {
 #	ACTION_VIEW_MOVE     : "fleur",
 #	ACTION_VIEW_ROTATE   : "exchange",
 
-#	ACTION_ADDTAB        : "tcross",
-
 	ACTION_MOVE          : "hand1",
 	ACTION_ROTATE        : "exchange",
 	ACTION_GANTRY        : "target",
@@ -142,7 +140,7 @@ class AlarmException(Exception):
 #==============================================================================
 # Drawing canvas
 #==============================================================================
-class CNCCanvas(Canvas):
+class CNCCanvas(Canvas, object):
 	def __init__(self, master, app, *kw, **kwargs):
 		Canvas.__init__(self, master, *kw, **kwargs)
 
@@ -190,7 +188,6 @@ class CNCCanvas(Canvas):
 #		self.bind('<Key-o>',		self.setActionOrigin)
 #		self.bind('<Key-r>',		self.setActionRuler)
 #		self.bind('<Key-s>',		self.setActionSelect)
-##		self.bind('<Key-t>',		self.setActionAddTab)
 #		self.bind('<Key-x>',		self.setActionPan)
 		self.bind('<Key>',		self.handleKey)
 
@@ -254,9 +251,6 @@ class CNCCanvas(Canvas):
 		self._cameraCircle   = None
 		self._cameraCircle2  = None
 
-		self._tab         = None
-		self._tabRect     = None
-
 		self.draw_axes    = True		# Drawing flags
 		self.draw_grid    = True
 		self.draw_margin  = True
@@ -275,6 +269,44 @@ class CNCCanvas(Canvas):
 		#self.config(xscrollincrement=1, yscrollincrement=1)
 		self.reset()
 		self.initPosition()
+
+	#Calculate arguments for antialiasing
+	def antialias_args(self, args, winc=0.5, cw=2):
+		nargs = {}
+
+		#set defaults
+		nargs['width'] = 1
+		nargs['fill'] = "#000"
+
+		#get original args
+		for arg in args:
+			nargs[arg] = args[arg]
+		if nargs['width'] == 0:
+			nargs['width'] = 1
+
+		#calculate width
+		nargs['width'] += winc
+
+		#calculate color
+		#cbg = self.winfo_rgb(CANVAS_COLOR)
+		cbg = self.winfo_rgb(self.cget("bg"))
+		cfg = list(self.winfo_rgb(nargs['fill']))
+		#print cbg, cfg
+		cfg[0] = (cfg[0] + cbg[0]*cw)/(cw+1)
+		cfg[1] = (cfg[1] + cbg[1]*cw)/(cw+1)
+		cfg[2] = (cfg[2] + cbg[2]*cw)/(cw+1)
+		nargs['fill'] = '#%02x%02x%02x' % (cfg[0]/256, cfg[1]/256, cfg[2]/256)
+		#nargs['fill'] = '#AAA'
+		#print cfg, nargs['fill']
+
+		return nargs
+
+	#Override alias method if antialiasing enabled:
+	if ANTIALIAS_CHEAP:
+		def create_line(self, *args, **kwargs):
+			nkwargs = self.antialias_args(kwargs)
+			super(CNCCanvas, self).create_line(*args, **nkwargs)
+			return super(CNCCanvas, self).create_line(*args, **kwargs)
 
 	# ----------------------------------------------------------------------
 	def reset(self):
@@ -331,8 +363,6 @@ class CNCCanvas(Canvas):
 			self.setActionRuler()
 		elif event.char == "s":
 			self.setActionSelect()
-#		elif event.char == "t":
-#			self.setActionAddTab()
 		elif event.char == "x":
 			self.setActionPan()
 		elif event.char == "z":
@@ -396,11 +426,6 @@ class CNCCanvas(Canvas):
 	def setActionAddMarker(self, event=None):
 		self.setAction(ACTION_ADDORIENT)
 		self.status(_("Add an orientation marker"))
-
-#	# ----------------------------------------------------------------------
-#	def setActionAddTab(self, event=None):
-#		self.setAction(ACTION_ADDTAB)
-#		self.status(_("Draw a square tab"))
 
 	# ----------------------------------------------------------------------
 	# Convert canvas cx,cy coordinates to machine space
@@ -548,23 +573,6 @@ class CNCCanvas(Canvas):
 		elif self.action == ACTION_PAN:
 			self.pan(event)
 
-#		# Add tab
-#		elif self.action == ACTION_ADDTAB:
-#			i = self.canvasx(event.x)
-#			j = self.canvasy(event.y)
-#			x,y,z = self.canvas2xyz(i,j)
-#			x = round(x,CNC.digits)
-#			y = round(y,CNC.digits)
-#			z = round(z,CNC.digits)
-#			# use the same z as the last tab added in gcode
-#			if self.gcode.tabs: z = self.gcode.tabs[-1].z
-#			self._tab = Tab(x,y,x,y,z)
-#			self._tabRect = self._drawRect(
-#						self._tab.x-self._tab.dx, self._tab.y-self._tab.dy,
-#						self._tab.x+self._tab.dx, self._tab.y+self._tab.dy,
-#						fill=TAB_COLOR)
-#			self._mouseAction = self.action
-
 	# ----------------------------------------------------------------------
 	# Canvas motion button 1
 	# ----------------------------------------------------------------------
@@ -611,19 +619,6 @@ class CNCCanvas(Canvas):
 
 		elif self._mouseAction == ACTION_PAN:
 			self.pan(event)
-
-		# Resize tab
-#		elif self._mouseAction == ACTION_ADDTAB:
-#			i = self.canvasx(event.x)
-#			j = self.canvasy(event.y)
-#			x,y,z = self.canvas2xyz(i,j)
-#			x = round(x,CNC.digits)
-#			y = round(y,CNC.digits)
-#			self._tab.xmax = x
-#			self._tab.ymax = y
-#			self._rectCoords(self._tabRect,
-#					self._tab.x-self._tab.dx, self._tab.y-self._tab.dy,
-#					self._tab.x+self._tab.dx, self._tab.y+self._tab.dy)
 
 		self.setMouseStatus(event)
 
@@ -689,15 +684,6 @@ class CNCCanvas(Canvas):
 
 		elif self._mouseAction == ACTION_PAN:
 			self.panRelease(event)
-
-#		# Finalize tab
-#		elif self._mouseAction == ACTION_ADDTAB:
-#			self._tab.correct()
-#			self.gcode.addUndo(self.gcode.addTabUndo(-1,self._tab))
-#			self._tab = None
-#			self._tabRect = None
-#			self.setActionSelect()
-#			self.event_generate("<<TabAdded>>")
 
 	# ----------------------------------------------------------------------
 	def double(self, event):
@@ -1057,21 +1043,11 @@ class CNCCanvas(Canvas):
 					if path is not None:
 						self.addtag_withtag(sel, path)
 				sel = block.enable and "sel3" or "sel4"
-				for tab in block.tabs:
-					path = tab.path
-					if path is not None:
-						self.addtag_withtag(sel, tab.path)
 
 			elif isinstance(i,int):
 				path = block.path(i)
 				if path:
 					sel = block.enable and "sel" or "sel2"
-					self.addtag_withtag(sel, path)
-
-			elif isinstance(i,Tab):
-				path = i.path
-				if path:
-					sel = block.enable and "sel3" or "sel4"
 					self.addtag_withtag(sel, path)
 
 		self.itemconfig("sel",  width=2, fill=SELECT_COLOR)
@@ -1762,30 +1738,7 @@ class CNCCanvas(Canvas):
 				else: selected = False
 				start = True	# start location found
 				block.resetPath()
-				# Draw block tabs
-				if self.draw_paths:
-					for tab in block.tabs:
-						#from bpath import Path
-						#if not isinstance(tab.path, Path):
-						#	print("cnv not bpath: ", type(tab.path))
-						#	continue
 
-						#Set width and color for tabs
-						#FIXME: For some reason the width/color updates only when i manualy click redraw button
-						if block.enable:
-							width = 2
-							if selected:
-								color = TABS_COLOR
-							else:
-								color = TAB_COLOR
-						else:
-							width = 1
-							color = DISABLE_COLOR
-
-						#Draw
-						item = self._drawPath(tab.path,	0., fill=color, width=width)
-						self._items[item[0]] = i,tab
-						self.tag_lower(item)
 				# Draw block
 				for j,line in enumerate(block):
 					n -= 1
