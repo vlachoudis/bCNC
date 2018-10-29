@@ -871,6 +871,10 @@ class Path(list):
 
 
 		def path2arc(tmpath):
+			#Test if all segments are lines
+			for seg in tmpath:
+				if seg.type != Segment.LINE: return None, None, None
+
 			#Find center
 			cnt = 0
 			C = Vector(0,0)
@@ -907,13 +911,13 @@ class Path(list):
 		while i < len(self):
 			found = False
 			#FIXME: allow to merge lines with existing arcs when arc fitting
-			if i+1 < len(self) and self[i].type == Segment.LINE and self[i+1].type == Segment.LINE:
+			if i+numseg <= len(self):
 				tmpath = Path('tmp')
-				tmpath.extend([self[i],self[i+1]])
+				tmpath.extend(self[i:i+numseg])
 				C, r, arcd = path2arc(tmpath)
 				#FIXME: define arc in way that would enable us to fit arcs without fitting lines first
 				if testFit(tmpath, prec, C, r, arcd):
-					j = i+2
+					j = i+numseg
 					while j < len(self):
 						if not testFit([self[j]], prec, C, r, arcd): break
 						tmpath.append(self[j])
