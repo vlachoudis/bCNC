@@ -905,7 +905,7 @@ class Path(list):
 			for seg in path:
 				print "g1 x%f y%f"%(seg.B[0], seg.B[1])
 
-
+		numseg = max(2,numseg)
 		npath = Path(self.name, self.color)
 		i = 0
 		while i < len(self):
@@ -930,7 +930,7 @@ class Path(list):
 							C, r = Co, ro
 						j += 1
 
-					if len(tmpath) > numseg:
+					if len(tmpath) >= numseg:
 						found = True
 						#npath.extend(tmpath)
 						#npath.append(Segment(Segment.LINE, tmpath[0].A, tmpath[-1].B))
