@@ -847,9 +847,15 @@ class Path(list):
 			#Small radiuses need more precision
 			prec = min(prec, r/4)
 
-			#arc = Segment(arcd2seg(arcd), path[0].A, path[-1].B, C)
-			#if len(path) > 1 and abs(path.length() - arc.length()) > prec: return False
+			#Check if there are no parts of arc going far away from the original lines
+			#FIXME: currently only comparing lenghts and middle points
+			if len(path) > 1:
+				path._length = None
+				arc = Segment(arcd2seg(arcd), path[0].A, path[-1].B, C)
+				if abs(path.length() - arc.length()) > prec: return False
+				if pdist(path.distPoint(path.length()/2), arc.midPoint()) > prec: return False
 
+			#Check if there are no original lines going far away from arc
 			for seg in path:
 				if seg.type != Segment.LINE: return False
 				if abs(pdist(seg.A, C) - r) > prec: return False
@@ -911,6 +917,9 @@ class Path(list):
 					while j < len(self):
 						if not testFit([self[j]], prec, C, r, arcd): break
 						tmpath.append(self[j])
+						if not testFit(tmpath, prec, C, r, arcd):
+							del tmpath[-1]
+							break
 						Co, ro, ign = path2arc(tmpath)
 						if testFit(tmpath, prec, Co, ro, arcd):
 							#print "upd", len(tmpath), C, r, Co, ro
