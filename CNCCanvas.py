@@ -295,7 +295,7 @@ class CNCCanvas(Canvas, object):
 		cfg[0] = (cfg[0] + cbg[0]*cw)/(cw+1)
 		cfg[1] = (cfg[1] + cbg[1]*cw)/(cw+1)
 		cfg[2] = (cfg[2] + cbg[2]*cw)/(cw+1)
-		nargs['fill'] = '#%02x%02x%02x' % (cfg[0]/256, cfg[1]/256, cfg[2]/256)
+		nargs['fill'] = '#%02x%02x%02x' % (int(cfg[0]/256), int(cfg[1]/256), int(cfg[2]/256))
 		#nargs['fill'] = '#AAA'
 		#print cfg, nargs['fill']
 
