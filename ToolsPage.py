@@ -839,7 +839,7 @@ class Profile(DataBase):
 			("pocket",  "bool",     0, _("Pocket"), _('Generate pocket after profiling? Usefull for making pockets with overcuts.'))
 		]
 		self.buttons.append("exe")
-                self.help = '''This plugin offsets shapes to create toolpaths for profiling operation.
+		self.help = '''This plugin offsets shapes to create toolpaths for profiling operation.
 Shape needs to be offset by the radius of endmill to get cut correctly.
 
 Currently we have two modes.
