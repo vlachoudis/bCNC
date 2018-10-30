@@ -1,3 +1,4 @@
+# -*- coding: ascii -*-
 # $Id$
 #
 # Author: vvlachoudis@gmail.com
