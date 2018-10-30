@@ -58,7 +58,7 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-GPAT	  = re.compile(r"[A-Za-z]\d+.*")
+GPAT	  = re.compile(r"[A-Za-z]\s*[-+]?\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
@@ -481,12 +481,17 @@ class Sender:
 		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.load(filename)
-		elif ext == ".stl":
+		elif ext == ".stl" or ext == ".ply":
 			# FIXME: implements solid import???
-			pass
+			import tkMessageBox
+			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in Tools->SliceMesh.")
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
+			self._saveConfigFile(filename)
+		elif ext==".svg":
+			self.gcode.init()
+			self.gcode.importSVG(filename)
 			self._saveConfigFile(filename)
 		else:
 			self.gcode.load(filename)
@@ -497,13 +502,12 @@ class Sender:
 	def save(self, filename):
 		fn,ext = os.path.splitext(filename)
 		ext = ext.lower()
-		if ext == ".probe":
+		if ext == ".probe" or ext == ".xyz":
 			# save probe
-			if filename is not None:
-				self.gcode.probe.filename = filename
-				self._saveConfigFile()
 			if not self.gcode.probe.isEmpty():
-				self.gcode.probe.save()
+				self.gcode.probe.save(filename)
+			if filename is not None:
+				self._saveConfigFile()
 		elif ext == ".orient":
 			# save orientation file
 			self.gcode.orient.save(filename)
@@ -512,8 +516,10 @@ class Sender:
 			self.gcode.probe.saveAsSTL(filename)
 		elif ext == ".dxf":
 			return self.gcode.saveDXF(filename)
+		elif ext == ".svg":
+			return self.gcode.saveSVG(filename)
 		elif ext == ".txt":
-			#save gcode as txt (only enable blocks and no bCNC metadata)
+			#save gcode as txt (only enabled blocks and no bCNC metadata)
 			return self.gcode.saveTXT(filename)
 		else:
 			if filename is not None:
@@ -1013,6 +1019,7 @@ class Sender:
 					elif self.controller == Utils.GRBL1:
 						status = False
 						fields = line[1:-1].split("|")
+						CNC.vars["pins"] = ""
 
 						#FIXME: not sure why this was here, but it was breaking stuff
 						#(eg.: pause button #773 and status display)
@@ -1075,6 +1082,18 @@ class Sender:
 									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
 									break
+							elif word[0] == "Pn":
+								try:
+									CNC.vars["pins"] = word[1]
+									if 'S' in word[1]:
+										if CNC.vars["state"] == 'Idle' and not self.running:
+											print "Stream requested by CYCLE START machine button"
+											self.event_generate("<<Run>>")
+										else:
+											print "Ignoring machine stream request, because of state: ", CNC.vars["state"], self.running
+								except (ValueError,IndexError):
+									break
+
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):

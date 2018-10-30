@@ -78,12 +78,12 @@ MAX_HISTORY  = 500
 
 #ZERO = ["G28", "G30", "G92"]
 
-FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl")),
+FILETYPES = [	(_("All accepted"), ("*.ngc","*.nc", "*.tap", "*.gcode", "*.dxf", "*.probe", "*.orient", "*.stl", "*.svg")),
 		(_("G-Code"),("*.ngc","*.nc", "*.tap", "*.gcode")),
 		(_("G-Code clean"),("*.txt")),
 		("DXF",       "*.dxf"),
 		("SVG",       "*.svg"),
-		(_("Probe"),  "*.probe"),
+		(_("Probe"),  ("*.probe", "*.xyz")),
 		(_("Orient"), "*.orient"),
 		("STL",       "*.stl"),
 		(_("All"),    "*")]
@@ -328,6 +328,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<AutolevelZero>>',	self.autolevel.setZero)
 		self.bind('<<AutolevelClear>>',	self.autolevel.clear)
 		self.bind('<<AutolevelScan>>',	self.autolevel.scan)
+		self.bind('<<AutolevelScanMargins>>',	self.autolevel.scanMargins)
 
 		self.bind('<<CameraOn>>',	self.canvas.cameraOn)
 		self.bind('<<CameraOff>>',	self.canvas.cameraOff)
@@ -1646,6 +1647,26 @@ class Application(Toplevel,Sender):
 			for line in cmd.splitlines():
 				self.execute(line)
 
+		# RR*APID:
+		elif rexx.abbrev("RRAPID",cmd,2):
+			Page.frames["Probe:Probe"].recordRapid()
+
+		# RF*EED:
+		elif rexx.abbrev("RFEED",cmd,2):
+			Page.frames["Probe:Probe"].recordFeed()
+
+		# RP*OINT:
+		elif rexx.abbrev("RPOINT",cmd,2):
+			Page.frames["Probe:Probe"].recordPoint()
+
+		# RC*IRCLE:
+		elif rexx.abbrev("RCIRCLE",cmd,2):
+			Page.frames["Probe:Probe"].recordCircle()
+
+		# RFI*NISH:
+		elif rexx.abbrev("RFINISH",cmd,3):
+			Page.frames["Probe:Probe"].recordFinishAll()
+
 		# XY: switch to XY view
 		# YX: switch to XY view
 		elif cmd in ("XY","YX"):
@@ -2072,6 +2093,8 @@ class Application(Toplevel,Sender):
 			gcode = GCode()
 			if ext == ".dxf":
 				gcode.importDXF(filename)
+			elif ext == ".svg":
+				gcode.importSVG(filename)
 			else:
 				gcode.load(filename)
 			sel = self.editor.getSelectedBlocks()

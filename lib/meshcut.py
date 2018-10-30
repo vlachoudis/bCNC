@@ -3,6 +3,11 @@ Functions to slice a mesh. For now, computes planar cross-section
 """
 import numpy as np
 import numpy.linalg as la
+try:
+    import scipy.spatial.distance as spdist
+    USE_SCIPY = True
+except ImportError:
+    USE_SCIPY = False
 import collections
 
 # ---- Geometry datastructures
@@ -23,7 +28,7 @@ class TriangleMesh(object):
             verts: The 3D vertex positions
             tris: A list of triplet containing vertex indices for each triangle
         """
-        self.verts = verts
+        self.verts = np.array(verts)
         # For each edge, contains the list of triangles it belongs to
         # If the mesh is closed, each edge belongs to 2 triangles
         self.edges_to_tris = collections.defaultdict(lambda: [])
@@ -37,7 +42,7 @@ class TriangleMesh(object):
         # Fill data structures
         for tid, f in enumerate(tris):
             tri_edges = []
-            for i in xrange(3):
+            for i in range(3):
                 v1 = f[i]
                 v2 = f[(i + 1) % 3]
                 e = make_edge(v1, v2)
@@ -92,13 +97,14 @@ INTERSECT_EDGE = 0
 INTERSECT_VERTEX = 1
 
 
-def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol):
+def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol=1e-8):
     """
     Compute the intersection between a triangle and a plane
 
     Returns a list of intersections in the form
         (INTERSECT_EDGE, <intersection point>, <edge>) for edges intersection
-        (INTERSECT_VERTEX, <intersection point>, <vertex index) for vertices
+        (INTERSECT_VERTEX, <intersection point>, <vertex index>) for vertices
+
 
     This return between 0 and 2 intersections :
     - 0 : the plane does not intersect the plane
@@ -136,6 +142,9 @@ def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol):
                 # point on plane
                 intersections.append((INTERSECT_VERTEX, v2, e[1]))
                 vert_intersect[e[1]] = True
+
+        # If vertices are on opposite sides of the plane, we have an edge
+        # intersection
         if d1 * d2 < 0:
             # Due to numerical accuracy, we could have both a vertex intersect
             # and an edge intersect on the same vertex, which is impossible
@@ -152,10 +161,10 @@ def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol):
     return intersections
 
 
-def get_next_triangle(mesh, from_tid, plane, intersection, dist_tol):
+def get_next_triangle(mesh, T, plane, intersection, dist_tol):
     """
     Returns the next triangle to visit given the intersection and
-    the triangle we're coming from
+    the list of unvisited triangles (T)
 
     We look for a triangle that is cut by the plane (2 intersections) as
     opposed to one that only touch the plane (1 vertex intersection)
@@ -164,14 +173,68 @@ def get_next_triangle(mesh, from_tid, plane, intersection, dist_tol):
         tris = mesh.triangles_for_edge(intersection[2])
     elif intersection[0] == INTERSECT_VERTEX:
         tris = mesh.triangles_for_vert(intersection[2])
+    else:
+        assert False, 'Invalid intersection[0] value : %d' % intersection[0]
 
+    # Knowing where we come from is not enough. If an edge of the triangle
+    # lies exactly on the plane, i.e. :
+    #
+    #   /t1\
+    # -v1---v2-
+    #   \t2/
+    #
+    # With v1, v2 being the vertices and t1, t2 being the triangles, then
+    # if you just try to go to the next connected triangle that intersect,
+    # you can visit v1 -> t1 -> v2 -> t2 -> v1 .
+    # Therefore, we need to limit the new candidates to the set of unvisited
+    # triangles and once we've visited a triangle and decided on a next one,
+    # remove all the neighbors of the visited triangle so we don't come
+    # back to it
+
+    T = set(T)
     for tid in tris:
-        if tid != from_tid:
+        if tid in T:
             intersections = compute_triangle_plane_intersections(
                     mesh, tid, plane, dist_tol)
             if len(intersections) == 2:
-                return tid, intersections
-    return None, []
+                T = T.difference(tris)
+                return tid, intersections, T
+    return None, [], T
+
+
+def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
+    """
+    Given an intersection, walk through the mesh triangles, computing
+    intersection with the cut plane for each visited triangle and adding
+    those intersection to a polyline.
+    """
+    T = set(T)
+    p = []
+    # Loop until we have explored all the triangles for the current
+    # polyline
+    while True:
+        p.append(intersect[1])
+
+        tid, intersections, T = get_next_triangle(mesh, T, plane,
+                                                  intersect, dist_tol)
+        if tid is None:
+            break
+
+        # get_next_triangle returns triangles that our plane actually
+        # intersects (as opposed to touching only a single vertex),
+        # hence the assert
+        assert len(intersections) == 2
+
+        # Of the two returned intersections, one should have the
+        # intersection point equal to p[-1]
+        if la.norm(intersections[0][1] - p[-1]) < dist_tol:
+            intersect = intersections[1]
+        else:
+            assert la.norm(intersections[1][1] - p[-1]) < dist_tol, \
+                '%s not close to %s' % (str(p[-1]), str(intersections))
+            intersect = intersections[0]
+
+    return p, T
 
 
 def cross_section_mesh(mesh, plane, dist_tol=1e-8):
@@ -189,47 +252,16 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
 
     while len(T) > 0:
         tid = T.pop()
+
         intersections = compute_triangle_plane_intersections(
                 mesh, tid, plane, dist_tol)
 
         if len(intersections) == 2:
-            # We found a starting triangle for a new polyline
-            p = []
-
-            # We can start in either direction (intersections[0] or [1]), this
-            # is arbitrary for the first triangle
-            p.append(intersections[0][1])
-            tid, intersections = get_next_triangle(mesh, tid, plane,
-                                                   intersections[0], dist_tol)
-
-            # Loop until we have explored all the triangles for the current
-            # polyline
-            while tid in T:
-                T.remove(tid)
-
-                # get_next_triangle returns triangles that our plane actually
-                # intersects (as opposed to touching only a single vertex),
-                # hence the assert
-                assert len(intersections) == 2
-                # Of the two returned intersections, one should have the
-                # intersection point equal to p[-1]
-                if la.norm(intersections[0][1] - p[-1]) < dist_tol:
-                    intersect = intersections[1]
-                else:
-                    assert la.norm(intersections[1][1] - p[-1]) < dist_tol, \
-                        '%s not close to %s' % (str(p[-1]), str(intersections))
-                    intersect = intersections[0]
-
-                p.append(intersect[1])
-                tid, intersections = get_next_triangle(mesh, tid, plane,
-                                                       intersect, dist_tol)
-
-                if tid is None:
-                    print 'Degenerate case (probably non-closed mesh)'
-                    break
-
-            P.append(np.array(p))
-
+            for intersection in intersections:
+                p, T = _walk_polyline(tid, intersection, T, mesh, plane,
+                                      dist_tol)
+                if len(p) > 1:
+                    P.append(np.array(p))
     return P
 
 
@@ -251,3 +283,65 @@ def cross_section(verts, tris, plane_orig, plane_normal, **kwargs):
     mesh = TriangleMesh(verts, tris)
     plane = Plane(plane_orig, plane_normal)
     return cross_section_mesh(mesh, plane, **kwargs)
+
+
+def pdist_squareformed_numpy(a):
+    """
+    Compute spatial distance using pure numpy
+    (similar to scipy.spatial.distance.cdist())
+
+    Thanks to Divakar Roy (@droyed) at stackoverflow.com
+
+    Note this needs at least np.float64 precision!
+
+    Returns: dist
+    """
+    a = np.array(a, dtype=np.float64)
+    a_sumrows = np.einsum('ij,ij->i', a, a)
+    dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
+    np.fill_diagonal(dist, 0)
+    return dist
+
+
+def merge_close_vertices(verts, faces, close_epsilon=1e-5):
+    """
+    Will merge vertices that are closer than close_epsilon.
+
+    Warning, this has a O(n^2) memory usage because we compute the full
+    vert-to-vert distance matrix. If you have a large mesh, might want
+    to use some kind of spatial search structure like an octree or some fancy
+    hashing scheme
+
+    Returns: new_verts, new_faces
+    """
+    # Pairwise distance between verts
+    if USE_SCIPY:
+        D = spdist.cdist(verts, verts)
+    else:
+        D = np.sqrt(np.abs(pdist_squareformed_numpy(verts)))
+
+    # Compute a mapping from old to new : for each input vert, store the index
+    # of the new vert it will be merged into
+    old2new = np.zeros(D.shape[0], dtype=np.int)
+    # A mask indicating if a vertex has already been merged into another
+    merged_verts = np.zeros(D.shape[0], dtype=np.bool)
+    new_verts = []
+    for i in range(D.shape[0]):
+        if merged_verts[i]:
+            continue
+        else:
+            # The vertices that will be merged into this one
+            merged = np.flatnonzero(D[i, :] < close_epsilon)
+            old2new[merged] = len(new_verts)
+            new_verts.append(verts[i])
+            merged_verts[merged] = True
+
+    new_verts = np.array(new_verts)
+
+    # Recompute face indices to index in new_verts
+    new_faces = np.zeros((len(faces), 3), dtype=np.int)
+    for i, f in enumerate(faces):
+        new_faces[i] = (old2new[f[0]], old2new[f[1]], old2new[f[2]])
+
+    # again, plot with utils.trimesh3d(new_verts, new_faces)
+    return new_verts, new_faces
