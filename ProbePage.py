@@ -392,8 +392,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.recsiz = tkExtra.FloatEntry(recframe(), background="White")
 		tkExtra.Balloon.set(self.recsiz, _("Circle radius"))
 		self.recsiz.set(10)
-                self.recsiz.pack(side=BOTTOM, expand=YES, fill=X)
-                self.addWidget(self.recsiz)
+		self.recsiz.pack(side=BOTTOM, expand=YES, fill=X)
+		self.addWidget(self.recsiz)
 
 		#----------------------------------------------------------------
 		# Single probe
@@ -418,17 +418,17 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-                self.probeautogotonext = False
-                self.probeautogoto=IntVar()
-                self.autogoto = Checkbutton(lframe(), "",
-                        variable=self.probeautogoto, #onvalue=1, offvalue=0,
-                        activebackground="LightYellow",
-                        padx=2, pady=1)
+		self.probeautogotonext = False
+		self.probeautogoto=IntVar()
+		self.autogoto = Checkbutton(lframe(), "",
+			variable=self.probeautogoto, #onvalue=1, offvalue=0,
+			activebackground="LightYellow",
+			padx=2, pady=1)
 		self.autogoto.select()
-                tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
-                #self.autogoto.pack(side=LEFT, expand=YES, fill=X)
+		tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
+		#self.autogoto.pack(side=LEFT, expand=YES, fill=X)
 		self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
-                self.addWidget(self.autogoto)
+		self.addWidget(self.autogoto)
 
 		# ---
 		col += 1
@@ -917,17 +917,17 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			self.app.gcode.insBlocks(hasblock, [eblock], "Recorded point")
 
 		eblock.append(line)
-                self.app.refresh()
-                self.app.setStatus(_("Pointrec"))
+		self.app.refresh()
+		self.app.setStatus(_("Pointrec"))
 
 		#print "hello",x,y,z
 		#print self.app.editor.getSelectedBlocks()
 
 	def recordCoords(self, gcode='G0', point=False):
 		#print "Z",self.recz.get()
-                x = CNC.vars["wx"]
-                y = CNC.vars["wy"]
-                z = CNC.vars["wz"]
+		x = CNC.vars["wx"]
+		y = CNC.vars["wy"]
+		z = CNC.vars["wz"]
 
 		coords = "X%s Y%s"%(x, y)
 		if self.recz.get() == 1:
@@ -951,9 +951,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	def recordCircle(self):
 		r = float(self.recsiz.get())
 		#self.recordCoords('G02 R%s'%(r))
-                x = CNC.vars["wx"]-r
-                y = CNC.vars["wy"]
-                z = CNC.vars["wz"]
+		x = CNC.vars["wx"]-r
+		y = CNC.vars["wy"]
+		z = CNC.vars["wz"]
 
 		coords = "X%s Y%s"%(x, y)
 		if self.recz.get() == 1:
@@ -967,8 +967,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		for bid,block in enumerate(self.app.gcode):
 			if block._name == 'recording':
 				self.app.gcode.setBlockNameUndo(bid, 'recorded')
-                self.app.refresh()
-                self.app.setStatus(_("Finished recording"))
+		self.app.refresh()
+		self.app.setStatus(_("Finished recording"))
 
 #===============================================================================
 # Autolevel Frame

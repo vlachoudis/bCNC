@@ -49,7 +49,7 @@ class Tool(Plugin):
 		depth         = self.fromMm("Depth")
 		textToWrite   = self["Text"]
 		fontFileName  = self["FontFile"]
-                closed        = self["Closed"]
+		closed        = self["Closed"]
 		imageFileName = self["ImageToAscii"]
 		charsWidth    = self["CharsWidth"]
 

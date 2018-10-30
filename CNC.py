@@ -3406,9 +3406,9 @@ class GCode:
 						distance = length / float(number)
 					s = 0.0			# running length
 
-                                        while s < length:
-                                                P = path.distPoint(s)
-                                                s += distance
+					while s < length:
+						P = path.distPoint(s)
+						s += distance
 						lines.append("g0 %s %s"%(self.fmt("x",P[0]),self.fmt("y",P[1])))
 						drillHole(lines)
 

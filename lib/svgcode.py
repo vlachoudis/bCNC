@@ -69,8 +69,8 @@ class SVGcode:
 				#garc += ' X%s Y%s I%s J%s\n'%(rv(segment.end.real),rv(-segment.end.imag),rv(center.real),rv(-center.imag))
 				gcode += '%s X%s Y%s R%s\n'%(garc, rv(segment.end.real),rv(-segment.end.imag),rv(segment.radius.real))
 			elif shape in ['QuadraticBezier', 'CubicBezier', 'Arc']:
-		                subdiv_points = numpy.linspace(0, 1, subdiv, endpoint = False)[1:]
-		                for point in subdiv_points:
+				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint = False)[1:]
+				for point in subdiv_points:
 					gcode += 'G1 X%s Y%s\n'%(rv(segment.point(point).real),rv(-segment.point(point).imag))
 				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.real),rv(-segment.end.imag))
 			else:
