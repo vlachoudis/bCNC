@@ -37,6 +37,7 @@ except ImportError:
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(PRGPATH, 'lib'))
 sys.path.append(os.path.join(PRGPATH, 'plugins'))
+sys.path.append(os.path.join(PRGPATH, 'controllers'))
 
 # Load configuration before anything else
 # and if needed replace the  translate function _()
