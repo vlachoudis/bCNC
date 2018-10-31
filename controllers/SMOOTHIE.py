@@ -1,12 +1,10 @@
+from Sender import ControllerGeneric
 import time
 
-class Controller:
+class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.master = master
 		print("smoothie loaded")
-
-	def test(self):
-		print("smoothie test")
 
 	def executeCommand(self, oline, line, cmd):
 		if line[0] in ( "help", "version", "mem", "ls",

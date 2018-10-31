@@ -1,12 +1,10 @@
+from Sender import ControllerGeneric
 import time
 
-class Controller:
+class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.master = master
 		print("grbl1 loaded")
-
-	def test(self):
-		print("grbl1 test")
 
 	def executeCommand(self, oline, line, cmd):
 		return False
