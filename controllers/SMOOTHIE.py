@@ -6,7 +6,7 @@ class Controller:
 	def test(self):
 		print("smoothie test")
 
-	def executeCommand(self, line):
+	def executeCommand(self, oline, line, cmd):
 		if line[0] in ( "help", "version", "mem", "ls",
 				"cd", "pwd", "cat", "rm", "mv",
 				"remount", "play", "progress", "abort",

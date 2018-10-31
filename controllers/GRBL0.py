@@ -6,7 +6,7 @@ class Controller:
 	def test(self):
 		print("grbl0 test")
 
-	def executeCommand(self, line):
+	def executeCommand(self, oline, line, cmd):
 		return False
 
 	def hardResetPre(self):

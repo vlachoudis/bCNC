@@ -460,7 +460,7 @@ class Sender:
 			self.unlock()
 
 		# Send commands to SMOOTHIE
-		elif self.control.executeCommand(line):
+		elif self.control.executeCommand(oline, line, cmd):
 			pass
 
 		else:
