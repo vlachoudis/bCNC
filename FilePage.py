@@ -17,6 +17,7 @@ except ImportError:
 import tkExtra
 
 import Utils
+import Sender
 import Ribbon
 import CNCRibbon
 
@@ -267,8 +268,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 					command=self.ctrlChange)
 		self.ctrlCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.ctrlCombo, _("Select controller board"))
-		self.ctrlCombo.fill(sorted(Utils.CONTROLLER.keys()))
-		self.ctrlCombo.set(Utils.controllerName(app.controller))
+		#self.ctrlCombo.fill(sorted(Utils.CONTROLLER.keys()))
+		self.ctrlCombo.fill(self.app.controllerList())
+		self.ctrlCombo.set(app.controller)
 		self.addWidget(self.ctrlCombo)
 
 		# ---
@@ -296,12 +298,14 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 	#-----------------------------------------------------------------------
 	def ctrlChange(self):
-		self.app.controller = Utils.CONTROLLER.get(self.ctrlCombo.get(), 0)
+		#self.app.controller = Utils.CONTROLLER.get(self.ctrlCombo.get(), 0)
+		#print("selected",self.ctrlCombo.get())
+		self.app.controllerSet(self.ctrlCombo.get())
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Connection
-		Utils.setStr("Connection", "controller",  Utils.controllerName(self.app.controller))
+		Utils.setStr("Connection", "controller",  self.app.controller)
 		Utils.setStr("Connection", "port",        self.portCombo.get())
 		Utils.setStr("Connection", "baud",        self.baudCombo.get())
 		Utils.setBool("Connection", "openserial", self.autostart.get())

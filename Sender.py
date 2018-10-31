@@ -11,6 +11,8 @@ __email__   = "vvlachoudis@gmail.com"
 import os
 import re
 import sys
+import glob
+import traceback
 import rexx
 import time
 import threading
@@ -219,6 +221,12 @@ class Sender:
 		# Global variables
 		self.history	 = []
 		self._historyPos = None
+
+		self.controllers = {}
+		self.controllerLoad()
+		self.control     = None
+		self.controllerSet("GRBL1")
+
 		CNC.loadConfig(Utils.config)
 		self.gcode = GCode()
 		self.cnc   = self.gcode.cnc
@@ -228,7 +236,6 @@ class Sender:
 		self.pendant	 = Queue()	# Command queue to be executed from Pendant
 		self.serial	 = None
 		self.thread	 = None
-		self.controller  = Utils.CONTROLLER["Grbl"]
 
 		self._posUpdate  = False	# Update position
 		self._probeUpdate= False	# Update probe
@@ -249,6 +256,35 @@ class Sender:
 		self._onStart    = ""
 		self._onStop     = ""
 
+
+	#----------------------------------------------------------------------
+	def controllerLoad(self):
+		# Find plugins in the controllers directory and load them
+		for f in glob.glob("%s/controllers/*.py"%(Utils.prgpath)):
+			name,ext = os.path.splitext(os.path.basename(f))
+			print(name)
+			try:
+				exec("import %s"%(name))
+				self.controllers[name] = eval("%s.Controller(self)"%(name))
+			except (ImportError, AttributeError):
+				typ, val, tb = sys.exc_info()
+				traceback.print_exception(typ, val, tb)
+
+	#----------------------------------------------------------------------
+	def controllerList(self):
+		print("ctrlist")
+		#self.controllers["GRBL1"].test()
+		#if len(self.controllers.keys()) < 1: self.controllerLoad()
+		return sorted(self.controllers.keys())
+
+	#----------------------------------------------------------------------
+	def controllerSet(self, ctl):
+		if ctl in self.controllers.keys():
+			self.controller = ctl
+			self.control = self.controllers[ctl]
+			self.control.test()
+
+
 	#----------------------------------------------------------------------
 	def quit(self, event=None):
 		self.saveConfig()
@@ -256,7 +292,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def loadConfig(self):
-		self.controller  = Utils.CONTROLLER.get(Utils.getStr("Connection", "controller"), Utils.GRBL0)
+		self.controllerSet(Utils.getStr("Connection", "controller"))
 		Pendant.port	 = Utils.getInt("Connection","pendantport",Pendant.port)
 		GCode.LOOP_MERGE = Utils.getBool("File","dxfloopmerge")
 		self.loadHistory()
@@ -424,15 +460,8 @@ class Sender:
 			self.unlock()
 
 		# Send commands to SMOOTHIE
-		elif self.controller == Utils.SMOOTHIE:
-			if line[0] in (	"help", "version", "mem", "ls",
-					"cd", "pwd", "cat", "rm", "mv",
-					"remount", "play", "progress", "abort",
-					"reset", "dfu", "break", "config-get",
-					"config-set", "get", "set_temp", "get",
-					"get", "net", "load", "save", "upload",
-					"calc_thermistor", "thermistors", "md5sum"):
-				self.serial.write(oline+"\n")
+		elif self.control.executeCommand(line):
+			pass
 
 		else:
 			return _("unknown command"),_("Invalid command %s")%(oline)
@@ -616,11 +645,9 @@ class Sender:
 	def hardReset(self):
 		self.busy()
 		if self.serial is not None:
-			if self.controller == Utils.SMOOTHIE:
-				self.serial.write(b"reset\n")
+			self.control.hardResetPre()
 			self.openClose()
-			if self.controller == Utils.SMOOTHIE:
-				time.sleep(6)
+			self.control.hardResetAfter()
 		self.openClose()
 		self.stopProbe()
 		self._alarm = False
@@ -630,10 +657,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
 		if self.serial:
-		#	if self.controller in (Utils.GRBL, Utils.GRBL1):
-				self.serial.write(b"\030")
-		#	elif self.controller == Utils.SMOOTHIE:
-		#		self.serial.write(b"reset\n")
+			self.serial.write(b"\030")
 		self.stopProbe()
 		if clearAlarm: self._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
@@ -650,8 +674,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$$")
+		self.control.viewSettings()
 
 	def viewParameters(self):
 		self.sendGCode("$#")
@@ -660,36 +683,25 @@ class Sender:
 		self.sendGCode("$G")
 
 	def viewBuild(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$I")
-		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write(b"version\n")
+		self.control.viewBuild()
 
 	def viewStartup(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$N")
+		self.control.viewStartup()
 
 	def checkGcode(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$C")
+		self.control.checkGcode()
 
 	def grblHelp(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$")
-		elif self.controller == Utils.SMOOTHIE:
-			self.serial.write(b"help\n")
+		self.control.grblHelp()
 
 	def grblRestoreSettings(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$RST=$")
+		self.control.grblRestoreSettings()
 
 	def grblRestoreWCS(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$RST=#")
+		self.control.grblRestoreWCS()
 
 	def grblRestoreAll(self):
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			self.sendGCode("$RST=#")
+		self.control.grblRestoreAll()
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -822,9 +834,7 @@ class Sender:
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 		TLO = CNC.vars["TLO"]
 		self.softReset(False)			# reset controller
-		if self.controller in (Utils.GRBL0, Utils.GRBL1):
-			time.sleep(1)
-			self.unlock(False)
+		self.control.purgeController()
 		self.runEnded()
 		self.stopProbe()
 		if G: self.sendGCode(G)			# restore $G
@@ -861,7 +871,7 @@ class Sender:
 				tr = t
 
 				#If Override change, attach feed
-				if CNC.vars["_OvChanged"] and self.controller == Utils.GRBL1:
+				if CNC.vars["_OvChanged"] and self.controller == "GRBL1":
 					CNC.vars["_OvChanged"] = False	# Temporary
 					# Check feed
 					diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
@@ -973,7 +983,7 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					if self.controller in (Utils.GRBL0, Utils.SMOOTHIE):
+					if self.controller in ("GRBL0", "SMOOTHIE"):
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
@@ -1016,7 +1026,7 @@ class Sender:
 					if not status:
 						self.log.put((Sender.MSG_RECEIVE, line))
 
-					elif self.controller == Utils.GRBL1:
+					elif self.controller == "GRBL1":
 						status = False
 						fields = line[1:-1].split("|")
 						CNC.vars["pins"] = ""
@@ -1100,7 +1110,7 @@ class Sender:
 							wait = False
 							self._gcount += 1
 
-					elif self.controller == Utils.SMOOTHIE:
+					elif self.controller == "SMOOTHIE":
 							# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
 							ln= line[1:-1] # strip off < .. >
 
@@ -1164,7 +1174,7 @@ class Sender:
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
-					if self.controller == Utils.GRBL1:
+					if self.controller == "GRBL1":
 						word = SPLITPAT.split(line[1:-1])
 						#print word
 						if word[0] == "PRB":
@@ -1257,8 +1267,8 @@ class Sender:
 					del sline[:]
 					CNC.vars["version"] = line.split()[1]
 					# Detect controller
-					if self.controller in (Utils.GRBL0, Utils.GRBL1):
-						self.controller = int(CNC.vars["version"][0])
+					if self.controller in ("GRBL0", "GRBL1"):
+						self.controllerSet("GRBL%d"%(int(CNC.vars["version"][0])))
 
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))
@@ -1283,7 +1293,7 @@ class Sender:
 #					if not tosend: tosend = None
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
-				if self.controller==Utils.SMOOTHIE: tosend = tosend.upper()
+				if self.controller=="SMOOTHIE": tosend = tosend.upper()
 				self.serial.write(bytes(tosend))
 				#self.serial.write(tosend.encode("utf8"))
 				#self.serial.flush()

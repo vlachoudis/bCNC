@@ -102,13 +102,6 @@ _maxRecent   = 10
 
 _FONT_SECTION = "Font"
 
-GRBL0      = 0
-GRBL1      = 1
-SMOOTHIE   = 10
-CONTROLLER = {	"Grbl-V0"  : GRBL0,
-		"Grbl"     : GRBL1,
-		"Smoothie" : SMOOTHIE}
-
 #------------------------------------------------------------------------------
 def loadIcons():
 	global icons
@@ -332,13 +325,6 @@ def setUtf(section, name, value):
 
 setInt   = setStr
 setFloat = setStr
-
-#-------------------------------------------------------------------------------
-def controllerName(idx):
-	for n,i in CONTROLLER.items():
-		if i==idx:
-			return n
-	return "unknown"
 
 #-------------------------------------------------------------------------------
 # Add Recent
