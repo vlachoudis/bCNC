@@ -452,6 +452,7 @@ class Application(Toplevel,Sender):
 		self._drawAfter = None	# after handle for modification
 		self._inFocus	= False
 		self._insertCount = 0	# END - insertCount lines where ok was applied to for $xxx commands
+		self._selectI = 0
 		self.monitorSerial()
 		self.canvasFrame.toggleDrawFlag()
 
