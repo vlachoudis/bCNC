@@ -2812,6 +2812,15 @@ class GCode:
 		return undoinfo
 
 	#----------------------------------------------------------------------
+	# sync file timestamp
+	#----------------------------------------------------------------------
+	def syncFileTime(self):
+		try:
+			self._lastModified = os.stat(self.filename).st_mtime
+		except:
+			return False
+
+	#----------------------------------------------------------------------
 	# Check if a new version exists
 	#----------------------------------------------------------------------
 	def checkFile(self):

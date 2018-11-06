@@ -2122,6 +2122,7 @@ class Application(Toplevel,Sender):
 			else:
 				self.load(self.gcode.filename, True)
 		self._inFocus = False
+		self.gcode.syncFileTime()
 
 	#-----------------------------------------------------------------------
 	def openClose(self, event=None):
