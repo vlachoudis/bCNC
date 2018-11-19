@@ -10,7 +10,7 @@ __email__  = "vvlachoudis@gmail.com"
 import os
 import glob
 import traceback
-from log import say
+from lib.log import say
 try:
 	from Tkinter import *
 	import tkFont

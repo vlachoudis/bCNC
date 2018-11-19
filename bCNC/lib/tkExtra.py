@@ -40,7 +40,7 @@ import re
 import time
 import Unicode
 import bFileDialog
-from log import say
+#from log import say
 
 try:
 	from Tkinter import *
@@ -3432,10 +3432,10 @@ class _SplitNode:
 	# ----------------------------------------------------------------------
 	def printNode(self, depth):
 		if self.left: self.left.printNode(depth+1)
-		if self.child:
-			say("   "*depth, self.child, self.child["bg"])
-		else:
-			say("   "*depth, " ======== H=",self.hori," pos=",self.pos)
+		#if self.child:
+		#	say("   "*depth, self.child, self.child["bg"])
+		#else:
+		#	say("   "*depth, " ======== H=",self.hori," pos=",self.pos)
 		if self.right: self.right.printNode(depth+1)
 
 #===============================================================================
