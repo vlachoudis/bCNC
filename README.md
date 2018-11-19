@@ -29,7 +29,7 @@ You will need the following packages to run bCNC
 Expand the directory or download it from github
 and run the bCNC command
 
-#Instalation (package maintainers)
+# Instalation (package maintainers)
 - Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package https://wiki.archlinux.org/index.php/Python_package_guidelines
