@@ -8,10 +8,11 @@ An advanced fully featured g-code sender for GRBL. bCNC is a cross platform prog
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
-# Installation (using pip)
+# Installation (using pip = reccomended!)
 This is how you install (or upgrade) bCNC along with all required packages:
 
     pip2 install --upgrade bCNC
+    python2 -m pip install --upgrade bCNC #alternative command, does the same thing
     python2 -m bCNC
 
 Only problem with this approach is that it might not install tkinter in some cases.
