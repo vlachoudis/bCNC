@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.2",
+	version = "0.9.14.3",
 	description='Swiss army knife for all your CNC/g-code needs',
 	license="GPL",
 	#long_description=long_description,
@@ -20,8 +20,8 @@ setup(
 	entry_points = {
 		'console_scripts': [
 			#'bCNC = {package}.{module}:{main_function}',
-			'bCNC = bCNC.bCNC:main',
-			#'bCNC = bCNC.__main__:main',
+			#'bCNC = bCNC.bCNC:main',
+			'bCNC = bCNC.__main__:main',
 		]
 	}
 )
