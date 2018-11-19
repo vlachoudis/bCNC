@@ -108,6 +108,7 @@ class Application(Toplevel,Sender):
 
 		# Global variables
 		self.tools = Tools(self.gcode)
+		self.controller = None
 		self.loadConfig()
 
 		# --- Ribbon ---
@@ -2508,13 +2509,13 @@ def usage(rc):
 	sys.exit(rc)
 
 #------------------------------------------------------------------------------
-if __name__ == "__main__":
+tk = Tk()
+def main(args=None):
 	if sys.version_info[0] != 2:
 		sys.stdout.write("="*80+"\n")
 		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
 		sys.stdout.write("="*80+"\n")
 		sys.exit(0)
-	tk = Tk()
 	tk.withdraw()
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
@@ -2644,4 +2645,10 @@ if __name__ == "__main__":
 
 	application.close()
 	Utils.saveConfiguration()
+
+
+if __name__ == "__main__":
+	main()
+
+
  #vim:ts=8:sw=8:sts=8:noet

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name = "bCNC",
-	version = "0.9.14",
+	version = "0.9.14.2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	license="GPL",
 	#long_description=long_description,
@@ -17,9 +17,11 @@ setup(
 		'Pillow>=5.3.0',
 	],
 
-	#entry_points = {
-	#	'console_scripts': [
-	#		'bCNC = {package}.{module}:{main_function}',
-	#	]
-	#}
+	entry_points = {
+		'console_scripts': [
+			#'bCNC = {package}.{module}:{main_function}',
+			'bCNC = bCNC.bCNC:main',
+			#'bCNC = bCNC.__main__:main',
+		]
+	}
 )

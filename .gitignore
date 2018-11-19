@@ -4,3 +4,4 @@ lib/*.pyc
 .idea
 bCNC.egg-info
 dist
+build
