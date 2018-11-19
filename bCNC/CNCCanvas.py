@@ -31,7 +31,7 @@ except:
 	numpy    = None
 	RESAMPLE = None
 
-ANTIALIAS_CHEAP = True
+ANTIALIAS_CHEAP = False
 
 VIEW_XY   = 0
 VIEW_XZ   = 1
