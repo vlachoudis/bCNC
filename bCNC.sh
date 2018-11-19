@@ -1,11 +1,16 @@
 #!/usr/bin/env sh
 
-DIR=`dirname $0`/bCNC
-PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
-export DIR PYTHONPATH
+#Autodetect python version
 PYTHON=`which python2`
-if [ .$PYTHON = . ]; then
-	PYTHON=python
-fi
-${PYTHON} ${DIR}/__main__.py $*
-#python -m cProfile -o bCNC.out ${DIR}/__main__.py $*
+[ .$PYTHON = . ] && PYTHON=python
+
+#Autodetect bCNC install
+#If this script is placed in directory with bCNC module it will launch it
+#When placed somewhere else (eg. /usr/bin) it will launch bCNC from system
+DIR=`dirname $0`
+[ -f "${DIR}"/bCNC/__main__.py ] && cd "${DIR}" &&
+	echo "Launching bCNC from ${DIR}" ||
+	echo "Launching local installation of bCNC"
+
+#Launch
+"$PYTHON" -m bCNC $*
