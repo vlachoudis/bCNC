@@ -1,11 +1,18 @@
 from setuptools import setup, find_packages
 
+# read the contents of your README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md')) as f:
+	long_description = f.read()
+
 setup(
 	name = "bCNC",
-	version = "0.9.14.19",
+	version = "0.9.14.20",
 	description='Swiss army knife for all your CNC/g-code needs',
 	license="GPL",
-	#long_description=long_description,
+	long_description=long_description,
+	long_description_content_type='text/markdown',
 	packages = find_packages(),
 	author = "Harvie",
 	#author_email='foomail@foo.com',
