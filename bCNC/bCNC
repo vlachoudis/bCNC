@@ -14,9 +14,10 @@ python2 -m bCNC
 DIR=`dirname $0`
 PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins:${DIR}/controllers
 export DIR PYTHONPATH
-PYTHON=`which python2`
-if [ .$PYTHON = . ]; then
-	PYTHON=python
-fi
+
+#Autodetect python version
+[ .$PYTHON = . ] && PYTHON=`which python2`
+[ .$PYTHON = . ] && PYTHON=python
+
 ${PYTHON} ${DIR}/__main__.py $*
 #python -m cProfile -o bCNC.out ${DIR}/__main__.py $*

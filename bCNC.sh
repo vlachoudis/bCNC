@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #Autodetect python version
-PYTHON=`which python2`
+[ .$PYTHON = . ] && PYTHON=`which python2`
 [ .$PYTHON = . ] && PYTHON=python
 
 #Autodetect bCNC install
