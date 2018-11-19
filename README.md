@@ -21,6 +21,8 @@ So please keep that in mind and make sure it's installed in case of problems.
 If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
 Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
 
+PyPI project: https://pypi.org/project/bCNC/
+
 # Installation (manual)
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
