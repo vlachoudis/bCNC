@@ -1,5 +1,16 @@
 #!/usr/bin/env sh
 
+echo "###########################################
+WARNING! THIS IS LEGACY MODE!
+DO NOT USE THIS IF YOU ARE A BCNC DEVELOPER
+GO TO REPOSITORY ROOT AND LAUNCH BCNC USING
+FOLLOWING COMMAND:
+
+python2 -m bCNC
+###########################################
+"
+
+
 DIR=`dirname $0`
 PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins:${DIR}/controllers
 export DIR PYTHONPATH

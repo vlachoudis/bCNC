@@ -18,6 +18,9 @@ This is how you install (or upgrade) bCNC along with all required packages:
 Only problem with this approach is that it might not install tkinter in some cases.
 So please keep that in mind and make sure it's installed in case of problems.
 
+If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
+Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
+
 # Installation (manual)
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
