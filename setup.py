@@ -11,9 +11,10 @@ setup(
 	#author_email='foomail@foo.com',
 	url="https://github.com/vlachoudis/bCNC",
 	install_requires = [
-		'pyserial==3.4',
-		'numpy==1.15.4',
-		'opencv-python==3.4.2.17',
+		'pyserial>=3.4',
+		'numpy>=1.15.4',
+		'opencv-python>=3.4.2.17',
+		'Pillow>=5.3.0',
 	],
 
 	#entry_points = {
