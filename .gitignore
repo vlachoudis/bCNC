@@ -2,3 +2,5 @@
 *.pyo
 lib/*.pyc
 .idea
+bCNC.egg-info
+dist
