@@ -136,6 +136,12 @@ def delIcons():
 			del i
 		icons = {}	# needed otherwise it complains on deleting the icons
 
+	global images
+	if len(images) > 0:
+		for i in images.values():
+			del i
+		images = {}	# needed otherwise it complains on deleting the icons
+
 #------------------------------------------------------------------------------
 # Load configuration
 #------------------------------------------------------------------------------
