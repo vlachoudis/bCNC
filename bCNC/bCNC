@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 DIR=`dirname $0`
-PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins
+PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins:${DIR}/controllers
 export DIR PYTHONPATH
 PYTHON=`which python2`
 if [ .$PYTHON = . ]; then

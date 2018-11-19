@@ -229,9 +229,9 @@ class Sender:
 		self.history	 = []
 		self._historyPos = None
 
+		self.control     = None
 		self.controllers = {}
 		self.controllerLoad()
-		self.control     = None
 		self.controllerSet("GRBL1")
 
 		CNC.loadConfig(Utils.config)

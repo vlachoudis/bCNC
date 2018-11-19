@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.7",
+	version = "0.9.14.14",
 	description='Swiss army knife for all your CNC/g-code needs',
 	license="GPL",
 	#long_description=long_description,
@@ -10,6 +10,7 @@ setup(
 	author = "Harvie",
 	#author_email='foomail@foo.com',
 	url="https://github.com/vlachoudis/bCNC",
+	include_package_data=True,
 	install_requires = [
 		'pyserial>=3.4',
 		'numpy>=1.15.4',
