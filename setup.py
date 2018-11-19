@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.18",
+	version = "0.9.14.19",
 	description='Swiss army knife for all your CNC/g-code needs',
 	license="GPL",
 	#long_description=long_description,
