@@ -14,6 +14,9 @@ This is how you install (or upgrade) bCNC along with all required packages:
     pip2 install --upgrade bCNC
     python2 -m bCNC
 
+Only problem with this approach is that it might not install tkinter in some cases.
+So please keep that in mind and make sure it's installed in case of problems.
+
 # Installation (manual)
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
@@ -32,7 +35,8 @@ and run the bCNC command
 # Instalation (package maintainers)
 - Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
-- Alternatively you can fetch the bCNC Python package using pip when building Linux package https://wiki.archlinux.org/index.php/Python_package_guidelines
+- Alternatively you can fetch the bCNC Python package using pip when building Linux package
+  - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
 
 # Configuration
 You can modify most of the parameters from the "Tools -> Machine"
@@ -42,7 +46,7 @@ file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 The default configuration is stored on bCNC.ini in the
 installation directory.
 
-*PLEASE DO NOT CHANGE THIS ONE*
+*PLEASE DO NOT CHANGE THIS FILE, IT'S GOING TO BE OVERWRITEN ON EACH UPGRADE OF BCNC*
 
 # Features:
 - simple and intuitive interface for small screens
