@@ -1,21 +1,18 @@
 from setuptools import setup, find_packages
 
-# read the contents of your README file
-from os import path
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md')) as f:
-	long_description = f.read()
+with open("README.md", "r") as fh:
+	long_description = fh.read()
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.20",
+	version = "0.9.14.21",
+	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
-	license="GPL",
 	long_description=long_description,
-	long_description_content_type='text/markdown',
+	long_description_content_type="text/markdown",
 	packages = find_packages(),
 	author = "Harvie",
-	#author_email='foomail@foo.com',
+	author_email='harvie@github.com',
 	url="https://github.com/vlachoudis/bCNC",
 	include_package_data=True,
 	install_requires = [
@@ -31,5 +28,32 @@ setup(
 			#'bCNC = bCNC.bCNC:main',
 			'bCNC = bCNC.__main__:main',
 		]
-	}
+	},
+
+	classifiers=[
+		"Development Status :: 4 - Beta",
+		"License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+		"Operating System :: OS Independent",
+		"Topic :: Multimedia :: Graphics :: 3D Modeling",
+		"Topic :: Multimedia :: Graphics :: Capture",
+		"Topic :: Multimedia :: Graphics :: Editors :: Vector-Based",
+		"Topic :: Multimedia :: Graphics :: Graphics Conversion",
+		"Topic :: Multimedia :: Graphics :: Viewers",
+		"Topic :: Scientific/Engineering",
+		"Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+		"Topic :: Terminals :: Serial",
+		"Natural Language :: Dutch",
+		"Natural Language :: English",
+		"Natural Language :: German",
+		"Natural Language :: Spanish",
+		"Natural Language :: Portuguese",
+		"Natural Language :: Portuguese (Brazilian)",
+		"Natural Language :: French",
+		"Natural Language :: Italian",
+		"Natural Language :: Japanese",
+		"Natural Language :: Korean",
+		"Natural Language :: Russian",
+		"Natural Language :: Chinese (Simplified)",
+		"Natural Language :: Chinese (Traditional)",
+	]
 )
