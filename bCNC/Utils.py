@@ -93,6 +93,7 @@ LANGUAGES = {
 	}
 
 icons     = {}
+images     = {}
 config    = ConfigParser.ConfigParser()
 language  = ""
 

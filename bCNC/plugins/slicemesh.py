@@ -51,8 +51,8 @@ class Tool(Plugin):
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
 			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
-			("scale"    ,    "int" ,    "1", _("scale factor"), "Size will be multiplied by this factor"),
-			("zoff"  ,    "int" ,    "0", _("z offset"), "This will be added to Z"),
+			("scale"    ,    "float" ,    "1", _("scale factor"), "Size will be multiplied by this factor"),
+			("zoff"  ,    "mm" ,    "0", _("z offset"), "This will be added to Z"),
 			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
 			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
 			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
@@ -73,13 +73,13 @@ PLY (ASCII only)
 	def execute(self, app):
 		self.app = app
 		file = self["file"]
-		zstep = self["zstep"]
-		zmin = self["zmin"]
-		zmax = self["zmax"]
+		zstep = float(self["zstep"])
+		zmin = float(self["zmin"])
+		zmax = float(self["zmax"])
 		flat = self["flat"]
 		faceup = self["faceup"]
-		scale = self["scale"]
-		zoff = self["zoff"]
+		scale = float(self["scale"])
+		zoff = float(self["zoff"])
 		cam3d = self["cam3d"]
 
 		zout = None
