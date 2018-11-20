@@ -269,7 +269,7 @@ class Sender:
 		# Find plugins in the controllers directory and load them
 		for f in glob.glob("%s/controllers/*.py"%(Utils.prgpath)):
 			name,ext = os.path.splitext(os.path.basename(f))
-			print(name)
+			#print("Loaded motion controller plugin: %s"%(name))
 			try:
 				exec("import %s"%(name))
 				self.controllers[name] = eval("%s.Controller(self)"%(name))
@@ -279,17 +279,18 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def controllerList(self):
-		print("ctrlist")
+		#print("ctrlist")
 		#self.controllers["GRBL1"].test()
 		#if len(self.controllers.keys()) < 1: self.controllerLoad()
 		return sorted(self.controllers.keys())
 
 	#----------------------------------------------------------------------
 	def controllerSet(self, ctl):
+		#print("Activating motion controller plugin: %s"%(ctl))
 		if ctl in self.controllers.keys():
 			self.controller = ctl
 			self.control = self.controllers[ctl]
-			self.control.test()
+			#self.control.test()
 
 
 	#----------------------------------------------------------------------

@@ -4,7 +4,7 @@ import time
 class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.master = master
-		print("grbl1 loaded")
+		#print("grbl1 loaded")
 
 	def executeCommand(self, oline, line, cmd):
 		return False

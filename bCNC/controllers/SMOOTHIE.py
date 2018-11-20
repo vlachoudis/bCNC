@@ -4,7 +4,7 @@ import time
 class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.master = master
-		print("smoothie loaded")
+		#print("smoothie loaded")
 
 	def executeCommand(self, oline, line, cmd):
 		if line[0] in ( "help", "version", "mem", "ls",
