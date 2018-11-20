@@ -8,7 +8,7 @@ __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 #import math
 import os.path
@@ -49,13 +49,13 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),							#used to store plugin settings in the internal database
 			("file"    ,    "file" ,    "", _(".STL/.PLY file to slice"), "What file to slice"),
 			("flat"    ,    "bool" ,    True, _("Get flat slice"), "Pack all slices into single Z height?"),
-			("cam3d"    ,    "bool" ,    True, _("3D slice (devel)"), "This is just for testing"),
+			("cam3d"    ,    "bool" ,    False, _("3D slice (devel)"), "This is just for testing"),
 			("faceup"    ,    "Z,-Z,X,-X,Y,-Y" ,    "Z", _("Flip upwards"), "Which face goes up?"),
-			("scale"    ,    "float" ,    "1", _("scale factor"), "Size will be multiplied by this factor"),
-			("zoff"  ,    "mm" ,    "0", _("z offset"), "This will be added to Z"),
-			("zstep"    ,    "mm" ,    "0.1", _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
-			("zmin"    ,    "mm" ,    "-1", _("minimum Z height"), "Height to start slicing"),
-			("zmax"    ,    "mm" ,    "1", _("maximum Z height"), "Height to stop slicing")
+			("scale"    ,    "float" ,    1, _("scale factor"), "Size will be multiplied by this factor"),
+			("zoff"  ,    "mm" ,    0, _("z offset"), "This will be added to Z"),
+			("zstep"    ,    "mm" ,    0.1, _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
+			("zmin"    ,    "mm" ,    -1, _("minimum Z height"), "Height to start slicing"),
+			("zmax"    ,    "mm" ,    1, _("maximum Z height"), "Height to stop slicing")
 		]
 		self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
 		self.help = '''This plugin can slice meshes
