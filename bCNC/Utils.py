@@ -104,6 +104,14 @@ _maxRecent   = 10
 
 _FONT_SECTION = "Font"
 
+
+#New class to provide config for everyone
+#FIXME: create single instance of this and pass it to all parts of application
+class Config():
+	def greet(self, who=__name__):
+		print("Config class loaded in %s"%(who))
+
+
 #------------------------------------------------------------------------------
 def loadIcons():
 	global icons
