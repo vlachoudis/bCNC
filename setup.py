@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.21",
+	version = "0.9.14.22",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	packages = find_packages(),
-	author = "Harvie",
-	author_email='harvie@github.com',
+	author = 'Vasilis Vlachoudis',
+	author_email='vvlachoudis@gmail.com',
 	url="https://github.com/vlachoudis/bCNC",
 	include_package_data=True,
 	install_requires = [
