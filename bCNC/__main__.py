@@ -101,7 +101,7 @@ class Application(Toplevel,Sender):
 		Sender.__init__(self)
 
 		if sys.platform == "win32":
-			self.iconbitmap("bCNC.ico")
+			self.iconbitmap("%s\\bCNC.ico"%(Utils.prgpath))
 		else:
 			self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
 		self.title(Utils.__prg__)
