@@ -95,6 +95,7 @@ LANGUAGES = {
 icons     = {}
 images     = {}
 config    = ConfigParser.ConfigParser()
+print "new-config", __name__, config #This is here to debug the fact that config is sometimes instantiated twice
 language  = ""
 
 _errorReport = True
