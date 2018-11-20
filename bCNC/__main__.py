@@ -5,6 +5,8 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+from __future__ import absolute_import
+
 __version__ = "0.9.14"
 __date__    = "5 Feb 2018"
 __author__  = "Vasilis Vlachoudis"
