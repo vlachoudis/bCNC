@@ -45,11 +45,23 @@ You will need the following packages to run bCNC
 Expand the directory or download it from github
 and run the bCNC command
 
-# Instalation (package maintainers)
+# Instalation (Linux package maintainers)
 - Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
+
+# Instalation (Compile to Windows .exe)
+
+This is basic example of how to compile bCNC to .exe file.
+(given that you have working bCNC in the first place, eg. using `pip install bCNC`).
+Go to the directory where is your bCNC installed and do the following:
+
+    pip2 install pyinstaller
+    pyinstaller --onefile --distpath . --hidden-import tkinter bCNC.py
+
+This will create `bCNC.exe`.
+Also note that there is `make-exe.bat` file which will do just that for you.
 
 # Configuration
 You can modify most of the parameters from the "Tools -> Machine"
