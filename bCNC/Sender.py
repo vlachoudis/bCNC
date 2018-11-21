@@ -860,6 +860,21 @@ class Sender:
 			self.purgeController()
 
 	#----------------------------------------------------------------------
+	# This should be called everytime that milling of g-code file is finished
+	# So we can purge the controller for the next job
+	# See https://github.com/vlachoudis/bCNC/issues/1035
+	#----------------------------------------------------------------------
+	def jobDone(self):
+		print "Job done. Purging the controller"
+		self.purgeController()
+
+	#----------------------------------------------------------------------
+	# This is called everytime that motion controller changes the state
+	#----------------------------------------------------------------------
+	def controllerStateChange(self, state):
+		print "Controller state changed to: %s"%(state)
+
+	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
@@ -1042,6 +1057,7 @@ class Sender:
 						#FIXME: not sure why this was here, but it was breaking stuff
 						#(eg.: pause button #773 and status display)
 						#if not self._alarm:
+						if CNC.vars["state"] != fields[0]: self.controllerStateChange(fields[0])
 						CNC.vars["state"] = fields[0]
 
 						for field in fields[1:]:
@@ -1115,6 +1131,7 @@ class Sender:
 
 						# Machine is Idle buffer is empty stop waiting and go on
 						if wait and not cline and fields[0] in ("Idle","Check"):
+							self.jobDone()
 							wait = False
 							self._gcount += 1
 
