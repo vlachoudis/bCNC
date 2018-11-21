@@ -62,8 +62,10 @@ Go to the directory where is your bCNC installed and do the following:
 
 This will take a minute or two. But in the end it should create `bCNC.exe`.
 Also note that there is `make-exe.bat` file which will do just that for you.
+This will also create rather large "build" subdirectory.
+That is solely for caching purposes and you should delete it before redistributing!
 
-If you are going to report bugs in .exe version,
+If you are going to report bugs in .exe version of bCNC,
 please check first if that bug occurs even when running directly in python (without .exe build).
 
 # Configuration
