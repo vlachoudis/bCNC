@@ -58,10 +58,13 @@ This is basic example of how to compile bCNC to .exe file.
 Go to the directory where is your bCNC installed and do the following:
 
     pip2 install pyinstaller
-    pyinstaller --onefile --distpath . --hidden-import tkinter bCNC.py
+    pyinstaller --onefile --distpath . --hidden-import tkinter --paths lib;plugins;controllers --name bCNC __main__.py
 
-This will create `bCNC.exe`.
+This will take a minute or two. But in the end it should create `bCNC.exe`.
 Also note that there is `make-exe.bat` file which will do just that for you.
+
+If you are going to report bugs in .exe version,
+please check first if that bug occurs even when running directly in python (without .exe build).
 
 # Configuration
 You can modify most of the parameters from the "Tools -> Machine"
