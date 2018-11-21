@@ -45,6 +45,9 @@ class Controller(ControllerGeneric):
 		time.sleep(1)
 		self.master.unlock(False)
 
+	def ovChanged(self):
+		pass
+
 	def parseBracketAngle(self, line, cline):
 		self.master.sio_status = False
 		pat = STATUSPAT.match(line)

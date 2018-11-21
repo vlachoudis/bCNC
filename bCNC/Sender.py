@@ -894,57 +894,8 @@ class Sender:
 				tr = t
 
 				#If Override change, attach feed
-				if CNC.vars["_OvChanged"] and self.controller == "GRBL1":
-					CNC.vars["_OvChanged"] = False	# Temporary
-					# Check feed
-					diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]
-					if diff==0:
-						pass
-					elif CNC.vars["_OvFeed"] == 100:
-						self.serial.write(OV_FEED_100)
-					elif diff >= 10:
-						self.serial.write(OV_FEED_i10)
-						CNC.vars["_OvChanged"] = diff>10
-					elif diff <= -10:
-						self.serial.write(OV_FEED_d10)
-						CNC.vars["_OvChanged"] = diff<-10
-					elif diff >= 1:
-						self.serial.write(OV_FEED_i1)
-						CNC.vars["_OvChanged"] = diff>1
-					elif diff <= -1:
-						self.serial.write(OV_FEED_d1)
-						CNC.vars["_OvChanged"] = diff<-1
-					# Check rapid
-					target  = CNC.vars["_OvRapid"]
-					current = CNC.vars["OvRapid"]
-					if target == current:
-						pass
-					elif target == 100:
-						self.serial.write(OV_RAPID_100)
-					elif target == 75:
-						self.serial.write(OV_RAPID_50)	# FIXME
-					elif target == 50:
-						self.serial.write(OV_RAPID_50)
-					elif target == 25:
-						self.serial.write(OV_RAPID_25)
-					# Check Spindle
-					diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
-					if diff==0:
-						pass
-					elif CNC.vars["_OvSpindle"] == 100:
-						self.serial.write(OV_SPINDLE_100)
-					elif diff >= 10:
-						self.serial.write(OV_SPINDLE_i10)
-						CNC.vars["_OvChanged"] = diff>10
-					elif diff <= -10:
-						self.serial.write(OV_SPINDLE_d10)
-						CNC.vars["_OvChanged"] = diff<-10
-					elif diff >= 1:
-						self.serial.write(OV_SPINDLE_i1)
-						CNC.vars["_OvChanged"] = diff>1
-					elif diff <= -1:
-						self.serial.write(OV_SPINDLE_d1)
-						CNC.vars["_OvChanged"] = diff<-1
+				if CNC.vars["_OvChanged"]:
+					self.control.ovChanged()
 
 			# Fetch new command to send if...
 			if tosend is None and not self.sio_wait and not self._pause and self.queue.qsize()>0:

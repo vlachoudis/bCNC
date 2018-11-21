@@ -54,6 +54,9 @@ class Controller(ControllerGeneric):
 	def purgeController(self):
 		pass
 
+	def ovChanged(self):
+		pass
+
 	def parseBracketAngle(self, line, cline):
 		# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
 		ln= line[1:-1] # strip off < .. >
