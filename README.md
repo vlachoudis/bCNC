@@ -53,6 +53,10 @@ and run the bCNC command
 
 # Instalation (Compile to Windows .exe)
 
+Note that you might probably find some precompiled .exe files on github "releases" page:
+https://github.com/vlachoudis/bCNC/releases
+But they might not be up to date.
+
 This is basic example of how to compile bCNC to .exe file.
 (given that you have working bCNC in the first place, eg. using `pip install bCNC`).
 Go to the directory where is your bCNC installed and do the following:
