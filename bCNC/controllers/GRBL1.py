@@ -5,6 +5,7 @@ import time
 class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.gcode_case = 0
+		self.has_override = True
 		self.master = master
 		#print("grbl1 loaded")
 
@@ -45,7 +46,7 @@ class Controller(ControllerGeneric):
 		time.sleep(1)
 		self.master.unlock(False)
 
-	def ovChanged(self):
+	def overrideSet(self):
 		CNC.vars["_OvChanged"] = False	# Temporary
 		# Check feed
 		diff = CNC.vars["_OvFeed"] - CNC.vars["OvFeed"]

@@ -5,6 +5,7 @@ import time
 class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.gcode_case = 1
+		self.has_override = False
 		self.master = master
 		#print("smoothie loaded")
 
@@ -54,7 +55,7 @@ class Controller(ControllerGeneric):
 	def purgeController(self):
 		pass
 
-	def ovChanged(self):
+	def overrideSet(self):
 		pass
 
 	def parseBracketAngle(self, line, cline):

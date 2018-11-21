@@ -895,7 +895,7 @@ class Sender:
 
 				#If Override change, attach feed
 				if CNC.vars["_OvChanged"]:
-					self.control.ovChanged()
+					self.control.overrideSet()
 
 			# Fetch new command to send if...
 			if tosend is None and not self.sio_wait and not self._pause and self.queue.qsize()>0:
@@ -957,7 +957,8 @@ class Sender:
 					if pat is not None:
 						self._lastFeed = pat.group(2)
 
-					if self.controller in ("GRBL0", "SMOOTHIE"):
+					# Modify sent g-code to reflect overrided feed for controllers without override support
+					if not self.control.has_override:
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
@@ -1001,7 +1002,6 @@ class Sender:
 						self.log.put((Sender.MSG_RECEIVE, line))
 					else:
 						self.control.parseBracketAngle(line, cline)
-
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))

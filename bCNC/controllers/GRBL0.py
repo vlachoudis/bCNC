@@ -5,6 +5,7 @@ import time
 class Controller(ControllerGeneric):
 	def __init__(self, master):
 		self.gcode_case = 0
+		self.has_override = False
 		self.master = master
 		#print("grbl0 loaded")
 
@@ -45,7 +46,7 @@ class Controller(ControllerGeneric):
 		time.sleep(1)
 		self.master.unlock(False)
 
-	def ovChanged(self):
+	def overrideSet(self):
 		pass
 
 	def parseBracketAngle(self, line, cline):
