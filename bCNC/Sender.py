@@ -878,19 +878,19 @@ class Sender:
 	# thread performing I/O on serial line
 	#----------------------------------------------------------------------
 	def serialIO(self):
+		self.sio_wait   = False		# wait for commands to complete (status change to Idle)
+		self.sio_status = False		# waiting for status <...> report
 		cline  = []		# length of pipeline commands
-		sline  = []		# pipeline commands
-		wait   = False		# wait for commands to complete (status change to Idle)
-		tosend = None		# next string to send
-		status = False		# waiting for status <...> report
-		tr = tg = time.time()	# last time a ? or $G was send to grbl
+		sline  = []			# pipeline commands
+		tosend = None			# next string to send
+		tr = tg = time.time()		# last time a ? or $G was send to grbl
 
 		while self.thread:
 			t = time.time()
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
 				self.serial.write(b"?")
-				status = True
+				self.sio_status = True
 				tr = t
 
 				#If Override change, attach feed
@@ -947,7 +947,7 @@ class Sender:
 						CNC.vars["_OvChanged"] = diff<-1
 
 			# Fetch new command to send if...
-			if tosend is None and not wait and not self._pause and self.queue.qsize()>0:
+			if tosend is None and not self.sio_wait and not self._pause and self.queue.qsize()>0:
 				try:
 					tosend = self.queue.get_nowait()
 					#print "+++",repr(tosend)
@@ -956,7 +956,7 @@ class Sender:
 						# wait to empty the grbl buffer and status is Idle
 						if tosend[0] == WAIT:
 							# Don't count WAIT until we are idle!
-							wait = True
+							self.sio_wait = True
 							#print "+++ WAIT ON"
 							#print "gcount=",self._gcount, self._runLines
 						elif tosend[0] == MSG:
@@ -1046,214 +1046,15 @@ class Sender:
 					pass
 
 				elif line[0]=="<":
-					if not status:
+					if not self.sio_status:
 						self.log.put((Sender.MSG_RECEIVE, line))
-
-					elif self.controller == "GRBL1":
-						status = False
-						fields = line[1:-1].split("|")
-						CNC.vars["pins"] = ""
-
-						#FIXME: not sure why this was here, but it was breaking stuff
-						#(eg.: pause button #773 and status display)
-						#if not self._alarm:
-						if CNC.vars["state"] != fields[0]: self.controllerStateChange(fields[0])
-						CNC.vars["state"] = fields[0]
-
-						for field in fields[1:]:
-							word = SPLITPAT.split(field)
-							if word[0] == "MPos":
-								try:
-									CNC.vars["mx"] = float(word[1])
-									CNC.vars["my"] = float(word[2])
-									CNC.vars["mz"] = float(word[3])
-									CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-									CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-									CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-									self._posUpdate = True
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "F":
-								try:
-									CNC.vars["curfeed"] = float(word[1])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "FS":
-								try:
-									CNC.vars["curfeed"]    = float(word[1])
-									CNC.vars["curspindle"] = float(word[2])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "Bf":
-								try:
-									CNC.vars["planner"] = int(word[1])
-									CNC.vars["rxbytes"] = int(word[2])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "Ov":
-								try:
-									CNC.vars["OvFeed"]    = int(word[1])
-									CNC.vars["OvRapid"]   = int(word[2])
-									CNC.vars["OvSpindle"] = int(word[3])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "WCO":
-								try:
-									CNC.vars["wcox"] = float(word[1])
-									CNC.vars["wcoy"] = float(word[2])
-									CNC.vars["wcoz"] = float(word[3])
-								except (ValueError,IndexError):
-									CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-									self.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
-									break
-							elif word[0] == "Pn":
-								try:
-									CNC.vars["pins"] = word[1]
-									if 'S' in word[1]:
-										if CNC.vars["state"] == 'Idle' and not self.running:
-											print "Stream requested by CYCLE START machine button"
-											self.event_generate("<<Run>>")
-										else:
-											print "Ignoring machine stream request, because of state: ", CNC.vars["state"], self.running
-								except (ValueError,IndexError):
-									break
-
-
-						# Machine is Idle buffer is empty stop waiting and go on
-						if wait and not cline and fields[0] in ("Idle","Check"):
-							self.jobDone()
-							wait = False
-							self._gcount += 1
-
-					elif self.controller == "SMOOTHIE":
-							# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
-							ln= line[1:-1] # strip off < .. >
-
-							# split fields
-							l= ln.split('|')
-
-							# strip off status
-							CNC.vars["state"]= l[0]
-
-							# strip of rest into a dict of name: [values,...,]
-							d= { a: [float(y) for y in b.split(',')] for a, b in [x.split(':') for x in l[1:]] }
-							CNC.vars["mx"] = float(d['MPos'][0])
-							CNC.vars["my"] = float(d['MPos'][1])
-							CNC.vars["mz"] = float(d['MPos'][2])
-							CNC.vars["wx"] = float(d['WPos'][0])
-							CNC.vars["wy"] = float(d['WPos'][1])
-							CNC.vars["wz"] = float(d['WPos'][2])
-							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
-							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
-							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-							if 'F' in d:
-							        CNC.vars["curfeed"] = float(d['F'][0])
-							self._posUpdate = True
-
-							# Machine is Idle buffer is empty
-							# stop waiting and go on
-							if wait and not cline and l[0] in ("Idle","Check"):
-							        wait = False
-							        self._gcount += 1
-
 					else:
-						status = False
-						pat = STATUSPAT.match(line)
-						if pat:
-							if not self._alarm:
-								CNC.vars["state"] = pat.group(1)
-							CNC.vars["mx"] = float(pat.group(2))
-							CNC.vars["my"] = float(pat.group(3))
-							CNC.vars["mz"] = float(pat.group(4))
-							CNC.vars["wx"] = float(pat.group(5))
-							CNC.vars["wy"] = float(pat.group(6))
-							CNC.vars["wz"] = float(pat.group(7))
-							CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
-							CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
-							CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
-							self._posUpdate = True
-							if pat.group(1)[:4] != "Hold" and self._msg:
-								self._msg = None
+						self.control.parseBracketAngle(line, cline)
 
-							# Machine is Idle buffer is empty
-							# stop waiting and go on
-							#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
-							#print ">>>", line
-							if wait and not cline and pat.group(1) in ("Idle","Check"):
-								#print ">>>",line
-								wait = False
-								#print "<<< NO MORE WAIT"
-								self._gcount += 1
-						else:
-							self.log.put((Sender.MSG_RECEIVE, line))
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
-					if self.controller == "GRBL1":
-						word = SPLITPAT.split(line[1:-1])
-						#print word
-						if word[0] == "PRB":
-							CNC.vars["prbx"] = float(word[1])
-							CNC.vars["prby"] = float(word[2])
-							CNC.vars["prbz"] = float(word[3])
-							#if self.running:
-							self.gcode.probe.add(
-								 CNC.vars["prbx"]-CNC.vars["wcox"],
-								 CNC.vars["prby"]-CNC.vars["wcoy"],
-								 CNC.vars["prbz"]-CNC.vars["wcoz"])
-							self._probeUpdate = True
-							CNC.vars[word[0]] = word[1:]
-						elif word[0] == "GC":
-							CNC.vars["G"] = word[1].split()
-							CNC.updateG()
-							self._gUpdate = True
-						elif word[0] == "TLO":
-							CNC.vars[word[0]] = word[1]
-							self._probeUpdate = True
-						else:
-							CNC.vars[word[0]] = word[1:]
-					else:
-						pat = POSPAT.match(line)
-						if pat:
-							if pat.group(1) == "PRB":
-								CNC.vars["prbx"] = float(pat.group(2))
-								CNC.vars["prby"] = float(pat.group(3))
-								CNC.vars["prbz"] = float(pat.group(4))
-								#if self.running:
-								self.gcode.probe.add(
-									 CNC.vars["prbx"]
-									+CNC.vars["wx"]
-									-CNC.vars["mx"],
-									 CNC.vars["prby"]
-									+CNC.vars["wy"]
-									-CNC.vars["my"],
-									 CNC.vars["prbz"]
-									+CNC.vars["wz"]
-									-CNC.vars["mz"])
-								self._probeUpdate = True
-							CNC.vars[pat.group(1)] = \
-								[float(pat.group(2)),
-								 float(pat.group(3)),
-								 float(pat.group(4))]
-						else:
-							pat = TLOPAT.match(line)
-							if pat:
-								CNC.vars[pat.group(1)] = pat.group(2)
-								self._probeUpdate = True
-							elif DOLLARPAT.match(line):
-								CNC.vars["G"] = line[1:-1].split()
-								CNC.updateG()
-								self._gUpdate = True
+					self.control.parseBracketSquare(line)
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
@@ -1318,7 +1119,8 @@ class Sender:
 #					if not tosend: tosend = None
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
-				if self.controller=="SMOOTHIE": tosend = tosend.upper()
+				if self.control.gcode_case > 0: tosend = tosend.upper()
+				if self.control.gcode_case < 0: tosend = tosend.lower()
 				self.serial.write(bytes(tosend))
 				#self.serial.write(tosend.encode("utf8"))
 				#self.serial.flush()
