@@ -5,6 +5,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 17-Jun-2015
 
+from __future__ import print_function
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
@@ -856,7 +857,7 @@ class Sender:
 		self.feedHold()
 		self._stop = True
 		# if we are in the process of submitting do not do anything
-		if self._runLines != sys.maxint:
+		if self._runLines != sys.maxsize:
 			self.purgeController()
 
 	#----------------------------------------------------------------------
@@ -865,14 +866,14 @@ class Sender:
 	# See https://github.com/vlachoudis/bCNC/issues/1035
 	#----------------------------------------------------------------------
 	def jobDone(self):
-		print "Job done. Purging the controller"
+		print("Job done. Purging the controller")
 		self.purgeController()
 
 	#----------------------------------------------------------------------
 	# This is called everytime that motion controller changes the state
 	#----------------------------------------------------------------------
 	def controllerStateChange(self, state):
-		print "Controller state changed to: %s"%(state)
+		print("Controller state changed to: %s"%(state))
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line
@@ -1058,7 +1059,7 @@ class Sender:
 				# WARNING if runLines==maxint then it means we are
 				# still preparing/sending lines from from bCNC.run(),
 				# so don't stop
-				if self._runLines != sys.maxint:
+				if self._runLines != sys.maxsize:
 					self._stop = False
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,

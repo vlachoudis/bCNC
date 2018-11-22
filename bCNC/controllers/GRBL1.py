@@ -1,3 +1,4 @@
+from __future__ import print_function
 from Sender import ControllerGeneric, GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
@@ -171,10 +172,10 @@ class Controller(ControllerGeneric):
 					CNC.vars["pins"] = word[1]
 					if 'S' in word[1]:
 						if CNC.vars["state"] == 'Idle' and not self.master.running:
-							print "Stream requested by CYCLE START machine button"
+							print("Stream requested by CYCLE START machine button")
 							self.master.event_generate("<<Run>>")
 						else:
-							print "Ignoring machine stream request, because of state: ", CNC.vars["state"], self.master.running
+							print("Ignoring machine stream request, because of state: ", CNC.vars["state"], self.master.running)
 				except (ValueError,IndexError):
 					break
 

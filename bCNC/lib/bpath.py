@@ -7,6 +7,7 @@
 # Contributor: @harvie Tomas Mudrunka (2018)
 # Date:   10-Mar-2015
 
+from __future__ import print_function
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
@@ -900,10 +901,10 @@ class Path(list):
 			return C, r, arcd
 
 		def path2gc(path):
-			print "(Block-name: debug)"
-			print "g0 x%f y%f"%(path[0].A[0], path[0].A[1])
+			print("(Block-name: debug)")
+			print("g0 x%f y%f"%(path[0].A[0], path[0].A[1]))
 			for seg in path:
-				print "g1 x%f y%f"%(seg.B[0], seg.B[1])
+				print("g1 x%f y%f"%(seg.B[0], seg.B[1]))
 
 		numseg = max(2,numseg)
 		npath = Path(self.name, self.color)
@@ -1556,7 +1557,7 @@ class Path(list):
 		subgs = []
 		subg = getFirstSubGraph(eulg)
 		while subg is not None:
-			print "subgraph",subg
+			print("subgraph",subg)
 			subgs.append(subg)
 			subg = getFirstSubGraph(eulg)
 
@@ -1564,12 +1565,12 @@ class Path(list):
 		for eulg in subgs:
 			#Find eulerian path in graph
 			eulp = eulerPath(eulg)
-			print "eulerpath",eulp
+			print("eulerpath",eulp)
 
 			#Reconstruct bpath from eulerian graph
 			eulpath = Path("euler")
 			lastb = self[eulp[-1]].B
-			print "--------"
+			print("--------")
 			for i in eulp:
 				seg = self[i]
 				if not eq(lastb,seg.A):
@@ -1587,7 +1588,7 @@ class Path(list):
 			return eulpaths[0]
 			eulpath = Path("euler")
 			for p in eulpaths:
-				print "path",p
+				print("path",p)
 				eulpath.extend(p)
 			return eulpath
 		return eulpaths

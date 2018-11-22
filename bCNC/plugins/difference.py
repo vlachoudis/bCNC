@@ -4,6 +4,7 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
 
+from __future__ import print_function
 __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 
@@ -77,7 +78,7 @@ class Tool(Plugin):
 			paths_base = paths_newbase
 
 		for base in paths_base:
-			print base
+			print(base)
 			#base = base.eulerize(True)
 			block = Block("diff")
 			block.extend(app.gcode.fromPath(base))

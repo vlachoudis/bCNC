@@ -4,6 +4,7 @@
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	16-Apr-2015
 
+from __future__ import print_function
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
@@ -95,7 +96,7 @@ LANGUAGES = {
 icons     = {}
 images     = {}
 config    = ConfigParser.ConfigParser()
-print "new-config", __name__, config #This is here to debug the fact that config is sometimes instantiated twice
+print("new-config", __name__, config) #This is here to debug the fact that config is sometimes instantiated twice
 language  = ""
 
 _errorReport = True
