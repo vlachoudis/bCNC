@@ -41,27 +41,6 @@ SERIAL_TIMEOUT = 0.10	# s
 G_POLL	       = 10	# s
 RX_BUFFER_SIZE = 128
 
-OV_FEED_100     = chr(0x90)        # Extended override commands
-OV_FEED_i10     = chr(0x91)
-OV_FEED_d10     = chr(0x92)
-OV_FEED_i1      = chr(0x93)
-OV_FEED_d1      = chr(0x94)
-
-OV_RAPID_100    = chr(0x95)
-OV_RAPID_50     = chr(0x96)
-OV_RAPID_25     = chr(0x97)
-
-OV_SPINDLE_100  = chr(0x99)
-OV_SPINDLE_i10  = chr(0x9A)
-OV_SPINDLE_d10  = chr(0x9B)
-OV_SPINDLE_i1   = chr(0x9C)
-OV_SPINDLE_d1   = chr(0x9D)
-
-OV_SPINDLE_STOP = chr(0x9E)
-
-OV_FLOOD_TOGGLE = chr(0xA0)
-OV_MIST_TOGGLE  = chr(0xA1)
-
 GPAT	  = re.compile(r"[A-Za-z]\s*[-+]?\d+.*")
 STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
 POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
