@@ -7,6 +7,7 @@
 # special thanks to my wonderful wife Giulia.
 
 from __future__ import absolute_import
+from __future__ import print_function
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

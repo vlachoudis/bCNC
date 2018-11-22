@@ -12,6 +12,7 @@
 # To correct: Thats why the first point starts, 
 
 from __future__ import absolute_import
+from __future__ import print_function
 __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar"
 

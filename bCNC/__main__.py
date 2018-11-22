@@ -6,6 +6,7 @@
 # Date: 24-Aug-2014
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 __version__ = "0.9.14"
 __date__    = "5 Feb 2018"

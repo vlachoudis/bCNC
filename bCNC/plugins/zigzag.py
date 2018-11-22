@@ -6,6 +6,7 @@
 # Date:	2-Jan-2017
 
 from __future__ import absolute_import
+from __future__ import print_function
 __author__ = "Carlos Garcia Saura"
 __email__  = "@CarlosGS"
 
