@@ -1,0 +1,3 @@
+recursive-include bCNC *
+include *.md
+global-exclude *.pyc *.pyo

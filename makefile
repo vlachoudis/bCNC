@@ -1,18 +1,25 @@
 NAME = bCNC
-SOURCES = *.py lib/*.py plugins/*.py
+SOURCES = bCNC/*.py bCNC/lib/*.py bCNC/plugins/*.py
+.PHONY = help
 
-pot: ${NAME}.pot
+help:
+	@echo see source
 
-${NAME}.pot: ${SOURCES}
+pot: bCNC/${NAME}.pot
+
+bCNC/${NAME}.pot: ${SOURCES}
 	xgettext --from-code=UTF-8 --keyword=N_ -d ${NAME} -o $@ $^
 	#pygettext.py -k N_ -d ${NAME} -o $@ $^
 
 tags:
-	ctags *.py lib/*.py plugins/*.py
+	ctags bCNC/*.py bCNC/lib/*.py bCNC/plugins/*.py
 
 clean:
-	rm -f ${NAME}.pot
-	rm -f *.pyc *.pyo
-	rm -rf __pycache__ lib/__pycache__ plugins/__pycache__
-	rm -f lib/*.pyc lib/*.pyo
-	rm -f plugins/*.pyc plugins/*.pyo
+	git clean -Xf
+	#rm -f bCNC/${NAME}.pot
+	rm -f bCNC/*.pyc bCNC/*.pyo
+	rm -f bCNC/lib/*.pyc bCNC/lib/*.pyo
+	rm -f bCNC/plugins/*.pyc bCNC/plugins/*.pyo
+
+upload:
+	python2 setup.py sdist upload
