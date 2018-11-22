@@ -14,6 +14,7 @@ You can use any of these commands (you need only one):
 
     pip2 install --upgrade bCNC
     pip2 install --upgrade git+https://github.com/vlachoudis/bCNC
+    pip2 install . #in git directory
     python2 -m pip install --upgrade bCNC
 
 This is how you launch bCNC:
