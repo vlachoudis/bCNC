@@ -4,6 +4,7 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 11 july 2018
 
+from __future__ import absolute_import
 __author__ = "@harvie Tomas Mudrunka"
 #__email__  = ""
 

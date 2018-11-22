@@ -32,6 +32,7 @@
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	02-Aug-2006
 
+from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
@@ -46,8 +47,8 @@ except ImportError:
 	from tkinter import *
 	from tkinter import _cnfmerge
 
-import tkExtra
-import bFileDialog
+from . import tkExtra
+from . import bFileDialog
 
 #===============================================================================
 # Similar to the Dialog.py from Tk but transient to master

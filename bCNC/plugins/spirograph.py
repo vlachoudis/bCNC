@@ -6,6 +6,7 @@
 # Date:	26 September 2015
 # special thanks to my wonderful wife Giulia.
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

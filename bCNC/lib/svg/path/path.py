@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import absolute_import
 from math import sqrt, cos, sin, acos, degrees, radians, log
 from collections import MutableSequence
 

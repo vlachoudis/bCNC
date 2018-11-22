@@ -11,6 +11,7 @@
 # of yours plugin Driller and My_Plugin example.
 # To correct: Thats why the first point starts, 
 
+from __future__ import absolute_import
 __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar"
 

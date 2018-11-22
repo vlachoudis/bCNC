@@ -7,6 +7,7 @@
 # Inspired by: "Death to sharpie" a drawbot by Scott Cooper
 # see at http://www.dullbits.com/drawbot/drawbot
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

@@ -6,6 +6,7 @@
 # Date:	11 March 2016
 # Done in Annonay at Hotel "Du midi" after a business trip and 10 hours of work.
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

@@ -5,6 +5,7 @@
 # Author:	https://github.com/carlosgs
 # Date:	14-Sep-2015
 
+from __future__ import absolute_import
 __author__ = "Carlos Garcia Saura"
 __email__  = ""
 __name__   = _("Bowl")

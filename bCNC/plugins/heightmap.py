@@ -11,6 +11,7 @@
 #              Author.py(linuxcnc) 2007 Jeff Epler  jepler@unpythonic.net
 #              dmap2gcode G-Code Generator 2015  @schorchworks
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

@@ -53,6 +53,7 @@
 #
 #   Filippo Rivato f.rivato@gmail.com
 
+from __future__ import absolute_import
 import codecs
 import os
 import mmap

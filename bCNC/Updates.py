@@ -5,6 +5,7 @@
 # Author: vvlachoudis@gmail.com
 # Date:	5-Apr-2007
 
+from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 

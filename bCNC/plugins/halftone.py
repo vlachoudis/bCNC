@@ -5,6 +5,7 @@
 # Author:	Filippo Rivato
 # Date: 14 Febbruary 2016
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

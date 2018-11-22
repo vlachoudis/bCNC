@@ -4,6 +4,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 20-Oct-2015
 
+from __future__ import absolute_import
 import sys
 import bmath
 
@@ -455,7 +456,7 @@ def _rbsplinu(npts, k, p1, b, h, p, x=None):
 # =============================================================================
 if __name__ == "__main__":
 	SPLINE_SEGMENTS = 20
-	from dxf import DXF
+	from .dxf import DXF
 #	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
 	dxf = DXF(sys.argv[1],"r")
 	dxf.readFile()

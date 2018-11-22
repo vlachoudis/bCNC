@@ -5,6 +5,7 @@
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	20-Aug-2015
 
+from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 

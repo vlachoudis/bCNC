@@ -6,6 +6,7 @@
 # Date: 9 November 2015
 # A special thanks to Vasilis for his patient explanations
 
+from __future__ import absolute_import
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 

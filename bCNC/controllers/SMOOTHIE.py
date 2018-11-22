@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from Sender import ControllerGeneric, GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time

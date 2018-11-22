@@ -5,6 +5,7 @@
 # Author: Gonzalo Cobos Bergillos
 # Date:	15-Nov-2017
 
+from __future__ import absolute_import
 __author__ = "Gonzalo Cobos Bergillos"
 __email__  = "gcobos@gmail.com"
 

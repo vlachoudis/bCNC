@@ -4,6 +4,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+from __future__ import absolute_import
 try:
 	import cv2 as cv
 except ImportError:

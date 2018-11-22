@@ -32,6 +32,7 @@
 # Author:	Vasilis.Vlachoudis@cern.ch
 # Date:	14-May-2004
 
+from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
@@ -223,7 +224,7 @@ def _isnum(str):
 	return True
 
 if __name__=="__main__":
-	from log import say
+	from .log import say
 
 	say("abbrev")
 	assert     abbrev('information','info',4)

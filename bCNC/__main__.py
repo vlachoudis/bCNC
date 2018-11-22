@@ -2203,7 +2203,7 @@ class Application(Toplevel,Sender):
 		# the buffer of the machine should be empty?
 		self.initRun()
 		self.canvas.clearSelection()
-		self._runLines = sys.maxint	# temporary WARNING this value is used
+		self._runLines = sys.maxsize	# temporary WARNING this value is used
 						# by Sender._serialIO to check if we
 						# are still sending or we finished
 		self._gcount   = 0		# count executed lines

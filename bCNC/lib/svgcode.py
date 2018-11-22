@@ -10,6 +10,7 @@
 #	print(path['id'])
 #	print(path['path'])
 
+from __future__ import absolute_import
 import re
 import numpy
 import svg.path

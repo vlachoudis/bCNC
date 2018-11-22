@@ -7,6 +7,7 @@
 
 from __future__ import generators
 
+from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
@@ -187,7 +188,7 @@ def format(number, length=10, useExp=False, useD=False):
 		r = integer[_MAXLEN]
 		integer = integer[0:_MAXLEN]
 		if r>='5':
-			integer = str(long(integer)+1)
+			integer = str(int(integer)+1)
 			if len(integer) > lint:
 				exponent += 1
 				if len(integer) > _MAXLEN:
@@ -249,7 +250,7 @@ def format(number, length=10, useExp=False, useD=False):
 		if r>='5':
 			lint = len(integer)
 			if lint==0: integer = 0
-			integer = str(long(integer)+1)
+			integer = str(int(integer)+1)
 			if len(integer) > lint:
 				exponent += 1
 
