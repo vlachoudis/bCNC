@@ -186,13 +186,6 @@ for e1,e0 in (	("error: Expected command letter", "error:1"),
 	ERROR_CODES[e1] = ERROR_CODES[e0]
 
 #==============================================================================
-# bCNC Generic controller class
-#==============================================================================
-class ControllerGeneric:
-	def test(self):
-		print("test super")
-
-#==============================================================================
 # bCNC Sender class
 #==============================================================================
 class Sender:
@@ -250,6 +243,7 @@ class Sender:
 		# Find plugins in the controllers directory and load them
 		for f in glob.glob("%s/controllers/*.py"%(Utils.prgpath)):
 			name,ext = os.path.splitext(os.path.basename(f))
+			if name[0] == '_': continue
 			#print("Loaded motion controller plugin: %s"%(name))
 			try:
 				exec("import %s"%(name))

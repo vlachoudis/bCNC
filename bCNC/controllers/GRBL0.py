@@ -1,9 +1,11 @@
 from __future__ import absolute_import
-from Sender import ControllerGeneric, GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
+from __future__ import print_function
+from _GenericGRBL import _GenericGRBL
+from Sender import GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
 
-class Controller(ControllerGeneric):
+class Controller(_GenericGRBL):
 	def __init__(self, master):
 		self.gcode_case = 0
 		self.has_override = False

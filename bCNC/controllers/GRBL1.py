@@ -1,5 +1,9 @@
+# GRBL 1.0+ motion controller plugin
+
+from __future__ import absolute_import
 from __future__ import print_function
-from Sender import ControllerGeneric, GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
+from _GenericGRBL import _GenericGRBL
+from Sender import GPAT, STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, FEEDPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
 
@@ -24,7 +28,7 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-class Controller(ControllerGeneric):
+class Controller(_GenericGRBL):
 	def __init__(self, master):
 		self.gcode_case = 0
 		self.has_override = True
