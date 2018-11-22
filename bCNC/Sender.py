@@ -230,7 +230,7 @@ class Sender:
 		self.history	 = []
 		self._historyPos = None
 
-		#self.control     = None
+		#self.mcontrol     = None
 		self.controllers = {}
 		self.controllerLoad()
 		self.controllerSet("GRBL1")
@@ -290,8 +290,8 @@ class Sender:
 		#print("Activating motion controller plugin: %s"%(ctl))
 		if ctl in self.controllers.keys():
 			self.controller = ctl
-			self.control = self.controllers[ctl]
-			#self.control.test()
+			self.mcontrol = self.controllers[ctl]
+			#self.mcontrol.test()
 
 
 	#----------------------------------------------------------------------
@@ -469,7 +469,7 @@ class Sender:
 			self.unlock()
 
 		# Send commands to SMOOTHIE
-		elif self.control.executeCommand(oline, line, cmd):
+		elif self.mcontrol.executeCommand(oline, line, cmd):
 			pass
 
 		else:
@@ -654,9 +654,9 @@ class Sender:
 	def hardReset(self):
 		self.busy()
 		if self.serial is not None:
-			self.control.hardResetPre()
+			self.mcontrol.hardResetPre()
 			self.openClose()
-			self.control.hardResetAfter()
+			self.mcontrol.hardResetAfter()
 		self.openClose()
 		self.stopProbe()
 		self._alarm = False
@@ -683,7 +683,7 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def viewSettings(self):
-		self.control.viewSettings()
+		self.mcontrol.viewSettings()
 
 	def viewParameters(self):
 		self.sendGCode("$#")
@@ -692,25 +692,25 @@ class Sender:
 		self.sendGCode("$G")
 
 	def viewBuild(self):
-		self.control.viewBuild()
+		self.mcontrol.viewBuild()
 
 	def viewStartup(self):
-		self.control.viewStartup()
+		self.mcontrol.viewStartup()
 
 	def checkGcode(self):
-		self.control.checkGcode()
+		self.mcontrol.checkGcode()
 
 	def grblHelp(self):
-		self.control.grblHelp()
+		self.mcontrol.grblHelp()
 
 	def grblRestoreSettings(self):
-		self.control.grblRestoreSettings()
+		self.mcontrol.grblRestoreSettings()
 
 	def grblRestoreWCS(self):
-		self.control.grblRestoreWCS()
+		self.mcontrol.grblRestoreWCS()
 
 	def grblRestoreAll(self):
-		self.control.grblRestoreAll()
+		self.mcontrol.grblRestoreAll()
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):
@@ -843,7 +843,7 @@ class Sender:
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
 		TLO = CNC.vars["TLO"]
 		self.softReset(False)			# reset controller
-		self.control.purgeController()
+		self.mcontrol.purgeController()
 		self.runEnded()
 		self.stopProbe()
 		if G: self.sendGCode(G)			# restore $G
@@ -896,7 +896,7 @@ class Sender:
 
 				#If Override change, attach feed
 				if CNC.vars["_OvChanged"]:
-					self.control.overrideSet()
+					self.mcontrol.overrideSet()
 
 			# Fetch new command to send if...
 			if tosend is None and not self.sio_wait and not self._pause and self.queue.qsize()>0:
@@ -959,7 +959,7 @@ class Sender:
 						self._lastFeed = pat.group(2)
 
 					# Modify sent g-code to reflect overrided feed for controllers without override support
-					if not self.control.has_override:
+					if not self.mcontrol.has_override:
 						if CNC.vars["_OvChanged"]:
 							CNC.vars["_OvChanged"] = False
 							self._newFeed = float(self._lastFeed)*CNC.vars["_OvFeed"]/100.0
@@ -1002,11 +1002,11 @@ class Sender:
 					if not self.sio_status:
 						self.log.put((Sender.MSG_RECEIVE, line))
 					else:
-						self.control.parseBracketAngle(line, cline)
+						self.mcontrol.parseBracketAngle(line, cline)
 
 				elif line[0]=="[":
 					self.log.put((Sender.MSG_RECEIVE, line))
-					self.control.parseBracketSquare(line)
+					self.mcontrol.parseBracketSquare(line)
 
 				elif "error:" in line or "ALARM:" in line:
 					self.log.put((Sender.MSG_ERROR, line))
@@ -1071,8 +1071,8 @@ class Sender:
 #					if not tosend: tosend = None
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
-				if self.control.gcode_case > 0: tosend = tosend.upper()
-				if self.control.gcode_case < 0: tosend = tosend.lower()
+				if self.mcontrol.gcode_case > 0: tosend = tosend.upper()
+				if self.mcontrol.gcode_case < 0: tosend = tosend.lower()
 				self.serial.write(bytes(tosend))
 				#self.serial.write(tosend.encode("utf8"))
 				#self.serial.flush()
