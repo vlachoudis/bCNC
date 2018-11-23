@@ -2183,6 +2183,9 @@ class Application(Toplevel,Sender):
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
 	def run(self, lines=None):
+		self.cleanAfter = True	#Clean when this operation stops
+		print("Will clean after this operation")
+
 		if self.serial is None and not CNC.developer:
 			tkMessageBox.showerror(_("Serial Error"),
 				_("Serial is not connected"),

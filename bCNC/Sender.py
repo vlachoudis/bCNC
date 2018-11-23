@@ -114,6 +114,7 @@ class Sender:
 
 		self.running	 = False
 		self.runningPrev = None
+		self.cleanAfter  = False
 		self._runLines	 = 0
 		self._quit	 = 0		# Quit counter to exit program
 		self._stop	 = False	# Raise to stop current run
@@ -740,7 +741,8 @@ class Sender:
 	#----------------------------------------------------------------------
 	def controllerStateChange(self, state):
 		print("Controller state changed to: %s (Running: %s)"%(state, self.running))
-		if state in ("Idle") and self.running == False:
+		if self.cleanAfter == True and self.running == False and state in ("Idle"):
+			self.cleanAfter = False
 			self.jobDone()
 
 	#----------------------------------------------------------------------
