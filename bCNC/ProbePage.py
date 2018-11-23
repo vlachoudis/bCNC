@@ -1662,18 +1662,24 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.changeX.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.changeX, _("Manual tool change Machine X location"))
 		self.addWidget(self.changeX)
+		self.changeX.bind('<KeyRelease>',   self.setProbeParams)
+		self.changeX.bind('<FocusOut>',   self.setProbeParams)
 
 		col += 1
 		self.changeY = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.changeY.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.changeY, _("Manual tool change Machine Y location"))
 		self.addWidget(self.changeY)
+		self.changeY.bind('<KeyRelease>',   self.setProbeParams)
+		self.changeY.bind('<FocusOut>',   self.setProbeParams)
 
 		col += 1
 		self.changeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.changeZ.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.changeZ, _("Manual tool change Machine Z location"))
 		self.addWidget(self.changeZ)
+		self.changeZ.bind('<KeyRelease>',   self.setProbeParams)
+		self.changeZ.bind('<FocusOut>', self.setProbeParams)
 
 		col += 1
 		b = Button(lframe, text=_("get"),
@@ -1692,18 +1698,24 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.probeX.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeX, _("Manual tool change Probing MX location"))
 		self.addWidget(self.probeX)
+		self.probeX.bind('<KeyRelease>',   self.setProbeParams)
+		self.probeX.bind('<FocusOut>', self.setProbeParams)
 
 		col += 1
 		self.probeY = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeY.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeY, _("Manual tool change Probing MY location"))
 		self.addWidget(self.probeY)
+		self.probeY.bind('<KeyRelease>',   self.setProbeParams)
+		self.probeY.bind('<FocusOut>', self.setProbeParams)
 
 		col += 1
 		self.probeZ = tkExtra.FloatEntry(lframe, background="White", width=5)
 		self.probeZ.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.probeZ, _("Manual tool change Probing MZ location"))
 		self.addWidget(self.probeZ)
+		self.probeZ.bind('<KeyRelease>',   self.setProbeParams)
+		self.probeZ.bind('<FocusOut>', self.setProbeParams)
 
 		col += 1
 		b = Button(lframe, text=_("get"),
@@ -1723,6 +1735,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(self.probeDistance,
 				_("After a tool change distance to scan starting from ProbeZ"))
 		self.addWidget(self.probeDistance)
+		self.probeDistance.bind('<KeyRelease>',   self.setProbeParams)
+		self.probeDistance.bind('<FocusOut>', self.setProbeParams)
 
 		# --- Calibration ---
 		row += 1
@@ -1838,17 +1852,32 @@ class ToolFrame(CNCRibbon.PageFrame):
 	def waitChange(self):
 		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
 
+
+	#-----------------------------------------------------------------------
+	def setProbeParams(self, dummy=None):
+		print("probe chg handler")
+		CNC.vars["toolchangex"] = float(self.changeX.get())
+		CNC.vars["toolchangey"] = float(self.changeY.get())
+		CNC.vars["toolchangez"] = float(self.changeZ.get())
+		CNC.vars["toolprobex"] = float(self.probeX.get())
+		CNC.vars["toolprobey"] = float(self.probeY.get())
+		CNC.vars["toolprobez"] = float(self.probeZ.get())
+		CNC.vars["toolprobez"] = float(self.probeZ.get())
+		CNC.vars["tooldistance"] = float(self.probeDistance.get())
+
 	#-----------------------------------------------------------------------
 	def getChange(self):
 		self.changeX.set(CNC.vars["mx"])
 		self.changeY.set(CNC.vars["my"])
 		self.changeZ.set(CNC.vars["mz"])
+		self.setProbeParams()
 
 	#-----------------------------------------------------------------------
 	def getProbe(self):
 		self.probeX.set(CNC.vars["mx"])
 		self.probeY.set(CNC.vars["my"])
 		self.probeZ.set(CNC.vars["mz"])
+		self.setProbeParams()
 
 	#-----------------------------------------------------------------------
 	def updateTool(self):
