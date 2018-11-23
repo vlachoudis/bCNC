@@ -113,6 +113,7 @@ class Sender:
 		self._update	 = None		# Generic update
 
 		self.running	 = False
+		self.runningPrev = None
 		self._runLines	 = 0
 		self._quit	 = 0		# Quit counter to exit program
 		self._stop	 = False	# Raise to stop current run
@@ -729,14 +730,18 @@ class Sender:
 	# See https://github.com/vlachoudis/bCNC/issues/1035
 	#----------------------------------------------------------------------
 	def jobDone(self):
-		print("Job done. Purging the controller")
+		print("Job done. Purging the controller. (Running: %s)"%(self.running))
 		self.purgeController()
 
 	#----------------------------------------------------------------------
 	# This is called everytime that motion controller changes the state
+	# YOU SHOULD PASS ONLY REAL HW STATE TO THIS, NOT BCNC STATE
+	# Right now the primary idea of this is to detect when job stopped running
 	#----------------------------------------------------------------------
 	def controllerStateChange(self, state):
-		print("Controller state changed to: %s"%(state))
+		print("Controller state changed to: %s (Running: %s)"%(state, self.running))
+		if state in ("Idle") and self.running == False:
+			self.jobDone()
 
 	#----------------------------------------------------------------------
 	# thread performing I/O on serial line

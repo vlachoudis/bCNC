@@ -130,10 +130,11 @@ class Controller(_GenericGRBL):
 		fields = line[1:-1].split("|")
 		CNC.vars["pins"] = ""
 
-		#FIXME: not sure why this was here, but it was breaking stuff
-		#(eg.: pause button #773 and status display)
-		#if not self._alarm:
-		if CNC.vars["state"] != fields[0]: self.master.controllerStateChange(fields[0])
+
+		#Report if state has changed
+		if CNC.vars["state"] != fields[0] or self.master.runningPrev != self.master.running:
+			self.master.controllerStateChange(fields[0])
+		self.master.runningPrev = self.master.running
 		CNC.vars["state"] = fields[0]
 
 		for field in fields[1:]:
@@ -207,7 +208,7 @@ class Controller(_GenericGRBL):
 
 		# Machine is Idle buffer is empty stop waiting and go on
 		if self.master.sio_wait and not cline and fields[0] in ("Idle","Check"):
-			#self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061
+			#if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061
 			self.master.sio_wait = False
 			self.master._gcount += 1
 
