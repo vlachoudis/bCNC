@@ -51,6 +51,7 @@ and run the bCNC command
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
+  - Py2deb to build Debian package from Python package: https://pypi.org/project/py2deb/
 
 # Instalation (Compile to Windows .exe)
 
