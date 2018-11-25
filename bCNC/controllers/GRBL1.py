@@ -150,14 +150,14 @@ class Controller(_GenericGRBL):
 					self.master._posUpdate = True
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "F":
 				try:
 					CNC.vars["curfeed"] = float(word[1])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "FS":
 				try:
@@ -165,7 +165,7 @@ class Controller(_GenericGRBL):
 					CNC.vars["curspindle"] = float(word[2])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "Bf":
 				try:
@@ -173,7 +173,7 @@ class Controller(_GenericGRBL):
 					CNC.vars["rxbytes"] = int(word[2])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "Ov":
 				try:
@@ -182,7 +182,7 @@ class Controller(_GenericGRBL):
 					CNC.vars["OvSpindle"] = int(word[3])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "WCO":
 				try:
@@ -191,7 +191,7 @@ class Controller(_GenericGRBL):
 					CNC.vars["wcoz"] = float(word[3])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
-					self.master.log.put((Sender.MSG_RECEIVE, CNC.vars["state"]))
+					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
 					break
 			elif word[0] == "Pn":
 				try:

@@ -81,7 +81,7 @@ class Controller(_GenericGRBL):
 				#print "<<< NO MORE WAIT"
 				self.master._gcount += 1
 			else:
-				self.master.log.put((Sender.MSG_RECEIVE, line))
+				self.master.log.put((self.master.MSG_RECEIVE, line))
 
 	def parseBracketSquare(self, line):
 		pat = POSPAT.match(line)
