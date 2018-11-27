@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.43",
+	version = "0.9.14.44",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
@@ -15,6 +15,7 @@ setup(
 	author_email='vvlachoudis@gmail.com',
 	url="https://github.com/vlachoudis/bCNC",
 	include_package_data=True,
+	python_requires="<3.0",
 	install_requires = [
 		'pyserial<=3.0.1',	#Windows XP can't handle pyserial newer than 3.0.1
 		'numpy>=1.12',
