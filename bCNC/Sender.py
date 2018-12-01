@@ -853,7 +853,7 @@ class Sender:
 					sline.append(tosend)
 					cline.append(len(tosend))
 
-			# Anything to receive?
+			# Anything to receive? FIXME: move this code to controller plugins
 			if self.serial.inWaiting() or tosend is None:
 				try:
 					line = str(self.serial.readline()).strip()
