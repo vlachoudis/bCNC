@@ -15,7 +15,7 @@ DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 SPLITPAT  = re.compile(r"[:,]")
 VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 
-class _ControllerGeneric:
+class _GenericController:
 	def test(self):
 		print("test supergen")
 

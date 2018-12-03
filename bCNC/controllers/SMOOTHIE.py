@@ -2,12 +2,12 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from _ControllerGeneric import _ControllerGeneric
-from _ControllerGeneric import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
+from _GenericController import _GenericController
+from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
 
-class Controller(_ControllerGeneric):
+class Controller(_GenericController):
 	def __init__(self, master):
 		self.gcode_case = 1
 		self.has_override = False

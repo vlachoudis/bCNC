@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from _ControllerGeneric import _ControllerGeneric
+from _GenericController import _GenericController
 import time
 
 # From https://github.com/grbl/grbl/wiki/Interfacing-with-Grbl
@@ -119,7 +119,7 @@ for e1,e0 in (	("error: Expected command letter", "error:1"),
 	ERROR_CODES[e1] = ERROR_CODES[e0]
 
 
-class _GenericGRBL(_ControllerGeneric):
+class _GenericGRBL(_GenericController):
 	def test(self):
 		print("test supergen grbl")
 

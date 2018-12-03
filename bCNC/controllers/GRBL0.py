@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from _GenericGRBL import _GenericGRBL
-from _ControllerGeneric import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
+from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
 
