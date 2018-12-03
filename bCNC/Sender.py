@@ -43,13 +43,7 @@ G_POLL	       = 10	# s
 RX_BUFFER_SIZE = 128
 
 GPAT	  = re.compile(r"[A-Za-z]\s*[-+]?\d+.*")
-STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
-POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
-TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
-DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
-SPLITPAT  = re.compile(r"[:,]")
-VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
@@ -853,7 +847,7 @@ class Sender:
 					sline.append(tosend)
 					cline.append(len(tosend))
 
-			# Anything to receive? FIXME: move this code to controller plugins
+			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
 				try:
 					line = str(self.serial.readline()).strip()
@@ -867,57 +861,8 @@ class Sender:
 				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
 					pass
-
-				elif line[0]=="<":
-					if not self.sio_status:
-						self.log.put((Sender.MSG_RECEIVE, line))
-					else:
-						self.mcontrol.parseBracketAngle(line, cline)
-
-				elif line[0]=="[":
-					self.log.put((Sender.MSG_RECEIVE, line))
-					self.mcontrol.parseBracketSquare(line)
-
-				elif "error:" in line or "ALARM:" in line:
-					self.log.put((Sender.MSG_ERROR, line))
-					self._gcount += 1
-					#print "gcount ERROR=",self._gcount
-					if cline: del cline[0]
-					if sline: CNC.vars["errline"] = sline.pop(0)
-					if not self._alarm: self._posUpdate = True
-					self._alarm = True
-					CNC.vars["state"] = line
-					if self.running:
-						self._stop = True
-
-				elif line.find("ok")>=0:
-					self.log.put((Sender.MSG_OK, line))
-					self._gcount += 1
-					if cline: del cline[0]
-					if sline: del sline[0]
-					#print "SLINE:",sline
-#					if  self._alarm and not self.running:
-#						# turn off alarm for connected status once
-#						# a valid gcode event occurs
-#						self._alarm = False
-
-				elif line[0] == "$":
-					self.log.put((Sender.MSG_RECEIVE, line))
-					pat = VARPAT.match(line)
-					if pat:
-						CNC.vars["grbl_%s"%(pat.group(1))] = pat.group(2)
-
-				elif line[:4]=="Grbl" or line[:13]=="CarbideMotion": # and self.running:
-					tg = time.time()
-					self.log.put((Sender.MSG_RECEIVE, line))
-					self._stop = True
-					del cline[:]	# After reset clear the buffer counters
-					del sline[:]
-					CNC.vars["version"] = line.split()[1]
-					# Detect controller
-					if self.controller in ("GRBL0", "GRBL1"):
-						self.controllerSet("GRBL%d"%(int(CNC.vars["version"][0])))
-
+				elif self.mcontrol.parseLine(line, cline, sline):
+					pass
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))
 
