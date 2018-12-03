@@ -1,3 +1,5 @@
+# Smoothieboard motion controller plugin
+
 from __future__ import absolute_import
 from __future__ import print_function
 from _ControllerGeneric import _ControllerGeneric
@@ -30,36 +32,12 @@ class Controller(_ControllerGeneric):
 	def hardResetAfter(self):
 		time.sleep(6)
 
-	def viewSettings(self):
-		pass
-
 	def viewBuild(self):
 		self.master.serial.write(b"version\n")
 		self.master.sendGCode("$I")
 
-	def viewStartup(self):
-		pass
-
-	def checkGcode(self):
-		pass
-
 	def grblHelp(self):
 		self.master.serial.write(b"help\n")
-
-	def grblRestoreSettings(self):
-		pass
-
-	def grblRestoreWCS(self):
-		pass
-
-	def grblRestoreAll(self):
-		pass
-
-	def purgeController(self):
-		pass
-
-	def overrideSet(self):
-		pass
 
 	def parseBracketAngle(self, line, cline):
 		# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>
@@ -124,4 +102,3 @@ class Controller(_ControllerGeneric):
 				CNC.vars["G"] = line[1:-1].split()
 				CNC.updateG()
 				self.master._gUpdate = True
-

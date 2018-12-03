@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from _ControllerGeneric import _ControllerGeneric
+import time
 
 # From https://github.com/grbl/grbl/wiki/Interfacing-with-Grbl
 ERROR_CODES = {
@@ -121,3 +122,31 @@ for e1,e0 in (	("error: Expected command letter", "error:1"),
 class _GenericGRBL(_ControllerGeneric):
 	def test(self):
 		print("test supergen grbl")
+
+	def viewSettings(self):
+		self.master.sendGCode("$$")
+
+	def viewBuild(self):
+		self.master.sendGCode("$I")
+
+	def viewStartup(self):
+		self.master.sendGCode("$N")
+
+	def checkGcode(self):
+		self.master.sendGCode("$C")
+
+	def grblHelp(self):
+		self.master.sendGCode("$")
+
+	def grblRestoreSettings(self):
+		self.master.sendGCode("$RST=$")
+
+	def grblRestoreWCS(self):
+		self.master.sendGCode("$RST=#")
+
+	def grblRestoreAll(self):
+		self.master.sendGCode("$RST=#")
+
+	def purgeControllerExtra(self):
+		time.sleep(1)
+		self.master.unlock(False)

@@ -510,138 +510,30 @@ class Sender:
 		self.serial.flush()
 
 	#----------------------------------------------------------------------
-	def hardReset(self):
-		self.busy()
-		if self.serial is not None:
-			self.mcontrol.hardResetPre()
-			self.openClose()
-			self.mcontrol.hardResetAfter()
-		self.openClose()
-		self.stopProbe()
-		self._alarm = False
-		CNC.vars["_OvChanged"] = True	# force a feed change if any
-		self.notBusy()
-
+	# FIXME: legacy wrappers. try to call mcontrol directly instead:
 	#----------------------------------------------------------------------
-	def softReset(self, clearAlarm=True):
-		if self.serial:
-			self.serial.write(b"\030")
-		self.stopProbe()
-		if clearAlarm: self._alarm = False
-		CNC.vars["_OvChanged"] = True	# force a feed change if any
-
-	#----------------------------------------------------------------------
-	def unlock(self, clearAlarm=True):
-		if clearAlarm: self._alarm = False
-		self.sendGCode("$X")
-
-	#----------------------------------------------------------------------
-	def home(self, event=None):
-		self._alarm = False
-		self.sendGCode("$H")
-
-	#----------------------------------------------------------------------
-	def viewSettings(self):
-		self.mcontrol.viewSettings()
-
-	def viewParameters(self):
-		self.sendGCode("$#")
-
-	def viewState(self):
-		self.sendGCode("$G")
-
-	def viewBuild(self):
-		self.mcontrol.viewBuild()
-
-	def viewStartup(self):
-		self.mcontrol.viewStartup()
-
-	def checkGcode(self):
-		self.mcontrol.checkGcode()
-
-	def grblHelp(self):
-		self.mcontrol.grblHelp()
-
-	def grblRestoreSettings(self):
-		self.mcontrol.grblRestoreSettings()
-
-	def grblRestoreWCS(self):
-		self.mcontrol.grblRestoreWCS()
-
-	def grblRestoreAll(self):
-		self.mcontrol.grblRestoreAll()
-
-	#----------------------------------------------------------------------
-	def goto(self, x=None, y=None, z=None):
-		cmd = "G90G0"
-		if x is not None: cmd += "X%g"%(x)
-		if y is not None: cmd += "Y%g"%(y)
-		if z is not None: cmd += "Z%g"%(z)
-		self.sendGCode("%s"%(cmd))
-
-	#----------------------------------------------------------------------
-	# FIXME Duplicate with ControlPage
-	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
-		p = WCS.index(CNC.vars["WCS"])
-		if p<6:
-			cmd = "G10L20P%d"%(p+1)
-		elif p==6:
-			cmd = "G28.1"
-		elif p==7:
-			cmd = "G30.1"
-		elif p==8:
-			cmd = "G92"
-
-		pos = ""
-		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
-		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
-		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
-		cmd += pos
-		self.sendGCode(cmd)
-		self.sendGCode("$#")
-		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
-		self.event_generate("<<CanvasFocus>>")
-
-	#----------------------------------------------------------------------
-	def feedHold(self, event=None):
-		if event is not None and not self.acceptKey(True): return
-		if self.serial is None: return
-		self.serial.write(b"!")
-		self.serial.flush()
-		self._pause = True
-
-	#----------------------------------------------------------------------
-	def resume(self, event=None):
-		if event is not None and not self.acceptKey(True): return
-		if self.serial is None: return
-		self.serial.write(b"~")
-		self.serial.flush()
-		self._msg   = None
-		self._alarm = False
-		self._pause = False
-
-	#----------------------------------------------------------------------
-	def pause(self, event=None):
-		if self.serial is None: return
-		if self._pause:
-			self.resume()
-		else:
-			self.feedHold()
-
-	#----------------------------------------------------------------------
-	# FIXME ????
-	#----------------------------------------------------------------------
-	def g28Command(self):
-		self.sendGCode("G28.1")
-
-	#----------------------------------------------------------------------
-	# FIXME ????
-	#----------------------------------------------------------------------
-	def g30Command(self):
-		self.sendGCode("G30.1")
+	def hardReset(self):			self.mcontrol.hardReset()
+	def softReset(self, clearAlarm=True):	self.mcontrol.softReset(clearAlarm)
+	def unlock(self, clearAlarm=True):	self.mcontrol.unlock(clearAlarm)
+	def home(self, event=None):		self.mcontrol.home(event)
+	def viewSettings(self):			self.mcontrol.viewSettings()
+	def viewParameters(self):		self.mcontrol.viewParameters()
+	def viewState(self):			self.mcontrol.viewState()
+	def viewBuild(self):			self.mcontrol.viewBuild()
+	def viewStartup(self):			self.mcontrol.viewStartup()
+	def checkGcode(self):			self.mcontrol.checkGcode()
+	def grblHelp(self):			self.mcontrol.grblHelp()
+	def grblRestoreSettings(self):		self.mcontrol.grblRestoreSettings()
+	def grblRestoreWCS(self):		self.mcontrol.grblRestoreWCS()
+	def grblRestoreAll(self):		self.mcontrol.grblRestoreAll()
+	def goto(self, x=None, y=None, z=None):	self.mcontrol.goto(x,y,z)
+	def _wcsSet(self, x, y, z):		self.mcontrol._wcsSet(x,y,z) # FIXME Duplicate with ControlPage
+	def feedHold(self, event=None):		self.mcontrol.feedHold(event)
+	def resume(self, event=None):		self.mcontrol.resume(event)
+	def pause(self, event=None):		self.mcontrol.pause(event)
+	def purgeController(self):		self.mcontrol.purgeController()
+	def g28Command(self):			self.sendGCode("G28.1") #FIXME: ???
+	def g30Command(self):			self.sendGCode("G30.1") #FIXME: ???
 
 	#----------------------------------------------------------------------
 	def emptyQueue(self):
@@ -690,24 +582,6 @@ class Sender:
 		self.running   = False
 		CNC.vars["running"] = False
 
-	#----------------------------------------------------------------------
-	# Purge the buffer of the controller. Unfortunately we have to perform
-	# a reset to clear the buffer of the controller
-	#---------------------------------------------------------------------
-	def purgeController(self):
-		self.serial.write(b"!")
-		self.serial.flush()
-		time.sleep(1)
-		# remember and send all G commands
-		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
-		TLO = CNC.vars["TLO"]
-		self.softReset(False)			# reset controller
-		self.mcontrol.purgeController()
-		self.runEnded()
-		self.stopProbe()
-		if G: self.sendGCode(G)			# restore $G
-		self.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
-		self.sendGCode("$G")
 
 	#----------------------------------------------------------------------
 	# Stop the current run
