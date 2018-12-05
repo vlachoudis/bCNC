@@ -981,7 +981,10 @@ class Controller(_Base):
 			("grbl_122", "float",   10.,    _("$122 Z acceleration [mm/sec^2]")),
 			("grbl_130", "float",  200.,    _("$130 X max travel [mm]")),
 			("grbl_131", "float",  200.,    _("$131 Y max travel [mm]")),
-			("grbl_132", "float",  200.,    _("$132 Z max travel [mm]"))]
+			("grbl_132", "float",  200.,    _("$132 Z max travel [mm]")),
+			("grbl_140", "float",  200.,    _("$140 X homing pull-off [mm]")),
+			("grbl_141", "float",  200.,    _("$141 Y homing pull-off [mm]")),
+			("grbl_142", "float",  200.,    _("$142 Z homing pull-off [mm]"))]
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
