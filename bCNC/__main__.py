@@ -1817,7 +1817,7 @@ class Application(Toplevel,Sender):
 		self.notBusy()
 #		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
 	#-----------------------------------------------------------------------
-	def trochprofile(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, name=None):
+	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, name=None):
 	#	tool = self.tools["EndMill"]
 	#	ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		adaptedRadius = float(adaptedRadius)
@@ -1845,11 +1845,17 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.trochprofile(blocks, ofs*sign, overcut, adaptative, adaptedRadius, name)
+		msg = self.trochprofile_bcnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
 					parent=self)
+		msg2 = adaptative
+		if msg2:
+			tkMessageBox.showwarning("Adaptative",
+					"WARNING: Adaptive route generated, but Trocoidal still does not implement it. Use will give wrong results in the corners!",
+					parent=self)
+
 		self.editor.fill()
 		self.editor.selectBlocks(blocks)
 		self.draw()
