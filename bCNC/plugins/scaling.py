@@ -5,9 +5,12 @@
 # Author: Mario Basz
 #mariob_1960@yahoo.com.ar
 # Date: 20 may 2018
-# A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt 
+# A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt
 #This plugin is based on a variation
 # of yours Driller plugin and My_Plugin example.
+
+from __future__ import absolute_import
+from __future__ import print_function
 
 __author__ = "Mario S Basz"
 __email__  = "mariob_1960@yaho.com.ar"
