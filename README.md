@@ -87,6 +87,7 @@ installation directory.
 # Features:
 - simple and intuitive interface for small screens
 - import/export **g-code**, **dxf** and **svg** files
+- 3D mesh slicing **stl** and **ply** files
 - fast g-code sender (works nicely on RPi and old hardware)
 - workspace configuration (G54..G59 commands)
 - user configurable buttons
@@ -111,6 +112,7 @@ installation directory.
     - simple spur gear generator
     - spirograph generator
     - surface flatten
+    - play melody from MIDI file using stepper motor frequency
     - ...
 - G-Code editor and display
     - graphical display of the g-code, and workspace
