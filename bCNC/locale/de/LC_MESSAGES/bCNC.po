@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-09 20:43+0100\n"
-"PO-Revision-Date: 2018-12-09 20:43+0100\n"
+"PO-Revision-Date: 2018-12-09 22:38+0100\n"
 "Last-Translator: @SteveMoto [GitHub]\n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -995,7 +995,7 @@ msgstr "Alle Blöcke der aktuellen Ebene auswählen"
 
 #: bCNC/EditorPage.py:128
 msgid "Filter"
-msgstr ""
+msgstr "Filter"
 
 #: bCNC/EditorPage.py:133
 msgid "Filter blocks"
@@ -1019,7 +1019,7 @@ msgstr "Importieren"
 
 #: bCNC/EditorPage.py:152
 msgid "Postprocess Inkscape g-code"
-msgstr ""
+msgstr "Inkscape G-Code nachbearbeiten"
 
 #: bCNC/EditorPage.py:153
 msgid "Round"
@@ -1656,11 +1656,11 @@ msgstr "Schritt"
 
 #: bCNC/ProbePage.py:995
 msgid "N"
-msgstr ""
+msgstr "Anzahl"
 
 #: bCNC/ProbePage.py:1000
 msgid "X:"
-msgstr ""
+msgstr "X:"
 
 #: bCNC/ProbePage.py:1004
 msgid "X minimum"
@@ -1680,7 +1680,7 @@ msgstr "X Container"
 
 #: bCNC/ProbePage.py:1032
 msgid "Y:"
-msgstr ""
+msgstr "Y:"
 
 #: bCNC/ProbePage.py:1036
 msgid "Y minimum"
@@ -1700,7 +1700,7 @@ msgstr "Y Container"
 
 #: bCNC/ProbePage.py:1065
 msgid "Z:"
-msgstr ""
+msgstr "Z:"
 
 #: bCNC/ProbePage.py:1069
 msgid "Z Minimum depth to scan"
@@ -1902,15 +1902,15 @@ msgstr "Pause:"
 
 #: bCNC/ProbePage.py:1650
 msgid "MX"
-msgstr ""
+msgstr "MX"
 
 #: bCNC/ProbePage.py:1652
 msgid "MY"
-msgstr ""
+msgstr "MY"
 
 #: bCNC/ProbePage.py:1654
 msgid "MZ"
-msgstr ""
+msgstr "MZ"
 
 #: bCNC/ProbePage.py:1659
 msgid "Change:"
@@ -2096,7 +2096,7 @@ msgstr "X=0"
 #: bCNC/ControlPage.py:237
 msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
-"X Koordinaten auf Null setzen (oder auf eingegebene Koordinate in W-Pos)"
+"X-Koordinaten auf Null setzen (oder auf eingegebene Koordinate in W-Pos)"
 
 #: bCNC/ControlPage.py:241
 msgid "Y=0"
@@ -2105,7 +2105,7 @@ msgstr "Y=0"
 #: bCNC/ControlPage.py:246
 msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
-"Y Koordinaten auf Null setzen (oder auf eingegebene Koordinate in W-Pos)"
+"Y-Koordinaten auf Null setzen (oder auf eingegebene Koordinate in W-Pos)"
 
 #: bCNC/ControlPage.py:250
 msgid "Z=0"
@@ -2118,19 +2118,23 @@ msgstr ""
 
 #: bCNC/ControlPage.py:261
 msgid "XY=0"
-msgstr ""
+msgstr "XY=0"
 
 #: bCNC/ControlPage.py:266
 msgid "Set XY coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
+"X- und Y-Koordinaten auf Null setzen (oder auf eingegebene Koordinate in W-"
+"Pos)"
 
 #: bCNC/ControlPage.py:270
 msgid "XYZ=0"
-msgstr ""
+msgstr "XYZ=0"
 
 #: bCNC/ControlPage.py:275
 msgid "Set XYZ coordinate to zero (or to typed coordinate in WPos)"
 msgstr ""
+"X-, Y- und Z-Koordinaten auf Null setzen (oder auf eingegebene Koordinate in "
+"W-Pos)"
 
 #: bCNC/ControlPage.py:284
 msgid "Set WPOS"
@@ -2739,7 +2743,7 @@ msgstr "Datei: '%s' gespeichert"
 
 #: bCNC/bCNC.py:2090 bCNC/__main__.py:2090
 msgid "Import Gcode/DXF file"
-msgstr "G-Code/DXF-Datei importieren"
+msgstr "G-Code/ DXF-Datei importieren"
 
 #: bCNC/bCNC.py:2126 bCNC/__main__.py:2126
 msgid "Warning"
@@ -2914,11 +2918,11 @@ msgstr "Neu"
 
 #: bCNC/FilePage.py:71
 msgid "New gcode/dxf file"
-msgstr "Neue G-Code/DXF-Datei"
+msgstr "Neue G-Code/ DXF-Datei"
 
 #: bCNC/FilePage.py:80
 msgid "Open existing gcode/dxf file [Ctrl-O]"
-msgstr "Vorhandene G-Code/DXF-Datei öffnen [Strg+O]"
+msgstr "Vorhandene G-Code/ DXF-Datei öffnen [Strg+O]"
 
 #: bCNC/FilePage.py:90
 msgid "Open recent file"
@@ -2926,7 +2930,7 @@ msgstr "Letzte Datei öffnen"
 
 #: bCNC/FilePage.py:101
 msgid "Import gcode/dxf file"
-msgstr ""
+msgstr "G-Code/ DXF-Datei importieren"
 
 #: bCNC/FilePage.py:111
 msgid "Save gcode/dxf file [Ctrl-S]"
@@ -2986,7 +2990,7 @@ msgstr "Programm beenden [Strg+Q]"
 
 #: bCNC/FilePage.py:233
 msgid "Serial"
-msgstr ""
+msgstr "Serielle Schnittstelle"
 
 #: bCNC/FilePage.py:238
 msgid "Port:"
