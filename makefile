@@ -1,5 +1,5 @@
 NAME = bCNC
-SOURCES = bCNC/*.py bCNC/lib/*.py bCNC/plugins/*.py
+SOURCES = bCNC/*.py bCNC/controllers/*.py bCNC/lib/*.py bCNC/plugins/*.py
 .PHONY = help
 
 help:
