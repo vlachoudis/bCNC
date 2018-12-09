@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-06 23:11+0100\n"
-"PO-Revision-Date: 2018-12-06 23:11+0100\n"
+"POT-Creation-Date: 2018-12-09 20:45+0100\n"
+"PO-Revision-Date: 2018-12-09 20:45+0100\n"
 "Last-Translator: @SteveMoto [GitHub]\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -217,11 +217,11 @@ msgstr "Rodapé gcode"
 #: bCNC/lib/bFileDialog.py:273 bCNC/plugins/center.py:33
 #: bCNC/plugins/linearize.py:33 bCNC/plugins/pyrograph.py:38
 #: bCNC/plugins/zigzag.py:96 bCNC/plugins/intersection.py:35
-#: bCNC/plugins/heightmap.py:46 bCNC/plugins/hilbert.py:87
-#: bCNC/plugins/gear.py:165 bCNC/plugins/flatten.py:256
-#: bCNC/plugins/difference.py:36 bCNC/plugins/trochoidal.py:32
-#: bCNC/plugins/jigsaw.py:266 bCNC/plugins/Random.py:37
-#: bCNC/plugins/driller.py:42 bCNC/plugins/tile.py:36
+#: bCNC/plugins/heightmap.py:46 bCNC/plugins/midi2cnc.py:49
+#: bCNC/plugins/hilbert.py:87 bCNC/plugins/gear.py:165
+#: bCNC/plugins/flatten.py:256 bCNC/plugins/difference.py:36
+#: bCNC/plugins/trochoidal.py:32 bCNC/plugins/jigsaw.py:266
+#: bCNC/plugins/Random.py:37 bCNC/plugins/driller.py:42 bCNC/plugins/tile.py:36
 #: bCNC/plugins/Helical_Descent.py:60 bCNC/plugins/spirograph.py:102
 #: bCNC/plugins/halftone.py:37 bCNC/plugins/sketch.py:39
 #: bCNC/plugins/dragknife.py:34 bCNC/plugins/slicemesh.py:51
@@ -2155,7 +2155,7 @@ msgstr "Bloqueio de avanço"
 msgid "Resume"
 msgstr "Retomar"
 
-#: bCNC/ControlPage.py:440
+#: bCNC/ControlPage.py:440 bCNC/controllers/_GenericController.py:125
 #, python-format
 msgid "Set workspace %s to %s"
 msgstr "Definir área de trabalho %s para %s"
@@ -3090,6 +3090,374 @@ msgstr "Comandos em buffer"
 msgid "Serial Terminal"
 msgstr "Terminal Serial"
 
+#: bCNC/controllers/_GenericGRBL.py:11
+msgid "bCNC is currently sending a gcode program to Grbl"
+msgstr "bCNC atualmente esta transmitindo gcode para o GRBL"
+
+#: bCNC/controllers/_GenericGRBL.py:12
+msgid "Grbl is in idle state and waiting for user commands"
+msgstr "Grbl está parado à espera de comandos do usuário"
+
+#: bCNC/controllers/_GenericGRBL.py:13
+msgid "Grbl is on hold state. Click on resume (pause) to continue"
+msgstr ""
+"Grbl está em estado de espera. Clique no currículo (pausa) para continuar"
+
+#: bCNC/controllers/_GenericGRBL.py:14
+msgid ""
+"Alarm is an emergency state. Something has gone terribly wrong when these "
+"occur. Typically, they are caused by limit error when the machine has moved "
+"or wants to move outside the machine space and crash into something. They "
+"also report problems if Grbl is lost and can't guarantee positioning or a "
+"probe command has failed. Once in alarm-mode, Grbl will lock out and shut "
+"down everything until the user issues a reset. Even after a reset, Grbl will "
+"remain in alarm-mode, block all G-code from being executed, but allows the "
+"user to override the alarm manually. This is to ensure the user knows and "
+"acknowledges the problem and has taken steps to fix or account for it."
+msgstr ""
+"Alarme é um estado de emergência. Algo deu terrivelmente errado quando estes "
+"ocorrem. Normalmente, eles são causados por erro de limite quando a máquina "
+"se moveu ou quer mover-se fora do espaço de máquinas e colidir com alguma "
+"coisa. Eles também relatam problemas se Grbl está perdido e não pode "
+"garantir o posicionamento, ou um comando de sonda falhou. Uma vez no modo de "
+"alarme, Grbl irá bloquear e desligar tudo até o usuário emite um reset. "
+"Mesmo depois de um reset, Grbl permanecerá no modo de alarme, bloqueará todo "
+"o G-código de serem executados, mas permite que o usuário substitua o alarme "
+"manualmente. Isso é para garantir que o usuário conhece e reconhece o "
+"problema e tome medidas para corrigir."
+
+#: bCNC/controllers/_GenericGRBL.py:15
+msgid "Grbl is not connected. Please specify the correct port and click Open."
+msgstr ""
+"Grbl não está conectado. Por favor, especifique a porta correta e clique em "
+"Abrir."
+
+#: bCNC/controllers/_GenericGRBL.py:16
+msgid "Connection is established with Grbl"
+msgstr "Conexão estabelecida com GRBL"
+
+#: bCNC/controllers/_GenericGRBL.py:18
+msgid ""
+"All is good! Everything in the last line was understood by Grbl and was "
+"successfully processed and executed."
+msgstr ""
+"Tudo está bem! Tudo na última linha foi entendido por Grbl e foi processado "
+"e executado com êxito."
+
+#: bCNC/controllers/_GenericGRBL.py:20
+msgid "G-code words consist of a letter and a value. Letter was not found."
+msgstr ""
+"G-Code palavras consistem de uma letra e um valor. A carta não foi "
+"encontrada."
+
+#: bCNC/controllers/_GenericGRBL.py:21
+msgid "Numeric value format is not valid or missing an expected value."
+msgstr ""
+"Formato de valor numérico não é válido ou está faltando um valor esperado."
+
+#: bCNC/controllers/_GenericGRBL.py:22
+msgid "Grbl '$' system command was not recognized or supported."
+msgstr "O comando Grbl '$' do sistema não foi reconhecido ou suportado."
+
+#: bCNC/controllers/_GenericGRBL.py:23
+msgid "Negative value received for an expected positive value."
+msgstr "Valor negativo recebido para um valor positivo esperado."
+
+#: bCNC/controllers/_GenericGRBL.py:24
+msgid "Homing cycle is not enabled via settings."
+msgstr "O ciclo de iniciação não está activado através das definições."
+
+#: bCNC/controllers/_GenericGRBL.py:25
+msgid "Minimum step pulse time must be greater than 3usec"
+msgstr "O tempo mínimo do pulso da etapa deve ser maior que 3usec"
+
+#: bCNC/controllers/_GenericGRBL.py:26
+msgid "EEPROM read failed. Reset and restored to default values."
+msgstr "Falha na leitura da EEPROM. Resetar e restaurar os valores padrão."
+
+#: bCNC/controllers/_GenericGRBL.py:27
+msgid ""
+"Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
+"operation during a job."
+msgstr ""
+"Grbl '$' comando não pode ser usado a menos que Grbl é IDLE. Certifique-se "
+"de uma operação suave durante um trabalho."
+
+#: bCNC/controllers/_GenericGRBL.py:28
+msgid "G-code locked out during alarm or jog state"
+msgstr "Código G-Code bloqueado durante o alarme ou estado de jog"
+
+#: bCNC/controllers/_GenericGRBL.py:29
+msgid "Soft limits cannot be enabled without homing also enabled."
+msgstr "Limites suaves não podem ser ativados sem inicio também habilitado."
+
+#: bCNC/controllers/_GenericGRBL.py:30
+msgid "Max characters per line exceeded. Line was not processed and executed."
+msgstr ""
+"Máximo de caracteres por linha excedido. A linha não foi processada e "
+"executada."
+
+#: bCNC/controllers/_GenericGRBL.py:31
+msgid ""
+"(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
+"supported."
+msgstr ""
+"(Opção de Compilação) Grbl '$' valor de configuração excede a taxa de passo "
+"máxima suportada."
+
+#: bCNC/controllers/_GenericGRBL.py:32
+msgid "Safety door detected as opened and door state initiated."
+msgstr "Porta de segurança detectada como aberta e estado da porta iniciada."
+
+#: bCNC/controllers/_GenericGRBL.py:33
+msgid ""
+"(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
+"limit."
+msgstr ""
+"(Grbl-Mega Only) Informações sobre a compilação ou linha de inicialização "
+"excederam o limite de comprimento da linha EEPROM."
+
+#: bCNC/controllers/_GenericGRBL.py:34
+msgid "Jog target exceeds machine travel. Command ignored."
+msgstr "O alvo do controle manual excede o curso da máquina. Comando ignorado."
+
+#: bCNC/controllers/_GenericGRBL.py:35
+msgid "Jog command with no '=' or contains prohibited g-code."
+msgstr "Comando controle manual sem '=' ou contém código G-Code proibido."
+
+#: bCNC/controllers/_GenericGRBL.py:36
+msgid "Laser mode requires PWM output."
+msgstr "O modo laser requer saída PWM."
+
+#: bCNC/controllers/_GenericGRBL.py:37
+msgid "Unsupported or invalid g-code command found in block."
+msgstr "Comando G-Code não suportado ou inválido encontrado no bloco."
+
+#: bCNC/controllers/_GenericGRBL.py:38
+msgid "More than one g-code command from same modal group found in block."
+msgstr "Mais de um comando G-Code do mesmo grupo modal encontrado no bloco."
+
+#: bCNC/controllers/_GenericGRBL.py:39
+msgid "Feed rate has not yet been set or is undefined."
+msgstr "A taxa de alimentação ainda não foi definida ou está indefinida."
+
+#: bCNC/controllers/_GenericGRBL.py:40
+msgid "G-code command in block requires an integer value."
+msgstr "O comando G-code em bloco requer um valor inteiro."
+
+#: bCNC/controllers/_GenericGRBL.py:41
+msgid ""
+"Two G-code commands that both require the use of the XYZ axis words were "
+"detected in the block."
+msgstr ""
+"Dois comandos de G-code que exigem o uso das palavras do eixo XYZ foram "
+"detectados no bloco."
+
+#: bCNC/controllers/_GenericGRBL.py:42
+msgid "A G-code word was repeated in the block."
+msgstr "Uma palavra Gcode foi repetido no bloco."
+
+#: bCNC/controllers/_GenericGRBL.py:43
+msgid ""
+"A G-code command implicitly or explicitly requires XYZ axis words in the "
+"block, but none were detected."
+msgstr ""
+"Um comando Gcode requer implícita ou explicitamente palavras para eixos XYZ "
+"no bloco, mas nenhum foi detectado."
+
+#: bCNC/controllers/_GenericGRBL.py:44
+msgid "N line number value is not within the valid range of 1 - 9,999,999."
+msgstr ""
+"O valor do número da linha N não está dentro do intervalo válido de 1 - "
+"9.999.999."
+
+#: bCNC/controllers/_GenericGRBL.py:45
+msgid ""
+"A G-code command was sent, but is missing some required P or L value words "
+"in the line."
+msgstr ""
+"Um comando de código G-Code foi enviado, mas falta algumas palavras de valor "
+"P ou L necessárias na linha."
+
+#: bCNC/controllers/_GenericGRBL.py:46
+msgid ""
+"Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
+"are not supported."
+msgstr ""
+"Grbl suporta seis sistemas de coordenadas de trabalho G54-G59. G59.1, G59.2 "
+"e G59.3 não são suportados."
+
+#: bCNC/controllers/_GenericGRBL.py:47
+msgid ""
+"The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
+"be active. A different motion was active."
+msgstr ""
+"O comando G53 G-code requer que um modo de busca G0 ou G1 esteja ativo. Um "
+"movimento diferente estava ativo."
+
+#: bCNC/controllers/_GenericGRBL.py:48
+msgid ""
+"There are unused axis words in the block and G80 motion mode cancel is "
+"active."
+msgstr ""
+"Há palavras do eixo não utilizadas no bloco e o cancelamento do modo de "
+"movimento G80 está ativo."
+
+#: bCNC/controllers/_GenericGRBL.py:49
+msgid ""
+"A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
+"plane to trace the arc."
+msgstr ""
+"Um arco G2 ou G3 foi comandado, mas não há palavras do eixo XYZ no plano "
+"selecionado para rastrear o arco."
+
+#: bCNC/controllers/_GenericGRBL.py:50
+msgid ""
+"The motion command has an invalid target. G2, G3, and G38.2 generates this "
+"error, if the arc is impossible to generate or if the probe target is the "
+"current position."
+msgstr ""
+"O comando de movimento tem um alvo inválido. G2, G3 e G38.2 geram esse erro, "
+"se o arco é impossível de gerar ou se o alvo da sonda é a posição atual."
+
+#: bCNC/controllers/_GenericGRBL.py:51
+msgid ""
+"A G2 or G3 arc, traced with the radius definition, had a mathematical error "
+"when computing the arc geometry. Try either breaking up the arc into semi-"
+"circles or quadrants, or redefine them with the arc offset definition."
+msgstr ""
+"Um arco G2 ou G3, rastreado com a definição do raio, teve um erro matemático "
+"ao calcular a geometria do arco. Experimente quebrar o arco em semi-círculos "
+"ou quadrantes, ou redefini-los com a definição de offset de arco."
+
+#: bCNC/controllers/_GenericGRBL.py:52
+msgid ""
+"A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
+"word in the selected plane to trace the arc."
+msgstr ""
+"Um arco G2 ou G3, rastreado com a definição de deslocamento, está faltando a "
+"palavra de deslocamento IJK no plano selecionado para rastrear o arco."
+
+#: bCNC/controllers/_GenericGRBL.py:53
+msgid ""
+"There are unused, leftover G-code words that aren't used by any command in "
+"the block."
+msgstr ""
+"Existem palavras de G-code não utilizadas e resgatadas que não são usadas "
+"por nenhum comando no bloco."
+
+#: bCNC/controllers/_GenericGRBL.py:54
+msgid ""
+"The G43.1 dynamic tool length offset command cannot apply an offset to an "
+"axis other than its configured axis. The Grbl default axis is the Z-axis."
+msgstr ""
+"O comando de deslocamento do comprimento dinâmico da ferramenta G43.1 não "
+"pode aplicar um deslocamento para um eixo diferente do eixo configurado. O "
+"eixo padrão Grbl é o eixo Z."
+
+#: bCNC/controllers/_GenericGRBL.py:56
+msgid ""
+"Hard limit triggered. Machine position is likely lost due to sudden and "
+"immediate halt. Re-homing is highly recommended."
+msgstr ""
+"Limite rígido desencadeado. A posição da máquina provavelmente está perdida "
+"devido à parada repentina e imediata. Voltar ao inicio é altamente "
+"recomendado."
+
+#: bCNC/controllers/_GenericGRBL.py:57
+msgid ""
+"G-code motion target exceeds machine travel. Machine position safely "
+"retained. Alarm may be unlocked."
+msgstr ""
+"O alvo de movimento do código G-Code excede o deslocamento da máquina. "
+"Posição da máquina mantida com segurança. O alarme pode ser desbloqueado."
+
+#: bCNC/controllers/_GenericGRBL.py:58
+msgid ""
+"Reset while in motion. Grbl cannot guarantee position. Lost steps are "
+"likely. Re-homing is highly recommended."
+msgstr ""
+"Redefinir enquanto estiver em movimento. Grbl não pode garantir posição. "
+"Passos perdidos são prováveis. Re-inicio é altamente recomendado."
+
+#: bCNC/controllers/_GenericGRBL.py:59
+msgid ""
+"Probe fail. The probe is not in the expected initial state before starting "
+"probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
+"triggered."
+msgstr ""
+"Falha na sonda. A sonda não está no estado inicial esperado antes de iniciar "
+"o ciclo da sonda, onde G38.2 e G38.3 não são acionados e G38.4 e G38.5 são "
+"acionados."
+
+#: bCNC/controllers/_GenericGRBL.py:60
+msgid ""
+"Probe fail. Probe did not contact the workpiece within the programmed travel "
+"for G38.2 and G38.4."
+msgstr ""
+"Falha na sonda. A sonda não entrou em contato com a peça dentro do curso "
+"programado para G38.2 e G38.4."
+
+#: bCNC/controllers/_GenericGRBL.py:61
+msgid "Homing fail. Reset during active homing cycle."
+msgstr "Homing falha. Reset durante o ciclo de localização ativa."
+
+#: bCNC/controllers/_GenericGRBL.py:62
+msgid "Homing fail. Safety door was opened during active homing cycle."
+msgstr ""
+"Homing falha. A porta de segurança foi aberta durante o ciclo de alimentação "
+"ativa."
+
+#: bCNC/controllers/_GenericGRBL.py:63
+msgid ""
+"Homing fail. Cycle failed to clear limit switch when pulling off. Try "
+"increasing pull-off setting or check wiring."
+msgstr ""
+"Homing falha. O ciclo não conseguiu livrar o fim de curso quando volta. "
+"Tente aumentar a configuração de desligamento ou verificar a fiação."
+
+#: bCNC/controllers/_GenericGRBL.py:64
+msgid ""
+"Homing fail. Could not find limit switch within search distance. Defined as "
+"1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgstr ""
+"Homing falha. Não foi possível encontrar o limite de fim na distância de "
+"pesquisa. Definido como 1,5 * viagem máxima na pesquisa e 5 * puxar nas "
+"fases de localização."
+
+#: bCNC/controllers/_GenericGRBL.py:66
+msgid "Hold complete. Ready to resume."
+msgstr "Segurar completa. Pronto para retomar."
+
+#: bCNC/controllers/_GenericGRBL.py:67
+msgid "Hold in-progress. Reset will throw an alarm."
+msgstr "Mantenha em andamento. Reinicio irá lançar um alarme."
+
+#: bCNC/controllers/_GenericGRBL.py:68
+msgid "Door closed. Ready to resume."
+msgstr "Porta fechada. Pronto para retomar."
+
+#: bCNC/controllers/_GenericGRBL.py:69
+msgid "Machine stopped. Door still ajar. Can't resume until closed."
+msgstr ""
+"A máquina parou. Porta ainda entreaberta. Não é possível retomar até fechar."
+
+#: bCNC/controllers/_GenericGRBL.py:70
+msgid ""
+"Door opened. Hold (or parking retract) in-progress. Reset will throw an "
+"alarm."
+msgstr ""
+"Porta aberta. Segure (ou retração de estacionamento) em andamento. A "
+"reposição irá disparar um alarme."
+
+#: bCNC/controllers/_GenericGRBL.py:71
+msgid ""
+"Door closed and resuming. Restoring from park, if applicable. Reset will "
+"throw an alarm."
+msgstr ""
+"Porta fechada e retomada. Restaurando do parque, se aplicável. Reiniciar irá "
+"lançar um alarme."
+
 #: bCNC/lib/bFileDialog.py:249
 msgid "Directory:"
 msgstr "Diretório:"
@@ -3401,6 +3769,54 @@ msgstr "Mapa de altura Abortar: Ângulo não definido para fresa"
 #, python-format
 msgid "Generated Heightmap %d x %d x %d "
 msgstr "Gerar mapa de altura %d x %d x %d "
+
+#: bCNC/plugins/midi2cnc.py:33
+msgid "Sound your machine from a midi file"
+msgstr "Som sua máquina a partir de um arquivo midi"
+
+#: bCNC/plugins/midi2cnc.py:50
+msgid "Pulse per unit for X"
+msgstr "Pulso por unidade para X"
+
+#: bCNC/plugins/midi2cnc.py:51
+msgid "Pulse per unit for Y"
+msgstr "Pulso por unidade para Y"
+
+#: bCNC/plugins/midi2cnc.py:52
+msgid "Pulse per unit for Z"
+msgstr "Pulso por unidade para Z"
+
+#: bCNC/plugins/midi2cnc.py:53
+msgid "Maximum X travel"
+msgstr "Maxima viagem X"
+
+#: bCNC/plugins/midi2cnc.py:54
+msgid "Maximum Y travel"
+msgstr "Maxima viagem Y"
+
+#: bCNC/plugins/midi2cnc.py:55
+msgid "Maximum Z travel"
+msgstr "Maxima viagem Z"
+
+#: bCNC/plugins/midi2cnc.py:56
+msgid "Axis to be used"
+msgstr "Eixo para ser usado"
+
+#: bCNC/plugins/midi2cnc.py:57
+msgid "Midi to process"
+msgstr "Midi para processar"
+
+#: bCNC/plugins/midi2cnc.py:99
+msgid "Error: This plugin requires midiparser.py"
+msgstr "Erro: Este plugin requer midiparser.py"
+
+#: bCNC/plugins/midi2cnc.py:137
+msgid "Error: Sorry can't parse the Midi file."
+msgstr "Erro: Não é possível analisar o arquivo Midi."
+
+#: bCNC/plugins/midi2cnc.py:295
+msgid "Generated Midi2CNC, ready to play?"
+msgstr ""
 
 #: bCNC/plugins/hilbert.py:14
 msgid "Hilbert"
@@ -4331,365 +4747,11 @@ msgstr ""
 msgid "Scaling Generated"
 msgstr ""
 
-#~ msgid "bCNC is currently sending a gcode program to Grbl"
-#~ msgstr "bCNC atualmente esta transmitindo gcode para o GRBL"
-
-#~ msgid "Grbl is in idle state and waiting for user commands"
-#~ msgstr "Grbl está parado à espera de comandos do usuário"
-
-#~ msgid "Grbl is on hold state. Click on resume (pause) to continue"
-#~ msgstr ""
-#~ "Grbl está em estado de espera. Clique no currículo (pausa) para continuar"
-
-#~ msgid ""
-#~ "Alarm is an emergency state. Something has gone terribly wrong when these "
-#~ "occur. Typically, they are caused by limit error when the machine has "
-#~ "moved or wants to move outside the machine space and crash into "
-#~ "something. They also report problems if Grbl is lost and can't guarantee "
-#~ "positioning or a probe command has failed. Once in alarm-mode, Grbl will "
-#~ "lock out and shut down everything until the user issues a reset. Even "
-#~ "after a reset, Grbl will remain in alarm-mode, block all G-code from "
-#~ "being executed, but allows the user to override the alarm manually. This "
-#~ "is to ensure the user knows and acknowledges the problem and has taken "
-#~ "steps to fix or account for it."
-#~ msgstr ""
-#~ "Alarme é um estado de emergência. Algo deu terrivelmente errado quando "
-#~ "estes ocorrem. Normalmente, eles são causados por erro de limite quando a "
-#~ "máquina se moveu ou quer mover-se fora do espaço de máquinas e colidir "
-#~ "com alguma coisa. Eles também relatam problemas se Grbl está perdido e "
-#~ "não pode garantir o posicionamento, ou um comando de sonda falhou. Uma "
-#~ "vez no modo de alarme, Grbl irá bloquear e desligar tudo até o usuário "
-#~ "emite um reset. Mesmo depois de um reset, Grbl permanecerá no modo de "
-#~ "alarme, bloqueará todo o G-código de serem executados, mas permite que o "
-#~ "usuário substitua o alarme manualmente. Isso é para garantir que o "
-#~ "usuário conhece e reconhece o problema e tome medidas para corrigir."
-
-#~ msgid ""
-#~ "Grbl is not connected. Please specify the correct port and click Open."
-#~ msgstr ""
-#~ "Grbl não está conectado. Por favor, especifique a porta correta e clique "
-#~ "em Abrir."
-
-#~ msgid "Connection is established with Grbl"
-#~ msgstr "Conexão estabelecida com GRBL"
-
-#~ msgid ""
-#~ "All is good! Everything in the last line was understood by Grbl and was "
-#~ "successfully processed and executed."
-#~ msgstr ""
-#~ "Tudo está bem! Tudo na última linha foi entendido por Grbl e foi "
-#~ "processado e executado com êxito."
-
-#~ msgid "G-code words consist of a letter and a value. Letter was not found."
-#~ msgstr ""
-#~ "G-Code palavras consistem de uma letra e um valor. A carta não foi "
-#~ "encontrada."
-
-#~ msgid "Numeric value format is not valid or missing an expected value."
-#~ msgstr ""
-#~ "Formato de valor numérico não é válido ou está faltando um valor esperado."
-
-#~ msgid "Grbl '$' system command was not recognized or supported."
-#~ msgstr "O comando Grbl '$' do sistema não foi reconhecido ou suportado."
-
-#~ msgid "Negative value received for an expected positive value."
-#~ msgstr "Valor negativo recebido para um valor positivo esperado."
-
-#~ msgid "Homing cycle is not enabled via settings."
-#~ msgstr "O ciclo de iniciação não está activado através das definições."
-
-#~ msgid "Minimum step pulse time must be greater than 3usec"
-#~ msgstr "O tempo mínimo do pulso da etapa deve ser maior que 3usec"
-
-#~ msgid "EEPROM read failed. Reset and restored to default values."
-#~ msgstr "Falha na leitura da EEPROM. Resetar e restaurar os valores padrão."
-
-#~ msgid ""
-#~ "Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
-#~ "operation during a job."
-#~ msgstr ""
-#~ "Grbl '$' comando não pode ser usado a menos que Grbl é IDLE. Certifique-"
-#~ "se de uma operação suave durante um trabalho."
-
-#~ msgid "G-code locked out during alarm or jog state"
-#~ msgstr "Código G-Code bloqueado durante o alarme ou estado de jog"
-
-#~ msgid "Soft limits cannot be enabled without homing also enabled."
-#~ msgstr "Limites suaves não podem ser ativados sem inicio também habilitado."
-
-#~ msgid ""
-#~ "Max characters per line exceeded. Line was not processed and executed."
-#~ msgstr ""
-#~ "Máximo de caracteres por linha excedido. A linha não foi processada e "
-#~ "executada."
-
-#~ msgid ""
-#~ "(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
-#~ "supported."
-#~ msgstr ""
-#~ "(Opção de Compilação) Grbl '$' valor de configuração excede a taxa de "
-#~ "passo máxima suportada."
-
-#~ msgid "Safety door detected as opened and door state initiated."
-#~ msgstr ""
-#~ "Porta de segurança detectada como aberta e estado da porta iniciada."
-
-#~ msgid ""
-#~ "(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
-#~ "limit."
-#~ msgstr ""
-#~ "(Grbl-Mega Only) Informações sobre a compilação ou linha de inicialização "
-#~ "excederam o limite de comprimento da linha EEPROM."
-
-#~ msgid "Jog target exceeds machine travel. Command ignored."
-#~ msgstr ""
-#~ "O alvo do controle manual excede o curso da máquina. Comando ignorado."
-
-#~ msgid "Jog command with no '=' or contains prohibited g-code."
-#~ msgstr "Comando controle manual sem '=' ou contém código G-Code proibido."
-
-#~ msgid "Laser mode requires PWM output."
-#~ msgstr "O modo laser requer saída PWM."
-
-#~ msgid "Unsupported or invalid g-code command found in block."
-#~ msgstr "Comando G-Code não suportado ou inválido encontrado no bloco."
-
-#~ msgid "More than one g-code command from same modal group found in block."
-#~ msgstr "Mais de um comando G-Code do mesmo grupo modal encontrado no bloco."
-
-#~ msgid "Feed rate has not yet been set or is undefined."
-#~ msgstr "A taxa de alimentação ainda não foi definida ou está indefinida."
-
-#~ msgid "G-code command in block requires an integer value."
-#~ msgstr "O comando G-code em bloco requer um valor inteiro."
-
-#~ msgid ""
-#~ "Two G-code commands that both require the use of the XYZ axis words were "
-#~ "detected in the block."
-#~ msgstr ""
-#~ "Dois comandos de G-code que exigem o uso das palavras do eixo XYZ foram "
-#~ "detectados no bloco."
-
-#~ msgid "A G-code word was repeated in the block."
-#~ msgstr "Uma palavra Gcode foi repetido no bloco."
-
-#~ msgid ""
-#~ "A G-code command implicitly or explicitly requires XYZ axis words in the "
-#~ "block, but none were detected."
-#~ msgstr ""
-#~ "Um comando Gcode requer implícita ou explicitamente palavras para eixos "
-#~ "XYZ no bloco, mas nenhum foi detectado."
-
-#~ msgid "N line number value is not within the valid range of 1 - 9,999,999."
-#~ msgstr ""
-#~ "O valor do número da linha N não está dentro do intervalo válido de 1 - "
-#~ "9.999.999."
-
-#~ msgid ""
-#~ "A G-code command was sent, but is missing some required P or L value "
-#~ "words in the line."
-#~ msgstr ""
-#~ "Um comando de código G-Code foi enviado, mas falta algumas palavras de "
-#~ "valor P ou L necessárias na linha."
-
-#~ msgid ""
-#~ "Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and "
-#~ "G59.3 are not supported."
-#~ msgstr ""
-#~ "Grbl suporta seis sistemas de coordenadas de trabalho G54-G59. G59.1, "
-#~ "G59.2 e G59.3 não são suportados."
-
-#~ msgid ""
-#~ "The G53 G-code command requires either a G0 seek or G1 feed motion mode "
-#~ "to be active. A different motion was active."
-#~ msgstr ""
-#~ "O comando G53 G-code requer que um modo de busca G0 ou G1 esteja ativo. "
-#~ "Um movimento diferente estava ativo."
-
-#~ msgid ""
-#~ "There are unused axis words in the block and G80 motion mode cancel is "
-#~ "active."
-#~ msgstr ""
-#~ "Há palavras do eixo não utilizadas no bloco e o cancelamento do modo de "
-#~ "movimento G80 está ativo."
-
-#~ msgid ""
-#~ "A G2 or G3 arc was commanded but there are no XYZ axis words in the "
-#~ "selected plane to trace the arc."
-#~ msgstr ""
-#~ "Um arco G2 ou G3 foi comandado, mas não há palavras do eixo XYZ no plano "
-#~ "selecionado para rastrear o arco."
-
-#~ msgid ""
-#~ "The motion command has an invalid target. G2, G3, and G38.2 generates "
-#~ "this error, if the arc is impossible to generate or if the probe target "
-#~ "is the current position."
-#~ msgstr ""
-#~ "O comando de movimento tem um alvo inválido. G2, G3 e G38.2 geram esse "
-#~ "erro, se o arco é impossível de gerar ou se o alvo da sonda é a posição "
-#~ "atual."
-
-#~ msgid ""
-#~ "A G2 or G3 arc, traced with the radius definition, had a mathematical "
-#~ "error when computing the arc geometry. Try either breaking up the arc "
-#~ "into semi-circles or quadrants, or redefine them with the arc offset "
-#~ "definition."
-#~ msgstr ""
-#~ "Um arco G2 ou G3, rastreado com a definição do raio, teve um erro "
-#~ "matemático ao calcular a geometria do arco. Experimente quebrar o arco em "
-#~ "semi-círculos ou quadrantes, ou redefini-los com a definição de offset de "
-#~ "arco."
-
-#~ msgid ""
-#~ "A G2 or G3 arc, traced with the offset definition, is missing the IJK "
-#~ "offset word in the selected plane to trace the arc."
-#~ msgstr ""
-#~ "Um arco G2 ou G3, rastreado com a definição de deslocamento, está "
-#~ "faltando a palavra de deslocamento IJK no plano selecionado para rastrear "
-#~ "o arco."
-
-#~ msgid ""
-#~ "There are unused, leftover G-code words that aren't used by any command "
-#~ "in the block."
-#~ msgstr ""
-#~ "Existem palavras de G-code não utilizadas e resgatadas que não são usadas "
-#~ "por nenhum comando no bloco."
-
-#~ msgid ""
-#~ "The G43.1 dynamic tool length offset command cannot apply an offset to an "
-#~ "axis other than its configured axis. The Grbl default axis is the Z-axis."
-#~ msgstr ""
-#~ "O comando de deslocamento do comprimento dinâmico da ferramenta G43.1 não "
-#~ "pode aplicar um deslocamento para um eixo diferente do eixo configurado. "
-#~ "O eixo padrão Grbl é o eixo Z."
-
-#~ msgid ""
-#~ "Hard limit triggered. Machine position is likely lost due to sudden and "
-#~ "immediate halt. Re-homing is highly recommended."
-#~ msgstr ""
-#~ "Limite rígido desencadeado. A posição da máquina provavelmente está "
-#~ "perdida devido à parada repentina e imediata. Voltar ao inicio é "
-#~ "altamente recomendado."
-
-#~ msgid ""
-#~ "G-code motion target exceeds machine travel. Machine position safely "
-#~ "retained. Alarm may be unlocked."
-#~ msgstr ""
-#~ "O alvo de movimento do código G-Code excede o deslocamento da máquina. "
-#~ "Posição da máquina mantida com segurança. O alarme pode ser desbloqueado."
-
-#~ msgid ""
-#~ "Reset while in motion. Grbl cannot guarantee position. Lost steps are "
-#~ "likely. Re-homing is highly recommended."
-#~ msgstr ""
-#~ "Redefinir enquanto estiver em movimento. Grbl não pode garantir posição. "
-#~ "Passos perdidos são prováveis. Re-inicio é altamente recomendado."
-
-#~ msgid ""
-#~ "Probe fail. The probe is not in the expected initial state before "
-#~ "starting probe cycle, where G38.2 and G38.3 is not triggered and G38.4 "
-#~ "and G38.5 is triggered."
-#~ msgstr ""
-#~ "Falha na sonda. A sonda não está no estado inicial esperado antes de "
-#~ "iniciar o ciclo da sonda, onde G38.2 e G38.3 não são acionados e G38.4 e "
-#~ "G38.5 são acionados."
-
-#~ msgid ""
-#~ "Probe fail. Probe did not contact the workpiece within the programmed "
-#~ "travel for G38.2 and G38.4."
-#~ msgstr ""
-#~ "Falha na sonda. A sonda não entrou em contato com a peça dentro do curso "
-#~ "programado para G38.2 e G38.4."
-
-#~ msgid "Homing fail. Reset during active homing cycle."
-#~ msgstr "Homing falha. Reset durante o ciclo de localização ativa."
-
-#~ msgid "Homing fail. Safety door was opened during active homing cycle."
-#~ msgstr ""
-#~ "Homing falha. A porta de segurança foi aberta durante o ciclo de "
-#~ "alimentação ativa."
-
-#~ msgid ""
-#~ "Homing fail. Cycle failed to clear limit switch when pulling off. Try "
-#~ "increasing pull-off setting or check wiring."
-#~ msgstr ""
-#~ "Homing falha. O ciclo não conseguiu livrar o fim de curso quando volta. "
-#~ "Tente aumentar a configuração de desligamento ou verificar a fiação."
-
-#~ msgid ""
-#~ "Homing fail. Could not find limit switch within search distance. Defined "
-#~ "as 1.5 * max_travel on search and 5 * pulloff on locate phases."
-#~ msgstr ""
-#~ "Homing falha. Não foi possível encontrar o limite de fim na distância de "
-#~ "pesquisa. Definido como 1,5 * viagem máxima na pesquisa e 5 * puxar nas "
-#~ "fases de localização."
-
-#~ msgid "Hold complete. Ready to resume."
-#~ msgstr "Segurar completa. Pronto para retomar."
-
-#~ msgid "Hold in-progress. Reset will throw an alarm."
-#~ msgstr "Mantenha em andamento. Reinicio irá lançar um alarme."
-
-#~ msgid "Door closed. Ready to resume."
-#~ msgstr "Porta fechada. Pronto para retomar."
-
-#~ msgid "Machine stopped. Door still ajar. Can't resume until closed."
-#~ msgstr ""
-#~ "A máquina parou. Porta ainda entreaberta. Não é possível retomar até "
-#~ "fechar."
-
-#~ msgid ""
-#~ "Door opened. Hold (or parking retract) in-progress. Reset will throw an "
-#~ "alarm."
-#~ msgstr ""
-#~ "Porta aberta. Segure (ou retração de estacionamento) em andamento. A "
-#~ "reposição irá disparar um alarme."
-
-#~ msgid ""
-#~ "Door closed and resuming. Restoring from park, if applicable. Reset will "
-#~ "throw an alarm."
-#~ msgstr ""
-#~ "Porta fechada e retomada. Restaurando do parque, se aplicável. Reiniciar "
-#~ "irá lançar um alarme."
-
 #~ msgid "Set current location as Z-zero for leveling"
 #~ msgstr "Definir posição atual como Zero para o nivelamento"
 
 #~ msgid "Inkscape"
 #~ msgstr "Inkscape"
-
-#~ msgid "Sound your machine from a midi file"
-#~ msgstr "Som sua máquina a partir de um arquivo midi"
-
-#~ msgid "Pulse per unit for X"
-#~ msgstr "Pulso por unidade para X"
-
-#~ msgid "Pulse per unit for Y"
-#~ msgstr "Pulso por unidade para Y"
-
-#~ msgid "Pulse per unit for Z"
-#~ msgstr "Pulso por unidade para Z"
-
-#~ msgid "Maximum X travel"
-#~ msgstr "Maxima viagem X"
-
-#~ msgid "Maximum Y travel"
-#~ msgstr "Maxima viagem Y"
-
-#~ msgid "Maximum Z travel"
-#~ msgstr "Maxima viagem Z"
-
-#~ msgid "Axis to be used"
-#~ msgstr "Eixo para ser usado"
-
-#~ msgid "Midi to process"
-#~ msgstr "Midi para processar"
-
-#~ msgid "Error: This plugin requires midiparser.py"
-#~ msgstr "Erro: Este plugin requer midiparser.py"
-
-#~ msgid "Error: Sorry can't parse the Midi file."
-#~ msgstr "Erro: Não é possível analisar o arquivo Midi."
 
 #~ msgid "An invalid tool number sent to the parser"
 #~ msgstr "Um número de ferramenta inválido enviado para o analisador"
