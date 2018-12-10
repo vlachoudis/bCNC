@@ -166,6 +166,7 @@ class QuadraticBezier(object):
                     log((2 * A2 + BA + Sabc) / (BA + C2))) / (4 * A32)
         return s
 
+
 class Arc(object):
 
     def __init__(self, start, radius, rotation, arc, sweep, end):
