@@ -8,4 +8,3 @@ Library to make reading, writing and modifying both binary and ascii STL files
 easy.
 '''.split())
 __url__ = 'https://github.com/WoLpH/numpy-stl/'
-
