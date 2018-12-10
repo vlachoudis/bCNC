@@ -19,6 +19,7 @@ from CNC import CNC,Block
 from ToolsPage import Plugin
 from fractions import gcd
 
+
 #==============================================================================
 #Spirograph class
 #==============================================================================
@@ -89,11 +90,13 @@ class Spirograph:
 		blocks.append(block)
 		return blocks
 
+
 #==============================================================================
 # Create a sphirograph plot
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create a spirograph path")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Spirograph")
 		self.icon  = "spirograph"

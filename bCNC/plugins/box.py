@@ -18,6 +18,7 @@ from bmath import *
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
+
 #==============================================================================
 # Create a box with finger joints
 #==============================================================================
@@ -294,11 +295,13 @@ class Box:
 		blocks.append(block)
 		return blocks
 
+
 #==============================================================================
 # Create a BOX
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Generate a finger box")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Box")
 		self.icon  = "box"

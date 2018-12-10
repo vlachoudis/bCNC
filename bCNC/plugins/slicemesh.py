@@ -38,8 +38,10 @@ import meshcut
 import ply #FIXME: write PLY parser which supports binary PLY files (currently can only do ASCII PLY)
 import stl #FIXME: write smaller STL parser
 
+
 class Tool(Plugin):
 	__doc__ = _("""STL/PLY Slicer""")			#<<< This comment will be show as tooltip for the ribbon button
+
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Slice Mesh")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button

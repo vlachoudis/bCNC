@@ -16,6 +16,7 @@ __version__= "0.0.3"
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
+
 #==============================================================================
 #Pyrograph class
 #==============================================================================
@@ -29,6 +30,7 @@ class Pyrograph:
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create a variable feed path based upon image brightness")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Pyrograph")
 		self.icon  = "pyrograph"

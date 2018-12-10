@@ -23,11 +23,13 @@ except ImportError:
 #from bmath import Vector
 #from CNC import CW,CCW,CNC,Block
 
+
 #==============================================================================
 # Tile replicas of the selected blocks
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Generate replicas of selected code")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Tile")
 		self.icon  = "tile"
