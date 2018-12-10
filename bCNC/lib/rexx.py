@@ -41,6 +41,7 @@ import string
 _letters_digits = string.ascii_letters + string.digits
 _letters_digits_symbol = _letters_digits + "_."
 
+
 # abbrev
 def abbrev(information, info, l=0):
 	"""
@@ -57,6 +58,7 @@ def abbrev(information, info, l=0):
 	cond3 = (information[:len(info)] == info)
 	return cond1 and cond2 and cond3
 
+
 # center
 def center(s, l, pad=' '):
 	if l<=0: return ""
@@ -71,6 +73,7 @@ def center(s, l, pad=' '):
 	else:
 		a = i // 2
 		return "%s%s%s"%(pad*a, s, pad*(i-a))
+
 
 # datatype
 def datatype(str, check="N"):
@@ -103,6 +106,7 @@ def datatype(str, check="N"):
 	else:
 		return _isnum(str)
 
+
 # insert
 def insert(new, target, n, pad=" "):
 	"""
@@ -115,6 +119,7 @@ def insert(new, target, n, pad=" "):
 
 	return target[0:n] + new + target[n:]
 
+
 # left
 def left(str, length, pad=" "):
 	"""return left of string str of length padded with pad chars"""
@@ -122,6 +127,7 @@ def left(str, length, pad=" "):
 		return str[0:length]
 	else:
 		return str + (pad*(length-len(str)))
+
 
 # translate
 def translate(str, tableo=None, tablei=None, pad=" "):
@@ -146,10 +152,12 @@ def translate(str, tableo=None, tablei=None, pad=" "):
 	tbl = string.maketrans(tablei,tableo)
 	return str.translate(tbl)
 
+
 # reverse
 def reverse(str):
 	"""reverse string"""
 	return str[::-1]
+
 
 # verify
 def verify(str,ref,match=0,start=0):
@@ -168,9 +176,11 @@ def verify(str,ref,match=0,start=0):
 			return i
 	return -1
 
+
 # xrange
 def xrange(start,stop):
 	return "".join([chr(x) for x in range(start, stop+1)])
+
 
 # isnum - return true if string is number
 def _isnum(str):
