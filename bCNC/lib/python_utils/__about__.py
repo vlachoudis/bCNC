@@ -6,4 +6,3 @@ __description__ = (
     'Python Utils is a module with some convenient utilities not included '
     'with the standard Python install')
 __url__ = 'https://github.com/WoLpH/python-utils'
-

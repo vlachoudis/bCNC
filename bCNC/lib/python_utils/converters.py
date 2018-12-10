@@ -233,4 +233,3 @@ def scale_1024(x, n_prefixes):
         power = min(int(math.log(x, 2) / 10), n_prefixes - 1)
     scaled = float(x) / (2 ** (10 * power))
     return scaled, power
-
