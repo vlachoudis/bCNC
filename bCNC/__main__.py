@@ -95,6 +95,7 @@ FILETYPES = [	(_("All accepted"), ("*.ngc","*.cnc","*.nc", "*.tap", "*.gcode", "
 
 geometry = None
 
+
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -1162,13 +1163,17 @@ class Application(Toplevel,Sender):
 ####		self.editor.findDialog()
 #		return "break"
 #
-#	#-----------------------------------------------------------------------
+#
+
+	#-----------------------------------------------------------------------
 	def findNext(self, event=None):
 		self.ribbon.changePage("Editor")
 ####		self.editor.findNext()
 #		return "break"
 #
-#	#-----------------------------------------------------------------------
+#
+
+	#-----------------------------------------------------------------------
 	def replace(self, event=None):
 		self.ribbon.changePage("Editor")
 ####		self.editor.replaceDialog()
@@ -1816,6 +1821,7 @@ class Application(Toplevel,Sender):
 		self.draw()
 		self.notBusy()
 #		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
+
 	#-----------------------------------------------------------------------
 	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, name=None):
 	#	tool = self.tools["EndMill"]
@@ -2497,6 +2503,7 @@ class Application(Toplevel,Sender):
 	def set(self, section, item, value):
 		return Utils.config.set(section, item, value)
 
+
 #------------------------------------------------------------------------------
 def usage(rc):
 	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
@@ -2524,6 +2531,8 @@ def usage(rc):
 #------------------------------------------------------------------------------
 tk = None
 application = None
+
+
 def main(args=None):
 	global tk
 	global application

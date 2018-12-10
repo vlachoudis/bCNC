@@ -17,6 +17,7 @@ except ImportError:
 import Ribbon
 import tkExtra
 
+
 #===============================================================================
 # Link to main app
 #===============================================================================
@@ -50,6 +51,7 @@ class _LinkApp:
 	def loadConfig(self):
 		pass
 
+
 #===============================================================================
 # Button Group, a group of widgets that will be placed in the ribbon
 #===============================================================================
@@ -60,6 +62,7 @@ class ButtonGroup(Ribbon.LabelGroup, _LinkApp):
 		if ":" in name:
 			self.label["text"] = name.split(":")[1]
 
+
 #===============================================================================
 # Button Group, a group of widgets that will be placed in the ribbon
 #===============================================================================
@@ -67,6 +70,7 @@ class ButtonMenuGroup(Ribbon.MenuGroup, _LinkApp):
 	def __init__(self, master, name, app, menulist=None):
 		Ribbon.MenuGroup.__init__(self, master, name, menulist)
 		_LinkApp.__init__(self, app)
+
 
 #===============================================================================
 # Page, Frame
@@ -77,6 +81,7 @@ class PageFrame(Frame, _LinkApp):
 		_LinkApp.__init__(self, app)
 		self.name = name
 
+
 #===============================================================================
 # Page, LabelFrame
 #===============================================================================
@@ -86,6 +91,7 @@ class PageLabelFrame(LabelFrame, _LinkApp):
 		_LinkApp.__init__(self, app)
 		self.name = name
 
+
 #===============================================================================
 # Page, ExLabelFrame
 #===============================================================================
@@ -94,6 +100,7 @@ class PageExLabelFrame(tkExtra.ExLabelFrame, _LinkApp):
 		tkExtra.ExLabelFrame.__init__(self, master, text=name_alias_lng, foreground="DarkBlue")
 		_LinkApp.__init__(self, app)
 		self.name = name
+
 
 #===============================================================================
 # CNC Page interface between the basic Page class and the bCNC class

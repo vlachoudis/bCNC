@@ -139,6 +139,7 @@ def loadIcons():
 		except TclError:
 			pass
 
+
 #------------------------------------------------------------------------------
 def delIcons():
 	global icons
@@ -152,6 +153,7 @@ def delIcons():
 		for i in images.values():
 			del i
 		images = {}	# needed otherwise it complains on deleting the icons
+
 
 #------------------------------------------------------------------------------
 # Load configuration
@@ -170,6 +172,7 @@ def loadConfiguration(systemOnly=False):
 			__builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'),
 					fallback=True, languages=[language]).gettext
 
+
 #------------------------------------------------------------------------------
 # Save configuration file
 #------------------------------------------------------------------------------
@@ -180,6 +183,7 @@ def saveConfiguration():
 	config.write(f)
 	f.close()
 	delIcons()
+
 
 #----------------------------------------------------------------------
 # Remove items that are the same as in the default ini
@@ -202,6 +206,7 @@ def cleanConfiguration():
 				pass
 	config = newconfig
 
+
 #------------------------------------------------------------------------------
 # add section if it doesn't exist
 #------------------------------------------------------------------------------
@@ -209,6 +214,7 @@ def addSection(section):
 	global config
 	if not config.has_section(section):
 		config.add_section(section)
+
 
 #------------------------------------------------------------------------------
 def getStr(section, name, default=""):
@@ -218,6 +224,7 @@ def getStr(section, name, default=""):
 	except:
 		return default
 
+
 #------------------------------------------------------------------------------
 def getUtf(section, name, default=""):
 	global config
@@ -226,11 +233,13 @@ def getUtf(section, name, default=""):
 	except:
 		return default
 
+
 #------------------------------------------------------------------------------
 def getInt(section, name, default=0):
 	global config
 	try: return int(config.get(section, name))
 	except: return default
+
 
 #------------------------------------------------------------------------------
 def getFloat(section, name, default=0.0):
@@ -238,11 +247,13 @@ def getFloat(section, name, default=0.0):
 	try: return float(config.get(section, name))
 	except: return default
 
+
 #------------------------------------------------------------------------------
 def getBool(section, name, default=False):
 	global config
 	try: return bool(int(config.get(section, name)))
 	except: return default
+
 
 #-------------------------------------------------------------------------------
 # Return a font from a string
@@ -268,6 +279,7 @@ def makeFont(name, value=None):
 		except: pass
 	return font
 
+
 #-------------------------------------------------------------------------------
 # Create a font string
 #-------------------------------------------------------------------------------
@@ -286,6 +298,7 @@ def fontString(font):
 		if font[3] == tkFont.ITALIC: s += " italic"
 	except: pass
 	return s
+
 
 #-------------------------------------------------------------------------------
 # Get font from configuration
@@ -309,6 +322,7 @@ def getFont(name, default=None):
 		if font is not None: return font
 	return value
 
+
 #-------------------------------------------------------------------------------
 # Set font in configuration
 #-------------------------------------------------------------------------------
@@ -322,15 +336,18 @@ def setFont(name, font):
 		config.set(_FONT_SECTION, name, "%s,%s,%s" % \
 			(font.cget("family"),font.cget("size"),font.cget("weight")))
 
+
 #------------------------------------------------------------------------------
 def setBool(section, name, value):
 	global config
 	config.set(section, name, str(int(value)))
 
+
 #------------------------------------------------------------------------------
 def setStr(section, name, value):
 	global config
 	config.set(section, name, str(value))
+
 
 #------------------------------------------------------------------------------
 def setUtf(section, name, value):
@@ -343,6 +360,7 @@ def setUtf(section, name, value):
 
 setInt   = setStr
 setFloat = setStr
+
 
 #-------------------------------------------------------------------------------
 # Add Recent
@@ -369,12 +387,14 @@ def addRecent(filename):
 		config.set("File", "recent.%d"%(i+1), getRecent(i))
 	config.set("File", "recent.0", sfn)
 
+
 #-------------------------------------------------------------------------------
 def getRecent(recent):
 	try:
 		return config.get("File","recent.%d"%(recent))
 	except ConfigParser.NoOptionError:
 		return None
+
 
 #------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
@@ -404,6 +424,7 @@ def comports():
 				pass
 	return comports
 
+
 #===============================================================================
 def addException():
 	global errors
@@ -419,6 +440,7 @@ def addException():
 			ReportDialog(self.widget)
 	except:
 		say(str(sys.exc_info()))
+
 
 #===============================================================================
 class CallWrapper:
@@ -447,6 +469,7 @@ class CallWrapper:
 			pass
 		except:
 			addException()
+
 
 #===============================================================================
 # Error message reporting dialog
@@ -599,6 +622,7 @@ class ReportDialog(Toplevel):
 	def sendErrorReport():
 		ReportDialog(None)
 
+
 #===============================================================================
 # User Button
 #===============================================================================
@@ -679,11 +703,13 @@ class UserButton(Ribbon.LabelButton):
 		for line in cmd.splitlines():
 			self.cnc.pendant.put(line)
 
+
 #===============================================================================
 # User Configurable Buttons
 #===============================================================================
 class UserButtonDialog(Toplevel):
 	NONE = "<none>"
+
 	def __init__(self, master, button):
 		Toplevel.__init__(self, master)
 		self.title(_("User configurable button"))

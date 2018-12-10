@@ -68,6 +68,7 @@ STATE_DESC = {
 
 STATECOLORDEF = "LightYellow"
 
+
 #==============================================================================
 # bCNC Sender class
 #==============================================================================
@@ -346,14 +347,32 @@ class Sender:
 
 	#----------------------------------------------------------------------
 	def _loadRecent0(self,event): self.loadRecent(0)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent1(self,event): self.loadRecent(1)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent2(self,event): self.loadRecent(2)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent3(self,event): self.loadRecent(3)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent4(self,event): self.loadRecent(4)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent5(self,event): self.loadRecent(5)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent6(self,event): self.loadRecent(6)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent7(self,event): self.loadRecent(7)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent8(self,event): self.loadRecent(8)
+
+	# ----------------------------------------------------------------------
 	def _loadRecent9(self,event): self.loadRecent(9)
 
 	#----------------------------------------------------------------------
@@ -513,26 +532,68 @@ class Sender:
 	# FIXME: legacy wrappers. try to call mcontrol directly instead:
 	#----------------------------------------------------------------------
 	def hardReset(self):			self.mcontrol.hardReset()
+
+	# ----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):	self.mcontrol.softReset(clearAlarm)
+
+	# ----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):	self.mcontrol.unlock(clearAlarm)
+
+	# ----------------------------------------------------------------------
 	def home(self, event=None):		self.mcontrol.home(event)
+
+	# ----------------------------------------------------------------------
 	def viewSettings(self):			self.mcontrol.viewSettings()
+
+	# ----------------------------------------------------------------------
 	def viewParameters(self):		self.mcontrol.viewParameters()
+
+	# ----------------------------------------------------------------------
 	def viewState(self):			self.mcontrol.viewState()
+
+	# ----------------------------------------------------------------------
 	def viewBuild(self):			self.mcontrol.viewBuild()
+
+	# ----------------------------------------------------------------------
 	def viewStartup(self):			self.mcontrol.viewStartup()
+
+	# ----------------------------------------------------------------------
 	def checkGcode(self):			self.mcontrol.checkGcode()
+
+	# ----------------------------------------------------------------------
 	def grblHelp(self):			self.mcontrol.grblHelp()
+
+	# ----------------------------------------------------------------------
 	def grblRestoreSettings(self):		self.mcontrol.grblRestoreSettings()
+
+	# ----------------------------------------------------------------------
 	def grblRestoreWCS(self):		self.mcontrol.grblRestoreWCS()
+
+	# ----------------------------------------------------------------------
 	def grblRestoreAll(self):		self.mcontrol.grblRestoreAll()
+
+	# ----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):	self.mcontrol.goto(x,y,z)
+
+	# ----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):		self.mcontrol._wcsSet(x,y,z) # FIXME Duplicate with ControlPage
+
+	# ----------------------------------------------------------------------
 	def feedHold(self, event=None):		self.mcontrol.feedHold(event)
+
+	# ----------------------------------------------------------------------
 	def resume(self, event=None):		self.mcontrol.resume(event)
+
+	# ----------------------------------------------------------------------
 	def pause(self, event=None):		self.mcontrol.pause(event)
+
+	# ----------------------------------------------------------------------
 	def purgeController(self):		self.mcontrol.purgeController()
+
+	# ----------------------------------------------------------------------
 	def g28Command(self):			self.sendGCode("G28.1") #FIXME: ???
+
+	# ----------------------------------------------------------------------
 	def g30Command(self):			self.sendGCode("G30.1") #FIXME: ???
 
 	#----------------------------------------------------------------------

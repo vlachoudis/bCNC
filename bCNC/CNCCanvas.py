@@ -129,15 +129,18 @@ MOUSE_CURSOR = {
 #	ACTION_EDIT          : "pencil",
 }
 
+
 # ------------------------------------------------------------------------------
 def mouseCursor(action):
 	return MOUSE_CURSOR.get(action, DEF_CURSOR)
+
 
 #==============================================================================
 # Raise an alarm exception
 #==============================================================================
 class AlarmException(Exception):
 	pass
+
 
 #==============================================================================
 # Drawing canvas
@@ -1886,6 +1889,7 @@ class CNCCanvas(Canvas, object):
 			z = 0
 
 		return x,y,z
+
 
 #==============================================================================
 # Canvas Frame with toolbar

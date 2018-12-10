@@ -45,6 +45,7 @@ prgpath  = os.path.abspath(os.path.dirname(sys.argv[0]))
 webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
 
+
 #==============================================================================
 # Simple Pendant controller for CNC
 #==============================================================================
@@ -244,6 +245,7 @@ Page not found.
 </html>
 """)
 
+
 # -----------------------------------------------------------------------------
 def _server(app):
 	global httpd
@@ -255,6 +257,7 @@ def _server(app):
 	except:
 		httpd = None
 
+
 # -----------------------------------------------------------------------------
 def start(app):
 	global httpd
@@ -263,6 +266,7 @@ def start(app):
 	thread = threading.Thread(target=_server, args=(app,))
 	thread.start()
 	return True
+
 
 # -----------------------------------------------------------------------------
 def stop():
