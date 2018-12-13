@@ -15,7 +15,6 @@ import re
 import numpy
 import svg.path
 
-
 class SVGcode:
 	paths = []
 

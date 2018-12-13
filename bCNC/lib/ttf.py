@@ -59,7 +59,6 @@ import os
 import mmap
 import struct
 
-
 class TruetypeInfo:
 	"""Information about a single Truetype face.
 
@@ -748,7 +747,6 @@ class TruetypeInfo:
 		self._data.close()
 		os.close(self._fileno)
 
-
 def _read_table(*entries):
 	""" Generic table constructor used for table formats listed at
 	end of file."""
@@ -932,20 +930,17 @@ _read_glyph_size_table = _read_table('numContours:h',
 				'xMax:h',
 				'yMax:h')
 
-
 class Glyph:
 	def __init__(self):
 		self.type = ""
 		self.contoursEnd = []
 		self.points = []
 
-
 class GlyphPoint:
 	def __init__(self ,x=0.0 , y=0.0):
 		self.ON_CURVE = False
 		self.x = x
 		self.y = y
-
 
 class GlyphComponent:
 	def __init__(self ):

@@ -28,7 +28,6 @@ OV_SPINDLE_STOP = chr(0x9E)
 OV_FLOOD_TOGGLE = chr(0xA0)
 OV_MIST_TOGGLE  = chr(0xA1)
 
-
 class Controller(_GenericGRBL):
 	def __init__(self, master):
 		self.gcode_case = 0
@@ -199,3 +198,4 @@ class Controller(_GenericGRBL):
 			self.master._probeUpdate = True
 		else:
 			CNC.vars[word[0]] = word[1:]
+

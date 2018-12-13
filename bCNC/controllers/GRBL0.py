@@ -7,7 +7,6 @@ from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, V
 from CNC import CNC
 import time
 
-
 class Controller(_GenericGRBL):
 	def __init__(self, master):
 		self.gcode_case = 0
@@ -78,3 +77,4 @@ class Controller(_GenericGRBL):
 				CNC.vars["G"] = line[1:-1].split()
 				CNC.updateG()
 				self.master._gUpdate = True
+

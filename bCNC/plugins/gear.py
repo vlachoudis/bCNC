@@ -17,7 +17,6 @@ from bmath import Vector
 from CNC import CW,CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 # Gear class
 #==============================================================================
@@ -153,13 +152,11 @@ class Gear:
 		blocks.append(block)
 		return blocks
 
-
 #==============================================================================
 # Create a simple Gear
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Generate a spur gear")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Gear")
 		self.icon  = "gear"

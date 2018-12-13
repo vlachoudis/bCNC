@@ -11,12 +11,10 @@
 TRUE = -1
 FALSE = 0
 
-
 class format:
     SingleTrack = 0
     MultipleTracksSync = 1
     MultipleTracksAsync = 2
-
 
 class voice:
     NoteOff = 0x80
@@ -26,7 +24,6 @@ class voice:
     ProgramChange = 0xC0
     ChannelPressure = 0xD0
     PitchBend = 0xE0
-
 
 class meta:
     FileMetaEvent = 0xFF
@@ -49,29 +46,24 @@ class meta:
     KeySignature = 0x59
     SequencerSpecificMetaEvent = 0x7F
 
-
 class EventNote:
     def __init__(self):
 	self.note_no = None
 	self.velocity = None
-
 
 class EventValue:
     def __init__(self):
 	self.type = None
 	self.value = None
 
-
 class EventAmount:
     def __init__(self):
 	self.amount = None
-
 
 class MetaEventKeySignature:
     def __init__(self):
 	self.fifths = None
 	self.mode = None
-
 
 class MetaEventTimeSignature:
     def __init__(self):
@@ -80,12 +72,10 @@ class MetaEventTimeSignature:
 	self.midi_clocks = None
 	self.thirty_seconds = None
 
-
 class MetaEventText:
     def __init__(self):
 	self.length = None
 	self.text = None
-
 
 class MetaEventSMPTEOffset:
     def __init__(self):
@@ -95,12 +85,10 @@ class MetaEventSMPTEOffset:
 	self.frame = None
 	self.sub_frame = None
 
-
 class MetaValues:
     def __init__(self):
 	self.length = None
 	self.values = None
-
 
 def getNumber(theString, length):
     # MIDI uses big-endian for everything
@@ -110,7 +98,6 @@ def getNumber(theString, length):
         #sum = (sum *256) + int(str[i])
 	sum = (sum << 8) + ord(theString[i])
     return sum, theString[length:]
-
 
 def getVariableLengthNumber(str):
     sum = 0
@@ -124,13 +111,11 @@ def getVariableLengthNumber(str):
         if not (x & 0x80):
             return sum, str[i:]
 
-
 def getValues(str, n=16):
     temp = []
     for x in str[:n]:
 	temp.append(repr(ord(x)))
     return temp
-
 
 class File:
     def __init__(self, file):
@@ -163,7 +148,6 @@ class File:
 	    str = track.read(str)
 	    self.tracks.append(track)
 
-
 class Track:
     def __init__(self, index):
 	self.number = index
@@ -188,7 +172,6 @@ class Track:
 	    i += 1
 
 	return str[self.length:]
-
 
 class Event:
     def __init__(self, track, index):
@@ -320,3 +303,4 @@ class Event:
 	    #raise "Unknown event."
             self.type = None
 	return str
+

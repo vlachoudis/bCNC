@@ -21,7 +21,6 @@ from collections import OrderedDict
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 #Driller class
 #==============================================================================
@@ -29,13 +28,11 @@ class Driller:
 	def __init__(self,name="Driller"):
 		self.name = name
 
-
 #==============================================================================
 # Create holes along selected blocks
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create holes along selected blocks")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Driller")
 		self.icon  = "driller"

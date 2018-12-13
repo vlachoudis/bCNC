@@ -86,3 +86,4 @@ def to_binary():
                            speedups=not args.disable_speedups)
     stl_file.save(name, args.outfile, mode=stl.BINARY,
                   update_normals=not args.use_file_normals)
+

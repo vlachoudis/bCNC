@@ -136,7 +136,6 @@ wYEDCAhMYFBAwJx/Lw50gJCgtGnTOATSAXC6dQIAfAbKEeC6NIA7Cv1sGHB6wIg/ChN+MWIkTPCA
 ADs=
 """
 
-
 #-------------------------------------------------------------------------------
 # bind event with data as a replacement of the Tkinter bind for virtual
 # events to send data <<...>>
@@ -178,7 +177,6 @@ def bindEventData(widget, sequence, func, add = None):
 	cmd = '{0}if {{"[{1} %# %b %t %T %d %W]" == "break"}} break\n'.format('+' if add else '', funcid)
 	widget.tk.call('bind', widget._w, sequence, cmd)
 
-
 #===============================================================================
 # Sort Assist class for MultiListbox
 #===============================================================================
@@ -189,7 +187,6 @@ class SortAssist:
 	def __call__(self, x):
 		return x[self.column]
 
-
 #-------------------------------------------------------------------------------
 # Multiple configuration of many widgets given in a list
 # lst = list of widgets
@@ -198,7 +195,6 @@ def multiConfig(lst, **opts):
 	"""Multiple configuration of many widgets"""
 	for w in lst:
 		w.config(**opts)
-
 
 #-------------------------------------------------------------------------------
 # Toggle toplevel window height
@@ -232,7 +228,6 @@ def toggleHeight(root, oldHeight):
 	root.wm_geometry(newgeom)
 	return height
 
-
 #===============================================================================
 def _entryPaste(event):
 	"""global replacement for the Entry.paste"""
@@ -250,7 +245,6 @@ def _entryPaste(event):
 	event.widget.insert('insert', text)
 	event.widget.tk.call('tk::EntrySeeInsert', event.widget._w)
 	return "break"
-
 
 #-------------------------------------------------------------------------------
 def _textPaste(event):
@@ -277,13 +271,11 @@ def _textPaste(event):
 	event.widget.see('insert')
 	return "break"
 
-
 #-------------------------------------------------------------------------------
 def bindClasses(root):
 	root.bind_class('Entry', '<Control-Key-a>', lambda e: e.widget.selection_range(0,END))
 	root.bind_class('Entry', '<<Paste>>', _entryPaste)
 	root.bind_class('Text',  '<<Paste>>', _textPaste)
-
 
 #===============================================================================
 # LabelEntry. display a label when entry field is empty
@@ -348,7 +340,6 @@ class LabelEntry(Entry):
 		else:
 			return Entry.get(self)
 
-
 #===============================================================================
 # _ValidatingEntry
 #===============================================================================
@@ -384,7 +375,6 @@ class _ValidatingEntry(Entry):
 		except:
 			return default
 
-
 #===============================================================================
 # Maximum Length Entry
 #===============================================================================
@@ -407,7 +397,6 @@ class MaxLengthEntry(_ValidatingEntry):
 			return len(value) <= self.maxlength
 		return True
 
-
 #===============================================================================
 # Integer Validating Entry
 #===============================================================================
@@ -421,7 +410,6 @@ class IntegerEntry(_ValidatingEntry):
 		except ValueError:
 			if value=="+" or value=="-": return True
 		return False
-
 
 #===============================================================================
 # Floating Point Validating Entry
@@ -443,7 +431,6 @@ class FloatEntry(_ValidatingEntry):
 				if (plast=="e" or plast=="E") and \
 				   (last=="-" or last=="+"): return True
 		return False
-
 
 #===============================================================================
 # Vector Validating Entry
@@ -487,7 +474,6 @@ class VectorEntry(_ValidatingEntry):
 					for i,w in enumerate(widgets):
 						if len(xyz)>i+1: w.set(xyz[i+1])
 				return
-
 
 #===============================================================================
 # Auto Scroll Bar
@@ -534,7 +520,6 @@ class AutoScrollbar(Scrollbar):
 	# ----------------------------------------------------------------------
 	def place(self, **kw):
 		raise TclError("cannot use place with this widget")
-
 
 #===============================================================================
 # ProgressBar Canvas
@@ -698,7 +683,6 @@ class ProgressBar(Canvas):
 			self.coords(self.text, width/2, height/2)
 		else:
 			self.coords(self.text, 1,height/2)
-
 
 #===============================================================================
 # Extended Listbox
@@ -1129,7 +1113,6 @@ class ExListbox(Listbox):
 		self.clipboard_clear()
 		self.clipboard_append("\n".join(items))
 
-
 #===============================================================================
 # Search Listbox
 # A listbox that the list is narrowing down to the matching items
@@ -1317,7 +1300,6 @@ class SearchListbox(ExListbox):
 
 		if len(self._items)==0: return ""
 		return self._items[int(first):last]
-
 
 #===============================================================================
 # MultiListbox based on recipe from
@@ -1801,7 +1783,6 @@ class MultiListbox(Frame):
 		for l in self._lists:
 			l.moveDown()
 
-
 #===============================================================================
 # A MultiListbox that remembers the color of items
 #===============================================================================
@@ -1826,7 +1807,6 @@ class ColorMultiListbox(MultiListbox):
 	def setColor(self, idx, color):
 		for l in self._lists:
 			l.itemconfigure(idx, foreground=color)
-
 
 #===============================================================================
 # Image list
@@ -2222,7 +2202,6 @@ class ImageListbox(Text):
 	copy  = cut
 	paste = cut
 
-
 #===============================================================================
 # Class to edit in place the contents of a listbox
 #===============================================================================
@@ -2409,7 +2388,6 @@ class InPlaceEdit:
 		self.frame.destroy()
 		return "break"
 
-
 #===============================================================================
 class InPlaceSpinbox(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2427,7 +2405,6 @@ class InPlaceSpinbox(InPlaceEdit):
 		self.edit.insert(0, value)
 		return value
 
-
 #===============================================================================
 class InPlaceInteger(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2436,7 +2413,6 @@ class InPlaceInteger(InPlaceEdit):
 		self.edit.pack(expand=YES, fill=BOTH)
 		self.edit.focus_set()
 
-
 #===============================================================================
 class InPlaceFloat(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2444,7 +2420,6 @@ class InPlaceFloat(InPlaceEdit):
 		self.edit = FloatEntry(self.frame, **self.kw)
 		self.edit.pack(expand=YES, fill=BOTH)
 		self.edit.focus_set()
-
 
 #===============================================================================
 class InPlaceList(InPlaceEdit):
@@ -2531,7 +2506,6 @@ class InPlaceList(InPlaceEdit):
 		except TclError:
 			pass
 
-
 #===============================================================================
 class InPlaceColor(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2588,7 +2562,6 @@ class InPlaceColor(InPlaceEdit):
 		self.frame.bind("<FocusOut>", self.cancel)
 		self.edit.focus_set()
 
-
 #===============================================================================
 class InPlaceMaxLength(InPlaceEdit):
 	def __init__(self, listbox, item=ACTIVE, value=None, maxlength=None, **kw):
@@ -2604,7 +2577,6 @@ class InPlaceMaxLength(InPlaceEdit):
 					**self.kw)
 		self.edit.pack(expand=YES, fill=BOTH)
 		self.edit.focus_set()
-
 
 #===============================================================================
 class InPlaceText(InPlaceEdit):
@@ -2704,7 +2676,6 @@ class InPlaceText(InPlaceEdit):
 		self.toplevel.destroy()
 		return "break"
 
-
 #===============================================================================
 class InPlaceFile(InPlaceEdit):
 	# ----------------------------------------------------------------------
@@ -2753,7 +2724,6 @@ class InPlaceFile(InPlaceEdit):
 			self.ok()
 		else:
 			self.cancel()
-
 
 #=============================================================================
 # PopupList
@@ -2817,7 +2787,6 @@ class PopupList(Toplevel):
 		act = self._listbox.nearest(event.y)
 		self._listbox.activate(act)
 		self._select()
-
 
 #=============================================================================
 # Combobox
@@ -3157,7 +3126,6 @@ class Combobox(Frame):
 		self._text.bind(event, func)
 		self._arrowBtn.bind(event, func)
 
-
 #===============================================================================
 # ExOptionMenu
 #===============================================================================
@@ -3194,7 +3162,6 @@ class ExOptionMenu(OptionMenu):
 		if value:
 			self.variable.set(value)
 
-
 #===============================================================================
 # Splitter Frame
 #===============================================================================
@@ -3220,11 +3187,7 @@ class Splitter(Frame):
 
 	# ----------------------------------------------------------------------
 	def orient(self):      return self._hori
-
-	# ----------------------------------------------------------------------
 	def firstFrame(self):  return self.f1
-
-	# ----------------------------------------------------------------------
 	def secondFrame(self): return self.f2
 
 	# ----------------------------------------------------------------------
@@ -3394,24 +3357,19 @@ class Splitter(Frame):
 						relwidth=1.0,
 						height=4)
 
-
 #===============================================================================
 # Horizontal Splitter
 #===============================================================================
 class HSplitter(Splitter):
 	"""Horizontal frame splitter"""
-
 	def __init__(self, master, split=0.5, absolute=False):
 		Splitter.__init__(self, master, split, True, absolute)
 
 	# ----------------------------------------------------------------------
 	def leftFrame(self):  return self.firstFrame()
 	left = leftFrame
-
-	# ----------------------------------------------------------------------
 	def rightFrame(self): return self.secondFrame()
 	right = rightFrame
-
 
 #===============================================================================
 # Vertical Splitter
@@ -3424,11 +3382,8 @@ class VSplitter(Splitter):
 	# ----------------------------------------------------------------------
 	def topFrame(self):    return self.firstFrame()
 	top = topFrame
-
-	# ----------------------------------------------------------------------
 	def bottomFrame(self): return self.secondFrame()
 	bottom = bottomFrame
-
 
 #===============================================================================
 # Splitter Node
@@ -3450,8 +3405,6 @@ class _SplitNode:
 
 	# ----------------------------------------------------------------------
 	def end(self):	return self.child is not None
-
-	# ----------------------------------------------------------------------
 	def full(self):	return self.left is not None and self.right is not None
 
 	# ----------------------------------------------------------------------
@@ -3485,7 +3438,6 @@ class _SplitNode:
 		#else:
 		#	say("   "*depth, " ======== H=",self.hori," pos=",self.pos)
 		if self.right: self.right.printNode(depth+1)
-
 
 #===============================================================================
 # Tree Splitter allows any nesting of splitting using a tree structure
@@ -4117,7 +4069,6 @@ class TreeSplitter(Frame):
 			return self.reposition(self._drag, event)
 		return False
 
-
 #=============================================================================
 # Display a balloon message (only static methods)
 #=============================================================================
@@ -4219,7 +4170,6 @@ class Balloon:
 		except TclError:
 			Balloon._top = None
 
-
 #===============================================================================
 # A LabelFrame that can collapse/expand
 #===============================================================================
@@ -4271,7 +4221,6 @@ class ExLabelFrame(LabelFrame):
 
 	# ----------------------------------------------------------------------
 	def __call__(self): return self.frame
-
 
 #================================================================================
 # ScrollFrame based on Bruno's implementation
@@ -4586,15 +4535,11 @@ class ScrollFrame(Frame):
 			self.yscrollcommand(0.0,1.0)
 			self.client.place_forget()
 
-
 #================================================================================
 # The following is from idlelib (tabpage.py)
 #================================================================================
 class InvalidTabPage(Exception): pass
-
-
 class AlreadyExists(Exception): pass
-
 
 #===============================================================================
 # A page tab frame button
@@ -4611,7 +4556,6 @@ class PageTab(Frame):
 			indicatoron=FALSE, highlightthickness=0,
 			borderwidth=0, selectcolor=self.cget('bg'))
 		self.button.pack(fill=BOTH)
-
 
 #===============================================================================
 # Tab pages
@@ -4760,7 +4704,6 @@ if __name__ == "__main__":
 
 	p = ProgressBar(frame, background="DarkGray", height=24)
 	p.pack(side=TOP, fill=X)
-
 	def addProg(ev):
 		global p
 		p.setProgress(p.getProgress()[0]+10.0)

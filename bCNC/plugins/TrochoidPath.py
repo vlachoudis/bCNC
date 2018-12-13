@@ -25,13 +25,11 @@ from bmath import Vector
 from CNC import CNC,Block   #<< without this error it does not find CNC.vars
 from ToolsPage import Plugin
 
-
 #==============================================================================
 # Create Trochoidadl rute along selected blocks
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create a trochoid rute along selected blocks")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Trochoid_Path") #NAME OF THE PLUGIN
 		self.icon  = "trochoidpath"

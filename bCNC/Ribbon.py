@@ -42,7 +42,6 @@ RIBBON_HIDDEN =  0	# Hidden
 RIBBON_SHOWN  =  1	# Displayed
 RIBBON_TEMP   = -1	# Show temporarily
 
-
 #===============================================================================
 # Frame Group with a button at bottom
 #===============================================================================
@@ -97,7 +96,6 @@ class LabelGroup(Frame):
 		self.grid2rows()
 		self.frame.grid_rowconfigure(2, weight=1)
 
-
 #===============================================================================
 class _KeyboardFocus:
 	#-----------------------------------------------------------------------
@@ -118,7 +116,6 @@ class _KeyboardFocus:
 	#-----------------------------------------------------------------------
 	def _invoke(self, event):
 		self.invoke()
-
 
 #===============================================================================
 # Button with Label that generates a Virtual Event or calls a command
@@ -146,7 +143,6 @@ class LabelButton(Button, _KeyboardFocus):
 	def sendEvent(self):
 		self._recipient.event_generate(self._event)
 
-
 #===============================================================================
 class LabelCheckbutton(Checkbutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
@@ -164,7 +160,6 @@ class LabelCheckbutton(Checkbutton, _KeyboardFocus):
 			)
 		_KeyboardFocus._bind(self)
 
-
 #===============================================================================
 class LabelRadiobutton(Radiobutton, _KeyboardFocus):
 	def __init__(self, master, **kw):
@@ -181,7 +176,6 @@ class LabelRadiobutton(Radiobutton, _KeyboardFocus):
 		)
 		_KeyboardFocus._bind(self)
 
-
 #===============================================================================
 class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 	def __init__(self, master, **kw):
@@ -194,7 +188,6 @@ class LabelCombobox(tkExtra.Combobox, _KeyboardFocus):
 	def _focusOut(self, event):
 		self.config(background = _BACKGROUND) #self.__backgroundColor)
 		Frame.config(self, background= _BACKGROUND) #self.__backgroundColor)
-
 
 #===============================================================================
 # Button with Label that popup a menu
@@ -255,7 +248,6 @@ class MenuButton(Button, _KeyboardFocus):
 						command=cmd)
 		return menu
 
-
 #===============================================================================
 # A label group with a drop down menu
 #===============================================================================
@@ -279,14 +271,12 @@ class MenuGroup(LabelGroup):
 				self.winfo_rootx(),
 				self.winfo_rooty() + self.winfo_height())
 
-
 #===============================================================================
 # Context group for a specific item in the Ribbon
 #===============================================================================
 #class ContextGroup(LabelGroup):
 #	def __init__(self, master, name, **kw):
 #		LabelGroup.__init__(self, master, name, **kw)
-
 
 #===============================================================================
 # Page Tab buttons
@@ -329,7 +319,6 @@ class TabButton(Radiobutton):
 	#----------------------------------------------------------------------
 	def _focusOut(self, evenl=None):
 		self.config(selectcolor = _BACKGROUND)
-
 
 #===============================================================================
 # Page
@@ -386,17 +375,9 @@ class Page:		# <--- should be possible to be a toplevel as well
 
 	# ----------------------------------------------------------------------
 	def canUndo(self):	return True
-
-	# ----------------------------------------------------------------------
 	def canRedo(self):	return True
-
-	# ----------------------------------------------------------------------
 	def resetUndo(self):	pass
-
-	# ----------------------------------------------------------------------
 	def undo(self, event=None): pass
-
-	# ----------------------------------------------------------------------
 	def redo(self, event=None): pass
 
 	# ----------------------------------------------------------------------
@@ -427,13 +408,10 @@ class Page:		# <--- should be possible to be a toplevel as well
 	#-----------------------------------------------------------------------
 	@staticmethod
 	def __compareDown(x,y,xw,yw):  return yw>y+1
-
 	@staticmethod
 	def __compareUp(x,y,xw,yw):    return yw<y-1
-
 	@staticmethod
 	def __compareRight(x,y,xw,yw): return xw>x+1
-
 	@staticmethod
 	def __compareLeft(x,y,xw,yw):  return xw<x-1
 
@@ -495,7 +473,6 @@ class Page:		# <--- should be possible to be a toplevel as well
 		closest,d2 = Page.__closest(self.ribbon, Page.__compareRight, x, y)
 		if closest is not None:
 			closest.focus_set()
-
 
 #===============================================================================
 # TabRibbonFrame

@@ -23,7 +23,6 @@ except ImportError:
 import Utils
 import tkExtra
 
-
 #===============================================================================
 # Check for updates of bCNC
 #===============================================================================
@@ -184,7 +183,6 @@ class CheckUpdateDialog(Toplevel):
 		except TypeError:
 			pass
 		self.destroy()
-
 
 #-------------------------------------------------------------------------------
 # Check if interval has passed from last check

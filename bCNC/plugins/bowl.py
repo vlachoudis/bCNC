@@ -15,7 +15,6 @@ import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 # Bowl class
 #==============================================================================
@@ -98,13 +97,11 @@ class Bowl:
 		blocks.append(block)
 		return blocks
 
-
 #==============================================================================
 # Create a simple Bowl
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Generate a bowl cavity")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Bowl")
 		self.group = "Generator"

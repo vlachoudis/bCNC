@@ -41,12 +41,9 @@ import sys
 
 #-------------------------------------------------------------------------------
 _log = None
-
-
 def set(l):
 	global _log
 	_log = l
-
 
 def say(*kw):
 	global _log
@@ -55,7 +52,6 @@ def say(*kw):
 		_log(txt)
 	else:
 		sys.stdout.write("%s\n"%(txt))
-
 
 def null(*kw):
 	pass

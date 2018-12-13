@@ -17,7 +17,6 @@ import time
 from CNC import CNC, Block, CW, CCW
 from ToolsPage import Plugin
 
-
 class Arc(object):
 
 	_eq_threshold = 2.0     # Difference allowed to consider two arcs equal
@@ -253,7 +252,6 @@ class Jigsaw(object):
 
 		return blocks
 
-
 #==============================================================================
 # Jigsaw puzzle generator
 #==============================================================================
@@ -305,3 +303,4 @@ if __name__=='__main__':
 
 	j = Jigsaw(1000, 800)
 	j.generate(100, 100, 3)
+

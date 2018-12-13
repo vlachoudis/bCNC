@@ -27,22 +27,18 @@ import operator
 epsilon = 1e-5
 MAXINT = 1000000000
 
-
 def ball_tool(r,rad):
 	s = -math.sqrt(rad**2-r**2)
 	return s
 
-
 def endmill(r,dia, rough_offset=0.0):
 	return 0
-
 
 def vee_common(angle, rough_offset=0.0):
 	slope = math.tan(math.pi/2.0 - (angle / 2.0) * math.pi / 180.0)
 	def f(r, dia):
 		return r * slope
 	return f
-
 
 def make_tool_shape(NUMPY,f, wdia, resp, rough_offset=0.0):
 	# resp is pixel size
@@ -82,13 +78,11 @@ def make_tool_shape(NUMPY,f, wdia, resp, rough_offset=0.0):
 	TOOL.minus(TOOL.min()+rough_offset)
 	return TOOL
 
-
 def amax(seq):
 	res = 0
 	for i in seq:
 		if abs(i) > abs(res): res = i
 	return res
-
 
 def group_by_sign(seq, slop=math.sin(math.pi/18), key=lambda x:x):
 	sign = None
@@ -107,7 +101,6 @@ def group_by_sign(seq, slop=math.sin(math.pi/18), key=lambda x:x):
 				subseq = [i]
 	if subseq: yield subseq
 
-
 class Convert_Scan_Alternating:
 	def __init__(self):
 		self.st = 0
@@ -121,14 +114,12 @@ class Convert_Scan_Alternating:
 	def reset(self):
 		self.st = 0
 
-
 class Convert_Scan_Increasing:
 	def __call__(self, primary, items):
 		yield True, items
 
 	def reset(self):
 		pass
-
 
 class Convert_Scan_Decreasing:
 	def __call__(self, primary, items):
@@ -137,7 +128,6 @@ class Convert_Scan_Decreasing:
 
 	def reset(self):
 		pass
-
 
 class Convert_Scan_Upmill:
 	def __init__(self, slop = math.sin(math.pi / 18)):
@@ -152,7 +142,6 @@ class Convert_Scan_Upmill:
 	def reset(self):
 		pass
 
-
 class Convert_Scan_Downmill:
 	def __init__(self, slop = math.sin(math.pi / 18)):
 		self.slop = slop
@@ -165,7 +154,6 @@ class Convert_Scan_Downmill:
 
 	def reset(self):
 		pass
-
 
 class Reduce_Scan_Lace:
 	def __init__(self, converter, slope, keep):
@@ -210,7 +198,6 @@ class Reduce_Scan_Lace:
 
 	def reset(self):
 		self.converter.reset()
-
 
 #############
 class Reduce_Scan_Lace_new:
@@ -493,10 +480,8 @@ class Converter:
 					self.g.cut(*p[1])
 			self.g.flush()
 
-
 def convert(*args, **kw):
 	return Converter(*args, **kw).convert()
-
 
 class SimpleEntryCut:
 	def __init__(self, feed):
@@ -511,14 +496,12 @@ class SimpleEntryCut:
 		if self.feed:
 			conv.g.set_feed(conv.feed)
 
-
 # Calculate the portion of the arc to do so that none is above the
 # safety height (that's just silly)
 def circ(r,b):
 	z = r**2 - (r-b)**2
 	if z < 0: z = 0
 	return z**.5
-
 
 class ArcEntryCut:
 	def __init__(self, feed, max_radius):
@@ -631,7 +614,6 @@ class ArcEntryCut:
 			conv.g.lastz = p1[2]
 		if self.feed:
 			conv.g.set_feed(conv.feed)
-
 
 class Image_Matrix_List: #Nested list (no Numpy)
 	def __init__(self, width=0, height=0):
@@ -752,7 +734,6 @@ class Image_Matrix_List: #Nested list (no Numpy)
 				jcnt = jcnt + 1
 			icnt=icnt+1
 
-
 class Image_Matrix_Numpy:
 	def __init__(self, width=2, height=2):
 		import numpy
@@ -834,23 +815,19 @@ class Image_Matrix_Numpy:
 	def min(self):
 		return self.matrix[self.t_offset:self.t_offset+self.width,
 							  self.t_offset:self.t_offset+self.height].min()
-
 	def max(self):
 		return self.matrix[self.t_offset:self.t_offset+self.width,
 							  self.t_offset:self.t_offset+self.height].max()
-
 	def mult(self,val):
 		self.matrix = self.matrix * float(val)
 
 	def minus(self,val):
 		self.matrix = self.matrix - float(val)
 
-
 ################################################################################
 #             Author.py                                                        #
 #             A component of emc2                                              #
 ################################################################################
-
 
 # Compute the 3D distance from the line segment l1..l2 to the point p.
 # (Those are lower case L1 and L2)
@@ -873,7 +850,6 @@ def dist_lseg(l1, l2, p):
 
     return dist2 ** .5
 
-
 def rad1(x1,y1,x2,y2,x3,y3):
     x12 = x1-x2
     y12 = y1-y2
@@ -886,36 +862,26 @@ def rad1(x1,y1,x2,y2,x3,y3):
     if abs(den) < 1e-5: return MAXINT
     return math.hypot(float(x12), float(y12)) * math.hypot(float(x23), float(y23)) * math.hypot(float(x31), float(y31)) / 2 / den
 
-
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
     def __str__(self): return "<%f,%f>" % (self.x, self.y)
-
     def __sub__(self, other):
         return Point(self.x - other.x, self.y - other.y)
-
     def __add__(self, other):
         return Point(self.x + other.x, self.y + other.y)
-
     def __mul__(self, other):
         return Point(self.x * other, self.y * other)
     __rmul__ = __mul__
-
     def cross(self, other):
         return self.x * other.y - self.y * other.x
-
     def dot(self, other):
         return self.x * other.x + self.y * other.y
-
     def mag(self):
         return math.hypot(self.x, self.y)
-
     def mag2(self):
         return self.x**2 + self.y**2
-
 
 def cent1(x1,y1,x2,y2,x3,y3):
     P1 = Point(x1,y1)
@@ -932,7 +898,6 @@ def cent1(x1,y1,x2,y2,x3,y3):
     Pc = alpha * P1 + beta * P2 + gamma * P3
     return Pc.x, Pc.y
 
-
 def arc_center(plane, p1, p2, p3):
     x1, y1, z1 = p1
     x2, y2, z2 = p2
@@ -941,7 +906,6 @@ def arc_center(plane, p1, p2, p3):
     if plane == 17: return cent1(x1,y1,x2,y2,x3,y3)
     if plane == 18: return cent1(x1,z1,x2,z2,x3,z3)
     if plane == 19: return cent1(y1,z1,y2,z2,y3,z3)
-
 
 def arc_rad(plane, P1, P2, P3):
     if plane is None: return MAXINT
@@ -955,12 +919,10 @@ def arc_rad(plane, P1, P2, P3):
     if plane == 19: return rad1(y1,z1,y2,z2,y3,z3)
     return None, 0
 
-
 def get_pts(plane, x,y,z):
     if plane == 17: return x,y
     if plane == 18: return x,z
     if plane == 19: return y,z
-
 
 def one_quadrant(plane, c, p1, p2, p3):
     xc, yc = c
@@ -996,7 +958,6 @@ def one_quadrant(plane, c, p1, p2, p3):
 
     if len(signs) == 1: return True
 
-
 def arc_dir(plane, c, p1, p2, p3):
     xc, yc = c
     x1, y1 = get_pts(plane, p1[0],p1[1],p1[2])
@@ -1014,13 +975,11 @@ def arc_dir(plane, c, p1, p2, p3):
 
     return theta_end < 2 * math.pi
 
-
 def arc_fmt(plane, c1, c2, p1):
     x, y, z = p1
     if plane == 17: return "I%.4f J%.4f" % (c1-x, c2-y)
     if plane == 18: return "I%.4f K%.4f" % (c1-x, c2-z)
     if plane == 19: return "J%.4f K%.4f" % (c1-y, c2-z)
-
 
 # Perform Douglas-Peucker simplification on the path 'st' with the specified
 # tolerance.  The '_first' argument is for internal use only.
@@ -1103,7 +1062,6 @@ def douglas(st, tolerance=.001, plane=None, _first=True):
     else:
         if _first: yield "G1", st[0], None
         if _first: yield "G1", st[-1], None
-
 
 # For creating rs274ngc files
 class Gcode:
@@ -1243,3 +1201,4 @@ class Gcode:
 		#"Go to the 'safety' height at rapid speed"
 		self.flush()
 		self.rapid(z=self.safetyheight)
+

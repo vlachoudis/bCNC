@@ -17,7 +17,6 @@ __version__= "0.0.1"
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 #Hilbert class
 #==============================================================================
@@ -75,13 +74,11 @@ class Hilbert:
 		blocks.append(block)
 		return blocks
 
-
 #==============================================================================
 # Create a Hilbert curve
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create a Hilbert path")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Hilbert")
 		self.icon  = "hilbert"

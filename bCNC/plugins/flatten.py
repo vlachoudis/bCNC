@@ -16,7 +16,6 @@ __version__= "0.0.2"
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 #Flatten class
 #==============================================================================
@@ -244,13 +243,11 @@ class Flatten:
 		else:
 			return zag
 
-
 #==============================================================================
 # Create a flatten surface
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Flatten an area in different ways")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Flatten")
 		self.icon  = "flatten"

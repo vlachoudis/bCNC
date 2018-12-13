@@ -117,7 +117,6 @@ ERROR_HANDLING = {}
 TOLERANCE = 1e-7
 MAXINT    = 1000000000	# python3 doesn't have maxint
 
-
 #------------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
 #------------------------------------------------------------------------------
@@ -129,7 +128,6 @@ def getValue(name,new,old,default=0.0):
 			return old[name]
 		except:
 			return default
-
 
 #===============================================================================
 # Probing class and linear interpolation
@@ -452,7 +450,6 @@ class Probe:
 		segments.append((x2,y2,z2+self.interpolate(x2,y2)))
 		return segments
 
-
 #===============================================================================
 # contains a list of machine points vs position in the gcode
 # calculates the transformation matrix (rotation + translation) needed
@@ -652,7 +649,6 @@ class Orient:
 			f.write("%g %g %g %g\n"%(xm,ym,x,y))
 		f.close()
 		self.saved = True
-
 
 #===============================================================================
 # Command operations on a CNC
@@ -1846,7 +1842,6 @@ class CNC:
 		#print "-"*50
 		return lines
 
-
 #===============================================================================
 # Block of g-code commands. A gcode file is represented as a list of blocks
 # - Commands are grouped as (non motion commands Mxxx)
@@ -2110,7 +2105,6 @@ class Block(list):
 		self.ymax = max(self.ymax, max([i[1] for i in xyz]))
 		self.zmax = max(self.zmax, max([i[2] for i in xyz]))
 
-
 #===============================================================================
 # Gcode file
 #===============================================================================
@@ -2161,8 +2155,6 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def __getitem__(self, item):		return self.blocks[item]
-
-	#----------------------------------------------------------------------
 	def __setitem__(self, item, value):	self.blocks[item] = value
 
 	#----------------------------------------------------------------------
@@ -2871,8 +2863,6 @@ class GCode:
 
 	#----------------------------------------------------------------------
 	def canUndo(self):	return self.undoredo.canUndo()
-
-	#----------------------------------------------------------------------
 	def canRedo(self):	return self.undoredo.canRedo()
 
 	#----------------------------------------------------------------------
@@ -4009,8 +3999,7 @@ class GCode:
 		del blocks[:]
 		blocks.extend(newblocks)
 		return msg
-
-    #----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	# make a trochoidal profile on block
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
@@ -4076,7 +4065,6 @@ class GCode:
 		del blocks[:]
 		blocks.extend(newblocks)
 		return msg
-
 	#----------------------------------------------------------------------
 	# draw a hole (circle with radius)
 	#----------------------------------------------------------------------

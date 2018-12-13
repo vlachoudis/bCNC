@@ -50,7 +50,6 @@ except ImportError:
 from . import tkExtra
 from . import bFileDialog
 
-
 #===============================================================================
 # Similar to the Dialog.py from Tk but transient to master
 #
@@ -124,7 +123,6 @@ class Dialog(Toplevel):
 	def close(self, num=-1):
 		self.num = num
 		self.destroy()
-
 
 #=============================================================================
 # Input dialog
@@ -202,7 +200,6 @@ class InputDialog(Toplevel):
 	# --------------------------------------------------------------------
 	def cancel(self, event=None):
 		self.destroy()
-
 
 #=============================================================================
 # Find/Replace dialog
@@ -337,7 +334,6 @@ class FindReplaceDialog(Toplevel):
 	# --------------------------------------------------------------------
 	def _close(self, event=None):
 		self.destroy()
-
 
 #=============================================================================
 # Printer dialog
@@ -593,7 +589,6 @@ class Printer(Toplevel):
 	def close(self):
 		if self.hnd:
 			self.hnd.close()
-
 
 #=============================================================================
 # Show progress information

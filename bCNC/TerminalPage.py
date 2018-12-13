@@ -19,7 +19,6 @@ import Ribbon
 import tkExtra
 import CNCRibbon
 
-
 #===============================================================================
 # Terminal Group
 #===============================================================================
@@ -34,7 +33,6 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
 		tkExtra.Balloon.set(b, _("Clear terminal"))
-
 
 #===============================================================================
 # Commands Group
@@ -144,7 +142,6 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("$ Display build information of Grbl"))
 		self.addWidget(b)
 
-
 #===============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
@@ -191,7 +188,6 @@ class TerminalFrame(CNCRibbon.PageFrame):
 			[event.widget.get(x)
 				for x in event.widget.curselection()]))
 		return "break"
-
 
 #===============================================================================
 # Terminal Page

@@ -19,7 +19,6 @@ import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
-
 #==============================================================================
 #Midi2CNC class
 #==============================================================================
@@ -27,13 +26,11 @@ class Midi2CNC:
 	def __init__(self,name="Midi2CNC"):
 		self.name = name
 
-
 #==============================================================================
 # Create pyrograph
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Sound your machine from a midi file")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Midi2CNC")
 		self.icon  = "midi2cnc"

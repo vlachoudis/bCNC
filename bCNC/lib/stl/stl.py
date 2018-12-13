@@ -375,3 +375,4 @@ class BaseStl(base.BaseMesh):
 
 
 StlMesh = BaseStl.from_file
+

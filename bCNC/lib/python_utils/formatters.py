@@ -111,3 +111,4 @@ def timesince(dt, default='just now'):
         return '%s ago' % ' and '.join(output[:2])
 
     return default
+

@@ -559,3 +559,5 @@ class BaseMesh(logger.Logged, collections.Mapping):
     def __iter__(self):
         for point in self.points:
             yield point
+
+

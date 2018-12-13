@@ -30,7 +30,6 @@ from ToolsPage import Plugin
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create sketch based on picture brightness")
-
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Sketch")
 		self.icon  = "sketch"
@@ -87,7 +86,6 @@ class Tool(Plugin):
 					if (val <= self.mostest) and not scanAll:
 						self.mostest = most
 		return bestX,bestY
-
 	# ----------------------------------------------------------------------
 	def findInRange(self, startX, startY, pix, maxRange):
 		xmin = int(max(2, startX - maxRange))

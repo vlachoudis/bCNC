@@ -7,7 +7,6 @@ from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, V
 from CNC import CNC
 import time
 
-
 class Controller(_GenericController):
 	def __init__(self, master):
 		self.gcode_case = 1
