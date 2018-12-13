@@ -19,8 +19,10 @@ from CNC import CNC,Block
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 
+
 class Tool(Plugin):
 	__doc__ = _("""Find center of bounding box""")			#<<< This comment will be show as tooltip for the ribbon button
+
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Center")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button
@@ -59,5 +61,3 @@ class Tool(Plugin):
 		app.refresh()                                                                                           #<<< refresh editor
 		app.setStatus(_("Generated: Center"))                           #<<< feed back result
 		#app.gcode.blocks.append(block)
-
-

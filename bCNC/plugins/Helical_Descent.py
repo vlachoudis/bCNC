@@ -46,9 +46,12 @@ from ToolsPage import Plugin
 # My plugin
 #==============================================================================
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
+
+
 class Tool(Plugin):
 	# WARNING the __doc__ is needed to allow the string to be internationalized
 	__doc__ = _("""This is my Helical Descent""")			#<<< This comment will be show as tooltip for the ribbon button
+
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Helical")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button

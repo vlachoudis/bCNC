@@ -67,6 +67,7 @@ CAMERA_LOCATION_ORDER = [
 		    "Bottom",
 		    "Bottom-Right"]
 
+
 #===============================================================================
 # Probe Tab Group
 #===============================================================================
@@ -125,6 +126,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Setup probing for manual tool change"))
 
 		self.frame.grid_rowconfigure(0, weight=1)
+
 
 #===============================================================================
 # Autolevel Group
@@ -196,6 +198,7 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Scan probed area for level information on Z plane"))
+
 
 #===============================================================================
 # Probe Common Offset
@@ -329,6 +332,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 			if p.split()[0] == cmd:
 				ProbeCommonFrame.probeCmd.set(p)
 				break
+
 
 #===============================================================================
 # Probe Frame
@@ -973,6 +977,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.app.refresh()
 		self.app.setStatus(_("Finished recording"))
 
+
 #===============================================================================
 # Autolevel Frame
 #===============================================================================
@@ -1241,6 +1246,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 		if self.change(): return
 		self.app.run(lines=self.app.gcode.probe.scanMargins())
 
+
 #===============================================================================
 # Camera Group
 #===============================================================================
@@ -1327,6 +1333,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
 	#-----------------------------------------------------------------------
 	def freezeImage(self):
 		self.app.canvas.cameraFreeze(self.freeze.get())
+
 
 #===============================================================================
 # Camera Frame
@@ -1578,6 +1585,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 #			self.sendGCode("G92.1")
 #		self.sendGCode("G0X%gY%g"%(wx,wy))
 
+
 #===============================================================================
 # Tool Group
 #===============================================================================
@@ -1605,6 +1613,7 @@ class ToolGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH, expand=YES)
 		self.addWidget(b)
 		tkExtra.Balloon.set(b, _("Perform a tool change cycle"))
+
 
 #===============================================================================
 # Tool Frame
@@ -1947,6 +1956,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 #				anchor=W,
 #				justify=LEFT)
 #		self.text.pack(fill=BOTH, expand=YES)
+
 
 #===============================================================================
 # Probe Page

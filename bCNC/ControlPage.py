@@ -35,6 +35,7 @@ _NOZSTEP = 'XY'
 
 OVERRIDES = ["Feed", "Rapid", "Spindle"]
 
+
 #===============================================================================
 # Connection Group
 #===============================================================================
@@ -82,6 +83,7 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("Software reset of controller [ctrl-x]"))
 		self.addWidget(b)
 
+
 #===============================================================================
 # User Group
 #===============================================================================
@@ -98,6 +100,7 @@ class UserGroup(CNCRibbon.ButtonGroup):
 			col,row = divmod(i-1,3)
 			b.grid(row=row, column=col, sticky=NSEW)
 			self.addWidget(b)
+
 
 #===============================================================================
 # Run Group
@@ -130,6 +133,7 @@ class RunGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Pause running program and soft reset controller to empty the buffer."))
+
 
 #===============================================================================
 # DRO Frame
@@ -453,6 +457,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		msg += ERROR_CODES.get(state,
 				_("No info available.\nPlease contact the author."))
 		tkMessageBox.showinfo(_("State: %s")%(state), msg, parent=self)
+
 
 #===============================================================================
 # ControlFrame
@@ -844,6 +849,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.setStep(self.step3, self.step2)
 
+
 #===============================================================================
 # StateFrame
 #===============================================================================
@@ -1228,6 +1234,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		global wcsvar
 		self.sendGCode(WCS[wcsvar.get()])
 		self.sendGCode("$G")
+
 
 #===============================================================================
 # Control Page

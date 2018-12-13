@@ -22,15 +22,18 @@ _accuracy = 1E-15
 # Formatting
 _format = "%15g"
 
+
 #-------------------------------------------------------------------------------
 def sign(x):
 	"""Return sign of number"""
 	return int(copysign(1,x))
 
+
 #-------------------------------------------------------------------------------
 def Cmp0(x):
 	"""Compare against zero within _accuracy"""
 	return abs(x)<_accuracy
+
 
 #-------------------------------------------------------------------------------
 def frange(start,stop,step):
@@ -45,15 +48,18 @@ def frange(start,stop,step):
 			yield x
 			x += step
 
+
 #-------------------------------------------------------------------------------
 def limit(min_, num, max_):
 	"""limit a number within a specific range"""
 	return max(min(num,max_),min_)
 
+
 #-------------------------------------------------------------------------------
 def dms(d,m,s):
 	"""dms - degrees from degrees, minutes, seconds"""
 	return d + m/60.0 + s/3600.0
+
 
 #-------------------------------------------------------------------------------
 def cbrt(x):
@@ -64,6 +70,7 @@ def cbrt(x):
 		return pow(x, 1./3.)
 	else:
 		return -pow(-x, 1./3.)
+
 
 #-------------------------------------------------------------------------------
 def d2s(ang, fmt=""):
@@ -92,6 +99,7 @@ def d2s(ang, fmt=""):
 	if fmt=="N":
 		return HH+":"+MM
 	return HH+":"+MM+":"+SS
+
 
 #-------------------------------------------------------------------------------
 def format(number, length=10, useExp=False, useD=False):
@@ -266,6 +274,7 @@ def format(number, length=10, useExp=False, useD=False):
 	if sgn: mNum = "-%s"%(mNum)
 	return mNum
 
+
 #==============================================================================
 # Dangerous dictionary that unknown keys return a user default value
 # Use it with care
@@ -280,17 +289,20 @@ class DefaultDict(dict):
 	def __getitem__(self, key):
 		return self.get(key,self._default)
 
+
 #==============================================================================
 class ZeroDict(DefaultDict):
 	"""Dictionary where unknown keys will return 0.0"""
 	def __init__(self):
 		DefaultDict.__init__(self, 0.0)
 
+
 #==============================================================================
 class ZeroIntDict(DefaultDict):
 	"""Dictionary where unknown keys will return 0"""
 	def __init__(self):
 		DefaultDict.__init__(self, 0)
+
 
 #===============================================================================
 # Vector class
@@ -339,6 +351,8 @@ class Vector(list):
 		for a,b in zip(self, v):
 			s2 += (a-b)**2
 		return s2 <= acc**2
+
+	# ----------------------------------------------------------------------
 	def __eq__(self, v): return self.eq(v)
 
 	# ----------------------------------------------------------------------
@@ -479,7 +493,9 @@ class Vector(list):
 
 	# ----------------------------------------------------------------------
 	def x(self): return self[0]
+
 	def y(self): return self[1]
+
 	def z(self): return self[2]
 
 	# ----------------------------------------------------------------------
@@ -596,6 +612,7 @@ Vector.X = Vector(1.0, 0.0, 0.0)
 Vector.Y = Vector(0.0, 1.0, 0.0)
 Vector.Z = Vector(0.0, 0.0, 1.0)
 
+
 # ------------------------------------------------------------------------------
 # Return a random nolor
 # ------------------------------------------------------------------------------
@@ -614,6 +631,7 @@ def rndColor(x):
 	x = rnd(x)
 	B = (x % 224) + 16
 	return R<<16 | G<<8 | B
+
 
 #===============================================================================
 # Matrix class
@@ -1182,6 +1200,7 @@ class Matrix(list):
 Matrix.O = Matrix(4, type=0)
 Matrix.U = Matrix(4, type=1)
 
+
 #-------------------------------------------------------------------------------
 # Quaternion
 #
@@ -1310,6 +1329,7 @@ class Quaternion(list):
 		self.norm()
 		return self
 
+
 #-------------------------------------------------------------------------------
 def gauss(A, B):
 	"""Solve A*X = B using the Gauss elimination method"""
@@ -1353,6 +1373,7 @@ def gauss(A, B):
 
 	return X
 
+
 #-------------------------------------------------------------------------------
 def solveOverDetermined(A, B, W=None):
 	"""Solve the overdetermined linear system defined by the matrices A,B
@@ -1371,6 +1392,7 @@ def solveOverDetermined(A, B, W=None):
 	ATA.inv()
 	RT = ATA * ATB
 	return [RT[i][0] for i in range(len(RT))]
+
 
 #-------------------------------------------------------------------------------
 def linear(X, Y):
@@ -1395,6 +1417,7 @@ def linear(X, Y):
 
 	except ZeroDivisionError:
 		return None
+
 
 #-------------------------------------------------------------------------------
 #   Idiotimes pragmatikwv symmetrikwv pivakwv
@@ -1524,6 +1547,7 @@ def eigenvalues(M, eps=_accuracy, check=False):
 		if zw1 <= eps: break
 	return ([A[i][i] for i in range(n)],V.T())
 
+
 #-------------------------------------------------------------------------------
 # Given a function, and given a bracketing triplet of abscissas ax,bx,cx (such
 # that bx is between ax and cx, and f(bx) is less than both f(ax) and f(cx),
@@ -1573,6 +1597,7 @@ def goldenSectionSearch(func, ax, bx, cx, x, d=1, eps=_accuracy):
 	else:
 		return x2
 
+
 #-------------------------------------------------------------------------------
 # Generators for calculating a) the permutations of a sequence and
 # b) the combinations and selections of a number of elements from a
@@ -1591,6 +1616,7 @@ def xcombinations(items, n):
 			for cc in xcombinations(items[:i]+items[i+1:],n-1):
 				yield [items[i]]+cc
 
+
 #-------------------------------------------------------------------------------
 def xuniqueCombinations(items, n):
 	if n<=0: yield []
@@ -1598,6 +1624,7 @@ def xuniqueCombinations(items, n):
 		for i in range(len(items)):
 			for cc in xuniqueCombinations(items[i+1:],n-1):
 				yield [items[i]]+cc
+
 
 #-------------------------------------------------------------------------------
 def xselections(items, n):
@@ -1607,9 +1634,11 @@ def xselections(items, n):
 			for ss in xselections(items, n-1):
 				yield [items[i]]+ss
 
+
 #-------------------------------------------------------------------------------
 def xpermutations(items):
 	return xcombinations(items, len(items))
+
 
 #-------------------------------------------------------------------------------
 # Conversion between rectangular and polar coordinates
@@ -1629,6 +1658,7 @@ def rect(r, w, deg=False):
 	if deg: w = radians(w)
 	return r * cos(w), r * sin(w)
 
+
 #-------------------------------------------------------------------------------
 # radian if deg=False; degree if deg=True
 #-------------------------------------------------------------------------------
@@ -1642,6 +1672,7 @@ def polar(x, y, deg=False):
 		return hypot(x, y), degrees(atan2(y, x))
 	else:
 		return hypot(x, y), atan2(y, x)
+
 
 #-------------------------------------------------------------------------------
 # Quadratic equation: x^2 + ax + b = 0 (or ax^2 + bx + c = 0)
@@ -1671,7 +1702,6 @@ def polar(x, y, deg=False):
 #		y1 = cmath.sqrt(r)
 #	y2 = -y1
 #	return y1 - t, y2 - t
-
 def quadratic(b, c, eps=_accuracy):
 	D = b*b - 4.0*c
 	if D <= 0.0:
@@ -1686,6 +1716,7 @@ def quadratic(b, c, eps=_accuracy):
 		else:
 			bD = -b + sqrt(D)
 		return 0.5 * bD, 2.0 * c / bD
+
 
 #-------------------------------------------------------------------------------
 # Cubic equation: y^3 + a*y^2 + b*y + c = 0 (or ax^3 + bx^2 + cx + d = 0)
@@ -1726,6 +1757,7 @@ def cubic(a, b, c, d=None, eps=_accuracy):
 	# imaginary roots
 	# x2 = -(A+B)/2 - a/3 + i*sqrt(3)*(A-B)
 	# x3 = -(A+B)/2 - a/3 - i*sqrt(3)*(A-B)
+
 
 #-------------------------------------------------------------------------------
 # Fit a plane to a set of points using least square fitting
@@ -1803,6 +1835,7 @@ def fitPlane(xyz):
 	except:
 		return None
 
+
 #-------------------------------------------------------------------------------
 # Evaluating n'th degree polynomial is simple loop, starting with highest
 # coefficient a[n].
@@ -1820,6 +1853,7 @@ def polyeval(a, x):
 	a.reverse()
 	return p
 
+
 #-------------------------------------------------------------------------------
 # Find the first derivative of a polynomial
 #-------------------------------------------------------------------------------
@@ -1833,6 +1867,7 @@ def polyderiv(a):
 	for i in range(1, len(a)):
 		b.append(i * a[i])
 	return b
+
 
 #-------------------------------------------------------------------------------
 # Factor out a root from n'th degree polynomial, and return the remaining
@@ -1856,6 +1891,7 @@ def polyreduce(a, root):
 	c.reverse()
 	return c[1:]
 
+
 #-------------------------------------------------------------------------------
 # Conversion from integer to Roman
 #-------------------------------------------------------------------------------
@@ -1877,6 +1913,7 @@ def int2roman(num):
 		result += n * count
 		num -= i * count
 	return result
+
 
 #-------------------------------------------------------------------------------
 # Conversion from Roman to integer

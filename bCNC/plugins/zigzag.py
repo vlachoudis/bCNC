@@ -17,6 +17,7 @@ import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
+
 #==============================================================================
 # ZigZag class
 #==============================================================================
@@ -83,11 +84,13 @@ class ZigZag:
 		blocks.append(block)
 		return blocks
 
+
 #==============================================================================
 # Create a ZigZag path
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Create a Zig-Zag path")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Zig-Zag")
 		self.icon  = "zigzag"
@@ -144,4 +147,3 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Zig-Zag")
 		app.refresh()
 		app.setStatus(_("Generated: Zig-Zag"))
-

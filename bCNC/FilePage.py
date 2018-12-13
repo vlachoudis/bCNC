@@ -30,6 +30,7 @@ except:
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400]
 
+
 #===============================================================================
 # Recent Menu button
 #===============================================================================
@@ -51,6 +52,7 @@ class _RecentMenuButton(Ribbon.MenuButton):
 			self.event_generate("<<Open>>")
 			return None
 		return menu
+
 
 #===============================================================================
 # File Group
@@ -121,6 +123,7 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Save gcode/dxf AS"))
 		self.addWidget(b)
 
+
 #===============================================================================
 # Options Group
 #===============================================================================
@@ -177,6 +180,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
 		tkExtra.Balloon.set(b, _("About the program"))
 
+
 #===============================================================================
 # Pendant Group
 #===============================================================================
@@ -207,6 +211,7 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Stop pendant"))
 
+
 #===============================================================================
 # Close Group
 #===============================================================================
@@ -224,6 +229,7 @@ class CloseGroup(CNCRibbon.ButtonGroup):
 				background=Ribbon._BACKGROUND)
 		b.pack(fill=BOTH, expand=YES)
 		tkExtra.Balloon.set(b, _("Close program [Ctrl-Q]"))
+
 
 #===============================================================================
 # Serial Frame
@@ -311,6 +317,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		Utils.setStr("Connection", "port",        self.portCombo.get())
 		Utils.setStr("Connection", "baud",        self.baudCombo.get())
 		Utils.setBool("Connection", "openserial", self.autostart.get())
+
 
 #===============================================================================
 # File Page

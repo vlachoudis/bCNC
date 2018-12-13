@@ -27,11 +27,13 @@ from ToolsPage import Plugin
 from bmath import pi
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod, tan
 
+
 #==============================================================================
 # Scaling selected block
 #==============================================================================
 class Tool(Plugin):
 	__doc__ = _("Scaling the selected block")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Scaling")
 		self.icon  = "scale"
@@ -47,7 +49,8 @@ class Tool(Plugin):
 			("rpm",          "int" ,    12000, _("RPM"))
 		]
 		self.buttons.append("exe")
-	# -----------------------------------------------------
+	
+    # -----------------------------------------------------
 	def scaling(self,xyz):
 		xscale= self["xscale"]
 		if xscale=="":xscale=1

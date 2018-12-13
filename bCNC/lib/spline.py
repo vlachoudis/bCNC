@@ -8,6 +8,7 @@ from __future__ import absolute_import
 import sys
 import bmath
 
+
 #===============================================================================
 # Cardinal cubic spline class
 #===============================================================================
@@ -68,6 +69,7 @@ class CardinalSpline:
 	#-----------------------------------------------------------------------
 	def evaluate(self, C, t):
 		return ((C[0]*t + C[1])*t + C[2])*t + C[3]
+
 
 #===============================================================================
 # Cubic spline ensuring that the first and second derivative are continuous
@@ -176,6 +178,7 @@ class CubicSpline:
 		c =     C[2]
 		return (3.0*C[0]*x + 2.0*C[1])*x + C[2]
 
+
 # ------------------------------------------------------------------------------
 # Convert a B-spline to polyline with a fixed number of segments
 #
@@ -243,6 +246,7 @@ def spline2Polyline(xyz, degree, closed, segments, knots):
 
 	return x,y,z
 
+
 # ------------------------------------------------------------------------------
 # Subroutine to generate a B-spline open knot vector with multiplicity
 # equal to the order at the ends.
@@ -261,6 +265,7 @@ def _knot(n, order):
 			x[i] = x[i-1]
 	return x
 
+
 # ------------------------------------------------------------------------------
 # Subroutine to generate a B-spline uniform (periodic) knot vector.
 #
@@ -274,6 +279,7 @@ def _knotu(n, order):
 	for i in range(2, n+order+1):
 		x[i] = float(i-1)
 	return x
+
 
 # ------------------------------------------------------------------------------
 # Subroutine to generate rational B-spline basis functions--open knot vector
@@ -341,6 +347,7 @@ def _rbasis(c, t, npts, x, h, r):
 		else:
 			r[i] = 0
 
+
 # ------------------------------------------------------------------------------
 # Generates a rational B-spline curve using a uniform open knot vector.
 #
@@ -396,6 +403,7 @@ def _rbspline(npts, k, p1, b, h, p, x):
 				jcount += 3
 		icount += 3
 		t += step
+
 
 # ------------------------------------------------------------------------------
 # Subroutine to generate a rational B-spline curve using an uniform periodic knot vector

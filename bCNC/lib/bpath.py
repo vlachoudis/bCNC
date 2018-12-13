@@ -22,6 +22,7 @@ EPSV  = 0.00001		# relaxed tolerances for vectors
 EPSV2 = EPSV**2
 PI2   = 2.0*pi
 
+
 #------------------------------------------------------------------------------
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ def eq(A,B,acc=EPS):
 	err = acc*acc * ((abs(A[0])+abs(B[0]))**2 + \
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
 	return d2<err
+
 
 #==============================================================================
 # Segment
@@ -623,6 +625,7 @@ class Segment:
 		else:
 			self.calcBBox()
 		return new
+
 
 #==============================================================================
 # Path: a list of joint segments
@@ -1448,6 +1451,7 @@ class Path(list):
 			prev = segment
 			Op = prev.orthogonalEnd()
 			i += 1
+
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P
 	# else return None

@@ -22,8 +22,10 @@ from bpath import EPS,eq,Path, Segment
 from bmath import Vector
 from copy import deepcopy
 
+
 class Tool(Plugin):
 	__doc__ = _("""Difference of two shapes""")			#<<< This comment will be show as tooltip for the ribbon button
+
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Difference")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button

@@ -1,5 +1,7 @@
 
 from __future__ import absolute_import
+
+
 class DummyException(Exception):
     pass
 
@@ -77,4 +79,3 @@ def import_global(
     finally:
         # Clean up, just to be sure
         del name, modules, exceptions, locals_, globals_, frame
-

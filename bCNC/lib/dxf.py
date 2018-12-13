@@ -48,6 +48,7 @@ EPS2 = EPS**2
 # Just to avoid repeating errors
 errors = {}
 
+
 #------------------------------------------------------------------------------
 def error(msg):
 	global errors
@@ -56,6 +57,7 @@ def error(msg):
 	else:
 		sys.stderr.write(msg)
 		errors[msg] = 1
+
 
 #==============================================================================
 # Entity holder
@@ -648,6 +650,7 @@ class Entity(dict):
 					else:
 						self[42].append(0.0)
 
+
 #==============================================================================
 # DXF layer
 #==============================================================================
@@ -754,6 +757,7 @@ class Layer:
 
 		self.entities = new
 
+
 #==============================================================================
 # DXF Block
 # Block-type flags (bit coded values, may be combined):
@@ -825,6 +829,7 @@ class Block(dict):
 				self.base[2] = float(value)
 			else:
 				self[tag] = value
+
 
 #==============================================================================
 # DXF importer/exporter class

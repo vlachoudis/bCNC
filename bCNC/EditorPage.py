@@ -23,6 +23,7 @@ import CNCRibbon
 
 from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 
+
 #===============================================================================
 # Clipboard Group
 #===============================================================================
@@ -65,6 +66,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Copy [Ctrl-C]"))
 		b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
 		self.addWidget(b)
+
 
 #===============================================================================
 # Select Group
@@ -139,6 +141,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 	def filter(self, event=None):
 		txt = self.filterString.get()
 		self.app.insertCommand("FILTER %s"%(txt), True)
+
 
 #===============================================================================
 # Edit Group
@@ -282,6 +285,7 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("Split selected blocks"))
 		self.addWidget(b)
 
+
 #===============================================================================
 # Move Group
 #===============================================================================
@@ -337,6 +341,7 @@ class MoveGroup(CNCRibbon.ButtonMenuGroup):
 					command=lambda a=self.app,c=c:a.insertCommand(c,True))
 		return menu
 
+
 #===============================================================================
 # Order Group
 #===============================================================================
@@ -382,6 +387,7 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(b, _("Invert cutting order of selected blocks"))
 		self.addWidget(b)
+
 
 #===============================================================================
 # Transform Group
@@ -459,6 +465,7 @@ class TransformGroup(CNCRibbon.ButtonGroup):
 #		submenu.add_command(label=_("Rotate command"), underline=0,
 #					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
 
+
 #===============================================================================
 # Route Group
 #===============================================================================
@@ -532,6 +539,7 @@ class RouteGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Change cut direction to CCW for selected gcode blocks"))
 		self.addWidget(b)
 
+
 #===============================================================================
 # Info Group
 #===============================================================================
@@ -566,6 +574,7 @@ class InfoGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Show cutting information on selected blocks [Ctrl-n]"))
 		self.addWidget(b)
 
+
 #===============================================================================
 # Main Frame of Editor
 #===============================================================================
@@ -582,6 +591,7 @@ class EditorFrame(CNCRibbon.PageFrame):
 		sb = Scrollbar(self, orient=VERTICAL, command=self.editor.yview)
 		sb.pack(side=RIGHT, fill=Y)
 		self.editor.config(yscrollcommand=sb.set)
+
 
 #===============================================================================
 # Editor Page

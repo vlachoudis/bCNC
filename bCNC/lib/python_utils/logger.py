@@ -60,4 +60,3 @@ class Logged(object):
     @functools.wraps(logging.log)
     def log(cls, lvl, msg, *args, **kwargs):
         cls.logger.log(lvl, msg, *args, **kwargs)
-

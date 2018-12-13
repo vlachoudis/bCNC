@@ -16,6 +16,7 @@ __version__ = "0.0.1"
 from CNC import CNC,Block
 from ToolsPage import Plugin
 
+
 #==============================================================================
 #Text class
 #==============================================================================
@@ -23,11 +24,13 @@ class Text:
 	def __init__(self,name="Text"):
 		self.name = name
 
+
 #==============================================================================
 # Create Text
 #==============================================================================
 class Tool(Plugin):
 	__doc__ =  _("Create text using a ttf font")
+
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Text")
 		self.icon  = "text"

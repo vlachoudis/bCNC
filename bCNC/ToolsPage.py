@@ -31,11 +31,13 @@ from CNC import CNC
 
 _EXE_FONT = ("Helvetica",12,"bold")
 
+
 #===============================================================================
 class InPlaceText(tkExtra.InPlaceText):
 	def defaultBinds(self):
 		tkExtra.InPlaceText.defaultBinds(self)
 		self.edit.bind("<Escape>", self.ok)
+
 
 #==============================================================================
 # Tools Base class
@@ -406,6 +408,7 @@ class _Base:
 		except ValueError:
 			return default
 
+
 #==============================================================================
 # Base class of all databases
 #==============================================================================
@@ -476,6 +479,7 @@ class DataBase(_Base):
 		self.master.listbox.see(0)
 		self.edit(None,True)
 
+
 #==============================================================================
 class Plugin(DataBase):
 	def __init__(self, master, name):
@@ -484,6 +488,7 @@ class Plugin(DataBase):
 		self.group  = "Macros"
 		self.oneshot = False
 		self.help = None
+
 
 #==============================================================================
 # Generic ini configuration
@@ -498,20 +503,24 @@ class Ini(_Base):
 			if name in ignore: continue
 			self.variables.append((name, vartype, value, name))
 
+
 #------------------------------------------------------------------------------
 class Font(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Font", "str")
+
 
 #------------------------------------------------------------------------------
 class Color(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Color", "color")
 
+
 #------------------------------------------------------------------------------
 class Events(Ini):
 	def __init__(self, master):
 		Ini.__init__(self, master, "Events", "str")
+
 
 #------------------------------------------------------------------------------
 class Shortcut(_Base):
@@ -562,6 +571,7 @@ class Shortcut(_Base):
 		self.save()
 		app.loadShortcuts()
 
+
 #------------------------------------------------------------------------------
 class Camera(_Base):
 	def __init__(self, master):
@@ -576,6 +586,7 @@ class Camera(_Base):
 			("webcam_height","int",  0    , _("Web Camera Height")),
 			("webcam_angle", "0,90,180,270", 0, _("Web Camera Angle"))
 		]
+
 
 #==============================================================================
 # CNC machine configuration
@@ -620,6 +631,7 @@ class Config(_Base):
 		self.master.gcode.footer  = self["footer"]
 		return False
 
+
 #==============================================================================
 # Material database
 #==============================================================================
@@ -645,6 +657,7 @@ class Material(DataBase):
 			self.master.cnc()["cutfeedz"] = self.fromMm("feedz")
 			self.master.cnc()["stepz"]    = self.fromMm("stepz")
 		return False
+
 
 #==============================================================================
 # EndMill Bit database
@@ -675,6 +688,7 @@ class EndMill(DataBase):
 		self.master.cnc()["stepover"] = self["stepover"]
 		return False
 
+
 #==============================================================================
 # Stock material on worksurface
 #==============================================================================
@@ -700,6 +714,7 @@ class Stock(DataBase):
 		if self["material"]:
 			self.master["material"].makeCurrent(self["material"])
 		return False
+
 
 #==============================================================================
 # Cut material
@@ -790,6 +805,7 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 		app.executeOnSelection("CUT", True, depth, step, surface, feed, feedz, cutFromTop, helix, helixBottom, ramp, islandsLeave, islandsCut, islandsSelectedOnly, exitpoint, springPass, islandsCompensate)
 		app.setStatus(_("CUT selected paths"))
 
+
 #==============================================================================
 # Drill material
 #==============================================================================
@@ -824,6 +840,7 @@ class Drill(DataBase):
 			n = 0
 		app.executeOnSelection("DRILL", True, h, p, d, e, n, c)
 		app.setStatus(_("DRILL selected points"))
+
 
 #==============================================================================
 # Profile
@@ -868,6 +885,7 @@ Grey is simulation of how part will look after machining
 		app.profile(direction, self["offset"], self["overcut"], name, pocket)
 		app.setStatus(_("Generate profile path"))
 
+
 #==============================================================================
 # Pocket
 #==============================================================================
@@ -891,6 +909,7 @@ class Pocket(DataBase):
 		if name=="default" or name=="": name=None
 		app.pocket(name)
 		app.setStatus(_("Generate pocket path"))
+
 
 #==============================================================================
 # Tabs
@@ -939,6 +958,7 @@ Note that tabs used to be square, but if there was diagonal segment crossing suc
 
 		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
 		app.setStatus(_("Create tabs on blocks"))
+
 
 #==============================================================================
 # Controller setup
@@ -1021,6 +1041,7 @@ class Controller(_Base):
 			except KeyError:
 				pass
 		_Base.populate(self)
+
 
 #==============================================================================
 # Tools container class
@@ -1147,6 +1168,7 @@ class Tools:
 		if icon is None: icon = "gear"
 		self.buttons["exe"].config(image=Utils.icons[icon])
 
+
 #===============================================================================
 # DataBase Group
 #===============================================================================
@@ -1248,6 +1270,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Delete selected operation/object"))
 		self.addWidget(b)
 		app.tools.addButton("delete",b)
+
 
 #===============================================================================
 # CAM Group
@@ -1403,6 +1426,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 						value=tool.name)
 		return menu
 
+
 #===============================================================================
 # Plugins Group
 #===============================================================================
@@ -1433,6 +1457,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 #				col += 1
 #				row  = 0
 
+
 #===============================================================================
 # Macros Groups based on plugins
 #===============================================================================
@@ -1447,6 +1472,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 #class ArtisticGroup(PluginsGroup):
 #	def __init__(self, master, app):
 #		PluginsGroup.__init__(self, master, N_("Artistic"), app)
+
 
 #===============================================================================
 # Config
@@ -1605,6 +1631,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 				command=self.app.showUserFile)
 		return menu
 
+
 #==============================================================================
 # Tools Frame
 #==============================================================================
@@ -1719,6 +1746,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 #	def selectTab(self, tabid):
 #
+
 
 #===============================================================================
 # Tools Page

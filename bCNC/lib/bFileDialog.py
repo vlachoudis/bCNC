@@ -172,12 +172,14 @@ Bxc5TGgUAUKDhgoRElrMQEECAwQGChAYIABAgEUwBQUCADs=
 """
 _history     = []
 
+
 #-------------------------------------------------------------------------------
 def append2History(path):
 	global _history
 	if not path: return
 	if path not in _history:
 		_history.append(path)
+
 
 #-------------------------------------------------------------------------------
 def fileTypeColor(filename):
@@ -212,6 +214,7 @@ def fileTypeColor(filename):
 			ext   = DESCRIPTION.get(ext,ext)
 
 	return ext,color
+
 
 #===============================================================================
 # FileDialog
@@ -846,6 +849,7 @@ class FileDialog(Toplevel):
 					parent=self)
 		self.select()
 
+
 #===============================================================================
 class OpenDialog(FileDialog):
 	_title = _("Open")
@@ -875,6 +879,7 @@ class OpenDialog(FileDialog):
 				return False
 		return True
 
+
 #===============================================================================
 class SaveAsDialog(FileDialog):
 	_title = _("Save As")
@@ -898,9 +903,11 @@ class SaveAsDialog(FileDialog):
 			pass
 		return True
 
+
 #===============================================================================
 class DirectoryDialog(FileDialog):
 	_title = _("Choose Directory")
+
 	def __init__(self, **kw):
 		FileDialog.__init__(self, **kw)
 		self.files  = False
@@ -914,16 +921,19 @@ class DirectoryDialog(FileDialog):
 		self.filename.delete(0, END)
 		self.filename.insert(0, path)
 
+
 #===============================================================================
 def askfilename(**options):
 	"""Ask for a filename"""
 	if FileDialog._active: return ""
 	return FileDialog(**options).show()
 
+
 def askopenfilename(**options):
 	"""Ask for a filename to open"""
 	if FileDialog._active: return ""
 	return OpenDialog(**options).show()
+
 
 def askopenfilenames(**options):
 	"""Ask for a multiple filenames to open"""
@@ -931,10 +941,12 @@ def askopenfilenames(**options):
 	options["multiple"] = True
 	return OpenDialog(**options).show()
 
+
 def asksaveasfilename(**options):
 	"""Ask for a filename to save as"""
 	if FileDialog._active: return ""
 	return SaveAsDialog(**options).show()
+
 
 def askdirectory(**options):
 	"""Ask for a directory"""

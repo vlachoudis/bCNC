@@ -14,24 +14,30 @@ endfacet
 BINARY_HEADER ="80sI"
 BINARY_FACET = "12fH"
 
+
 def crossproduct(u,v):
 	s1 = u[1]*v[2] - u[2]*v[1]
 	s2 = u[2]*v[0] - u[0]*v[2]
 	s3 = u[0]*v[1] - u[1]*v[0]
 	return [s1, s2, s3]
 
+
 def norm(v):
 	return math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+
 
 def normalize(v):
 	m = norm(v)
 	return [v[0]/m, v[1]/m, v[2]/m]
 
+
 def normalto(u,v):
 	return normalize(crossproduct(u,v))
 
+
 def diff(u,v):
 	return [u[0]-v[0], u[1]-v[1], u[2]-v[2]]
+
 
 #functions for calculation of the normal vector (right-thumb-rule)
 def crossProduct(a, b):
@@ -40,11 +46,13 @@ def crossProduct(a, b):
 		raise ValueError('unvalid value')
 	return [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]]
 
+
 def diff(v1,v2):
 	#substracting one list from another
 	if (len(v1)!=3) or (len(v2)!=3):
 		raise ValueError('unvalid value')
 	return [v1[0]-v2[0],v1[1]-v2[1],v1[2]-v2[2]]
+
 
 def normal(v1,v2,v3):
 	#calculate normal vector on triangle spanned by the three vertices
@@ -63,6 +71,7 @@ def normal(v1,v2,v3):
 		return n
 	else :
 		return [n[0]/absolut,n[1]/absolut,n[2]/absolut]
+
 
 #simple function to create sets of three vertices
 def triangulate(vertices):
@@ -136,6 +145,7 @@ class ASCII_STL_Writer:
 		""" Add many faces. """
 		for face in faces:
 			self.add_face(face)
+
 
 class Binary_STL_Writer(ASCII_STL_Writer):
 	""" Export 3D objects build of 3 or 4 vertices as binary STL file.
