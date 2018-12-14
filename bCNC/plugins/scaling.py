@@ -49,8 +49,8 @@ class Tool(Plugin):
 			("rpm",          "int" ,    12000, _("RPM"))
 		]
 		self.buttons.append("exe")
-	
-    # -----------------------------------------------------
+
+	# -----------------------------------------------------
 	def scaling(self,xyz):
 		xscale= self["xscale"]
 		if xscale=="":xscale=1
