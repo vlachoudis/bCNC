@@ -8,5 +8,6 @@ matrix:
 install:
     - pip install -e .
 script:
-    - echo HELLO WORLD
     - echo HOORAY
+    - python setup.py sdist
+    - pytest
