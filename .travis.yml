@@ -8,4 +8,5 @@ matrix:
 install:
     - pip install -e .
 script:
-    - bash echo HOORAY
+    - echo HELLO WORLD
+    - echo HOORAY
