@@ -125,10 +125,16 @@ installation directory.
 - Web pendant to be used via smart phones
 
 # Debuging
-You can use following command to connect to debug serial traffic.
-ttyUSB0 is real HW, ttyUSB23 is gonna be new fake device to which you'll connect the bCNC in order to intercept trafic:
+You can log serial communication by changing the port to something like:
 
-    interceptty -l /dev/ttyUSB0 /dev/ttyUSB23 | interceptty-nicedump
+    spy:///dev/ttyUSB0?file=serial_log.txt&raw
+
+If a file isn't specified, the log is written to stderr.
+
+The 'raw' option outputs the data directly, instead of creating a hex dump.
+
+Further documentation is available at: https://pyserial.readthedocs.io/en/latest/url_handlers.html#spy
+
 
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in
