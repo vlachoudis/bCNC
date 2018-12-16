@@ -9,5 +9,6 @@ install:
     - pip install -e .
 script:
     - echo HOORAY
+    - test $(find -name '*.pyc' | wc -l) -eq 0
     - python -t -m compileall -f bCNC
     - python setup.py sdist
