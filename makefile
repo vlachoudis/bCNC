@@ -33,3 +33,5 @@ clean:
 
 upload:
 	python2 setup.py sdist upload
+	#python2 setup.py sdist
+	#twine upload -u PYPI_USERNAME dist/*
