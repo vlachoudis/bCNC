@@ -574,7 +574,8 @@ class ReportDialog(Toplevel):
 
 	# ----------------------------------------------------------------------
 	def send(self):
-		import httplib, urllib
+		import httplib
+		import urllib
 		global errors
 		email = self.email.get()
 		desc  = self.text.get('1.0', END).strip()
