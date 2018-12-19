@@ -1752,6 +1752,7 @@ class CNC:
 		lines.append("g0 x[_x] y[_y]")	# ... x,y position
 		lines.append("g0 z[_z]")	# ... z position
 		lines.append("f[feed] [spindle]")# ... feed and spindle
+		lines.append("g4 p5")		# wait 5s for spindle to speed up
 
 		# remember present tool
 		self._lastTool = self.tool
