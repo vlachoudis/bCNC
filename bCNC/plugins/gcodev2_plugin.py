@@ -90,7 +90,7 @@ class Tool(Plugin):
             except Exception as exc: #Append None, not to loose sync with X
                 Y.append(None)
                 e = str(exc)
-                if not e == e_old: #If there is a different exception - display it
+                if e != e_old: #If there is a different exception - display it
                     print("Warning: " + str(e))
                     app.setStatus(_("Warning: " + str(e)))
                     e_old = e     
