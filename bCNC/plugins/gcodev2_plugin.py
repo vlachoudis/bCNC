@@ -19,7 +19,7 @@ class Tool(Plugin):
         self.group = 'Artistic'
 
         self.variables = [
-            ('name',    'db',       '',     _('Name')),
+            ('name',    'db',       'Function',     _('Name')),
             ('form',    'text',     'x**2',    _('Formula')),
             ('res',     'float',    0.005,  _('Resolution')),
             ('ranX',    'float',    10,     _('Range of X')),
@@ -98,15 +98,15 @@ class Tool(Plugin):
         raised = True # Z axis is raised at start
         
         #Clip values out of bounds, replace with None, not to loose sync with X
-        for i in range(len(Y)):
+        for i in enumerate(Y):
             y = Y[i]
-            if not y == None and (y < minY or y > maxY):
-                Y[i] = None;
+            if not y is None and (y < minY or y > maxY):
+                Y[i] = None
 
         #Y without "None", min() and max() can't compare them
         Ynn = [] #Y no Nones
-        for i in range(len(Y)):
-            if not Y[i] == None:
+        for i in enumerate(Y):
+            if not Y[i] is None:
                 Ynn.append(Y[i])
                 
         
@@ -188,21 +188,21 @@ class Tool(Plugin):
             raised = True #Z was raised
                 
         #Draw graph
-        for i in range(len(X)):
-            if not Y[i] == None:
+        for i in enumerate(Y):
+            if not Y[i] is None:
                 x = mapc(X[i]+cent[0], 0) #Take an argument
                 y = mapc(Y[i]+cent[1], 1) #Take a value
             else:
                 y = Y[i] #only for tne None checks next
             
-            if y == None and not raised: #If a None "period" just started raise Z
+            if y is None and not raised: #If a None "period" just started raise Z
                 raised = True
                 block.append(CNC.grapid(z=3))
-            elif not y == None and raised: #If Z was raised and the None "period" ended move to new coordinates
+            elif not y is None and raised: #If Z was raised and the None "period" ended move to new coordinates
                 block.append(CNC.grapid(x,y))
                 block.append(CNC.grapid(z=0)) #Lower Z
                 raised = False
-            elif not y == None and not raised: #Nothing to do with Nones? Just draw
+            elif not y is None and not raised: #Nothing to do with Nones? Just draw
                 block.append(CNC.gline(x,y))
         
         block.append(CNC.grapid(z=3)) #Raise on the end
@@ -212,3 +212,4 @@ class Tool(Plugin):
         app.gcode.insBlocks(active, blocks, 'Function inserted')  #insert blocks over active block in the editor
         app.refresh()  #refresh editor
         app.setStatus(_('Generated function graph'))  #feed back result		
+        print()
