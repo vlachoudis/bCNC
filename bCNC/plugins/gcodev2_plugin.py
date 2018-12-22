@@ -98,14 +98,14 @@ class Tool(Plugin):
         raised = True # Z axis is raised at start
         
         #Clip values out of bounds, replace with None, not to loose sync with X
-        for i in enumerate(Y):
+        for i, item in enumerate(Y):
             y = Y[i]
             if not y is None and (y < minY or y > maxY):
                 Y[i] = None
 
         #Y without "None", min() and max() can't compare them
         Ynn = [] #Y no Nones
-        for i in enumerate(Y):
+        for i, item in enumerate(Y):
             if not Y[i] is None:
                 Ynn.append(Y[i])
                 
@@ -188,7 +188,7 @@ class Tool(Plugin):
             raised = True #Z was raised
                 
         #Draw graph
-        for i in enumerate(Y):
+        for i, item in enumerate(Y):
             if not Y[i] is None:
                 x = mapc(X[i]+cent[0], 0) #Take an argument
                 y = mapc(Y[i]+cent[1], 1) #Take a value
@@ -212,4 +212,4 @@ class Tool(Plugin):
         app.gcode.insBlocks(active, blocks, 'Function inserted')  #insert blocks over active block in the editor
         app.refresh()  #refresh editor
         app.setStatus(_('Generated function graph'))  #feed back result		
-        print()
+        print
