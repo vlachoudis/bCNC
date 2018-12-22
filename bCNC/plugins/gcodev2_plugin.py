@@ -2,7 +2,7 @@ __author__ = 'kswiorek'
 __email__ = 'ks@baskijski.net'
 
 __name__ = _('Function')
-__version__ = '2.0'
+__version__ = '2.4'
 
 import math #Math in formulas
 from CNC import CNC, Block
@@ -109,6 +109,7 @@ class Tool(Plugin):
             if not Y[i] is None:
                 Ynn.append(Y[i])
                 
+        block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])])) #Set feedrate
         
         if draw: #If the user selected to draw the coordinate system
             #X axis
@@ -199,11 +200,11 @@ class Tool(Plugin):
                 raised = True
                 block.append(CNC.grapid(z=3))
             elif not y is None and raised: #If Z was raised and the None "period" ended move to new coordinates
-                block.append(CNC.grapid(x,y))
+                block.append(CNC.grapid(round(x, 2),round(y, 2)))
                 block.append(CNC.grapid(z=0)) #Lower Z
                 raised = False
             elif not y is None and not raised: #Nothing to do with Nones? Just draw
-                block.append(CNC.gline(x,y))
+                block.append(CNC.gline(round(x, 2),round(y, 2)))
         
         block.append(CNC.grapid(z=3)) #Raise on the end
         
