@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: ascii -*-
 # $Id$
 #
@@ -8,9 +8,6 @@
 # A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt
 #This plugin is based on a variation
 # of yours Driller plugin and My_Plugin example.
-
-from __future__ import absolute_import
-from __future__ import print_function
 
 __author__ = "Mario S Basz"
 __email__  = "mariob_1960@yaho.com.ar"
