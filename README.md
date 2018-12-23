@@ -8,7 +8,9 @@ An advanced fully featured g-code sender for GRBL. bCNC is a cross platform prog
 
 [![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
-(Please note that all pull requests should pass the Travis-CI build, Codefactor checks are only tentative)
+
+Please note that all pull requests should pass the Travis-CI build in order to get merged.
+Most pull requests should also pass Codefactor checks if there is not good reason for failure.
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
