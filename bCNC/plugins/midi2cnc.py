@@ -1,13 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: ascii -*-
 # $Id$
 #
 # Author:	Filippo Rivato
 # Date:		20 December 2015
 # Porting of midi2cnc https://github.com/michthom/MIDI-to-CNC (GPLv2+)
-
-from __future__ import absolute_import
-from __future__ import print_function
 
 __author__	= "Filippo Rivato"
 __email__	= "f.rivato@gmail.com"
