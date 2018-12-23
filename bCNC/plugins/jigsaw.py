@@ -1,12 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: ascii -*-
 # $Id$
 #
 # Author: Gonzalo Cobos Bergillos
 # Date:	15-Nov-2017
 
-from __future__ import absolute_import
-from __future__ import print_function
 __author__ = "Gonzalo Cobos Bergillos"
 __email__  = "gcobos@gmail.com"
 
