@@ -1,0 +1,19 @@
+os:
+    - linux
+    - windows
+language: python
+python:
+    - '2.7'
+    - '3.4'
+matrix:
+    allow_failures:
+        - python: '3.4'
+        - os: windows
+install:
+    - pip install -e .
+script:
+    - echo HOORAY
+    - test -L bCNC/bCNC.py
+    - test -z $(find -name '*.pyc' -o -name '*.pyo')
+    - python -t -m compileall -f bCNC
+    - python setup.py sdist
