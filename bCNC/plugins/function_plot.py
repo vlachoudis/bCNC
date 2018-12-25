@@ -41,7 +41,7 @@ class Tool(Plugin):
             ]
         self.buttons.append('exe')
 
-	self.help = """
+        self.help = """
 This plugin plots graph of a function.
 There are some examples of function formulas that can be ploted:
 
