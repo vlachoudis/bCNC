@@ -708,8 +708,8 @@ class TruetypeInfo:
 						normContLine.append(GlyphPoint(p.x,p.y))
 					i+=2
 					continue
-						if (closed):
-							normContLine.append(GlyphPoint(newCont[-1].x,newCont[-1].y))
+					if (closed):
+						normContLine.append(GlyphPoint(newCont[-1].x,newCont[-1].y))
 
 			#add normalized contour to all contours
 			normContours.append(normContLine)
