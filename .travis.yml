@@ -15,5 +15,5 @@ script:
     - echo HOORAY
     - test -L bCNC/bCNC.py
     - test -z $(find -name '*.pyc' -o -name '*.pyo')
-    - python -t -m compileall -f bCNC
+    - python -tt -m compileall -f bCNC
     - python setup.py sdist
