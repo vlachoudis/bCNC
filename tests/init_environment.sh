@@ -11,6 +11,7 @@ test -L bCNC/bCNC.py
 test -z $(find -name '*.pyc' -o -name '*.pyo')
 python -tt -m compileall -f bCNC
 python setup.py sdist
+cp tests/travis_bcnc_config.ini ~/.bCNC
 
 echo "Installing Test Requirements"
 pip install grbl-receiver
