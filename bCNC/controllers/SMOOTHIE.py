@@ -24,7 +24,8 @@ class Controller(_GenericController):
 				"get", "net", "load", "save", "upload",
 				"calc_thermistor", "thermistors", "md5sum",
 				"fire", "switch"):
-			self.master.serial.write(oline+"\n")
+			if self.master.serial:
+				self.master.serial.write(oline+"\n")
 			return True
 		return False
 
