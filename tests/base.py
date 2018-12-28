@@ -99,7 +99,6 @@ class BaseGUITestCase(unittest.TestCase):
 
         max_termination_wait_seconds = 10
         terminated = time.time()
-        self.grbl_proc.send_signal(signal.SIGINT)
         self.gui_proc.send_signal(signal.SIGINT)
 
         while(time.time() < terminated + max_termination_wait_seconds):
@@ -108,6 +107,7 @@ class BaseGUITestCase(unittest.TestCase):
 
         # If we've made it this far, the process is still running
         self.gui_proc.kill()
+        self.grbl_proc.send_signal(signal.SIGINT)
 
     def get_bcnc_state(self):
         return requests.get('http://127.0.0.1:5001/state').json()
