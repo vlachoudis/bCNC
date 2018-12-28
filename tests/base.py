@@ -1,6 +1,7 @@
 import contextlib
 import os
 import unittest
+import signal
 import subprocess
 import time
 
@@ -98,8 +99,8 @@ class BaseGUITestCase(unittest.TestCase):
 
         max_termination_wait_seconds = 5
         terminated = time.time()
+        self.grbl_proc.send_signal(signal.SIGINT)
         self.gui_proc.terminate()
-        self.grbl_proc.terminate()
 
         while(time.time() < terminated + max_termination_wait_seconds):
             if self.gui_proc.poll():
