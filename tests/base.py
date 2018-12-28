@@ -37,6 +37,7 @@ class BaseGUITestCase(unittest.TestCase):
             self.get_python_path(),
             os.path.join(
                 self.build_dir,
+                'bCNC',
                 'bCNC.py',
             ),
             '--fullscreen'
