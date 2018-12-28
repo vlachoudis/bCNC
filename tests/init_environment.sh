@@ -14,7 +14,7 @@ python setup.py sdist
 cp tests/travis_bcnc_config.ini ~/.bCNC
 
 echo "Installing Test Requirements"
-pip install grbl-receiver
+pip install gcode-receiver
 pip install imageio==2.2.0
 pip install python-xlib==0.20
 pip install pytest==3.2.3

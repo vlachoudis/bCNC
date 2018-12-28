@@ -29,7 +29,7 @@ class BaseGUITestCase(unittest.TestCase):
         )
         self.grbl_proc = subprocess.Popen(
             [
-                'grbl-receiver',
+                'gcode-receiver',
                 '--socket=8300',
             ],
         )
