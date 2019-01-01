@@ -53,7 +53,7 @@ STATECOLOR = {	"Alarm"       : "Red",
 		"Hold"	      : "Orange",
 		"Hold:0"      : "Orange",
 		"Hold:1"      : "Orange",
-		CONNECTED     : "Orange",
+		CONNECTED     : "Green",
 		NOT_CONNECTED : "OrangeRed"
 		}
 
