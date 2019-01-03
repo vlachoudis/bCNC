@@ -741,6 +741,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 	def go2origin(self, event=None):
 		self.sendGCode("G90")
+		self.sendGCode("G0Z%d"%(CNC.vars['safe']))
 		self.sendGCode("G0X0Y0")
 		self.sendGCode("G0Z0")
 
