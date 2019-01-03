@@ -8,11 +8,13 @@ import time
 
 # From https://github.com/grbl/grbl/wiki/Interfacing-with-Grbl
 ERROR_CODES = {
-	"Run"	   : _("bCNC is currently sending a gcode program to Grbl"),
-	"Idle"	   : _("Grbl is in idle state and waiting for user commands"),
-	"Hold"	   : _("Grbl is on hold state. Click on resume (pause) to continue"),
-	"Alarm"    : _("Alarm is an emergency state. Something has gone terribly wrong when these occur. Typically, they are caused by limit error when the machine has moved or wants to move outside the machine space and crash into something. They also report problems if Grbl is lost and can't guarantee positioning or a probe command has failed. Once in alarm-mode, Grbl will lock out and shut down everything until the user issues a reset. Even after a reset, Grbl will remain in alarm-mode, block all G-code from being executed, but allows the user to override the alarm manually. This is to ensure the user knows and acknowledges the problem and has taken steps to fix or account for it."),
-	"Check"    : _("Grbl is in g-code check mode. If you send g-code to it, it will only check it without actualy doing any motion. You can exit this by $C command (Or equivalent button in terminal tab)"),
+	"Run"		: _("bCNC is currently sending a gcode program to Grbl"),
+	"Idle"		: _("Grbl is in idle state and waiting for user commands"),
+	"Hold"		: _("Grbl is on hold state. Click on resume (pause) to continue"),
+	"Alarm"		: _("Alarm is an emergency state. Something has gone terribly wrong when these occur. Typically, they are caused by limit error when the machine has moved or wants to move outside the machine space and crash into something. They also report problems if Grbl is lost and can't guarantee positioning or a probe command has failed. Once in alarm-mode, Grbl will lock out and shut down everything until the user issues a reset. Even after a reset, Grbl will remain in alarm-mode, block all G-code from being executed, but allows the user to override the alarm manually. This is to ensure the user knows and acknowledges the problem and has taken steps to fix or account for it."),
+	"Check"		: _("Grbl is in g-code check mode. If you send g-code to it, it will only check it without actualy doing any motion. You can exit this by $C command (Or equivalent button in terminal tab)"),
+	"Jog"		: _("Grbl executes jogging motion"),
+	"Sleep"		: _("Grbl is in sleep mode. Motors are disabled, so you can move them manualy. That also means that your machine might have lost the position (or microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to wake Grbl again."),
 	"Not connected"	: _("Grbl is not connected. Please specify the correct port and click Open."),
 	"Connected"	: _("Connection is established with Grbl"),
 
