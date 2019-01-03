@@ -48,13 +48,24 @@ FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
 
-STATECOLOR = {	"Alarm"       : "Red",
-		"Run"	      : "LightGreen",
-		"Hold"	      : "Orange",
-		"Hold:0"      : "Orange",
-		"Hold:1"      : "Orange",
-		CONNECTED     : "Green",
-		NOT_CONNECTED : "OrangeRed"
+STATECOLOR = {
+		"Idle"		: "Yellow",
+		"Run"		: "LightGreen",
+		"Alarm"		: "Red",
+		"Jog"		: "Green",
+		"Home"		: "Green",
+		"Check"		: "Magenta2",
+		"Sleep"		: "LightBlue",
+		"Hold"		: "Orange",
+		"Hold:0"	: "Orange",
+		"Hold:1"	: "OrangeRed",
+		"Door"		: "Red",
+		"Door:0"	: "OrangeRed",
+		"Door:1"	: "Red",
+		"Door:2"	: "Red",
+		"Door:3"	: "OrangeRed",
+		CONNECTED	: "Yellow",
+		NOT_CONNECTED	: "OrangeRed"
 		}
 
 STATE_DESC = {
