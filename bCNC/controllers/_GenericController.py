@@ -92,6 +92,11 @@ class _GenericController:
 	def viewState(self):
 		self.master.sendGCode("$G")
 
+	#----------------------------------------------------------------------
+	def jog(self, dir):
+		#print("jog",dir)
+		self.master.sendGCode("G91G0%s"%(dir))
+		self.master.sendGCode("G90")
 
 	#----------------------------------------------------------------------
 	def goto(self, x=None, y=None, z=None):

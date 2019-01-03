@@ -36,6 +36,9 @@ class Controller(_GenericGRBL):
 		self.master = master
 		#print("grbl1 loaded")
 
+	def jog(self, dir):
+		self.master.sendGCode("$J=G91 %s F100000"%(dir))
+
 	def overrideSet(self):
 		CNC.vars["_OvChanged"] = False	# Temporary
 		# Check feed

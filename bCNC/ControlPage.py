@@ -691,53 +691,43 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 	def moveXup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%s"%(self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X%s"%(self.step.get()))
 
 	def moveXdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%s"%(self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X-%s"%(self.step.get()))
 
 	def moveYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Y%s"%(self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("Y%s"%(self.step.get()))
 
 	def moveYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Y-%s"%(self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("Y-%s"%(self.step.get()))
 
 	def moveXdownYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%sY%s"%(self.step.get(),self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X-%sY%s"%(self.step.get(),self.step.get()))
 
 	def moveXupYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%sY%s"%(self.step.get(),self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X%sY%s"%(self.step.get(),self.step.get()))
 
 	def moveXdownYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X-%sY-%s"%(self.step.get(),self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X-%sY-%s"%(self.step.get(),self.step.get()))
 
 	def moveXupYdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0X%sY-%s"%(self.step.get(),self.step.get()))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("X%sY-%s"%(self.step.get(),self.step.get()))
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z%s"%(self.getStep('z')))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("Z%s"%(self.getStep('z')))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.sendGCode("G91G0Z-%s"%(self.getStep('z')))
-		self.sendGCode("G90")
+		self.app.mcontrol.jog("Z-%s"%(self.getStep('z')))
 
 	def go2origin(self, event=None):
 		self.sendGCode("G90")
