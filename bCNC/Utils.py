@@ -526,6 +526,7 @@ class ReportDialog(Toplevel):
 				command=self.cancel)
 		b.pack(side=RIGHT)
 		b = Button(frame, text=_("Send report"),
+				state=DISABLED, #Error reporting endpoint is currently offline (#824), disabled this to avoid timeout and confusion
 				compound=LEFT,
 				command=self.send)
 		b.pack(side=RIGHT)
