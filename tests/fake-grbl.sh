@@ -1,12 +1,26 @@
 #!/bin/sh
-#Dummy GRBL simulator (allows connecting and streaming)
-#Usage: fake-grbl.sh /tmp/ttyFAKE
 
-[ -n "$1" ] && {
-	socat -d-d PTY,raw,link="$1",echo=0 "EXEC:'$0',pty,raw,echo=0"
+#Show help
+[ -z "$1" ] || [ "$1" = "-h" ] && {
+	echo "
+	Dummy GRBL simulator (allows connecting and streaming)
+
+	Usage:
+		$0 -h		#Show this help
+		$0 -c		#Launch GRBL console
+		$0 /tmp/ttyFAKE	#Listen at fake serial port
+	"
+	exit
+}
+
+#Create fake tty device and listen on it
+[ "$1" != "-c" ] && {
+	echo Listening at fake serial port: "$1"
+	socat -d-d PTY,raw,link="$1",echo=0 "EXEC:'$0' -c,pty,raw,echo=0"
 	exit
 	}
 
+#Fake Grbl console
 echo
 echo "Grbl 1.1f ['$' for help]"
 while read -s -n 1 byte; do
