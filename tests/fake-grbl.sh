@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #Show help
 [ -z "$1" ] || [ "$1" = "-h" ] && {
