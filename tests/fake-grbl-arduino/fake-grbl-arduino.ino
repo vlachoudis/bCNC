@@ -1,4 +1,4 @@
-#Fake GRBL for arduino
+//Fake GRBL for arduino
 
 void setup() {
   Serial.begin(115200);
