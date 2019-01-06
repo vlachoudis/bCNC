@@ -48,6 +48,7 @@ FEEDPAT   = re.compile(r"^(.*)[fF](\d+\.?\d+)(.*)$")
 CONNECTED     = "Connected"
 NOT_CONNECTED = "Not connected"
 
+STATECOLORDEF = "LightYellow" #Default color for unknown types?
 STATECOLOR = {
 		"Idle"		: "Yellow",
 		"Run"		: "LightGreen",
@@ -67,17 +68,6 @@ STATECOLOR = {
 		CONNECTED	: "Yellow",
 		NOT_CONNECTED	: "OrangeRed"
 		}
-
-STATE_DESC = {
-		"Hold:0" : "Hold complete",
-		"Hold:1" : "Hold in-progress",
-		"Door:0" : "Door closed",
-		"Door:1" : "Machine stopped",
-		"Door:2" : "Door opened",
-		"Door:3" : "Door closed and resuming",
-	}
-
-STATECOLORDEF = "LightYellow"
 
 
 #==============================================================================
