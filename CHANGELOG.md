@@ -13,14 +13,17 @@ There are too much commits, so i've created this brief overview of new features 
   - Jog digitizer to create drawing by recording points while jogging #929
   - ArcFit plugin can interpolate lots of small segments using one long line/arc #921
   - More plugins: find center of path, close path, flatten path, scaling, randomize...
+  - Start cycle can now be triggered by hardware button connected to arduino #885
 - Improvements
   - Restructured UI #1057 and more
-  - Start cycle can now be triggered by hardware button connected to arduino #885
-  - Added button to activate GRBL sleep mode (= disable motors) #1099
-  - Added framework to show help text and images for each plugin #806
   - Disabled blocks are commented-out in exported g-code #767
   - Lots of small improvements and experimental/development features like "trochoidal" (see git)
-- Fixes
+  - Added button to activate GRBL sleep mode (= disable motors) #1099
+  - Added button to trigger GRBL door alarm
+  - Added button to scan autoleveling margins (to see what will be probed)
+  - Added some usefull jog buttons
+  - Added framework to show help text and images for each plugin #806
+- Bug Fixes
   - Proper path direction detection and climb/conventional support #881
   - Proper handling of G91 when moving/rotating g-code #915
 - Development and release engineering
