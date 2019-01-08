@@ -402,7 +402,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		b.grid(row=row,column=col,sticky=E)
 		self.addWidget(b)
 
-		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
+		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16, command=self.comportClean)
 		self.portCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.portCombo, _("Select (or manual enter) port to connect"))
 		self.portCombo.set(Utils.getStr("Connection","port"))
@@ -479,6 +479,12 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.app.controllerSet(self.ctrlCombo.get())
 
 	#-----------------------------------------------------------------------
+	def comportClean(self, event=None):
+		clean = self.portCombo.get().split("\t")[0]
+		if(self.portCombo.get() != clean):
+			print("comport fix")
+			self.portCombo.set(clean)
+
 	def comportRefresh(self, dbg=False):
 		#Detect devices
 		hwgrep = []
