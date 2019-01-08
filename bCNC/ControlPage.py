@@ -73,6 +73,18 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 
 		row += 1
 		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["serial"],
+				text=_("Connection"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda s=self : s.event_generate("<<Connect>>"),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Open/Close connection"))
+		self.addWidget(b)
+
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
 				image=Utils.icons["reset"],
 				text=_("Reset"),
 				compound=LEFT,
@@ -462,15 +474,18 @@ class DROFrame(CNCRibbon.PageFrame):
 #===============================================================================
 # ControlFrame
 #===============================================================================
-class ControlFrame(CNCRibbon.PageLabelFrame):
+class ControlFrame(CNCRibbon.PageExLabelFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageLabelFrame.__init__(self, master, "Control", _("Control"), app)
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "Control", _("Control"), app)
+
+		frame = Frame(self())
+		frame.pack(side=TOP, fill=X)
 
 		row,col = 0,0
-		Label(self, text=_("Z")).grid(row=row, column=col)
+		Label(frame, text=_("Z")).grid(row=row, column=col)
 
 		col += 3
-		Label(self, text=_("Y")).grid(row=row, column=col)
+		Label(frame, text=_("Y")).grid(row=row, column=col)
 
 		# ---
 		row += 1
@@ -479,7 +494,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		width=3
 		height=2
 
-		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
 					command=self.moveZup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -488,7 +503,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(self, text=Unicode.UPPER_LEFT_TRIANGLE,
+		b = Button(frame, text=Unicode.UPPER_LEFT_TRIANGLE,
 					command=self.moveXdownYup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -498,7 +513,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
 					command=self.moveYup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -507,7 +522,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=Unicode.UPPER_RIGHT_TRIANGLE,
+		b = Button(frame, text=Unicode.UPPER_RIGHT_TRIANGLE,
 					command=self.moveXupYup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -516,7 +531,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(self, text=u"\u00D710",
+		b = Button(frame, text=u"\u00D710",
 				command=self.mulStep,
 				width=3,
 				padx=1, pady=1)
@@ -525,7 +540,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=_("+"),
+		b = Button(frame, text=_("+"),
 				command=self.incStep,
 				width=3,
 				padx=1, pady=1)
@@ -537,10 +552,10 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		row += 1
 
 		col = 1
-		Label(self, text=_("X"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		Label(frame, text=_("X"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		b = Button(self, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
 					command=self.moveXdown,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -549,7 +564,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Utils.UserButton(self, self.app, 0, text=Unicode.LARGE_CIRCLE,
+		b = Utils.UserButton(frame, self.app, 0, text=Unicode.LARGE_CIRCLE,
 					command=self.go2origin,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -558,7 +573,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
 					command=self.moveXup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -568,10 +583,10 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 
 		# --
 		col += 1
-		Label(self,"",width=2).grid(row=row,column=col)
+		Label(frame,"",width=2).grid(row=row,column=col)
 
 		col += 1
-		self.step = tkExtra.Combobox(self, width=6, background="White")
+		self.step = tkExtra.Combobox(frame, width=6, background="White")
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
 		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
@@ -581,7 +596,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		# -- Separate zstep --
 		try:
 			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(self, width=4, background="White")
+			self.zstep = tkExtra.Combobox(frame, width=4, background="White")
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
 			zsl = [_NOZSTEP]
@@ -612,7 +627,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		row += 1
 		col = 0
 
-		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 					command=self.moveZdown,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -621,7 +636,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(self, text=Unicode.LOWER_LEFT_TRIANGLE,
+		b = Button(frame, text=Unicode.LOWER_LEFT_TRIANGLE,
 					command=self.moveXdownYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -630,7 +645,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
 					command=self.moveYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -639,7 +654,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=Unicode.LOWER_RIGHT_TRIANGLE,
+		b = Button(frame, text=Unicode.LOWER_RIGHT_TRIANGLE,
 					command=self.moveXupYdown,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -648,7 +663,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 2
-		b = Button(self, text=u"\u00F710",
+		b = Button(frame, text=u"\u00F710",
 					command=self.divStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)
@@ -656,7 +671,7 @@ class ControlFrame(CNCRibbon.PageLabelFrame):
 		self.addWidget(b)
 
 		col += 1
-		b = Button(self, text=_("-"),
+		b = Button(frame, text=_("-"),
 					command=self.decStep,
 					padx=1, pady=1)
 		b.grid(row=row, column=col, sticky=EW+N)

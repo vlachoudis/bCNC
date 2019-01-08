@@ -376,7 +376,7 @@ class Application(Toplevel,Sender):
 		self.bind('<Control-Key-space>',self.commandFocus)
 		self.bind('<<CommandFocus>>',	self.commandFocus)
 
-		tools = self.pages["Tools"]
+		tools = self.pages["CAM"]
 		self.bind('<<ToolAdd>>',	tools.add)
 		self.bind('<<ToolDelete>>',	tools.delete)
 		self.bind('<<ToolClone>>',	tools.clone)
@@ -1632,7 +1632,7 @@ class Application(Toplevel,Sender):
 
 		# TOOLS
 		elif cmd=="TOOLS":
-			self.ribbon.changePage("Tools")
+			self.ribbon.changePage("CAM")
 
 		# UNL*OCK: unlock grbl
 		elif rexx.abbrev("UNLOCK",cmd,3):
@@ -1869,7 +1869,7 @@ class Application(Toplevel,Sender):
 		self.setStatus(_("Profile block distance=%g")%(ofs*sign))
 #	#-----------------------------------------------------------------------
 #	def tabAdded(self, event=None):
-#		tools = Page.frames["Tools"]
+#		tools = Page.frames["CAM"]
 #		tools.populate()
 #		tools.selectTab(-1)
 
@@ -1878,7 +1878,7 @@ class Application(Toplevel,Sender):
 		page = self.ribbon.getActivePage()
 		if page.name == "Editor":
 			self.editor.edit()
-		elif page.name == "Tools":
+		elif page.name == "CAM":
 			page.edit()
 
 	#-----------------------------------------------------------------------
@@ -2063,7 +2063,7 @@ class Application(Toplevel,Sender):
 			self.canvas.reset()
 			self.draw()
 			self.canvas.fit2Screen()
-			Page.frames["Tools"].populate()
+			Page.frames["CAM"].populate()
 
 		if autoloaded:
 			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))

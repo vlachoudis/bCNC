@@ -175,10 +175,10 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 
 		# ---
 		row = 0
-		col += 2
+		col += 1
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScanMargins>>",
 				image=Utils.icons["margins"],
-				text=_("Scan Margins"),
+				text=_("Scan"),
 				compound=LEFT,
 				anchor=W,
 				background=Ribbon._BACKGROUND)
@@ -186,8 +186,20 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Scan Autolevel Margins"))
 		self.addWidget(b)
 
+		row += 1
+		b = Ribbon.LabelButton(self.frame,
+				image=Utils.icons["level"],
+				text=_("Autolevel"),
+				compound=LEFT,
+				anchor=W,
+				command=lambda a=app:a.insertCommand("AUTOLEVEL",True),
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Modify selected G-Code to match autolevel"))
+		self.addWidget(b)
+
 		# ---
-		col,row=1,0
+		col,row=2,0
 		b = Ribbon.LabelButton(self.frame, self, "<<AutolevelScan>>",
 				image=Utils.icons["gear32"],
 				text=_("Scan"),

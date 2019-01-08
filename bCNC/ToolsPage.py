@@ -162,8 +162,7 @@ class _Base:
 					varhelpheader=False
 				varhelp += '* '+var[0].upper()+': '+var[3]+'\n'+var[4]+'\n\n'
 
-		self.master.widget['toolHelp'].pack_forget()
-		self.master.widget['scroll'].pack_forget()
+		self.master.widget['paned'].remove(self.master.widget['toolHelpFrame'])
 		self.master.widget['toolHelp'].config(state=NORMAL)
 		self.master.widget['toolHelp'].delete(1.0, END)
 		if len(varhelp) > 0:
@@ -173,8 +172,7 @@ class _Base:
 					self.master.widget['toolHelp'].insert(END, '\n')
 				else:
 					self.master.widget['toolHelp'].insert(END, line+'\n')
-			self.master.widget['scroll'].pack(side=RIGHT, fill=Y)
-			self.master.widget['toolHelp'].pack()
+			self.master.widget['paned'].add(self.master.widget['toolHelpFrame'])
 		self.master.widget['toolHelp'].config(state=DISABLED)
 
 	#----------------------------------------------------------------------
@@ -1637,10 +1635,16 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 #==============================================================================
 class ToolsFrame(CNCRibbon.PageFrame):
 	def __init__(self, master, app):
-		CNCRibbon.PageFrame.__init__(self, master, "Tools", app)
+		CNCRibbon.PageFrame.__init__(self, master, "CAM", app)
 		self.tools = app.tools
 
-		b = Button(self, text=_("Execute"),
+		paned = PanedWindow(self, orient=VERTICAL)
+		paned.pack(expand=YES, fill=BOTH)
+
+		frame = Frame(paned)
+		paned.add(frame)
+
+		b = Button(frame, text=_("Execute"),
 				image=Utils.icons["gear"],
 				compound=LEFT,
 				foreground="DarkRed",
@@ -1651,9 +1655,10 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		b.pack(side=TOP, fill=X)
 		self.tools.addButton("exe",b)
 
-		self.toolList = tkExtra.MultiListbox(self,
+		self.toolList = tkExtra.MultiListbox(frame,
 					((_("Name"),  24, None),
-					 (_("Value"), 24, None)),
+					 (_("Value"), 12, None)),
+					 height=20,
 					 header = False,
 					 stretch = "last",
 					 background = "White")
@@ -1668,16 +1673,20 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		self.tools.setListbox(self.toolList)
 		self.addWidget(self.toolList)
 
+		frame = Frame(paned)
+		paned.add(frame)
 
-		self.toolHelp = Text(self, height=5)
-		self.scroll = Scrollbar(self, command=self.toolHelp.yview)
-		self.toolHelp.configure(yscrollcommand=self.scroll.set)
-		#self.scroll.pack(side=RIGHT, fill=Y)
-		#self.toolHelp.pack()
-		self.addWidget(self.toolHelp)
-		self.toolHelp.config(state=DISABLED)
-		self.tools.setWidget("toolHelp" ,self.toolHelp)
-		self.tools.setWidget("scroll" ,self.scroll)
+		toolHelp = Text(frame, width=20, height=5)
+		toolHelp.pack(side=LEFT, expand=YES, fill=BOTH)
+		scroll = Scrollbar(frame, command=toolHelp.yview)
+		scroll.pack(side=RIGHT, fill=Y)
+		toolHelp.configure(yscrollcommand=scroll.set)
+		self.addWidget(toolHelp)
+		toolHelp.config(state=DISABLED)
+
+		self.tools.setWidget("paned",         paned)
+		self.tools.setWidget("toolHelpFrame", frame)
+		self.tools.setWidget("toolHelp",      toolHelp)
 
 		app.tools.active.trace('w',self.change)
 		self.change()
@@ -1710,7 +1719,6 @@ class ToolsFrame(CNCRibbon.PageFrame):
 				else:
 					helptext = helpname+':\nnot available yet!'
 				tkMessageBox.showinfo(helpname, helptext)
-
 
 	#----------------------------------------------------------------------
 	# Edit tool listbox
@@ -1753,7 +1761,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 #===============================================================================
 class ToolsPage(CNCRibbon.Page):
 	__doc__ = _("GCode manipulation tools and user plugins")
-	_name_  = N_("Tools")
+	_name_  = N_("CAM")
 	_icon_  = "tools"
 
 	#----------------------------------------------------------------------
@@ -1762,28 +1770,28 @@ class ToolsPage(CNCRibbon.Page):
 	def register(self):
 		self._register(
 			(DataBaseGroup,
-			CAMGroup,
+			 CAMGroup),
 			#GeneratorGroup,
 			#ArtisticGroup,
 			#MacrosGroup,
-			ConfigGroup), (ToolsFrame,))
+			(ToolsFrame,))
 
 	#----------------------------------------------------------------------
 	def edit(self, event=None):
-		CNCRibbon.Page.frames["Tools"].edit()
+		CNCRibbon.Page.frames["CAM"].edit()
 
 	#----------------------------------------------------------------------
 	def add(self, event=None):
-		CNCRibbon.Page.frames["Tools"].add()
+		CNCRibbon.Page.frames["CAM"].add()
 
 	#----------------------------------------------------------------------
 	def clone(self, event=None):
-		CNCRibbon.Page.frames["Tools"].clone()
+		CNCRibbon.Page.frames["CAM"].clone()
 
 	#----------------------------------------------------------------------
 	def delete(self, event=None):
-		CNCRibbon.Page.frames["Tools"].delete()
+		CNCRibbon.Page.frames["CAM"].delete()
 
 	#----------------------------------------------------------------------
 	def rename(self, event=None):
-		CNCRibbon.Page.frames["Tools"].rename()
+		CNCRibbon.Page.frames["CAM"].rename()
