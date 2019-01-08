@@ -453,7 +453,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 				image=Utils.icons["refresh"],
 				text=_("Refresh"),
 				compound=TOP,
-				command=lambda s=self : s.comportRefresh(),
+				command=lambda s=self : s.comportRefresh(True),
 				background=Ribbon._BACKGROUND)
 		self.comrefBtn.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(self.comrefBtn, _("Refresh list of serial ports"))
@@ -479,9 +479,15 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.app.controllerSet(self.ctrlCombo.get())
 
 	#-----------------------------------------------------------------------
-	def comportRefresh(self):
-		#sys.stdout.write(comports())
-		#print(comports()[0][1])
+	def comportRefresh(self, dbg=False):
+		#Print list to console
+		if dbg:
+			for i in comports():
+				comport = ''
+				for j in i: comport+=j+"\t"
+				print(comport)
+
+		#Populate combobox
 		devices = sorted([x[0]+"\t"+x[1] for x in comports()])
 		devices += ['']
 		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in comports()])
