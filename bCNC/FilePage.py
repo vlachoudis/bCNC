@@ -405,11 +405,11 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16)
 		self.portCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.portCombo, _("Select (or manual enter) port to connect"))
-#		sys.stdout.write(comports())
-		devices = sorted([x[0] for x in comports()])
-		self.portCombo.fill(devices)
 		self.portCombo.set(Utils.getStr("Connection","port"))
 		self.addWidget(self.portCombo)
+
+		self.comportRefresh()
+
 
 		# ---
 		row += 1
@@ -449,6 +449,17 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
 		# ---
 		col += 2
+		self.comrefBtn = Ribbon.LabelButton(self,
+				image=Utils.icons["refresh"],
+				text=_("Refresh"),
+				compound=TOP,
+				command=lambda s=self : s.comportRefresh(),
+				background=Ribbon._BACKGROUND)
+		self.comrefBtn.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(self.comrefBtn, _("Refresh list of serial ports"))
+
+		# ---
+		#col += 2
 		row  = 0
 
 		self.connectBtn = Ribbon.LabelButton(self,
@@ -468,10 +479,20 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		self.app.controllerSet(self.ctrlCombo.get())
 
 	#-----------------------------------------------------------------------
+	def comportRefresh(self):
+		#sys.stdout.write(comports())
+		#print(comports()[0][1])
+		devices = sorted([x[0]+"\t"+x[1] for x in comports()])
+		devices += ['']
+		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in comports()])
+		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
+		self.portCombo.fill(devices)
+
+	#-----------------------------------------------------------------------
 	def saveConfig(self):
 		# Connection
 		Utils.setStr("Connection", "controller",  self.app.controller)
-		Utils.setStr("Connection", "port",        self.portCombo.get())
+		Utils.setStr("Connection", "port",        self.portCombo.get().split("\t")[0])
 		Utils.setStr("Connection", "baud",        self.baudCombo.get())
 		Utils.setBool("Connection", "openserial", self.autostart.get())
 
