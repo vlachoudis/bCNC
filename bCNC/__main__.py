@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 __version__ = "0.9.14-dev"
-__date__    = "5 Feb 2018"
+__date__    = "8 Jan 2019"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
 
