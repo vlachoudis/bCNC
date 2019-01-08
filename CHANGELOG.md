@@ -1,5 +1,7 @@
 # bCNC changelog
 
+There are too much commits, so i've created this brief overview of new features in bCNC.
+
 ## 0.9.15
 
 - New features
@@ -10,6 +12,7 @@
   - Drag Knife postprocessor and simulator plugin #975
   - Jog digitizer to create drawing by recording points while jogging #929
   - ArcFit plugin can interpolate lots of small segments using one long line/arc #921
+  - More plugins: find center of path, close path, flatten path, scaling, randomize...
 - Improvements
   - Restructured UI #1057 and more
   - Start cycle can now be triggered by hardware button connected to arduino #885
@@ -22,6 +25,7 @@
   - Proper handling of G91 when moving/rotating g-code #915
 - Development and release engineering
   - Created PyPI package for bCNC #964
+    - This means bCNC now installs as `pip install bCNC` and launches as `python -m bCNC` (see wiki!)
   - Added .bat script to build .exe package of bCNC #437
   - Support for individual motion controllers is now in form of separate plugins #1020
   - Added some basic Travis-CI tests #1117
