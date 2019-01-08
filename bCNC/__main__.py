@@ -8,7 +8,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-__version__ = "0.9.14"
+__version__ = "0.9.14-dev"
 __date__    = "5 Feb 2018"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
@@ -108,7 +108,7 @@ class Application(Toplevel,Sender):
 			self.iconbitmap("%s\\bCNC.ico"%(Utils.prgpath))
 		else:
 			self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
-		self.title(Utils.__prg__)
+		self.title("%s %s"%(Utils.__prg__, __version__))
 		self.widgets = []
 
 		# Global variables
@@ -716,7 +716,7 @@ class Application(Toplevel,Sender):
 	def about(self, event=None, timer=None):
 		toplevel = Toplevel(self)
 		toplevel.transient(self)
-		toplevel.title(_("About %s") % (Utils.__prg__))
+		toplevel.title(_("About %s v%s") % (Utils.__prg__,__version__))
 		if sys.platform == "win32":
 			self.iconbitmap("bCNC.ico")
 		else:
@@ -1972,7 +1972,7 @@ class Application(Toplevel,Sender):
 		self.gcode.headerFooter()
 		self.editor.fill()
 		self.draw()
-		self.title(Utils.__prg__)
+		self.title("%s %s"%(Utils.__prg__,__version__))
 
 	#-----------------------------------------------------------------------
 	# load dialog
@@ -2069,13 +2069,13 @@ class Application(Toplevel,Sender):
 			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
 		else:
 			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
-		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
+		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
 		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
-		self.title("%s: %s"%(Utils.__prg__,self.gcode.filename))
+		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def saveAll(self, event=None):
