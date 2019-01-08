@@ -17,7 +17,7 @@ There are too much commits, so i've created this brief overview of new features 
   - Start cycle can now be triggered by hardware button connected to arduino #885
 - Improvements
   - Restructured UI #1057 and more
-  - Better autodetection of serial ports (with device names and without restarting bCNC)
+  - Better autodetection of serial ports (with device names, ids and without restarting bCNC)
   - Disabled blocks are commented-out in exported g-code #767
   - Lots of small improvements and experimental/development features like "trochoidal" (see git)
   - Added button to activate GRBL sleep mode (= disable motors) #1099
