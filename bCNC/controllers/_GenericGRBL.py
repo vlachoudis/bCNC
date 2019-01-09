@@ -15,6 +15,7 @@ ERROR_CODES = {
 	"Check"		: _("Grbl is in g-code check mode. If you send g-code to it, it will only check it without actualy doing any motion. You can exit this by $C command (Or equivalent button in terminal tab)"),
 	"Jog"		: _("Grbl executes jogging motion"),
 	"Sleep"		: _("Grbl is in sleep mode. Motors are disabled, so you can move them manualy. That also means that your machine might have lost the position (or microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to wake Grbl again."),
+	"Queue"		: _("Grbl is in queue state. This also means you have relatively old GRBL version, there are even 0.9 versions newer than this."),
 	"Not connected"	: _("Grbl is not connected. Please specify the correct port and click Open."),
 	"Connected"	: _("Connection is established with Grbl"),
 

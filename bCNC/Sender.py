@@ -60,6 +60,7 @@ STATECOLOR = {
 		"Hold"		: "Orange",
 		"Hold:0"	: "Orange",
 		"Hold:1"	: "OrangeRed",
+		"Queue"		: "OrangeRed",
 		"Door"		: "Red",
 		"Door:0"	: "OrangeRed",
 		"Door:1"	: "Red",
