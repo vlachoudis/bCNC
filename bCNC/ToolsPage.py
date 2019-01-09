@@ -928,6 +928,12 @@ class Tabs(DataBase):
 		self.buttons.append("exe")
 		self.help ='''Create tabs, which will be left uncut to hold the part in place after cutting.
 
+Tabs after creation:
+#tabs-created
+
+Tabs after cutting the path they're attached to:
+#tabs-cut
+
 Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
 
 Note that tabs used to be square, but if there was diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
