@@ -6,6 +6,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+print("This is currently broken. Use instead: python -m bCNC")
+
 import os
 import runpy
 
