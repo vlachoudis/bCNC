@@ -2151,7 +2151,7 @@ class Application(Toplevel,Sender):
 						activebackground="Salmon")
 		else:
 			serialPage = Page.frames["Serial"]
-			device	 = _device or serialPage.portCombo.get().split("\t")[0]
+			device	 = _device or serialPage.portCombo.get() #.split("\t")[0]
 			baudrate = _baud   or serialPage.baudCombo.get()
 			if self.open(device, baudrate):
 				serialPage.connectBtn.config(text=_("Close"),

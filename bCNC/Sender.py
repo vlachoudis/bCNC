@@ -460,7 +460,7 @@ class Sender:
 	def open(self, device, baudrate):
 		#self.serial = serial.Serial(
 		self.serial = serial.serial_for_url(
-						device,
+						device.replace('\\', '\\\\'), #Escape for windows
 						baudrate,
 						bytesize=serial.EIGHTBITS,
 						parity=serial.PARITY_NONE,
