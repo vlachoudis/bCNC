@@ -505,7 +505,14 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in comports()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
-		self.portCombo.fill(devices)
+		#Clean neighbour duplicates
+		devices_clean = []
+		devprev = '';
+		for i in devices:
+			if i.split("\t")[0] != devprev: devices_clean += [i]
+			devprev = i.split("\t")[0]
+
+		self.portCombo.fill(devices_clean)
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
