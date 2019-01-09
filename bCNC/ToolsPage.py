@@ -918,11 +918,11 @@ class Tabs(DataBase):
 		self.icon = "tab"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
-			("circ",     "bool", True, _("Create circular tabs (constant width in all angles)"), _("You should only use circular tabs, they are better in all ways. I've left the rectangles here just so people can experiment and get used to circular ones, but i think they can be safely deprecated.")),
+			#("circ",     "bool", True, _("Create circular tabs (constant width in all angles)"), _("You should only use circular tabs, they are better in all ways. I've left the rectangles here just so people can experiment and get used to circular ones, but i think they can be safely deprecated.")),
 			("ntabs",     "int",     5, _("Number of tabs")),
 			("dtabs",     "mm",    0.0, _("Min. Distance of tabs")),
-			("dx",        "mm",    5.0,   "Dx"),
-			("dy",        "mm",    5.0,   "Dy"),
+			("dx",        "mm",    5.0,   "Width"),
+			#("dy",        "mm",    5.0,   "Dy"),
 			("z",         "mm",   -3.0, _("Height"))
 		]
 		self.buttons.append("exe")
@@ -931,6 +931,8 @@ class Tabs(DataBase):
 Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
 
 Note that tabs used to be square, but if there was diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
+
+You can move selected tabs using "Move" feature in "Editor". If you want to modify individual tabs, you have to first use "Split" feature to break the block to individual tabs. After moving them, you can "Join" them back together.
 '''
 
 	# ----------------------------------------------------------------------
@@ -942,7 +944,8 @@ Note that tabs used to be square, but if there was diagonal segment crossing suc
 
 		dtabs = self.fromMm("dtabs", 0.)
 		dx    = self.fromMm("dx", self.master.fromMm(5.))
-		dy    = self.fromMm("dy", self.master.fromMm(5.))
+		#dy    = self.fromMm("dy", self.master.fromMm(5.))
+		dy = dx
 		z     = self.fromMm("z", -self.master.fromMm(3.))
 
 		if ntabs<0: ntabs=0
@@ -952,7 +955,8 @@ Note that tabs used to be square, but if there was diagonal segment crossing suc
 			tkMessageBox.showerror(_("Tabs error"),
 				_("You cannot have both the number of tabs or distance equal to zero"))
 
-		circ = self["circ"]
+		#circ = self["circ"]
+		circ = True
 
 		app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
 		app.setStatus(_("Create tabs on blocks"))
