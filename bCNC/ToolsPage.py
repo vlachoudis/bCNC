@@ -1780,10 +1780,11 @@ class ToolsPage(CNCRibbon.Page):
 	def register(self):
 		self._register(
 			(DataBaseGroup,
-			 CAMGroup),
+			 CAMGroup,
 			#GeneratorGroup,
 			#ArtisticGroup,
 			#MacrosGroup,
+			ConfigGroup),
 			(ToolsFrame,))
 
 	#----------------------------------------------------------------------
