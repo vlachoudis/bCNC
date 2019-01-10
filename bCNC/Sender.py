@@ -152,6 +152,7 @@ class Sender:
 		#print("Activating motion controller plugin: %s"%(ctl))
 		if ctl in self.controllers.keys():
 			self.controller = ctl
+			CNC.vars["controller"] = ctl
 			self.mcontrol = self.controllers[ctl]
 			#self.mcontrol.test()
 

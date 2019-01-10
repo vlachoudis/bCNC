@@ -743,6 +743,7 @@ class CNC:
 			"TLO"        : 0.,
 
 			"version"    : "",
+			"controller" : "",
 			"running"    : False,
 		}
 

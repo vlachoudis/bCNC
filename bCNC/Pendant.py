@@ -95,7 +95,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		elif page == "/state":
 			self.do_HEAD(200, content="text/text")
 			tmp = {}
-			for name in ["state", "color", "msg", "wx", "wy", "wz", "G"]:
+			for name in ["controller", "state", "color", "msg", "wx", "wy", "wz", "G"]:
 				tmp[name] = CNC.vars[name]
 			self.wfile.write(json.dumps(tmp))
 
