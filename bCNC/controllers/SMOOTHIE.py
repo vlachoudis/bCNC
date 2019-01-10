@@ -22,8 +22,10 @@ class Controller(_GenericController):
 				"reset", "dfu", "break", "config-get",
 				"config-set", "get", "set_temp", "get",
 				"get", "net", "load", "save", "upload",
-				"calc_thermistor", "thermistors", "md5sum"):
-			self.master.serial.write(oline+"\n")
+				"calc_thermistor", "thermistors", "md5sum",
+				"fire", "switch"):
+			if self.master.serial:
+				self.master.serial.write(oline+"\n")
 			return True
 		return False
 
