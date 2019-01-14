@@ -3705,6 +3705,7 @@ class GCode:
 				tablock = Block("%s [tab,island,minz:%f]"%(block.nameNop(), z))
 				#tablock.color = "#FF0000"
 				tablock.color = "orange"
+				tablock.enable = False #Prevent tabs from being accidentaly cut as path
 
 				#Add regular tabs
 				for path in self.toPath(bid):
