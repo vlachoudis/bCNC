@@ -13,6 +13,7 @@ There are too much commits, so i've created this brief overview of new features 
   - Drag Knife postprocessor and simulator plugin #975
   - Jog digitizer to create drawing by recording points while jogging #929
   - ArcFit plugin can interpolate lots of small segments using one long line/arc #921
+  - DrillMark plugin to laser engrave markers for manual drilling #1128
   - More plugins: find center of path, close path, flatten path, scaling, randomize...
   - Start cycle can now be triggered by hardware button connected to arduino #885
 - Improvements
