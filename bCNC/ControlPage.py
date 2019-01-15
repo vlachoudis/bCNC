@@ -17,6 +17,7 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 
 import math
+from math import * #Math in DRO
 
 from CNC import CNC
 import Utils
@@ -405,7 +406,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.xwork.get(),CNC.vars,self.app.gcode.vars))
+			value = float(eval(self.xwork.get(), None, CNC.vars))
 			self._wcsSet(value,None,None)
 		except:
 			pass
@@ -414,7 +415,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setY(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.ywork.get(),CNC.vars,self.app.gcode.vars))
+			value = float(eval(self.ywork.get(), None, CNC.vars))
 			self._wcsSet(None,value,None)
 		except:
 			pass
@@ -423,7 +424,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setZ(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.zwork.get(),CNC.vars,self.app.gcode.vars))
+			value = float(eval(self.zwork.get(), None, CNC.vars))
 			self._wcsSet(None,None,value)
 		except:
 			pass
