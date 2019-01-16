@@ -52,14 +52,14 @@ You will need the following packages to run bCNC
 Expand the directory or download it from github
 and run the bCNC command
 
-# Instalation (Linux package maintainers)
+# Installation (Linux package maintainers)
 - Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
   - Py2deb to build Debian package from Python package: https://pypi.org/project/py2deb/
 
-# Instalation (Compile to Windows .exe)
+# Installation (Compile to Windows .exe)
 
 Note that you might probably find some precompiled .exe files on github "releases" page:
 https://github.com/vlachoudis/bCNC/releases
@@ -127,7 +127,7 @@ installation directory.
     - moving, rotating, mirroring the g-code
 - Web pendant to be used via smart phones
 
-# Debuging
+# Debugging
 You can log serial communication by changing the port to something like:
 
     spy:///dev/ttyUSB0?file=serial_log.txt&raw
