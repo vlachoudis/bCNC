@@ -10,6 +10,7 @@ There are too much commits, so i've created this brief overview of new features 
   - Can export 3D scan (autolevel probe) data in XYZ format suitable for meshlab poisson surface reconstruction
   - Support for helical and ramp cutting #590
   - New style of tabs implemented using "islands" with support for arbitrary shapes and pockets #220
+  - DRO entry can now handle math formulas like: `sqrt(safe)+1`, `sin(pi**2)` or `3.175/2` #789
   - Drag Knife postprocessor and simulator plugin #975
   - Jog digitizer to create drawing by recording points while jogging #929
   - ArcFit plugin can interpolate lots of small segments using one long line/arc #921
