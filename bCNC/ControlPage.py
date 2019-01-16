@@ -406,7 +406,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.xwork.get(), None, CNC.vars))
+			value = round(eval(self.xwork.get(), None, CNC.vars), 3)
 			self._wcsSet(value,None,None)
 		except:
 			pass
@@ -415,7 +415,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setY(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.ywork.get(), None, CNC.vars))
+			value = round(eval(self.ywork.get(), None, CNC.vars), 3)
 			self._wcsSet(None,value,None)
 		except:
 			pass
@@ -424,7 +424,7 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setZ(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.zwork.get(), None, CNC.vars))
+			value = round(eval(self.zwork.get(), None, CNC.vars), 3)
 			self._wcsSet(None,None,value)
 		except:
 			pass
