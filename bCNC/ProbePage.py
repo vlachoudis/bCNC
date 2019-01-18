@@ -338,7 +338,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def loadConfig(self):
 		ProbeCommonFrame.fastProbeFeed.set(Utils.getFloat("Probe","fastfeed"))
 		ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe","feed"))
-		ProbeCommonFrame.tlo.set(      Utils.getFloat("Probe","tlo"))
+		CNC.vars["TLO"] = Utils.getFloat("Probe","tlo")
+		ProbeCommonFrame.tlo.set(CNC.vars["TLO"])
 		cmd = Utils.getStr("Probe","cmd")
 		for p in PROBE_CMD:
 			if p.split()[0] == cmd:

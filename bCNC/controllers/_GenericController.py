@@ -57,6 +57,7 @@ class _GenericController:
 		pass
 
 	def hardReset(self):
+		TLO = CNC.vars["TLO"]
 		self.master.busy()
 		if self.master.serial is not None:
 			self.hardResetPre()
@@ -67,24 +68,30 @@ class _GenericController:
 		self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.master.notBusy()
+		self.master.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
 		if self.master.serial:
 			self.master.serial.write(b"\030")
+		self.purgeControllerExtra()
 		self.master.stopProbe()
 		if clearAlarm: self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 
 	#----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):
+		TLO = CNC.vars["TLO"]
 		if clearAlarm: self.master._alarm = False
 		self.master.sendGCode("$X")
+		self.master.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
 
 	#----------------------------------------------------------------------
 	def home(self, event=None):
+		TLO = CNC.vars["TLO"]
 		self.master._alarm = False
 		self.master.sendGCode("$H")
+		self.master.sendGCode("G43.1Z%s"%(TLO))
 
 	def viewParameters(self):
 		self.master.sendGCode("$#")
@@ -168,13 +175,10 @@ class _GenericController:
 		time.sleep(1)
 		# remember and send all G commands
 		G = " ".join([x for x in CNC.vars["G"] if x[0]=="G"])	# remember $G
-		TLO = CNC.vars["TLO"]
 		self.softReset(False)			# reset controller
-		self.purgeControllerExtra()
 		self.master.runEnded()
 		self.master.stopProbe()
 		if G: self.master.sendGCode(G)			# restore $G
-		self.master.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
 		self.master.sendGCode("$G")
 
 
