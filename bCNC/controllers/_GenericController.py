@@ -230,6 +230,7 @@ class _GenericController:
 			#tg = time.time()
 			self.master.log.put((self.master.MSG_RECEIVE, line))
 			self.master._stop = True
+			self.master._controllerReset = True
 			del cline[:]	# After reset clear the buffer counters
 			del sline[:]
 			CNC.vars["version"] = line.split()[1]

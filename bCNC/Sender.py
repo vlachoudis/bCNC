@@ -117,6 +117,7 @@ class Sender:
 		self._stop	 = False	# Raise to stop current run
 		self._pause	 = False	# machine is on Hold
 		self._alarm	 = True		# Display alarm message if true
+		self._controllerReset = False # Controller reset was just detected and some G-code vars should be restored (e.g. TLO)
 		self._msg	 = None
 		self._sumcline	 = 0
 		self._lastFeed	 = 0
@@ -772,6 +773,10 @@ class Sender:
 				# so don't stop
 				if self._runLines != sys.maxsize:
 					self._stop = False
+					if self._controllerReset:
+						TLO = CNC.vars["TLO"]
+						self.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
+						self._controllerReset = False
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,
 			#	"sum=",sum(cline),"wait=",wait,"pause=",self._pause
