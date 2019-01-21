@@ -69,7 +69,7 @@ class Controller(_GenericController):
 
 		# Machine is Idle buffer is empty
 		# stop waiting and go on
-		if self.master.sio_wait and not cline and l[0] in ("Idle","Check", "Alarm", "error"):
+		if self.master.sio_wait and not cline and l[0] not in ("Run","Jog", "Hold"):
 		        self.master.sio_wait = False
 		        self.master._gcount += 1
 

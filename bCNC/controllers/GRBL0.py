@@ -38,7 +38,7 @@ class Controller(_GenericGRBL):
 			# stop waiting and go on
 			#print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
 			#print ">>>", line
-			if self.master.sio_wait and not cline and pat.group(1) in ("Idle","Check", "Alarm", "error"):
+			if self.master.sio_wait and not cline and pat.group(1) not in ("Run", "Jog", "Hold"):
 				#print ">>>",line
 				self.master.sio_wait = False
 				#print "<<< NO MORE WAIT"

@@ -174,7 +174,7 @@ class Controller(_GenericGRBL):
 
 
 		# Machine is Idle buffer is empty stop waiting and go on
-		if self.master.sio_wait and not cline and fields[0] in ("Idle","Check", "Alarm", "error"):
+		if self.master.sio_wait and not cline and fields[0] not in ("Run", "Jog", "Hold"):
 			#if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061
 			self.master.sio_wait = False
 			self.master._gcount += 1
