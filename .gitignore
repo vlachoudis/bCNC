@@ -1,8 +1,0 @@
-*.pyc
-*.pyo
-lib/*.pyc
-lib/*.pyo
-.idea
-bCNC.egg-info
-dist
-build
