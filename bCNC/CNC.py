@@ -4018,7 +4018,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def trochprofile(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, name=None):
+	def trochprofile_cnc(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, name=None):
 		undoinfo = []
 		msg = ""
 		newblocks = []

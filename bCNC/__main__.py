@@ -1851,7 +1851,7 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.trochprofile_bcnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius, name)
+		msg = self.gcode.trochprofile_cnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius, name)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
