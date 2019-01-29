@@ -60,7 +60,7 @@ class Tool(Plugin):
 		direction = self["direction"]
 		name = self["name"]
 		if name=="default" or name=="": name=None
-		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, name) #<< diameter only to information
+		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, CNC.vars["diameter"], name) #<< diameter only to information
 		app.setStatus(_("Generated path for trochoidal cutting"))
 
 #==============================================================================

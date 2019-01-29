@@ -4018,7 +4018,7 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def trochprofile_cnc(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, name=None):
+	def trochprofile_cnc(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, cutDiam=0.0, tooldiameter=0.0, name=None):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -4026,12 +4026,24 @@ class GCode:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
-				if name is not None:
-					newname = Block.operationName(path.name, name)
-				elif offset>0:
-					newname = Block.operationName(path.name, "out")
-				else:
-					newname = Block.operationName(path.name, "in")
+#				if name is not None:
+#				newname = Block.operationName(path.name, name)
+				explain = "Tr "
+				if offset>0:
+					explain+="out "#n +="out "
+#				elif offset==0:
+#					n +=" on "
+				elif offset<0:
+					explain +="in "
+				explain+= str(cutDiam)
+				if cutDiam!= abs(2*offset):
+					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
+				if offset<0:
+					if adaptative:
+						explain+=" Adapt bit "+str(tooldiameter) 
+					if overcut:
+						explain+=" overc"
+				newname = Block.operationName(path.name,explain)
 
 				if not path.isClosed():
 					m = "Path: '%s' is OPEN"%(path.name)
