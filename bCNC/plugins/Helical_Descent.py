@@ -73,9 +73,10 @@ class Tool(Plugin):
 			("Mult_Feed_Z",  "float" ,1.0, _("Z Feed Multiplier")),
 			("HelicalCut" ,  "Helical Cut,Internal Right Thread,Internal Left Thread,External Right Thread,External Left Thread", "Helical Cut",_("Helical Type")),
 			("Entry" ,"Center,Edge" , "Center", _("Entry and Exit")),
-            ("ClearanceEntry" ,"float", 0.2, _("Entry Edge Clearance")),
-            ("ClearanceExit" ,"float", 0.2, _("Exit Edge Clearance")),
-			("ReturnToSafeZ" ,"bool" , "True", _("Returns to safe Z")),
+            ("ClearanceEntry" ,"mm", 0.0, _("If Eddge, Edge Clearance")),
+#            ("ClearanceExit" ,"float", 0.2, _("Exit Edge Clearance")),
+#	        ("Clearance" ,"mm", 0.0, _("Entry and Exit Edge Clearance")),
+			("NoReturnToSafeZ" ,"bool" , "False", _("End in the Deep")),
 
 		#	("Text"    , "text" ,    "Free Text", _("Text description")),		#a text input box
 		#	("CheckBox", "bool" ,  False, _("CheckBox description")),			#a true/false check box
@@ -154,21 +155,28 @@ class Tool(Plugin):
 		if z == "":
 			z=CNC.vars["surface"]
 
-		cutDiam = self["CutDiam"]
+		cutDiam = self.fromMm("CutDiam")
 		cutRadius = cutDiam/2.0
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
 		toolDiam = CNC.vars["diameter"]
 		#Radio = self["RadioHelix"]
-		pitch = self["Pitch"]
-		Depth = self["Depth"]
+		pitch = self.fromMm("Pitch")
+		Depth = self.fromMm("Depth")
 		Mult_F_Z = self["Mult_Feed_Z"]
 		helicalCut = self["HelicalCut"]
-		clearanceEntry = self["ClearanceEntry"]
-		clearanceExit = self["ClearanceExit"]
-		clearance = clearanceEntry
 		entry = self["Entry"]
-		returnToSafeZ = self["ReturnToSafeZ"]
+		clearanceEntry = self.fromMm("ClearanceEntry")
+		if clearanceEntry =="":
+			clearanceEntry =0 
+#		clearanceExit = self["ClearanceExit"]
+#		if clearanceExit =="":
+#			clearanceExit =0 
+		clearance = clearanceEntry
+		returnToSafeZ=1
+		noreturnToSafeZ = self["NoReturnToSafeZ"]
+		if noreturnToSafeZ:
+			returnToSafeZ=0
 
 		toolDiam = CNC.vars['diameter']
 		toolRadius = toolDiam/2.0
@@ -179,14 +187,11 @@ class Tool(Plugin):
 		toolRadius = toolDiam/2.0
 		Radio = cutRadius - toolRadius
 
-		if clearanceEntry =="":
-			clearanceEntry =0 
-		if clearanceExit =="":
-			clearanceExit =0 
 
 		if helicalCut == "Helical Cut":
 			turn = 2
 			p="HelicalCut "
+			clearance = -clearance
 		elif helicalCut == "Internal Right Thread":
 			turn = 2
 			p= "IntRightThread "
@@ -237,9 +242,9 @@ class Tool(Plugin):
 			app.setStatus(_("Helical Abort: Entry Edge Clearence may be positive"))
 			return
 
-		elif clearanceExit < 0 or clearanceExit == "":
-			app.setStatus(_("Helical Abort: Exit Edge Clearence may be positive"))
-			return
+#		elif clearanceExit < 0 or clearanceExit == "":
+#			app.setStatus(_("Helical Abort: Exit Edge Clearence may be positive"))
+#			return
 # 		------------------------------------------------------------------------------------------------------------------		
 		#Initialize blocks that will contain our gCode
 		blocks = []
@@ -314,11 +319,15 @@ class Tool(Plugin):
 			if entry == "Center":
 				block.append(CNC.grapid(x,y))
 			else:
+				block.append("(First go to the center)")
+				block.append(CNC.grapid(x,y))
 				block.append(CNC.grapid(x-Radio+clearance ,y))
 
 		if helicalCut == "External Right Thread" or helicalCut == "External Left Thread":
 			if entry == "Center":
 				clearance = 0.0
+			block.append("First go to the center")
+			block.append(CNC.grapid(x,y))
 			block.append(CNC.grapid(x-Radio-clearance ,y))
 
 		#cutFeed = int(cutFeed)
@@ -352,8 +361,8 @@ class Tool(Plugin):
 
 		#Target Level
 		if entry == "Center":
-			clearanceExit = 0.0	
-		clearance = clearanceExit
+			clearanceEntry = 0.0	
+		clearance = clearanceEntry
 		alpha= round(Depth / pitch, 4 ) - round(Depth / pitch, 0)
 		alpha = alpha * 2*pi 
 		Radiox = Radio * cos(alpha)
@@ -377,17 +386,18 @@ class Tool(Plugin):
 			block.append(CNC.gcode(turn, [("X",x-Radiox),("Y",y+Radioy),("Z", z),("I",Radio), ("J",0)]))
 
 		# Exit clearance 
-		if helicalCut == "Internal Right Thread":
-			block.append(CNC.gline(x-xsi,y-ysi))
-		elif helicalCut == "Internal Left Thread":
-			block.append(CNC.gline(x-xsi,y+ysi))
-		if helicalCut == "External Right Thread":
-			block.append(CNC.gline(x-xse,y-yse))
-		elif helicalCut == "External Left Thread":
-			block.append(CNC.gline(x-xse,y+yse))
+		if returnToSafeZ == 1: 
+			if helicalCut == "Internal Right Thread":
+				block.append(CNC.gline(x-xsi,y-ysi))
+			elif helicalCut == "Internal Left Thread":
+				block.append(CNC.gline(x-xsi,y+ysi))
+			elif helicalCut == "External Right Thread":
+				block.append(CNC.gline(x-xse,y-yse))
+			elif helicalCut == "External Left Thread":
+				block.append(CNC.gline(x-xse,y+yse))
 
 		# Return to Z Safe
-		if returnToSafeZ == 1: 
+#		if returnToSafeZ == 1: 
 			if helicalCut == "Helical Cut" or helicalCut == "Internal Right Thread" or helicalCut == "Internal Left Thread":
 				if entry == "Center":
 					block.append(CNC.gline(x,y))
