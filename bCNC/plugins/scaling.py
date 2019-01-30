@@ -13,7 +13,8 @@ __author__ = "Mario S Basz"
 __email__  = "mariob_1960@yaho.com.ar"
 
 __name__ = _("Scaling")
-__version__= "0.6"
+__version__= "1.0"	
+# Date last version: 29-January-2019
 
 import os.path
 import re

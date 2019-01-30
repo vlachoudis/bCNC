@@ -17,7 +17,8 @@ __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar"
 
 __name__ = _("Trochoidal Path")
-__version__= "0.0.5"
+__version__= "1.0"
+# Date last version: 29-January-2019
 
 import math
 from bmath import Vector

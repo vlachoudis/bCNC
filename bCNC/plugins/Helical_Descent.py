@@ -32,7 +32,8 @@ from __future__ import print_function
 __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar" 
 
-# Version 0.2
+# Version 1.0
+# Date last version: 29-January-2019
 
 # A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt 
 
