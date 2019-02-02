@@ -5,16 +5,18 @@
 # Author: Mario Basz
 #mariob_1960@yahoo.com.ar
 # Date: 20 may 2018
-# A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt 
+# A special thanks to Vasilis Viachoudis, Filippo Rivato and Buschhardt
 #This plugin is based on a variation
 # of yours Driller plugin and My_Plugin example.
+
+from __future__ import absolute_import
+from __future__ import print_function
 
 __author__ = "Mario S Basz"
 __email__  = "mariob_1960@yaho.com.ar"
 
 __name__ = _("Scaling")
-__version__= "1.0"	
-# Date last version: 29-January-2019
+__version__= "0.6"
 
 import os.path
 import re
@@ -32,7 +34,7 @@ class Tool(Plugin):
 	__doc__ = _("Scaling the selected block")
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Scaling")
-		self.icon  = "scaling"
+		self.icon  = "scale"
 		self.group = "CAM"
 
 		self.variables = [
@@ -170,7 +172,7 @@ class Tool(Plugin):
 					center = path.center()
 				else:
 					center=0,0
-		print "center",center[0],center[1]
+		print ("center",center[0],center[1])
 	#	if elements>=2:
 	#		center=0,0
 
