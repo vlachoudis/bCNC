@@ -17,7 +17,8 @@ __author__ = "Mario Basz"
 __email__  = "mariob_1960@yahoo.com.ar"
 
 __name__ = _("Trochoidal Path")
-__version__= "0.0.5"
+__version__= "1.0"
+# Date last version: 29-January-2019
 
 import math
 from bmath import Vector
@@ -38,14 +39,14 @@ class Tool(Plugin):
 		self.group = "CAM"
 
 		self.variables = [
-			("name",      "db" ,    "", _("Name")),
-	        ("CutDiam" ,"float", 6.0, _("Trochoid Diameter")),
-			("Direction","inside,outside,on" , "outside", _("Direction")),
-			("Offset",   "float",  0.0, _("Additional offset distance")),
-			("endmill",   "db" ,    "", _("End Mill")),
-			("Adaptative",  "bool",1,   _("Adaptative")),
-			("Overcut",  "bool",     0, _("Overcut")),
-			("cornerdiameter",  "float",    10, _("Diameter safe to corner %")),
+			("name",      "db" ,                     "", _("Name")),
+	        ("trochcutdiam" ,"mm",                  6.0, _("Cut Diameter")),
+			("direction","inside,outside,on" , "inside", _("Direction")),
+			("offset",   "float",                   0.0, _("Additional offset distance")),
+			("endmill",   "db" ,                     "", _("End Mill")),
+			("adaptative",  "bool",                   1,   _("Adaptative")),
+			("overcut",  "bool",                      0, _("Overcut")),
+#			("mintrochdiam", "float",                10, _("Minimal trochoid in % tool"))
 		]
 		self.buttons.append("exe")
 
@@ -53,22 +54,14 @@ class Tool(Plugin):
 	def execute(self, app):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
-		cornerdiameter = self["cornerdiameter"]
-		if cornerdiameter == "":
-			cornerdiameter == 10.0
-		cornerdiameter = min(100, cornerdiameter)/100.0
-		cornerdiameter = CNC.vars["diameter"]*(1+cornerdiameter)
-		cornerradius = (self["CutDiam"] - cornerdiameter) /2.0
-		cornerradius = max(0, cornerradius)
-#		adaptedRadius = (self["CutDiam"] - CNC.vars["diameter"])/2.0
-
-		direction = self["Direction"]
+		trochcutdiam=self.fromMm("trochcutdiam")
+#		mintrochdiameter = CNC.vars["diameter"]*(1+self["mintrochdiam"]/100.0)
+		mintrochdiameter = CNC.vars["diameter"]
+		cornerradius = (trochcutdiam - mintrochdiameter) /2.0
+		direction = self["direction"]
 		name = self["name"]
 		if name=="default" or name=="": name=None
-#		app.trochprofile(direction, self["offset"], self["overcut"], name)
-#		app.trochprofile(self["CutDiam"], direction, self["Offset"], self["Overcut"], self["Adaptative"], adaptedRadius, name)
-
-		app.trochprofile_bcnc(self["CutDiam"], direction, self["Offset"], self["Overcut"], self["Adaptative"], cornerradius, name)
-		app.setStatus(_("Generate Trochoidal Profile path"))
+		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, CNC.vars["diameter"], name) #<< diameter only to information
+		app.setStatus(_("Generated path for trochoidal cutting"))
 
 #==============================================================================
