@@ -874,6 +874,30 @@ class Path(list):
 
 			return True
 
+		#Get circle center(s) given radius and two points
+		def radius2points(A,B,r, arcd=None):
+			q = sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
+			x3 = (A[0]+B[0])/2
+			y3 = (A[1]+B[1])/2
+
+			C = Vector(
+				x3 + sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
+				y3 + sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+			)
+
+			D = Vector(
+				x3 - sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
+				y3 - sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+			)
+
+			#There are two solutions (C and D), choose which one we need
+			if arcd is not None:
+				if arcd == 0:
+					return C
+				else:
+					return D
+			else:
+				return C, D
 
 		def path2arc(tmpath):
 			#Test if all segments are lines
@@ -885,6 +909,7 @@ class Path(list):
 			C = Vector(0,0)
 			for i in range(1, len(tmpath)):
 				Ct = circle3center(tmpath[i-1].A, tmpath[i-1].B, tmpath[i].B)
+				#Ct = circle3center(tmpath[0].A, tmpath[i].A, tmpath[-1].B)
 				if Ct is not None:
 					cnt += 1
 					C += Ct
@@ -901,6 +926,11 @@ class Path(list):
 				r += pdist(seg.A, C)
 				r += pdist(seg.B, C)
 			r /= len(tmpath)*2
+
+			#Fix center to match start and end of segment:
+			#(Not sure if this needed)
+			#print("Center: ", C, radius2points(tmpath[0].A, tmpath[-1].B, r, arcd))
+			C = radius2points(tmpath[0].A, tmpath[-1].B, r, arcd)
 
 			return C, r, arcd
 

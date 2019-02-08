@@ -2350,7 +2350,7 @@ class GCode:
 			if path.color is None:
 				path.color = layer.color()
 			if path.color == "#FFFFFF": path.color = None
-			opath = path.split2contours()
+			opath = path.split2contours(0.0001) #Lowered accuracy due to problems interfacing arcs and lines in DXF
 			if not opath: continue
 			while opath:
 				li = 0
