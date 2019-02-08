@@ -17,8 +17,8 @@ from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 
 EPS   = 1E-7		# strict tolerances for operations
-EPS2  = EPS*EPS
-EPSV  = 0.00001		# relaxed tolerances for vectors
+EPS2  = EPS**2
+EPSV  = EPS*10		# relaxed tolerances for vectors
 EPSV2 = EPSV**2
 PI2   = 2.0*pi
 
@@ -1065,7 +1065,7 @@ class Path(list):
 	# it also takes unsorted segments and JOINs them to closed loops if possible
 	# FIXME: If this is true, this should be probably called reconstructContours()
 	#----------------------------------------------------------------------
-	def split2contours(self):
+	def split2contours(self, acc=EPSV):
 		if not self: return []
 
 		path = Path(self.name, self.color)
@@ -1082,13 +1082,13 @@ class Path(list):
 			# Find the segment that starts after the last one
 			for i,segment in enumerate(self):
 				# Try starting point
-				if eq(end, segment.A):
+				if eq(end, segment.A, acc):
 					path.append(segment)
 					del self[i]
 					break
 
 				# Try ending point (inverse)
-				if eq(end, segment.B):
+				if eq(end, segment.B, acc):
 					segment.invert()
 					path.append(segment)
 					del self[i]
@@ -1101,14 +1101,14 @@ class Path(list):
 				# Find the segment that starts after the last one
 				for i,segment in enumerate(self):
 					# Try starting point
-					if eq(start, segment.A):
+					if eq(start, segment.A, acc):
 						segment.invert()
 						path.insert(0,segment)
 						del self[i]
 						break
 
 					# Try ending point (inverse)
-					if eq(start, segment.B):
+					if eq(start, segment.B, acc):
 						path.insert(0,segment)
 						del self[i]
 						break
