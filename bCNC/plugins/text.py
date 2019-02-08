@@ -152,6 +152,7 @@ class Tool(Plugin):
 		xO = xO * fontSize
 		yO = yO * fontSize
 		for cont in contours:
+			block.append("( ---------- cut-here ---------- )")
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xO + cont[0].x * scale , yO + cont[0].y * scale))
 			block.append(CNC.zenter(depth))
