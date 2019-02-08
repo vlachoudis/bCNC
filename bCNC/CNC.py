@@ -2418,11 +2418,10 @@ class GCode:
 					xc,yc = self.cnc.motionCenter()
 					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
 					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
+					if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 					if self.cnc.gcode==2:
-						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 						dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
 					else:
-						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 						dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
 				self.cnc.motionEnd()
 		dxf.writeEOF()
