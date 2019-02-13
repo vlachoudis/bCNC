@@ -40,11 +40,11 @@ class Tool(Plugin):
 
 		self.variables = [
 			("name",      "db" ,                     "", _("Name")),
-	        ("trochcutdiam" ,"mm",                  6.0, _("Cut Diameter")),
+	        ("trochcutdiam" ,"mm",                  6.0, _("Cut Diameter"),"Real cutting diameter"),
 			("direction","inside,outside,on" , "inside", _("Direction")),
 			("offset",   "float",                   0.0, _("Additional offset distance")),
-			("endmill",   "db" ,                     "", _("End Mill")),
-			("adaptative",  "bool",                   1,   _("Adaptative")),
+			("endmill",   "db" ,                     "", _("End Mill"), "If Empty chooses, End Mill loaded"),
+			("adaptative",  "bool",                   1,   _("Adaptative"), "Generate path for adaptative trochoids in the corners (Not yet implemented in trochoidal plugin)"),
 			("overcut",  "bool",                      0, _("Overcut")),
 #			("mintrochdiam", "float",                10, _("Minimal trochoid in % tool"))
 		]
