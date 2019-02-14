@@ -166,7 +166,7 @@ class Controller(_GenericGRBL):
 					if 'S' in word[1]:
 						if CNC.vars["state"] == 'Idle' and not self.master.running:
 							print("Stream requested by CYCLE START machine button")
-							self.master.event_generate("<<Run>>")
+							self.master.event_generate("<<Run>>", when = 'tail')
 						else:
 							print("Ignoring machine stream request, because of state: ", CNC.vars["state"], self.master.running)
 				except (ValueError,IndexError):
