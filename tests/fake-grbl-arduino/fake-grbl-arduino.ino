@@ -18,6 +18,7 @@ void serialEvent()
         readcnt = Serial.readBytesUntil(0x0A, buff, sizeof(buff));
         if (readcnt > 0) 
         {
+            buff[readcnt] = 0;
             if ((strncmp(buff, "?", 1) == 0)) {
                 printPgmString("<Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>\r\n");
                 break;
