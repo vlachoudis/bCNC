@@ -1,5 +1,6 @@
 //Fake GRBL for arduino
 int8_t readcnt;
+char buff[128];
 void printPgmString(const char *s)
 {
     char c;
