@@ -21,12 +21,10 @@ void serialEvent()
             buff[readcnt] = 0;
             if ((strncmp(buff, "?", 1) == 0)) {
                 printPgmString("<Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>\n");
-                Serial.println("ok");
                 break;
             }
             if ((strncmp(buff, "$G", 2) == 0)) {
                 printPgmString("[GC:G0 G54 G17 G21 G90 G94 M5 M9 T0 F0 S0]\n");
-                Serial.println("ok");
                 break;
             }
             printPgmString("ok\r\n");
