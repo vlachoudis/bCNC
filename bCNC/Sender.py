@@ -650,9 +650,7 @@ class Sender:
 			t = time.time()
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
-				#TODO: move to controllers directory, so it can be overrided for non-GRBL controllers
-				self.serial.write(b"?")
-				self.sio_status = True
+				self.mcontrol.viewStatusReport()
 				tr = t
 
 				#If Override change, attach feed
