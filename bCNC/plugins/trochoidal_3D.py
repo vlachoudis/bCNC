@@ -128,8 +128,7 @@ class Tool(Plugin):
 #			results = seglength_xyz
 #			return results  
 			return math.sqrt(seglength_x**2 + seglength_y**2 + seglength_z**2)
-		else:
-			return 0
+		return 0
 	# ----------------------------------------------------------------------
 
 	#Extract all segments from commands ------------ -----------------------
