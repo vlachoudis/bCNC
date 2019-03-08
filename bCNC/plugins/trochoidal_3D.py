@@ -180,7 +180,6 @@ class Tool(Plugin):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-#		ae = self.fromMm("ae")
 		steps=self["splicesteps"]/(2*pi)
 
 		manualsetting = self["manualsetting"]
@@ -208,43 +207,20 @@ class Tool(Plugin):
 			if self["endmill"]:
 				self.master["endmill"].makeCurrent(self["endmill"])
 
-
-
-#		radius = CNC.vars["cutdiam"]/2.0
-#		radius = self["diam"]/2.0
 		toolRadius = CNC.vars["diameter"]/2.0
 		radius = max(0,cutradius-toolRadius)
 		oldradius=radius
 #-----------------------------------------------------------
-#		helicalRadius = self["helicalDiam"]/2.0
-#		if helicalRadius=="":
-#			helicalRadius=radius
-#		else:
-#			helicalRadius=max(0,helicalRadius- toolRadius)
 		helicalRadius=radius
 #-----------------------------------------------------------
-
 #		helicalRadius=min(0.99*toolRadius,helicalRadius)
 #		if radius!=0:
 #			helicalRadius= min(helicalRadius,radius)
 		helicalPerimeter=pi*2.0*helicalRadius		
-	
-	#	helicalangle = self["helicalangle"]
-	#	if helicalangle>89.5:
-	#		helicalangle=89.5
-	#	if helicalangle<0.01:
-	#		helicalangle=0.01
-	#	downPecking=helicalPerimeter*tan(radians(helicalangle))
 
 		cw = self["cw"]
 		surface = CNC.vars["surface"]
 #=========== Converted to comment and changed for current compatibility ==============================
-#		zbeforecontact=surface+CNC.vars["zretract"]
-#		zbeforecontact=surface+CNC.vars["zretract"]
-#		hardcrust = surface - CNC.vars["hardcrust"]
-#		feedbeforecontact = CNC.vars["feedbeforecontact"]/100.0
-#		hardcrustfeed = CNC.vars["hardcrustfeed"]/100.0
-
 		zbeforecontact=surface
 		zbeforecontact=surface
 		hardcrust = surface
@@ -255,34 +231,13 @@ class Tool(Plugin):
 		t_splice = self["TypeSplice"]
 		dtadaptative = 0.0001
 		adaptativepolice=0
-#		minimradius = min(radius, toolRadius*self["MinTrochDiam"]/(100))
-#		minimradius = min(radius, toolRadius*self["MinTrochDiam"]/(100))
-#		minimradius = min(radius, toolRadius*CNC.vars["mintrochdiam"]/(100))
 		atot = self.fromMm("ae")
-#		spiral_twists=(radius-helicalRadius)/atot#<<spiral ae smaller than ae (aprox 50%)
-#		if (radius-helicalRadius)%atot: spiral_twists=1+(radius-helicalRadius)//atot
 		spiral_twists=ceil(radius-helicalRadius)/atot#<<spiral ae smaller than ae (aprox 50%)
 
 		rpm = self["rpm"]
 
 		downPecking=helicalPerimeter*zfeed/feed
 		helicalangle=degrees(atan2(downPecking,helicalPerimeter))
-
-#		steps=self["splicesteps"]/2*pi
-
-#		K_Z = self["K_Z"]
-#		if K_Z == "":
-#			K_Z = 1.0
-#		K_XY = self["K_XY"]
-#		if K_XY == "": 
-#			K_XY = 1.0
-#		s_z = self["S_z"]
-#		s_xy = self["S_xy"]
-#		xyfeed = CNC.vars["cutfeed"]
-#		zfeed *= K_Z
-#		xyfeed *=K_XY		
-
-
 		# Get selected blocks from editor
 		selBlocks = app.editor.getSelectedBlocks()
 #		if not selBlocks:
@@ -345,14 +300,9 @@ class Tool(Plugin):
 	#			    ---------------------------------------------
 	#				tr_block.append("(seg length "+str(round(segLength,4))+" )")
 	#				-----------------------------------------------------------------------------
-	#				////////----------------------------------------------------------------------
 				if idx == 0:
-#					tr_block.append("(--------------   PARAMETERS   ------------------------)")
 					tr_block.append("(Cut diam "+str( cutradius*2 )+" (troch "+str(radius*2.0)+"+End mill "+str(toolRadius*2.0)+" ) Advance "+str(atot)+" )")
-#					tr_block.append("(Cut diam "+str(CNC.vars["trochcutdiam"])+" (troch "+str(radius*2.0)+" + End mill " + str(toolRadius*2.0)+" ) Advance "+str(atot)+" )")
-#					tr_block.append("(Min troch "+str(int(CNC.vars["mintrochdiam"]))+"%  = "+str(minimradius*2.0)+"mm , min cut diam "+str(2*(minimradius+toolRadius))+"mm )")
 					tr_block.append("(Feed "+str(feed)+" Plunge feed "+ str(zfeed)+" )")
-					#tr_block.append("(Helical diam "+str(round((helicalRadius+toolRadius)*2,2))+" ( helical diam "+str(helicalRadius*2.0)+"+End mill "+str(toolRadius*2.0)+" )")
 					tr_block.append("(Helical descent angle " + str(round(helicalangle,2)) +" cut diam " + str(round(helicalRadius*2.0,3))+"  drop by lap "\
 										+ str(round(downPecking,2)) + " )")
 					tr_block.append("(--------------------------------------------------)")
@@ -360,13 +310,6 @@ class Tool(Plugin):
 					tr_block.append("M03")
 					tr_block.append("S "+str(rpm))
 					tr_block.append("F "+str(feed))
-#					phi = atan2(segm[1][1]-segm[0][1], segm[1][0]-segm[0][0])
-#					oldphi=phi #<< declare initial angle
-#					l = self.pol2car(radius, phi+radians(90*u))
-#					r = self.pol2car(radius, phi+radians(-90*u))
-#					B = segm[1][0],segm[1][1],segm[1][2]
-#					bl = self.pol2car(radius, phi+radians(90*u), B)
-#					br = self.pol2car(radius, phi+radians(-90*u), B)
 					tr_block.append("( Seg: "+str(idx)+"   length "+str(round(segLength,4))+"  phi "+str(round(degrees(phi),2))+" )")#+ "  oldphi  "+str(round(oldphi*57.29,2))+"   )")
 					tr_block.append("(Starting point)")
 					if (round(segm[1][1]-segm[0][1],4)==0 and round(segm[1][0]-segm[0][0],4)==0):
@@ -375,25 +318,7 @@ class Tool(Plugin):
 					else:
 						tr_block.append("(The original first movement is not vertical)")
 					tr_block.append(CNC.zsafe())
-#					tr_block.append("g0 x "+str(B[0])+" y"+str(B[1])+" )")#" z "+str(B[2])+" )")
-#							tr_block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" R "+str(radius/2.0)+" z"+str(B[2]))
-#					tr_block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0]/2.0)+" j"+str(r[1]/2.0))	#<< as cutting					
-#					tr_block.append(("g1 x "+str(br[0])+" y"+str(br[1])+" z"+str(B[2])))
-#						tr_block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(l[0])+" j"+str(l[1]))						
-#						tr_block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1])+" z"+str(round(B[2],5)))	#<< as cutting
-#					if t_splice=="Circular both sides rectified":
-#						tr_block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(-r[0])+" j"+str(-r[1]))						
 					tr_block.append("(--------------------------------------------------)")
-
-#						tr_block.append(CNC.grapid(br[0],br[1],B[2]))
-#						tr_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
-#						tr_block.append(CNC.zenter(surface)) # <<< TROCHOID CENTER
-#						tr_block.append(CNC.grapid(segm[1][0],segm[1][1],segm[1][2]))
-#						tr_block.append(CNC.zbeforecontact()) # <<< TROCHOID CENTER
-#						tr_block.append(CNC.xyslowentersurface(0,-45.0)) # <<< TROCHOID CENTER
-#						tr_block.append(("g0 z "+str(zbeforecontact)))
-#				tr_block.append("( new segment begins )")
-	#					distance to trochoid center
 
 					# if there is movement in xy plane phi calculate
 				if (segm[1][1]-segm[0][1]!=0 or segm[1][0]-segm[0][0]!=0):
@@ -417,8 +342,6 @@ class Tool(Plugin):
 						control_cameback = self.came_back(segm, oldsegm)
 						if control_cameback:
 							tr_block.append("(-------------> Came back !! <------------- )")#+str(control_cameback)+" )")
-	#						tr_block.append("( old  Ax "+str(round(oldsegm[0][0],3))+" Ay "+str(round(oldsegm[0][1],3))+" Bx "+ str(round(oldsegm[1][0],3))+" By "+ str(round(oldsegm[1][1],3))+" )")
-	#						tr_block.append("( curr Ax "+str(round(segm[0][0],3))+" Ay "+str(round(segm[0][1],3))+" Bx "+ str(round(segm[1][0],3))+" By "+ str(round(segm[1][1],3))+" )")
 						if round(segLength,5) <= dtadaptative:
 							adaptativepolice+=1.0
 							tr_block.append("(Seg "+str(idx)+" adaptativepolice " +str(adaptativepolice)+" length "+str(round(segLength,5))+" )")
@@ -427,7 +350,6 @@ class Tool(Plugin):
 
 							tr_block.append("( Seg: "+str(idx)+" phi "+str(round(degrees(phi),2))+ " oldphi "+str(round(degrees(oldphi),2))+" length "+str(round(segLength,5))+" )")
 							tr_block.append("(ae: "+str(round(ae,5))+" dz: "+str(round(ap,4))+"adv: "+str(round(adv,4))+" )")
-		#					tr_block.append("( Bx "+str(round(segm[1][0],2))+ " By "+ str(round(segm[1][1],2)))
 		#					-----------------------------------------------------------------------------
 		#					////////----------------------------------------------------------------------
 							if control_cameback:
@@ -446,13 +368,8 @@ class Tool(Plugin):
 									tr_block.append("(Only one trochoid, oldphi "+str(round(degrees(oldphi),2))+" )")
 									tr_block.extend(self.trochoid(t_splice,A,B,oldradius,radius,oldphi,phi,cw))
 								while d >adv:
-			#					first trochoid
-			#						tr_block.append("d "+ str(d))
 									B = A[0]+tr_distance[0], A[1]+tr_distance[1], A[2]+tr_distance[2]
 								# intermediates points = trochoids points 
-			#						tr_block.append(CNC.gline(B[0],B[1],B[2])) # <<< TROCHOID CENTER
-		#							tr_block.extend(self.trochoid(A,B,radius,phi,oldphi,cw))
-
 									tr_block.append("(distance to end segment "+str(round(d,4))+" )")
 									tr_block.extend(self.trochoid(t_splice,A,B,oldradius,radius,oldphi,phi,cw))
 									A=B
@@ -474,18 +391,12 @@ class Tool(Plugin):
 								lastphi=oldphi
 								tr_block.append("( Alarm "+ str(adaptativepolice)+"  Seg: "+str(idx)+" phi " + str(round(degrees(phi),2))\
 												 + "oldphi "+str(round(degrees(oldphi),2))+ " )")
-	#							difangle=(phi-oldadaptativephi)
-	#							tr_block.append("(dif angle:"+str(round(difangle,4))+" )")
-	#							oldadaptativephi=oldphi=phi
-								# round(difangle,5)==round(pi,5):
 							elif adaptativepolice==2:
 								phi=lastphi
 								if control_cameback:# abs(round(difangle,6)) == (round(pi,6)):
 									tr_block.append("(Starts adaptative trochoids"+" adaptativepolice "+str(adaptativepolice) )
 									adaptativepolice +=0.5
 							elif adaptativepolice==2.5:
-#								tr_block.append("(-----------------------------------------)")
-#								adaptradius=minimradius
 								tr_block.append("(Adaptative Seg: "+str(idx)+"   length "+str(round(segLength,5))+"  phi "+str(round(degrees(phi),2))\
 												+" oldphi "+str(round(degrees(oldphi),2))+" )")
 #								tr_block.append("( Ax "+str(round(segm[0][0],2))+ " Ay "+ str(round(segm[0][1],2)))
@@ -506,12 +417,6 @@ class Tool(Plugin):
 										oldphi=phi
 			#						tr_block.append("d "+ str(d))
 									B = A[0]+tr_distance[0], A[1]+tr_distance[1], A[2]+tr_distance[2]
-									#------------------------------
-									# adaptradius= a*d + minimradius
-									# if d=0 : adaptradius=minimradius
-									# if d=seglength : adaptradius=radius
-#									a=(radius-minimradius)/segLength
-#									adaptradius=a*d+minimradius
 									a=radius/segLength
 									adaptradius=(self.roundup(a*d,4))#+minimradius
 												#------------------------------
@@ -531,18 +436,6 @@ class Tool(Plugin):
 									oldradius=adaptradius
 #										oldadaptativephi=0
 			#REVISAR, A COMENTADO
-			#					last point
-					#			d=0
-					#			oldradius=adaptradius
-					#			adaptradius=minimradius
-					#			if  B[0] != segm[1][0] or B[1] != segm[1][1] or B[2] != segm[1][2]:
-					#				B = segm[1][0],segm[1][1],segm[1][2]
-			#						tr_block.append(CNC.gline(B[0],B[1],B[2]))  # <<< TROCHOID CENTER
-					#				tr_block.append("(last trochoid, from trochoid distance to end segment "+str(round(d,4))+" )")
-					#				tr_block.append("(adaptradius "+ str(adaptradius)+" )")
-					#				tr_block.append("F "+ str(feed*adaptradius//radius))
-					#				tr_block.extend(self.trochoid(t_splice,A,B,oldradius,adaptradius,phi,phi,cw))
-
 								adaptativepolice=0
 								tr_block.append("(Adaptative Completed)")
 								tr_block.append("F "+ str(feed//3))
@@ -613,12 +506,6 @@ class Tool(Plugin):
 						tr_block.extend(self.helical(B,B,helicalRadius,phi,u))
 						if round(helicalRadius,4)!=round(radius,4):
 							tr_block.append("(Spiral adjustement)")
-	#								tr_block.extend(self.trochoid(t_splice,B,B,radius,helicalRadius,phi,phi+4*pi,cw))
-	#						steps=max(1,int(steps*radius*(spiral_twists)/2.0))
-	#						steps=min(steps, 12*spiral_twists)
-	#						steps*=spiral_twists
-#							tr_block.append("(Spiral steps "+str(steps)+" in "+str(int((spiral_twists/2.)+1))+" twists)")
-#							tr_block.append("(Spiral "+str(int((spiral_twists/2.)+1))+" twists)")
 							tr_block.append("(Spiral "+str(spiral_twists)+" twists)")
 							tr_block.extend(self.splice_generator(B,B,helicalRadius,radius,phi,phi-spiral_twists*2*pi, radians(-90),radians(-90),u,1.2*steps))
 							tr_block.append("(Target diameter)")
@@ -630,11 +517,6 @@ class Tool(Plugin):
 						tr_block.append("(Helical rapid ascentt "+"helicalRadius "+str(helicalRadius)+" )" )
 						B = segm[1][0],segm[1][1],segm[1][2]
 						tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-	#					tr_block.append(CNC.grapid(center[0],center[1],center[2]))
-	#					tr_block.extend(CNC.grapid(center))
-	#					end of segment
-	#					tr_block.append(CNC.gline(segm[1][0],segm[1][1],segm[1][2]))
-#					oldsegm=segm
 		tr_block.append("(-----------------------------------------)")
 		tr_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
 		blocks.append(tr_block)
@@ -669,21 +551,8 @@ class Tool(Plugin):
 		ar = self.pol2car(oldradius, phi+radians(-90*u), A)
 		bl = self.pol2car(radius, phi+radians(90*u), B)
 		br = self.pol2car(radius, phi+radians(-90*u), B)
-
-#		prev_al = self.pol2car(oldradius, phi+radians(90*u), A)
-#		prev_ar = self.pol2car(oldradius, phi+radians(-90*u), A)
-#		old_l = self.pol2car(oldradius, oldphi+radians(90*u))
-#		old_r = self.pol2car(oldradius, oldphi+radians(-90*u))
-
 #		infinite radius
 		inf_radius=1
-#		inf_l = self.pol2car(500*radius, phi+radians(90*u))
-#		inf_r = self.pol2car(500*radius, phi+radians(-90*u))
-#		inf_Cl = self.pol2car(inf_radius*radius, phi+radians(-90*u), B)
-#		inf_Cl= inf_Cl[0],inf_Cl[1],B[2]
-#		inf_Cr = self.pol2car(inf_radius*radius, phi+radians(90*u), B)
-#		inf_Cl= inf_Cr[0],inf_Cr[1],B[2]
-
 		splice_dist=sqrt((br[0]-al[0])**2+(br[1]-al[1])**2)
 		splice_radius=splice_dist/2.0
 
@@ -732,33 +601,14 @@ class Tool(Plugin):
 				block.append("(=============== Direction changed olldhi ==================)")
 			#if oldphi!=phi and t_splice!="Splices" and t_splice!="Warpedarc" and t_splice!="Circular one side rectified":
 #				steps = int(15*radius)
-			#	block.append("()")
-			#	if t_splice!="Circular both sides rectified" :
 				block.append("( Splice arch for direction change )")
-	#				block.extend(self.splice_generator(A,A,oldradius,oldradius,oldphi,phi,radians(270),radians(-90),u))
-	#			block.extend(self.curve_splice_generator(A,A,oldradius,oldradius,oldphi,phi,radians(270),radians(-90),u,steps))
 				block.extend(self.curve_splice_generator(A,A,oldradius,oldradius,oldphi,phi,radians(270),radians(-90),u,4)) #<< steps=4
 				block.append("(=============== End Direction changed ==================)")
-	#				block.append("(new phi)")
-	#				block.append(CNC.gline(old_ar[0],old_ar[1]))
-	#				block.append(arc +" x"+str(ar[0])+" y"+str(ar[1])+" i"+str(-old_r[0])+" j"+str(-old_r[1])) #<<in adaptativee presents problems of location of the center in change of angle
-	#				block.append(arc +" x"+str(prev_ar[0])+" y"+str(prev_ar[1])+" i"+str(-old_r[0])+" j"+str(-old_r[1])) #<<in adaptativee presents problems of location of the center in change of angle
-	#				block.append(arc +" x"+str(prev_al[0])+" y"+str(prev_al[1])+" R"+str(oldradius))
-	#				block.append(arc+" x"+str(prev_al[0])+" y"+str(prev_al[1])+" i"+str(-old_l[0])+" j"+str(-old_l[1])+" )")
-	#				block.append(arc +" x"+str(prev_ar[0])+" y"+str(prev_ar[1])+" R"+str(oldradius))
-			#	else:
-			#		block.append("( Splice arch for direction change )")
-	#				block.append(arc +" x"+str(al[0])+" y"+str(al[1])+" i"+str(old_r[0])+" j"+str(old_r[1]))
-			#		block.append(arc +" x"+str(round(ar[0],4))+" y"+str(round(ar[1],4))+" R"+str(self.roundup(oldradius,3)))
-			#		block.append(arc +" x"+str(round(al[0],4))+" y"+str(round(al[1],4))+" R"+str(self.roundup(oldradius,3)))
-			#	block.append("()")
 
 			if t_splice == "Splices":
-#				block.append("(Soft steps "+str(steps)+" )")
 				block.extend(self.splice_generator(A,B,oldradius,radius,oldphi,phi,radians(-90),radians(90),u,steps))
 
 			elif t_splice == "Circular one side rectified":
-	#			block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" i"+str(old_l[0])+" j"+str(old_l[1])+" z"+str(round(B[2],5)))#<<in adaptativee presents problems of location of the center in change of angle
 				block.append(arc+" x"+str(round(al[0],4))+" y"+str(round(al[1],4))+" R"+str(self.roundup(oldradius,3))+" z"+str(round(B[2],5)))
 				block.append("g1 x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" z"+str(round(B[2],4)))
 
@@ -783,15 +633,11 @@ class Tool(Plugin):
 				block.append(cut_splice+"x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+"R"+str(self.roundup(splice_radius,3))+" z"+str(round(B[2],4)))
 
 	#		========================================================================================================
-		#	cut
-#			block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1])+" z"+str(round(B[2],5)))
 			block.append("(cuting)") 
 			block.append(arc+" x"+str(round(br[0],4))+" y"+str(round(br[1],4))+" R"+str(self.roundup(radius,3))+" z"+str(round(B[2],4))) 
-		#	block.append("(cut)")
 		#	========================================================================================================
 			if t_splice== "Circular both sides rectified":
 				block.append("g1 x"+str(round(ar[0],4))+" y"+str(round(ar[1],4))+" z"+str(round(A[2],4)))
-	#			block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" i"+str(old_l[0])+" j"+str(old_l[1])+" z"+str(round(A[2],5)))
 				block.append(arc+" x"+str(round(al[0],4))+" y"+str(round(al[1],4))+" R"+str(self.roundup(oldradius,3))+" z"+str(round(A[2],4))) #<<in adaptativee presents problems of location of the center in change of angle
 				block.append("g1 x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" z"+str(round(B[2],4)))
 
@@ -799,27 +645,8 @@ class Tool(Plugin):
 	#--------------------------------------------------------------
 	def splice_generator(self, C1, C2, r1, r2, phi1,phi2,alpha_1,alpha_2, u,steps):
 		block = []
-#		steps=self["splicesteps"]/(2*pi)
-#			when "Soft Arc" splice from AR to BL		
-#			C1=A  # center1
-#			C2=B  # center2
-#			r1=radius
-#			r2=radius
-#		if phi1>=2*pi:
-#			phi1-=2*pi
-#		elif phi1<=-2*pi:
-#			phi1+02*pi
-#		if phi2-phi1==3*pi/2:
-#			steps*=1.5
-#			if u==1:
-#				alpha_1+=2*pi
-
 		alpha1 =phi1+alpha_1*u
 		alpha2=phi2+alpha_2*u
-#		block.append("(original alpha1 "+str(round(degrees(alpha1),2))+" original alpha2 "+str(round((alpha2),2))+" )")
-#		secure direction of rotation splice		
-#		if C1[0]!=C2[0] or C1[1]!=C2[2]:
-#		block.append("(ppp)")
 		if u==1:
 			if alpha1<=alpha2:
 				alpha1+=2*pi
@@ -852,11 +679,8 @@ class Tool(Plugin):
 		i=0
 
 		a0 = self.pol2car(r1,alpha1,C1)
-#		block.append("(phi "+str(round(degrees(alpha),4)+90.0)+" first splice point )")
 		block.append("(alpha1 "+str(round(degrees(alpha1),2))+" alpha2 "+str(round(degrees(alpha2),2))+" first splice point )")
 		block.append("(phi-oldphi "+str(round(degrees((phi2-phi1)),2))+" steps "+str(steps)+" )")
-#		block.append("(R1 "+ str(r1)+" R2 "+str(r2)+" )")
-#		block.append("g1 x"+str(C1[0])+" y"+str(C[1])+" z"+str(round(C[1],5)))
 		block.append("g1 x"+str(round(a0[0],4))+" y"+str(round(a0[1],4)))#+" z"+str(round(C[1],5)))
 
 		while i<(steps):#-0.1*steps): #<<<<solution not very elegat by mistake last splice with many steps (accumulation of error?)
@@ -877,32 +701,10 @@ class Tool(Plugin):
 	#--------------------------------------------------------------
 	def curve_splice_generator(self, C1, C2, r1, r2, phi1,phi2,alpha_1,alpha_2, u,steps):
 		block = []
-#		if u == 1:
-#			arc = "G2"
-#		else:
-#			arc = "G3"
-
-#		steps=self["splicesteps"]/(2*pi)
-#			when "Soft Arc" splice from AR to BL		
-#			C1=A  # center1
-#			C2=B  # center2
-#			r1=radius
-#			r2=radius
-#		if phi1>=2*pi:
-#			phi1-=2*pi
-#		elif phi1<=-2*pi:
-#			phi1+02*pi
-#		if phi2-phi1==3*pi/2:
-#			steps*=1.5
-#			if u==1:
-#				alpha_1+=2*pi
 
 		alpha1 =phi1+alpha_1*u
 		alpha2=phi2+alpha_2*u
-#		block.append("(original alpha1 "+str(round(degrees(alpha1),2))+" original alpha2 "+str(round((alpha2),2))+" )")
-#		secure direction of rotation splice		
-#		if C1[0]!=C2[0] or C1[1]!=C2[2]:
-#		block.append("(ppp)")
+#
 		if u==1:
 			arc = "G2"
 			if alpha1<=alpha2:
@@ -950,11 +752,6 @@ class Tool(Plugin):
 			C=C[0]+d_c_x, C[1]+d_c_y,C[2]+d_c_z
 #			ai = self.pol2car(radius, phi+radians(-120*u),A)
 			ai = self.pol2car(r, alpha,C)
-#				block.append(("g0 x ")+str(round(C1[0],2))+ " y"+str(round(C1[1],2))+" z"+str(round(C1[2],2)))
-#				block.append("(phi "+str(round( (phi+radians(-90*u))*57.29,2))+" )")
-#				block.append("(phi "+str(round(phi*57.29,2))+" alpha "+str(round(alpha1*57.29,2))+" )")
-#			block.append("(Ax "+ str(C1[0])+" Ay "+str(C1[1])+ " Bx "+str(C2[0])+" By "+str(C1[2])+" )")
-#			block.append("(g1 0"+str(ai[0])+" y"+str(ai[1])+" z"+str(round(C[2],5))+" )")
 			block.append("(alpha "+str(round(degrees(alpha),2))+" )")
 #			block.append("g1 x"+str(round(ai[0],4))+" y"+str(round(ai[1],4))+" z"+str(round(C[2],4)))
 			block.append(arc+" x"+str(round(ai[0],4))+" y"+str(round(ai[1],4))+" R "+str(self.roundup(r,3))+" z"+str(round(C[2],4)))
@@ -997,12 +794,6 @@ class Tool(Plugin):
 		else:
 #			block.append(arc+" x"+str(Cl[0])+" y"+str(Cl[1])+" i"+str(l[0])+" j"+str(l[1])+ " z" +str(C[2]))
 			block.append("G1 x"+str(round(br[0],4))+" y"+str(round(br[1],4))) 
-#			block.append(arc+" x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" i"+str(r[0])+" j"+str(-r[1])+" z"+str(round(C[2],4))) 
-
-#			block.append(arc+" x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" i"+str(-r[0])+" j"+str(-r[1])+" z"+str(round(C[2],4))) 
-#			block.append(arc+" x"+str(round(br[0],4))+" y"+str(round(br[1],4))+" i"+str(r[0])+" j"+str(r[1])+" z"+str(round(C[2],4))) 
-	#		block.append(arc+" x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" R"+str(radius)+" z"+str(round(C[2],4))) 
-	#		block.append(arc+" x"+str(round(br[0],4))+" y"+str(round(br[1],4))+" R"+str(radius)+" z"+str(round(C[2],4))) 
 			z_interm=(A[2]+C[2])/2.0
 			block.append(arc+" x"+str(round(bl[0],4))+" y"+str(round(bl[1],4))+" R"+str(self.roundup(radius,4))+" z"+str(round(z_interm,4))) 
 			block.append(arc+" x"+str(round(br[0],4))+" y"+str(round(br[1],4))+" R"+str(self.roundup(radius,4))+" z"+str(round(C[2],4))) 
@@ -1015,14 +806,6 @@ class Tool(Plugin):
 			sign=-1
 		else:
 			sign=1
-	#	if abs(number-round(number,decimals))>0:
-	#		number=round(number,decimals)+0.0001*sign
-	#	else:
-	#		number=round(number,decimals)
-	#		number=round(number,decimals)+0.0001*sign
-	#		number=round(number,decimals)+(1/(10**decimals))*sign
-	#	number=round(number,decimals)+0.0001*sign#/(10**decimals)*sign
-	#	number=round(number,decimals)+((1/10)**decimals)*sign
 		number=round(number,decimals)+0.1**decimals*sign
 		return number
 
