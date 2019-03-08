@@ -1035,4 +1035,4 @@ class Tool(Plugin):
 #		active=2
 		app.gcode.insBlocks(active+1, blocks, "Trochs")
 		app.refresh()
-app.setStatus(_("Trochoid Generated"))
+                app.setStatus(_("Trochoid Generated"))
