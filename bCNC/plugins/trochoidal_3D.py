@@ -36,16 +36,27 @@ class Tool(Plugin):
 
 		self.variables = [
 			("name",          "db",    "",    _("Name")),
- #           ("diam" ,"float", 6.0, _("Trochoid Cut Diameter")),
+            ("diam" ,"float", "", _("Trochoid Cut Diameter")),
+			("endmill",   "db" ,    "", _("End Mill"), "If Empty chooses, End Mill loaded"),
 			("ae", "mm", 0.30, _("Trochoids Advance")),
-#			("TypeSplice", "Straight,Straight on side rectified,Soft Arc,Circular one side rectified,Circular both sides rectified",\
 			("TypeSplice","Warpedarc,Splices,Circular one side rectified,Circular both sides rectified,Straight,Cut",\
-			 "Warpedarc", _("Type of Splice")),
+			 "Warpedarc", _("Type of Splice"),"Currently Splices works very slow"),
+			("direction","inside,outside,on (3d Path)" , "inside", _("Direction")),
+			("offset",   "float",                   0.0, _("Additional offset distance"), " Only for In or On direction"),
+			("adaptative",  "bool",                   1,   _("Adaptative"), "Generate path for adaptative trochoids in the corners. Only for In or On direction"),
+			("overcut",  "bool",                      0, _("Overcut"), " Only for In or On direction"),
+			("targetDepth",  "mm",                    -1, _("Target Depth"), " Only for In or On direction"),
+			("depthIncrement",  "mm",                  1, _("Depth Increment"), " Only for In or On direction"),
 			("cw"    ,    "bool" ,    True, _("Clockwise")),
 #			("helicalangle", "int" ,  25, _("Helical descent angle")),
 			("rpm",          "int" ,    12000, _("RPM")),
 			("feed"		, "int", 1200	, _("Feed")),
-			("splicesteps",       "int", 12 , _("splice steps every 360 degrees")),
+			("zfeed"		, "int", ""	, _("Plunge Feed")),
+			("splicesteps",       "int", 12 , _("splice steps every 360 degrees"), "Only for Splices Type of Splice"),
+#			("tabsnumber",  "mm",                      1, _("Number of Tabs 0 = Not Tabs")),
+#			("tabsWidth",  "mm",                       1, _("Tabs Diameter")),
+#			("tabsHeight",  "mm",                       1, _("Tabs Height")),
+
 #			("VerticalResolution"     ,  "mm" ,  0.15, _("Resolution or Vertical Step")),
 #			("variableRPM"		, "bool",True	, _("Variable RPM")),
 #			("S_z",       "int",  "", _("RPM For Descent Cut")),
@@ -62,15 +73,17 @@ class Tool(Plugin):
 #			("FirstPoint"		, "bool",False	, _("First Point Problem")),
 #			("Dwell",      "float",  0.0, _("Dwell time, 0 means None")),
 #			("Peck",          "mm",    0.0,   _("Peck, 0 meas None")),
-            ("diam" ,"float", "", _("Trochoid Cut Diameter")),
-			("manualsetting", "bool", False	 , _("----- Manual setting ------")),
+#			("manualsetting", "bool", False	 , _("----- Manual setting ------")),
  #           ("helicalDiam" ,"float", 7.0, _("Helical Descent Diameter")),
-			("endmill",   "db" ,    "", _("End Mill")),
-			("minimfeed",   "int" ,   "", _("Minimum Adaptative Feed")),
-			("zfeed"		, "int", ""	, _("Plunge Feed")),
+#			("minimfeed",   "int" ,   "", _("Minimum Adaptative Feed")),
 		]
 		self.buttons.append("exe")
-	# calculate separation between centers of trochoidsegments -----------------------------------------------------
+		self.help= '''It generates the trochoidal cutting mode on the selected block, even at different heights.
+Currently, it only works by selecting only one block (a solution is to join the blocks).
+In or Out generates the route and on it generates trochoids.
+'''
+
+# calculate separation between centers of trochoidsegments -----------------------------------------------------
 #	def information(self, xyz):
 #		return 0
 	# ----------------------------------------------------------------------
@@ -131,7 +144,6 @@ class Tool(Plugin):
 		else:
 			return 0
 	# ----------------------------------------------------------------------
-
 	#Extract all segments from commands ------------ -----------------------
 	def extractAllSegments(self, app,selectedBlock):
 		allSegments = []
@@ -140,7 +152,8 @@ class Tool(Plugin):
 		for bid in selectedBlock:
 			bidSegments = []
 			block = allBlocks[bid]
-			if block.name() in ("Header", "Footer"): continue
+			if block.name() in ("Header", "Footer"): 
+				continue
 			#if not block.enable : continue
 			app.gcode.initPath(bid)
 			for line in block:
@@ -182,9 +195,13 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 #		ae = self.fromMm("ae")
-		steps=self["splicesteps"]/(2*pi)
+		if self["splicesteps"] =="" or self["splicesteps"]<4:
+			steps=4/(2*pi)
+		else:
+			steps=self["splicesteps"]/(2*pi)
 
-		manualsetting = self["manualsetting"]
+#		manualsetting = self["manualsetting"]
+		manualsetting = 1
 #=========== Converted to comment and changed for current compatibility ==============================
 #		cutradius = CNC.vars["trochcutdiam"]/2.0
 		cutradius = self["diam"]/2.0
@@ -200,8 +217,8 @@ class Tool(Plugin):
 			if self["zfeed"] and self["zfeed"]!="":
 				zfeed = self["zfeed"]
 
-			if self["minimfeed"] and self["minimfeed"]!="":
-				minimfeed = self["minimfeed"]
+#			if self["minimfeed"] and self["minimfeed"]!="":
+#				minimfeed = min (self["minimfeed"],feed)
 
 			if self["feed"] and self["feed"]!="":
 				feed = self["feed"]
@@ -285,6 +302,24 @@ class Tool(Plugin):
 
 
 		# Get selected blocks from editor
+#	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, tooldiameter=0.0, name=None):
+
+#		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, CNC.vars["diameter"], name) #<< diameter only to information
+	#	cornerradius = (cutradius - CNC.vars["diameter"]/2.0
+		direction=self["direction"]
+		if direction!="on (3d Path)":
+			targetDepth=self["targetDepth"]
+			depthIncrement=self["depthIncrement"]
+#			tabsnumber=self["tabsnumber"]
+#			tabsWidth=self["tabsWidth"]
+#			tabsHeight=self["tabsHeight"]
+			tabsnumber=tabsWidth=tabsHeight=0
+
+			app.trochprofile_bcnc(2*cutradius, direction,self["offset"], self["overcut"], self["adaptative"], radius, CNC.vars["diameter"],\
+				targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight)
+			app.refresh()
+#		app.editor.selectAll()
+
 		selBlocks = app.editor.getSelectedBlocks()
 #		if not selBlocks:
 #			app.editor.selectAll()
@@ -648,7 +683,11 @@ class Tool(Plugin):
 	#Generate single trochoidal element between two points
 	def trochoid(self, typesplice, A, B, oldradius, radius, oldphi,phi, cw=True):
 
-		steps=self["splicesteps"]/(2*pi)
+		if self["splicesteps"] =="" or self["splicesteps"]<4:
+			steps=4/(2*pi)
+		else:
+			steps=self["splicesteps"]/(2*pi)
+
 		t_splice = typesplice
 		block = []
 
