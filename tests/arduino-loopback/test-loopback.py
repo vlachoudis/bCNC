@@ -17,6 +17,8 @@ if len(sys.argv) <= 1:
 	print("Usage: %s serial_device"%(sys.argv[0]))
 	exit(1)
 
+time_start = time.time()
+received_len = 0.0
 device = sys.argv[1]
 
 #Open arduino serial port
@@ -44,3 +46,9 @@ while True:
 	#Compare
 	if(received != byte):
 		print("\nERROR!\nExpected: %s\nReceived: %s"%(byte.encode("hex"), received.encode("hex")));
+
+	#Stats
+	received_len += len(received)
+	time_elapsed = time.time() - time_start
+	sys.stdout.write("\rTotal: %f MiB\tElapsed: %f seconds      "%(received_len/(1024*1024), time_elapsed))
+	#sys.stdout.flush()
