@@ -1,5 +1,8 @@
 #!/bin/python2
 
+# Copyright (c) 2019 Tomas 'Harvie' Mudrunka
+# Released under MIT license
+
 # This script is meant to test serial loopback
 # You need serial port with RX and TX shorted together
 # Also you can use included arduino sketch that echoes back everything it receives
