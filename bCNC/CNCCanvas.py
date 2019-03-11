@@ -1917,6 +1917,7 @@ class CanvasFrame(Frame):
 		toolbar.grid(row=0, column=0, columnspan=2, sticky=EW)
 
 		self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
+		print("self.canvas.winfo_id(): %s"%(self.canvas.winfo_id())) #OpenGL context
 		self.canvas.grid(row=1, column=0, sticky=NSEW)
 		sb = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
 		sb.grid(row=1, column=1, sticky=NS)
