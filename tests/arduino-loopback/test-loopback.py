@@ -56,5 +56,5 @@ while True:
 	#Stats
 	received_len += len(received)
 	time_elapsed = time.time() - time_start
-	sys.stdout.write("\rTotal: %f MiB\tElapsed: %f seconds      "%(received_len/(1024*1024), time_elapsed))
+	sys.stdout.write("\rTotal: %f MiB\tElapsed: %f seconds\tSpeed: %f MiB/s     "%(received_len/(1024*1024), time_elapsed, received_len/(1024*1024*time_elapsed)))
 	#sys.stdout.flush()
