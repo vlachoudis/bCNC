@@ -29,9 +29,6 @@ class _GenericController:
 	def hardResetAfter(self):
 		pass
 
-	def overrideSet(self):
-		pass
-
 	def viewStartup(self):
 		pass
 
@@ -86,10 +83,14 @@ class _GenericController:
 		self.master._alarm = False
 		self.master.sendGCode("$H")
 
+	def viewStatusReport(self):
+		self.master.serial.write(b"?")
+		self.master.sio_status = True
+
 	def viewParameters(self):
 		self.master.sendGCode("$#")
 
-	def viewState(self):
+	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
 
 	#----------------------------------------------------------------------

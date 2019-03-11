@@ -61,20 +61,9 @@ class Box:
 	# Set number of tooth's (use odd values)
 	#----------------------------------------------------------------------
 	def setNTeeth(self, nx, ny, nz):
-		if nx > 0:
-			self.nx = int(nx)
-		else:
-			self.nx = int(round(self.dx/nx))
-
-		if ny > 0:
-			self.ny = int(ny)
-		else:
-			self.ny = int(round(self.dy/ny))
-
-		if ny > 0:
-			self.nz = int(nz)
-		else:
-			self.nz = int(round(self.dz/nz))
+		self.nx = int(nx)
+		self.ny = int(ny)
+		self.nz = int(nz)
 
 		if self.nx&1==0: self.nx += 1	# Works only with odd numbers for the moment
 		if self.ny&1==0: self.ny += 1
