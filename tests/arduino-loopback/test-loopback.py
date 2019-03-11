@@ -16,12 +16,11 @@ import os
 import serial
 import time
 
+#Parse args
 if len(sys.argv) <= 1:
 	print("Usage: %s serial_device"%(sys.argv[0]))
 	exit(1)
 
-time_start = time.time()
-received_len = 0.0
 device = sys.argv[1]
 
 #Open arduino serial port
@@ -35,6 +34,10 @@ ser = serial.serial_for_url(device, 115200, timeout=1,
 #Wait for arduino to reset
 #(Increase this if you have just one error in the beginning and then everything's OK)
 time.sleep(2)
+
+#Init stats
+time_start = time.time()
+received_len = 0.0
 
 #Main loop
 while True:
