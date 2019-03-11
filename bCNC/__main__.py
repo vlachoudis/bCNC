@@ -1823,7 +1823,8 @@ class Application(Toplevel,Sender):
 #		self.setStatus(_("Pocket block distance=%g")%(ofs*sign))
 
 	#-----------------------------------------------------------------------
-	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, tooldiameter=0.0, name=None):
+	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, tooldiameter=0.0,\
+		targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0):
 	#	tool = self.tools["EndMill"]
 	#	ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		adaptedRadius = float(adaptedRadius)
@@ -1851,7 +1852,8 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
-		msg = self.gcode.trochprofile_cnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius,  cutDiam, tooldiameter, name)
+		msg = self.gcode.trochprofile_cnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius,  cutDiam, tooldiameter,\
+				targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),
@@ -1867,12 +1869,6 @@ class Application(Toplevel,Sender):
 		self.draw()
 		self.notBusy()
 		self.setStatus(_("Profile block distance=%g")%(ofs*sign))
-#	#-----------------------------------------------------------------------
-#	def tabAdded(self, event=None):
-#		tools = Page.frames["CAM"]
-#		tools.populate()
-#		tools.selectTab(-1)
-
 	#-----------------------------------------------------------------------
 	def edit(self, event=None):
 		page = self.ribbon.getActivePage()
