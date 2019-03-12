@@ -399,7 +399,7 @@ def getRecent(recent):
 #------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
 #------------------------------------------------------------------------------
-def comports():
+def comports(include_links=True):
 	locations=[	'/dev/ttyACM',
 			'/dev/ttyUSB',
 			'/dev/ttyS',
