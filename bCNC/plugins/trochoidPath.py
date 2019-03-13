@@ -35,8 +35,8 @@ class Tool(Plugin):
 
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Trochoid_Path") #NAME OF THE PLUGIN
-		self.icon  = "trochoidpath"
-		self.group = "CAM"
+		self.icon  = "trochoidal"
+		self.group = "Development"
 
 		self.variables = [
 			("name",      "db" ,                     "", _("Name")),
