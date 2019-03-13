@@ -26,6 +26,7 @@ import CNCRibbon
 try:
 	from serial.tools.list_ports import comports
 except:
+	print("Using fallback Utils.comports()!")
 	from Utils import comports
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400]
@@ -327,10 +328,18 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 			print("comport fix")
 			self.portCombo.set(clean)
 
+	#-----------------------------------------------------------------------
+	def comportsGet(self):
+		try:
+			return comports(include_links=True)
+		except TypeError:
+			print("Using old style comports()!")
+			return comports()
+
 	def comportRefresh(self, dbg=False):
 		#Detect devices
 		hwgrep = []
-		for i in comports(include_links=True):
+		for i in self.comportsGet():
 			if dbg:
 				#Print list to console if requested
 				comport = ''
@@ -340,11 +349,11 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 				hwgrep += ["hwgrep://"+hw+"\t"+i[1]]
 
 		#Populate combobox
-		devices = sorted([x[0]+"\t"+x[1] for x in comports(include_links=True)])
+		devices = sorted([x[0]+"\t"+x[1] for x in self.comportsGet()])
 		devices += ['']
 		devices += sorted(set(hwgrep))
 		devices += ['']
-		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in comports(include_links=True)])
+		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in self.comportsGet()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
 		#Clean neighbour duplicates
