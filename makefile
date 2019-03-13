@@ -32,6 +32,7 @@ clean:
 	rm -f bCNC/plugins/*.pyc bCNC/plugins/*.pyo
 
 upload:
-	python2 setup.py sdist upload
-	#python2 setup.py sdist
-	#twine upload -u PYPI_USERNAME dist/*
+	rm -f dist/*
+	#python2 setup.py sdist upload
+	python2 setup.py sdist
+	twine upload -u $(USER) dist/*

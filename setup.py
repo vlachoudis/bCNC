@@ -1,11 +1,13 @@
 from setuptools import setup, find_packages
 
+print("Running bCNC setup...")
+
 with open("README.md", "r") as fh:
 	long_description = fh.read()
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.53",
+	version = "0.9.14.54",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
