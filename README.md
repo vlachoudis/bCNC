@@ -4,17 +4,17 @@ bCNC
 GRBL CNC command sender, autoleveler, g-code editor, digitizer, CAM
 and swiss army knife for all your CNC needs.
 
-An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
+An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Raspberry Pi](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL maintainer on heavy testing).
 
 [![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
 
 Please note that all pull requests should pass the Travis-CI build in order to get merged.
-Most pull requests should also pass Codefactor checks if there is not good reason for failure.
+Most pull requests should also pass CodeFactor checks if there is not good reason for failure.
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
-# Installation (using pip = reccomended!)
+# Installation (using pip = recommended!)
 This is how you install (or upgrade) bCNC along with all required packages.
 You can use any of these commands (you need only one):
 
@@ -27,13 +27,13 @@ This is how you launch bCNC:
 
     python2 -m bCNC
 
-Only problem with this approach is that it might not install tkinter in some cases.
+Only problem with this approach is that it might not install Tkinter in some cases.
 So please keep that in mind and make sure it's installed in case of problems.
 
 If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
 Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
 
-Note that on WindowsXP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
+Note that on Windows XP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
 
 PyPI project: https://pypi.org/project/bCNC/
 
@@ -88,7 +88,7 @@ file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 The default configuration is stored on bCNC.ini in the
 installation directory.
 
-*PLEASE DO NOT CHANGE THIS FILE, IT'S GOING TO BE OVERWRITEN ON EACH UPGRADE OF BCNC*
+*PLEASE DO NOT CHANGE THIS FILE, IT'S GOING TO BE OVERWRITTEN ON EACH UPGRADE OF BCNC*
 
 # Features:
 - simple and intuitive interface for small screens
@@ -105,7 +105,7 @@ installation directory.
   - **auto leveling**, Z-probing and auto leveling by altering the g-code during
     sending (or permanently autoleveling the g-code file).
   - height color map display
-  - create g-code by joging and recording points (can even use camera for this)
+  - create g-code by jogging and recording points (can even use camera for this)
   - **manual tool change** expansion and automatic tool length probing
   - **canned cycles** expansion
 - Various Tools:
