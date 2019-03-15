@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-from CNC import CNC
+from CNC import CNC, WCS
 import time
 import re
 
@@ -108,9 +108,9 @@ class _GenericController:
 		self.master.sendGCode("%s"%(cmd))
 
 	#----------------------------------------------------------------------
-	# FIXME Duplicate with ControlPage
-	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
+		#global wcsvar
+		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
 		if p<6:
 			cmd = "G10L20P%d"%(p+1)
@@ -122,9 +122,9 @@ class _GenericController:
 			cmd = "G92"
 
 		pos = ""
-		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
-		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
-		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
+		if x is not None and abs(float(x))<10000.0: pos += "X"+str(x)
+		if y is not None and abs(float(y))<10000.0: pos += "Y"+str(y)
+		if z is not None and abs(float(z))<10000.0: pos += "Z"+str(z)
 		cmd += pos
 		self.master.sendGCode(cmd)
 		self.master.sendGCode("$#")

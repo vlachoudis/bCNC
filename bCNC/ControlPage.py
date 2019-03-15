@@ -384,30 +384,30 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def setX0(self, event=None):
-		self._wcsSet("0",None,None)
+		self.app.mcontrol._wcsSet("0",None,None)
 
 	#----------------------------------------------------------------------
 	def setY0(self, event=None):
-		self._wcsSet(None,"0",None)
+		self.app.mcontrol._wcsSet(None,"0",None)
 
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
-		self._wcsSet(None,None,"0")
+		self.app.mcontrol._wcsSet(None,None,"0")
 
 	#----------------------------------------------------------------------
 	def setXY0(self, event=None):
-		self._wcsSet("0","0",None)
+		self.app.mcontrol._wcsSet("0","0",None)
 
 	#----------------------------------------------------------------------
 	def setXYZ0(self, event=None):
-		self._wcsSet("0","0","0")
+		self.app.mcontrol._wcsSet("0","0","0")
 
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
 			value = round(eval(self.xwork.get(), None, CNC.vars), 3)
-			self._wcsSet(value,None,None)
+			self.app.mcontrol._wcsSet(value,None,None)
 		except:
 			pass
 
@@ -416,7 +416,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if self.app.running: return
 		try:
 			value = round(eval(self.ywork.get(), None, CNC.vars), 3)
-			self._wcsSet(None,value,None)
+			self.app.mcontrol._wcsSet(None,value,None)
 		except:
 			pass
 
@@ -425,38 +425,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		if self.app.running: return
 		try:
 			value = round(eval(self.zwork.get(), None, CNC.vars), 3)
-			self._wcsSet(None,None,value)
+			self.app.mcontrol._wcsSet(None,None,value)
 		except:
 			pass
 
 	#----------------------------------------------------------------------
-	def wcsSet(self, x, y, z):
-		self._wcsSet(x, y, z)
+	#def wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
-		global wcsvar
-		p = wcsvar.get()
-		if p<6:
-			cmd = "G10L20P%d"%(p+1)
-		elif p==6:
-			cmd = "G28.1"
-		elif p==7:
-			cmd = "G30.1"
-		elif p==8:
-			cmd = "G92"
-
-		pos = ""
-		if x is not None: pos += "X"+str(x)
-		if y is not None: pos += "Y"+str(y)
-		if z is not None: pos += "Z"+str(z)
-		cmd += pos
-		self.sendGCode(cmd)
-		self.sendGCode("$#")
-		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
-		self.event_generate("<<CanvasFocus>>")
+	#def _wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
 
 	#----------------------------------------------------------------------
 	def showState(self):
