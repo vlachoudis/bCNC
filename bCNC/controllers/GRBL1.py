@@ -67,7 +67,7 @@ class Controller(_GenericGRBL):
 		elif target == 100:
 			self.master.serial.write(OV_RAPID_100)
 		elif target == 75:
-			self.master.serial.write(OV_RAPID_50)	# FIXME
+			self.master.serial.write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
 		elif target == 50:
 			self.master.serial.write(OV_RAPID_50)
 		elif target == 25:
