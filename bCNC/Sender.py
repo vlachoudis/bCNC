@@ -403,7 +403,7 @@ class Sender:
 		elif ext == ".stl" or ext == ".ply":
 			# FIXME: implements solid import???
 			import tkMessageBox
-			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in Tools->SliceMesh.")
+			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.")
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
