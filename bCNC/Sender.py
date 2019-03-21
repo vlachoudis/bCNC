@@ -790,7 +790,7 @@ class Sender:
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:
-					tosend = b"$G\n"
+					tosend = b"$G\n" #FIXME: move to controller specific class
 					sline.append(tosend)
 					cline.append(len(tosend))
 					tg = t

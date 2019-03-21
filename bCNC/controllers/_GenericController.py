@@ -127,7 +127,7 @@ class _GenericController:
 		if z is not None and abs(float(z))<10000.0: pos += "Z"+str(z)
 		cmd += pos
 		self.master.sendGCode(cmd)
-		self.master.sendGCode("$#")
+		self.viewParameters()
 		self.master.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
 			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
@@ -176,7 +176,7 @@ class _GenericController:
 		self.master.stopProbe()
 		if G: self.master.sendGCode(G)			# restore $G
 		self.master.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
-		self.master.sendGCode("$G")
+		self.viewState()
 
 
 	#----------------------------------------------------------------------

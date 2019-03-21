@@ -1690,7 +1690,7 @@ class CNC:
 
 		# create the necessary code
 		lines = []
-		lines.append("$g")	# remember state and populate variables
+		lines.append("$g")	# remember state and populate variables, FIXME: move to ./controllers/_GenericController.py
 		lines.append("m5")	# stop spindle
 		lines.append("%wait")
 		lines.append("%_x,_y,_z = wx,wy,wz")	# remember position

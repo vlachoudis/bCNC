@@ -1217,7 +1217,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def wcsChange(self):
 		global wcsvar
 		self.sendGCode(WCS[wcsvar.get()])
-		self.sendGCode("$G")
+		self.app.mcontrol.viewState()
 
 
 #===============================================================================
