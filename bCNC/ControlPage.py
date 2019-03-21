@@ -1237,17 +1237,20 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		except:
 			focus = None
 
-		wcsvar.set(WCS.index(CNC.vars["WCS"]))
-		self.feedRate.set(str(CNC.vars["feed"]))
-		self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
-		self.spindle.set(CNC.vars["spindle"]=="M3")
-		self.spindleSpeed.set(int(CNC.vars["rpm"]))
-		self.toolEntry.set(CNC.vars["tool"])
-		self.units.set(UNITS[CNC.vars["units"]])
-		self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
-		self.plane.set(PLANE[CNC.vars["plane"]])
-		self.tlo.set(str(CNC.vars["TLO"]))
-		self.g92.config(text=str(CNC.vars["G92"]))
+		try:
+			wcsvar.set(WCS.index(CNC.vars["WCS"]))
+			self.feedRate.set(str(CNC.vars["feed"]))
+			self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
+			self.spindle.set(CNC.vars["spindle"]=="M3")
+			self.spindleSpeed.set(int(CNC.vars["rpm"]))
+			self.toolEntry.set(CNC.vars["tool"])
+			self.units.set(UNITS[CNC.vars["units"]])
+			self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
+			self.plane.set(PLANE[CNC.vars["plane"]])
+			self.tlo.set(str(CNC.vars["TLO"]))
+			self.g92.config(text=str(CNC.vars["G92"]))
+		except KeyError:
+			pass
 
 		self._gUpdate = False
 
