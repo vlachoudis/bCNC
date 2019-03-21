@@ -932,7 +932,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
 		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
 
-		# Feed mode
+		# Feed speed
 		row += 1
 		col = 0
 		Label(f, text=_("Feed:")).grid(row=row, column=col, sticky=E)
@@ -952,6 +952,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		b.grid(row=row, column=col, columnspan=2, sticky=W)
 		self.addWidget(b)
 
+		#Feed mode
 		col += 1
 		Label(f, text=_("Mode:")).grid(row=row, column=col, sticky=E)
 
@@ -965,6 +966,37 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(self.feedMode, _("Feed Mode [G93, G94, G95]"))
 		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
 		self.addWidget(self.feedMode)
+
+		# TLO
+		row += 1
+		col = 0
+		Label(f, text=_("TLO:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.tlo = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
+		self.tlo.grid(row=row, column=col, sticky=EW)
+		self.tlo.bind('<Return>',   self.setTLO)
+		self.tlo.bind('<KP_Enter>', self.setTLO)
+		tkExtra.Balloon.set(self.tlo, _("Tool length offset [G43.1#]"))
+		self.addWidget(self.tlo)
+
+		col += 1
+		b = Button(f, text=_("set"),
+				command=self.setTLO,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, columnspan=2, sticky=W)
+		self.addWidget(b)
+
+		# g92
+		col += 1
+		Label(f, text=_("G92:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.g92 = Label(f, text="")
+		self.g92.grid(row=row, column=col, columnspan=3, sticky=EW)
+		tkExtra.Balloon.set(self.g92, _("Set position [G92 X# Y# Z#]"))
+		self.addWidget(self.g92)
+
 
 		# ---
 		f.grid_columnconfigure(1, weight=1)
@@ -1137,6 +1169,18 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			pass
 
 	#----------------------------------------------------------------------
+	def setTLO(self, event=None):
+		#if self._probeUpdate: return
+		try:
+			tlo = float(self.tlo.get())
+			#print("G43.1Z%g"%(tlo))
+			self.sendGCode("G43.1Z%g"%(tlo))
+			self.app.mcontrol.viewParameters()
+			self.event_generate("<<CanvasFocus>>")
+		except ValueError:
+			pass
+
+	#----------------------------------------------------------------------
 	def setTool(self, event=None):
 		pass
 
@@ -1202,6 +1246,8 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.units.set(UNITS[CNC.vars["units"]])
 		self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
 		self.plane.set(PLANE[CNC.vars["plane"]])
+		self.tlo.set(str(CNC.vars["TLO"]))
+		self.g92.config(text=str(CNC.vars["G92"]))
 
 		self._gUpdate = False
 
