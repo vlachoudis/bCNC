@@ -277,6 +277,7 @@ class Segment:
 		linearized = []
 		if splitlines or self.type == Segment.CW or self.type == Segment.CCW:
 			count = int(ceil(self.length() / maxseg))
+			if count == 0: count = 1 #fix for zero length
 			step = self.length() / count
 			#print "---"
 			for i in range(0,count):
