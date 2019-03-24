@@ -432,6 +432,11 @@ class Vector(list):
 		s = 0.0
 		for a,b in zip(self, v):
 			s += a*b
+
+		#Float precision error was causing dot product to be 1.00000000000002 or so...
+		s = min(1, s)
+		s = max(-1, s)
+
 		return s
 
 	# ----------------------------------------------------------------------
