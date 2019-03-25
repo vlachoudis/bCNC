@@ -1444,6 +1444,7 @@ class Path(list):
 						self.insert(i+2,Segment(Segment.LINE, segment.A, segment.A + D))
 						self.insert(i+3, Segment(Segment.LINE, segment.A+D, segment.A))
 						i += 4
+					#only overcut
 					else:
 						self.insert(i,Segment(Segment.LINE, segment.A, segment.A + D))
 						self.insert(i+1, Segment(Segment.LINE, segment.A+D, segment.A))
@@ -1451,7 +1452,67 @@ class Path(list):
 			prev = segment
 			Op = prev.orthogonalEnd()
 			i += 1
+	#----------------------------------------------------------------------
+	def two_bit_adaptative_cut(self, offset, overcut, adaptative, adaptedRadius):
+		if self.isClosed():
+			prev = self[-1]
+			Op = prev.orthogonalEnd()
+		else:
+			prev = None
+			Op   = None	# previous orthogonal
+		i = 0
+		while i<len(self):
+			segment = self[i]
+			O  = segment.orthogonalStart()
+			if Op is not None:
+				cross = O[0]*Op[1]-O[1]*Op[0]
+				if prev.type==Segment.LINE and segment.type==Segment.LINE and cross*offset < -EPSV:
+					# find direction
+#					print ("O ", O)
+#					print("Op ",Op)
+					D = O+Op
+					D.normalize()
+					T=D[1]*adaptedRadius,-D[0]*adaptedRadius
+#					print("T ", T)
+#					print("D.norm ",D.normalize()) # <<<  = 1
+					if offset>0.0: D = -D
 
+					Dpolice = D *0.00001 
+
+					costheta = O*Op
+					costheta2 = sqrt((1.0+costheta)/2.0)
+					distance = abs(offset)*(1.0/costheta2-1.0)
+#					if overcut == 1 and adaptative == 0:
+#						pass
+					#	distance =  float(abs(adaptedRadius))
+#					if overcut == 0 and adaptative == 1:
+					#	distance =  abs(adaptedRadius)
+					distance = abs(adaptedRadius+offset)*(1.0/costheta2-1.0)
+					distance +=  (abs(adaptedRadius+offset))
+#					elif  overcut == 1 and adaptative == 1:
+#						distance +=  abs(adaptedRadius)
+					D *= -distance
+					T1=D[0]+T[0],D[1]+T[1]
+					T2=D[0]-T[0],D[1]-T[1]
+
+#					print("D ",D, " -------------------")
+#					if adaptative:
+					self.insert(i, Segment(Segment.LINE, segment.A, segment.A+T1))
+					self.insert(i+1, Segment(Segment.CW, segment.A+T1, segment.A+T2,segment.A+D))
+					self.insert(i+2, Segment(Segment.LINE, segment.A+T2, segment.A))
+					self.insert(i+3,Segment(Segment.LINE, segment.A, segment.A + Dpolice))
+					self.insert(i+4, Segment(Segment.LINE, segment.A+Dpolice, segment.A))
+					self.insert(i+5,Segment(Segment.LINE, segment.A, segment.A + D))
+					self.insert(i+6, Segment(Segment.LINE, segment.A+D, segment.A))
+					i += 7
+					#only overcut
+#					else:
+#						self.insert(i,Segment(Segment.LINE, segment.A, segment.A + D))
+#						self.insert(i+1, Segment(Segment.LINE, segment.A+D, segment.A))
+#						i += 2
+			prev = segment
+			Op = prev.orthogonalEnd()
+			i += 1
 	#----------------------------------------------------------------------
 	# @return index of segment that starts with point P
 	# else return None

@@ -1824,11 +1824,12 @@ class Application(Toplevel,Sender):
 
 	#-----------------------------------------------------------------------
 	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, tooldiameter=0.0,\
-		targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0):
+		targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0, finishpass=0.0):
 	#	tool = self.tools["EndMill"]
 	#	ofs  = self.tools.fromMm(tool["diameter"])/2.0
 		adaptedRadius = float(adaptedRadius)
 		ofs = float(cutDiam)/2.0
+		ofs0 = float(tooldiameter)/2.0
 		sign = 1.0
 
 		if direction is None:
@@ -1852,8 +1853,13 @@ class Application(Toplevel,Sender):
 		self.busy()
 		blocks = self.editor.getSelectedBlocks()
 		# on return we have the blocks with the new blocks to select
+		if finishpass:
+			msg0 = self.gcode.trochprofile_cnc(blocks, ofs0*sign, overcut, 0*adaptative, adaptedRadius, tooldiameter, tooldiameter,\
+					targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight, finishpass)
+			ofs-=ofs0
+			finishpass=0
 		msg = self.gcode.trochprofile_cnc(blocks, ofs*sign, overcut, adaptative, adaptedRadius,  cutDiam, tooldiameter,\
-				targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight)
+				targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight, finishpass)
 		if msg:
 			tkMessageBox.showwarning("Open paths",
 					"WARNING: %s"%(msg),

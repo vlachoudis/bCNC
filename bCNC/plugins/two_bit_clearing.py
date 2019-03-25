@@ -12,7 +12,7 @@
 __author__ = "Mario S Basz"
 __email__  = "mariob_1960@yaho.com.ar"
 
-__name__ = _("Trochoidcut")
+__name__ = _("Two bit clearing")
 __version__= "1.3"
 
 import os.path
@@ -30,35 +30,22 @@ from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians,
 class Tool(Plugin):
 	__doc__ = _("Create trochoids along selected blocks")
 	def __init__(self, master):
-		Plugin.__init__(self, master, "Trochoidal 3D")
-		self.icon  = "trochoidal"
+		Plugin.__init__(self, master, "Two Bit Clearing") #NAME OF THE PLUGIN
+		self.icon  = "scale"
 		self.group = "CAM"
 
 		self.variables = [
 			("name",          "db",    "",    _("Name")),
-            ("diam" ,"float", "", _("Trochoid Cut Diameter")),
-			("endmill",   "db" ,    "", _("End Mill"), "If Empty chooses, End Mill loaded"),
+ #           ("diam" ,"float", 6.0, _("Trochoid Cut Diameter")),
 			("ae", "mm", 0.30, _("Trochoids Advance")),
+#			("TypeSplice", "Straight,Straight on side rectified,Soft Arc,Circular one side rectified,Circular both sides rectified",\
 			("TypeSplice","Warpedarc,Splices,Circular one side rectified,Circular both sides rectified,Straight,Cut",\
-			 "Warpedarc", _("Type of Splice"),"Currently Splices works very slow"),
-			("direction","inside,outside,on (3d Path)" , "inside", _("Direction")),
-			("offset",   "mm",                   0.0, _("Additional offset distance"), " Only for In or On direction"),
-			("adaptative",  "bool",                   1,   _("Adaptative"), "Generate path for adaptative trochoids in the corners. Only for In or On direction"),
-			("overcut",  "bool",                      0, _("Overcut"), " Only for In or On direction"),
-			("finishPass",  "bool",                    1, _("Rectification Pass")),
-			("finishoffset",   "mm",                   0.0, _("Rectification Additional offset"), " Only for In or On direction"),
-			("targetDepth",  "mm",                    -1, _("Target Depth"), " Only for In or On direction"),
-			("depthIncrement",  "mm",                  1, _("Depth Increment"), " Only for In or On direction"),
+			 "Warpedarc", _("Type of Splice")),
 			("cw"    ,    "bool" ,    True, _("Clockwise")),
 #			("helicalangle", "int" ,  25, _("Helical descent angle")),
 			("rpm",          "int" ,    12000, _("RPM")),
 			("feed"		, "int", 1200	, _("Feed")),
-			("zfeed"		, "int", ""	, _("Plunge Feed")),
-			("splicesteps",       "int", 12 , _("splice steps every 360 degrees"), "Only for Splices Type of Splice"),
-#			("tabsnumber",  "mm",                      1, _("Number of Tabs 0 = Not Tabs")),
-#			("tabsWidth",  "mm",                       1, _("Tabs Diameter")),
-#			("tabsHeight",  "mm",                       1, _("Tabs Height")),
-
+			("splicesteps",       "int", 12 , _("splice steps every 360 degrees")),
 #			("VerticalResolution"     ,  "mm" ,  0.15, _("Resolution or Vertical Step")),
 #			("variableRPM"		, "bool",True	, _("Variable RPM")),
 #			("S_z",       "int",  "", _("RPM For Descent Cut")),
@@ -75,25 +62,18 @@ class Tool(Plugin):
 #			("FirstPoint"		, "bool",False	, _("First Point Problem")),
 #			("Dwell",      "float",  0.0, _("Dwell time, 0 means None")),
 #			("Peck",          "mm",    0.0,   _("Peck, 0 meas None")),
-#			("manualsetting", "bool", False	 , _("----- Manual setting ------")),
-	        ("helicalDiam" ,"float", 7.0, _("Helical Descent Diameter")),
-#			("minimfeed",   "int" ,   "", _("Minimum Adaptative Feed")),
+			("manualsetting", "bool", False	 , _("----- Manual setting ------")),
+            ("diam" ,"float", "", _("Trochoid Cut Diameter")),
+ #           ("helicalDiam" ,"float", 7.0, _("Helical Descent Diameter")),
+			("endmill",   "db" ,    "", _("End Mill")),
+			("minimfeed",   "int" ,   "", _("Minimum Adaptative Feed")),
+			("zfeed"		, "int", ""	, _("Plunge Feed")),
 		]
 		self.buttons.append("exe")
-		self.help= '''
-It generates the trochoidal cutting mode in the selected block, even at different heights.
-Rectification step not implemented for linked blocks.
-Currently, it only works by selecting a single block (a partial solution is to unite the blocks, but not perform rectification pass).
-#trochoid
-'''
-
-# calculate separation between centers of trochoidsegments -----------------------------------------------------
+	# calculate separation between centers of trochoidsegments -----------------------------------------------------
 #	def information(self, xyz):
 #		return 0
-	# ----------------------------------------------------------------------
-	def update(self):
-		self.master.cnc()["diam"] = self.fromMm("diam")
-	# ----------------------------------------------------------------------
+	# -----------------------------------------------------
 	def came_back(self, current, old):
 		A= current[0]
 		B= current[1]
@@ -148,6 +128,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 		else:
 			return 0
 	# ----------------------------------------------------------------------
+
 	#Extract all segments from commands ------------ -----------------------
 	def extractAllSegments(self, app,selectedBlock):
 		allSegments = []
@@ -156,8 +137,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 		for bid in selectedBlock:
 			bidSegments = []
 			block = allBlocks[bid]
-			if block.name() in ("Header", "Footer"): 
-				continue
+			if block.name() in ("Header", "Footer"): continue
 			#if not block.enable : continue
 			app.gcode.initPath(bid)
 			for line in block:
@@ -199,21 +179,14 @@ Currently, it only works by selecting a single block (a partial solution is to u
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 #		ae = self.fromMm("ae")
-		if self["splicesteps"] =="" or self["splicesteps"]<4:
-			steps=4/(2*pi)
-		else:
-			steps=self["splicesteps"]/(2*pi)
+		steps=self["splicesteps"]/(2*pi)
 
-#		manualsetting = self["manualsetting"]
-		manualsetting = 1
-#=========== Converted to comment and changed for current compatibility ==============================
-#		cutradius = CNC.vars["trochcutdiam"]/2.0
-		cutradius = self["diam"]/2.0
-#		cutradius = CNC.vars["trochcutdiam"]/2.0
-#=========================================================================================
+		manualsetting = self["manualsetting"]
+
+		cutradius = CNC.vars["trochcutdiam"]/2.0
 		zfeed = CNC.vars["cutfeedz"]
 		feed =CNC.vars["cutfeed"]
-#		minimfeed =CNC.vars["cutfeed"]
+		minimfeed =CNC.vars["cutfeed"]
 		if manualsetting:
 			if self["diam"]:
 				cutradius = self["diam"]/2.0
@@ -221,8 +194,8 @@ Currently, it only works by selecting a single block (a partial solution is to u
 			if self["zfeed"] and self["zfeed"]!="":
 				zfeed = self["zfeed"]
 
-#			if self["minimfeed"] and self["minimfeed"]!="":
-#				minimfeed = min (self["minimfeed"],feed)
+			if self["minimfeed"] and self["minimfeed"]!="":
+				minimfeed = self["minimfeed"]
 
 			if self["feed"] and self["feed"]!="":
 				feed = self["feed"]
@@ -230,7 +203,6 @@ Currently, it only works by selecting a single block (a partial solution is to u
 			if self["endmill"]:
 				self.master["endmill"].makeCurrent(self["endmill"])
 
-		minimfeed =feed/4.0
 
 
 #		radius = CNC.vars["cutdiam"]/2.0
@@ -239,17 +211,17 @@ Currently, it only works by selecting a single block (a partial solution is to u
 		radius = max(0,cutradius-toolRadius)
 		oldradius=radius
 #-----------------------------------------------------------
-		helicalRadius = self["helicalDiam"]/2.0
-		if helicalRadius=="":
-			helicalRadius=radius
-		else:
-			helicalRadius=max(0,helicalRadius- toolRadius)
-#		helicalRadius=radius
+#		helicalRadius = self["helicalDiam"]/2.0
+#		if helicalRadius=="":
+#			helicalRadius=radius
+#		else:
+#			helicalRadius=max(0,helicalRadius- toolRadius)
+		helicalRadius=radius
 #-----------------------------------------------------------
 
-		helicalRadius=min(0.99*toolRadius,helicalRadius)
-		if radius!=0:
-			helicalRadius= min(helicalRadius,radius)
+#		helicalRadius=min(0.99*toolRadius,helicalRadius)
+#		if radius!=0:
+#			helicalRadius= min(helicalRadius,radius)
 		helicalPerimeter=pi*2.0*helicalRadius		
 	
 	#	helicalangle = self["helicalangle"]
@@ -261,19 +233,10 @@ Currently, it only works by selecting a single block (a partial solution is to u
 
 		cw = self["cw"]
 		surface = CNC.vars["surface"]
-#=========== Converted to comment and changed for current compatibility ==============================
-#		zbeforecontact=surface+CNC.vars["zretract"]
-#		zbeforecontact=surface+CNC.vars["zretract"]
-#		hardcrust = surface - CNC.vars["hardcrust"]
-#		feedbeforecontact = CNC.vars["feedbeforecontact"]/100.0
-#		hardcrustfeed = CNC.vars["hardcrustfeed"]/100.0
-
-		zbeforecontact=surface
-		zbeforecontact=surface
-		hardcrust = surface
-		feedbeforecontact = zfeed
-		hardcrustfeed = feed
-#=====================================================================================================
+		zbeforecontact=surface+CNC.vars["zretract"]
+		hardcrust = surface - CNC.vars["hardcrust"]
+		feedbeforecontact = CNC.vars["feedbeforecontact"]/100.0
+		hardcrustfeed = CNC.vars["hardcrustfeed"]/100.0
 
 		t_splice = self["TypeSplice"]
 		dtadaptative = 0.0001
@@ -282,7 +245,9 @@ Currently, it only works by selecting a single block (a partial solution is to u
 #		minimradius = min(radius, toolRadius*self["MinTrochDiam"]/(100))
 #		minimradius = min(radius, toolRadius*CNC.vars["mintrochdiam"]/(100))
 		atot = self.fromMm("ae")
-#		spiral_twists=(radius-helicalRadius)/atot#<<spiral ae smaller than ae (aprox 50%)
+		if atot=="" or atot==0:
+			atot = toolRadius*(1-toolRadius*CNC.vars["stepover"]/100.0)
+		spiral_twists=(radius-helicalRadius)/atot#<<spiral ae smaller than ae (aprox 50%)
 #		if (radius-helicalRadius)%atot: spiral_twists=1+(radius-helicalRadius)//atot
 		spiral_twists=ceil(radius-helicalRadius)/atot#<<spiral ae smaller than ae (aprox 50%)
 
@@ -307,25 +272,6 @@ Currently, it only works by selecting a single block (a partial solution is to u
 
 
 		# Get selected blocks from editor
-#	def trochprofile_bcnc(self, cutDiam=0.0, direction=None, offset=0.0, overcut=False,adaptative=False, adaptedRadius=0.0, tooldiameter=0.0, name=None):
-
-#		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, CNC.vars["diameter"], name) #<< diameter only to information
-	#	cornerradius = (cutradius - CNC.vars["diameter"]/2.0
-		finishPass=self["finishPass"]
-		direction=self["direction"]
-		if direction!="on (3d Path)":
-			targetDepth=self["targetDepth"]
-			depthIncrement=self["depthIncrement"]
-#			tabsnumber=self["tabsnumber"]
-#			tabsWidth=self["tabsWidth"]
-#			tabsHeight=self["tabsHeight"]
-			tabsnumber=tabsWidth=tabsHeight=0
-
-			app.trochprofile_bcnc(2*cutradius, direction,self.fromMm("offset"), self["overcut"], self["adaptative"], radius, CNC.vars["diameter"],\
-				targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight, finishPass)
-			app.refresh()
-#		app.editor.selectAll()
-
 		selBlocks = app.editor.getSelectedBlocks()
 #		if not selBlocks:
 #			app.editor.selectAll()
@@ -364,10 +310,9 @@ Currently, it only works by selecting a single block (a partial solution is to u
 			if len(bidSegment)==0:
 				continue
 		blocks = []
-#		n = self["name"]
+		n = self["name"]
 #		if not n or n=="default": n="Trochoidal_3D"
-#		newname = Block.operationName(path.name)
-		n="Troch3d"
+		n="Trochoidal_3D"
 		tr_block = Block(n)
 		phi=oldphi=0# oldadaptativephi=0
 		oldsegm=[[0,0,0],[0,0,0]]
@@ -441,8 +386,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 				if (segm[1][1]-segm[0][1]!=0 or segm[1][0]-segm[0][0]!=0):
 					phi = atan2(segm[1][1]-segm[0][1], segm[1][0]-segm[0][0])
 #					On surface
-#					if segm[0][2]>zbeforecontact and segm[1][2]>zbeforecontact:
-					if segm[0][2]>surface and segm[1][2]>surface:
+					if segm[0][2]>zbeforecontact and segm[1][2]>zbeforecontact:
 						tr_block.append("(Seg: "+str(idx)+" length "+str(round(segLength,4))+" phi "+str(round(degrees(phi),2))+ " On Surface)" )
 						tr_block.append(CNC.grapid(segm[1][0],segm[1][1],segm[1][2]))
 					else:
@@ -467,7 +411,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 #	///////////	Trochoid method //////////////////////////////////////////////////////////////////////////////
 						if adaptativepolice==0 or adaptativepolice >2.5:
 
-							tr_block.append("( Seg: "+str(idx)+" phi "+str(round(degrees(phi),2))+ " oldphi "+str(round(degrees(oldphi),2))+" length "+str(round(segLength,5))+" )")
+		#					tr_block.append("( Seg: "+str(idx)+" phi "+str(round(degrees(phi),2))+ " oldphi "+str(round(degrees(oldphi),2))+" length "+str(round(segLength,5))+" )")
 							tr_block.append("(ae: "+str(round(ae,5))+" dz: "+str(round(ap,4))+"adv: "+str(round(adv,4))+" )")
 		#					tr_block.append("( Bx "+str(round(segm[1][0],2))+ " By "+ str(round(segm[1][1],2)))
 		#					-----------------------------------------------------------------------------
@@ -478,34 +422,11 @@ Currently, it only works by selecting a single block (a partial solution is to u
 		#								tr_block.append(CNC.gline(segm[1][0],segm[1][1],segm[1][2]))
 								t_splice="came_back"
 #								tr_block.extend(self.trochoid(t_splice,A,B,minimradius,radius,oldphi,phi,cw))
-								tr_block.extend(self.trochoid(t_splice,A,B,0.0,radius,oldphi,phi,cw))
-								tr_block.append("F "+ str(feed))
-								t_splice = self["TypeSplice"]
+		#						tr_block.extend(self.trochoid(t_splice,A,B,0.0,radius,oldphi,phi,cw))
+#								tr_block.append("F "+ str(feed))
+								tr_block.append(CNC.zsafe())
+#								t_splice = self["TypeSplice"]
 
-							else:
-								# from POINT A -- to ---> POINT B
-								if segLength<=adv:
-									tr_block.append("(Only one trochoid, oldphi "+str(round(degrees(oldphi),2))+" )")
-									tr_block.extend(self.trochoid(t_splice,A,B,oldradius,radius,oldphi,phi,cw))
-								while d >adv:
-			#					first trochoid
-			#						tr_block.append("d "+ str(d))
-									B = A[0]+tr_distance[0], A[1]+tr_distance[1], A[2]+tr_distance[2]
-								# intermediates points = trochoids points 
-			#						tr_block.append(CNC.gline(B[0],B[1],B[2])) # <<< TROCHOID CENTER
-		#							tr_block.extend(self.trochoid(A,B,radius,phi,oldphi,cw))
-
-									tr_block.append("(distance to end segment "+str(round(d,4))+" )")
-									tr_block.extend(self.trochoid(t_splice,A,B,oldradius,radius,oldphi,phi,cw))
-									A=B
-									d-=adv
-									oldphi=phi
-			#					last point
-								if  B[0] != segm[1][0] or B[1] != segm[1][1] or B[2] != segm[1][2]:
-									B = segm[1][0],segm[1][1],segm[1][2]
-			#						tr_block.append(CNC.gline(B[0],B[1],B[2]))  # <<< TROCHOID CENTER
-									tr_block.append("(---last trochoid, distance to end segment "+str(round(d,4))+" ---)")
-									tr_block.extend(self.trochoid(t_splice,A,B,oldradius,radius,phi,phi,cw))
 							adaptativepolice=0
 
 		#	///////	Adapative method //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,10 +444,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 							elif adaptativepolice==2:
 								phi=lastphi
 								if control_cameback:# abs(round(difangle,6)) == (round(pi,6)):
-#									tr_block.append("(Starts adaptative trochoids"+" adaptativepolice "+str(adaptativepolice) )
-									tr_block.append("(===========================================================================)")
-									tr_block.append("(================ Starts adaptative trochoids ======================)")
-									tr_block.append("(===========================================================================)")
+									tr_block.append("(Starts adaptative trochoids"+" adaptativepolice "+str(adaptativepolice) )
 									adaptativepolice +=0.5
 							elif adaptativepolice==2.5:
 #								tr_block.append("(-----------------------------------------)")
@@ -543,8 +461,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 								A = segm[0][0],segm[0][1],segm[0][2]
 								d=segLength
 								ae = tr_distance[4]
-								adv = tr_distance[3] #<<<
-								i=0
+								adv = tr_distance[3] #<<< 
 								d-=adv
 								while d >0:#adv:
 			#					first trochoid
@@ -563,6 +480,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 												#------------------------------
 									if t_splice!="Splices":
 										t_splice="Warpedarc"
+#										t_splice="Cut"
 									tr_block.append("(from trochoid distance to end segment "+str(round(d,4))+" )")
 									tr_block.append("(adaptradius "+ str(round(adaptradius,4))+" radius " + str(radius)+" )")
 #									tr_block.append("F "+ str(feed*adaptradius//radius))
@@ -599,94 +517,9 @@ Currently, it only works by selecting a single block (a partial solution is to u
 							oldradius=radius
 						oldsegm=segm
 					oldphi=phi
-#	///////	Vertical movement ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				elif idx!=0:	
-					tr_block.append("(Seg: "+str(idx)+" length "+str(round(segLength,4))+" phi "+str(round(degrees(phi),2))+" oldphi "+str(round(degrees(oldphi),2))+" )" )
-					tr_block.append("(Helical descent")
-#						descent
-					A=segm[0][0],segm[0][1],segm[0][2]
-					if segm[0][2] > segm[1][2]:
-						if segm[0][2] >zbeforecontact:# and segm[1][2]<=surface:
-							if segm[1][2]<=zbeforecontact:
-								B = segm[1][0],segm[1][1],max(segm[1][2],zbeforecontact)
-								tr_block.append("(Rapid helical to z before contact "+"helicalRadius "+str(helicalRadius)+" )")
-								if idx==1 and oldphi==1234567890:
-									tr_block.append("g0 x "+str(B[0])+" y"+str(B[1])+" )")#" z "+str(B[2])+" )")
-								tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-
-	#						Instead of decreasing the speed, to avoid the jerkl, decrease the drop by lap
-						if segm[0][2] >surface:# and segm[1][2]<=surface:
-							if segm[1][2]<=surface:
-								tr_block.append("(Slow helical to surface )" )
-								A=A[0],A[1],zbeforecontact
-								d=A[2]-surface
-								adv=downPecking * feedbeforecontact
-								while d > adv:
-									B = segm[1][0],segm[1][1],max(segm[1][2],A[2]-adv)
-									tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-									A=A[0],A[1],B[2]
-									d-=adv
-								B = segm[1][0],segm[1][1],surface
-								tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-
-						if segm[0][2] >hardcrust:# and segm[1][2]<=surface:
-							if hardcrust< surface:
-								if segm[1][2]<=hardcrust:	
-									tr_block.append("(Helical in hard crust)" )
-									A=A[0],A[1],surface
-									d=A[2]-hardcrust
-									adv=downPecking * hardcrustfeed
-									while d > adv:
-										B = segm[1][0],segm[1][1],max(segm[1][2],A[2]-adv)
-										tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-										A=A[0],A[1],B[2]
-										d-=adv
-									B = segm[1][0],segm[1][1],hardcrust
-									tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-						
-						tr_block.append("(Helical to target )" )
-						A=A[0],A[1],hardcrust
-						d=A[2]-segm[1][2]
-						adv=downPecking
-						while d > adv:
-							B = segm[1][0],segm[1][1],A[2]-adv
-							tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-							A=A[0],A[1],B[2]
-							d-=adv
-						B = segm[1][0],segm[1][1],segm[1][2]
-						tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-						tr_block.append("(Flatten)")
-						tr_block.extend(self.helical(B,B,helicalRadius,phi,u))
-						if round(helicalRadius,4)!=round(radius,4):
-							tr_block.append("(Spiral adjustement)")
-	#								tr_block.extend(self.trochoid(t_splice,B,B,radius,helicalRadius,phi,phi+4*pi,cw))
-	#						steps=max(1,int(steps*radius*(spiral_twists)/2.0))
-	#						steps=min(steps, 12*spiral_twists)
-	#						steps*=spiral_twists
-#							tr_block.append("(Spiral steps "+str(steps)+" in "+str(int((spiral_twists/2.)+1))+" twists)")
-#							tr_block.append("(Spiral "+str(int((spiral_twists/2.)+1))+" twists)")
-							tr_block.append("(Spiral "+str(spiral_twists)+" twists)")
-							tr_block.extend(self.splice_generator(B,B,helicalRadius,radius,phi,phi-spiral_twists*2*pi, radians(-90),radians(-90),u,1.2*steps))
-							tr_block.append("(Target diameter)")
-#							tr_block.extend(self.helical(B,B,radius,phi,u))
-							tr_block.extend(self.trochoid(t_splice,B,B,radius,radius,phi,phi,cw))
-
-#						ascent
-					elif segm[1][2] > segm[0][2]:
-						tr_block.append("(Helical rapid ascentt "+"helicalRadius "+str(helicalRadius)+" )" )
-						B = segm[1][0],segm[1][1],segm[1][2]
-						tr_block.extend(self.helical(A,B,helicalRadius,phi,u))
-	#					tr_block.append(CNC.grapid(center[0],center[1],center[2]))
-	#					tr_block.extend(CNC.grapid(center))
-	#					end of segment
-	#					tr_block.append(CNC.gline(segm[1][0],segm[1][1],segm[1][2]))
-#					oldsegm=segm
 		tr_block.append("(-----------------------------------------)")
 		tr_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
 		blocks.append(tr_block)
-		#finished pass
-#		app.trochprofile_bcnc(CNC.vars["diameter"], direction,-cutradius+0*self["offset"], 0*self["overcut"], 0*self["adaptative"],\
-#			 CNC.vars["diameter"]/2.0, CNC.vars["diameter"],-1, 1, 0, 0, 0)
 		self.finish_blocks(app, blocks)
 	#----------------------------------------------------------
 	#Convert polar to cartesian and add that to existing vector
@@ -696,11 +529,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 	#Generate single trochoidal element between two points
 	def trochoid(self, typesplice, A, B, oldradius, radius, oldphi,phi, cw=True):
 
-		if self["splicesteps"] =="" or self["splicesteps"]<4:
-			steps=4/(2*pi)
-		else:
-			steps=self["splicesteps"]/(2*pi)
-
+		steps=self["splicesteps"]/(2*pi)
 		t_splice = typesplice
 		block = []
 
@@ -930,6 +759,7 @@ Currently, it only works by selecting a single block (a partial solution is to u
 	#--------------------------------------------------------------
 	def curve_splice_generator(self, C1, C2, r1, r2, phi1,phi2,alpha_1,alpha_2, u,steps):
 		block = []
+		surface = CNC.vars["surface"]
 #		if u == 1:
 #			arc = "G2"
 #		else:
@@ -995,23 +825,24 @@ Currently, it only works by selecting a single block (a partial solution is to u
 		block.append("(phi-oldphi "+str(round(degrees((phi2-phi1)),2))+" steps "+str(steps)+" )")
 #		block.append("(R1 "+ str(r1)+" R2 "+str(r2)+" )")
 #		block.append("g1 x"+str(C1[0])+" y"+str(C[1])+" z"+str(round(C[1],5)))
-		block.append("g1 x"+str(round(a0[0],4))+" y"+str(round(a0[1],4)))#+" z"+str(round(C[1],5)))
-
-		while i<(steps):#-0.1*steps): #<<<<solution not very elegat by mistake last splice with many steps (accumulation of error?)
-			r+=d_r
-			alpha+=d_a
-			C=C[0]+d_c_x, C[1]+d_c_y,C[2]+d_c_z
-#			ai = self.pol2car(radius, phi+radians(-120*u),A)
-			ai = self.pol2car(r, alpha,C)
+		block.append("g0 x"+str(round(a0[0],4))+" y"+str(round(a0[1],4)))#+" z"+str(round(C[1],5)))
+		block.append(CNC.zenter(surface)) 
+#
+	#	while i<(steps):#-0.1*steps): #<<<<solution not very elegat by mistake last splice with many steps (accumulation of error?)
+	#		r+=d_r
+	#		alpha+=d_a
+	#		C=C[0]+d_c_x, C[1]+d_c_y,C[2]+d_c_z
+#	#		ai = self.pol2car(radius, phi+radians(-120*u),A)
+	#		ai = self.pol2car(r, alpha,C)
 #				block.append(("g0 x ")+str(round(C1[0],2))+ " y"+str(round(C1[1],2))+" z"+str(round(C1[2],2)))
 #				block.append("(phi "+str(round( (phi+radians(-90*u))*57.29,2))+" )")
 #				block.append("(phi "+str(round(phi*57.29,2))+" alpha "+str(round(alpha1*57.29,2))+" )")
 #			block.append("(Ax "+ str(C1[0])+" Ay "+str(C1[1])+ " Bx "+str(C2[0])+" By "+str(C1[2])+" )")
 #			block.append("(g1 0"+str(ai[0])+" y"+str(ai[1])+" z"+str(round(C[2],5))+" )")
-			block.append("(alpha "+str(round(degrees(alpha),2))+" )")
+	#		block.append("(alpha "+str(round(degrees(alpha),2))+" )")
 #			block.append("g1 x"+str(round(ai[0],4))+" y"+str(round(ai[1],4))+" z"+str(round(C[2],4)))
-			block.append(arc+" x"+str(round(ai[0],4))+" y"+str(round(ai[1],4))+" R "+str(self.roundup(r,3))+" z"+str(round(C[2],4)))
-			i+=1
+	#		block.append(arc+" x"+str(round(ai[0],4))+" y"+str(round(ai[1],4))+" R "+str(self.roundup(r,3))+" z"+str(round(C[2],4)))
+	#		i+=1
 		return block		
 	#--------------------------------------------------------------
 	def helical(self, A, C, radius, phi, u): #<< A[2], C=B

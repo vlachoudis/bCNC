@@ -4019,7 +4019,7 @@ class GCode:
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
 	def trochprofile_cnc(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, cutDiam=0.0, tooldiameter=0.0,\
-			targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0):
+			targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0, finishpass=""):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -4029,7 +4029,10 @@ class GCode:
 			for path in self.toPath(bid):
 #				if name is not None:
 #				newname = Block.operationName(path.name, name)
-				explain = "Tr "
+				explain = "Troch Path "
+				if finishpass:
+					explain = "Finishpass "
+
 				if offset>0:
 					explain+="out "#n +="out "
 #				elif offset==0:

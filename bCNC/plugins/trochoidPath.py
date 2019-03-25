@@ -46,12 +46,13 @@ class Tool(Plugin):
 			("endmill",   "db" ,                     "", _("End Mill"), "If Empty chooses, End Mill loaded"),
 			("adaptative",  "bool",                   1,   _("Adaptative"), "Generate path for adaptative trochoids in the corners (Not yet implemented in trochoidal plugin)"),
 			("overcut",  "bool",                      0, _("Overcut")),
-			("targetDepth",  "mm",                    -1, _("Target Depth")),
-			("depthIncrement",  "mm",                  1, _("Depth Increment")),
-			("depthIncrement",  "mm",                  1, _("Depth Increment")),
-			("tabsnumber",  "mm",                      1, _("Number of Tabs 0 = Not Tabs"),"Not available yet"),
-			("tabsWidth",  "mm",                       1, _("Tabs Diameter"),"Not available yet"),
-			("tabsHeight",  "mm",                       1, _("Tabs Height"),"Not available yet"),
+	#		("finishPass",  "bool",                   0, _("Finishh Traditional Pass"),"Rectification pass not implemented for joined blocks."),
+			("targetDepth",  "mm",                   -1, _("Target Depth")),
+			("depthIncrement",  "mm",                 1, _("Depth Increment")),
+			("depthIncrement",  "mm",                 1, _("Depth Increment")),
+			("tabsnumber",  "mm",                     1, _("Number of Tabs 0 = Not Tabs"),"Not available yet"),
+			("tabsWidth",  "mm",                      1, _("Tabs Diameter"),"Not available yet"),
+			("tabsHeight",  "mm",                     1, _("Tabs Height"),"Not available yet"),
 
 #			("mintrochdiam", "float",                10, _("Minimal trochoid in % tool"))
 		]
@@ -74,6 +75,7 @@ class Tool(Plugin):
 		tabsnumber=self["tabsnumber"]
 		tabsWidth=self["tabsWidth"]
 		tabsHeight=self["tabsHeight"]
+		finishPass=0#self["finishPass"]
 			
 		trochcutdiam=self.fromMm("trochcutdiam")
 #		mintrochdiameter = CNC.vars["diameter"]*(1+self["mintrochdiam"]/100.0)
@@ -83,7 +85,7 @@ class Tool(Plugin):
 		name = self["name"]
 		if name=="default" or name=="": name=None
 		app.trochprofile_bcnc(trochcutdiam, direction, self["offset"], self["overcut"], self["adaptative"], cornerradius, CNC.vars["diameter"],\
-			targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight) #<< diameter only to information
+			targetDepth, depthIncrement, tabsnumber, tabsWidth, tabsHeight, finishPass) #<< diameter only to information
 		app.setStatus(_("Generated path for trochoidal cutting"))
 
 #==============================================================================

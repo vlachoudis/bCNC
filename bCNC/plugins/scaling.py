@@ -45,7 +45,8 @@ class Tool(Plugin):
             ("centered" ,"bool" , 0,    _("X Y Center")),
 			("feed"	  , "int" , 1200, _("Feed")),
 			("zfeed"  , "int" ,""   , _("Plunge Feed")),
-			("rpm"	  , "int" ,12000, _("RPM"))
+			("rpm"	  , "int" ,12000, _("RPM")),
+			("laser"	  , "bool" ,False, _("Laser"))
 		]
 		self.buttons.append("exe")
 	# -----------------------------------------------------
@@ -151,6 +152,7 @@ class Tool(Plugin):
 
 
 		centered = self["centered"]
+		laser = self["laser"]
 
 #		zbeforecontact=surface+CNC.vars["zretract"]
 #		hardcrust = surface - CNC.vars["hardcrust"]
@@ -206,9 +208,13 @@ class Tool(Plugin):
 				if idx == 0:
 					bid_block.append("(---- Scale (x "+str(xscale)+" : 1.0),(y "+str(yscale)+" : 1.0),(z "+str(zscale)+" : 1.0) ---- )")
 					bid_block.append("(center "+str(center[0])+" ,"+str(center[1])+" )")
-					bid_block.append("M03")
+					if laser:
+						bid_block.append("M05")
+						bid_block.append("(Laser off)")
+					else:
+						bid_block.append("M03")
+						bid_block.append(CNC.zsafe())
 					bid_block.append("S "+str(rpm))
-					bid_block.append(CNC.zsafe())
 					bid_block.append("F "+str(zfeed))
 					bid_block.append("g0 x "+str(info[0])+" y "+str(info[1]))
 					currentfeed=oldfeed=zfeed
@@ -224,14 +230,23 @@ class Tool(Plugin):
 						currentfeed=int(rel*feed+(1-rel)*zfeed)
 
 					if segm[0][2]> surface and segm[1][2]>=surface:
+						if laser:
+							bid_block.append("M05")
+							bid_block.append("(Laser off)")
 						bid_block.append("g0 x "+str(info[0])+" y "+str(info[1])+ " z "+str(info[2]))
 					else:
 						if currentfeed!=oldfeed:
 							bid_block.append("F "+str(currentfeed))
-						bid_block.append("g1 x "+str(info[0])+" y "+str(info[1])+ " z "+str(info[2]))
+							if laser:
+								bid_block.append("M03")
+								bid_block.append("(Laser on)")
+#					bid_block.append("M03")
+					bid_block.append("g1 x "+str(info[0])+" y "+str(info[1])+ " z "+str(info[2]))
 					oldfeed=currentfeed
-
-			bid_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
+			if laser:
+				pass
+			else:
+				bid_block.append(CNC.zsafe()) 			#<<< Move rapid Z axis to the safe height in Stock Material
 			all_blocks.append(bid_block)
 #			print "bid", bid_block.name(), bid_block,"*****************"
 		self.finish_blocks(app, all_blocks,elements)
