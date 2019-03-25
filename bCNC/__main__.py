@@ -2256,6 +2256,7 @@ class Application(Toplevel,Sender):
 				self.purgeController()
 				return
 			elif not self._paths:
+				self.runEnded()
 				tkMessageBox.showerror(_("Empty gcode"),
 					_("Not gcode file was loaded"),
 					parent=self)

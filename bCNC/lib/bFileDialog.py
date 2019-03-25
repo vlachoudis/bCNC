@@ -371,7 +371,7 @@ class FileDialog(Toplevel):
 		try:
 			self.lift()
 			self.focus_set()
-			self.filename.focus_set()
+			self.fileList.focus_set()
 			self.wait_visibility()
 			self.grab_set()
 			self.wait_window()

@@ -17,8 +17,8 @@ from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 
 EPS   = 1E-7		# strict tolerances for operations
-EPS2  = EPS*EPS
-EPSV  = 0.00001		# relaxed tolerances for vectors
+EPS2  = EPS**2
+EPSV  = EPS*10		# relaxed tolerances for vectors
 EPSV2 = EPSV**2
 PI2   = 2.0*pi
 
@@ -874,6 +874,30 @@ class Path(list):
 
 			return True
 
+		#Get circle center(s) given radius and two points
+		def radius2points(A,B,r, arcd=None):
+			q = sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
+			x3 = (A[0]+B[0])/2
+			y3 = (A[1]+B[1])/2
+
+			C = Vector(
+				x3 + sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
+				y3 + sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+			)
+
+			D = Vector(
+				x3 - sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
+				y3 - sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+			)
+
+			#There are two solutions (C and D), choose which one we need
+			if arcd is not None:
+				if arcd == 0:
+					return C
+				else:
+					return D
+			else:
+				return C, D
 
 		def path2arc(tmpath):
 			#Test if all segments are lines
@@ -885,6 +909,7 @@ class Path(list):
 			C = Vector(0,0)
 			for i in range(1, len(tmpath)):
 				Ct = circle3center(tmpath[i-1].A, tmpath[i-1].B, tmpath[i].B)
+				#Ct = circle3center(tmpath[0].A, tmpath[i].A, tmpath[-1].B)
 				if Ct is not None:
 					cnt += 1
 					C += Ct
@@ -901,6 +926,11 @@ class Path(list):
 				r += pdist(seg.A, C)
 				r += pdist(seg.B, C)
 			r /= len(tmpath)*2
+
+			#Fix center to match start and end of segment:
+			#(Not sure if this needed)
+			#print("Center: ", C, radius2points(tmpath[0].A, tmpath[-1].B, r, arcd))
+			C = radius2points(tmpath[0].A, tmpath[-1].B, r, arcd)
 
 			return C, r, arcd
 
@@ -1065,7 +1095,7 @@ class Path(list):
 	# it also takes unsorted segments and JOINs them to closed loops if possible
 	# FIXME: If this is true, this should be probably called reconstructContours()
 	#----------------------------------------------------------------------
-	def split2contours(self):
+	def split2contours(self, acc=EPSV):
 		if not self: return []
 
 		path = Path(self.name, self.color)
@@ -1082,13 +1112,13 @@ class Path(list):
 			# Find the segment that starts after the last one
 			for i,segment in enumerate(self):
 				# Try starting point
-				if eq(end, segment.A):
+				if eq(end, segment.A, acc):
 					path.append(segment)
 					del self[i]
 					break
 
 				# Try ending point (inverse)
-				if eq(end, segment.B):
+				if eq(end, segment.B, acc):
 					segment.invert()
 					path.append(segment)
 					del self[i]
@@ -1101,14 +1131,14 @@ class Path(list):
 				# Find the segment that starts after the last one
 				for i,segment in enumerate(self):
 					# Try starting point
-					if eq(start, segment.A):
+					if eq(start, segment.A, acc):
 						segment.invert()
 						path.insert(0,segment)
 						del self[i]
 						break
 
 					# Try ending point (inverse)
-					if eq(start, segment.B):
+					if eq(start, segment.B, acc):
 						path.insert(0,segment)
 						del self[i]
 						break

@@ -650,8 +650,7 @@ class Sender:
 			t = time.time()
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
-				self.serial.write(b"?")
-				self.sio_status = True
+				self.mcontrol.viewStatusReport()
 				tr = t
 
 				#If Override change, attach feed
