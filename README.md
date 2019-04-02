@@ -81,7 +81,7 @@ If you are going to report bugs in .exe version of bCNC,
 please check first if that bug occurs even when running directly in python (without .exe build).
 
 # IMPORTANT! Motion controller (GRBL) settings
-- GRBL should be configured to use **MPos** rather than **Wpos**. This means that `$10=` should be set to odd number. As of GRBL 1.1 we reccomend setting `$10=3`.
+- GRBL should be configured to use **MPos** rather than **Wpos**. This means that `$10=` should be set to odd number. As of GRBL 1.1 we reccomend setting `$10=3`. If you have troubles communicating with your machine, you can try to set failsafe value `$10=1`.
 - Before filing bug please make sure you use latest stable official release of GRBL. Older and unofficial releases might work, but we frequently see cases where they don't. So please upgrade firmware in your Arduinos to reasonably recent version if you can.
 
 # Configuration
