@@ -41,7 +41,8 @@ HOSTNAME = "localhost"
 port     = 8080
 
 httpd    = None
-prgpath  = os.path.abspath(os.path.dirname(sys.argv[0]))
+#Replaced sys.argv[0] with __file__ to provide compatibility with entry points
+prgpath  = os.path.abspath(os.path.dirname(__file__))
 webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
 
