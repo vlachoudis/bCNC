@@ -19,6 +19,7 @@ import tempfile
 import threading
 
 from CNC import CNC
+from Utils import prgpath
 
 try:
 	import urlparse
@@ -41,8 +42,6 @@ HOSTNAME = "localhost"
 port     = 8080
 
 httpd    = None
-#Replaced sys.argv[0] with __file__ to provide compatibility with entry points
-prgpath  = os.path.abspath(os.path.dirname(__file__))
 webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
 

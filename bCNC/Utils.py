@@ -37,8 +37,11 @@ except:
 	serial = None
 
 __prg__     = "bCNC"
-#Replaced sys.argv[0] with __file__ to provide compatibility with entry points
 prgpath   = os.path.abspath(os.path.dirname(__file__))
+if getattr( sys, 'frozen', False ):
+	#When being bundled by pyinstaller, paths are different
+	print("Running as pyinstaller bundle!", sys.argv[0])
+	prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
 iniUser   = os.path.expanduser("~/.%s" % (__prg__))
 hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
