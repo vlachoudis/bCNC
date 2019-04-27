@@ -67,7 +67,7 @@ class Controller(_GenericGRBL):
 		elif target == 100:
 			self.master.serial.write(OV_RAPID_100)
 		elif target == 75:
-			self.master.serial.write(OV_RAPID_50)	# FIXME
+			self.master.serial.write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
 		elif target == 50:
 			self.master.serial.write(OV_RAPID_50)
 		elif target == 25:
@@ -166,7 +166,7 @@ class Controller(_GenericGRBL):
 					if 'S' in word[1]:
 						if CNC.vars["state"] == 'Idle' and not self.master.running:
 							print("Stream requested by CYCLE START machine button")
-							self.master.event_generate("<<Run>>")
+							self.master.event_generate("<<Run>>", when = 'tail')
 						else:
 							print("Ignoring machine stream request, because of state: ", CNC.vars["state"], self.master.running)
 				except (ValueError,IndexError):
@@ -174,7 +174,7 @@ class Controller(_GenericGRBL):
 
 
 		# Machine is Idle buffer is empty stop waiting and go on
-		if self.master.sio_wait and not cline and fields[0] in ("Idle","Check"):
+		if self.master.sio_wait and not cline and fields[0] not in ("Run", "Jog", "Hold"):
 			#if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061
 			self.master.sio_wait = False
 			self.master._gcount += 1
@@ -193,6 +193,24 @@ class Controller(_GenericGRBL):
 				 CNC.vars["prbz"]-CNC.vars["wcoz"])
 			self.master._probeUpdate = True
 			CNC.vars[word[0]] = word[1:]
+		if word[0] == "G92":
+			CNC.vars["G92X"] = float(word[1])
+			CNC.vars["G92Y"] = float(word[2])
+			CNC.vars["G92Z"] = float(word[3])
+			CNC.vars[word[0]] = word[1:]
+			self.master._gUpdate = True
+		if word[0] == "G28":
+			CNC.vars["G28X"] = float(word[1])
+			CNC.vars["G28Y"] = float(word[2])
+			CNC.vars["G28Z"] = float(word[3])
+			CNC.vars[word[0]] = word[1:]
+			self.master._gUpdate = True
+		if word[0] == "G30":
+			CNC.vars["G30X"] = float(word[1])
+			CNC.vars["G30Y"] = float(word[2])
+			CNC.vars["G30Z"] = float(word[3])
+			CNC.vars[word[0]] = word[1:]
+			self.master._gUpdate = True
 		elif word[0] == "GC":
 			CNC.vars["G"] = word[1].split()
 			CNC.updateG()
@@ -200,5 +218,6 @@ class Controller(_GenericGRBL):
 		elif word[0] == "TLO":
 			CNC.vars[word[0]] = word[1]
 			self.master._probeUpdate = True
+			self.master._gUpdate = True
 		else:
 			CNC.vars[word[0]] = word[1:]

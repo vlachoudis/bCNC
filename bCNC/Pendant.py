@@ -19,6 +19,7 @@ import tempfile
 import threading
 
 from CNC import CNC
+from Utils import prgpath
 
 try:
 	import urlparse
@@ -41,7 +42,6 @@ HOSTNAME = "localhost"
 port     = 8080
 
 httpd    = None
-prgpath  = os.path.abspath(os.path.dirname(sys.argv[0]))
 webpath  = "%s/pendant"%(prgpath)
 iconpath = "%s/icons/"%(prgpath)
 
@@ -95,7 +95,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 		elif page == "/state":
 			self.do_HEAD(200, content="text/text")
 			tmp = {}
-			for name in ["state", "color", "msg", "wx", "wy", "wz", "G"]:
+			for name in ["controller", "state", "pins", "color", "msg", "wx", "wy", "wz", "G"]:
 				tmp[name] = CNC.vars[name]
 			self.wfile.write(json.dumps(tmp))
 

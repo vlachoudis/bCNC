@@ -26,7 +26,7 @@ class Tool(Plugin):
 	def __init__(self, master):
 		Plugin.__init__(self, master,"Trochoidal")
 		#Helical_Descent: is the name of the plugin show in the tool ribbon button
-		self.icon = "helical"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
+		self.icon = "trochoidal"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
 		self.group = "CAM"	#<<< This is the name of group that plugin belongs
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
@@ -62,11 +62,13 @@ class Tool(Plugin):
 
 		#print("go!")
 		blocks  = []
+		#Loop over selected blocks
 		for bid in app.editor.getSelectedBlocks():
 			#print(blocks[bid])
 			path = app.gcode.toPath(bid)[0]
 			#print(path)
 
+			#create new block which encorporates trochoidal path
 			block = Block("trochoid "+cwtext+" "+str(radius*2)+"+"+str(rdoc))
 			block.append("F"+str(feed))
 
@@ -75,12 +77,10 @@ class Tool(Plugin):
 			A=path[0].A
 			block.append("g0 x"+str(A[0])+" y"+str(A[1]))
 			block.append("G1 Z0")
+			#Loop over segments within path
 			for segment in path:
 				#print(segment.A)
-				#block.append("g0 x0 y0")
-				#block.append("g1 x10 y10")
-				#block.append("g1 x20 y10")
-				#block.append("g0 x0 y0")
+				#create Block for circular entry into path
 				if entry:
 					eblock = Block("trochoid-in")
 					eblock.append("G0 Z0")
@@ -90,46 +90,46 @@ class Tool(Plugin):
 					entry = False
 
 				#Continuity BEGINING
-				block.append("g1 x"+str(segment.A[0])+" y"+str(segment.A[1]))
-				#block.append(arcg+" x"+str(segment.A[0])+" y"+str(segment.A[1])+" r"+str(radius/2))
-
-				phi = atan2(segment.B[1]-segment.A[1], segment.B[0]-segment.A[0])
-
-				#TODO: handle arc segments
-				#if segment.type == Segment.LINE:
-				#if segment.type in (Segment.CW, Segment.CCW):
+				# calculate number of subsegments to be transformed to trochoidal motion
+				srdoc = rdoc
+				segmentLength = segment.length()
+				subsegs = segmentLength//rdoc
+				remainder = segmentLength%rdoc
 
 				#Compensate for uneven spacing
-				srdoc = rdoc
 				if evenspacing:
-					subsegs = segment.length()//rdoc
-					remainder = segment.length()%rdoc
 					if remainder != 0:
-						srdoc = segment.length()/(subsegs+1)
+						subsegs = subsegs+1
+						srdoc = segmentLength/subsegs
+						remainder = 0
 
-				#Loop over subsegmnents of segment
-				i=0
-				while i<(segment.length()+srdoc):
-					pos=min(segment.length(), i)
+				#Loop over subsegments of segment
+				startSegment=True
+				for i in range(1,int(subsegs)+1):
+					pos=i*srdoc
 
 					B = segment.distPoint(pos)
-					block.extend(self.trochoid(A,B,radius,cw,circ))
+					block.extend(self.trochoid(A,B,radius,cw,circ,startSegment))
 					A = B
-
-					i+=srdoc
+					# Lead in performed, so clear flag
+					startSegment=False
+				# Process remainder
+				if remainder > 0:
+					B = segment.distPoint(segmentLength)
+					block.extend(self.trochoid(A,B,radius,cw,circ,startSegment))
+					A = B					
 
 				#Continuity END
-				#block.append("g1 x"+str(segment.B[0])+" y"+str(segment.B[1]))
+				#Move bit to center of cut (B) at end of segment
 				block.append(arcg+" x"+str(segment.B[0])+" y"+str(segment.B[1])+" r"+str(radius/2))
 
 			blocks.append(block)
 
 
 		active = app.activeBlock()
-		app.gcode.insBlocks(active, blocks, "Trochoidal created") #<<< insert blocks over active block in the editor
-		app.refresh()                                                                                           #<<< refresh editor
-		app.setStatus(_("Generated: Trochoidal"))                           #<<< feed back result
-		#app.gcode.blocks.append(block)
+		app.gcode.insBlocks(active, blocks, "Trochoidal created") 	#<<< insert blocks over active block in the editor
+		app.refresh()                                                   #<<< refresh editor
+		app.setStatus(_("Generated: Trochoidal"))                       #<<< feed back result
 
 
 	#Convert polar to cartesian and add that to existing vector
@@ -137,7 +137,7 @@ class Tool(Plugin):
 		return [round(a[0]+r*cos(phi),4),round(a[1]+r*sin(phi),4)]
 
 	#Generate single trochoidal element between two points
-	def trochoid(self, A, B, radius, cw=True, circular=False):
+	def trochoid(self, A, B, radius, cw=True, circular=False, startSegment=False):
 		block = []
 
 		if cw:
@@ -179,13 +179,16 @@ class Tool(Plugin):
 		#        *   *
 
 		#TODO: improve strategies
+		# This is lead in circle of segment (moving from center (A) to cutting edge (AL))
+		if startSegment:
+			block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" r"+str(radius/2))
+		# This is circular cutting cycle (very simple, less motion cycles but not so accurate AL->BL->BR-BL)
 		if circular:
-			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
 			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
-			block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(r[0])+" j"+str(r[1]))
+			block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1]))
+			block.append(arc+" x"+str(bl[0])+" y"+str(bl[1])+" i"+str(l[0])+" j"+str(l[1]))
+		# This is more detailed, performing complete cycle AL->BL->BR->AR->AL->BL
 		else:
-			#block.append(arc+" x"+str(al[0])+" y"+str(al[1])+" r"+str(radius/2))
-			block.append("g1 x"+str(al[0])+" y"+str(al[1]))
 			block.append("g1 x"+str(bl[0])+" y"+str(bl[1]))
 			block.append(arc+" x"+str(br[0])+" y"+str(br[1])+" i"+str(r[0])+" j"+str(r[1]))
 			block.append("g1 x"+str(ar[0])+" y"+str(ar[1]))

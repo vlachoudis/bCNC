@@ -743,6 +743,7 @@ class CNC:
 			"TLO"        : 0.,
 
 			"version"    : "",
+			"controller" : "",
 			"running"    : False,
 		}
 
@@ -1695,7 +1696,7 @@ class CNC:
 
 		# create the necessary code
 		lines = []
-		lines.append("$g")	# remember state and populate variables
+		lines.append("$g")	# remember state and populate variables, FIXME: move to ./controllers/_GenericController.py
 		lines.append("m5")	# stop spindle
 		lines.append("%wait")
 		lines.append("%_x,_y,_z = wx,wy,wz")	# remember position
@@ -2355,7 +2356,7 @@ class GCode:
 			if path.color is None:
 				path.color = layer.color()
 			if path.color == "#FFFFFF": path.color = None
-			opath = path.split2contours()
+			opath = path.split2contours(0.0001) #Lowered accuracy due to problems interfacing arcs and lines in DXF
 			if not opath: continue
 			while opath:
 				li = 0
@@ -2423,11 +2424,10 @@ class GCode:
 					xc,yc = self.cnc.motionCenter()
 					sphi = math.atan2(self.cnc.y-yc,    self.cnc.x-xc)
 					ephi = math.atan2(self.cnc.yval-yc, self.cnc.xval-xc)
+					if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 					if self.cnc.gcode==2:
-						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 						dxf.arc(xc,yc,self.cnc.rval, math.degrees(ephi), math.degrees(sphi),name)
 					else:
-						if ephi<=sphi+1e-10: ephi += 2.0*math.pi
 						dxf.arc(xc,yc,self.cnc.rval, math.degrees(sphi), math.degrees(ephi),name)
 				self.cnc.motionEnd()
 		dxf.writeEOF()
@@ -3710,6 +3710,7 @@ class GCode:
 				tablock = Block("%s [tab,island,minz:%f]"%(block.nameNop(), z))
 				#tablock.color = "#FF0000"
 				tablock.color = "orange"
+				tablock.enable = False #Prevent tabs from being accidentaly cut as path
 
 				#Add regular tabs
 				for path in self.toPath(bid):
@@ -4022,7 +4023,8 @@ class GCode:
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
 	#----------------------------------------------------------------------
-	def trochprofile(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, name=None):
+	def trochprofile_cnc(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, cutDiam=0.0, tooldiameter=0.0,\
+			targetDepth=0.0,depthIncrement=0.0, tabsnumber=0.0, tabsWidth=0.0, tabsHeight=0.0):
 		undoinfo = []
 		msg = ""
 		newblocks = []
@@ -4030,12 +4032,24 @@ class GCode:
 			if self.blocks[bid].name() in ("Header", "Footer"): continue
 			newpath = []
 			for path in self.toPath(bid):
-				if name is not None:
-					newname = Block.operationName(path.name, name)
-				elif offset>0:
-					newname = Block.operationName(path.name, "out")
-				else:
-					newname = Block.operationName(path.name, "in")
+#				if name is not None:
+#				newname = Block.operationName(path.name, name)
+				explain = "Tr "
+				if offset>0:
+					explain+="out "#n +="out "
+#				elif offset==0:
+#					n +=" on "
+				elif offset<0:
+					explain +="in "
+				explain+= str(cutDiam)
+				if cutDiam!= abs(2*offset):
+					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
+				if offset<0:
+					if adaptative:
+						explain+=" Adapt bit "+str(tooldiameter) 
+					if overcut:
+						explain+=" overc"
+				newname = Block.operationName(path.name,explain)
 
 				if not path.isClosed():
 					m = "Path: '%s' is OPEN"%(path.name)
@@ -4081,6 +4095,86 @@ class GCode:
 
 		# return new blocks inside the blocks list
 		del blocks[:]
+		blocks.extend(newblocks)
+
+# 		if tabsnumber !=0:
+	#def createTabs(self, items,            ntabs, dtabs, dx, dy, z, circ=True):
+		#	self.createTabs(reversed(blocks),1,    0,     1,  0,  -1.2,1)
+#def cut(self, items,      depth=None,  stepz=None, surface=None, feed=None, feedz=None, cutFromTop=False, helix=False, helixBottom=True, ramp=0, islandsLeave=False, islandsCut=False, islandsSelectedOnly=True, exitpoint=None, springPass=False, islandsCompensate=False):
+		self.cut(reversed(blocks), targetDepth,depthIncrement,0,  900,      120,          0,               0,           0,               0,       1,                    0,                0,                              0,                0,                   0)
+		return msg
+	#----------------------------------------------------------------------
+	def adaptative_clearence(self, blocks, offset, overcut=False,adaptative=True, adaptedRadius=0.0, cutDiam=0.0, tooldiameter=0.0, name=None):
+		undoinfo = []
+		msg = ""
+		newblocks = []
+		for bid in reversed(blocks):
+			if self.blocks[bid].name() in ("Header", "Footer"): continue
+			newpath = []
+			for path in self.toPath(bid):
+#				if name is not None:
+#				newname = Block.operationName(path.name, name)
+				explain = "Clear "
+				if offset>0:
+					explain+="out "#n +="out "
+#				elif offset==0:
+#					n +=" on "
+				elif offset<0:
+					explain +="in "
+				explain+= str(cutDiam)
+				if cutDiam!= abs(2*offset):
+					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
+				if offset<0:
+					if adaptative:
+						explain+=" Adapt bit "+str(tooldiameter) 
+					if overcut:
+						explain+=" overc"
+				newname = Block.operationName(path.name,explain)
+
+				if not path.isClosed():
+					m = "Path: '%s' is OPEN"%(path.name)
+					if m not in msg:
+						if msg: msg += "\n"
+						msg += m
+
+#				print "ORIGINAL\n",path
+				# Remove tiny segments
+				path.removeZeroLength(abs(offset)/100.)
+				# Convert very small arcs to lines
+				path.convert2Lines(abs(offset)/10.)
+				D = path.direction()
+#				print "Path Direction:",D
+				if D==0: D=1
+#				print "ZERO\n",path
+				opath = path.offset(D*offset, newname)
+#				print "OFFSET\n",opath
+				if opath:
+					opath.intersectSelf()
+#					print "INTERSECT\n",opath
+					opath.removeExcluded(path, D*offset)
+#					print "EXCLUDE\n",opath
+					opath.removeZeroLength(abs(offset)/100.)
+#					print "REMOVE\n",opath
+				opath = opath.split2contours()
+				if opath:
+#					if adaptative:
+#					if overcut:
+#					if overcut == True or  adaptative == True:
+					for p in opath:
+						p.two_bit_adaptative_cut(D*offset, overcut, adaptative, adaptedRadius)
+					newpath.extend(opath)
+			if newpath:
+				# remember length to shift all new blocks the are inserted before
+				before = len(newblocks)
+				undoinfo.extend(self.importPath(bid+1, newpath, newblocks, True, False))
+				new = len(newblocks)-before
+				for i in range(before):
+					newblocks[i] += new
+				self.blocks[bid].enable = False
+		self.addUndo(undoinfo)
+
+		# return new blocks inside the blocks list
+	#	del blocks[:]
 		blocks.extend(newblocks)
 		return msg
 

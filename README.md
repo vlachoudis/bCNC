@@ -4,17 +4,17 @@ bCNC
 GRBL CNC command sender, autoleveler, g-code editor, digitizer, CAM
 and swiss army knife for all your CNC needs.
 
-An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Rasperry PI](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL mainter on heavy testing).
+An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Raspberry Pi](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL maintainer on heavy testing).
 
 [![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
 
 Please note that all pull requests should pass the Travis-CI build in order to get merged.
-Most pull requests should also pass Codefactor checks if there is not good reason for failure.
+Most pull requests should also pass CodeFactor checks if there is not good reason for failure.
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
-# Installation (using pip = reccomended!)
+# Installation (using pip = recommended!)
 This is how you install (or upgrade) bCNC along with all required packages.
 You can use any of these commands (you need only one):
 
@@ -27,13 +27,13 @@ This is how you launch bCNC:
 
     python2 -m bCNC
 
-Only problem with this approach is that it might not install tkinter in some cases.
+Only problem with this approach is that it might not install Tkinter in some cases.
 So please keep that in mind and make sure it's installed in case of problems.
 
 If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
 Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
 
-Note that on WindowsXP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
+Note that on Windows XP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
 
 PyPI project: https://pypi.org/project/bCNC/
 
@@ -52,14 +52,14 @@ You will need the following packages to run bCNC
 Expand the directory or download it from github
 and run the bCNC command
 
-# Instalation (Linux package maintainers)
+# Installation (Linux package maintainers)
 - Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
 - Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
   - Py2deb to build Debian package from Python package: https://pypi.org/project/py2deb/
 
-# Instalation (Compile to Windows .exe)
+# Installation (Compile to Windows .exe)
 
 Note that you might probably find some precompiled .exe files on github "releases" page:
 https://github.com/vlachoudis/bCNC/releases
@@ -80,6 +80,12 @@ That is solely for caching purposes and you should delete it before redistributi
 If you are going to report bugs in .exe version of bCNC,
 please check first if that bug occurs even when running directly in python (without .exe build).
 
+# IMPORTANT! Motion controller (GRBL) settings
+- GRBL should be configured to use **MPos** rather than **Wpos**. This means that `$10=` should be set to odd number. As of GRBL 1.1 we reccomend setting `$10=3`. If you have troubles communicating with your machine, you can try to set failsafe value `$10=1`.
+- CADs, bCNC and GRBL all work in milimeters by default. Make sure that `$13=0` is set in GRBL, if you experience strange behavior. (unless you've configured your CAD and bCNC to use inches)
+- Before filing bug please make sure you use latest stable official release of GRBL. Older and unofficial releases might work, but we frequently see cases where they don't. So please upgrade firmware in your Arduinos to reasonably recent version if you can.
+- Also read about all possible GRBL settings and make sure your setup is correct: https://github.com/gnea/grbl/wiki/Grbl-v1.1-Configuration
+
 # Configuration
 You can modify most of the parameters from the "Tools -> Machine"
 page. Only the changes/differences from the default configuration
@@ -88,7 +94,7 @@ file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 The default configuration is stored on bCNC.ini in the
 installation directory.
 
-*PLEASE DO NOT CHANGE THIS FILE, IT'S GOING TO BE OVERWRITEN ON EACH UPGRADE OF BCNC*
+*PLEASE DO NOT CHANGE THIS FILE, IT'S GOING TO BE OVERWRITTEN ON EACH UPGRADE OF BCNC*
 
 # Features:
 - simple and intuitive interface for small screens
@@ -105,7 +111,7 @@ installation directory.
   - **auto leveling**, Z-probing and auto leveling by altering the g-code during
     sending (or permanently autoleveling the g-code file).
   - height color map display
-  - create g-code by joging and recording points (can even use camera for this)
+  - create g-code by jogging and recording points (can even use camera for this)
   - **manual tool change** expansion and automatic tool length probing
   - **canned cycles** expansion
 - Various Tools:
@@ -127,7 +133,7 @@ installation directory.
     - moving, rotating, mirroring the g-code
 - Web pendant to be used via smart phones
 
-# Debuging
+# Debugging
 You can log serial communication by changing the port to something like:
 
     spy:///dev/ttyUSB0?file=serial_log.txt&raw

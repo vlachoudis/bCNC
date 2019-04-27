@@ -26,6 +26,7 @@ import CNCRibbon
 try:
 	from serial.tools.list_ports import comports
 except:
+	print("Using fallback Utils.comports()!")
 	from Utils import comports
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400]
@@ -212,164 +213,6 @@ class PendantGroup(CNCRibbon.ButtonGroup):
 
 
 #===============================================================================
-# Config
-#===============================================================================
-class ConfigGroup(CNCRibbon.ButtonMenuGroup):
-	def __init__(self, master, app):
-		#CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
-		CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app)
-		self.grid3rows()
-
-		# ===
-		col,row=0,0
-		f = Frame(self.frame)
-		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=NSEW)
-
-		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
-		b.pack(side=LEFT)
-
-		self.language = Ribbon.LabelCombobox(f,
-				command=self.languageChange,
-				width=16)
-		self.language.pack(side=RIGHT, fill=X, expand=YES)
-		tkExtra.Balloon.set(self.language, _("Change program language restart is required"))
-		self.addWidget(self.language)
-
-		self.fillLanguage()
-
-		# ===
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["camera"],
-				text=_("Camera"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Camera",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Camera Configuration"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["color"],
-				text=_("Colors"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Color",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Color configuration"))
-		self.addWidget(b)
-
-		# ===
-		col,row = col+1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["config"],
-				text=_("Config"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="CNC",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["arduino"],
-				text=_("Controller"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Controller",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
-		self.addWidget(b)
-
-		# ===
-		col,row = col+1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["font"],
-				text=_("Fonts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Font",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Font configuration"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["shortcut"],
-				text=_("Shortcuts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Shortcut",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
-		self.addWidget(b)
-#
-#		# ---
-#		row += 1
-#		b = Ribbon.LabelRadiobutton(self.frame,
-#				image=Utils.icons["event"],
-#				text=_("Events"),
-#				compound=LEFT,
-#				anchor=W,
-#				variable=app.tools.active,
-#				value="Events",
-#				background=Ribbon._BACKGROUND)
-#		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-#		tkExtra.Balloon.set(b, _("Events configuration"))
-#		self.addWidget(b)
-
-	#----------------------------------------------------------------------
-	def fillLanguage(self):
-		self.language.set(Utils.LANGUAGES.get(Utils.language,""))
-		self.language.fill(list(sorted(Utils.LANGUAGES.values())))
-
-	#----------------------------------------------------------------------
-	def languageChange(self):
-		lang = self.language.get()
-		# find translation
-		for a,b in Utils.LANGUAGES.items():
-			if b == lang:
-				if Utils.language == a: return
-				Utils.language = a
-				Utils.setStr(Utils.__prg__,  "language", Utils.language)
-				tkMessageBox.showinfo(_("Language change"),
-					_("Please restart the program."),
-					parent=self.winfo_toplevel())
-				return
-
-	#----------------------------------------------------------------------
-	def createMenu(self):
-		menu = Menu(self, tearoff=0)
-		menu.add_radiobutton(
-				label=_("Events"),
-				image=Utils.icons["event"], compound=LEFT,
-				variable=self.app.tools.active,
-				value="Events")
-		menu.add_command(
-				label=_("User File"),
-				image=Utils.icons["about"], compound=LEFT,
-				command=self.app.showUserFile)
-		return menu
-
-
-#===============================================================================
 # Close Group
 #===============================================================================
 class CloseGroup(CNCRibbon.ButtonGroup):
@@ -485,10 +328,18 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 			print("comport fix")
 			self.portCombo.set(clean)
 
+	#-----------------------------------------------------------------------
+	def comportsGet(self):
+		try:
+			return comports(include_links=True)
+		except TypeError:
+			print("Using old style comports()!")
+			return comports()
+
 	def comportRefresh(self, dbg=False):
 		#Detect devices
 		hwgrep = []
-		for i in comports():
+		for i in self.comportsGet():
 			if dbg:
 				#Print list to console if requested
 				comport = ''
@@ -498,11 +349,11 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 				hwgrep += ["hwgrep://"+hw+"\t"+i[1]]
 
 		#Populate combobox
-		devices = sorted([x[0]+"\t"+x[1] for x in comports()])
+		devices = sorted([x[0]+"\t"+x[1] for x in self.comportsGet()])
 		devices += ['']
 		devices += sorted(set(hwgrep))
 		devices += ['']
-		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in comports()])
+		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in self.comportsGet()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
 		#Clean neighbour duplicates
@@ -538,6 +389,5 @@ class FilePage(CNCRibbon.Page):
 		self._register((FileGroup,
 				PendantGroup,
 				OptionsGroup,
-				ConfigGroup,
 				CloseGroup),
 				(SerialFrame,))

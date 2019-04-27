@@ -152,6 +152,7 @@ class Sender:
 		#print("Activating motion controller plugin: %s"%(ctl))
 		if ctl in self.controllers.keys():
 			self.controller = ctl
+			CNC.vars["controller"] = ctl
 			self.mcontrol = self.controllers[ctl]
 			#self.mcontrol.test()
 
@@ -402,7 +403,7 @@ class Sender:
 		elif ext == ".stl" or ext == ".ply":
 			# FIXME: implements solid import???
 			import tkMessageBox
-			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in Tools->SliceMesh.")
+			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.")
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
@@ -630,6 +631,10 @@ class Sender:
 	#----------------------------------------------------------------------
 	def controllerStateChange(self, state):
 		print("Controller state changed to: %s (Running: %s)"%(state, self.running))
+		if state in ("Idle"):
+			self.mcontrol.viewParameters()
+			self.mcontrol.viewState()
+
 		if self.cleanAfter == True and self.running == False and state in ("Idle"):
 			self.cleanAfter = False
 			self.jobDone()
@@ -649,8 +654,7 @@ class Sender:
 			t = time.time()
 			# refresh machine position?
 			if t-tr > SERIAL_POLL:
-				self.serial.write(b"?")
-				self.sio_status = True
+				self.mcontrol.viewStatusReport()
 				tr = t
 
 				#If Override change, attach feed
@@ -790,7 +794,7 @@ class Sender:
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:
-					tosend = b"$G\n"
+					tosend = b"$G\n" #FIXME: move to controller specific class
 					sline.append(tosend)
 					cline.append(len(tosend))
 					tg = t

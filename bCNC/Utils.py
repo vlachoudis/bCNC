@@ -38,6 +38,10 @@ except:
 
 __prg__     = "bCNC"
 prgpath   = os.path.abspath(os.path.dirname(__file__))
+if getattr( sys, 'frozen', False ):
+	#When being bundled by pyinstaller, paths are different
+	print("Running as pyinstaller bundle!", sys.argv[0])
+	prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
 iniUser   = os.path.expanduser("~/.%s" % (__prg__))
 hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
@@ -399,7 +403,7 @@ def getRecent(recent):
 #------------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
 #------------------------------------------------------------------------------
-def comports():
+def comports(include_links=True):
 	locations=[	'/dev/ttyACM',
 			'/dev/ttyUSB',
 			'/dev/ttyS',

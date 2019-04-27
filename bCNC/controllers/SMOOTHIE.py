@@ -22,8 +22,10 @@ class Controller(_GenericController):
 				"reset", "dfu", "break", "config-get",
 				"config-set", "get", "set_temp", "get",
 				"get", "net", "load", "save", "upload",
-				"calc_thermistor", "thermistors", "md5sum"):
-			self.master.serial.write(oline+"\n")
+				"calc_thermistor", "thermistors", "md5sum",
+				"fire", "switch"):
+			if self.master.serial:
+				self.master.serial.write(oline+"\n")
 			return True
 		return False
 
@@ -67,7 +69,7 @@ class Controller(_GenericController):
 
 		# Machine is Idle buffer is empty
 		# stop waiting and go on
-		if self.master.sio_wait and not cline and l[0] in ("Idle","Check"):
+		if self.master.sio_wait and not cline and l[0] not in ("Run","Jog", "Hold"):
 		        self.master.sio_wait = False
 		        self.master._gcount += 1
 

@@ -304,6 +304,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 			self.sendGCode(cmd)
 		except:
 			pass
+		self.app.mcontrol.viewParameters()
 
 	#------------------------------------------------------------------------
 	@staticmethod

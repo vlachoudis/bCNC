@@ -17,6 +17,7 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 
 import math
+from math import * #Math in DRO
 
 from CNC import CNC
 import Utils
@@ -383,30 +384,30 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def setX0(self, event=None):
-		self._wcsSet("0",None,None)
+		self.app.mcontrol._wcsSet("0",None,None)
 
 	#----------------------------------------------------------------------
 	def setY0(self, event=None):
-		self._wcsSet(None,"0",None)
+		self.app.mcontrol._wcsSet(None,"0",None)
 
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
-		self._wcsSet(None,None,"0")
+		self.app.mcontrol._wcsSet(None,None,"0")
 
 	#----------------------------------------------------------------------
 	def setXY0(self, event=None):
-		self._wcsSet("0","0",None)
+		self.app.mcontrol._wcsSet("0","0",None)
 
 	#----------------------------------------------------------------------
 	def setXYZ0(self, event=None):
-		self._wcsSet("0","0","0")
+		self.app.mcontrol._wcsSet("0","0","0")
 
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.xwork.get(),CNC.vars,self.app.gcode.vars))
-			self._wcsSet(value,None,None)
+			value = round(eval(self.xwork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(value,None,None)
 		except:
 			pass
 
@@ -414,8 +415,8 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setY(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.ywork.get(),CNC.vars,self.app.gcode.vars))
-			self._wcsSet(None,value,None)
+			value = round(eval(self.ywork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,value,None)
 		except:
 			pass
 
@@ -423,39 +424,16 @@ class DROFrame(CNCRibbon.PageFrame):
 	def setZ(self, event=None):
 		if self.app.running: return
 		try:
-			value = float(eval(self.zwork.get(),CNC.vars,self.app.gcode.vars))
-			self._wcsSet(None,None,value)
+			value = round(eval(self.zwork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,None,value)
 		except:
 			pass
 
 	#----------------------------------------------------------------------
-	def wcsSet(self, x, y, z):
-		self._wcsSet(x, y, z)
+	#def wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
-		global wcsvar
-		p = wcsvar.get()
-		if p<6:
-			cmd = "G10L20P%d"%(p+1)
-		elif p==6:
-			cmd = "G28.1"
-		elif p==7:
-			cmd = "G30.1"
-		elif p==8:
-			cmd = "G92"
-
-		pos = ""
-		if x is not None: pos += "X"+str(x)
-		if y is not None: pos += "Y"+str(y)
-		if z is not None: pos += "Z"+str(z)
-		cmd += pos
-		self.sendGCode(cmd)
-		self.sendGCode("$#")
-		self.event_generate("<<Status>>",
-			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
-		self.event_generate("<<CanvasFocus>>")
+	#def _wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
 
 	#----------------------------------------------------------------------
 	def showState(self):
@@ -954,7 +932,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
 		for k,v in PLANE.items(): self.gstate[k] = (self.plane, v)
 
-		# Feed mode
+		# Feed speed
 		row += 1
 		col = 0
 		Label(f, text=_("Feed:")).grid(row=row, column=col, sticky=E)
@@ -974,6 +952,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		b.grid(row=row, column=col, columnspan=2, sticky=W)
 		self.addWidget(b)
 
+		#Feed mode
 		col += 1
 		Label(f, text=_("Mode:")).grid(row=row, column=col, sticky=E)
 
@@ -987,6 +966,37 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(self.feedMode, _("Feed Mode [G93, G94, G95]"))
 		for k,v in FEED_MODE.items(): self.gstate[k] = (self.feedMode, v)
 		self.addWidget(self.feedMode)
+
+		# TLO
+		row += 1
+		col = 0
+		Label(f, text=_("TLO:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.tlo = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
+		self.tlo.grid(row=row, column=col, sticky=EW)
+		self.tlo.bind('<Return>',   self.setTLO)
+		self.tlo.bind('<KP_Enter>', self.setTLO)
+		tkExtra.Balloon.set(self.tlo, _("Tool length offset [G43.1#]"))
+		self.addWidget(self.tlo)
+
+		col += 1
+		b = Button(f, text=_("set"),
+				command=self.setTLO,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, columnspan=2, sticky=W)
+		self.addWidget(b)
+
+		# g92
+		col += 1
+		Label(f, text=_("G92:")).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		self.g92 = Label(f, text="")
+		self.g92.grid(row=row, column=col, columnspan=3, sticky=EW)
+		tkExtra.Balloon.set(self.g92, _("Set position [G92 X# Y# Z#]"))
+		self.addWidget(self.g92)
+
 
 		# ---
 		f.grid_columnconfigure(1, weight=1)
@@ -1159,6 +1169,18 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 			pass
 
 	#----------------------------------------------------------------------
+	def setTLO(self, event=None):
+		#if self._probeUpdate: return
+		try:
+			tlo = float(self.tlo.get())
+			#print("G43.1Z%g"%(tlo))
+			self.sendGCode("G43.1Z%g"%(tlo))
+			self.app.mcontrol.viewParameters()
+			self.event_generate("<<CanvasFocus>>")
+		except ValueError:
+			pass
+
+	#----------------------------------------------------------------------
 	def setTool(self, event=None):
 		pass
 
@@ -1215,15 +1237,20 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		except:
 			focus = None
 
-		wcsvar.set(WCS.index(CNC.vars["WCS"]))
-		self.feedRate.set(str(CNC.vars["feed"]))
-		self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
-		self.spindle.set(CNC.vars["spindle"]=="M3")
-		self.spindleSpeed.set(int(CNC.vars["rpm"]))
-		self.toolEntry.set(CNC.vars["tool"])
-		self.units.set(UNITS[CNC.vars["units"]])
-		self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
-		self.plane.set(PLANE[CNC.vars["plane"]])
+		try:
+			wcsvar.set(WCS.index(CNC.vars["WCS"]))
+			self.feedRate.set(str(CNC.vars["feed"]))
+			self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
+			self.spindle.set(CNC.vars["spindle"]=="M3")
+			self.spindleSpeed.set(int(CNC.vars["rpm"]))
+			self.toolEntry.set(CNC.vars["tool"])
+			self.units.set(UNITS[CNC.vars["units"]])
+			self.distance.set(DISTANCE_MODE[CNC.vars["distance"]])
+			self.plane.set(PLANE[CNC.vars["plane"]])
+			self.tlo.set(str(CNC.vars["TLO"]))
+			self.g92.config(text=str(CNC.vars["G92"]))
+		except KeyError:
+			pass
 
 		self._gUpdate = False
 
@@ -1239,7 +1266,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 	def wcsChange(self):
 		global wcsvar
 		self.sendGCode(WCS[wcsvar.get()])
-		self.sendGCode("$G")
+		self.app.mcontrol.viewState()
 
 
 #===============================================================================

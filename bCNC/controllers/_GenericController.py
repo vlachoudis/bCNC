@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-from CNC import CNC
+from CNC import CNC, WCS
 import time
 import re
 
@@ -27,9 +27,6 @@ class _GenericController:
 		pass
 
 	def hardResetAfter(self):
-		pass
-
-	def overrideSet(self):
 		pass
 
 	def viewStartup(self):
@@ -86,10 +83,14 @@ class _GenericController:
 		self.master._alarm = False
 		self.master.sendGCode("$H")
 
+	def viewStatusReport(self):
+		self.master.serial.write(b"?")
+		self.master.sio_status = True
+
 	def viewParameters(self):
 		self.master.sendGCode("$#")
 
-	def viewState(self):
+	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
 
 	#----------------------------------------------------------------------
@@ -107,9 +108,9 @@ class _GenericController:
 		self.master.sendGCode("%s"%(cmd))
 
 	#----------------------------------------------------------------------
-	# FIXME Duplicate with ControlPage
-	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z):
+		#global wcsvar
+		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
 		if p<6:
 			cmd = "G10L20P%d"%(p+1)
@@ -121,12 +122,12 @@ class _GenericController:
 			cmd = "G92"
 
 		pos = ""
-		if x is not None and abs(x)<10000.0: pos += "X"+str(x)
-		if y is not None and abs(y)<10000.0: pos += "Y"+str(y)
-		if z is not None and abs(z)<10000.0: pos += "Z"+str(z)
+		if x is not None and abs(float(x))<10000.0: pos += "X"+str(x)
+		if y is not None and abs(float(y))<10000.0: pos += "Y"+str(y)
+		if z is not None and abs(float(z))<10000.0: pos += "Z"+str(z)
 		cmd += pos
 		self.master.sendGCode(cmd)
-		self.master.sendGCode("$#")
+		self.viewParameters()
 		self.master.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
 			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
@@ -175,7 +176,7 @@ class _GenericController:
 		self.master.stopProbe()
 		if G: self.master.sendGCode(G)			# restore $G
 		self.master.sendGCode("G43.1Z%s"%(TLO))	# restore TLO
-		self.master.sendGCode("$G")
+		self.viewState()
 
 
 	#----------------------------------------------------------------------
