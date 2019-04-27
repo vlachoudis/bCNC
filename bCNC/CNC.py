@@ -826,9 +826,15 @@ class CNC:
 		try: CNC.drozeropad     = int(  config.get(section, "drozeropad"))
 		except: pass
 
-		CNC.startup = config.get(section, "startup")
-		CNC.header  = config.get(section, "header")
-		CNC.footer  = config.get(section, "footer")
+		try:
+		  CNC.startup = config.get(section, "startup")
+		except: pass
+		try:
+		  CNC.header  = config.get(section, "header")
+		except: pass
+		try:
+		  CNC.footer  = config.get(section, "footer")
+		except: pass
 
 		if CNC.inch:
 			CNC.acceleration_x  /= 25.4

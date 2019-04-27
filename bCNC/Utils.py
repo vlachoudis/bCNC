@@ -37,7 +37,7 @@ except:
 	serial = None
 
 __prg__     = "bCNC"
-prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
+prgpath   = os.path.abspath(os.path.dirname(__file__))
 iniSystem = os.path.join(prgpath,"%s.ini"%(__prg__))
 iniUser   = os.path.expanduser("~/.%s" % (__prg__))
 hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
