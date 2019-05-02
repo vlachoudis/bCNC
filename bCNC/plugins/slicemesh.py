@@ -68,6 +68,18 @@ class Tool(Plugin):
 Currently it supports following formats:
 STL (Binary and ASCII)
 PLY (ASCII only)
+
+You can use external software to edit and convert meshes to desired format.
+It can also help you to visualy inspect your meshes before slicing.
+Example of useful free software for working with meshes is called "MeshLab".
+
+WARNING:
+
+Recently we've noticed bug #1223, which causes this plugin to fail with some big(-ish) STL files.
+Luckily PLY import is unaffected, so if you experience troubles, you can try to convert your file to a different format.
+
+Also bCNC lacks proper 3D CAM features, so you can only apply 2D CAM operations on resulting slices.
+Also note you can export resulting slices to DXF and SVG if needed.
 '''
 
 
