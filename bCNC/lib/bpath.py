@@ -882,13 +882,13 @@ class Path(list):
 			y3 = (A[1]+B[1])/2
 
 			C = Vector(
-				x3 + sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
-				y3 + sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+				x3 + sqrt(abs(r**2-(q/2)**2))*(A[1]-B[1])/q,
+				y3 + sqrt(abs(r**2-(q/2)**2))*(B[0]-A[0])/q
 			)
 
 			D = Vector(
-				x3 - sqrt(r**2-(q/2)**2)*(A[1]-B[1])/q,
-				y3 - sqrt(r**2-(q/2)**2)*(B[0]-A[0])/q
+				x3 - sqrt(abs(r**2-(q/2)**2))*(A[1]-B[1])/q,
+				y3 - sqrt(abs(r**2-(q/2)**2))*(B[0]-A[0])/q
 			)
 
 			#There are two solutions (C and D), choose which one we need
