@@ -729,7 +729,7 @@ class Cut(DataBase):
 			("feed",         "mm" ,    "", _("Feed")),
 			("feedz",        "mm" ,    "", _("Plunge Feed")),
 			("strategy",     "flat,helical+bottom,helical,ramp" ,    "helical+bottom", _("Cutting strategy")),
-			("ramp", "int" , 10, _("Ramp length"), _("positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this)")),
+			("ramp", "int" , 10, _("Ramp length"), _("positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this). Also note that ramp can't currently be shorter than affected g-code segment.")),
 			("cutFromTop", "bool" , False, _("First cut at surface height")),
 			("spring", "bool" , False, _("Spring pass"), _("Do the last cut once more in opposite direction. Helix bottom is disabled in such case.")),
 			("exitpoint", "on path,inside,outside", "on path", _("Exit strategy (usefull for threads)"), _("You should probably always use 'on path', unless you are threadmilling!")),
