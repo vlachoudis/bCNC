@@ -3457,11 +3457,6 @@ class GCode:
 		if ramp<0: ramp = abs(ramp) #absolute
 		if ramp == 0: ramp = None #No ramp
 
-		#Decide if we do splitpass
-		splitpass = False
-		if not closed and ((ramp is None) or (ramp*3 >= path.length())):
-			splitpass = True
-
 		#Calculate exit point for thread milling
 		centr = Vector(path.center())
 		if exitpoint == 1:
@@ -3478,6 +3473,11 @@ class GCode:
 			for island in reversed(islandPaths):
 				path.markInside(island, island._inside)
 
+		#Decide if doing additional "appendix" passes after loop (eg.: spring pass or helixbottom)
+		appendix = False
+		if (springPass and closed) or (helix and helixBottom):
+			appendix = True
+
 		#iterate over depth passes:
 		retract = True
 		while (z-depth)>1e-7:
@@ -3485,12 +3485,8 @@ class GCode:
 			z = max(z-stepz, depth)
 
 			#Detect last pass of loop
-			if abs(z-depth)<1e-7:
+			if abs(z-depth)<1e-7 and not appendix:
 				exit = True
-
-			#Do not exit before helixbottom or springpass (they will exit anyway...)
-			if springPass or (helix and helixBottom):
-				exit = False
 
 			#Flat cuts:
 			if not helix:
@@ -3505,7 +3501,7 @@ class GCode:
 			else:
 				if helixBottom: exit = False
 
-				if not splitpass:
+				if closed:
 					newblock.append("(pass %f to %f)"%(z+stepz, z))
 					self.fromPath(path, newblock, z, retract, entry, exit, z+stepz, ramp, exitpoint=exitpoint)
 				else:
@@ -3514,22 +3510,24 @@ class GCode:
 					self.fromPath(path, newblock, z+stepz/2, retract, entry, False, z+stepz, ramp, exitpoint=exitpoint)
 					path.invert()
 					newblock.append("(pass %f to %f)"%(z+stepz/2, z))
-					self.fromPath(path, newblock, z, retract, False, exit, z+stepz/2, ramp, exitpoint=exitpoint)
+					self.fromPath(path, newblock, z, False, False, exit, z+stepz/2, ramp, exitpoint=exitpoint)
 					path.invert()
 
 			retract = False
 			entry = False
 
-		#Do spring pass or helixbottom
-		if springPass or (helix and helixBottom):
-			if springPass:
-				ramp = None
+		#Do appendix passes like spring pass or helixbottom
+		if appendix:
+			if (springPass and closed):
+				ramp = None #Do not truncate pass when inverting direction
 				path.invert()
+				if not closed:
+					retract = True
+					entry = True
 				newblock.append("(pass %f spring)"%(z))
 			else:
 				newblock.append("(pass %f bottom)"%(z))
 
-			if splitpass: path.invert() #Fixes split ramp case
 			self.fromPath(path, newblock, z, retract, entry, True, exitpoint=exitpoint, truncate=ramp)
 
 		return newblock
