@@ -32,7 +32,7 @@ except ImportError:
 	Image = None
 
 try:
-	import BaseHTTPServer as HTTPServer
+		import BaseHTTPServer as HTTPServer
 except ImportError:
 	import http.server as HTTPServer
 
@@ -61,9 +61,11 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			HTTPServer.BaseHTTPRequestHandler.log_message(self, fmt, *args)
 
 	#----------------------------------------------------------------------
-	def do_HEAD(self, rc=200, content="text/html"):
+	def do_HEAD(self, rc=200, content="text/html", cl=0):
 		self.send_response(rc)
 		self.send_header("Content-type", content)
+		if cl != 0:
+			self.send_header("Content-length", cl)
 		self.end_headers()
 
 	#----------------------------------------------------------------------
@@ -89,26 +91,28 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				elif key=="cmd":
 					httpd.app.pendant.put(urllib.unquote(value))
 			#send empty response so browser does not generate errors
-			self.do_HEAD(200, "text/text")
+			self.do_HEAD(200, "text/text", cl=len(""))
 			self.wfile.write("")
 
 		elif page == "/state":
-			self.do_HEAD(200, content="text/text")
 			tmp = {}
-			for name in ["controller", "state", "pins", "color", "msg", "wx", "wy", "wz", "G"]:
+			for name in ["controller", "state", "pins", "color", "msg", "wx", "wy", "wz", "G", "OvFeed", "OvRapid", "OvSpindle"]:
 				tmp[name] = CNC.vars[name]
+			contentToSend = json.dumps(tmp)
+			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
 			self.wfile.write(json.dumps(tmp))
 
 		elif page == "/config":
-			self.do_HEAD(200, content="text/text")
 			snd = {}
 			snd["rpmmax"] = httpd.app.get("CNC","spindlemax")
-			self.wfile.write(json.dumps(snd))
+			contentToSend = json.dumps(snd)
+			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
+			self.wfile.write(contentToSend)
 
 		elif page == "/icon":
 			if arg is None: return
-			self.do_HEAD(200, content="image/gif")
 			filename = os.path.join(iconpath, arg["name"]+".gif")
+			self.do_HEAD(200, content="image/gif", cl=os.path.getsize(filename))
 			try:
 				f = open(filename,"rb")
 				self.wfile.write(f.read())
