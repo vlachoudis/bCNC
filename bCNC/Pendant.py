@@ -133,11 +133,11 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 						Image.open(tmp.name).save(out.name, 'GIF')
 						out.flush()
 						out.seek(0)
-						self.do_HEAD(200, content="image/gif")
+						self.do_HEAD(200, content="image/gif", cl=os.path.getsize(tmp.name))
 						self.wfile.write(out.read())
 				except:
-					self.do_HEAD(200, content="image/gif")
 					filename = os.path.join(iconpath, "warn.gif")
+					self.do_HEAD(200, content="image/gif", cl=os.path.getsize(filename))
 					try:
 						f = open(filename,"rb")
 						self.wfile.write(f.read())
@@ -154,7 +154,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 			if Pendant.camera.read():
 				Pendant.camera.save("camera.jpg")
 				#cv.imwrite("camera.jpg",img)
-				self.do_HEAD(200, content="image/jpeg")
+				self.do_HEAD(200, content="image/jpeg", cl=os.path.getsize("camera.jpg"))
 				try:
 					f = open("camera.jpg","rb")
 					self.wfile.write(f.read())
