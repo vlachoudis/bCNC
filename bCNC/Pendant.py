@@ -32,7 +32,7 @@ except ImportError:
 	Image = None
 
 try:
-		import BaseHTTPServer as HTTPServer
+	import BaseHTTPServer as HTTPServer
 except ImportError:
 	import http.server as HTTPServer
 
@@ -100,7 +100,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				tmp[name] = CNC.vars[name]
 			contentToSend = json.dumps(tmp)
 			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
-			self.wfile.write(json.dumps(tmp))
+			self.wfile.write(contentToSend)
 
 		elif page == "/config":
 			snd = {}
