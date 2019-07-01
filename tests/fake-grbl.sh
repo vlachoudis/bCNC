@@ -16,7 +16,7 @@
 #Create fake tty device and listen on it
 [ "$1" != "-c" ] && {
 	echo Listening at fake serial port: "$1"
-	socat -d-d PTY,raw,link="$1",echo=0 "EXEC:'$0' -c,pty,raw,echo=0"
+	socat -dd PTY,raw,link="$1",echo=0 "EXEC:'$0' -c,pty,raw,echo=0"
 	exit
 	}
 
