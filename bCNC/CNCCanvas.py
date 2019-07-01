@@ -476,7 +476,7 @@ class CNCCanvas(Canvas, object):
 	# ----------------------------------------------------------------------
 	def actionWPOS(self, x, y):
 		u,v,w = self.image2Machine(x,y)
-		self.app.dro.wcsSet(u,v,w)
+		self.app.mcontrol._wcsSet(u,v,w)
 		self.setAction(ACTION_SELECT)
 
 	# ----------------------------------------------------------------------
