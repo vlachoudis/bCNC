@@ -820,6 +820,21 @@ class Drill(DataBase):
 			("distance",  "mm" ,    "", _("Distance (mm)")),
 			("number",    "int" ,   "", _("Number"))
 		]
+		self.help = """Drill a hole in the center of the selected path or drill many holes along the selected path.
+
+MODULE PARAMETERS:
+
+* center : if checked, there is only one drill in the center of the selected path. (Otherwise drill along path)
+
+* depth : Depth of the drill. If not provided, stock material thickness is used. (usually negative value)
+
+* peck: Peck step depth. If provided, drill with peck depth step, raising the drill to z travel value. If not provided, one pass drill is generated.
+
+* dwell: Dwell time at the bottom. If pecking is defined, dwell also at lifted height.
+
+* distance: Distance between drills if drilling alog path. (Number of drills will superceed this parameter))
+
+* number: Number of drills if drilling along path. If nonzero, Parameter 'distance' has no effect."""
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
