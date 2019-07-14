@@ -190,7 +190,7 @@ class Probe:
 		def read(f):
 			while True:
 				line = f.readline()
-				if len(line)==0: raise Exception()
+				assert line , "Read an empty line, please check file IO settings"
 				line = line.strip()
 				if line: return map(float, line.split())
 
