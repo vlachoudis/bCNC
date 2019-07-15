@@ -28,9 +28,9 @@ class SVGcode:
 
 	def get_attr(self, string, attr='d'):
 		if 'attr_'+attr not in self.rx.keys():
-			self.rx['attr_'+attr] = re.compile('\s%s="([^">]*)"'%(attr), re.IGNORECASE|re.MULTILINE)
-		m = self.rx['attr_'+attr].findall(string) or [None]
-		return m[0]
+			self.rx['attr_'+attr] = re.compile(r'%s\s?=\s?([\"\'])((?:\\\1|(?:(?!\1)).)*)(?:\1)'%(attr), re.IGNORECASE|re.MULTILINE)
+		m = self.rx['attr_'+attr].findall(string) or [(None,None)]
+		return m[0][1]
 
 	def read_string(self, data):
 		#FIXME: process transform="translate(249.1743,415.5005)"
