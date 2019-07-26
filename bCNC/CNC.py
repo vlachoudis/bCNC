@@ -2187,7 +2187,10 @@ class GCode:
 		elif isinstance(line, types.CodeType):
 			import traceback
 			#traceback.print_stack()
-			return eval(line,CNC.vars,{'os': os, 'app': app})
+			v = self.vars
+			v['os'] = os
+			v['app'] = app
+			return eval(line,CNC.vars,self.vars)
 
 		else:
 			return line
