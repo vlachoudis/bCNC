@@ -47,8 +47,8 @@ except ImportError:
 	from tkinter import *
 	from tkinter import _cnfmerge
 
-from . import tkExtra
-from . import bFileDialog
+import tkExtra
+import bFileDialog
 
 
 #===============================================================================

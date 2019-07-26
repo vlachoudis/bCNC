@@ -53,6 +53,7 @@ import rexx
 import tkExtra
 import Updates
 import bFileDialog
+import tkDialogs
 
 from CNC import WAIT, CNC, GCode
 import Ribbon
@@ -489,6 +490,14 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	def updateStatus(self, event):
 		self.setStatus(_(event.data))
+
+
+	def entry(self, message="Enter value", title="", input="", type_="str", from_=None, to_=None):
+		d = tkDialogs.InputDialog(self, title, message, input, type_, from_, to_)
+		v = d.show()
+		print("entered value: ")
+		print(v)
+		return v
 
 	#-----------------------------------------------------------------------
 	# Update canvas coordinates
