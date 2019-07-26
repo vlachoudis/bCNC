@@ -2170,7 +2170,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Evaluate code expressions if any and return line
 	#----------------------------------------------------------------------
-	def evaluate(self, line):
+	def evaluate(self, line, app=None):
 		if isinstance(line,int):
 			return None
 
@@ -2185,7 +2185,9 @@ class GCode:
 			return "".join(line)
 
 		elif isinstance(line, types.CodeType):
-			return eval(line,CNC.vars,self.vars)
+			import traceback
+			#traceback.print_stack()
+			return eval(line,CNC.vars,{'os': os, 'app': app})
 
 		else:
 			return line

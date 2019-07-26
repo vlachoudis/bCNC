@@ -196,7 +196,7 @@ class Sender:
 	# can return a python exception, needs to be catched
 	#----------------------------------------------------------------------
 	def evaluate(self, line):
-		return self.gcode.evaluate(CNC.compileLine(line,True))
+		return self.gcode.evaluate(CNC.compileLine(line,True), self)
 
 	#----------------------------------------------------------------------
 	# Execute a line as gcode if pattern matches
