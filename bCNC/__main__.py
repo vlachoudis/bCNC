@@ -495,8 +495,10 @@ class Application(Toplevel,Sender):
 	def entry(self, message="Enter value", title="", input="", type_="str", from_=None, to_=None):
 		d = tkDialogs.InputDialog(self, title, message, input, type_, from_, to_)
 		v = d.show()
-		print("entered value: ")
-		print(v)
+
+		if isinstance(v, basestring):
+			v = v.strip()
+		print("entered "+str(type(v))+": "+str(v))
 		return v
 
 	#-----------------------------------------------------------------------
