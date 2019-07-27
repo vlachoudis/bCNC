@@ -491,7 +491,9 @@ class Application(Toplevel,Sender):
 	def updateStatus(self, event):
 		self.setStatus(_(event.data))
 
-
+	#-----------------------------------------------------------------------
+	# Show popup dialog asking for value entry, usefull in g-code scripts
+	#-----------------------------------------------------------------------
 	def entry(self, message="Enter value", title="", input="", type_="str", from_=None, to_=None):
 		d = tkDialogs.InputDialog(self, title, message, input, type_, from_, to_)
 		v = d.show()
