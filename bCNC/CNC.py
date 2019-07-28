@@ -2649,6 +2649,15 @@ class GCode:
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
 	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True, exitpoint=None, truncate=None):
+		#Recursion for multiple paths
+		if not isinstance(path, Path):
+			block = Block("new")
+			for p in path:
+				block.extend(self.fromPath(p, None, z, retract, entry, exit, zstart, ramp, comments, exitpoint, truncate))
+				block.append("( ---------- cut-here ---------- )")
+			del block[-1] #remove trailing cut-here
+			return block
+
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
@@ -2789,11 +2798,6 @@ class GCode:
 				if exitpoint is not None:
 					block.append('g1 %s %s'%(self.fmt("x",exitpoint[0]),self.fmt("y",exitpoint[1])))
 				block.append(CNC.zsafe())
-
-		#Recursion for multiple paths
-		else:
-			for p in path:
-				self.fromPath(p, block)
 
 		return block
 
