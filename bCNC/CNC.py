@@ -3638,7 +3638,9 @@ class GCode:
 					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 				else:
 					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
+				#newblock.append("( ---------- cut-here ---------- )")
 			if newblock:
+				#del newblock[-1] #remove trailing cut-here
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
 		self.addUndo(undoinfo)
