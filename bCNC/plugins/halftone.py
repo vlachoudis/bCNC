@@ -161,7 +161,7 @@ class Tool(Plugin):
 			img = img.convert ('L') #to calculate luminance
 			squareNorm = False
 
-		 #flip image to ouput correct coordinates
+		 #flip image to output correct coordinates
 		img = img.transpose(Image.FLIP_TOP_BOTTOM)
 
 		#Calc divisions for halftone

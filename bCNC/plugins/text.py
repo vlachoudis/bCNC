@@ -90,7 +90,7 @@ class Tool(Plugin):
 			import ttf
 			font = ttf.TruetypeInfo(fontFileName)
 		except:
-			app.setStatus(_("Text abort: That embarrassing, I can't read this font file!"))
+			app.setStatus(_("Text abort: That's embarrassing, I can't read this font file!"))
 			return
 		cmap = font.get_character_map()
 
@@ -117,7 +117,7 @@ class Tool(Plugin):
 				if (kern and (glyphIndx,glyphIndxLast) in kern):
 					k = kern[(glyphIndx,glyphIndxLast)] #FIXME: use kern for offset??
 
-				#Get glyph contours as line segmentes and draw them
+				#Get glyph contours as line segments and draw them
 				gc = font.get_glyph_contours(glyphIndx,closed)
 				if(not gc):
 					gc = font.get_glyph_contours(0,closed)#standard glyph for missing glyphs (complex glyph)
@@ -144,7 +144,7 @@ class Tool(Plugin):
 		app.setStatus("Generated Text")
 
 
-	#Write GCode from glyph conrtours
+	#Write GCode from glyph contours
 	def writeGlyphContour(self,block,font,contours,fontSize,depth,xO, yO):
 		width = font.header.x_max - font.header.x_min
 		height = font.header.y_max - font.header.y_min
@@ -173,9 +173,9 @@ class Tool(Plugin):
 	def asciiArt(self,filePath,new_width = 80):
 		from PIL import Image
 		img = Image.open(filePath)
-		width, heigth = img.size
-		new_heigth = int((heigth * new_width) / width)
-		new_image = img.resize((new_width, new_heigth))
+		width, height = img.size
+		new_height = int((height * new_width) / width)
+		new_image = img.resize((new_width, new_height))
 		new_image = new_image.convert("L") # convert to grayscale
 
 		# now that we have a grayscale image with some fixed width we have to convert every pixel

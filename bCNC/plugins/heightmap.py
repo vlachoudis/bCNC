@@ -205,7 +205,7 @@ class Tool(Plugin):
 		######################################################
 		lace_bound_val = "None" #"None","Secondary","Full"
 		if lace_bound_val != "None" and rows and columns:
-			slope = tan( Cont_Angle*pi/180 )
+			slope = math.tan(Cont_Angle*math.pi/180)
 			if columns_first:
 				convert_rows = Reduce_Scan_Lace(convert_rows, slope, step+1)
 			else:
