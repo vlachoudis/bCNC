@@ -59,7 +59,7 @@ class CheckUpdateDialog(Toplevel):
 		self.webversion = Label(frame, anchor=W)
 		self.webversion.grid(row=1, column=1, sticky=EW)
 		tkExtra.Balloon.set(self.webversion,
-			_("Latest release version on on github"))
+			_("Latest release version on github"))
 		l = Label(frame, text=_("Published at:"))
 		l.grid(row=2, column=0, sticky=E, pady=1)
 
