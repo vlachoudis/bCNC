@@ -2291,7 +2291,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Save in TXT format
 	# -Enabled Blocks only
-	# -Clened from bCNC metadata and comments
+	# -Cleaned from bCNC metadata and comments
 	# -Uppercase
 	#----------------------------------------------------------------------
 	def saveTXT(self, filename):
@@ -4055,7 +4055,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)
@@ -4135,7 +4135,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)
