@@ -96,7 +96,6 @@ FILETYPES = [	(_("All accepted"), ("*.ngc","*.cnc","*.nc", "*.tap", "*.gcode", "
 
 geometry = None
 
-
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -158,7 +157,7 @@ class Application(Toplevel,Sender):
 		f.pack(side=BOTTOM, fill=X)
 		self.cmdlabel = Label(f, text=_("Command:"))
 		self.cmdlabel.pack(side=LEFT)
-		self.command = Entry(f, relief=SUNKEN, background="White")
+		self.command = Entry(f, relief=SUNKEN, background="White")#!!!
 		self.command.pack(side=RIGHT, fill=X, expand=YES)
 		self.command.bind("<Return>",		self.cmdExecute)
 		self.command.bind("<Up>",		self.commandHistoryUp)
@@ -2561,7 +2560,7 @@ def main(args=None):
 
 	tkExtra.bindClasses(tk)
 	Utils.loadIcons()
-
+	
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
@@ -2651,6 +2650,27 @@ def main(args=None):
 
 		elif opt == "--run":
 			run = True
+
+	palette = {"background": tk.cget("background")}
+	
+	color_count = 0
+	custom_color_count = 0
+	for color_name in ("background", "foreground", "activeBackground", "activeForeground", "disabledForeground", \
+		"highlightBackground", "highlightColor", "selectBackground", "selectForeground"):
+		color2 = Utils.getStr("Color", "global." + color_name.lower(), None)
+		color_count += 1
+		if (color2 is not None) and (color2.strip() != ""):
+			palette[color_name] = color2.strip()
+			custom_color_count += 1
+		
+			if color_count == 0:
+				tkExtra.GLOBAL_CONTROL_BACKGROUND = color2
+			elif color_count == 1:
+				tkExtra.GLOBAL_FONT_COLOR = color2
+			
+	if custom_color_count > 0:
+		print("Changing palette")
+		tk.tk_setPalette(**palette)
 
 	# Start application
 	application = Application(tk)
