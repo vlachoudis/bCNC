@@ -23,7 +23,7 @@ setup(
 		"pyserial<=3.0.1 ; sys_platform == 'win32'",
 		'numpy>=1.12',
 		'Pillow>=4.0',
-		'opencv-python>=2.4 ; "arm" not in platform_machine',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
+		'opencv-python>=2.4 ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
 	],
 
 	entry_points = {
