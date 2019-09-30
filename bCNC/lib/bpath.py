@@ -223,6 +223,10 @@ class Segment:
 			if self.type == Segment.CW:
 				dist = -dist
 
+			#Handle circle/ARC with zero radius (where did we get such segment???)
+			if self.radius == 0:
+				return self.B
+
 			raddist = dist/self.radius
 			if not B:
 				phi = self.startPhi+raddist
