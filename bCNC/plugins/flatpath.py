@@ -3,8 +3,6 @@
 
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
-# Additional options: @apshu
-# Date: 11 july 2019
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -29,70 +27,39 @@ class Tool(Plugin):
 		Plugin.__init__(self, master,"FlatPath")
 		self.icon = "flatpath"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
 		self.group = "CAM"	#<<< This is the name of group that plugin belongs
-		self.variables = [
-			("name",              "db" ,        "", _("Name")),
-			("Method","Unwind helical,Movements at stock surface,Remove Z parameter" ,"Remove Z parameter", _("Flattening method")),
-		]
-		self.help = """Path Z flattening in three different ways:
- * Unwind helical : Unwind helical path cut
- 
- * Movements at stock surface : all Z parameter values are replaced with stock surface value within the selected block(s)
- 
- * Remove Z parameter : all Z parameter entries are replaced with empty string within the selected block(s). Good for machines without a Z axis, like laser engravers.
-"""
-		self.buttons.append("exe")
-		self.zparamRegexp = re.compile('(?:\\(.+\\))*(?<!;)([Zz]([-+]?[0-9]*\\.[0-9]+|[0-9]+))*') #if group1 is full z and number, group 2 is number only
+		self.oneshot = True
+		#Here we are creating the widgets presented to the user inside the plugin
+		#Name, Type , Default value, Description
+		#self.variables = [			#<<< Define a list of components for the GUI
+		#	("name"    ,    "db" ,    "", _("Name"))							#used to store plugin settings in the internal database
+		#]
+		#self.buttons.append("exe")  #<<< This is the button added at bottom to call the execute method below
+
 
 	# ----------------------------------------------------------------------
 	# This method is executed when user presses the plugin execute button
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		flatmethod = self['Method']
-		name = self['Name']
-		if name == "default" or name == "":	name = None
-		if flatmethod == 'Unwind helical':
-			blocks = self.unwind_helical(app=app, parname=name)
-		elif flatmethod == 'Remove Z parameter':
-			blocks = self.replace_z(app=app, parname=name)
-		elif flatmethod == 'Movements at stock surface':
-			blocks = self.replace_z(app=app, parname=name, zrepl=CNC.fmt('z',CNC.vars['surface']))
-		elif flatmethod == '':
-			app.setStatus(_("Operator Error: FlatPath-Please select flattening method"))  # <<< feed back result
-			return
-		else:
-			app.setStatus(_("Internal Error: FlatPath-Unkown method"))  # <<< feed back result
-			return
-
-		active=-1 #add to end
-		if blocks:
-			app.gcode.insBlocks(active, blocks, "Shape flattened") #<<< insert blocks over active block in the editor
-			app.refresh()                                                                                           #<<< refresh editor
-			app.setStatus(_("Generated: FlatPath"))                           #<<< feed back result
-		else:
-			app.setStatus(_("Nothing Generated: FlatPath (Did you select a work path?)"))                           #<<< feed back result
-
-	def unwind_helical(self, app, parname):
+		#print("go!")
 		blocks  = []
 		for bid in app.editor.getSelectedBlocks():
 			if len(app.gcode.toPath(bid)) < 1: continue
-			eblock = Block((parname or 'flat ')+app.gcode[bid].name())
-			eblock = app.gcode.fromPath(app.gcode.toPath(bid)[0],eblock)
+
+			#nblock = Block("flat "+app.gcode[bid].name())
+			#for i in app.gcode[bid]:
+			#	nblock.append(re.sub(r"\s?z-?[0-9\.]+","",i))
+			#blocks.append(nblock)
+
+			eblock = Block("flat "+app.gcode[bid].name())
+			eblock = app.gcode.fromPath(app.gcode.toPath(bid),eblock)
 			blocks.append(eblock)
-		return blocks
 
-	def replace_z(self, app, parname, zrepl = None):
-		def zreplacer(matchobj):
-			if matchobj.lastindex == 1:
-				return zrepl
-			return matchobj.string[matchobj.regs[0][0]:matchobj.regs[0][1]]
-		zrepl = zrepl or ''
-		blocks  = []
-		for bid in app.editor.getSelectedBlocks():
-			if len(app.gcode.toPath(bid)) < 1: continue
-			nblock = Block((parname or 'flat ')+app.gcode[bid].name())
-			for gline in app.gcode[bid]:
-				line = self.zparamRegexp.sub(zreplacer,gline)
-				nblock.append(line)
-			blocks.append(nblock)
 
-		return blocks
+
+		#active = app.activeBlock()
+		#if active == 0: active+=1
+		active=-1 #add to end
+		app.gcode.insBlocks(active, blocks, "Shape flattened") #<<< insert blocks over active block in the editor
+		app.refresh()                                                                                           #<<< refresh editor
+		app.setStatus(_("Generated: Flat"))                           #<<< feed back result
+		#app.gcode.blocks.append(block)

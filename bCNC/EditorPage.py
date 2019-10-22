@@ -15,7 +15,6 @@ except ImportError:
 	from tkinter import *
 
 import tkExtra
-
 import Utils
 import Ribbon
 import CNCList
@@ -129,7 +128,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
 		self.filterString = tkExtra.LabelEntry(self.frame,
 				_("Filter"),
 				"DarkGray",
-				background="White",
+				background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 				width=16)
 		self.filterString.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 		tkExtra.Balloon.set(self.filterString, _("Filter blocks"))
@@ -584,7 +583,7 @@ class EditorFrame(CNCRibbon.PageFrame):
 		self.editor = CNCList.CNCListbox(self, app,
 						selectmode=EXTENDED,
 						exportselection=0,
-						background="White")
+						background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.editor.pack(side=LEFT,expand=TRUE, fill=BOTH)
 		self.addWidget(self.editor)
 

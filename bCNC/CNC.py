@@ -827,9 +827,15 @@ class CNC:
 		try: CNC.drozeropad     = int(  config.get(section, "drozeropad"))
 		except: pass
 
-		CNC.startup = config.get(section, "startup")
-		CNC.header  = config.get(section, "header")
-		CNC.footer  = config.get(section, "footer")
+		try:
+		  CNC.startup = config.get(section, "startup")
+		except: pass
+		try:
+		  CNC.header  = config.get(section, "header")
+		except: pass
+		try:
+		  CNC.footer  = config.get(section, "footer")
+		except: pass
 
 		if CNC.inch:
 			CNC.acceleration_x  /= 25.4
@@ -2170,7 +2176,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Evaluate code expressions if any and return line
 	#----------------------------------------------------------------------
-	def evaluate(self, line):
+	def evaluate(self, line, app=None):
 		if isinstance(line,int):
 			return None
 
@@ -2185,6 +2191,11 @@ class GCode:
 			return "".join(line)
 
 		elif isinstance(line, types.CodeType):
+			import traceback
+			#traceback.print_stack()
+			v = self.vars
+			v['os'] = os
+			v['app'] = app
 			return eval(line,CNC.vars,self.vars)
 
 		else:
@@ -2644,6 +2655,15 @@ class GCode:
         # @param zstart	I       starting depth
 	#----------------------------------------------------------------------
 	def fromPath(self, path, block=None, z=None, retract=True, entry=False, exit=True, zstart=None, ramp=None, comments=True, exitpoint=None, truncate=None):
+		#Recursion for multiple paths
+		if not isinstance(path, Path):
+			block = Block("new")
+			for p in path:
+				block.extend(self.fromPath(p, None, z, retract, entry, exit, zstart, ramp, comments, exitpoint, truncate))
+				block.append("( ---------- cut-here ---------- )")
+			del block[-1] #remove trailing cut-here
+			return block
+
 		if z is None: z = self.cnc["surface"]
 		if zstart is None: zstart = z
 
@@ -2784,11 +2804,6 @@ class GCode:
 				if exitpoint is not None:
 					block.append('g1 %s %s'%(self.fmt("x",exitpoint[0]),self.fmt("y",exitpoint[1])))
 				block.append(CNC.zsafe())
-
-		#Recursion for multiple paths
-		else:
-			for p in path:
-				self.fromPath(p, block)
 
 		return block
 
@@ -3640,7 +3655,9 @@ class GCode:
 					self.cutPath(newblock, block, path, surface + stepz, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
 				else:
 					self.cutPath(newblock, block, path, surface, depth, stepz, helix, helixBottom, ramp, islandPathsClean, exitpoint, springPass)
+				#newblock.append("( ---------- cut-here ---------- )")
 			if newblock:
+				#del newblock[-1] #remove trailing cut-here
 				undoinfo.append(self.addBlockOperationUndo(bid, opname))
 				undoinfo.append(self.setBlockLinesUndo(bid, newblock))
 		self.addUndo(undoinfo)

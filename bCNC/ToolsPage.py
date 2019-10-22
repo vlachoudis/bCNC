@@ -24,6 +24,7 @@ import glob
 import Utils
 import Ribbon
 import tkExtra
+
 import Unicode
 import CNCRibbon
 
@@ -1686,7 +1687,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 height=20,
 					 header = False,
 					 stretch = "last",
-					 background = "White")
+					 background = tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.toolList.sortAssist = None
 		self.toolList.pack(fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.help)
