@@ -2550,9 +2550,14 @@ def main(args=None):
 		sys.stdout.write("="*80+"\n")
 		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
 		sys.stdout.write("="*80+"\n")
-		sys.exit(0)
+		#sys.exit(0)
+
 	tk = Tk()
 	tk.withdraw()
+
+	if sys.version_info[0] != 2:
+		tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue on your own risk!")
+
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
 	except:
@@ -2560,7 +2565,7 @@ def main(args=None):
 
 	tkExtra.bindClasses(tk)
 	Utils.loadIcons()
-	
+
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],
