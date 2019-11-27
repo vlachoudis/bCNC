@@ -15,7 +15,7 @@ import undo
 import Unicode
 import pickle
 import json
-import binascii
+#import binascii
 
 from dxf	import DXF
 from bstl	import Binary_STL_Writer
@@ -2006,7 +2006,7 @@ class Block(list):
 		try:
 			return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
 		except UnicodeDecodeError:
-			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
+			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self)) #TODO: do we need this???
 
 	#----------------------------------------------------------------------
 	def write_header(self):
