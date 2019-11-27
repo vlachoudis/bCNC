@@ -208,7 +208,7 @@ class Tool(Plugin):
 			turn = 3
 			p= "ExtLeftThread "
 
-# 		------------------------------------------------------------------------------------------------------------------		
+# 		------------------------------------------------------------------------------------------------------------------
 		#Check inputs
 		if sel_Blocks == 0:
 			if x == "" or y == "" :
@@ -246,12 +246,12 @@ class Tool(Plugin):
 #		elif clearanceExit < 0 or clearanceExit == "":
 #			app.setStatus(_("Helical Abort: Exit Edge Clearence may be positive"))
 #			return
-# 		------------------------------------------------------------------------------------------------------------------		
+# 		------------------------------------------------------------------------------------------------------------------
 		#Initialize blocks that will contain our gCode
 		blocks = []
 		#block = Block(name)
 		block = Block( p + str(cutDiam) + " Pitch " + str(pitch) + " Bit " + str(toolDiam) + " depth " + str(Depth))
-		
+
 		cutFeed = CNC.vars["cutfeedz"]	#<<< Get cut feed Z for the current material
 		cutFeedMax = CNC.vars["cutfeed"] #<<< Get cut feed XY for the current material
 # 		------------------------------------------------------------------------------------------------------------------
@@ -300,14 +300,14 @@ class Tool(Plugin):
 					y = yH
 
 # 		------------------------------------------------------------------------------------------------------------------
-#		 Init: Adjust feed and rapid move to Z safe 
-		
-		if Mult_F_Z is"":
+#		 Init: Adjust feed and rapid move to Z safe
+
+		if Mult_F_Z == "":
 			Mult_F_Z = 1
 
 		if Mult_F_Z == 0:
 			Mult_F_Z = 1
-	
+
 		if Mult_F_Z * cutFeed > cutFeedMax:
 			cutFeed = cutFeedMax
 		else:
@@ -341,7 +341,7 @@ class Tool(Plugin):
 
 		#cutFeed = int(cutFeed)
 		block.append(CNC.fmt("F",cutFeed))	#<<< Set cut feed
-		
+
 
 #-----------------------------------------------------------------------------------------------------
 	#	Uncomment for first flat pass

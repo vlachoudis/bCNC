@@ -32,11 +32,11 @@ class Flatten:
 		blocks = []
 
 		#Check parameters
-		if CutDirection is "":
+		if CutDirection == "":
 			app.setStatus(_("Flatten abort: Cut Direction is undefined"))
 			return
 
-		if PocketType is "":
+		if PocketType == "":
 			app.setStatus(_("Flatten abort: Pocket Type is undefined"))
 			return
 
