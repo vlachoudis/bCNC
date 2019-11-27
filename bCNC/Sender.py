@@ -689,13 +689,13 @@ class Sender:
 							self._gcount += 1
 						tosend = None
 
-					elif not isinstance(tosend,str) and not isinstance(tosend,unicode):
+					elif not isinstance(tosend,str):
 						try:
 							tosend = self.gcode.evaluate(tosend)
 #							if isinstance(tosend, list):
 #								cline.append(len(tosend[0]))
 #								sline.append(tosend[0])
-							if isinstance(tosend,str) or isinstance(tosend,unicode):
+							if isinstance(tosend,str):
 								tosend += "\n"
 							else:
 								# Count executed commands as well
@@ -713,8 +713,8 @@ class Sender:
 				if tosend is not None:
 					# All modification in tosend should be
 					# done before adding it to cline
-					if isinstance(tosend, unicode):
-						tosend = tosend.encode("ascii","replace")
+					#if isinstance(tosend, unicode):
+					#	tosend = tosend.encode("ascii","replace")
 
 					# Keep track of last feed
 					pat = FEEDPAT.match(tosend)
@@ -788,7 +788,7 @@ class Sender:
 				if self.mcontrol.gcode_case > 0: tosend = tosend.upper()
 				if self.mcontrol.gcode_case < 0: tosend = tosend.lower()
 				self.serial.write(bytes(tosend))
-				#self.serial.write(tosend.encode("utf8"))
+				#self.serial.write(tosend)
 				#self.serial.flush()
 				self.log.put((Sender.MSG_BUFFER,tosend))
 

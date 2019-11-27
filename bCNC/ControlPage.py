@@ -734,12 +734,12 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		if self.zstep is self.step or zs is None:
 			self.event_generate("<<Status>>",
 				data=_("Step: %g")%(s))
-				#data=(_("Step: %g")%(s)).encode("utf8"))
+				#data=(_("Step: %g")%(s)))
 		else:
 			self.zstep.set("%.4g"%(zs))
 			self.event_generate("<<Status>>",
 				data=_("Step: %g    Zstep:%g ")%(s,zs))
-				#data=(_("Step: %g    Zstep:%g ")%(s,zs)).encode("utf8"))
+				#data=(_("Step: %g    Zstep:%g ")%(s,zs)))
 
 	#----------------------------------------------------------------------
 	@staticmethod

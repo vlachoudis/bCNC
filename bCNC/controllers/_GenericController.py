@@ -130,7 +130,7 @@ class _GenericController:
 		self.viewParameters()
 		self.master.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
-			#data=(_("Set workspace %s to %s")%(WCS[p],pos)).encode("utf8"))
+			#data=(_("Set workspace %s to %s")%(WCS[p],pos)))
 		self.master.event_generate("<<CanvasFocus>>")
 
 	#----------------------------------------------------------------------
