@@ -787,7 +787,12 @@ class Sender:
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.mcontrol.gcode_case > 0: tosend = tosend.upper()
 				if self.mcontrol.gcode_case < 0: tosend = tosend.lower()
-				self.serial.write(tosend.encode("ascii"))
+
+				try:
+					self.serial.write(tosend.encode())
+				except AttributeError:
+					self.serial.write(tosend)
+
 				#self.serial.write(tosend)
 				#self.serial.flush()
 				self.log.put((Sender.MSG_BUFFER,tosend))
