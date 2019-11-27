@@ -2755,7 +2755,7 @@ class GCode:
 
 			#Loop over segments
 			setfeed = True
-			ztabprev = None
+			ztabprev = float("-inf");
 			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh
@@ -2775,7 +2775,7 @@ class GCode:
 
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
-					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
+					if (ztab == float("-inf") or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
 						if comments: block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
