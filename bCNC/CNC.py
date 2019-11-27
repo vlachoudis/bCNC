@@ -2719,7 +2719,7 @@ class GCode:
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
 		#Get island height of segment
-		def getSegmentZTab(segment, altz=None):
+		def getSegmentZTab(segment, altz=float("-inf")):
 			if segment._inside:
 				return max(segment._inside)
 			else: return altz
@@ -3791,7 +3791,7 @@ class GCode:
 
 			#Decide conventional/climb/error:
 			side = self.blocks[bid].operationSide()
-			if abs(direction)>1 and side is 0:
+			if abs(direction)>1 and side == 0:
 				msg = "Conventional/Climb feature only works for paths with 'in/out/pocket' tags!\n"
 				msg += "Some of the selected paths were not taged (or are both in+out). You can still use CW/CCW for them."
 				continue
