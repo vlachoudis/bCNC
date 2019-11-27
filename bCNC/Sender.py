@@ -21,6 +21,7 @@ import threading
 import webbrowser
 
 from datetime import datetime
+
 try:
 	import serial
 except:
@@ -456,6 +457,19 @@ class Sender:
 		return "break"
 
 	#----------------------------------------------------------------------
+	# Serial write
+	#----------------------------------------------------------------------
+	def serial_write(self, data):
+		#print("W "+str(type(data))+" : "+str(data))
+
+		if sys.version_info[0] == 2:
+			ret = self.serial.write(str(data))
+		else:
+			ret = self.serial.write("hello".encode())
+
+		return ret
+
+	#----------------------------------------------------------------------
 	# Open serial port
 	#----------------------------------------------------------------------
 	def open(self, device, baudrate):
@@ -487,7 +501,7 @@ class Sender:
 		except IOError:
 			pass
 		time.sleep(1)
-		self.serial.write(b"\n\n")
+		self.serial_write(b"\n\n")
 		self._gcount = 0
 		self._alarm  = True
 		self.thread  = threading.Thread(target=self.serialIO)
@@ -528,7 +542,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def sendHex(self, hexcode):
 		if self.serial is None: return
-		self.serial.write(chr(int(hexcode,16)))
+		self.serial_write(chr(int(hexcode,16)))
 		self.serial.flush()
 
 	#----------------------------------------------------------------------
@@ -781,19 +795,16 @@ class Sender:
 			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
 				self._sumcline = sum(cline)
 #				if isinstance(tosend, list):
-#					self.serial.write(str(tosend.pop(0)))
+#					self.serial_write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.mcontrol.gcode_case > 0: tosend = tosend.upper()
 				if self.mcontrol.gcode_case < 0: tosend = tosend.lower()
 
-				try:
-					self.serial.write(tosend.encode())
-				except AttributeError:
-					self.serial.write(tosend)
+				self.serial_write(tosend)
 
-				#self.serial.write(tosend)
+				#self.serial_write(tosend)
 				#self.serial.flush()
 				self.log.put((Sender.MSG_BUFFER,tosend))
 

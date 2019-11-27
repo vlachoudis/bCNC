@@ -68,7 +68,7 @@ class _GenericController:
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
 		if self.master.serial:
-			self.master.serial.write(b"\030")
+			self.master.serial_write(b"\030")
 		self.master.stopProbe()
 		if clearAlarm: self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
@@ -84,7 +84,7 @@ class _GenericController:
 		self.master.sendGCode("$H")
 
 	def viewStatusReport(self):
-		self.master.serial.write(b"?")
+		self.master.serial_write(b"?")
 		self.master.sio_status = True
 
 	def viewParameters(self):
@@ -137,7 +137,7 @@ class _GenericController:
 	def feedHold(self, event=None):
 		if event is not None and not self.master.acceptKey(True): return
 		if self.master.serial is None: return
-		self.master.serial.write(b"!")
+		self.master.serial_write(b"!")
 		self.master.serial.flush()
 		self.master._pause = True
 
@@ -145,7 +145,7 @@ class _GenericController:
 	def resume(self, event=None):
 		if event is not None and not self.master.acceptKey(True): return
 		if self.master.serial is None: return
-		self.master.serial.write(b"~")
+		self.master.serial_write(b"~")
 		self.master.serial.flush()
 		self.master._msg   = None
 		self.master._alarm = False
@@ -164,7 +164,7 @@ class _GenericController:
 	# a reset to clear the buffer of the controller
 	#---------------------------------------------------------------------
 	def purgeController(self):
-		self.master.serial.write(b"!")
+		self.master.serial_write(b"!")
 		self.master.serial.flush()
 		time.sleep(1)
 		# remember and send all G commands
