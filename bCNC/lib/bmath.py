@@ -421,6 +421,9 @@ class Vector(list):
 	def __div__(self, b):
 		return Vector([x/b for x in self])
 
+	def __truediv__(self, b):
+		return Vector([x/b for x in self])
+
 	# ----------------------------------------------------------------------
 	def __xor__(self, v):
 		"""Cross product"""
