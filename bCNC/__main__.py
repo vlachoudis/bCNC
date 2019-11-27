@@ -2556,7 +2556,7 @@ def main(args=None):
 	tk.withdraw()
 
 	if sys.version_info[0] != 2:
-		tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue on your own risk!")
+		tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
 
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
