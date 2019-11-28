@@ -765,7 +765,7 @@ class Sender:
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
 				try:
-					line = str(self.serial.readline()).strip()
+					line = str(self.serial.readline().decode()).strip()
 				except:
 					self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
 					self.emptyQueue()
