@@ -729,8 +729,6 @@ class Sender:
 				if tosend is not None:
 					# All modification in tosend should be
 					# done before adding it to cline
-					#if isinstance(tosend, unicode):
-					#	tosend = tosend.encode("ascii","replace")
 
 					# Keep track of last feed
 					pat = FEEDPAT.match(tosend)

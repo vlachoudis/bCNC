@@ -2006,7 +2006,7 @@ class Block(list):
 		try:
 			return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
 		except UnicodeDecodeError:
-			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self)) #TODO: do we need this???
+			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self)) #TODO: is this OK?
 
 	#----------------------------------------------------------------------
 	def write_header(self):
