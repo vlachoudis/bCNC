@@ -352,7 +352,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		devices += ['']
 		devices += sorted(set(hwgrep))
 		devices += ['']
-		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+		devices += sorted(["spy://"+x[0]+"?raw&color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
 		#Clean neighbour duplicates
