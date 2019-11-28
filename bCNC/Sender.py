@@ -464,8 +464,10 @@ class Sender:
 
 		if sys.version_info[0] == 2:
 			ret = self.serial.write(str(data))
+		elif isinstance(data, bytes):
+			ret = self.serial.write(data)
 		else:
-			ret = self.serial.write("hello".encode())
+			ret = self.serial.write(data.encode())
 
 		return ret
 
