@@ -462,9 +462,9 @@ class Sender:
 	def serial_write(self, data):
 		#print("W "+str(type(data))+" : "+str(data))
 
-		if sys.version_info[0] == 2:
-			ret = self.serial.write(str(data))
-		elif isinstance(data, bytes):
+		#if sys.version_info[0] == 2:
+		#	ret = self.serial.write(str(data))
+		if isinstance(data, bytes):
 			ret = self.serial.write(data)
 		else:
 			ret = self.serial.write(data.encode())
