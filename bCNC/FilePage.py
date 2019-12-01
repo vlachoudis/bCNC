@@ -352,7 +352,10 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		devices += ['']
 		devices += sorted(set(hwgrep))
 		devices += ['']
-		devices += sorted(["spy://"+x[0]+"?raw&color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+		if sys.version_info[0] != 3: #Pyserial raw spy currently broken in python3
+			devices += sorted(["spy://"+x[0]+"?raw&color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+		else:
+			devices += sorted(["spy://"+x[0]+"?color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
 		#Clean neighbour duplicates
