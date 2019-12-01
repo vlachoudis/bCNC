@@ -1885,7 +1885,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 		CNC.vars["toolprobex"] = float(self.probeX.get())
 		CNC.vars["toolprobey"] = float(self.probeY.get())
 		CNC.vars["toolprobez"] = float(self.probeZ.get())
-		CNC.vars["toolprobez"] = float(self.probeZ.get())
 		CNC.vars["tooldistance"] = float(self.probeDistance.get())
 
 	#-----------------------------------------------------------------------
