@@ -11,78 +11,51 @@
 #	print(path['path'])
 
 from __future__ import absolute_import
-import re
+
 import numpy
-import svg.path
+import svg.elements
 
 
 class SVGcode:
-	paths = []
+	def __init__(self, filepath=None):
+		self.svg = svg.elements.SVG(filepath)
 
-	rx = {}
-	rx['elements'] = re.compile('<path[^>]*>', re.IGNORECASE|re.MULTILINE)
-
-	def __init__(self, filepath=None, string=None):
-		if filepath is not None: self.read_file(filepath)
-		if string is not None: self.read_string(string)
-
-	def get_attr(self, string, attr='d'):
-		if 'attr_'+attr not in self.rx.keys():
-			self.rx['attr_'+attr] = re.compile('\s%s="([^">]*)"'%(attr), re.IGNORECASE|re.MULTILINE)
-		m = self.rx['attr_'+attr].findall(string) or [None]
-		return m[0]
-
-	def read_string(self, data):
-		#FIXME: process transform="translate(249.1743,415.5005)"
-		self.paths = []
-		for element in self.rx['elements'].findall(data):
-			path = self.get_attr(element)
-			path_id = self.get_attr(element, 'id')
-			self.paths.append({'id':path_id, 'path':path})
-
-	def read_file(self, filepath):
-		with open(filepath, 'r') as myfile:
-			data = myfile.read()
-		return self.read_string(data)
-
-	def path2gcode(self, path, scale=None, subdivratio=1, d=4):
+	def path2gcode(self, path, subdivratio=1, d=4):
 		gcode = ''
-		path = svg.path.parse_path(path)
-		if scale is None: scale = 3.7795276 #96/25.4 #Inkscape 0.9x dots per mm
+		if isinstance(path, str):
+			path = svg.elements.Path(path)
 
 		def rv(v):
-			return ('%*f'%(d,round(v/scale, d))).rstrip("0").rstrip(".")
+			return ('%*f'%(d,round(v, d))).rstrip("0").rstrip(".")
 
-		lastx,lasty = None,None
-
-		for segment in path._segments:
-			subdiv=max(1,round((segment.length()/scale)*subdivratio))
-
-			if lastx != segment.start.real or lasty != segment.start.imag:
-				gcode += 'G0 X%s Y%s\n'%(rv(segment.start.real),rv(-segment.start.imag))
+		for segment in path:
+			subdiv=max(1,round((segment.length())*subdivratio))
 
 			shape = type(segment).__name__
-
-			if shape == 'Arc':
+			if shape == 'Move':
+				gcode += 'G0 X%s Y%s\n' % (rv(segment.end.x), rv(-segment.end.y))
+			elif shape == 'Arc':
 				if segment.sweep: garc = "G02"
 				else: garc = "G03"
 				center = segment.center-segment.start
 				#gcode += "(arc %s %s %s %s %s %s)\n"%(segment.center,segment.radius.real,segment.arc,segment.sweep,segment.theta,segment.delta)
 				#garc += ' X%s Y%s I%s J%s\n'%(rv(segment.end.real),rv(-segment.end.imag),rv(center.real),rv(-center.imag))
-				gcode += '%s X%s Y%s R%s\n'%(garc, rv(segment.end.real),rv(-segment.end.imag),rv(segment.radius.real))
+				gcode += '%s X%s Y%s R%s\n'%(garc, rv(segment.end.x),rv(-segment.end.y),rv(segment.rx))
 			elif shape in ['QuadraticBezier', 'CubicBezier', 'Arc']:
-				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint = False)[1:]
+				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=False)[1:]
 				for point in subdiv_points:
-					gcode += 'G1 X%s Y%s\n'%(rv(segment.point(point).real),rv(-segment.point(point).imag))
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.real),rv(-segment.end.imag))
+					gcode += 'G1 X%s Y%s\n'%(rv(segment.point(point).x),rv(-segment.point(point).y))
+				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.x),rv(-segment.end.y))
 			else:
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.real),rv(-segment.end.imag))
-
-			lastx,lasty = segment.end.real,segment.end.imag
+				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.x),rv(-segment.end.y))
 		return gcode
 
 	def get_gcode(self, scale=None, subdivratio=1, digits=4):
 		gcode = []
-		for path in self.paths:
-			gcode.append({'id':path['id'], 'path':self.path2gcode(path['path'], scale, subdivratio, digits)})
+		for element in self.svg.elements(ppi=scale):
+			if isinstance(element, svg.elements.Shape):
+				id = element.id
+				gcode.append({
+					'id': id,
+					'path': self.path2gcode(svg.elements.Path(element), subdivratio, digits)})
 		return gcode
