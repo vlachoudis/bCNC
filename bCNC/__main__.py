@@ -2546,17 +2546,19 @@ def main(args=None):
 	global tk
 	global application
 
-	if sys.version_info[0] != 2:
-		sys.stdout.write("="*80+"\n")
-		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
-		sys.stdout.write("="*80+"\n")
-		#sys.exit(0)
+	#if sys.version_info[0] != 2:
+	sys.stdout.write("="*80+"\n")
+	sys.stdout.write("WARNING: bCNC has been recently ported to support both python v2.x and v3.x\n")
+	sys.stdout.write("Most things seem to work reasonably well in both python versions.\n")
+	sys.stdout.write("Please report any issues to: https://github.com/vlachoudis/bCNC/issues\n")
+	sys.stdout.write("="*80+"\n")
+	#sys.exit(0)
 
 	tk = Tk()
 	tk.withdraw()
 
-	if sys.version_info[0] != 2:
-		tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
+	#if sys.version_info[0] != 2:
+	#	tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
 
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
