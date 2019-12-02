@@ -21,7 +21,7 @@ class SVGcode:
 		self.svg = svg.elements.SVG(filepath)
 
 	def path2gcode(self, path, subdivratio=1, d=4):
-		gcode = ''
+		gcode = []
 		if isinstance(path, str):
 			path = svg.elements.Path(path)
 
@@ -33,29 +33,32 @@ class SVGcode:
 
 			shape = type(segment).__name__
 			if shape == 'Move':
-				gcode += 'G0 X%s Y%s\n' % (rv(segment.end.x), rv(-segment.end.y))
+				gcode.append('G0 X%s Y%s' % (rv(segment.end.x), rv(-segment.end.y)))
 			elif shape == 'Arc':
 				if segment.sweep: garc = "G02"
 				else: garc = "G03"
-				center = segment.center-segment.start
+				#center = segment.center-segment.start
 				#gcode += "(arc %s %s %s %s %s %s)\n"%(segment.center,segment.radius.real,segment.arc,segment.sweep,segment.theta,segment.delta)
 				#garc += ' X%s Y%s I%s J%s\n'%(rv(segment.end.real),rv(-segment.end.imag),rv(center.real),rv(-center.imag))
-				gcode += '%s X%s Y%s R%s\n'%(garc, rv(segment.end.x),rv(-segment.end.y),rv(segment.rx))
+				gcode.append('%s X%s Y%s R%s'%(garc, rv(segment.end.x),rv(-segment.end.y),rv(segment.rx)))
 			elif shape in ['QuadraticBezier', 'CubicBezier', 'Arc']:
 				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=False)[1:]
 				for point in subdiv_points:
-					gcode += 'G1 X%s Y%s\n'%(rv(segment.point(point).x),rv(-segment.point(point).y))
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.x),rv(-segment.end.y))
+					sp = segment.point(point)
+					gcode.append('G1 X%s Y%s'%(rv(sp.x),rv(-sp.y)))
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
 			else:
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.x),rv(-segment.end.y))
-		return gcode
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
+		return '\n'.join(gcode)
 
 	def get_gcode(self, scale=None, subdivratio=1, digits=4):
 		gcode = []
 		for element in self.svg.elements(ppi=scale):
+			if isinstance(element, svg.elements.Path):
+				element.reify()
+				id = element.id
+				gcode.append({'id': id, 'path': self.path2gcode(element)})
 			if isinstance(element, svg.elements.Shape):
 				id = element.id
-				gcode.append({
-					'id': id,
-					'path': self.path2gcode(svg.elements.Path(element), subdivratio, digits)})
+				gcode.append({'id': id, 'path': self.path2gcode(svg.elements.Path(element), subdivratio, digits)})
 		return gcode
