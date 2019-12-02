@@ -2347,7 +2347,7 @@ class Application(Toplevel,Sender):
 		while self.log.qsize()>0 and time.time()-t<0.1:
 			try:
 				msg, line = self.log.get_nowait()
-				line = line.rstrip("\n")
+				line = str(line).rstrip("\n")
 				inserted = True
 				#print "<<<",msg,line,"\n" in line
 
