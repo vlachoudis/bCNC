@@ -29,7 +29,7 @@ class SVGcode:
 			return ('%*f'%(d,round(v, d))).rstrip("0").rstrip(".")
 
 		for segment in path:
-			subdiv=max(1,round((segment.length())*subdivratio))
+			subdiv=max(1,round((segment.length(error=1e-5))*subdivratio))
 
 			shape = type(segment).__name__
 			if shape == 'Move':
