@@ -13,17 +13,17 @@
 from __future__ import absolute_import
 
 import numpy
-import svg.elements
+from svg_elements import SVG, Path, Shape
 
 
 class SVGcode:
 	def __init__(self, filepath=None):
-		self.svg = svg.elements.SVG(filepath)
+		self.svg = SVG(filepath)
 
 	def path2gcode(self, path, subdivratio=1, d=4):
 		gcode = []
 		if isinstance(path, str):
-			path = svg.elements.Path(path)
+			path = Path(path)
 
 		def rv(v):
 			return ('%*f'%(d,round(v, d))).rstrip("0").rstrip(".")
@@ -53,12 +53,12 @@ class SVGcode:
 
 	def get_gcode(self, scale=None, subdivratio=1, digits=4):
 		gcode = []
-		for element in self.svg.elements(ppi=scale):
-			if isinstance(element, svg.elements.Path):
+		for element in self.svg.elements(ppi=scale, height=10, width=10):
+			if isinstance(element, Path):
 				element.reify()
 				id = element.id
 				gcode.append({'id': id, 'path': self.path2gcode(element)})
-			if isinstance(element, svg.elements.Shape):
+			elif isinstance(element, Shape):
 				id = element.id
-				gcode.append({'id': id, 'path': self.path2gcode(svg.elements.Path(element), subdivratio, digits)})
+				gcode.append({'id': id, 'path': self.path2gcode(Path(element), subdivratio, digits)})
 		return gcode
