@@ -7,78 +7,58 @@
 # Usage:
 # svgcode = SVGcode('./image.svg')
 # for path in svgcode.get_gcode():
-#   print(path['id'])
-#   print(path['path'])
+#	print(path['id'])
+#	print(path['path'])
+
+from __future__ import absolute_import
 
 import numpy
-from svg_elements import SVG, Arc, Close, Line, Move, Path, Shape
+from svg_elements import SVG, Path, Shape, Move, Arc, QuadraticBezier, CubicBezier
 
 
 class SVGcode:
-    def __init__(self, filepath=None):
-        self._filepath = filepath
+	def __init__(self, filepath=None):
+		self.svg = SVG(filepath)
 
-    def path2gcode(self, path, samples_per_unit=100, d=4):
-        gcode = []
-        if isinstance(path, str):
-            path = Path(path)
+	def path2gcode(self, path, subdivratio=1, d=4):
+		gcode = []
+		if isinstance(path, str):
+			path = Path(path)
 
-        def rv(v):
-            return (f"{round(v, d):{d}}").rstrip("0").rstrip(".")
+		def rv(v):
+			return ('%*f'%(d,round(v, d))).rstrip("0").rstrip(".")
 
-        for segment in path:
-            subdiv = max(1, round(segment.length(
-                error=1e-5) * samples_per_unit))
+		for segment in path:
+			subdiv=max(1,round(segment.length(error=1e-5)*subdivratio))
 
-            if isinstance(segment, Move):
-                gcode.append(f"G0 X{rv(segment.end.x)} Y{rv(-segment.end.y)}")
-            elif isinstance(segment, (Line, Close)):
-                gcode.append(f"G1 X{rv(segment.end.x)} Y{rv(-segment.end.y)}")
-            elif (isinstance(segment, Arc)
-                  and abs(segment.rx - segment.ry) < 1e-9):
-                # Strictly speaking, svg arcs can be non circular,
-                # whereas gcode only permits circular arcs.
-                garc = "G02" if segment.sweep > 0 else "G03"
-                gcode.append(" ".join([
-                    f"{garc}", f"X{rv(segment.end.x)}",
-                    f"Y{rv(-segment.end.y)}", f"R{rv(segment.rx)}"
-                ]))
-            else:  # Non-circular arc, Cubic or Quad Bezier Curves.
-                subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=True)[1:]
-                # numpy accelerated point() call
-                points = segment.npoint(subdiv_points)
-                gcode.extend(
-                    [f"G1 X{rv(sp[0])} Y{rv(-sp[1])}" for sp in points])
+			if isinstance(segment, Move):
+				gcode.append('G0 X%s Y%s' % (rv(segment.end.x), rv(-segment.end.y)))
+			if isinstance(segment, Arc):
+				if segment.sweep: garc = "G02"
+				else: garc = "G03"
+				#center = segment.center-segment.start
+				#gcode += "(arc %s %s %s %s %s %s)\n"%(segment.center,segment.radius.real,segment.arc,segment.sweep,segment.theta,segment.delta)
+				#garc += ' X%s Y%s I%s J%s\n'%(rv(segment.end.real),rv(-segment.end.imag),rv(center.real),rv(-center.imag))
+				gcode.append('%s X%s Y%s R%s'%(garc, rv(segment.end.x),rv(-segment.end.y),rv(segment.rx)))
+			elif isinstance(segment, (QuadraticBezier, CubicBezier, Arc)):
+				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=False)[1:]
+				for point in subdiv_points:
+					sp = segment.point(point)
+					gcode.append('G1 X%s Y%s'%(rv(sp.x),rv(-sp.y)))
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
+			else:
+				# Line, Close
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
+		return '\n'.join(gcode)
 
-        return "\n".join(gcode)
-
-    def get_gcode(self,
-                  scale=1.0 / 96.0,
-                  samples_per_unit=100,
-                  digits=4,
-                  ppi=96.0):
-        """
-        Parse gcode from an SVG file.
-
-        scale: unit scaling between svg pixels and desired units. 1.0/96.0 is inches.
-        subdivratio: How many subdivisions per unit? 1/100th inch steps.
-        digits: How many digits of gcode accuracy.
-        ppi: pixels per inch of the file being loaded. 96 is standard.
-        """
-        gcode = []
-        transform = f"scale({scale:g})" if scale != 1.0 else None
-        svg = SVG.parse(self._filepath, reify=False,
-                        ppi=ppi, transform=transform)
-        for element in svg.elements():
-            if isinstance(element, Shape):
-                if not isinstance(element, Path):
-                    element = Path(element)
-                gcode.append(
-                    {
-                        "id": element.id,
-                        "path": self.path2gcode(
-                            element.reify(), samples_per_unit, digits
-                        ),
-                    }
-                )
-        return gcode
+	def get_gcode(self, scale=None, subdivratio=1, digits=4):
+		gcode = []
+		for element in self.svg.elements(ppi=96.0 / scale, width=100, height=100):
+			if isinstance(element, Path):
+				element.reify()
+				id = element.id
+				gcode.append({'id': id, 'path': self.path2gcode(element, subdivratio, digits)})
+			elif isinstance(element, Shape):
+				id = element.id
+				gcode.append({'id': id, 'path': self.path2gcode(Path(element), subdivratio, digits)})
+		return gcode
