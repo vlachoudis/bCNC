@@ -889,7 +889,65 @@ class CNCCanvas(Canvas, object):
 	# ----------------------------------------------------------------------
 	# Zoom to Fit to Screen
 	# ----------------------------------------------------------------------
+
+	#New approach by onekk https://github.com/vlachoudis/bCNC/issues/1311
 	def fit2Screen(self, event=None):
+		"""Zoom to Fit to Screen"""
+
+		bb = self.selBbox()
+		if bb is None:
+			return
+
+		x1, y1, x2, y2 = bb
+
+		# add a factor to improve reability
+		bbox_width = (x2-x1) * 1.05
+		bbox_height = (y2-y1) * 1.05
+
+		try:
+			zx = round(float(self.winfo_width() / bbox_width), 2)
+		except:
+			return
+
+		try:
+			zy = round(float(self.winfo_height() / bbox_height), 2)
+		except:
+			return
+
+		#print("BBCALC ", bbox_width, bbox_height)
+		#print("canvas ", self.winfo_width(), self.winfo_height())
+		#print("ZX, ZY ", zx, zy)
+
+		if zx > 0.98:
+			self.__tzoom = min(zx, zy)
+		else:
+			self.__tzoom = max(zx, zy)
+
+		#####
+
+		self._tx = self._ty = 0
+		self._zoomCanvas()
+
+		# Find position of new selection
+		x1,y1,x2,y2 = self.selBbox()
+		xm = (x1+x2)//2
+		ym = (y1+y2)//2
+		sx1,sy1,sx2,sy2 = map(float,self.cget("scrollregion").split())
+		midx = float(xm-sx1) / (sx2-sx1)
+		midy = float(ym-sy1) / (sy2-sy1)
+
+		a,b = self.xview()
+		d = (b-a)/2.0
+		self.xview_moveto(midx-d)
+
+		a,b = self.yview()
+		d = (b-a)/2.0
+		self.yview_moveto(midy-d)
+
+		self.cameraPosition()
+
+
+	def fit2Screen_old(self, event=None):
 		bb = self.selBbox()
 		if bb is None: return
 		x1,y1,x2,y2 = bb
