@@ -57,7 +57,7 @@ class SVGcode:
 			if isinstance(element, Path):
 				element.reify()
 				id = element.id
-				gcode.append({'id': id, 'path': self.path2gcode(element)})
+				gcode.append({'id': id, 'path': self.path2gcode(element, subdivratio, digits)})
 			elif isinstance(element, Shape):
 				id = element.id
 				gcode.append({'id': id, 'path': self.path2gcode(Path(element), subdivratio, digits)})
