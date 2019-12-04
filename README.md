@@ -16,6 +16,9 @@ Before making pull request, please test your code on both python2 and python3.
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
 # Installation (using pip = recommended!)
+
+This is short overview of installation proces, for more see the ![bCNC installation](https://github.com/vlachoudis/bCNC/wiki/Installation) wiki page.
+
 This is how you install (or upgrade) bCNC along with all required packages.
 You can use any of these commands (you need only one):
 
