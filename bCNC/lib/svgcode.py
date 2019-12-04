@@ -51,7 +51,7 @@ class SVGcode:
 				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
 		return '\n'.join(gcode)
 
-	def get_gcode(self, scale=None, subdivratio=1, digits=4):
+	def get_gcode(self, scale=1.0, subdivratio=1, digits=4):
 		gcode = []
 		for element in self.svg.elements(ppi=96.0 / scale, width=100, height=100):
 			if isinstance(element, Path):
