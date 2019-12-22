@@ -2460,7 +2460,6 @@ class GCode:
 		if empty: self.addBlockFromString("Header",self.header)
 
 		#FIXME: UI to set SVG subdivratio
-#		for path in svgcode.get_gcode(self.SVGscale(), 10, CNC.digits):
 		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
 			self.addBlockFromString(path['id'],path['path'])
 
@@ -2720,7 +2719,6 @@ class GCode:
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
 		#Get island height of segment
-#		def getSegmentZTab(segment, altz=None):
 		def getSegmentZTab(segment, altz=float("-inf")):
 			if segment._inside:
 				return max(segment._inside)

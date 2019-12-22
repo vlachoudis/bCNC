@@ -729,8 +729,6 @@ class Sender:
 				if tosend is not None:
 					# All modification in tosend should be
 					# done before adding it to cline
-#					if isinstance(tosend, unicode):
-#						tosend = tosend.encode("ascii","replace")
 
 					# Keep track of last feed
 					pat = FEEDPAT.match(tosend)
@@ -806,7 +804,7 @@ class Sender:
 
 				self.serial_write(tosend)
 
-				#self.serial.write(tosend.encode("utf8"))
+				#self.serial_write(tosend)
 				#self.serial.flush()
 				self.log.put((Sender.MSG_BUFFER,tosend))
 

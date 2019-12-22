@@ -1500,7 +1500,7 @@ class Application(Toplevel,Sender):
 			else:
 				self.executeOnSelection("OPTIMIZE", True)
 
-		# OPT*IMIZE: reorder selected blocks to minimize rapid motions # FIXME ORIENT not OPTIMIZE
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions # FIXME comment for ORIENT not OPTIMIZE
 		elif rexx.abbrev("ORIENT",cmd,4):
 			if not self.editor.curselection():
 				self.editor.selectAll()

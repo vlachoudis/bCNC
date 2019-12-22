@@ -321,7 +321,7 @@ class CNCCanvas(Canvas, object):
 	# Set status message
 	# ----------------------------------------------------------------------
 	def status(self, msg):
-		#self.event_generate("<<Status>>", data=msg.encode("utf8"))
+		#self.event_generate("<<Status>>", data=msg)
 		self.event_generate("<<Status>>", data=msg)
 
 	# ----------------------------------------------------------------------

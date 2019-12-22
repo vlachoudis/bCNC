@@ -37,7 +37,6 @@ except:
 	serial = None
 
 __prg__     = "bCNC"
-#prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 prgpath   = os.path.abspath(os.path.dirname(__file__))
 if getattr( sys, 'frozen', False ):
 	#When being bundled by pyinstaller, paths are different
@@ -234,7 +233,6 @@ def getStr(section, name, default=""):
 def getUtf(section, name, default=""):
 	global config
 	try:
-#		return config.get(section, name).decode("utf8")
 		return config.get(section, name)
 	except:
 		return default
@@ -376,7 +374,6 @@ def addRecent(filename):
 	try:
 		sfn = str(os.path.abspath(filename))
 	except UnicodeEncodeError:
-#		sfn = filename.encode("utf8")
 		sfn = filename
 
 	last = _maxRecent-1
@@ -501,7 +498,7 @@ class ReportDialog(Toplevel):
 				"to the author of %s")%(__name__), justify=LEFT, anchor=W)
 		l.pack(side=TOP)
 
-		self.text = Text(frame, background="White")
+		self.text = Text(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.text.pack(side=LEFT, expand=YES, fill=BOTH)
 
 		sb = Scrollbar(frame, orient=VERTICAL, command=self.text.yview)
@@ -515,7 +512,7 @@ class ReportDialog(Toplevel):
 		l = Label(frame, text=_("Your email"))
 		l.pack(side=LEFT)
 
-		self.email = Entry(frame, background="White")
+		self.email = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.email.pack(side=LEFT, expand=YES, fill=X)
 
 		# Automatic error reporting
@@ -729,7 +726,7 @@ class UserButtonDialog(Toplevel):
 		row,col = 0,0
 		Label(self, text=_("Name:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		self.name = Entry(self, background="White")
+		self.name = Entry(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
 		tkExtra.Balloon.set(self.name, _("Name to appear on button"))
 
@@ -753,7 +750,7 @@ class UserButtonDialog(Toplevel):
 		row,col = row+1,0
 		Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
 		col += 1
-		self.tooltip = Entry(self, background="White")
+		self.tooltip = Entry(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
 		tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
 
@@ -761,7 +758,7 @@ class UserButtonDialog(Toplevel):
 		row,col = row+1,0
 		Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N+E)
 		col += 1
-		self.command = Text(self, background="White", width=40, height=10)
+		self.command = Text(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=40, height=10)
 		self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
 
 		self.grid_columnconfigure(2,weight=1)

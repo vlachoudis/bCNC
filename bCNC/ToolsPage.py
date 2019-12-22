@@ -24,6 +24,7 @@ import glob
 import Utils
 import Ribbon
 import tkExtra
+
 import Unicode
 import CNCRibbon
 

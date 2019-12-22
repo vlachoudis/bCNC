@@ -25,6 +25,7 @@ import Utils
 import Camera
 import Ribbon
 import tkExtra
+
 import CNCRibbon
 
 PROBE_CMD = [	_("G38.2 stop on contact else error"),
