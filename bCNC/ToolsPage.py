@@ -743,7 +743,7 @@ class Cut(DataBase):
 
 For short paths, you should probably use helical cut with bottom.
 For long toolpaths and pocketing you should use ramp cut (length around 10).
-Also there's classic flat cutting strategy, but that will lead to plunging straight down to material, which is not really desirable (especially when milling harder materials).
+Also there's classic flat cuting strategy, but that will lead to plunging straight down to material, which is not really desirable (especially when milling harder materials).
 
 If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
 If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
@@ -751,18 +751,18 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		#Cutting dimensions
+		#Cuting dimensions
 		surface = self.fromMm("surface", None)
 		depth   = self.fromMm("depth", None)
 		step    = self.fromMm("stepz", None)
 
-		#Cutting speed
+		#Cuting speed
 		try:    feed = self.fromMm("feed", None)
 		except: feed = None
 		try:    feedz = self.fromMm("feedz", None)
 		except: feedz = None
 
-		#Cutting strategy
+		#Cuting strategy
 		strategy = self["strategy"]
 		cutFromTop = self["cutFromTop"]
 		springPass = self["spring"]
@@ -1671,7 +1671,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
 					 height=20,
 					 header = False,
 					 stretch = "last",
-					 background = "White")
+					 background = tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.toolList.sortAssist = None
 		self.toolList.pack(fill=BOTH, expand=YES)
 		self.toolList.bindList("<Double-1>",	self.help)

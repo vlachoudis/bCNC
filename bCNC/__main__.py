@@ -96,7 +96,6 @@ FILETYPES = [	(_("All accepted"), ("*.ngc","*.cnc","*.nc", "*.tap", "*.gcode", "
 
 geometry = None
 
-
 #==============================================================================
 # Main Application window
 #==============================================================================
@@ -158,7 +157,7 @@ class Application(Toplevel,Sender):
 		f.pack(side=BOTTOM, fill=X)
 		self.cmdlabel = Label(f, text=_("Command:"))
 		self.cmdlabel.pack(side=LEFT)
-		self.command = Entry(f, relief=SUNKEN, background="White")
+		self.command = Entry(f, relief=SUNKEN, background="White")#!!!
 		self.command.pack(side=RIGHT, fill=X, expand=YES)
 		self.command.bind("<Return>",		self.cmdExecute)
 		self.command.bind("<Up>",		self.commandHistoryUp)
@@ -2075,15 +2074,15 @@ class Application(Toplevel,Sender):
 			Page.frames["CAM"].populate()
 
 		if autoloaded:
-			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
+			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
 		else:
-			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
+			self.setStatus(_("'%s' loaded")%(filename))
 		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
+		self.setStatus(_("'%s' saved")%(filename))
 		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
@@ -2292,7 +2291,7 @@ class Application(Toplevel,Sender):
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):
 				if line is not None:
-					if isinstance(line,str) or isinstance(line,unicode):
+					if isinstance(line,str):
 						self.queue.put(line+"\n")
 					else:
 						self.queue.put(line)
@@ -2348,7 +2347,7 @@ class Application(Toplevel,Sender):
 		while self.log.qsize()>0 and time.time()-t<0.1:
 			try:
 				msg, line = self.log.get_nowait()
-				line = line.rstrip("\n")
+				line = str(line).rstrip("\n")
 				inserted = True
 				#print "<<<",msg,line,"\n" in line
 
@@ -2547,13 +2546,20 @@ def main(args=None):
 	global tk
 	global application
 
-	if sys.version_info[0] != 2:
-		sys.stdout.write("="*80+"\n")
-		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
-		sys.stdout.write("="*80+"\n")
-		sys.exit(0)
+	#if sys.version_info[0] != 2:
+	sys.stdout.write("="*80+"\n")
+	sys.stdout.write("WARNING: bCNC has been recently ported to support both python v2.x and v3.x\n")
+	sys.stdout.write("Most things seem to work reasonably well in both python versions.\n")
+	sys.stdout.write("Please report any issues to: https://github.com/vlachoudis/bCNC/issues\n")
+	sys.stdout.write("="*80+"\n")
+	#sys.exit(0)
+
 	tk = Tk()
 	tk.withdraw()
+
+	#if sys.version_info[0] != 2:
+	#	tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
+
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
 	except:
@@ -2651,6 +2657,27 @@ def main(args=None):
 
 		elif opt == "--run":
 			run = True
+
+	palette = {"background": tk.cget("background")}
+	
+	color_count = 0
+	custom_color_count = 0
+	for color_name in ("background", "foreground", "activeBackground", "activeForeground", "disabledForeground", \
+		"highlightBackground", "highlightColor", "selectBackground", "selectForeground"):
+		color2 = Utils.getStr("Color", "global." + color_name.lower(), None)
+		color_count += 1
+		if (color2 is not None) and (color2.strip() != ""):
+			palette[color_name] = color2.strip()
+			custom_color_count += 1
+		
+			if color_count == 0:
+				tkExtra.GLOBAL_CONTROL_BACKGROUND = color2
+			elif color_count == 1:
+				tkExtra.GLOBAL_FONT_COLOR = color2
+			
+	if custom_color_count > 0:
+		print("Changing palette")
+		tk.tk_setPalette(**palette)
 
 	# Start application
 	application = Application(tk)

@@ -17,7 +17,6 @@ except ImportError:
 	from tkinter import *
 
 import tkExtra
-
 import Utils
 import Sender
 import Ribbon
@@ -245,7 +244,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		b.grid(row=row,column=col,sticky=E)
 		self.addWidget(b)
 
-		self.portCombo = tkExtra.Combobox(self, False, background="White", width=16, command=self.comportClean)
+		self.portCombo = tkExtra.Combobox(self, False, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=16, command=self.comportClean)
 		self.portCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.portCombo, _("Select (or manual enter) port to connect"))
 		self.portCombo.set(Utils.getStr("Connection","port"))
@@ -259,7 +258,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		b = Label(self, text=_("Baud:"))
 		b.grid(row=row,column=col,sticky=E)
 
-		self.baudCombo = tkExtra.Combobox(self, True, background="White")
+		self.baudCombo = tkExtra.Combobox(self, True, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.baudCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.baudCombo, _("Select connection baud rate"))
 		self.baudCombo.fill(BAUDS)
@@ -272,7 +271,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		b.grid(row=row,column=col,sticky=E)
 
 		self.ctrlCombo = tkExtra.Combobox(self, True,
-					background="White",
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					command=self.ctrlChange)
 		self.ctrlCombo.grid(row=row, column=col+1, sticky=EW)
 		tkExtra.Balloon.set(self.ctrlCombo, _("Select controller board"))
@@ -353,7 +352,11 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 		devices += ['']
 		devices += sorted(set(hwgrep))
 		devices += ['']
-		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+#		devices += sorted(["spy://"+x[0]+"?raw"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+		if sys.version_info[0] != 3: #Pyserial raw spy currently broken in python3
+			devices += sorted(["spy://"+x[0]+"?raw&color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
+		else:
+			devices += sorted(["spy://"+x[0]+"?color"+"\t(Debug) "+x[1] for x in self.comportsGet()])
 		devices += ['', 'socket://localhost:23', 'rfc2217://localhost:2217']
 
 		#Clean neighbour duplicates

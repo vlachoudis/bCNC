@@ -47,11 +47,11 @@ class Tool(Plugin):
 			("adaptative",  "bool",                   1,   _("Adaptative"), "Generate path for adaptative trochoids in the corners (Not yet implemented in trochoidal plugin)"),
 			("overcut",  "bool",                      0, _("Overcut")),
 			("targetDepth",  "mm",                    -1, _("Target Depth")),
-			("depthIncrement",  "mm",                  1, _("Depth Increment")),
+#			("depthIncrement",  "mm",                  1, _("Depth Increment")),
 			("depthIncrement",  "mm",                  1, _("Depth Increment")),
 			("tabsnumber",  "mm",                      1, _("Number of Tabs 0 = Not Tabs"),"Not available yet"),
 			("tabsWidth",  "mm",                       1, _("Tabs Diameter"),"Not available yet"),
-			("tabsHeight",  "mm",                       1, _("Tabs Height"),"Not available yet"),
+			("tabsHeight",  "mm",                      1, _("Tabs Height"),"Not available yet"),
 
 #			("mintrochdiam", "float",                10, _("Minimal trochoid in % tool"))
 		]

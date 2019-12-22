@@ -15,7 +15,7 @@ import undo
 import Unicode
 import pickle
 import json
-import binascii
+#import binascii
 
 from dxf	import DXF
 from bstl	import Binary_STL_Writer
@@ -1601,7 +1601,7 @@ class CNC:
 	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
 	def pathLength(self, block, xyz):
-		# For XY plan
+		# For XY plane
 		p = xyz[0]
 		length = 0.0
 		for i in xyz:
@@ -1660,10 +1660,10 @@ class CNC:
 			newcmd = []
 			cmds = CNC.compileLine(line)
 			if cmds is None: continue
-			if isinstance(cmds,str) or isinstance(cmds,unicode):
+			if isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
-				# either CodeType or tuple, list[] append at it as is
+				# either CodeType or tuple, list[] append it as is
 				lines.append(cmds)
 				continue
 
@@ -2006,7 +2006,7 @@ class Block(list):
 		try:
 			return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
 		except UnicodeDecodeError:
-			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
+			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self)) #TODO: is this OK?
 
 	#----------------------------------------------------------------------
 	def write_header(self):
@@ -2460,7 +2460,8 @@ class GCode:
 		if empty: self.addBlockFromString("Header",self.header)
 
 		#FIXME: UI to set SVG subdivratio
-		for path in svgcode.get_gcode(self.SVGscale(), 10, CNC.digits):
+#		for path in svgcode.get_gcode(self.SVGscale(), 10, CNC.digits):
+		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
@@ -2719,7 +2720,8 @@ class GCode:
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
 		#Get island height of segment
-		def getSegmentZTab(segment, altz=None):
+#		def getSegmentZTab(segment, altz=None):
+		def getSegmentZTab(segment, altz=float("-inf")):
 			if segment._inside:
 				return max(segment._inside)
 			else: return altz
@@ -2755,7 +2757,7 @@ class GCode:
 
 			#Loop over segments
 			setfeed = True
-			ztabprev = None
+			ztabprev = float("-inf"); # TODO semi-colon ok?
 			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh
@@ -2775,7 +2777,7 @@ class GCode:
 
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
-					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
+					if (ztab == float("-inf") or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
 						if comments: block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
@@ -3162,7 +3164,7 @@ class GCode:
 			if cmds is None:
 				new.append(line)
 				continue
-			elif isinstance(cmds,str) or isinstance(cmds,unicode):
+			elif isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
 				new.append(line)
@@ -3791,7 +3793,7 @@ class GCode:
 
 			#Decide conventional/climb/error:
 			side = self.blocks[bid].operationSide()
-			if abs(direction)>1 and side is 0:
+			if abs(direction)>1 and side == 0:
 				msg = "Conventional/Climb feature only works for paths with 'in/out/pocket' tags!\n"
 				msg += "Some of the selected paths were not taged (or are both in+out). You can still use CW/CCW for them."
 				continue
@@ -4553,7 +4555,7 @@ class GCode:
 
 		def add(line, path):
 			if line is not None:
-				if isinstance(line,str) or isinstance(line,unicode):
+				if isinstance(line,str):
 					queue.put(line+"\n")
 				else:
 					queue.put(line)
@@ -4577,7 +4579,7 @@ class GCode:
 				cmds = CNC.compileLine(line)
 				if cmds is None:
 					continue
-				elif isinstance(cmds,str) or isinstance(cmds,unicode):
+				elif isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is

@@ -37,6 +37,8 @@ from __future__ import absolute_import
 __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
+GLOBAL_CONTROL_BACKGROUND = "White"
+
 import re
 import time
 import Unicode
@@ -2630,13 +2632,15 @@ class InPlaceText(InPlaceEdit):
 
 	# ----------------------------------------------------------------------
 	def createWidget(self):
+		global GLOBAL_CONTROL_BACKGROUND
 		self.toplevel = Toplevel(self.listbox)
 		self.toplevel.transient(self.listbox)
 		if sys.platform in ("win32", "win64"):
 			self.toplevel.update_idletasks()
 		self.toplevel.overrideredirect(1)
 		self.edit = Text(self.toplevel, width=70, height=10,
-					background="White", undo=True)
+					background=GLOBAL_CONTROL_BACKGROUND,
+					undo=True)
 		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
 		self.edit.focus_set()
 

@@ -933,7 +933,7 @@ class CNCListbox(Listbox):
 		if not CNC.developer: return
 		print("*** LIST ***")
 		for i,sel in enumerate(self.get(0,END)):
-			print(i,sel.encode("ascii","replace"))
+			print(i,sel.encode("ascii","replace")) #TODO: do we need .encode()???
 
 		print("\n*** ITEMS ***")
 		for i,item in enumerate(self._items):

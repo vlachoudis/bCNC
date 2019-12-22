@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.60",
+	version = "0.9.14.301",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
@@ -17,13 +17,13 @@ setup(
 	author_email='vvlachoudis@gmail.com',
 	url="https://github.com/vlachoudis/bCNC",
 	include_package_data=True,
-	python_requires="<3.0",
+	#python_requires="<3.0",
 	install_requires = [
 		"pyserial ; sys_platform != 'win32'",	#Windows XP can't handle pyserial newer than 3.0.1 (it can be installed, but does not work)
 		"pyserial<=3.0.1 ; sys_platform == 'win32'",
 		'numpy>=1.12',
 		'Pillow>=4.0',
-		'opencv-python>=2.4 ; "arm" not in platform_machine',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
+		'opencv-python>=2.4 ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
 	],
 
 	entry_points = {

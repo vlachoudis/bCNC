@@ -189,7 +189,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		# work
 		col += 1
 		self.xwork = Entry(self, font=DROFrame.dro_wpos,
-					background="White",
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
 					borderwidth=0,
 					justify=RIGHT)
@@ -202,7 +202,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		# ---
 		col += 1
 		self.ywork = Entry(self, font=DROFrame.dro_wpos,
-					background="White",
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
 					borderwidth=0,
 					justify=RIGHT)
@@ -215,7 +215,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		# ---
 		col += 1
 		self.zwork = Entry(self, font=DROFrame.dro_wpos,
-					background="White",
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
 					borderwidth=0,
 					justify=RIGHT)
@@ -231,15 +231,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		Label(self,text=_("MPos:")).grid(row=row,column=col,sticky=E)
 
 		col += 1
-		self.xmachine = Label(self, font=DROFrame.dro_mpos, background="White",anchor=E)
+		self.xmachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.ymachine = Label(self, font=DROFrame.dro_mpos, background="White",anchor=E)
+		self.ymachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
 		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.zmachine = Label(self, font=DROFrame.dro_mpos, background="White", anchor=E)
+		self.zmachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		# Set buttons
@@ -564,7 +564,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		Label(frame,"",width=2).grid(row=row,column=col)
 
 		col += 1
-		self.step = tkExtra.Combobox(frame, width=6, background="White")
+		self.step = tkExtra.Combobox(frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("Control","step"))
 		self.step.fill(map(float, Utils.config.get("Control","steplist").split()))
@@ -574,7 +574,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		# -- Separate zstep --
 		try:
 			zstep = Utils.config.get("Control","zstep")
-			self.zstep = tkExtra.Combobox(frame, width=4, background="White")
+			self.zstep = tkExtra.Combobox(frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 			self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
 			self.zstep.set(zstep)
 			zsl = [_NOZSTEP]
@@ -874,7 +874,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.distance = tkExtra.Combobox(f, True,
 					command=self.distanceChange,
 					width=5,
-					background="White")
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.distance.fill(sorted(DISTANCE_MODE.values()))
 		self.distance.grid(row=row, column=col, columnspan=2, sticky=EW)
 		tkExtra.Balloon.set(self.distance, _("Distance Mode [G90,G91]"))
@@ -892,7 +892,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.units = tkExtra.Combobox(f, True,
 					command=self.unitsChange,
 					width=5,
-					background="White")
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.units.fill(sorted(UNITS.values()))
 		self.units.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.units, _("Units [G20, G21]"))
@@ -905,7 +905,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		Label(f, text=_("Tool:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.toolEntry = tkExtra.IntegerEntry(f, background="White", width=5)
+		self.toolEntry = tkExtra.IntegerEntry(f, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
 		self.toolEntry.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.toolEntry, _("Tool number [T#]"))
 		self.addWidget(self.toolEntry)
@@ -924,7 +924,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.plane = tkExtra.Combobox(f, True,
 					command=self.planeChange,
 					width=5,
-					background="White")
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.plane.fill(sorted(PLANE.values()))
 		self.plane.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.plane, _("Plane [G17,G18,G19]"))
@@ -938,7 +938,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		Label(f, text=_("Feed:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.feedRate = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
+		self.feedRate = tkExtra.FloatEntry(f, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, disabledforeground="Black", width=5)
 		self.feedRate.grid(row=row, column=col, sticky=EW)
 		self.feedRate.bind('<Return>',   self.setFeedRate)
 		self.feedRate.bind('<KP_Enter>', self.setFeedRate)
@@ -960,7 +960,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self.feedMode = tkExtra.Combobox(f, True,
 					command=self.feedModeChange,
 					width=5,
-					background="White")
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.feedMode.fill(sorted(FEED_MODE.values()))
 		self.feedMode.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(self.feedMode, _("Feed Mode [G93, G94, G95]"))
@@ -973,7 +973,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		Label(f, text=_("TLO:")).grid(row=row, column=col, sticky=E)
 
 		col += 1
-		self.tlo = tkExtra.FloatEntry(f, background="White", disabledforeground="Black", width=5)
+		self.tlo = tkExtra.FloatEntry(f, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, disabledforeground="Black", width=5)
 		self.tlo.grid(row=row, column=col, sticky=EW)
 		self.tlo.bind('<Return>',   self.setTLO)
 		self.tlo.bind('<KP_Enter>', self.setTLO)

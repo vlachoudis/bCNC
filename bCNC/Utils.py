@@ -37,6 +37,7 @@ except:
 	serial = None
 
 __prg__     = "bCNC"
+#prgpath   = os.path.abspath(os.path.dirname(sys.argv[0]))
 prgpath   = os.path.abspath(os.path.dirname(__file__))
 if getattr( sys, 'frozen', False ):
 	#When being bundled by pyinstaller, paths are different
@@ -233,7 +234,8 @@ def getStr(section, name, default=""):
 def getUtf(section, name, default=""):
 	global config
 	try:
-		return config.get(section, name).decode("utf8")
+#		return config.get(section, name).decode("utf8")
+		return config.get(section, name)
 	except:
 		return default
 
@@ -357,7 +359,8 @@ def setStr(section, name, value):
 def setUtf(section, name, value):
 	global config
 	try:
-		s = str(value.encode("utf8"))
+#		s = str(value.encode("utf8")) #TODO how the heck does the following work
+		s = str(value)
 	except:
 		s = str(value)
 	config.set(section, name, s)
@@ -373,7 +376,8 @@ def addRecent(filename):
 	try:
 		sfn = str(os.path.abspath(filename))
 	except UnicodeEncodeError:
-		sfn = filename.encode("utf8")
+#		sfn = filename.encode("utf8")
+		sfn = filename
 
 	last = _maxRecent-1
 	for i in range(_maxRecent):

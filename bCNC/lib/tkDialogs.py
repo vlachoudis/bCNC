@@ -257,7 +257,7 @@ class FindReplaceDialog(Toplevel):
 		label.pack(side=LEFT)
 
 		self.findString_entry = Entry(findString_frame,
-			background="White")
+			background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.findString_entry.pack(side=RIGHT, fill=X, expand=YES)
 
 		if self.replace:
@@ -270,7 +270,7 @@ class FindReplaceDialog(Toplevel):
 			label.pack(side=LEFT)
 
 			self.replaceString_entry = Entry(replaceString_frame,
-				background="White")
+				background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 			self.replaceString_entry.pack(side=RIGHT, fill=X, expand=YES)
 
 		options_frame = Frame(top_frame)
@@ -390,7 +390,7 @@ class Printer(Toplevel):
 		self.cmd_label = Label(frame, text="Command:")
 		self.cmd_label.grid(row=1, column=0, sticky=E)
 
-		self.cmd_entry = Entry(frame, background="White", width=30)
+		self.cmd_entry = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=30)
 		self.cmd_entry.grid(row=1, column=1, columnspan=2, sticky=EW)
 		self.cmd_entry.insert(0, Printer.cmd)
 
@@ -399,7 +399,7 @@ class Printer(Toplevel):
 			command=self.printToChange)
 		b.grid(row=2, column=0, sticky=W)
 
-		self.file_entry = Entry(frame, background="White", width=25)
+		self.file_entry = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=25)
 		self.file_entry.grid(row=2, column=1, sticky=EW)
 
 		self.browse_btn = Button(frame, text="Browse",
@@ -435,7 +435,7 @@ class Printer(Toplevel):
 		l.grid(row=row, column=2, sticky=E)
 
 		s = Spinbox(frame, text=self.copiesVar, from_=1, to=100,
-				background="White", width=3)
+				background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=3)
 		s.grid(row=row, column=3, sticky=W)
 
 		frame.grid_columnconfigure(1, weight=1)

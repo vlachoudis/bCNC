@@ -298,7 +298,7 @@ class FileDialog(Toplevel):
 
 		l = Label(frame, text=_("File name:"))
 		l.grid(row=0, column=0, sticky=E)
-		self.filename = Entry(frame, background="White")
+		self.filename = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.filename.grid(row=0, column=1, sticky=EW)
 		self.ok = Button(frame, text=_("Open"), command=self.openFilename)
 		self.ok.grid(row=0, column=2, sticky=EW)
@@ -471,7 +471,7 @@ class FileDialog(Toplevel):
 		sb = Scrollbar(self._popup, orient=VERTICAL, takefocus=False)
 		sb.pack(side=RIGHT, fill=Y)
 		self._popupList = Listbox(self._popup,
-			background="White",
+			background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 			selectmode=BROWSE,
 			takefocus=True,
 			yscrollcommand=sb.set)

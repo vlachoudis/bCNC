@@ -37,7 +37,7 @@ class Controller(_GenericGRBL):
 		#print("grbl1 loaded")
 
 	def jog(self, dir):
-		self.master.sendGCode("$J=G91 %s F100000"%(dir))
+		self.master.sendGCode("$J=G91 %s F100000"%(dir)) # XXX is F100000 correct?
 
 	def overrideSet(self):
 		CNC.vars["_OvChanged"] = False	# Temporary
@@ -46,18 +46,18 @@ class Controller(_GenericGRBL):
 		if diff==0:
 			pass
 		elif CNC.vars["_OvFeed"] == 100:
-			self.master.serial.write(OV_FEED_100)
+			self.master.serial_write(OV_FEED_100)
 		elif diff >= 10:
-			self.master.serial.write(OV_FEED_i10)
+			self.master.serial_write(OV_FEED_i10)
 			CNC.vars["_OvChanged"] = diff>10
 		elif diff <= -10:
-			self.master.serial.write(OV_FEED_d10)
+			self.master.serial_write(OV_FEED_d10)
 			CNC.vars["_OvChanged"] = diff<-10
 		elif diff >= 1:
-			self.master.serial.write(OV_FEED_i1)
+			self.master.serial_write(OV_FEED_i1)
 			CNC.vars["_OvChanged"] = diff>1
 		elif diff <= -1:
-			self.master.serial.write(OV_FEED_d1)
+			self.master.serial_write(OV_FEED_d1)
 			CNC.vars["_OvChanged"] = diff<-1
 		# Check rapid
 		target  = CNC.vars["_OvRapid"]
@@ -65,30 +65,30 @@ class Controller(_GenericGRBL):
 		if target == current:
 			pass
 		elif target == 100:
-			self.master.serial.write(OV_RAPID_100)
+			self.master.serial_write(OV_RAPID_100)
 		elif target == 75:
-			self.master.serial.write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
+			self.master.serial_write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
 		elif target == 50:
-			self.master.serial.write(OV_RAPID_50)
+			self.master.serial_write(OV_RAPID_50)
 		elif target == 25:
-			self.master.serial.write(OV_RAPID_25)
+			self.master.serial_write(OV_RAPID_25)
 		# Check Spindle
 		diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
 		if diff==0:
 			pass
 		elif CNC.vars["_OvSpindle"] == 100:
-			self.master.serial.write(OV_SPINDLE_100)
+			self.master.serial_write(OV_SPINDLE_100)
 		elif diff >= 10:
-			self.master.serial.write(OV_SPINDLE_i10)
+			self.master.serial_write(OV_SPINDLE_i10)
 			CNC.vars["_OvChanged"] = diff>10
 		elif diff <= -10:
-			self.master.serial.write(OV_SPINDLE_d10)
+			self.master.serial_write(OV_SPINDLE_d10)
 			CNC.vars["_OvChanged"] = diff<-10
 		elif diff >= 1:
-			self.master.serial.write(OV_SPINDLE_i1)
+			self.master.serial_write(OV_SPINDLE_i1)
 			CNC.vars["_OvChanged"] = diff>1
 		elif diff <= -1:
-			self.master.serial.write(OV_SPINDLE_d1)
+			self.master.serial_write(OV_SPINDLE_d1)
 			CNC.vars["_OvChanged"] = diff<-1
 
 

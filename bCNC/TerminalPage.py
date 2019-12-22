@@ -152,7 +152,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
 
 		# ---
 		self.terminal = Listbox(self,
-					background="White",
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					selectmode=EXTENDED,
 					height=5)
 		self.terminal.grid(row=0, column=0, sticky=NSEW)
