@@ -2755,7 +2755,7 @@ class GCode:
 
 			#Loop over segments
 			setfeed = True
-			ztabprev = float("-inf"); # TODO semi-colon ok?
+			ztabprev = float("-inf");
 			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh

@@ -2639,7 +2639,7 @@ class InPlaceText(InPlaceEdit):
 			self.toplevel.update_idletasks()
 		self.toplevel.overrideredirect(1)
 		self.edit = Text(self.toplevel, width=70, height=10,
-					background=GLOBAL_CONTROL_BACKGROUND,
+					background=GLOBAL_CONTROL_BACKGROUND, 
 					undo=True)
 		self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
 		self.edit.focus_set()

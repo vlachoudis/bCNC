@@ -562,7 +562,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		# --
 		col += 1
 		Label(frame,"",width=2).grid(row=row,column=col)
-
+		
 		col += 1
 		self.step = tkExtra.Combobox(frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)

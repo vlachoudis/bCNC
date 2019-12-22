@@ -237,8 +237,8 @@ class FileDialog(Toplevel):
 			multiple=False,
 			filetypes=None,
 			**kw):
-
-		Toplevel.__init__(self)
+		
+		Toplevel.__init__(self)		
 		self.transient(master)
 		self.title(title)
 		self.protocol("WM_DELETE_WINDOW", self.close)

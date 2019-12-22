@@ -357,7 +357,6 @@ def setStr(section, name, value):
 def setUtf(section, name, value):
 	global config
 	try:
-#		s = str(value.encode("utf8")) #TODO how the heck does the following work
 		s = str(value)
 	except:
 		s = str(value)
