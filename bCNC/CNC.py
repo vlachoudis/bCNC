@@ -1601,7 +1601,7 @@ class CNC:
 	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
 	def pathLength(self, block, xyz):
-		# For XY plan
+		# For XY plane
 		p = xyz[0]
 		length = 0.0
 		for i in xyz:
@@ -1663,7 +1663,7 @@ class CNC:
 			if isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
-				# either CodeType or tuple, list[] append at it as is
+				# either CodeType or tuple, list[] append it as is
 				lines.append(cmds)
 				continue
 
@@ -2291,7 +2291,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Save in TXT format
 	# -Enabled Blocks only
-	# -Clened from bCNC metadata and comments
+	# -Cleaned from bCNC metadata and comments
 	# -Uppercase
 	#----------------------------------------------------------------------
 	def saveTXT(self, filename):
@@ -4055,7 +4055,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)
@@ -4135,7 +4135,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)

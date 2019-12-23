@@ -854,7 +854,7 @@ class Profile(DataBase):
 			("direction","inside,outside" , "outside", _("Direction"), _('Should we machine on inside or outside of the shape?')),
 			("offset",   "float",  0.0, _("Additional offset distance")),
 			("overcut",  "bool",     1, _("Overcut"), _('Sets if we want to overcut or not.')),
-			("pocket",  "bool",     0, _("Pocket"), _('Generate pocket after profiling? Usefull for making pockets with overcuts.'))
+			("pocket",  "bool",     0, _("Pocket"), _('Generate pocket after profiling? Useful for making pockets with overcuts.'))
 		]
 		self.buttons.append("exe")
 		self.help = '''This plugin offsets shapes to create toolpaths for profiling operation.
@@ -869,7 +869,7 @@ And with overcut:
 #overcut-with
 
 Blue is the original shape from CAD
-Turqoise is the generated toolpath
+Turquoise is the generated toolpath
 Grey is simulation of how part will look after machining
 '''
 
@@ -937,9 +937,9 @@ Tabs after cutting the path they're attached to:
 
 Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
 
-Note that tabs used to be square, but if there was diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
+Note that tabs used to be square, but if there was a diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
 
-You can move selected tabs using "Move" feature in "Editor". If you want to modify individual tabs, you have to first use "Split" feature to break the block to individual tabs. After moving them, you can "Join" them back together.
+You can move selected tabs using "Move" feature in "Editor". If you want to modify individual tabs, you have to first use "Split" feature to break the block into individual tabs. After moving them, you can "Join" them back together.
 '''
 
 	# ----------------------------------------------------------------------
