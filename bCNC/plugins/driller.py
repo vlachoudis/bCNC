@@ -8,19 +8,20 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 __author__ = "Filippo Rivato"
 __email__  = "f.rivato@gmail.com"
 
 __name__ = _("Driller")
 __version__= "0.0.10"
 
-import os.path
-import re
+#import os.path
+#import re
 import math
 from collections import OrderedDict
-from CNC import CNC,Block
+from CNC import CNC, Block
 from ToolsPage import Plugin
-
+import Utils
 
 #==============================================================================
 #Driller class
@@ -45,22 +46,27 @@ class Tool(Plugin):
 			("name",          "db",    "",    _("Name")),
 			("HolesDistance", "mm",    10.0,  _("Distance between holes")),
 			("TargetDepth",   "mm",    0.0,   _("Target Depth")),
-			("Peck",          "mm",    0.0,   _("Peck, 0 meas None")),
+			("Peck",          "mm",    0.0,   _("Peck, 0 means None")),
 			("Dwell",         "float", 0.0,   _("Dwell time, 0 means None")),
 			("useAnchor",     "bool",  False, _("Use anchor")),
-			("File"  ,        "file" , "",    _("Excellon-File")),
+			("File",          "file",  "",    _("Excellon-File")),
+			("useCustom",     "bool",  False, _("M3 for laser (settings below)")),
+			("rFeed",         "int",   "",    _("Feed rapid G0"),"Defaults from config, if blank"),       # default = min(CNC.feedmax_x, CNC.feedmax_y)
+			("spinMin",       "int",   "",    _("Laser power minimum"),"Defaults from config, if blank"), # default = Utils.config.get("CNC","spindlemin")
+			("spinMax",       "int",   "",    _("Laser power maximum"),"Defaults from config, if blank"), # default = Utils.config.get("CNC","spindlemax")
 		]
 		self.buttons.append("exe")
+		#self.help = "Plugin: Driller\n"
 
 	# Excellon Coordsconvert
 	def coord2float(self, text, unitinch):
 		if '.' in text: return float(text)
 		if unitinch==True: return float(text)*0.0001
-		#unit mm
+		# Unit mm
 		if len(text)==(6 if text[0]=='-' else 5): return int(text)*0.01
 		if len(text)==(7 if text[0]=='-' else 6): return int(text)*0.001
 
-	#convert to systemsetting
+	# Convert to systemsetting
 	def convunit(self, value, unitinch):
 		if unitinch==CNC.inch: return value
 		if unitinch==True and CNC.inch==False: return value*25.4
@@ -79,13 +85,13 @@ class Tool(Plugin):
 			line = row.strip()
 			if len(line)!=0:
 				if line[0]!=";":
-					#read header
+					# Read header
 					if line=="M48": header = True
 					if header==True:
 						if (line.startswith("INCH") or line.startswith("METRIC")): unitinch = line.startswith("INCH")
 						if (line=="M95" or line=="%"): header = False
 						if line[0]=="T":
-							#tools
+							# Tools
 							m = re.match('(T\d+)C(.+)',line)
 							data["tools"][m.group(1)]={"diameter":float(m.group(2)),"holes":[]}
 						if line=="ICI": incrementcoord = True
@@ -93,7 +99,7 @@ class Tool(Plugin):
 						if line[0]=="T": current_tool = line
 						if line[0]=="X":
 							m = re.match(r'X([\d\.-]+)Y([\d\.-]+)',line)
-							# convert to system
+							# Convert to system
 							x = self.convunit( self.coord2float(m.group(1), unitinch), unitinch)
 							y = self.convunit( self.coord2float(m.group(2), unitinch), unitinch)
 							if incrementcoord==True:
@@ -114,7 +120,7 @@ class Tool(Plugin):
 		blocks = []
 		for tool in data["tools"]:
 			dia = self.convunit(data["tools"][tool]["diameter"], unitinch)
-			#duplicates shouldnt in the list - remove unnessesary
+			# Duplicates shouldn't be in the list - remove unnessesary
 			blockholes = [data["tools"][tool]["holes"]]
 			block,holesCount = self.create_block(blockholes ,n+" ("+str(dia)+" "+unittext+")")
 			holesCounter = holesCounter+holesCount
@@ -122,17 +128,22 @@ class Tool(Plugin):
 
 		self.finish_blocks(app, blocks, holesCounter)
 
-	# Calc line length -----------------------------------------------------
+	# Calc subsegments -----------------------------------------------------
+	# TODO Move to Utils? A few plugins use this
 	def calcSegmentLength(self, xyz):
 		if xyz:
-			p1 = xyz[0]
-			p2 = xyz[1]
-			return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2 + (p2[2]-p1[2])**2)
+			A = xyz[0]
+			B = xyz[1]
+			seglength_x = B[0]-A[0]
+			seglength_y = B[1]-A[1]
+			seglength_z = B[2]-A[2]
+			return math.sqrt(seglength_x**2 + seglength_y**2 + seglength_z**2)
 		else:
 			return 0
 
-	#Extract all segments from commands ------------ -----------------------
-	def extractAllSegments(self, app,selectedBlock):
+	# Extract all segments from commands -----------------------------------
+	# TODO Move to Utils? A few plugins use this
+	def extractAllSegments(self, app, selectedBlock):
 		allSegments = []
 		allBlocks = app.gcode.blocks
 
@@ -154,12 +165,12 @@ class Tool(Plugin):
 					app.cnc.motionEnd()
 
 					if xyz:
-						#exclude if fast move or z only movement
-						G0 =('g0' in cmd) or ('G0' in cmd)
+						# Exclude if fast move or z only movement
+						G0 = 'G0' in cmd[0].upper()
 						Zonly = (xyz[0][0] == xyz[1][0] and xyz[0][1] == xyz[1][1])
 						exclude = G0 or Zonly
 
-						#save length for later use
+						# Save length for later use
 						segLenth = self.calcSegmentLength(xyz)
 
 						if len(xyz) < 3:
@@ -167,10 +178,10 @@ class Tool(Plugin):
 						else:
 							for i in range(len(xyz)-1):
 								bidSegments.append([xyz[i],xyz[i+1],exclude,segLenth])
-			#append bidSegmentes to allSegmentes
+			# Append bidSegments to allSegments
 			allSegments.append(bidSegments)
 
-		#Disabled used block
+		# Disable used block
 		for bid in selectedBlock:
 			block = allBlocks[bid]
 			if block.name() in ("Header", "Footer"): continue
@@ -180,14 +191,31 @@ class Tool(Plugin):
 
 	# ----------------------------------------------------------------------
 	def execute(self, app):
-		#Get inputs
+		# Get inputs
 		holesDistance = self.fromMm("HolesDistance")
 		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
 		useAnchor = self["useAnchor"]
 		excellonFileName = self["File"]
 
-		#Check inputs
+		# ------------------------------------------------------------------
+		# Custom for laser in M3 mode
+		self.useCustom = self["useCustom"]
+
+		self.rFeed = int(min(CNC.feedmax_x, CNC.feedmax_y))
+		if self["rFeed"]:
+			self.rFeed = self["rFeed"]
+
+		self.spinMin = Utils.config.get("CNC","spindlemin")
+		if self["spinMin"]:
+			self.spinMin = self["spinMin"]
+
+		self.spinMax = Utils.config.get("CNC","spindlemax")
+		if self["spinMax"]:
+			self.spinMax = self["spinMax"]
+		# ------------------------------------------------------------------
+
+		# Check inputs
 		if holesDistance <=0 and useAnchor == False:
 			app.setStatus(_("Driller abort: Distance must be > 0"))
 			return
@@ -217,10 +245,10 @@ class Tool(Plugin):
 			app.setStatus(_("Driller abort: Please select some path"))
 			return
 
-		#Get all segments from gcode
+		# Get all segments from gcode
 		allSegments = self.extractAllSegments(app,selBlocks)
 
-		#Create holes locations
+		# Create holes locations
 		allHoles=[]
 		for bidSegment in allSegments:
 			if len(bidSegment)==0:
@@ -230,22 +258,27 @@ class Tool(Plugin):
 				bidHoles = []
 				for idx, anchor in enumerate(bidSegment):
 					if idx > 0:
-						newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
-						bidHoles.append(newHolePoint)
+						if self.useCustom:
+							if (anchor[0][0] != anchor[1][0] and anchor[0][1] != anchor[1][1]):
+								newHolePoint = (anchor[1][0],anchor[1][1],anchor[0][2])
+								bidHoles.append(newHolePoint)
+						else:
+							newHolePoint = (anchor[0][0],anchor[0][1],anchor[0][2])
+							bidHoles.append(newHolePoint)
 			else:
-				#Summ all path length
+				# Sum all path length
 				fullPathLength = 0.0
 				for s in bidSegment:
 					fullPathLength += s[3]
 
-				#Calc rest
+				# Calc rest
 				holes = fullPathLength // holesDistance
 				rest = fullPathLength - (holesDistance * (holes))
-				#Travel along the path
-				elapsedLength = rest / 2.0 #equaly distribute rest, as option???
+				# Travel along the path
+				elapsedLength = rest / 2.0 # Equally distribute rest, as option???
 				bidHoles = []
 				while elapsedLength <= fullPathLength:
-					#Search best segment to apply line interpolation
+					# Search best segment to apply line interpolation
 					bestSegment = bidSegment[0]
 					segmentsSum = 0.0
 					perc = 0.0
@@ -256,67 +289,99 @@ class Tool(Plugin):
 						segmentsSum += segmentLength
 						if segmentsSum > elapsedLength : break
 
-					#Fist point
+					# Fist point
 					x1 = bestSegment[0][0]
 					y1 = bestSegment[0][1]
 					z1 = bestSegment[0][2]
-					#Last point
+					# Last point
 					x2 = bestSegment[1][0]
 					y2 = bestSegment[1][1]
 					z2 = bestSegment[1][2]
 
-					#Check if segment is not excluded
+					# Check if segment is not excluded
 					if not bestSegment[2]:
-						newHolePoint = (x1 + perc*(x2-x1) ,
+						newHolePoint = (x1 + perc*(x2-x1),
 							y1 + perc*(y2-y1),
 							z1 + perc*(z2-z1))
 						bidHoles.append(newHolePoint)
 
-					#Go to next hole
+					# Go to next hole
 					elapsedLength += holesDistance
-			#remove duplicates
+			# Remove duplicates
 			bidHoles = list(OrderedDict.fromkeys(bidHoles))
-			#Add bidHoles to allHoles
+			# Add bidHoles to allHoles
 			allHoles.append(bidHoles)
 
-		#Write gcommands from allSegments to the drill block
+		# Write gcommands from allSegments to the drill block
 		blocks = []
 		n = self["name"]
 		if not n or n=="default": n="Driller"
+		if self.useCustom: n += "-laser-mode"
 		block,holesCount = self.create_block(allHoles,n)
 		blocks.append(block)
 		self.finish_blocks(app, blocks, holesCount)
 
-	#Write gcommands from allHoles to the drill block
+	# Write gcommands from allHoles to the drill block
 	def create_block(self, holes, name):
 		targetDepth = self.fromMm("TargetDepth")
 		peck = self.fromMm("Peck")
 		dwell = self["Dwell"]
 		block = Block(name)
 		holesCount = 0
+
+		if self.useCustom:
+			block.append("M3 S0")
+		else:
+			block.append(CNC.zsafe())
+
 		for bid in holes:
 			for xH,yH,zH in bid:
 				holesCount += 1
-				block.append(CNC.zsafe())
-				block.append(CNC.grapid(xH,yH))
-				if (peck != 0) :
+
+				if self.useCustom:
+					block.append(CNC.grapid(x=xH, y=yH) + CNC.fmt(' F', self.rFeed))
+				else:
+					#block.append(CNC.zsafe()) # Moved up
+					block.append(CNC.grapid(xH,yH))
+
+				if peck != 0:
 					z = 0
 					while z > targetDepth:
 						z = max(z-peck, targetDepth)
-						block.append(CNC.zenter(zH + z))
-						block.append(CNC.zsafe())
-				block.append(CNC.zenter(zH + targetDepth))
-				#dwell time only on last pass
+						if self.useCustom:
+							block.append("( --- WARNING! Peck is not setup for laser mode --- )")
+							break
+						else:
+							block.append(CNC.zenter(zH + z))
+							block.append(CNC.zsafe())
+
+				if self.useCustom:
+					block.append("G1 S%s" % (self.spinMax))
+					block.append(CNC.gline(x=xH, y=yH))
+				else:
+					block.append(CNC.zenter(zH + targetDepth))
+
+				# Dwell time only on last pass
 				if dwell != 0:
-					block.append(CNC.gcode(4, [("P",dwell)]))
-		#Gcode Zsafe on finish
-		block.append(CNC.zsafe())
+					block.append(CNC.gcode(4, [("P", dwell)]))
+
+				if self.useCustom:
+					block.append("G1 S%s" % (self.spinMin))
+				else:
+					block.append(CNC.zsafe())
+
+		# Gcode Zsafe on finish
+		if self.useCustom:
+			block.append("M5")
+		else:
+			block.append(CNC.zsafe())
 		return (block,holesCount)
 
-	#Insert created blocks
+	# Insert created blocks
 	def finish_blocks(self, app, blocks, numberholes):
 		active = app.activeBlock()
 		if active==0: active=1
 		app.gcode.insBlocks(active, blocks, "Driller")
 		app.refresh()
 		app.setStatus(_("Generated Driller: %d holes")%numberholes)
+
