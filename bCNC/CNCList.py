@@ -24,6 +24,7 @@ except ImportError:
 from CNC import Block, CNC
 import tkExtra
 import re
+import json
 #import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
@@ -147,18 +148,18 @@ class CNCListbox(Listbox):
 	# Copy selected items to clipboard
 	# ----------------------------------------------------------------------
 	def copy(self, event=None):
-		sio = StringIO()
-		pickler = pickle.Pickler(sio)
+		jsonstring =""
 		#sio.write(_PLOT_CLIP)
 		for block,line in self.getCleanSelection():
 			if line is None:
-				pickler.dump(self.gcode.blocks[block].dump())
+				jsonstring = json.dumps(self.gcode.blocks[block].dump())
+# 				pickler.dump(self.gcode.blocks[block].dump())
 			else:
-				pickler.dump(self.gcode.blocks[block][line])
+				jsonstring = json.dumps(self.gcode.blocks[block][line])
+# 				pickler.dump(self.gcode.blocks[block][line])
 		self.clipboard_clear()
-		self.clipboard_append(sio.getvalue())
+		self.clipboard_append(jsonstring)
 		return "break"
-
 	# ----------------------------------------------------------------------
 	def cut(self, event=None):
 		self.copy()
@@ -210,10 +211,14 @@ class CNCListbox(Listbox):
 
 		try:
 			# try to unpickle it
-			unpickler = pickle.Unpickler(StringIO(clipboard))
+			unpickler=json.loads(clipboard)
+			if isinstance(unpickler,list):
+				unpickler =tuple(unpickler)
 			try:
-				while True:
-					obj = unpickler.load()
+				for _ in range(1):
+					obj = json.loads(clipboard)
+					if isinstance(obj,list):
+						obj =tuple(obj)
 					if isinstance(obj,tuple):
 						block = Block.load(obj)
 						self._bid += 1
