@@ -1983,7 +1983,7 @@ class Block(list):
 					found = True
 
 			# remove all empty
-			ops = filter(lambda x:x!="", ops)
+			ops = list(filter(lambda x:x!="", ops))
 
 			if not found:
 				ops.append(operation)
