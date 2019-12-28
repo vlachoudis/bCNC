@@ -206,27 +206,19 @@ class CNCListbox(Listbox):
 					self._lid += 1
 					selitems.append((self._bid, self._lid))
 				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
-
-		try:
-			try:
-				objs = json.loads(clipboard)
-				for obj in objs:
-					if isinstance(obj,list):
-						obj =tuple(obj)
-					if isinstance(obj,tuple):
-						block = Block.load(obj)
-						self._bid += 1
-						undoinfo.append(self.gcode.addBlockUndo(self._bid, block))
-						selitems.append((self._bid,None))
-						self._lid = None
-					else:
-						addLines(obj)
-			except EOFError:
-				pass
-		except pickle.UnpicklingError:
-			# Paste as text
-			addLines(clipboard)
-
+		
+		objs = json.loads(clipboard)
+		for obj in objs:
+			if isinstance(obj,list):
+				obj =tuple(obj)
+			if isinstance(obj,tuple):
+				block = Block.load(obj)
+				self._bid += 1
+				undoinfo.append(self.gcode.addBlockUndo(self._bid, block))
+				selitems.append((self._bid,None))
+				self._lid = None
+			else:
+				addLines(obj)
 		if not undoinfo: return
 
 		self.gcode.addUndo(undoinfo)
