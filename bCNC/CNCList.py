@@ -148,16 +148,14 @@ class CNCListbox(Listbox):
 	# Copy selected items to clipboard
 	# ----------------------------------------------------------------------
 	def copy(self, event=None):
-		jsonstring =""
-		#sio.write(_PLOT_CLIP)
+		jsonobj=[]
 		for block,line in self.getCleanSelection():
 			if line is None:
-				jsonstring = json.dumps(self.gcode.blocks[block].dump())
-# 				pickler.dump(self.gcode.blocks[block].dump())
+				jsonobj.append(self.gcode.blocks[block].dump())
 			else:
-				jsonstring = json.dumps(self.gcode.blocks[block][line])
-# 				pickler.dump(self.gcode.blocks[block][line])
+				jsonobj.append(self.gcode.blocks[block][line])
 		self.clipboard_clear()
+		jsonstring=json.dumps(jsonobj)
 		self.clipboard_append(jsonstring)
 		return "break"
 	# ----------------------------------------------------------------------
@@ -210,13 +208,9 @@ class CNCListbox(Listbox):
 				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
 
 		try:
-			# try to unpickle it
-			unpickler=json.loads(clipboard)
-			if isinstance(unpickler,list):
-				unpickler =tuple(unpickler)
 			try:
-				for _ in range(1):
-					obj = json.loads(clipboard)
+				objs = json.loads(clipboard)
+				for obj in objs:
 					if isinstance(obj,list):
 						obj =tuple(obj)
 					if isinstance(obj,tuple):
