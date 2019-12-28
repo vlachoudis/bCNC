@@ -3077,11 +3077,11 @@ class Combobox(Frame):
 	def get(self, first=None, last=None):
 		if first is None:
 			if isinstance(self._text, Label):
-				return self._text.cget("text")
+				return u"%s"%self._text.cget("text")
 			else:
-				return self._text.get()
+				return u"%s"%self._text.get()
 		else:
-			return self._listbox.get(first, last)
+			return u"%s"%self._listbox.get(first, last)
 
 	# ----------------------------------------------------------------------
 	def set(self, txt):
