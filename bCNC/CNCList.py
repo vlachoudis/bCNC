@@ -24,6 +24,7 @@ except ImportError:
 from CNC import Block, CNC
 import tkExtra
 import re
+import json
 #import tkDialogs
 
 BLOCK_COLOR   = "LightYellow"
@@ -147,18 +148,16 @@ class CNCListbox(Listbox):
 	# Copy selected items to clipboard
 	# ----------------------------------------------------------------------
 	def copy(self, event=None):
-		sio = StringIO()
-		pickler = pickle.Pickler(sio)
-		#sio.write(_PLOT_CLIP)
+		jsonobj=[]
 		for block,line in self.getCleanSelection():
 			if line is None:
-				pickler.dump(self.gcode.blocks[block].dump())
+				jsonobj.append(self.gcode.blocks[block].dump())
 			else:
-				pickler.dump(self.gcode.blocks[block][line])
+				jsonobj.append(self.gcode.blocks[block][line])
 		self.clipboard_clear()
-		self.clipboard_append(sio.getvalue())
+		jsonstring=json.dumps(jsonobj)
+		self.clipboard_append(jsonstring)
 		return "break"
-
 	# ----------------------------------------------------------------------
 	def cut(self, event=None):
 		self.copy()
@@ -207,27 +206,19 @@ class CNCListbox(Listbox):
 					self._lid += 1
 					selitems.append((self._bid, self._lid))
 				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
-
-		try:
-			# try to unpickle it
-			unpickler = pickle.Unpickler(StringIO(clipboard))
-			try:
-				while True:
-					obj = unpickler.load()
-					if isinstance(obj,tuple):
-						block = Block.load(obj)
-						self._bid += 1
-						undoinfo.append(self.gcode.addBlockUndo(self._bid, block))
-						selitems.append((self._bid,None))
-						self._lid = None
-					else:
-						addLines(obj)
-			except EOFError:
-				pass
-		except pickle.UnpicklingError:
-			# Paste as text
-			addLines(clipboard)
-
+		
+		objs = json.loads(clipboard)
+		for obj in objs:
+			if isinstance(obj,list):
+				obj =tuple(obj)
+			if isinstance(obj,tuple):
+				block = Block.load(obj)
+				self._bid += 1
+				undoinfo.append(self.gcode.addBlockUndo(self._bid, block))
+				selitems.append((self._bid,None))
+				self._lid = None
+			else:
+				addLines(obj)
 		if not undoinfo: return
 
 		self.gcode.addUndo(undoinfo)

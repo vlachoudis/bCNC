@@ -1983,7 +1983,7 @@ class Block(list):
 					found = True
 
 			# remove all empty
-			ops = filter(lambda x:x!="", ops)
+			ops = list(filter(lambda x:x!="", ops))
 
 			if not found:
 				ops.append(operation)
@@ -4519,7 +4519,7 @@ class GCode:
 		#pprint(matrix)
 
 		best = [0]
-		unvisited = range(1,n)
+		unvisited = list(range(1,n))
 		while unvisited:
 			last = best[-1]
 			row = matrix[last]
