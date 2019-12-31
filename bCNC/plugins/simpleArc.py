@@ -70,7 +70,8 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if not n or n=="default": n="SimpleArc"
+		if not n or n=="default":
+			n="SimpleArc"
 		simpleArc = SimpleArc(n)
 		blocks = simpleArc.calc(self["xcenter"], self["ycenter"], self["radius"], self["startangle"], self["endangle"])
 		active = app.activeBlock()
