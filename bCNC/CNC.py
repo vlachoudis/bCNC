@@ -978,7 +978,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def glinev(g, v, feed=None):
-		pairs = zip("xyz",v)
+		pairs = list(zip("xyz",v))
 		if feed is not None:
 			pairs.append(("f",feed))
 		return CNC.gcode(g, pairs)
