@@ -7,14 +7,15 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+import sys
 
 __version__ = "0.9.14-dev"
 __date__    = "8 Jan 2019"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
+__platform_fingerprint__ = "(%s py%s.%s.%s)"%(sys.platform, sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
 
 import os
-import sys
 import time
 import getopt
 import socket
@@ -108,7 +109,7 @@ class Application(Toplevel,Sender):
 			self.iconbitmap("%s\\bCNC.ico"%(Utils.prgpath))
 		else:
 			self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
-		self.title("%s %s"%(Utils.__prg__, __version__))
+		self.title("%s %s %s"%(Utils.__prg__, __version__, __platform_fingerprint__))
 		self.widgets = []
 
 		# Global variables
