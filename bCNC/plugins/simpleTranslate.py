@@ -10,7 +10,7 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleTranslate")
+
 
 import math
 from bmath import Vector
@@ -19,11 +19,9 @@ from ToolsPage import Plugin
 from CNCRibbon    import Page
 try:
 	import Tkinter
-	from Tkinter import *
 	import tkMessageBox
 except ImportError:
 	import tkinter
-	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
 
@@ -63,23 +61,18 @@ class Tool(Plugin):
 				_("No g-code blocks selected"))
 			return
 		pos = blocks[-1]	# insert position
-
-		#undoinfo = []
 		y = dy
 		x = dx
 		pos += 1
 		for index in range(int(nbrepeat-1)):
 			# clone selected blocks
-			undoinfo = []	# FIXME it should be only one UNDO
+			undoinfo = []
 			newblocks = []
 			for bid in blocks:
 				undoinfo.append(app.gcode.cloneBlockUndo(bid, pos))
 				newblocks.append((pos,None))
 				pos += 1
 			app.addUndo(undoinfo)
-
-			# FIXME but the moveLines already does the addUndo
-			# I should correct it
 			app.gcode.moveLines(newblocks, x, y)
 			x += dx
 			y += dy

@@ -10,7 +10,6 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleLine")
 
 import math
 from bmath import Vector
@@ -64,11 +63,13 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if not n or n=="default": n="SimpleLine"
+		if not n or n=="default":
+			n="SimpleLine"
 		simpleLine = SimpleLine(n)
 		blocks = simpleLine.calc(self["xstart"], self["ystart"], self["xend"], self["yend"], )
 		active = app.activeBlock()
-		if active==0: active=1
+		if active==0:
+			active=1
 		app.gcode.insBlocks(active, blocks, _("Create Simple Line"))
 		app.refresh()
 		app.setStatus(_("Generated: Simple Line"))

@@ -10,7 +10,6 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleRectangle")
 
 import math
 from bmath import Vector
@@ -42,21 +41,29 @@ class SimpleRectangle:
 		block.append("(entered)")
 		if cw:
 			block.append(CNC.gline(x=xmin,y=ymax-r))
-			if r>0 :block.append(CNC.garc(2,x=xmin+r,y=ymax,i=r,j=0)) 
+			if r>0 :
+				block.append(CNC.garc(2,x=xmin+r,y=ymax,i=r,j=0)) 
 			block.append(CNC.gline(x=xmax-r,y=ymax))
-			if r>0 :block.append(CNC.garc(2,x=xmax,y=ymax-r,i=0,j=-r))
+			if r>0 :
+				block.append(CNC.garc(2,x=xmax,y=ymax-r,i=0,j=-r))
 			block.append(CNC.gline(x=xmax,y=ymin+r))
-			if r>0 :block.append(CNC.garc(2,x=xmax-r,y=ymin,i=-r,j=0))
+			if r>0 :
+				block.append(CNC.garc(2,x=xmax-r,y=ymin,i=-r,j=0))
 			block.append(CNC.gline(x=xmin+r,y=ymin))
-			if r>0 :block.append(CNC.garc(2,x=xmin,y=ymin+r,i=0,j=r))
+			if r>0 :
+				block.append(CNC.garc(2,x=xmin,y=ymin+r,i=0,j=r))
 		else : 
-			if r>0 :block.append(CNC.garc(3,x=xmin+r,y=ymin,i=r,j=0))
+			if r>0 :
+				block.append(CNC.garc(3,x=xmin+r,y=ymin,i=r,j=0))
 			block.append(CNC.gline(x=xmax-r,y=ymin))
-			if r>0 :block.append(CNC.garc(3,x=xmax,y=ymin+r,i=0,j=r))
+			if r>0 :
+				block.append(CNC.garc(3,x=xmax,y=ymin+r,i=0,j=r))
 			block.append(CNC.gline(x=xmax,y=ymax-r))
-			if r>0 :block.append(CNC.garc(3,x=xmax-r,y=ymax,i=-r,j=0))
+			if r>0 :
+				block.append(CNC.garc(3,x=xmax-r,y=ymax,i=-r,j=0))
 			block.append(CNC.gline(x=xmin+r,y=ymax))
-			if r>0 :block.append(CNC.garc(3,x=xmin,y=ymax-r,i=0,j=-r))
+			if r>0 :
+				block.append(CNC.garc(3,x=xmin,y=ymax-r,i=0,j=-r))
 			block.append(CNC.gline(x=xmin,y=ymin+r))
 		block.append("(exiting)")
 		block.append(CNC.grapid(z=CNC.vars["safe"]))
@@ -87,11 +94,13 @@ class Tool(Plugin):
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if not n or n=="default": n="SimpleRectangle"
+		if not n or n=="default":
+			n="SimpleRectangle"
 		simpleRectangle = SimpleRectangle(n)
 		blocks = simpleRectangle.calc(self["xstart"], self["ystart"], self["xend"], self["yend"], self["radius"],self["cw"])
 		active = app.activeBlock()
-		if active==0: active=1
+		if active==0:
+			active=1
 		app.gcode.insBlocks(active, blocks, _("Create Simple Rectangle"))
 		app.refresh()
 		app.setStatus(_("Generated: Simple Rectangle"))
