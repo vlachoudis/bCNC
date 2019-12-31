@@ -10,7 +10,6 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleDrill")
 
 import math
 from bmath import Vector
@@ -30,10 +29,7 @@ class SimpleDrill:
 			self.block.append(CNC.gline(z=ztogo))
 
 	def calc(self,x,y,depth,peck,dwell,drillFeed,safeZforG0):
-		try :
-			self.safeZforG0 =float(abs(safeZforG0))
-		except:
-			self.safeZforG0 =-1
+		self.safeZforG0 =float(abs(safeZforG0))
 		peck=abs(float(peck))
 		currentz=0.0
 		self.blocks = []
@@ -88,11 +84,13 @@ This can accelerate the process """
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		n = self["name"]
-		if not n or n=="default": n="SimpleDrill"
+		if not n or n=="default":
+			n="SimpleDrill"
 		simpleDrill = SimpleDrill(n)
 		blocks = simpleDrill.calc(self["x"], self["y"], self["depth"], self["peck"], self["dwell"],self["drillFeed"],self["safeZforG0"])
 		active = app.activeBlock()
-		if active==0: active=1
+		if active==0:
+			active=1
 		app.gcode.insBlocks(active, blocks, _("Create Simple Drill"))
 		app.refresh()
 		app.setStatus(_("Generated: Simple Drill"))
@@ -100,4 +98,3 @@ This can accelerate the process """
 if __name__=="__main__":
 	simpleDrill = SimpleDrill()
 	simpleDrill.calc(10,10,-20,1,0.2,50)
-

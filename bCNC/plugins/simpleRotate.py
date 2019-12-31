@@ -10,7 +10,6 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleRotate")
 
 import math
 from bmath import Vector
@@ -18,12 +17,12 @@ from CNC import CW,CNC,Block
 from ToolsPage import Plugin
 from CNCRibbon    import Page
 try:
-	import Tkinter
-	from Tkinter import *
+# 	import Tkinter
+# 	from Tkinter import *
 	import tkMessageBox
 except ImportError:
-	import tkinter
-	from tkinter import *
+# 	import tkinter
+# 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
 
 
@@ -65,22 +64,17 @@ class Tool(Plugin):
 				_("No g-code blocks selected"))
 			return
 		pos = blocks[-1]	# insert position
-
-		#undoinfo = []
 		alpha_current = alpha
 		pos += 1
 		for index in range(int(nbrepeat-1)):
 			# clone selected blocks
-			undoinfo = []	# FIXME it should be only one UNDO
+			undoinfo = []
 			newblocks = []
 			for bid in blocks:
 				undoinfo.append(app.gcode.cloneBlockUndo(bid, pos))
 				newblocks.append((pos,None))
 				pos += 1
 			app.addUndo(undoinfo)
-
-			# FIXME but the moveLines already does the addUndo	def moveLines(self, items, dx, dy, dz=0.0):
-			# I should correct it	def rotateLines(self, items, ang, x0=0.0, y0=0.0):
 			app.gcode.rotateLines(newblocks,alpha_current, xcenter, ycenter)
 			alpha_current+=alpha
 		if not keep :

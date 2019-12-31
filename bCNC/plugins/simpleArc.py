@@ -10,7 +10,6 @@ from __future__ import print_function
 __author__ = "DodoLaSaumure"
 __email__  = ""
 
-__name__ = _("SimpleArc")
 
 import math
 from bmath import Vector
@@ -40,10 +39,10 @@ class SimpleArc:
 		block.append(CNC.grapid(z=0.0))
 		block.append("(entered)")
 		if startangle<endangle :
-			dir = 3
+			direction = 3
 		else :
-			dir = 2
-		block.append(CNC.garc(dir,x=xend,y=yend,i=i,j=j))
+			direction = 2
+		block.append(CNC.garc(direction,x=xend,y=yend,i=i,j=j))
 		block.append("(exiting)")
 		block.append(CNC.grapid(z=CNC.vars["safe"]))
 		blocks.append(block)
@@ -75,7 +74,8 @@ class Tool(Plugin):
 		simpleArc = SimpleArc(n)
 		blocks = simpleArc.calc(self["xcenter"], self["ycenter"], self["radius"], self["startangle"], self["endangle"])
 		active = app.activeBlock()
-		if active==0: active=1
+		if active==0:
+			active=1
 		app.gcode.insBlocks(active, blocks, _("Create Simple Arc"))
 		app.refresh()
 		app.setStatus(_("Generated: Simple Arc"))
