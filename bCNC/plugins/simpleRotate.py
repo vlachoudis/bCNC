@@ -39,9 +39,9 @@ class Tool(Plugin):
 		self.variables = [
 			("xcenter",        "float",    10.0, _("x center")),
 			("ycenter",        "float",    10.0, _("y center")),
-			("alpha",        "float",    90.0, _("angle (degrees)")),
+			("alpha",        "float",    90.0, _("angle step (degrees)")),
 			("nbrepeat",        "int",    2, _("nb repeat including original")),
-			("keep",        "bool",    True, _("Keep original")),
+			("keep",        "bool",    True, _("Keep original yes/no")),
 		]
 		self.buttons.append("exe")
 
