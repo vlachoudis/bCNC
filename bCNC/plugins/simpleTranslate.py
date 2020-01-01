@@ -39,7 +39,7 @@ class Tool(Plugin):
 			("xinc",        "float",    10.0, _("x increment")),
 			("yinc",        "float",    10.0, _("y increment")),
 			("nbrepeat",        "int",    2, _("nb repeat including original")),
-			("keep",        "bool",    True, _("Keep original")),
+			("keep",        "bool",    True, _("Keep original Yes/No")),
 		]
 		self.buttons.append("exe")
 
