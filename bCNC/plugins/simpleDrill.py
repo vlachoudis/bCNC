@@ -23,10 +23,11 @@ from ToolsPage import Plugin
 class SimpleDrill:
 	def __init__(self, name): 
 		self.name = name
-	def accelerateIfNeeded(self,ztogo):
+	def accelerateIfNeeded(self,ztogo,drillfeed):
 		if self.safeZforG0>0:
 			self.block.append(CNC.grapid(z=ztogo+self.safeZforG0))
-			self.block.append(CNC.gline(z=ztogo))
+			kwargs={"f":float(drillfeed)}
+			self.block.append(CNC.gline(None,None,ztogo,**kwargs))
 
 	def calc(self,x,y,depth,peck,dwell,drillFeed,safeZforG0):
 		self.safeZforG0 =float(abs(safeZforG0))
@@ -36,7 +37,7 @@ class SimpleDrill:
 		self.block = Block(self.name)
 		self.block.append(CNC.grapid(x=x,y=y))
 		self.block.append(CNC.grapid(z=CNC.vars["safe"]))
-		self.accelerateIfNeeded(0.0)
+		self.accelerateIfNeeded(0.0,drillFeed)
 		self.block.append("(entered)")
 		while(currentz>depth):
 			currentz-=peck
@@ -49,7 +50,7 @@ class SimpleDrill:
 				self.block.append(CNC.grapid(z=CNC.vars["safe"]))
 			self.block.append("g4 %s"%(CNC.fmt("p",float(dwell))))
 			if currentz > depth:
-				self.accelerateIfNeeded(currentz)
+				self.accelerateIfNeeded(currentz,drillFeed)
 		self.block.append("(exiting)")
 		self.block.append(CNC.grapid(z=CNC.vars["safe"]))
 		self.blocks.append(self.block)
