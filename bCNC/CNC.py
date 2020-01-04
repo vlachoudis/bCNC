@@ -1676,6 +1676,9 @@ class CNC:
 			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
 			block.rapid += length
+		elif self.gcode == 1 or self.gcode==2 or self.gcode==3 :
+			block.time += length / self.feed
+			self.totalTime += length / self.feed
 		else:
 			try:
 				if CNC.vars["feedmode"] == 94:
@@ -1684,7 +1687,6 @@ class CNC:
 				elif CNC.vars["feedmode"] == 93:
 					# Inverse mode
 					t = length * self.feed
-
 				block.time += t
 				self.totalTime += t
 			except:
