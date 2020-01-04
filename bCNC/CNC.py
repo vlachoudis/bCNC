@@ -1676,7 +1676,7 @@ class CNC:
 			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
 			block.rapid += length
-		elif self.gcode == 1 or self.gcode==2 or self.gcode==3 :
+		elif (self.gcode == 1 or self.gcode==2 or self.gcode==3) and self.feed >0 :
 			block.time += length / self.feed
 			self.totalTime += length / self.feed
 		else:
