@@ -43,7 +43,8 @@ class SimpleDrill:
 			currentz-=peck
 			if currentz < depth:
 				currentz = depth
-			self.block.append("g1 %s %s"%(CNC.fmt("z",float(currentz)),CNC.fmt("f",float(drillFeed))))
+			kwargs={"f":float(drillFeed)}
+			self.block.append(CNC.gline(None,None,float(currentz),**kwargs))
 			if self.safeZforG0 >0:
 				self.block.append(CNC.grapid(z=0.0+self.safeZforG0))
 			else :
