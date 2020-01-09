@@ -208,8 +208,8 @@ class CNCListbox(Listbox):
 				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
 		try:
 			objs = json.loads(clipboard)
-		except Exception as e:
-			objs = []
+		except Exception :
+			objs = [clipboard]
 		for obj in objs:
 			if isinstance(obj,list):
 				obj =tuple(obj)
@@ -220,7 +220,13 @@ class CNCListbox(Listbox):
 				selitems.append((self._bid,None))
 				self._lid = None
 			else:
-				addLines(obj)
+				try :
+					for line in obj.split("\n"):
+						self.gcode._addLine(line.replace("\x0d",""))
+					self.app.editor.fill()
+					self.app.draw()
+				except Exception:
+					pass
 		if not undoinfo: return
 
 		self.gcode.addUndo(undoinfo)
