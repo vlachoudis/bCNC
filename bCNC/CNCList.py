@@ -207,7 +207,7 @@ class CNCListbox(Listbox):
 					selitems.append((self._bid, self._lid))
 				undoinfo.append(self.gcode.insLineUndo(self._bid, self._lid, line))
 		
-		objs = json.loads(clipboard)
+		objs = json.loads(clipboard.encode("utf-8"))
 		for obj in objs:
 			if isinstance(obj,list):
 				obj =tuple(obj)
