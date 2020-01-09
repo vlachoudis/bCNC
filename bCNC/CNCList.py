@@ -220,13 +220,7 @@ class CNCListbox(Listbox):
 				selitems.append((self._bid,None))
 				self._lid = None
 			else:
-				try :
-					for line in obj.split("\n"):
-						self.gcode._addLine(line.replace("\x0d",""))
-					self.app.editor.fill()
-					self.app.draw()
-				except Exception:
-					pass
+				addLines(obj)
 		if not undoinfo: return
 
 		self.gcode.addUndo(undoinfo)
