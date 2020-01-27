@@ -84,7 +84,7 @@ class _GenericController:
 		self.master.sendGCode("$H")
 
 	def viewStatusReport(self):
-		self.master.serial_write(b"?")
+		self.master.serial_write(b"?\n")
 		self.master.sio_status = True
 
 	def viewParameters(self):
