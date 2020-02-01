@@ -43,28 +43,35 @@ class SimpleRectangle:
 			block.append(CNC.gline(x=xmin,y=ymax-r))
 			if r>0 :
 				block.append(CNC.garc(2,x=xmin+r,y=ymax,i=r,j=0)) 
-			block.append(CNC.gline(x=xmax-r,y=ymax))
+			if (xmax-xmin)>2*r:
+				block.append(CNC.gline(x=xmax-r,y=ymax))
 			if r>0 :
 				block.append(CNC.garc(2,x=xmax,y=ymax-r,i=0,j=-r))
-			block.append(CNC.gline(x=xmax,y=ymin+r))
+			if (ymax-ymin)>2*r :
+				block.append(CNC.gline(x=xmax,y=ymin+r))
 			if r>0 :
 				block.append(CNC.garc(2,x=xmax-r,y=ymin,i=-r,j=0))
-			block.append(CNC.gline(x=xmin+r,y=ymin))
+			if (xmax-xmin)>2*r:
+				block.append(CNC.gline(x=xmin+r,y=ymin))
 			if r>0 :
 				block.append(CNC.garc(2,x=xmin,y=ymin+r,i=0,j=r))
 		else : 
 			if r>0 :
 				block.append(CNC.garc(3,x=xmin+r,y=ymin,i=r,j=0))
-			block.append(CNC.gline(x=xmax-r,y=ymin))
+			if (xmax-xmin)>2*r:
+				block.append(CNC.gline(x=xmax-r,y=ymin))
 			if r>0 :
 				block.append(CNC.garc(3,x=xmax,y=ymin+r,i=0,j=r))
-			block.append(CNC.gline(x=xmax,y=ymax-r))
+			if (ymax-ymin)>2*r :
+				block.append(CNC.gline(x=xmax,y=ymax-r))
 			if r>0 :
 				block.append(CNC.garc(3,x=xmax-r,y=ymax,i=-r,j=0))
-			block.append(CNC.gline(x=xmin+r,y=ymax))
+			if (xmax-xmin)>2*r:
+				block.append(CNC.gline(x=xmin+r,y=ymax))
 			if r>0 :
 				block.append(CNC.garc(3,x=xmin,y=ymax-r,i=0,j=-r))
-			block.append(CNC.gline(x=xmin,y=ymin+r))
+			if (ymax-ymin)>2*r :
+				block.append(CNC.gline(x=xmin,y=ymin+r))
 		block.append("(exiting)")
 		block.append(CNC.grapid(z=CNC.vars["safe"]))
 		blocks.append(block)
