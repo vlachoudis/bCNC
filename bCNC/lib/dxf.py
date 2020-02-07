@@ -530,7 +530,7 @@ class Entity(dict):
 		"""Convert complex objects (SPLINE,ELLIPSE) to polylines"""
 		if self.type == "SPLINE":
 			# Convert to polyline
-			xyz  = zip(self[10], self[20], self[30])
+			xyz  = list(zip(self[10], self[20], self[30]))
 			flag = int(self.get(70,0))
 			closed   = bool(flag & Entity.CLOSED)
 			periodic = bool(flag & Entity.PERIODIC)
