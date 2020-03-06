@@ -863,7 +863,10 @@ class ExListbox(Listbox):
 
 		start  = 0
 		cur    = self.index(ACTIVE)
-		active = unicode(self.get(ACTIVE))
+		try :
+			active = unicode(self.get(ACTIVE))
+		except Exception as e:
+			active = str(self.get(ACTIVE))
 		if self.ignoreCase:
 			try: active = active.upper()
 			except: pass
@@ -897,7 +900,10 @@ class ExListbox(Listbox):
 				loop += 1
 
 			for i in range(start, self.size()):
-				item = unicode(self.get(i))
+				try :
+					item = unicode(self.get(i))
+				except Exception as e :
+					item = str(self.get(i))
 				if self.ignoreCase:
 					try: item = item.upper()
 					except: pass
