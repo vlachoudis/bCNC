@@ -864,7 +864,6 @@ class ExListbox(Listbox):
 		start  = 0
 		cur    = self.index(ACTIVE)
 		active = unicode(self.get(ACTIVE))
-
 		if self.ignoreCase:
 			try: active = active.upper()
 			except: pass

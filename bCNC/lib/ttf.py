@@ -135,8 +135,7 @@ class TruetypeInfo:
 		self._tables = {}
 		for table in _read_table_directory_entry.array(self._data,
 			offsets.size, offsets.num_tables):
-			self._tables[table.tag] = table
-
+			self._tables[table.tag.decode("utf-8")] = table
 		self._names = None
 		self._horizontal_metrics = None
 		self._character_advances = None
@@ -415,7 +414,7 @@ class TruetypeInfo:
 		# format ever.  Whoever the fuckwit is that thought this up is
 		# a fuckwit.
 		header = _read_cmap_format4Header(self._data, offset)
-		seg_count = header.seg_count_x2 / 2
+		seg_count = int(header.seg_count_x2 / 2)
 		array_size = struct.calcsize('>%dH' % seg_count)
 		end_count = self._read_array('>%dH' % seg_count,
 			offset + header.size)
@@ -437,12 +436,18 @@ class TruetypeInfo:
 						id_range_offset_address + 2 * i
 					g = struct.unpack('>H', self._data[addr:addr + 2])[0]
 					if g != 0:
-						character_map[unichr(c)] = (g + id_delta[i]) % 65536
+						try :
+							character_map[unichr(c)] = (g + id_delta[i]) % 65536
+						except Exception as e :
+							character_map[chr(c)] = (g + id_delta[i]) % 65536
 			else:
 				for c in range(start_count[i], end_count[i] + 1):
 					g = (c + id_delta[i]) % 65536
 					if g != 0:
-						character_map[unichr(c)] = g
+						try :
+							character_map[unichr(c)] = g
+						except Exception as e :
+							character_map[chr(c)] = g
 		return character_map
 
 	def _get_glyph_offset(self, index):
@@ -762,7 +767,7 @@ def _read_table(*entries):
 		size = struct.calcsize(fmt)
 		def __init__(self, data, offset):
 			items = struct.unpack(fmt, data[offset:offset + self.size])
-			self.pairs = zip(names, items)
+			self.pairs = list(zip(names, items))
 			for name, value in self.pairs:
 				setattr(self, name, value)
 

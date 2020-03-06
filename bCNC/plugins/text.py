@@ -85,7 +85,6 @@ class Tool(Plugin):
 				block.append("(%s)" % line)
 		else:
 			block.append("(Text: %s)" % textToWrite)
-
 		try:
 			import ttf
 			font = ttf.TruetypeInfo(fontFileName)
