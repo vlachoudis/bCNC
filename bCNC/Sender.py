@@ -403,8 +403,13 @@ class Sender:
 			self.gcode.orient.load(filename)
 		elif ext == ".stl" or ext == ".ply":
 			# FIXME: implements solid import???
-			import tkMessageBox
-			tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.")
+			try :
+				import tkMessageBox
+				tkMessageBox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.")
+			except Exception as e :
+				import tkinter
+				import tkinter.messagebox
+				tkinter.messagebox.showinfo("Open 3D Mesh", "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.")
 		elif ext==".dxf":
 			self.gcode.init()
 			self.gcode.importDXF(filename)
