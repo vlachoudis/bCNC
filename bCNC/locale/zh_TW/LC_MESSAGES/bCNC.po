@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bCNC Traditional chinese\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-09 20:15+0100\n"
-"PO-Revision-Date: 2019-08-28 21:03+0800\n"
+"PO-Revision-Date: 2020-03-08 18:40+0800\n"
 "Last-Translator: E2D <engineer2designer@gmail.com>\n"
 "Language-Team: E2D <engineer2designer@gmail.com>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -1141,7 +1141,7 @@ msgstr "右"
 
 #: bCNC/EditorPage.py:334
 msgid "Bottom-Right"
-msgstr "右上角"
+msgstr "右下角"
 
 #: bCNC/EditorPage.py:345 bCNC/plugins/hilbert.py:89
 msgid "Order"
