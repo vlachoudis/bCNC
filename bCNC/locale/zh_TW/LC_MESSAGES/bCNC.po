@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bCNC Traditional chinese\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-09 20:46+0100\n"
-"PO-Revision-Date: 2018-12-09 20:46+0100\n"
-"Last-Translator: @SteveMoto [GitHub]\n"
+"POT-Creation-Date: 2018-12-09 20:15+0100\n"
+"PO-Revision-Date: 2019-08-28 21:03+0800\n"
+"Last-Translator: E2D <engineer2designer@gmail.com>\n"
 "Language-Team: E2D <engineer2designer@gmail.com>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.2.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -168,15 +168,15 @@ msgstr "z軸 最大進給速率"
 
 #: bCNC/ToolsPage.py:598
 msgid "Travel x"
-msgstr "x軸 可動域"
+msgstr "x軸 可動行程"
 
 #: bCNC/ToolsPage.py:599
 msgid "Travel y"
-msgstr "y軸 可動域"
+msgstr "y軸 可動行程"
 
 #: bCNC/ToolsPage.py:600
 msgid "Travel z"
-msgstr "z軸 可動域"
+msgstr "z軸 可動行程"
 
 #: bCNC/ToolsPage.py:601
 msgid "Decimal digits"
@@ -306,17 +306,18 @@ msgstr "目標深度"
 
 #: bCNC/ToolsPage.py:718
 msgid "Cutting strategy"
-msgstr ""
+msgstr "切割策略"
 
 #: bCNC/ToolsPage.py:719
 msgid "Ramp length"
-msgstr ""
+msgstr "斜坡長度"
 
 #: bCNC/ToolsPage.py:719
 msgid ""
 "positive value = relative to tool diameter (5 to 10 probably makes sense), "
 "negative = absolute ramp distance (you probably don't need this)"
 msgstr ""
+"正值=相對於刀具直徑（5到10可能有意義），負=絕對斜坡距離（您可能不需要這個）"
 
 #: bCNC/ToolsPage.py:720
 msgid "First cut at surface height"
@@ -324,43 +325,45 @@ msgstr "表面高度切割"
 
 #: bCNC/ToolsPage.py:721
 msgid "Spring pass"
-msgstr ""
+msgstr "Spring pass"
 
 #: bCNC/ToolsPage.py:721
 msgid ""
 "Do the last cut once more in opposite direction. Helix bottom is disabled in "
 "such case."
-msgstr ""
+msgstr "在相反的方向再次進行最後一次切割。在這種情況下，螺旋底部被禁用。"
 
 #: bCNC/ToolsPage.py:722
 msgid "Exit strategy (usefull for threads)"
-msgstr ""
+msgstr "退出策略 (對執行緒可用)"
 
 #: bCNC/ToolsPage.py:722
 msgid "You should probably always use 'on path', unless you are threadmilling!"
-msgstr ""
+msgstr "你可能應該總是使用'on path'，除非你是threadmilling！\t"
 
 #: bCNC/ToolsPage.py:723
 msgid "Leave islands uncut"
-msgstr ""
+msgstr "讓島嶼未被切斷"
 
 #: bCNC/ToolsPage.py:724
 msgid "Only leave selected islands uncut"
-msgstr ""
+msgstr "只保留未切割選定島嶼的狀態"
 
 #: bCNC/ToolsPage.py:725
 msgid "Compensate islands for cutter radius"
-msgstr ""
+msgstr "補償島嶼的刀具半徑"
 
 #: bCNC/ToolsPage.py:725
 msgid ""
 "Add additional margin/offset around islands to compensate for endmill "
 "radius. This is automaticaly done for all islands if they are marked as tabs."
 msgstr ""
+"在島嶼周圍添加額外的邊緣偏移量, 以補償最終的半徑。如果所有島嶼都標記為選項"
+"卡, 則會自動執行此操作。"
 
 #: bCNC/ToolsPage.py:726
 msgid "Cut contours of selected islands"
-msgstr ""
+msgstr "切割選定島嶼的輪廓"
 
 #: bCNC/ToolsPage.py:791
 msgid "CUT selected paths"
@@ -368,7 +371,7 @@ msgstr "選選切割路徑"
 
 #: bCNC/ToolsPage.py:802
 msgid "Drill in center only"
-msgstr ""
+msgstr "僅在中心鑽孔"
 
 #: bCNC/ToolsPage.py:804
 msgid "Peck depth"
@@ -397,7 +400,7 @@ msgstr "End Mill"
 
 #: bCNC/ToolsPage.py:837
 msgid "Size of this endmill will be used as offset distance"
-msgstr ""
+msgstr "該立銑刀的尺寸將用作偏移距離"
 
 #: bCNC/ToolsPage.py:838 bCNC/plugins/pyrograph.py:44
 #: bCNC/plugins/TrochoidPath.py:41
@@ -406,7 +409,7 @@ msgstr "方向"
 
 #: bCNC/ToolsPage.py:838
 msgid "Should we machine on inside or outside of the shape?"
-msgstr ""
+msgstr "我們應該在形狀的內部或外部加工嗎？"
 
 #: bCNC/ToolsPage.py:839 bCNC/plugins/TrochoidPath.py:42
 msgid "Additional offset distance"
@@ -419,7 +422,7 @@ msgstr "過切"
 
 #: bCNC/ToolsPage.py:840
 msgid "Sets if we want to overcut or not."
-msgstr ""
+msgstr "設置我們是否要過度切割。"
 
 #: bCNC/ToolsPage.py:841 bCNC/ToolsPage.py:1292
 msgid "Pocket"
@@ -428,7 +431,7 @@ msgstr "清槽"
 #: bCNC/ToolsPage.py:841
 msgid ""
 "Generate pocket after profiling? Usefull for making pockets with overcuts."
-msgstr ""
+msgstr "分析後生成口袋？適用于用超切器製作口袋。"
 
 #: bCNC/ToolsPage.py:869
 msgid "Generate profile path"
@@ -440,7 +443,7 @@ msgstr "生成清槽路徑"
 
 #: bCNC/ToolsPage.py:904
 msgid "Create circular tabs (constant width in all angles)"
-msgstr ""
+msgstr "創建圓形選項卡 (所有角度的恒定寬度)"
 
 #: bCNC/ToolsPage.py:904
 msgid ""
@@ -448,6 +451,8 @@ msgid ""
 "the rectangles here just so people can experiment and get used to circular "
 "ones, but i think they can be safely deprecated."
 msgstr ""
+"您應該只使用圓形標籤，它們在各方面都更好。我把這些矩形留在這裡只是為了讓人們"
+"可以嘗試並習慣循環，但我認為它們可以安全地棄用。"
 
 #: bCNC/ToolsPage.py:905
 msgid "Number of tabs"
@@ -611,15 +616,15 @@ msgstr "$132 Z軸最大行程[mm]"
 
 #: bCNC/ToolsPage.py:985
 msgid "$140 X homing pull-off [mm]"
-msgstr ""
+msgstr "$140 X 歸位拉開距離 [mm]"
 
 #: bCNC/ToolsPage.py:986
 msgid "$141 Y homing pull-off [mm]"
-msgstr ""
+msgstr "$141 Y 歸位拉開距離 [mm]"
 
 #: bCNC/ToolsPage.py:987
 msgid "$142 Z homing pull-off [mm]"
-msgstr ""
+msgstr "$142 Z 歸位拉開距離 [mm]"
 
 #: bCNC/ToolsPage.py:1155
 msgid "Database"
@@ -715,11 +720,11 @@ msgstr "插入標籤"
 
 #: bCNC/ToolsPage.py:1335
 msgid "Island"
-msgstr ""
+msgstr "島"
 
 #: bCNC/ToolsPage.py:1341
 msgid "Toggle island"
-msgstr ""
+msgstr "切換島"
 
 #: bCNC/ToolsPage.py:1457 bCNC/ToolsPage.py:1509
 msgid "Config"
@@ -747,7 +752,7 @@ msgstr "顔色設定"
 
 #: bCNC/ToolsPage.py:1516
 msgid "Machine configuration for bCNC"
-msgstr "bCNC設備配置"
+msgstr "配置bCNC設備"
 
 #: bCNC/ToolsPage.py:1523
 msgid "Controller"
@@ -1071,19 +1076,19 @@ msgstr "(Un)註釋所選行"
 
 #: bCNC/EditorPage.py:266
 msgid "Join"
-msgstr ""
+msgstr "合併"
 
 #: bCNC/EditorPage.py:271
 msgid "Join selected blocks"
-msgstr ""
+msgstr "合併選定的blocks"
 
 #: bCNC/EditorPage.py:277
 msgid "Split"
-msgstr ""
+msgstr "分割"
 
 #: bCNC/EditorPage.py:282
 msgid "Split selected blocks"
-msgstr ""
+msgstr "分割選定的blocks"
 
 #: bCNC/EditorPage.py:290 bCNC/EditorPage.py:297
 msgid "Move"
@@ -1240,19 +1245,19 @@ msgstr "所選gcode blocks的反向切割方向"
 
 #: bCNC/EditorPage.py:513
 msgid "Cut CW"
-msgstr ""
+msgstr "順時切削"
 
 #: bCNC/EditorPage.py:519
 msgid "Change cut direction to CW for selected gcode blocks"
-msgstr ""
+msgstr "將選定 gcode blocks 的切割方向更改為 cw"
 
 #: bCNC/EditorPage.py:526
 msgid "Cut CCW"
-msgstr ""
+msgstr "逆時切削"
 
 #: bCNC/EditorPage.py:532
 msgid "Change cut direction to CCW for selected gcode blocks"
-msgstr ""
+msgstr "將選定 gcode blocks的切割方向更改為 ccw"
 
 #: bCNC/EditorPage.py:540 bCNC/EditorPage.py:560
 msgid "Info"
@@ -1364,6 +1369,7 @@ msgid ""
 "Set current XY location as autoleveling Z-zero (recalculate probed data to "
 "be relative to this XY origin point)"
 msgstr ""
+"將當前 xy 位置設置為自動勻整Z-zero (重新計算探測資料以相對於此 xy 原點)"
 
 #: bCNC/ProbePage.py:166 bCNC/ProbePage.py:603 bCNC/TerminalPage.py:31
 msgid "Clear"
@@ -1375,11 +1381,11 @@ msgstr "清除探針數據"
 
 #: bCNC/ProbePage.py:179
 msgid "Scan Margins"
-msgstr ""
+msgstr "掃描邊距"
 
 #: bCNC/ProbePage.py:184
 msgid "Scan Autolevel Margins"
-msgstr ""
+msgstr "掃描自動調整邊距"
 
 #: bCNC/ProbePage.py:191 bCNC/plugins/heightmap.py:49
 msgid "Scan"
@@ -1427,7 +1433,7 @@ msgstr "探頭命令"
 
 #: bCNC/ProbePage.py:344
 msgid "Record"
-msgstr ""
+msgstr "記錄"
 
 #: bCNC/ProbePage.py:352 bCNC/ControlPage.py:465
 msgid "Z"
@@ -1435,31 +1441,31 @@ msgstr "Z"
 
 #: bCNC/ProbePage.py:356
 msgid "Record Z coordinate?"
-msgstr ""
+msgstr "記錄 z 座標？"
 
 #: bCNC/ProbePage.py:360
 msgid "RAPID"
-msgstr ""
+msgstr "RAPID"
 
 #: bCNC/ProbePage.py:367
 msgid "FEED"
-msgstr ""
+msgstr "FEED"
 
 #: bCNC/ProbePage.py:374
 msgid "POINT"
-msgstr ""
+msgstr "POINT"
 
 #: bCNC/ProbePage.py:381
 msgid "CIRCLE"
-msgstr ""
+msgstr "CIRCLE"
 
 #: bCNC/ProbePage.py:388
 msgid "FINISH"
-msgstr ""
+msgstr "FINISH"
 
 #: bCNC/ProbePage.py:396
 msgid "Circle radius"
-msgstr ""
+msgstr "Circle radius"
 
 #: bCNC/ProbePage.py:408 bCNC/ProbePage.py:1695
 msgid "Probe:"
@@ -1467,7 +1473,7 @@ msgstr "探測："
 
 #: bCNC/ProbePage.py:431
 msgid "Automatic GOTO after probing"
-msgstr ""
+msgstr "探測後自動 GOTO"
 
 #: bCNC/ProbePage.py:440
 msgid "Goto"
@@ -1618,11 +1624,11 @@ msgstr "你要刪除所有方向的標記？"
 
 #: bCNC/ProbePage.py:924
 msgid "Pointrec"
-msgstr ""
+msgstr "pointrec"
 
 #: bCNC/ProbePage.py:974
 msgid "Finished recording"
-msgstr ""
+msgstr "已完成的錄製"
 
 #: bCNC/ProbePage.py:989
 msgid "Min"
@@ -2021,7 +2027,7 @@ msgstr "Pause"
 
 #: bCNC/ControlPage.py:124
 msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
-msgstr "暫停正在運行的程序。發送FEED_HOLD！或CYCLE_START〜"
+msgstr "暫停正在運行的程序。發送FEED_HOLD！或CYCLE_START~"
 
 #: bCNC/ControlPage.py:128 bCNC/FilePage.py:201
 msgid "Stop"
@@ -2087,19 +2093,19 @@ msgstr "將Z坐標設置為零(或在WPos中鍵入坐標)"
 
 #: bCNC/ControlPage.py:261
 msgid "XY=0"
-msgstr ""
+msgstr "XY=0"
 
 #: bCNC/ControlPage.py:266
 msgid "Set XY coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
+msgstr "將 XY 座標設置為零 (或在 wpos 中鍵入座標)"
 
 #: bCNC/ControlPage.py:270
 msgid "XYZ=0"
-msgstr ""
+msgstr "XYZ=0"
 
 #: bCNC/ControlPage.py:275
 msgid "Set XYZ coordinate to zero (or to typed coordinate in WPos)"
-msgstr ""
+msgstr "將 XYZ 座標設置為零 (或在 wpos 中鍵入座標)"
 
 #: bCNC/ControlPage.py:284
 msgid "Set WPOS"
@@ -2883,7 +2889,7 @@ msgstr "打開最近的文件"
 
 #: bCNC/FilePage.py:101
 msgid "Import gcode/dxf file"
-msgstr ""
+msgstr "導入 gcode/dxf 檔"
 
 #: bCNC/FilePage.py:111
 msgid "Save gcode/dxf file [Ctrl-S]"
@@ -2955,7 +2961,7 @@ msgstr "Baud:"
 
 #: bCNC/FilePage.py:258
 msgid "Select connection baud rate"
-msgstr "選擇連接波特率 "
+msgstr "選擇連接串列傳輸速率"
 
 #: bCNC/FilePage.py:265
 msgid "Controller:"
@@ -3457,23 +3463,23 @@ msgstr "選擇目錄"
 
 #: bCNC/plugins/center.py:23
 msgid "Find center of bounding box"
-msgstr ""
+msgstr "查找邊界框的中心"
 
 #: bCNC/plugins/center.py:60
 msgid "Generated: Center"
-msgstr ""
+msgstr "生成: 中心"
 
 #: bCNC/plugins/linearize.py:12
 msgid "Linearize"
-msgstr ""
+msgstr "線性化"
 
 #: bCNC/plugins/linearize.py:24
 msgid "G-Code linearizer"
-msgstr ""
+msgstr "G-Code線性化器"
 
 #: bCNC/plugins/linearize.py:34
 msgid "segment size"
-msgstr ""
+msgstr "細分大小"
 
 #: bCNC/plugins/linearize.py:34
 msgid ""
@@ -3481,31 +3487,33 @@ msgid ""
 "and longer g-code. Length will be automaticaly truncated to be even across "
 "whole subdivided segment."
 msgstr ""
+"結果行的最大長度，較小的數字意味著更精確的輸出和更長的 g-code.。長度將自動截"
+"斷，以便在整個細分段中均勻。"
 
 #: bCNC/plugins/linearize.py:35
 msgid "subdiv lines"
-msgstr ""
+msgstr "細分線"
 
 #: bCNC/plugins/linearize.py:35
 msgid ""
 "Also subdivide the lines. Otherwise only arcs and splines will be subdivided"
-msgstr ""
+msgstr "還可以細分行。否則, 只有弧線和樣條線將被細分"
 
 #: bCNC/plugins/linearize.py:78
 msgid "Generated: Linearize"
-msgstr ""
+msgstr "生成: 線性化"
 
 #: bCNC/plugins/flatpath.py:12
 msgid "FlatPath"
-msgstr ""
+msgstr "FlatPath"
 
 #: bCNC/plugins/flatpath.py:23
 msgid "Flatten the path"
-msgstr ""
+msgstr "平坦路徑"
 
 #: bCNC/plugins/flatpath.py:62
 msgid "Generated: Flat"
-msgstr ""
+msgstr "生成: 平坦"
 
 #: bCNC/plugins/pyrograph.py:13
 msgid "Pyrograph"
@@ -3631,15 +3639,15 @@ msgstr "產生：Zig-Zag"
 
 #: bCNC/plugins/intersection.py:12
 msgid "Intersection"
-msgstr ""
+msgstr "交點"
 
 #: bCNC/plugins/intersection.py:25
 msgid "Intersection of two shapes"
-msgstr ""
+msgstr "兩個形狀的交集"
 
 #: bCNC/plugins/intersection.py:77
 msgid "Generated: Intersect"
-msgstr ""
+msgstr "生成: 相交"
 
 #: bCNC/plugins/heightmap.py:19
 msgid "Heightmap"
@@ -3784,15 +3792,15 @@ msgstr "產生：正齒輪"
 
 #: bCNC/plugins/closepath.py:12
 msgid "ClosePath"
-msgstr ""
+msgstr "封閉路徑"
 
 #: bCNC/plugins/closepath.py:23
 msgid "Close the path"
-msgstr ""
+msgstr "封閉路徑"
 
 #: bCNC/plugins/closepath.py:56
 msgid "Generated: Closepath"
-msgstr ""
+msgstr "生成: 封閉路徑"
 
 #: bCNC/plugins/flatten.py:13
 msgid "Flatten"
@@ -3860,55 +3868,55 @@ msgstr "平整：產生平整表面"
 
 #: bCNC/plugins/difference.py:12
 msgid "Difference"
-msgstr ""
+msgstr "差異"
 
 #: bCNC/plugins/difference.py:26
 msgid "Difference of two shapes"
-msgstr ""
+msgstr "兩個形狀的差異"
 
 #: bCNC/plugins/difference.py:91
 msgid "Generated: Diff"
-msgstr ""
+msgstr "生成: 差異"
 
 #: bCNC/plugins/trochoidal.py:12
 msgid "Trochoidal"
-msgstr ""
+msgstr "擺線"
 
 #: bCNC/plugins/trochoidal.py:23
 msgid "Trochoidal g-code postprocessor"
-msgstr ""
+msgstr "擺線g-code後處理器"
 
 #: bCNC/plugins/trochoidal.py:33
 msgid "Clockwise"
-msgstr ""
+msgstr "順時針"
 
 #: bCNC/plugins/trochoidal.py:34
 msgid "Circular"
-msgstr ""
+msgstr "圓形"
 
 #: bCNC/plugins/trochoidal.py:35
 msgid "Even spacing across segment"
-msgstr ""
+msgstr "均勻地線上段之間的間距"
 
 #: bCNC/plugins/trochoidal.py:36
 msgid "Trochoid entry (prepare for helicut)"
-msgstr ""
+msgstr "擺線入口（準備螺旋）"
 
 #: bCNC/plugins/trochoidal.py:37
 msgid "Radial depth of cut (<= cutter D * 0.4)"
-msgstr ""
+msgstr "切割的徑向深度 (< = 切割 D * 0.4)"
 
 #: bCNC/plugins/trochoidal.py:38
 msgid "Trochoid diameter (<= cutter D)"
-msgstr ""
+msgstr "擺線直徑 (< = 切割 D)"
 
 #: bCNC/plugins/trochoidal.py:39
 msgid "Feedrate"
-msgstr ""
+msgstr "進給速度"
 
 #: bCNC/plugins/trochoidal.py:129
 msgid "Generated: Trochoidal"
-msgstr ""
+msgstr "生成：擺線"
 
 #: bCNC/plugins/jigsaw.py:259
 msgid "Jigsaw puzzle generator"
@@ -3952,7 +3960,7 @@ msgstr "錯誤：檢查參數和你的endmill配置"
 
 #: bCNC/plugins/Random.py:14
 msgid "Random"
-msgstr ""
+msgstr "隨機"
 
 #: bCNC/plugins/Random.py:31 bCNC/plugins/tile.py:30
 msgid "Generate replicas of selected code"
@@ -4250,19 +4258,19 @@ msgstr "波形長度"
 
 #: bCNC/plugins/sketch.py:45
 msgid "Fading force"
-msgstr ""
+msgstr "褪色力"
 
 #: bCNC/plugins/sketch.py:46
 msgid "Maximum light"
-msgstr ""
+msgstr "最大光照"
 
 #: bCNC/plugins/sketch.py:48
 msgid "Casual first point"
-msgstr ""
+msgstr "休閒第一點"
 
 #: bCNC/plugins/sketch.py:49
 msgid "Repetition of a point"
-msgstr ""
+msgstr "重複一點"
 
 #: bCNC/plugins/sketch.py:191
 msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
@@ -4274,7 +4282,7 @@ msgstr "草圖中止：太小繪製任何東西！"
 
 #: bCNC/plugins/sketch.py:226
 msgid "The maximum illumination shouldn't be more than 250!"
-msgstr ""
+msgstr "最大照明不應超過 250!"
 
 #: bCNC/plugins/sketch.py:230
 msgid "Sketch abort: Please let me draw at least 1 squiggle"
@@ -4293,45 +4301,46 @@ msgstr "草圖中止：無法讀取圖像文件"
 msgid ""
 "Generated Sketch size W=%d x H=%d x distance=%d, Total line:%i, Total length:"
 "%d"
-msgstr ""
+msgstr "生成的草圖大小 W =% d x h =% d x 距離 =% d, 總行:% i, 總長度:% d"
 
 #: bCNC/plugins/dragknife.py:12
 msgid "DragKnife"
-msgstr ""
+msgstr "DragKnife"
 
 #: bCNC/plugins/dragknife.py:25
 msgid "Drag knife postprocessor"
-msgstr ""
+msgstr "拖刀後處理器"
 
 #: bCNC/plugins/dragknife.py:35
 msgid "dragknife offset"
-msgstr ""
+msgstr "拖刀偏移"
 
 #: bCNC/plugins/dragknife.py:35
 msgid "distance from dragknife rotation center to the tip of the blade"
-msgstr ""
+msgstr "從拖刀旋轉中心到刀尖的距離"
 
 #: bCNC/plugins/dragknife.py:36
 msgid "angle threshold"
-msgstr ""
+msgstr "角度閾值"
 
 #: bCNC/plugins/dragknife.py:36
 msgid "do not perform pivot action for angles smaller than this"
-msgstr ""
+msgstr "對於小於此的角度, 不執行樞軸操作"
 
 #: bCNC/plugins/dragknife.py:37
 msgid "swivel height"
-msgstr ""
+msgstr "旋轉高度"
 
 #: bCNC/plugins/dragknife.py:37
 msgid ""
 "retract to this height for pivots (useful for thick materials, you should "
 "enter number slightly lower than material thickness)"
 msgstr ""
+"將樞軸的高度降低到這個高度 (對於厚材料很有用, 應輸入比材料厚度略低的數位)"
 
 #: bCNC/plugins/dragknife.py:38
 msgid "initial direction"
-msgstr ""
+msgstr "初始方向"
 
 #: bCNC/plugins/dragknife.py:38
 msgid ""
@@ -4341,14 +4350,17 @@ msgid ""
 "without pivoting. If you cut multiple shapes in single operation, it's "
 "important to have this set consistently across all of them."
 msgstr ""
+"刀片在切割前後朝下的方向。如果您將此設置為 x +, 則刀的旋轉軸應該位於尖端的右"
+"側。這意味著這把刀準備立即切入右側, 而不旋轉。如果在單個操作中剪切多個形狀, "
+"則在所有這些形狀上都要一致地使用此集, 這一點非常重要。"
 
 #: bCNC/plugins/dragknife.py:39
 msgid "feedrate"
-msgstr ""
+msgstr "進給率"
 
 #: bCNC/plugins/dragknife.py:40
 msgid "simulate"
-msgstr ""
+msgstr "模擬"
 
 #: bCNC/plugins/dragknife.py:40
 msgid ""
@@ -4357,85 +4369,87 @@ msgid ""
 "procedure and give you back the original shape from g-code that was "
 "previously processed for dragknife."
 msgstr ""
+"使用此選項可以類比拖刀路徑的切割。生成的形狀將反映實際切割的形狀。這應該會逆"
+"轉拖刀過程, 並從以前為拖刀處理的 g 代碼中返回原始形狀。"
 
 #: bCNC/plugins/dragknife.py:41
 msgid "simulation precision"
-msgstr ""
+msgstr "模擬精度"
 
 #: bCNC/plugins/dragknife.py:41
 msgid ""
 "Simulation is currently approximated by using lots of short lines. This is "
 "the length of these lines."
-msgstr ""
+msgstr "目前, 類比是通過使用大量的短線來近似的。這是這些線的長度。"
 
 #: bCNC/plugins/dragknife.py:146
 msgid "Generated: Dragknife"
-msgstr ""
+msgstr "生成: 拖刀"
 
 #: bCNC/plugins/slicemesh.py:12
 msgid "slicemesh"
-msgstr ""
+msgstr "slicemesh"
 
 #: bCNC/plugins/slicemesh.py:42
 msgid "STL/PLY Slicer"
-msgstr ""
+msgstr "STL/PLY Slicer"
 
 #: bCNC/plugins/slicemesh.py:52
 msgid ".STL/.PLY file to slice"
-msgstr ""
+msgstr ".STL/.PLY file to slice"
 
 #: bCNC/plugins/slicemesh.py:53
 msgid "Get flat slice"
-msgstr ""
+msgstr "獲得扁平切片"
 
 #: bCNC/plugins/slicemesh.py:54
 msgid "3D slice (devel)"
-msgstr ""
+msgstr "3d 切片 (凹級別)"
 
 #: bCNC/plugins/slicemesh.py:55
 msgid "Flip upwards"
-msgstr ""
+msgstr "向上翻轉"
 
 #: bCNC/plugins/slicemesh.py:56
 msgid "scale factor"
-msgstr ""
+msgstr "比例因數"
 
 #: bCNC/plugins/slicemesh.py:57
 msgid "z offset"
-msgstr ""
+msgstr "z軸 偏移量"
 
 #: bCNC/plugins/slicemesh.py:58
 msgid "layer height (0 = only single zmin)"
-msgstr ""
+msgstr "層高度 (0 = 只有單個 zmin)"
 
 #: bCNC/plugins/slicemesh.py:59
 msgid "minimum Z height"
-msgstr ""
+msgstr "最小 Z 高度"
 
 #: bCNC/plugins/slicemesh.py:60
 msgid "maximum Z height"
-msgstr ""
+msgstr "最大 Z 高度"
 
 #: bCNC/plugins/slicemesh.py:93
 #, python-format
 msgid "Loading mesh: %s"
-msgstr ""
+msgstr "載入網格: %s"
 
 #: bCNC/plugins/slicemesh.py:129
 #, python-format
 msgid "Slicing %s %f in %f -> %f of %s"
-msgstr ""
+msgstr "切片 %s %f in %f -> %f of %s"
 
 #: bCNC/plugins/slicemesh.py:138
 msgid "Mesh sliced"
-msgstr ""
+msgstr "網狀切片"
 
 #: bCNC/plugins/slicemesh.py:212
 #, python-format
 msgid ""
 "Calculating distance %d of %d (SciPy not installed => using SLOW fallback "
 "method)"
-msgstr ""
+msgstr "計算距離 %d of %d（未安裝SciPy =>使用SLOW後退方法）"
 
 #: bCNC/plugins/box.py:13
 msgid "Box"
@@ -4523,27 +4537,27 @@ msgstr "文本中止：令人尷尬，我不能讀這個字體文件！"
 
 #: bCNC/plugins/TrochoidPath.py:19
 msgid "Trochoidal Path"
-msgstr ""
+msgstr "擺線路徑"
 
 #: bCNC/plugins/TrochoidPath.py:32
 msgid "Create a trochoid rute along selected blocks"
-msgstr ""
+msgstr "沿選定的塊創建一個小槽"
 
 #: bCNC/plugins/TrochoidPath.py:40
 msgid "Trochoid Diameter"
-msgstr ""
+msgstr "擺線直徑"
 
 #: bCNC/plugins/TrochoidPath.py:44
 msgid "Adaptative"
-msgstr ""
+msgstr "自我調整"
 
 #: bCNC/plugins/TrochoidPath.py:46
 msgid "Diameter safe to corner %"
-msgstr ""
+msgstr "直徑安全到角落 %"
 
 #: bCNC/plugins/TrochoidPath.py:70
 msgid "Generate Trochoidal Profile path"
-msgstr ""
+msgstr "生成Trochoidal Profile路徑"
 
 #: bCNC/plugins/bowl.py:12
 msgid "Bowl"
@@ -4571,23 +4585,23 @@ msgstr "錯誤：檢查球型和端銑刀參數"
 
 #: bCNC/plugins/arcfit.py:12
 msgid "ArcFit"
-msgstr ""
+msgstr "ArcFit"
 
 #: bCNC/plugins/arcfit.py:24
 msgid "G-Code arc-fit"
-msgstr ""
+msgstr "G 碼弧形"
 
 #: bCNC/plugins/arcfit.py:34
 msgid "arc precision (mm)"
-msgstr ""
+msgstr "弧精度（mm）"
 
 #: bCNC/plugins/arcfit.py:34
 msgid "how precisely must arc fit. set to 0 to disable arc fitting"
-msgstr ""
+msgstr "弧度必須精確配合。設置為0以禁用弧擬合"
 
 #: bCNC/plugins/arcfit.py:35
 msgid "line precision (mm)"
-msgstr ""
+msgstr "線精度（mm）"
 
 #: bCNC/plugins/arcfit.py:35
 msgid ""
@@ -4595,46 +4609,48 @@ msgid ""
 "some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can "
 "be fit"
 msgstr ""
+"線條必須精確配合。設置為0以禁用線路擬合，但可能需要至少一些線路擬合（0.001到"
+"0.01）來固定弧線， 以便它們可以進行擬合"
 
 #: bCNC/plugins/arcfit.py:36
 msgid "minimal number of segments to create arc"
-msgstr ""
+msgstr "創建圓弧的線段數量最少"
 
 #: bCNC/plugins/arcfit.py:85
 msgid "Generated: Arc fit"
-msgstr ""
+msgstr "生成: Arc fit"
 
 #: bCNC/plugins/scaling.py:18
 msgid "Scaling"
-msgstr ""
+msgstr "縮放"
 
 #: bCNC/plugins/scaling.py:34
 msgid "Scaling the selected block"
-msgstr ""
+msgstr "縮放選定的block"
 
 #: bCNC/plugins/scaling.py:42
 msgid "X Scale"
-msgstr ""
+msgstr "X 比例"
 
 #: bCNC/plugins/scaling.py:43
 msgid "Y Scale"
-msgstr ""
+msgstr "Y 比例"
 
 #: bCNC/plugins/scaling.py:44
 msgid "Z Scale"
-msgstr ""
+msgstr "Z比例"
 
 #: bCNC/plugins/scaling.py:47
 msgid "RPM"
-msgstr ""
+msgstr "RPM"
 
 #: bCNC/plugins/scaling.py:149
 msgid "Scaling abort: Please select some path"
-msgstr ""
+msgstr "縮放中止: 請選擇一些路徑"
 
 #: bCNC/plugins/scaling.py:193
 msgid "Scaling Generated"
-msgstr ""
+msgstr "縮放生成"
 
 #~ msgid "Helical cut"
 #~ msgstr "螺旋切割"
