@@ -1091,8 +1091,9 @@ class CNC:
 			else:
 				try:
 					return compile(line[1:],"","exec")
-				except:
-					# FIXME show the error!!!!
+				except Exception as e:
+					print("Compile line error: \n")
+					print(e)
 					return None
 
 		# most probably an assignment like  #nnn = expr
