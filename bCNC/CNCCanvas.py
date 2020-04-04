@@ -1814,7 +1814,7 @@ class CNCCanvas(Canvas, object):
 							before = time.time()
 						n = 1000
 					try:
-						cmd = self.gcode.evaluate(CNC.compileLine(line))
+						cmd = self.gcode.evaluate(CNC.compileLine(line), self.app)
 						if isinstance(cmd,tuple):
 							cmd = None
 						else:

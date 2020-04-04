@@ -707,7 +707,7 @@ class Sender:
 
 					elif not isinstance(tosend,str):
 						try:
-							tosend = self.gcode.evaluate(tosend)
+							tosend = self.gcode.evaluate(tosend, self)
 #							if isinstance(tosend, list):
 #								cline.append(len(tosend[0]))
 #								sline.append(tosend[0])
