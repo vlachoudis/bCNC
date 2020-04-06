@@ -1602,15 +1602,15 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	#----------------------------------------------------------------------
 	def createMenu(self):
 		menu = Menu(self, tearoff=0)
+		menu.add_command(
+				label=_("User File"),
+				image=Utils.icons["about"], compound=LEFT,
+				command=self.app.showUserFile)
 		menu.add_radiobutton(
 				label=_("Events"),
 				image=Utils.icons["event"], compound=LEFT,
 				variable=self.app.tools.active,
 				value="Events")
-		menu.add_command(
-				label=_("User File"),
-				image=Utils.icons["about"], compound=LEFT,
-				command=self.app.showUserFile)
 		menu.add_radiobutton(
 				label=_("Colors"),
 				image=Utils.icons["color"], compound=LEFT,
