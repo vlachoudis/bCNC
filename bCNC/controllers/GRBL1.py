@@ -6,6 +6,7 @@ from _GenericGRBL import _GenericGRBL
 from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
+import Utils
 
 OV_FEED_100     = chr(0x90)        # Extended override commands
 OV_FEED_i10     = chr(0x91)
@@ -114,12 +115,13 @@ class Controller(_GenericGRBL):
 					CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
 					CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 					CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-					CNC.vars["ma"] = float(word[4])
-					CNC.vars["mb"] = float(word[5])
-					CNC.vars["mc"] = float(word[6])
-					CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
-					CNC.vars["wb"] = round(CNC.vars["mb"]-CNC.vars["wcob"], CNC.digits)
-					CNC.vars["wc"] = round(CNC.vars["mc"]-CNC.vars["wcoc"], CNC.digits)
+					if Utils.config.get("bCNC","enable6axis") == "true":
+						CNC.vars["ma"] = float(word[4])
+						CNC.vars["mb"] = float(word[5])
+						CNC.vars["mc"] = float(word[6])
+						CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+						CNC.vars["wb"] = round(CNC.vars["mb"]-CNC.vars["wcob"], CNC.digits)
+						CNC.vars["wc"] = round(CNC.vars["mc"]-CNC.vars["wcoc"], CNC.digits)
 					self.master._posUpdate = True
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
