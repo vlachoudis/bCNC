@@ -10,7 +10,7 @@ from __future__ import print_function
 __author__ = "T Marks"
 __email__  = "tsmarks@gmail.com"
 
-__name__ = _("Flatten")
+__name__ = _("Spiral")
 __version__= "0.0.1"
 
 from CNC import CNC,Block
