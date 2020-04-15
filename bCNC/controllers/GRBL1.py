@@ -164,9 +164,10 @@ class Controller(_GenericGRBL):
 					CNC.vars["wcox"] = float(word[1])
 					CNC.vars["wcoy"] = float(word[2])
 					CNC.vars["wcoz"] = float(word[3])
-					CNC.vars["wcoa"] = float(word[4])
-					CNC.vars["wcob"] = float(word[5])
-					CNC.vars["wcoc"] = float(word[6])
+					if Utils.config.get("bCNC","enable6axis") == "true":
+						CNC.vars["wcoa"] = float(word[4])
+						CNC.vars["wcob"] = float(word[5])
+						CNC.vars["wcoc"] = float(word[6])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
@@ -208,9 +209,10 @@ class Controller(_GenericGRBL):
 			CNC.vars["G92X"] = float(word[1])
 			CNC.vars["G92Y"] = float(word[2])
 			CNC.vars["G92Z"] = float(word[3])
-			CNC.vars["G92A"] = float(word[4])
-			CNC.vars["G92B"] = float(word[5])
-			CNC.vars["G92C"] = float(word[6])
+			if Utils.config.get("bCNC","enable6axis") == "true":
+				CNC.vars["G92A"] = float(word[4])
+				CNC.vars["G92B"] = float(word[5])
+				CNC.vars["G92C"] = float(word[6])
 			CNC.vars[word[0]] = word[1:]
 			self.master._gUpdate = True
 		if word[0] == "G28":
