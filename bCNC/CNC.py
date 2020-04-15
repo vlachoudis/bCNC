@@ -690,9 +690,18 @@ class CNC:
 			"mx"         : 0.0,
 			"my"         : 0.0,
 			"mz"         : 0.0,
+			"wa"         : 0.0,
+			"wb"         : 0.0,
+			"wc"         : 0.0,
+			"ma"         : 0.0,
+			"mb"         : 0.0,
+			"mc"         : 0.0,
 			"wcox"       : 0.0,
 			"wcoy"       : 0.0,
 			"wcoz"       : 0.0,
+			"wcoa"       : 0.0,
+			"wcob"       : 0.0,
+			"wcoc"       : 0.0,
 			"curfeed"    : 0.0,
 			"curspindle" : 0.0,
 			"_camwx"     : 0.0,
@@ -820,6 +829,24 @@ class CNC:
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
 		except: pass
+		try: CNC.acceleration_a = float(config.get(section, "acceleration_a"))
+		except: pass
+		try: CNC.acceleration_b = float(config.get(section, "acceleration_b"))
+		except: pass
+		try: CNC.acceleration_c = float(config.get(section, "acceleration_c"))
+		except: pass
+		try: CNC.feedmax_a      = float(config.get(section, "feedmax_a"))
+		except: pass
+		try: CNC.feedmax_b      = float(config.get(section, "feedmax_b"))
+		except: pass
+		try: CNC.feedmax_c      = float(config.get(section, "feedmax_c"))
+		except: pass
+		try: CNC.travel_a       = float(config.get(section, "travel_a"))
+		except: pass
+		try: CNC.travel_b       = float(config.get(section, "travel_b"))
+		except: pass
+		try: CNC.travel_c       = float(config.get(section, "travel_c"))
+		except: pass
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
 		try: CNC.digits         = int(  config.get(section, "round"))
@@ -847,7 +874,8 @@ class CNC:
 			CNC.travel_x        /= 25.4
 			CNC.travel_y        /= 25.4
 			CNC.travel_z        /= 25.4
-
+			# a,b,c are in degrees no conversion required
+			
 		section = "Error"
 		if CNC.drillPolicy == 1:
 			ERROR_HANDLING["G98"] = 1
@@ -865,7 +893,7 @@ class CNC:
 		pass
 
 	#----------------------------------------------------------------------
-	def initPath(self, x=None, y=None, z=None):
+	def initPath(self, x=None, y=None, z=None, a=None, b=None, c=None):
 		if x is None:
 			self.x = self.xval = CNC.vars['wx'] or 0
 		else:
@@ -878,6 +906,19 @@ class CNC:
 			self.z = self.zval = CNC.vars['wz'] or 0
 		else:
 			self.z = self.zval = z
+		if a is None:
+			self.a = self.aval = CNC.vars['wa'] or 0
+		else:
+			self.a = self.aval = a
+		if b is None:
+			self.b = self.bval = CNC.vars['wb'] or 0
+		else:
+			self.b = self.bval = b
+		if c is None:
+			self.c = self.cval = CNC.vars['wc'] or 0
+		else:
+			self.c = self.cval = c	
+		
 		self.ival = self.jval = self.kval = 0.0
 		self.uval = self.vval = self.wval = 0.0
 		self.dx   = self.dy   = self.dz   = 0.0
@@ -905,7 +946,7 @@ class CNC:
 		# Selected blocks margin
 		CNC.vars["xmin"]  = CNC.vars["ymin"]  = CNC.vars["zmin"]  =  1000000.0
 		CNC.vars["xmax"]  = CNC.vars["ymax"]  = CNC.vars["zmax"]  = -1000000.0
-
+        
 	#----------------------------------------------------------------------
 	def resetAllMargins(self):
 		self.resetEnableMargins()
@@ -956,6 +997,18 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
+	def _gotoABC(g, x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		if a is not None: s += ' '+CNC.fmt('a',a)
+		if b is not None: s += ' '+CNC.fmt('b',b)
+		if c is not None: s += ' '+CNC.fmt('c',c)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
+		return s
+	@staticmethod
 	def _goto(g, x=None, y=None, z=None, **args):
 		s = "g%d"%(g)
 		if x is not None: s += ' '+CNC.fmt('x',x)
@@ -964,13 +1017,18 @@ class CNC:
 		for n,v in args.items():
 			s += ' ' + CNC.fmt(n,v)
 		return s
-
 	#----------------------------------------------------------------------
+	@staticmethod
+	def grapidABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(0,x,y,z,a,b,c,**args)
 	@staticmethod
 	def grapid(x=None, y=None, z=None, **args):
 		return CNC._goto(0,x,y,z,**args)
 
 	#----------------------------------------------------------------------
+	@staticmethod
+	def glineABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(1,x,y,z,a,b,c,**args)
 	@staticmethod
 	def gline(x=None, y=None, z=None, **args):
 		return CNC._goto(1,x,y,z,**args)
