@@ -115,7 +115,8 @@ class Controller(_GenericGRBL):
 					CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
 					CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 					CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-					if Utils.config.get("bCNC","enable6axis") == "true":
+					#if Utils.config.get("bCNC","enable6axis") == "true":
+					if len(word) > 4:
 						CNC.vars["ma"] = float(word[4])
 						CNC.vars["mb"] = float(word[5])
 						CNC.vars["mc"] = float(word[6])
@@ -164,7 +165,8 @@ class Controller(_GenericGRBL):
 					CNC.vars["wcox"] = float(word[1])
 					CNC.vars["wcoy"] = float(word[2])
 					CNC.vars["wcoz"] = float(word[3])
-					if Utils.config.get("bCNC","enable6axis") == "true":
+					#if Utils.config.get("bCNC","enable6axis") == "true":
+					if len(word) > 4:
 						CNC.vars["wcoa"] = float(word[4])
 						CNC.vars["wcob"] = float(word[5])
 						CNC.vars["wcoc"] = float(word[6])
@@ -209,7 +211,8 @@ class Controller(_GenericGRBL):
 			CNC.vars["G92X"] = float(word[1])
 			CNC.vars["G92Y"] = float(word[2])
 			CNC.vars["G92Z"] = float(word[3])
-			if Utils.config.get("bCNC","enable6axis") == "true":
+			#if Utils.config.get("bCNC","enable6axis") == "true":
+			if len(word) > 4:
 				CNC.vars["G92A"] = float(word[4])
 				CNC.vars["G92B"] = float(word[5])
 				CNC.vars["G92C"] = float(word[6])
