@@ -30,6 +30,15 @@ class Controller(_GenericGRBL):
 			CNC.vars["wcox"] = CNC.vars["mx"] - CNC.vars["wx"]
 			CNC.vars["wcoy"] = CNC.vars["my"] - CNC.vars["wy"]
 			CNC.vars["wcoz"] = CNC.vars["mz"] - CNC.vars["wz"]
+			CNC.vars["ma"] = float(pat.group(8))
+			CNC.vars["mb"] = float(pat.group(9))
+			CNC.vars["mc"] = float(pat.group(10))
+			CNC.vars["wa"] = float(pat.group(11))
+			CNC.vars["wb"] = float(pat.group(12))
+			CNC.vars["wc"] = float(pat.group(13))
+			CNC.vars["wcoa"] = CNC.vars["ma"] - CNC.vars["wa"]
+			CNC.vars["wcob"] = CNC.vars["mb"] - CNC.vars["wb"]
+			CNC.vars["wcoc"] = CNC.vars["mc"] - CNC.vars["wc"]
 			self.master._posUpdate = True
 			if pat.group(1)[:4] != "Hold" and self.master._msg:
 				self.master._msg = None

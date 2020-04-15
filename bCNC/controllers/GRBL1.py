@@ -114,6 +114,12 @@ class Controller(_GenericGRBL):
 					CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
 					CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 					CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+					CNC.vars["ma"] = float(word[4])
+					CNC.vars["mb"] = float(word[5])
+					CNC.vars["mc"] = float(word[6])
+					CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+					CNC.vars["wb"] = round(CNC.vars["mb"]-CNC.vars["wcob"], CNC.digits)
+					CNC.vars["wc"] = round(CNC.vars["mc"]-CNC.vars["wcoc"], CNC.digits)
 					self.master._posUpdate = True
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
@@ -156,6 +162,9 @@ class Controller(_GenericGRBL):
 					CNC.vars["wcox"] = float(word[1])
 					CNC.vars["wcoy"] = float(word[2])
 					CNC.vars["wcoz"] = float(word[3])
+					CNC.vars["wcoa"] = float(word[4])
+					CNC.vars["wcob"] = float(word[5])
+					CNC.vars["wcoc"] = float(word[6])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
@@ -197,6 +206,9 @@ class Controller(_GenericGRBL):
 			CNC.vars["G92X"] = float(word[1])
 			CNC.vars["G92Y"] = float(word[2])
 			CNC.vars["G92Z"] = float(word[3])
+			CNC.vars["G92A"] = float(word[4])
+			CNC.vars["G92B"] = float(word[5])
+			CNC.vars["G92C"] = float(word[6])
 			CNC.vars[word[0]] = word[1:]
 			self.master._gUpdate = True
 		if word[0] == "G28":
