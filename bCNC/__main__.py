@@ -393,22 +393,22 @@ class Application(Toplevel,Sender):
 			self.bind('<Left>',		self.control.moveYdown)
 			self.bind('<Up>',		self.control.moveXdown)
 			self.bind('<Down>',		self.control.moveXup)
-			self.bind('.',                  self.abccontrol.moveAup)
-                        self.bind(',',                  self.abccontrol.moveAdown)
+			self.bind('.',			self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 		elif self._swapKeyboard == -1:
 			self.bind('<Right>',		self.control.moveYdown)
 			self.bind('<Left>',		self.control.moveYup)
 			self.bind('<Up>',		self.control.moveXup)
 			self.bind('<Down>',		self.control.moveXdown)
 			self.bind(',',                  self.abccontrol.moveAup)
-                        self.bind('.',                  self.abccontrol.moveAdown)
+			self.bind('.',			self.abccontrol.moveAdown)
 		else:
 			self.bind('<Right>',		self.control.moveXup)
 			self.bind('<Left>',		self.control.moveXdown)
 			self.bind('<Up>',		self.control.moveYup)
 			self.bind('<Down>',		self.control.moveYdown)
 			self.bind('.',                  self.abccontrol.moveAup)
-                        self.bind(',',                  self.abccontrol.moveAdown)
+			self.bind(',',			self.abccontrol.moveAdown)
 
 		try:
 			self.bind('<KP_Prior>',		self.control.moveZup)
