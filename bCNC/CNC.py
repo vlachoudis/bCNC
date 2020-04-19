@@ -754,6 +754,7 @@ class CNC:
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
+			#"enable6axisopt" : 0,
 		}
 
 	drillPolicy    = 1		# Expand Canned cycles
@@ -808,6 +809,8 @@ class CNC:
 		try: CNC.lasercutter    = bool(int(config.get(section, "lasercutter")))
 		except: pass
 		try: CNC.laseradaptive  = bool(int(config.get(section, "laseradaptive")))
+		except: pass
+		try: CNC.enable6axisopt  = bool(int(config.get(section, "enable6axisopt")))
 		except: pass
 		try: CNC.doublesizeicon = bool(int(config.get(section, "doublesizeicon")))
 		except: pass

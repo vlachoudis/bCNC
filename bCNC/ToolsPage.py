@@ -599,6 +599,7 @@ class Config(_Base):
 			("lasercutter"   , "bool", 0    , _("Laser Cutter"))   ,
 			("laseradaptive" , "bool", 0    , _("Laser Adaptive Power"))   ,
 			("doublesizeicon", "bool", 0    , _("Double Size Icon"))   ,
+			("enable6axisopt", "bool", 0	, _("Enable 6 axis functions"))	,
 			("acceleration_x", "mm"  , 25.0 , _("Acceleration x"))   ,
 			("acceleration_y", "mm"  , 25.0 , _("Acceleration y"))   ,
 			("acceleration_z", "mm"  , 5.0  , _("Acceleration z"))   ,

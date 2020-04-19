@@ -208,13 +208,18 @@ class Application(Toplevel,Sender):
 
 			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
 				last = n[-1]
-				try:
-					if last == "*":
-						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
-					else:
-						page.addPageFrame(n)
-				except KeyError:
-					errors.append(n)
+				if (n=="abcDRO" or n=="abcControl") and CNC.enable6axisopt == False:
+					sys.stdout.write("Not Loading 6 axis displays\n")
+
+					
+				else:
+					try:
+						if last == "*":
+							page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+						else:
+							page.addPageFrame(n)
+					except KeyError:
+						errors.append(n)
 
 		if errors:
 			tkMessageBox.showwarning("bCNC configuration",
@@ -232,6 +237,7 @@ class Application(Toplevel,Sender):
 		self.editor   = Page.frames["Editor"].editor
 		self.terminal = Page.frames["Terminal"].terminal
 		self.buffer   = Page.frames["Terminal"].buffer
+				
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
