@@ -91,8 +91,10 @@ please check first if that bug occurs even when running directly in python (with
 - Also read about all possible GRBL settings and make sure your setup is correct: https://github.com/gnea/grbl/wiki/Grbl-v1.1-Configuration
 
 # Configuration
-You can modify most of the parameters from the "Tools -> Machine"
-page. Only the changes/differences from the default configuration
+You can modify most of the parameters from the "CAM -> Config/Controller" page.
+You can also enable 6-axis mode in Config section,
+but bCNC restart is required for changes to take place.
+Only the changes/differences from the default configuration
 file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 
 The default configuration is stored on bCNC.ini in the
@@ -102,6 +104,7 @@ installation directory.
 
 # Features:
 - simple and intuitive interface for small screens
+- 3-axis and 6-axis GUI modes
 - import/export **g-code**, **dxf** and **svg** files
 - 3D mesh slicing **stl** and **ply** files
 - fast g-code sender (works nicely on RPi and old hardware)
