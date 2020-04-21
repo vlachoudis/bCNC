@@ -6,6 +6,7 @@ There are too much commits, so i've created this brief overview of new features 
 
 - New features
   - Python 3 is (mostly) supported now #228
+  - 6 axis support #1384
   - Can load SVG files (~only paths without transformations~ improved by tatarize, see wiki) #902 #1312
   - Can slice 3D meshes in STL and PLY formats (with minor limitations) #901
   - Can export 3D scan (autolevel probe) data in XYZ format suitable for meshlab poisson surface reconstruction
