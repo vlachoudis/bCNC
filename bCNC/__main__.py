@@ -208,13 +208,18 @@ class Application(Toplevel,Sender):
 
 			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
 				last = n[-1]
-				try:
-					if last == "*":
-						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
-					else:
-						page.addPageFrame(n)
-				except KeyError:
-					errors.append(n)
+				if (n=="abcDRO" or n=="abcControl") and CNC.enable6axisopt == False:
+					sys.stdout.write("Not Loading 6 axis displays\n")
+
+					
+				else:
+					try:
+						if last == "*":
+							page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+						else:
+							page.addPageFrame(n)
+					except KeyError:
+						errors.append(n)
 
 		if errors:
 			tkMessageBox.showwarning("bCNC configuration",
@@ -225,11 +230,14 @@ class Application(Toplevel,Sender):
 
 		# remember the editor list widget
 		self.dro      = Page.frames["DRO"]
+		self.abcdro      = Page.frames["abcDRO"]
 		self.gstate   = Page.frames["State"]
 		self.control  = Page.frames["Control"]
+		self.abccontrol=Page.frames["abcControl"]
 		self.editor   = Page.frames["Editor"].editor
 		self.terminal = Page.frames["Terminal"].terminal
 		self.buffer   = Page.frames["Terminal"].buffer
+				
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -391,16 +399,22 @@ class Application(Toplevel,Sender):
 			self.bind('<Left>',		self.control.moveYdown)
 			self.bind('<Up>',		self.control.moveXdown)
 			self.bind('<Down>',		self.control.moveXup)
+			self.bind('.',			self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 		elif self._swapKeyboard == -1:
 			self.bind('<Right>',		self.control.moveYdown)
 			self.bind('<Left>',		self.control.moveYup)
 			self.bind('<Up>',		self.control.moveXup)
 			self.bind('<Down>',		self.control.moveXdown)
+			self.bind(',',                  self.abccontrol.moveAup)
+			self.bind('.',			self.abccontrol.moveAdown)
 		else:
 			self.bind('<Right>',		self.control.moveXup)
 			self.bind('<Left>',		self.control.moveXdown)
 			self.bind('<Up>',		self.control.moveYup)
 			self.bind('<Down>',		self.control.moveYdown)
+			self.bind('.',                  self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 
 		try:
 			self.bind('<KP_Prior>',		self.control.moveZup)

@@ -33,6 +33,8 @@ _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
 _NOZSTEP = 'XY'
+_HIGHASTEP = 90.0
+_NOASTEP = 'BC'
 
 OVERRIDES = ["Feed", "Rapid", "Spindle"]
 
@@ -56,7 +58,7 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 				command=app.home,
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Perform a homing cycle [$H]"))
+		tkExtra.Balloon.set(b, _("Perform a homing cycle [$H] now"))
 		self.addWidget(b)
 
 		# ---
@@ -367,7 +369,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
 		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
 		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
-
+		self.app.abcdro.updateCoords()
 	#----------------------------------------------------------------------
 	def padFloat(self, decimals, value):
 		if decimals>0:
@@ -384,30 +386,30 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	#----------------------------------------------------------------------
 	def setX0(self, event=None):
-		self.app.mcontrol._wcsSet("0",None,None)
+		self.app.mcontrol._wcsSet("0",None,None,None,None,None)
 
 	#----------------------------------------------------------------------
 	def setY0(self, event=None):
-		self.app.mcontrol._wcsSet(None,"0",None)
+		self.app.mcontrol._wcsSet(None,"0",None,None,None,None)
 
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
-		self.app.mcontrol._wcsSet(None,None,"0")
+		self.app.mcontrol._wcsSet(None,None,"0",None,None,None)
 
 	#----------------------------------------------------------------------
 	def setXY0(self, event=None):
-		self.app.mcontrol._wcsSet("0","0",None)
+		self.app.mcontrol._wcsSet("0","0",None,None,None,None)
 
 	#----------------------------------------------------------------------
 	def setXYZ0(self, event=None):
-		self.app.mcontrol._wcsSet("0","0","0")
+		self.app.mcontrol._wcsSet("0","0","0",None,None,None)
 
 	#----------------------------------------------------------------------
 	def setX(self, event=None):
 		if self.app.running: return
 		try:
 			value = round(eval(self.xwork.get(), None, CNC.vars), 3)
-			self.app.mcontrol._wcsSet(value,None,None)
+			self.app.mcontrol._wcsSet(value,None,None,None,None,None)
 		except:
 			pass
 
@@ -416,7 +418,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		if self.app.running: return
 		try:
 			value = round(eval(self.ywork.get(), None, CNC.vars), 3)
-			self.app.mcontrol._wcsSet(None,value,None)
+			self.app.mcontrol._wcsSet(None,value,None,None,None,None)
 		except:
 			pass
 
@@ -425,7 +427,240 @@ class DROFrame(CNCRibbon.PageFrame):
 		if self.app.running: return
 		try:
 			value = round(eval(self.zwork.get(), None, CNC.vars), 3)
-			self.app.mcontrol._wcsSet(None,None,value)
+			self.app.mcontrol._wcsSet(None,None,value,None,None,None)
+		except:
+			pass
+
+	#----------------------------------------------------------------------
+	#def wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
+
+	#----------------------------------------------------------------------
+	#def _wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
+
+	#----------------------------------------------------------------------
+	def showState(self):
+		err = CNC.vars["errline"]
+		if err:
+			msg  = _("Last error: %s\n")%(CNC.vars["errline"])
+		else:
+			msg = ""
+
+		state = CNC.vars["state"]
+		msg += ERROR_CODES.get(state,
+				_("No info available.\nPlease contact the author."))
+		tkMessageBox.showinfo(_("State: %s")%(state), msg, parent=self)
+
+
+#===============================================================================
+# DRO Frame ABC
+#===============================================================================
+class abcDROFrame(CNCRibbon.PageExLabelFrame):
+	dro_status = ('Helvetica',12,'bold')
+	dro_wpos   = ('Helvetica',12,'bold')
+	dro_mpos   = ('Helvetica',12)
+
+	def __init__(self, master, app):
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "abcDRO", _("abcDRO"), app)
+        
+		frame = Frame(self())
+		frame.pack(side=TOP, fill=X)
+		
+		abcDROFrame.dro_status = Utils.getFont("dro.status", abcDROFrame.dro_status)
+		abcDROFrame.dro_wpos   = Utils.getFont("dro.wpos",   abcDROFrame.dro_wpos)
+		abcDROFrame.dro_mpos   = Utils.getFont("dro.mpos",   abcDROFrame.dro_mpos)
+
+		row = 0
+		col = 0
+		Label(frame,text=_("abcWPos:")).grid(row=row,column=col)
+
+		# work
+		col += 1
+		self.awork = Entry(frame, font=abcDROFrame.dro_wpos,
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+					width=8,
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.awork.grid(row=row,column=col,sticky=EW)
+		tkExtra.Balloon.set(self.awork, _("A work position (click to set)"))
+		self.awork.bind('<FocusIn>',  self.workFocus)
+		self.awork.bind('<Return>',   self.setA)
+		self.awork.bind('<KP_Enter>', self.setA)
+
+		# ---
+		col += 1
+		self.bwork = Entry(frame, font=abcDROFrame.dro_wpos,
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+					width=8,
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.bwork.grid(row=row,column=col,sticky=EW)
+		tkExtra.Balloon.set(self.bwork, _("B work position (click to set)"))
+		self.bwork.bind('<FocusIn>',  self.workFocus)
+		self.bwork.bind('<Return>',   self.setB)
+		self.bwork.bind('<KP_Enter>', self.setB)
+
+		# ---
+		col += 1
+		self.cwork = Entry(frame, font=abcDROFrame.dro_wpos,
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+					width=8,
+					relief=FLAT,
+					borderwidth=0,
+					justify=RIGHT)
+		self.cwork.grid(row=row,column=col,sticky=EW)
+		tkExtra.Balloon.set(self.cwork, _("C work position (click to set)"))
+		self.cwork.bind('<FocusIn>',  self.workFocus)
+		self.cwork.bind('<Return>',   self.setC)
+		self.cwork.bind('<KP_Enter>', self.setC)
+
+		# Machine
+		row += 1
+		col = 0
+		Label(frame,text=_("MPos:")).grid(row=row,column=col,sticky=E)
+
+		col += 1
+		self.amachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
+		self.amachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
+		self.bmachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
+		self.bmachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		col += 1
+		self.cmachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+		self.cmachine.grid(row=row,column=col,padx=1,sticky=EW)
+
+		# Set buttons
+		row += 1
+		col = 1
+
+		azero = Button(frame, text=_("A=0"),
+				command=self.setA0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		azero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(azero, _("Set A coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(azero)
+
+		col += 1
+		bzero = Button(frame, text=_("B=0"),
+				command=self.setB0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		bzero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(bzero, _("Set B coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(bzero)
+
+		col += 1
+		czero = Button(frame, text=_("C=0"),
+				command=self.setC0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		czero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(czero, _("Set C coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(czero)
+
+		# Set buttons
+		row += 1
+		col = 1
+		bczero = Button(frame, text=_("BC=0"),
+				command=self.setBC0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		bczero.grid(row=row, column=col, pady=0, sticky=EW)
+		tkExtra.Balloon.set(bczero, _("Set BC coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(bczero)
+
+		col += 1
+		abczero = Button(frame, text=_("ABC=0"),
+				command=self.setABC0,
+				activebackground="LightYellow",
+				padx=2, pady=1)
+		abczero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
+		tkExtra.Balloon.set(abczero, _("Set ABC coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(abczero)
+
+		
+
+	#----------------------------------------------------------------------
+	def updateCoords(self):
+		try:
+			focus = self.focus_get()
+		except:
+			focus = None
+		if focus is not self.awork:
+			self.awork.delete(0,END)
+			self.awork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wa"]))
+		if focus is not self.bwork:
+			self.bwork.delete(0,END)
+			self.bwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wb"]))
+		if focus is not self.cwork:
+			self.cwork.delete(0,END)
+			self.cwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wc"]))
+
+		self.amachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["ma"])
+		self.bmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mb"])
+		self.cmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mc"])
+	#----------------------------------------------------------------------
+	def padFloat(self, decimals, value):
+		if decimals>0:
+			return "%0.*f"%(decimals, value)
+		else:
+			return value
+
+	#----------------------------------------------------------------------
+	# Do not give the focus while we are running
+	#----------------------------------------------------------------------
+	def workFocus(self, event=None):
+		if self.app.running:
+			self.app.focus_set()
+
+	#----------------------------------------------------------------------
+	def setA0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,"0",None,None)
+
+	#----------------------------------------------------------------------
+	def setB0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,None,"0",None)
+
+	#----------------------------------------------------------------------
+	def setC0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,None,None,"0")
+
+	#----------------------------------------------------------------------
+	def setBC0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,"0","0",None)
+
+	#----------------------------------------------------------------------
+	def setABC0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,"0","0","0")
+
+	#----------------------------------------------------------------------
+	def setA(self, event=None):
+		if self.app.running: return
+		try:
+			value = round(eval(self.awork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,None,None,value,None,None)
+		except:
+			pass
+
+	#----------------------------------------------------------------------
+	def setB(self, event=None):
+		if self.app.running: return
+		try:
+			value = round(eval(self.bwork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,None,None,None,value,None)
+		except:
+			pass
+
+	#----------------------------------------------------------------------
+	def setC(self, event=None):
+		if self.app.running: return
+		try:
+			value = round(eval(self.cwork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,None,None,None,None,value)
 		except:
 			pass
 
@@ -817,6 +1052,390 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		else:
 			zs=None
 		self.setStep(s, zs)
+
+	#----------------------------------------------------------------------
+	def setStep1(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step1, self.step1)
+
+	#----------------------------------------------------------------------
+	def setStep2(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step2, self.step2)
+
+	#----------------------------------------------------------------------
+	def setStep3(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.setStep(self.step3, self.step2)
+		
+#===============================================================================
+# abc ControlFrame
+#===============================================================================
+class abcControlFrame(CNCRibbon.PageExLabelFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "abcControl", _("abcControl"), app)
+
+		frame = Frame(self())
+		frame.pack(side=TOP, fill=X)
+
+		row,col = 0,0
+		Label(frame, text=_("A")).grid(row=row, column=col)
+
+		col += 3
+		Label(frame, text=_("C")).grid(row=row, column=col)
+
+		# ---
+		row += 1
+		col = 0
+
+		width=3
+		height=2
+
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveAup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +A"))
+		self.addWidget(b)
+
+		col += 2
+		b = Button(frame, text=Unicode.UPPER_LEFT_TRIANGLE,
+					command=self.moveBdownCup,
+					width=width, height=height,
+					activebackground="LightYellow")
+
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -B +C"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveCup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +C"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.UPPER_RIGHT_TRIANGLE,
+					command=self.moveBupCup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +B +C"))
+		self.addWidget(b)
+
+		col += 2
+		b = Button(frame, text=u"\u00D710",
+				command=self.mulStep,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(b, _("Multiply step by 10"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=_("+"),
+				command=self.incStep,
+				width=3,
+				padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+S)
+		tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
+		self.addWidget(b)
+
+		# ---
+		row += 1
+
+		col = 1
+		Label(frame, text=_("B"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		b = Button(frame, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
+					command=self.moveBdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -B"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.LARGE_CIRCLE,
+					command=self.go2abcorigin,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Return ABC to 0."))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+					command=self.moveBup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +B"))
+		self.addWidget(b)
+
+		# --
+		col += 1
+		Label(frame,"",width=2).grid(row=row,column=col)
+		
+		col += 1
+		self.step = tkExtra.Combobox(frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
+		self.step.set(Utils.config.get("abcControl","step"))
+		self.step.fill(map(float, Utils.config.get("abcControl","abcsteplist").split()))
+		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
+		self.addWidget(self.step)
+
+		# -- Separate astep --
+		try:
+			astep = Utils.config.get("abcControl","astep")
+			self.astep = tkExtra.Combobox(frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+			self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
+			self.astep.set(astep)
+			asl = [_NOASTEP]
+			asl.extend(map(float, Utils.config.get("abcControl","asteplist").split()))
+			self.astep.fill(asl)
+			tkExtra.Balloon.set(self.astep, _("Step for A move operation"))
+			self.addWidget(self.astep)
+		except:
+			self.astep = self.step
+
+		# Default steppings
+		try:
+			self.step1 = Utils.getFloat("abcControl","step1")
+		except:
+			self.step1 = 0.1
+
+		try:
+			self.step2 = Utils.getFloat("abcControl","step2")
+		except:
+			self.step2 = 1
+
+		try:
+			self.step3 = Utils.getFloat("abcControl","step3")
+		except:
+			self.step3 = 10
+
+		# ---
+		row += 1
+		col = 0
+
+		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveAdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -A"))
+		self.addWidget(b)
+
+		col += 2
+		b = Button(frame, text=Unicode.LOWER_LEFT_TRIANGLE,
+					command=self.moveBdownCdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -B -C"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveCdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -C"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=Unicode.LOWER_RIGHT_TRIANGLE,
+					command=self.moveBupCdown,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +B -C"))
+		self.addWidget(b)
+
+		col += 2
+		b = Button(frame, text=u"\u00F710",
+					command=self.divStep,
+					padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+N)
+		tkExtra.Balloon.set(b, _("Divide step by 10"))
+		self.addWidget(b)
+
+		col += 1
+		b = Button(frame, text=_("-"),
+					command=self.decStep,
+					padx=1, pady=1)
+		b.grid(row=row, column=col, sticky=EW+N)
+		tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
+		self.addWidget(b)
+
+		#self.grid_columnconfigure(6,weight=1)
+		try:
+#			self.grid_anchor(CENTER)
+			self.tk.call("grid","anchor",self,CENTER)
+		except TclError:
+			pass
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("abcControl", "step", self.step.get())
+		if self.astep is not self.step:
+			Utils.setFloat("abcControl", "astep", self.astep.get())
+
+	#----------------------------------------------------------------------
+	# Jogging
+	#----------------------------------------------------------------------
+	def getStep(self, axis='a'):
+		if axis == 'a':
+			aas = self.astep.get()
+			if aas == _NOASTEP:
+				return self.step.get()
+			else:
+				return aas
+		else:
+			return self.step.get()
+
+	def moveBup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B%s"%(self.step.get()))
+
+	def moveBdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B-%s"%(self.step.get()))
+
+	def moveCup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("C%s"%(self.step.get()))
+
+	def moveCdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("C-%s"%(self.step.get()))
+
+	def moveBdownCup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B-%C%s"%(self.step.get(),self.step.get()))
+
+	def moveBupCup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B%sC%s"%(self.step.get(),self.step.get()))
+
+	def moveBdownCdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B-%sC-%s"%(self.step.get(),self.step.get()))
+
+	def moveBupCdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B%sC-%s"%(self.step.get(),self.step.get()))
+
+	def moveAup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("A%s"%(self.getStep('z')))
+
+	def moveAdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("A-%s"%(self.getStep('z')))
+
+	def go2abcorigin(self, event=None):
+		self.sendGCode("G90")
+		#self.sendGCode("G0A%d"%(CNC.vars['safe']))
+		self.sendGCode("G0B0C0")
+		self.sendGCode("G0A0")
+
+	#----------------------------------------------------------------------
+	def setStep(self, s, aas=None):
+		self.step.set("%.4g"%(s))
+		if self.astep is self.step or aas is None:
+			self.event_generate("<<Status>>",
+				data=_("Step: %g")%(s))
+				#data=(_("Step: %g")%(s)))
+		else:
+			self.astep.set("%.4g"%(aas))
+			self.event_generate("<<Status>>",
+				data=_("Step: %g    Astep:%g ")%(s,aas))
+				#data=(_("Step: %g    Zstep:%g ")%(s,zs)))
+
+	#----------------------------------------------------------------------
+	@staticmethod
+	def _stepPower(step):
+		try:
+			step = float(step)
+			if step <= 0.0: step = 1.0
+		except:
+			step = 1.0
+		power = math.pow(10.0,math.floor(math.log10(step)))
+		return round(step/power)*power, power
+
+	#----------------------------------------------------------------------
+	def incStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = abcControlFrame._stepPower(self.step.get())
+		s = step+power
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.astep is not self.step and self.astep.get() != _NOASTEP:
+			step, power = abcControlFrame._stepPower(self.astep.get())
+			aas = step+power
+			if aas<_LOWSTEP: aas = _LOWSTEP
+			elif aas>_HIGHASTEP: aas = _HIGHASTEP
+		else:
+			aas=None
+		self.setStep(s, aas)
+
+	#----------------------------------------------------------------------
+	def decStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = abcControlFrame._stepPower(self.step.get())
+		s = step-power
+		if s<=0.0: s = step-power/10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.astep is not self.step and self.astep.get() != _NOASTEP:
+			step, power = abcControlFrame._stepPower(self.astep.get())
+			aas = step-power
+			if aas<=0.0: aas = step-power/10.0
+			if aas<_LOWSTEP: aas = _LOWSTEP
+			elif aas>_HIGHASTEP: aas = _HIGHASTEP
+		else:
+			aas=None
+		self.setStep(s, aas)
+
+	#----------------------------------------------------------------------
+	def mulStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = abcControlFrame._stepPower(self.step.get())
+		s = step*10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.astep is not self.step and self.astep.get() != _NOASTEP:
+			step, power = abcControlFrame._stepPower(self.astep.get())
+			aas = step*10.0
+			if aas<_LOWSTEP: aas = _LOWSTEP
+			elif aas>_HIGHASTEP: aas = _HIGHASTEP
+		else:
+			aas=None
+		self.setStep(s, aas)
+
+	#----------------------------------------------------------------------
+	def divStep(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		step, power = abcControlFrame._stepPower(self.step.get())
+		s = step/10.0
+		if s<_LOWSTEP: s = _LOWSTEP
+		elif s>_HIGHSTEP: s = _HIGHSTEP
+		if self.astep is not self.step and self.astep.get() != _NOASTEP:
+			step, power = abcControlFrame._stepPower(self.astep.get())
+			aas = step/10.0
+			if aas<_LOWSTEP: aas = _LOWSTEP
+			elif aas>_HIGHASTEP: aas = _HIGHASTEP
+		else:
+			aas=None
+		self.setStep(s, aas)
 
 	#----------------------------------------------------------------------
 	def setStep1(self, event=None):
@@ -1286,4 +1905,4 @@ class ControlPage(CNCRibbon.Page):
 		wcsvar.set(0)
 
 		self._register((ConnectionGroup, UserGroup, RunGroup),
-			(DROFrame, ControlFrame, StateFrame))
+			(DROFrame, abcDROFrame, ControlFrame, abcControlFrame, StateFrame))
