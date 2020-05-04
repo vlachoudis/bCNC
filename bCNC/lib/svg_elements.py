@@ -3604,7 +3604,7 @@ class Arc(PathSegment):
 
         self.prx.matrix_transform(rotate_matrix)
         self.pry.matrix_transform(rotate_matrix)
-        self.sweep = Angle.degrees(delta).as_radians
+        self.sweep = Angle.degrees(delta).as_radians<0
 
     def as_quad_curves(self):
         sweep_limit = tau / 12
