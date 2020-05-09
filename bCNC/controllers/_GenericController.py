@@ -111,7 +111,7 @@ class _GenericController:
 		self.master.sendGCode("%s"%(cmd))
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z, a, b, c):
+	def _wcsSet(self, x, y, z, a=None, b=None, c=None):
 		#global wcsvar
 		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
