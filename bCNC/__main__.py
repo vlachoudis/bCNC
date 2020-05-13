@@ -1603,24 +1603,24 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("SPINDLE",cmd,3):
 			if len(line)>1:
 				if line[1].upper()=="OFF":
-					self.spindle.set(False)
+					self.gstate.spindle.set(False)
 				elif line[1].upper()=="ON":
-					self.spindle.set(True)
+					self.gstate.spindle.set(True)
 				else:
 					try:
 						rpm = int(line[1])
 						if rpm==0:
-							self.spindleSpeed.set(0)
-							self.spindle.set(False)
+							self.gstate.spindleSpeed.set(0)
+							self.gstate.spindle.set(False)
 						else:
-							self.spindleSpeed.set(rpm)
-							self.spindle.set(True)
+							self.gstate.spindleSpeed.set(rpm)
+							self.gstate.spindle.set(True)
 					except:
 						pass
 			else:
 				# toggle spindle
-				self.spindle.set(not self.spindle.get())
-			self.spindleControl()
+				self.gstate.spindle.set(not self.gstate.spindle.get())
+			self.gstate.spindleControl()
 
 		# STOP: stop current run
 		elif cmd == "STOP":
