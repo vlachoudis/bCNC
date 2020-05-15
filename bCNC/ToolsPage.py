@@ -1591,7 +1591,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		lang = self.language.get()
 		# find translation
 		for a,b in Utils.LANGUAGES.items():
-			if b == lang:
+			if b.encode("utf-8") == lang:
 				if Utils.language == a: return
 				Utils.language = a
 				Utils.setStr(Utils.__prg__,  "language", Utils.language)
