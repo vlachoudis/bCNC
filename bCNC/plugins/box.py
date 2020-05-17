@@ -17,7 +17,7 @@ from bmath import *
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
+from Utils import to_zip
 
 #==============================================================================
 # Create a box with finger joints
@@ -195,8 +195,7 @@ class Box:
 		# Bottom
 		pos = Vector(x0, y0, self.surface)
 		pos -= self.r*Vector.Y	# r*V
-		block.append(CNC.gcode(0, zip("XY",pos[:2])))
-
+		block.append(CNC.gcode(0, to_zip("XY",pos[:2])))
 		z = self.surface
 		#for z in frange(self.surface-self.stepz, self.surface-self.thick, -self.stepz):
 		last = False

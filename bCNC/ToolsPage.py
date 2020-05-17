@@ -1591,7 +1591,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		lang = self.language.get()
 		# find translation
 		for a,b in Utils.LANGUAGES.items():
-			if b.encode("utf-8") == lang:
+			if b == lang:
 				if Utils.language == a: return
 				Utils.language = a
 				Utils.setStr(Utils.__prg__,  "language", Utils.language)
@@ -1707,11 +1707,11 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		for var in self.tools.getActive().variables:
 			if var[3] == item or _(var[3]) == item:
 				varname = var[0]
-				helpname = "Help for ("+varname+") "+item
+				helpname = 'Help for (%s) %s'%(varname,item)
 				if len(var) > 4 and var[4] is not None:
 					helptext = var[4]
 				else:
-					helptext = helpname+':\nnot available yet!'
+					helptext = '%s:\nnot available yet!'%(helpname)
 				tkMessageBox.showinfo(helpname, helptext)
 
 	#----------------------------------------------------------------------

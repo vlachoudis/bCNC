@@ -1,0 +1,17 @@
+eclipse.preferences.version=1
+encoding//bCNC/CNC.py=ascii
+encoding//bCNC/Sender.py=ascii
+encoding//bCNC/ToolsPage.py=ascii
+encoding//bCNC/Updates.py=ascii
+encoding//bCNC/Utils.py=ascii
+encoding//bCNC/__main__.py=ascii
+encoding//bCNC/lib/bpath.py=utf-8
+encoding//bCNC/lib/dxf.py=ascii
+encoding//bCNC/lib/spline.py=latin1
+encoding//bCNC/lib/ttf.py=ascii
+encoding//bCNC/plugins/box.py=ascii
+encoding//bCNC/plugins/flatten.py=ascii
+encoding//bCNC/plugins/hilbert.py=ascii
+encoding//bCNC/plugins/pyrograph.py=ascii
+encoding//bCNC/plugins/spiral.py=ascii
+encoding//bCNC/plugins/spirograph.py=ascii

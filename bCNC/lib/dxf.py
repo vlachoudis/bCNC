@@ -41,6 +41,7 @@ import sys
 import math
 import spline
 from bmath import Vector
+from Utils import to_zip
 
 EPS  = 0.000001
 EPS2 = EPS**2
@@ -530,7 +531,7 @@ class Entity(dict):
 		"""Convert complex objects (SPLINE,ELLIPSE) to polylines"""
 		if self.type == "SPLINE":
 			# Convert to polyline
-			xyz  = zip(self[10], self[20], self[30])
+			xyz =to_zip(self[10], self[20], self[30])
 			flag = int(self.get(70,0))
 			closed   = bool(flag & Entity.CLOSED)
 			periodic = bool(flag & Entity.PERIODIC)
@@ -1379,7 +1380,7 @@ if __name__ == "__main__":
 #		for entity in layer.entities:
 #			print entity.name, entity.type
 #			if entity.type == "SPLINE":
-#				xy = zip(entity[10], entity[20])
+#				xy = to_zip(entity[10], entity[20])
 #				cs = CubicBezierCurve(xy)
 #				for x,y in cs.approximate(100):
 #					print x,y

@@ -16,7 +16,7 @@ __version__= "0.0.1"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
+from Utils import to_zip
 
 #==============================================================================
 #Hilbert class
@@ -52,8 +52,7 @@ class Hilbert:
 
 		blocks = []
 		block = Block(self.name)
-
-		xi,yi = zip(*(self.hilbert(0.0,0.0,size,0.0,0.0,size,n)))
+		xi,yi = to_zip(*(self.hilbert(0.0,0.0,size,0.0,0.0,size,n)))
 
 		block.append(CNC.zsafe())
 		block.append(CNC.grapid(xi[0],yi[0]))
@@ -67,7 +66,7 @@ class Hilbert:
 			if currDepth < self.depth : currDepth = self.depth
 			block.append(CNC.zenter(currDepth))
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
-			for x,y in zip(xi,yi):
+			for x,y in to_zip(xi,yi):
 				block.append(CNC.gline(x,y))
 			if currDepth <= self.depth : break
 

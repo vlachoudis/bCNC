@@ -18,7 +18,7 @@ import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
 from fractions import gcd
-
+from Utils import to_zip
 
 #==============================================================================
 #Spirograph class
@@ -67,7 +67,7 @@ class Spirograph:
 		block.append("(Internal Radius = %g)"%(self.RInt))
 		block.append("(Offset Radius = %g)"%(self.ROff))
 
-		xi,yi = zip(*(self.calc_dots()))
+		xi,yi = to_zip(*(self.calc_dots()))
 
 		block.append(CNC.zsafe())
 		block.append(CNC.grapid(xi[0],yi[0]))
@@ -81,7 +81,7 @@ class Spirograph:
 			if currDepth < self.Depth : currDepth = self.Depth
 			block.append(CNC.zenter(currDepth))
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
-			for x,y in zip(xi,yi):
+			for x,y in to_zip(xi,yi):
 				block.append(CNC.gline(x,y))
 			block.append(CNC.gline(xi[0],yi[0]))
 			if currDepth <= self.Depth : break

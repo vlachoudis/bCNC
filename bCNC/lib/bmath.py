@@ -15,7 +15,7 @@ import random
 from math import acos, asin, atan2, copysign, cos, degrees, fmod, hypot, pi, pow, radians, sin, sqrt
 
 import rexx
-
+from Utils import to_zip
 # Accuracy for comparison operators
 _accuracy = 1E-15
 
@@ -348,7 +348,7 @@ class Vector(list):
 		"""Test for equality with vector v within accuracy"""
 		if len(self) != len(v): return False
 		s2 = 0.0
-		for a,b in zip(self, v):
+		for a,b in to_zip(self, v):
 			s2 += (a-b)**2
 		return s2 <= acc**2
 
@@ -433,7 +433,7 @@ class Vector(list):
 	def dot(self, v):
 		"""Dot product of 2 vectors"""
 		s = 0.0
-		for a,b in zip(self, v):
+		for a,b in to_zip(self, v):
 			s += a*b
 
 		#Float precision error was causing dot product to be 1.00000000000002 or so...
@@ -1409,7 +1409,7 @@ def linear(X, Y):
 	@return a,b,r
 	"""
 	Sx = Sy = Sx2 = Sy2 = Sxy = 0.0
-	for x,y in zip(X,Y):
+	for x,y in to_zip(X,Y):
 		Sx  += x
 		Sy  += y
 		Sx2 += x*x
@@ -1916,7 +1916,7 @@ def int2roman(num):
 	ints = (1000, 900,  500, 400, 100,  90, 50,  40, 10,  9,   5,  4,   1)
 	nums = ('M',  'CM', 'D', 'CD','C', 'XC','L','XL','X','IX','V','IV','I')
 	result = ""
-	for i,n in zip(ints, nums):
+	for i,n in to_zip(ints, nums):
 		count = int(num / i)
 		result += n * count
 		num -= i * count

@@ -20,10 +20,9 @@ except ImportError:
 	import http.client as http
 	from tkinter import *
 
-import Utils
 import tkExtra
-
-
+import Utils
+from Utils import to_zip
 #===============================================================================
 # Check for updates of bCNC
 #===============================================================================
@@ -130,7 +129,7 @@ class CheckUpdateDialog(Toplevel):
 	def isNewer(self, version):
 		av = map(int, self.version.split("."))
 		bv = map(int, version.split("."))
-		for a, b in zip(av, bv):
+		for a, b in to_zip(av, bv):
 			if b>a: return True
 		return False
 

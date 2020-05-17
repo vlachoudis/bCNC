@@ -2,7 +2,7 @@ from __future__ import division
 from __future__ import absolute_import
 from math import sqrt, cos, sin, acos, degrees, radians, log
 from collections import MutableSequence
-
+from Utils import to_zip
 
 # This file contains classes for the different types of SVG path segments as
 # well as a Path object that contains a sequence of path segments.
@@ -368,7 +368,7 @@ class Path(MutableSequence):
             return NotImplemented
         if len(self) != len(other):
             return False
-        for s, o in zip(self._segments, other._segments):
+        for s, o in to_zip(self._segments, other._segments):
             if not s == o:
                 return False
         return True
