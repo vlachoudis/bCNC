@@ -226,11 +226,12 @@ class Tool(Plugin):
 			blockCon = Block("%s-Conical"%(self.name))
 			for c in circles:
 				x,y,r = c
-				blockCon.append(CNC.zsafe())
-				blockCon.append(CNC.grapid(x,y))
-				dv = r / math.tan(math.radians(v_angle/2.))
-				blockCon.append(CNC.zenter(-dv))
-			blockCon.append(CNC.zsafe())
+				if (r >= dMin/2.):
+					blockCon.append(CNC.zsafe())
+					blockCon.append(CNC.grapid(x,y))
+					dv = r / math.tan(math.radians(v_angle/2.))
+					blockCon.append(CNC.zenter(-dv))
+					blockCon.append(CNC.zsafe())
 			blocks.append(blockCon)
 
 		#Gcode Zsafe
