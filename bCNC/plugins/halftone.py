@@ -231,7 +231,7 @@ class Tool(Plugin):
 					blockCon.append(CNC.grapid(x,y))
 					dv = r / math.tan(math.radians(v_angle/2.))
 					blockCon.append(CNC.zenter(-dv))
-					blockCon.append(CNC.zsafe())
+			blockCon.append(CNC.zsafe())
 			blocks.append(blockCon)
 
 		#Gcode Zsafe
