@@ -70,7 +70,7 @@ class Tool(Plugin):
 		drawBorder = self["DrawBorder"]
 
 		#Check parameters
-		if direction is "":
+		if direction == "":
 			app.setStatus(_("Pyrograph abort: please define a scan Direction"))
 			return
 

@@ -6,6 +6,7 @@ from _GenericGRBL import _GenericGRBL
 from _GenericController import STATUSPAT, POSPAT, TLOPAT, DOLLARPAT, SPLITPAT, VARPAT
 from CNC import CNC
 import time
+import Utils
 
 OV_FEED_100     = chr(0x90)        # Extended override commands
 OV_FEED_i10     = chr(0x91)
@@ -37,7 +38,7 @@ class Controller(_GenericGRBL):
 		#print("grbl1 loaded")
 
 	def jog(self, dir):
-		self.master.sendGCode("$J=G91 %s F100000"%(dir))
+		self.master.sendGCode("$J=G91 %s F100000"%(dir)) # XXX is F100000 correct?
 
 	def overrideSet(self):
 		CNC.vars["_OvChanged"] = False	# Temporary
@@ -46,18 +47,18 @@ class Controller(_GenericGRBL):
 		if diff==0:
 			pass
 		elif CNC.vars["_OvFeed"] == 100:
-			self.master.serial.write(OV_FEED_100)
+			self.master.serial_write(OV_FEED_100)
 		elif diff >= 10:
-			self.master.serial.write(OV_FEED_i10)
+			self.master.serial_write(OV_FEED_i10)
 			CNC.vars["_OvChanged"] = diff>10
 		elif diff <= -10:
-			self.master.serial.write(OV_FEED_d10)
+			self.master.serial_write(OV_FEED_d10)
 			CNC.vars["_OvChanged"] = diff<-10
 		elif diff >= 1:
-			self.master.serial.write(OV_FEED_i1)
+			self.master.serial_write(OV_FEED_i1)
 			CNC.vars["_OvChanged"] = diff>1
 		elif diff <= -1:
-			self.master.serial.write(OV_FEED_d1)
+			self.master.serial_write(OV_FEED_d1)
 			CNC.vars["_OvChanged"] = diff<-1
 		# Check rapid
 		target  = CNC.vars["_OvRapid"]
@@ -65,30 +66,30 @@ class Controller(_GenericGRBL):
 		if target == current:
 			pass
 		elif target == 100:
-			self.master.serial.write(OV_RAPID_100)
+			self.master.serial_write(OV_RAPID_100)
 		elif target == 75:
-			self.master.serial.write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
+			self.master.serial_write(OV_RAPID_50)	# FIXME: GRBL protocol does not specify 75% override command at all
 		elif target == 50:
-			self.master.serial.write(OV_RAPID_50)
+			self.master.serial_write(OV_RAPID_50)
 		elif target == 25:
-			self.master.serial.write(OV_RAPID_25)
+			self.master.serial_write(OV_RAPID_25)
 		# Check Spindle
 		diff = CNC.vars["_OvSpindle"] - CNC.vars["OvSpindle"]
 		if diff==0:
 			pass
 		elif CNC.vars["_OvSpindle"] == 100:
-			self.master.serial.write(OV_SPINDLE_100)
+			self.master.serial_write(OV_SPINDLE_100)
 		elif diff >= 10:
-			self.master.serial.write(OV_SPINDLE_i10)
+			self.master.serial_write(OV_SPINDLE_i10)
 			CNC.vars["_OvChanged"] = diff>10
 		elif diff <= -10:
-			self.master.serial.write(OV_SPINDLE_d10)
+			self.master.serial_write(OV_SPINDLE_d10)
 			CNC.vars["_OvChanged"] = diff<-10
 		elif diff >= 1:
-			self.master.serial.write(OV_SPINDLE_i1)
+			self.master.serial_write(OV_SPINDLE_i1)
 			CNC.vars["_OvChanged"] = diff>1
 		elif diff <= -1:
-			self.master.serial.write(OV_SPINDLE_d1)
+			self.master.serial_write(OV_SPINDLE_d1)
 			CNC.vars["_OvChanged"] = diff<-1
 
 
@@ -114,6 +115,14 @@ class Controller(_GenericGRBL):
 					CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
 					CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
 					CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+					#if Utils.config.get("bCNC","enable6axis") == "true":
+					if len(word) > 4:
+						CNC.vars["ma"] = float(word[4])
+						CNC.vars["mb"] = float(word[5])
+						CNC.vars["mc"] = float(word[6])
+						CNC.vars["wa"] = round(CNC.vars["ma"]-CNC.vars["wcoa"], CNC.digits)
+						CNC.vars["wb"] = round(CNC.vars["mb"]-CNC.vars["wcob"], CNC.digits)
+						CNC.vars["wc"] = round(CNC.vars["mc"]-CNC.vars["wcoc"], CNC.digits)
 					self.master._posUpdate = True
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
@@ -156,6 +165,11 @@ class Controller(_GenericGRBL):
 					CNC.vars["wcox"] = float(word[1])
 					CNC.vars["wcoy"] = float(word[2])
 					CNC.vars["wcoz"] = float(word[3])
+					#if Utils.config.get("bCNC","enable6axis") == "true":
+					if len(word) > 4:
+						CNC.vars["wcoa"] = float(word[4])
+						CNC.vars["wcob"] = float(word[5])
+						CNC.vars["wcoc"] = float(word[6])
 				except (ValueError,IndexError):
 					CNC.vars["state"] = "Garbage receive %s: %s"%(word[0],line)
 					self.master.log.put((self.master.MSG_RECEIVE, CNC.vars["state"]))
@@ -197,6 +211,11 @@ class Controller(_GenericGRBL):
 			CNC.vars["G92X"] = float(word[1])
 			CNC.vars["G92Y"] = float(word[2])
 			CNC.vars["G92Z"] = float(word[3])
+			#if Utils.config.get("bCNC","enable6axis") == "true":
+			if len(word) > 4:
+				CNC.vars["G92A"] = float(word[4])
+				CNC.vars["G92B"] = float(word[5])
+				CNC.vars["G92C"] = float(word[6])
 			CNC.vars[word[0]] = word[1:]
 			self.master._gUpdate = True
 		if word[0] == "G28":

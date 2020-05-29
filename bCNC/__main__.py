@@ -7,14 +7,15 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+import sys
 
 __version__ = "0.9.14-dev"
 __date__    = "8 Jan 2019"
 __author__  = "Vasilis Vlachoudis"
 __email__   = "vvlachoudis@gmail.com"
+__platform_fingerprint__ = "(%s py%s.%s.%s)"%(sys.platform, sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
 
 import os
-import sys
 import time
 import getopt
 import socket
@@ -108,7 +109,7 @@ class Application(Toplevel,Sender):
 			self.iconbitmap("%s\\bCNC.ico"%(Utils.prgpath))
 		else:
 			self.iconbitmap("@%s/bCNC.xbm"%(Utils.prgpath))
-		self.title("%s %s"%(Utils.__prg__, __version__))
+		self.title("%s %s %s"%(Utils.__prg__, __version__, __platform_fingerprint__))
 		self.widgets = []
 
 		# Global variables
@@ -207,13 +208,18 @@ class Application(Toplevel,Sender):
 
 			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
 				last = n[-1]
-				try:
-					if last == "*":
-						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
-					else:
-						page.addPageFrame(n)
-				except KeyError:
-					errors.append(n)
+				if (n=="abcDRO" or n=="abcControl") and CNC.enable6axisopt == False:
+					sys.stdout.write("Not Loading 6 axis displays\n")
+
+					
+				else:
+					try:
+						if last == "*":
+							page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+						else:
+							page.addPageFrame(n)
+					except KeyError:
+						errors.append(n)
 
 		if errors:
 			tkMessageBox.showwarning("bCNC configuration",
@@ -224,11 +230,14 @@ class Application(Toplevel,Sender):
 
 		# remember the editor list widget
 		self.dro      = Page.frames["DRO"]
+		self.abcdro      = Page.frames["abcDRO"]
 		self.gstate   = Page.frames["State"]
 		self.control  = Page.frames["Control"]
+		self.abccontrol=Page.frames["abcControl"]
 		self.editor   = Page.frames["Editor"].editor
 		self.terminal = Page.frames["Terminal"].terminal
 		self.buffer   = Page.frames["Terminal"].buffer
+				
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -390,16 +399,22 @@ class Application(Toplevel,Sender):
 			self.bind('<Left>',		self.control.moveYdown)
 			self.bind('<Up>',		self.control.moveXdown)
 			self.bind('<Down>',		self.control.moveXup)
+			self.bind('.',			self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 		elif self._swapKeyboard == -1:
 			self.bind('<Right>',		self.control.moveYdown)
 			self.bind('<Left>',		self.control.moveYup)
 			self.bind('<Up>',		self.control.moveXup)
 			self.bind('<Down>',		self.control.moveXdown)
+			self.bind(',',                  self.abccontrol.moveAup)
+			self.bind('.',			self.abccontrol.moveAdown)
 		else:
 			self.bind('<Right>',		self.control.moveXup)
 			self.bind('<Left>',		self.control.moveXdown)
 			self.bind('<Up>',		self.control.moveYup)
 			self.bind('<Down>',		self.control.moveYdown)
+			self.bind('.',                  self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 
 		try:
 			self.bind('<KP_Prior>',		self.control.moveZup)
@@ -1500,7 +1515,7 @@ class Application(Toplevel,Sender):
 			else:
 				self.executeOnSelection("OPTIMIZE", True)
 
-		# OPT*IMIZE: reorder selected blocks to minimize rapid motions
+		# OPT*IMIZE: reorder selected blocks to minimize rapid motions # FIXME comment for ORIENT not OPTIMIZE
 		elif rexx.abbrev("ORIENT",cmd,4):
 			if not self.editor.curselection():
 				self.editor.selectAll()
@@ -1588,24 +1603,24 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("SPINDLE",cmd,3):
 			if len(line)>1:
 				if line[1].upper()=="OFF":
-					self.spindle.set(False)
+					self.gstate.spindle.set(False)
 				elif line[1].upper()=="ON":
-					self.spindle.set(True)
+					self.gstate.spindle.set(True)
 				else:
 					try:
 						rpm = int(line[1])
 						if rpm==0:
-							self.spindleSpeed.set(0)
-							self.spindle.set(False)
+							self.gstate.spindleSpeed.set(0)
+							self.gstate.spindle.set(False)
 						else:
-							self.spindleSpeed.set(rpm)
-							self.spindle.set(True)
+							self.gstate.spindleSpeed.set(rpm)
+							self.gstate.spindle.set(True)
 					except:
 						pass
 			else:
 				# toggle spindle
-				self.spindle.set(not self.spindle.get())
-			self.spindleControl()
+				self.gstate.spindle.set(not self.gstate.spindle.get())
+			self.gstate.spindleControl()
 
 		# STOP: stop current run
 		elif cmd == "STOP":
@@ -2074,15 +2089,15 @@ class Application(Toplevel,Sender):
 			Page.frames["CAM"].populate()
 
 		if autoloaded:
-			self.setStatus(_("'%s' reloaded at '%s'").decode("utf8")%(filename,str(datetime.now())))
+			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
 		else:
-			self.setStatus(_("'%s' loaded").decode("utf8")%(filename))
+			self.setStatus(_("'%s' loaded")%(filename))
 		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
-		self.setStatus(_("'%s' saved").decode("utf8")%(filename))
+		self.setStatus(_("'%s' saved")%(filename))
 		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
 
 	#-----------------------------------------------------------------------
@@ -2291,7 +2306,7 @@ class Application(Toplevel,Sender):
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):
 				if line is not None:
-					if isinstance(line,str) or isinstance(line,unicode):
+					if isinstance(line,str):
 						self.queue.put(line+"\n")
 					else:
 						self.queue.put(line)
@@ -2347,7 +2362,7 @@ class Application(Toplevel,Sender):
 		while self.log.qsize()>0 and time.time()-t<0.1:
 			try:
 				msg, line = self.log.get_nowait()
-				line = line.rstrip("\n")
+				line = str(line).rstrip("\n")
 				inserted = True
 				#print "<<<",msg,line,"\n" in line
 
@@ -2546,13 +2561,20 @@ def main(args=None):
 	global tk
 	global application
 
-	if sys.version_info[0] != 2:
-		sys.stdout.write("="*80+"\n")
-		sys.stdout.write("WARNING: bCNC is running only on python v2.x for the moment\n")
-		sys.stdout.write("="*80+"\n")
-		sys.exit(0)
+	#if sys.version_info[0] != 2:
+	sys.stdout.write("="*80+"\n")
+	sys.stdout.write("WARNING: bCNC has been recently ported to support both python v2.x and v3.x\n")
+	sys.stdout.write("Most things seem to work reasonably well in both python versions.\n")
+	sys.stdout.write("Please report any issues to: https://github.com/vlachoudis/bCNC/issues\n")
+	sys.stdout.write("="*80+"\n")
+	#sys.exit(0)
+
 	tk = Tk()
 	tk.withdraw()
+
+	#if sys.version_info[0] != 2:
+	#	tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
+
 	try:
 		Tkinter.CallWrapper = Utils.CallWrapper
 	except:
@@ -2560,7 +2582,7 @@ def main(args=None):
 
 	tkExtra.bindClasses(tk)
 	Utils.loadIcons()
-	
+
 	# Parse arguments
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:],

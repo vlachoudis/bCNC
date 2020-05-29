@@ -15,7 +15,7 @@ import undo
 import Unicode
 import pickle
 import json
-import binascii
+#import binascii
 
 from dxf	import DXF
 from bstl	import Binary_STL_Writer
@@ -690,9 +690,18 @@ class CNC:
 			"mx"         : 0.0,
 			"my"         : 0.0,
 			"mz"         : 0.0,
+			"wa"         : 0.0,
+			"wb"         : 0.0,
+			"wc"         : 0.0,
+			"ma"         : 0.0,
+			"mb"         : 0.0,
+			"mc"         : 0.0,
 			"wcox"       : 0.0,
 			"wcoy"       : 0.0,
 			"wcoz"       : 0.0,
+			"wcoa"       : 0.0,
+			"wcob"       : 0.0,
+			"wcoc"       : 0.0,
 			"curfeed"    : 0.0,
 			"curspindle" : 0.0,
 			"_camwx"     : 0.0,
@@ -745,6 +754,7 @@ class CNC:
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
+			#"enable6axisopt" : 0,
 		}
 
 	drillPolicy    = 1		# Expand Canned cycles
@@ -800,6 +810,8 @@ class CNC:
 		except: pass
 		try: CNC.laseradaptive  = bool(int(config.get(section, "laseradaptive")))
 		except: pass
+		try: CNC.enable6axisopt  = bool(int(config.get(section, "enable6axisopt")))
+		except: pass
 		try: CNC.doublesizeicon = bool(int(config.get(section, "doublesizeicon")))
 		except: pass
 		try: CNC.acceleration_x = float(config.get(section, "acceleration_x"))
@@ -819,6 +831,24 @@ class CNC:
 		try: CNC.travel_y       = float(config.get(section, "travel_y"))
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
+		except: pass
+		try: CNC.acceleration_a = float(config.get(section, "acceleration_a"))
+		except: pass
+		try: CNC.acceleration_b = float(config.get(section, "acceleration_b"))
+		except: pass
+		try: CNC.acceleration_c = float(config.get(section, "acceleration_c"))
+		except: pass
+		try: CNC.feedmax_a      = float(config.get(section, "feedmax_a"))
+		except: pass
+		try: CNC.feedmax_b      = float(config.get(section, "feedmax_b"))
+		except: pass
+		try: CNC.feedmax_c      = float(config.get(section, "feedmax_c"))
+		except: pass
+		try: CNC.travel_a       = float(config.get(section, "travel_a"))
+		except: pass
+		try: CNC.travel_b       = float(config.get(section, "travel_b"))
+		except: pass
+		try: CNC.travel_c       = float(config.get(section, "travel_c"))
 		except: pass
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
@@ -847,7 +877,8 @@ class CNC:
 			CNC.travel_x        /= 25.4
 			CNC.travel_y        /= 25.4
 			CNC.travel_z        /= 25.4
-
+			# a,b,c are in degrees no conversion required
+			
 		section = "Error"
 		if CNC.drillPolicy == 1:
 			ERROR_HANDLING["G98"] = 1
@@ -865,7 +896,7 @@ class CNC:
 		pass
 
 	#----------------------------------------------------------------------
-	def initPath(self, x=None, y=None, z=None):
+	def initPath(self, x=None, y=None, z=None, a=None, b=None, c=None):
 		if x is None:
 			self.x = self.xval = CNC.vars['wx'] or 0
 		else:
@@ -878,6 +909,19 @@ class CNC:
 			self.z = self.zval = CNC.vars['wz'] or 0
 		else:
 			self.z = self.zval = z
+		if a is None:
+			self.a = self.aval = CNC.vars['wa'] or 0
+		else:
+			self.a = self.aval = a
+		if b is None:
+			self.b = self.bval = CNC.vars['wb'] or 0
+		else:
+			self.b = self.bval = b
+		if c is None:
+			self.c = self.cval = CNC.vars['wc'] or 0
+		else:
+			self.c = self.cval = c	
+		
 		self.ival = self.jval = self.kval = 0.0
 		self.uval = self.vval = self.wval = 0.0
 		self.dx   = self.dy   = self.dz   = 0.0
@@ -905,7 +949,7 @@ class CNC:
 		# Selected blocks margin
 		CNC.vars["xmin"]  = CNC.vars["ymin"]  = CNC.vars["zmin"]  =  1000000.0
 		CNC.vars["xmax"]  = CNC.vars["ymax"]  = CNC.vars["zmax"]  = -1000000.0
-
+        
 	#----------------------------------------------------------------------
 	def resetAllMargins(self):
 		self.resetEnableMargins()
@@ -956,6 +1000,18 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
+	def _gotoABC(g, x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		if a is not None: s += ' '+CNC.fmt('a',a)
+		if b is not None: s += ' '+CNC.fmt('b',b)
+		if c is not None: s += ' '+CNC.fmt('c',c)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
+		return s
+	@staticmethod
 	def _goto(g, x=None, y=None, z=None, **args):
 		s = "g%d"%(g)
 		if x is not None: s += ' '+CNC.fmt('x',x)
@@ -964,13 +1020,18 @@ class CNC:
 		for n,v in args.items():
 			s += ' ' + CNC.fmt(n,v)
 		return s
-
 	#----------------------------------------------------------------------
+	@staticmethod
+	def grapidABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(0,x,y,z,a,b,c,**args)
 	@staticmethod
 	def grapid(x=None, y=None, z=None, **args):
 		return CNC._goto(0,x,y,z,**args)
 
 	#----------------------------------------------------------------------
+	@staticmethod
+	def glineABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(1,x,y,z,a,b,c,**args)
 	@staticmethod
 	def gline(x=None, y=None, z=None, **args):
 		return CNC._goto(1,x,y,z,**args)
@@ -1091,8 +1152,9 @@ class CNC:
 			else:
 				try:
 					return compile(line[1:],"","exec")
-				except:
-					# FIXME show the error!!!!
+				except Exception as e:
+					print("Compile line error: \n")
+					print(e)
 					return None
 
 		# most probably an assignment like  #nnn = expr
@@ -1601,7 +1663,7 @@ class CNC:
 	# Doesn't work correctly for G83 (peck drilling)
 	#----------------------------------------------------------------------
 	def pathLength(self, block, xyz):
-		# For XY plan
+		# For XY plane
 		p = xyz[0]
 		length = 0.0
 		for i in xyz:
@@ -1660,10 +1722,10 @@ class CNC:
 			newcmd = []
 			cmds = CNC.compileLine(line)
 			if cmds is None: continue
-			if isinstance(cmds,str) or isinstance(cmds,unicode):
+			if isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
-				# either CodeType or tuple, list[] append at it as is
+				# either CodeType or tuple, list[] append it as is
 				lines.append(cmds)
 				continue
 
@@ -1983,7 +2045,7 @@ class Block(list):
 					found = True
 
 			# remove all empty
-			ops = filter(lambda x:x!="", ops)
+			ops = list(filter(lambda x:x!="", ops))
 
 			if not found:
 				ops.append(operation)
@@ -2006,7 +2068,7 @@ class Block(list):
 		try:
 			return "%s %s %s - [%d]"%(e, v, self.name(), len(self))
 		except UnicodeDecodeError:
-			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self))
+			return "%s %s %s - [%d]"%(e, v, self.name().decode("ascii","replace"), len(self)) #TODO: is this OK?
 
 	#----------------------------------------------------------------------
 	def write_header(self):
@@ -2291,7 +2353,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Save in TXT format
 	# -Enabled Blocks only
-	# -Clened from bCNC metadata and comments
+	# -Cleaned from bCNC metadata and comments
 	# -Uppercase
 	#----------------------------------------------------------------------
 	def saveTXT(self, filename):
@@ -2460,7 +2522,7 @@ class GCode:
 		if empty: self.addBlockFromString("Header",self.header)
 
 		#FIXME: UI to set SVG subdivratio
-		for path in svgcode.get_gcode(self.SVGscale(), 10, CNC.digits):
+		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
@@ -2719,7 +2781,7 @@ class GCode:
 						 self.fmt("i",ij[0],7),self.fmt("j",ij[1],7),self.fmt("z",z,7))+cm)
 
 		#Get island height of segment
-		def getSegmentZTab(segment, altz=None):
+		def getSegmentZTab(segment, altz=float("-inf")):
 			if segment._inside:
 				return max(segment._inside)
 			else: return altz
@@ -2755,7 +2817,7 @@ class GCode:
 
 			#Loop over segments
 			setfeed = True
-			ztabprev = None
+			ztabprev = float("-inf");
 			ramping = True
 			for sid,segment in enumerate(path):
 				zhprev = zh
@@ -2775,7 +2837,7 @@ class GCode:
 
 				#Retract over tabs
 				if ztab != ztabprev: #has tab height changed? tab boundary crossed?
-					if (ztab is None or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
+					if (ztab == float("-inf") or ztab < ztabprev) and (zh < ztabprev or zhprev < ztabprev): #if we need to enter the toolpath after done clearing the tab
 						if comments: block.append("(tab down "+str(max(zhprev,ztab))+")")
 						block.append(CNC.zenter(max(zhprev,ztab),7))
 						setfeed = True
@@ -3162,7 +3224,7 @@ class GCode:
 			if cmds is None:
 				new.append(line)
 				continue
-			elif isinstance(cmds,str) or isinstance(cmds,unicode):
+			elif isinstance(cmds,str):
 				cmds = CNC.breakLine(cmds)
 			else:
 				new.append(line)
@@ -3802,7 +3864,7 @@ class GCode:
 
 			#Decide conventional/climb/error:
 			side = self.blocks[bid].operationSide()
-			if abs(direction)>1 and side is 0:
+			if abs(direction)>1 and side == 0:
 				msg = "Conventional/Climb feature only works for paths with 'in/out/pocket' tags!\n"
 				msg += "Some of the selected paths were not taged (or are both in+out). You can still use CW/CCW for them."
 				continue
@@ -4066,7 +4128,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)
@@ -4146,7 +4208,7 @@ class GCode:
 					explain+=" offs "+str(abs(offset)-cutDiam/2.0)
 				if offset<0:
 					if adaptative:
-						explain+=" Adapt bit "+str(tooldiameter) 
+						explain+=" Adapt bit "+str(tooldiameter)
 					if overcut:
 						explain+=" overc"
 				newname = Block.operationName(path.name,explain)
@@ -4530,7 +4592,7 @@ class GCode:
 		#pprint(matrix)
 
 		best = [0]
-		unvisited = range(1,n)
+		unvisited = list(range(1,n))
 		while unvisited:
 			last = best[-1]
 			row = matrix[last]
@@ -4564,7 +4626,7 @@ class GCode:
 
 		def add(line, path):
 			if line is not None:
-				if isinstance(line,str) or isinstance(line,unicode):
+				if isinstance(line,str):
 					queue.put(line+"\n")
 				else:
 					queue.put(line)
@@ -4588,7 +4650,7 @@ class GCode:
 				cmds = CNC.compileLine(line)
 				if cmds is None:
 					continue
-				elif isinstance(cmds,str) or isinstance(cmds,unicode):
+				elif isinstance(cmds,str):
 					cmds = CNC.breakLine(cmds)
 				else:
 					# either CodeType or tuple, list[] append at it as is

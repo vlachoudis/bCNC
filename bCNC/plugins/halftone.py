@@ -161,7 +161,7 @@ class Tool(Plugin):
 			img = img.convert ('L') #to calculate luminance
 			squareNorm = False
 
-		 #flip image to ouput correct coordinates
+		 #flip image to output correct coordinates
 		img = img.transpose(Image.FLIP_TOP_BOTTOM)
 
 		#Calc divisions for halftone
@@ -226,10 +226,11 @@ class Tool(Plugin):
 			blockCon = Block("%s-Conical"%(self.name))
 			for c in circles:
 				x,y,r = c
-				blockCon.append(CNC.zsafe())
-				blockCon.append(CNC.grapid(x,y))
-				dv = r / math.tan(math.radians(v_angle/2.))
-				blockCon.append(CNC.zenter(-dv))
+				if (r >= dMin/2.):
+					blockCon.append(CNC.zsafe())
+					blockCon.append(CNC.grapid(x,y))
+					dv = r / math.tan(math.radians(v_angle/2.))
+					blockCon.append(CNC.zenter(-dv))
 			blockCon.append(CNC.zsafe())
 			blocks.append(blockCon)
 

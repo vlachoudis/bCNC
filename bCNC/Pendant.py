@@ -89,10 +89,10 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 					for line in value.split('\n'):
 						httpd.app.queue.put(line+"\n")
 				elif key=="cmd":
-					httpd.app.pendant.put(urllib.unquote(value))
+					httpd.app.pendant.put(urlparse.unquote(value))
 			#send empty response so browser does not generate errors
 			self.do_HEAD(200, "text/text", cl=len(""))
-			self.wfile.write("")
+			self.wfile.write("".encode())
 
 		elif page == "/state":
 			tmp = {}
@@ -100,14 +100,14 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 				tmp[name] = CNC.vars[name]
 			contentToSend = json.dumps(tmp)
 			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
-			self.wfile.write(contentToSend)
+			self.wfile.write(contentToSend.encode())
 
 		elif page == "/config":
 			snd = {}
 			snd["rpmmax"] = httpd.app.get("CNC","spindlemax")
 			contentToSend = json.dumps(snd)
 			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
-			self.wfile.write(contentToSend)
+			self.wfile.write(contentToSend.encode())
 
 		elif page == "/icon":
 			if arg is None: return
@@ -233,7 +233,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		if page == "": page = "index.html"
 		try:
-			f = open(os.path.join(webpath,page),"r")
+			f = open(os.path.join(webpath,page),"rb")
 			self.wfile.write(f.read())
 			f.close()
 		except IOError:
@@ -247,7 +247,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 Page not found.
 </body>
 </html>
-""")
+""".encode())
 
 
 # -----------------------------------------------------------------------------

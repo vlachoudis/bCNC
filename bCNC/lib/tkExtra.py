@@ -43,6 +43,7 @@ import re
 import time
 import Unicode
 import bFileDialog
+import sys
 #from log import say
 
 try:
@@ -3075,9 +3076,17 @@ class Combobox(Frame):
 	# Public methods
 	# ----------------------------------------------------------------------
 	def get(self, first=None, last=None):
+		try:
+			stringclass = basestring
+		except NameError:
+			stringclass = False
 		if first is None:
 			if isinstance(self._text, Label):
-				return self._text.cget("text")
+				tmpstr = self._text.cget("text")
+				if  stringclass and isinstance(tmpstr,stringclass):
+					return tmpstr.encode("utf-8")
+				else :
+					return tmpstr
 			else:
 				return self._text.get()
 		else:

@@ -24,10 +24,10 @@ cache:
     pip: true
 python:
     - '2.7'
-    - '3.4'
+    - '3.8'
 matrix:
     allow_failures:
-        - python: '3.4'
+        #- python: '3.8'
         - os: windows
 
 before_install:

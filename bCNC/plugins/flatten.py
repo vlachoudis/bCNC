@@ -32,11 +32,11 @@ class Flatten:
 		blocks = []
 
 		#Check parameters
-		if CutDirection is "":
+		if CutDirection == "":
 			app.setStatus(_("Flatten abort: Cut Direction is undefined"))
 			return
 
-		if PocketType is "":
+		if PocketType == "":
 			app.setStatus(_("Flatten abort: Pocket Type is undefined"))
 			return
 
@@ -175,7 +175,7 @@ class Flatten:
 				xC += 1
 				yC += 1
 
-			#Reverse point to start from inside (less stres on the tool)
+			#Reverse point to start from inside (less stress on the tool)
 			xP = xP[::-1]
 			yP = yP[::-1]
 
@@ -202,8 +202,12 @@ class Flatten:
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
 
 			#Pocketing
+			lastxy = None
 			for x,y in zip(xP,yP):
-				block.append(CNC.gline(x,y))
+#				block.append(CNC.gline(x,y))
+				if lastxy != CNC.gline(x,y) or None:
+					block.append(CNC.gline(x,y))
+				lastxy = CNC.gline(x,y)
 
 			#Border cut if request
 			for x,y in zip(xB,yB):

@@ -1787,8 +1787,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
-		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -1869,11 +1869,11 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def policyChange(self):
-		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get().encode("utf8")))
+		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
 
 	#-----------------------------------------------------------------------
 	def waitChange(self):
-		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get().encode("utf8")))
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
 
 
 	#-----------------------------------------------------------------------
@@ -1884,7 +1884,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 		CNC.vars["toolchangez"] = float(self.changeZ.get())
 		CNC.vars["toolprobex"] = float(self.probeX.get())
 		CNC.vars["toolprobey"] = float(self.probeY.get())
-		CNC.vars["toolprobez"] = float(self.probeZ.get())
 		CNC.vars["toolprobez"] = float(self.probeZ.get())
 		CNC.vars["tooldistance"] = float(self.probeDistance.get())
 

@@ -25,22 +25,22 @@ class Controller(_GenericController):
 				"calc_thermistor", "thermistors", "md5sum",
 				"fire", "switch"):
 			if self.master.serial:
-				self.master.serial.write(oline+"\n")
+				self.master.serial_write(oline+"\n")
 			return True
 		return False
 
 	def hardResetPre(self):
-		self.master.serial.write(b"reset\n")
+		self.master.serial_write(b"reset\n")
 
 	def hardResetAfter(self):
 		time.sleep(6)
 
 	def viewBuild(self):
-		self.master.serial.write(b"version\n")
+		self.master.serial_write(b"version\n")
 		self.master.sendGCode("$I")
 
 	def grblHelp(self):
-		self.master.serial.write(b"help\n")
+		self.master.serial_write(b"help\n")
 
 	def parseBracketAngle(self, line, cline):
 		# <Idle|MPos:68.9980,-49.9240,40.0000,12.3456|WPos:68.9980,-49.9240,40.0000|F:12345.12|S:1.2>

@@ -11,78 +11,54 @@
 #	print(path['path'])
 
 from __future__ import absolute_import
-import re
+
 import numpy
-import svg.path
+from svg_elements import SVG, Path, Shape, Move, Arc, QuadraticBezier, CubicBezier
 
 
 class SVGcode:
-	paths = []
+	def __init__(self, filepath=None):
+		self.svg = SVG(filepath)
 
-	rx = {}
-	rx['elements'] = re.compile('<path[^>]*>', re.IGNORECASE|re.MULTILINE)
-
-	def __init__(self, filepath=None, string=None):
-		if filepath is not None: self.read_file(filepath)
-		if string is not None: self.read_string(string)
-
-	def get_attr(self, string, attr='d'):
-		if 'attr_'+attr not in self.rx.keys():
-			self.rx['attr_'+attr] = re.compile(r'%s\s?=\s?([\"\'])((?:\\\1|(?:(?!\1)).)*)(?:\1)'%(attr), re.IGNORECASE|re.MULTILINE)
-		m = self.rx['attr_'+attr].findall(string) or [(None,None)]
-		return m[0][1]
-
-	def read_string(self, data):
-		#FIXME: process transform="translate(249.1743,415.5005)"
-		self.paths = []
-		for element in self.rx['elements'].findall(data):
-			path = self.get_attr(element)
-			path_id = self.get_attr(element, 'id')
-			self.paths.append({'id':path_id, 'path':path})
-
-	def read_file(self, filepath):
-		with open(filepath, 'r') as myfile:
-			data = myfile.read()
-		return self.read_string(data)
-
-	def path2gcode(self, path, scale=None, subdivratio=1, d=4):
-		gcode = ''
-		path = svg.path.parse_path(path)
-		if scale is None: scale = 3.7795276 #96/25.4 #Inkscape 0.9x dots per mm
+	def path2gcode(self, path, subdivratio=1, d=4):
+		gcode = []
+		if isinstance(path, str):
+			path = Path(path)
 
 		def rv(v):
-			return ('%*f'%(d,round(v/scale, d))).rstrip("0").rstrip(".")
+			return ('%*f'%(d,round(v, d))).rstrip("0").rstrip(".")
 
-		lastx,lasty = None,None
+		for segment in path:
+			subdiv=max(1,round(segment.length(error=1e-5)*subdivratio))
 
-		for segment in path._segments:
-			subdiv=max(1,round((segment.length()/scale)*subdivratio))
-
-			if lastx != segment.start.real or lasty != segment.start.imag:
-				gcode += 'G0 X%s Y%s\n'%(rv(segment.start.real),rv(-segment.start.imag))
-
-			shape = type(segment).__name__
-
-			if shape == 'Arc':
+			if isinstance(segment, Move):
+				gcode.append('G0 X%s Y%s' % (rv(segment.end.x), rv(-segment.end.y)))
+			if isinstance(segment, Arc):
 				if segment.sweep: garc = "G02"
 				else: garc = "G03"
-				center = segment.center-segment.start
+				#center = segment.center-segment.start
 				#gcode += "(arc %s %s %s %s %s %s)\n"%(segment.center,segment.radius.real,segment.arc,segment.sweep,segment.theta,segment.delta)
 				#garc += ' X%s Y%s I%s J%s\n'%(rv(segment.end.real),rv(-segment.end.imag),rv(center.real),rv(-center.imag))
-				gcode += '%s X%s Y%s R%s\n'%(garc, rv(segment.end.real),rv(-segment.end.imag),rv(segment.radius.real))
-			elif shape in ['QuadraticBezier', 'CubicBezier', 'Arc']:
-				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint = False)[1:]
+				gcode.append('%s X%s Y%s R%s'%(garc, rv(segment.end.x),rv(-segment.end.y),rv(segment.rx)))
+			elif isinstance(segment, (QuadraticBezier, CubicBezier, Arc)):
+				subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=False)[1:]
 				for point in subdiv_points:
-					gcode += 'G1 X%s Y%s\n'%(rv(segment.point(point).real),rv(-segment.point(point).imag))
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.real),rv(-segment.end.imag))
+					sp = segment.point(point)
+					gcode.append('G1 X%s Y%s'%(rv(sp.x),rv(-sp.y)))
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
 			else:
-				gcode += 'G1 X%s Y%s\n'%(rv(segment.end.real),rv(-segment.end.imag))
+				# Line, Close
+				gcode.append('G1 X%s Y%s'%(rv(segment.end.x),rv(-segment.end.y)))
+		return '\n'.join(gcode)
 
-			lastx,lasty = segment.end.real,segment.end.imag
-		return gcode
-
-	def get_gcode(self, scale=None, subdivratio=1, digits=4):
+	def get_gcode(self, scale=1.0, subdivratio=1, digits=4):
 		gcode = []
-		for path in self.paths:
-			gcode.append({'id':path['id'], 'path':self.path2gcode(path['path'], scale, subdivratio, digits)})
+		for element in self.svg.elements(ppi=96.0 / scale, width=100, height=100):
+			if isinstance(element, Path):
+				element.reify()
+				id = element.id
+				gcode.append({'id': id, 'path': self.path2gcode(element, subdivratio, digits)})
+			elif isinstance(element, Shape):
+				id = element.id
+				gcode.append({'id': id, 'path': self.path2gcode(Path(element), subdivratio, digits)})
 		return gcode
