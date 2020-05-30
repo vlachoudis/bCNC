@@ -190,7 +190,7 @@ class Probe:
 		def read(f):
 			while True:
 				line = f.readline()
-				if len(line)==0: raise
+				assert line , "Read an empty line, please check file IO settings"
 				line = line.strip()
 				if line: return map(float, line.split())
 
@@ -3439,6 +3439,17 @@ class GCode:
 			opname = "drill"
 		else:
 			opname = "drill:%g"%(depth)
+		#Incorrect peck values can block drilling cycle calculation
+		peck = peck or 0.0
+		if peck == 0.0:
+			peck = None
+		if peck is not None:
+			if math.copysign(1.0, depth) * math.copysign(1.0, peck) != -1:
+				pecksignstr = "less"
+				if math.copysign(1.0, peck) < 0:
+					pecksignstr = "greater"
+				return "Invalid peck depth value of %g. In this configuration, peck value should be %s than zero."%(peck, pecksignstr)
+		#pecking value is well defined.
 
 		undoinfo = []
 
