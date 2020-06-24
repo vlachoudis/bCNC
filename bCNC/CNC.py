@@ -2520,9 +2520,19 @@ class GCode:
 
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
+		
+		# ask user for svg subdivision parameter
+		import tkDialogs,Utils
+		SVGsubdiv=Utils.getFloat("File","svgsubdivision")
+		if not SVGsubdiv: SVGsubdiv=4.0
+		subdivstr=tkDialogs.InputDialog(None,"SVG Import","SVG curve Subdivision ratio", 
+		input=SVGsubdiv,type_="float",from_=0,to_=16).show()
+		try: 
+			SVGsubdiv=float(subdivstr)
+			Utils.setFloat("File","svgsubdivision",SVGsubdiv)
+		except: SVGsubdiv=0.5
 
-		#FIXME: UI to set SVG subdivratio
-		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
+		for path in svgcode.get_gcode(self.SVGscale(), SVGsubdiv, CNC.digits):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
