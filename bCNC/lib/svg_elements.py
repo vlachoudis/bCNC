@@ -4025,7 +4025,7 @@ class Path(Shape, MutableSequence):
             return NotImplemented
         if len(self) != len(other):
             return False
-        for s, o in to_zip(self._segments, other._segments):
+        for s, o in zip(self._segments, other._segments):
             if not s == o:
                 return False
         return True
@@ -5429,7 +5429,7 @@ class Subpath:
             return NotImplemented
         if len(self) != len(other):
             return False
-        for s, o in to_zip(self,other):
+        for s, o in zip(self,other):
             if not s == o:
                 return False
         return True

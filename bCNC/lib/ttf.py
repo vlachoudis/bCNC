@@ -762,7 +762,7 @@ def _read_table(*entries):
 		size = struct.calcsize(fmt)
 		def __init__(self, data, offset):
 			items = struct.unpack(fmt, data[offset:offset + self.size])
-			self.pairs = to_zip(names, items)
+			self.pairs = zip(names, items)
 			for name, value in self.pairs:
 				setattr(self, name, value)
 

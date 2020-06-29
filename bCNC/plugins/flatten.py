@@ -53,7 +53,7 @@ class Flatten:
 		block.enable = False
 		block.append(CNC.zsafe())
 		xR,yR = self.RectPath(XStart,YStart,FlatWidth,FlatHeight)
-		for x,y in to_zip(xR,yR):
+		for x,y in zip(xR,yR):
 			block.append(CNC.gline(x,y))
 		blocks.append(block)
 
@@ -203,14 +203,14 @@ class Flatten:
 
 			#Pocketing
 			lastxy = None
-			for x,y in to_zip(xP,yP):
+			for x,y in zip(xP,yP):
 #				block.append(CNC.gline(x,y))
 				if lastxy != CNC.gline(x,y) or None:
 					block.append(CNC.gline(x,y))
 				lastxy = CNC.gline(x,y)
 
 			#Border cut if request
-			for x,y in to_zip(xB,yB):
+			for x,y in zip(xB,yB):
 				block.append(CNC.gline(x,y))
 
 			#Verify exit condition

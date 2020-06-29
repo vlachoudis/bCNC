@@ -129,7 +129,7 @@ class CheckUpdateDialog(Toplevel):
 	def isNewer(self, version):
 		av = map(int, self.version.split("."))
 		bv = map(int, version.split("."))
-		for a, b in to_zip(av, bv):
+		for a, b in zip(av, bv):
 			if b>a: return True
 		return False
 

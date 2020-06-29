@@ -168,7 +168,7 @@ class Tool(Plugin):
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xH[0],yH[0]))
 			block.append(CNC.zenter(depth))
-			for x,y,f in to_zip(xH,yH,fH):
+			for x,y,f in zip(xH,yH,fH):
 					v = (x,y,depth)
 					block.append(CNC.glinev(1,v,f))
 
@@ -177,7 +177,7 @@ class Tool(Plugin):
 			block.append(CNC.zsafe())
 			block.append(CNC.grapid(xV[0],yV[0]))
 			block.append(CNC.zenter(depth))
-			for x,y,f in to_zip(xV,yV,fV):
+			for x,y,f in zip(xV,yV,fV):
 					v = (x,y,depth)
 					block.append(CNC.glinev(1,v,f))
 

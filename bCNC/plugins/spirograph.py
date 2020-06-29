@@ -81,7 +81,7 @@ class Spirograph:
 			if currDepth < self.Depth : currDepth = self.Depth
 			block.append(CNC.zenter(currDepth))
 			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
-			for x,y in to_zip(xi,yi):
+			for x,y in zip(xi,yi):
 				block.append(CNC.gline(x,y))
 			block.append(CNC.gline(xi[0],yi[0]))
 			if currDepth <= self.Depth : break
