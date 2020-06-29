@@ -99,7 +99,7 @@ class Spiral:
 		else:
 			outlineHeight = 0
 		xR,yR = self.RectPath(XStart,YStart,outlineWidth,outlineHeight)
-		for x,y in to_zip(xR,yR):
+		for x,y in zip(xR,yR):
 			block.append(CNC.gline(x,y))
 		blocks.append(block)
 
@@ -367,7 +367,7 @@ class Spiral:
 		block.append(CNC.zenter(ZApproach))
 		block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
 		
-		for g,x,y,z,r in to_zip(gP, xP,yP,zP, rP):
+		for g,x,y,z,r in zip(gP, xP,yP,zP, rP):
 			if RotAxis == "A" :
 				if g==0:
 					block.append(CNC.grapidABC(x,y,z,r,CNC.vars["wb"],CNC.vars["wc"]))
