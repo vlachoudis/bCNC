@@ -169,8 +169,7 @@ class Tool(Plugin):
 			block.append(CNC.grapid(xH[0],yH[0]))
 			block.append(CNC.zenter(depth))
 			for x,y,f in zip(xH,yH,fH):
-					v = (x,y,depth)
-					block.append(CNC.glinev(1,v,f))
+					block.append(CNC.gline(x,y,depth,f=f))
 
 		#Gcode Vertical
 		if (len(xV)>1 and len(yV)>1):
@@ -178,8 +177,7 @@ class Tool(Plugin):
 			block.append(CNC.grapid(xV[0],yV[0]))
 			block.append(CNC.zenter(depth))
 			for x,y,f in zip(xV,yV,fV):
-					v = (x,y,depth)
-					block.append(CNC.glinev(1,v,f))
+					block.append(CNC.gline(x,y,depth,f=f))
 
 		#Draw Border if required
 		if drawBorder:
