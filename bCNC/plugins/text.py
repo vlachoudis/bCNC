@@ -15,6 +15,7 @@ __version__ = "0.0.1"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
+from Utils import to_decode
 
 
 #==============================================================================
@@ -52,7 +53,7 @@ class Tool(Plugin):
 		#Get inputs
 		fontSize      = self.fromMm("FontSize")
 		depth         = self.fromMm("Depth")
-		textToWrite   = self["Text"]
+		textToWrite   = to_decode(self["Text"])
 		fontFileName  = self["FontFile"]
 		closed        = self["Closed"]
 		imageFileName = self["ImageToAscii"]

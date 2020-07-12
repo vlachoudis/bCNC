@@ -58,7 +58,7 @@ import codecs
 import os
 import mmap
 import struct
-from Utils import to_zip,unichr
+from Utils import to_zip,unichr,to_decode
 
 class TruetypeInfo:
 	"""Information about a single Truetype face.
@@ -415,7 +415,7 @@ class TruetypeInfo:
 		# format ever.  Whoever the fuckwit is that thought this up is
 		# a fuckwit.
 		header = _read_cmap_format4Header(self._data, offset)
-		seg_count = header.seg_count_x2 / 2
+		seg_count = header.seg_count_x2 // 2
 		array_size = struct.calcsize('>%dH' % seg_count)
 		end_count = self._read_array('>%dH' % seg_count,
 			offset + header.size)
@@ -428,7 +428,7 @@ class TruetypeInfo:
 		id_range_offset = self._read_array('>%dH' % seg_count,
 			id_range_offset_address)
 		character_map = {}
-		for i in range(0, int(seg_count)):
+		for i in range(0, seg_count):
 			if id_range_offset[i] != 0:
 				if id_range_offset[i] == 65535:
 					continue  # Hack around a dodgy font (babelfish.ttf)
@@ -764,6 +764,7 @@ def _read_table(*entries):
 			items = struct.unpack(fmt, data[offset:offset + self.size])
 			self.pairs = zip(names, items)
 			for name, value in self.pairs:
+				value = to_decode(value)
 				setattr(self, name, value)
 
 		def __repr__(self):

@@ -69,6 +69,11 @@ if OLD:
 		return s
 	def to_zip(*args,**kwargs):
 		return zip(*args,**kwargs)
+	def to_decode(s):
+		if isinstance(s, bytes):
+			return s.decode("utf-8")
+		else :
+			return s
 
 else:
 	from tkinter import *
@@ -78,13 +83,13 @@ else:
 	import builtins as __builtin__
 	def to_unicode(s): return s
 	def to_zip(*args,**kwargs): return (list(zip(*args,**kwargs)))
-
+	def to_decode(s):
+		return s
 # try:
 # 	import __builtin__
 # except:
 # 	import builtins as __builtin__
 # 	#__builtin__.unicode = str		# Dirty hack for Python 3
-
 
 try:
 	import serial

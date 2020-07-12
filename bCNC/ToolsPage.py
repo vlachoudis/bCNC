@@ -398,7 +398,8 @@ class _Base:
 		else:
 			for var in self.variables:
 				n, t, d, l = var[:4]
-				Utils.setStr(self.name, n, str(self.values.get(n,d)))
+				val = Utils.to_unicode(self.values.get(n,d))
+				Utils.setStr(self.name, n, str(val))
 
 	# ----------------------------------------------------------------------
 	def fromMm(self, name, default=0.0):
