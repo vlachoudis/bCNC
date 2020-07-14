@@ -58,8 +58,12 @@ import codecs
 import os
 import mmap
 import struct
-from Utils import to_zip,unichr,to_decode
-
+try:
+	# old version
+	unichr
+except:
+	# newer version
+	unichr = chr  # pylint: disable=redefined-builtin,invalid-name,unichr-builtin
 class TruetypeInfo:
 	"""Information about a single Truetype face.
 
@@ -135,7 +139,7 @@ class TruetypeInfo:
 		self._tables = {}
 		for table in _read_table_directory_entry.array(self._data,
 			offsets.size, offsets.num_tables):
-			self._tables[table.tag.decode("utf-8")] = table
+			self._tables[table.tag] = table
 
 		self._names = None
 		self._horizontal_metrics = None
@@ -764,7 +768,8 @@ def _read_table(*entries):
 			items = struct.unpack(fmt, data[offset:offset + self.size])
 			self.pairs = zip(names, items)
 			for name, value in self.pairs:
-				value = to_decode(value)
+				if isinstance(value, bytes):
+					value = value.decode()
 				setattr(self, name, value)
 
 		def __repr__(self):
