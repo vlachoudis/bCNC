@@ -24,6 +24,7 @@ setup(
 		'numpy>=1.12',
 		'Pillow>=4.0',
 		'opencv-python>=2.4 ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
+		'Hershey-Fonts>=2.0.0',
 	],
 
 	entry_points = {
