@@ -19,6 +19,10 @@ setup(
 	include_package_data=True,
 	#python_requires="<3.0",
 	install_requires = [
+		"pyobjc ; sys_platform == 'darwin'",
+		"pyobjc-core; sys_platform == 'darwin'",
+		"pyobjc-framework-Quartz; sys_platform == 'darwin'",
+
 		"pyserial ; sys_platform != 'win32'",	#Windows XP can't handle pyserial newer than 3.0.1 (it can be installed, but does not work)
 		"pyserial<=3.0.1 ; sys_platform == 'win32'",
 		'numpy>=1.12',
