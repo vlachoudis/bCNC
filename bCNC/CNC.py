@@ -2524,13 +2524,15 @@ class GCode:
 		# ask user for svg subdivision parameter
 		import tkDialogs,Utils
 		SVGsubdiv=Utils.getFloat("File","svgsubdivision")
-		if not SVGsubdiv: SVGsubdiv=4.0
-		subdivstr=tkDialogs.InputDialog(None,"SVG Import","SVG curve Subdivision ratio", 
+		if not SVGsubdiv: 
+			SVGsubdiv=0.5
+		subdivstr=tkDialogs.InputDialog(None,"SVG Import","SVG curve Subdivision ratio\n"+
+		" > 1.0 is accurate & slow\n < 0.2 is blocky & fast", 
 		input=SVGsubdiv,type_="float",from_=0,to_=16).show()
 		try: 
 			SVGsubdiv=float(subdivstr)
 			Utils.setFloat("File","svgsubdivision",SVGsubdiv)
-		except: SVGsubdiv=0.5
+		except: pass
 
 		for path in svgcode.get_gcode(self.SVGscale(), SVGsubdiv, CNC.digits):
 			self.addBlockFromString(path['id'],path['path'])
