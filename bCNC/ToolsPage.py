@@ -18,6 +18,7 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
+import sys
 import os
 import time
 import glob
