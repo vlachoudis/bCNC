@@ -17,7 +17,10 @@ __version__= "0.0.1"
 import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
-from fractions import gcd
+try:
+	from fractions import gcd
+except ImportError:
+	from math import gcd
 
 
 #==============================================================================
