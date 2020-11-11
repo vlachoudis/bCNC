@@ -10,9 +10,6 @@ if sys.version_info[0] >= 3:
 else: #python version lower then 3 compatability
 	opencv_version ='4.2.0.32' # use the last opencv version for python 2.7
 
-print("opencv_version = ",opencv_version)
-print("S= %s" % (opencv_version))
-
 setup(
 	name = "bCNC",
 	version = "0.9.14.308",
