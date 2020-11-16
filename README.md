@@ -22,19 +22,19 @@ This is short overview of installation proces, for more see the ![bCNC installat
 This is how you install (or upgrade) bCNC along with all required packages.
 You can use any of these commands (you need only one):
 
-    pip2 install --upgrade bCNC
-    pip2 install --upgrade git+https://github.com/vlachoudis/bCNC
-    pip2 install . #in git directory
-    python2 -m pip install --upgrade bCNC
+    pip install --upgrade bCNC
+    pip install --upgrade git+https://github.com/vlachoudis/bCNC
+    pip install . #in git directory
+    python -m pip install --upgrade bCNC
 
 This is how you launch bCNC:
 
-    python2 -m bCNC
+    python -m bCNC
 
 Only problem with this approach is that it might not install Tkinter in some cases.
 So please keep that in mind and make sure it's installed in case of problems.
 
-If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
+If you run the `python -m bCNC` command in root directory of this git repository it will launch the git version.
 Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
 
 Note that on Windows XP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
@@ -45,7 +45,7 @@ PyPI project: https://pypi.org/project/bCNC/
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
   Depending your python/OS it can either be already installed,
-  or under the names tkinter, python-tkinter, python-tk
+  or under the names tkinter, python3-tkinter, python-tk
 - pyserial or under the name python-serial, python-pyserial
 - numpy
 - Optionally:
@@ -57,8 +57,8 @@ Expand the directory or download it from github
 and run the bCNC command
 
 # Installation (Linux package maintainers)
-- Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
-- Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
+- Copy `bCNC` subdirectory of this repo to `/usr/lib/python3.x/site-packages/`
+- Launch using `python -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
   - Py2deb to build Debian package from Python package: https://pypi.org/project/py2deb/
@@ -73,7 +73,7 @@ This is basic example of how to compile bCNC to .exe file.
 (given that you have working bCNC in the first place, eg. using `pip install bCNC`).
 Go to the directory where is your bCNC installed and do the following:
 
-    pip2 install pyinstaller
+    pip install pyinstaller
     pyinstaller --onefile --distpath . --hidden-import tkinter --paths lib;plugins;controllers --icon bCNC.ico --name bCNC __main__.py
 
 This will take a minute or two. But in the end it should create `bCNC.exe`.
