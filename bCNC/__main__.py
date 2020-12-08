@@ -1995,7 +1995,7 @@ class Application(Toplevel,Sender):
 		self.gcode.headerFooter()
 		self.editor.fill()
 		self.draw()
-		self.title("%s %s"%(Utils.__prg__,__version__))
+		self.title("%s %s %s"%(Utils.__prg__,__version__,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	# load dialog
@@ -2092,13 +2092,13 @@ class Application(Toplevel,Sender):
 			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
 		else:
 			self.setStatus(_("'%s' loaded")%(filename))
-		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
+		self.title("%s %s: %s %s"%(Utils.__prg__,__version__,self.gcode.filename,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
 		self.setStatus(_("'%s' saved")%(filename))
-		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
+		self.title("%s %s: %s %s"%(Utils.__prg__,__version__,self.gcode.filename,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	def saveAll(self, event=None):
@@ -2530,7 +2530,7 @@ class Application(Toplevel,Sender):
 
 #------------------------------------------------------------------------------
 def usage(rc):
-	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
+	sys.stdout.write("%s V%s [%s] %s\n"%(Utils.__prg__, __version__, __date__, __platform_fingerprint__))
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
 	sys.stdout.write("Usage: [options] [filename...]\n\n")
 	sys.stdout.write("Options:\n")
