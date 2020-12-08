@@ -12,7 +12,7 @@ else: #python version lower then 3 compatability
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.309",
+	version = "0.9.14.310",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
