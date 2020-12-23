@@ -5195,7 +5195,8 @@ class Path(Shape, MutableSequence):
     def end(self):
         pass
 
-    def move(self, *points, relative=False):
+    def move(self, *points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         end_pos = points[0]
         if end_pos in ('z', 'Z'):
@@ -5207,7 +5208,8 @@ class Path(Shape, MutableSequence):
             self.line(*points[1:], relative=relative)
         return self
 
-    def line(self, *points, relative=False):
+    def line(self, *points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         end_pos = points[0]
         if end_pos in ('z', 'Z'):
@@ -5219,7 +5221,8 @@ class Path(Shape, MutableSequence):
             self.line(*points[1:])
         return self
 
-    def vertical(self, *y_points, relative=False):
+    def vertical(self, *y_points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         if relative:
             segment = Line(start_pos, Point(start_pos.x, start_pos.y + y_points[0]))
@@ -5231,7 +5234,8 @@ class Path(Shape, MutableSequence):
             self.vertical(*y_points[1:], relative=relative)
         return self
 
-    def horizontal(self, *x_points, relative=False):
+    def horizontal(self, *x_points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         if relative:
             segment = Line(start_pos, Point(start_pos.x + x_points[0], start_pos.y))
@@ -5244,9 +5248,10 @@ class Path(Shape, MutableSequence):
             self.horizontal(*x_points[1:], relative=relative)
         return self
 
-    def smooth_quad(self, *points, relative=False):
+    def smooth_quad(self, *points, **kwargs):
         """Smooth curve. First control point is the "reflection" of
            the second control point in the previous path."""
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         control1 = self.smooth_point
         end_pos = points[0]
@@ -5260,7 +5265,8 @@ class Path(Shape, MutableSequence):
             self.smooth_quad(*points[1:])
         return self
 
-    def quad(self, *points, relative=False):
+    def quad(self, *points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         control = points[0]
         if control in ('z', 'Z'):
@@ -5276,9 +5282,10 @@ class Path(Shape, MutableSequence):
             self.quad(*points[2:])
         return self
 
-    def smooth_cubic(self, *points, relative=False):
+    def smooth_cubic(self, *points, **kwargs):
         """Smooth curve. First control point is the "reflection" of
         the second control point in the previous path."""
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         control1 = self.smooth_point
         control2 = points[0]
@@ -5296,7 +5303,8 @@ class Path(Shape, MutableSequence):
             self.smooth_cubic(*points[2:])
         return self
 
-    def cubic(self, *points, relative=False):
+    def cubic(self, *points, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         control1 = points[0]
         if control1 in ('z', 'Z'):
@@ -5315,7 +5323,8 @@ class Path(Shape, MutableSequence):
             self.cubic(*points[3:])
         return self
 
-    def arc(self, *arc_args, relative=False):
+    def arc(self, *arc_args, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         rx = arc_args[0]
         ry = arc_args[1]
@@ -5332,7 +5341,8 @@ class Path(Shape, MutableSequence):
             self.arc(*arc_args[6:])
         return self
 
-    def closed(self, relative=False):
+    def closed(self, **kwargs):
+        relative = kwargs['relative'] if 'relative' in kwargs else False
         start_pos = self.current_point
         end_pos = self.z_point
         segment = Close(start_pos, end_pos)
@@ -7287,10 +7297,10 @@ class SVG(Group):
     def _shadow_iter(elem, children):
         yield 'start', elem
         try:
-            for e, c in children:
+            for t, e, c in children:
                 for shadow_event, shadow_elem in SVG._shadow_iter(e, c):
-                    yield shadow_event, shadow_elem
-        except RecursionError:
+                    yield t, shadow_event, shadow_elem
+        except:
             """
             Strictly speaking it is possible to reference use from other use objects. If this is an infinite loop
             we should not block the rendering. Just say we finished. See: W3C, struct-use-12-f
@@ -7314,9 +7324,8 @@ class SVG(Group):
                 tag = elem.tag
                 if tag.startswith('{http://www.w3.org/2000/svg'):
                     tag = tag[28:]  # Removing namespace. http://www.w3.org/2000/svg:
-                    elem.tag = tag
             except AttributeError:
-                yield event, elem
+                yield None, event, elem
                 continue
 
             if event == 'start':
@@ -7325,7 +7334,7 @@ class SVG(Group):
                 siblings = children  # Parent's children are now my siblings.
                 parent = (parent, children)  # parent is now previous node context
                 children = list()  # new node has no children.
-                node = (elem, children)  # define this node.
+                node = (tag, elem, children)  # define this node.
                 siblings.append(node)  # siblings now includes this node.
 
                 if SVG_TAG_USE == tag:
@@ -7354,7 +7363,7 @@ class SVG(Group):
                                                                  (attributes[SVG_ATTR_TRANSFORM], x, y)
                             except KeyError:
                                 attributes[SVG_ATTR_TRANSFORM] = 'translate(%s, %s)' % (x, y)
-                        yield event, elem
+                        yield tag, event, elem
                         try:
                             shadow_node = defs[url[1:]]
                             children.append(shadow_node)  # Shadow children are children of the use.
@@ -7363,11 +7372,11 @@ class SVG(Group):
                         except KeyError:
                             pass  # Failed to find link.
                 else:
-                    yield event, elem
+                    yield tag, event, elem
                 if SVG_ATTR_ID in attributes:  # If we have an ID, we save the node.
                     defs[attributes[SVG_ATTR_ID]] = node  # store node value in defs.
             elif event == 'end':
-                yield event, elem
+                yield tag, event, elem
                 # event is 'end', pop values.
                 parent, children = parent  # Parent is now node.
 
@@ -7404,7 +7413,7 @@ class SVG(Group):
         if transform is not None:
             values[SVG_ATTR_TRANSFORM] = transform
 
-        for event, elem in SVG._use_structure_parse(source):
+        for tag, event, elem in SVG._use_structure_parse(source):
             """
             SVG element parsing parses the job compiling any parsed elements into their compiled object forms. 
             """
@@ -7416,7 +7425,6 @@ class SVG(Group):
                 current_values = values
                 values = {}
                 values.update(current_values)  # copy of dictionary
-                tag = elem.tag
 
                 # Non-propagating values.
                 if SVG_ATTR_PRESERVEASPECTRATIO in values:
@@ -7593,7 +7601,6 @@ class SVG(Group):
             elif event == 'end':  # End event.
                 # The iterparse spec makes it clear that internal text data is undefined except at the end.
                 s = None
-                tag = elem.tag
                 if tag in (SVG_TAG_TEXT, SVG_TAG_TSPAN, SVG_TAG_DESC, SVG_TAG_TITLE, SVG_TAG_STYLE):
                     attributes = elem.attrib
                     if SVG_ATTR_ID in values and root is not None:
