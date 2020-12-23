@@ -2524,8 +2524,8 @@ class GCode:
 		#FIXME: UI to set SVG subdivratio
 		ppi = 96.0  # 96 pixels per inch.
 		scale = self.SVGscale(ppi)
-		subdivratio = 200.0  # 200 samples per unit.
-		for path in svgcode.get_gcode(scale, subdivratio, CNC.digits, ppi=ppi):
+		samples_per_unit = 200.0
+		for path in svgcode.get_gcode(scale, samples_per_unit, CNC.digits, ppi=ppi):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
