@@ -18,7 +18,7 @@ class SVGcode:
 	def __init__(self, filepath=None):
 		self._filepath = filepath
 
-	def path2gcode(self, path, subdivratio=100, d=4):
+	def path2gcode(self, path, samples_per_unit=100, d=4):
 		gcode = []
 		if isinstance(path, str):
 			path = Path(path)
@@ -27,7 +27,7 @@ class SVGcode:
 			return ('%*f' % (d, round(v, d))).rstrip("0").rstrip(".")
 
 		for segment in path:
-			subdiv=max(1, round(segment.length(error=1e-5) * subdivratio))
+			subdiv=max(1, round(segment.length(error=1e-5) * samples_per_unit))
 
 			if isinstance(segment, Move):
 				gcode.append('G0 X%s Y%s' % (rv(segment.end.x), rv(-segment.end.y)))
@@ -47,7 +47,7 @@ class SVGcode:
 
 		return '\n'.join(gcode)
 
-	def get_gcode(self, scale=1.0/96.0, subdivratio=100, digits=4, ppi=96.0):
+	def get_gcode(self, scale=1.0/96.0, samples_per_unit=100, digits=4, ppi=96.0):
 		"""
 		Parse gcode from an SVG file.
 
@@ -63,5 +63,5 @@ class SVGcode:
 			if isinstance(element, Shape):
 				if not isinstance(element, Path):
 					element = Path(element)
-				gcode.append({'id': element.id, 'path': self.path2gcode(element.reify(), subdivratio, digits)})
+				gcode.append({'id': element.id, 'path': self.path2gcode(element.reify(), samples_per_unit, digits)})
 		return gcode
