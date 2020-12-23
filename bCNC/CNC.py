@@ -2521,7 +2521,7 @@ class GCode:
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
 
-		#FIXME: UI to set SVG subdivratio
+		#FIXME: UI to set SVG samples_per_unit
 		ppi = 96.0  # 96 pixels per inch.
 		scale = self.SVGscale(ppi)
 		samples_per_unit = 200.0
