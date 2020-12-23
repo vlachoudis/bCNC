@@ -2504,10 +2504,10 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Get scaling factor for SVG files
 	#----------------------------------------------------------------------
-	def SVGscale(self):
-		dpi=96 #same as inkscape 0.9x (according to jscut)
-		if not CNC.inch: dpi = round(dpi/25.4,7)
-		return dpi
+	def SVGscale(self, dpi=96.0): #same as inkscape 0.9x (according to jscut)
+		if CNC.inch:
+			return 1.0 / dpi
+		return 25.4 / dpi
 
 	#----------------------------------------------------------------------
 	# Load SVG file into gcode
@@ -2522,7 +2522,10 @@ class GCode:
 		if empty: self.addBlockFromString("Header",self.header)
 
 		#FIXME: UI to set SVG subdivratio
-		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
+		ppi = 96.0  # 96 pixels per inch.
+		scale = self.SVGscale(ppi)
+		subdivratio = 200.0  # 200 samples per unit.
+		for path in svgcode.get_gcode(scale, subdivratio, CNC.digits, ppi=ppi):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
