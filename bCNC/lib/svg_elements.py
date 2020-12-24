@@ -28,7 +28,7 @@ Though not required the SVGImage class acquires new functionality if provided wi
 and the Arc can do exact arc calculations if scipy is installed.
 """
 
-SVGELEMENTS_VERSION = "1.4.1"
+SVGELEMENTS_VERSION = "1.4.2"
 
 MIN_DEPTH = 5
 ERROR = 1e-12
@@ -3482,7 +3482,7 @@ class PathSegment:
             start_point = curve.point(start)
         if end_point is None:
             end_point = curve.point(end)
-        mid = (start + end) / 2
+        mid = (start + end) / 2.0
         mid_point = curve.point(mid)
         length = abs(end_point - start_point)
         first_half = abs(mid_point - start_point)
@@ -3729,7 +3729,7 @@ class Linear(PathSegment):
         ABAPproduct = vABx * vAPx + vABy * vAPy
         if sqDistanceAB == 0:
             return 0  # Line is point.
-        amount = ABAPproduct / sqDistanceAB
+        amount = ABAPproduct / float(sqDistanceAB)
         if respect_bounds:
             if amount > 1:
                 amount = 1
@@ -3861,7 +3861,7 @@ class QuadraticBezier(Curve):
         n = self.start.x - self.control.x
         d = self.start.x - 2 * self.control.x + self.end.x
         if d != 0:
-            t = n / d
+            t = n / float(d)
         else:
             t = 0.5
         if 0 < t < 1:
@@ -3871,7 +3871,7 @@ class QuadraticBezier(Curve):
         n = self.start.y - self.control.y
         d = self.start.y - 2 * self.control.y + self.end.y
         if d != 0:
-            t = n / d
+            t = n / float(d)
         else:
             t = 0.5
         if 0 < t < 1:
@@ -5341,8 +5341,8 @@ class Path(Shape, MutableSequence):
             self.arc(*arc_args[6:])
         return self
 
-    def closed(self, **kwargs):
-        relative = kwargs['relative'] if 'relative' in kwargs else False
+
+    def closed(self, relative=False):
         start_pos = self.current_point
         end_pos = self.z_point
         segment = Close(start_pos, end_pos)
@@ -7158,12 +7158,12 @@ class SVGImage(SVGElement, GraphicObject, Transformable):
             pass
 
     def set_values_by_image(self):
-        if self.image is not None:
-            self.image_width = self.image.width
-            self.image_height = self.image.height
-        else:
-            return
+        if self.image is None:
+            return  # No image to set values by.
+        self.image_width = self.image.width
+        self.image_height = self.image.height
         self.viewbox = Viewbox("0 0 %d %d" % (self.image_width, self.image_height), self.preserve_aspect_ratio)
+        self.render(width=self.image_width, height=self.image_height)
         self.transform = Matrix(self.viewbox_transform) * self.transform
 
     def bbox(self, transformed=True):
@@ -7294,19 +7294,19 @@ class SVG(Group):
         return self.viewbox.transform(self)
 
     @staticmethod
-    def _shadow_iter(elem, children):
-        yield 'start', elem
+    def _shadow_iter(tag, elem, children):
+        yield tag, 'start', elem
         try:
             for t, e, c in children:
-                for shadow_event, shadow_elem in SVG._shadow_iter(e, c):
-                    yield t, shadow_event, shadow_elem
-        except:
+                for shadow_tag, shadow_event, shadow_elem in SVG._shadow_iter(t, e, c):
+                    yield shadow_tag, shadow_event, shadow_elem
+        except ValueError:
             """
             Strictly speaking it is possible to reference use from other use objects. If this is an infinite loop
             we should not block the rendering. Just say we finished. See: W3C, struct-use-12-f
             """
             pass
-        yield 'end', elem
+        yield tag, 'end', elem
 
     @staticmethod
     def _use_structure_parse(source):
@@ -7325,7 +7325,7 @@ class SVG(Group):
                 if tag.startswith('{http://www.w3.org/2000/svg'):
                     tag = tag[28:]  # Removing namespace. http://www.w3.org/2000/svg:
             except AttributeError:
-                yield None, event, elem
+                yield (None, event, elem)
                 continue
 
             if event == 'start':
@@ -7363,7 +7363,7 @@ class SVG(Group):
                                                                  (attributes[SVG_ATTR_TRANSFORM], x, y)
                             except KeyError:
                                 attributes[SVG_ATTR_TRANSFORM] = 'translate(%s, %s)' % (x, y)
-                        yield tag, event, elem
+                        yield (tag, event, elem)
                         try:
                             shadow_node = defs[url[1:]]
                             children.append(shadow_node)  # Shadow children are children of the use.
@@ -7372,11 +7372,11 @@ class SVG(Group):
                         except KeyError:
                             pass  # Failed to find link.
                 else:
-                    yield tag, event, elem
+                    yield (tag, event, elem)
                 if SVG_ATTR_ID in attributes:  # If we have an ID, we save the node.
                     defs[attributes[SVG_ATTR_ID]] = node  # store node value in defs.
             elif event == 'end':
-                yield tag, event, elem
+                yield (tag, event, elem)
                 # event is 'end', pop values.
                 parent, children = parent  # Parent is now node.
 
