@@ -1084,6 +1084,7 @@ class Tools:
 				tool = eval("%s.Tool(self)"%(name))
 				self.addTool(tool)
 			except (ImportError, AttributeError):
+				import sys
 				typ, val, tb = sys.exc_info()
 				traceback.print_exception(typ, val, tb)
 
