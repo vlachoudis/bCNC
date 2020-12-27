@@ -18,6 +18,7 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
+import sys
 import os
 import time
 import glob
@@ -1084,7 +1085,6 @@ class Tools:
 				tool = eval("%s.Tool(self)"%(name))
 				self.addTool(tool)
 			except (ImportError, AttributeError):
-				import sys
 				typ, val, tb = sys.exc_info()
 				traceback.print_exception(typ, val, tb)
 
