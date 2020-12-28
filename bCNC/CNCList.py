@@ -210,7 +210,7 @@ class CNCListbox(Listbox):
 		try :
 			objs = json.loads(clipboard)
 		except Exception as e:
-				objs = [clipboard]
+			objs = [clipboard]
 		for obj in objs:
 			if isinstance(obj,list):
 				obj =tuple(obj)
