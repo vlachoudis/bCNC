@@ -103,7 +103,8 @@ class Controller(_GenericGRBL):
 		if CNC.vars["state"] != fields[0] or self.master.runningPrev != self.master.running:
 			self.master.controllerStateChange(fields[0])
 		self.master.runningPrev = self.master.running
-		CNC.vars["state"] = fields[0]
+
+		self.displayState(fields[0])
 
 		for field in fields[1:]:
 			word = SPLITPAT.split(field)

@@ -186,6 +186,21 @@ class _GenericController:
 
 
 	#----------------------------------------------------------------------
+	def displayState(self, state):
+		state = state.strip()
+
+		#Do not show g-code errors, when machine is already in alarm state
+		if (CNC.vars["state"].startswith("ALARM:") and state.startswith("error:")):
+			return
+
+		# Do not show alarm without number when we already display alarm with number
+		if (state == "Alarm" and CNC.vars["state"].startswith("ALARM:")):
+			return
+
+		CNC.vars["state"] = state
+
+
+	#----------------------------------------------------------------------
 	def parseLine(self, line, cline, sline):
 		if not line:
 			return True
@@ -208,7 +223,7 @@ class _GenericController:
 			if sline: CNC.vars["errline"] = sline.pop(0)
 			if not self.master._alarm: self.master._posUpdate = True
 			self.master._alarm = True
-			CNC.vars["state"] = line
+			self.displayState(line)
 			if self.master.running:
 				self.master._stop = True
 
