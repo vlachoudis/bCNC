@@ -23,6 +23,7 @@ from bpath	import eq,Path, Segment
 from bmath	import *
 from copy	import deepcopy
 from svgcode	import SVGcode
+from Utils import to_zip
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -1039,7 +1040,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def glinev(g, v, feed=None):
-		pairs = list(zip("xyz",v))
+		pairs = to_zip("xyz",v)
 		if feed is not None:
 			pairs.append(("f",feed))
 		return CNC.gcode(g, pairs)
@@ -1047,7 +1048,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def garcv(g, v, ijk):
-		return CNC.gcode(g, zip("xyz",v) + zip("ij",ijk[:2]))
+		return CNC.gcode(g, to_zip("xyz",v) + to_zip("ij",ijk[:2]))
 
 	#----------------------------------------------------------------------
 	@staticmethod

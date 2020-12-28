@@ -2,8 +2,9 @@
 # -*- coding: ascii -*-
 # $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
 #
-# Author: vvlachoudis@gmail.com
-# Date: 17-Jun-2015
+# Author: Vasilis Vlachoudis
+#  Email: vvlachoudis@gmail.com
+#   Date: 17-Jun-2015
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -24,12 +25,16 @@ from datetime import datetime
 
 try:
 	import serial
-except:
+except ImportError:
 	serial = None
 try:
 	from Queue import *
 except ImportError:
 	from queue import *
+try:
+	import tkMessageBox
+except ImportError:
+	import tkinter.messagebox as tkMessageBox
 
 from CNC import WAIT, MSG, UPDATE, WCS, CNC, GCode
 import Utils
@@ -465,7 +470,7 @@ class Sender:
 	# Serial write
 	#----------------------------------------------------------------------
 	def serial_write(self, data):
-		#print("W "+str(type(data))+" : "+str(data))
+#		print('W %s : %s'%(type(data),data))
 
 		#if sys.version_info[0] == 2:
 		#	ret = self.serial.write(str(data))
@@ -473,7 +478,6 @@ class Sender:
 			ret = self.serial.write(data)
 		else:
 			ret = self.serial.write(data.encode())
-
 		return ret
 
 	#----------------------------------------------------------------------
@@ -508,7 +512,8 @@ class Sender:
 		except IOError:
 			pass
 		time.sleep(1)
-		self.serial_write(b"\n\n")
+#		self.serial_write(b"\n\n") # serial_write should be handling this
+		self.serial_write("\n\n")
 		self._gcount = 0
 		self._alarm  = True
 		self.thread  = threading.Thread(target=self.serialIO)

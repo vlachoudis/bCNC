@@ -58,8 +58,12 @@ import codecs
 import os
 import mmap
 import struct
-
-
+try:
+	# old version
+	unichr
+except:
+	# newer version
+	unichr = chr  # pylint: disable=redefined-builtin,invalid-name,unichr-builtin
 class TruetypeInfo:
 	"""Information about a single Truetype face.
 
@@ -135,7 +139,7 @@ class TruetypeInfo:
 		self._tables = {}
 		for table in _read_table_directory_entry.array(self._data,
 			offsets.size, offsets.num_tables):
-			self._tables[table.tag.decode("utf-8")] = table
+			self._tables[table.tag] = table
 		self._names = None
 		self._horizontal_metrics = None
 		self._character_advances = None
@@ -414,7 +418,7 @@ class TruetypeInfo:
 		# format ever.  Whoever the fuckwit is that thought this up is
 		# a fuckwit.
 		header = _read_cmap_format4Header(self._data, offset)
-		seg_count = int(header.seg_count_x2 / 2)
+		seg_count = header.seg_count_x2 // 2
 		array_size = struct.calcsize('>%dH' % seg_count)
 		end_count = self._read_array('>%dH' % seg_count,
 			offset + header.size)
@@ -767,8 +771,10 @@ def _read_table(*entries):
 		size = struct.calcsize(fmt)
 		def __init__(self, data, offset):
 			items = struct.unpack(fmt, data[offset:offset + self.size])
-			self.pairs = list(zip(names, items))
+			self.pairs = zip(names, items)
 			for name, value in self.pairs:
+				if isinstance(value, bytes):
+					value = value.decode()
 				setattr(self, name, value)
 
 		def __repr__(self):

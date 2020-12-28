@@ -15,7 +15,7 @@ try:
     from math import tau
 except ImportError:
     tau = pi * 2
-
+from Utils import to_zip
 """
 The path elements are derived from regebro's svg.path project ( https://github.com/regebro/svg.path ) with
 some of the math from mathandy's svgpathtools project ( https://github.com/mathandy/svgpathtools ).
@@ -5454,6 +5454,20 @@ class Path(Shape, MutableSequence):
                 else:
                     yield p
 
+
+    def bbox(self, transformed=True):
+        """returns a bounding box for the input Path"""
+        bbs = [seg.bbox() for seg in self._segments if not isinstance(Close, Move)]
+        try:
+            xmins, ymins, xmaxs, ymaxs = to_zip(*bbs)
+        except ValueError:
+            return None  # No bounding box items existed. So no bounding box.
+        xmin = min(xmins)
+        xmax = max(xmaxs)
+        ymin = min(ymins)
+        ymax = max(ymaxs)
+        return xmin, ymin, xmax, ymax
+
     def reify(self):
         """
         Realizes the transform to the shape properties.
@@ -6361,7 +6375,7 @@ class _Polyshape(Shape):
             else:
                 first_point = points[0]
                 if isinstance(first_point, (float, int)):
-                    self.points = list(map(Point, zip(*[iter(points)] * 2)))
+                    self.points = list(map(Point,to_zip(*[iter(points)] * 2)))
                 elif isinstance(first_point, (list, tuple, complex, str, Point)):
                     self.points = list(map(Point, points))
         else:
@@ -6570,7 +6584,7 @@ class Subpath:
             return NotImplemented
         if len(self) != len(other):
             return False
-        for s, o in zip(self, other):
+        for s, o in zip(self,other):
             if not s == o:
                 return False
         return True
@@ -6611,7 +6625,7 @@ class Subpath:
         segments = self._path._segments[self._start:self._end + 1]
         bbs = [seg.bbox() for seg in segments if not isinstance(Close, Move)]
         try:
-            xmins, ymins, xmaxs, ymaxs = list(zip(*bbs))
+            xmins, ymins, xmaxs, ymaxs = to_zip(*bbs)
         except ValueError:
             return None  # No bounding box items existed. So no bounding box.
         xmin = min(xmins)

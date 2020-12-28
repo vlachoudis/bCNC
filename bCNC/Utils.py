@@ -1,36 +1,96 @@
 # -*- coding: ascii -*-
 # $Id$
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	16-Apr-2015
-
+# Author: Vasilis Vlachoudis
+#  Email: Vasilis.Vlachoudis@cern.ch
+#   Date: 16-Apr-2015
 from __future__ import absolute_import
 from __future__ import print_function
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
+__version__ = "0.9.14-dev"
+__date__    = "8 Jan 2019"
+__prg__     = "bCNC"
 
 import sys
 import os
+import sys
 import glob
 import traceback
-from lib.log import say
+import gettext
+
+__platform_fingerprint__ = "(%s py%s.%s.%s)"%(
+		sys.platform, sys.version_info.major,
+		sys.version_info.minor, sys.version_info.micro)
+__title__   = "%s %s %s"%(__prg__, __version__, __platform_fingerprint__)
+
+__all__ = (
+	# Override builtins
+	"basestring","unicode","unichr","bytes","str",
+
+	# Utility functions in here
+	"to_unicode","to_zip"
+
+	"OLD", # Leave this ol'comma alone!
+	)
+
+#------------------------------------------------------------------------------
+# We only need one try here for compatability check (for the moment at least!)
+OLD = False
 try:
+	# old version
+	unicode
+except (NameError, AttributeError):
+	# newer version
+	str        = str
+	unichr     = chr          # pylint: disable=redefined-builtin,invalid-name,unichr-builtin
+	unicode    = str          # pylint: disable=redefined-builtin,invalid-name,unicode-builtin
+	bytes      = bytes
+	basestring = (str, bytes) # pylint: disable=redefined-builtin,invalid-name,basestring-builtin
+else:
+	# old version
+	str        = str
+	unichr     = unichr
+	unicode    = unicode
+	bytes      = str
+	basestring = basestring
+	OLD = True
+
+#------------------------------------------------------------------------------
+# Standard imports
+if OLD:
 	from Tkinter import *
 	import tkFont
 	import tkMessageBox
 	import ConfigParser
-except ImportError:
+	import __builtin__
+	def to_unicode(s):
+		if isinstance(s, (unicode)) or type(s) == 'unicode':
+			s = s.encode('utf-8')
+		return s
+	def to_zip(*args,**kwargs):
+		return zip(*args,**kwargs)
+	def to_decode(s):
+		if isinstance(s, bytes):
+			return s.decode("utf-8")
+		else :
+			return s
+
+else:
 	from tkinter import *
 	import tkinter.font as tkFont
 	import tkinter.messagebox as tkMessageBox
 	import configparser as ConfigParser
-
-import gettext
-try:
-	import __builtin__
-except:
 	import builtins as __builtin__
-	#__builtin__.unicode = str		# dirty hack for python3
+	def to_unicode(s): return s
+	def to_zip(*args,**kwargs): return (list(zip(*args,**kwargs)))
+	def to_decode(s):
+		return s
+# try:
+# 	import __builtin__
+# except:
+# 	import builtins as __builtin__
+# 	#__builtin__.unicode = str		# Dirty hack for Python 3
 
 try:
 	import serial
@@ -52,6 +112,7 @@ hisFile   = os.path.expanduser("~/.%s.history" % (__prg__))
 __builtin__._ = gettext.translation('bCNC', os.path.join(prgpath,'locale'), fallback=True).gettext
 __builtin__.N_ = lambda message: message
 
+from log import say
 import Ribbon
 import tkExtra
 
@@ -81,7 +142,7 @@ __translations__ = \
 		"Russian - @minithc\n" \
 		"Simplified Chinese - @Bluermen\n" \
 		"Spanish - @carlosgs\n" \
-		"Traditional Chinese - @Engineer2Designer\n"
+		"Traditional Chinese - @Engineer2Designer"
 
 LANGUAGES = {
 		""      : "<system>",
@@ -360,7 +421,7 @@ def setUtf(section, name, value):
 	try:
 		s = str(value)
 	except:
-		s = str(value)
+		s = value
 	config.set(section, name, s)
 
 setInt   = setStr

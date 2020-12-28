@@ -15,6 +15,8 @@ __version__= "0.0.1"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
+import Utils
+from Utils import to_zip
 import math
 try:
 	import Tkinter

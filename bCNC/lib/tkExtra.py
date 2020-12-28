@@ -30,12 +30,14 @@
 # LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	12-Oct-2006
+# Author: Vasilis Vlachoudis
+#  Email: Vasilis.Vlachoudis@cern.ch
+#   Date: 12-Oct-2006
 
 from __future__ import absolute_import
-__author__ = "Vasilis Vlachoudis"
-__email__  = "Vasilis.Vlachoudis@cern.ch"
+import Utils
+__author__  = Utils.__author__
+__email__   = Utils.__email__
 
 GLOBAL_CONTROL_BACKGROUND = "White"
 
@@ -45,6 +47,7 @@ import Unicode
 import bFileDialog
 import sys
 #from log import say
+from Utils import unicode,to_zip
 
 try:
 	from Tkinter import *
@@ -1525,7 +1528,8 @@ class MultiListbox(Frame):
 		result = []
 		for l in self._lists:
 			result.append(l.get(first, last))
-		if last: return zip(*result)
+		if last:
+			return to_zip(*result)
 		return result
 
 	# ----------------------------------------------------------------------
@@ -3087,11 +3091,7 @@ class Combobox(Frame):
 			stringclass = False
 		if first is None:
 			if isinstance(self._text, Label):
-				tmpstr = self._text.cget("text")
-				if  stringclass and isinstance(tmpstr,stringclass):
-					return tmpstr.encode("utf-8")
-				else :
-					return tmpstr
+				return self._text.cget("text")
 			else:
 				return self._text.get()
 		else:
