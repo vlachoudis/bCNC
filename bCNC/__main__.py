@@ -20,6 +20,8 @@ import time
 import getopt
 import socket
 import traceback
+import threading
+
 from datetime import datetime
 
 try:
@@ -37,7 +39,6 @@ except ImportError:
 	from queue import *
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
-
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(PRGPATH)
 sys.path.append(os.path.join(PRGPATH, 'lib'))
@@ -116,7 +117,6 @@ class Application(Toplevel,Sender):
 		self.tools = Tools(self.gcode)
 		self.controller = None
 		self.loadConfig()
-
 		# --- Ribbon ---
 		self.ribbon = Ribbon.TabRibbonFrame(self)
 		self.ribbon.pack(side=TOP, fill=X)
@@ -498,7 +498,6 @@ class Application(Toplevel,Sender):
 		if force_update:
 			self.statusbar.update_idletasks()
 			self.bufferbar.update_idletasks()
-
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
 	#-----------------------------------------------------------------------
@@ -2571,7 +2570,6 @@ def main(args=None):
 
 	tk = Tk()
 	tk.withdraw()
-
 	#if sys.version_info[0] != 2:
 	#	tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
 
@@ -2696,6 +2694,7 @@ def main(args=None):
 
 	# Start application
 	application = Application(tk)
+
 	if fullscreen: application.attributes("-fullscreen", True)
 
 	# Parse remaining arguments except files

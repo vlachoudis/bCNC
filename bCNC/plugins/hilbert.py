@@ -16,7 +16,7 @@ __version__= "0.0.1"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
+from Utils import to_zip
 
 #==============================================================================
 #Hilbert class
@@ -52,8 +52,7 @@ class Hilbert:
 
 		blocks = []
 		block = Block(self.name)
-
-		xi,yi = zip(*(self.hilbert(0.0,0.0,size,0.0,0.0,size,n)))
+		xi,yi = to_zip(*(self.hilbert(0.0,0.0,size,0.0,0.0,size,n)))
 
 		block.append(CNC.zsafe())
 		block.append(CNC.grapid(xi[0],yi[0]))

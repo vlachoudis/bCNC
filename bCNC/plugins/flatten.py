@@ -15,7 +15,7 @@ __version__= "0.0.2"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
-
+from Utils import to_zip
 
 #==============================================================================
 #Flatten class

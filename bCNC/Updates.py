@@ -20,10 +20,9 @@ except ImportError:
 	import http.client as http
 	from tkinter import *
 
-import Utils
 import tkExtra
-
-
+import Utils
+from Utils import to_zip
 #===============================================================================
 # Check for updates of bCNC
 #===============================================================================

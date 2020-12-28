@@ -22,6 +22,8 @@ try:
 except ImportError:
 	from math import gcd
 
+from Utils import to_zip
+
 
 #==============================================================================
 #Spirograph class
@@ -70,7 +72,7 @@ class Spirograph:
 		block.append("(Internal Radius = %g)"%(self.RInt))
 		block.append("(Offset Radius = %g)"%(self.ROff))
 
-		xi,yi = zip(*(self.calc_dots()))
+		xi,yi = to_zip(*(self.calc_dots()))
 
 		block.append(CNC.zsafe())
 		block.append(CNC.grapid(xi[0],yi[0]))

@@ -1,17 +1,21 @@
 # -*- coding: ascii -*-
 # $Id$
 #
-# Author: vvlachoudis@gmail.com
-# Date: 18-Jun-2015
+# Author: Vasilis Vlachoudis
+#  Email: vvlachoudis@gmail.com
+#   Date: 18-Jun-2015
 
 from __future__ import absolute_import
 from __future__ import print_function
-__author__ = "Vasilis Vlachoudis"
-__email__  = "vvlachoudis@gmail.com"
+import Utils
+__author__ = Utils.__author__
+__email__  = Utils.__email__
 
 import sys
 # import time
 import math
+
+from Utils import to_unicode
 
 try:
 	from Tkinter import *
@@ -21,7 +25,6 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 
 from CNC import CNC, Block
-import Utils
 import Camera
 import Ribbon
 import tkExtra
@@ -301,7 +304,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 	def tloSet(self, event=None):
 		try:
 			CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-			cmd = "G43.1Z"+str(ProbeCommonFrame.tlo.get())
+			cmd = "G43.1Z%s"%(ProbeCommonFrame.tlo.get())
 			self.sendGCode(cmd)
 		except:
 			pass
@@ -736,22 +739,22 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
 		v = self.probeXdir.get()
 		if v != "":
-			cmd += "X"+str(v)
+			cmd += "X%s"%(v)
 			ok = True
 
 		v = self.probeYdir.get()
 		if v != "":
-			cmd += "Y"+str(v)
+			cmd += "Y%s"%(v)
 			ok = True
 
 		v = self.probeZdir.get()
 		if v != "":
-			cmd += "Z"+str(v)
+			cmd += "Z%s"%(v)
 			ok = True
 
 		v = ProbeCommonFrame.probeFeed.get()
 		if v != "":
-			cmd += "F"+str(v)
+			cmd += "F%s"%(v)
 
 		if ok:
 			self.sendGCode(cmd)
@@ -791,7 +794,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("%s x-%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("tmp=prbx")
-		lines.append("g53 g0 x[prbx+%g]"%(diameter/10))
+		lines.append("g53 g0 x[prbx+%g]"%(diameter/10.))
 		lines.append("%wait")
 		lines.append("%s x%s"%(cmd,diameter))
 		lines.append("%wait")
@@ -800,7 +803,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		lines.append("%s y-%s"%(cmd,diameter))
 		lines.append("%wait")
 		lines.append("tmp=prby")
-		lines.append("g53 g0 y[prby+%g]"%(diameter/10))
+		lines.append("g53 g0 y[prby+%g]"%(diameter/10.))
 		lines.append("%wait")
 		lines.append("%s y%s"%(cmd,diameter))
 		lines.append("%wait")
@@ -941,11 +944,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.app.refresh()
 		self.app.setStatus(_("Pointrec"))
 
-		#print "hello",x,y,z
-		#print self.app.editor.getSelectedBlocks()
+		#print("hello",x,y,z)
+		#print(self.app.editor.getSelectedBlocks())
 
 	def recordCoords(self, gcode='G0', point=False):
-		#print "Z",self.recz.get()
+		#print("Z",self.recz.get())
 		x = CNC.vars["wx"]
 		y = CNC.vars["wy"]
 		z = CNC.vars["wz"]
@@ -1588,7 +1591,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 	# to camera via g92
 	#-----------------------------------------------------------------------
 #	def switch2Camera(self, event=None):
-#		print "Switch to camera"
+#		print("Switch to camera")
 #		wx = CNC.vars["wx"]
 #		wy = CNC.vars["wy"]
 #		dx = float(self.dx.get())
@@ -1787,8 +1790,13 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
-		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
-		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
+#		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
+#		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
+		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(
+									to_unicode(self.toolPolicy.get())))
+		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(
+									to_unicode(self.toolWait.get())))
+
 		Utils.setFloat("Probe", "toolchangex", self.changeX.get())
 		Utils.setFloat("Probe", "toolchangey", self.changeY.get())
 		Utils.setFloat("Probe", "toolchangez", self.changeZ.get())
@@ -1869,22 +1877,25 @@ class ToolFrame(CNCRibbon.PageFrame):
 
 	#-----------------------------------------------------------------------
 	def policyChange(self):
-		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
+#		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
+		b = to_unicode(self.toolPolicy.get())
+		CNC.toolPolicy = int(TOOL_POLICY.index(b))
 
 	#-----------------------------------------------------------------------
 	def waitChange(self):
-		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
-
+#		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
+		b = to_unicode(self.toolWait.get())
+		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(b))
 
 	#-----------------------------------------------------------------------
 	def setProbeParams(self, dummy=None):
 		print("probe chg handler")
-		CNC.vars["toolchangex"] = float(self.changeX.get())
-		CNC.vars["toolchangey"] = float(self.changeY.get())
-		CNC.vars["toolchangez"] = float(self.changeZ.get())
-		CNC.vars["toolprobex"] = float(self.probeX.get())
-		CNC.vars["toolprobey"] = float(self.probeY.get())
-		CNC.vars["toolprobez"] = float(self.probeZ.get())
+		CNC.vars["toolchangex"]  = float(self.changeX.get())
+		CNC.vars["toolchangey"]  = float(self.changeY.get())
+		CNC.vars["toolchangez"]  = float(self.changeZ.get())
+		CNC.vars["toolprobex"]   = float(self.probeX.get())
+		CNC.vars["toolprobey"]   = float(self.probeY.get())
+		CNC.vars["toolprobez"]   = float(self.probeZ.get())
 		CNC.vars["tooldistance"] = float(self.probeDistance.get())
 
 	#-----------------------------------------------------------------------
@@ -1943,7 +1954,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 		self.app.run(lines=lines)
 
 	#-----------------------------------------------------------------------
-	# FIXME should be replaced with the CNC.toolChange()
+	# FIXME: Should be replaced with CNC.toolChange()
 	#-----------------------------------------------------------------------
 	def change(self, event=None):
 		self.set()
@@ -1995,7 +2006,7 @@ class ProbePage(CNCRibbon.Page):
 		tab = self.tabGroup.tab.get()
 		self.master._forgetPage()
 
-		# remove all page tabs with ":" and add the new ones
+		# Remove all page tabs with ":" and add the new ones
 		self.ribbons = [ x for x in self.ribbons if ":" not in x[0].name ]
 		self.frames  = [ x for x in self.frames  if ":" not in x[0].name ]
 
