@@ -879,7 +879,7 @@ class CNC:
 			CNC.travel_y        /= 25.4
 			CNC.travel_z        /= 25.4
 			# a,b,c are in degrees no conversion required
-			
+
 		section = "Error"
 		if CNC.drillPolicy == 1:
 			ERROR_HANDLING["G98"] = 1
@@ -921,8 +921,8 @@ class CNC:
 		if c is None:
 			self.c = self.cval = CNC.vars['wc'] or 0
 		else:
-			self.c = self.cval = c	
-		
+			self.c = self.cval = c
+
 		self.ival = self.jval = self.kval = 0.0
 		self.uval = self.vval = self.wval = 0.0
 		self.dx   = self.dy   = self.dz   = 0.0
@@ -950,7 +950,7 @@ class CNC:
 		# Selected blocks margin
 		CNC.vars["xmin"]  = CNC.vars["ymin"]  = CNC.vars["zmin"]  =  1000000.0
 		CNC.vars["xmax"]  = CNC.vars["ymax"]  = CNC.vars["zmax"]  = -1000000.0
-        
+
 	#----------------------------------------------------------------------
 	def resetAllMargins(self):
 		self.resetEnableMargins()
@@ -4502,62 +4502,49 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Inkscape g-code tools on slice/slice it raises the tool to the
 	# safe height then plunges again.
-	# Comment out all these patterns
-	#
-	# FIXME needs re-working...
+	# Comment out all movements with no X/Y component that stop at the same
+	# plane that they started, if the initial z motion is upward.
 	#----------------------------------------------------------------------
 	def inkscapeLines(self):
-		undoinfo = []
 
-		# Loop over all blocks
 		self.initPath()
 		newlines = []
-		#last = None
-		last = -1	# line location when it was last raised with dx=dy=0.0
+		pending = []  # Accumulator for lines we may want to nullify.
+		dz = 0
+		isZero = lambda x: -0.001 < x < 0.001
+		comment = lambda l: l if l[:1] in ("(","%") else "(%s)"%(l)
 
-		#for line in self.iterate():
-		#for bid,block in enumerate(self.blocks):
-		#	for li,line in enumerate(block):
 		for line in self.lines():
-			# step id
-			# 0 - normal cutting z<0
-			# 1 - z>0 raised  with dx=dy=0.0
-			# 2 - z<0 plunged with dx=dy=0.0
 			cmd = CNC.parseLine(line)
 			if cmd is None:
-				newlines.append(line)
+				if pending:
+					pending.append(line)
+				else:
+					newlines.append(line)
 				continue
-			self.cnc.motionStart(cmd)
-			xyz = self.cnc.motionPath()
-			if self.cnc.dx==0.0 and self.cnc.dy==0.0:
-				if self.cnc.z>0.0 and self.cnc.dz>0.0:
-					last = len(newlines)
-					#last = bid, li
 
-				#elif self.cnc.z<0.0 and self.cnc.dz<0.0 and last is not None:
-				elif self.cnc.z<0.0 and self.cnc.dz<0.0 and last>=0:
-					# comment out all lines from last
-					#lb, ll = last
-					#while bid!=lb or li!=ll:
-					#	b = self.blocks[lb]
-					#	line = b[ll]
-					#	if line and line[0] not in ("(","%"):
-					#		undoinfo.append(b.setLineUndo(ll,"(%s)"%(line)))
-					#	ll += 1
-					#	if ll>=len(b):
-					#		lb += 1
-					#		ll = 0
-					# last = None
-					for i in range(last,len(newlines)):
-						s = newlines[i]
-						if s and s[0] != '(':
-							newlines[i] = "(%s)"%(s)
-					last = -1
-			else:
-				#last = None
-				last = -1
-			newlines.append(line)
+			self.cnc.motionStart(cmd)
+			self.cnc.motionPath()
+			# No XY motion, but maybe Z motion.
+			if isZero(self.cnc.dx) and isZero(self.cnc.dy):
+				dz += self.cnc.dz
+				# If z-motion is upward or block has already started,
+				# it becomes a candidate to remobve.
+				if pending or dz >= 0:
+					pending.append(line)
+					self.cnc.motionEnd()
+					continue
 			self.cnc.motionEnd()
+
+			# XY motion has resumed / continues, so may need to dump pending movement.
+			if pending:
+				if isZero(dz):
+					pending = map(comment, pending)
+				newlines += pending
+				pending = []
+
+			newlines.append(line)
+			dz = 0
 
 		self.addUndo(self.setLinesUndo(newlines))
 
