@@ -4510,9 +4510,9 @@ class GCode:
 		self.initPath()
 		newlines = []
 		pending = []  # Accumulator for lines we may want to nullify.
-		dz = 0
+		dz = 123456  # Ensure initial setup isn't touched.
 		isZero = lambda x: -0.001 < x < 0.001
-		comment = lambda l: l if l[:1] in ("(","%") else "(%s)"%(l)
+		comment = lambda l: l if l[:1] in ("(","%","#",";") else "(%s)"%(l)
 
 		for line in self.lines():
 			cmd = CNC.parseLine(line)
@@ -4545,6 +4545,9 @@ class GCode:
 
 			newlines.append(line)
 			dz = 0
+
+		if pending: # Footer usually has no motion; don't squelch it.
+			newlines += pending
 
 		self.addUndo(self.setLinesUndo(newlines))
 
