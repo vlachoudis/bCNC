@@ -15,7 +15,6 @@ import random
 from math import acos, asin, atan2, copysign, cos, degrees, fmod, hypot, pi, pow, radians, sin, sqrt
 
 import rexx
-
 # Accuracy for comparison operators
 _accuracy = 1E-15
 

@@ -17,7 +17,12 @@ __version__= "0.0.1"
 import math
 from CNC import CNC,Block
 from ToolsPage import Plugin
-from fractions import gcd
+try:
+	from fractions import gcd
+except ImportError:
+	from math import gcd
+
+from Utils import to_zip
 
 
 #==============================================================================
@@ -67,7 +72,7 @@ class Spirograph:
 		block.append("(Internal Radius = %g)"%(self.RInt))
 		block.append("(Offset Radius = %g)"%(self.ROff))
 
-		xi,yi = zip(*(self.calc_dots()))
+		xi,yi = to_zip(*(self.calc_dots()))
 
 		block.append(CNC.zsafe())
 		block.append(CNC.grapid(xi[0],yi[0]))

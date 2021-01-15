@@ -23,6 +23,7 @@ from bpath	import eq,Path, Segment
 from bmath	import *
 from copy	import deepcopy
 from svgcode	import SVGcode
+from Utils import to_zip
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -190,7 +191,7 @@ class Probe:
 		def read(f):
 			while True:
 				line = f.readline()
-				if len(line)==0: raise
+				assert line , "Read an empty line, please check file IO settings"
 				line = line.strip()
 				if line: return map(float, line.split())
 
@@ -690,9 +691,18 @@ class CNC:
 			"mx"         : 0.0,
 			"my"         : 0.0,
 			"mz"         : 0.0,
+			"wa"         : 0.0,
+			"wb"         : 0.0,
+			"wc"         : 0.0,
+			"ma"         : 0.0,
+			"mb"         : 0.0,
+			"mc"         : 0.0,
 			"wcox"       : 0.0,
 			"wcoy"       : 0.0,
 			"wcoz"       : 0.0,
+			"wcoa"       : 0.0,
+			"wcob"       : 0.0,
+			"wcoc"       : 0.0,
 			"curfeed"    : 0.0,
 			"curspindle" : 0.0,
 			"_camwx"     : 0.0,
@@ -745,6 +755,7 @@ class CNC:
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
+			#"enable6axisopt" : 0,
 		}
 
 	drillPolicy    = 1		# Expand Canned cycles
@@ -800,6 +811,8 @@ class CNC:
 		except: pass
 		try: CNC.laseradaptive  = bool(int(config.get(section, "laseradaptive")))
 		except: pass
+		try: CNC.enable6axisopt  = bool(int(config.get(section, "enable6axisopt")))
+		except: pass
 		try: CNC.doublesizeicon = bool(int(config.get(section, "doublesizeicon")))
 		except: pass
 		try: CNC.acceleration_x = float(config.get(section, "acceleration_x"))
@@ -819,6 +832,24 @@ class CNC:
 		try: CNC.travel_y       = float(config.get(section, "travel_y"))
 		except: pass
 		try: CNC.travel_z       = float(config.get(section, "travel_z"))
+		except: pass
+		try: CNC.acceleration_a = float(config.get(section, "acceleration_a"))
+		except: pass
+		try: CNC.acceleration_b = float(config.get(section, "acceleration_b"))
+		except: pass
+		try: CNC.acceleration_c = float(config.get(section, "acceleration_c"))
+		except: pass
+		try: CNC.feedmax_a      = float(config.get(section, "feedmax_a"))
+		except: pass
+		try: CNC.feedmax_b      = float(config.get(section, "feedmax_b"))
+		except: pass
+		try: CNC.feedmax_c      = float(config.get(section, "feedmax_c"))
+		except: pass
+		try: CNC.travel_a       = float(config.get(section, "travel_a"))
+		except: pass
+		try: CNC.travel_b       = float(config.get(section, "travel_b"))
+		except: pass
+		try: CNC.travel_c       = float(config.get(section, "travel_c"))
 		except: pass
 		try: CNC.accuracy       = float(config.get(section, "accuracy"))
 		except: pass
@@ -847,7 +878,8 @@ class CNC:
 			CNC.travel_x        /= 25.4
 			CNC.travel_y        /= 25.4
 			CNC.travel_z        /= 25.4
-
+			# a,b,c are in degrees no conversion required
+			
 		section = "Error"
 		if CNC.drillPolicy == 1:
 			ERROR_HANDLING["G98"] = 1
@@ -865,7 +897,7 @@ class CNC:
 		pass
 
 	#----------------------------------------------------------------------
-	def initPath(self, x=None, y=None, z=None):
+	def initPath(self, x=None, y=None, z=None, a=None, b=None, c=None):
 		if x is None:
 			self.x = self.xval = CNC.vars['wx'] or 0
 		else:
@@ -878,6 +910,19 @@ class CNC:
 			self.z = self.zval = CNC.vars['wz'] or 0
 		else:
 			self.z = self.zval = z
+		if a is None:
+			self.a = self.aval = CNC.vars['wa'] or 0
+		else:
+			self.a = self.aval = a
+		if b is None:
+			self.b = self.bval = CNC.vars['wb'] or 0
+		else:
+			self.b = self.bval = b
+		if c is None:
+			self.c = self.cval = CNC.vars['wc'] or 0
+		else:
+			self.c = self.cval = c	
+		
 		self.ival = self.jval = self.kval = 0.0
 		self.uval = self.vval = self.wval = 0.0
 		self.dx   = self.dy   = self.dz   = 0.0
@@ -905,7 +950,7 @@ class CNC:
 		# Selected blocks margin
 		CNC.vars["xmin"]  = CNC.vars["ymin"]  = CNC.vars["zmin"]  =  1000000.0
 		CNC.vars["xmax"]  = CNC.vars["ymax"]  = CNC.vars["zmax"]  = -1000000.0
-
+        
 	#----------------------------------------------------------------------
 	def resetAllMargins(self):
 		self.resetEnableMargins()
@@ -956,6 +1001,18 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
+	def _gotoABC(g, x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		s = "g%d"%(g)
+		if x is not None: s += ' '+CNC.fmt('x',x)
+		if y is not None: s += ' '+CNC.fmt('y',y)
+		if z is not None: s += ' '+CNC.fmt('z',z)
+		if a is not None: s += ' '+CNC.fmt('a',a)
+		if b is not None: s += ' '+CNC.fmt('b',b)
+		if c is not None: s += ' '+CNC.fmt('c',c)
+		for n,v in args.items():
+			s += ' ' + CNC.fmt(n,v)
+		return s
+	@staticmethod
 	def _goto(g, x=None, y=None, z=None, **args):
 		s = "g%d"%(g)
 		if x is not None: s += ' '+CNC.fmt('x',x)
@@ -964,13 +1021,18 @@ class CNC:
 		for n,v in args.items():
 			s += ' ' + CNC.fmt(n,v)
 		return s
-
 	#----------------------------------------------------------------------
+	@staticmethod
+	def grapidABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(0,x,y,z,a,b,c,**args)
 	@staticmethod
 	def grapid(x=None, y=None, z=None, **args):
 		return CNC._goto(0,x,y,z,**args)
 
 	#----------------------------------------------------------------------
+	@staticmethod
+	def glineABC(x=None, y=None, z=None, a=None, b=None, c=None, **args):
+		return CNC._gotoABC(1,x,y,z,a,b,c,**args)
 	@staticmethod
 	def gline(x=None, y=None, z=None, **args):
 		return CNC._goto(1,x,y,z,**args)
@@ -978,7 +1040,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def glinev(g, v, feed=None):
-		pairs = zip("xyz",v)
+		pairs = to_zip("xyz",v)
 		if feed is not None:
 			pairs.append(("f",feed))
 		return CNC.gcode(g, pairs)
@@ -986,7 +1048,7 @@ class CNC:
 	#----------------------------------------------------------------------
 	@staticmethod
 	def garcv(g, v, ijk):
-		return CNC.gcode(g, zip("xyz",v) + zip("ij",ijk[:2]))
+		return CNC.gcode(g, to_zip("xyz",v) + to_zip("ij",ijk[:2]))
 
 	#----------------------------------------------------------------------
 	@staticmethod
@@ -1091,8 +1153,9 @@ class CNC:
 			else:
 				try:
 					return compile(line[1:],"","exec")
-				except:
-					# FIXME show the error!!!!
+				except Exception as e:
+					print("Compile line error: \n")
+					print(e)
 					return None
 
 		# most probably an assignment like  #nnn = expr
@@ -1614,6 +1677,9 @@ class CNC:
 			block.time += length / self.feedmax_x
 			self.totalTime += length / self.feedmax_x
 			block.rapid += length
+		elif (self.gcode == 1 or self.gcode==2 or self.gcode==3) and self.feed >0 :
+			block.time += length / self.feed
+			self.totalTime += length / self.feed
 		else:
 			try:
 				if CNC.vars["feedmode"] == 94:
@@ -1622,7 +1688,6 @@ class CNC:
 				elif CNC.vars["feedmode"] == 93:
 					# Inverse mode
 					t = length * self.feed
-
 				block.time += t
 				self.totalTime += t
 			except:
@@ -2442,10 +2507,10 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Get scaling factor for SVG files
 	#----------------------------------------------------------------------
-	def SVGscale(self):
-		dpi=96 #same as inkscape 0.9x (according to jscut)
-		if not CNC.inch: dpi = round(dpi/25.4,7)
-		return dpi
+	def SVGscale(self, dpi=96.0): #same as inkscape 0.9x (according to jscut)
+		if CNC.inch:
+			return 1.0 / dpi
+		return 25.4 / dpi
 
 	#----------------------------------------------------------------------
 	# Load SVG file into gcode
@@ -2459,8 +2524,11 @@ class GCode:
 		empty = len(self.blocks)==0
 		if empty: self.addBlockFromString("Header",self.header)
 
-		#FIXME: UI to set SVG subdivratio
-		for path in svgcode.get_gcode(self.SVGscale(), 0.5, CNC.digits):
+		#FIXME: UI to set SVG samples_per_unit
+		ppi = 96.0  # 96 pixels per inch.
+		scale = self.SVGscale(ppi)
+		samples_per_unit = 200.0
+		for path in svgcode.get_gcode(scale, samples_per_unit, CNC.digits, ppi=ppi):
 			self.addBlockFromString(path['id'],path['path'])
 
 		if empty: self.addBlockFromString("Footer",self.footer)
@@ -3377,6 +3445,17 @@ class GCode:
 			opname = "drill"
 		else:
 			opname = "drill:%g"%(depth)
+		#Incorrect peck values can block drilling cycle calculation
+		peck = peck or 0.0
+		if peck == 0.0:
+			peck = None
+		if peck is not None:
+			if math.copysign(1.0, depth) * math.copysign(1.0, peck) != -1:
+				pecksignstr = "less"
+				if math.copysign(1.0, peck) < 0:
+					pecksignstr = "greater"
+				return "Invalid peck depth value of %g. In this configuration, peck value should be %s than zero."%(peck, pecksignstr)
+		#pecking value is well defined.
 
 		undoinfo = []
 

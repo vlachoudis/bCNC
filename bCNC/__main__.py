@@ -20,6 +20,8 @@ import time
 import getopt
 import socket
 import traceback
+import threading
+
 from datetime import datetime
 
 try:
@@ -37,7 +39,6 @@ except ImportError:
 	from queue import *
 	from tkinter import *
 	import tkinter.messagebox as tkMessageBox
-
 PRGPATH=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(PRGPATH)
 sys.path.append(os.path.join(PRGPATH, 'lib'))
@@ -116,7 +117,6 @@ class Application(Toplevel,Sender):
 		self.tools = Tools(self.gcode)
 		self.controller = None
 		self.loadConfig()
-
 		# --- Ribbon ---
 		self.ribbon = Ribbon.TabRibbonFrame(self)
 		self.ribbon.pack(side=TOP, fill=X)
@@ -208,13 +208,18 @@ class Application(Toplevel,Sender):
 
 			for n in Utils.getStr(Utils.__prg__,"%s.page"%(page.name)).split():
 				last = n[-1]
-				try:
-					if last == "*":
-						page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
-					else:
-						page.addPageFrame(n)
-				except KeyError:
-					errors.append(n)
+				if (n=="abcDRO" or n=="abcControl") and CNC.enable6axisopt == False:
+					sys.stdout.write("Not Loading 6 axis displays\n")
+
+					
+				else:
+					try:
+						if last == "*":
+							page.addPageFrame(n[:-1],fill=BOTH,expand=TRUE)
+						else:
+							page.addPageFrame(n)
+					except KeyError:
+						errors.append(n)
 
 		if errors:
 			tkMessageBox.showwarning("bCNC configuration",
@@ -225,11 +230,14 @@ class Application(Toplevel,Sender):
 
 		# remember the editor list widget
 		self.dro      = Page.frames["DRO"]
+		self.abcdro      = Page.frames["abcDRO"]
 		self.gstate   = Page.frames["State"]
 		self.control  = Page.frames["Control"]
+		self.abccontrol=Page.frames["abcControl"]
 		self.editor   = Page.frames["Editor"].editor
 		self.terminal = Page.frames["Terminal"].terminal
 		self.buffer   = Page.frames["Terminal"].buffer
+				
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -391,16 +399,22 @@ class Application(Toplevel,Sender):
 			self.bind('<Left>',		self.control.moveYdown)
 			self.bind('<Up>',		self.control.moveXdown)
 			self.bind('<Down>',		self.control.moveXup)
+			self.bind('.',			self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 		elif self._swapKeyboard == -1:
 			self.bind('<Right>',		self.control.moveYdown)
 			self.bind('<Left>',		self.control.moveYup)
 			self.bind('<Up>',		self.control.moveXup)
 			self.bind('<Down>',		self.control.moveXdown)
+			self.bind(',',                  self.abccontrol.moveAup)
+			self.bind('.',			self.abccontrol.moveAdown)
 		else:
 			self.bind('<Right>',		self.control.moveXup)
 			self.bind('<Left>',		self.control.moveXdown)
 			self.bind('<Up>',		self.control.moveYup)
 			self.bind('<Down>',		self.control.moveYdown)
+			self.bind('.',                  self.abccontrol.moveAup)
+			self.bind(',',			self.abccontrol.moveAdown)
 
 		try:
 			self.bind('<KP_Prior>',		self.control.moveZup)
@@ -484,7 +498,6 @@ class Application(Toplevel,Sender):
 		if force_update:
 			self.statusbar.update_idletasks()
 			self.bufferbar.update_idletasks()
-
 	#-----------------------------------------------------------------------
 	# Set a status message from an event
 	#-----------------------------------------------------------------------
@@ -1589,24 +1602,24 @@ class Application(Toplevel,Sender):
 		elif rexx.abbrev("SPINDLE",cmd,3):
 			if len(line)>1:
 				if line[1].upper()=="OFF":
-					self.spindle.set(False)
+					self.gstate.spindle.set(False)
 				elif line[1].upper()=="ON":
-					self.spindle.set(True)
+					self.gstate.spindle.set(True)
 				else:
 					try:
 						rpm = int(line[1])
 						if rpm==0:
-							self.spindleSpeed.set(0)
-							self.spindle.set(False)
+							self.gstate.spindleSpeed.set(0)
+							self.gstate.spindle.set(False)
 						else:
-							self.spindleSpeed.set(rpm)
-							self.spindle.set(True)
+							self.gstate.spindleSpeed.set(rpm)
+							self.gstate.spindle.set(True)
 					except:
 						pass
 			else:
 				# toggle spindle
-				self.spindle.set(not self.spindle.get())
-			self.spindleControl()
+				self.gstate.spindle.set(not self.gstate.spindle.get())
+			self.gstate.spindleControl()
 
 		# STOP: stop current run
 		elif cmd == "STOP":
@@ -1981,7 +1994,7 @@ class Application(Toplevel,Sender):
 		self.gcode.headerFooter()
 		self.editor.fill()
 		self.draw()
-		self.title("%s %s"%(Utils.__prg__,__version__))
+		self.title("%s %s %s"%(Utils.__prg__,__version__,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	# load dialog
@@ -2078,13 +2091,13 @@ class Application(Toplevel,Sender):
 			self.setStatus(_("'%s' reloaded at '%s'")%(filename,str(datetime.now())))
 		else:
 			self.setStatus(_("'%s' loaded")%(filename))
-		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
+		self.title("%s %s: %s %s"%(Utils.__prg__,__version__,self.gcode.filename,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	def save(self, filename):
 		Sender.save(self, filename)
 		self.setStatus(_("'%s' saved")%(filename))
-		self.title("%s %s: %s"%(Utils.__prg__,__version__,self.gcode.filename))
+		self.title("%s %s: %s %s"%(Utils.__prg__,__version__,self.gcode.filename,__platform_fingerprint__))
 
 	#-----------------------------------------------------------------------
 	def saveAll(self, event=None):
@@ -2516,7 +2529,7 @@ class Application(Toplevel,Sender):
 
 #------------------------------------------------------------------------------
 def usage(rc):
-	sys.stdout.write("%s V%s [%s]\n"%(Utils.__prg__, __version__, __date__))
+	sys.stdout.write("%s V%s [%s] %s\n"%(Utils.__prg__, __version__, __date__, __platform_fingerprint__))
 	sys.stdout.write("%s <%s>\n\n"%(__author__, __email__))
 	sys.stdout.write("Usage: [options] [filename...]\n\n")
 	sys.stdout.write("Options:\n")
@@ -2557,7 +2570,6 @@ def main(args=None):
 
 	tk = Tk()
 	tk.withdraw()
-
 	#if sys.version_info[0] != 2:
 	#	tkMessageBox.showwarning("bCNC: Unsupported Python version", "Only Python 2 is currently supported by bCNC.\nContinue at your own risk!\nPlease report any issues to\nhttps://github.com/vlachoudis/bCNC/issues")
 
@@ -2682,6 +2694,7 @@ def main(args=None):
 
 	# Start application
 	application = Application(tk)
+
 	if fullscreen: application.attributes("-fullscreen", True)
 
 	# Parse remaining arguments except files

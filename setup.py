@@ -1,13 +1,18 @@
 from setuptools import setup, find_packages
-
+import sys #added for python2 support
 print("Running bCNC setup...")
 
 with open("README.md", "r") as fh:
 	long_description = fh.read()
 
+if sys.version_info[0] >= 3:
+	opencv_version = '4.4.0.46' # Recent version for Puthon 3
+else: #python version lower then 3 compatability
+	opencv_version ='4.2.0.32' # use the last opencv version for python 2.7
+
 setup(
 	name = "bCNC",
-	version = "0.9.14.303",
+	version = "0.9.14.312",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
@@ -19,11 +24,15 @@ setup(
 	include_package_data=True,
 	#python_requires="<3.0",
 	install_requires = [
+		"pyobjc ; sys_platform == 'darwin'",
+		"pyobjc-core; sys_platform == 'darwin'",
+		"pyobjc-framework-Quartz; sys_platform == 'darwin'",
+
 		"pyserial ; sys_platform != 'win32'",	#Windows XP can't handle pyserial newer than 3.0.1 (it can be installed, but does not work)
 		"pyserial<=3.0.1 ; sys_platform == 'win32'",
 		'numpy>=1.12',
 		'Pillow>=4.0',
-		'opencv-python>=2.4 ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)',	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
+		'opencv-python==%s ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)' % (opencv_version),	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
 	],
 
 	entry_points = {

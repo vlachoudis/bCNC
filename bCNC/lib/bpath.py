@@ -15,7 +15,7 @@ __email__  = "Vasilis.Vlachoudis@cern.ch"
 from operator import itemgetter
 from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
-
+from Utils import to_zip
 EPS   = 1E-7		# strict tolerances for operations
 EPS2  = EPS**2
 EPSV  = EPS*10		# relaxed tolerances for vectors
@@ -1698,8 +1698,8 @@ class Path(list):
 
 			elif entity.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
 				# split it into multiple line segments
-				xy = list(zip(dxf.convert(entity[10],units),
-					      dxf.convert(entity[20],units)))
+				xy = to_zip(dxf.convert(entity[10],units),
+							dxf.convert(entity[20],units))
 				if entity.isClosed(): xy.append(xy[0])
 				bulge = entity.bulge()
 				if not isinstance(bulge,list): bulge = [bulge]*len(xy)

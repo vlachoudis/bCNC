@@ -183,4 +183,4 @@ class Tool(Plugin):
 		blocks = [block]
 		app.gcode.insBlocks(active, blocks, _("Manual drill mark"))
 		app.refresh()  # <<< refresh editor
-		app.setStatus(_("Generated: MyPlugin Result"))
+		app.setStatus(_("Generated: Manual drillmark"))

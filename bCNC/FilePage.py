@@ -9,6 +9,7 @@ from __future__ import print_function
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
+import sys
 import os
 
 try:

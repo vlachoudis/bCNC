@@ -1,10 +1,10 @@
 bCNC
 ====
 
-GRBL CNC command sender, autoleveler, g-code editor, digitizer, CAM
+GrblHAL (formerly GRBL) CNC command sender, autoleveler, g-code editor, digitizer, CAM
 and swiss army knife for all your CNC needs.
 
-An advanced fully featured g-code sender for GRBL. bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Raspberry Pi](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL maintainer on heavy testing).
+An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Raspberry Pi](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL maintainer on heavy testing).
 
 [![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
@@ -22,19 +22,19 @@ This is short overview of installation proces, for more see the ![bCNC installat
 This is how you install (or upgrade) bCNC along with all required packages.
 You can use any of these commands (you need only one):
 
-    pip2 install --upgrade bCNC
-    pip2 install --upgrade git+https://github.com/vlachoudis/bCNC
-    pip2 install . #in git directory
-    python2 -m pip install --upgrade bCNC
+    pip install --upgrade bCNC
+    pip install --upgrade git+https://github.com/vlachoudis/bCNC
+    pip install . #in git directory
+    python -m pip install --upgrade bCNC
 
 This is how you launch bCNC:
 
-    python2 -m bCNC
+    python -m bCNC
 
 Only problem with this approach is that it might not install Tkinter in some cases.
 So please keep that in mind and make sure it's installed in case of problems.
 
-If you run the `python2 -m bCNC` command in root directory of this git repository it will launch the git version.
+If you run the `python -m bCNC` command in root directory of this git repository it will launch the git version.
 Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
 
 Note that on Windows XP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
@@ -45,7 +45,7 @@ PyPI project: https://pypi.org/project/bCNC/
 You will need the following packages to run bCNC
 - tkinter the graphical toolkit for python
   Depending your python/OS it can either be already installed,
-  or under the names tkinter, python-tkinter, python-tk
+  or under the names tkinter, python3-tkinter, python-tk
 - pyserial or under the name python-serial, python-pyserial
 - numpy
 - Optionally:
@@ -57,8 +57,8 @@ Expand the directory or download it from github
 and run the bCNC command
 
 # Installation (Linux package maintainers)
-- Copy `bCNC` subdirectory of this repo to `/usr/lib/python2.7/site-packages/`
-- Launch using `python2 -m bCNC` or install bCNC.sh to /usr/bin
+- Copy `bCNC` subdirectory of this repo to `/usr/lib/python3.x/site-packages/`
+- Launch using `python -m bCNC` or install bCNC.sh to /usr/bin
 - Alternatively you can fetch the bCNC Python package using pip when building Linux package
   - refer to your distro, eg.: https://wiki.archlinux.org/index.php/Python_package_guidelines
   - Py2deb to build Debian package from Python package: https://pypi.org/project/py2deb/
@@ -73,7 +73,7 @@ This is basic example of how to compile bCNC to .exe file.
 (given that you have working bCNC in the first place, eg. using `pip install bCNC`).
 Go to the directory where is your bCNC installed and do the following:
 
-    pip2 install pyinstaller
+    pip install pyinstaller
     pyinstaller --onefile --distpath . --hidden-import tkinter --paths lib;plugins;controllers --icon bCNC.ico --name bCNC __main__.py
 
 This will take a minute or two. But in the end it should create `bCNC.exe`.
@@ -84,15 +84,18 @@ That is solely for caching purposes and you should delete it before redistributi
 If you are going to report bugs in .exe version of bCNC,
 please check first if that bug occurs even when running directly in python (without .exe build).
 
-# IMPORTANT! Motion controller (GRBL) settings
+# IMPORTANT! Motion controller (grblHAL) settings
+- We strongly recommend you to use 32b microcontroller with grblHAL firmware for the new machine builds. https://github.com/terjeio/grblHAL/ (Original GRBL firmware is still supported, but it is currently reaching the end-of-life due to limitations of 8b microcontrollers)
 - GRBL should be configured to use **MPos** rather than **Wpos**. This means that `$10=` should be set to odd number. As of GRBL 1.1 we reccomend setting `$10=3`. If you have troubles communicating with your machine, you can try to set failsafe value `$10=1`.
 - CADs, bCNC and GRBL all work in milimeters by default. Make sure that `$13=0` is set in GRBL, if you experience strange behavior. (unless you've configured your CAD and bCNC to use inches)
 - Before filing bug please make sure you use latest stable official release of GRBL. Older and unofficial releases might work, but we frequently see cases where they don't. So please upgrade firmware in your Arduinos to reasonably recent version if you can.
 - Also read about all possible GRBL settings and make sure your setup is correct: https://github.com/gnea/grbl/wiki/Grbl-v1.1-Configuration
 
 # Configuration
-You can modify most of the parameters from the "Tools -> Machine"
-page. Only the changes/differences from the default configuration
+You can modify most of the parameters from the "CAM -> Config/Controller" page.
+You can also enable (up to) 6-axis mode in Config section,
+but bCNC restart is required for changes to take place.
+Only the changes/differences from the default configuration
 file will be saved in your home directory ${HOME}/.bCNC  or ~/.bCNC
 
 The default configuration is stored on bCNC.ini in the
@@ -102,6 +105,7 @@ installation directory.
 
 # Features:
 - simple and intuitive interface for small screens
+- 3-axis and 6-axis GUI modes
 - import/export **g-code**, **dxf** and **svg** files
 - 3D mesh slicing **stl** and **ply** files
 - fast g-code sender (works nicely on RPi and old hardware)

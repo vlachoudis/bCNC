@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 import sys
 import bmath
-
+from Utils import to_zip
 
 #===============================================================================
 # Cardinal cubic spline class
@@ -472,7 +472,6 @@ if __name__ == "__main__":
 	for name,layer in dxf.layers.items():
 		for entity in layer.entities:
 			if entity.type == "SPLINE":
-				xy = zip(entity[10], entity[20])
-				x,y = spline2Polyline(xy, int(entity[71]), True, SPLINE_SEGMENTS)
+				x,y = spline2Polyline(to_zip(entity[10], entity[20]), int(entity[71]), True, SPLINE_SEGMENTS)
 				#for a,b in zip(x,y):
 				#	print a,b

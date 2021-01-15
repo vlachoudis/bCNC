@@ -18,6 +18,7 @@ except ImportError:
 	import tkinter.messagebox as tkMessageBox
 from operator import attrgetter
 
+import sys
 import os
 import time
 import glob
@@ -398,7 +399,8 @@ class _Base:
 		else:
 			for var in self.variables:
 				n, t, d, l = var[:4]
-				Utils.setStr(self.name, n, str(self.values.get(n,d)))
+				val = Utils.to_unicode(self.values.get(n,d))
+				Utils.setStr(self.name, n, str(val))
 
 	# ----------------------------------------------------------------------
 	def fromMm(self, name, default=0.0):
@@ -599,6 +601,7 @@ class Config(_Base):
 			("lasercutter"   , "bool", 0    , _("Laser Cutter"))   ,
 			("laseradaptive" , "bool", 0    , _("Laser Adaptive Power"))   ,
 			("doublesizeicon", "bool", 0    , _("Double Size Icon"))   ,
+			("enable6axisopt", "bool", 0	, _("Enable 6 Axis Displays"))	,
 			("acceleration_x", "mm"  , 25.0 , _("Acceleration x"))   ,
 			("acceleration_y", "mm"  , 25.0 , _("Acceleration y"))   ,
 			("acceleration_z", "mm"  , 5.0  , _("Acceleration z"))   ,
@@ -821,6 +824,21 @@ class Drill(DataBase):
 			("distance",  "mm" ,    "", _("Distance (mm)")),
 			("number",    "int" ,   "", _("Number"))
 		]
+		self.help = """Drill a hole in the center of the selected path or drill many holes along the selected path.
+
+MODULE PARAMETERS:
+
+* center : if checked, there is only one drill in the center of the selected path. (Otherwise drill along path)
+
+* depth : Depth of the drill. If not provided, stock material thickness is used. (usually negative value)
+
+* peck: Peck step depth. If provided, drill with peck depth step, raising the drill to z travel value. If not provided, one pass drill is generated.
+
+* dwell: Dwell time at the bottom. If pecking is defined, dwell also at lifted height.
+
+* distance: Distance between drills if drilling alog path. (Number of drills will superceed this parameter))
+
+* number: Number of drills if drilling along path. If nonzero, Parameter 'distance' has no effect."""
 		self.buttons.append("exe")
 
 	# ----------------------------------------------------------------------
@@ -1495,7 +1513,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		col,row=0,0
 		f = Frame(self.frame)
-		f.grid(row=row, column=col, columnspan=3, padx=0, pady=0, sticky=NSEW)
+		f.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 
 		b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
 		b.pack(side=LEFT)
@@ -1512,34 +1530,6 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		# ===
 		row += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["camera"],
-				text=_("Camera"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Camera",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Camera Configuration"))
-		self.addWidget(b)
-
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["color"],
-				text=_("Colors"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Color",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Color configuration"))
-		self.addWidget(b)
-
-		# ===
-		col,row = col+1,1
-		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["config"],
 				text=_("Config"),
 				compound=LEFT,
@@ -1552,7 +1542,22 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		self.addWidget(b)
 
 		# ---
+		col += 1
+		b = Ribbon.LabelRadiobutton(self.frame,
+				image=Utils.icons["shortcut"],
+				text=_("Shortcuts"),
+				compound=LEFT,
+				anchor=W,
+				variable=app.tools.active,
+				value="Shortcut",
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
+		self.addWidget(b)
+
+		# ---
 		row += 1
+		col = 0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["arduino"],
 				text=_("Controller"),
@@ -1565,34 +1570,20 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
 		self.addWidget(b)
 
-		# ===
-		col,row = col+1,1
+		# ---
+		col += 1
 		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["font"],
-				text=_("Fonts"),
+				image=Utils.icons["camera"],
+				text=_("Camera"),
 				compound=LEFT,
 				anchor=W,
 				variable=app.tools.active,
-				value="Font",
+				value="Camera",
 				background=Ribbon._BACKGROUND)
 		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Font configuration"))
+		tkExtra.Balloon.set(b, _("Camera Configuration"))
 		self.addWidget(b)
 
-		# ---
-		row += 1
-		b = Ribbon.LabelRadiobutton(self.frame,
-				image=Utils.icons["shortcut"],
-				text=_("Shortcuts"),
-				compound=LEFT,
-				anchor=W,
-				variable=app.tools.active,
-				value="Shortcut",
-				background=Ribbon._BACKGROUND)
-		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-		tkExtra.Balloon.set(b, _("Shortcuts configuration"))
-		self.addWidget(b)
-#
 #		# ---
 #		row += 1
 #		b = Ribbon.LabelRadiobutton(self.frame,
@@ -1629,15 +1620,24 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
 	#----------------------------------------------------------------------
 	def createMenu(self):
 		menu = Menu(self, tearoff=0)
+		menu.add_command(
+				label=_("User File"),
+				image=Utils.icons["about"], compound=LEFT,
+				command=self.app.showUserFile)
 		menu.add_radiobutton(
 				label=_("Events"),
 				image=Utils.icons["event"], compound=LEFT,
 				variable=self.app.tools.active,
 				value="Events")
-		menu.add_command(
-				label=_("User File"),
-				image=Utils.icons["about"], compound=LEFT,
-				command=self.app.showUserFile)
+		menu.add_radiobutton(
+				label=_("Colors"),
+				image=Utils.icons["color"], compound=LEFT,
+				variable=self.app.tools.active, value="Color")
+		menu.add_radiobutton(
+				label=_("Fonts"),
+				image=Utils.icons["font"], compound=LEFT,
+				variable=self.app.tools.active, value="Font")
+
 		return menu
 
 
@@ -1724,11 +1724,11 @@ class ToolsFrame(CNCRibbon.PageFrame):
 		for var in self.tools.getActive().variables:
 			if var[3] == item or _(var[3]) == item:
 				varname = var[0]
-				helpname = "Help for ("+varname+") "+item
+				helpname = 'Help for (%s) %s'%(varname,item)
 				if len(var) > 4 and var[4] is not None:
 					helptext = var[4]
 				else:
-					helptext = helpname+':\nnot available yet!'
+					helptext = '%s:\nnot available yet!'%(helpname)
 				tkMessageBox.showinfo(helpname, helptext)
 
 	#----------------------------------------------------------------------
@@ -1779,14 +1779,14 @@ class ToolsPage(CNCRibbon.Page):
 	# Add a widget in the widgets list to enable disable during the run
 	#----------------------------------------------------------------------
 	def register(self):
-		self._register(
-			(DataBaseGroup,
-			 CAMGroup,
+		self._register((
+			ConfigGroup,
+			DataBaseGroup,
+			CAMGroup,
 			#GeneratorGroup,
 			#ArtisticGroup,
 			#MacrosGroup,
-			ConfigGroup),
-			(ToolsFrame,))
+			), (ToolsFrame,))
 
 	#----------------------------------------------------------------------
 	def edit(self, event=None):

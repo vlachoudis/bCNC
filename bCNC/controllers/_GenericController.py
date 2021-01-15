@@ -8,8 +8,8 @@ from CNC import CNC, WCS
 import time
 import re
 
-STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),?(.*)>$")
-POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*):?(\d*)\]$")
+STATUSPAT = re.compile(r"^<(\w*?),MPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?,WPos:([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?(?:,.*)?>$")
+POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\d*)(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?(?:,([+\-]?\d*\.\d*))?(:(\d*))?\]$")
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 SPLITPAT  = re.compile(r"[:,]")
@@ -100,15 +100,18 @@ class _GenericController:
 		self.master.sendGCode("G90")
 
 	#----------------------------------------------------------------------
-	def goto(self, x=None, y=None, z=None):
+	def goto(self, x=None, y=None, z=None, a=None, b=None, c=None):
 		cmd = "G90G0"
 		if x is not None: cmd += "X%g"%(x)
 		if y is not None: cmd += "Y%g"%(y)
 		if z is not None: cmd += "Z%g"%(z)
+		if a is not None: cmd += "A%g"%(a)
+		if b is not None: cmd += "B%g"%(b)
+		if c is not None: cmd += "C%g"%(c)
 		self.master.sendGCode("%s"%(cmd))
 
 	#----------------------------------------------------------------------
-	def _wcsSet(self, x, y, z):
+	def _wcsSet(self, x, y, z, a=None, b=None, c=None):
 		#global wcsvar
 		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
@@ -125,6 +128,9 @@ class _GenericController:
 		if x is not None and abs(float(x))<10000.0: pos += "X"+str(x)
 		if y is not None and abs(float(y))<10000.0: pos += "Y"+str(y)
 		if z is not None and abs(float(z))<10000.0: pos += "Z"+str(z)
+		if a is not None and abs(float(a))<10000.0: pos += "A"+str(a)
+		if b is not None and abs(float(b))<10000.0: pos += "B"+str(b)
+		if c is not None and abs(float(c))<10000.0: pos += "C"+str(c)
 		cmd += pos
 		self.master.sendGCode(cmd)
 		self.viewParameters()
@@ -180,6 +186,22 @@ class _GenericController:
 
 
 	#----------------------------------------------------------------------
+	def displayState(self, state):
+		state = state.strip()
+
+		#Do not show g-code errors, when machine is already in alarm state
+		if (CNC.vars["state"].startswith("ALARM:") and state.startswith("error:")):
+			print("Supressed: %s"%(state))
+			return
+
+		# Do not show alarm without number when we already display alarm with number
+		if (state == "Alarm" and CNC.vars["state"].startswith("ALARM:")):
+			return
+
+		CNC.vars["state"] = state
+
+
+	#----------------------------------------------------------------------
 	def parseLine(self, line, cline, sline):
 		if not line:
 			return True
@@ -202,7 +224,7 @@ class _GenericController:
 			if sline: CNC.vars["errline"] = sline.pop(0)
 			if not self.master._alarm: self.master._posUpdate = True
 			self.master._alarm = True
-			CNC.vars["state"] = line
+			self.displayState(line)
 			if self.master.running:
 				self.master._stop = True
 
