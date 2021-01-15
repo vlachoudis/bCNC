@@ -257,7 +257,7 @@ class Tool(Plugin):
 			if useAnchor == True:
 				bidHoles = []
 				for idx, anchor in enumerate(bidSegment):
-					if idx > 0:
+					if idx > 1:
 						if self.useCustom:
 							if (anchor[0][0] != anchor[1][0] and anchor[0][1] != anchor[1][1]):
 								newHolePoint = (anchor[1][0],anchor[1][1],anchor[0][2])
@@ -343,15 +343,19 @@ class Tool(Plugin):
 				else:
 					#block.append(CNC.zsafe()) # Moved up
 					block.append(CNC.grapid(xH,yH))
+					block.append(CNC.zenter_rapid(CNC.vars["surface"] + 1.0))
 
 				if peck != 0:
 					z = 0
+					surface=CNC.vars["surface"]
 					while z > targetDepth:
 						z = max(z-peck, targetDepth)
 						if self.useCustom:
 							block.append("( --- WARNING! Peck is not setup for laser mode --- )")
 							break
 						else:
+							block.append(CNC.zenter_rapid(surface + 1.0))
+							surface=surface-peck
 							block.append(CNC.zenter(zH + z))
 							block.append(CNC.zsafe())
 
