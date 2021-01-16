@@ -2823,7 +2823,7 @@ class GCode:
 			#Descend to pass (plunge to the beginning of path)
 			if entry:
 				#if entry feed to Z
-				block.append(CNC.zenter_rapid(self.cnc["surface"] + 1.0))			
+				if retract: block.append(CNC.zenter_rapid(self.cnc["surface"] + 1.0))
 				block.append(CNC.zenter(max(zh, ztab),7))
 			else:
 				#without entry just rapid to Z
