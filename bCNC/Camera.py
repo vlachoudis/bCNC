@@ -113,7 +113,10 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def start(self):
 		if cv is None: return
-		self.camera = cv.VideoCapture(self.idx)
+		# 2021-02- 07 ... added  cv.CAP_DSHOW to fix issue on Win7
+		# answer: https://answers.opencv.org/question/234933
+		# issue: https://github.com/vlachoudis/bCNC/issues/1526
+		self.camera = cv.VideoCapture(self.idx, cv.CAP_DSHOW)
 
 		for prop_id, prop_value in self.props.items():
 			self.camera.set(prop_id, prop_value)
