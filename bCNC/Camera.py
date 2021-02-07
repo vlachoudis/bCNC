@@ -113,7 +113,7 @@ class Camera:
 	#-----------------------------------------------------------------------
 	def start(self):
 		if cv is None: return
-		# 2021-02- 07 ... added  cv.CAP_DSHOW to fix issue on Win7
+		# 2021-02-07 ... added cv.CAP_DSHOW to fix issue on Win7
 		# answer: https://answers.opencv.org/question/234933
 		# issue: https://github.com/vlachoudis/bCNC/issues/1526
 		self.camera = cv.VideoCapture(self.idx, cv.CAP_DSHOW)
