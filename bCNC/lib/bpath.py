@@ -264,7 +264,7 @@ class Segment:
 		else :
 			if hasattr(other,"C"):
 				return False
-		return False # whats this ?
+		return True # whats this ?
 
 	#----------------------------------------------------------------------
 	# Return a point ON the segment in the middle (= factor 0.5) or different

@@ -98,7 +98,6 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 
 class PocketIsland:
 	def __init__(self,pathlist,diameter,stepover,depth,islandslist=[]): 
-# 		self.parent = parent
 		self.outpaths = pathlist
 		self.islands = islandslist
 		self.diameter = diameter
@@ -189,16 +188,20 @@ class PocketIsland:
 		self.CleanPath.extend(cleanpath)
 
 	def getNewPathAndIslands(self):
-		for elt in self.CleanPath: #List of paths
-			for elt2 in self.CleanPath :
-					ins = elt2.isPathInside(elt)==1
-					ident = elt2.isidentical(elt)
-					if elt2.isPathInside(elt)==1 and not elt2.isidentical(elt):
-						self.childrenIslands.append(elt2)
-		for elt in self.CleanPath: #List of paths
-			for elt2 in self.CleanPath:
-					if not elt2 in self.childrenIslands and not elt2 in self.childrenOutpath:
-						self.childrenOutpath.append(elt2)
+		if len(self.CleanPath)==1:
+			self.childrenOutpath = self.CleanPath
+		else :
+			for elt in self.CleanPath: #List of paths
+				for elt2 in self.CleanPath :
+						ins = elt2.isPathInside(elt)==1
+						ident = elt2.isidentical(elt)
+						addedelt2  = elt2 in self.childrenIslands 
+						if ins and not ident and not addedelt2 :
+							self.childrenIslands.append(elt2)
+			for elt in self.CleanPath: #List of paths
+				for elt2 in self.CleanPath:
+						if not elt2 in self.childrenIslands and not elt2 in self.childrenOutpath:
+							self.childrenOutpath.append(elt2)
 
 	def getPaths(self):
 		if len (self.CleanPath)>0:
