@@ -13,6 +13,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from operator import itemgetter
+from copy import deepcopy
 from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 from Utils import to_zip
@@ -27,6 +28,8 @@ PI2   = 2.0*pi
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
 def eq(A,B,acc=EPS):
+	if A is None or B is None :
+		return False
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
 	err = acc*acc * ((abs(A[0])+abs(B[0]))**2 + \
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
@@ -244,6 +247,25 @@ class Segment:
 		else:
 			return self.extrapolatePoint(abs(dist), True)
 
+	def equals(self,other):
+		result = True
+		if not self.type == other.type :
+			return False
+		if not eq(self.A,other.A):
+			return False
+		if not eq(self.B,other.B):
+			return False
+		if hasattr(self, "C"):
+			if hasattr(other, "C"):
+				if eq(self.C,other.C):
+					return True
+				else : return False
+			else : return False
+		else :
+			if hasattr(other,"C"):
+				return False
+		return False # whats this ?
+
 	#----------------------------------------------------------------------
 	# Return a point ON the segment in the middle (= factor 0.5) or different
 	#----------------------------------------------------------------------
@@ -393,7 +415,6 @@ class Segment:
 				return -O
 			else:
 				return O
-
 	#----------------------------------------------------------------------
 	# Check if point P is on segment
 	# WARNING: this is not a robust test is used for the intersect
@@ -483,7 +504,7 @@ class Segment:
 		if t1 is None: return None,None
 		if t1<-EPS or t1>1.0+EPS:
 			P1 = None
-		elif t1<=EPS:
+		elif abs(t1)<=EPS:
 			P1 = Vector(self.A)
 		elif t1>=1.0-EPS:
 			P1 = Vector(self.B)
@@ -494,7 +515,7 @@ class Segment:
 
 		if t2<-EPS or t2>1.0+EPS:
 			P2 = None
-		elif t2<=EPS:
+		elif abs(t2)<=EPS:
 			P2 = Vector(self.A)
 		elif t2>=1.0-EPS:
 			P2 = Vector(self.B)
@@ -1497,6 +1518,78 @@ class Path(list):
 				return i
 		return None
 
+	def hasSeg(self,v):
+		for seg in self :
+			if seg.equals(v):
+				return True
+		return False
+
+	def isidentical(self,other):
+		if not len(self)== len(other):
+			return False
+		for i,seg in enumerate(self):
+			if not self[i].equals(other[i]):
+				return False
+		return True
+
+	def isOnPath(self,P):
+		mindist = float("inf")
+		for v in self:
+			d = v.distance(P)
+			if d < mindist :
+				mindist = d
+		if mindist < EPS :
+			return True
+		else : return False
+
+	def isSegInside(self,seg):
+		nbInter = 0
+		i1 = None
+		i2 = None
+		for segpath in self :
+			a,b =  segpath.intersect(seg)
+			if a is not None and not eq(a,i1) and not eq(a,i2):
+				nbInter +=1
+				i1 = a
+			if b is not None and not eq(b,i1) and not eq(b,i2):
+				 nbInter +=1
+				 i2 = a
+		if nbInter == 0:
+			result = 1 if self.isInside(seg.A) else -1
+		if nbInter == 1:
+			if self.isOnPath(seg.A):
+				if self.isOnPath(seg.B) :
+					result=0
+				else :
+					result=1 if self.isInside(seg.B) else -1
+			elif self.isOnPath(seg.B):
+				result=1 if self.isInside(seg.A) else -1
+			else :
+				result = 0
+		if nbInter >=2 :
+			if self.hasSeg(seg):
+				result =0
+			else :
+				if self.isOnPath(seg.A) and self.isOnPath(seg.B):
+					result = 1 if self.isInside(seg.midPoint()) else -1
+				else :result =-1
+		return result
+
+	def isPathInside(self,other):
+# 		print ("self",self)
+# 		print("other",other)
+		path = deepcopy(self)
+		otherpath = deepcopy(other)
+		points = path.intersectPath(otherpath)
+# 		print ("points",points)
+		inter = len(points)>0
+		if not inter :
+			inside = other.isInside(self[0].A)
+			result = 1 if inside else -1
+		else :
+			result =0
+# 		print ("result",result)
+		return result
 	#----------------------------------------------------------------------
 	# push back cycle/rotate 0..idx segments to the end
 	#----------------------------------------------------------------------
@@ -1750,3 +1843,5 @@ class Path(list):
 						except:
 							self.append(Segment(Segment.LINE, A, B))
 					A = B
+
+
