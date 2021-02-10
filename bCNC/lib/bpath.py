@@ -13,6 +13,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__  = "Vasilis.Vlachoudis@cern.ch"
 
 from operator import itemgetter
+from copy import deepcopy
 from math import atan, atan2, cos, acos, degrees, pi, sin, sqrt, floor, ceil
 from bmath import Vector, quadratic
 from Utils import to_zip
@@ -27,6 +28,8 @@ PI2   = 2.0*pi
 # Compare two Vectors if they are the same
 #------------------------------------------------------------------------------
 def eq(A,B,acc=EPS):
+	if A is None or B is None :
+		return False
 	d2  = (A[0]-B[0])**2 + (A[1]-B[1])**2
 	err = acc*acc * ((abs(A[0])+abs(B[0]))**2 + \
 		       (abs(A[1])+abs(B[1]))**2 + 1.0)
@@ -243,6 +246,28 @@ class Segment:
 			return self.extrapolatePoint(dist)
 		else:
 			return self.extrapolatePoint(abs(dist), True)
+
+	#----------------------------------------------------------------------
+	# Return True if 2 Vectors have the same type, the same A and B and the same C whenever it has a C attribute
+	#----------------------------------------------------------------------
+	def equals(self,other):
+		result = True
+		if not self.type == other.type :
+			return False
+		if not eq(self.A,other.A):
+			return False
+		if not eq(self.B,other.B):
+			return False
+		if hasattr(self, "C"):
+			if hasattr(other, "C"):
+				if eq(self.C,other.C):
+					return True
+				else : return False
+			else : return False
+		else :
+			if hasattr(other,"C"):
+				return False
+		return True 
 
 	#----------------------------------------------------------------------
 	# Return a point ON the segment in the middle (= factor 0.5) or different
@@ -483,9 +508,9 @@ class Segment:
 		if t1 is None: return None,None
 		if t1<-EPS or t1>1.0+EPS:
 			P1 = None
-		elif t1<=EPS:
+		elif abs(t1)<=EPS: #if t1 is near zero, then we are on point A
 			P1 = Vector(self.A)
-		elif t1>=1.0-EPS:
+		elif t1>=1.0-EPS:# abs(t1-1.)<=EPS ?
 			P1 = Vector(self.B)
 		else:
 			#P1 = AB*t1 + self.A
@@ -494,9 +519,9 @@ class Segment:
 
 		if t2<-EPS or t2>1.0+EPS:
 			P2 = None
-		elif t2<=EPS:
+		elif abs(t2)<=EPS:#if t2 is near zero, then we are on point A
 			P2 = Vector(self.A)
-		elif t2>=1.0-EPS:
+		elif t2>=1.0-EPS:# abs(t2-1.)<=EPS ?
 			P2 = Vector(self.B)
 		else:
 			#P2 = AB*t2 + self.A
@@ -1498,6 +1523,106 @@ class Path(list):
 		return None
 
 	#----------------------------------------------------------------------
+	# @return True if current Path contains the segment s, with the same type,A, B, and C whenever s has this attribute 
+	#----------------------------------------------------------------------
+	def hasSeg(self,s):
+		for seg in self :
+			if seg.equals(s):
+				return True
+		return False
+
+	#----------------------------------------------------------------------
+	# @return True if current Path and other have the same length, and contains all identical segments, in the same order 
+	#----------------------------------------------------------------------
+	def isidentical(self,other):
+		if not len(self)== len(other):
+			return False
+		for i,seg in enumerate(self):
+			if not self[i].equals(other[i]):
+				return False
+		return True
+
+	#----------------------------------------------------------------------
+	# @return True if distance of P to the current path is < EPS, refering to minimum distance from P to every Segment of path
+	#----------------------------------------------------------------------
+	def isOnPath(self,P):
+		mindist = float("inf")
+		for s in self:
+			d = s.distance(P)
+			if d < mindist :
+				mindist = d
+		if mindist < EPS :
+			return True
+		else : return False
+
+	#----------------------------------------------------------------------
+	# @return values 1,-1,0
+	# 1  : segment is inside path
+	# -1 : segment is outside path
+	# 0  : ambiguous : either seg is on the path, either it intersect the path
+	# First we count the intersections of seg with the path
+	# the intersections added must be different from previous found
+	# if there is no intersection (nbInter == 0) , the the segment is inside if one of its points is inside, else it is outisde
+	# if there is one single intersection(nbInter == 1), segment is inside if it has one point inisde
+	# if there are 2 ore more interesections (nbInter >=2), this is a little ambiguous, since the segment could make a chord on an arc, or could be a chord of a seg
+	# in this case, we ignore chords, and consider that if 2 points of the seg are on the path, we take the middle of the seg and check if inside or outside
+	#----------------------------------------------------------------------
+	def isSegInside(self,seg):
+		nbInter = 0
+		i1 = None
+		i2 = None
+		for segpath in self :
+			a,b =  segpath.intersect(seg)
+			if a is not None and not eq(a,i1) and not eq(a,i2):
+				nbInter +=1
+				i1 = a
+			if b is not None and not eq(b,i1) and not eq(b,i2):
+				 nbInter +=1
+				 i2 = a
+		if nbInter == 0:
+			result = 1 if self.isInside(seg.A) else -1
+		if nbInter == 1:
+			if self.isOnPath(seg.A):
+				if self.isOnPath(seg.B) :
+					result=0
+				else :
+					result=1 if self.isInside(seg.B) else -1
+			elif self.isOnPath(seg.B):
+				result=1 if self.isInside(seg.A) else -1
+			else :
+				result = 0
+		if nbInter >=2 :
+			if self.hasSeg(seg):
+				result =0
+			else :
+				if self.isOnPath(seg.A) and self.isOnPath(seg.B):
+					result = 1 if self.isInside(seg.midPoint()) else -1
+				else :result =-1
+		return result
+
+	#----------------------------------------------------------------------
+	# Checks if a path is inside another
+	# return values
+	# 1  : other is inside self
+	# -1 : other is outside self
+	# 0  : ambiguous; either paths intersect, either identical, either have common segments
+	# we count intersections between the 2 paths
+	# if they have 0 intersection, we check if one point of self is inisde other
+	# else, we consider that the case is ambiguous and return 0
+	#----------------------------------------------------------------------
+	def isPathInside(self,other):
+		path = deepcopy(self)
+		otherpath = deepcopy(other)
+		points = path.intersectPath(otherpath)
+		inter = len(points)>0
+		if not inter :
+			inside = other.isInside(self[0].A)
+			result = 1 if inside else -1
+		else :
+			result =0
+		return result
+
+	#----------------------------------------------------------------------
 	# push back cycle/rotate 0..idx segments to the end
 	#----------------------------------------------------------------------
 	def moveBack(self, idx):
@@ -1750,3 +1875,5 @@ class Path(list):
 						except:
 							self.append(Segment(Segment.LINE, A, B))
 					A = B
+
+
