@@ -71,14 +71,19 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 				path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
 			else:
 				path.name = Block.operationName(path.name, name, remove)
-
 			MyPocket = PocketIsland([path],diameter,stepover,0,islandslist)
-			newpath =  MyPocket.getfullpath()
-		if newpath:
+			newpathList =  MyPocket.getfullpath()
+			#concatenate newpath in a single list and split2contours
+			MyFullPath = Path("Pocket")
+			for path in newpathList :
+				for seg in path:
+					MyFullPath.append(seg)
+			newpathList = MyFullPath.split2contours()
+		if newpathList:
 			# remember length to shift all new blocks
 			# the are inserted before
 			before = len(newblocks)
-			undoinfo.extend(gcode.importPath(bid+1, newpath,
+			undoinfo.extend(gcode.importPath(bid+1, newpathList,
 				newblocks, True, False))
 			new = len(newblocks)-before
 			for i in range(before):
@@ -92,7 +97,7 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 	return msg
 
 class PocketIsland:
-	def __init__(self,pathlist,diameter,stepover,depth,islandslist=[]): 
+	def __init__(self,pathlist,diameter,stepover,depth,islandslist=[]):
 		self.outpaths = pathlist
 		self.islands = islandslist
 		self.diameter = diameter
@@ -102,6 +107,8 @@ class PocketIsland:
 		self.children = []
 		self.fullpath = []
 		self.depth = depth
+		self.islandG1SegList = Path("islandG1SegList")
+		self.outPathG1SegList = Path("outPathG1SegList")
 		maxdepth=100
 		import sys
 		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+100))
@@ -130,27 +137,39 @@ class PocketIsland:
 			offset = -self.diameter*self.stepover
 		self.OutOffsetPathList = []
 		for path in self.outpaths :
+			p1=p2=None
+			if len(path)>0:
+				p1 = path[0].A
 			dir = path.direction()
 			opath = path.offset(offset*float(dir))
 			opath.intersectSelf()
 			opath.removeExcluded(path, abs(offset))
 			if len(opath)>0:
+				p2 = opath[0].A
 				self.OutOffsetPathList.append(opath)
+				if self.depth >0  and p1 is not None:
+					self.outPathG1SegList.append(Segment(Segment.LINE,p1,p2))
 		self.islandOffPaths = []
 		for island in self.insideIslandList :
+			p3=p4=None
+			if len(island)>0:
+				p3 = island[0].A
 			dir = island.direction()
-			self.islandOffPaths.append(island.offset(-offset*float(dir)))
+			offIsl = island.offset(-offset*float(dir))
+			if len(offIsl)>0:
+				p4 = offIsl[0].A
+			if self.depth >0 and p3 is not None and p4 is not None :
+				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
+			self.islandOffPaths.append(offIsl)
 
 	def interesect(self):
 		self.IntersectedIslands = []
-		self.newbase = [path for path in self.OutOffsetPathList]
 		for island in self.islandOffPaths :
 			for path in self.OutOffsetPathList :
 				path.intersectPath(island)
 				island.intersectPath(path)
 			for island2 in self.islandOffPaths :
 				island.intersectPath(island2)
-			self.newbase.append(island)
 			self.IntersectedIslands.append(island)
 
 	def removeOutOfProfile(self):
@@ -203,6 +222,10 @@ class PocketIsland:
 
 	def getPaths(self):
 		if len (self.CleanPath)>0:
+			if len(self.islandG1SegList) >0 :
+				self.outPathG1SegList.extend(self.islandG1SegList)
+			if len(self.outPathG1SegList)>0:
+				self.CleanPath.append(self.outPathG1SegList)
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
 
