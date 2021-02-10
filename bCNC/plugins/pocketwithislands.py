@@ -34,13 +34,12 @@ except ImportError:
 # =============================================================================
 #==============================================================================
 
-def pocket(blocks, diameter, stepover, name,gcode,items):
+def pocket(blocks, allowG1, diameter, stepover, name,gcode,items):
 	undoinfo = []
 	msg = ""
 	newblocks = []
 
 	islandslist = []
-
 	for bid,block in enumerate(gcode.blocks):
 		if block.operationTest('island'):
 			for islandPath in gcode.toPath(bid):
@@ -71,14 +70,15 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 				path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
 			else:
 				path.name = Block.operationName(path.name, name, remove)
-			MyPocket = PocketIsland([path],diameter,stepover,0,islandslist)
+			MyPocket = PocketIsland([path],allowG1,diameter,stepover,0,islandslist)
 			newpathList =  MyPocket.getfullpath()
 			#concatenate newpath in a single list and split2contours
-			MyFullPath = Path("Pocket")
-			for path in newpathList :
-				for seg in path:
-					MyFullPath.append(seg)
-			newpathList = MyFullPath.split2contours()
+			if allowG1 :
+				MyFullPath = Path("Pocket")
+				for path in newpathList :
+					for seg in path:
+						MyFullPath.append(seg)
+				newpathList = MyFullPath.split2contours()
 		if newpathList:
 			# remember length to shift all new blocks
 			# the are inserted before
@@ -97,7 +97,7 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 	return msg
 
 class PocketIsland:
-	def __init__(self,pathlist,diameter,stepover,depth,islandslist=[]):
+	def __init__(self,pathlist,allowG1,diameter,stepover,depth,islandslist=[]):
 		self.outpaths = pathlist
 		self.islands = islandslist
 		self.diameter = diameter
@@ -109,6 +109,7 @@ class PocketIsland:
 		self.depth = depth
 		self.islandG1SegList = Path("islandG1SegList")
 		self.outPathG1SegList = Path("outPathG1SegList")
+		self.allowG1 = allowG1
 		maxdepth=100
 		import sys
 		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+100))
@@ -224,13 +225,13 @@ class PocketIsland:
 		if len (self.CleanPath)>0:
 			if len(self.islandG1SegList) >0 :
 				self.outPathG1SegList.extend(self.islandG1SegList)
-			if len(self.outPathG1SegList)>0:
+			if self.allowG1 and len(self.outPathG1SegList)>0:
 				self.CleanPath.append(self.outPathG1SegList)
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
 
 	def recurse(self):
-		pcket = PocketIsland(self.childrenOutpath,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
+		pcket = PocketIsland(self.childrenOutpath,self.allowG1,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
 		self.fullpath.extend(pcket.getfullpath())
 
 	def getfullpath(self) :
@@ -247,12 +248,14 @@ class Tool(Plugin):
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
+			("allowG1",        "bool",    True, _("allow G1 linking segments(default yes)")),
 		]
 		self.buttons.append("exe")
 	# ----------------------------------------------------------------------
 	def execute(self, app):
 		if self["endmill"]:
 			self.master["endmill"].makeCurrent(self["endmill"])
+		allowG1 = self["allowG1"]
 		name = self["name"]
 		if name=="default" or name=="": name=None
 		tool = app.tools["EndMill"]
@@ -265,7 +268,7 @@ class Tool(Plugin):
 		app.busy()
 		blocks = app.editor.getSelectedBlocks()
  
-		msg = pocket(blocks, diameter, stepover, name,gcode = app.gcode,items=app.editor.getCleanSelection())
+		msg = pocket(blocks, bool(allowG1), diameter, stepover, name,gcode = app.gcode,items=app.editor.getCleanSelection())
 		if msg:
 			tkMessageBox.showwarning(_("Open paths"),
 					_("WARNING: %s")%(msg),
