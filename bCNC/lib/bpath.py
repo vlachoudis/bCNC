@@ -247,6 +247,9 @@ class Segment:
 		else:
 			return self.extrapolatePoint(abs(dist), True)
 
+	#----------------------------------------------------------------------
+	# Return True if 2 Vectors have the same type, the same A and B and the same C whenever it has a C attribute
+	#----------------------------------------------------------------------
 	def equals(self,other):
 		result = True
 		if not self.type == other.type :
@@ -264,7 +267,7 @@ class Segment:
 		else :
 			if hasattr(other,"C"):
 				return False
-		return True # whats this ?
+		return True 
 
 	#----------------------------------------------------------------------
 	# Return a point ON the segment in the middle (= factor 0.5) or different
@@ -415,6 +418,7 @@ class Segment:
 				return -O
 			else:
 				return O
+
 	#----------------------------------------------------------------------
 	# Check if point P is on segment
 	# WARNING: this is not a robust test is used for the intersect
@@ -504,9 +508,9 @@ class Segment:
 		if t1 is None: return None,None
 		if t1<-EPS or t1>1.0+EPS:
 			P1 = None
-		elif abs(t1)<=EPS:
+		elif abs(t1)<=EPS: #if t1 is near zero, then we are on point A
 			P1 = Vector(self.A)
-		elif t1>=1.0-EPS:
+		elif t1>=1.0-EPS:# abs(t1-1.)<=EPS ?
 			P1 = Vector(self.B)
 		else:
 			#P1 = AB*t1 + self.A
@@ -515,9 +519,9 @@ class Segment:
 
 		if t2<-EPS or t2>1.0+EPS:
 			P2 = None
-		elif abs(t2)<=EPS:
+		elif abs(t2)<=EPS:#if t2 is near zero, then we are on point A
 			P2 = Vector(self.A)
-		elif t2>=1.0-EPS:
+		elif t2>=1.0-EPS:# abs(t2-1.)<=EPS ?
 			P2 = Vector(self.B)
 		else:
 			#P2 = AB*t2 + self.A
@@ -1518,12 +1522,18 @@ class Path(list):
 				return i
 		return None
 
-	def hasSeg(self,v):
+	#----------------------------------------------------------------------
+	# @return True if current Path contains the segment s, with the same type,A, B, and C whenever s has this attribute 
+	#----------------------------------------------------------------------
+	def hasSeg(self,s):
 		for seg in self :
-			if seg.equals(v):
+			if seg.equals(s):
 				return True
 		return False
 
+	#----------------------------------------------------------------------
+	# @return True if current Path and other have the same length, and contains all identical segments, in the same order 
+	#----------------------------------------------------------------------
 	def isidentical(self,other):
 		if not len(self)== len(other):
 			return False
@@ -1532,16 +1542,31 @@ class Path(list):
 				return False
 		return True
 
+	#----------------------------------------------------------------------
+	# @return True if distance of P to the current path is < EPS, refering to minimum distance from P to every Segment of path
+	#----------------------------------------------------------------------
 	def isOnPath(self,P):
 		mindist = float("inf")
-		for v in self:
-			d = v.distance(P)
+		for s in self:
+			d = s.distance(P)
 			if d < mindist :
 				mindist = d
 		if mindist < EPS :
 			return True
 		else : return False
 
+	#----------------------------------------------------------------------
+	# @return values 1,-1,0
+	# 1  : segment is inside path
+	# -1 : segment is outside path
+	# 0  : ambiguous : either seg is on the path, either it intersect the path
+	# First we count the intersections of seg with the path
+	# the intersections added must be different from previous found
+	# if there is no intersection (nbInter == 0) , the the segment is inside if one of its points is inside, else it is outisde
+	# if there is one single intersection(nbInter == 1), segment is inside if it has one point inisde
+	# if there are 2 ore more interesections (nbInter >=2), this is a little ambiguous, since the segment could make a chord on an arc, or could be a chord of a seg
+	# in this case, we ignore chords, and consider that if 2 points of the seg are on the path, we take the middle of the seg and check if inside or outside
+	#----------------------------------------------------------------------
 	def isSegInside(self,seg):
 		nbInter = 0
 		i1 = None
@@ -1575,21 +1600,28 @@ class Path(list):
 				else :result =-1
 		return result
 
+	#----------------------------------------------------------------------
+	# Checks if a path is inside another
+	# return values
+	# 1  : other is inside self
+	# -1 : other is outside self
+	# 0  : ambiguous; either paths intersect, either identical, either have common segments
+	# we count intersections between the 2 paths
+	# if they have 0 intersection, we check if one point of self is inisde other
+	# else, we consider that the case is ambiguous and return 0
+	#----------------------------------------------------------------------
 	def isPathInside(self,other):
-# 		print ("self",self)
-# 		print("other",other)
 		path = deepcopy(self)
 		otherpath = deepcopy(other)
 		points = path.intersectPath(otherpath)
-# 		print ("points",points)
 		inter = len(points)>0
 		if not inter :
 			inside = other.isInside(self[0].A)
 			result = 1 if inside else -1
 		else :
 			result =0
-# 		print ("result",result)
 		return result
+
 	#----------------------------------------------------------------------
 	# push back cycle/rotate 0..idx segments to the end
 	#----------------------------------------------------------------------

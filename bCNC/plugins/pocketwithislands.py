@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: ascii -*-
 
-# Author: @harvie Tomas Mudrunka
-# Date: 7 july 2018
+# Author: @DodoLaSaumure Pierre KLein
+# Date: 9 feb 2021
 
 from __future__ import print_function
 from __future__ import print_function
-__author__ = "@Pierre"
+__author__ = "@DodoLaSaumure  (Pierre Klein)"
 #__email__  = ""
 
 __name__ = _("PocketIsland")
@@ -35,7 +35,6 @@ except ImportError:
 #==============================================================================
 
 def pocket(blocks, diameter, stepover, name,gcode,items):
-# 	pocket2(blocks, diameter, stepover, name, nested=False,islandsSelectedOnly=True,islandsLeave=True,items=None)
 	undoinfo = []
 	msg = ""
 	newblocks = []
@@ -43,7 +42,6 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 	islandslist = []
 
 	for bid,block in enumerate(gcode.blocks):
-# 				if islandsSelectedOnly and bid not in items: continue
 		if block.operationTest('island'):
 			for islandPath in gcode.toPath(bid):
 				islandslist.append(islandPath)
@@ -74,11 +72,8 @@ def pocket(blocks, diameter, stepover, name,gcode,items):
 			else:
 				path.name = Block.operationName(path.name, name, remove)
 
-# 				newpath.extend(self._pocket2(path, -D*diameter, stepover, 0,bid,islands=islands))
 			MyPocket = PocketIsland([path],diameter,stepover,0,islandslist)
 			newpath =  MyPocket.getfullpath()
-# 			newpath=self._pocket2(path, -D*diameter, stepover, 0,islandslist=islandslist)
-# 				print ("newPath",newpath)
 		if newpath:
 			# remember length to shift all new blocks
 			# the are inserted before
@@ -120,7 +115,7 @@ class PocketIsland:
 		self.getPaths()
 		if len (self.CleanPath)>0:
 			self.recurse()
-		
+
 	def eliminateOutsideIslands(self):
 		self.insideIslandList = []
 		for island in self.islands:
@@ -135,14 +130,17 @@ class PocketIsland:
 			offset = -self.diameter*self.stepover
 		self.OutOffsetPathList = []
 		for path in self.outpaths :
-			opath = path.offset(offset)
+			dir = path.direction()
+			opath = path.offset(offset*float(dir))
 			opath.intersectSelf()
-			opath.removeExcluded(path, offset)
+			opath.removeExcluded(path, abs(offset))
 			if len(opath)>0:
 				self.OutOffsetPathList.append(opath)
 		self.islandOffPaths = []
 		for island in self.insideIslandList :
-			self.islandOffPaths.append(island.offset(-offset))
+			dir = island.direction()
+			self.islandOffPaths.append(island.offset(-offset*float(dir)))
+
 	def interesect(self):
 		self.IntersectedIslands = []
 		self.newbase = [path for path in self.OutOffsetPathList]
@@ -207,14 +205,13 @@ class PocketIsland:
 		if len (self.CleanPath)>0:
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
+
 	def recurse(self):
-# 		pcket = self.parent.PocketLayerClass(self.parent,self.childrenOutpath,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
 		pcket = PocketIsland(self.childrenOutpath,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
 		self.fullpath.extend(pcket.getfullpath())
 
 	def getfullpath(self) :
 		return self.fullpath
-
 
 
 class Tool(Plugin):
@@ -245,7 +242,6 @@ class Tool(Plugin):
 		app.busy()
 		blocks = app.editor.getSelectedBlocks()
  
-# 		app.pocket(name)
 		msg = pocket(blocks, diameter, stepover, name,gcode = app.gcode,items=app.editor.getCleanSelection())
 		if msg:
 			tkMessageBox.showwarning(_("Open paths"),
