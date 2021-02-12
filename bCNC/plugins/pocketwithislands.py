@@ -161,6 +161,8 @@ class PocketIsland:
 				p4 = offIsl[0].A
 			if self.depth >0 and p3 is not None and p4 is not None :
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
+			offIsl.intersectSelf()
+			offIsl.removeExcluded(island, abs(offset))
 			self.islandOffPaths.append(offIsl)
 
 	def interesect(self):
