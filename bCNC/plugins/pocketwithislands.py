@@ -171,13 +171,13 @@ class PocketIsland:
 		for i,seg in enumerate(self.outPathG1SegList) :
 			for path in self.islandOffPaths :
 				inside =path.isSegInside(seg)==1#outseg inside offsetislands =>pop
-				if  inside :
-					self.tmpoutG1.pop(i)
+				if  inside and seg in self.tmpoutG1:
+					self.tmpoutG1.remove(seg)
 		for i,seg in enumerate(self.islandG1SegList):
 			for path in self.OutOffsetPathList :
 				outside = path.isSegInside(seg)<1#inseg outside offsetOutpaths => pop
-				if outside:
-					self.tmpinG1.pop(i)
+				if outside and  seg in self.tmpinG1 : 
+						self.tmpinG1.remove(seg)
 		self.outPathG1SegList = self.tmpoutG1
 		self.islandG1SegList = self.tmpinG1
 
