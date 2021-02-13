@@ -104,7 +104,6 @@ class PocketIsland:
 		self.stepover = stepover
 		self.childrenIslands = []
 		self.childrenOutpath = []
-		self.children = []
 		self.fullpath = []
 		self.depth = depth
 		self.islandG1SegList = Path("islandG1SegList")
@@ -116,6 +115,7 @@ class PocketIsland:
 		if depth>maxdepth: return None
 		self.eliminateOutsideIslands()
 		self.inoutprofile()
+		self.removeOutofProfileLinkingSegs()
 		self.interesect()
 		self.removeOutOfProfile()
 		self.removeInsideIslands()
@@ -164,6 +164,22 @@ class PocketIsland:
 			offIsl.intersectSelf()
 			offIsl.removeExcluded(island, abs(offset))
 			self.islandOffPaths.append(offIsl)
+
+	def removeOutofProfileLinkingSegs(self):
+		self.tmpoutG1 = deepcopy(self.outPathG1SegList)
+		self.tmpinG1 = deepcopy(self.islandG1SegList)
+		for i,seg in enumerate(self.outPathG1SegList) :
+			for path in self.islandOffPaths :
+				inside =path.isSegInside(seg)==1#outseg inside offsetislands =>pop
+				if  inside :
+					self.tmpoutG1.pop(i)
+		for i,seg in enumerate(self.islandG1SegList):
+			for path in self.OutOffsetPathList :
+				outside = path.isSegInside(seg)<1#inseg outside offsetOutpaths => pop
+				if outside:
+					self.tmpinG1.pop(i)
+		self.outPathG1SegList = self.tmpoutG1
+		self.islandG1SegList = self.tmpinG1
 
 	def interesect(self):
 		self.IntersectedIslands = []
@@ -228,7 +244,10 @@ class PocketIsland:
 			if len(self.islandG1SegList) >0 :
 				self.outPathG1SegList.extend(self.islandG1SegList)
 			if self.allowG1 and len(self.outPathG1SegList)>0:
-				self.CleanPath.append(self.outPathG1SegList)
+				for seg in self.outPathG1SegList :
+					path = Path("SegPath")
+					path.append(seg)
+					self.CleanPath.append(path)
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
 
