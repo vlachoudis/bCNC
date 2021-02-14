@@ -39,7 +39,6 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDept
 	undoinfo = []
 	msg = ""
 	newblocks = []
-	print ( " RecursiveDepth,ProfileDir,CutDir,OverCut,",RecursiveDepth,ProfileDir,CutDir,OverCut)
 	islandslist = []
 	for bid,block in enumerate(gcode.blocks):
 		if block.operationTest('island'):
