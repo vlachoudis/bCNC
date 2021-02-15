@@ -1559,10 +1559,11 @@ class Path(list):
 		else : return False
 
 	#----------------------------------------------------------------------
-	# @return values 1,-1,0
+	# @return values 1,-1,0,2
 	# 1  : segment is inside path
 	# -1 : segment is outside path
 	# 0  : ambiguous : either seg is on the path, either it intersect the path
+	# 2  : path is empty
 	# First we count the intersections of seg with the path
 	# the intersections added must be different from previous found
 	# if there is no intersection (nbInter == 0) , the the segment is inside if one of its points is inside, else it is outisde
@@ -1571,6 +1572,8 @@ class Path(list):
 	# in this case, we ignore chords, and consider that if 2 points of the seg are on the path, we take the middle of the seg and check if inside or outside
 	#----------------------------------------------------------------------
 	def isSegInside(self,seg):
+		if len(self)==0:
+			return 2
 		nbInter = 0
 		i1 = None
 		i2 = None
