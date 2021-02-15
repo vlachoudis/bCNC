@@ -4094,7 +4094,7 @@ class GCode:
 		blocks.extend(newblocks)
 		return msg
 
-    #----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	# make a trochoidal profile on block
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list

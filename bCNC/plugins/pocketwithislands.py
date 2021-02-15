@@ -34,20 +34,37 @@ except ImportError:
 # =============================================================================
 #==============================================================================
 
-def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, CustomRecursiveDepth,
-		allowG1, diameter, stepover, name,gcode,items):
+def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, CustomRecursiveDepth,
+		ignoreIslands,
+		allowG1, diameter, stepover, name,gcode):
 	undoinfo = []
 	msg = ""
 	newblocks = []
+	allblocks = gcode.blocks
 	islandslist = []
-	for bid,block in enumerate(gcode.blocks):
-		if block.operationTest('island'):
+	outpathslist= []
+	ignoreIslandschoicedict = {
+		"Regard all islands except tabs":0,
+		"Ignore all islands":1,
+		"Regard only selected islands":2,
+		}
+	ignoreIslandschoice = ignoreIslandschoicedict.get(ignoreIslands,0)
+	for bid,block in enumerate(allblocks):#all blocks
+# 		print ("all blocks",gcode.toPath(bid))
+		if block.operationTest('island')and not block.operationTest('tab'):
+			if ignoreIslandschoice==0:
+				for islandPath in gcode.toPath(bid):
+					islandslist.append(islandPath)
+	for bid in reversed(selectedblocks):#selected blocks
+		if allblocks[bid].name() in ("Header", "Footer"): continue
+		newpath = []
+		block = allblocks[bid]
+		if block.operationTest('island')and not block.operationTest('tab') and ignoreIslandschoice==2:
 			for islandPath in gcode.toPath(bid):
 				islandslist.append(islandPath)
-	for bid in reversed(blocks):
-		if gcode.blocks[bid].name() in ("Header", "Footer"): continue
-		newpath = []
 		for path in gcode.toPath(bid):
+			print ("selected path")
+			print (path)
 			if not path.isClosed():
 				m = "Path: '%s' is OPEN"%(path.name)
 				if m not in msg:
@@ -59,23 +76,20 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, Cust
 			path.removeZeroLength(abs(diameter)/100.)
 			# Convert very small arcs to lines
 			path.convert2Lines(abs(diameter)/10.)
-
-			remove = ["cut","reverse","climb","conventional","cw","ccw","pocket"]
-			if name is None:
-				path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
-			else:
-				path.name = Block.operationName(path.name, name, remove)
-			MyPocket = PocketIsland([path],RecursiveDepth,ProfileDir,CutDir,AdditionalCut,
-								Overcuts,CustomRecursiveDepth,
-								allowG1,diameter,stepover,0,islandslist)
-			newpathList =  MyPocket.getfullpath()
-			#concatenate newpath in a single list and split2contours
-			if allowG1 :
-				MyFullPath = Path("Pocket")
-				for path in newpathList :
-					for seg in path:
-						MyFullPath.append(seg)
-				newpathList = MyFullPath.split2contours()
+			if not block.operationTest('island'):
+				outpathslist.append(path)
+		MyPocket = PocketIsland(outpathslist,RecursiveDepth,ProfileDir,CutDir,AdditionalCut,
+							Overcuts,CustomRecursiveDepth,
+							ignoreIslands,
+							allowG1,diameter,stepover,0,islandslist)
+		newpathList =  MyPocket.getfullpath()
+		#concatenate newpath in a single list and split2contours
+		if allowG1 :
+			MyFullPath = Path("Pocket")
+			for path in newpathList :
+				for seg in path:
+					MyFullPath.append(seg)
+			newpathList = MyFullPath.split2contours()
 		if newpathList:
 			# remember length to shift all new blocks
 			# the are inserted before
@@ -85,16 +99,17 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, Cust
 			new = len(newblocks)-before
 			for i in range(before):
 				newblocks[i] += new
-			gcode.blocks[bid].enable = False
+			allblocks[bid].enable = False
 	gcode.addUndo(undoinfo)
 
 	# return new blocks inside the blocks list
-	del blocks[:]
-	blocks.extend(newblocks)
+	del selectedblocks[:]
+	selectedblocks.extend(newblocks)
 	return msg
 
 class PocketIsland:
 	def __init__(self,pathlist,RecursiveDepth,ProfileDir,CutDir,AdditionalCut, Overcuts,CustomRecursiveDepth,
+				ignoreIslands,
 				allowG1,diameter,stepover,depth,islandslist=[]):
 		self.outpaths = pathlist
 		self.islands = islandslist
@@ -112,6 +127,7 @@ class PocketIsland:
 		self.depth = depth
 		self.islandG1SegList = Path("islandG1SegList")
 		self.outPathG1SegList = Path("outPathG1SegList")
+		self.ignoreIslands = ignoreIslands
 		self.allowG1 = allowG1
 		maxdepthchoice = {"Single profile":0,
 						"Custom recursive depth":int(self.CustomRecursiveDepth-1),
@@ -160,7 +176,7 @@ class PocketIsland:
 			opath = path.offset(self.profiledir*self.offset*float(direct))
 			opath.intersectSelf()
 			opath.removeExcluded(path, abs(self.offset))
-			if self.depth == 0 and self.Overcuts:
+			if self.depth == 0 and self.Overcuts :
 				opath.overcut(self.profiledir*self.offset*float(direct))
 			if len(opath)>0:
 				p2 = opath[0].A
@@ -182,10 +198,9 @@ class PocketIsland:
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
 			offIsl.intersectSelf()
 			offIsl.removeExcluded(island, abs(self.offset))
-			if self.depth == 0 and self.Overcuts:
+			if self.depth == 0 and self.Overcuts :
 				offIsl.overcut(-self.profiledir*self.offset*float(direct))
 			self.islandOffPaths.append(offIsl)
-
 
 	def removeOutofProfileLinkingSegs(self):
 		self.tmpoutG1 = deepcopy(self.outPathG1SegList)
@@ -276,6 +291,7 @@ class PocketIsland:
 	def recurse(self):
 		pcket = PocketIsland(self.childrenOutpath,self.RecursiveDepth,self.ProfileDir,
 							self.CutDir,self.AdditionalCut,self.Overcuts, self.CustomRecursiveDepth,
+							self.ignoreIslands,
 							self.allowG1,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
 		self.fullpath.extend(pcket.getfullpath())
 
@@ -294,13 +310,25 @@ class Tool(Plugin):
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
 			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth")),
+			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)")),
 			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected")),
 			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional")),
 			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile")),
 			("Overcuts"  ,         "bool" ,     False, _("Overcuts inside corners")),
-			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)")),
-			("allowG1",        "bool",    True, _("allow pocket linking segments(default yes)")),
+			("ignoreIslands",
+				"Regard all islands except tabs,Ignore all islands,Regard only selected islands",
+				"Regard all islands except tabs",_("Ignore islands)")),
+			("allowG1",        "bool",    True, _("allow pocket paths linking segments(default yes)")),
+		
 		]
+		self.help="""- Recursive depth : indicates the number of profile passes (single,custom number,full pocket)
+- Nb of contours (Custom Recursive Depth) : indicates the number of contours if custom selected
+- Profile direction : indicates the direction (inside / outside) for making profiles
+- Cut Direction,default is conventional
+- Additional cut inside profile : acts like a tool corrector inside the profile
+- Overcuts inside corners : Overcuts allow milling in the corners of a box
+- Ignore islands : Tabs are always ignored. You can select if all islands are active, none, or only selected
+		"""
 		self.buttons.append("exe")
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -312,6 +340,7 @@ class Tool(Plugin):
 		AdditionalCut=self["AdditionalCut"]
 		Overcuts = self["Overcuts"]
 		CustomRecursiveDepth=self["CustomRecursiveDepth"]
+		ignoreIslands = self["ignoreIslands"]
 		allowG1 = self["allowG1"]
 		name = self["name"]
 		if name=="default" or name=="": name=None
@@ -323,18 +352,18 @@ class Tool(Plugin):
 			stepover = 0.
 
 		app.busy()
-		blocks = app.editor.getSelectedBlocks()
- 
-		msg = pocket(blocks,RecursiveDepth,ProfileDir,CutDir,
+		selectedblocks = app.editor.getSelectedBlocks()
+		msg = pocket(selectedblocks,RecursiveDepth,ProfileDir,CutDir,
 					AdditionalCut, Overcuts,CustomRecursiveDepth,
+					ignoreIslands,
 					bool(allowG1), diameter, stepover,
-					name,gcode = app.gcode,items=app.editor.getCleanSelection())
+					name,gcode = app.gcode)
 		if msg:
 			tkMessageBox.showwarning(_("Open paths"),
 					_("WARNING: %s")%(msg),
-					parent=app)
+						parent=app)
 		app.editor.fill()
-		app.editor.selectBlocks(blocks)
+		app.editor.selectBlocks(selectedblocks)
 		app.draw()
 		app.notBusy()
 		app.setStatus(_("Generate pocket path"))
