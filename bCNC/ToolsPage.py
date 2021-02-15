@@ -995,7 +995,7 @@ class Controller(_Base):
 		_Base.__init__(self, master)
 		self.name = "Controller"
 		self.variables = [
-			("grbl_0",   "int",     10,     _("$0 Step pulse time [us]")),
+			("grbl_0",   "float",   10,     _("$0 Step pulse time [us]")),
 			("grbl_1",   "int",     25,     _("$1 Step idle delay [ms]")),
 			("grbl_2",   "int",      0,     _("$2 Step port invert [mask]")),
 			("grbl_3",   "int",      0,     _("$3 Direction port invert [mask]")),
