@@ -34,7 +34,7 @@ except ImportError:
 # =============================================================================
 #==============================================================================
 
-def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDepth,
+def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, CustomRecursiveDepth,
 		allowG1, diameter, stepover, name,gcode,items):
 	undoinfo = []
 	msg = ""
@@ -70,7 +70,8 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDept
 				path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
 			else:
 				path.name = Block.operationName(path.name, name, remove)
-			MyPocket = PocketIsland([path],RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDepth,
+			MyPocket = PocketIsland([path],RecursiveDepth,ProfileDir,CutDir,AdditionalCut,
+								Overcuts,CustomRecursiveDepth,
 								allowG1,diameter,stepover,0,islandslist)
 			newpathList =  MyPocket.getfullpath()
 			#concatenate newpath in a single list and split2contours
@@ -98,7 +99,7 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDept
 	return msg
 
 class PocketIsland:
-	def __init__(self,pathlist,RecursiveDepth,ProfileDir,CutDir,OverCut, CustomRecursiveDepth,
+	def __init__(self,pathlist,RecursiveDepth,ProfileDir,CutDir,AdditionalCut, Overcuts,CustomRecursiveDepth,
 				allowG1,diameter,stepover,depth,islandslist=[]):
 		self.outpaths = pathlist
 		self.islands = islandslist
@@ -107,12 +108,16 @@ class PocketIsland:
 		self.RecursiveDepth=RecursiveDepth
 		self.ProfileDir=ProfileDir
 		self.CutDir=CutDir
-		self.OverCut=float(OverCut)
+		self.AdditionalCut=float(AdditionalCut)
+		self.Overcuts = bool(Overcuts)
 		self.CustomRecursiveDepth=CustomRecursiveDepth
 		self.childrenIslands = []
 		self.childrenOutpath = []
 		self.fullpath = []
 		self.depth = depth
+		self.opath0List= []
+		self.ipath0List = []
+		self.overcutPath = Path("Overcuts")
 		self.islandG1SegList = Path("islandG1SegList")
 		self.outPathG1SegList = Path("outPathG1SegList")
 		self.allowG1 = allowG1
@@ -131,6 +136,7 @@ class PocketIsland:
 		if depth>maxdepth: return None
 		self.eliminateOutsideIslands()
 		self.inoutprofile()
+		self.overcutIfNeeded()
 		self.removeOutofProfileLinkingSegs()
 		self.interesect()
 		self.removeOutOfProfile()
@@ -149,9 +155,9 @@ class PocketIsland:
 
 	def inoutprofile(self):
 		if self.depth == 0:
-			offset = -self.diameter / 2.0 +self.OverCut
+			self.offset = -self.diameter / 2.0 +self.AdditionalCut
 		else:
-			offset = -self.diameter*self.stepover
+			self.offset = -self.diameter*self.stepover
 		self.OutOffsetPathList = []
 		for path in self.outpaths :
 			p1=p2=None
@@ -160,9 +166,11 @@ class PocketIsland:
 			if self.depth == 0 :
 				path.directionSet(self.selectCutDir*float(self.profiledir))
 			direct = path.direction()
-			opath = path.offset(self.profiledir*offset*float(direct))
+			opath = path.offset(self.profiledir*self.offset*float(direct))
 			opath.intersectSelf()
-			opath.removeExcluded(path, abs(offset))
+			opath.removeExcluded(path, abs(self.offset))
+			if self.depth == 0 :
+				self.opath0List.append(opath)
 			if len(opath)>0:
 				p2 = opath[0].A
 				self.OutOffsetPathList.append(opath)
@@ -176,14 +184,33 @@ class PocketIsland:
 			if self.depth == 0 :
 				island.directionSet(-self.selectCutDir*float(self.profiledir))
 			direct = island.direction()
-			offIsl = island.offset(-self.profiledir*offset*float(direct))
+			offIsl = island.offset(-self.profiledir*self.offset*float(direct))
 			if len(offIsl)>0:
 				p4 = offIsl[0].A
 			if self.depth >0 and p3 is not None and p4 is not None :
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
 			offIsl.intersectSelf()
-			offIsl.removeExcluded(island, abs(offset))
+			offIsl.removeExcluded(island, abs(self.offset))
 			self.islandOffPaths.append(offIsl)
+			if self.depth == 0 :
+				self.ipath0List.append(offIsl)
+
+	def overcutIfNeeded(self):
+		if self.Overcuts:
+			for p in self.opath0List:
+				direct = p.direction()
+				self.overcutPath.extend(p.overcut(
+					self.profiledir*
+					self.offset*
+					float(direct)
+					))
+			for p in self.ipath0List :
+				direct = p.direction()
+				self.overcutPath.extend(p.overcut(
+					-self.profiledir*
+					self.offset*
+					float(direct)
+					))
 
 	def removeOutofProfileLinkingSegs(self):
 		self.tmpoutG1 = deepcopy(self.outPathG1SegList)
@@ -268,12 +295,14 @@ class PocketIsland:
 					path = Path("SegPath")
 					path.append(seg)
 					self.CleanPath.append(path)
+			if len (self.overcutPath)>0:
+				self.CleanPath.append(self.overcutPath)
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
 
 	def recurse(self):
 		pcket = PocketIsland(self.childrenOutpath,self.RecursiveDepth,self.ProfileDir,
-							self.CutDir,self.OverCut, self.CustomRecursiveDepth,
+							self.CutDir,self.AdditionalCut,self.Overcuts, self.CustomRecursiveDepth,
 							self.allowG1,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
 		self.fullpath.extend(pcket.getfullpath())
 
@@ -294,7 +323,8 @@ class Tool(Plugin):
 			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth")),
 			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected")),
 			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional")),
-			("OverCut"  ,         "mm" ,     0., _("Overcut")),
+			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile")),
+			("Overcuts"  ,         "bool" ,     False, _("Overcuts inside corners")),
 			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)")),
 			("allowG1",        "bool",    True, _("allow pocket linking segments(default yes)")),
 		]
@@ -306,7 +336,8 @@ class Tool(Plugin):
 		RecursiveDepth=self["RecursiveDepth"]
 		ProfileDir=self["ProfileDir"]
 		CutDir=self["CutDir"]
-		OverCut=self["OverCut"]
+		AdditionalCut=self["AdditionalCut"]
+		Overcuts = self["Overcuts"]
 		CustomRecursiveDepth=self["CustomRecursiveDepth"]
 		allowG1 = self["allowG1"]
 		name = self["name"]
@@ -322,7 +353,7 @@ class Tool(Plugin):
 		blocks = app.editor.getSelectedBlocks()
  
 		msg = pocket(blocks,RecursiveDepth,ProfileDir,CutDir,
-					OverCut, CustomRecursiveDepth,
+					AdditionalCut, Overcuts,CustomRecursiveDepth,
 					bool(allowG1), diameter, stepover,
 					name,gcode = app.gcode,items=app.editor.getCleanSelection())
 		if msg:

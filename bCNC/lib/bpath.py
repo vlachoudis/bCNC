@@ -1433,6 +1433,7 @@ class Path(list):
 	# a certain distance
 	#----------------------------------------------------------------------
 	def overcut(self, offset):
+		overcuts= Path("overcuts")
 		if self.isClosed():
 			prev = self[-1]
 			Op = prev.orthogonalEnd()
@@ -1458,10 +1459,12 @@ class Path(list):
 					D *= distance
 					self.insert(i,Segment(Segment.LINE, segment.A, segment.A + D))
 					self.insert(i+1, Segment(Segment.LINE, segment.A+D, segment.A))
+					overcuts.append(Segment(Segment.LINE, segment.A, segment.A + D))
 					i += 2
 			prev = segment
 			Op = prev.orthogonalEnd()
 			i += 1
+		return overcuts
 
 	#----------------------------------------------------------------------
 	def trochovercut(self, offset, overcut, adaptative, adaptedRadius):
