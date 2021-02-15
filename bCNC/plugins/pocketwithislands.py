@@ -60,11 +60,6 @@ def pocket(blocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, Cust
 			# Convert very small arcs to lines
 			path.convert2Lines(abs(diameter)/10.)
 
-# 			path.directionSet(1) #turn path to CW (conventional when milling inside)
-
-# 			D = path.direction()
-# 			if D==0: D=1
-
 			remove = ["cut","reverse","climb","conventional","cw","ccw","pocket"]
 			if name is None:
 				path.name = Block.operationName(path.name, "pocket,conventional,cw", remove)
@@ -165,7 +160,7 @@ class PocketIsland:
 			opath = path.offset(self.profiledir*self.offset*float(direct))
 			opath.intersectSelf()
 			opath.removeExcluded(path, abs(self.offset))
-			if self.depth == 0 :
+			if self.depth == 0 and self.Overcuts:
 				opath.overcut(self.profiledir*self.offset*float(direct))
 			if len(opath)>0:
 				p2 = opath[0].A
@@ -187,7 +182,7 @@ class PocketIsland:
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
 			offIsl.intersectSelf()
 			offIsl.removeExcluded(island, abs(self.offset))
-			if self.depth == 0 :
+			if self.depth == 0 and self.Overcuts:
 				offIsl.overcut(-self.profiledir*self.offset*float(direct))
 			self.islandOffPaths.append(offIsl)
 
