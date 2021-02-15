@@ -115,9 +115,6 @@ class PocketIsland:
 		self.childrenOutpath = []
 		self.fullpath = []
 		self.depth = depth
-		self.opath0List= []
-		self.ipath0List = []
-		self.overcutPath = Path("Overcuts")
 		self.islandG1SegList = Path("islandG1SegList")
 		self.outPathG1SegList = Path("outPathG1SegList")
 		self.allowG1 = allowG1
@@ -136,7 +133,6 @@ class PocketIsland:
 		if depth>maxdepth: return None
 		self.eliminateOutsideIslands()
 		self.inoutprofile()
-		self.overcutIfNeeded()
 		self.removeOutofProfileLinkingSegs()
 		self.interesect()
 		self.removeOutOfProfile()
@@ -170,7 +166,7 @@ class PocketIsland:
 			opath.intersectSelf()
 			opath.removeExcluded(path, abs(self.offset))
 			if self.depth == 0 :
-				self.opath0List.append(opath)
+				opath.overcut(self.profiledir*self.offset*float(direct))
 			if len(opath)>0:
 				p2 = opath[0].A
 				self.OutOffsetPathList.append(opath)
@@ -191,26 +187,10 @@ class PocketIsland:
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
 			offIsl.intersectSelf()
 			offIsl.removeExcluded(island, abs(self.offset))
-			self.islandOffPaths.append(offIsl)
 			if self.depth == 0 :
-				self.ipath0List.append(offIsl)
+				offIsl.overcut(-self.profiledir*self.offset*float(direct))
+			self.islandOffPaths.append(offIsl)
 
-	def overcutIfNeeded(self):
-		if self.Overcuts:
-			for p in self.opath0List:
-				direct = p.direction()
-				self.overcutPath.extend(p.overcut(
-					self.profiledir*
-					self.offset*
-					float(direct)
-					))
-			for p in self.ipath0List :
-				direct = p.direction()
-				self.overcutPath.extend(p.overcut(
-					-self.profiledir*
-					self.offset*
-					float(direct)
-					))
 
 	def removeOutofProfileLinkingSegs(self):
 		self.tmpoutG1 = deepcopy(self.outPathG1SegList)
@@ -295,8 +275,6 @@ class PocketIsland:
 					path = Path("SegPath")
 					path.append(seg)
 					self.CleanPath.append(path)
-			if len (self.overcutPath)>0:
-				self.CleanPath.append(self.overcutPath)
 			self.fullpath.extend(self.CleanPath)
 		return self.CleanPath
 
