@@ -50,7 +50,6 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 		}
 	ignoreIslandschoice = ignoreIslandschoicedict.get(ignoreIslands,0)
 	for bid,block in enumerate(allblocks):#all blocks
-# 		print ("all blocks",gcode.toPath(bid))
 		if block.operationTest('island')and not block.operationTest('tab'):
 			if ignoreIslandschoice==0:
 				for islandPath in gcode.toPath(bid):
@@ -63,8 +62,6 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 			for islandPath in gcode.toPath(bid):
 				islandslist.append(islandPath)
 		for path in gcode.toPath(bid):
-			print ("selected path")
-			print (path)
 			if not path.isClosed():
 				m = "Path: '%s' is OPEN"%(path.name)
 				if m not in msg:
