@@ -160,8 +160,10 @@ class PocketIsland:
 	def inoutprofile(self):
 		if self.depth == 0:
 			self.offset = -self.diameter / 2.0 +self.AdditionalCut
+			self.offsetLastPass = self.offset
 		else:
 			self.offset = -self.diameter*self.stepover
+			self.offsetLastPass = -min(self.diameter*self.stepover/2.,self.diameter*0.49)
 		self.OutOffsetPathList = []
 		for path in self.outpaths :
 			p1=p2=None
@@ -170,9 +172,17 @@ class PocketIsland:
 			if self.depth == 0 :
 				path.directionSet(self.selectCutDir*float(self.profiledir))
 			direct = path.direction()
-			opath = path.offset(self.profiledir*self.offset*float(direct))
+			opathCopy = path.offset(self.profiledir*self.offset*float(direct))
+			points = opathCopy.intersectSelf()
+			opathCopy.removeExcluded(path, abs(self.offset))
+			if  len(opathCopy)>0: #there remains some path after full offset : not the last pass
+				opath = path.offset(self.profiledir*self.offset*float(direct))
+				offset = self.offset
+			else:# nothing remaining after the last pass => apply offsetLastPass
+				opath = path.offset(self.profiledir*self.offsetLastPass*float(direct))
+				offset = self.offsetLastPass
 			opath.intersectSelf()
-			opath.removeExcluded(path, abs(self.offset))
+			opath.removeExcluded(path, abs(offset))
 			if self.depth == 0 and self.Overcuts :
 				opath.overcut(self.profiledir*self.offset*float(direct))
 			if len(opath)>0:
