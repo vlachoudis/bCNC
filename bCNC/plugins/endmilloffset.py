@@ -37,7 +37,7 @@ except ImportError:
 
 def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcuts, CustomRecursiveDepth,
 		ignoreIslands,
-		allowG1, diameter, stepover, name,gcode):
+		allowG1, diameter, stepover, name,gcode,app):
 	undoinfo = []
 	msg = ""
 	newblocks = []
@@ -78,7 +78,7 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 		MyPocket = PocketIsland(outpathslist,RecursiveDepth,ProfileDir,CutDir,AdditionalCut,
 							Overcuts,CustomRecursiveDepth,
 							ignoreIslands,
-							allowG1,diameter,stepover,0,islandslist)
+							allowG1,diameter,stepover,0,app,islandslist)
 		newpathList =  MyPocket.getfullpath()
 		#concatenate newpath in a single list and split2contours
 		if allowG1 :
@@ -106,7 +106,7 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 class PocketIsland:
 	def __init__(self,pathlist,RecursiveDepth,ProfileDir,CutDir,AdditionalCut, Overcuts,CustomRecursiveDepth,
 				ignoreIslands,
-				allowG1,diameter,stepover,depth,islandslist=[]):
+				allowG1,diameter,stepover,depth,app,islandslist=[]):
 		self.outpaths = pathlist
 		self.islands = islandslist
 		self.diameter = diameter
@@ -125,6 +125,7 @@ class PocketIsland:
 		self.outPathG1SegList = Path("outPathG1SegList")
 		self.ignoreIslands = ignoreIslands
 		self.allowG1 = allowG1
+		self.app = app
 		maxdepthchoice = {"Single profile":0,
 						"Custom recursive depth":int(self.CustomRecursiveDepth-1),
 						"Full pocket":100}
@@ -136,15 +137,21 @@ class PocketIsland:
 			self.profiledir=1.#to avoid making full pockets, with full recursive depth, outside the path
 		maxdepth=maxdepthchoice.get(self.RecursiveDepth,0)
 		maxdepth = min(maxdepth,999)
-		import sys
 		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+1))
 		if depth>maxdepth: return None
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> eliminateOutsideIslands",True)
 		self.eliminateOutsideIslands()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> inoutprofile",True)
 		self.inoutprofile()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> removeOutofProfileLinkingSegs",True)
 		self.removeOutofProfileLinkingSegs()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> interesect",True)
 		self.interesect()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> removeOutOfProfile",True)
 		self.removeOutOfProfile()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> removeInsideIslands",True)
 		self.removeInsideIslands()
+		self.app.setStatus(_("Generate pocket path")+" - depth:"+str(self.depth)+" -> getNewPathAndIslands",True)
 		self.getNewPathAndIslands()
 		self.getPaths()
 		if len (self.CleanPath)>0:
@@ -307,7 +314,7 @@ class PocketIsland:
 		pcket = PocketIsland(self.childrenOutpath,self.RecursiveDepth,self.ProfileDir,
 							self.CutDir,self.AdditionalCut,self.Overcuts, self.CustomRecursiveDepth,
 							self.ignoreIslands,
-							self.allowG1,self.diameter,self.stepover,self.depth+1,self.childrenIslands)
+							self.allowG1,self.diameter,self.stepover,self.depth+1,self.app,self.childrenIslands)
 		self.fullpath.extend(pcket.getfullpath())
 
 	def getfullpath(self) :
@@ -371,7 +378,7 @@ class Tool(Plugin):
 					AdditionalCut, Overcuts,CustomRecursiveDepth,
 					ignoreIslands,
 					bool(allowG1), diameter, stepover,
-					name,gcode = app.gcode)
+					name,app.gcode,app)
 		if msg:
 			tkMessageBox.showwarning(_("Open paths"),
 					_("WARNING: %s")%(msg),
@@ -380,6 +387,6 @@ class Tool(Plugin):
 		app.editor.selectBlocks(selectedblocks)
 		app.draw()
 		app.notBusy()
-		app.setStatus(_("Generate pocket path"))
+		app.setStatus(_("Generate pocket path")+"..done")
 
 ##############################################
