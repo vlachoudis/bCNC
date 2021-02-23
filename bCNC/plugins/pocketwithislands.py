@@ -15,6 +15,7 @@ __version__ = "0.0.1"
 import math
 import os.path
 import re
+import sys
 from CNC import CNC,Block#,toPath,importPath,addUndo
 from ToolsPage import Plugin
 from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
