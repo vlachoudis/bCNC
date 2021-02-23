@@ -1330,7 +1330,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 				if tool.oneshot:
 					#print("oneshot", tool.name)
 					b = Ribbon.LabelButton(self.frame,
-						image=Utils.icons[tool.icon],
+						image=Utils.icons[tool.icon+"32"],
 						text=_(tool.name),
 						compound=TOP,
 						anchor=W,
@@ -1339,7 +1339,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 						background=Ribbon._BACKGROUND)
 				else:
 					b = Ribbon.LabelRadiobutton(self.frame,
-						image=Utils.icons[tool.icon],
+						image=Utils.icons[tool.icon+"32"],
 						text=tool.name,
 						compound=TOP,
 						anchor=W,
