@@ -324,25 +324,32 @@ class Tool(Plugin):
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
-			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth")),
-			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)max"+str(sys.getrecursionlimit()-1))),
-			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected")),
-			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional")),
-			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile")),
-			("Overcuts"  ,         "bool" ,     False, _("Overcuts inside corners")),
+			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth"), _('indicates the number of profile passes (single,custom number,full pocket)')),
+			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)max"+str(sys.getrecursionlimit()-1)), _('Nb of contours (Custom Recursive Depth) : indicates the number of contours if custom selected')),
+			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected"), _('indicates the direction (inside / outside) for making profiles')),
+			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional"), _('Cut Direction,default is conventional')),
+			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile"), _('acts like a tool corrector inside the profile')),
+			("Overcuts"  ,         "bool" ,     False, _("Overcuts inside corners"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
 			("ignoreIslands",
 				"Regard all islands except tabs,Ignore all islands,Regard only selected islands",
-				"Regard all islands except tabs",_("Ignore islands)")),
+				"Regard all islands except tabs",_("Ignore islands)"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
 			("allowG1",        "bool",    True, _("allow pocket paths linking segments(default yes)")),
 
 		]
-		self.help="""- Recursive depth : indicates the number of profile passes (single,custom number,full pocket)
-- Nb of contours (Custom Recursive Depth) : indicates the number of contours if custom selected
-- Profile direction : indicates the direction (inside / outside) for making profiles
-- Cut Direction,default is conventional
-- Additional cut inside profile : acts like a tool corrector inside the profile
-- Overcuts inside corners : Overcuts allow milling in the corners of a box
-- Ignore islands : Tabs are always ignored. You can select if all islands are active, none, or only selected
+		self.help="""This plugin offsets shapes to create toolpaths for profiling and pocketing operation.
+Shape needs to be offset by the radius of endmill to get cut correctly.
+
+Currently we have two modes.
+
+Without overcut:
+#overcut-without
+
+And with overcut:
+#overcut-with
+
+Blue is the original shape from CAD
+Turquoise is the generated toolpath
+Grey is simulation of how part will look after machining
 		"""
 		self.buttons.append("exe")
 	# ----------------------------------------------------------------------
