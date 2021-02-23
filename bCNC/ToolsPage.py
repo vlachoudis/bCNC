@@ -1321,8 +1321,40 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("Cut for the full stock thickness selected code"))
 		self.addWidget(b)
 
+		col+=1
+		# Find plugins in the plugins directory and load them
+		for group in ["CAM_Core+"]:
+			for tool in app.tools.pluginList():
+				if tool.group != group: continue
+				# ===
+				if tool.oneshot:
+					#print("oneshot", tool.name)
+					b = Ribbon.LabelButton(self.frame,
+						image=Utils.icons[tool.icon],
+						text=_(tool.name),
+						compound=TOP,
+						anchor=W,
+						command=lambda s=self,a=app,t=tool:a.tools[t.name.upper()].execute(a),
+						#command=tool.execute,
+						background=Ribbon._BACKGROUND)
+				else:
+					b = Ribbon.LabelRadiobutton(self.frame,
+						image=Utils.icons[tool.icon],
+						text=tool.name,
+						compound=TOP,
+						anchor=W,
+						variable=app.tools.active,
+						value=tool.name,
+						background=Ribbon._BACKGROUND)
+
+				b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+				tkExtra.Balloon.set(b, tool.__doc__)
+				self.addWidget(b)
+
+				col += 1
+
+
 		# ===
-		col,row=1,0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["profile32"],
 				text=_("Profile"),
@@ -1335,8 +1367,10 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		tkExtra.Balloon.set(b, _("Perform a profile operation on selected code"))
 		self.addWidget(b)
 
+
 		# ===
-		col,row=2,0
+		col+=1
+		row=0
 		b = Ribbon.LabelRadiobutton(self.frame,
 				image=Utils.icons["pocket"],
 				text=_("Pocket"),

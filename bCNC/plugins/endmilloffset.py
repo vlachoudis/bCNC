@@ -126,10 +126,10 @@ class PocketIsland:
 		self.ignoreIslands = ignoreIslands
 		self.allowG1 = allowG1
 		maxdepthchoice = {"Single profile":0,
-						"Custom recursive depth":int(self.CustomRecursiveDepth-1),
+						"Custom offset count":int(self.CustomRecursiveDepth-1),
 						"Full pocket":100}
 		profileDirChoice = {"inside":1.,"outside":-1.}
-		cutDirChoice = {"conventional milling":1.,"climbing milling":-1.}
+		cutDirChoice = {False:1.,True:-1.}
 		self.selectCutDir = cutDirChoice.get(self.CutDir,1.)
 		self.profiledir = profileDirChoice.get(self.ProfileDir,1.)
 		if self.RecursiveDepth=="Full pocket" :
@@ -315,25 +315,25 @@ class PocketIsland:
 
 
 class Tool(Plugin):
-	__doc__ = _("Generate a pocket with Inside Islands")
+	__doc__ = _("Generate a pocket or profile for selected shape (regarding islands)")
 
 	def __init__(self, master):
 		Plugin.__init__(self, master, "Offset")
-		self.icon  = "pocketisland"
-		self.group = "CAM_Core"
+		self.icon  = "offset"
+		self.group = "CAM_Core+"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
-			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth"), _('indicates the number of profile passes (single,custom number,full pocket)')),
-			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)max"+str(sys.getrecursionlimit()-1)), _('Nb of contours (Custom Recursive Depth) : indicates the number of contours if custom selected')),
-			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected"), _('indicates the direction (inside / outside) for making profiles')),
-			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional"), _('Cut Direction,default is conventional')),
-			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile"), _('acts like a tool corrector inside the profile')),
-			("Overcuts"  ,         "bool" ,     False, _("Overcuts inside corners"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
+			("RecursiveDepth","Single profile,Full pocket,Custom offset count", "Single profile",  _("Operation"), _('indicates the number of profile passes (single,custom number,full pocket)')),
+			("CustomRecursiveDepth","int",1,_("Custom offset count"), _('Number of contours (Custom offset count) : indicates the number of contours if custom selected. MAX:'+str(sys.getrecursionlimit()-1)) ),
+			("ProfileDir","inside,outside", "inside",  _("Offset side"), _('indicates the direction (inside / outside) for making profiles')),
+			("CutDir","bool", False,  _("Climb milling"), _('This can be used to switch between Conventional and Climb milling. If unsure use Convetional (default).')),
+			("AdditionalCut"  ,         "mm" ,     0., _("Additional offset (mm)"), _('acts like a tool corrector inside the profile')),
+			("Overcuts"  ,         "bool" ,     False, _("Overcut corners"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
 			("ignoreIslands",
 				"Regard all islands except tabs,Ignore all islands,Regard only selected islands",
-				"Regard all islands except tabs",_("Ignore islands)"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
-			("allowG1",        "bool",    True, _("allow pocket paths linking segments(default yes)")),
+				"Regard all islands except tabs",_("Island behaviour"), _('Tabs are always ignored. You can select if all islands are active, none, or only selected')),
+			("allowG1",        "bool",    True, _("Link segments"), _('Currently there is some weird behaviour sometimes when trying to link segments of pocket internally, so it can be disabled using this option. This workaround should be fixed and removed in future.')),
 
 		]
 		self.help="""This plugin offsets shapes to create toolpaths for profiling and pocketing operation.
