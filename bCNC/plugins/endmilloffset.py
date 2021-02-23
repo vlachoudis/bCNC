@@ -325,7 +325,7 @@ class Tool(Plugin):
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
 			("RecursiveDepth","Single profile,Full pocket,Custom offset count", "Single profile",  _("Operation"), _('indicates the number of profile passes (single,custom number,full pocket)')),
-			("CustomRecursiveDepth","int",1,_("Custom offset count"), _('Number of contours (Custom offset count) : indicates the number of contours if custom selected. MAX:'+str(sys.getrecursionlimit()-1)) ),
+			("CustomRecursiveDepth","int",2,_("Custom offset count"), _('Number of contours (Custom offset count) : indicates the number of contours if custom selected. MAX:'+str(sys.getrecursionlimit()-1)) ),
 			("ProfileDir","inside,outside", "inside",  _("Offset side"), _('indicates the direction (inside / outside) for making profiles')),
 			("CutDir","bool", False,  _("Climb milling"), _('This can be used to switch between Conventional and Climb milling. If unsure use Convetional (default).')),
 			("AdditionalCut"  ,         "mm" ,     0., _("Additional offset (mm)"), _('acts like a tool corrector inside the profile')),
