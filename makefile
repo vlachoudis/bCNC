@@ -36,3 +36,5 @@ upload:
 	#python2 setup.py sdist upload
 	python2 setup.py sdist
 	twine upload -u $(USER) dist/*
+	git tag -f pypi
+	git push -f --tags up
