@@ -68,7 +68,6 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 					if msg: msg += "\n"
 					msg += m
 				path.close()
-
 			# Remove tiny segments
 			path.removeZeroLength(abs(diameter)/100.)
 			# Convert very small arcs to lines
@@ -98,7 +97,6 @@ def pocket(selectedblocks, RecursiveDepth,ProfileDir,CutDir,AdditionalCut,Overcu
 				newblocks[i] += new
 			allblocks[bid].enable = False
 	gcode.addUndo(undoinfo)
-
 	# return new blocks inside the blocks list
 	del selectedblocks[:]
 	selectedblocks.extend(newblocks)
@@ -136,8 +134,9 @@ class PocketIsland:
 		if self.RecursiveDepth=="Full pocket" :
 			self.profiledir=1.#to avoid making full pockets, with full recursive depth, outside the path
 		maxdepth=maxdepthchoice.get(self.RecursiveDepth,0)
+		maxdepth = min(maxdepth,999)
 		import sys
-		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+10))
+		sys.setrecursionlimit(max(sys.getrecursionlimit(),maxdepth+1))
 		if depth>maxdepth: return None
 		self.eliminateOutsideIslands()
 		self.inoutprofile()
@@ -182,7 +181,11 @@ class PocketIsland:
 				opath = path.offset(self.profiledir*self.offsetLastPass*float(direct))
 				offset = self.offsetLastPass
 			opath.intersectSelf()
-			opath.removeExcluded(path, abs(offset))
+			if len (opath)>0 :
+				opath.removeExcluded(path, abs(offset))
+			opath.removeZeroLength(abs(self.diameter)/100.)
+# 			opath.removeZeroLength(abs(EPS*10.))
+			opath.convert2Lines(abs(self.diameter)/10.)
 			if self.depth == 0 and self.Overcuts :
 				opath.overcut(self.profiledir*self.offset*float(direct))
 			if len(opath)>0:
@@ -199,12 +202,16 @@ class PocketIsland:
 				island.directionSet(-self.selectCutDir*float(self.profiledir))
 			direct = island.direction()
 			offIsl = island.offset(-self.profiledir*self.offset*float(direct))
+			offIsl.intersectSelf()
+			if len(offIsl)>0 :
+				offIsl.removeExcluded(island, abs(self.offset))
+			offIsl.removeZeroLength(abs(self.diameter)/100.)
+# 			offIsl.removeZeroLength(abs(EPS*10.))
+			offIsl.convert2Lines(abs(self.diameter)/10.)
 			if len(offIsl)>0:
 				p4 = offIsl[0].A
 			if self.depth >0 and p3 is not None and p4 is not None :
 				self.islandG1SegList.append(Segment(Segment.LINE,p3,p4))
-			offIsl.intersectSelf()
-			offIsl.removeExcluded(island, abs(self.offset))
 			if self.depth == 0 and self.Overcuts :
 				offIsl.overcut(-self.profiledir*self.offset*float(direct))
 			self.islandOffPaths.append(offIsl)
@@ -317,7 +324,7 @@ class Tool(Plugin):
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
 			("RecursiveDepth","Single profile,Full pocket,Custom recursive depth", "Single profile",  _("Recursive depth")),
-			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)")),
+			("CustomRecursiveDepth","int",1,_("Nb of contours (Custom Recursive Depth)max"+str(sys.getrecursionlimit()-1))),
 			("ProfileDir","inside,outside", "inside",  _("Profile direction if profile option selected")),
 			("CutDir","conventional milling,climbing milling", "conventional milling",  _("Cut Direction,default is conventional")),
 			("AdditionalCut"  ,         "mm" ,     0., _("Additional cut inside profile")),
@@ -357,7 +364,6 @@ class Tool(Plugin):
 			stepover = tool["stepover"] / 100.0
 		except TypeError:
 			stepover = 0.
-
 		app.busy()
 		selectedblocks = app.editor.getSelectedBlocks()
 		msg = pocket(selectedblocks,RecursiveDepth,ProfileDir,CutDir,
