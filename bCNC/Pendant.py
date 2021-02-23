@@ -96,7 +96,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
 		elif page == "/state":
 			tmp = {}
-			for name in ["controller", "state", "pins", "color", "msg", "wx", "wy", "wz", "G", "OvFeed", "OvRapid", "OvSpindle"]:
+			for name in ["controller", "state", "pins", "color", "msg", "wx", "wy", "wz", "wa", "wb", "wc", "mx", "my", "mz", "ma", "mb", "mc", "G", "OvFeed", "OvRapid", "OvSpindle"]:
 				tmp[name] = CNC.vars[name]
 			contentToSend = json.dumps(tmp)
 			self.do_HEAD(200, content="text/text", cl=len(contentToSend))
