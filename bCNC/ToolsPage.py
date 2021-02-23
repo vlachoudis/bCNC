@@ -1392,40 +1392,43 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 		self.addWidget(b)
 
 		# ---
-		col += 1
-		row  = 0
+		row += 1
+		#col += 1
+		#row  = 0  #do not start new column before plugins to save space
+
 		# Find plugins in the plugins directory and load them
-		for tool in app.tools.pluginList():
-			if tool.group != "CAM": continue
-			# ===
-			if tool.oneshot:
-				#print("oneshot", tool.name)
-				b = Ribbon.LabelButton(self.frame,
-					image=Utils.icons[tool.icon],
-					text=_(tool.name),
-					compound=LEFT,
-					anchor=W,
-					command=lambda s=self,a=app,t=tool:a.tools[t.name.upper()].execute(a),
-					#command=tool.execute,
-					background=Ribbon._BACKGROUND)
-			else:
-				b = Ribbon.LabelRadiobutton(self.frame,
-					image=Utils.icons[tool.icon],
-					text=tool.name,
-					compound=LEFT,
-					anchor=W,
-					variable=app.tools.active,
-					value=tool.name,
-					background=Ribbon._BACKGROUND)
+		for group in ["CAM_Core","CAM"]:
+			for tool in app.tools.pluginList():
+				if tool.group != group: continue
+				# ===
+				if tool.oneshot:
+					#print("oneshot", tool.name)
+					b = Ribbon.LabelButton(self.frame,
+						image=Utils.icons[tool.icon],
+						text=_(tool.name),
+						compound=LEFT,
+						anchor=W,
+						command=lambda s=self,a=app,t=tool:a.tools[t.name.upper()].execute(a),
+						#command=tool.execute,
+						background=Ribbon._BACKGROUND)
+				else:
+					b = Ribbon.LabelRadiobutton(self.frame,
+						image=Utils.icons[tool.icon],
+						text=tool.name,
+						compound=LEFT,
+						anchor=W,
+						variable=app.tools.active,
+						value=tool.name,
+						background=Ribbon._BACKGROUND)
 
-			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-			tkExtra.Balloon.set(b, tool.__doc__)
-			self.addWidget(b)
+				b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+				tkExtra.Balloon.set(b, tool.__doc__)
+				self.addWidget(b)
 
-			row += 1
-			if row==3:
-				col += 1
-				row  = 0
+				row += 1
+				if row==3:
+					col += 1
+					row  = 0
 
 	#----------------------------------------------------------------------
 	def createMenu(self):

@@ -9,7 +9,7 @@ from __future__ import print_function
 __author__ = "@DodoLaSaumure  (Pierre Klein)"
 #__email__  = ""
 
-__name__ = _("PocketIsland")
+__name__ = _("Offset")
 __version__ = "0.0.1"
 
 import math
@@ -318,9 +318,9 @@ class Tool(Plugin):
 	__doc__ = _("Generate a pocket with Inside Islands")
 
 	def __init__(self, master):
-		Plugin.__init__(self, master, "PocketIsland")
+		Plugin.__init__(self, master, "Offset")
 		self.icon  = "pocketisland"
-		self.group = "Development"
+		self.group = "CAM_Core"
 		self.variables = [
 			("name",      "db" ,    "", _("Name")),
 			("endmill",   "db" ,    "", _("End Mill")),
@@ -334,7 +334,7 @@ class Tool(Plugin):
 				"Regard all islands except tabs,Ignore all islands,Regard only selected islands",
 				"Regard all islands except tabs",_("Ignore islands)")),
 			("allowG1",        "bool",    True, _("allow pocket paths linking segments(default yes)")),
-		
+
 		]
 		self.help="""- Recursive depth : indicates the number of profile passes (single,custom number,full pocket)
 - Nb of contours (Custom Recursive Depth) : indicates the number of contours if custom selected

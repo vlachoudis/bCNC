@@ -28,7 +28,7 @@ class Tool(Plugin):
 	def __init__(self, master):
 		Plugin.__init__(self, master,"DragKnife")
 		self.icon = "dragknife"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
-		self.group = "CAM"	#<<< This is the name of group that plugin belongs
+		self.group = "CAM_Core"	#<<< This is the name of group that plugin belongs
 		#self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
