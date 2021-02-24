@@ -17,8 +17,8 @@ POSPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*),([+\-]?\d*\.\d*),([+\-]?\d*\.\
 TLOPAT	  = re.compile(r"^\[(...):([+\-]?\d*\.\d*)\]$")
 DOLLARPAT = re.compile(r"^\[G\d* .*\]$")
 
-#Currently not used
-#VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
+#Only used in this file
+VARPAT    = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 
 class _GenericController:
 	def test(self):
