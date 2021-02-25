@@ -4,8 +4,6 @@ SOURCES =	bCNC/*.py \
 		bCNC/lib/*.py \
 		bCNC/lib/python_utils/*.py \
 		bCNC/lib/stl/*.py \
-		bCNC/lib/svg/*.py \
-		bCNC/lib/svg/path/*.py \
 		bCNC/plugins/*.py
 .PHONY = help
 
@@ -27,8 +25,6 @@ clean:
 	rm -f bCNC/lib/*.pyc bCNC/lib/*.pyo
 	rm -f bCNC/lib/python_utils/*.pyc bCNC/lib/python_utils/*.pyo
 	rm -f bCNC/lib/stl/*.pyc bCNC/lib/stl/*.pyo
-	rm -f bCNC/lib/svg/*.pyc bCNC/lib/svg/*.pyo
-	rm -f bCNC/lib/svg/path/*.pyc bCNC/lib/svg/path/*.pyo
 	rm -f bCNC/plugins/*.pyc bCNC/plugins/*.pyo
 
 upload:
