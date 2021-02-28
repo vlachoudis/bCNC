@@ -211,9 +211,9 @@ class SliceRemoval:
 		self.slicePathList = []
 		for p in splitList :
 			path = p.offsetClean(self.diameter/2.-self.AdditionalCut)
-			self.slicePathList.append(path)
+			self.slicePathList.extend(path)
 		while y < self.yend:
-			lineIntersect = Segment(Segment.Line,Vector(self.xstart,y),Vector(self.xend,y))
+			lineIntersect = Segment(Segment.LINE,Vector(self.xstart,y),Vector(self.xend,y))
 			PathLine = Path("line")
 			PathLine.append(lineIntersect)
 			intersectionsPoint =[]
@@ -596,7 +596,7 @@ class Tool(Plugin):
 			print ("op2")
 		if operation ==1 :
 			z = zstart
-			z = zstart/2.+zend/2.
+# 			z = zstart/2.+zend/2.
 			while z > zend:
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
@@ -612,7 +612,7 @@ class Tool(Plugin):
 						active=1
 					app.gcode.insBlocks(active, blocks, _("Rough Removal")) #<<< insert blocks over active block in the editor
 				z -= zstep
-				z=-float("inf")
+# 				z=-float("inf")
 		app.refresh()
 		app.notBusy()
 		app.setStatus(_("Path Generated")+"..done")
