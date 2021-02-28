@@ -20,7 +20,7 @@ from CNC import CNC, Block  # ,toPath,importPath,addUndo
 from ToolsPage import Plugin
 from bmath import Vector
 from bpath import EPS, eq, Path, Segment
-from Cython.Compiler.TreePath import operations
+
 
 __author__ = "@DodoLaSaumure  (Pierre Klein)"
 #__email__  = ""
@@ -138,30 +138,131 @@ class stlImporter():
 		print ("miny,maxy",self.miny,self.maxy)
 		print ("minz,maxz",self.minz,self.maxz)
 
-
+	def getSlice(self,z):
+		path = Path("slice "+str(z))
+		
+		def findIndex(p1sign,p2sign,p3sign,signToFind):
+			index = 0
+			for psign in [p1sign,p2sign,p3sign]:
+				if psign == signToFind:
+					return index
+				index +=1
+			return -1
+		
+		def getPointZero(p1,p2,z):
+			x1,y1,z1 = p1.x,p1.y,p1.z
+			x2,y2,z2 = p2.x,p2.y,p2.z
+			if z2==z1 : 
+				return None
+			t = (z-z1)/(z2-z1)
+			x = x1+t*(x2-x1)
+			y = y1+t*(y2-y1)
+			return Vector(x,y)
+		
+		for triangle in self.triangles :
+			p1sign = (triangle.p1.z-z)>0
+			p2sign = (triangle.p2.z-z)>0
+			p3sign = (triangle.p3.z-z)>0
+			activeTriangle = (p1sign^p2sign)or (p1sign^p3sign)  or (p2sign^p3sign)
+			signToFind = not ((p1sign and p2sign) or (p1sign and p3sign) or (p2sign and p3sign) )
+			isZero = triangle.p1.z-z==0 or triangle.p2.z-z==0 or triangle.p3.z-z==0
+			index = -1
+			if activeTriangle and not isZero:
+				index=findIndex(p1sign,p2sign,p3sign,signToFind)
+			q1q2q3 = None
+			if index>= 0:
+				q1q2q3 = [[triangle.p1,triangle.p2,triangle.p3][index]]
+				for i in range(3):
+					if not i == index:
+						q1q2q3.append([triangle.p1,triangle.p2,triangle.p3][i])
+			if q1q2q3 is not None :
+				[q1,q2,q3]=q1q2q3
+				r1=getPointZero(q1,q2,z)
+				r2=getPointZero(q1,q3,z)
+				if r1 is not None and r2 is not None:
+					segm = Segment(Segment.LINE,r1,r2)
+					if segm.length() > 0 :
+						path.append(segm)
+		return path
+		
 class SliceRemoval:
-	def __init__(self,stlObj,xstart,xend,ystart,yend,zstart,zend,zstep,toolStep,direction,AdditionalCut):
+	def __init__(self,stlObj,xstart,xend,ystart,yend,
+				z,toolStep,direction,AdditionalCut,diameter):
 		self.stlObj = stlObj
 		self.xstart = xstart
 		self.xend = xend
 		self.ystart = ystart
 		self.yend = yend
-		self.zstart = zstart
-		self.zend = zend
+		self.z = z
 		self.toolStep = toolStep
 		self.direction = direction
-		self.zstep = zstep
 		self.AdditionalCut = AdditionalCut
-# 		self.sliceRemoveX(zstart/2.+zend/2.):
+		self.diameter = diameter
+		self.sliceRemoveX(z)
+		
+	def getpathList(self):
+		return self.slicePathList
+	
 	def sliceRemoveX(self,height):
 		y = self.ystart
 		z= height
-		slices = self.stlObj.getSlices(z)
+		slicePath = self.stlObj.getSlice(z)
+		splitList = slicePath.split2contours()
+		self.slicePathList = []
+		for p in splitList :
+			path = p.offsetClean(self.diameter/2.-self.AdditionalCut)
+			self.slicePathList.append(path)
 		while y < self.yend:
-# 			operations
-			y+self.toolStep
+			lineIntersect = Segment(Segment.Line,Vector(self.xstart,y),Vector(self.xend,y))
+			PathLine = Path("line")
+			PathLine.append(lineIntersect)
+			intersectionsPoint =[]
+			for path in self.slicePathList :
+				inter = path.intersectPath(PathLine)
+				intersectionsPoint.extend(inter)
+# 			do operations
+			y+=self.toolStep
 			y=min(y,self.yend)
+
+	def reorderpath(self):
+		pathcopy = deepcopy(self.path)
+		print ("len",len(self.path))
+		newpathsList = []
+		last = None
+		tmpPath = Path("Reordered Path")
+		
+		def findMatchingSegment(path,segToFind):
+			for seg in path:
+				if seg.A == segToFind.B and seg.B != segToFind.A:
+					newseg =Segment(Segment.LINE,segToFind.B,seg.B)
+					return [newseg,seg]
+				elif seg.B == segToFind.B and seg.A != segToFind.A :
+					newseg= Segment(Segment.LINE,segToFind.B,seg.A)
+					return [newseg,seg]
+			return [None,segToFind]
+		
+		while len(pathcopy)>0: #Check we have treated all segments
+			if last is None :
+				last = pathcopy[0]
+			findSeg = True
+			while findSeg :
+				[newseg,oldseg] = findMatchingSegment(pathcopy, last)
+				if newseg is not None :
+					tmpPath.append(newseg)
+					pathcopy.remove(oldseg)
+					last = newseg
+					findSeg = True
+				else :
+					if len(tmpPath)>0:
+						newpathsList.append(tmpPath)
+					if last in pathcopy:
+						pathcopy.remove(last)
+					findSeg = False
+					last = None
+					tmpPath = Path("Reordered Path")
+		return newpathsList
 			
+		
 class Vecteur():
 	def __init__(self,coordsTuple=None):
 		if coordsTuple is None :
@@ -278,6 +379,8 @@ class Point3D():
 		[self.x,self.y,self.z]=coordsTuple
 	def __str__(self):
 		return "Point3D [x=%2f,y=%2f,z=%2f]"%(self.x,self.y,self.z)
+	def __repr__(self):
+		return self.__str__()
 	def Vect(self,P2):
 		return Vecteur([P2.x-self.x,P2.y-self.y,P2.z-self.z])
 	def scale(self,scale):
@@ -399,10 +502,10 @@ class Tool(Plugin):
 			("name"    ,    "db" ,    "", _("Name")),
 			("file"    ,    "file" ,    "", _(".STL binary file to slice"), "What file to slice"),
 			("endmill",   "db" ,    "", _("End Mill")),
-			("marginxlow"    ,    "float" ,    10., _("max x additional bound to model"), "x max additional bound"),
-			("marginxhigh"    ,    "float" ,    10., _("min x additional bound to model"), "x min additional bound"),
-			("marginylow"    ,    "float" ,    10., _("max y additional bound to model"), "y max additional bound"),
-			("marginyhihgh"    ,    "float" ,    10., _("min y additional bound to model"), "y min additional bound"),
+			("marginxlow"    ,    "mm" ,    10., _("max x additional bound to model"), "x max additional bound"),
+			("marginxhigh"    ,    "mm" ,    10., _("min x additional bound to model"), "x min additional bound"),
+			("marginylow"    ,    "mm" ,    10., _("max y additional bound to model"), "y max additional bound"),
+			("marginyhihgh"    ,    "mm" ,    10., _("min y additional bound to model"), "y min additional bound"),
 			("marginZHigh"    ,    "mm" ,    1., _("max Z height mm above model"), "Height to start slicing"),
 			("marginZlow"    ,    "mm" ,   0., _("min Z height mm under model"), "Height to stop slicing"),
 			("xoff"  ,    "bool" ,    True, _("Set xmin to Zero"), "This will place the xmin bound to zero"),
@@ -410,10 +513,10 @@ class Tool(Plugin):
 			("zoff"  ,    "bool" ,    True, _("Set Zmax to Zero"), "This will place the higher point of bound to zero"),
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
 			("scale"    ,    "float" ,    1,_("scale factor"), "Size will be multiplied by this factor"),
-			("zstep"    ,    "mm" ,    0.1, _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
+			("zstep"    ,    "mm" ,    3., _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
 			("AdditionalCut"  ,         "mm" ,     0., _("Additional offset (mm)"), _('acts like a tool corrector inside the material')),
-			("operation","1-Slice removal(cylindrical nose),2-Slice finish(Cylindrical nose),3-Surface removal(ball nose),4-Surface finish(ball nose)",
-			"Slice removal(cylindrical nose)",_("Operation Type"),"choose your operation here")
+			("operation","1-Rough Slice removal(cylindrical nose),2-Finish Surface removal (ball nose)",
+			"1-Rough Slice removal(cylindrical nose)",_("Operation Type"),"choose your operation here")
 			]
 		self.help = '''This plugin can slice meshes'''
 		self.buttons.append("exe")
@@ -430,6 +533,7 @@ class Tool(Plugin):
 		self.dial.destroy()
 	def execute(self, app):
 		self.app = app
+		self.name = self["name"]
 		file = self["file"]
 		tool = app.tools["EndMill"]
 		diameter = app.tools.fromMm(tool["diameter"])
@@ -482,16 +586,33 @@ class Tool(Plugin):
 		print("yend",yend)
 		print("zstart",zstart)
 		print("zend",zend)
-		dictoperation = 			{"1-Slice removal(cylindrical nose)":1,
-									"2-Slice finish(Cylindrical nose)":2,
-									"3-Surface removal(ball nose)":3,
-									"4-Surface finish(ball nose)":4,
+		dictoperation = 			{"1-Rough Slice removal(cylindrical nose)":1,
+									"2-Finish Surface removal (ball nose)":2,
 									}
 		operation = dictoperation.get(self["operation"],1)
+		gcode = app.gcode
+		blocks  = []
+		if operation == 2 :
+			print ("op2")
 		if operation ==1 :
-			sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,zstart,zend,zstep,toolStep,direction,AdditionalCut)
-		
-		
-# 		app.draw()
+			z = zstart
+			z = zstart/2.+zend/2.
+			while z > zend:
+				app.setStatus(_("Making slice...z=")+str(z),True)
+				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
+										z,toolStep,direction,AdditionalCut,diameter)
+				pathlist = sliceremoval.getpathList()#.split2contours()
+				if len(pathlist)>0:
+					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
+					block = Block("Rough removal")
+					block.extend(newblocks)
+					blocks.append(block)
+					active = app.activeBlock()
+					if active==0:
+						active=1
+					app.gcode.insBlocks(active, blocks, _("Rough Removal")) #<<< insert blocks over active block in the editor
+				z -= zstep
+				z=-float("inf")
+		app.refresh()
 		app.notBusy()
 		app.setStatus(_("Path Generated")+"..done")
