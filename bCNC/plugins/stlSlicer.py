@@ -200,29 +200,59 @@ class SliceRemoval:
 		self.diameter = diameter
 		self.sliceRemoveX(z)
 		
-	def getpathList(self):
-		return self.slicePathList
-	
+	def getpathListSliceFine(self):
+		return self.sliceFinePathList
+	def getpathListSliceRough(self):
+		return self.FullPathRoughList
 	def sliceRemoveX(self,height):
 		y = self.ystart
 		z= height
 		slicePath = self.stlObj.getSlice(z)
 		splitList = slicePath.split2contours()
-		self.slicePathList = []
+		self.sliceFinePathList = []
 		for p in splitList :
 			path = p.offsetClean(self.diameter/2.-self.AdditionalCut)
-			self.slicePathList.extend(path)
+			self.sliceFinePathList.extend(path)
+		even = False
+		self.FullPathRoughList = []
 		while y < self.yend:
-			lineIntersect = Segment(Segment.LINE,Vector(self.xstart,y),Vector(self.xend,y))
-			PathLine = Path("line")
-			PathLine.append(lineIntersect)
-			intersectionsPoint =[]
-			for path in self.slicePathList :
-				inter = path.intersectPath(PathLine)
-				intersectionsPoint.extend(inter)
-# 			do operations
+			even = not even
+			xstart = self.xstart if even else self.xend
+			xend = self.xend if even else self.xstart
+			lineIntersect = Segment(Segment.LINE,Vector(xstart,y),Vector(xend,y))
+			self.PathSliceRoughList = []
+			self.tmpSlicePath = Path("tmp")
+			self.PathLineIntersect = Path("line intersect")
+			self.PathLineIntersect.append(lineIntersect)
+			intersectionsPoints =[]
+			for path in self.sliceFinePathList :
+				inter = path.intersectPath(self.PathLineIntersect)
+				for point in inter:
+					intersectionsPoints.append(point[2])
+			liste = sorted(intersectionsPoints, key=lambda point: point[0],reverse = not even)
+			currentx = xstart
+			index = -1
+			for point in liste :
+				index +=1
+# 				if index %2 ==0:
+				if True:
+					segment = Segment(Segment.LINE,Vector(currentx,y),Vector(point[0],y))
+					if segment.length()>0:
+						if index %2 ==0:
+							self.tmpSlicePath.append(segment)
+					if index %2 ==0:
+						self.PathSliceRoughList.append(self.tmpSlicePath)
+						self.tmpSlicePath = Path("tmp")
+				currentx = point[0]
+			segment = Segment(Segment.LINE,Vector(currentx,y),Vector(xend,y))
+			self.tmpSlicePath.append(segment)
+			segment = Segment(Segment.LINE,Vector(xend,y),Vector(xend,y+self.toolStep))
+			if y +self.toolStep < self.yend :
+				self.tmpSlicePath.append(segment)
 			y+=self.toolStep
 			y=min(y,self.yend)
+			self.PathSliceRoughList.append(self.tmpSlicePath)
+			self.FullPathRoughList.append(self.PathSliceRoughList)
 
 	def reorderpath(self):
 		pathcopy = deepcopy(self.path)
@@ -512,8 +542,8 @@ class Tool(Plugin):
 			("yoff"  ,    "bool" ,    True, _("Set ymin to Zero"), "This will place the ymin bound to zero"),
 			("zoff"  ,    "bool" ,    True, _("Set Zmax to Zero"), "This will place the higher point of bound to zero"),
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
-			("scale"    ,    "float" ,    1,_("scale factor"), "Size will be multiplied by this factor"),
-			("zstep"    ,    "mm" ,    3., _("layer height (0 = only single zmin)"), "Distance between layers of slices"),
+			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
+			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
 			("AdditionalCut"  ,         "mm" ,     0., _("Additional offset (mm)"), _('acts like a tool corrector inside the material')),
 			("operation","1-Rough Slice removal(cylindrical nose),2-Finish Surface removal (ball nose)",
 			"1-Rough Slice removal(cylindrical nose)",_("Operation Type"),"choose your operation here")
@@ -591,20 +621,21 @@ class Tool(Plugin):
 									}
 		operation = dictoperation.get(self["operation"],1)
 		gcode = app.gcode
-		blocks  = []
+		
 		if operation == 2 :
 			print ("op2")
 		if operation ==1 :
 			z = zstart
 # 			z = zstart/2.+zend/2.
 			while z > zend:
+				blocks  = []
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
 										z,toolStep,direction,AdditionalCut,diameter)
-				pathlist = sliceremoval.getpathList()#.split2contours()
+				pathlist = sliceremoval.getpathListSliceRough()#.split2contours()
 				if len(pathlist)>0:
 					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
-					block = Block("Rough removal")
+					block = Block("Rough removal z="+str(z))
 					block.extend(newblocks)
 					blocks.append(block)
 					active = app.activeBlock()
