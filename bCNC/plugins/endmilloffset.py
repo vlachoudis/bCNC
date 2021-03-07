@@ -161,7 +161,7 @@ class PocketIsland:
 		self.insideIslandList = []
 		for island in self.islands:
 			for path in self.outpaths :
-				if island.isPathInside(path)>=0:
+				if path.isPathInside(island)>=0:
 					self.insideIslandList.append(island)
 
 	def inoutprofile(self):
@@ -288,7 +288,7 @@ class PocketIsland:
 		else :
 			for elt in self.CleanPath: #List of paths
 				for elt2 in self.CleanPath :
-						ins = elt2.isPathInside(elt)==1
+						ins = elt.isPathInside(elt2)==1
 						ident = elt2.isidentical(elt)
 						addedelt2  = elt2 in self.childrenIslands 
 						if ins and not ident and not addedelt2 :

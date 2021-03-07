@@ -475,10 +475,10 @@ class Segment:
 
 		Dt = -(other.A[0]-self.A[0])*other.AB[1] + \
 		      (other.A[1]-self.A[1])*other.AB[0]
-		t = Dt/DD
-		P = self.AB*t + self.A
+		t = Dt/DD #is this sure ? we have sin(AC,CM) / sin(AB,CD)
+		P = self.AB*t + self.A # is this sure in all cases ?
 		if self.minx<=P[0]<=self.maxx and other.minx<=P[0]<=other.maxx and \
-		   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:
+		   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:#is this sure??? what does a<=x<=b return ? Should't we write a<=x and x<=b instead ?
 			return P,None
 		return None,None
 
@@ -575,7 +575,6 @@ class Segment:
 		# intersect their bounding boxes
 		if max(self.minx,other.minx) > min(self.maxx,other.maxx): return None,None
 		if max(self.miny,other.miny) > min(self.maxy,other.maxy): return None,None
-
 		if self.type==Segment.LINE and other.type==Segment.LINE:
 			return self._intersectLineLine(other)
 
@@ -1065,11 +1064,12 @@ class Path(list):
 	def isInside(self, P):
 		#print "P=",P
 		#minx,miny,maxx,maxy = self.bbox()
-		maxx = self.bbox()[2]
+		maxx,maxy = self.bbox()[2],self.bbox()[3]
 		#print "limits:",minx,miny,maxx,maxy
 		#FIXME: this is strange. adding +1000 to line endpoint changes the outcome of method
 		#	i've found that doing this works around some unknown problem in most cases, but it's not really ideal solution
-		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]+1000))
+# 		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]+1000))
+		line = Segment(Segment.LINE, P, Vector(maxx*1.1, maxy*1.1))
 		count = 0
 		PP1 = None	# previous points to avoid double counting
 		PP2 = None
@@ -1583,8 +1583,8 @@ class Path(list):
 				nbInter +=1
 				i1 = a
 			if b is not None and not eq(b,i1) and not eq(b,i2):
-				 nbInter +=1
-				 i2 = a
+				nbInter +=1
+				i2 = b
 		if nbInter == 0:
 			result = 1 if self.isInside(seg.A) else -1
 		if nbInter == 1:
@@ -1617,12 +1617,15 @@ class Path(list):
 	# else, we consider that the case is ambiguous and return 0
 	#----------------------------------------------------------------------
 	def isPathInside(self,other):
+		if len(self)==0:
+			return -1
 		path = deepcopy(self)
 		otherpath = deepcopy(other)
 		points = path.intersectPath(otherpath)
 		inter = len(points)>0
 		if not inter :
-			inside = other.isInside(self[0].A)
+# 			inside = other.isInside(self[0].A,verbose = verbose)
+			inside = self.isInside(other[0].A)
 			result = 1 if inside else -1
 		else :
 			result =0
