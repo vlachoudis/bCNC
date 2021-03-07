@@ -223,7 +223,8 @@ class SliceRemoval:
 		for p in splitList :
 			path = p.offsetClean(self.diameter/2.-self.AdditionalCut)
 			for p in path:
-				p.convert2Lines(float("inf"))
+# 				p.convert2Lines(float("inf"))
+				p.convert2Lines(self.diameter/10.)
 			self.sliceFinePathList.extend(path)
 		if RawSliceOperation:
 			self.RawSlicePathList = deepcopy(self.sliceFinePathList)
