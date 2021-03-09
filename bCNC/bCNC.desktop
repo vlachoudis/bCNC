@@ -5,6 +5,7 @@ Name=bCNC
 Comment=bCNC Controller
 Exec=bCNC
 Icon=bCNC.png
+Keywords=CNC;PCB;
 Path=
 Terminal=true
 StartupNotify=false
