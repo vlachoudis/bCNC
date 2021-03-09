@@ -1,0 +1,65 @@
+.TH BCNC "1" "March 2021" "bCNC" "User Commands"
+.SH NAME
+bCNC \- GRBL CNC command sender, autoleveler and g-code editor
+.SH SYNOPSIS
+.B bCNC
+[\fI\,OPTIONS\/\fR]... [\fI\,FILENAME\/\fR]
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+GrblHAL (formerly GRBL) CNC command sender, autoleveler, g-code editor,
+digitizer, CAM and swiss army knife for all your CNC needs.
+.PP
+An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a
+cross platform program (Windows, Linux, Mac) written in python. The sender is
+robust and fast able to work nicely with old or slow hardware like Raspberry Pi
+(As it was validated by the GRBL maintainer on heavy testing).
+.PP
+.TP
+\fB\-b, \-\-baud\fR
+set the baud rate
+.TP
+\fB\-d\fR
+enable developer features
+.TP
+\fB\-D\fR
+disable developer features
+.TP
+\fB\-f, \-\-fullscreen\fR
+enable fullscreen mode
+.TP
+\fB\-g\fR <geometry>
+set the default geometry
+.TP
+\fB\-h, \-?, \-\-help\fR
+show a help page
+.TP
+\fB\-i, \-\-ini\fR <file>
+alternative ini file for testing
+.TP
+\fB\-l, \-\-list\fR
+list all recently opened files
+.TP
+\fB\-p, \-\-pendant\fR <port>
+open pendant to specified port
+.TP
+\fB\-P\fR
+do not start pendant
+.TP
+\fB\-r, \-\-recent\fR
+load the most recent file opened
+.TP
+\fB\-R\fR <arg>
+load the recent file matching the argument
+.TP
+\fB\-s, \-\-serial\fR <port>
+open serial port specified
+.TP
+\fB\-S\fR
+do not open serial port
+.TP
+\fB\-\-run\fR
+directly run the file once loaded
+
+.SH "REPORTING BUGS"
+Report bugs to  <https://github.com/vlachoudis/bCNC/issues>
