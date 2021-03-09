@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: ascii -*-
 
 # Author: @DodoLaSaumure Pierre KLein

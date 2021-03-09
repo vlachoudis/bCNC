@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: ascii -*-
 # $Id$
 #
