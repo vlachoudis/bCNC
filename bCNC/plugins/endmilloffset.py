@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: ascii -*-
+#!/usr/bin/env python3
 
 # Author: @DodoLaSaumure Pierre KLein
 # Date: 9 feb 2021

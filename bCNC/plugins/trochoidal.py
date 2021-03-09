@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: ascii -*-
+#!/usr/bin/env python3
 
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018

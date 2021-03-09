@@ -20,8 +20,7 @@
 # OF CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT
 # LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-#!/usr/bin/python
-# -*- coding: ascii -*-
+#!/usr/bin/env python3
 
 # Author: Mario Basz
 # mariob_1960@yahoo.com.ar

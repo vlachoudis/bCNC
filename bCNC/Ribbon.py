@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 #
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015

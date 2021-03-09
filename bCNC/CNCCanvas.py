@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 # $Id: CNCCanvas.py,v 1.7 2014/10/15 15:04:06 bnv Exp $
 #
 # Author:       vvlachoudis@gmail.com

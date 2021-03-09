@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 # $Id: CNC.py,v 1.8 2014/10/15 15:03:49 bnv Exp $
 #
 # Author: vvlachoudis@gmail.com

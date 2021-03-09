@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: ascii -*-
+#!/usr/bin/env python3
 # $Id: bCNC.py,v 1.6 2014/10/15 15:04:48 bnv Exp bnv $
 #
 # Author: Vasilis Vlachoudis

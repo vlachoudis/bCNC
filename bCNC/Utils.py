@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 # $Id$
 #
 # Author: Vasilis Vlachoudis

@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: ascii -*-
+#!/usr/bin/env python3
 #
 # Copyright and User License
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
