@@ -14,8 +14,8 @@ __email__  = "f.rivato@gmail.com"
 __name__ = _("Driller")
 __version__= "0.0.10"
 
-#import os.path
-#import re
+import os.path
+import re
 import math
 from collections import OrderedDict
 from CNC import CNC, Block
@@ -58,12 +58,11 @@ class Tool(Plugin):
 		#self.help = "Plugin: Driller\n"
 
 	# Excellon Coordsconvert
-	def coord2float(self, text, unitinch):
+	def coord2float(self, text, unitinch, decimals = 0.001):
 		if '.' in text: return float(text)
 		if unitinch==True: return float(text)*0.0001
 		# Unit mm
-		if len(text)==(6 if text[0]=='-' else 5): return int(text)*0.01
-		if len(text)==(7 if text[0]=='-' else 6): return int(text)*0.001
+		return int(text)*decimals #modified to read the number of decimals from file
 
 	# Convert to systemsetting
 	def convunit(self, value, unitinch):
@@ -87,7 +86,9 @@ class Tool(Plugin):
 					# Read header
 					if line=="M48": header = True
 					if header==True:
-						if (line.startswith("INCH") or line.startswith("METRIC")): unitinch = line.startswith("INCH")
+						if (line.startswith("INCH") or line.startswith("METRIC")): 
+							unitinch = line.startswith("INCH")
+							decimals = 0.1**len(line[line.index('.'):-1]) #calculates the multiplier for decimal places
 						if (line=="M95" or line=="%"): header = False
 						if line[0]=="T":
 							# Tools
@@ -99,8 +100,8 @@ class Tool(Plugin):
 						if line[0]=="X":
 							m = re.match(r'X([\d\.-]+)Y([\d\.-]+)',line)
 							# Convert to system
-							x = self.convunit( self.coord2float(m.group(1), unitinch), unitinch)
-							y = self.convunit( self.coord2float(m.group(2), unitinch), unitinch)
+							x = self.convunit( self.coord2float(m.group(1), unitinch, decimals), unitinch)
+							y = self.convunit( self.coord2float(m.group(2), unitinch, decimals), unitinch)
 							if incrementcoord==True:
 								if len(data["tools"][current_tool]["holes"])==0:
 									prevx = 0
@@ -123,6 +124,8 @@ class Tool(Plugin):
 			blockholes = [data["tools"][tool]["holes"]]
 			block,holesCount = self.create_block(blockholes ,n+" ("+str(dia)+" "+unittext+")")
 			holesCounter = holesCounter+holesCount
+			if not CNC.lasercutter:
+				block.insert(0, "M6 T"+str(dia).replace('.', '')) #added a tool change command
 			blocks.append(block)
 
 		self.finish_blocks(app, blocks, holesCounter)
@@ -358,7 +361,7 @@ class Tool(Plugin):
 					block.append("G1 S%s" % (self.spinMax))
 					block.append(CNC.gline(x=xH, y=yH))
 				else:
-					block.append(CNC.zenter(zH + targetDepth))
+					block.append(CNC.zenter(targetDepth))
 
 				# Dwell time only on last pass
 				if dwell != 0:
@@ -383,4 +386,3 @@ class Tool(Plugin):
 		app.gcode.insBlocks(active, blocks, "Driller")
 		app.refresh()
 		app.setStatus(_("Generated Driller: %d holes")%numberholes)
-
