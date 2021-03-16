@@ -8,6 +8,8 @@ from CNC import CNC
 import time
 import Utils
 
+OV_JOG_CANCEL	= chr(0x85)
+
 OV_FEED_100     = chr(0x90)        # Extended override commands
 OV_FEED_i10     = chr(0x91)
 OV_FEED_d10     = chr(0x92)
@@ -38,7 +40,13 @@ class Controller(_GenericGRBL):
 		#print("grbl1 loaded")
 
 	def jog(self, dir):
-		self.master.sendGCode("$J=G91 %s F100000"%(dir)) # XXX is F100000 correct?
+		self.master.sendGCode("$J=G91 %s F100000"%(dir))
+
+	def cjog(self, dir, feed):
+		self.master.sendGCode("$J=G91 %s F%d"%(dir, float(feed)))
+
+	def cjogcancel(self):
+		self.master.serial_write(OV_JOG_CANCEL)
 
 	def overrideSet(self):
 		CNC.vars["_OvChanged"] = False	# Temporary

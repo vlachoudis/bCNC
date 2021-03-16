@@ -1778,6 +1778,276 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 		self.sendGCode("G0Z0")
 
 #===============================================================================
+# continuousControlFrame
+#===============================================================================
+class continuousControlFrame(CNCRibbon.PageExLabelFrame):
+	def __init__(self, master, app):
+		CNCRibbon.PageExLabelFrame.__init__(self, master, "continuousControl", _("continuousControl"), app)
+
+		try:
+			jograte = float(Utils.config.get("continuousControl", "jograte"))
+		except:
+			jograte = 100.0
+
+		frame = Frame(self())
+		frame.pack(side=TOP, fill=X)
+
+		row, col = 0, 0
+		Label(frame, text=_("Z")).grid(row=row, column=col)
+
+		col += 4
+		Label(frame, text=_("Y")).grid(row=row, column=col)
+
+		col += 2
+		Label(frame, text=_("Jog Rate")).grid(row=row, column=col)
+
+		# ---
+		row += 1
+		col = 0
+
+		width = 3
+		height = 2
+
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					StartCommand=self.moveZup,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +Z"))
+		self.addWidget(b)
+
+		col += 3
+
+		b = tkExtra.TimedButton(frame, text=Unicode.UPPER_LEFT_TRIANGLE,
+					StartCommand=self.moveXdownYup,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -X +Y"))
+		self.addWidget(b)
+
+		col += 1
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					StartCommand=self.moveYup,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +Y"))
+		self.addWidget(b)
+
+		col += 1
+		b = tkExtra.TimedButton(frame, text=Unicode.UPPER_RIGHT_TRIANGLE,
+				StartCommand=self.moveXupYup,
+				command=self.jogcancel,
+				width=width, height=height,
+				activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +X +Y"))
+		self.addWidget(b)
+
+		col += 3
+		self.jogScaleValue = DoubleVar()
+		self.jogScale = Scale(frame,
+				variable=self.jogScaleValue,
+				resolution=0.001,
+				from_= 0.0,
+				to=math.log10(max(CNC.feedmax_x, CNC.feedmax_y, CNC.feedmax_z)),
+				orient="vertical",
+				showvalue=0,
+				command=self.setjogValue)
+		self.jogScale.grid(row=row, column=col, rowspan=3, sticky=NS)
+		self.jogScale.set(math.log10(jograte))
+		tkExtra.Balloon.set(self.jogScale, _("jog feed rate"))
+		self.addWidget(self.jogScale)
+
+		# ---
+		row += 1
+
+		# --
+		col = 2
+		Label(frame, text=_("X"), width=4).grid(row=row, column=col, sticky=E)
+
+		col += 1
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
+				StartCommand=self.moveXdown,
+				command=self.jogcancel,
+				width=width, height=height,
+				activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -X"))
+		self.addWidget(b)
+
+		col += 2
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+					StartCommand=self.moveXup,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +X"))
+		self.addWidget(b)
+
+		def xceptReturn(event):
+			frame.focus()
+
+		self.jogValue = StringVar()
+		self.jogValue.set(str(10**self.jogScaleValue.get()))
+		self.checkJogcommand = self.register(self.checkJogentry)
+		self.jograte = Entry(frame,
+				textvariable=self.jogValue,
+				validate='key',
+				validatecommand=(self.checkJogcommand, '%P'),
+				width=6)
+		self.jograte.grid(row=row-1, column=col+1, sticky=W)
+		self.jograte.bind('<Return>',xceptReturn)
+		self.jograte.bind('<KP_Enter>',xceptReturn)
+		self.addWidget(self.jograte)
+
+		# ---
+		row += 1
+		col = 0
+
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					StartCommand=self.moveZdown,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -Z"))
+		self.addWidget(b)
+
+		col += 3
+		b = tkExtra.TimedButton(frame, text=Unicode.LOWER_LEFT_TRIANGLE,
+					StartCommand=self.moveXdownYdown,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -X -Y"))
+		self.addWidget(b)
+
+		col += 1
+		b = tkExtra.TimedButton(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					StartCommand=self.moveYdown,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move -Y"))
+		self.addWidget(b)
+
+		col += 1
+		b = tkExtra.TimedButton(frame, text=Unicode.LOWER_RIGHT_TRIANGLE,
+					StartCommand=self.moveXupYdown,
+					command=self.jogcancel,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +X -Y"))
+		self.addWidget(b)
+
+		#self.grid_columnconfigure(6,weight=1)
+		try:
+#			self.grid_anchor(CENTER)
+			self.tk.call("grid","anchor",self,CENTER)
+		except TclError:
+			pass
+
+	#----------------------------------------------------------------------
+	def saveConfig(self):
+		Utils.setFloat("continuousControl", "jograte", self.jograte.get())
+
+	#----------------------------------------------------------------------
+	# Slider methods
+	#----------------------------------------------------------------------
+	def setjogValue(self, slider):
+		fval = float(slider)
+		tval = round(10.0**fval,1-int(floor(fval)))
+		sval = str(tval)
+		self.jogValue.set(sval)
+		self.jogScaleValue.set(math.log10(tval))
+
+	def checkJogentry(self, inStr):
+		try:
+			if float(inStr) > 0.0:
+				self.jogScaleValue.set(math.log10(float(inStr)))
+		except:
+			return True
+		return True
+
+	#----------------------------------------------------------------------
+	# Jogging
+	#----------------------------------------------------------------------
+	def jogcancel(self, event=None):
+		self.app.mcontrol.cjogcancel()
+
+	def moveXup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = -CNC.vars['mx'] - 0.1
+		self.app.mcontrol.cjog("X{:.3f}".format(safeX), self.jograte.get())
+
+	def moveXdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = CNC.travel_x + CNC.vars['mx'] - 0.1
+		self.app.mcontrol.cjog("X-{:.3f}".format(safeX), self.jograte.get())
+
+	def moveYup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeY = -CNC.vars['my'] - 0.1
+		self.app.mcontrol.cjog("Y{:.3f}".format(safeY), self.jograte.get())
+
+	def moveYdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeY = CNC.travel_y + CNC.vars['my'] - 0.1
+		self.app.mcontrol.cjog("Y-{:.3f}".format(safeY), self.jograte.get())
+
+	def moveXdownYup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = CNC.travel_x + CNC.vars['mx'] - 0.1
+		safeY = -CNC.vars['my'] - 0.1
+		safeD = min(safeX, safeY)
+		self.app.mcontrol.cjog("X-{:.3f} Y{:.3f}".format(safeD, safeD), self.jograte.get())
+
+	def moveXupYup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = -CNC.vars['mx'] - 0.1
+		safeY = -CNC.vars['my'] - 0.1
+		safeD = min(safeX, safeY)
+		self.app.mcontrol.cjog("X{:.3f} Y{:.3f}".format(safeD, safeD), self.jograte.get())
+
+	def moveXdownYdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = CNC.travel_x + CNC.vars['mx'] - 0.1
+		safeY = CNC.travel_y + CNC.vars['my'] - 0.1
+		safeD = min(safeX, safeY)
+		self.app.mcontrol.cjog("X-{:.3f} Y-{:.3f}".format(safeD, safeD), self.jograte.get())
+
+	def moveXupYdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeX = -CNC.vars['mx'] - 0.1
+		safeY = CNC.travel_y + CNC.vars['my'] - 0.1
+		safeD = min(safeX, safeY)
+		self.app.mcontrol.cjog("X{:.3f}Y-{:.3f}".format(safeD, safeD), self.jograte.get())
+
+	def moveZup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeZ = -CNC.vars['mz'] - 0.1
+		self.app.mcontrol.cjog("Z{:.3f}".format(safeZ), self.jograte.get())
+
+	def moveZdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		safeZ = CNC.vars['wz']
+		self.app.mcontrol.cjog("Z-{:.3f}".format(safeZ), self.jograte.get())
+
+	#----------------------------------------------------------------------
+	def keybindings(self):
+		# keybindings established in tkExtra.TimedButton calls
+		pass
+
+#===============================================================================
 # StateFrame
 #===============================================================================
 class StateFrame(CNCRibbon.PageExLabelFrame):
@@ -2230,5 +2500,6 @@ class ControlPage(CNCRibbon.Page):
 
 		self._register((ConnectionGroup, UserGroup, RunGroup),
 			(DROFrame, abcDROFrame,
-			ControlFrame, abcControlFrame, sliderControlFrame,
+			ControlFrame, abcControlFrame,
+			sliderControlFrame, continuousControlFrame,
 			StateFrame))
