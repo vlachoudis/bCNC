@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: ascii -*-
 #
 # Copyright and User License
