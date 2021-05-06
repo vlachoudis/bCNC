@@ -46,6 +46,8 @@ YZ   = 2
 CW   = 2
 CCW  = 3
 
+AXIS_NAMES = ["X", "Y", "Z", "A", "B", "C", "D", "E"]
+
 WCS  = ["G54", "G55", "G56", "G57", "G58", "G59"]
 
 DISTANCE_MODE = { "G90" : "Absolute",
@@ -4167,20 +4169,15 @@ class GCode:
 		self.addUndo(undoinfo)
 
 	#----------------------------------------------------------------------
-	# Move position by dx,dy,dz
+	# Move position by dx,dy,dz...
 	#----------------------------------------------------------------------
-	def moveFunc(self, new, old, relative, dx, dy, dz):
+	def moveFunc(self, new, old, relative, *deltas):
 		if relative: return False
 		changed = False
-		if 'X' in new:
-			changed = True
-			new['X'] += dx
-		if 'Y' in new:
-			changed = True
-			new['Y'] += dy
-		if 'Z' in new:
-			changed = True
-			new['Z'] += dz
+		for idx, axis in enumerate(AXIS_NAMES[:deltas]):
+			if axis in new:
+				new[axis] += deltas[idx]
+				changed = True
 		return changed
 
 	#----------------------------------------------------------------------
@@ -4193,10 +4190,10 @@ class GCode:
 			pass
 
 	#----------------------------------------------------------------------
-	# Move position by dx,dy,dz
+	# Move position by dx,dy,dz...
 	#----------------------------------------------------------------------
-	def moveLines(self, items, dx, dy, dz=0.0):
-		return self.modify(items, self.moveFunc, None, dx, dy, dz)
+	def moveLines(self, items, **args):
+		return self.modify(items, self.moveFunc, None, *args.values())
 
 	#----------------------------------------------------------------------
 	# Rotate position by c(osine), s(ine) of an angle around center (x0,y0)
