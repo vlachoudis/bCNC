@@ -467,21 +467,44 @@ class Segment:
 
 	#----------------------------------------------------------------------
 	# Intersect a line with line
+	# some explanations would be needed. replace by _intersectLineLineNEW ??
 	#----------------------------------------------------------------------
 	def _intersectLineLine(self, other):
 		# check for intersection
+		return self._intersectLineLineNEW(other)
 		DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
 		if abs(DD)<EPS2: return None,None
 
 		Dt = -(other.A[0]-self.A[0])*other.AB[1] + \
 		      (other.A[1]-self.A[1])*other.AB[0]
-		t = Dt/DD #is this sure ? we have sin(AC,CM) / sin(AB,CD)
+		t = Dt/DD #is this sure ? we have sin(AC,CM) / sin(AB,CD) see _intersectLineLineNEW (not used)
 		P = self.AB*t + self.A # is this sure in all cases ?
 		if self.minx<=P[0]<=self.maxx and other.minx<=P[0]<=other.maxx and \
 		   self.miny<=P[1]<=self.maxy and other.miny<=P[1]<=other.maxy:#is this sure??? what does a<=x<=b return ? Should't we write a<=x and x<=b instead ?
 			return P,None
 		return None,None
 
+	#----------------------------------------------------------------------
+	# Intersect a line with line (not used yet..)
+	#----------------------------------------------------------------------
+	def _intersectLineLineNEW(self,other):
+		xA,yA = self.A[0],self.A[1]
+		xB,yB = self.B[0],self.B[1]
+		xC,yC = other.A[0],other.A[1]
+		xD,yD = other.B[0],other.B[1]
+		a1,a2 = yB-yA,yD-yC
+		b1,b2 = xA-xB,xC-xD
+		c1,c2 = xA*(yA-yB)+yA*(xB-xA),xC*(yC-yD)+yC*(xD-xC)
+		DD = a2*b1-b2*a1
+		if abs(DD)<EPS2: 
+			return None,None
+		X = (b2*c1-c2*b1)/(a2*b1-b2*a1)
+		Y = (a2*c1-a1*c2)/(b2*a1-b1*a2)
+		P = Vector(X,Y)
+		if self.minx<=P[0]and P[0]<=self.maxx and other.minx<=P[0]and P[0]<=other.maxx and \
+			self.miny<=P[1]and P[1]<=self.maxy and other.miny<=P[1]and P[1]<=other.maxy:
+			return P,None
+		return None,None
 	#----------------------------------------------------------------------
 	# Intersect a line segment with an arc
 	#----------------------------------------------------------------------
@@ -668,6 +691,7 @@ class Path(list):
 		self.name    = name
 		self.color   = color
 		self._length = None
+		self.tags = {}
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -1119,6 +1143,52 @@ class Path(list):
 		self.extend(new)
 	reverse = invert
 
+	#----------------------------------------------------------------------
+	# Split path into contours
+	# This not only SPLITs path to contours,
+	# it also takes unsorted segments and JOINs them to closed loops if possible
+	# duplicate of split2contours ? but is does not affect the path, it makes a deepcopy of it
+	# not used yet
+	#----------------------------------------------------------------------
+	def rearrange(self):
+		if not self: return []
+		if len(self)== 0:
+			return []
+		pathcopy = deepcopy(self)
+		newpathsList = []
+		last = None
+		tmpPath = Path("Rearranged Path")
+		
+		def findMatchingSegment(path,segToFind):
+			for seg in path:
+				if eq(seg.A,segToFind.B,EPS) and not eq(seg.B,segToFind.A,EPS):
+					newseg =Segment(Segment.LINE,segToFind.B,seg.B)
+					return [newseg,seg]
+				elif eq(seg.B,segToFind.B,EPS) and not eq(seg.A,segToFind.A,EPS) :
+					newseg= Segment(Segment.LINE,segToFind.B,seg.A)
+					return [newseg,seg]
+			return [None,segToFind]
+		
+		while len(pathcopy)>0: #Check we have treated all segments
+			if last is None :
+				last = pathcopy[0]
+			findSeg = True
+			while findSeg :
+				[newseg,oldseg] = findMatchingSegment(pathcopy, last)
+				if newseg is not None :
+					tmpPath.append(newseg)
+					pathcopy.remove(oldseg)
+					last = newseg
+					findSeg = True
+				else :
+					if len(tmpPath)>0:
+						newpathsList.append(tmpPath)
+					if last in pathcopy:
+						pathcopy.remove(last)
+					findSeg = False
+					last = None
+					tmpPath = Path("Rearranged Path")
+		return newpathsList
 	#----------------------------------------------------------------------
 	# Split path into contours
 	# This not only SPLITs path to contours,
@@ -1885,4 +1955,15 @@ class Path(list):
 							self.append(Segment(Segment.LINE, A, B))
 					A = B
 
+	def setTag(self,tag,value):
+		self.tags[tag]=value
+		
+	def getTag(self,tag):
+		return self.tags.get(tag,None)
+	
+	def getAllTags(self):
+		return self.tags.keys()
+
+	def hasTag(self,tag):
+		return tag in self.tags.keys()
 

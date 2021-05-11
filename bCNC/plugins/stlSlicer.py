@@ -4,6 +4,8 @@
 # Author: @DodoLaSaumure Pierre KLein
 # Date: 28 feb 2021
 
+# for further information about the algorithms,
+# Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 
 from __future__ import print_function
 from __future__ import print_function
@@ -219,11 +221,16 @@ class SliceRemoval:
 		print ('z',z)
 		slicePath = self.stlObj.getSlice(z)
 		splitList = slicePath.split2contours()
+		splitList = self.tagPlainAndEmpty(splitList)
 		self.sliceFinePathList = []
 		for p in splitList :
-			path = p.offsetClean(self.diameter/2.-self.AdditionalCut)
+			if p.getTag("plain")==True :
+				offs = self.diameter/2.-self.AdditionalCut
+			else :
+				offs = -self.diameter/2.+self.AdditionalCut
+			path = p.offsetClean(offs)
 			for p in path:
-				p.convert2Lines(float("inf"))
+				p.convert2Lines(float("inf"))#TODO Approximate arcs to lines Path.approximate2Lines(alpha)
 # 				p.convert2Lines(self.diameter/10.)
 			self.sliceFinePathList.extend(path)
 		if RawSliceOperation:
@@ -292,60 +299,73 @@ class SliceRemoval:
 			currentposdir2=min(currentposdir2,dir2end)
 			self.PathSliceRoughList.append(self.tmpSlicePath)
 			self.FullPathRoughList.append(self.PathSliceRoughList)
+			
+	
+	#input : path list
+	# tag each path plain or empty material
+	# result [[pathlist],[bool plainmateriallist],[firstinsidepathlist]
+	def tagPlainAndEmpty(self,pathlist):
+		Pout0 = Vector(self.stlObj.minx-10.,self.stlObj.miny-10.)
+		for path in pathlist:
+			point = path[0].A
+			line = Segment(Segment.LINE , Pout0 , point)
+			nbInter = self.countPathListIntersect(line,pathlist,pathToExclude=path)
+			plain = not bool(nbInter % 2)
+			path.setTag("plain",plain)
+		return pathlist
 
+	#----------------------------------------------------------------------
+	# Input : pathlist : list of paths
+	# Output : Nb Intersections between line and pathlist
+	# Usage : Check if a path is odd or even in a path list
+	# return value : nb intersections between line and pathlist 
+	#----------------------------------------------------------------------
+	def countPathListIntersect(self,line,pathlist,pathToExclude=None):
+		newpathlist = []
+		for path in pathlist :
+			if not pathToExclude ==path:
+				newpathlist.append(path)
+		count = 0
+		for path in newpathlist :
+			for seg in path:
+				inter1,inter2 = line.intersect(seg)
+				if inter1 is not None and not eq(inter1,seg.A) and not eq(inter1,seg.B): 
+					count +=1
+				if inter2 is not None and not eq(inter2,seg.A) and not eq(inter2,seg.B): 
+					count +=1
+		return count
+
+	def isInEmptyContour(self,seg,pathlist,pathToExclude=None):
+		Pout0 = Vector(self.stlObj.minx,self.stlObj.miny)
+		P = seg.midPoint()
+		line = Segment(Segment.LINE , Pout0 , P)
+		nbInter = self.countPathListIntersect(line,pathlist,pathToExclude=pathToExclude)
+		plain = bool(nbInter % 2)
+		return not plain
 
 	def keepOutside(self,currentList,previousList):
 		if len(previousList) == 0:
-			return currentList
-		pathpreviousFiltered=Path("PathpreviousFiltered")
-		pathcurrentFiltered = Path("pathcurrentFiltered")
-		listExclude =[]
-		#exclude island of path previous and stire in path previous Filtered
-		for pathprevious in previousList :
-			for pathprevious2 in previousList:
-				if  pathprevious2.isPathInside(pathprevious)==1: #previous inside previous 2
-					if not pathprevious.isidentical(pathprevious2):
-						listExclude.append(pathprevious)
-		for pathprevious in previousList:
-			if not pathprevious in listExclude :
-				if len(pathprevious)>0:
-					pathpreviousFiltered.extend (pathprevious)
-		listExclude =[]
-		#exclude isalnd of path current abd store in path current whole
-		for pathcurrent in currentList :
-			for pathcurrent2 in currentList:
-				if  pathcurrent2.isPathInside(pathcurrent)==1: #pathcurrent is inside pathcurrent2 
-					if not pathcurrent.isidentical(pathcurrent2):
-						listExclude.append(pathcurrent)
-		for pathcurrent in currentList :
-			if not pathcurrent in listExclude :
-				if len(pathcurrent)>0:
-					pathcurrentFiltered.extend(pathcurrent)
-		# intersect paths
-		if len(pathpreviousFiltered)>0:
-			pathpreviousFiltered.intersectPath(pathcurrentFiltered)
-		pathcurrentFiltered.intersectPath(pathpreviousFiltered)
-		pathWhole=Path("PathWhole")
-		pathWhole.extend(pathcurrentFiltered)
-		if len(pathpreviousFiltered)>0:
-			pathWhole.extend(pathpreviousFiltered)
+			return self.tagPlainAndEmpty(currentList)
+# 		intersectPathList = []#Path("intersection")
+		previous = deepcopy(previousList)
+		current = deepcopy(currentList)
+		for pathprevious in previous :
+			for pathcurrent in current :
+				pathprevious.intersectPath(pathcurrent)
+		for pathcurrent in current :
+			for pathprevious in previous :
+				pathcurrent.intersectPath(pathprevious)
+		newPath = Path('New')
+		for path in previous :
+			for seg in path:
+				if self.isInEmptyContour(seg, current) and not seg in newPath:
+					newPath.append(seg)
+		for path in current :
+			for seg in path:
+				if self.isInEmptyContour(seg, previous) and not seg in newPath:
+					newPath.append(seg)					
+		return self.tagPlainAndEmpty(newPath.split2contours())
 
-		#exclude segments that are inside pathprevious or pathcurrent
-		listSegExclude = []
-		newpath = Path("new")
-		for seg in pathWhole :
-			insideprevious = pathpreviousFiltered.isSegInside(seg)==1
-			insidecurrent = pathcurrentFiltered.isSegInside(seg)==1
-			if insideprevious or insidecurrent:
-				listSegExclude.append(seg)
-		for seg in pathWhole :
-			if not seg in listSegExclude :
-				newpath.append(seg)
-		if len(newpath)==0:
-			return[]
-		return newpath.split2contours()
-# 		return newpath.rearrange()
-		
 
 class Vecteur():
 	def __init__(self,coordsTuple=None):
@@ -589,7 +609,7 @@ class Tool(Plugin):
 # 									}
 # 		operation = dictoperation.get(self["operations"],1)
 		gcode = app.gcode
-
+		gcode.headerFooter()
 		if FinishSurfaceOperation and stlObj is not None:
 			msg = "Finish Surface not implemented yet.."
 			tkMessageBox.showwarning(_("Finish Surface"),
@@ -617,16 +637,14 @@ class Tool(Plugin):
 					previousSliceList = ContourList
 
 				if len(pathlist)>0:
+					allblocks = gcode.blocks
 					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
 					block = Block("Slice z="+str(z))
 					block.extend(newblocks)
 					blocks.append(block)
-					active = app.activeBlock()
-					if active==0:
-						active=1
-					app.gcode.insBlocks(active, blocks, _("Slice")) #<<< insert blocks over active block in the editor
+					bid = len (allblocks)-1
+					app.gcode.addBlockUndo( bid, block)
 				z -= zstep
-# 				z=-float("inf")
 		t1 = time.time()
 		print ("time for compute ",t1-t0)
 		app.refresh()
@@ -635,4 +653,5 @@ class Tool(Plugin):
 		print ("total time",t2-t0)
 		app.notBusy()
 		app.setStatus(_("Path Generated")+"..done")
+
 
