@@ -535,7 +535,7 @@ class Tool(Plugin):
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
 			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
 			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
-			("AdditionalCut"  ,         "mm" ,     0., _("Additional offset (mm)"), _('acts like a tool corrector inside the material')),
+			("AdditionalCut"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
 			("RawSlice","bool",True,_("Raw Slice Use only for visualization, not for milling"),_("Compute raw slice only - does not protect previous slices, add the offset + tool diam")),
 			("RoughRemoval","bool",False,_("rough removal along main direction(cylindrical nose)"),_("Compute Rough removal - prevents from milling inside previous slices")),
 			("RoughContour","bool",False,_("rough contour(cylindrical nose)"),_("Compute Rough contour - prevents from milling inside previous slices ")),
@@ -573,7 +573,7 @@ class Tool(Plugin):
 		zoff = bool(self["zoff"])
 		zstep = float(self["zstep"])
 		direction = self["direction"]
-		AdditionalCut = self["AdditionalCut"]
+		AdditionalCut = -1.*self["AdditionalCut"]
 		RawSliceOperation = bool(self["RawSlice"])
 		RoughRemovalOperation = bool(self["RoughRemoval"])
 		RoughContourOperation = bool(self["RoughContour"])
