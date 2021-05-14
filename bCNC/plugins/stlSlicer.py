@@ -535,7 +535,7 @@ class Tool(Plugin):
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
 			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
 			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
-			("AdditionalCut"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
+			("AdditionalOffsetRadius"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
 			("RawSlice","bool",True,_("Raw Slice Use only for visualization, not for milling"),_("Compute raw slice only - does not protect previous slices, add the offset + tool diam")),
 			("RoughRemoval","bool",False,_("rough removal along main direction(cylindrical nose)"),_("Compute Rough removal - prevents from milling inside previous slices")),
 			("RoughContour","bool",False,_("rough contour(cylindrical nose)"),_("Compute Rough contour - prevents from milling inside previous slices ")),
@@ -543,7 +543,9 @@ class Tool(Plugin):
 # 			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice finish(cylindrical nose),3-Finish Surface removal (ball nose)",
 # 			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
 			]
-		self.help = '''This plugin can slice meshes'''
+		self.help = '''This plugin can slice meshes
+Please refer to https://github.com/vlachoudis/bCNC/pull/1561
+'''
 		self.buttons.append("exe")
 	# ----------------------------------------------------------------------
 	def execute(self, app):
@@ -573,7 +575,7 @@ class Tool(Plugin):
 		zoff = bool(self["zoff"])
 		zstep = float(self["zstep"])
 		direction = self["direction"]
-		AdditionalCut = -1.*self["AdditionalCut"]
+		AdditionalOffsetRadius = -1.*self["AdditionalOffsetRadius"]
 		RawSliceOperation = bool(self["RawSlice"])
 		RoughRemovalOperation = bool(self["RoughRemoval"])
 		RoughContourOperation = bool(self["RoughContour"])
@@ -623,7 +625,7 @@ class Tool(Plugin):
 				blocks  = []
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
-										z,toolStep,direction,AdditionalCut,diameter)
+										z,toolStep,direction,AdditionalOffsetRadius,diameter)
 				rawSlice=[]
 				pathlist = []
 				if  RoughContourOperation or RoughRemovalOperation or  RawSliceOperation:
@@ -638,8 +640,8 @@ class Tool(Plugin):
 
 				if len(pathlist)>0:
 					allblocks = gcode.blocks
-					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
-					block = Block("Slice z="+str(z))
+					newblocks = gcode.fromPath(pathlist,z=z-AdditionalOffsetRadius,zstart=z-AdditionalOffsetRadius)
+					block = Block("Slice z="+str(z-AdditionalOffsetRadius))
 					block.extend(newblocks)
 					blocks.append(block)
 					bid = len (allblocks)-1
