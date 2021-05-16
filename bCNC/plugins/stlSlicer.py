@@ -11,7 +11,7 @@ from __future__ import print_function
 from __future__ import print_function
 
 from copy import deepcopy
-from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
+# from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
 import math
 import os.path
 import re
@@ -84,6 +84,7 @@ class stlImporter():
 		print ("minz,maxz",self.minz,self.maxz)
 		self.nbTriangles = len(self.triangles)
 		print ("nbTriangles",self.nbTriangles)
+
 	def parse(self,f,facet_count):
 		self.maxx=self.maxy=self.maxz = -float("inf")
 		self.minx=self.miny=self.minz = float("inf")
@@ -145,9 +146,26 @@ class stlImporter():
 		print ("minx,maxx",self.minx,self.maxx)
 		print ("miny,maxy",self.miny,self.maxy)
 		print ("minz,maxz",self.minz,self.maxz)
+	def convertTriangles(self,dirIndexes):
+		newTriangles = []
+		for triangle in self.triangles:
+			points = [triangle.p1,triangle.p2, triangle.p3]
+			newPoints = []
+			for point in points :
+				xyz = [point.x,point.y,point.z]
+				newx = xyz[dirIndexes[0]]
+				newy = xyz[dirIndexes[1]]
+				newz = xyz[dirIndexes[2]]
+				newpoint = Point3D([newx,newy,newz])
+				newPoints.append(newpoint)
+			newtriangle = Triangle3D(newPoints[0],newPoints[1],newPoints[2])
+			newTriangles.append(newtriangle)
+		return newTriangles
 
-	def getSlice(self,z):
-		path = Path("slice "+str(z))
+	def getSliceAlongDir(self,direction,height):
+		dirDict = {"y":[1,2,0],"x":[0,2,1],"z":[0,1,2]}
+		dirIndexes = dirDict.get(direction,[0,1,2])
+		path = Path("slice "+str(height))
 		def findIndex(p1sign,p2sign,p3sign,signToFind):
 			index = 0
 			for psign in [p1sign,p2sign,p3sign]:
@@ -155,24 +173,24 @@ class stlImporter():
 					return index
 				index +=1
 			return -1
-		
-		def getPointZero(p1,p2,z):
+		def getPointZero(p1,p2,height):
 			x1,y1,z1 = p1.x,p1.y,p1.z
 			x2,y2,z2 = p2.x,p2.y,p2.z
 			if z2==z1 : 
 				return None
-			t = (z-z1)/(z2-z1)
+			t = (height-z1)/(z2-z1)
 			x = x1+t*(x2-x1)
 			y = y1+t*(y2-y1)
 			return Vector(x,y)
 		
-		for triangle in self.triangles :
-			p1sign = (triangle.p1.z-z)>0
-			p2sign = (triangle.p2.z-z)>0
-			p3sign = (triangle.p3.z-z)>0
+		convertedTriangles = self.convertTriangles(dirIndexes)
+		for triangle in convertedTriangles :
+			p1sign = (triangle.p1.z-height)>0
+			p2sign = (triangle.p2.z-height)>0
+			p3sign = (triangle.p3.z-height)>0
 			activeTriangle = (p1sign^p2sign)or (p1sign^p3sign)  or (p2sign^p3sign)
 			signToFind = not ((p1sign and p2sign) or (p1sign and p3sign) or (p2sign and p3sign) )
-			isZero = triangle.p1.z-z==0 or triangle.p2.z-z==0 or triangle.p3.z-z==0
+			isZero = triangle.p1.z-height==0 or triangle.p2.z-height==0 or triangle.p3.z-height==0
 			index = -1
 			if activeTriangle and not isZero:
 				index=findIndex(p1sign,p2sign,p3sign,signToFind)
@@ -184,17 +202,18 @@ class stlImporter():
 						q1q2q3.append([triangle.p1,triangle.p2,triangle.p3][i])
 			if q1q2q3 is not None :
 				[q1,q2,q3]=q1q2q3
-				r1=getPointZero(q1,q2,z)
-				r2=getPointZero(q1,q3,z)
+				r1=getPointZero(q1,q2,height)
+				r2=getPointZero(q1,q3,height)
 				if r1 is not None and r2 is not None:
 					segm = Segment(Segment.LINE,r1,r2)
 					if segm.length() > 0 :
 						path.append(segm)
 		return path
-		
+
+
 class SliceRemoval:
 	def __init__(self,stlObj,xstart,xend,ystart,yend,
-				z,toolStep,direction,AdditionalCut,diameter):
+				z,toolStep,direction,AdditionalOffsetRadius,diameter):
 		self.stlObj = stlObj
 		self.xstart = xstart
 		self.xend = xend
@@ -202,7 +221,7 @@ class SliceRemoval:
 		self.yend = yend
 		self.z = z
 		self.toolStep = toolStep
-		self.AdditionalCut = AdditionalCut
+		self.AdditionalOffsetRadius = AdditionalOffsetRadius
 		self.diameter = diameter
 		self.direction = direction
 		
@@ -219,15 +238,16 @@ class SliceRemoval:
 		[RawSliceOperation,RoughRemovalOperation,RoughContourOperation]=operations
 		z= height
 		print ('z',z)
-		slicePath = self.stlObj.getSlice(z)
+# 		slicePath = self.stlObj.getSlice(z)
+		slicePath = self.stlObj.getSliceAlongDir("z",z)
 		splitList = slicePath.split2contours()
 		splitList = self.tagPlainAndEmpty(splitList)
 		self.sliceFinePathList = []
 		for p in splitList :
 			if p.getTag("plain")==True :
-				offs = self.diameter/2.-self.AdditionalCut
+				offs = self.diameter/2.+self.AdditionalOffsetRadius
 			else :
-				offs = -self.diameter/2.+self.AdditionalCut
+				offs = -self.diameter/2.-self.AdditionalOffsetRadius
 			path = p.offsetClean(offs)
 			for p in path:
 				p.convert2Lines(float("inf"))#TODO Approximate arcs to lines Path.approximate2Lines(alpha)
@@ -367,6 +387,265 @@ class SliceRemoval:
 		return self.tagPlainAndEmpty(newPath.split2contours())
 
 
+class BallFinish():
+	def __init__(self,stlObj,xstart,xend,ystart,yend,toolStep,direction,AdditionalOffsetRadius,diameter,zend):
+		self.stlObj = stlObj
+		self.xstart = xstart
+		self.xend = xend
+		self.ystart = ystart
+		self.yend = yend
+		self.zend = zend
+		self.toolStep = toolStep
+		self.AdditionalOffsetRadius = AdditionalOffsetRadius
+		self.diameter = diameter
+		self.direction = direction
+		self.radiusCorrected = self.diameter/2.+AdditionalOffsetRadius
+		self.ballSlicesOffsets()
+		print(self.slicesOffsets)
+		
+	def ballSlicesOffsets(self):
+		slicesToolSteps = []
+		sliceToolStep = 0.
+		while sliceToolStep < self.radiusCorrected :
+			slicesToolSteps.append(sliceToolStep)
+			if sliceToolStep >0 :
+				slicesToolSteps.append(-sliceToolStep)
+			sliceToolStep+=self.toolStep
+		slicesToolSteps.sort()
+		self.slicesOffsets = []
+		for sliceToolStep in slicesToolSteps :
+			self.slicesOffsets.append([sliceToolStep,self.offsetZ(sliceToolStep)])
+
+	def offsetZ(self,sliceStep):
+		return self.radiusCorrected*math.sin(math.acos(sliceStep/self.radiusCorrected))
+	
+	def orderSegs(self,segList,debug = False):
+		newPath = Path("path")
+		for seg in segList :
+			if seg.A[0]>seg.B[0]:
+				seg.invert()
+				if debug:
+					print ("invert")
+			if not seg in newPath:
+				newPath.append(seg)
+		return newPath
+	def joinPath(self,path):
+		if len(path)<1:
+			return path
+		newPath = Path("path")
+		finished = False
+		startProcess = True
+		prevSeg = path[0]
+		while len(path)>0 :
+			segx = None
+			minix = float("inf")
+			for seg in path:
+				if seg.A[0]<minix  :
+					minix =seg.A[0]
+					segx =seg
+# 			print(segx,minix)
+			if startProcess :
+				startProcess = False
+				newPath.append(segx)
+			elif abs(prevSeg.B[0]-segx.A[0])<EPS:
+				deltaZ = segx.A[1]-prevSeg.B[1]
+				if abs(deltaZ)<EPS:
+					newPath.append(segx)
+				else :
+					seg0 = Segment(Segment.LINE,prevSeg.B,segx.A)
+					newPath.append(seg0)
+					newPath.append(segx)
+			else:
+				print ("HOHOHOHOHOHO")
+			prevSeg=segx
+			path.remove(segx)
+		return newPath
+
+	def getMaxPoints(self,rawSlicePath):
+# 		if len(rawSlice)<1:
+# 			return []
+# 		liste = rawSlice.split2contours()
+# 		return liste
+		def maxseg(seglist):
+			maxiZ = -float("inf")
+			mxSeg = None
+			for seg in seglist :
+				z = seg.midPoint()[1]
+				if z > maxiZ and seg.length()>0:
+					maxiZ = z
+					mxSeg = seg
+			return mxSeg
+		def areSuperposed(seg0,seg1):
+			return max(seg0.minx,seg1.minx) < min(seg0.maxx,seg1.maxx)
+		def getsuperposed(seg0,pathlist):
+			superposedList =[]
+			for path in pathlist :
+				for seg in path:
+					if areSuperposed(seg0,seg):
+						if not seg in superposedList:
+							superposedList.append(seg)
+			return superposedList
+
+		def findSegXi(xi,orderedPath):
+			listSegs = []
+			for seg in orderedPath:
+				if abs(seg.A[0]-xi)<EPS:
+					listSegs.append(seg)
+			return listSegs
+		def findSuperposedSegsXi(xi,pathlist,exlcudeList=[]):
+			listfound =[]
+			for path in pathlist:
+				for seg in path:
+					if seg.minx <= xi and seg.maxx >xi and not seg in exlcudeList:
+# 						if seg.A[0]>seg.B[0]:
+# 							newseg.invert()
+						listfound.append(seg)
+			return listfound
+		#---------------------------
+		maxSegsPath=Path("path")
+		if len(rawSlicePath)<1:
+			return maxSegsPath
+		pathlist = rawSlicePath.split2contours()
+		for path in pathlist :
+			path=self.orderSegs(path)
+		minx = float("inf")
+		maxx = -float("inf")
+		for path in pathlist:
+			for seg in path:
+				minx = min(seg.minx,minx)
+				maxx = max(seg.maxx,maxx)
+				superposedSegs = getsuperposed(seg,pathlist)
+				maxSeg = maxseg(superposedSegs)
+				if not maxSeg in maxSegsPath:
+					maxSegsPath.append(maxSeg)
+# 		orderedMaxPath=self.orderSegs(maxSegsPath,debug=True)
+		xi = minx
+		finished = False
+		MaxPointsPath=Path("path")
+		exlcudeList=[]
+		while not finished:#abs(xi-maxx)>EPS:
+			matchingSegs = findSegXi(xi,maxSegsPath)
+			if len(matchingSegs)>1:
+				theSeg = maxseg(matchingSegs)
+			if len(matchingSegs)==1:
+				theSeg=matchingSegs[0]
+			if len(matchingSegs)<1:
+				segs = findSuperposedSegsXi(xi,pathlist,exlcudeList=exlcudeList)
+				if len(segs)<1:
+					finished = True
+				seg = maxseg(segs)
+				if seg is not None :
+					P1 = seg.extrapolatePoint(seg.length()*(xi-seg.A[0])/(seg.B[0]-seg.A[0]))
+					theSeg= Segment(Segment.LINE,P1,seg.B)
+					if theSeg.A[0]>theSeg.B[0]:
+						theSeg.invert()
+			if not finished:
+				xi = theSeg.B[0]
+				if abs(xi-maxx)<EPS:
+					finished = True
+				if theSeg.length()>0:
+					MaxPointsPath.append(theSeg)
+				else :
+					exlcudeList.append(seg)
+		return self.joinPath(MaxPointsPath)
+# 		return MaxPointsPath
+
+	def generategcode(self,sliceNmax,evenSense):
+
+		newblock = []
+# 		for slice in sliceNmax :
+		if True:
+			if sliceNmax is None or len(sliceNmax)<1:
+				return newblock
+			if not evenSense:
+				sliceOriented = list(reversed(sliceNmax))
+			else:
+				sliceOriented = sliceNmax
+			seg = sliceOriented[0]
+			if self.direction == "x":
+				newblock.append(CNC.gline(x=seg.A[0],f=150.))
+			else :
+				newblock.append(CNC.gline(y=seg.A[0],f=150.))
+			newblock.append(CNC.gline(z=seg.A[1],f=150.))
+			for seg in sliceOriented :
+				if self.direction == "x":
+					newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1]))
+				else :
+					newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1]))
+			newblock.append(CNC.gline(z=self.zend,f=150.))
+		return newblock
+
+
+	def calcGcode(self,app):
+		app.setStatus(_("initializing"),True)
+		blocks = []
+		block = Block("Ball Finish")
+		block.append(CNC.grapid(x=self.xstart,y=self.ystart))
+		block.append(CNC.grapid(z=0.0))
+		block.append("(entered)")
+		blocks.append(block)
+		[dir1start,dir1end] = [self.xstart,self.xend] if self.direction =="x" else [self.ystart,self.yend]
+		[dir2start,dir2end] = [self.ystart,self.yend] if self.direction =="x" else [self.xstart,self.xend]
+		currentposdir2 = dir2start
+		if self.direction =="x":
+			dir2 = "y"
+		else :
+			dir2 ="x"
+		rotatingBufferSlices = [] #rotating buffer to avoid computing all slices at each tool step
+		for sliceOffset in self.slicesOffsets :
+			sliceToolStep = sliceOffset[0]
+			RawSliceNPath = self.stlObj.getSliceAlongDir(self.direction,currentposdir2+sliceToolStep)
+			sliceNmax = self.getMaxPoints(RawSliceNPath)
+			rotatingBufferSlices.append(sliceNmax)
+		app.setStatus(_("init done"),True)
+		evenSense = False #direction along dir1 (going forwards / Back
+		block = Block("Ball Finish")
+		while currentposdir2 <= dir2end:
+			evenSense = not evenSense
+			dir1startstart = dir1start if evenSense else dir1end
+			dir1endend  = dir1end if evenSense else dir1start
+			#do the stuff
+# 			offsetBuffer = self.applyOffsets(rotatingBufferSlices)
+# 			maxpath = self.takeMaxSlices(offsetBuffer)
+			l = len(rotatingBufferSlices)
+			n = int((l-1)/2)
+			if evenSense:
+				u0=dir1start
+				u1=dir1end
+			else:
+				u0=dir1end
+				u1 = dir1start
+			if self.direction =="x":
+				block.append(CNC.gline(x=u0,y=currentposdir2,z=self.zend,f=150.))
+			else :
+				block.append(CNC.gline(x=currentposdir2,y=u0,z=self.zend,f=150.))
+			newblockItem = self.generategcode(rotatingBufferSlices[n],evenSense)
+			if self.direction =="x":
+				block.append(CNC.gline(x=u1,f=150.))
+				block.append(CNC.gline(y=currentposdir2,z=self.zend,f=150.))
+			else :
+				block.append(CNC.gline(y=u1,f=150.))
+				block.append(CNC.gline(x=currentposdir2,y=u1,z=self.zend,f=150.))
+			if newblockItem is not None :
+				block.extend(newblockItem)
+			blocks.append(block)
+			block = Block("Ball Finish")
+			if currentposdir2 == dir2end:
+				break
+			currentposdir2+=self.toolStep
+			rotatingBufferSlices = rotatingBufferSlices[1:] + rotatingBufferSlices[:1]#rotate buffer left
+			newRawSliceNlast = self.stlObj.getSliceAlongDir(self.direction,currentposdir2+self.slicesOffsets[-1][0])
+			sliceNmax = self.getMaxPoints(newRawSliceNlast)
+			rotatingBufferSlices[-1]=sliceNmax#and add new slice at the end of the rotating buffer
+			currentposdir2=min(currentposdir2,dir2end)
+			app.setStatus("progress %.2f "%(currentposdir2/dir2end*100.)+"%",True)
+		block.append("(exiting)")
+		block.append(CNC.grapid(z=CNC.vars["safe"]))
+		blocks.append(block)
+		return blocks
+
+
+
 class Vecteur():
 	def __init__(self,coordsTuple=None):
 		if coordsTuple is None :
@@ -464,7 +743,7 @@ class Point3D():
 
 
 class Triangle3D():
-	def __init__(self,Point1,Point2,Point3,Normale):
+	def __init__(self,Point1,Point2,Point3,Normale=None):
 		self.p1 = Point1
 		self.p2 = Point2
 		self.p3 = Point3
@@ -513,7 +792,7 @@ class Line3D():
 
 
 class Tool(Plugin):
-	__doc__ = _("Generate Slices from Stl")
+	__doc__ = _("Generate 3d removal from Stl")
 
 	def __init__(self, master):
 		Plugin.__init__(self, master, __name__)#"3D Slicer")
@@ -535,16 +814,19 @@ class Tool(Plugin):
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
 			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
 			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
+			("toolstep"    ,    "mm" ,    -1., _("tool step (-1: From tool database)"), "tool step along x y"),
 			("AdditionalOffsetRadius"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
 			("RawSlice","bool",True,_("Raw Slice Use only for visualization, not for milling"),_("Compute raw slice only - does not protect previous slices, add the offset + tool diam")),
 			("RoughRemoval","bool",False,_("rough removal along main direction(cylindrical nose)"),_("Compute Rough removal - prevents from milling inside previous slices")),
 			("RoughContour","bool",False,_("rough contour(cylindrical nose)"),_("Compute Rough contour - prevents from milling inside previous slices ")),
-			("FinishSurface","bool",False,_("Finish Surface (ball nose)"),_("Compute finish contour - not implemented yet")),
+			("FinishSurface","bool",False,_("Finish Surface along main direction(ball nose)"),_("Compute finish contour")),
 # 			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice finish(cylindrical nose),3-Finish Surface removal (ball nose)",
 # 			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
 			]
 		self.help = '''This plugin can slice meshes
 Please refer to https://github.com/vlachoudis/bCNC/pull/1561
+NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cut functions for this purpose
+
 '''
 		self.buttons.append("exe")
 	# ----------------------------------------------------------------------
@@ -557,11 +839,15 @@ Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 		file = self["file"]
 		tool = app.tools["EndMill"]
 		diameter = app.tools.fromMm(tool["diameter"])
+		toolLength = app.tools.fromMm(tool["length"])
 		try:
 			stepover = tool["stepover"] / 100.0
 		except TypeError:
 			stepover = 0.
-		toolStep  = diameter*stepover
+		if float(self["toolstep"])<=0:
+			toolStep  = diameter*stepover
+		else :
+			toolStep = float(self["toolstep"])
 		print ("toolStep",toolStep)
 		marginxlow = float(self["marginxlow"])
 		marginxhigh = float(self["marginxhigh"])
@@ -575,7 +861,7 @@ Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 		zoff = bool(self["zoff"])
 		zstep = float(self["zstep"])
 		direction = self["direction"]
-		AdditionalOffsetRadius = -1.*self["AdditionalOffsetRadius"]
+		AdditionalOffsetRadius = self["AdditionalOffsetRadius"]
 		RawSliceOperation = bool(self["RawSlice"])
 		RoughRemovalOperation = bool(self["RoughRemoval"])
 		RoughContourOperation = bool(self["RoughContour"])
@@ -612,16 +898,14 @@ Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 # 		operation = dictoperation.get(self["operations"],1)
 		gcode = app.gcode
 		gcode.headerFooter()
-		if FinishSurfaceOperation and stlObj is not None:
-			msg = "Finish Surface not implemented yet.."
-			tkMessageBox.showwarning(_("Finish Surface"),
-		_("WARNING: %s")%(msg),
-			parent=app)
-		if stlObj is not None:
+		dspzWarning = False
+		if RawSliceOperation or RoughRemovalOperation or  RoughContourOperation and stlObj is not None:
 			z = zstart
 			previousSliceList=[]
 			operations  = [RawSliceOperation,RoughRemovalOperation,RoughContourOperation]
 			while z > zend:
+				if z < -toolLength : 
+					dspzWarning = True
 				blocks  = []
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
@@ -640,13 +924,30 @@ Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 
 				if len(pathlist)>0:
 					allblocks = gcode.blocks
-					newblocks = gcode.fromPath(pathlist,z=z-AdditionalOffsetRadius,zstart=z-AdditionalOffsetRadius)
-					block = Block("Slice z="+str(z-AdditionalOffsetRadius))
+					newblocks = gcode.fromPath(pathlist,z=z+AdditionalOffsetRadius,zstart=z+AdditionalOffsetRadius)
+					block = Block("Slice z="+str(z+AdditionalOffsetRadius))
 					block.extend(newblocks)
 					blocks.append(block)
 					bid = len (allblocks)-1
 					app.gcode.addBlockUndo( bid, block)
 				z -= zstep
+		if dspzWarning :
+			msg = "Be careful, the tool lenght might be too short..."
+			tkMessageBox.showwarning(_("Tool Length too short"),
+		_("WARNING: %s")%(msg),
+			parent=app)
+		if FinishSurfaceOperation and stlObj is not None:
+			ballfinish = BallFinish(stlObj,xstart,xend,ystart,yend,
+										toolStep,direction,AdditionalOffsetRadius,diameter,zend)
+			blocks = ballfinish.calcGcode(app)
+			active = app.activeBlock()
+			if active==0:
+				active=1
+				app.gcode.insBlocks(active, blocks, _("youyou"))
+# 			msg = "Finish Surface not implemented yet.."
+# 			tkMessageBox.showwarning(_("Finish Surface"),
+# 		_("WARNING: %s")%(msg),
+# 			parent=app)
 		t1 = time.time()
 		print ("time for compute ",t1-t0)
 		app.refresh()
