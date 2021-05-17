@@ -238,7 +238,6 @@ class SliceRemoval:
 		[RawSliceOperation,RoughRemovalOperation,RoughContourOperation]=operations
 		z= height
 		print ('z',z)
-# 		slicePath = self.stlObj.getSlice(z)
 		slicePath = self.stlObj.getSliceAlongDir("z",z)
 		splitList = slicePath.split2contours()
 		splitList = self.tagPlainAndEmpty(splitList)
@@ -366,7 +365,6 @@ class SliceRemoval:
 	def keepOutside(self,currentList,previousList):
 		if len(previousList) == 0:
 			return self.tagPlainAndEmpty(currentList)
-# 		intersectPathList = []#Path("intersection")
 		previous = deepcopy(previousList)
 		current = deepcopy(currentList)
 		for pathprevious in previous :
@@ -388,7 +386,7 @@ class SliceRemoval:
 
 
 class BallFinish():
-	def __init__(self,stlObj,xstart,xend,ystart,yend,toolStep,direction,AdditionalOffsetRadius,diameter,zend):
+	def __init__(self,stlObj,xstart,xend,ystart,yend,toolStep,direction,AdditionalOffsetRadius,diameter,zend,finishfeed):
 		self.stlObj = stlObj
 		self.xstart = xstart
 		self.xend = xend
@@ -397,11 +395,11 @@ class BallFinish():
 		self.zend = zend
 		self.toolStep = toolStep
 		self.AdditionalOffsetRadius = AdditionalOffsetRadius
+		self.finishfeed = finishfeed
 		self.diameter = diameter
 		self.direction = direction
 		self.radiusCorrected = self.diameter/2.+AdditionalOffsetRadius
 		self.ballSlicesOffsets()
-		print(self.slicesOffsets)
 		
 	def ballSlicesOffsets(self):
 		slicesToolSteps = []
@@ -443,7 +441,6 @@ class BallFinish():
 				if seg.A[0]<minix  :
 					minix =seg.A[0]
 					segx =seg
-# 			print(segx,minix)
 			if startProcess :
 				startProcess = False
 				newPath.append(segx)
@@ -462,10 +459,6 @@ class BallFinish():
 		return newPath
 
 	def getMaxPoints(self,rawSlicePath):
-# 		if len(rawSlice)<1:
-# 			return []
-# 		liste = rawSlice.split2contours()
-# 		return liste
 		def maxseg(seglist):
 			maxiZ = -float("inf")
 			mxSeg = None
@@ -497,8 +490,6 @@ class BallFinish():
 			for path in pathlist:
 				for seg in path:
 					if seg.minx <= xi and seg.maxx >xi and not seg in exlcudeList:
-# 						if seg.A[0]>seg.B[0]:
-# 							newseg.invert()
 						listfound.append(seg)
 			return listfound
 		#---------------------------
@@ -548,31 +539,28 @@ class BallFinish():
 				else :
 					exlcudeList.append(seg)
 		return self.joinPath(MaxPointsPath)
-# 		return MaxPointsPath
 
 	def generategcode(self,sliceNmax,evenSense):
 
 		newblock = []
-# 		for slice in sliceNmax :
-		if True:
-			if sliceNmax is None or len(sliceNmax)<1:
-				return newblock
-			if not evenSense:
-				sliceOriented = list(reversed(sliceNmax))
-			else:
-				sliceOriented = sliceNmax
-			seg = sliceOriented[0]
+		if sliceNmax is None or len(sliceNmax)<1:
+			return newblock
+		if  not evenSense:
+			sliceOriented = list(reversed(sliceNmax))
+		else:
+			sliceOriented = sliceNmax
+		seg = sliceOriented[0]
+		if self.direction == "x":
+			newblock.append(CNC.gline(x=seg.A[0],f=self.finishfeed))
+		else :
+			newblock.append(CNC.gline(y=seg.A[0],f=self.finishfeed))
+		newblock.append(CNC.gline(z=seg.A[1],f=self.finishfeed))
+		for seg in sliceOriented :
 			if self.direction == "x":
-				newblock.append(CNC.gline(x=seg.A[0],f=150.))
+				newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1],f=self.finishfeed))
 			else :
-				newblock.append(CNC.gline(y=seg.A[0],f=150.))
-			newblock.append(CNC.gline(z=seg.A[1],f=150.))
-			for seg in sliceOriented :
-				if self.direction == "x":
-					newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1]))
-				else :
-					newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1]))
-			newblock.append(CNC.gline(z=self.zend,f=150.))
+				newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1],f=self.finishfeed))
+		newblock.append(CNC.gline(z=self.zend,f=self.finishfeed))
 		return newblock
 
 
@@ -581,7 +569,8 @@ class BallFinish():
 		blocks = []
 		block = Block("Ball Finish")
 		block.append(CNC.grapid(x=self.xstart,y=self.ystart))
-		block.append(CNC.grapid(z=0.0))
+		block.append(CNC.grapid(z=CNC.vars["safe"]))
+		block.append(CNC.gline(z=self.zend,f=self.finishfeed))
 		block.append("(entered)")
 		blocks.append(block)
 		[dir1start,dir1end] = [self.xstart,self.xend] if self.direction =="x" else [self.ystart,self.yend]
@@ -599,8 +588,8 @@ class BallFinish():
 			rotatingBufferSlices.append(sliceNmax)
 		app.setStatus(_("init done"),True)
 		evenSense = False #direction along dir1 (going forwards / Back
-		block = Block("Ball Finish")
 		while currentposdir2 <= dir2end:
+			block = Block("Ball Finish")
 			evenSense = not evenSense
 			dir1startstart = dir1start if evenSense else dir1end
 			dir1endend  = dir1end if evenSense else dir1start
@@ -615,35 +604,26 @@ class BallFinish():
 			else:
 				u0=dir1end
 				u1 = dir1start
+			block.extend( self.generategcode(rotatingBufferSlices[n],evenSense))
 			if self.direction =="x":
-				block.append(CNC.gline(x=u0,y=currentposdir2,z=self.zend,f=150.))
+				block.append(CNC.gline(x=u1,f=self.finishfeed))
 			else :
-				block.append(CNC.gline(x=currentposdir2,y=u0,z=self.zend,f=150.))
-			newblockItem = self.generategcode(rotatingBufferSlices[n],evenSense)
+				block.append(CNC.gline(y=u1,f=self.finishfeed))
+			currentposdir2+=self.toolStep
+			currentposdir2=min(currentposdir2,dir2end)
 			if self.direction =="x":
-				block.append(CNC.gline(x=u1,f=150.))
-				block.append(CNC.gline(y=currentposdir2,z=self.zend,f=150.))
+				block.append(CNC.gline(y=currentposdir2,z=self.zend,f=self.finishfeed))
 			else :
-				block.append(CNC.gline(y=u1,f=150.))
-				block.append(CNC.gline(x=currentposdir2,y=u1,z=self.zend,f=150.))
-			if newblockItem is not None :
-				block.extend(newblockItem)
+				block.append(CNC.gline(x=currentposdir2,z=self.zend,f=self.finishfeed))
 			blocks.append(block)
-			block = Block("Ball Finish")
 			if currentposdir2 == dir2end:
 				break
-			currentposdir2+=self.toolStep
 			rotatingBufferSlices = rotatingBufferSlices[1:] + rotatingBufferSlices[:1]#rotate buffer left
 			newRawSliceNlast = self.stlObj.getSliceAlongDir(self.direction,currentposdir2+self.slicesOffsets[-1][0])
 			sliceNmax = self.getMaxPoints(newRawSliceNlast)
 			rotatingBufferSlices[-1]=sliceNmax#and add new slice at the end of the rotating buffer
-			currentposdir2=min(currentposdir2,dir2end)
 			app.setStatus("progress %.2f "%(currentposdir2/dir2end*100.)+"%",True)
-		block.append("(exiting)")
-		block.append(CNC.grapid(z=CNC.vars["safe"]))
-		blocks.append(block)
 		return blocks
-
 
 
 class Vecteur():
@@ -815,13 +795,14 @@ class Tool(Plugin):
 			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
 			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
 			("toolstep"    ,    "mm" ,    -1., _("tool step (-1: From tool database)"), "tool step along x y"),
+			("finishfeed"    ,    "mm" ,    100, _("finish xyz feed"), "finish feed (x,y,z)"),
 			("AdditionalOffsetRadius"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
-			("RawSlice","bool",True,_("Raw Slice Use only for visualization, not for milling"),_("Compute raw slice only - does not protect previous slices, add the offset + tool diam")),
-			("RoughRemoval","bool",False,_("rough removal along main direction(cylindrical nose)"),_("Compute Rough removal - prevents from milling inside previous slices")),
-			("RoughContour","bool",False,_("rough contour(cylindrical nose)"),_("Compute Rough contour - prevents from milling inside previous slices ")),
-			("FinishSurface","bool",False,_("Finish Surface along main direction(ball nose)"),_("Compute finish contour")),
-# 			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice finish(cylindrical nose),3-Finish Surface removal (ball nose)",
-# 			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
+# 			("RawSlice","bool",True,_("Raw Slice Use only for visualization, not for milling"),_("Compute raw slice only - does not protect previous slices, add the offset + tool diam")),
+# 			("RoughRemoval","bool",False,_("rough removal along main direction(cylindrical nose)"),_("Compute Rough removal - prevents from milling inside previous slices")),
+# 			("RoughContour","bool",False,_("rough contour(cylindrical nose)"),_("Compute Rough contour - prevents from milling inside previous slices ")),
+# 			("FinishSurface","bool",False,_("Finish Surface along main direction(ball nose)"),_("Compute finish contour")),
+			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice contour(cylindrical nose),3-Finish Surface removal (ball nose)",
+			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
 			]
 		self.help = '''This plugin can slice meshes
 Please refer to https://github.com/vlachoudis/bCNC/pull/1561
@@ -862,10 +843,11 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 		zstep = float(self["zstep"])
 		direction = self["direction"]
 		AdditionalOffsetRadius = self["AdditionalOffsetRadius"]
-		RawSliceOperation = bool(self["RawSlice"])
-		RoughRemovalOperation = bool(self["RoughRemoval"])
-		RoughContourOperation = bool(self["RoughContour"])
-		FinishSurfaceOperation = bool(self["FinishSurface"])
+		finishfeed = self["finishfeed"]
+# 		RawSliceOperation = bool(self["RawSlice"])
+# 		RoughRemovalOperation = bool(self["RoughRemoval"])
+# 		RoughContourOperation = bool(self["RoughContour"])
+# 		FinishSurfaceOperation = bool(self["FinishSurface"])
 		app.busy()
 		app.setStatus(_("Loading file...")+file,True)
 		if os.path.isfile(file):
@@ -889,23 +871,24 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 			yend = stlObj.maxy + marginyhihgh
 			zstart = stlObj.maxz+marginZHigh
 			zend = stlObj.minz-marginZlow
-# 		dictoperation = 			{
-# 			"0-Raw Slice(information only)":0,
-# 			"1-Rough Slice rough removal(cylindrical nose)":1,
-# 			"2-Rough Slice finish(cylindrical nose)":2,
-# 			"3-Finish Surface removal (ball nose)":3,
-# 									}
-# 		operation = dictoperation.get(self["operations"],1)
+		dictoperation = 			{
+			"0-Raw Slice(information only)":0,
+			"1-Rough Slice rough removal(cylindrical nose)":1,
+			"2-Rough Slice contour(cylindrical nose)":2,
+			"3-Finish Surface removal (ball nose)":3,
+									}
+		operation = dictoperation.get(self["operations"],1)
+		RawSliceOperation = operation ==0
+		RoughRemovalOperation =operation ==1
+		RoughContourOperation = operation ==2
+		FinishSurfaceOperation = operation ==3
 		gcode = app.gcode
 		gcode.headerFooter()
-		dspzWarning = False
 		if RawSliceOperation or RoughRemovalOperation or  RoughContourOperation and stlObj is not None:
 			z = zstart
 			previousSliceList=[]
 			operations  = [RawSliceOperation,RoughRemovalOperation,RoughContourOperation]
 			while z > zend:
-				if z < -toolLength : 
-					dspzWarning = True
 				blocks  = []
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
@@ -931,23 +914,18 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 					bid = len (allblocks)-1
 					app.gcode.addBlockUndo( bid, block)
 				z -= zstep
-		if dspzWarning :
+		if FinishSurfaceOperation and stlObj is not None:
+			ballfinish = BallFinish(stlObj,xstart,xend,ystart,yend,
+										toolStep,direction,AdditionalOffsetRadius,diameter,zend,finishfeed)
+			blocks = ballfinish.calcGcode(app)
+			allblocks = gcode.blocks
+			bid = len (allblocks)-1
+			app.gcode.insBlocks(bid, blocks, _("BALL FINISH"))
+		if zend < -toolLength :
 			msg = "Be careful, the tool lenght might be too short..."
 			tkMessageBox.showwarning(_("Tool Length too short"),
 		_("WARNING: %s")%(msg),
 			parent=app)
-		if FinishSurfaceOperation and stlObj is not None:
-			ballfinish = BallFinish(stlObj,xstart,xend,ystart,yend,
-										toolStep,direction,AdditionalOffsetRadius,diameter,zend)
-			blocks = ballfinish.calcGcode(app)
-			active = app.activeBlock()
-			if active==0:
-				active=1
-				app.gcode.insBlocks(active, blocks, _("youyou"))
-# 			msg = "Finish Surface not implemented yet.."
-# 			tkMessageBox.showwarning(_("Finish Surface"),
-# 		_("WARNING: %s")%(msg),
-# 			parent=app)
 		t1 = time.time()
 		print ("time for compute ",t1-t0)
 		app.refresh()
