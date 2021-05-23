@@ -687,11 +687,11 @@ class Segment:
 # ignore zero length segments
 #==============================================================================
 class Path(list):
-	def __init__(self, name, color=None):
+	def __init__(self, name, color=None,tagsDict = {}):
 		self.name    = name
 		self.color   = color
 		self._length = None
-		self.tags = {}
+		self.tags = tagsDict
 
 	#----------------------------------------------------------------------
 	def __repr__(self):
@@ -835,9 +835,9 @@ class Path(list):
 		y=(miny+maxy)/2
 		return x,y
 
-        #----------------------------------------------------------------------
-        # Return a point ON the path at distance traveled from A to B (or B to A when negative)
-        #----------------------------------------------------------------------
+		#----------------------------------------------------------------------
+		# Return a point ON the path at distance traveled from A to B (or B to A when negative)
+		#----------------------------------------------------------------------
 	def distPoint(self, dist):
 		if dist < 0:
 			dist = self.length() + dist
@@ -846,18 +846,18 @@ class Path(list):
 				return segment.distPoint(dist)
 			dist -= segment.length()
 
-        #----------------------------------------------------------------------
-        # Return linearized path (arcs are subdivided to lines)
-        #----------------------------------------------------------------------
+		#----------------------------------------------------------------------
+		# Return linearized path (arcs are subdivided to lines)
+		#----------------------------------------------------------------------
 	def linearize(self, maxseg=1, splitlines=False):
 		linearized = Path(self.name, self.color)
 		for seg in self:
 			linearized.extend(seg.linearize(maxseg, splitlines))
 		return linearized
 
-        #----------------------------------------------------------------------
-        # Return arcfited path
-        #----------------------------------------------------------------------
+		#----------------------------------------------------------------------
+		# Return arcfited path
+	#----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
 		def vecdir(TA,TB):
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
@@ -1032,9 +1032,9 @@ class Path(list):
 
 		return npath
 
-        #----------------------------------------------------------------------
-        # Return path with merged adjacent lines. It's good to use before arc fiting
-        #----------------------------------------------------------------------
+		#----------------------------------------------------------------------
+		# Return path with merged adjacent lines. It's good to use before arc fiting
+		#----------------------------------------------------------------------
 	def mergeLines(self, prec=0.5):
 		npath = Path(self.name, self.color)
 		i = 0
@@ -1879,6 +1879,46 @@ class Path(list):
 				segment.change2Line()
 
 	#----------------------------------------------------------------------
+	# Convert Arc to LINES  in a path
+	#----------------------------------------------------------------------
+	def approximateArcsToLines(self,alphaStep=5.):
+		alphaStep = alphaStep*pi/180.
+		newpath = Path(self.name,self.color,self.getTagsDict())
+		for index,seg in enumerate(self):
+			if seg.type == Segment.LINE :
+				newpath.append(seg)
+			if  seg.type == Segment.CW or seg.type==Segment.CCW:
+				A = seg.A
+				B = seg.B
+				C= seg.C
+				r = seg.radius
+				startphi = seg.startPhi
+				endPhi = seg.endPhi
+				alpha=startphi
+				finished = False
+				newsegs = []
+				while not finished:
+					startPoint = Vector(C[0]+r*cos(alpha),C[1]+r*sin(alpha))
+					if seg.type==Segment.CW:
+						sgn =-1.
+						alphaend = max(alpha-alphaStep,endPhi)
+					if seg.type==Segment.CCW:
+						sgn = 1.
+						alphaend = min(alpha+alphaStep,endPhi)
+					endPoint =Vector(C[0]+r*cos(alphaend),C[1]+r*sin(alphaend))
+					newseg = Segment(Segment.LINE,startPoint,endPoint)
+					newsegs.append(newseg)
+					if (seg.type==Segment.CCW and alpha -endPhi>=0 ) or (seg.type==Segment.CW and alpha - endPhi <=0):
+						finished = True
+					else :
+# 						print (alpha,endPhi)
+						alpha = alpha+sgn*alphaStep
+# 				self.pop(index)
+				for value in newsegs:
+					newpath.append(value)
+		return newpath
+
+	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments
 	#----------------------------------------------------------------------
 	def fromDxf(self, dxf, layer, units=0):
@@ -1963,7 +2003,10 @@ class Path(list):
 	
 	def getAllTags(self):
 		return self.tags.keys()
-
+	
+	def getTagsDict(self):
+		return self.tags
+	
 	def hasTag(self,tag):
 		return tag in self.tags.keys()
 
