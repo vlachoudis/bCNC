@@ -467,11 +467,10 @@ class Segment:
 
 	#----------------------------------------------------------------------
 	# Intersect a line with line
-	# some explanations would be needed. replace by _intersectLineLineNEW ??
+	# some explanations would be needed.
 	#----------------------------------------------------------------------
 	def _intersectLineLine(self, other):
 		# check for intersection
-# 		return self._intersectLineLineNEW(other)
 		DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
 		if abs(DD)<EPS2: return None,None
 
@@ -484,27 +483,6 @@ class Segment:
 			return P,None
 		return None,None
 
-	#----------------------------------------------------------------------
-	# Intersect a line with line (not used yet..)
-	#----------------------------------------------------------------------
-	def _intersectLineLineNEW(self,other):
-		xA,yA = self.A[0],self.A[1]
-		xB,yB = self.B[0],self.B[1]
-		xC,yC = other.A[0],other.A[1]
-		xD,yD = other.B[0],other.B[1]
-		a1,a2 = yB-yA,yD-yC
-		b1,b2 = xA-xB,xC-xD
-		c1,c2 = xA*(yA-yB)+yA*(xB-xA),xC*(yC-yD)+yC*(xD-xC)
-		DD = a2*b1-b2*a1
-		if abs(DD)<EPS2: 
-			return None,None
-		X = (b2*c1-c2*b1)/(a2*b1-b2*a1)
-		Y = (a2*c1-a1*c2)/(b2*a1-b1*a2)
-		P = Vector(X,Y)
-		if self.minx<=P[0]and P[0]<=self.maxx and other.minx<=P[0]and P[0]<=other.maxx and \
-			self.miny<=P[1]and P[1]<=self.maxy and other.miny<=P[1]and P[1]<=other.maxy:
-			return P,None
-		return None,None
 	#----------------------------------------------------------------------
 	# Intersect a line segment with an arc
 	#----------------------------------------------------------------------
@@ -598,6 +576,7 @@ class Segment:
 		# intersect their bounding boxes
 		if max(self.minx,other.minx) > min(self.maxx,other.maxx): return None,None
 		if max(self.miny,other.miny) > min(self.maxy,other.maxy): return None,None
+
 		if self.type==Segment.LINE and other.type==Segment.LINE:
 			return self._intersectLineLine(other)
 
@@ -835,9 +814,9 @@ class Path(list):
 		y=(miny+maxy)/2
 		return x,y
 
-		#----------------------------------------------------------------------
-		# Return a point ON the path at distance traveled from A to B (or B to A when negative)
-		#----------------------------------------------------------------------
+        #----------------------------------------------------------------------
+        # Return a point ON the path at distance traveled from A to B (or B to A when negative)
+        #----------------------------------------------------------------------
 	def distPoint(self, dist):
 		if dist < 0:
 			dist = self.length() + dist
@@ -846,18 +825,18 @@ class Path(list):
 				return segment.distPoint(dist)
 			dist -= segment.length()
 
-		#----------------------------------------------------------------------
-		# Return linearized path (arcs are subdivided to lines)
-		#----------------------------------------------------------------------
+        #----------------------------------------------------------------------
+        # Return linearized path (arcs are subdivided to lines)
+        #----------------------------------------------------------------------
 	def linearize(self, maxseg=1, splitlines=False):
 		linearized = Path(self.name, self.color)
 		for seg in self:
 			linearized.extend(seg.linearize(maxseg, splitlines))
 		return linearized
 
-		#----------------------------------------------------------------------
-		# Return arcfited path
-	#----------------------------------------------------------------------
+        #----------------------------------------------------------------------
+        # Return arcfited path
+        #----------------------------------------------------------------------
 	def arcFit(self, prec=0.5, numseg=10):
 		def vecdir(TA,TB):
 			if (( TA[0] * TB[1] ) - ( TA[1] * TB[0] )) < 0:
@@ -1032,9 +1011,9 @@ class Path(list):
 
 		return npath
 
-		#----------------------------------------------------------------------
-		# Return path with merged adjacent lines. It's good to use before arc fiting
-		#----------------------------------------------------------------------
+        #----------------------------------------------------------------------
+        # Return path with merged adjacent lines. It's good to use before arc fiting
+        #----------------------------------------------------------------------
 	def mergeLines(self, prec=0.5):
 		npath = Path(self.name, self.color)
 		i = 0
@@ -1088,12 +1067,11 @@ class Path(list):
 	def isInside(self, P):
 		#print "P=",P
 		#minx,miny,maxx,maxy = self.bbox()
-		maxx,maxy = self.bbox()[2],self.bbox()[3]
+		maxx = self.bbox()[2]
 		#print "limits:",minx,miny,maxx,maxy
 		#FIXME: this is strange. adding +1000 to line endpoint changes the outcome of method
 		#	i've found that doing this works around some unknown problem in most cases, but it's not really ideal solution
-# 		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]+1000))
-		line = Segment(Segment.LINE, P, Vector(maxx*1.1, maxy*1.1))
+		line = Segment(Segment.LINE, P, Vector(maxx*1.1, P[1]+1000))
 		count = 0
 		PP1 = None	# previous points to avoid double counting
 		PP2 = None
@@ -1694,8 +1672,7 @@ class Path(list):
 		points = path.intersectPath(otherpath)
 		inter = len(points)>0
 		if not inter :
-# 			inside = other.isInside(self[0].A,verbose = verbose)
-			inside = self.isInside(other[0].A)
+			inside = other.isInside(self[0].A)
 			result = 1 if inside else -1
 		else :
 			result =0
@@ -1877,44 +1854,6 @@ class Path(list):
 			if segment.type == Segment.LINE: continue
 			if segment.length()<=minlen:
 				segment.change2Line()
-
-	#----------------------------------------------------------------------
-	# Convert Arc to LINES  in a path
-	#----------------------------------------------------------------------
-	def approximateArcsToLines(self,alphaStep=5.):
-		alphaStep = alphaStep*pi/180.
-		newpath = Path(self.name,self.color,self.getTagsDict())
-		for index,seg in enumerate(self):
-			if seg.type == Segment.LINE :
-				newpath.append(seg)
-			if  seg.type == Segment.CW or seg.type==Segment.CCW:
-				A = seg.A
-				B = seg.B
-				C= seg.C
-				r = seg.radius
-				startphi = seg.startPhi
-				endPhi = seg.endPhi
-				alpha=startphi
-				finished = False
-				newsegs = []
-				while not finished:
-					startPoint = Vector(C[0]+r*cos(alpha),C[1]+r*sin(alpha))
-					if seg.type==Segment.CW:
-						sgn =-1.
-						alphaend = max(alpha-alphaStep,endPhi)
-					if seg.type==Segment.CCW:
-						sgn = 1.
-						alphaend = min(alpha+alphaStep,endPhi)
-					endPoint =Vector(C[0]+r*cos(alphaend),C[1]+r*sin(alphaend))
-					newseg = Segment(Segment.LINE,startPoint,endPoint)
-					newsegs.append(newseg)
-					if (seg.type==Segment.CCW and alpha -endPhi>=0 ) or (seg.type==Segment.CW and alpha - endPhi <=0):
-						finished = True
-					else :
-						alpha = alpha+sgn*alphaStep
-				for value in newsegs:
-					newpath.append(value)
-		return newpath
 
 	#----------------------------------------------------------------------
 	# Convert a dxf layer to a list of segments

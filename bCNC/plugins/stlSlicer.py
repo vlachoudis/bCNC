@@ -412,9 +412,6 @@ class BallFinish():
 		self.slicesOffsets = []
 		for sliceToolStep in slicesToolSteps :
 			self.slicesOffsets.append([sliceToolStep,self.offsetZ(sliceToolStep)])
-		print (self.slicesOffsets)
-		import time
-		time.sleep(3)
 
 	def offsetZ(self,sliceStep):
 		return abs(self.radiusCorrected*math.sin(math.acos(abs(sliceStep)/self.radiusCorrected)))
