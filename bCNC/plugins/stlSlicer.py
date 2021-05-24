@@ -229,12 +229,13 @@ class SliceRemoval:
 				offs = self.diameter/2.+self.AdditionalOffsetRadius
 			else :
 				offs = -self.diameter/2.-self.AdditionalOffsetRadius
-			path = p.offsetClean(offs)
-			for index,p in enumerate(path):
-				pass#should be the best, but there remain some intersections that are not managed correctly
-# 				p.convert2Lines(float("inf"))# This is not good, since arcs are shortcut...
-# 				path[index]=p.approximateArcsToLines(10.)#there remains sides effects...
-			self.sliceFinePathList.extend(path)
+			pathlist = p.offsetClean(offs)
+			for index,p in enumerate(pathlist):
+# 				pass#should be the best, but there remain some intersections that are not managed correctly
+				p.convert2Lines(float("inf"))# This is not good, since arcs are shortcut...
+# 				pathlist[index]=p.approximateArcsToLines(10.)#there remains sides effects...
+			self.sliceFinePathList.extend(pathlist)
+		self.sliceFinePathList=self.removeIntersections(self.sliceFinePathList)
 		if RawSliceOperation:
 			self.RawSlicePathList = deepcopy(self.sliceFinePathList)
 		else :
@@ -302,6 +303,21 @@ class SliceRemoval:
 			self.PathSliceRoughList.append(self.tmpSlicePath)
 			self.FullPathRoughList.append(self.PathSliceRoughList)
 			
+	def removeIntersections(self,pathlist):
+		segList = []
+		for path in pathlist:
+			for seg in path:
+				segList.append(seg)
+		tmpout = deepcopy(segList)
+		for seg in segList :
+			for path in pathlist :
+				inside =path.isSegInside(seg)==1#outseg inside offsetislands =>pop
+				if  inside and seg in tmpout:
+					tmpout.remove(seg)
+		newpath = Path("tmp")
+		newpath.extend(tmpout)
+		newpathlist=newpath.split2contours()
+		return newpathlist
 	
 	#input : path list
 	# tag each path plain or empty material
@@ -365,9 +381,6 @@ class SliceRemoval:
 			for seg in path:
 				if self.isInEmptyContour(seg, previous) and not seg in newPath:
 					newPath.append(seg)
-		#There is a bug remainging, because some segs are taken inside other profiles tagged plain
-# 		newPath.intersectSelf()
-# 		newPath.removeExcluded(newPath,self.diameter/2.+self.AdditionalOffsetRadius)
 		return self.tagPlainAndEmpty(newPath.split2contours())
 
 
@@ -561,6 +574,7 @@ class BallFinish():
 		for seg in newpath:
 			seg.invert()
 		return newpath
+	
 	def generategcode(self,sliceNmax,evenSense):
 		newblock = []
 		if sliceNmax is None or len(sliceNmax)<1:

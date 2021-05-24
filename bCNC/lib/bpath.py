@@ -471,7 +471,7 @@ class Segment:
 	#----------------------------------------------------------------------
 	def _intersectLineLine(self, other):
 		# check for intersection
-		return self._intersectLineLineNEW(other)
+# 		return self._intersectLineLineNEW(other)
 		DD = -self.AB[0]*other.AB[1] + self.AB[1]*other.AB[0]
 		if abs(DD)<EPS2: return None,None
 
@@ -1911,9 +1911,7 @@ class Path(list):
 					if (seg.type==Segment.CCW and alpha -endPhi>=0 ) or (seg.type==Segment.CW and alpha - endPhi <=0):
 						finished = True
 					else :
-# 						print (alpha,endPhi)
 						alpha = alpha+sgn*alphaStep
-# 				self.pop(index)
 				for value in newsegs:
 					newpath.append(value)
 		return newpath
