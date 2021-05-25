@@ -1125,52 +1125,6 @@ class Path(list):
 	# Split path into contours
 	# This not only SPLITs path to contours,
 	# it also takes unsorted segments and JOINs them to closed loops if possible
-	# duplicate of split2contours ? but is does not affect the path, it makes a deepcopy of it
-	# not used yet
-	#----------------------------------------------------------------------
-	def rearrange(self):
-		if not self: return []
-		if len(self)== 0:
-			return []
-		pathcopy = deepcopy(self)
-		newpathsList = []
-		last = None
-		tmpPath = Path("Rearranged Path")
-		
-		def findMatchingSegment(path,segToFind):
-			for seg in path:
-				if eq(seg.A,segToFind.B,EPS) and not eq(seg.B,segToFind.A,EPS):
-					newseg =Segment(Segment.LINE,segToFind.B,seg.B)
-					return [newseg,seg]
-				elif eq(seg.B,segToFind.B,EPS) and not eq(seg.A,segToFind.A,EPS) :
-					newseg= Segment(Segment.LINE,segToFind.B,seg.A)
-					return [newseg,seg]
-			return [None,segToFind]
-		
-		while len(pathcopy)>0: #Check we have treated all segments
-			if last is None :
-				last = pathcopy[0]
-			findSeg = True
-			while findSeg :
-				[newseg,oldseg] = findMatchingSegment(pathcopy, last)
-				if newseg is not None :
-					tmpPath.append(newseg)
-					pathcopy.remove(oldseg)
-					last = newseg
-					findSeg = True
-				else :
-					if len(tmpPath)>0:
-						newpathsList.append(tmpPath)
-					if last in pathcopy:
-						pathcopy.remove(last)
-					findSeg = False
-					last = None
-					tmpPath = Path("Rearranged Path")
-		return newpathsList
-	#----------------------------------------------------------------------
-	# Split path into contours
-	# This not only SPLITs path to contours,
-	# it also takes unsorted segments and JOINs them to closed loops if possible
 	# FIXME: If this is true, this should be probably called reconstructContours()
 	#----------------------------------------------------------------------
 	def split2contours(self, acc=EPSV):
