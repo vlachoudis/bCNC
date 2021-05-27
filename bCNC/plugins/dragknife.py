@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: ascii -*-
 
 # Author: @harvie Tomas Mudrunka
@@ -28,7 +27,7 @@ class Tool(Plugin):
 	def __init__(self, master):
 		Plugin.__init__(self, master,"DragKnife")
 		self.icon = "dragknife"			#<<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
-		self.group = "CAM"	#<<< This is the name of group that plugin belongs
+		self.group = "CAM_Core"	#<<< This is the name of group that plugin belongs
 		#self.oneshot = True
 		#Here we are creating the widgets presented to the user inside the plugin
 		#Name, Type , Default value, Description
@@ -109,7 +108,7 @@ This fact introduces the need for preprocessing the g-code to account with that 
 					else:
 						arcdir = Segment.CCW
 
-					#Append swivel if needed (also always do entry/exit)
+					#Append swivel if needed (with an angle threshold of 1 degree on entry/exit segments)
 					if abs(angle) > angleth or (abs(angle) > 1 and ( i == 0 or i == len(opath)-1 )):
 						arca = Segment(arcdir, prevseg.tangentialOffset(dragoff).B, seg.tangentialOffset(dragoff).A, prevseg.B)
 
@@ -118,7 +117,16 @@ This fact introduces the need for preprocessing the g-code to account with that 
 
 					#Append segment with tangential offset
 					if i < len(opath)-1:
-						npath.append(seg.tangentialOffset(dragoff))
+						newSeg = seg.tangentialOffset(dragoff)
+						# To keep the path connected, we use the end of the
+						# previous segment as the start of this segment.
+						# if there is no previous entry, use the ventry vector
+						if len(npath) == 0:
+							newSeg.setStart(ventry.B)
+						else:
+							newSeg.setStart(npath[-1].B)
+
+						npath.append(newSeg)
 
 					prevseg = seg
 

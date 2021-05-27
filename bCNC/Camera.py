@@ -19,6 +19,7 @@ except ImportError:
 try:
 	from PIL import Image, ImageTk
 except ImportError:
+	print("Unable to import Image, ImageTk from Pillow\n")
 	cv = None
 
 import Utils

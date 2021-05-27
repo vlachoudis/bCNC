@@ -688,12 +688,12 @@ class CNC:
 			"wx"         : 0.0,
 			"wy"         : 0.0,
 			"wz"         : 0.0,
-			"mx"         : 0.0,
-			"my"         : 0.0,
-			"mz"         : 0.0,
 			"wa"         : 0.0,
 			"wb"         : 0.0,
 			"wc"         : 0.0,
+			"mx"         : 0.0,
+			"my"         : 0.0,
+			"mz"         : 0.0,
 			"ma"         : 0.0,
 			"mb"         : 0.0,
 			"mc"         : 0.0,
@@ -4120,7 +4120,7 @@ class GCode:
 		blocks.extend(newblocks)
 		return msg
 
-    #----------------------------------------------------------------------
+	#----------------------------------------------------------------------
 	# make a trochoidal profile on block
 	# offset +/- defines direction = tool/2
 	# return new blocks inside the blocks list
