@@ -1244,11 +1244,11 @@ class CNCCanvas(Canvas, object):
 			self._cameraImage = self.create_image((0,0), tag="CameraImage")
 			self.lower(self._cameraImage)
 			# create cross hair at dummy location we will correct latter
-			self._cameraHori    = self.create_line(0,0,1,0, fill=CAMERA_COLOR, tag="CrossHair")
-			self._cameraVert    = self.create_line(0,0,0,1, fill=CAMERA_COLOR, tag="CrossHair")
-			self._cameraCircle  = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR, tag="CrossHair")
-			self._cameraCircle2 = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR,
-							dash=(3,3), tag="CrossHair")
+	#		self._cameraHori    = self.create_line(0,0,1,0, fill=CAMERA_COLOR, tag="CrossHair")
+	#		self._cameraVert    = self.create_line(0,0,0,1, fill=CAMERA_COLOR, tag="CrossHair")
+	#		self._cameraCircle  = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR, tag="CrossHair")
+	#		self._cameraCircle2 = self.create_oval(0,0, 1,1, outline=CAMERA_COLOR,
+	#						dash=(3,3), tag="CrossHair")
 			self.cameraPosition()
 		try:
 			self.itemconfig(self._cameraImage, image=self.camera.toTk())
@@ -1306,6 +1306,16 @@ class CNCCanvas(Canvas, object):
 				r = self.cameraR * self.zoom
 			else:
 				r = self.cameraR * self.cameraScale
+
+		# =====================================================
+		_cameraColor=self.cameraColor
+		self._cameraHori    = self.create_line(0,0,1,0, fill=_cameraColor, tag="CrossHair")
+		self._cameraVert    = self.create_line(0,0,0,1, fill=_cameraColor, tag="CrossHair")
+		self._cameraCircle  = self.create_oval(0,0, 1,1, outline=_cameraColor, tag="CrossHair")
+		self._cameraCircle2 = self.create_oval(0,0, 1,1, outline=_cameraColor,
+			dash=(3,3), tag="CrossHair")
+
+		# =====================================================
 
 		self.coords(self._cameraImage,   x, y)
 		self.coords(self._cameraHori,    x-wc, y, x+wc, y)
