@@ -1079,17 +1079,6 @@ class CNC:
 
 	#----------------------------------------------------------------------
 	@staticmethod
-	def zenter_rapid(z, d=None):
-		if CNC.lasercutter:
-			if CNC.laseradaptive:
-				return "m4"
-			else:
-				return "m3"
-		else:
-			return "g0 %s"%(CNC.fmt("z",z,d))
-
-	#----------------------------------------------------------------------
-	@staticmethod
 	def zexit(z, d=None):
 		if CNC.lasercutter:
 			return "m5"
@@ -2823,7 +2812,6 @@ class GCode:
 			#Descend to pass (plunge to the beginning of path)
 			if entry:
 				#if entry feed to Z
-				if retract: block.append(CNC.zenter_rapid(self.cnc["surface"] + 1.0))
 				block.append(CNC.zenter(max(zh, ztab),7))
 			else:
 				#without entry just rapid to Z
@@ -3474,14 +3462,12 @@ class GCode:
 		def drillHole(lines):
 			# drill point
 			if peck is None:
-				lines.append(CNC.zenter_rapid(self.cnc["surface"] + 1.0))
 				lines.append(CNC.zenter(depth))
 				lines.append(CNC.zsafe())
 			else:
 				z = self.cnc["surface"]
 				while z>depth:
 					z = max(z-peck, depth)
-					lines.append(CNC.zenter_rapid(self.cnc["surface"] + 1.0))
 					lines.append(CNC.zenter(z))
 					lines.append(CNC.zsafe())
 					if dwell:
