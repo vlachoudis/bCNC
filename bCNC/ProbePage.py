@@ -71,6 +71,16 @@ CAMERA_LOCATION_ORDER = [
 		    "Bottom",
 		    "Bottom-Right"]
 
+CAMERA_COLOR = { "Cyan"   : "cyan",
+		    "Blue"        : "blue",
+		    "Dark Blue"	  : "dark blue",
+		    "Black"       : "black",
+		}
+CAMERA_COLOR_ORDER = [
+		    "Cyan",
+		    "Blue",
+		    "Dark Blue",
+		    "Black"]
 
 #===============================================================================
 # Probe Tab Group
@@ -1424,6 +1434,17 @@ class CameraFrame(CNCRibbon.PageFrame):
 		b.grid(row=row, column=2, sticky=W)
 		tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
 
+		Label(lframe, text=_("Color:")).grid(row=row, column=3, sticky=W)
+		self.color = tkExtra.Combobox(lframe, True,
+					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+					width=10)
+		self.color.grid(row=row, column=4, columnspan=6, sticky=EW)
+		self.color.fill(CAMERA_COLOR_ORDER)
+		self.color.set(CAMERA_COLOR_ORDER[0])
+		self.color.bind("<FocusIn>", self.updateValues)
+
+		tkExtra.Balloon.set(self.color, _("Camera cross hair color"))
+
 		# ----
 		row += 1
 		Label(lframe, text=_("Offset:")).grid(row=row, column=0, sticky=E)
@@ -1483,6 +1504,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Camera", "aligncam_rotation",     self.rotation.get())
 		Utils.setFloat("Camera", "aligncam_xcenter",     self.xcenter.get())
 		Utils.setFloat("Camera", "aligncam_ycenter",     self.ycenter.get())
+		Utils.setStr(  "Camera", "aligncam_color",self.color.get())
 
 	#-----------------------------------------------------------------------
 	def loadConfig(self):
@@ -1495,6 +1517,7 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.rotation.set(Utils.getFloat("Camera","aligncam_rotation"))
 		self.xcenter.set(Utils.getFloat("Camera", "aligncam_xcenter"))
 		self.ycenter.set(Utils.getFloat("Camera", "aligncam_ycenter"))
+		self.color.set(    Utils.getStr("Camera",  "aligncam_color"))
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
@@ -1509,10 +1532,15 @@ class CameraFrame(CNCRibbon.PageFrame):
 		self.updateValues()
 
 	#-----------------------------------------------------------------------
+	def cameraColor(self):
+		return CAMERA_COLOR.get(self.color.get(),"cyan")
+
+	#-----------------------------------------------------------------------
 	# Update canvas with values
 	#-----------------------------------------------------------------------
 	def updateValues(self, *args):
 		self.app.canvas.cameraAnchor = self.cameraAnchor()
+		self.app.canvas.cameraColor = self.cameraColor()
 		try: self.app.canvas.cameraRotation = float(self.rotation.get())
 		except ValueError: pass
 		try: self.app.canvas.cameraXCenter = float(self.xcenter.get())
