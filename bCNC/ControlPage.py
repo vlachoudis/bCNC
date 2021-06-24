@@ -1080,53 +1080,10 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
 		row,col = 0,0
 		Label(frame, text=_("A")).grid(row=row, column=col)
-
-		col += 3
+		col += 1
+		Label(frame, text=_("B")).grid(row=row, column=col)
+		col += 1
 		Label(frame, text=_("C")).grid(row=row, column=col)
-
-		# ---
-		row += 1
-		col = 0
-
-		width=3
-		height=2
-
-		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveAup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +A"))
-		self.addWidget(b)
-
-		col += 2
-		b = Button(frame, text=Unicode.UPPER_LEFT_TRIANGLE,
-					command=self.moveBdownCup,
-					width=width, height=height,
-					activebackground="LightYellow")
-
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -B +C"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveCup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +C"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(frame, text=Unicode.UPPER_RIGHT_TRIANGLE,
-					command=self.moveBupCup,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +B +C"))
-		self.addWidget(b)
-
 		col += 2
 		b = Button(frame, text=u"\u00D710",
 				command=self.mulStep,
@@ -1135,7 +1092,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 		b.grid(row=row, column=col, sticky=EW+S)
 		tkExtra.Balloon.set(b, _("Multiply step by 10"))
 		self.addWidget(b)
-
 		col += 1
 		b = Button(frame, text=_("+"),
 				command=self.incStep,
@@ -1147,30 +1103,22 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
 		# ---
 		row += 1
+		col = 0
 
-		col = 1
-		Label(frame, text=_("B"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		width=3
+		height=2
 
-		col += 1
-		b = Button(frame, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
-					command=self.moveBdown,
+
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveAup,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -B"))
+		tkExtra.Balloon.set(b, _("Move +A"))
 		self.addWidget(b)
 
 		col += 1
-		b = Button(frame, text=Unicode.LARGE_CIRCLE,
-					command=self.go2abcorigin,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Return ABC to 0."))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(frame, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
 					command=self.moveBup,
 					width=width, height=height,
 					activebackground="LightYellow")
@@ -1178,11 +1126,16 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, _("Move +B"))
 		self.addWidget(b)
 
-		# --
 		col += 1
-		Label(frame,"",width=2).grid(row=row,column=col)
-		
-		col += 1
+		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
+					command=self.moveCup,
+					width=width, height=height,
+					activebackground="LightYellow")
+		b.grid(row=row, column=col, sticky=EW)
+		tkExtra.Balloon.set(b, _("Move +C"))
+		self.addWidget(b)
+
+		col += 2
 		self.step = tkExtra.Combobox(frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
 		self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
 		self.step.set(Utils.config.get("abcControl","step"))
@@ -1190,19 +1143,30 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(self.step, _("Step for every move operation"))
 		self.addWidget(self.step)
 
+
+		# ---
+		row += 1
+
+		col = 1
+
+		# --
+		col += 4
+		Label(frame,"",width=2).grid(row=row,column=col)
+		
+
 		# -- Separate astep --
-		try:
-			astep = Utils.config.get("abcControl","astep")
-			self.astep = tkExtra.Combobox(frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
-			self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
-			self.astep.set(astep)
-			asl = [_NOASTEP]
-			asl.extend(map(float, Utils.config.get("abcControl","asteplist").split()))
-			self.astep.fill(asl)
-			tkExtra.Balloon.set(self.astep, _("Step for A move operation"))
-			self.addWidget(self.astep)
-		except:
-			self.astep = self.step
+		#try:
+		#	astep = Utils.config.get("abcControl","astep")
+		#	self.astep = tkExtra.Combobox(frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+		#	self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
+		#	self.astep.set(astep)
+		#	asl = [_NOASTEP]
+		#	asl.extend(map(float, Utils.config.get("abcControl","asteplist").split()))
+		#	self.astep.fill(asl)
+		#	tkExtra.Balloon.set(self.astep, _("Step for A move operation"))
+		#	self.addWidget(self.astep)
+		#except:
+		self.astep = self.step
 
 		# Default steppings
 		try:
@@ -1221,7 +1185,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 			self.step3 = 10
 
 		# ---
-		row += 1
 		col = 0
 
 		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
@@ -1232,13 +1195,13 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(b, _("Move -A"))
 		self.addWidget(b)
 
-		col += 2
-		b = Button(frame, text=Unicode.LOWER_LEFT_TRIANGLE,
-					command=self.moveBdownCdown,
+		col += 1
+		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
+					command=self.moveBdown,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -B -C"))
+		tkExtra.Balloon.set(b, _("Move -B"))
 		self.addWidget(b)
 
 		col += 1
@@ -1248,15 +1211,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
 		tkExtra.Balloon.set(b, _("Move -C"))
-		self.addWidget(b)
-
-		col += 1
-		b = Button(frame, text=Unicode.LOWER_RIGHT_TRIANGLE,
-					command=self.moveBupCdown,
-					width=width, height=height,
-					activebackground="LightYellow")
-		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +B -C"))
 		self.addWidget(b)
 
 		col += 2

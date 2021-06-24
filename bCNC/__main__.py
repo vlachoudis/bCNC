@@ -73,7 +73,7 @@ from TerminalPage import TerminalPage
 from ProbePage    import ProbePage
 from EditorPage   import EditorPage
 
-_openserial = True	# override ini parameters
+_openserial = False	# override ini parameters
 _device     = None
 _baud       = None
 
@@ -415,6 +415,10 @@ class Application(Toplevel,Sender):
 			self.bind('<Down>',		self.control.moveYdown)
 			self.bind('.',                  self.abccontrol.moveAup)
 			self.bind(',',			self.abccontrol.moveAdown)
+			self.bind('l',          self.abccontrol.moveBup)
+			self.bind('k',			self.abccontrol.moveBdown)
+			self.bind('[',			self.abccontrol.moveCup)
+			self.bind(']',			self.abccontrol.moveCdown)
 
 		try:
 			self.bind('<KP_Prior>',		self.control.moveZup)
