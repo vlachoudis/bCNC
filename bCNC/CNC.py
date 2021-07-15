@@ -4626,7 +4626,7 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def compile(self, queue, stopFunc=None):
+	def compile(self, queue, stopFunc=None, lineNumber=0):
 		#lines  = [self.cnc.startup]
 		paths   = []
 
@@ -4646,6 +4646,9 @@ class GCode:
 		for i,block in enumerate(self.blocks):
 			if not block.enable: continue
 			for j,line in enumerate(block):
+				if lineNumber>0:
+				    lineNumber -= 1
+				    continue
 				every -= 1
 				if every<=0:
 					if stopFunc is not None and stopFunc():

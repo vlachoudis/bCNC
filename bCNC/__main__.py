@@ -2274,7 +2274,7 @@ class Application(Toplevel,Sender):
 			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
 			#return
 
-			self._paths = self.gcode.compile(self.queue, self.checkStop)
+			self._paths = self.gcode.compile(self.queue, self.checkStop,CNC.vars["lineNumber"])
 			if self._paths is None:
 				self.emptyQueue()
 				self.purgeController()
