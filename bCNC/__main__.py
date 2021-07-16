@@ -260,7 +260,6 @@ class Application(Toplevel,Sender):
 		tkExtra.bindEventData(self, "<<OrientSelect>>", lambda e,f=probe: f.selectMarker(int(e.data)))
 		tkExtra.bindEventData(self, '<<OrientChange>>',	lambda e,s=self: s.canvas.orientChange(int(e.data)))
 		self.bind('<<OrientUpdate>>',	probe.orientUpdate)
-
 		# Global bindings
 		self.bind('<<Undo>>',		self.undo)
 		self.bind('<<Redo>>',		self.redo)
@@ -292,11 +291,11 @@ class Application(Toplevel,Sender):
 		self.bind('<<AlarmClear>>',	self.alarmClear)
 		self.bind('<<Help>>',		self.help)
 						# Do not send the event otherwise it will skip the feedHold/resume
-		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHold())
+		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHoldLayer())
 		self.bind('<<Resume>>',		lambda e,s=self: s.resume())
 		self.bind('<<Run>>',		lambda e,s=self: s.run())
-		self.bind('<<Stop>>',		self.stopRun)
-		self.bind('<<Pause>>',		self.pause)
+		self.bind('<<Stop>>',		self.stopRunLayer)
+		self.bind('<<Pause>>',		self.pauseLayer)
 #		self.bind('<<TabAdded>>',	self.tabAdded)
 
 		tkExtra.bindEventData(self, "<<Status>>",	self.updateStatus)
@@ -2220,6 +2219,28 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
+	
+	def pauseLayer(self,event=None):
+	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 3
+	    print("Pause Layer lineNumber = {}".format(lineNumber))
+	    self.pause(event)
+	    CNC.vars["lineNumberToStart"] = lineNumber
+	
+	
+	def stopRunLayer(self,event=None):
+	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount-3
+	    print("Stop run  lineNumber = {}".format(lineNumber))
+	    self.stopRun(event)
+	    CNC.vars["lineNumberToStart"] = lineNumber
+	
+	
+	def feedHoldLayer(self,event=None):
+	    lineNumber = self._gcount
+	    print("HoldLayer lineNumber = {}".format(lineNumber))
+	    self.feedHold(event)
+	    CNC.vars["lineNumberToStart"] = lineNumber
+	
+	
 	def run(self, lines=None):
 		self.cleanAfter = True	#Clean when this operation stops
 		print("Will clean after this operation")
@@ -2273,8 +2294,7 @@ class Application(Toplevel,Sender):
 			#		print ">>>",line
 			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
 			#return
-
-			self._paths = self.gcode.compile(self.queue, self.checkStop,CNC.vars["lineNumber"])
+			self._paths = self.gcode.compile(self.queue, self.checkStop,CNC.vars["lineNumberToStart"])
 			if self._paths is None:
 				self.emptyQueue()
 				self.purgeController()
@@ -2304,7 +2324,7 @@ class Application(Toplevel,Sender):
 						before = time.time()
 
 			# the buffer of the machine should be empty?
-			self._runLines = len(self._paths) + 1	# plus the wait
+			self._runLines = CNC.vars["lineNumberToStart"] + len(self._paths) + 1	# plus the wait
 		else:
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):

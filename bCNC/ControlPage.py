@@ -122,15 +122,18 @@ class UserGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class RunGroup(CNCRibbon.ButtonGroup):
 	def setLineNumber(self, event=None):
-	    line = self.lineNumber.get()
+	    line = self.lineNumberEntry.get()
 	    value = 0
 	    if line.isdigit():
 	        value = int(line) 
-	    CNC.vars["lineNumber"] = value
-
+	    CNC.vars["lineNumberToStart"] = value
+	def updateLineNumber(self, event=None):
+		newLineNumber = CNC.vars["lineNumberToStart"]
+		self.lineNumberEntry.delete(0,'end')
+		self.lineNumberEntry.insert(0,str(newLineNumber))
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
-		CNC.vars["lineNumber"] = 0
+		CNC.vars["lineNumberToStart"] = 0
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Run>>",
 				image=Utils.icons["start32"],
@@ -140,15 +143,22 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Run g-code commands from editor to controller"))
 		self.addWidget(b)
-		self.lineNumber = Entry(self,
+		self.lineNumberEntry = Entry(self,
                         background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
                         relief=FLAT,
                         borderwidth=0,
                         justify=RIGHT)
-		self.lineNumber.pack(side=LEFT, fill=BOTH)
-		tkExtra.Balloon.set(self.lineNumber, _("Line number to Start"))
-		self.addWidget(self.lineNumber)
-		self.lineNumber.bind("<Return>", self.setLineNumber)
+		self.lineNumberEntry.pack(side=LEFT, fill=BOTH)
+		tkExtra.Balloon.set(self.lineNumberEntry, _("Line number to Start"))
+		self.addWidget(self.lineNumberEntry)
+		self.lineNumberEntry.bind("<Return>", self.setLineNumber)
+		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
+		                   text=_("Update"),
+		                   compound=TOP,
+		                   background=Ribbon._BACKGROUND)
+		b.pack(side=BOTTOM, fill=BOTH)
+		self.addWidget(b)
+		b.bind("<ButtonPress>", self.updateLineNumber)
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Pause>>",
 				image=Utils.icons["pause32"],
