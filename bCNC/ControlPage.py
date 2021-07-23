@@ -29,6 +29,8 @@ import CNCRibbon
 from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
+from BjmUtils import findLine
+
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
@@ -122,15 +124,22 @@ class UserGroup(CNCRibbon.ButtonGroup):
 #===============================================================================
 class RunGroup(CNCRibbon.ButtonGroup):
 	def setLineNumber(self, event=None):
-	    line = self.lineNumberEntry.get()
-	    value = 0
-	    if line.isdigit():
-	        value = int(line) 
-	    CNC.vars["lineNumberToStart"] = value
+		line = self.lineNumberEntry.get()
+		value = 0
+		if line.isdigit():
+			value = int(line) 
+		CNC.vars["lineNumberToStart"] = value
 	def updateLineNumber(self, event=None):
 		newLineNumber = CNC.vars["lineNumberToStart"]
 		self.lineNumberEntry.delete(0,'end')
 		self.lineNumberEntry.insert(0,str(newLineNumber))
+	def findCurrentLine(self,event=None):
+		fileName = self.app.gcode.filename
+		currentX,currentY = CNC.vars["wx"],CNC.vars["wy"] 
+		print("{},{} -> fileName {}".format(currentX,currentY,fileName))
+		line = findLine(fileName,currentX,currentY)
+		CNC.vars["lineNumberToStart"] = line
+		self.updateLineNumber()
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
 		CNC.vars["lineNumberToStart"] = 0
@@ -148,17 +157,10 @@ class RunGroup(CNCRibbon.ButtonGroup):
                         relief=FLAT,
                         borderwidth=0,
                         justify=RIGHT)
-		self.lineNumberEntry.pack(side=LEFT, fill=BOTH)
+		self.lineNumberEntry.pack(side=BOTTOM, fill=BOTH)
 		tkExtra.Balloon.set(self.lineNumberEntry, _("Line number to Start"))
 		self.addWidget(self.lineNumberEntry)
 		self.lineNumberEntry.bind("<Return>", self.setLineNumber)
-		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
-		                   text=_("Update"),
-		                   compound=TOP,
-		                   background=Ribbon._BACKGROUND)
-		b.pack(side=BOTTOM, fill=BOTH)
-		self.addWidget(b)
-		b.bind("<ButtonPress>", self.updateLineNumber)
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Pause>>",
 				image=Utils.icons["pause32"],
@@ -176,6 +178,20 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Pause running program and soft reset controller to empty the buffer."))
 
+		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
+		                   text=_("Update"),
+		                   compound=TOP,
+		                   background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH)
+		self.addWidget(b)
+		b.bind("<ButtonPress>", self.updateLineNumber)
+		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
+		                   text=_("Find Line"),
+		                   compound=TOP,
+		                   background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH)
+		self.addWidget(b)
+		b.bind("<ButtonPress>", self.findCurrentLine)
 
 #===============================================================================
 # DRO Frame
