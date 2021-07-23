@@ -2221,21 +2221,21 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	
 	def pauseLayer(self,event=None):
-	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
 	    print("Pause Layer lineNumber = {}".format(lineNumber))
 	    self.pause(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
 	
 	
 	def stopRunLayer(self,event=None):
-	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
 	    print("Stop run  lineNumber = {}".format(lineNumber))
 	    self.stopRun(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
 	
 	
 	def feedHoldLayer(self,event=None):
-	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
 	    print("HoldLayer lineNumber = {}".format(lineNumber))
 	    self.feedHold(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
