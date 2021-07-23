@@ -134,15 +134,16 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		self.lineNumberEntry.delete(0,'end')
 		self.lineNumberEntry.insert(0,str(newLineNumber))
 	def findCurrentLine(self,event=None):
-		fileName = self.app.gcode.filename
-		currentX,currentY = CNC.vars["wx"],CNC.vars["wy"] 
-		print("{},{} -> fileName {}".format(currentX,currentY,fileName))
-		line = findLine(fileName,currentX,currentY)
+		currentX,currentY = CNC.vars["wx"],CNC.vars["wy"]
+		line = findLine(self.app,currentX,currentY)
 		CNC.vars["lineNumberToStart"] = line
 		self.updateLineNumber()
+
+		
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
 		CNC.vars["lineNumberToStart"] = 0
+		self.app = app
 
 		b = Ribbon.LabelButton(self.frame, self, "<<Run>>",
 				image=Utils.icons["start32"],

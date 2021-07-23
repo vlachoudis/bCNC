@@ -1,12 +1,14 @@
 import CNCList
 from numpy import sqrt
-def findLine(fileName = "", currentX=0, currentY=0):
-    if fileName=="":
+def findLine(app, currentX=0, currentY=0):
+    if app.gcode.filename=="":
         return 0
     answer = 0
     minimumError = CNCList.MAXINT
-    file = open(fileName,'r')
-    lines = file.readlines()
+    lines = []
+    for block in app.gcode.blocks:
+        for line in block:
+            lines += [line]
     xValue = currentX-CNCList.MAXINT
     yValue = currentY-CNCList.MAXINT
     for (i,currentLine) in enumerate(lines):
@@ -18,7 +20,7 @@ def findLine(fileName = "", currentX=0, currentY=0):
         if dist < minimumError:
             minimumError = dist
             answer = i
-    print("from file {} line {} = {}".format(fileName,answer,lines[answer]))
+    print("from file {} line {} = {}".format(app.gcode.filename,answer,lines[answer]))
     return answer
 
 def computeCoords(currentX,currentY, line):

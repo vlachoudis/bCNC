@@ -416,12 +416,12 @@ class Application(Toplevel,Sender):
 			self.bind(',',			self.abccontrol.moveAdown)
 			self.bind('l',          self.abccontrol.moveBup)
 			self.bind('k',			self.abccontrol.moveBdown)
-			self.bind('[',			self.abccontrol.moveCup)
-			self.bind(']',			self.abccontrol.moveCdown)
+			self.bind('o',			self.abccontrol.moveCup)
+			self.bind('i',			self.abccontrol.moveCdown)
 
 		try:
-			self.bind('<KP_Prior>',		self.control.moveZup)
-			self.bind('<KP_Next>',		self.control.moveZdown)
+			self.bind('9',		self.control.moveZup)
+			self.bind('8',		self.control.moveZdown)
 
 			if self._swapKeyboard==1:
 				self.bind('<KP_Right>',	self.control.moveYup)
@@ -2221,21 +2221,21 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	
 	def pauseLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
 	    print("Pause Layer lineNumber = {}".format(lineNumber))
 	    self.pause(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
 	
 	
 	def stopRunLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
 	    print("Stop run  lineNumber = {}".format(lineNumber))
 	    self.stopRun(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
 	
 	
 	def feedHoldLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
+	    lineNumber = self._gcount - 21  - len(CNC.startup.split('\n')) #21 came from esp32 BlockSize
 	    print("HoldLayer lineNumber = {}".format(lineNumber))
 	    self.feedHold(event)
 	    CNC.vars["lineNumberToStart"] = lineNumber
