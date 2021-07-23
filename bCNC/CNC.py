@@ -4643,9 +4643,13 @@ class GCode:
 			add(line, None)
 
 		every = 1
+		totalNumberOfLines = 0
 		for i,block in enumerate(self.blocks):
-			if not block.enable: continue
+			if not block.enable:
+				totalNumberOfLines += len(block)
+				continue
 			for j,line in enumerate(block):
+				totalNumberOfLines += 1
 				every -= 1
 				if every<=0:
 					if stopFunc is not None and stopFunc():
@@ -4667,8 +4671,7 @@ class GCode:
 						add(cmds, (i,j))
 					continue
 
-				skip   = (lineNumber>0)
-				lineNumber = max(lineNumber-1,0)
+				skip   = (totalNumberOfLines<lineNumber)
 				expand = None
 				self.cnc.motionStart(cmds)
 
