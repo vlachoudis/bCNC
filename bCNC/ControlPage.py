@@ -179,13 +179,13 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Pause running program and soft reset controller to empty the buffer."))
 
-		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
-		                   text=_("Update"),
-		                   compound=TOP,
-		                   background=Ribbon._BACKGROUND)
-		b.pack(side=LEFT, fill=BOTH)
-		self.addWidget(b)
-		b.bind("<ButtonPress>", self.updateLineNumber)
+		#b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
+		#                   text=_("Update"),
+		#                   compound=TOP,
+		#                   background=Ribbon._BACKGROUND)
+		#b.pack(side=LEFT, fill=BOTH)
+		#self.addWidget(b)
+		#b.bind("<ButtonPress>", self.updateLineNumber)
 		b = Ribbon.LabelButton(self.frame, self, "<ButtonPress>",
 		                   text=_("Find Line"),
 		                   compound=TOP,
