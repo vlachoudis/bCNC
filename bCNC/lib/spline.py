@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: latin1 -*-
 #
 # Author: vvlachoudis@gmail.com
