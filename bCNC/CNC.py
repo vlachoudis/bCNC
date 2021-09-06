@@ -17,6 +17,8 @@ import pickle
 import json
 #import binascii
 
+import random
+
 from dxf	import DXF
 from bstl	import Binary_STL_Writer
 from bpath	import eq,Path, Segment
@@ -482,6 +484,8 @@ class Orient:
 		self.phi = 0.0
 		self.xo  = 0.0
 		self.yo  = 0.0
+		self.scalex = 1.0
+		self.scaley = 1.0
 		self.valid = False
 		self.saved = False
 
@@ -550,7 +554,7 @@ class Orient:
 	#   2. no aspect ratio
 	#
 	#-----------------------------------------------------------------------
-	def solve(self):
+	def solve_old(self):
 		self.valid = False
 		if len(self.markers)< 2: raise Exception("Too few markers")
 		A = []
@@ -582,6 +586,98 @@ class Orient:
 		self.valid = True
 		return self.phi,self.xo,self.yo
 
+	def CalculateSSE(self, _xo, _yo, _phi, _scalex, _scaley):
+		_c = cos(_phi)
+		_s = sin(_phi)
+		SSE = 0.0
+		for i,(xm,ym,x,y) in enumerate(self.markers):
+			dx = _scalex * (_c*x - _s*y + _xo) - xm
+			dy = _scaley * (_s*x + _c*y + _yo) - ym
+			err = dx**2 + dy**2
+			SSE += err
+		return SSE
+
+	#-----------------------------------------------------------------------
+	# Return the rotation angle phi in radians, the offset (xo,yo) 
+	#   and the scales (scalex,scaley)
+	# Applies a primitive/naive evolutionary-like algorithm,
+	#   not too sophisticated but does the job in (250-400) 400 iterations
+	# Provides better MSE values than the previous methods even without sx,sy
+	# It can be easily extended to handle skew (if necessary)
+	#-----------------------------------------------------------------------
+	def solve(self):
+		self.valid = False
+		if len(self.markers)< 3: raise Exception("Too few markers")
+		A = []
+		B = []
+		for xm,ym,x,y in self.markers:
+			A.append([x,y]);	B.append([xm, ym])
+
+		print ("1")
+		rate = 0.1
+		SSE_0 = self.CalculateSSE(self.xo, self.yo, self.phi, self.scalex, self.scaley)
+		for rep in range(400):
+			dxo = random.random() - 0.5
+			dyo = random.random() - 0.5
+			dphi = rate * (random.random() - 0.5)
+			dsx = rate * (random.random() - 0.5)
+			dsy = rate * (random.random() - 0.5)
+			
+			SSE = self.CalculateSSE(self.xo + dxo, self.yo, self.phi, self.scalex, self.scaley)
+			if SSE<=SSE_0:
+				self.xo += dxo
+				SSE_0 = SSE
+			else:
+				SSE = self.CalculateSSE(self.xo - dxo, self.yo, self.phi, self.scalex, self.scaley)
+				if SSE<=SSE_0:
+					self.xo -= dxo
+					SSE_0 = SSE
+
+			SSE = self.CalculateSSE(self.xo, self.yo + dyo, self.phi, self.scalex, self.scaley)
+			if SSE<=SSE_0:
+				self.yo += dyo
+				SSE_0 = SSE
+			else:
+				SSE = self.CalculateSSE(self.xo, self.yo - dyo, self.phi, self.scalex, self.scaley)
+				if SSE<=SSE_0:
+					self.yo -= dyo
+					SSE_0 = SSE
+
+			SSE = self.CalculateSSE(self.xo, self.yo, self.phi + dphi, self.scalex, self.scaley)
+			if SSE<=SSE_0:
+				self.phi += dphi
+				SSE_0 = SSE
+			else:
+				SSE = self.CalculateSSE(self.xo, self.yo, self.phi - dphi, self.scalex, self.scaley)
+				if SSE<=SSE_0:
+					self.phi -= dphi
+					SSE_0 = SSE
+					
+			SSE = self.CalculateSSE(self.xo, self.yo, self.phi, self.scalex + dsx, self.scaley)
+			if SSE<=SSE_0:
+				self.scalex += dsx
+				SSE_0 = SSE
+			else:
+				SSE = self.CalculateSSE(self.xo, self.yo, self.phi, self.scalex - dsx, self.scaley)
+				if SSE<=SSE_0:
+					self.scalex -= dsx
+					SSE_0 = SSE
+
+			SSE = self.CalculateSSE(self.xo, self.yo, self.phi, self.scalex, self.scaley + dsy)
+			if SSE<=SSE_0:
+				self.scaley += dsy
+				SSE_0 = SSE
+			else:
+				SSE = self.CalculateSSE(self.xo, self.yo, self.phi, self.scalex, self.scaley - dsy)
+				if SSE<=SSE_0:
+					self.scaley -= dsy
+					SSE_0 = SSE
+
+		# if abs(self.phi)<TOLERANCE: self.phi = 0.0	# rotation
+
+		self.valid = True
+		return self.phi,self.xo,self.yo,self.scalex,self.scaley
+		
 	#-----------------------------------------------------------------------
 	# @return minimum, average and maximum error
 	#-----------------------------------------------------------------------
@@ -597,8 +693,8 @@ class Orient:
 		del self.errors[:]
 
 		for i,(xm,ym,x,y) in enumerate(self.markers):
-			dx = c*x - s*y + self.xo - xm
-			dy = s*x + c*y + self.yo - ym
+			dx = self.scalex * (c*x - s*y + self.xo) - xm
+			dy = self.scaley * (s*x + c*y + self.yo) - ym
 			err = sqrt(dx**2 + dy**2)
 			self.errors.append(err)
 
@@ -614,8 +710,8 @@ class Orient:
 	def gcode2machine(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
-		return	c*x - s*y + self.xo, \
-			s*x + c*y + self.yo
+		return	self.scalex * (c*x - s*y + self.xo), \
+			self.scaley * (s*x + c*y + self.yo)
 
 	#-----------------------------------------------------------------------
 	# Convert machine to gcode coordinates
@@ -623,6 +719,8 @@ class Orient:
 	def machine2gcode(self, x, y):
 		c = cos(self.phi)
 		s = sin(self.phi)
+		x /= self.scalex
+		y /= self.scaley
 		x -= self.xo
 		y -= self.yo
 		return	 c*x + s*y, \
@@ -4422,7 +4520,20 @@ class GCode:
 			new['I'] = c*i - s*j
 			new['J'] = s*i + c*j
 		return True
+	
+	def transformScaleFunc(self, new, old, relative, c, s, xo, yo, scalex, scaley):
+		if 'X' not in new and 'Y' not in new: return False
+		x = getValue('X',new,old)
+		y = getValue('Y',new,old)
+		new['X'] = scalex * (c*x - s*y + xo) 
+		new['Y'] = scaley * (s*x + c*y + yo)
 
+		if 'I' in new or 'J' in new:
+			i = getValue('I',new,old)
+			j = getValue('J',new,old)
+			new['I'] = scalex * (c*i - s*j)
+			new['J'] = scaley * (s*i + c*j)
+		return True
 	#----------------------------------------------------------------------
 	# Rotate items around optional center (on XY plane)
 	# ang in degrees (counter-clockwise)
@@ -4443,8 +4554,9 @@ class GCode:
 		if not self.orient.valid: return "ERROR: Orientation information is not valid"
 		c = math.cos(self.orient.phi)
 		s = math.sin(self.orient.phi)
-		return self.modify(items, self.transformFunc, None, c, s,
-					self.orient.xo, self.orient.yo)
+		return self.modify(items, self.transformScaleFunc, None, c, s,
+					self.orient.xo, self.orient.yo, 
+					self.orient.scalex, self.orient.scaley)
 
 	#----------------------------------------------------------------------
 	# Mirror Horizontal
