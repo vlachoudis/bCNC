@@ -817,10 +817,10 @@ class ProbeFrame(CNCRibbon.PageFrame):
 	#-----------------------------------------------------------------------
 	def orientSolve(self, event=None):
 		try:
-			phi, xo, yo = self.app.gcode.orient.solve()
+			phi, xo, yo, scalex, scaley = self.app.gcode.orient.solve()
 			self.angle_orient["text"]="%*f"%(CNC.digits, math.degrees(phi))
-			self.xo_orient["text"]="%*f"%(CNC.digits, xo)
-			self.yo_orient["text"]="%*f"%(CNC.digits, yo)
+			self.xo_orient["text"]="%*f        (Scale: x%*f)"%(CNC.digits, xo, CNC.digits, scalex)
+			self.yo_orient["text"]="%*f        (Scale: x%*f)"%(CNC.digits, yo, CNC.digits, scaley)
 
 			minerr, meanerr, maxerr = self.app.gcode.orient.error()
 			self.err_orient["text"] = "Avg:%*f  Max:%*f  Min:%*f"%\
