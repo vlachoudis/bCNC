@@ -36,7 +36,7 @@ _NOZSTEP = 'XY'
 _HIGHASTEP = 90.0
 _NOASTEP = 'BC'
 
-OVERRIDES = ["Feed", "Spindle"]
+OVERRIDES = ["Feed", "Rapid", "Spindle"]
 
 
 #===============================================================================
@@ -1675,7 +1675,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 				variable=self.override,
 				showvalue=True,
 				orient=HORIZONTAL,
-				from_=25,
+				from_=0,
 				to_=200,
 				resolution=1)
 		self.overrideScale.bind("<Double-1>", self.resetOverride)
