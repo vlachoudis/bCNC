@@ -2299,7 +2299,7 @@ class Application(Toplevel,Sender):
 						before = time.time()
 
 			# the buffer of the machine should be empty?
-			self._runLines = CNC.vars["lineNumberToStart"] + len(self._paths) + 1	# plus the wait
+			self._runLines = len(self._paths) + 1	# plus the wait
 		else:
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):
