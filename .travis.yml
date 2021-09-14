@@ -1,0 +1,55 @@
+os:
+    - linux
+    - windows
+language: python
+addons:
+    artifacts:
+        s3_region: "us-west-2"
+        paths:
+            - screenshots/
+    apt:
+        packages:
+            - libpng-dev
+            - zlib1g-dev
+            - libxtst-dev
+            - libopencv-dev
+            - socat
+            - wmctrl
+            - xdotool
+            - fluxbox
+            - scrot
+services:
+    - xvfb
+cache:
+    pip: true
+python:
+    - '2.7'
+    - '3.8'
+matrix:
+    allow_failures:
+        #- python: '3.8'
+        - os: windows
+
+before_install:
+    #- export DISPLAY=:99.0
+    #- sh -e /etc/init.d/xvfb start
+    - fluxbox > /dev/null 2>&1 &
+
+install:
+    - pip install -e .
+    - cp tests/travis_bcnc_config.ini ~/.bCNC
+    - echo "Installing Test Requirements"
+    - pip install gcode-receiver
+    - pip install imageio==2.2.0
+    - pip install python-xlib==0.20
+    - pip install pytest==3.2.3
+    - pip install requests==2.18.4
+    - pip install pyautogui==0.9.36
+
+script:
+    - echo HOORAY
+    - test -L bCNC/bCNC.py
+    - test -z $(find -name '*.pyc' -o -name '*.pyo')
+    - python -tt -m compileall -f bCNC
+    - python setup.py sdist
+#    - pytest --capture=no --verbose tests/

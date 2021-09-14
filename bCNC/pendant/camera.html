@@ -1,0 +1,307 @@
+<html>
+<head>
+<title>bCNC Pendant</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" type="text/css" href="pure-min.css" />
+<script type="text/javascript" src="jquery-2.1.4.min.js" ></script>
+<script type="text/javascript" src="fastclick.js"></script>
+
+<script type="text/javascript">
+	/* set up all functions */
+	var rpmmax = 12000;
+	var xmlhttp = false;
+	var WCS = ["G54", "G55", "G56", "G57", "G58", "G59", "G28", "G30", "G92"];
+	var WCSVAL = ["wcsx", "wcsy", "wcsz"];
+	var imageUpdate = 1;
+	var stateCount = imageUpdate;
+	var _count = 0;
+
+	function findWcs(x)
+	{
+		for (i=0; i<WCS.length; i++)
+		if (WCS[i]==x) return i;
+		return -1;
+	} // findWcs
+
+	function getState()
+	{
+		$.ajax({
+			url: '/state',
+			dataType: 'json',
+			success: function(result,status,xhr) {
+				$('#state').html(result.state);
+				$('#state').bgColor = result.color;
+				$('#msg').html(result.msg);
+				$('#x').html(result.wx);
+				$('#y').html(result.wy);
+				$('#z').html(result.wz);
+				//parse $G response
+				for (k=0; k<result.G.length; k++) {
+					if (WCS.indexOf(result.G[k]) > -1)
+						$('#wcs').val(result.G[k]);
+					else if (result.G[k] == "M8")
+						$('#coolant').val("On");
+					else if (result.G[k] == "M3")
+						$('#spindle').val("100%");
+				}
+			}
+		});
+
+		// update the image every N seconds
+		if (stateCount--<=0) {
+			$('#camera').attr('src','/camera?_='+_count++)
+			stateCount = imageUpdate;
+		}
+	} // getState
+
+	/* parse once configuration */
+	function getConfig()
+	{
+		$.ajax({
+			url: '/config',
+			dataType: 'json',
+			success: function(result,status,xhr) {
+				rpmmax = result.rpmmax;
+// FIXME camera update?
+			}
+		});
+	} // getConfig
+
+	function vibrate(t)
+	{ //safari has issues with 'notification'
+		// if ("vibrate" in navigator) {
+		//  navigator.vibrate(t);
+		// } else if ("vibrate" in notification) {
+		//  navigator.notification.vibrate(t);
+		// }
+	} // vibrate
+
+	function sendCmd(command)
+	{
+		$.ajax({
+			url: '/send',
+			data: { cmd: command }
+		});
+		vibrate(500);
+	}
+
+	/*is this necessary when sendCmd would do the same thing?*/
+	function sendGcode(command)
+	{
+		$.ajax({
+			url: '/send',
+			data: { gcode: command }
+		});
+
+		vibrate(50);
+	} // sendCmd
+
+	function setWcs()
+	{
+		wcs = $('#wcs').val();
+		p = findWcs(wcs);
+
+		if (p<6)
+			cmd = "G10L20P"+(p+1);
+		else
+		if (p==6)
+			cmd = "G28.1";
+		else
+		if (p==7)
+			cmd = "G30.1";
+		else
+		if (p==8)
+			cmd = "G92";
+
+		for (i=0; i<WCSVAL.length; i++) {
+			x = $("#"+WCSVAL[i]).val();
+			if (x != "") {
+				cmd += "XYZ"[i] + x;
+				$("#"+WCSVAL[i]).val("");
+				}
+		}
+		sendGcode(cmd+"\n$#\n$G");
+	} // setWcs
+
+	function wcsChange()
+	{
+		sendGcode($('#wcs option:selected').text() + "\n$G");
+	} // wcsChange
+
+	function spindleChange()
+	{
+		rpm = $('#spindle option:selected').text();
+		if (rpm=="Off")
+			sendGcode("M5");
+		else {
+			getConfig();
+			rpm = (parseInt(rpm) * rpmmax)/100;
+			sendGcode("M3 S"+rpm);
+		}
+	} // spindleChange
+
+	function coolantChange()
+	{
+		coolant = $('#coolant option:selected').text();
+		if (coolant=="Off")
+			sendGcode("M9");
+		else
+		if (coolant == "On")
+			sendGcode("M8");
+	} // spindleChange
+
+	function sendMove(command)
+	{
+		gcode = "G91G0";
+		step = $('#step option:selected').text();
+		switch (command) {
+			case 'O':
+				gcode = "G90G0X0Y0Z0";
+				break;
+			case 'XdYu':
+				gcode += "X-" + step + "Y" + step;
+				break;
+			case 'Yu':
+				gcode += "Y" + step;
+				break;
+			case 'XuYu':
+				gcode += "X" + step + "Y" + step;
+				break;
+			case 'Xu':
+				gcode += "X" + step;
+				break;
+			case 'Xd':
+				gcode += "X-" + step;
+				break;
+			case 'XdYd':
+				gcode += "X-" + step + "Y-" + step;
+				break;
+			case 'Yd':
+				gcode += "Y-" + step;
+				break;
+			case 'XuYd':
+				gcode += "X" + step + "Y-" + step;
+				break;
+			case 'Zu':
+				gcode += "Z" + step;
+				break;
+			case 'Zd':
+				gcode += "Z-" + step;
+				break;
+			default:
+				//handle for errors here.
+				break;
+		}
+		sendGcode(gcode);
+		sendGcode("G90");
+	} // sendMove
+
+	function fileChange()
+	{
+		var formData = new FormData($('#upload-file')[0]);
+		$.ajax({
+			url: '/upload',  //Server script to process data
+			data: formData,
+			type: 'POST',
+			cache: false,
+			contentType: false,
+			processData: false
+		});
+	}
+
+
+	/* PERFORM THESE ACTIONS ONCE THE PAGE HAS LOADED */
+	$(document).ready(function ()
+	{
+		//set up fast click to handle mobile browser delay
+		FastClick.attach(document.body);
+
+		sendGcode("$#\n$G\n");
+		getConfig();
+		setInterval(getState, 1000);
+		/* ASSIGN FUNCTIONS TO UI ELEMENTS */
+	});
+</script>
+
+<style type="text/css">
+	.command {
+		width:100%;
+		height:32px;
+	}
+	.fullwide {
+		width:100%;
+	}
+	.large {
+		text-align: center;
+		font-size: 22px;
+		color: DarkBlue;
+	}
+	.medium {
+		text-align: center;
+		font-size: 18px;
+		color: DarkGreen;
+	}
+	.border > div {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		border:1px solid #999;
+	}
+	.hdr {
+		font-weight:bold;
+		font-size: 1.1em;
+		height:30px;
+	}
+	.direction {
+		width: 100%;
+		height: 64px;
+	}
+	.bold {
+	    font-weight:bold;
+	}
+	input[type="number"] {
+		width: 15%;
+		box-sizing: border-box;
+		-webkit-box-sizing:border-box;
+		-moz-box-sizing: border-box;
+	}
+</style>
+</head>
+
+<body>
+	<h1><center>bCNC Pendant</center></h1>
+
+	<!-- CONTROL BUTTONS & STATUS INFO -->
+	<div class="pure-g">
+		<div class="pure-u-1-3"><button id="btn-home" onclick="sendCmd('HOME');" class="button command" disabled>Home</button></div>
+		<div class="pure-u-1-3"><button id="btn-unlock" onclick="sendCmd('UNLOCK');" class="button command" disabled>Unlock</button></div>
+		<div class="pure-u-1-3"><button id="btn-reset" onclick="sendCmd('RESET');" class="button command" disabled>Reset</button></div>
+	</div>
+	<br />
+	<div class="pure-g border">
+		<div class="pure-u-1 large border" id="state" style="border-bottom:0px;"><span>Status</span>&nbsp;</div>
+	</div>
+	<div class="pure-g border">
+		<div class="pure-u-1 medium border" id="msg" style="border-bottom:0px;"><span>Message</span>&nbsp;</div>
+	</div>
+
+	<div class="pure-g border">
+		<div class="pure-u-1-3 large">X: <span id='x'>&nbsp;</span></div>
+		<div class="pure-u-1-3 large">Y: <span id='y'>&nbsp;</span></div>
+		<div class="pure-u-1-3 large">Z: <span id='z'>&nbsp;</span></div>
+	</div>
+	<br />
+	<div class="pure-g">
+		<div class="pure-u-1-3"><button id="btn-run" onclick="sendCmd('RUN');" class="button command">Run</button></div>
+		<div class="pure-u-1-3"><button id="btn-pause" onclick="sendCmd('PAUSE');" class="button command">Pause</button></div>
+		<div class="pure-u-1-3"><button id="btn-stop" onclick="sendCmd('STOP');" class="button command">Stop</button></div>
+	</div>
+
+	<br />
+	<div class="pure-g">
+		<center>
+			<img id="camera" src="/camera"/>
+		</center>
+	</div>
+</body>
+</html>
