@@ -4673,9 +4673,7 @@ class GCode:
 						add(cmds, (i,j))
 					continue
 
-				skip   = False 
-				if self.repeatEngine.isRepeatCommand(line):
-					skip = True
+				skip   = self.repeatEngine.isRepeatCommand(line):
 				expand = None
 				self.cnc.motionStart(cmds)
 			

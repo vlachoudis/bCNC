@@ -291,11 +291,11 @@ class Application(Toplevel,Sender):
 		self.bind('<<AlarmClear>>',	self.alarmClear)
 		self.bind('<<Help>>',		self.help)
 						# Do not send the event otherwise it will skip the feedHold/resume
-		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHoldLayer())
+		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHold())
 		self.bind('<<Resume>>',		lambda e,s=self: s.resume())
 		self.bind('<<Run>>',		lambda e,s=self: s.run())
-		self.bind('<<Stop>>',		self.stopRunLayer)
-		self.bind('<<Pause>>',		self.pauseLayer)
+		self.bind('<<Stop>>',		self.stopRun)
+		self.bind('<<Pause>>',		self.pause)
 #		self.bind('<<TabAdded>>',	self.tabAdded)
 
 		tkExtra.bindEventData(self, "<<Status>>",	self.updateStatus)
@@ -412,16 +412,9 @@ class Application(Toplevel,Sender):
 			self.bind('<Left>',		self.control.moveXdown)
 			self.bind('<Up>',		self.control.moveYup)
 			self.bind('<Down>',		self.control.moveYdown)
-			self.bind('.',                  self.abccontrol.moveAup)
-			self.bind(',',			self.abccontrol.moveAdown)
-			self.bind('l',          self.abccontrol.moveBup)
-			self.bind('k',			self.abccontrol.moveBdown)
-			self.bind('o',			self.abccontrol.moveCup)
-			self.bind('i',			self.abccontrol.moveCdown)
-
 		try:
-			self.bind('9',		self.control.moveZup)
-			self.bind('8',		self.control.moveZdown)
+			self.bind('.',		self.control.moveZup)
+			self.bind(',',		self.control.moveZdown)
 
 			if self._swapKeyboard==1:
 				self.bind('<KP_Right>',	self.control.moveYup)
@@ -1714,9 +1707,11 @@ class Application(Toplevel,Sender):
 			self.canvasFrame.viewXY()
 
 		# XZ: switch to XZ view
-		# ZX: switch to XZ view
-		elif cmd in ("XZ","ZX"):
+		elif cmd in ("XZ"):
 			self.canvasFrame.viewXZ()
+		# ZX: switch to XZ view
+		elif cmd in ("ZX"):
+			self.canvasFrame.viewZX()
 
 		# YZ: switch to YZ view
 		# ZY: switch to YZ view
@@ -2220,26 +2215,6 @@ class Application(Toplevel,Sender):
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
 	
-	def pauseLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
-	    print("Pause Layer lineNumber = {}".format(lineNumber))
-	    self.pause(event)
-	    CNC.vars["lineNumberToStart"] = lineNumber
-	
-	
-	def stopRunLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
-	    print("Stop run  lineNumber = {}".format(lineNumber))
-	    self.stopRun(event)
-	    CNC.vars["lineNumberToStart"] = lineNumber
-	
-	
-	def feedHoldLayer(self,event=None):
-	    lineNumber = CNC.vars["lineNumberToStart"] + self._gcount - 20  - len(CNC.startup.split('\n')) #20 came from esp32 BlockSize
-	    print("HoldLayer lineNumber = {}".format(lineNumber))
-	    self.feedHold(event)
-	    CNC.vars["lineNumberToStart"] = lineNumber
-	
 	
 	def run(self, lines=None):
 		self.cleanAfter = True	#Clean when this operation stops
@@ -2294,7 +2269,7 @@ class Application(Toplevel,Sender):
 			#		print ">>>",line
 			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
 			#return
-			self._paths = self.gcode.compile(self.queue, self.checkStop,CNC.vars["lineNumberToStart"])
+			self._paths = self.gcode.compile(self.queue, self.checkStop)
 			if self._paths is None:
 				self.emptyQueue()
 				self.purgeController()
