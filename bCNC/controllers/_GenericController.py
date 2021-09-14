@@ -81,7 +81,6 @@ class _GenericController:
 	def unlock(self, clearAlarm=True):
 		if clearAlarm: self.master._alarm = False
 		self.master.sendGCode("$X")
-		self.master.sendGCode("$20=1")
 
 	#----------------------------------------------------------------------
 	def home(self, event=None):
