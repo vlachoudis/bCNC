@@ -661,7 +661,7 @@ class Sender:
 	#----------------------------------------------------------------------
 	def jobDone(self):
 		print("Job done. Purging the controller. (Running: %s)"%(self.running))
-		self.purgeController()
+		#self.purgeController()
 		
 
 	def repeatProgram(self,thread):
