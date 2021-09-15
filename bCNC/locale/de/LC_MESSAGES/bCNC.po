@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bCNC Deutsch\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-09 20:43+0100\n"
-"PO-Revision-Date: 2018-12-09 22:38+0100\n"
-"Last-Translator: @SteveMoto [GitHub]\n"
+"PO-Revision-Date: 2021-09-08 16:36+0200\n"
+"Last-Translator: Daniel Luginbühl <webmaster@ltspiceusers.ch>\n"
 "Language-Team: \n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -204,11 +204,11 @@ msgstr "DRO Nullen anhängen"
 
 #: bCNC/ToolsPage.py:607
 msgid "Header gcode"
-msgstr "G-Code Header"
+msgstr "G-Code Kopfzeile"
 
 #: bCNC/ToolsPage.py:608
 msgid "Footer gcode"
-msgstr "G-Code Footer"
+msgstr "G-Code Fusszeile"
 
 #: bCNC/ToolsPage.py:630 bCNC/ToolsPage.py:656 bCNC/ToolsPage.py:685
 #: bCNC/ToolsPage.py:712 bCNC/ToolsPage.py:801 bCNC/ToolsPage.py:836
@@ -306,17 +306,20 @@ msgstr "Endtiefe"
 
 #: bCNC/ToolsPage.py:718
 msgid "Cutting strategy"
-msgstr ""
+msgstr "Schnittstrategie"
 
 #: bCNC/ToolsPage.py:719
 msgid "Ramp length"
-msgstr ""
+msgstr "Rampenlänge"
 
 #: bCNC/ToolsPage.py:719
 msgid ""
 "positive value = relative to tool diameter (5 to 10 probably makes sense), "
 "negative = absolute ramp distance (you probably don't need this)"
 msgstr ""
+"positiver Wert = relativ zum Werkzeugdurchmesser (5 bis 10 wahrscheinlich "
+"sinnvoll), negativ = absoluter Rampenabstand (wird wahrscheinlich nicht "
+"benötigt)"
 
 #: bCNC/ToolsPage.py:720
 msgid "First cut at surface height"
@@ -331,36 +334,43 @@ msgid ""
 "Do the last cut once more in opposite direction. Helix bottom is disabled in "
 "such case."
 msgstr ""
+"Führen Sie den letzten Schnitt noch einmal in entgegengesetzter Richtung "
+"durch. Helix Bottom ist in diesem Fall deaktiviert."
 
 #: bCNC/ToolsPage.py:722
 msgid "Exit strategy (usefull for threads)"
-msgstr ""
+msgstr "Exit-Strategie (nützlich für Threads)"
 
 #: bCNC/ToolsPage.py:722
 msgid "You should probably always use 'on path', unless you are threadmilling!"
 msgstr ""
+"Sie sollten wahrscheinlich immer \"on path\" verwenden, es sei denn, Sie "
+"sind beim Gewindefräsen!"
 
 #: bCNC/ToolsPage.py:723
 msgid "Leave islands uncut"
-msgstr ""
+msgstr "Inseln ungefräst lassen"
 
 #: bCNC/ToolsPage.py:724
 msgid "Only leave selected islands uncut"
-msgstr ""
+msgstr "Nur ausgewählte Inseln ungefräst lassen"
 
 #: bCNC/ToolsPage.py:725
 msgid "Compensate islands for cutter radius"
-msgstr ""
+msgstr "Inseln für Fräserradius kompensieren"
 
 #: bCNC/ToolsPage.py:725
 msgid ""
 "Add additional margin/offset around islands to compensate for endmill "
 "radius. This is automaticaly done for all islands if they are marked as tabs."
 msgstr ""
+"Fügen Sie zusätzlichen Rand/Versatz um Inseln hinzu, um den Radius des "
+"Schaftfräsers auszugleichen. Dies erfolgt automatisch für alle Inseln, wenn "
+"sie als Stege markiert sind."
 
 #: bCNC/ToolsPage.py:726
 msgid "Cut contours of selected islands"
-msgstr ""
+msgstr "Konturen ausgewählter Inseln fräsen"
 
 #: bCNC/ToolsPage.py:791
 msgid "CUT selected paths"
@@ -368,7 +378,7 @@ msgstr "CUT ausgewählter Pfade"
 
 #: bCNC/ToolsPage.py:802
 msgid "Drill in center only"
-msgstr ""
+msgstr "Nur mittig bohren"
 
 #: bCNC/ToolsPage.py:804
 msgid "Peck depth"
@@ -397,7 +407,7 @@ msgstr "Schaftfräser"
 
 #: bCNC/ToolsPage.py:837
 msgid "Size of this endmill will be used as offset distance"
-msgstr ""
+msgstr "Die Größe dieses Schaftfräsers wird als Versatzabstand verwendet"
 
 #: bCNC/ToolsPage.py:838 bCNC/plugins/pyrograph.py:44
 #: bCNC/plugins/TrochoidPath.py:41
@@ -406,7 +416,7 @@ msgstr "Richtung"
 
 #: bCNC/ToolsPage.py:838
 msgid "Should we machine on inside or outside of the shape?"
-msgstr ""
+msgstr "Soll innerhalb oder außerhalb des Schnittes bearbeitet werden?"
 
 #: bCNC/ToolsPage.py:839 bCNC/plugins/TrochoidPath.py:42
 msgid "Additional offset distance"
@@ -419,7 +429,7 @@ msgstr "Überschnitt"
 
 #: bCNC/ToolsPage.py:840
 msgid "Sets if we want to overcut or not."
-msgstr ""
+msgstr "Legt fest, ob überschnitten wird oder nicht."
 
 #: bCNC/ToolsPage.py:841 bCNC/ToolsPage.py:1292
 msgid "Pocket"
@@ -429,6 +439,8 @@ msgstr "Tasche"
 msgid ""
 "Generate pocket after profiling? Usefull for making pockets with overcuts."
 msgstr ""
+"Tasche nach Profilierung erzeugen? Nützlich für die Herstellung von Taschen "
+"mit Überschnitten."
 
 #: bCNC/ToolsPage.py:869
 msgid "Generate profile path"
@@ -440,7 +452,7 @@ msgstr "Pfade für Tasche erzeugen"
 
 #: bCNC/ToolsPage.py:904
 msgid "Create circular tabs (constant width in all angles)"
-msgstr ""
+msgstr "Erstelle runde Stege (konstante Breite in allen Winkeln)"
 
 #: bCNC/ToolsPage.py:904
 msgid ""
@@ -448,14 +460,18 @@ msgid ""
 "the rectangles here just so people can experiment and get used to circular "
 "ones, but i think they can be safely deprecated."
 msgstr ""
+"Sie sollten nur runde Stege verwenden, sie sind in jeder Hinsicht besser. "
+"Ich habe die Rechtecke hier belassen, damit die Leute experimentieren und "
+"sich an kreisförmige gewöhnen können, aber ich denke, sie können sicher "
+"verworfen werden."
 
 #: bCNC/ToolsPage.py:905
 msgid "Number of tabs"
-msgstr "Anzahl der Tabs"
+msgstr "Anzahl der Stege"
 
 #: bCNC/ToolsPage.py:906
 msgid "Min. Distance of tabs"
-msgstr "Minimaler Abstand der Tabs"
+msgstr "Minimaler Abstand der Stege"
 
 #: bCNC/ToolsPage.py:909
 msgid "Height"
@@ -613,15 +629,15 @@ msgstr "$132 Z-Achse Verfahrweg maximal [mm]"
 
 #: bCNC/ToolsPage.py:985
 msgid "$140 X homing pull-off [mm]"
-msgstr ""
+msgstr "$140 X Referenzpunktabzug [mm]"
 
 #: bCNC/ToolsPage.py:986
 msgid "$141 Y homing pull-off [mm]"
-msgstr ""
+msgstr "$141 Y Referenzpunktabzug [mm]"
 
 #: bCNC/ToolsPage.py:987
 msgid "$142 Z homing pull-off [mm]"
-msgstr ""
+msgstr "$142 Z Referenzpunktabzug [mm]"
 
 #: bCNC/ToolsPage.py:1155
 msgid "Database"
@@ -682,7 +698,7 @@ msgstr "CAM"
 # bCNC Wiki: Note 2: As of today (january 2016) some of the sentences are shared among different parts of the GUI ... (for instance, "Cut" is used in the context of copy/paste AND as a machining operation)
 #: bCNC/ToolsPage.py:1264 bCNC/EditorPage.py:48 bCNC/plugins/box.py:317
 msgid "Cut"
-msgstr ""
+msgstr "Schneiden"
 
 #: bCNC/ToolsPage.py:1271
 msgid "Cut for the full stock thickness selected code"
@@ -718,11 +734,11 @@ msgstr "Haltestege einfügen"
 
 #: bCNC/ToolsPage.py:1335
 msgid "Island"
-msgstr ""
+msgstr "Insel"
 
 #: bCNC/ToolsPage.py:1341
 msgid "Toggle island"
-msgstr ""
+msgstr "Insel umschalten"
 
 #: bCNC/ToolsPage.py:1457 bCNC/ToolsPage.py:1509
 msgid "Config"
@@ -979,7 +995,7 @@ msgstr "Alle Blöcke abwählen [Strg+Umschalten+A]"
 # bCNC Wiki: Note 2: As of today (january 2016) some of the sentences are shared among different parts of the GUI ... (for instance, "Cut" is used in the context of copy/paste AND as a machining operation)
 #: bCNC/EditorPage.py:105 bCNC/EditorPage.py:378 bCNC/plugins/heightmap.py:54
 msgid "Invert"
-msgstr ""
+msgstr "Umkehren"
 
 #: bCNC/EditorPage.py:110
 msgid "Invert selection [Ctrl-I]"
@@ -1080,19 +1096,19 @@ msgstr "Ein-/Auskommentieren von ausgewählten Zeilen"
 
 #: bCNC/EditorPage.py:266
 msgid "Join"
-msgstr ""
+msgstr "Verbinden"
 
 #: bCNC/EditorPage.py:271
 msgid "Join selected blocks"
-msgstr ""
+msgstr "Ausgewählte Blöcke verbinden"
 
 #: bCNC/EditorPage.py:277
 msgid "Split"
-msgstr ""
+msgstr "Teilen"
 
 #: bCNC/EditorPage.py:282
 msgid "Split selected blocks"
-msgstr ""
+msgstr "Ausgewählte Blöcke teilen"
 
 #: bCNC/EditorPage.py:290 bCNC/EditorPage.py:297
 msgid "Move"
@@ -1153,7 +1169,7 @@ msgstr "Unten-Rechts"
 # bCNC Wiki: Note 2: As of today (january 2016) some of the sentences are shared among different parts of the GUI ... (for instance, "Cut" is used in the context of copy/paste AND as a machining operation)
 #: bCNC/EditorPage.py:345 bCNC/plugins/hilbert.py:89
 msgid "Order"
-msgstr ""
+msgstr "Reihenfolge"
 
 #: bCNC/EditorPage.py:346 bCNC/bCNC.py:1480 bCNC/__main__.py:1480
 msgid "Optimize"
@@ -1186,7 +1202,7 @@ msgstr "Transformation"
 
 #: bCNC/EditorPage.py:398
 msgid "CW"
-msgstr "CW"
+msgstr "Uhrzeigersinn"
 
 #: bCNC/EditorPage.py:404
 msgid "Rotate selected gcode clock-wise (-90deg)"
@@ -1202,7 +1218,7 @@ msgstr "Drehe markierten G-Code um 180 Grad"
 
 #: bCNC/EditorPage.py:424
 msgid "CCW"
-msgstr "CCW"
+msgstr "Gegen Uhrzeigersinn"
 
 #: bCNC/EditorPage.py:430
 msgid "Rotate selected gcode counter-clock-wise (90deg)"
@@ -1254,19 +1270,22 @@ msgstr "Schnittrichtung für markierte G-Code Blöcke umkehren"
 
 #: bCNC/EditorPage.py:513
 msgid "Cut CW"
-msgstr ""
+msgstr "Im Uhrzeigersinn schneiden"
 
 #: bCNC/EditorPage.py:519
 msgid "Change cut direction to CW for selected gcode blocks"
 msgstr ""
+"Ändere die Schnittrichtung für ausgewählte gcode-Blöcke im Uhrzeigersinn"
 
 #: bCNC/EditorPage.py:526
 msgid "Cut CCW"
-msgstr ""
+msgstr "Gegen den Uhrzeigersinn schneiden"
 
 #: bCNC/EditorPage.py:532
 msgid "Change cut direction to CCW for selected gcode blocks"
 msgstr ""
+"Ändere die Schnittrichtung für ausgewählte gcode-Blöcke gegen den "
+"Uhrzeigersinn"
 
 #: bCNC/EditorPage.py:540 bCNC/EditorPage.py:560
 msgid "Info"
@@ -1378,6 +1397,8 @@ msgid ""
 "Set current XY location as autoleveling Z-zero (recalculate probed data to "
 "be relative to this XY origin point)"
 msgstr ""
+"Aktuelle XY-Position als Autoleveling Z-Null setzen (Angetastete Daten neu "
+"berechnen, damit sie relativ zu dieser XY-Position sind)"
 
 #: bCNC/ProbePage.py:166 bCNC/ProbePage.py:603 bCNC/TerminalPage.py:31
 msgid "Clear"
@@ -1389,11 +1410,11 @@ msgstr "Antastdaten bereinigen"
 
 #: bCNC/ProbePage.py:179
 msgid "Scan Margins"
-msgstr ""
+msgstr "Ränder scannen"
 
 #: bCNC/ProbePage.py:184
 msgid "Scan Autolevel Margins"
-msgstr ""
+msgstr "Autolevel-Ränder scannen"
 
 #: bCNC/ProbePage.py:191 bCNC/plugins/heightmap.py:49
 msgid "Scan"
@@ -1427,7 +1448,7 @@ msgstr "Setzen der Vorschubgeschwindigkeit für den Antast-Vorgang"
 
 #: bCNC/ProbePage.py:251
 msgid "TLO"
-msgstr "Werkzeuglängen-Offset:"
+msgstr "Werkzeuglängen-Offset"
 
 #: bCNC/ProbePage.py:255
 msgid "Set tool offset for probing"
@@ -1439,11 +1460,11 @@ msgstr "Festlegen"
 
 #: bCNC/ProbePage.py:271
 msgid "Probe Command"
-msgstr "Antasten Befehl:"
+msgstr "Antasten Befehl"
 
 #: bCNC/ProbePage.py:344
 msgid "Record"
-msgstr ""
+msgstr "Aufzeichnen"
 
 #: bCNC/ProbePage.py:352 bCNC/ControlPage.py:465
 msgid "Z"
@@ -1451,31 +1472,31 @@ msgstr "Z"
 
 #: bCNC/ProbePage.py:356
 msgid "Record Z coordinate?"
-msgstr ""
+msgstr "Z-Koordinate aufzeichnen?"
 
 #: bCNC/ProbePage.py:360
 msgid "RAPID"
-msgstr ""
+msgstr "Eilgang"
 
 #: bCNC/ProbePage.py:367
 msgid "FEED"
-msgstr ""
+msgstr "Vorschub"
 
 #: bCNC/ProbePage.py:374
 msgid "POINT"
-msgstr ""
+msgstr "PUNKT"
 
 #: bCNC/ProbePage.py:381
 msgid "CIRCLE"
-msgstr ""
+msgstr "KREIS"
 
 #: bCNC/ProbePage.py:388
 msgid "FINISH"
-msgstr ""
+msgstr "ENDE"
 
 #: bCNC/ProbePage.py:396
 msgid "Circle radius"
-msgstr ""
+msgstr "Kreisradius"
 
 #: bCNC/ProbePage.py:408 bCNC/ProbePage.py:1695
 msgid "Probe:"
@@ -1483,7 +1504,7 @@ msgstr "Antasten:"
 
 #: bCNC/ProbePage.py:431
 msgid "Automatic GOTO after probing"
-msgstr ""
+msgstr "Automatisches GOTO nach dem Antasten"
 
 #: bCNC/ProbePage.py:440
 msgid "Goto"
@@ -1636,11 +1657,11 @@ msgstr "Sollen alle Markierungspunkte gelöscht werden?"
 
 #: bCNC/ProbePage.py:924
 msgid "Pointrec"
-msgstr ""
+msgstr "Punktaufnahme"
 
 #: bCNC/ProbePage.py:974
 msgid "Finished recording"
-msgstr ""
+msgstr "Aufnahme beendet"
 
 #: bCNC/ProbePage.py:989
 msgid "Min"
@@ -1914,7 +1935,7 @@ msgstr "MZ"
 
 #: bCNC/ProbePage.py:1659
 msgid "Change:"
-msgstr "Ändern:"
+msgstr "Wechseln:"
 
 #: bCNC/ProbePage.py:1663
 msgid "Manual tool change Machine X location"
@@ -1977,7 +1998,7 @@ msgstr "Eine Kalibrierung durchführen, um die Höhe zu bestimmen"
 #: bCNC/ProbePage.py:1807 bCNC/ProbePage.py:1817 bCNC/ProbePage.py:1825
 #: bCNC/ProbePage.py:1833 bCNC/ProbePage.py:1841
 msgid "Probe Tool Change Error"
-msgstr ""
+msgstr "Fehler bei Antastwerkzeugwechsel"
 
 #: bCNC/ProbePage.py:1808
 msgid "Invalid tool change position"
@@ -1985,15 +2006,15 @@ msgstr "Ungültige Werkzeugwechsel-Position"
 
 #: bCNC/ProbePage.py:1818
 msgid "Invalid tool probe location"
-msgstr ""
+msgstr "Ungültige Werkzeugmesstasterposition"
 
 #: bCNC/ProbePage.py:1826 bCNC/ProbePage.py:1842
 msgid "Invalid tool scanning distance entered"
-msgstr ""
+msgstr "Ungültiger Werkzeugabtastabstand eingegeben"
 
 #: bCNC/ProbePage.py:1834
 msgid "Invalid tool height or not calibrated"
-msgstr ""
+msgstr "Ungültige Werkzeughöhe oder nicht kalibriert"
 
 #: bCNC/ProbePage.py:1955
 msgid "Probe configuration and probing"
@@ -2576,7 +2597,7 @@ msgstr ""
 
 #: bCNC/bCNC.py:516 bCNC/__main__.py:516
 msgid "Running"
-msgstr "Ausführung..."
+msgstr "Ausführung"
 
 #: bCNC/bCNC.py:517 bCNC/__main__.py:517
 msgid "CNC is currently running, please stop it before."
@@ -3592,23 +3613,23 @@ msgstr "Verzeichnis auswählen"
 
 #: bCNC/plugins/center.py:23
 msgid "Find center of bounding box"
-msgstr ""
+msgstr "Mittelpunkt des Begrenzungsfelds finden"
 
 #: bCNC/plugins/center.py:60
 msgid "Generated: Center"
-msgstr ""
+msgstr "Generiert: Zentrum"
 
 #: bCNC/plugins/linearize.py:12
 msgid "Linearize"
-msgstr ""
+msgstr "Linearisieren"
 
 #: bCNC/plugins/linearize.py:24
 msgid "G-Code linearizer"
-msgstr ""
+msgstr "G-Code-Linearisierer"
 
 #: bCNC/plugins/linearize.py:34
 msgid "segment size"
-msgstr ""
+msgstr "Segmentgröße"
 
 #: bCNC/plugins/linearize.py:34
 msgid ""
@@ -3616,31 +3637,36 @@ msgid ""
 "and longer g-code. Length will be automaticaly truncated to be even across "
 "whole subdivided segment."
 msgstr ""
+"Maximale Länge der resultierenden Zeilen, kleinere Zahl bedeutet genauere "
+"Ausgabe und längeren g-Code. Die Länge wird automatisch abgeschnitten, um "
+"über das gesamte untergeordnete Segment hinweg gleichmäßig zu sein."
 
 #: bCNC/plugins/linearize.py:35
 msgid "subdiv lines"
-msgstr ""
+msgstr "untergeordnete Zeilen"
 
 #: bCNC/plugins/linearize.py:35
 msgid ""
 "Also subdivide the lines. Otherwise only arcs and splines will be subdivided"
 msgstr ""
+"Unterteilen Sie auch die Zeilen. Andernfalls werden nur Bögen und Splines "
+"unterteilt"
 
 #: bCNC/plugins/linearize.py:78
 msgid "Generated: Linearize"
-msgstr ""
+msgstr "Generiert: Linearisieren"
 
 #: bCNC/plugins/flatpath.py:12
 msgid "FlatPath"
-msgstr ""
+msgstr "FlachPfad"
 
 #: bCNC/plugins/flatpath.py:23
 msgid "Flatten the path"
-msgstr ""
+msgstr "Pfad ebnen"
 
 #: bCNC/plugins/flatpath.py:62
 msgid "Generated: Flat"
-msgstr ""
+msgstr "Generiert: Flach"
 
 #: bCNC/plugins/pyrograph.py:13
 msgid "Pyrograph"
@@ -3771,15 +3797,15 @@ msgstr "Generiert: Zickzack"
 
 #: bCNC/plugins/intersection.py:12
 msgid "Intersection"
-msgstr ""
+msgstr "Überschneidung"
 
 #: bCNC/plugins/intersection.py:25
 msgid "Intersection of two shapes"
-msgstr ""
+msgstr "Überschneidung zweier Formen"
 
 #: bCNC/plugins/intersection.py:77
 msgid "Generated: Intersect"
-msgstr ""
+msgstr "Generiert: Überschneidung"
 
 #: bCNC/plugins/heightmap.py:19
 msgid "Heightmap"
@@ -3929,15 +3955,15 @@ msgstr "Generiert: Stirnrad"
 
 #: bCNC/plugins/closepath.py:12
 msgid "ClosePath"
-msgstr ""
+msgstr "ClosePath"
 
 #: bCNC/plugins/closepath.py:23
 msgid "Close the path"
-msgstr ""
+msgstr "Pfad schließen"
 
 #: bCNC/plugins/closepath.py:56
 msgid "Generated: Closepath"
-msgstr ""
+msgstr "Generiert: ClosePath"
 
 #: bCNC/plugins/flatten.py:13
 msgid "Flatten"
@@ -4007,55 +4033,55 @@ msgstr "Generiert: geplante Oberfläche"
 
 #: bCNC/plugins/difference.py:12
 msgid "Difference"
-msgstr ""
+msgstr "Unterschied"
 
 #: bCNC/plugins/difference.py:26
 msgid "Difference of two shapes"
-msgstr ""
+msgstr "Unterschied zweier Formen"
 
 #: bCNC/plugins/difference.py:91
 msgid "Generated: Diff"
-msgstr ""
+msgstr "Generiert: Unterschied"
 
 #: bCNC/plugins/trochoidal.py:12
 msgid "Trochoidal"
-msgstr ""
+msgstr "Trochoidal"
 
 #: bCNC/plugins/trochoidal.py:23
 msgid "Trochoidal g-code postprocessor"
-msgstr ""
+msgstr "Trochoidaler g-Code-Postprozessor"
 
 #: bCNC/plugins/trochoidal.py:33
 msgid "Clockwise"
-msgstr ""
+msgstr "Im Uhrzeigersinn"
 
 #: bCNC/plugins/trochoidal.py:34
 msgid "Circular"
-msgstr ""
+msgstr "Kreisförmig"
 
 #: bCNC/plugins/trochoidal.py:35
 msgid "Even spacing across segment"
-msgstr ""
+msgstr "Gleichmäßiger Abstand über das Segment"
 
 #: bCNC/plugins/trochoidal.py:36
 msgid "Trochoid entry (prepare for helicut)"
-msgstr ""
+msgstr "Trochoideneintritt (für Helicut vorbereiten)"
 
 #: bCNC/plugins/trochoidal.py:37
 msgid "Radial depth of cut (<= cutter D * 0.4)"
-msgstr ""
+msgstr "Radiale Schnitttiefe (<= Fräser D * 0,4)"
 
 #: bCNC/plugins/trochoidal.py:38
 msgid "Trochoid diameter (<= cutter D)"
-msgstr ""
+msgstr "Trochoidendurchmesser (<= Fräser D)"
 
 #: bCNC/plugins/trochoidal.py:39
 msgid "Feedrate"
-msgstr ""
+msgstr "Vorschubgeschwindigkeit"
 
 #: bCNC/plugins/trochoidal.py:129
 msgid "Generated: Trochoidal"
-msgstr ""
+msgstr "Generiert: Trochoidal"
 
 #: bCNC/plugins/jigsaw.py:259
 msgid "Jigsaw puzzle generator"
@@ -4100,7 +4126,7 @@ msgstr ""
 
 #: bCNC/plugins/Random.py:14
 msgid "Random"
-msgstr ""
+msgstr "Zufällig"
 
 #: bCNC/plugins/Random.py:31 bCNC/plugins/tile.py:30
 msgid "Generate replicas of selected code"
@@ -4410,19 +4436,19 @@ msgstr "Gekritzel-Länge"
 
 #: bCNC/plugins/sketch.py:45
 msgid "Fading force"
-msgstr ""
+msgstr "Fading-Kraft"
 
 #: bCNC/plugins/sketch.py:46
 msgid "Maximum light"
-msgstr ""
+msgstr "Maximales Licht"
 
 #: bCNC/plugins/sketch.py:48
 msgid "Casual first point"
-msgstr ""
+msgstr "Lockerer erster Punkt"
 
 #: bCNC/plugins/sketch.py:49
 msgid "Repetition of a point"
-msgstr ""
+msgstr "Wiederholung eines Punktes"
 
 #: bCNC/plugins/sketch.py:191
 msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
@@ -4436,7 +4462,7 @@ msgstr "Skizze abgebrochen: Zu klein, um etwas zu zeichnen!"
 
 #: bCNC/plugins/sketch.py:226
 msgid "The maximum illumination shouldn't be more than 250!"
-msgstr ""
+msgstr "Die maximale Ausleuchtung sollte nicht mehr als 250 betragen!"
 
 #: bCNC/plugins/sketch.py:230
 msgid "Sketch abort: Please let me draw at least 1 squiggle"
@@ -4456,44 +4482,48 @@ msgid ""
 "Generated Sketch size W=%d x H=%d x distance=%d, Total line:%i, Total length:"
 "%d"
 msgstr ""
+"Erzeugte Skizzengröße W=%d x H=%d x Abstand=%d, Gesamtlinie:%i, Gesamtlänge:"
+"%d"
 
 #: bCNC/plugins/dragknife.py:12
 msgid "DragKnife"
-msgstr ""
+msgstr "Ziehmesser/Schleppmesser"
 
 #: bCNC/plugins/dragknife.py:25
 msgid "Drag knife postprocessor"
-msgstr ""
+msgstr "Ziehmesser-Postprozessor"
 
 #: bCNC/plugins/dragknife.py:35
 msgid "dragknife offset"
-msgstr ""
+msgstr "Ziehmesserversatz"
 
 #: bCNC/plugins/dragknife.py:35
 msgid "distance from dragknife rotation center to the tip of the blade"
-msgstr ""
+msgstr "Abstand vom Drehzentrum des Ziehmessers bis zur Spitze der Klinge"
 
 #: bCNC/plugins/dragknife.py:36
 msgid "angle threshold"
-msgstr ""
+msgstr "Winkelschwelle"
 
 #: bCNC/plugins/dragknife.py:36
 msgid "do not perform pivot action for angles smaller than this"
-msgstr ""
+msgstr "Führen Sie keine Schwenkbewegung für kleinere Winkel als diesen aus"
 
 #: bCNC/plugins/dragknife.py:37
 msgid "swivel height"
-msgstr ""
+msgstr "Schwenkhöhe"
 
 #: bCNC/plugins/dragknife.py:37
 msgid ""
 "retract to this height for pivots (useful for thick materials, you should "
 "enter number slightly lower than material thickness)"
 msgstr ""
+"für Drehpunkte auf diese Höhe einfahren (nützlich für dicke Materialien, Sie "
+"sollten die Zahl etwas niedriger als die Materialstärke wählen)"
 
 #: bCNC/plugins/dragknife.py:38
 msgid "initial direction"
-msgstr ""
+msgstr "Anfangsrichtung"
 
 #: bCNC/plugins/dragknife.py:38
 msgid ""
@@ -4503,14 +4533,20 @@ msgid ""
 "without pivoting. If you cut multiple shapes in single operation, it's "
 "important to have this set consistently across all of them."
 msgstr ""
+"Richtung, in die die Messerklinge vor und nach dem Schnitt zeigt. Beispiel: "
+"Wenn Sie dies auf X+ einstellen, sollte die Rotationsachse des Messers auf "
+"der rechten Seite der Spitze liegen. Das bedeutet, dass das Messer sofort "
+"ohne zu schwenken bereit ist, nach rechts zu schneiden. Wenn Sie mehrere "
+"Formen in einem einzigen Vorgang schneiden, ist es wichtig, dass diese "
+"Einstellung für alle einheitlich ist."
 
 #: bCNC/plugins/dragknife.py:39
 msgid "feedrate"
-msgstr ""
+msgstr "Vorschubgeschwindigkeit"
 
 #: bCNC/plugins/dragknife.py:40
 msgid "simulate"
-msgstr ""
+msgstr "simulieren"
 
 #: bCNC/plugins/dragknife.py:40
 msgid ""
@@ -4519,78 +4555,85 @@ msgid ""
 "procedure and give you back the original shape from g-code that was "
 "previously processed for dragknife."
 msgstr ""
+"Verwenden Sie diese Option, um das Schneiden des Ziehmesserpfads zu "
+"simulieren. Die resultierende Form spiegelt wider, welche Form tatsächlich "
+"geschnitten wird. Dies sollte das Dragknife-Verfahren umkehren und Ihnen die "
+"ursprüngliche Form aus dem G-Code zurückgeben, die zuvor für Dragknife "
+"verarbeitet wurde."
 
 #: bCNC/plugins/dragknife.py:41
 msgid "simulation precision"
-msgstr ""
+msgstr "Simulationsgenauigkeit"
 
 #: bCNC/plugins/dragknife.py:41
 msgid ""
 "Simulation is currently approximated by using lots of short lines. This is "
 "the length of these lines."
 msgstr ""
+"Die Simulation wird derzeit durch die Verwendung vieler kurzer Linien "
+"angenähert. Dies ist die Länge dieser Zeilen."
 
 #: bCNC/plugins/dragknife.py:146
 msgid "Generated: Dragknife"
-msgstr ""
+msgstr "Generiert: Ziehmesser"
 
 #: bCNC/plugins/slicemesh.py:12
 msgid "slicemesh"
-msgstr ""
+msgstr "Gittermodell slicen"
 
 #: bCNC/plugins/slicemesh.py:42
 msgid "STL/PLY Slicer"
-msgstr ""
+msgstr "STL/PLY-Slicer"
 
 #: bCNC/plugins/slicemesh.py:52
 msgid ".STL/.PLY file to slice"
-msgstr ""
+msgstr ".STL/.PLY Datei zum slicen"
 
 #: bCNC/plugins/slicemesh.py:53
 msgid "Get flat slice"
-msgstr ""
+msgstr "Hole einen flachen Slice"
 
 #: bCNC/plugins/slicemesh.py:54
 msgid "3D slice (devel)"
-msgstr ""
+msgstr "3D Slice (entwickeln)"
 
 #: bCNC/plugins/slicemesh.py:55
 msgid "Flip upwards"
-msgstr ""
+msgstr "Nach oben klappen"
 
 #: bCNC/plugins/slicemesh.py:56
 msgid "scale factor"
-msgstr ""
+msgstr "Skalierungsfaktor"
 
 #: bCNC/plugins/slicemesh.py:57
 msgid "z offset"
-msgstr ""
+msgstr "Z-Versatz"
 
 #: bCNC/plugins/slicemesh.py:58
 msgid "layer height (0 = only single zmin)"
-msgstr ""
+msgstr "Layerhöhe (0 = nur einzelnes Zmin)"
 
 #: bCNC/plugins/slicemesh.py:59
 msgid "minimum Z height"
-msgstr ""
+msgstr "minimale Z-Höhe"
 
 #: bCNC/plugins/slicemesh.py:60
 msgid "maximum Z height"
-msgstr ""
+msgstr "maximale Z-Höhe"
 
 #: bCNC/plugins/slicemesh.py:93
 #, python-format
 msgid "Loading mesh: %s"
-msgstr ""
+msgstr "Gittermodell laden: %s"
 
 #: bCNC/plugins/slicemesh.py:129
 #, python-format
 msgid "Slicing %s %f in %f -> %f of %s"
-msgstr ""
+msgstr "Slicen von %s %f in %f -> %f von %s"
 
 #: bCNC/plugins/slicemesh.py:138
 msgid "Mesh sliced"
-msgstr ""
+msgstr "Gittermodell sliced"
 
 #: bCNC/plugins/slicemesh.py:212
 #, python-format
@@ -4598,6 +4641,8 @@ msgid ""
 "Calculating distance %d of %d (SciPy not installed => using SLOW fallback "
 "method)"
 msgstr ""
+"Berechnung der Entfernung %d von %d (SciPy nicht installiert => benutze SLOW-"
+"Fallback-Methode)"
 
 #: bCNC/plugins/box.py:13
 msgid "Box"
@@ -4685,27 +4730,27 @@ msgstr "Text abgebrochen: Schriftartendatei kann nicht gelesen werden!"
 
 #: bCNC/plugins/TrochoidPath.py:19
 msgid "Trochoidal Path"
-msgstr ""
+msgstr "Trochoidenpfad"
 
 #: bCNC/plugins/TrochoidPath.py:32
 msgid "Create a trochoid rute along selected blocks"
-msgstr ""
+msgstr "Erstelle eine Trochoid-Rute entlang ausgewählter Blöcke"
 
 #: bCNC/plugins/TrochoidPath.py:40
 msgid "Trochoid Diameter"
-msgstr ""
+msgstr "Trochoidendurchmesser"
 
 #: bCNC/plugins/TrochoidPath.py:44
 msgid "Adaptative"
-msgstr ""
+msgstr "Adaptiv"
 
 #: bCNC/plugins/TrochoidPath.py:46
 msgid "Diameter safe to corner %"
-msgstr ""
+msgstr "Durchmesser sicher zur Ecke %"
 
 #: bCNC/plugins/TrochoidPath.py:70
 msgid "Generate Trochoidal Profile path"
-msgstr ""
+msgstr "Pfad des Trochoidalprofils generieren"
 
 #: bCNC/plugins/bowl.py:12
 msgid "Bowl"
@@ -4733,23 +4778,25 @@ msgstr "Fehler: Überprüfen Sie die Parameter für Schale und für Schaftfräse
 
 #: bCNC/plugins/arcfit.py:12
 msgid "ArcFit"
-msgstr ""
+msgstr "Bogenanpassung"
 
 #: bCNC/plugins/arcfit.py:24
 msgid "G-Code arc-fit"
-msgstr ""
+msgstr "G-Code Bogenanpassung"
 
 #: bCNC/plugins/arcfit.py:34
 msgid "arc precision (mm)"
-msgstr ""
+msgstr "Bogenpräzision (mm)"
 
 #: bCNC/plugins/arcfit.py:34
 msgid "how precisely must arc fit. set to 0 to disable arc fitting"
 msgstr ""
+"wie genau muss der Bogen passen. Auf 0 setzen, um die Bogenanpassung zu "
+"deaktivieren"
 
 #: bCNC/plugins/arcfit.py:35
 msgid "line precision (mm)"
-msgstr ""
+msgstr "Liniengenauigkeit (mm)"
 
 #: bCNC/plugins/arcfit.py:35
 msgid ""
@@ -4757,46 +4804,50 @@ msgid ""
 "some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can "
 "be fit"
 msgstr ""
+"wie genau muss die Linie passen. Auf 0 setzen, um die Linienanpassung zu "
+"deaktivieren, aber es kann mindestens eine gewisse Linienanpassung (0,001 "
+"bis 0,01) erforderlich sein, um Bögen zu fixieren, damit sie angepasst "
+"werden können"
 
 #: bCNC/plugins/arcfit.py:36
 msgid "minimal number of segments to create arc"
-msgstr ""
+msgstr "minimale Anzahl von Segmenten, um einen Bogen zu erstellen"
 
 #: bCNC/plugins/arcfit.py:85
 msgid "Generated: Arc fit"
-msgstr ""
+msgstr "Generiert: Bogenanpassung"
 
 #: bCNC/plugins/scaling.py:18
 msgid "Scaling"
-msgstr ""
+msgstr "Skalierung"
 
 #: bCNC/plugins/scaling.py:34
 msgid "Scaling the selected block"
-msgstr ""
+msgstr "Skalieren des ausgewählten Blocks"
 
 #: bCNC/plugins/scaling.py:42
 msgid "X Scale"
-msgstr ""
+msgstr "X-Skala"
 
 #: bCNC/plugins/scaling.py:43
 msgid "Y Scale"
-msgstr ""
+msgstr "Y-Skala"
 
 #: bCNC/plugins/scaling.py:44
 msgid "Z Scale"
-msgstr ""
+msgstr "Z-Skala"
 
 #: bCNC/plugins/scaling.py:47
 msgid "RPM"
-msgstr ""
+msgstr "Drehzahl"
 
 #: bCNC/plugins/scaling.py:149
 msgid "Scaling abort: Please select some path"
-msgstr ""
+msgstr "Skalierung abgebrochen: Bitte wählen Sie einen Pfad"
 
 #: bCNC/plugins/scaling.py:193
 msgid "Scaling Generated"
-msgstr ""
+msgstr "Skalierung generiert"
 
 #~ msgid "Set current location as Z-zero for leveling"
 #~ msgstr "Aktuelle Position als Z=0 zum Einrichten verwenden"
