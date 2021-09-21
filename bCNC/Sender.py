@@ -665,8 +665,8 @@ class Sender:
 		
 
 	def repeatProgram(self,thread):
-		print("Thread Run call: {} Sleep for 3 seconds".format(thread.ident))
-		time.sleep(3)
+		print("Thread Run call: {} Sleep for 0 seconds".format(thread.ident))
+		time.sleep(self.gcode.repeatEngine.TIMEOUT_TO_REPEAT)
 		print("Continue {}".format(thread.ident))
 		self.gcode.repeatEngine.countRepetition()
 		self.event_generate("<<Run>>",when="tail")
