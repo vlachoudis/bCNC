@@ -1896,9 +1896,7 @@ class CNC:
 					lines.append(CNC.grapid(z=z/self.unit))
 
 				z = max(drill, zstep)
-				z += 2*self.unit
-				lines.append(CNC.grapid(z=z/self.unit)) #rapid to aproximate
-				z -= 2*self.unit
+				lines.append(CNC.grapid(z=(2+z/self.unit))) #rapid to aproximate
 				zstep -= peck
 
 				# Drill to z
