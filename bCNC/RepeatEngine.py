@@ -6,6 +6,7 @@ class RepeatEngine:
 	TYPE_NONE = 0
 	TYPE_M47 = 1
 	TYPE_M48 = 2
+	TIMEOUT_TO_REPEAT = 0
 	repeatType: int
 	m48MaxTimes: int
 	m48CurrentTime: int
