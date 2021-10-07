@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from CNC import CNC, WCS
+import os.path
 import time
 import re
 
@@ -68,6 +69,8 @@ class _GenericController:
 		self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.master.notBusy()
+		self.sendParameters()
+		self.viewParameters()
 
 	#----------------------------------------------------------------------
 	def softReset(self, clearAlarm=True):
@@ -76,11 +79,14 @@ class _GenericController:
 		self.master.stopProbe()
 		if clearAlarm: self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
+		self.sendParameters()
+		self.viewParameters()
 
 	#----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):
 		if clearAlarm: self.master._alarm = False
 		self.master.sendGCode("$X")
+		self.sendParameters()
 
 	#----------------------------------------------------------------------
 	def home(self, event=None):
@@ -93,6 +99,66 @@ class _GenericController:
 
 	def viewParameters(self):
 		self.master.sendGCode("$#")
+
+	def getParameters(self):
+		axis = ["X","Y","Z","A","B","C"]
+		if not os.path.isfile("WorkCoordinates.txt"):
+			self.saveParameters()
+				
+		workPositions = {}
+		with open("WorkCoordinates.txt",'r') as workFile:
+			for line in workFile.readlines():
+				positions = line.split(' ')
+				if len(positions)<7:
+					continue
+				positions[-1] = positions[-1].replace('\n','')
+				positionIndex = int(positions[0])
+				positions = positions[1:]
+
+				workPositions[positionIndex] = {}
+				print("{} -> {}".format(positionIndex,positions))
+
+				for (index,currentAxis) in enumerate(axis):
+					print("{},{} = {}".format(positionIndex,currentAxis,positions[index]))
+					workPositions[positionIndex][currentAxis] = positions[index]
+		return workPositions
+
+	def saveParameters(self, workPositions=None):
+		axis = ["X","Y","Z","A","B","C"]
+		if workPositions==None:
+			workPositions = {}
+		flag = 'x'
+		if os.path.isfile("WorkCoordinates.txt"):
+			flag = 'w'
+		with open("WorkCoordinates.txt",flag) as file:
+			for workIndex in range(1,9):
+				file.write(str(workIndex))
+				if workIndex not in workPositions.keys():
+					workPositions[workIndex] = {}
+
+				for currentAxis in axis:
+					if currentAxis not in workPositions[workIndex].keys():
+						workPositions[workIndex][currentAxis] = "0"
+					else:
+						try:
+							workPositions[workIndex][currentAxis] = str(float(workPositions[workIndex][currentAxis]))
+						except:
+							workPositions[workIndex][currentAxis] = "0"
+					file.write(" {}".format(workPositions[workIndex][currentAxis]))
+				file.write("\n")
+		
+	def sendParameters(self):
+		axis = ["X","Y","Z","A","B","C"]
+		parameters = self.getParameters()
+		#self.viewState()
+		#self.viewParameters()
+		time.sleep(0.01)
+		for workIndex in range(1,9):
+			prefix = "G10L2P" + str(workIndex)	
+			for currentAxis in axis:
+				cmd = prefix + currentAxis + parameters[workIndex][currentAxis]	
+				self.master.sendGCode(cmd)
+				time.sleep(0.01)
 
 	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
@@ -116,6 +182,10 @@ class _GenericController:
 
 	#----------------------------------------------------------------------
 	def _wcsSet(self, x, y, z, a=None, b=None, c=None):
+		
+		# Updating WorkCoordinates.txt file
+		parameters = self.getParameters()
+
 		#global wcsvar
 		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
@@ -129,14 +199,30 @@ class _GenericController:
 			cmd = "G92"
 
 		pos = ""
-		if x is not None and abs(float(x))<10000.0: pos += "X"+str(x)
-		if y is not None and abs(float(y))<10000.0: pos += "Y"+str(y)
-		if z is not None and abs(float(z))<10000.0: pos += "Z"+str(z)
-		if a is not None and abs(float(a))<10000.0: pos += "A"+str(a)
-		if b is not None and abs(float(b))<10000.0: pos += "B"+str(b)
-		if c is not None and abs(float(c))<10000.0: pos += "C"+str(c)
+		if x is not None and abs(float(x))<10000.0: 
+			pos += "X"+str(x)
+			parameters[p+1]['X'] = str(CNC.vars['mx'] - float(x))
+		if y is not None and abs(float(y))<10000.0: 
+			pos += "Y"+str(y)
+			parameters[p+1]['Y'] = str(CNC.vars['my'] - float(y))
+		if z is not None and abs(float(z))<10000.0: 
+			pos += "Z"+str(z)
+			parameters[p+1]['Z'] = str(CNC.vars['mz'] - float(z))
+		if a is not None and abs(float(a))<10000.0: 
+			pos += "A"+str(a)
+			parameters[p+1]['A'] = str(CNC.vars['ma'] - float(a))
+		if b is not None and abs(float(b))<10000.0: 
+			pos += "B"+str(b)
+			parameters[p+1]['B'] = str(CNC.vars['mb'] - float(b))
+		if c is not None and abs(float(c))<10000.0: 
+			pos += "C"+str(c)
+			parameters[p+1]['C'] = str(CNC.vars['mc'] - float(c))
 		cmd += pos
 		self.master.sendGCode(cmd)
+
+		self.saveParameters(parameters)
+
+
 		self.viewParameters()
 		self.master.event_generate("<<Status>>",
 			data=(_("Set workspace %s to %s")%(WCS[p],pos)))
