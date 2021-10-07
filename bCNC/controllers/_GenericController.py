@@ -116,10 +116,7 @@ class _GenericController:
 				positions = positions[1:]
 
 				workPositions[positionIndex] = {}
-				print("{} -> {}".format(positionIndex,positions))
-
 				for (index,currentAxis) in enumerate(axis):
-					print("{},{} = {}".format(positionIndex,currentAxis,positions[index]))
 					workPositions[positionIndex][currentAxis] = positions[index]
 		return workPositions
 
@@ -150,15 +147,13 @@ class _GenericController:
 	def sendParameters(self):
 		axis = ["X","Y","Z","A","B","C"]
 		parameters = self.getParameters()
-		#self.viewState()
-		#self.viewParameters()
-		time.sleep(0.01)
+		time.sleep(0.05)
 		for workIndex in range(1,9):
 			prefix = "G10L2P" + str(workIndex)	
 			for currentAxis in axis:
 				cmd = prefix + currentAxis + parameters[workIndex][currentAxis]	
 				self.master.sendGCode(cmd)
-				time.sleep(0.01)
+				time.sleep(0.05)
 
 	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
