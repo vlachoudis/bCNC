@@ -408,12 +408,12 @@ class Application(Toplevel,Sender):
 			self.bind(',',                  self.abccontrol.moveAup)
 			self.bind('.',			self.abccontrol.moveAdown)
 		else:
-			self.bind('<Down>',		self.control.moveXup)
-			self.bind('<Up>',		self.control.moveXdown)
-			self.bind('<Right>',	self.control.moveZup)
-			self.bind('<Left>',		self.control.moveZdown)
-			self.bind('.',          self.abccontrol.moveBup)
-			self.bind(',',			self.abccontrol.moveBdown)
+			self.bind('<Right>',		self.control.moveXup)
+			self.bind('<Left>',		self.control.moveXdown)
+			self.bind('<Up>',	self.control.moveYup)
+			self.bind('<Down>',		self.control.moveYdown)
+			self.bind('.',          self.control.moveZup)
+			self.bind(',',			self.control.moveZdown)
 		try:
 			#self.bind('.',		self.control.moveZup)
 			#self.bind(',',		self.control.moveZdown)
