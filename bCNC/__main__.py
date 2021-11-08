@@ -269,12 +269,14 @@ class Application(Toplevel,Sender):
 
 		self.bind('<<Connect>>',	self.openClose)
 
-		self.bind('<<New>>',		self.newFile)
-		self.bind('<<Open>>',		self.loadDialog)
-		self.bind('<<Import>>',		lambda x,s=self: s.importFile())
-		self.bind('<<Save>>',		self.saveAll)
-		self.bind('<<SaveAs>>',		self.saveDialog)
-		self.bind('<<Reload>>',		self.reload)
+		self.bind('<<New>>',		  self.newFile)
+		self.bind('<<Open>>',		  self.loadDialog)
+		self.bind('<<Import>>',		  lambda x,s=self: s.importFile())
+		self.bind('<<Save>>',		  self.saveAll)
+		self.bind('<<SaveAs>>',		  self.saveDialog)
+		self.bind('<<SaveToSD>>',	  self.saveToSD)
+		self.bind('<<Reload>>',		  self.reload)
+		self.bind('<<DeleteFromSD>>', self.deleteFromSD)
 
 		self.bind('<<Recent0>>',	self._loadRecent0)
 		self.bind('<<Recent1>>',	self._loadRecent1)
@@ -294,6 +296,7 @@ class Application(Toplevel,Sender):
 		self.bind('<<FeedHold>>',	lambda e,s=self: s.feedHold())
 		self.bind('<<Resume>>',		lambda e,s=self: s.resume())
 		self.bind('<<Run>>',		lambda e,s=self: s.run())
+		self.bind('<<RunFromSD>>',	lambda e,s=self: s.run(fromSD=True))
 		self.bind('<<Stop>>',		self.stopRun)
 		self.bind('<<Pause>>',		self.pause)
 #		self.bind('<<TabAdded>>',	self.tabAdded)
@@ -2107,6 +2110,36 @@ class Application(Toplevel,Sender):
 			self.saveDialog()
 		return "break"
 
+	def saveToSD(self, event=None):
+		def function():
+			sdFileName = self.gcode.filename
+			sdFileName = sdFileName[sdFileName.rfind('/'):]
+			dump = Queue()
+			path = self.gcode.compile(dump,fromSD=True)
+
+			line = "$BEG={}".format(sdFileName)
+
+			completeDump = Queue()
+			completeDump.put(line)
+			while not dump.empty():
+				line = dump.get()
+				completeDump.put("$CAT={}".format(line))
+
+			completeDump.put("$END")
+			time.sleep(0.05)
+			while not completeDump.empty():
+				line = completeDump.get()
+				print("Sending Line = {}".format(line))
+				self.sendGCode(line)
+				time.sleep(0.05)
+
+			print("send Ended")
+		threading.Thread(target=function).start()
+		
+	def deleteFromSD(self,event=None):
+		sdFileName = self.gcode.filename
+		sdFileName = sdFileName[sdFileName.rfind('/'):]
+		self.sendGCode("$SD/Delete={}".format(sdFileName))
 	#-----------------------------------------------------------------------
 	def reload(self, event=None):
 		self.load(self.gcode.filename)
@@ -2218,7 +2251,7 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	
 	
-	def run(self, lines=None):
+	def run(self, lines=None, fromSD:bool=False):
 		self.cleanAfter = True	#Clean when this operation stops
 		print("Will clean after this operation")
 
@@ -2271,7 +2304,8 @@ class Application(Toplevel,Sender):
 			#		print ">>>",line
 			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
 			#return
-			self._paths = self.gcode.compile(self.queue, self.checkStop)
+			self._paths = self.gcode.compile(self.queue, self.checkStop,doNotUploadQueue=fromSD,fromSD=fromSD)
+			
 			if self._paths is None:
 				self.emptyQueue()
 				self.purgeController()
@@ -2300,8 +2334,12 @@ class Application(Toplevel,Sender):
 						self.update()
 						before = time.time()
 
-			# the buffer of the machine should be empty?
-			self._runLines = len(self._paths) + 1	# plus the wait
+			if fromSD:
+				self._runLines = 101
+				self._gcount = 0
+			else:
+				# the buffer of the machine should be empty?
+				self._runLines = len(self._paths) + 1	# plus the wait
 		else:
 			n = 1		# including one wait command
 			for line in CNC.compile(lines):
@@ -2312,7 +2350,8 @@ class Application(Toplevel,Sender):
 						self.queue.put(line)
 					n += 1
 			self._runLines = n	# set it at the end to be sure that all lines are queued
-		self.queue.put((WAIT,))		# wait at the end to become idle
+		if not fromSD:
+			self.queue.put((WAIT,))		# wait at the end to become idle
 
 		self.setStatus(_("Running..."))
 		self.statusbar.setLimits(0, self._runLines)

@@ -123,6 +123,25 @@ class FileGroup(CNCRibbon.ButtonGroup):
 		tkExtra.Balloon.set(b, _("Save gcode/dxf AS"))
 		self.addWidget(b)
 
+		col,row=4,0
+		b = Ribbon.LabelButton(self.frame, self, "<<SaveToSD>>",
+				text=_("Save to SD"),
+				image=Utils.icons["save32"],
+				compound=TOP,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Save File to SD Card"))
+		self.addWidget(b)
+
+		col,row=5,0
+		b = Ribbon.LabelButton(self.frame, self, "<<DeleteFromSD>>",
+				image=Utils.icons["clean32"],
+				text=_("DeleteFile"),
+				compound=TOP,
+				background=Ribbon._BACKGROUND)
+		b.grid(row=row, column=col, rowspan=2, padx=0, pady=0, sticky=NSEW)
+		tkExtra.Balloon.set(b, _("Delete File from sd"))
+		self.addWidget(b)
 
 #===============================================================================
 # Options Group

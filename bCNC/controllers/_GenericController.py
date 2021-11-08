@@ -153,7 +153,7 @@ class _GenericController:
 			for currentAxis in axis:
 				cmd = prefix + currentAxis + parameters[workIndex][currentAxis]	
 				self.master.sendGCode(cmd)
-				time.sleep(0.05)
+				#time.sleep(0.05)
 
 	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")

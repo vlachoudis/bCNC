@@ -149,6 +149,15 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Pause running program and soft reset controller to empty the buffer."))
 
+
+		b = Ribbon.LabelButton(self.frame, self, "<<RunFromSD>>",
+				image=Utils.icons["start"],
+				text=_("Start From SD"),
+				compound=TOP,
+				background=Ribbon._BACKGROUND)
+		b.pack(side=LEFT, fill=BOTH)
+		tkExtra.Balloon.set(b, _("Run g-code commands from SD to controller"))
+
 		self.m48MaxRepeatNumber = Entry(self, font=DROFrame.dro_wpos,
 					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,

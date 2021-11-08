@@ -11,6 +11,7 @@ class RepeatEngine:
 	m48MaxTimes: int
 	m48CurrentTime: int
 	app: any
+	fromSD: bool
 	def __init__(self):
 		self.cleanState()
 
@@ -37,9 +38,13 @@ class RepeatEngine:
 		self.m48CurrentTime = 0
 		self.m48MaxTimes = 0
 		self.repeatType = self.TYPE_NONE
+		self.fromSD = False
 		self.updateState()
+		
 
 	def isRepeatCommand(self, line:str):
+		if self.fromSD:
+			return 0
 		lin = line[:]
 		lin = lin.upper().replace(' ','')
 		if lin.find('M47')!=-1:

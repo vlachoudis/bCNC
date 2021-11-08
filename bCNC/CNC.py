@@ -4633,12 +4633,17 @@ class GCode:
 	#----------------------------------------------------------------------
 	# Use probe information to modify the g-code to autolevel
 	#----------------------------------------------------------------------
-	def compile(self, queue, stopFunc=None):
+	def compile(self, queue, stopFunc=None,doNotUploadQueue:bool=False, fromSD:bool=False):
 		#lines  = [self.cnc.startup]
 		paths   = []
+		self.repeatEngine.fromSD = fromSD
 
+		if fromSD and doNotUploadQueue:
+			fileName = self.filename[self.filename.rfind('/')+1:]
+			queue.put("$SD/run=/{}\n".format(fileName))
+			
 		def add(line, path):
-			if line is not None:
+			if line is not None and not doNotUploadQueue:
 				if isinstance(line,str):
 					queue.put(line+"\n")
 				else:
@@ -4674,7 +4679,7 @@ class GCode:
 						add(cmds, (i,j))
 					continue
 
-				skip   = self.repeatEngine.isRepeatCommand(line)
+				skip   = self.repeatEngine.isRepeatCommand(line) 
 				expand = None
 				self.cnc.motionStart(cmds)
 			

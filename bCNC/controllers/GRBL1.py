@@ -97,7 +97,7 @@ class Controller(_GenericGRBL):
 		self.master.sio_status = False
 		fields = line[1:-1].split("|")
 		CNC.vars["pins"] = ""
-
+		 
 
 		#Report if state has changed
 		if CNC.vars["state"] != fields[0] or self.master.runningPrev != self.master.running:
@@ -190,6 +190,12 @@ class Controller(_GenericGRBL):
 							print("Ignoring machine stream request, because of state: ", CNC.vars["state"], self.master.running)
 				except (ValueError,IndexError):
 					break
+			elif word[0] == "SD":
+				try:
+					sdStatus = int(float(word[1]))
+					self.master._gcount = sdStatus
+				except (ValueError,IndexError):
+					break	
 
 
 		# Machine is Idle buffer is empty stop waiting and go on
