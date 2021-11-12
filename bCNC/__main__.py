@@ -21,6 +21,7 @@ import getopt
 import socket
 import traceback
 import threading
+import requests
 
 from datetime import datetime
 
@@ -76,6 +77,8 @@ from EditorPage   import EditorPage
 _openserial = False	# override ini parameters
 _device     = None
 _baud       = None
+
+grblIPAddress= 'http://192.168.0.1'
 
 MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
@@ -2112,28 +2115,32 @@ class Application(Toplevel,Sender):
 
 	def saveToSD(self, event=None):
 		def function():
-			sdFileName = self.gcode.filename
-			sdFileName = sdFileName[sdFileName.rfind('/'):]
-			dump = Queue()
-			path = self.gcode.compile(dump,fromSD=True)
+			self.setStatus("saving file to sd...")
+			def computeFile(filename):
+				dump = Queue()
+				path = self.gcode.compile(dump,fromSD=True)
+				with open(filename,'w') as myfile:
+					while not dump.empty():
+						myfile.write(dump.get()+'\n')
+					
+			try:
+				postArgs = {}
+				postArgs['path'] = '/'
+				sdFileName = self.gcode.filename
+				sdFileName = sdFileName[sdFileName.rfind('/'):]
+				tmpFileName = self.gcode.filename + '(preprocessed)'
+				computeFile(tmpFileName)
+				postArgs[sdFileName+'S'] = os.path.getsize(tmpFileName)
 
-			line = "$BEG={}".format(sdFileName)
+				with open(tmpFileName,'rb') as tmp:
+					postFile = {'myfile[]':(sdFileName,tmp)}
+					response = requests.post(grblIPAddress+'/upload',data=postArgs,files=postFile)
+					print(response.json())
+				self.setStatus("File Send complete!")
+			except BaseException as err:
+				print(err)
+				self.setStatus("Error while sending! Check your connection and try again")
 
-			completeDump = Queue()
-			completeDump.put(line)
-			while not dump.empty():
-				line = dump.get()
-				completeDump.put("$CAT={}".format(line))
-
-			completeDump.put("$END")
-			time.sleep(0.05)
-			while not completeDump.empty():
-				line = completeDump.get()
-				print("Sending Line = {}".format(line))
-				self.sendGCode(line)
-				time.sleep(0.05)
-
-			print("send Ended")
 		threading.Thread(target=function).start()
 		
 	def deleteFromSD(self,event=None):
