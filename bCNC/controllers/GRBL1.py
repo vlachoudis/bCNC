@@ -5,6 +5,7 @@ from __future__ import print_function
 from _GenericGRBL import _GenericGRBL
 from _GenericController import SPLITPAT
 from CNC import CNC
+from CNCRibbon    import Page
 import time
 import Utils
 
@@ -35,6 +36,7 @@ class Controller(_GenericGRBL):
 		self.gcode_case = 0
 		self.has_override = True
 		self.master = master
+		self.lastSDStatus = -1 
 		#print("grbl1 loaded")
 
 	def jog(self, dir):
@@ -105,6 +107,7 @@ class Controller(_GenericGRBL):
 		self.master.runningPrev = self.master.running
 
 		self.displayState(fields[0])
+		currentStatus = -1
 
 		for field in fields[1:]:
 			word = SPLITPAT.split(field)
@@ -192,12 +195,20 @@ class Controller(_GenericGRBL):
 					break
 			elif word[0] == "SD":
 				try:
-					sdStatus = int(float(word[1]))
-					self.master._gcount = sdStatus
+					currentStatus = int(float(word[1]))
 				except (ValueError,IndexError):
 					break	
 
 
+		if currentStatus == -1 and self.lastSDStatus>=0:
+			self.master._gcount = 103 
+			CNC.vars['M48Times'] = 0
+		else:
+			self.master._gcount = currentStatus
+			if currentStatus < self.lastSDStatus:
+				CNC.vars['M48Times']+=1
+				Page.groups["Run"].setM48RepeatNumber(CNC.vars['M48Times'])
+		self.lastSDStatus = currentStatus
 		# Machine is Idle buffer is empty stop waiting and go on
 		if self.master.sio_wait and not cline and fields[0] not in ("Run", "Jog", "Hold"):
 			#if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061

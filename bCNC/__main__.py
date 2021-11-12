@@ -2115,7 +2115,7 @@ class Application(Toplevel,Sender):
 
 	def saveToSD(self, event=None):
 		def function():
-			self.setStatus("saving file to sd...")
+			self.setStatus("prepare to save file...")
 			def computeFile(filename):
 				dump = Queue()
 				path = self.gcode.compile(dump,fromSD=True)
@@ -2123,23 +2123,29 @@ class Application(Toplevel,Sender):
 					while not dump.empty():
 						myfile.write(dump.get()+'\n')
 					
+			sdFileName = self.gcode.filename
+			sdFileName = sdFileName[sdFileName.rfind('/'):]
+			tmpFileName = self.gcode.filename + '(preprocessed)'
 			try:
 				postArgs = {}
 				postArgs['path'] = '/'
-				sdFileName = self.gcode.filename
-				sdFileName = sdFileName[sdFileName.rfind('/'):]
-				tmpFileName = self.gcode.filename + '(preprocessed)'
 				computeFile(tmpFileName)
 				postArgs[sdFileName+'S'] = os.path.getsize(tmpFileName)
 
+				self.setStatus("Sending File to SD...")
 				with open(tmpFileName,'rb') as tmp:
 					postFile = {'myfile[]':(sdFileName,tmp)}
+					exists = requests.get(grblIPAddress+ '/upload?path=/&PAGEID=0',timeout=1)
 					response = requests.post(grblIPAddress+'/upload',data=postArgs,files=postFile)
 					print(response.json())
 				self.setStatus("File Send complete!")
 			except BaseException as err:
 				print(err)
 				self.setStatus("Error while sending! Check your connection and try again")
+			finally:
+				if os.path.exists(tmpFileName):
+					os.remove(tmpFileName)
+       
 
 		threading.Thread(target=function).start()
 		
@@ -2147,6 +2153,7 @@ class Application(Toplevel,Sender):
 		sdFileName = self.gcode.filename
 		sdFileName = sdFileName[sdFileName.rfind('/'):]
 		self.sendGCode("$SD/Delete={}".format(sdFileName))
+		self.setStatus("SD File Deleted")
 	#-----------------------------------------------------------------------
 	def reload(self, event=None):
 		self.load(self.gcode.filename)
@@ -2342,7 +2349,7 @@ class Application(Toplevel,Sender):
 						before = time.time()
 
 			if fromSD:
-				self._runLines = 101
+				self._runLines = 103
 				self._gcount = 0
 			else:
 				# the buffer of the machine should be empty?

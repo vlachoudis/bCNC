@@ -759,6 +759,7 @@ class CNC:
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
+			"M48Times"	 : 0,
 			#"enable6axisopt" : 0,
 		}
 
