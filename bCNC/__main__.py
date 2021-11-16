@@ -74,7 +74,7 @@ from TerminalPage import TerminalPage
 from ProbePage    import ProbePage
 from EditorPage   import EditorPage
 
-_openserial = False	# override ini parameters
+_openserial = True	# override ini parameters
 _device     = None
 _baud       = None
 
