@@ -37,6 +37,7 @@ class Controller(_GenericGRBL):
 		self.has_override = True
 		self.master = master
 		self.lastSDStatus = -1 
+		self.hasSD = False
 		#print("grbl1 loaded")
 
 	def jog(self, dir):
@@ -195,10 +196,13 @@ class Controller(_GenericGRBL):
 					break
 			elif word[0] == "SD":
 				try:
-					currentStatus = int(max(float(word[1])-1,0)*100)
-					self.master._gcount = currentStatus
+					self.hasSD = True
+					currentStatus = int(max(float(word[1])-5,0)*100)
 				except (ValueError,IndexError):
 					break	
+		if self.hasSD and currentStatus != -1:
+			self.master._gcount = currentStatus	
+		self.lastSDStatus = currentStatus
 
 		# Machine is Idle buffer is empty stop waiting and go on
 		if self.master.sio_wait and not cline and fields[0] not in ("Run", "Jog", "Hold"):

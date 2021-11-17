@@ -29,7 +29,8 @@ class RepeatEngine:
 	
 	def updateState(self):
 		try:
-			self.m48MaxTimes = Page.groups["Run"].getM48Max()
+			if not self.fromSD:
+				self.m48MaxTimes = Page.groups["Run"].getM48Max()
 			Page.groups["Run"].setM48RepeatNumber(self.m48CurrentTime)
 		except:
 			pass
@@ -50,5 +51,9 @@ class RepeatEngine:
 			return True and not self.fromSD
 		if lin.find('M48')!=-1:
 			self.repeatType = self.TYPE_M48
+			try:
+				self.m48MaxTimes = int(lin[lin.find('P')+1:])
+			except:
+				pass
 			return True and not self.fromSD
 		return 0

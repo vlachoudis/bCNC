@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from CNC import CNC, WCS
+from CNCRibbon    import Page
 import os.path
 import time
 import re
@@ -345,9 +346,12 @@ class _GenericController:
 			if "SD print done!" in line:
 				CNC.vars['M48Times']+=1
 				Page.groups["Run"].setM48RepeatNumber(CNC.vars['M48Times'])
+				self.master.gcode.repeatEngine.countRepetition()
 				if self.master.gcode.repeatEngine.isRepeatable():
 					self.master._gcount = 0
 				else:
+					self.master.gcode.repeatEngine.cleanState()
+					CNC.vars['M48Times'] = 0
 					self.master._gcount = self.master._runLines
 			#We return false in order to tell that we can't parse this line
 			#Sender will log the line in such case
