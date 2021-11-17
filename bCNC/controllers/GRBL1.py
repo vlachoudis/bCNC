@@ -195,7 +195,7 @@ class Controller(_GenericGRBL):
 					break
 			elif word[0] == "SD":
 				try:
-					currentStatus = int(float(word[1])*100)-100
+					currentStatus = int(max(float(word[1])-1,0)*100)
 					self.master._gcount = currentStatus
 				except (ValueError,IndexError):
 					break	
