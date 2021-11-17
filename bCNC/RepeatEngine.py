@@ -43,14 +43,12 @@ class RepeatEngine:
 		
 
 	def isRepeatCommand(self, line:str):
-		if self.fromSD:
-			return 0
 		lin = line[:]
 		lin = lin.upper().replace(' ','')
 		if lin.find('M47')!=-1:
 			self.repeatType = self.TYPE_M47
-			return 1
+			return True and not self.fromSD
 		if lin.find('M48')!=-1:
 			self.repeatType = self.TYPE_M48
-			return 1
+			return True and not self.fromSD
 		return 0
