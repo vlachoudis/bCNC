@@ -195,20 +195,11 @@ class Controller(_GenericGRBL):
 					break
 			elif word[0] == "SD":
 				try:
-					currentStatus = int(float(word[1]))
+					currentStatus = int(float(word[1])*100)-100
+					self.master._gcount = currentStatus
 				except (ValueError,IndexError):
 					break	
 
-
-		if currentStatus == -1 and self.lastSDStatus>=0:
-			self.master._gcount = 103 
-			CNC.vars['M48Times'] = 0
-		else:
-			self.master._gcount = currentStatus
-			if currentStatus < self.lastSDStatus:
-				CNC.vars['M48Times']+=1
-				Page.groups["Run"].setM48RepeatNumber(CNC.vars['M48Times'])
-		self.lastSDStatus = currentStatus
 		# Machine is Idle buffer is empty stop waiting and go on
 		if self.master.sio_wait and not cline and fields[0] not in ("Run", "Jog", "Hold"):
 			#if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061

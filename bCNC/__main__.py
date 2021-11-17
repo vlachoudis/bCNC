@@ -2349,7 +2349,7 @@ class Application(Toplevel,Sender):
 						before = time.time()
 
 			if fromSD:
-				self._runLines = 103
+				self._runLines = 10000
 				self._gcount = 0
 			else:
 				# the buffer of the machine should be empty?
