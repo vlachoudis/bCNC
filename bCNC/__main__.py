@@ -2135,7 +2135,7 @@ class Application(Toplevel,Sender):
 				self.setStatus("Sending File to SD...")
 				with open(tmpFileName,'rb') as tmp:
 					postFile = {'myfile[]':(sdFileName,tmp)}
-					exists = requests.get(grblIPAddress+ '/upload?path=/&PAGEID=0',timeout=1)
+					exists = requests.get(grblIPAddress+ '/upload?path=/&PAGEID=0',timeout=10)
 					response = requests.post(grblIPAddress+'/upload',data=postArgs,files=postFile)
 					print(response.json())
 				self.setStatus("File Send complete!")
