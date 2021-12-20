@@ -32,6 +32,8 @@ from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 _LOWSTEP   = 0.0001
 _HIGHSTEP  = 1000.0
 _HIGHZSTEP = 10.0
+_LOWFEED   = 10
+_HIGHFEED  = 10000
 _NOZSTEP = 'XY'
 _HIGHASTEP = 90.0
 _NOASTEP = 'BC'
@@ -731,8 +733,42 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
 		frame = Frame(self())
 		frame.pack(side=TOP, fill=X)
-
 		row,col = 0,0
+		Label(frame, text=_("Jog Speed: ")).grid(row=row,column=col)
+		col+=1
+
+		self.jogSpeedEntry = tkExtra.FloatEntry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, disabledforeground="Black",width=5)
+		self.jogSpeedEntry.grid(row=row,column=col,sticky=EW)
+		self.jogSpeedEntry.bind('<Return>',self.setJogSpeed)
+		self.jogSpeedEntry.bind('<KP_Enter>',self.setJogSpeed)
+		tkExtra.Balloon.set(self.jogSpeedEntry,_("Jog Speed"))
+		self.addWidget(self.jogSpeedEntry)
+
+		speeds = ["100", "200", "500", "1000", "2000","3000","5000"]
+		buttonSpeed = []
+		for speed in speeds:
+			col+=1
+			b = Button(frame, text=speed,
+						width=2, height=1,
+						activebackground="LightYellow")
+			b.grid(row=row, column=col, sticky=EW)
+			tkExtra.Balloon.set(b, _(speed))
+			self.addWidget(b)
+			buttonSpeed += [b]
+
+		def selectSpeed(value):
+			self.jogSpeedEntry.set(value)
+			self.setJogSpeed()
+		buttonSpeed[0].config(command=lambda:selectSpeed(speeds[0]))
+		buttonSpeed[1].config(command=lambda:selectSpeed(speeds[1]))
+		buttonSpeed[2].config(command=lambda:selectSpeed(speeds[2]))
+		buttonSpeed[3].config(command=lambda:selectSpeed(speeds[3]))
+		buttonSpeed[4].config(command=lambda:selectSpeed(speeds[4]))
+		buttonSpeed[5].config(command=lambda:selectSpeed(speeds[5]))
+		buttonSpeed[6].config(command=lambda:selectSpeed(speeds[6]))
+
+		col = 0
+		row+=1
 		Label(frame, text=_("Z")).grid(row=row, column=col)
 
 		col += 3
@@ -945,6 +981,13 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 	#----------------------------------------------------------------------
 	# Jogging
 	#----------------------------------------------------------------------
+	def setJogSpeed(self,data=None):
+		try:
+			jogSpeed = float(self.jogSpeedEntry.get())
+			CNC.vars["JogSpeed"] = jogSpeed
+		except ValueError:
+			pass
+
 	def getStep(self, axis='x'):
 		if axis == 'z':
 			zs = self.zstep.get()

@@ -729,6 +729,7 @@ class CNC:
 			"tool"       : 0,
 			"feed"       : 0.0,
 			"rpm"        : 0.0,
+			"JogSpeed"   : 3000.0,
 
 			"planner"    : 0,
 			"rxbytes"    : 0,

@@ -396,6 +396,16 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolClone>>',	tools.clone)
 		self.bind('<<ToolRename>>',	tools.rename)
 
+
+		# up, down
+		xKey = ('<Down>','<Up>')
+		yKey = ('<Right>','<Left>')
+		zKey = ('.',',')
+		aKey = ('l','k')
+		bKey = ('o','i')
+		cKey = ('9','8')
+
+
 		self.bind('<Prior>',		self.control.moveZup)
 		self.bind('<Next>',		self.control.moveZdown)
 
