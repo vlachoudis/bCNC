@@ -66,6 +66,7 @@ from Sender import Sender, NOT_CONNECTED, STATECOLOR, STATECOLORDEF
 import CNCCanvas
 import webbrowser
 
+from JogController import JogController
 from CNCRibbon    import Page
 from ToolsPage    import Tools, ToolsPage
 from FilePage     import FilePage
@@ -397,60 +398,17 @@ class Application(Toplevel,Sender):
 		self.bind('<<ToolRename>>',	tools.rename)
 
 
+
 		# up, down
-		xKey = ('<Down>','<Up>')
-		yKey = ('<Right>','<Left>')
-		zKey = ('.',',')
-		aKey = ('l','k')
-		bKey = ('o','i')
-		cKey = ('9','8')
+		keys = {'<Right>':self.control.moveXup,
+				'<Left>':self.control.moveXdown,
+				'<Up>':self.control.moveYup,
+				'<Down>':self.control.moveYdown,
+				'<Prior>':self.control.moveZup,
+				'<Next>':self.control.moveZdown}
 
+		jog = JogController(self,keys,lambda: self.sendHex('0x85'))
 
-		self.bind('<Prior>',		self.control.moveZup)
-		self.bind('<Next>',		self.control.moveZdown)
-
-		if self._swapKeyboard == 1:
-			self.bind('<Right>',		self.control.moveYup)
-			self.bind('<Left>',		self.control.moveYdown)
-			self.bind('<Up>',		self.control.moveXdown)
-			self.bind('<Down>',		self.control.moveXup)
-			self.bind('.',			self.abccontrol.moveAup)
-			self.bind(',',			self.abccontrol.moveAdown)
-		elif self._swapKeyboard == -1:
-			self.bind('<Right>',		self.control.moveYdown)
-			self.bind('<Left>',		self.control.moveYup)
-			self.bind('<Up>',		self.control.moveXup)
-			self.bind('<Down>',		self.control.moveXdown)
-			self.bind(',',                  self.abccontrol.moveAup)
-			self.bind('.',			self.abccontrol.moveAdown)
-		else:
-			self.bind('<Right>',		self.control.moveXup)
-			self.bind('<Left>',		self.control.moveXdown)
-			self.bind('<Up>',	self.control.moveYup)
-			self.bind('<Down>',		self.control.moveYdown)
-			self.bind('.',          self.control.moveZup)
-			self.bind(',',			self.control.moveZdown)
-		try:
-			#self.bind('.',		self.control.moveZup)
-			#self.bind(',',		self.control.moveZdown)
-
-			if self._swapKeyboard==1:
-				self.bind('<KP_Right>',	self.control.moveYup)
-				self.bind('<KP_Left>',	self.control.moveYdown)
-				self.bind('<KP_Up>',	self.control.moveXdown)
-				self.bind('<KP_Down>',	self.control.moveXup)
-			elif self._swapKeyboard==-1:
-				self.bind('<KP_Right>',	self.control.moveYdown)
-				self.bind('<KP_Left>',	self.control.moveYup)
-				self.bind('<KP_Up>',	self.control.moveXup)
-				self.bind('<KP_Down>',	self.control.moveXdown)
-			else:
-				self.bind('<KP_Right>',	self.control.moveXup)
-				self.bind('<KP_Left>',	self.control.moveXdown)
-				self.bind('<KP_Up>',	self.control.moveYup)
-				self.bind('<KP_Down>',	self.control.moveYdown)
-		except TclError:
-			pass
 
 		self.bind('<Key-plus>',		self.control.incStep)
 		self.bind('<Key-equal>',	self.control.incStep)
