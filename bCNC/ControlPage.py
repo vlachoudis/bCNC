@@ -20,6 +20,7 @@ import math
 from math import * #Math in DRO
 
 from CNC import CNC
+import functools
 import Utils
 import Ribbon
 import Sender
@@ -767,8 +768,25 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		buttonSpeed[5].config(command=lambda:selectSpeed(speeds[5]))
 		buttonSpeed[6].config(command=lambda:selectSpeed(speeds[6]))
 
+		deactivate = lambda: app.jogController.deactivateBlock()
+		activate   = lambda: app.jogController.activateBlock()
 		col = 0
 		row+=1
+		b = Button(frame, text=_("Activate Blocking Mode"),
+			command=activate,
+			activebackground="LightYellow")
+		b.grid(row=row,column=col,columnspan=3,sticky=EW)
+		self.addWidget(b)
+
+		col+=3
+		b = Button(frame, text=_("Deactivate Blocking Mode"),
+			command=deactivate,
+			activebackground="LightYellow")
+		b.grid(row=row,column=col,columnspan=3,sticky=EW)
+		self.addWidget(b)
+		row+=1
+
+		col = 0
 		Label(frame, text=_("Z")).grid(row=row, column=col)
 
 		col += 3

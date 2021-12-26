@@ -5,32 +5,35 @@ class JogController:
 	last: float
 	mutex: threading.Lock
 	TIMEOUT: float = 0.1
-	def __init__(self, tkBind, keys, terminateJogFunction):
-		self.bind = tkBind
+	def __init__(self, app, keys):
+		self.app = app
 		self.keys = keys
-		self.jogStopFunc = terminateJogFunction
 		self.mutex = threading.Lock()
 		self.last = 0
+		self.jogBlockMode = True
 		
 
 		self.symbs = []
 		for (keysim,event) in keys.items():
-			self.bind.bind(keysim,event)
+			self.app.bind(keysim,event)
 			self.symbs += [keysim]
 
-		self.bind.bind("<KeyRelease>",self.release)
+		self.app.bind("<KeyRelease>",self.release)
 
 		thread = threading.Thread(target=self.releaseKey)
 		thread.start()
 
+	def activateBlock(self):
+		self.jogBlockMode = True
+	def deactivateBlock(self):
+		self.jogBlockMode = False
 
 	def releaseKey(self):
 		while(1):
 			self.mutex.acquire(blocking=True)
 			time.sleep(self.TIMEOUT*2)
 			if time.time()-self.last >= self.TIMEOUT:
-				sys.stdout.flush()
-				self.jogStopFunc()
+				self.app.sendHex("85")
 
 
 
@@ -45,6 +48,6 @@ class JogController:
 		if not found:
 			return 
 		self.last = time.time()
-		if self.mutex.locked():
+		if self.mutex.locked() and self.jogBlockMode:
 			self.mutex.release()
 

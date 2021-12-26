@@ -407,7 +407,7 @@ class Application(Toplevel,Sender):
 				'<Prior>':self.control.moveZup,
 				'<Next>':self.control.moveZdown}
 
-		jog = JogController(self,keys,lambda: self.sendHex('0x85'))
+		self.jogController = JogController(self,keys)
 
 
 		self.bind('<Key-plus>',		self.control.incStep)
