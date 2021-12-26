@@ -33,7 +33,10 @@ class JogController:
 			self.mutex.acquire(blocking=True)
 			time.sleep(self.TIMEOUT*2)
 			if time.time()-self.last >= self.TIMEOUT:
-				self.app.sendHex("85")
+				for _ in range(5):
+					self.app.sendHex("85")
+					time.sleep(0.1)
+
 
 
 
@@ -48,6 +51,6 @@ class JogController:
 		if not found:
 			return 
 		self.last = time.time()
-		if self.mutex.locked() and self.jogBlockMode:
+		if self.mutex.locked() and self.jogBlockMode and self.app.running==False:
 			self.mutex.release()
 
