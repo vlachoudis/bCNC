@@ -4,7 +4,7 @@ import time
 class JogController:
 	last: float
 	mutex: threading.Lock
-	TIMEOUT: float = 0.1
+	TIMEOUT: float = 0.01
 	def __init__(self, app, keys):
 		self.app = app
 		self.keys = keys
@@ -20,8 +20,8 @@ class JogController:
 
 		self.app.bind("<KeyRelease>",self.release)
 
-		thread = threading.Thread(target=self.releaseKey)
-		thread.start()
+		self.thread = threading.Thread(target=self.releaseKey)
+		self.thread.start()
 
 	def activateBlock(self):
 		self.jogBlockMode = True
@@ -35,17 +35,13 @@ class JogController:
 			if time.time()-self.last >= self.TIMEOUT:
 				for _ in range(5):
 					self.app.sendHex("85")
-					time.sleep(0.1)
-
-
-
+					time.sleep(0.01)
 
 	def release(self,event):
-		st = str(event.keysym)
+		st = int(event.keycode)
 		found = False
 		for s in self.symbs:
-			filtered = s.replace('<','').replace('>','')
-			if filtered in st:
+			if s == st:
 				found = True
 				break
 		if not found:
