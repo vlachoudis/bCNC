@@ -400,12 +400,18 @@ class Application(Toplevel,Sender):
 
 
 		# up, down
-		keys = {'<Right>':self.control.moveXup,
-				'<Left>':self.control.moveXdown,
-				'<Up>':self.control.moveYup,
-				'<Down>':self.control.moveYdown,
-				'<Prior>':self.control.moveZup,
-				'<Next>':self.control.moveZdown}
+		keys = {'X+':self.control.moveXup,
+				'X-':self.control.moveXdown,
+				'Y+':self.control.moveYup,
+				'Y-':self.control.moveYdown,
+				'Z+':self.control.moveZup,
+				'Z-':self.control.moveZdown,
+				'A+':self.abccontrol.moveAup,
+				'A-':self.abccontrol.moveAdown,
+				'B+':self.abccontrol.moveBup,
+				'B-':self.abccontrol.moveBdown,
+				'C+':self.abccontrol.moveCup,
+				'C-':self.abccontrol.moveCdown}
 
 		self.jogController = JogController(self,keys)
 
