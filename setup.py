@@ -6,13 +6,13 @@ with open("README.md", "r") as fh:
 	long_description = fh.read()
 
 if sys.version_info[0] >= 3:
-	opencv_version = '4.4.0.46' # Recent version for Puthon 3
+	opencv_version = '4.5.5.62' # Recent version for Puthon 3
 else: #python version lower then 3 compatability
 	opencv_version ='4.2.0.32' # use the last opencv version for python 2.7
 
 setup(
 	name = "bCNC",
-	version = "0.9.14.317",
+	version = "0.9.14.318",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
