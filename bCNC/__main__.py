@@ -2102,9 +2102,8 @@ class Application(Toplevel,Sender):
 								val = ""
 						myfile.write(val+'\n')
 					
-			sdFileName = self.gcode.filename
-			sdFileName = sdFileName[sdFileName.rfind('/'):]
-			tmpFileName = self.gcode.filename + '(preprocessed)'
+			sdFileName = "TmpFile"
+			tmpFileName = "TmpFile(PreProcessed)"
 			try:
 				postArgs = {}
 				postArgs['path'] = '/'
