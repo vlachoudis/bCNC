@@ -2095,7 +2095,12 @@ class Application(Toplevel,Sender):
 				path = self.gcode.compile(dump,fromSD=True)
 				with open(filename,'w') as myfile:
 					while not dump.empty():
-						myfile.write(dump.get()+'\n')
+						val = dump.get()
+						if not isinstance(val,str):
+							val = exec(val)
+							if val is None:
+								val = ""
+						myfile.write(val+'\n')
 					
 			sdFileName = self.gcode.filename
 			sdFileName = sdFileName[sdFileName.rfind('/'):]
