@@ -4641,7 +4641,7 @@ class GCode:
 		self.repeatEngine.fromSD = fromSD
 
 		if fromSD and doNotUploadQueue:
-			fileName = self.filename[self.filename.rfind('/')+1:]
+			fileName = "TmpFile"
 			queue.put("$SD/run=/{}\n".format(fileName))
 			
 		def add(line, path):
