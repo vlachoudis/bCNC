@@ -2123,13 +2123,10 @@ class Application(Toplevel,Sender):
 			finally:
 				if os.path.exists(tmpFileName):
 					os.remove(tmpFileName)
-       
-
 		threading.Thread(target=function).start()
 		
 	def deleteFromSD(self,event=None):
-		sdFileName = self.gcode.filename
-		sdFileName = sdFileName[sdFileName.rfind('/'):]
+		sdFileName = "TmpFile"
 		self.sendGCode("$SD/Delete={}".format(sdFileName))
 		self.setStatus("SD File Deleted")
 	#-----------------------------------------------------------------------
