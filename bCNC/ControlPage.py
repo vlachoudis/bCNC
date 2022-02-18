@@ -201,6 +201,7 @@ class DROFrame(CNCRibbon.PageFrame):
 
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "DRO", app)
+		self.isLathe = Utils.getBool("CNC","lathe",False)
 
 		DROFrame.dro_status = Utils.getFont("dro.status", DROFrame.dro_status)
 		DROFrame.dro_wpos   = Utils.getFont("dro.wpos",   DROFrame.dro_wpos)
@@ -244,16 +245,28 @@ class DROFrame(CNCRibbon.PageFrame):
 
 		# ---
 		col += 1
-		self.ywork = Entry(self, font=DROFrame.dro_wpos,
-					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-					relief=FLAT,
-					borderwidth=0,
-					justify=RIGHT)
-		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
-		tkExtra.Balloon.set(self.ywork, _("Y work position (click to set)"))
-		self.ywork.bind('<FocusIn>',  self.workFocus)
-		self.ywork.bind('<Return>',   self.setY)
-		self.ywork.bind('<KP_Enter>', self.setY)
+		if self.isLathe:
+			self.bwork = Entry(self, font=DROFrame.dro_wpos,
+							   background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+							   relief=FLAT,
+							   borderwidth=0,
+							   justify=RIGHT)
+			self.bwork.grid(row=row,column=col,padx=1,sticky=EW)
+			tkExtra.Balloon.set(self.bwork, _("B work position (click to set)"))
+			self.bwork.bind('<FocusIn>',  self.workFocus)
+			self.bwork.bind('<Return>',   self.setB)
+			self.bwork.bind('<KP_Enter>', self.setB)
+		else:
+			self.ywork = Entry(self, font=DROFrame.dro_wpos,
+						background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+						relief=FLAT,
+						borderwidth=0,
+						justify=RIGHT)
+			self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
+			tkExtra.Balloon.set(self.ywork, _("Y work position (click to set)"))
+			self.ywork.bind('<FocusIn>',  self.workFocus)
+			self.ywork.bind('<Return>',   self.setY)
+			self.ywork.bind('<KP_Enter>', self.setY)
 
 		# ---
 		col += 1
@@ -278,8 +291,12 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.xmachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.ymachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
-		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
+		if self.isLathe:
+			self.bmachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+			self.bmachine.grid(row=row, column=col, padx=1, sticky=EW)
+		else:
+			self.ymachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
+			self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
 		self.zmachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
@@ -298,13 +315,22 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.addWidget(self.xzero)
 
 		col += 1
-		self.yzero = Button(self, text=_("Y=0"),
-				command=self.setY0,
-				activebackground="LightYellow",
-				padx=2, pady=1)
-		self.yzero.grid(row=row, column=col, pady=0, sticky=EW)
-		tkExtra.Balloon.set(self.yzero, _("Set Y coordinate to zero (or to typed coordinate in WPos)"))
-		self.addWidget(self.yzero)
+		if self.isLathe:
+			self.bzero = Button(self, text=_("B=0"),
+								command=self.setB0,
+								activebackground="LightYellow",
+								padx=2, pady=1)
+			self.bzero.grid(row=row, column=col, pady=0, sticky=EW)
+			tkExtra.Balloon.set(self.bzero, _("Set B coordinate to zero (or to typed coordinate in WPos)"))
+			self.addWidget(self.bzero)
+		else:
+			self.yzero = Button(self, text=_("Y=0"),
+					command=self.setY0,
+					activebackground="LightYellow",
+					padx=2, pady=1)
+			self.yzero.grid(row=row, column=col, pady=0, sticky=EW)
+			tkExtra.Balloon.set(self.yzero, _("Set Y coordinate to zero (or to typed coordinate in WPos)"))
+			self.addWidget(self.yzero)
 
 		col += 1
 		self.zzero = Button(self, text=_("Z=0"),
@@ -318,47 +344,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		# Set buttons
 		row += 1
 		col = 1
-		self.xyzero = Button(self, text=_("XY=0"),
-				command=self.setXY0,
-				activebackground="LightYellow",
-				padx=2, pady=1)
-		self.xyzero.grid(row=row, column=col, pady=0, sticky=EW)
-		tkExtra.Balloon.set(self.xyzero, _("Set XY coordinate to zero (or to typed coordinate in WPos)"))
-		self.addWidget(self.xyzero)
-
-		col += 1
-		self.xyzzero = Button(self, text=_("XYZ=0"),
-				command=self.setXYZ0,
-				activebackground="LightYellow",
-				padx=2, pady=1)
-		self.xyzzero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
-		tkExtra.Balloon.set(self.xyzzero, _("Set XYZ coordinate to zero (or to typed coordinate in WPos)"))
-		self.addWidget(self.xyzzero)
-
-		# Set buttons
-		row += 1
-		col = 1
 		f = Frame(self)
 		f.grid(row=row, column=col, columnspan=3, pady=0, sticky=EW)
 
-		b = Button(f, text=_("Set WPOS"),
-				image=Utils.icons["origin"],
-				compound=LEFT,
-				activebackground="LightYellow",
-				command=lambda s=self: s.event_generate("<<SetWPOS>>"),
-				padx=2, pady=1)
-		b.pack(side=LEFT,fill=X,expand=YES)
-		tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
-		self.addWidget(b)
-
-		#col += 2
 		b = Button(f, text=_("Move Gantry"),
 				image=Utils.icons["gantry"],
 				compound=LEFT,
 				activebackground="LightYellow",
 				command=lambda s=self: s.event_generate("<<MoveGantry>>"),
 				padx=2, pady=1)
-		#b.grid(row=row, column=col, pady=0, sticky=EW)
 		b.pack(side=RIGHT,fill=X,expand=YES)
 		tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
 		self.addWidget(b)
@@ -397,18 +391,22 @@ class DROFrame(CNCRibbon.PageFrame):
 			focus = self.focus_get()
 		except:
 			focus = None
+		middle_work = self.bwork if self.isLathe else self.ywork
 		if focus is not self.xwork:
 			self.xwork.delete(0,END)
 			self.xwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wx"]))
-		if focus is not self.ywork:
-			self.ywork.delete(0,END)
-			self.ywork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wy"]))
+		if focus is not middle_work:
+			middle_work.delete(0,END)
+			middle_work.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wb" if self.isLathe else "wy"]))
 		if focus is not self.zwork:
 			self.zwork.delete(0,END)
 			self.zwork.insert(0,self.padFloat(CNC.drozeropad,CNC.vars["wz"]))
 
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
-		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
+		if self.isLathe:
+			self.bmachine["text"] = self.padFloat(CNC.drozeropad, CNC.vars["mb"])
+		else:
+			self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
 		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
 		self.app.abcdro.updateCoords()
 	#----------------------------------------------------------------------
@@ -432,6 +430,10 @@ class DROFrame(CNCRibbon.PageFrame):
 	#----------------------------------------------------------------------
 	def setY0(self, event=None):
 		self.app.mcontrol._wcsSet(None,"0",None,None,None,None)
+
+	#----------------------------------------------------------------------
+	def setB0(self, event=None):
+		self.app.mcontrol._wcsSet(None,None,None,None,"0",None)
 
 	#----------------------------------------------------------------------
 	def setZ0(self, event=None):
@@ -460,6 +462,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		try:
 			value = round(eval(self.ywork.get(), None, CNC.vars), 3)
 			self.app.mcontrol._wcsSet(None,value,None,None,None,None)
+		except:
+			pass
+
+	#----------------------------------------------------------------------
+	def setB(self, event=None):
+		if self.app.running: return
+		try:
+			value = round(eval(self.bwork.get(), None, CNC.vars), 3)
+			self.app.mcontrol._wcsSet(None,None,None,None,value,None)
 		except:
 			pass
 
@@ -731,6 +742,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
 class ControlFrame(CNCRibbon.PageExLabelFrame):
 	def __init__(self, master, app):
 		CNCRibbon.PageExLabelFrame.__init__(self, master, "Control", _("Control"), app)
+		self.isLathe = Utils.getBool("CNC","lathe",0)
 
 		frame = Frame(self())
 		frame.pack(side=TOP, fill=X)
@@ -768,12 +780,20 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		buttonSpeed[5].config(command=lambda:selectSpeed(speeds[5]))
 		buttonSpeed[6].config(command=lambda:selectSpeed(speeds[6]))
 
+		# A+    C+
+		#    B+    B-
+		# A-    C-
+
+		aName = "B" if self.isLathe else "Z"
+		bName = "Z" if self.isLathe else "X"
+		cName = "X" if self.isLathe else "Y"
+
 		row+=1
 		col = 0
-		Label(frame, text=_("Z")).grid(row=row, column=col)
+		Label(frame, text=_(aName)).grid(row=row, column=col)
 
 		col += 3
-		Label(frame, text=_("Y")).grid(row=row, column=col)
+		Label(frame, text=_(cName)).grid(row=row, column=col)
 
 		# ---
 		row += 1
@@ -781,41 +801,48 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
 		width=3
 		height=2
-
+		command = self.moveBup if self.isLathe else self.moveZup
+		name = "Move +{}".format(aName)
 		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveZup,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +Z"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 2
+		command = self.moveZdownXup if self.isLathe else self.moveXdownYup
+		name = "Move -{} +{}".format(bName, cName)
 		b = Button(frame, text=Unicode.UPPER_LEFT_TRIANGLE,
-					command=self.moveXdownYup,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -X +Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 1
+		command = self.moveXup if self.isLathe else self.moveYup
+		name = "Move +{}".format(cName)
 		b = Button(frame, text=Unicode.BLACK_UP_POINTING_TRIANGLE,
-					command=self.moveYup,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 1
+		command = self.moveZupXup if self.isLathe else self.moveXupYup
+		name = "Move +{} +{}".format(bName, cName)
 		b = Button(frame, text=Unicode.UPPER_RIGHT_TRIANGLE,
-					command=self.moveXupYup,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +X +Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 2
@@ -840,15 +867,17 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		row += 1
 
 		col = 1
-		Label(frame, text=_("X"), width=3, anchor=E).grid(row=row, column=col, sticky=E)
+		Label(frame, text=_(bName), width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
 		col += 1
+		command = self.moveZdown if self.isLathe else self.moveXdown
+		name = "Move -{}".format(bName)
 		b = Button(frame, text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
-					command=self.moveXdown,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -X"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 1
@@ -861,12 +890,14 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		self.addWidget(b)
 
 		col += 1
+		command = self.moveZup if self.isLathe else self.moveXup
+		name = "Move +{}".format(bName)
 		b = Button(frame, text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
-					command=self.moveXup,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +X"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		# --
@@ -915,39 +946,47 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		row += 1
 		col = 0
 
+		command = self.moveBdown if self.isLathe else self.moveZdown
+		name = "Move -{}".format(aName)
 		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-					command=self.moveZdown,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -Z"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 2
+		command = self.moveZdownXdown if self.isLathe else self.moveXdownYdown
+		name ="Move -{} -{}".format(bName,cName)
 		b = Button(frame, text=Unicode.LOWER_LEFT_TRIANGLE,
-					command=self.moveXdownYdown,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -X -Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 1
+		command = self.moveXdown if self.isLathe else self.moveYdown
+		name = "Move -{}".format(cName)
 		b = Button(frame, text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
-					command=self.moveYdown,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move -Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 1
+		command = self.moveZdownXup if self.isLathe else self.moveXupYdown
+		name = "Move +{} -{}".format(bName, cName)
 		b = Button(frame, text=Unicode.LOWER_RIGHT_TRIANGLE,
-					command=self.moveXupYdown,
+					command=command,
 					width=width, height=height,
 					activebackground="LightYellow")
 		b.grid(row=row, column=col, sticky=EW)
-		tkExtra.Balloon.set(b, _("Move +X -Y"))
+		tkExtra.Balloon.set(b, _(name))
 		self.addWidget(b)
 
 		col += 2
@@ -990,7 +1029,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 			pass
 
 	def getStep(self, axis='x'):
-		if axis == 'z':
+		isolatedStep = 'b' if self.isLathe else 'z'
+		if axis == isolatedStep:
 			zs = self.zstep.get()
 			if zs == _NOZSTEP:
 				return self.step.get()
@@ -1015,6 +1055,14 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.app.mcontrol.jog("Y-%s"%(self.step.get()))
 
+	def moveBup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B%s"%(self.step.get()))
+
+	def moveBdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("B-%s"%(self.step.get()))
+
 	def moveXdownYup(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		self.app.mcontrol.jog("X-%sY%s"%(self.step.get(),self.step.get()))
@@ -1031,6 +1079,22 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		if event is not None and not self.acceptKey(): return
 		self.app.mcontrol.jog("X%sY-%s"%(self.step.get(),self.step.get()))
 
+	def moveZdownXup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("Z-%sX%s"%(self.step.get(),self.step.get()))
+
+	def moveZupXup(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("Z%sX%s"%(self.step.get(),self.step.get()))
+
+	def moveZdownXdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("Z-%sX-%s"%(self.step.get(),self.step.get()))
+
+	def moveZupXdown(self, event=None):
+		if event is not None and not self.acceptKey(): return
+		self.app.mcontrol.jog("Z%sX-%s"%(self.step.get(),self.step.get()))
+
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
 		self.app.mcontrol.jog("Z%s"%(self.getStep('z')))
@@ -1044,6 +1108,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		self.sendGCode("G0Z%d"%(CNC.vars['safe']))
 		self.sendGCode("G0X0Y0")
 		self.sendGCode("G0Z0")
+		if self.isLathe:
+			self.sendGCode("G0B0")
 
 	#----------------------------------------------------------------------
 	def setStep(self, s, zs=None):
