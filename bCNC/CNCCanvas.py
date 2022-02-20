@@ -1008,7 +1008,9 @@ class CNCCanvas(Canvas, object):
 
 	# ----------------------------------------------------------------------
 	def wheel(self, event):
-		self.zoomCanvas(event.x, event.y, pow(ZOOM,(event.delta//120)))
+		scaledDelta = event.delta / 120
+		deltaPower = math.ceil(scaledDelta) if scaledDelta > 0 else math.floor(scaledDelta)
+		self.zoomCanvas(event.x, event.y, pow(ZOOM, deltaPower))
 
 	# ----------------------------------------------------------------------
 	# Change the insert marker location
