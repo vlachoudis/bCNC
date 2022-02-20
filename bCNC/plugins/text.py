@@ -41,7 +41,8 @@ class Tool(Plugin):
 				("Depth",       "mm",    0.0, _("Working Depth")),
 				("FontSize",    "mm",   10.0, _("Font size")),
 				("FontFile",    "file",   "", _("Font file")),
-                                ("Closed",      "bool", True, _("Close Contours")),
+				("Closed",      "bool", True, _("Close Contours")),
+				("DrillDots",   "bool", False,_("Dotted font (drill holes)")),
 				("ImageToAscii","file",   "", _("Image to Ascii")),
 				("CharsWidth",  "int",    80, _("Image chars width"))]
 		self.buttons.append("exe")
@@ -55,6 +56,7 @@ class Tool(Plugin):
 		textToWrite   = to_decode(self["Text"])
 		fontFileName  = self["FontFile"]
 		closed        = self["Closed"]
+		drillDots     = self["DrillDots"]
 		imageFileName = self["ImageToAscii"]
 		charsWidth    = self["CharsWidth"]
 
@@ -121,7 +123,7 @@ class Tool(Plugin):
 				if(not gc):
 					gc = font.get_glyph_contours(0,closed)#standard glyph for missing glyphs (complex glyph)
 				if(gc and not c==' '): #FIXME: for some reason space is not mapped correctly!!!
-					self.writeGlyphContour(block, font, gc, fontSize, depth, xOffset, yOffset)
+					self.writeGlyphContour(block, font, gc, fontSize, depth, drillDots, xOffset, yOffset)
 
 				if glyphIndx < len(adv):
 					xOffset += adv[glyphIndx]
@@ -144,7 +146,7 @@ class Tool(Plugin):
 
 
 	#Write GCode from glyph contours
-	def writeGlyphContour(self,block,font,contours,fontSize,depth,xO, yO):
+	def writeGlyphContour(self,block,font,contours,fontSize,depth,drillDots,xO, yO):
 		width = font.header.x_max - font.header.x_min
 		height = font.header.y_max - font.header.y_min
 		scale = fontSize / font.header.units_per_em
@@ -153,12 +155,30 @@ class Tool(Plugin):
 		for cont in contours:
 			block.append("( ---------- cut-here ---------- )")
 			block.append(CNC.zsafe())
-			block.append(CNC.grapid(xO + cont[0].x * scale , yO + cont[0].y * scale))
-			block.append(CNC.zenter(depth))
-			block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
-			for p in cont:
-				block.append(CNC.gline(xO + p.x * scale, yO + p.y * scale))
+			if drillDots:
+				self.drillContour(block,cont,scale,depth,xO,yO)
+			else:
+				self.millContour(block,cont,scale,depth,xO,yO)
 
+	def millContour(self,block,cont,scale,depth,x0,y0):
+		block.append(CNC.grapid(x0 + cont[0].x * scale , y0 + cont[0].y * scale))
+		block.append(CNC.zenter(depth))
+		block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
+		for p in cont:
+			block.append(CNC.gline(x0 + p.x * scale, y0 + p.y * scale))
+
+	def drillContour(self,block,cont,scale,depth,x0,y0):
+		xMin = min(p.x for p in cont)
+		xMax = max(p.x for p in cont)
+		yMin = min(p.y for p in cont)
+		yMax = max(p.y for p in cont)
+		x = (xMin + xMax) / 2
+		y = (yMin + yMax) / 2
+		block.append(CNC.zsafe())
+		block.append(CNC.grapid(x0 + x * scale, y0 + y * scale))
+		block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
+		block.append(CNC.zenter(depth))
+		block.append(CNC.zsafe())
 
 	def image_to_ascii(self,image):
 		ascii_chars = [ '#', 'A', '@', '%', 'S', '+', '<', '*', ':', ',', '.']
