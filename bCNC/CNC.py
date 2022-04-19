@@ -24,6 +24,7 @@ from bmath	import *
 from copy	import deepcopy
 from svgcode	import SVGcode
 from Utils import to_zip
+import Utils
 from CNCRibbon import Page
 from RepeatEngine import RepeatEngine
 
@@ -4642,7 +4643,10 @@ class GCode:
 
 		if fromSD and doNotUploadQueue:
 			fileName = "TmpFile"
-			queue.put("$SD/run=/{}\n".format(fileName))
+			if Utils.getStr('CNC', 'firmware') == 'Grbl_HAL':
+				queue.put("$F="+fileName+"\n")
+			else:
+				queue.put("$SD/run=/{}\n".format(fileName))
 			
 		def add(line, path):
 			if line is not None and not doNotUploadQueue:

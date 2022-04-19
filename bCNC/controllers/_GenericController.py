@@ -298,7 +298,7 @@ class _GenericController:
 			else:
 				self.parseBracketAngle(line, cline)
 
-		elif line[0]=="[":
+		elif line[0]=="[" and not "Pgm End" in line:
 			self.master.log.put((self.master.MSG_RECEIVE, line))
 			self.parseBracketSquare(line)
 

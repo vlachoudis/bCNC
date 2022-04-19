@@ -7,6 +7,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import sys
 
 __version__ = "0.9.14-dev"
@@ -22,6 +23,7 @@ import socket
 import traceback
 import threading
 import requests
+from ftplib import FTP
 
 from datetime import datetime
 
@@ -78,8 +80,11 @@ from EditorPage   import EditorPage
 _openserial = True	# override ini parameters
 _device     = None
 _baud       = None
-
-grblIPAddress= 'http://192.168.0.1'
+GRBL_HAL = 1
+GRBL_ESP32 = 2
+firmware = GRBL_HAL if Utils.getStr('CNC', 'firmware', 'Grbl_Esp32')=='Grbl_HAL' else GRBL_ESP32
+print("FIRMWARE =",firmware)
+grblIPAddress = '192.168.5.1' if firmware == GRBL_HAL else 'http://192.168.0.1'
 
 MONITOR_AFTER =  200	# ms
 DRAW_AFTER    =  300	# ms
@@ -2087,6 +2092,25 @@ class Application(Toplevel,Sender):
 			self.saveDialog()
 		return "break"
 
+	def sendWithFTP(self, sdFileName, fileName):
+		ftp = FTP(grblIPAddress)
+		ftp.login()
+		file = open(fileName, 'rb')
+		ftp.storbinary('STOR '+sdFileName, file)
+		file.close()
+		ftp.quit()
+
+	def sendWithHttp(self, sdFileName, fileName):
+		postArgs = {}
+		postArgs['path'] = '/'
+		postArgs[sdFileName + 'S'] = os.path.getsize(fileName)
+
+		with open(fileName, 'rb') as tmp:
+			postFile = {'myfile[]': (sdFileName, tmp)}
+			exists = requests.get(grblIPAddress + '/upload?path=/&PAGEID=0', timeout=5)
+			response = requests.post(grblIPAddress + '/upload', data=postArgs, files=postFile)
+			print(response.json())
+
 	def saveToSD(self, event=None):
 		def function():
 			self.setStatus("prepare to save file...")
@@ -2111,11 +2135,10 @@ class Application(Toplevel,Sender):
 				postArgs[sdFileName+'S'] = os.path.getsize(tmpFileName)
 
 				self.setStatus("Sending File to SD...")
-				with open(tmpFileName,'rb') as tmp:
-					postFile = {'myfile[]':(sdFileName,tmp)}
-					exists = requests.get(grblIPAddress+ '/upload?path=/&PAGEID=0',timeout=10)
-					response = requests.post(grblIPAddress+'/upload',data=postArgs,files=postFile)
-					print(response.json())
+				if firmware == GRBL_HAL:
+					self.sendWithFTP(sdFileName, tmpFileName)
+				else:
+					self.sendWithHttp(sdFileName, tmpFileName)
 				self.setStatus("File Send complete!")
 			except BaseException as err:
 				print(err)
@@ -2124,10 +2147,13 @@ class Application(Toplevel,Sender):
 				if os.path.exists(tmpFileName):
 					os.remove(tmpFileName)
 		threading.Thread(target=function).start()
-		
+
 	def deleteFromSD(self,event=None):
 		sdFileName = "TmpFile"
-		self.sendGCode("$SD/Delete={}".format(sdFileName))
+		if firmware == GRBL_HAL:
+			self.sendGCode("$FD=" + sdFileName)
+		else:
+			self.sendGCode("$SD/Delete=" + sdFileName)
 		self.setStatus("SD File Deleted")
 	#-----------------------------------------------------------------------
 	def reload(self, event=None):
@@ -2238,8 +2264,8 @@ class Application(Toplevel,Sender):
 	#-----------------------------------------------------------------------
 	# Send enabled gcode file to the CNC machine
 	#-----------------------------------------------------------------------
-	
-	
+
+
 	def run(self, lines=None, fromSD:bool=False):
 		self.cleanAfter = True	#Clean when this operation stops
 		print("Will clean after this operation")
@@ -2294,7 +2320,7 @@ class Application(Toplevel,Sender):
 			#self._paths = self.gcode.compile(MyQueue(), self.checkStop)
 			#return
 			self._paths = self.gcode.compile(self.queue, self.checkStop,doNotUploadQueue=fromSD,fromSD=fromSD)
-			
+
 			if self._paths is None:
 				self.emptyQueue()
 				self.purgeController()
@@ -2701,7 +2727,7 @@ def main(args=None):
 			run = True
 
 	palette = {"background": tk.cget("background")}
-	
+
 	color_count = 0
 	custom_color_count = 0
 	for color_name in ("background", "foreground", "activeBackground", "activeForeground", "disabledForeground", \
@@ -2711,12 +2737,12 @@ def main(args=None):
 		if (color2 is not None) and (color2.strip() != ""):
 			palette[color_name] = color2.strip()
 			custom_color_count += 1
-		
+
 			if color_count == 0:
 				tkExtra.GLOBAL_CONTROL_BACKGROUND = color2
 			elif color_count == 1:
 				tkExtra.GLOBAL_FONT_COLOR = color2
-			
+
 	if custom_color_count > 0:
 		print("Changing palette")
 		tk.tk_setPalette(**palette)
