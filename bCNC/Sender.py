@@ -844,9 +844,7 @@ class Sender:
 
 				self.serial_write(tosend)
 
-				#self.serial_write(tosend)
-				#self.serial.flush()
-				self.log.put((Sender.MSG_BUFFER,tosend))
+				self.log.put((Sender.MSG_BUFFER, tosend))
 
 				tosend = None
 				if not self.running and t-tg > G_POLL:

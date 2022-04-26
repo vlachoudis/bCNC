@@ -220,7 +220,7 @@ class Application(Toplevel,Sender):
 				if (n=="abcDRO" or n=="abcControl") and CNC.enable6axisopt == False:
 					sys.stdout.write("Not Loading 6 axis displays\n")
 
-					
+
 				else:
 					try:
 						if last == "*":
@@ -246,7 +246,7 @@ class Application(Toplevel,Sender):
 		self.editor   = Page.frames["Editor"].editor
 		self.terminal = Page.frames["Terminal"].terminal
 		self.buffer   = Page.frames["Terminal"].buffer
-				
+
 
 		# XXX FIXME Do we need it or I can takes from Page every time?
 		self.autolevel = Page.frames["Probe:Autolevel"]
@@ -2125,15 +2125,11 @@ class Application(Toplevel,Sender):
 							if val is None:
 								val = ""
 						myfile.write(val+'\n')
-					
+
 			sdFileName = "TmpFile"
 			tmpFileName = "TmpFile(PreProcessed)"
 			try:
-				postArgs = {}
-				postArgs['path'] = '/'
 				computeFile(tmpFileName)
-				postArgs[sdFileName+'S'] = os.path.getsize(tmpFileName)
-
 				self.setStatus("Sending File to SD...")
 				if firmware == GRBL_HAL:
 					self.sendWithFTP(sdFileName, tmpFileName)

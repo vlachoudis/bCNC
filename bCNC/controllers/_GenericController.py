@@ -343,7 +343,7 @@ class _GenericController:
 				self.master.controllerSet("GRBL%d"%(int(CNC.vars["version"][0])))
 
 		else:
-			if "SD print done!" in line:
+			if "SD print done!" in line or "Pgm End" in line:
 				CNC.vars['M48Times']+=1
 				Page.groups["Run"].setM48RepeatNumber(CNC.vars['M48Times'])
 				self.master.gcode.repeatEngine.countRepetition()
