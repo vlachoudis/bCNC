@@ -71,6 +71,7 @@ class _GenericController:
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.master.notBusy()
 		self.sendParameters()
+		self.sendConfiguration()
 		self.viewParameters()
 
 	#----------------------------------------------------------------------
@@ -81,6 +82,7 @@ class _GenericController:
 		if clearAlarm: self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.sendParameters()
+		self.sendSettings()
 		self.viewParameters()
 
 	#----------------------------------------------------------------------
@@ -88,6 +90,7 @@ class _GenericController:
 		if clearAlarm: self.master._alarm = False
 		self.master.sendGCode("$X")
 		self.sendParameters()
+		self.sendSettings()
 
 	#----------------------------------------------------------------------
 	def home(self, event=None):
@@ -97,6 +100,30 @@ class _GenericController:
 	def viewStatusReport(self):
 		self.master.serial_write(b"?")
 		self.master.sio_status = True
+
+	def viewConfiguration(self):
+		self.master.sendGcode("$$")
+
+	def saveSettings(self):
+		flag = 'x'
+		if os.path.isfile("Settings.txt"):
+			return
+		with open("Settings.txt", flag) as file:
+			file.write("$0 = 5\n")
+
+	def sendSettings(self):
+		settings = self.getSettings()
+		for settingsUnit in settings:
+			self.master.sendGCode(settingsUnit)
+
+	def getSettings(self):
+		if not os.path.isfile("Settings.txt"):
+			self.saveSettings()
+		settings = []
+		with open("Settings.txt", 'r') as settingsFile:
+			for line in settingsFile.readlines():
+				settings += [line]
+		return settings
 
 	def viewParameters(self):
 		self.master.sendGCode("$#")
