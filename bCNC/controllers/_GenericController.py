@@ -146,15 +146,14 @@ class _GenericController:
 				file.write("\n")
 		
 	def sendParameters(self):
-		axis = ["X","Y","Z","A","B","C"]
+		axis = "XYZABC"
 		parameters = self.getParameters()
 		time.sleep(0.05)
 		for workIndex in range(1,9):
-			prefix = "G10L2P" + str(workIndex)	
+			cmd = "G10L2P" + str(workIndex)
 			for currentAxis in axis:
-				cmd = prefix + currentAxis + parameters[workIndex][currentAxis]	
-				self.master.sendGCode(cmd)
-				#time.sleep(0.05)
+				cmd += currentAxis + parameters[workIndex][currentAxis]
+			self.master.sendGCode(cmd)
 
 	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
