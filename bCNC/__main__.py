@@ -2307,7 +2307,7 @@ class Application(Toplevel,Sender):
 			#		_("Please ZERO any location of the probe before starting a run"),
 			#		parent=self)
 			#	return
-			self.statusbar.setLimits(0, 9999)
+			self.statusbar.setLimits(0, 999999999)
 			self.statusbar.setProgress(0,0)
 
 			#class MyQueue:
