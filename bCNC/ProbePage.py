@@ -355,6 +355,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 # Probe Frame
 #===============================================================================
 class ProbeFrame(CNCRibbon.PageFrame):
+	autogotoVal = None
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
@@ -448,7 +449,10 @@ class ProbeFrame(CNCRibbon.PageFrame):
 			variable=self.probeautogoto, #onvalue=1, offvalue=0,
 			activebackground="LightYellow",
 			padx=2, pady=1)
-		self.autogoto.select()
+		
+		if self.probeautogoto.get() != 0:
+			self.autogoto.select()
+		
 		tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
 		#self.autogoto.pack(side=LEFT, expand=YES, fill=X)
 		self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
@@ -687,6 +691,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		self.probeZdir.set(Utils.getStr("Probe", "z"))
 		self.diameter.set(Utils.getStr("Probe",  "center"))
 		self.warn = Utils.getBool("Warning", "probe", self.warn)
+		self.probeautogoto.set(Utils.getBool("Probe", "autogoto"))
 
 	#-----------------------------------------------------------------------
 	def saveConfig(self):
@@ -695,6 +700,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 		Utils.setFloat("Probe", "z",      self.probeZdir.get())
 		Utils.setFloat("Probe", "center", self.diameter.get())
 		Utils.setBool("Warning","probe",  self.warn)
+		Utils.setInt("Probe", "autogoto", self.probeautogoto.get())
 
 	#-----------------------------------------------------------------------
 	def updateProbe(self):
