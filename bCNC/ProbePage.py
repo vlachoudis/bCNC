@@ -355,7 +355,6 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 # Probe Frame
 #===============================================================================
 class ProbeFrame(CNCRibbon.PageFrame):
-	autogotoVal = None
 	def __init__(self, master, app):
 		CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
 
