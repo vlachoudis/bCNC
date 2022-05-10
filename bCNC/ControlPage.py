@@ -127,7 +127,7 @@ class RunGroup(CNCRibbon.ButtonGroup):
 	def __init__(self, master, app):
 		CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
 
-		b = Ribbon.LabelButton(self.frame, self, "<<Run>>",
+		b = Ribbon.LabelButton(self.frame, self, "<<RunBegin>>",
 				image=Utils.icons["start32"],
 				text=_("Start"),
 				compound=TOP,
@@ -161,33 +161,54 @@ class RunGroup(CNCRibbon.ButtonGroup):
 		b.pack(side=LEFT, fill=BOTH)
 		tkExtra.Balloon.set(b, _("Run g-code commands from SD to controller"))
 
-		self.m48MaxRepeatNumber = Entry(self, font=DROFrame.dro_wpos,
+		self.m30CounterLimitSt = StringVar()
+		self.m30CounterLimit = Entry(self, textvariable=self.m30CounterLimitSt,
+					font=DROFrame.dro_wpos,
 					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
 					borderwidth=0,
 					justify=RIGHT)
-		self.m48MaxRepeatNumber.pack(side=BOTTOM, fill=BOTH)
-		tkExtra.Balloon.set(self.m48MaxRepeatNumber, _("Number of times wich a m48 command will repeat"))
+		self.m30CounterLimit.pack(side=BOTTOM, fill=BOTH)
+		tkExtra.Balloon.set(self.m30CounterLimit, _("Number of times wich a m48 command will repeat"))
 
-		self.m48StringVar =StringVar()
-		self.m48AlreadyRepeatLabel = Label(self,textvariable=self.m48StringVar,background=Ribbon._BACKGROUND)
-		self.m48AlreadyRepeatLabel.pack(side=RIGHT,fill=NONE)
-		tkExtra.Balloon.set(self.m48AlreadyRepeatLabel, _("Number of times already reapeated by a m48 command"))
-		self.m48StringVar.set("0")
+		self.m30CounterLimitSt.trace('w', self.updateM30State)
+		self.m30CounterLimit.bind("<Return>", lambda x: self.focus_set())
+		self.m30CounterLimit.bind("<KP_Enter>", lambda x: self.focus_set())
 
-	def getM48Max(self):
+		self.m30CounterSt = StringVar()
+		self.m30CounterLabel = Label(self,textvariable=self.m30CounterSt,background=Ribbon._BACKGROUND)
+		self.m30CounterLabel.pack(side=RIGHT,fill=NONE)
+		tkExtra.Balloon.set(self.m30CounterLabel, _("Number of times already reapeated by a m48 command"))
+		self.m30CounterSt.set("0")
+
+
+	def updateM30State(self, *args):
 		try:
-			return int(self.m48MaxRepeatNumber.get())
+			limit = int(self.m30CounterLimitSt.get())
+			CNC.vars["M30CounterLimit"] = limit
+
 		except:
-			self.m48MaxRepeatNumber.delete(0)
-			self.m48MaxRepeatNumber.insert(0,"0")
+			pass
+
+	def getM30Max(self):
+		try:
+			return int(self.m30CounterLimitSt.get())
+		except:
+			self.m30CounterLimitSt.delete(0)
+			self.m30CounterLimitSt.insert(0, "0")
 			return 0	
 
-	def setM48RepeatNumber(self, number):
+	def setM30CounterLimit(self, number):
 		try:
-			self.m48StringVar.set(str(int(number)))
+			self.m30CounterLimitSt.set(str(int(number)))
 		except:
-			self.m48StringVar.set("-1")
+			self.m30CounterLimitSt.set("0")
+
+	def setM30Counter(self, number):
+		try:
+			self.m30CounterSt.set(str(int(number)))
+		except:
+			self.m30CounterSt.set("-1")
 
 
 
@@ -757,7 +778,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		tkExtra.Balloon.set(self.jogSpeedEntry,_("Jog Speed"))
 		self.addWidget(self.jogSpeedEntry)
 
-		speeds = ["100", "200", "500", "1000", "2000","3000","5000"]
+		speeds = ["1000", "2000", "3000", "5000"]
 		buttonSpeed = []
 		for speed in speeds:
 			col+=1
@@ -776,9 +797,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 		buttonSpeed[1].config(command=lambda:selectSpeed(speeds[1]))
 		buttonSpeed[2].config(command=lambda:selectSpeed(speeds[2]))
 		buttonSpeed[3].config(command=lambda:selectSpeed(speeds[3]))
-		buttonSpeed[4].config(command=lambda:selectSpeed(speeds[4]))
-		buttonSpeed[5].config(command=lambda:selectSpeed(speeds[5]))
-		buttonSpeed[6].config(command=lambda:selectSpeed(speeds[6]))
 
 		# A+    C+
 		#    B+    B-

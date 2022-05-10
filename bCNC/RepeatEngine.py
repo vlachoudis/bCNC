@@ -6,14 +6,15 @@ class RepeatEngine:
 	TYPE_NONE = 0
 	TYPE_M47 = 1
 	TYPE_M48 = 2
-	TIMEOUT_TO_REPEAT = 0
+	TIMEOUT_TO_REPEAT = 0.5
 	repeatType: int
 	m48MaxTimes: int
 	m48CurrentTime: int
 	app: any
 	fromSD: bool
-	def __init__(self):
+	def __init__(self, CNCRef):
 		self.cleanState()
+		self.CNCRef = CNCRef
 
 	def isRepeatable(self):
 		if self.repeatType == self.TYPE_M47:
@@ -30,8 +31,8 @@ class RepeatEngine:
 	def updateState(self):
 		try:
 			if not self.fromSD:
-				self.m48MaxTimes = Page.groups["Run"].getM48Max()
-			Page.groups["Run"].setM48RepeatNumber(self.m48CurrentTime)
+				self.m48MaxTimes = self.CNCRef.vars["M30CounterLimit"]
+			Page.groups["Run"].setM30Counter(self.m48CurrentTime)
 		except:
 			pass
 	
@@ -53,6 +54,8 @@ class RepeatEngine:
 			self.repeatType = self.TYPE_M48
 			try:
 				self.m48MaxTimes = int(lin[lin.find('P')+1:])
+				Page.groups["Run"].setM30CounterLimit(self.m48MaxTimes)
+				self.CNCRef.vars["M30CounterLimit"] = self.m48MaxTimes
 			except:
 				pass
 			return True and not self.fromSD

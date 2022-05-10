@@ -26,7 +26,7 @@ from svgcode	import SVGcode
 from Utils import to_zip
 import Utils
 from CNCRibbon import Page
-from RepeatEngine import RepeatEngine
+import RepeatEngine
 
 IDPAT    = re.compile(r".*\bid:\s*(.*?)\)")
 PARENPAT = re.compile(r"(\(.*?\))")
@@ -761,7 +761,8 @@ class CNC:
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
-			"M48Times"	 : 0,
+			"M30Counter" : 0,
+			"M30CounterLimit": 0,
 			#"enable6axisopt" : 0,
 		}
 
@@ -2206,7 +2207,7 @@ class GCode:
 		self.undoredo = undo.UndoRedo()
 		self.probe    = Probe()
 		self.orient   = Orient()
-		self.repeatEngine = RepeatEngine()
+		self.repeatEngine = RepeatEngine.RepeatEngine(CNC)
 		self.vars     = {}		# local variables
 		self.init()
 

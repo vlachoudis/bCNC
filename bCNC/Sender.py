@@ -667,16 +667,14 @@ class Sender:
 		
 
 	def repeatProgram(self,thread):
-		print("Thread Run call: {} Sleep for {} seconds".format(thread.ident,self.gcode.repeatEngine.TIMEOUT_TO_REPEAT))
 		time.sleep(self.gcode.repeatEngine.TIMEOUT_TO_REPEAT)
-		print("Continue {}".format(thread.ident))
+		if CNC.vars["state"].lower() not in "idle":
+			return
 		self.gcode.repeatEngine.countRepetition()
 		if self.gcode.repeatEngine.fromSD:
 			pass
 		else:
 			self.event_generate("<<Run>>",when="tail")
-
-		print("Thread End {}".format(thread.ident))
 
 	#----------------------------------------------------------------------
 	# This is called everytime that motion controller changes the state
