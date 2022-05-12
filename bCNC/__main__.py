@@ -25,6 +25,8 @@ import traceback
 import threading
 import requests
 from ftplib import FTP
+from externalLib.modem import YMODEM
+
 
 from datetime import datetime
 
@@ -87,6 +89,7 @@ GRBL_ESP32 = 2
 firmware = GRBL_HAL if Utils.getStr('CNC', 'firmware', 'Grbl_Esp32') == 'Grbl_HAL' else GRBL_ESP32
 print("FIRMWARE =", firmware)
 grblIPAddress = '192.168.5.1' if firmware == GRBL_HAL else 'http://192.168.0.1'
+
 
 MONITOR_AFTER = 200  # ms
 DRAW_AFTER = 300  # ms
@@ -2164,6 +2167,18 @@ class Application(Toplevel, Sender):
         file.close()
         ftp.quit()
 
+    def sendWithYModem(self, sdFileName, fileName):
+        def getc(size, timeout=5):
+            return self.serial.read(size)
+        def putc(data, timeout=5):
+            return self.serial.write(data)
+        CNC.vars["Sending"] = True
+        time.sleep(0.2)
+        ymodem = YMODEM(getc, putc)
+        ymodem.send(open(fileName))
+        time.sleep(0.2)
+        CNC.vars["Sending"] = False
+
     def sendWithHttp(self, sdFileName, fileName):
         postArgs = {}
         postArgs['path'] = '/'
@@ -2197,7 +2212,7 @@ class Application(Toplevel, Sender):
                 computeFile(tmpFileName)
                 self.setStatus("Sending File to SD...")
                 if firmware == GRBL_HAL:
-                    self.sendWithFTP(sdFileName, tmpFileName)
+                    self.sendWithYModem(sdFileName, tmpFileName)
                 else:
                     self.sendWithHttp(sdFileName, tmpFileName)
                 self.setStatus("File Send complete!")

@@ -758,6 +758,7 @@ class CNC:
 			"PRB"        : None,
 			"TLO"        : 0.,
 
+			"Sending"	 : False,
 			"version"    : "",
 			"controller" : "",
 			"running"    : False,
