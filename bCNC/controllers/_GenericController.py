@@ -70,8 +70,8 @@ class _GenericController:
 		self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
 		self.master.notBusy()
-		self.sendParameters()
 		self.sendConfiguration()
+		self.sendParameters()
 		self.viewParameters()
 
 	#----------------------------------------------------------------------
@@ -81,16 +81,16 @@ class _GenericController:
 		self.master.stopProbe()
 		if clearAlarm: self.master._alarm = False
 		CNC.vars["_OvChanged"] = True	# force a feed change if any
-		self.sendParameters()
 		self.sendSettings()
+		self.sendParameters()
 		self.viewParameters()
 
 	#----------------------------------------------------------------------
 	def unlock(self, clearAlarm=True):
 		if clearAlarm: self.master._alarm = False
 		self.master.sendGCode("$X")
-		self.sendParameters()
 		self.sendSettings()
+		self.sendParameters()
 
 	#----------------------------------------------------------------------
 	def home(self, event=None):
@@ -129,37 +129,42 @@ class _GenericController:
 		self.master.sendGCode("$#")
 
 	def getParameters(self):
-		axis = ["X","Y","Z","A","B","C"]
+		axis = "XYZABC"
 		if not os.path.isfile("WorkCoordinates.txt"):
 			self.saveParameters()
 				
 		workPositions = {}
-		with open("WorkCoordinates.txt",'r') as workFile:
+		with open("WorkCoordinates.txt", 'r') as workFile:
 			for line in workFile.readlines():
 				positions = line.split(' ')
-				if len(positions)<7:
+				if len(positions) < 8:
 					continue
 				positions[-1] = positions[-1].replace('\n','')
 				positionIndex = int(positions[0])
-				positions = positions[1:]
+				radiusMode = positions[1]
+				positions = positions[2:]
 
 				workPositions[positionIndex] = {}
-				for (index,currentAxis) in enumerate(axis):
+				workPositions[positionIndex]["R"] = radiusMode
+				for (index, currentAxis) in enumerate(axis):
 					workPositions[positionIndex][currentAxis] = positions[index]
 		return workPositions
 
 	def saveParameters(self, workPositions=None):
-		axis = ["X","Y","Z","A","B","C"]
-		if workPositions==None:
+		axis = "XYZABC"
+		if workPositions == None:
 			workPositions = {}
 		flag = 'x'
 		if os.path.isfile("WorkCoordinates.txt"):
 			flag = 'w'
+
 		with open("WorkCoordinates.txt",flag) as file:
-			for workIndex in range(1,9):
+			for workIndex in range(1, 9):
 				file.write(str(workIndex))
 				if workIndex not in workPositions.keys():
 					workPositions[workIndex] = {}
+					workPositions[workIndex]["R"] = "G8"
+				file.write(" {}".format(workPositions[workIndex]["R"]))
 
 				for currentAxis in axis:
 					if currentAxis not in workPositions[workIndex].keys():
@@ -176,11 +181,14 @@ class _GenericController:
 		axis = "XYZABC"
 		parameters = self.getParameters()
 		time.sleep(0.05)
+		currentMode = CNC.vars["radius"]
 		for workIndex in range(1,9):
+			self.master.sendGCode(parameters[workIndex]["R"])
 			cmd = "G10L2P" + str(workIndex)
 			for currentAxis in axis:
 				cmd += currentAxis + parameters[workIndex][currentAxis]
 			self.master.sendGCode(cmd)
+		self.master.sendGCode(currentMode)
 
 	def viewState(self): #Maybe rename to viewParserState() ???
 		self.master.sendGCode("$G")
@@ -207,10 +215,12 @@ class _GenericController:
 		
 		# Updating WorkCoordinates.txt file
 		parameters = self.getParameters()
+		radiusMode = CNC.vars["radius"]
 
 		#global wcsvar
 		#p = wcsvar.get()
 		p = WCS.index(CNC.vars["WCS"])
+		parameters[p+1]["R"] = radiusMode
 		if p<6:
 			cmd = "G10L20P%d"%(p+1)
 		elif p==6:
@@ -370,14 +380,15 @@ class _GenericController:
 
 		else:
 			if "SD print done!" in line or "Pgm End" in line:
-				CNC.vars['M48Times']+=1
-				Page.groups["Run"].setM48RepeatNumber(CNC.vars['M48Times'])
+				CNC.vars['M30Counter']+=1
+				Page.groups["Run"].setM30Counter(CNC.vars['M30Counter'])
 				self.master.gcode.repeatEngine.countRepetition()
 				if self.master.gcode.repeatEngine.isRepeatable():
 					self.master._gcount = 0
 				else:
 					self.master.gcode.repeatEngine.cleanState()
-					CNC.vars['M48Times'] = 0
+					CNC.vars['M30Counter'] = 0
+					Page.groups["Run"].setM30Counter(CNC.vars['M30Counter'])
 					self.master._gcount = self.master._runLines
 			#We return false in order to tell that we can't parse this line
 			#Sender will log the line in such case

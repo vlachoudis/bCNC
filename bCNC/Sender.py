@@ -502,7 +502,8 @@ class Sender:
 						rtscts=False)
 		# Toggle DTR to reset Arduino
 		try:
-			self.serial.setDTR(0)
+			pass
+			#self.serial.setDTR(0)
 		except IOError:
 			pass
 		time.sleep(1)

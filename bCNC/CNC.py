@@ -74,6 +74,8 @@ MODAL_MODES = {
 	"G38.4"	: "motion",
 	"G38.5"	: "motion",
 	"G80"	: "motion",
+	"G8"	: "radius",
+	"G7"	: "radius",
 
 	"G54"   : "WCS",
 	"G55"   : "WCS",
@@ -726,6 +728,7 @@ class CNC:
 			"program"    : "M0",
 			"spindle"    : "M5",
 			"coolant"    : "M9",
+			"radius"     : "G8",
 
 			"tool"       : 0,
 			"feed"       : 0.0,

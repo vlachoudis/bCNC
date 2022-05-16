@@ -25,7 +25,7 @@ import traceback
 import threading
 import requests
 from ftplib import FTP
-from externalLib.modem import YMODEM
+from externalLib.ymodem.Modem import Modem
 
 
 from datetime import datetime
@@ -94,7 +94,7 @@ grblIPAddress = '192.168.5.1' if firmware == GRBL_HAL else 'http://192.168.0.1'
 MONITOR_AFTER = 200  # ms
 DRAW_AFTER = 300  # ms
 
-RX_BUFFER_SIZE = 128
+RX_BUFFER_SIZE = 512
 
 MAX_HISTORY = 500
 
@@ -2168,16 +2168,28 @@ class Application(Toplevel, Sender):
         ftp.quit()
 
     def sendWithYModem(self, sdFileName, fileName):
+        oldTimeOut = self.serial.timeout
         def getc(size, timeout=5):
+            self.serial.timeout = timeout
             return self.serial.read(size)
         def putc(data, timeout=5):
+            self.serial.writeTimeout = timeout
             return self.serial.write(data)
         CNC.vars["Sending"] = True
+        while self.serial.read(100):
+            pass
         time.sleep(0.2)
-        ymodem = YMODEM(getc, putc)
-        ymodem.send(open(fileName))
-        time.sleep(0.2)
-        CNC.vars["Sending"] = False
+        ymodem = Modem(getc, putc)
+        file_info = {"name" : sdFileName,
+                     "length": os.path.getsize(fileName)}
+        try:
+            ymodem.send(open(fileName), info=file_info)
+        except BaseException as err:
+            print(err)
+            self.setStatus("Error while sending! Check your connection and try again")
+        finally:
+            time.sleep(0.2)
+            CNC.vars["Sending"] = False
 
     def sendWithHttp(self, sdFileName, fileName):
         postArgs = {}
@@ -2207,7 +2219,7 @@ class Application(Toplevel, Sender):
                         myfile.write(val + '\n')
 
             sdFileName = "TmpFile"
-            tmpFileName = "TmpFile(PreProcessed)"
+            tmpFileName = "TmpFilePre"
             try:
                 computeFile(tmpFileName)
                 self.setStatus("Sending File to SD...")
