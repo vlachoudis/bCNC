@@ -176,7 +176,7 @@ class DROFrame(CNCRibbon.PageFrame):
 				cursor="hand1",
 				background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
 				activebackground="LightYellow")
-		self.state.grid(row=row,column=col, columnspan=3, sticky=EW)
+		self.state.grid(row=row,column=col, columnspan=4, sticky=EW)
 		tkExtra.Balloon.set(self.state,
 				_("Show current state of the machine\n"
 				  "Click to see details\n"
@@ -193,8 +193,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.xwork = Entry(self, font=DROFrame.dro_wpos,
 					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
-					borderwidth=0,
-					justify=RIGHT)
+					justify=RIGHT,width=10)
 		self.xwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.xwork, _("X work position (click to set)"))
 		self.xwork.bind('<FocusIn>',  self.workFocus)
@@ -206,8 +205,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.ywork = Entry(self, font=DROFrame.dro_wpos,
 					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
-					borderwidth=0,
-					justify=RIGHT)
+					justify=RIGHT,width=10)
 		self.ywork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.ywork, _("Y work position (click to set)"))
 		self.ywork.bind('<FocusIn>',  self.workFocus)
@@ -219,13 +217,15 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.zwork = Entry(self, font=DROFrame.dro_wpos,
 					background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
 					relief=FLAT,
-					borderwidth=0,
-					justify=RIGHT)
+					justify=RIGHT,width=10)
 		self.zwork.grid(row=row,column=col,padx=1,sticky=EW)
 		tkExtra.Balloon.set(self.zwork, _("Z work position (click to set)"))
 		self.zwork.bind('<FocusIn>',  self.workFocus)
 		self.zwork.bind('<Return>',   self.setZ)
 		self.zwork.bind('<KP_Enter>', self.setZ)
+
+		col += 1
+		Label(self,text=_(" Feed"),font=DROFrame.dro_mpos,background=tkExtra.GLOBAL_CONTROL_BACKGROUND,width=10,justify=RIGHT).grid(row=row,column=col,padx=2,sticky=EW)
 
 		# Machine
 		row += 1
@@ -241,8 +241,12 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.ymachine.grid(row=row,column=col,padx=1,sticky=EW)
 
 		col += 1
-		self.zmachine = Label(self, font=DROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+		self.zmachine = Label(self, font=DROFrame.dro_mpos,background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
 		self.zmachine.grid(row=row,column=col,padx=1,sticky=EW)
+        
+		col += 1
+		self.currfeed = Label(self,text=_("0"),font=DROFrame.dro_wpos,borderwidth=0,background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+		self.currfeed.grid(row=row,column=col,padx=2,sticky=EW)
 
 		# Set buttons
 		row += 1
@@ -273,27 +277,16 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.zzero.grid(row=row, column=col, pady=0, sticky=EW)
 		tkExtra.Balloon.set(self.zzero, _("Set Z coordinate to zero (or to typed coordinate in WPos)"))
 		self.addWidget(self.zzero)
-
-		# Set buttons
-		row += 1
-		col = 1
-		self.xyzero = Button(self, text=_("XY=0"),
-				command=self.setXY0,
-				activebackground="LightYellow",
-				padx=2, pady=1)
-		self.xyzero.grid(row=row, column=col, pady=0, sticky=EW)
-		tkExtra.Balloon.set(self.xyzero, _("Set XY coordinate to zero (or to typed coordinate in WPos)"))
-		self.addWidget(self.xyzero)
-
+		
 		col += 1
 		self.xyzzero = Button(self, text=_("XYZ=0"),
 				command=self.setXYZ0,
 				activebackground="LightYellow",
 				padx=2, pady=1)
-		self.xyzzero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
+		self.xyzzero.grid(row=row, column=col, pady=0, sticky=EW)
 		tkExtra.Balloon.set(self.xyzzero, _("Set XYZ coordinate to zero (or to typed coordinate in WPos)"))
 		self.addWidget(self.xyzzero)
-
+		
 		# Set buttons
 		row += 1
 		col = 1
@@ -322,9 +315,19 @@ class DROFrame(CNCRibbon.PageFrame):
 		tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
 		self.addWidget(b)
 
+		col += 3
+		self.xyzero = Button(self, text=_("XY=0"),
+				command=self.setXY0,
+				activebackground="LightYellow",
+				padx=2, pady=0)
+		self.xyzero.grid(row=row, column=col, pady=1, sticky=EW)
+		tkExtra.Balloon.set(self.xyzero, _("Set XY coordinate to zero (or to typed coordinate in WPos)"))
+		self.addWidget(self.xyzero)
+
 		self.grid_columnconfigure(1, weight=1)
 		self.grid_columnconfigure(2, weight=1)
 		self.grid_columnconfigure(3, weight=1)
+		self.grid_columnconfigure(4, weight=1)
 
 	#----------------------------------------------------------------------
 	def stateMenu(self, event=None):
@@ -369,6 +372,7 @@ class DROFrame(CNCRibbon.PageFrame):
 		self.xmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mx"])
 		self.ymachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["my"])
 		self.zmachine["text"] = self.padFloat(CNC.drozeropad,CNC.vars["mz"])
+		self.currfeed["text"] = "%0.*f"%(0,CNC.vars["curfeed"])
 		self.app.abcdro.updateCoords()
 	#----------------------------------------------------------------------
 	def padFloat(self, decimals, value):
