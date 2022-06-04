@@ -4,11 +4,15 @@ from __future__ import (absolute_import, division, print_function,
 import math
 import numpy
 import logging
-import collections
 
 from python_utils import logger
 
 from .utils import s
+
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 
 #: When removing empty areas, remove areas that are smaller than this
 AREA_SIZE_THRESHOLD = 0
@@ -74,7 +78,7 @@ def logged(class_):
 
 
 @logged
-class BaseMesh(logger.Logged, collections.Mapping):
+class BaseMesh(logger.Logged, Mapping):
     '''
     Mesh object with easy access to the vectors through v0, v1 and v2.
     The normals, areas, min, max and units are calculated automatically.
