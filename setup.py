@@ -32,6 +32,7 @@ setup(
 		"pyserial<=3.0.1 ; sys_platform == 'win32'",
 		'numpy>=1.12',
 		'Pillow>=4.0',
+		'python-utils>=2',
 		'opencv-python==%s ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)' % (opencv_version),	#Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
 	],
 

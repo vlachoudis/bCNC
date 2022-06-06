@@ -2,8 +2,6 @@ Following components were sublicensed from BSD3 to bCNC's license (GPLv2):
 
 Numpy-STL ( https://github.com/WoLpH/numpy-stl )
 	lib/stl
-Python-Utils ( https://github.com/WoLpH/python-utils )
-	lib/python_utils
 
 This is the text of their original license:
 
