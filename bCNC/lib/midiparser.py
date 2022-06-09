@@ -1,4 +1,3 @@
-
 # Placed into Public Domain in June 2006 by Sean D. Spencer
 
 # Sean D. Spencer
@@ -21,7 +20,7 @@ class format:
 class voice:
     NoteOff = 0x80
     NoteOn = 0x90
-    PolyphonicKeyPressure = 0xA0 # note aftertouch
+    PolyphonicKeyPressure = 0xA0  # note aftertouch
     ControllerChange = 0xB0
     ProgramChange = 0xC0
     ChannelPressure = 0xD0
@@ -105,9 +104,9 @@ class MetaValues:
 def getNumber(theString, length):
     # MIDI uses big-endian for everything
     sum = 0
-    #print "Length: " + str(length) + "  strlen: " + str(len(theString))
+    # print "Length: " + str(length) + "  strlen: " + str(len(theString))
     for i in range(length):
-        #sum = (sum *256) + int(str[i])
+        # sum = (sum *256) + int(str[i])
         sum = (sum << 8) + ord(theString[i])
     return sum, theString[length:]
 
@@ -140,7 +139,7 @@ class File:
         self.division = None
         self.tracks = []
 
-        self.file = open(self.file, 'rb')
+        self.file = open(self.file, "rb")
         str = self.file.read()
         self.file.close()
 
@@ -159,7 +158,7 @@ class File:
         self.division, str = getNumber(str, 2)
 
         for i in range(self.num_tracks):
-            track = Track(i+1)
+            track = Track(i + 1)
             str = track.read(str)
             self.tracks.append(track)
 
@@ -172,14 +171,14 @@ class Track:
 
     def read(self, str):
         self.length, str = getNumber(str[4:], 4)
-        track_str = str[:self.length]
+        track_str = str[: self.length]
 
         prev_absolute = 0
         prev_status = 0
 
         i = 0
         while track_str:
-            event = Event(self.number, i+1)
+            event = Event(self.number, i + 1)
             track_str = event.read(prev_absolute, prev_status, track_str)
 
             prev_absolute += event.delta
@@ -218,9 +217,11 @@ class Event:
 
         # handle voice events
         channel_msg = ord(self.status) & 0xF0
-        if channel_msg == voice.NoteOn or \
-                channel_msg == voice.NoteOff or \
-                channel_msg == voice.PolyphonicKeyPressure:
+        if (
+            channel_msg == voice.NoteOn
+            or channel_msg == voice.NoteOff
+            or channel_msg == voice.PolyphonicKeyPressure
+        ):
             self.detail = EventNote()
             self.detail.note_no = ord(str[0])
             self.detail.velocity = ord(str[1])
@@ -232,8 +233,7 @@ class Event:
             self.detail.value = ord(str[1])
             str = str[2:]
 
-        elif channel_msg == voice.ProgramChange or \
-                channel_msg == voice.ChannelPressure:
+        elif channel_msg == voice.ProgramChange or channel_msg == voice.ChannelPressure:
 
             self.detail = EventAmount()
             self.detail.amount = ord(str[0])
@@ -245,7 +245,8 @@ class Event:
             self.detail.amount = (ord(str[0]) << 7) | ord(str[1])
             str = str[2:]
 
-        else: has_channel = FALSE
+        else:
+            has_channel = FALSE
 
         # handle meta events
         meta_msg = ord(self.status)
@@ -254,18 +255,19 @@ class Event:
             meta_msg = type = ord(str[0])
             length, str = getVariableLengthNumber(str[1:])
 
-            if type == meta.SetTempo or \
-                    type == meta.ChannelPrefix:
+            if type == meta.SetTempo or type == meta.ChannelPrefix:
 
                 self.detail = EventAmount()
-                self.detail.tempo, str  = getNumber(str, length)
+                self.detail.tempo, str = getNumber(str, length)
 
             elif type == meta.KeySignature:
                 self.detail = MetaEventKeySignature()
                 self.detail.fifths = ord(str[0])
 
-                if ord(str[1]): self.detail.mode = "minor"
-                else: self.detail.mode = "major"
+                if ord(str[1]):
+                    self.detail.mode = "minor"
+                else:
+                    self.detail.mode = "major"
 
                 str = str[length:]
 
@@ -277,11 +279,13 @@ class Event:
                 self.detail.thirty_seconds = ord(str[3])
                 str = str[length:]
 
-            elif type == meta.TrackName or \
-                    type == meta.TextMetaEvent or \
-                    type == meta.Lyric or \
-                    type == meta.CuePoint or \
-                    type == meta.CopyrightMetaEvent:
+            elif (
+                type == meta.TrackName
+                or type == meta.TextMetaEvent
+                or type == meta.Lyric
+                or type == meta.CuePoint
+                or type == meta.CopyrightMetaEvent
+            ):
 
                 self.detail = MetaEventText()
                 self.detail.length = length
@@ -298,24 +302,25 @@ class Event:
                 str = str[length:]
 
             elif type == meta.EndTrack:
-                str = str[length:] # pass on to next track
+                str = str[length:]  # pass on to next track
 
-            else: has_meta = FALSE
+            else:
+                has_meta = FALSE
 
-        elif meta_msg == meta.SystemExclusive or \
-                meta_msg == meta.SystemExclusivePacket:
+        elif meta_msg == meta.SystemExclusive or meta_msg == meta.SystemExclusivePacket:
             self.detail = MetaValues()
             self.detail.length, str = getVariableLengthNumber(str)
             self.detail.values = getValues(str, self.detail.length)
             str = str[self.detail.length:]
 
-        else: has_meta = FALSE
+        else:
+            has_meta = FALSE
 
         if has_channel:
             self.type = channel_msg
         elif has_meta:
             self.type = meta_msg
         else:
-            #raise "Unknown event."
+            # raise "Unknown event."
             self.type = None
         return str

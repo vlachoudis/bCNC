@@ -1,13 +1,13 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re
-import six
 import math
+import re
+
+import six
 
 
 def to_int(input_, default=0, exception=(ValueError, TypeError), regexp=None):
-    '''
+    r"""
     Convert the given input to an integer or return default
 
     When trying to convert the exceptions given in the exception parameter
@@ -63,16 +63,16 @@ def to_int(input_, default=0, exception=(ValueError, TypeError), regexp=None):
     Traceback (most recent call last):
     ...
     TypeError: unknown argument for regexp parameter: 123
-    '''
+    """
 
     if regexp is True:
-        regexp = re.compile('(\d+)')
+        regexp = re.compile(r"(\d+)")
     elif isinstance(regexp, six.string_types):
         regexp = re.compile(regexp)
-    elif hasattr(regexp, 'search'):
+    elif hasattr(regexp, "search"):
         pass
     elif regexp is not None:
-        raise TypeError('unknown argument for regexp parameter: %r' % regexp)
+        raise TypeError("unknown argument for regexp parameter: %r" % regexp)
 
     try:
         if regexp:
@@ -84,9 +84,8 @@ def to_int(input_, default=0, exception=(ValueError, TypeError), regexp=None):
         return default
 
 
-def to_float(input_, default=0, exception=(ValueError, TypeError),
-             regexp=None):
-    '''
+def to_float(input_, default=0, exception=(ValueError, TypeError), regexp=None):
+    r"""
     Convert the given `input_` to an integer or return default
 
     When trying to convert the exceptions given in the exception parameter
@@ -136,16 +135,16 @@ def to_float(input_, default=0, exception=(ValueError, TypeError),
     Traceback (most recent call last):
     ...
     TypeError: unknown argument for regexp parameter
-    '''
+    """
 
     if regexp is True:
-        regexp = re.compile('(\d+(\.\d+|))')
+        regexp = re.compile(r"(\d+(\.\d+|))")
     elif isinstance(regexp, six.string_types):
         regexp = re.compile(regexp)
-    elif hasattr(regexp, 'search'):
+    elif hasattr(regexp, "search"):
         pass
     elif regexp is not None:
-        raise TypeError('unknown argument for regexp parameter')
+        raise TypeError("unknown argument for regexp parameter")
 
     try:
         if regexp:
@@ -157,8 +156,8 @@ def to_float(input_, default=0, exception=(ValueError, TypeError),
         return default
 
 
-def to_unicode(input_, encoding='utf-8', errors='replace'):
-    '''Convert objects to unicode, if needed decodes string with the given
+def to_unicode(input_, encoding="utf-8", errors="replace"):
+    """Convert objects to unicode, if needed decodes string with the given
     encoding and errors settings.
 
     :rtype: unicode
@@ -174,7 +173,7 @@ def to_unicode(input_, encoding='utf-8', errors='replace'):
     'a'
     >>> to_unicode(Foo)
     "<class 'python_utils.converters.Foo'>"
-    '''
+    """
     if isinstance(input_, six.binary_type):
         input_ = input_.decode(encoding, errors)
     else:
@@ -182,8 +181,8 @@ def to_unicode(input_, encoding='utf-8', errors='replace'):
     return input_
 
 
-def to_str(input_, encoding='utf-8', errors='replace'):
-    '''Convert objects to string, encodes to the given encoding
+def to_str(input_, encoding="utf-8", errors="replace"):
+    """Convert objects to string, encodes to the given encoding
 
     :rtype: str
 
@@ -198,11 +197,11 @@ def to_str(input_, encoding='utf-8', errors='replace'):
     'a'
     >>> to_str(Foo)
     "<class 'python_utils.converters.Foo'>"
-    '''
+    """
     if isinstance(input_, six.binary_type):
         pass
     else:
-        if not hasattr(input_, 'encode'):
+        if not hasattr(input_, "encode"):
             input_ = six.text_type(input_)
 
         input_ = input_.encode(encoding, errors)
@@ -210,7 +209,7 @@ def to_str(input_, encoding='utf-8', errors='replace'):
 
 
 def scale_1024(x, n_prefixes):
-    '''Scale a number down to a suitable size, based on powers of 1024.
+    """Scale a number down to a suitable size, based on powers of 1024.
 
     Returns the scaled number and the power of 1024 used.
 
@@ -226,7 +225,7 @@ def scale_1024(x, n_prefixes):
     (0.5, 0)
     >>> scale_1024(1, 2)
     (1.0, 0)
-    '''
+    """
     if x <= 0:
         power = 0
     else:

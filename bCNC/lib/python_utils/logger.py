@@ -1,12 +1,13 @@
 from __future__ import absolute_import
-import logging
-import functools
 
-__all__ = ['Logged']
+import functools
+import logging
+
+__all__ = ["Logged"]
 
 
 class Logged(object):
-    '''Class which automatically adds a named logger to your class when
+    """Class which automatically adds a named logger to your class when
     interiting
 
     Adds easy access to debug, info, warning, error, exception and log methods
@@ -21,7 +22,8 @@ class Logged(object):
     >>> my_class.error('error')
     >>> my_class.exception('exception')
     >>> my_class.log(0, 'log')
-    '''
+    """
+
     def __new__(cls, *args, **kwargs):
         cls.logger = logging.getLogger(
             cls.__get_name(__name__, cls.__class__.__name__))
@@ -29,7 +31,7 @@ class Logged(object):
 
     @classmethod
     def __get_name(cls, *name_parts):
-        return '.'.join(n.strip() for n in name_parts if n.strip())
+        return ".".join(n.strip() for n in name_parts if n.strip())
 
     @classmethod
     @functools.wraps(logging.debug)

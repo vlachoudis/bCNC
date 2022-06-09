@@ -2,14 +2,18 @@
 Functions to slice a mesh. For now, computes planar cross-section
 """
 from __future__ import absolute_import
+
+import collections
+
 import numpy as np
 import numpy.linalg as la
+
 try:
     import scipy.spatial.distance as spdist
+
     USE_SCIPY = True
 except ImportError:
     USE_SCIPY = False
-import collections
 
 # ---- Geometry datastructures
 
@@ -74,7 +78,7 @@ class Plane(object):
         self.n = normal / la.norm(normal)
 
     def __str__(self):
-        return 'plane(o=%s, n=%s)' % (self.orig, self.n)
+        return "plane(o={}, n={})".format(self.orig, self.n)
 
 
 def point_to_plane_dist(p, plane):
@@ -115,8 +119,8 @@ def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol=1e-8):
           vertex-vertex or edge-edge)
     """
     # TODO: Use a distance cache
-    dists = {vid: point_to_plane_dist(mesh.verts[vid], plane)
-             for vid in mesh.tris[tid]}
+    dists = {vid: point_to_plane_dist(
+        mesh.verts[vid], plane) for vid in mesh.tris[tid]}
     # TODO: Use an edge intersection cache (we currently compute each edge
     # intersection twice : once for each tri)
 
@@ -175,7 +179,7 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
     elif intersection[0] == INTERSECT_VERTEX:
         tris = mesh.triangles_for_vert(intersection[2])
     else:
-        assert False, 'Invalid intersection[0] value : %d' % intersection[0]
+        assert False, "Invalid intersection[0] value : %d" % intersection[0]
 
     # Knowing where we come from is not enough. If an edge of the triangle
     # lies exactly on the plane, i.e. :
@@ -196,7 +200,8 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
     for tid in tris:
         if tid in T:
             intersections = compute_triangle_plane_intersections(
-                    mesh, tid, plane, dist_tol)
+                mesh, tid, plane, dist_tol
+            )
             if len(intersections) == 2:
                 T = T.difference(tris)
                 return tid, intersections, T
@@ -216,8 +221,8 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
     while True:
         p.append(intersect[1])
 
-        tid, intersections, T = get_next_triangle(mesh, T, plane,
-                                                  intersect, dist_tol)
+        tid, intersections, T = get_next_triangle(
+            mesh, T, plane, intersect, dist_tol)
         if tid is None:
             break
 
@@ -231,8 +236,9 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
         if la.norm(intersections[0][1] - p[-1]) < dist_tol:
             intersect = intersections[1]
         else:
-            assert la.norm(intersections[1][1] - p[-1]) < dist_tol, \
-                '%s not close to %s' % (str(p[-1]), str(intersections))
+            assert (
+                la.norm(intersections[1][1] - p[-1]) < dist_tol
+            ), "{} not close to {}".format(str(p[-1]), str(intersections))
             intersect = intersections[0]
 
     return p, T
@@ -255,12 +261,12 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
         tid = T.pop()
 
         intersections = compute_triangle_plane_intersections(
-                mesh, tid, plane, dist_tol)
+            mesh, tid, plane, dist_tol)
 
         if len(intersections) == 2:
             for intersection in intersections:
-                p, T = _walk_polyline(tid, intersection, T, mesh, plane,
-                                      dist_tol)
+                p, T = _walk_polyline(tid, intersection, T,
+                                      mesh, plane, dist_tol)
                 if len(p) > 1:
                     P.append(np.array(p))
     return P
@@ -298,7 +304,7 @@ def pdist_squareformed_numpy(a):
     Returns: dist
     """
     a = np.array(a, dtype=np.float64)
-    a_sumrows = np.einsum('ij,ij->i', a, a)
+    a_sumrows = np.einsum("ij,ij->i", a, a)
     dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
     np.fill_diagonal(dist, 0)
     return dist

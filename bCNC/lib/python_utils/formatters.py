@@ -1,9 +1,10 @@
 from __future__ import absolute_import
+
 import datetime
 
 
 def camel_to_underscore(name):
-    '''Convert camel case style naming to underscore style naming
+    """Convert camel case style naming to underscore style naming
 
     If there are existing underscores they will be collapsed with the
     to-be-added underscores. Multiple consecutive capital letters will not be
@@ -19,29 +20,29 @@ def camel_to_underscore(name):
     '__spam_and_bacon__'
     >>> camel_to_underscore('__SpamANDBacon__')
     '__spam_and_bacon__'
-    '''
+    """
     output = []
     for i, c in enumerate(name):
         if i > 0:
             pc = name[i - 1]
-            if c.isupper() and not pc.isupper() and pc != '_':
+            if c.isupper() and not pc.isupper() and pc != "_":
                 # Uppercase and the previous character isn't upper/underscore?
                 # Add the underscore
-                output.append('_')
+                output.append("_")
             elif i > 3 and not c.isupper():
                 # Will return the last 3 letters to check if we are changing
                 # case
-                previous = name[i - 3:i]
+                previous = name[i - 3: i]
                 if previous.isalpha() and previous.isupper():
-                    output.insert(len(output) - 1, '_')
+                    output.insert(len(output) - 1, "_")
 
         output.append(c.lower())
 
-    return ''.join(output)
+    return "".join(output)
 
 
-def timesince(dt, default='just now'):
-    '''
+def timesince(dt, default="just now"):
+    """
     Returns string representing 'time since' e.g.
     3 days ago, 5 hours ago etc.
 
@@ -82,7 +83,7 @@ def timesince(dt, default='just now'):
     '1 hour and 2 minutes ago'
     >>> timesince(datetime.timedelta(seconds=3721))
     '1 hour and 2 minutes ago'
-    '''
+    """
     if isinstance(dt, datetime.timedelta):
         diff = dt
     else:
@@ -90,24 +91,24 @@ def timesince(dt, default='just now'):
         diff = abs(now - dt)
 
     periods = (
-        (diff.days / 365, 'year', 'years'),
-        (diff.days % 365 / 30, 'month', 'months'),
-        (diff.days % 30 / 7, 'week', 'weeks'),
-        (diff.days % 7, 'day', 'days'),
-        (diff.seconds / 3600, 'hour', 'hours'),
-        (diff.seconds % 3600 / 60, 'minute', 'minutes'),
-        (diff.seconds % 60, 'second', 'seconds'),
+        (diff.days / 365, "year", "years"),
+        (diff.days % 365 / 30, "month", "months"),
+        (diff.days % 30 / 7, "week", "weeks"),
+        (diff.days % 7, "day", "days"),
+        (diff.seconds / 3600, "hour", "hours"),
+        (diff.seconds % 3600 / 60, "minute", "minutes"),
+        (diff.seconds % 60, "second", "seconds"),
     )
 
     output = []
     for period, singular, plural in periods:
         if int(period):
             if int(period) == 1:
-                output.append('%d %s' % (period, singular))
+                output.append("%d %s" % (period, singular))
             else:
-                output.append('%d %s' % (period, plural))
+                output.append("%d %s" % (period, plural))
 
     if output:
-        return '%s ago' % ' and '.join(output[:2])
+        return "%s ago" % " and ".join(output[:2])
 
     return default

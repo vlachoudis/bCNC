@@ -34,28 +34,30 @@
 # Date:	10-Oct-2014
 
 from __future__ import absolute_import
-__author__ = "Vasilis Vlachoudis"
-__email__  = "Vasilis.Vlachoudis@cern.ch"
 
 import sys
 
-#-------------------------------------------------------------------------------
+__author__ = "Vasilis Vlachoudis"
+__email__ = "Vasilis.Vlachoudis@cern.ch"
+
+
+# -------------------------------------------------------------------------------
 _log = None
 
 
 def set(l):
-	global _log
-	_log = l
+    global _log
+    _log = l
 
 
 def say(*kw):
-	global _log
-	txt = " ".join(map(str,kw))
-	if _log:
-		_log(txt)
-	else:
-		sys.stdout.write("%s\n"%(txt))
+    global _log
+    txt = " ".join(map(str, kw))
+    if _log:
+        _log(txt)
+    else:
+        sys.stdout.write("%s\n" % (txt))
 
 
 def null(*kw):
-	pass
+    pass

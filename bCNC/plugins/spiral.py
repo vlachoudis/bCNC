@@ -1,476 +1,525 @@
-# -*- coding: ascii -*-
 # $Id$
 #
 # Author:	T Marks
 # Date:	2020/04/14
 
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, print_function
+
+import math
+import sys  # Trouble Shooting Only!
+
+import Utils
+from CNC import CNC, Block
+from ToolsPage import Plugin
+from Utils import to_zip
+
 __author__ = "T Marks"
-__email__  = "tsmarks@gmail.com"
+__email__ = "tsmarks@gmail.com"
 
 __name__ = _("Spiral")
-__version__= "0.0.1"
+__version__ = "0.0.1"
 
-from CNC import CNC,Block
-from ToolsPage import Plugin
-import Utils
-from Utils import to_zip
-import math
 try:
-	import Tkinter
-	from Queue import *
-	from Tkinter import *
-	import tkMessageBox
+    import Tkinter
+    from Queue import *
+    from Tkinter import *
+    import tkMessageBox
 except ImportError:
-	import tkinter
-	from queue import *
-	from tkinter import *
-	import tkinter.messagebox as tkMessageBox
+    import tkinter
+    from queue import *
+    from tkinter import *
+    import tkinter.messagebox as tkMessageBox
 
 
-import sys   # Trouble Shooting Only!
-
-#==============================================================================
-#Spiral class
-#==============================================================================
+# ==============================================================================
+# Spiral class
+# ==============================================================================
 class Spiral:
-	def __init__(self,name="Spiral"):
-		self.name = name
+    def __init__(self, name="Spiral"):
+        self.name = name
 
-	#----------------------------------------------------------------------
-	def make(self,app, XStart=0.0, YStart=0.0, ZStart=30., AlignAxis="Y", \
-			RotAxis="A", StockLeng=20, ReduceDepth=-1, PassDepth=1, \
-			Stepover=1, ZApproach=35, SpiralType="Spiral", CutBoth="True", LiftPass="False"):
+    # ----------------------------------------------------------------------
+    def make(
+        self,
+        app,
+        XStart=0.0,
+        YStart=0.0,
+        ZStart=30.0,
+        AlignAxis="Y",
+        RotAxis="A",
+        StockLeng=20,
+        ReduceDepth=-1,
+        PassDepth=1,
+        Stepover=1,
+        ZApproach=35,
+        SpiralType="Spiral",
+        CutBoth="True",
+        LiftPass="False",
+    ):
 
-		#GCode Blocks
-		blocks = []
-		
-		# Load tool and material settings
-		toolDiam = CNC.vars['diameter']
-		toolRadius = toolDiam / 2.
+        # GCode Blocks
+        blocks = []
 
-		#Calc tool diameter with Maximum Step Over allowed
-		StepOverInUnitMax = toolDiam * CNC.vars['stepover'] / 100.0		
+        # Load tool and material settings
+        toolDiam = CNC.vars["diameter"]
+        toolRadius = toolDiam / 2.0
 
-		#Check parameters
-		if RotAxis == "":
-			app.setStatus(_("Spiral abort: Rotary Axis is undefined"))
-			return
+        # Calc tool diameter with Maximum Step Over allowed
+        StepOverInUnitMax = toolDiam * CNC.vars["stepover"] / 100.0
 
-		if SpiralType == "":
-			app.setStatus(_("Spiral abort: Spiral Type is undefined"))
-			return
+        # Check parameters
+        if RotAxis == "":
+            app.setStatus(_("Spiral abort: Rotary Axis is undefined"))
+            return
 
-		if ZApproach <= ZStart :
-			app.setStatus(_("Spiral abort: Approach height must be greater than Z Start"))
-			return
+        if SpiralType == "":
+            app.setStatus(_("Spiral abort: Spiral Type is undefined"))
+            return
 
-		if ReduceDepth > 0 :
-			app.setStatus(_("Spiral abort: Depth Reduction must be negative"))
-			return
+        if ZApproach <= ZStart:
+            app.setStatus(
+                _("Spiral abort: Approach height must be greater than Z Start")
+            )
+            return
 
-		if Stepover > StepOverInUnitMax and SpiralType == "Spiral":  #if Type is Lines then stepover is degrees not mm
-			app.setStatus(_("Spiral abort: Step Over exceeds tool limits"))
-			return 
-		elif Stepover > StepOverInUnitMax and SpiralType == "Lines":  # This could cause a tool crash, but could also be used to make faceted shapes.
-			dr=tkMessageBox.askyesno("Crash Risk","WARNING: Using a larger stepover value than tool's maximum with lines operation may result in a tool crash. Do you want to continue?")
-			sys.stdout.write("%s"%(dr))
-			if dr == True or dr == "yes" :
-				app.setStatus(_("Risk Accepted")) #Using positive logic, if python returns ANYTHING other than True/yes this will not make g-code.  Incase Python uses No instead of False
-			else:
-				return
-		if StockLeng <= 0 :
-			app.setStatus(_("Spiral abort: Stock Length to cut must be positive"))
-			return
-			
+        if ReduceDepth > 0:
+            app.setStatus(_("Spiral abort: Depth Reduction must be negative"))
+            return
 
-		#Add Region disabled to show worked area
-		block = Block(self.name + " Outline")
-		block.enable = False
-		block.append(CNC.grapid(CNC.vars["wx"],CNC.vars["wy"],ZApproach))  ## Cannot trust Safe-Z with 4th axis!!
-		if AlignAxis == "X":
-			outlineWidth = StockLeng
-		else:
-			outlineWidth = 0
-		if AlignAxis == "Y":
-			outlineHeight = StockLeng
-		else:
-			outlineHeight = 0
-		xR,yR = self.RectPath(XStart,YStart,outlineWidth,outlineHeight)
-		for x,y in zip(xR,yR):
-			block.append(CNC.gline(x,y))
-		blocks.append(block)
+        if (
+            Stepover > StepOverInUnitMax and SpiralType == "Spiral"
+        ):  # if Type is Lines then stepover is degrees not mm
+            app.setStatus(_("Spiral abort: Step Over exceeds tool limits"))
+            return
+        elif (
+            Stepover > StepOverInUnitMax and SpiralType == "Lines"
+        ):  # This could cause a tool crash, but could also be used to make faceted shapes.
+            dr = tkMessageBox.askyesno(
+                "Crash Risk",
+                "WARNING: Using a larger stepover value than tool's maximum with lines operation may result in a tool crash. Do you want to continue?",
+            )
+            sys.stdout.write("%s" % (dr))
+            if dr == True or dr == "yes":
+                app.setStatus(
+                    _("Risk Accepted")
+                )  # Using positive logic, if python returns ANYTHING other than True/yes this will not make g-code.  Incase Python uses No instead of False
+            else:
+                return
+        if StockLeng <= 0:
+            app.setStatus(
+                _("Spiral abort: Stock Length to cut must be positive"))
+            return
 
-		
-		if StockLeng < toolDiam :
-			app.setStatus(_("Spiral abort: Stock Length is too small for this End Mill."))
-			return
+        # Add Region disabled to show worked area
+        block = Block(self.name + " Outline")
+        block.enable = False
+        block.append(
+            CNC.grapid(CNC.vars["wx"], CNC.vars["wy"], ZApproach)
+        )  # Cannot trust Safe-Z with 4th axis!!
+        if AlignAxis == "X":
+            outlineWidth = StockLeng
+        else:
+            outlineWidth = 0
+        if AlignAxis == "Y":
+            outlineHeight = StockLeng
+        else:
+            outlineHeight = 0
+        xR, yR = self.RectPath(XStart, YStart, outlineWidth, outlineHeight)
+        for x, y in zip(xR, yR):
+            block.append(CNC.gline(x, y))
+        blocks.append(block)
 
-		#Prepare points for pocketing
-		xP=[]
-		yP=[]
-		rP=[]
-		zP=[]
-		gP=[]
-        
+        if StockLeng < toolDiam:
+            app.setStatus(
+                _("Spiral abort: Stock Length is too small for this End Mill.")
+            )
+            return
 
-        #---------------------------------------------------------------------
-        #Line approach
-		if SpiralType == "Lines":
-			#Calc number of indexes
-			IndexNum = math.ceil(360/Stepover) # Using the step over as Degrees 
-						
+        # Prepare points for pocketing
+        xP = []
+        yP = []
+        rP = []
+        zP = []
+        gP = []
 
-			#Calc number of pass
-			VerticalCount = math.ceil(abs(ReduceDepth) / PassDepth)
-			#Calc even depths of cut
-			EvenCutDepths = ReduceDepth / VerticalCount
-			
-			currentR = 0
-			currentZ = ZStart - EvenCutDepths
-			direction = 1
-			if AlignAxis == "X" :
-				currentX = XStart + toolRadius
-				currentY = YStart
-			elif AlignAxis == "Y":
-				currentX = XStart
-				currentY = YStart + toolRadius
-			else:
-				app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-				return			
-			
-			while (currentZ >= (ZStart + ReduceDepth)):
-				#sys.stdout.write("~~~~~%s,%s,%s,%s,%s!"%(currentZ,ZStart,ReduceDepth,EvenCutDepths,VerticalCount))
-				while (currentR < 360):
-					#sys.stdout.write("~~~~~%s,%s,%s,%s,%s!"%(currentR,Stepover,currentX,currentY,VerticalCount))
+        # ---------------------------------------------------------------------
+        # Line approach
+        if SpiralType == "Lines":
+            # Calc number of indexes
+            # Using the step over as Degrees
+            IndexNum = math.ceil(360 / Stepover)
 
-					#Plunge in
-					gP.append(1)
-					rP.append(currentR)
-					zP.append(currentZ)			
-					xP.append(currentX)
-					yP.append(currentY)
-					if direction == 1:
-						if AlignAxis == "X" :
-							currentX = StockLeng - toolRadius
-							currentY = YStart
-						elif AlignAxis == "Y":
-							currentX = XStart
-							currentY = StockLeng - toolRadius
-						else:
-							app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-							return
-						if CutBoth == "True" :
-							direction = -1
-					else :
-						if AlignAxis == "X" :
-							currentX = XStart + toolRadius
-							currentY = YStart
-						elif AlignAxis == "Y":
-							currentX = XStart
-							currentY = YStart + toolRadius
-						else:
-							app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-							return
-						direction = 1
-					gP.append(1)
-					zP.append(currentZ)			
-					xP.append(currentX)
-					yP.append(currentY)
-					rP.append(currentR)
-					# Lift before rotating if required, useful to make non-round shape
+            # Calc number of pass
+            VerticalCount = math.ceil(abs(ReduceDepth) / PassDepth)
+            # Calc even depths of cut
+            EvenCutDepths = ReduceDepth / VerticalCount
 
-					if CutBoth == "False" : # Return to start
-					
-						#Lift Before return
-						gP.append(0)
-						rP.append(currentR)
-						zP.append(ZApproach)
-						xP.append(currentX)
-						yP.append(currentY)
+            currentR = 0
+            currentZ = ZStart - EvenCutDepths
+            direction = 1
+            if AlignAxis == "X":
+                currentX = XStart + toolRadius
+                currentY = YStart
+            elif AlignAxis == "Y":
+                currentX = XStart
+                currentY = YStart + toolRadius
+            else:
+                app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
+                return
 
-						#Return to start
-						if AlignAxis == "X" :
-							currentX = XStart + toolRadius
-							currentY = YStart
-						elif AlignAxis == "Y":
-							currentX = XStart
-							currentY = YStart + toolRadius
-						else:
-							app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-							return
-						gP.append(0)
-						xP.append(currentX)
-						yP.append(currentY)
-						rP.append(currentR)
-						zP.append(ZApproach)
-						#Rotate
-						currentR += Stepover
-						gP.append(0)
-						xP.append(currentX)
-						yP.append(currentY)
-						rP.append(currentR)
-						zP.append(ZApproach)
-					elif LiftPass == "True" and CutBoth == "True" :
-						gP.append(0)
-						rP.append(currentR)
-						zP.append(ZApproach)
-						xP.append(currentX)
-						yP.append(currentY)
-						currentR += Stepover
-						gP.append(0)
-						xP.append(currentX)
-						yP.append(currentY)
-						rP.append(currentR)
-						zP.append(ZApproach)
-					elif LiftPass == "False" and CutBoth == "True" :
-						currentR += Stepover
-				gP.append(0)
-				xP.append(currentX)
-				yP.append(currentY)
-				rP.append(currentR)
-				zP.append(ZApproach)
-				currentR=0
-				gP.append(0)
-				xP.append(currentX)
-				yP.append(currentY)
-				rP.append(currentR)
-				zP.append(ZApproach)		
+            while currentZ >= (ZStart + ReduceDepth):
+                # sys.stdout.write("~~~~~%s,%s,%s,%s,%s!"%(currentZ,ZStart,ReduceDepth,EvenCutDepths,VerticalCount))
+                while currentR < 360:
+                    # sys.stdout.write("~~~~~%s,%s,%s,%s,%s!"%(currentR,Stepover,currentX,currentY,VerticalCount))
 
-					
-					
-					
-				#Step Down
-				currentZ += EvenCutDepths			
+                    # Plunge in
+                    gP.append(1)
+                    rP.append(currentR)
+                    zP.append(currentZ)
+                    xP.append(currentX)
+                    yP.append(currentY)
+                    if direction == 1:
+                        if AlignAxis == "X":
+                            currentX = StockLeng - toolRadius
+                            currentY = YStart
+                        elif AlignAxis == "Y":
+                            currentX = XStart
+                            currentY = StockLeng - toolRadius
+                        else:
+                            app.setStatus(
+                                _("Spiral abort: Rotary Axis Not Assigned."))
+                            return
+                        if CutBoth == "True":
+                            direction = -1
+                    else:
+                        if AlignAxis == "X":
+                            currentX = XStart + toolRadius
+                            currentY = YStart
+                        elif AlignAxis == "Y":
+                            currentX = XStart
+                            currentY = YStart + toolRadius
+                        else:
+                            app.setStatus(
+                                _("Spiral abort: Rotary Axis Not Assigned."))
+                            return
+                        direction = 1
+                    gP.append(1)
+                    zP.append(currentZ)
+                    xP.append(currentX)
+                    yP.append(currentY)
+                    rP.append(currentR)
+                    # Lift before rotating if required, useful to make non-round shape
 
-		#---------------------------------------------------------------------
-        #Spiral approach
-		if SpiralType == "Spiral":
-			#Calc number of pass
-			StepsPerRot = math.ceil(StockLeng/Stepover)
-			TotalRot = 360 * StepsPerRot
-			
-			#Calc steps in depth
-			VerticalCount = math.ceil(abs(ReduceDepth) / PassDepth)
-			#Calc even depths of cut
-			EvenCutDepths = ReduceDepth / VerticalCount			
-			
-			direction = 1
-			currentZ = ZStart - EvenCutDepths
-			if AlignAxis == "X" :
-				currentX = XStart + toolRadius
-				currentY = YStart
-			elif AlignAxis == "Y":
-				currentX = XStart
-				currentY = YStart + toolRadius
-			else:
-				app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-				return
-			currentR = 0
-			while (currentZ >= (ZStart + ReduceDepth)):
-				
-				# Plunge to depth
-				currentR += 90 # Ramp the Plunge
-				gP.append(1)
-				rP.append(currentR)
-				zP.append(currentZ)			
-				xP.append(currentX)
-				yP.append(currentY)
-				
-				# One Full Rotation for a clean shoulder
-				currentR += 360
-				gP.append(1)
-				rP.append(currentR)
-				zP.append(currentZ)			
-				xP.append(currentX)
-				yP.append(currentY)
-				
-				
-				if AlignAxis == "X" :
-					if direction == 1:
-						currentX = StockLeng - toolRadius
-					else:
-						currentX = XStart + toolRadius
-					currentY = YStart
-				elif AlignAxis == "Y":
-					currentX = XStart
-					if direction == 1:
-						currentY = StockLeng - toolRadius
-					else:
-						currentY = YStart + toolRadius
-				else:
-					app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-					return
-					
-				currentR += TotalRot
-				gP.append(1)
-				rP.append(currentR)
-				zP.append(currentZ)			
-				xP.append(currentX)
-				yP.append(currentY)
-				
-				# One Full Rotation for a clean shoulder
-				currentR += 360
-				gP.append(1)
-				rP.append(currentR)
-				zP.append(currentZ)			
-				xP.append(currentX)
-				yP.append(currentY)
-				
-				if CutBoth == "True" : 
-					direction *=  - 1
-				else:
-					#Retract
-					gP.append(0)
-					rP.append(currentR)
-					zP.append(ZApproach)			
-					xP.append(currentX)
-					yP.append(currentY)
-					# Return and Rewind
-					gP.append(0)
-					rP.append(currentR)
-					zP.append(ZApproach)
-					if AlignAxis == "X" :
-						currentX = XStart + toolRadius
-						currentY = YStart
-					elif AlignAxis == "Y":
-						currentX = XStart
-						currentY = YStart + toolRadius
-					else:
-						app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-						return
-					xP.append(currentX)
-					yP.append(currentY)
-				
-				
-				currentZ += EvenCutDepths
-				
+                    if CutBoth == "False":  # Return to start
 
-#Start G-Code Processes
-		#Blocks for pocketing
-		block = Block(self.name)
-		block.append("(Reduce Rotary by Y=%g)"%(ReduceDepth))
-		block.append("(Approach: %s )" % (SpiralType))
+                        # Lift Before return
+                        gP.append(0)
+                        rP.append(currentR)
+                        zP.append(ZApproach)
+                        xP.append(currentX)
+                        yP.append(currentY)
 
-		#Move safe to first point
-		block.append(CNC.grapid(CNC.vars["mx"],CNC.vars["my"],ZApproach))  ## Cannot trust Safe-Z with 4th axis!!
-		if AlignAxis == "X" :
-			block.append(CNC.grapid(XStart + toolRadius,YStart))
-		elif AlignAxis == "Y":
-			block.append(CNC.grapid(XStart,YStart + toolRadius))
-		else:
-			app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-			return
-		
-		block.append(CNC.zenter(ZApproach))
-		block.append(CNC.gcode(1, [("f",CNC.vars["cutfeed"])]))
-		
-		for g,x,y,z,r in zip(gP, xP,yP,zP, rP):
-			if RotAxis == "A" :
-				if g==0:
-					block.append(CNC.grapidABC(x,y,z,r,CNC.vars["wb"],CNC.vars["wc"]))
-					#sys.stdout.write("%s,%s,%s,%s,%s"%(g,x,y,z,r))
-				else:
-					block.append(CNC.glineABC(x,y,z,r,CNC.vars["wb"],CNC.vars["wc"]))
-					#sys.stdout.write("%s,%s,%s,%s,%s"%(g,x,y,z,r))
-			elif RotAxis == "B" :
-				if g==0:
-					block.append(CNC.grapidABC(x,y,z,CNC.vars["wa"],r,CNC.vars["wc"]))
-				else:
-					block.append(CNC.glineABC(x,y,z,CNC.vars["wa"],r,CNC.vars["wc"]))
-			elif RotAxis == "C" :
-				if g==0:
-					block.append(CNC.grapidABC(x,y,z,CNC.vars["wa"],CNC.vars["wb"],r))
-				else:
-					block.append(CNC.glineABC(x,y,z,CNC.vars["wa"],CNC.vars["wb"],r))
+                        # Return to start
+                        if AlignAxis == "X":
+                            currentX = XStart + toolRadius
+                            currentY = YStart
+                        elif AlignAxis == "Y":
+                            currentX = XStart
+                            currentY = YStart + toolRadius
+                        else:
+                            app.setStatus(
+                                _("Spiral abort: Rotary Axis Not Assigned."))
+                            return
+                        gP.append(0)
+                        xP.append(currentX)
+                        yP.append(currentY)
+                        rP.append(currentR)
+                        zP.append(ZApproach)
+                        # Rotate
+                        currentR += Stepover
+                        gP.append(0)
+                        xP.append(currentX)
+                        yP.append(currentY)
+                        rP.append(currentR)
+                        zP.append(ZApproach)
+                    elif LiftPass == "True" and CutBoth == "True":
+                        gP.append(0)
+                        rP.append(currentR)
+                        zP.append(ZApproach)
+                        xP.append(currentX)
+                        yP.append(currentY)
+                        currentR += Stepover
+                        gP.append(0)
+                        xP.append(currentX)
+                        yP.append(currentY)
+                        rP.append(currentR)
+                        zP.append(ZApproach)
+                    elif LiftPass == "False" and CutBoth == "True":
+                        currentR += Stepover
+                gP.append(0)
+                xP.append(currentX)
+                yP.append(currentY)
+                rP.append(currentR)
+                zP.append(ZApproach)
+                currentR = 0
+                gP.append(0)
+                xP.append(currentX)
+                yP.append(currentY)
+                rP.append(currentR)
+                zP.append(ZApproach)
 
-			
-		block.append(CNC.grapid(CNC.vars["wx"],CNC.vars["wy"],ZApproach))  ## Cannot trust Safe-Z with 4th axis!!
-		if AlignAxis == "X" :
-			block.append(CNC.grapid(XStart + toolRadius,YStart))
-		elif AlignAxis == "Y":
-			block.append(CNC.grapid(XStart,YStart + toolRadius))
-		else:
-			app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
-			return
-		block.append(CNC.zexit(ZApproach))
-		blocks.append(block)
-		tkMessageBox.showinfo("Crash Risk","WARNING: Check CAM file Header for Z move. If it exists, remove it to prevent tool crash.")
+                # Step Down
+                currentZ += EvenCutDepths
 
-		return blocks
+        # ---------------------------------------------------------------------
+        # Spiral approach
+        if SpiralType == "Spiral":
+            # Calc number of pass
+            StepsPerRot = math.ceil(StockLeng / Stepover)
+            TotalRot = 360 * StepsPerRot
 
-	#----------------------------------------------------------------------
-	
-	def RectPath(self,x,y,w,h):
-		xR = []
-		yR = []
-		xR.append(x)
-		yR.append(y)
-		xR.append(x + w)
-		yR.append(y)
-		xR.append(x + w)
-		yR.append(y + h)
-		xR.append(x)
-		yR.append(y + h)
-		xR.append(x)
-		yR.append(y)
-		return (xR,yR)
+            # Calc steps in depth
+            VerticalCount = math.ceil(abs(ReduceDepth) / PassDepth)
+            # Calc even depths of cut
+            EvenCutDepths = ReduceDepth / VerticalCount
+
+            direction = 1
+            currentZ = ZStart - EvenCutDepths
+            if AlignAxis == "X":
+                currentX = XStart + toolRadius
+                currentY = YStart
+            elif AlignAxis == "Y":
+                currentX = XStart
+                currentY = YStart + toolRadius
+            else:
+                app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
+                return
+            currentR = 0
+            while currentZ >= (ZStart + ReduceDepth):
+
+                # Plunge to depth
+                currentR += 90  # Ramp the Plunge
+                gP.append(1)
+                rP.append(currentR)
+                zP.append(currentZ)
+                xP.append(currentX)
+                yP.append(currentY)
+
+                # One Full Rotation for a clean shoulder
+                currentR += 360
+                gP.append(1)
+                rP.append(currentR)
+                zP.append(currentZ)
+                xP.append(currentX)
+                yP.append(currentY)
+
+                if AlignAxis == "X":
+                    if direction == 1:
+                        currentX = StockLeng - toolRadius
+                    else:
+                        currentX = XStart + toolRadius
+                    currentY = YStart
+                elif AlignAxis == "Y":
+                    currentX = XStart
+                    if direction == 1:
+                        currentY = StockLeng - toolRadius
+                    else:
+                        currentY = YStart + toolRadius
+                else:
+                    app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
+                    return
+
+                currentR += TotalRot
+                gP.append(1)
+                rP.append(currentR)
+                zP.append(currentZ)
+                xP.append(currentX)
+                yP.append(currentY)
+
+                # One Full Rotation for a clean shoulder
+                currentR += 360
+                gP.append(1)
+                rP.append(currentR)
+                zP.append(currentZ)
+                xP.append(currentX)
+                yP.append(currentY)
+
+                if CutBoth == "True":
+                    direction *= -1
+                else:
+                    # Retract
+                    gP.append(0)
+                    rP.append(currentR)
+                    zP.append(ZApproach)
+                    xP.append(currentX)
+                    yP.append(currentY)
+                    # Return and Rewind
+                    gP.append(0)
+                    rP.append(currentR)
+                    zP.append(ZApproach)
+                    if AlignAxis == "X":
+                        currentX = XStart + toolRadius
+                        currentY = YStart
+                    elif AlignAxis == "Y":
+                        currentX = XStart
+                        currentY = YStart + toolRadius
+                    else:
+                        app.setStatus(
+                            _("Spiral abort: Rotary Axis Not Assigned."))
+                        return
+                    xP.append(currentX)
+                    yP.append(currentY)
+
+                currentZ += EvenCutDepths
+
+        # Start G-Code Processes
+        # Blocks for pocketing
+        block = Block(self.name)
+        block.append("(Reduce Rotary by Y=%g)" % (ReduceDepth))
+        block.append("(Approach: %s )" % (SpiralType))
+
+        # Move safe to first point
+        block.append(
+            CNC.grapid(CNC.vars["mx"], CNC.vars["my"], ZApproach)
+        )  # Cannot trust Safe-Z with 4th axis!!
+        if AlignAxis == "X":
+            block.append(CNC.grapid(XStart + toolRadius, YStart))
+        elif AlignAxis == "Y":
+            block.append(CNC.grapid(XStart, YStart + toolRadius))
+        else:
+            app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
+            return
+
+        block.append(CNC.zenter(ZApproach))
+        block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
+
+        for g, x, y, z, r in zip(gP, xP, yP, zP, rP):
+            if RotAxis == "A":
+                if g == 0:
+                    block.append(
+                        CNC.grapidABC(
+                            x, y, z, r, CNC.vars["wb"], CNC.vars["wc"])
+                    )
+                    # sys.stdout.write("%s,%s,%s,%s,%s"%(g,x,y,z,r))
+                else:
+                    block.append(
+                        CNC.glineABC(x, y, z, r, CNC.vars["wb"], CNC.vars["wc"])
+                    )
+                    # sys.stdout.write("%s,%s,%s,%s,%s"%(g,x,y,z,r))
+            elif RotAxis == "B":
+                if g == 0:
+                    block.append(
+                        CNC.grapidABC(
+                            x, y, z, CNC.vars["wa"], r, CNC.vars["wc"])
+                    )
+                else:
+                    block.append(
+                        CNC.glineABC(x, y, z, CNC.vars["wa"], r, CNC.vars["wc"])
+                    )
+            elif RotAxis == "C":
+                if g == 0:
+                    block.append(
+                        CNC.grapidABC(
+                            x, y, z, CNC.vars["wa"], CNC.vars["wb"], r)
+                    )
+                else:
+                    block.append(
+                        CNC.glineABC(x, y, z, CNC.vars["wa"], CNC.vars["wb"], r)
+                    )
+
+        block.append(
+            CNC.grapid(CNC.vars["wx"], CNC.vars["wy"], ZApproach)
+        )  # Cannot trust Safe-Z with 4th axis!!
+        if AlignAxis == "X":
+            block.append(CNC.grapid(XStart + toolRadius, YStart))
+        elif AlignAxis == "Y":
+            block.append(CNC.grapid(XStart, YStart + toolRadius))
+        else:
+            app.setStatus(_("Spiral abort: Rotary Axis Not Assigned."))
+            return
+        block.append(CNC.zexit(ZApproach))
+        blocks.append(block)
+        tkMessageBox.showinfo(
+            "Crash Risk",
+            "WARNING: Check CAM file Header for Z move. If it exists, remove it to prevent tool crash.",
+        )
+
+        return blocks
+
+    # ----------------------------------------------------------------------
+
+    def RectPath(self, x, y, w, h):
+        xR = []
+        yR = []
+        xR.append(x)
+        yR.append(y)
+        xR.append(x + w)
+        yR.append(y)
+        xR.append(x + w)
+        yR.append(y + h)
+        xR.append(x)
+        yR.append(y + h)
+        xR.append(x)
+        yR.append(y)
+        return (xR, yR)
 
 
-#==============================================================================
+# ==============================================================================
 # Spiral Cut on 4th Axis to reduce size
-#==============================================================================
+# ==============================================================================
 class Tool(Plugin):
-	__doc__ = _("Reduce Diameter of 4th Axis Stock")
+    __doc__ = _("Reduce Diameter of 4th Axis Stock")
 
-	def __init__(self, master):
-		Plugin.__init__(self, master, "Spiral")
-		self.icon  = "helical"
-		self.group = "CAM"
-		self.variables = [
-			("name",           "db",    "",  _("Name")),
-			("XStart"  ,       "mm",   0.0,  _("X start")),
-			("YStart"  ,       "mm",   0.0,  _("Y start")),
-			("ZStart" ,        "mm",   30.0, _("Z start")),
-			("AlignAxis"  ,      "X,Y",  "Y",  _("Rotary Alignment Axis")),
-			("RotAxis"  ,      "A,B,C",  "A",  _("Rotary Axis")),
-			("StockLeng"  ,    "mm",   20.0, _("Length of Stock to Reduce")),
-			("ReduceDepth"  ,  "mm",    -1.0, _("Depth to Reduce")),
-			("PassDepth"  ,    "mm",    1.0, _("Max Depth per Pass")),
-			("Stepover"  ,     "mm",    1.0, _("Stepover (spiral=mm, lines=deg)")),
-			("ZApproach"  ,    "mm",    35.0, _("Approach Height (Safe Z)")),
-			("SpiralType"  , "Spiral,Lines" ,"Spiral", _("Cut Pattern")),
-			("CutBoth"     , "True,False","True",_("Cut in Both Directions")),
-			("LiftPass"   ,  "True,False","False",_("Lift before rotate"))
-		]
-		self.buttons.append("exe")
+    def __init__(self, master):
+        Plugin.__init__(self, master, "Spiral")
+        self.icon = "helical"
+        self.group = "CAM"
+        self.variables = [
+            ("name", "db", "", _("Name")),
+            ("XStart", "mm", 0.0, _("X start")),
+            ("YStart", "mm", 0.0, _("Y start")),
+            ("ZStart", "mm", 30.0, _("Z start")),
+            ("AlignAxis", "X,Y", "Y", _("Rotary Alignment Axis")),
+            ("RotAxis", "A,B,C", "A", _("Rotary Axis")),
+            ("StockLeng", "mm", 20.0, _("Length of Stock to Reduce")),
+            ("ReduceDepth", "mm", -1.0, _("Depth to Reduce")),
+            ("PassDepth", "mm", 1.0, _("Max Depth per Pass")),
+            ("Stepover", "mm", 1.0, _("Stepover (spiral=mm, lines=deg)")),
+            ("ZApproach", "mm", 35.0, _("Approach Height (Safe Z)")),
+            ("SpiralType", "Spiral,Lines", "Spiral", _("Cut Pattern")),
+            ("CutBoth", "True,False", "True", _("Cut in Both Directions")),
+            ("LiftPass", "True,False", "False", _("Lift before rotate")),
+        ]
+        self.buttons.append("exe")
 
-	# ----------------------------------------------------------------------
-	def execute(self, app):
-		n = self["name"]
-		if not n or n=="default": n="Spiral"
-		spiral = Spiral(n)
+    # ----------------------------------------------------------------------
+    def execute(self, app):
+        n = self["name"]
+        if not n or n == "default":
+            n = "Spiral"
+        spiral = Spiral(n)
 
-		blocks = spiral.make(app,
-				self.fromMm("XStart"),
-				self.fromMm("YStart"),
-				self.fromMm("ZStart"),
-				self["AlignAxis"],
-				self["RotAxis"],
-				self.fromMm("StockLeng"),
-				self.fromMm("ReduceDepth"),
-				self.fromMm("PassDepth"),
-				self.fromMm("Stepover"),
-				self.fromMm("ZApproach"),
-				self["SpiralType"],
-				self["CutBoth"],
-				self["LiftPass"]
-				)
+        blocks = spiral.make(
+            app,
+            self.fromMm("XStart"),
+            self.fromMm("YStart"),
+            self.fromMm("ZStart"),
+            self["AlignAxis"],
+            self["RotAxis"],
+            self.fromMm("StockLeng"),
+            self.fromMm("ReduceDepth"),
+            self.fromMm("PassDepth"),
+            self.fromMm("Stepover"),
+            self.fromMm("ZApproach"),
+            self["SpiralType"],
+            self["CutBoth"],
+            self["LiftPass"],
+        )
 
-		if blocks is not None:
-			active = app.activeBlock()
-			if active==0: active=1
-			app.gcode.insBlocks(active, blocks, "Spiral")
-			app.refresh()
-			app.setStatus(_("Spiral: Reduced 4th Axis Stock"))
+        if blocks is not None:
+            active = app.activeBlock()
+            if active == 0:
+                active = 1
+            app.gcode.insBlocks(active, blocks, "Spiral")
+            app.refresh()
+            app.setStatus(_("Spiral: Reduced 4th Axis Stock"))

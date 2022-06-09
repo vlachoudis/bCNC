@@ -1,9 +1,9 @@
 import contextlib
 import os
-import unittest
 import signal
 import subprocess
 import time
+import unittest
 
 import imageio
 import pyautogui
@@ -11,10 +11,7 @@ import requests
 
 
 class BaseGUITestCase(unittest.TestCase):
-    SCREENSHOT_DIR = os.path.join(
-        os.path.dirname(__file__),
-        '../screenshots/'
-    )
+    SCREENSHOT_DIR = os.path.join(os.path.dirname(__file__), "../screenshots/")
 
     def setUp(self):
         super(BaseGUITestCase, self).setUp()
@@ -22,27 +19,29 @@ class BaseGUITestCase(unittest.TestCase):
         self.screenshots = []
 
         self.build_dir = os.environ.get(
-            'TRAVIS_BUILD_DIR',
+            "TRAVIS_BUILD_DIR",
             os.path.join(
                 os.path.dirname(__file__),
-                '../',
-            )
+                "../",
+            ),
         )
         self.grbl_proc = subprocess.Popen(
             [
-                'gcode-receiver',
-                '--socket=8300',
+                "gcode-receiver",
+                "--socket=8300",
             ],
         )
-        self.gui_proc = subprocess.Popen([
-            self.get_python_path(),
-            os.path.join(
-                self.build_dir,
-                'bCNC',
-                'bCNC.py',
-            ),
-            '--fullscreen'
-        ])
+        self.gui_proc = subprocess.Popen(
+            [
+                self.get_python_path(),
+                os.path.join(
+                    self.build_dir,
+                    "bCNC",
+                    "bCNC.py",
+                ),
+                "--fullscreen",
+            ]
+        )
 
         if self.grbl_proc.poll():
             print("Serial port failed to start: %s" % self.grbl_proc.poll())
@@ -54,11 +53,11 @@ class BaseGUITestCase(unittest.TestCase):
 
     def send_command(self, cmd):
         self.save_screenshot()
-        pyautogui.hotkey('ctrl', 'space')
+        pyautogui.hotkey("ctrl", "space")
         pyautogui.typewrite(cmd)
         self.save_screenshot()
-        pyautogui.press('enter')
-        pyautogui.press('escape')
+        pyautogui.press("enter")
+        pyautogui.press("escape")
 
     def delay(self, seconds):
         for _ in range(seconds):
@@ -73,13 +72,11 @@ class BaseGUITestCase(unittest.TestCase):
         durations = []
         prev_screenshot_time = None
         for screenshot in self.screenshots:
-            images.append(imageio.imread(screenshot['filename']))
-            os.unlink(screenshot['filename'])
+            images.append(imageio.imread(screenshot["filename"]))
+            os.unlink(screenshot["filename"])
             if prev_screenshot_time:
-                durations.append(
-                    screenshot['time'] - prev_screenshot_time
-                )
-            prev_screenshot_time = screenshot['time']
+                durations.append(screenshot["time"] - prev_screenshot_time)
+            prev_screenshot_time = screenshot["time"]
         # We didn't record a duration for the first frame because we
         # couldn't know it until we processed the second frame -- we won't
         # have a frame to process after the last frame, so let's mark
@@ -88,10 +85,8 @@ class BaseGUITestCase(unittest.TestCase):
 
         imageio.mimsave(
             os.path.join(
-                self.SCREENSHOT_DIR,
-                '{test_name}.gif'.format(
-                    test_name=self.id()
-                )
+                self.SCREENSHOT_DIR, "{test_name}.gif".format(
+                    test_name=self.id())
             ),
             images,
             duration=durations,
@@ -101,7 +96,7 @@ class BaseGUITestCase(unittest.TestCase):
         terminated = time.time()
         self.gui_proc.send_signal(signal.SIGINT)
 
-        while(time.time() < terminated + max_termination_wait_seconds):
+        while time.time() < terminated + max_termination_wait_seconds:
             if self.gui_proc.poll():
                 return
 
@@ -114,20 +109,19 @@ class BaseGUITestCase(unittest.TestCase):
         self.grbl_proc.send_signal(signal.SIGINT)
 
     def get_bcnc_state(self):
-        return requests.get('http://127.0.0.1:5001/state').json()
+        return requests.get("http://127.0.0.1:5001/state").json()
 
     def get_static_path(self, filename):
         return os.path.join(
             self.build_dir,
-            'tests/static/',
+            "tests/static/",
             filename,
         )
 
     def save_screenshot(self, name=None):
         if name is None:
-            name = '{test_name}.{counter}.png'.format(
-                test_name=self.id(),
-                counter=self.screenshot_counter
+            name = "{test_name}.{counter}.png".format(
+                test_name=self.id(), counter=self.screenshot_counter
             )
 
         if not os.path.isdir(self.SCREENSHOT_DIR):
@@ -141,18 +135,17 @@ class BaseGUITestCase(unittest.TestCase):
         pyautogui.screenshot(absolute_path)
         self.screenshot_counter += 1
 
-        self.screenshots.append({
-            'time': time.time(),
-            'filename': absolute_path,
-        })
+        self.screenshots.append(
+            {
+                "time": time.time(),
+                "filename": absolute_path,
+            }
+        )
 
     def get_python_path(self):
-        virtual_env = os.environ.get('VIRTUAL_ENV')
+        virtual_env = os.environ.get("VIRTUAL_ENV")
 
         if virtual_env:
-            return os.path.join(
-                virtual_env,
-                'bin/python'
-            )
+            return os.path.join(virtual_env, "bin/python")
 
-        return '/usr/local/bin/python'
+        return "/usr/local/bin/python"

@@ -1,10 +1,10 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-#import enum
-import math
-import numpy
-import logging
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+# import enum
+import math
+
+import numpy
 from python_utils import logger
 
 from .utils import s
@@ -22,7 +22,7 @@ VECTORS = 3
 DIMENSIONS = 3
 
 
-class Dimension():
+class Dimension:
     #: X index (for example, `mesh.v0[0][X]`)
     X = 0
     #: Y index (for example, `mesh.v0[0][Y]`)
@@ -37,11 +37,12 @@ Y = Dimension.Y
 Z = Dimension.Z
 
 
-class RemoveDuplicates():
-    '''
+class RemoveDuplicates:
+    """
     Choose whether to remove no duplicates, leave only a single of the
     duplicates or remove all duplicates (leaving holes).
-    '''
+    """
+
     NONE = 0
     SINGLE = 1
     ALL = 2
@@ -71,7 +72,7 @@ def logged(class_):
     class_.logger = logging.getLogger(logger_name)
 
     for key in dir(logger.Logged):
-        if not key.startswith('__'):
+        if not key.startswith("__"):
             setattr(class_, key, getattr(class_, key))
 
     return class_
@@ -79,7 +80,7 @@ def logged(class_):
 
 @logged
 class BaseMesh(logger.Logged, Mapping):
-    '''
+    """
     Mesh object with easy access to the vectors through v0, v1 and v2.
     The normals, areas, min, max and units are calculated automatically.
 
@@ -166,29 +167,38 @@ class BaseMesh(logger.Logged, Mapping):
     >>> mesh.points = 4
     >>> (mesh.points == 4).all()
     True
-    '''
+    """
+
     #: - normals: :func:`numpy.float32`, `(3, )`
     #: - vectors: :func:`numpy.float32`, `(3, 3)`
     #: - attr: :func:`numpy.uint16`, `(1, )`
-    dtype = numpy.dtype([
-        (s('normals'), numpy.float32, (3, )),
-        (s('vectors'), numpy.float32, (3, 3)),
-        (s('attr'), numpy.uint16, (1, )),
-    ])
-    dtype = dtype.newbyteorder('<')  # Even on big endian arches, use little e.
+    dtype = numpy.dtype(
+        [
+            (s("normals"), numpy.float32, (3,)),
+            (s("vectors"), numpy.float32, (3, 3)),
+            (s("attr"), numpy.uint16, (1,)),
+        ]
+    )
+    dtype = dtype.newbyteorder("<")  # Even on big endian arches, use little e.
 
-    def __init__(self, data, calculate_normals=True,
-                 remove_empty_areas=False,
-                 remove_duplicate_polygons=RemoveDuplicates.NONE,
-                 name='', speedups=True, **kwargs):
+    def __init__(
+        self,
+        data,
+        calculate_normals=True,
+        remove_empty_areas=False,
+        remove_duplicate_polygons=RemoveDuplicates.NONE,
+        name="",
+        speedups=True,
+        **kwargs
+    ):
         super(BaseMesh, self).__init__(**kwargs)
         self.speedups = speedups
         if remove_empty_areas:
             data = self.remove_empty_areas(data)
 
         if RemoveDuplicates.map(remove_duplicate_polygons):
-            data = self.remove_duplicate_polygons(data,
-                                                  remove_duplicate_polygons)
+            data = self.remove_duplicate_polygons(
+                data, remove_duplicate_polygons)
 
         self.name = name
         self.data = data
@@ -198,27 +208,27 @@ class BaseMesh(logger.Logged, Mapping):
 
     @property
     def attr(self):
-        return self.data['attr']
+        return self.data["attr"]
 
     @attr.setter
     def attr(self, value):
-        self.data['attr'] = value
+        self.data["attr"] = value
 
     @property
     def normals(self):
-        return self.data['normals']
+        return self.data["normals"]
 
     @normals.setter
     def normals(self, value):
-        self.data['normals'] = value
+        self.data["normals"] = value
 
     @property
     def vectors(self):
-        return self.data['vectors']
+        return self.data["vectors"]
 
     @vectors.setter
     def vectors(self, value):
-        self.data['vectors'] = value
+        self.data["vectors"] = value
 
     @property
     def points(self):
@@ -254,32 +264,32 @@ class BaseMesh(logger.Logged, Mapping):
 
     @property
     def x(self):
-        return self.points[:, Dimension.X::3]
+        return self.points[:, Dimension.X:: 3]
 
     @x.setter
     def x(self, value):
-        self.points[:, Dimension.X::3] = value
+        self.points[:, Dimension.X:: 3] = value
 
     @property
     def y(self):
-        return self.points[:, Dimension.Y::3]
+        return self.points[:, Dimension.Y:: 3]
 
     @y.setter
     def y(self, value):
-        self.points[:, Dimension.Y::3] = value
+        self.points[:, Dimension.Y:: 3] = value
 
     @property
     def z(self):
-        return self.points[:, Dimension.Z::3]
+        return self.points[:, Dimension.Z:: 3]
 
     @z.setter
     def z(self, value):
-        self.points[:, Dimension.Z::3] = value
+        self.points[:, Dimension.Z:: 3] = value
 
     @classmethod
     def remove_duplicate_polygons(cls, data, value=RemoveDuplicates.SINGLE):
         value = RemoveDuplicates.map(value)
-        polygons = data['vectors'].sum(axis=1)
+        polygons = data["vectors"].sum(axis=1)
         # Get a sorted list of indices
         idx = numpy.lexsort(polygons.T)
         # Get the indices of all different indices
@@ -306,16 +316,16 @@ class BaseMesh(logger.Logged, Mapping):
 
     @classmethod
     def remove_empty_areas(cls, data):
-        vectors = data['vectors']
+        vectors = data["vectors"]
         v0 = vectors[:, 0]
         v1 = vectors[:, 1]
         v2 = vectors[:, 2]
         normals = numpy.cross(v1 - v0, v2 - v0)
-        squared_areas = (normals ** 2).sum(axis=1)
-        return data[squared_areas > AREA_SIZE_THRESHOLD ** 2]
+        squared_areas = (normals**2).sum(axis=1)
+        return data[squared_areas > AREA_SIZE_THRESHOLD**2]
 
     def update_normals(self):
-        '''Update the normals for all points'''
+        """Update the normals for all points"""
         self.normals[:] = numpy.cross(self.v1 - self.v0, self.v2 - self.v0)
 
     def update_min(self):
@@ -325,22 +335,24 @@ class BaseMesh(logger.Logged, Mapping):
         self._max = self.vectors.max(axis=(0, 1))
 
     def update_areas(self):
-        areas = .5 * numpy.sqrt((self.normals ** 2).sum(axis=1))
+        areas = 0.5 * numpy.sqrt((self.normals**2).sum(axis=1))
         self.areas = areas.reshape((areas.size, 1))
 
     def check(self):
         if (self.normals.sum(axis=0) >= 1e-4).any():
-            self.warning('''
+            self.warning(
+                """
             Your mesh is not closed, the mass methods will not function
             correctly on this mesh.  For more info:
             https://github.com/WoLpH/numpy-stl/issues/69
-            '''.strip())
+            """.strip()
+            )
             return False
         else:
             return True
 
     def get_mass_properties(self):
-        '''
+        """
         Evaluate and return a tuple with the following elements:
           - the volume
           - the position of the center of gravity (COG)
@@ -348,7 +360,7 @@ class BaseMesh(logger.Logged, Mapping):
 
         Documentation can be found here:
         http://www.geometrictools.com/Documentation/PolyhedralMassProperties.pdf
-        '''
+        """
         self.check()
 
         def subexpression(x):
@@ -375,7 +387,7 @@ class BaseMesh(logger.Logged, Mapping):
         f1y, f2y, f3y, g0y, g1y, g2y = subexpression(self.y)
         f1z, f2z, f3z, g0z, g1z, g2z = subexpression(self.z)
 
-        intg = numpy.zeros((10))
+        intg = numpy.zeros(10)
         intg[0] = sum(d0 * f1x)
         intg[1:4] = sum(d0 * f2x), sum(d1 * f2y), sum(d2 * f2z)
         intg[4:7] = sum(d0 * f3x), sum(d1 * f3y), sum(d2 * f3z)
@@ -385,7 +397,7 @@ class BaseMesh(logger.Logged, Mapping):
         intg /= numpy.array([6, 24, 24, 24, 60, 60, 60, 120, 120, 120])
         volume = intg[0]
         cog = intg[1:4] / volume
-        cogsq = cog ** 2
+        cogsq = cog**2
         inertia = numpy.zeros((3, 3))
         inertia[0, 0] = intg[5] + intg[6] - volume * (cogsq[1] + cogsq[2])
         inertia[1, 1] = intg[4] + intg[6] - volume * (cogsq[2] + cogsq[0])
@@ -401,8 +413,10 @@ class BaseMesh(logger.Logged, Mapping):
         areas = self.areas
 
         if non_zero_areas.shape[0] != areas.shape[0]:  # pragma: no cover
-            self.warning('Zero sized areas found, '
-                         'units calculation will be partially incorrect')
+            self.warning(
+                "Zero sized areas found, "
+                "units calculation will be partially incorrect"
+            )
 
         if non_zero_areas.any():
             non_zero_areas.shape = non_zero_areas.shape[0]
@@ -413,7 +427,7 @@ class BaseMesh(logger.Logged, Mapping):
 
     @classmethod
     def rotation_matrix(cls, axis, theta):
-        '''
+        """
         Generate a rotation matrix to Rotate the matrix over the given axis by
         the given theta (angle)
 
@@ -424,7 +438,7 @@ class BaseMesh(logger.Logged, Mapping):
         :param numpy.array axis: Axis to rotate over (x, y, z)
         :param float theta: Rotation angle in radians, use `math.radians` to
                      convert degrees to radians if needed.
-        '''
+        """
         axis = numpy.asarray(axis)
         # No need to rotate if there is no actual rotation
         if not axis.any():
@@ -435,7 +449,7 @@ class BaseMesh(logger.Logged, Mapping):
         axis = axis / numpy.linalg.norm(axis)
 
         a = math.cos(theta)
-        b, c, d = - axis * math.sin(theta)
+        b, c, d = -axis * math.sin(theta)
         angles = a, b, c, d
         powers = [x * y for x in angles for y in angles]
         aa, ab, ac, ad = powers[0:4]
@@ -443,12 +457,16 @@ class BaseMesh(logger.Logged, Mapping):
         ca, cb, cc, cd = powers[8:12]
         da, db, dc, dd = powers[12:16]
 
-        return numpy.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-                            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-                            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+        return numpy.array(
+            [
+                [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
+            ]
+        )
 
     def rotate(self, axis, theta=0, point=None):
-        '''
+        """
         Rotate the matrix over the given axis by the given theta (angle)
 
         Uses the :py:func:`rotation_matrix` in the background.
@@ -463,7 +481,7 @@ class BaseMesh(logger.Logged, Mapping):
                             convert degrees to radians if needed.
         :param numpy.array point: Rotation point so manual translation is not
                                   required
-        '''
+        """
         # No need to rotate if there is no actual rotation
         if not theta:
             return
@@ -482,7 +500,7 @@ class BaseMesh(logger.Logged, Mapping):
         elif isinstance(point, (int, float)):
             point = numpy.asarray([point] * 3)
         else:
-            raise TypeError('Incorrect type for point', point)
+            raise TypeError("Incorrect type for point", point)
 
         def _rotate(matrix):
             if point.any():
@@ -496,18 +514,18 @@ class BaseMesh(logger.Logged, Mapping):
             self.vectors[:, i] = _rotate(self.vectors[:, i])
 
     def translate(self, translation):
-        '''
+        """
         Translate the mesh in the three directions
 
         :param numpy.array translation: Translation vector (x, y, z)
-        '''
+        """
         assert len(translation) == 3, "Translation vector must be of length 3"
         self.x += translation[0]
         self.y += translation[1]
         self.z += translation[2]
 
     def transform(self, matrix):
-        '''
+        """
         Transform the mesh with a rotation and a translation stored in a
         single 4x4 matrix
 
@@ -516,7 +534,7 @@ class BaseMesh(logger.Logged, Mapping):
                                    part of the transformation
                                    matrix[0:3, 3] represents the translation
                                    part of the transformation
-        '''
+        """
         is_a_4x4_matrix = matrix.shape == (4, 4)
         assert is_a_4x4_matrix, "Transformation matrix must be of shape (4, 4)"
         rotation = matrix[0:3, 0:3]
@@ -530,26 +548,25 @@ class BaseMesh(logger.Logged, Mapping):
 
     def _get_or_update(key):
         def _get(self):
-            if not hasattr(self, '_%s' % key):
-                getattr(self, 'update_%s' % key)()
-            return getattr(self, '_%s' % key)
+            if not hasattr(self, "_%s" % key):
+                getattr(self, "update_%s" % key)()
+            return getattr(self, "_%s" % key)
 
         return _get
 
     def _set(key):
         def _set(self, value):
-            setattr(self, '_%s' % key, value)
+            setattr(self, "_%s" % key, value)
 
         return _set
 
-    min_ = property(_get_or_update('min'), _set('min'),
-                    doc='Mesh minimum value')
-    max_ = property(_get_or_update('max'), _set('max'),
-                    doc='Mesh maximum value')
-    areas = property(_get_or_update('areas'), _set('areas'),
-                     doc='Mesh areas')
-    units = property(_get_or_update('units'), _set('units'),
-                     doc='Mesh unit vectors')
+    min_ = property(_get_or_update("min"), _set(
+        "min"), doc="Mesh minimum value")
+    max_ = property(_get_or_update("max"), _set(
+        "max"), doc="Mesh maximum value")
+    areas = property(_get_or_update("areas"), _set("areas"), doc="Mesh areas")
+    units = property(_get_or_update("units"), _set(
+        "units"), doc="Mesh unit vectors")
 
     def __getitem__(self, k):
         return self.points[k]
