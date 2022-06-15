@@ -8,7 +8,7 @@ from __future__ import absolute_import, print_function
 import math
 import time
 
-import bmath
+from lib import bmath
 import Camera
 import tkExtra
 import Utils

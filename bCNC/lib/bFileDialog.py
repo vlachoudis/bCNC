@@ -40,7 +40,7 @@ import os
 import time
 from stat import *
 
-import tkExtra
+from lib import tkExtra
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"

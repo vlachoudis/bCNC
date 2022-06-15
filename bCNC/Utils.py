@@ -12,8 +12,8 @@ import sys
 import traceback
 
 import Ribbon
-import tkExtra
-from log import say
+from lib import tkExtra
+from lib.log import say
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
