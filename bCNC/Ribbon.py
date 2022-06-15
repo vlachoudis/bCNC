@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, print_function
 
-import tkExtra
+from lib import tkExtra
 import Utils
 
 __author__ = "Vasilis Vlachoudis"
