@@ -36,6 +36,14 @@ except ImportError:
 except ImportError:
     print("tkiner is not installed on this machine")
     exit(1)
+
+PRGPATH = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(PRGPATH)
+sys.path.append(os.path.join(PRGPATH, "lib"))
+sys.path.append(os.path.join(PRGPATH, "plugins"))
+sys.path.append(os.path.join(PRGPATH, "controllers"))
+
+
 import Utils
 Utils.loadConfiguration()
 
@@ -45,7 +53,7 @@ import CNCCanvas
 import rexx
 import Updates
 import tkDialogs
-# import tkExtra
+import tkExtra
 # Load configuration before anything else
 # and if needed replace the  translate function _()
 # before any string is initialized
@@ -71,15 +79,6 @@ __platform_fingerprint__ = "({} py{}.{}.{})".format(
     sys.version_info.minor,
     sys.version_info.micro,
 )
-
-
-PRGPATH = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(PRGPATH)
-sys.path.append(os.path.join(PRGPATH, "lib"))
-sys.path.append(os.path.join(PRGPATH, "plugins"))
-sys.path.append(os.path.join(PRGPATH, "controllers"))
-
-
 
 _openserial = True  # override ini parameters
 _device = None
