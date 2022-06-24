@@ -41,11 +41,6 @@ import time
 import bFileDialog
 import Unicode
 import Utils
-# from log import say
-from ././Utils import to_zip, unicode
-
-__author__ = Utils.__author__
-__email__ = Utils.__email__
 
 GLOBAL_CONTROL_BACKGROUND = "White"
 
