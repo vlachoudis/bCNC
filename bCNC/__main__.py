@@ -1178,7 +1178,7 @@ class Application(Toplevel, Sender):
         col = 0
         Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text="{:g} {}".format(l, unit), foreground="DarkBlue").grid(
+        Label(frame, text="{:g} {}".format(le, unit), foreground="DarkBlue").grid(
             row=row, column=col, sticky=W
         )
 
