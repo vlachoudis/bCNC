@@ -42,7 +42,7 @@ import bFileDialog
 import Unicode
 import Utils
 # from log import say
-from Utils import to_zip, unicode
+from ././Utils import to_zip, unicode
 
 __author__ = Utils.__author__
 __email__ = Utils.__email__
