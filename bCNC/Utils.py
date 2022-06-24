@@ -17,8 +17,8 @@ from lib.log import say
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
-__version__ = "0.9.14-dev"
-__date__ = "8 Jan 2019"
+__version__ = "0.9.15"
+__date__ = "24 June 2022"
 __prg__ = "bCNC"
 
 
