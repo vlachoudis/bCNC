@@ -69,10 +69,11 @@ from Sender import NOT_CONNECTED, STATECOLOR, STATECOLORDEF, Sender
 from TerminalPage import TerminalPage
 from ToolsPage import Tools, ToolsPage
 
-__version__ = "0.9.14-dev"
-__date__ = "8 Jan 2019"
-__author__ = "Vasilis Vlachoudis"
-__email__ = "vvlachoudis@gmail.com"
+__version__ = Utils.__version__ 
+__date__ = Utils.__date__ 
+__author__ = Utils.__author__ 
+__email__ = Utils.__email__
+
 __platform_fingerprint__ = "({} py{}.{}.{})".format(
     sys.platform,
     sys.version_info.major,
