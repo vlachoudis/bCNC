@@ -664,7 +664,7 @@ class ReportDialog(Toplevel):
         )
         b.pack(side=RIGHT)
 
-        from bCNC import __version__, __date__
+        from Utils import __version__, __date__
 
         # Fill report
         txt = [
