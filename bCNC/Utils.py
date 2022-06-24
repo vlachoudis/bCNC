@@ -613,7 +613,7 @@ class ReportDialog(Toplevel):
         la = Label(
             frame,
             text=_("The following report is about to be send " "to the author of %s")
-            % (__name__),
+            % (__prg__),
             justify=LEFT,
             anchor=W,
         )
