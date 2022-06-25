@@ -249,7 +249,7 @@ class Application(Toplevel, Sender):
 
             for n in Utils.getStr(Utils.__prg__, "%s.page" % (page.name)).split():
                 last = n[-1]
-                if (n == "abcDRO" or n == "abcControl") and CNC.enable6axisopt == False:
+                if (n == "abcDRO" or n == "abcControl") and CNC.enable6axisopt is False:
                     sys.stdout.write("Not Loading 6 axis displays\n")
 
                 else:
@@ -2358,7 +2358,7 @@ class Application(Toplevel, Sender):
             )
             if ans == tkMessageBox.CANCEL:
                 return True
-            if ans == tkMessageBox.YES or ans == True:
+            if ans == tkMessageBox.YES or ans is True:
                 self.saveAll()
 
         if not self.gcode.probe.isEmpty() and not self.gcode.probe.saved:
@@ -2370,7 +2370,7 @@ class Application(Toplevel, Sender):
             )
             if ans == tkMessageBox.CANCEL:
                 return True
-            if ans == tkMessageBox.YES or ans == True:
+            if ans == tkMessageBox.YES or ans is True:
                 if self.gcode.probe.filename == "":
                     self.saveDialog()
                 else:
@@ -2394,7 +2394,7 @@ class Application(Toplevel, Sender):
                     _("Autolevel/probe information already exists.\nDelete it?"),
                     parent=self,
                 )
-                if ans == tkMessageBox.YES or ans == True:
+                if ans == tkMessageBox.YES or ans is True:
                     self.gcode.probe.init()
 
         self.setStatus(_("Loading: %s ...") % (filename), True)
@@ -2513,7 +2513,7 @@ class Application(Toplevel, Sender):
                     % (self.gcode.filename),
                     parent=self,
                 )
-                if ans == tkMessageBox.YES or ans == True:
+                if ans == tkMessageBox.YES or ans is True:
                     self.gcode.resetModified()
                     self.load(self.gcode.filename)
             else:
@@ -2800,7 +2800,7 @@ class Application(Toplevel, Sender):
             pass
 
         # Load file from pendant
-        if self._pendantFileUploaded != None:
+        if self._pendantFileUploaded is not None:
             self.load(self._pendantFileUploaded)
             self._pendantFileUploaded = None
 
