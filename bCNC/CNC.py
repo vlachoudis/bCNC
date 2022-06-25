@@ -4754,7 +4754,7 @@ class GCode:
                 if opath:
                     # 					if adaptative:
                     # 					if overcut:
-                    if overcut == True or adaptative == True:
+                    if overcut is True or adaptative is True:
                         for p in opath:
                             p.trochovercut(
                                 D * offset, overcut, adaptative, adaptedRadius
