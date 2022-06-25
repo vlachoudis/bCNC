@@ -1329,8 +1329,8 @@ class Path(list):
 
             elif Op is not None:
                 # if cross*offset
-                cross = O[0] * Op[1] - O[1] * Op[0]
-                dot = O[0] * Op[0] + O[1] * Op[1]
+                cross = Oval[0] * Op[1] - O[1] * Op[0]
+                dot = Oval[0] * Op[0] + O[1] * Op[1]
                 # if (prev.type!=Segment.LINE and segment.type!=Segment.LINE) or \
                 if (abs(cross) > EPSV or dot < 0.0) and cross * offset >= 0:
                     # either a circle
@@ -1602,23 +1602,23 @@ class Path(list):
         i = 0
         while i < len(self):
             segment = self[i]
-            O = segment.orthogonalStart()
+            Oss = segment.orthogonalStart()
             if Op is not None:
-                cross = O[0] * Op[1] - O[1] * Op[0]
+                cross = Oss[0] * Op[1] - Oss[1] * Op[0]
                 if (
                     prev.type == Segment.LINE
                     and segment.type == Segment.LINE
                     and cross * offset < -EPSV
                 ):
                     # find direction
-                    D = O + Op
+                    D = Oss + Op
                     D.normalize()
                     if offset > 0.0:
                         D = -D
 
                     Dpolice = D * 0.00001
 
-                    costheta = O * Op
+                    costheta = Oss * Op
                     costheta2 = sqrt((1.0 + costheta) / 2.0)
                     distance = abs(offset) * (1.0 / costheta2 - 1.0)
                     if overcut == 1 and adaptative == 0:
