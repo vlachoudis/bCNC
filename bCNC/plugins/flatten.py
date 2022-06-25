@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
-from Utils import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
