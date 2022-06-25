@@ -457,11 +457,11 @@ class CNCListbox(Listbox):
 
         self._items.insert(active, (bid, lid))
         for i in range(active + 1, len(self._items)):
-            b, l = self._items[i]
+            b, li = self._items[i]
             if b != bid:
                 break
-            if isinstance(l, int):
-                self._items[i] = (b, l + 1)
+            if isinstance(li, int):
+                self._items[i] = (b, li + 1)
         for i in range(bid + 1, len(self._blockPos)):
             if self._blockPos[i] is not None:
                 self._blockPos[i] += 1  # shift all blocks below by one
