@@ -26,13 +26,11 @@ try:
     from Queue import *
     from Tkinter import *
     import tkMessageBox
-    import tkExtra
 except ImportError:
     import tkinter
     from queue import *
     from tkinter import *
     import tkinter.messagebox as tkMessageBox
-    # import tkExtra
 except ImportError:
     print("tkiner is not installed on this machine")
     exit(1)
