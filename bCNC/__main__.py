@@ -69,9 +69,9 @@ from Sender import NOT_CONNECTED, STATECOLOR, STATECOLORDEF, Sender
 from TerminalPage import TerminalPage
 from ToolsPage import Tools, ToolsPage
 
-__version__ = Utils.__version__ 
-__date__ = Utils.__date__ 
-__author__ = Utils.__author__ 
+__version__ = Utils.__version__
+__date__ = Utils.__date__
+__author__ = Utils.__author__
 __email__ = Utils.__email__
 
 __platform_fingerprint__ = "({} py{}.{}.{})".format(
