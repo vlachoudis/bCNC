@@ -1961,7 +1961,7 @@ class ImageListbox(Text):
             tabs="20p",
             # insertofftime=0,
             # insertontime=0,
-            wrap=NONE,
+            wrap="none",
             insertwidth=0,
             takefocus=TRUE,
             exportselection=0,
