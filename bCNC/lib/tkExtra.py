@@ -1540,14 +1540,14 @@ class MultiListbox(Frame):
         ypos = lst.yview()[0]
         sel = lst.curselection()
         act = lst.index(ACTIVE)
-        for l in self._lists:
-            if l is lst:
+        for li in self._lists:
+            if li is lst:
                 continue
-            l.selection_clear(0, END)
+            li.selection_clear(0, END)
             for s in sel:
-                l.selection_set(s)
-            l.activate(act)
-            l.yview_moveto(ypos)
+                li.selection_set(s)
+            li.activate(act)
+            li.yview_moveto(ypos)
         self.event_generate("<<ListboxSelect>>")
 
     # ----------------------------------------------------------------------
@@ -1561,14 +1561,14 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def _button2(self, x, y):
-        for l in self._lists:
-            l.scan_mark(x, y)
+        for li in self._lists:
+            li.scan_mark(x, y)
         return "break"
 
     # ----------------------------------------------------------------------
     def _b2motion(self, x, y):
-        for l in self._lists:
-            l.scan_dragto(x, y)
+        for li in self._lists:
+            li.scan_dragto(x, y)
         return "break"
 
     # ----------------------------------------------------------------------
@@ -1606,8 +1606,8 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def _scroll(self, *args):
-        for l in self._lists:
-            l.yview(*args)
+        for li in self._lists:
+            li.yview(*args)
         return "break"
 
     # ----------------------------------------------------------------------
@@ -1616,14 +1616,14 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def delete(self, first, last=None):
-        for l in self._lists:
-            l.delete(first, last)
+        for li in self._lists:
+            li.delete(first, last)
 
     # ----------------------------------------------------------------------
     def get(self, first, last=None):
         result = []
-        for l in self._lists:
-            result.append(l.get(first, last))
+        for li in self._lists:
+            result.append(li.get(first, last))
         if last:
             return to_zip(*result)
         return result
@@ -1643,14 +1643,14 @@ class MultiListbox(Frame):
     # ----------------------------------------------------------------------
     def bindList(self, event, func):
         self.bind(event, func)
-        for l in self._lists:
-            l.bind(event, func)
+        for li in self._lists:
+            li.bind(event, func)
 
     # ----------------------------------------------------------------------
     def unbindList(self, event):
         self.unbind(event)
-        for l in self._lists:
-            l.bind(event)
+        for li in self._lists:
+            li.bind(event)
 
     # ----------------------------------------------------------------------
     def index(self, item):
@@ -1662,8 +1662,8 @@ class MultiListbox(Frame):
             for i, l in enumerate(self._lists):
                 l.insert(index, e[i])
             if len(e) < len(self._lists):
-                for l in self._lists[len(e): len(self._lists)]:
-                    l.insert(index, "")
+                for li in self._lists[len(e): len(self._lists)]:
+                    li.insert(index, "")
 
         if self._sortColumn >= 0:
             txt = self._labels[self._sortColumn]["text"]
@@ -1687,8 +1687,8 @@ class MultiListbox(Frame):
     def setPopupMenu(self, menu):
         """Setup a popup menu list it should be in the form
         [ (label, underline, command), ... ]"""
-        for l in self._lists:
-            l.setPopupMenu(menu)
+        for li in self._lists:
+            li.setPopupMenu(menu)
 
     # ----------------------------------------------------------------------
     def nearest(self, y):
@@ -1701,8 +1701,8 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def configure(self, **kw):
-        for l in self._lists:
-            l.configure(**kw)
+        for li in self._lists:
+            li.configure(**kw)
 
     config = configure
 
@@ -1719,8 +1719,8 @@ class MultiListbox(Frame):
         call the method without arguments.
         Valid resource names: background, bg, foreground, fg,
         selectbackground, selectforeground."""
-        for l in self._lists:
-            l.itemconfigure(index, cnf, **kw)
+        for li in self._lists:
+            li.itemconfigure(index, cnf, **kw)
 
     itemconfig = itemconfigure
 
@@ -1734,15 +1734,15 @@ class MultiListbox(Frame):
     # Override of the standard Tkinter config() routine
     # ----------------------------------------------------------------------
     def __setitem__(self, key, value):
-        for l in self._lists:
-            l[key] = value
+        for li in self._lists:
+            li[key] = value
 
     # ----------------------------------------------------------------------
     # Selection
     # ----------------------------------------------------------------------
     def selection_anchor(self, index):
-        for l in self._lists:
-            l.selection_anchor(index)
+        for li in self._lists:
+            li.selection_anchor(index)
 
     # ----------------------------------------------------------------------
     def selection_includes(self, index):
@@ -1750,13 +1750,13 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def selection_clear(self, first, last=None):
-        for l in self._lists:
-            l.selection_clear(first, last)
+        for li in self._lists:
+            li.selection_clear(first, last)
 
     # ----------------------------------------------------------------------
     def selection_set(self, first, last=None):
-        for l in self._lists:
-            l.selection_set(first, last)
+        for li in self._lists:
+            li.selection_set(first, last)
 
     # ----------------------------------------------------------------------
     def selectAll(self, event=None):
@@ -1908,18 +1908,18 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def yview_moveto(self, fraction):
-        for l in self._lists:
-            l.yview_moveto(fraction)
+        for li in self._lists:
+            li.yview_moveto(fraction)
 
     # ----------------------------------------------------------------------
     def moveUp(self):
-        for l in self._lists:
-            l.moveUp()
+        for li in self._lists:
+            li.moveUp()
 
     # ----------------------------------------------------------------------
     def moveDown(self):
-        for l in self._lists:
-            l.moveDown()
+        for li in self._lists:
+            li.moveDown()
 
 
 # ===============================================================================
@@ -1944,8 +1944,8 @@ class ColorMultiListbox(MultiListbox):
 
     # ----------------------------------------------------------------------
     def setColor(self, idx, color):
-        for l in self._lists:
-            l.itemconfigure(idx, foreground=color)
+        for li in self._lists:
+            li.itemconfigure(idx, foreground=color)
 
 
 # ===============================================================================
@@ -5102,8 +5102,8 @@ if __name__ == "__main__":
         )
     mlb.pack(expand=YES, fill=BOTH)
 
-    l = Label(vsplitL.bottomFrame(), text="Combobox")
-    l.pack(side=TOP)
+    li = Label(vsplitL.bottomFrame(), text="Combobox")
+    li.pack(side=TOP)
     cb = Combobox(vsplitL.bottomFrame(), label=True)
     cb.pack(side=BOTTOM, expand=YES, fill=X)
     cb.fill(("one", "two", "three", "four", "fix-six-seven-eight-nine-ten"))
