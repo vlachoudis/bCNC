@@ -194,9 +194,9 @@ def _isnum(str):
 
     # accept one sign
     i = 0
-    l = len(str)
+    lngte = len(str)
 
-    if l == 0:
+    if lngte == 0:
         return False
 
     if str[i] == "-" or str[i] == "+":
@@ -207,21 +207,21 @@ def _isnum(str):
         i += 1
 
     # accept many digits
-    if i < l and "0" <= str[i] <= "9":
+    if i < lngte and "0" <= str[i] <= "9":
         i += 1
         F = 1
-        while i < l and "0" <= str[i] <= "9":
+        while i < lngte and "0" <= str[i] <= "9":
             i += 1
     else:
         F = 0
 
     # accept one dot
-    if i < l and str[i] == ".":
+    if i < lngte and str[i] == ".":
         i += 1
 
         # accept many digits
-        if i < l and "0" <= str[i] <= "9":
-            while i < l and "0" <= str[i] <= "9":
+        if i < lngte and "0" <= str[i] <= "9":
+            while i < lngte and "0" <= str[i] <= "9":
                 i += 1
         else:
             if not F:
@@ -231,20 +231,20 @@ def _isnum(str):
             return False
 
     # accept one e/E/d/D
-    if i < l and (str[i] == "e" or str[i] == "E" or str[i] == "d" or str[i] == "D"):
+    if i < lngte and (str[i] == "e" or str[i] == "E" or str[i] == "d" or str[i] == "D"):
         i += 1
         # accept one sign
-        if i < l and (str[i] == "-" or str[i] == "+"):
+        if i < lngte and (str[i] == "-" or str[i] == "+"):
             i += 1
 
         # accept many digits
-        if i < l and "0" <= str[i] <= "9":
+        if i < lngte and "0" <= str[i] <= "9":
             while i < l and "0" <= str[i] <= "9":
                 i += 1
         else:
             return False
 
-    if i != l:
+    if i != lngte:
         return False
 
     return True
