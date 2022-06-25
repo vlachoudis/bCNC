@@ -1495,7 +1495,7 @@ class MultiListbox(Frame):
                     s=self: s._scroll(SCROLL, -1, UNITS))
             lb.bind("<Button-5>", lambda e, s=self: s._scroll(SCROLL, 1, UNITS))
             lb.bind("<<ListboxSelect>>", lambda e,
-                    s=self, l=lb: s._updateSelect(l))
+                    s=self, li=lb: s._updateSelect(li))
             col += 1
 
         self._lists[0]["takefocus"] = True

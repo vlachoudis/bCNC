@@ -45,9 +45,9 @@ __email__ = "Vasilis.Vlachoudis@cern.ch"
 _log = None
 
 
-def set(l):
+def set(li):
     global _log
-    _log = l
+    _log = li
 
 
 def say(*kw):
