@@ -45,13 +45,13 @@ _letters_digits_symbol = _letters_digits + "_."
 
 
 # abbrev
-def abbrev(information, info, l=0):
+def abbrev(information, info, mlngt=0):
     """
     return true if the info is an abbreviation of information
-    with minimum length l
+    with minimum length mlngt
     """
-    if l > 0:
-        length = l
+    if mlngt > 0:
+        length = mlngt
     else:
         length = len(info)
 
@@ -62,17 +62,17 @@ def abbrev(information, info, l=0):
 
 
 # center
-def center(s, l, pad=" "):
-    if l <= 0:
+def center(s, lngt, pad=" "):
+    if lngt <= 0:
         return ""
 
-    i = l - len(s)
+    i = lngt - len(s)
     if i == 0:
         return s
     elif i < 0:
         i = -i
         a = i // 2
-        return s[a: a + l]
+        return s[a: a + lngt]
     else:
         a = i // 2
         return "{}{}{}".format(pad * a, s, pad * (i - a))
