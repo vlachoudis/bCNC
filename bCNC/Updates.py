@@ -10,7 +10,6 @@ import time
 
 import tkExtra
 import Utils
-from Utils import to_zip
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
