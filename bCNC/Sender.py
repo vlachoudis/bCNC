@@ -743,7 +743,7 @@ class Sender:
             self.mcontrol.viewParameters()
             self.mcontrol.viewState()
 
-        if self.cleanAfter == True and self.running == False and state in ("Idle"):
+        if self.cleanAfter is True and self.running is False and state in ("Idle"):
             self.cleanAfter = False
             self.jobDone()
 
