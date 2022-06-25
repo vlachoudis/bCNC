@@ -137,13 +137,13 @@ def left(str, length, pad=" "):
 def translate(str, tableo=None, tablei=None, pad=" "):
     """translate string"""
     # If neither input nor output tables, uppercase.
-    if tableo == None and tablei == None:
+    if tableo is None and tablei is None:
         return str.upper()
 
-    if tableo == None:
+    if tableo is None:
         tableo = xrange(0, 255)
 
-    if tablei == None:
+    if tablei is None:
         tablei = xrange(0, 255)
 
     # The input table defaults to all characters.
