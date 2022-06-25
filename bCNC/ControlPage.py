@@ -643,7 +643,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         # Machine
         row += 1
         col = 0
-        Label(frame,text=_("MPos:")).grid(row=row,column=col,sticky=E)
+        Label(frame,text=_("MPos:")).grid(row=row,column=col,sticky=E),
 
         col += 1
         self.amachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,anchor=E)
