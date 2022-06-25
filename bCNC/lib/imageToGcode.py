@@ -64,7 +64,7 @@ def make_tool_shape(NUMPY, f, wdia, resp, rough_offset=0.0):
                 z = f(r, wrad)
                 lval.append(z)
 
-    if NUMPY == True:
+    if NUMPY is True:
         Image_Matrix = Image_Matrix_Numpy
     else:
         Image_Matrix = Image_Matrix_List
@@ -336,16 +336,16 @@ class Converter:
         ###
         row_cnt = 0
         cnt_border = 0
-        if self.convert_rows != None:
+        if self.convert_rows is not None:
             row_cnt = math.ceil(self.w1 / pixelstep) + 2
         col_cnt = 0
-        if self.convert_cols != None:
+        if self.convert_cols is not None:
             col_cnt = math.ceil(self.h1 / pixelstep) + 2
         if self.roughing_delta != 0:
             cnt_mult = math.ceil(self.image.min() / -self.roughing_delta) + 1
         else:
             cnt_mult = 1
-        if self.convert_cols != None or self.convert_rows != None:
+        if self.convert_cols is not None or self.convert_rows is not None:
             cnt_border = 2
         self.cnt_total = (row_cnt + col_cnt + cnt_border) * cnt_mult
         self.cnt = 0.0
