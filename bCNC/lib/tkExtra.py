@@ -1467,7 +1467,7 @@ class MultiListbox(Frame):
             if n not in options:
                 options[n] = o
 
-        for l, w, a in lists:
+        for li, w, a in lists:
             # if header:
             frame = Frame(self.paneframe, border=0)
             try:
@@ -1475,7 +1475,7 @@ class MultiListbox(Frame):
             except:
                 self.paneframe.add(frame, minsize=16)  # tk8.4
             if header:
-                lbl = Label(frame, text=l, borderwidth=1, relief=RAISED)
+                lbl = Label(frame, text=li, borderwidth=1, relief=RAISED)
                 lbl.pack(fill=X)
                 lbl.bind("<Button-1>", lambda e, s=self, c=col: s.sort(c))
                 self._labels.append(lbl)
@@ -1495,7 +1495,11 @@ class MultiListbox(Frame):
                     s=self: s._scroll(SCROLL, -1, UNITS))
             lb.bind("<Button-5>", lambda e, s=self: s._scroll(SCROLL, 1, UNITS))
             lb.bind("<<ListboxSelect>>", lambda e,
+<<<<<<< HEAD
                     s=self, li=lb: s._updateSelect(li))
+=======
+                    s=self, l=lb: s._updateSelect(li))
+>>>>>>> 92249fb... E741 ambiguous variable name 'l'
             col += 1
 
         self._lists[0]["takefocus"] = True
@@ -1696,8 +1700,8 @@ class MultiListbox(Frame):
 
     # ----------------------------------------------------------------------
     def see(self, index):
-        for l in self._lists:
-            l.see(index)
+        for li in self._lists:
+            li.see(index)
 
     # ----------------------------------------------------------------------
     def configure(self, **kw):
@@ -1846,8 +1850,8 @@ class MultiListbox(Frame):
         lst = self._lists[0]
         for i in range(self.size()):
             item = []
-            for l in self._lists:
-                item.append(l.get(i))
+            for li in self._lists:
+                item.append(li.get(i))
             item.append(lst.selection_includes(i))  # Include selection
             item.append(i)  # Include position
             elements.append(item)
