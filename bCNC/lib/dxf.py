@@ -1382,8 +1382,8 @@ class DXF:
                 del layer.entities[i]
                 block = self.blocks[insert[2]]
 
-                for l in block.layers.values():
-                    for e in l.entities:
+                for le in block.layers.values():
+                    for e in le.entities:
                         enew = e.clone()
 
                         # first check for scaling
