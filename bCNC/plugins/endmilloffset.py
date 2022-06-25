@@ -549,7 +549,7 @@ And with overcut:
 Blue is the original shape from CAD
 Turquoise is the generated toolpath
 Grey is simulation of how part will look after machining
-		"""
+        """
         self.buttons.append("exe")
 
     # ----------------------------------------------------------------------
