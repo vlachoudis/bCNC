@@ -2165,10 +2165,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             return
         # Avoid sending commands before unlocking
         if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
-            self.mist.set(FALSE)
+            self.mist.set(False)
             return
-        self.coolant.set(FALSE)
-        self.mist.set(TRUE)
+        self.coolant.set(False)
+        self.mist.set(True)
         self.sendGCode("M7")
 
     # ----------------------------------------------------------------------
@@ -2177,10 +2177,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             return
         # Avoid sending commands before unlocking
         if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
-            self.flood.set(FALSE)
+            self.flood.set(False)
             return
-        self.coolant.set(FALSE)
-        self.flood.set(TRUE)
+        self.coolant.set(False)
+        self.flood.set(True)
         self.sendGCode("M8")
 
     # ----------------------------------------------------------------------
@@ -2189,11 +2189,11 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             return
         # Avoid sending commands before unlocking
         if CNC.vars["state"] in (Sender.CONNECTED, Sender.NOT_CONNECTED):
-            self.coolant.set(FALSE)
+            self.coolant.set(False)
             return
-        self.flood.set(FALSE)
-        self.mist.set(FALSE)
-        self.coolant.set(TRUE)
+        self.flood.set(False)
+        self.mist.set(False)
+        self.coolant.set(True)
         self.sendGCode("M9")
 
     # ----------------------------------------------------------------------
