@@ -37,30 +37,30 @@ class CheckUpdateDialog(Toplevel):
         self.version = version
 
         # -----
-        l = Label(self, image=Utils.icons["bCNC"],
+        la = Label(self, image=Utils.icons["bCNC"],
                   relief=RAISED, padx=0, pady=0)
-        l.pack(side=TOP, fill=BOTH)
+        la.pack(side=TOP, fill=BOTH)
 
         # ----
         frame = LabelFrame(self, text="Version", padx=3, pady=5)
         frame.pack(side=TOP, fill=BOTH)
 
-        l = Label(frame, text=_("Installed Version:"))
-        l.grid(row=0, column=0, sticky=E, pady=1)
+        la = Label(frame, text=_("Installed Version:"))
+        la.grid(row=0, column=0, sticky=E, pady=1)
 
-        l = Label(frame, text=version, anchor=W)
-        l.grid(row=0, column=1, sticky=EW)
-        tkExtra.Balloon.set(l, _("Running version of bCNC"))
+        la = Label(frame, text=version, anchor=W)
+        la.grid(row=0, column=1, sticky=EW)
+        tkExtra.Balloon.set(la, _("Running version of bCNC"))
 
-        l = Label(frame, text=_("Latest Github Version:"))
-        l.grid(row=1, column=0, sticky=E, pady=1)
+        la = Label(frame, text=_("Latest Github Version:"))
+        la.grid(row=1, column=0, sticky=E, pady=1)
 
         self.webversion = Label(frame, anchor=W)
         self.webversion.grid(row=1, column=1, sticky=EW)
         tkExtra.Balloon.set(self.webversion, _(
             "Latest release version on github"))
-        l = Label(frame, text=_("Published at:"))
-        l.grid(row=2, column=0, sticky=E, pady=1)
+        la = Label(frame, text=_("Published at:"))
+        la.grid(row=2, column=0, sticky=E, pady=1)
 
         self.published = Label(frame, anchor=W)
         self.published.grid(row=2, column=1, sticky=EW)
@@ -74,8 +74,8 @@ class CheckUpdateDialog(Toplevel):
         frame = LabelFrame(self, text=_("Check Interval"), padx=3, pady=5)
         frame.pack(fill=BOTH)
 
-        l = Label(frame, text=_("Last Check:"))
-        l.grid(row=0, column=0, sticky=E, pady=1)
+        la = Label(frame, text=_("Last Check:"))
+        la.grid(row=0, column=0, sticky=E, pady=1)
 
         # Last check
         lastCheck = Utils.getInt(Utils.__prg__, "lastcheck", 0)
@@ -84,12 +84,12 @@ class CheckUpdateDialog(Toplevel):
         else:
             lastCheckStr = time.asctime(time.localtime(lastCheck))
 
-        l = Label(frame, text=lastCheckStr, anchor=W)
-        l.grid(row=0, column=1, sticky=EW)
-        tkExtra.Balloon.set(l, _("Date last checked"))
+        la = Label(frame, text=lastCheckStr, anchor=W)
+        la.grid(row=0, column=1, sticky=EW)
+        tkExtra.Balloon.set(la, _("Date last checked"))
 
-        l = Label(frame, text=_("Interval (days):"))
-        l.grid(row=1, column=0, sticky=E, pady=1)
+        la = Label(frame, text=_("Interval (days):"))
+        la.grid(row=1, column=0, sticky=E, pady=1)
 
         checkInt = Utils.getInt(Utils.__prg__, "checkinterval", 30)
         self.checkInterval = IntVar()
