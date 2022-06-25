@@ -238,11 +238,11 @@ class Tool(Plugin):
         ######################################################
         #                START COMMON STUFF                  #
         ######################################################
-        #		units = "mm"
+        # sunits = "mm"
         # if units == "in":
-        #			units = 'G20'
+        #    units = 'G20'
         # else:
-        #			units = 'G21'
+        #    units = 'G21'
         # Units not used
         units = ""
 
