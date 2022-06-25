@@ -133,7 +133,7 @@ class Application(Toplevel, Sender):
         if sys.platform == "win32":
             self.iconbitmap("%s\\bCNC.ico" % (Utils.prgpath))
         else:
-            self.iconbitmap("@%s/bCNC.xbm" % (Utils.prgpath)) 
+            self.iconbitmap("@%s/bCNC.xbm" % (Utils.prgpath))
             # iconbitmap left here for legacy purposes, remove in future
         photo = PhotoImage(file = "%s/bCNC.png" % (Utils.prgpath))
         self.iconphoto(True, photo)
