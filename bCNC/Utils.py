@@ -187,7 +187,7 @@ icons = {}
 images = {}
 config = ConfigParser.ConfigParser()
 print(
-    "new-config", __name__, config
+    "new-config", __prg__, config
 )  # This is here to debug the fact that config is sometimes instantiated twice
 language = ""
 
@@ -201,7 +201,7 @@ _FONT_SECTION = "Font"
 # New class to provide config for everyone
 # FIXME: create single instance of this and pass it to all parts of application
 class Config:
-    def greet(self, who=__name__):
+    def greet(self, who=__prg__):
         print("Config class loaded in %s" % (who))
 
 
