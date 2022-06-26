@@ -100,8 +100,8 @@ class Dialog(Toplevel):
         l.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
 
         if cnf["bitmap"]:
-            l = Label(ftop, bitmap=cnf["bitmap"])
-            l.pack(side=LEFT, padx="3m", pady="3m")
+            lbl = Label(ftop, bitmap=cnf["bitmap"])
+            lbl.pack(side=LEFT, padx="3m", pady="3m")
 
         # Create a row of buttons at the bottom of the dialog
         for i, s in enumerate(cnf["strings"]):
