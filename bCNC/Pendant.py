@@ -141,7 +141,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                 f = open(filename, "rb")
                 self.wfile.write(f.read())
                 f.close()
-            except:
+            except Exception:
                 pass
 
         elif page == "/canvas":
@@ -162,7 +162,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                             200, content="image/gif", cl=os.path.getsize(tmp.name)
                         )
                         self.wfile.write(out.read())
-                except:
+                except Exception:
                     filename = os.path.join(iconpath, "warn.gif")
                     self.do_HEAD(200, content="image/gif",
                                  cl=os.path.getsize(filename))
@@ -170,7 +170,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                         f = open(filename, "rb")
                         self.wfile.write(f.read())
                         f.close()
-                    except:
+                    except Exception:
                         pass
 
         elif page == "/camera":
@@ -190,7 +190,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                     f = open("camera.jpg", "rb")
                     self.wfile.write(f.read())
                     f.close()
-                except:
+                except Exception:
                     pass
         else:
             self.mainPage(page[1:])
@@ -304,7 +304,7 @@ def _server(app):
         httpd = server_class(("", port), Pendant)
         httpd.app = app
         httpd.serve_forever()
-    except:
+    except Exception:
         httpd = None
 
 

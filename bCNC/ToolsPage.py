@@ -134,12 +134,12 @@ class _Base:
                 try:
                     value /= 25.4
                     value = round(value, self.master.digits)
-                except:
+                except Exception:
                     value = ""
             elif t == "float":
                 try:
                     value = round(value, self.master.digits)
-                except:
+                except Exception:
                     value = ""
             # elif t == "list":
             # 	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
@@ -359,7 +359,7 @@ class _Base:
         # Check if there is a current
         try:
             self.current = int(Utils.config.get(self.name, "current"))
-        except:
+        except Exception:
             self.current = None
 
         # Load values
@@ -821,11 +821,11 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
         # Cuting speed
         try:
             feed = self.fromMm("feed", None)
-        except:
+        except Exception:
             feed = None
         try:
             feedz = self.fromMm("feedz", None)
-        except:
+        except Exception:
             feedz = None
 
         # Cuting strategy
@@ -930,11 +930,11 @@ MODULE PARAMETERS:
         c = self["center"]
         try:
             d = self["dwell"]
-        except:
+        except Exception:
             d = None
         try:
             n = int(self["number"])
-        except:
+        except Exception:
             n = 0
         app.executeOnSelection("DRILL", True, h, p, d, e, n, c)
         app.setStatus(_("DRILL selected points"))
@@ -1073,7 +1073,7 @@ You can move selected tabs using "Move" feature in "Editor". If you want to modi
     def execute(self, app):
         try:
             ntabs = int(self["ntabs"])
-        except:
+        except Exception:
             ntabs = 0
 
         dtabs = self.fromMm("dtabs", 0.0)
@@ -1160,7 +1160,7 @@ class Controller(_Base):
                 else:
                     if v == int(CNC.vars[n]):
                         continue
-            except:
+            except Exception:
                 continue
             lines.append("${}={}".format(n[5:], str(v)))
             lines.append("%wait")
@@ -1260,7 +1260,7 @@ class Tools:
     def getActive(self):
         try:
             return self.tools[self.active.get().upper()]
-        except:
+        except Exception:
             self.active.set("CNC")
             return self.tools["CNC"]
 

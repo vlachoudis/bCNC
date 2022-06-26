@@ -195,7 +195,7 @@ class Tool(Plugin):
     def execute(self, app):
         try:
             from PIL import Image
-        except:
+        except ImportError:
             app.setStatus(
                 _("Sketch abort: This plugin requires PIL/Pillow to read image data")
             )
@@ -250,7 +250,7 @@ class Tool(Plugin):
         fileName = self["File"]
         try:
             img = Image.open(fileName)
-        except:
+        except Exception:
             app.setStatus(_("Sketch abort: Can't read image file"))
             return
 

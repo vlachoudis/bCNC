@@ -69,7 +69,7 @@ class Tool(Plugin):
         if imageFileName != "":
             try:
                 textToWrite = self.asciiArt(imageFileName, charsWidth)
-            except:
+            except Exception:
                 pass
         if textToWrite == "":
             textToWrite = "Nel mezzo del cammin di nostra vita..."
@@ -91,7 +91,7 @@ class Tool(Plugin):
             import ttf
 
             font = ttf.TruetypeInfo(fontFileName)
-        except:
+        except ImportError:
             app.setStatus(
                 _("Text abort: That's embarrassing, I can't read this font file!")
             )
@@ -101,7 +101,7 @@ class Tool(Plugin):
         kern = None
         try:
             kern = font.get_glyph_kernings()
-        except:
+        except Exception:
             pass
         adv = font.get_glyph_advances()
 

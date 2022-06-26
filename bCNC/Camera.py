@@ -260,7 +260,7 @@ class Camera:
             self.image = self.image[top:bottom, left:right]
         try:
             self.image = cv.resize(self.image, (0, 0), fx=factor, fy=factor)
-        except:
+        except Exception:
             # FIXME Too much zoom out, results in void image!
             # self.image = None
             pass

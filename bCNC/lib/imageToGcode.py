@@ -743,7 +743,7 @@ class Image_Matrix_List:  # Nested list (no Numpy)
                 for j in range(0, him):
                     try:
                         pix = im.get(j, i).split()
-                    except:
+                    except Exception:
                         pix = im.get(j, i)
                     self.apj(i, pix[0])
 
@@ -870,7 +870,7 @@ class Image_Matrix_Numpy:
                 for j in range(0, him):
                     try:
                         pix = im.get(j, i).split()
-                    except:
+                    except Exception:
                         pix = im.get(j, i)
                     self.matrix[i, j] = float(pix[0])
 

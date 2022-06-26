@@ -166,7 +166,7 @@ def format(number, length=10, useExp=False, useD=False):
             exponent = 0
         else:
             exponent = int(exponent)
-    except:
+    except Exception:
         mantissa = number
         exponent = 0
 
@@ -181,7 +181,7 @@ def format(number, length=10, useExp=False, useD=False):
 
     try:
         (befo, afte) = mantissa.split(".")
-    except:
+    except Exception:
         befo = mantissa
         afte = ""
 
@@ -1903,7 +1903,7 @@ def fitPlane(xyz):
         A.inverse()
         X = A * B
         return X[0][0], X[1][0], -1.0, X[2][0]
-    except:
+    except Exception:
         pass
 
     # Try a solution where c=0
@@ -1918,7 +1918,7 @@ def fitPlane(xyz):
         A.inverse()
         X = A * B
         return X[0][0], -1.0, 0.0, X[1][0]
-    except:
+    except Exception:
         return None
 
 

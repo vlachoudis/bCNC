@@ -108,10 +108,10 @@ MAXINT = 1000000000  # python3 doesn't have maxint
 def getValue(name, new, old, default=0.0):
     try:
         return new[name]
-    except:
+    except Exception:
         try:
             return old[name]
-        except:
+        except Exception:
             return default
 
 
@@ -198,7 +198,7 @@ class Probe:
             for j in range(self.yn):
                 for i in range(self.xn):
                     self.add(*read(f))
-        except:
+        except Exception:
             raise
             # print "Error reading probe file",self.filename
         f.close()
@@ -572,7 +572,7 @@ class Orient:
         # The solution of the overdetermined system A X = B
         try:
             c, s, self.xo, self.yo = solveOverDetermined(Matrix(A), Matrix(B))
-        except:
+        except Exception:
             raise Exception("Unable to solve system")
 
         # print "c,s,xo,yo=",c,s,xo,yo
@@ -810,122 +810,122 @@ class CNC:
         section = "CNC"
         try:
             CNC.inch = bool(int(config.get(section, "units")))
-        except:
+        except Exception:
             pass
         try:
             CNC.lasercutter = bool(int(config.get(section, "lasercutter")))
-        except:
+        except Exception:
             pass
         try:
             CNC.laseradaptive = bool(int(config.get(section, "laseradaptive")))
-        except:
+        except Exception:
             pass
         try:
             CNC.enable6axisopt = bool(
                 int(config.get(section, "enable6axisopt")))
-        except:
+        except Exception:
             pass
         try:
             CNC.doublesizeicon = bool(
                 int(config.get(section, "doublesizeicon")))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_x = float(config.get(section, "acceleration_x"))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_y = float(config.get(section, "acceleration_y"))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_z = float(config.get(section, "acceleration_z"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_x = float(config.get(section, "feedmax_x"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_y = float(config.get(section, "feedmax_y"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_z = float(config.get(section, "feedmax_z"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_x = float(config.get(section, "travel_x"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_y = float(config.get(section, "travel_y"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_z = float(config.get(section, "travel_z"))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_a = float(config.get(section, "acceleration_a"))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_b = float(config.get(section, "acceleration_b"))
-        except:
+        except Exception:
             pass
         try:
             CNC.acceleration_c = float(config.get(section, "acceleration_c"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_a = float(config.get(section, "feedmax_a"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_b = float(config.get(section, "feedmax_b"))
-        except:
+        except Exception:
             pass
         try:
             CNC.feedmax_c = float(config.get(section, "feedmax_c"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_a = float(config.get(section, "travel_a"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_b = float(config.get(section, "travel_b"))
-        except:
+        except Exception:
             pass
         try:
             CNC.travel_c = float(config.get(section, "travel_c"))
-        except:
+        except Exception:
             pass
         try:
             CNC.accuracy = float(config.get(section, "accuracy"))
-        except:
+        except Exception:
             pass
         try:
             CNC.digits = int(config.get(section, "round"))
-        except:
+        except Exception:
             pass
         try:
             CNC.drozeropad = int(config.get(section, "drozeropad"))
-        except:
+        except Exception:
             pass
 
         try:
             CNC.startup = config.get(section, "startup")
-        except:
+        except Exception:
             pass
         try:
             CNC.header = config.get(section, "header")
-        except:
+        except Exception:
             pass
         try:
             CNC.footer = config.get(section, "footer")
-        except:
+        except Exception:
             pass
 
         if CNC.inch:
@@ -948,7 +948,7 @@ class CNC:
         for cmd, value in config.items(section):
             try:
                 ERROR_HANDLING[cmd.upper()] = int(value)
-            except:
+            except Exception:
                 pass
 
     # ----------------------------------------------------------------------
@@ -1249,7 +1249,7 @@ class CNC:
         if line[0] == "_":
             try:
                 return compile(line, "", "exec")
-            except:
+            except Exception:
                 # FIXME show the error!!!!
                 return None
 
@@ -1301,7 +1301,7 @@ class CNC:
                     if braket == 0:
                         try:
                             out.append(compile(expr, "", "eval"))
-                        except:
+                        except Exception:
                             # FIXME show the error!!!!
                             pass
                         # out.append("<<"+expr+">>")
@@ -1320,7 +1320,7 @@ class CNC:
                     else:
                         try:
                             return compile(line, "", "exec")
-                        except:
+                        except Exception:
                             # FIXME show the error!!!!
                             return None
             elif ch == ";":
@@ -1375,7 +1375,7 @@ class CNC:
             c = cmd[0].upper()
             try:
                 value = float(cmd[1:])
-            except:
+            except Exception:
                 value = 0
 
             if c == "X":
@@ -1533,7 +1533,7 @@ class CNC:
             AB = math.sqrt(ABx**2 + ABy**2)
             try:
                 OC = math.sqrt(self.rval**2 - AB**2 / 4.0)
-            except:
+            except Exception:
                 OC = 0.0
             if self.gcode == 2:
                 OC = -OC  # CW
@@ -1792,7 +1792,7 @@ class CNC:
                     t = length * self.feed
                 block.time += t
                 self.totalTime += t
-            except:
+            except Exception:
                 pass
             block.length += length
 
@@ -1839,7 +1839,7 @@ class CNC:
                 c = cmd[0]
                 try:
                     value = float(cmd[1:])
-                except:
+                except Exception:
                     value = 0.0
                 if c.upper() in ("F", "X", "Y", "Z", "I", "J", "K", "R", "P"):
                     cmd = CNC.fmt(c, value)
@@ -2160,7 +2160,7 @@ class Block(list):
                     o, c = o.split(":")
                     try:
                         c = int(c)
-                    except:
+                    except Exception:
                         c = 1
                 else:
                     c = 1
@@ -2297,7 +2297,7 @@ class Block(list):
     def path(self, item):
         try:
             return self._path[item]
-        except:
+        except Exception:
             return None
 
     # ----------------------------------------------------------------------
@@ -2473,7 +2473,7 @@ class GCode:
         self.filename = filename
         try:
             f = open(self.filename, "r")
-        except:
+        except Exception:
             return False
         self._lastModified = os.stat(self.filename).st_mtime
         self.cnc.initPath()
@@ -2493,7 +2493,7 @@ class GCode:
             self.filename = filename
         try:
             f = open(self.filename, "w")
-        except:
+        except Exception:
             return False
 
         for block in self.blocks:
@@ -2545,7 +2545,7 @@ class GCode:
     def importDXF(self, filename):
         try:
             dxf = DXF(filename, "r")
-        except:
+        except Exception:
             return False
         self.filename = ""
 
@@ -2635,7 +2635,7 @@ class GCode:
     def saveDXF(self, filename):
         try:
             dxf = DXF(filename, "w")
-        except:
+        except Exception:
             return False
         if CNC.inch:
             dxf.units = DXF.INCHES
@@ -2697,7 +2697,7 @@ class GCode:
     def importSVG(self, filename):
         # try:
         svgcode = SVGcode(filename)
-        # except:
+        # except Exception:
         # 	return False
 
         empty = len(self.blocks) == 0
@@ -2739,7 +2739,7 @@ class GCode:
     def saveSVG(self, filename):
         try:
             svg = open(filename, "w")
-        except:
+        except Exception:
             return False
 
         padding = 10
@@ -3243,7 +3243,7 @@ class GCode:
     def syncFileTime(self):
         try:
             self._lastModified = os.stat(self.filename).st_mtime
-        except:
+        except Exception:
             return False
 
     # ----------------------------------------------------------------------
@@ -3252,7 +3252,7 @@ class GCode:
     def checkFile(self):
         try:
             return os.stat(self.filename).st_mtime > self._lastModified
-        except:
+        except Exception:
             return False
 
     # ----------------------------------------------------------------------
@@ -4949,7 +4949,7 @@ class GCode:
                         continue
                     try:
                         new[c] = old[c] = float(cmd[1:]) * self.cnc.unit
-                    except:
+                    except Exception:
                         new[c] = old[c] = 0.0
 
                 # Modify values with func
@@ -4975,7 +4975,7 @@ class GCode:
                             if c not in present and new.get(c) != old.get(c):
                                 newcmd.append(
                                     self.fmt(c, new[c] / self.cnc.unit))
-                        except:
+                        except Exception:
                             pass
                     undoinfo.append(self.setLineUndo(
                         bid, lid, " ".join(newcmd)))
@@ -5406,7 +5406,7 @@ class GCode:
                     c = cmd[0]
                     try:
                         value = float(cmd[1:])
-                    except:
+                    except Exception:
                         value = 0.0
                     if c.upper() in ("F", "X", "Y", "Z", "I", "J", "K", "R", "P"):
                         cmd = self.fmt(c, value)

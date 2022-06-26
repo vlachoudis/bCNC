@@ -393,7 +393,7 @@ if __name__ == "__main__":
     def dump(filename):
         try:
             f = open(filename, "r")
-        except:
+        except Exception:
             return
         for line in f:
             sys.stdout.write("%s\n" % (line))
