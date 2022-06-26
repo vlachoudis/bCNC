@@ -18,9 +18,9 @@ from datetime import datetime
 
 try:
     import serial
-except:
+except ImportError:
     serial = None
-print("testing")
+print("testing mode, could not import serial")
 try:
     import Tkinter
     from Queue import *
@@ -368,7 +368,7 @@ class Application(Toplevel, Sender):
         self.canvas.bind("<BackSpace>", self.editor.deleteBlock)
         try:
             self.canvas.bind("<KP_Delete>", self.editor.deleteBlock)
-        except:
+        except Exception:
             pass
         self.bind("<<Invert>>", self.editor.invertBlocks)
         self.bind("<<Expand>>", self.editor.toggleExpand)
@@ -702,13 +702,13 @@ class Application(Toplevel, Sender):
             )
         try:
             self.geometry(geometry)
-        except:
+        except Exception:
             pass
 
         # restore windowsState
         try:
             self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
-        except:
+        except Exception:
             pass
 
         # read Tk fonts to initialize them
@@ -762,7 +762,7 @@ class Application(Toplevel, Sender):
     def loadHistory(self):
         try:
             f = open(Utils.hisFile, "r")
-        except:
+        except Exception:
             return
         self.history = [x.strip() for x in f]
         self._historySearch = None
@@ -772,7 +772,7 @@ class Application(Toplevel, Sender):
     def saveHistory(self):
         try:
             f = open(Utils.hisFile, "w")
-        except:
+        except Exception:
             return
         f.write("\n".join(self.history))
         f.close()
@@ -1063,7 +1063,7 @@ class Application(Toplevel, Sender):
 
         try:
             toplevel.grab_set()
-        except:
+        except Exception:
             pass
         b.focus_set()
         toplevel.lift()
@@ -1312,7 +1312,7 @@ class Application(Toplevel, Sender):
 
         try:
             toplevel.grab_set()
-        except:
+        except Exception:
             pass
         b.focus_set()
         toplevel.lift()
@@ -1462,7 +1462,7 @@ class Application(Toplevel, Sender):
         # print "<<<",line
         try:
             line = self.evaluate(line)
-        except:
+        except Exception:
             tkMessageBox.showerror(
                 _("Evaluation error"), sys.exc_info()[1], parent=self
             )
@@ -1516,27 +1516,27 @@ class Application(Toplevel, Sender):
         elif cmd == "CUT":
             try:
                 depth = float(line[1])
-            except:
+            except Exception:
                 depth = None
 
             try:
                 step = float(line[2])
-            except:
+            except Exception:
                 step = None
 
             try:
                 surface = float(line[3])
-            except:
+            except Exception:
                 surface = None
 
             try:
                 feed = float(line[4])
-            except:
+            except Exception:
                 feed = None
 
             try:
                 feedz = float(line[5])
-            except:
+            except Exception:
                 feedz = None
             self.executeOnSelection(
                 "CUT", True, depth, step, surface, feed, feedz)
@@ -1571,12 +1571,12 @@ class Application(Toplevel, Sender):
         elif rexx.abbrev("DRILL", cmd, 3):
             try:
                 h = float(line[1])
-            except:
+            except Exception:
                 h = None
 
             try:
                 p = float(line[2])
-            except:
+            except Exception:
                 p = None
             self.executeOnSelection("DRILL", True, h, p)
 
@@ -1588,7 +1588,7 @@ class Application(Toplevel, Sender):
         elif cmd == "FEED":
             try:
                 CNC.appendFeed = line[1].upper() == "ON"
-            except:
+            except Exception:
                 CNC.appendFeed = True
             self.setStatus(
                 CNC.appendFeed
@@ -1610,7 +1610,7 @@ class Application(Toplevel, Sender):
         elif rexx.abbrev("FILTER", cmd, 3) or cmd == "ALL":
             try:
                 self.editor.filter = line[1]
-            except:
+            except Exception:
                 self.editor.filter = None
             self.editor.fill()
 
@@ -1623,7 +1623,7 @@ class Application(Toplevel, Sender):
         elif rexx.abbrev("IMPORT", cmd, 2):
             try:
                 self.importFile(line[1])
-            except:
+            except Exception:
                 self.importFile()
 
         # INK*SCAPE: remove uneccessary Z motion as a result of inkscape gcodetools
@@ -1662,11 +1662,11 @@ class Application(Toplevel, Sender):
         # 			tool = self.tools["Material"]
         # 			# MAT*ERIAL [height] [pass-depth] [feed]
         # 			try: self.height = float(line[1])
-        # 			except: pass
+        # 			except Exception: pass
         # 			try: self.depth_pass = float(line[2])
-        # 			except: pass
+        # 			except Exception: pass
         # 			try: self.feed = float(line[3])
-        # 			except: pass
+        # 			except Exception: pass
         # 			self.setStatus(_("Height: %g  Depth-per-pass: %g  Feed: %g")%(self.height,self.depth_pass, self.feed))
 
         # MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects horizontally or vertically
@@ -1738,15 +1738,15 @@ class Application(Toplevel, Sender):
             else:
                 try:
                     dx = float(line[1])
-                except:
+                except Exception:
                     dx = 0.0
                 try:
                     dy = float(line[2])
-                except:
+                except Exception:
                     dy = 0.0
                 try:
                     dz = float(line[3])
-                except:
+                except Exception:
                     dz = 0.0
             self.executeOnSelection("MOVE", False, dx, dy, dz)
 
@@ -1771,15 +1771,15 @@ class Application(Toplevel, Sender):
         elif rexx.abbrev("ORIGIN", cmd, 3):
             try:
                 dx = -float(line[1])
-            except:
+            except Exception:
                 dx = 0.0
             try:
                 dy = -float(line[2])
-            except:
+            except Exception:
                 dy = 0.0
             try:
                 dz = -float(line[3])
-            except:
+            except Exception:
                 dz = 0.0
             self.editor.selectAll()
             self.executeOnSelection("MOVE", False, dx, dy, dz)
@@ -1817,15 +1817,15 @@ class Application(Toplevel, Sender):
             else:
                 try:
                     ang = float(line[1])
-                except:
+                except Exception:
                     pass
                 try:
                     x0 = float(line[2])
-                except:
+                except Exception:
                     pass
                 try:
                     y0 = float(line[3])
-                except:
+                except Exception:
                     pass
             self.executeOnSelection("ROTATE", False, ang, x0, y0)
 
@@ -1838,7 +1838,7 @@ class Application(Toplevel, Sender):
                 else:
                     try:
                         acc = int(line[1])
-                    except:
+                    except Exception:
                         pass
             self.executeOnSelection("ROUND", False, acc)
 
@@ -1854,7 +1854,7 @@ class Application(Toplevel, Sender):
         elif cmd == "STEP":
             try:
                 self.control.setStep(float(line[1]))
-            except:
+            except Exception:
                 pass
 
         # SPI*NDLE [ON|OFF|speed]: turn on/off spindle
@@ -1873,7 +1873,7 @@ class Application(Toplevel, Sender):
                         else:
                             self.gstate.spindleSpeed.set(rpm)
                             self.gstate.spindle.set(True)
-                    except:
+                    except Exception:
                         pass
             else:
                 # toggle spindle
@@ -1890,27 +1890,27 @@ class Application(Toplevel, Sender):
             tabs = self.tools["TABS"]
             try:
                 ntabs = int(line[1])
-            except:
+            except Exception:
                 ntabs = int(tabs["ntabs"])
             try:
                 dtabs = float(line[2])
-            except:
+            except Exception:
                 dtabs = tabs.fromMm("dtabs")
             try:
                 dx = float(line[3])
-            except:
+            except Exception:
                 dx = tabs.fromMm("dx")
             try:
                 dy = float(line[4])
-            except:
+            except Exception:
                 dy = tabs.fromMm("dy")
             try:
                 z = float(line[5])
-            except:
+            except Exception:
                 z = tabs.fromMm("z")
             try:
                 circular = bool(line[6])
-            except:
+            except Exception:
                 circular = True
             self.executeOnSelection("TABS", True, ntabs,
                                     dtabs, dx, dy, z, circular)
@@ -1923,7 +1923,7 @@ class Application(Toplevel, Sender):
         elif cmd in ("BIT", "TOOL", "MILL"):
             try:
                 diam = float(line[1])
-            except:
+            except Exception:
                 tool = self.tools["EndMill"]
                 diam = self.tools.fromMm(tool["diameter"])
             self.setStatus(_("EndMill: %s %g") % (tool["name"], diam))
@@ -1941,14 +1941,14 @@ class Application(Toplevel, Sender):
             n = Utils.getInt("Buttons", "n", 6)
             try:
                 idx = int(line[1])
-            except:
+            except Exception:
                 try:
                     name = line[1].upper()
                     for i in range(n):
                         if name == Utils.getStr("Buttons", "name.%d" % (i), "").upper():
                             idx = i
                             break
-                except:
+                except Exception:
                     return "break"
             if idx < 0 or idx >= n:
                 self.setStatus(_("Invalid user command %s") % (line[1]))
@@ -2083,13 +2083,13 @@ class Application(Toplevel, Sender):
         else:
             try:
                 ofs = float(direction) / 2.0
-            except:
+            except Exception:
                 pass
 
         # additional offset
         try:
             ofs += float(offset)
-        except:
+        except Exception:
             pass
 
         self.busy()
@@ -2162,13 +2162,13 @@ class Application(Toplevel, Sender):
         else:
             try:
                 ofs = float(direction) / 2.0
-            except:
+            except Exception:
                 pass
 
         # additional offset
         try:
             ofs += float(offset)
-        except:
+        except Exception:
             pass
 
         self.busy()
@@ -2545,7 +2545,7 @@ class Application(Toplevel, Sender):
     def open(self, device, baudrate):
         try:
             return Sender.open(self, device, baudrate)
-        except:
+        except Exception:
             self.serial = None
             self.thread = None
             tkMessageBox.showerror(
@@ -2612,7 +2612,7 @@ class Application(Toplevel, Sender):
         if self._onStart:
             try:
                 os.system(self._onStart)
-            except:
+            except Exception:
                 pass
 
         if lines is None:
@@ -2882,7 +2882,7 @@ class Application(Toplevel, Sender):
     def monitorSerial(self):
         try:
             self._monitorSerial()
-        except:
+        except Exception:
             typ, val, tb = sys.exc_info()
             traceback.print_exception(typ, val, tb)
         self.after(MONITOR_AFTER, self.monitorSerial)
@@ -2954,7 +2954,7 @@ def main(args=None):
 
     try:
         Tkinter.CallWrapper = Utils.CallWrapper
-    except:
+    except Exception:
         tkinter.CallWrapper = Utils.CallWrapper
 
     tkExtra.bindClasses(tk)
@@ -3003,7 +3003,7 @@ def main(args=None):
             else:
                 try:
                     r = int(val) - 1
-                except:
+                except Exception:
                     # Scan in names
                     for r in range(Utils._maxRecent):
                         filename = Utils.getRecent(r)
@@ -3020,7 +3020,7 @@ def main(args=None):
                 for i in range(Utils._maxRecent):
                     try:
                         filename = Utils.getRecent(i)
-                    except:
+                    except Exception:
                         continue
                     maxlen = max(maxlen, len(os.path.basename(filename)))
 
@@ -3037,11 +3037,11 @@ def main(args=None):
                 try:
                     sys.stdout.write("Select one: ")
                     r = int(sys.stdin.readline()) - 1
-                except:
+                except Exception:
                     pass
             try:
                 recent = Utils.getRecent(r)
-            except:
+            except Exception:
                 pass
 
         elif opt in ("-f", "--fullscreen"):
