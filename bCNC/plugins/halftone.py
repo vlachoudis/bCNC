@@ -152,7 +152,7 @@ class Tool(Plugin):
             if tool_shape == "V-cutting":
                 try:
                     v_angle = float(tool["angle"])
-                except:
+                except Exception:
                     app.setStatus(
                         _("Halftone abort: Angle in V-Cutting end mill is missing")
                     )
@@ -166,7 +166,7 @@ class Tool(Plugin):
         fileName = self["File"]
         try:
             img = Image.open(fileName)
-        except:
+        except Exception:
             app.setStatus(_("Halftone abort: Can't read image file"))
             return
 
