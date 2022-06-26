@@ -303,16 +303,16 @@ class FileDialog(Toplevel):
         frame = Frame(self)
         frame.pack(side=BOTTOM, fill=X)
 
-        l = Label(frame, text=_("File name:"))
-        l.grid(row=0, column=0, sticky=E)
+        lbl = Label(frame, text=_("File name:"))
+        lbl.grid(row=0, column=0, sticky=E)
         self.filename = Entry(
             frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
         self.filename.grid(row=0, column=1, sticky=EW)
         self.ok = Button(frame, text=_("Open"), command=self.openFilename)
         self.ok.grid(row=0, column=2, sticky=EW)
 
-        l = Label(frame, text=_("Files of type:"))
-        l.grid(row=1, column=0, sticky=E)
+        lbl = Label(frame, text=_("Files of type:"))
+        lbl.grid(row=1, column=0, sticky=E)
 
         self.typeCombo = tkExtra.Combobox(frame, command=self.typeChange)
         self.typeCombo.grid(row=1, column=1, sticky=NSEW)
