@@ -184,7 +184,7 @@ def fileTypeColor(filename):
 
     try:
         s = os.lstat(filename)
-    except:
+    except Exception:
         return ext, color
 
     mode = s[ST_MODE]
@@ -525,7 +525,7 @@ class FileDialog(Toplevel):
             sel = self._popupList.curselection()[0]
             self.changePath(self._popupList.get(sel))
             self._historyDestroy()
-        except:
+        except Exception:
             pass
 
     # ----------------------------------------------------------------------
@@ -579,7 +579,7 @@ class FileDialog(Toplevel):
 
                 try:
                     s = os.lstat(filename)
-                except:
+                except Exception:
                     continue
 
                 size = 0
@@ -587,7 +587,7 @@ class FileDialog(Toplevel):
                 if islnk:
                     try:
                         s = os.stat(filename)
-                    except:
+                    except Exception:
                         continue
                 isdir = S_ISDIR(s[ST_MODE])
 
@@ -761,7 +761,7 @@ class FileDialog(Toplevel):
                 if S_ISDIR(s[ST_MODE]):
                     self.changePath(path)
                     return "break"
-            except:
+            except Exception:
                 pass
         self.openFilename()
 
@@ -919,7 +919,7 @@ class OpenDialog(FileDialog):
             for f in self.selFile:
                 try:
                     os.lstat(f)
-                except:
+                except Exception:
                     messagebox.showwarning(
                         _("File does not exist"),
                         _('File "%s" does not exist') % (f),
@@ -930,7 +930,7 @@ class OpenDialog(FileDialog):
         else:
             try:
                 os.lstat(self.selFile)
-            except:
+            except Exception:
                 messagebox.showwarning(
                     _("File does not exist"),
                     _('File "%s" does not exist') % (self.selFile),
@@ -962,7 +962,7 @@ class SaveAsDialog(FileDialog):
             if str(ans) != messagebox.YES and not ans:
                 self.selFile = ""
                 return False
-        except:
+        except Exception:
             pass
         return True
 
