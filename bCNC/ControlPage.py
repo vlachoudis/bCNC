@@ -752,7 +752,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
 
     def padFloat(self, decimals, value):
         if decimals > 0:
-            return "%0.*f" %(decimals, value)
+            return "%0.*f" % (decimals, value)
         else:
             return value
 
