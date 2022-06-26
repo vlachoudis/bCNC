@@ -361,7 +361,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
             cmd = "G43.1Z%s" % (ProbeCommonFrame.tlo.get())
             self.sendGCode(cmd)
-        except:
+        except Exception:
             pass
         self.app.mcontrol.viewParameters()
 
@@ -374,7 +374,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
             CNC.vars["prbcmd"] = str(ProbeCommonFrame.probeCmd.get().split()[0])
             return False
-        except:
+        except Exception:
             return True
 
     # ------------------------------------------------------------------------
@@ -385,7 +385,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
                 state = ProbeCommonFrame.tlo["state"] = NORMAL
                 ProbeCommonFrame.tlo.set(str(CNC.vars.get("TLO", "")))
                 state = ProbeCommonFrame.tlo["state"] = state
-        except:
+        except Exception:
             pass
 
     # -----------------------------------------------------------------------
@@ -859,7 +859,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             self._probeX["text"] = CNC.vars.get("prbx")
             self._probeY["text"] = CNC.vars.get("prby")
             self._probeZ["text"] = CNC.vars.get("prbz")
-        except:
+        except Exception:
             return
 
         if self.probeautogotonext:
@@ -936,7 +936,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
                 CNC.vars["prby"],
                 CNC.vars["prbz"],
             )
-        except:
+        except Exception:
             return
         self.sendGCode(cmd)
 
@@ -949,7 +949,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         cmd = "G91 {} F{}".format(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
         try:
             diameter = abs(float(self.diameter.get()))
-        except:
+        except Exception:
             diameter = 0.0
 
         if diameter < 0.001:
@@ -1002,7 +1002,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
                 minerr,
             )
 
-        except:
+        except Exception:
             self.angle_orient["text"] = sys.exc_info()[1]
             self.xo_orient["text"] = ""
             self.yo_orient["text"] = ""
@@ -1070,19 +1070,19 @@ class ProbeFrame(CNCRibbon.PageFrame):
         xm, ym, x, y = self.app.gcode.orient[marker]
         try:
             x = float(self.x_orient.get())
-        except:
+        except Exception:
             pass
         try:
             y = float(self.y_orient.get())
-        except:
+        except Exception:
             pass
         try:
             xm = float(self.xm_orient.get())
-        except:
+        except Exception:
             pass
         try:
             ym = float(self.ym_orient.get())
-        except:
+        except Exception:
             pass
         self.app.gcode.orient.markers[marker] = xm, ym, x, y
 
@@ -2156,7 +2156,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             CNC.vars["toolchangex"] = float(self.changeX.get())
             CNC.vars["toolchangey"] = float(self.changeY.get())
             CNC.vars["toolchangez"] = float(self.changeZ.get())
-        except:
+        except Exception:
             tkMessageBox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool change position"),
@@ -2168,7 +2168,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             CNC.vars["toolprobex"] = float(self.probeX.get())
             CNC.vars["toolprobey"] = float(self.probeY.get())
             CNC.vars["toolprobez"] = float(self.probeZ.get())
-        except:
+        except Exception:
             tkMessageBox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool probe location"),
@@ -2178,7 +2178,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         try:
             CNC.vars["tooldistance"] = abs(float(self.probeDistance.get()))
-        except:
+        except Exception:
             tkMessageBox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool scanning distance entered"),
@@ -2188,7 +2188,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         try:
             CNC.vars["toolheight"] = float(self.toolHeight.get())
-        except:
+        except Exception:
             tkMessageBox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool height or not calibrated"),

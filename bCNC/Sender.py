@@ -181,7 +181,7 @@ class Sender:
     def loadHistory(self):
         try:
             f = open(Utils.hisFile, "r")
-        except:
+        except Exception:
             return
         self.history = [x.strip() for x in f]
         f.close()
@@ -190,7 +190,7 @@ class Sender:
     def saveHistory(self):
         try:
             f = open(Utils.hisFile, "w")
-        except:
+        except Exception:
             return
         f.write("\n".join(self.history))
         f.close()
@@ -225,7 +225,7 @@ class Sender:
         # print "<<<",line
         # try:
         # 	line = self.gcode.evaluate(CNC.compileLine(line,True))
-        # except:
+        # except Exception:
         # 	return "Evaluation error", sys.exc_info()[1]
         # print ">>>",line
 
@@ -290,7 +290,7 @@ class Sender:
         elif cmd == "SAFE":
             try:
                 CNC.vars["safe"] = float(line[1])
-            except:
+            except Exception:
                 pass
             self.statusbar["text"] = "Safe Z= %g" % (CNC.vars["safe"])
 
@@ -309,15 +309,15 @@ class Sender:
         elif cmd == "SET":
             try:
                 x = float(line[1])
-            except:
+            except Exception:
                 x = None
             try:
                 y = float(line[2])
-            except:
+            except Exception:
                 y = None
             try:
                 z = float(line[3])
-            except:
+            except Exception:
                 z = None
             self._wcsSet(x, y, z)
 
@@ -327,21 +327,21 @@ class Sender:
         elif cmd == "SETX":
             try:
                 x = float(line[1])
-            except:
+            except Exception:
                 x = ""
             self._wcsSet(x, None, None)
 
         elif cmd == "SETY":
             try:
                 y = float(line[1])
-            except:
+            except Exception:
                 y = ""
             self._wcsSet(None, y, None)
 
         elif cmd == "SETZ":
             try:
                 z = float(line[1])
-            except:
+            except Exception:
                 z = ""
             self._wcsSet(None, None, z)
 
@@ -565,14 +565,14 @@ class Sender:
             return
         try:
             self.stopRun()
-        except:
+        except Exception:
             pass
         self._runLines = 0
         self.thread = None
         time.sleep(1)
         try:
             self.serial.close()
-        except:
+        except Exception:
             pass
         self.serial = None
         CNC.vars["state"] = NOT_CONNECTED
@@ -703,7 +703,7 @@ class Sender:
             if self._onStop:
                 try:
                     os.system(self._onStop)
-                except:
+                except Exception:
                     pass
         self._runLines = 0
         self._quit = 0
@@ -816,7 +816,7 @@ class Sender:
                                 self._gcount += 1
                                 # print "gcount str=",self._gcount
                             # print "+++ eval=",repr(tosend),type(tosend)
-                        except:
+                        except Exception:
                             for s in str(sys.exc_info()[1]).splitlines():
                                 self.log.put((Sender.MSG_ERROR, s))
                             self._gcount += 1
@@ -858,7 +858,7 @@ class Sender:
                                         self._newFeed,
                                         pat.group(3),
                                     )
-                                except:
+                                except Exception:
                                     pass
 
                     # Bookkeeping of the buffers
@@ -869,7 +869,7 @@ class Sender:
             if self.serial.inWaiting() or tosend is None:
                 try:
                     line = str(self.serial.readline().decode()).strip()
-                except:
+                except Exception:
                     self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
                     self.emptyQueue()
                     self.close()

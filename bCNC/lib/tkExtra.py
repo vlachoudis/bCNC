@@ -164,15 +164,15 @@ def bindEventData(widget, sequence, func, add=None):
         nsign, b, t, T, d, W = args
         try:
             e.serial = int(nsign)
-        except:
+        except Exception:
             e.serial = nsign
         try:
             e.num = int(b)
-        except:
+        except Exception:
             e.num = b
         try:
             e.time = int(t)
-        except:
+        except Exception:
             e.time = t
         e.type = T
         e.data = d
@@ -235,7 +235,7 @@ def toggleHeight(root, oldHeight):
     if height >= newheight:
         try:
             newheight = oldHeight
-        except:
+        except Exception:
             return oldHeight
 
     newgeom = "%dx%d+%d+%d" % (width, newheight, x, newy)
@@ -389,14 +389,14 @@ class _ValidatingEntry(Entry):
     def getint(self, default=0):
         try:
             return int(self.get())
-        except:
+        except Exception:
             return default
 
     # ----------------------------------------------------------------------
     def getfloat(self, default=0.0):
         try:
             return float(self.get())
-        except:
+        except Exception:
             return default
 
 
@@ -810,7 +810,7 @@ class ExListbox(Listbox):
         if ExListbox._searchTop is not None:
             try:
                 ExListbox._searchTop.withdraw()
-            except:
+            except Exception:
                 pass
 
     # ----------------------------------------------------------------------
@@ -913,7 +913,7 @@ class ExListbox(Listbox):
         if self.ignoreCase:
             try:
                 active = active.upper()
-            except:
+            except Exception:
                 pass
         if len(active) > 0:
             if self.ignoreNonAlpha:
@@ -955,7 +955,7 @@ class ExListbox(Listbox):
                 if self.ignoreCase:
                     try:
                         item = item.upper()
-                    except:
+                    except Exception:
                         pass
 
                 if len(item) > 0:
@@ -1472,7 +1472,7 @@ class MultiListbox(Frame):
             frame = Frame(self.paneframe, border=0)
             try:
                 self.paneframe.add(frame, minsize=16, stretch=stretch)
-            except:
+            except Exception:
                 self.paneframe.add(frame, minsize=16)  # tk8.4
             if header:
                 lbl = Label(frame, text=li, borderwidth=1, relief=RAISED)
@@ -1588,7 +1588,7 @@ class MultiListbox(Frame):
                 self._sashDrag(event)
             else:
                 self._sashIndex = -1
-        except:
+        except Exception:
             return
         return "break"
 
@@ -1808,7 +1808,7 @@ class MultiListbox(Frame):
             if lid >= 0:
                 self._lists[lid].activate(active)
                 self._lists[lid].focus_set()
-        except:
+        except Exception:
             pass
 
     # ----------------------------------------------------------------------
@@ -1822,7 +1822,7 @@ class MultiListbox(Frame):
             if lid < len(self._lists):
                 self._lists[lid].activate(active)
                 self._lists[lid].focus_set()
-        except:
+        except Exception:
             pass
 
     # ----------------------------------------------------------------------
@@ -1858,7 +1858,7 @@ class MultiListbox(Frame):
 
         try:
             active = int(self.index(ACTIVE))
-        except:
+        except Exception:
             active = -1
 
         self.delete(0, END)
@@ -2373,7 +2373,7 @@ class InPlaceEdit:
         # Find active
         try:
             self.active = listbox.index(item)
-        except:
+        except Exception:
             return
 
         self.item = item

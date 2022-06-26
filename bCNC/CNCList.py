@@ -64,7 +64,7 @@ class CNCListbox(Listbox):
         self.bind("<BackSpace>", self.deleteBlock)
         try:
             self.bind("<KP_Delete>", self.deleteBlock)
-        except:
+        except Exception:
             pass
 
         self.bind("<Control-Key-b>", self.insertBlock)
@@ -176,7 +176,7 @@ class CNCListbox(Listbox):
     def paste(self, event=None):
         try:
             clipboard = self.selection_get(selection="CLIPBOARD")
-        except:
+        except Exception:
             return
 
         ypos = self.yview()[0]
@@ -185,10 +185,10 @@ class CNCListbox(Listbox):
         # python3 might fix this with the inner scope
         try:
             self._bid, self._lid = self._items[self.curselection()[-1]]
-        except:
+        except Exception:
             try:
                 self._bid, self._lid = self._items[-1]
-            except:
+            except Exception:
                 self._bid = 0
                 self._lid = None
 
@@ -799,7 +799,7 @@ class CNCListbox(Listbox):
             bid, lid = bi
             try:
                 block = self.gcode[bid]
-            except:
+            except Exception:
                 continue
 
             if double:
@@ -937,7 +937,7 @@ class CNCListbox(Listbox):
         if not self.selection_includes(active):
             try:
                 active = self.curselection()[0]
-            except:
+            except Exception:
                 return (0, None)
         return self._items[int(active)]
 

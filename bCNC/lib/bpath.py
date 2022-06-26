@@ -950,7 +950,7 @@ class Path(list):
                 )
 
                 return center
-            except:
+            except Exception:
                 return None
 
         def arcd2seg(arcd):
@@ -2039,6 +2039,6 @@ class Path(list):
                                 + OC * AB[0] / ABlen
                             )
                             self.append(Segment(t, A, B, center))
-                        except:
+                        except Exception:
                             self.append(Segment(Segment.LINE, A, B))
                     A = B

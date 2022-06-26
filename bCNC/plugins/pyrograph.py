@@ -52,7 +52,7 @@ class Tool(Plugin):
     def execute(self, app):
         try:
             from PIL import Image
-        except:
+        except ImportError:
             app.setStatus(_("Pyrograph abort: This plugin requires PIL/Pillow"))
             return
 
@@ -91,7 +91,7 @@ class Tool(Plugin):
             img = Image.open(fileName)
             # be sure to have color to calculate luminance
             img = img.convert("RGB")
-        except:
+        except Exception:
             app.setStatus(_("Pyrograph abort: Can't read image file"))
             return
 

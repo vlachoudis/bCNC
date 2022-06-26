@@ -109,13 +109,13 @@ else:
 
 # try:
 # 	import __builtin__
-# except:
+# except Exception:
 # 	import builtins as __builtin__
 # 	#__builtin__.unicode = str		# Dirty hack for Python 3
 
 try:
     import serial
-except:
+except Exception:
     serial = None
 
 __prg__ = "bCNC"
@@ -316,7 +316,7 @@ def getStr(section, name, default=""):
     global config
     try:
         return config.get(section, name)
-    except:
+    except Exception:
         return default
 
 
@@ -325,7 +325,7 @@ def getUtf(section, name, default=""):
     global config
     try:
         return config.get(section, name)
-    except:
+    except Exception:
         return default
 
 
@@ -334,7 +334,7 @@ def getInt(section, name, default=0):
     global config
     try:
         return int(config.get(section, name))
-    except:
+    except Exception:
         return default
 
 
@@ -343,7 +343,7 @@ def getFloat(section, name, default=0.0):
     global config
     try:
         return float(config.get(section, name))
-    except:
+    except Exception:
         return default
 
 
@@ -352,7 +352,7 @@ def getBool(section, name, default=False):
     global config
     try:
         return bool(int(config.get(section, name)))
-    except:
+    except Exception:
         return default
 
 
@@ -375,15 +375,15 @@ def makeFont(name, value=None):
         font.configure(family=value[0])
         try:
             font.configure(size=value[1])
-        except:
+        except Exception:
             pass
         try:
             font.configure(weight=value[2])
-        except:
+        except Exception:
             pass
         try:
             font.configure(slant=value[3])
-        except:
+        except Exception:
             pass
     return font
 
@@ -402,12 +402,12 @@ def fontString(font):
     try:
         if font[2] == tkFont.BOLD:
             s += " bold"
-    except:
+    except Exception:
         pass
     try:
         if font[3] == tkFont.ITALIC:
             s += " italic"
-    except:
+    except Exception:
         pass
     return s
 
@@ -418,7 +418,7 @@ def fontString(font):
 def getFont(name, default=None):
     try:
         value = config.get(_FONT_SECTION, name)
-    except:
+    except Exception:
         value = None
 
     if not value:
@@ -472,7 +472,7 @@ def setUtf(section, name, value):
     global config
     try:
         s = str(value)
-    except:
+    except Exception:
         s = value
     config.set(section, name, s)
 
@@ -537,7 +537,7 @@ def comports(include_links=True):
                 s = serial.Serial(device)
                 s.close()
                 comports.append((device, None, None))
-            except:
+            except Exception:
                 pass
     return comports
 
@@ -556,7 +556,7 @@ def addException():
         if len(errors) > 100:
             # If too many errors are found send the error report
             ReportDialog(self.widget)
-    except:
+    except Exception:
         say(str(sys.exc_info()))
 
 
@@ -586,7 +586,7 @@ class CallWrapper:
             raise SystemExit(sys.exc_info()[1])
         except KeyboardInterrupt:
             pass
-        except:
+        except Exception:
             addException()
 
 
@@ -730,7 +730,7 @@ class ReportDialog(Toplevel):
         try:
             conn.request("POST", "/flair/send_email_bcnc.php", params, headers)
             response = conn.getresponse()
-        except:
+        except Exception:
             tkMessageBox.showwarning(
                 _("Error sending report"),
                 _("There was a problem connecting to the web site"),
@@ -809,28 +809,28 @@ class UserButton(Ribbon.LabelButton):
     def name(self):
         try:
             return config.get("Buttons", "name.%d" % (self.button))
-        except:
+        except Exception:
             return str(self.button)
 
     # ----------------------------------------------------------------------
     def icon(self):
         try:
             return config.get("Buttons", "icon.%d" % (self.button))
-        except:
+        except Exception:
             return None
 
     # ----------------------------------------------------------------------
     def tooltip(self):
         try:
             return config.get("Buttons", "tooltip.%d" % (self.button))
-        except:
+        except Exception:
             return ""
 
     # ----------------------------------------------------------------------
     def command(self):
         try:
             return config.get("Buttons", "command.%d" % (self.button))
-        except:
+        except Exception:
             return ""
 
     # ----------------------------------------------------------------------

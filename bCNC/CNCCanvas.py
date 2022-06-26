@@ -31,7 +31,7 @@ try:
     # options possible: NEAREST, BILINEAR, BICUBIC, ANTIALIAS
     RESAMPLE = Image.NEAREST  # resize type
     # RESAMPLE = Image.BILINEAR	# resize type
-except:
+except Exception:
     numpy = None
     RESAMPLE = None
 
@@ -566,7 +566,7 @@ class CNCCanvas(Canvas, object):
                         return
                     fill = MOVE_COLOR
                     arrow = LAST
-                except:
+                except Exception:
                     self._mouseAction = ACTION_SELECT_SINGLE
                     return
             else:
@@ -690,7 +690,7 @@ class CNCCanvas(Canvas, object):
                 for i in closest:
                     try:
                         items.append(self._items[i])
-                    except:
+                    except Exception:
                         pass
 
             elif self._mouseAction in (ACTION_SELECT_SINGLE, ACTION_SELECT_DOUBLE):
@@ -953,12 +953,12 @@ class CNCCanvas(Canvas, object):
 
         try:
             zx = round(float(self.winfo_width() / bbox_width), 2)
-        except:
+        except Exception:
             return
 
         try:
             zy = round(float(self.winfo_height() / bbox_height), 2)
-        except:
+        except Exception:
             return
 
         # print("BBCALC ", bbox_width, bbox_height)
@@ -1001,11 +1001,11 @@ class CNCCanvas(Canvas, object):
 
         try:
             zx = float(self.winfo_width()) / (x2 - x1)
-        except:
+        except Exception:
             return
         try:
             zy = float(self.winfo_height()) / (y2 - y1)
-        except:
+        except Exception:
             return
         if zx > 1.0:
             self.__tzoom = min(zx, zy)
@@ -1326,7 +1326,7 @@ class CNCCanvas(Canvas, object):
             self.cameraPosition()
         try:
             self.itemconfig(self._cameraImage, image=self.camera.toTk())
-        except:
+        except Exception:
             pass
         self._cameraAfter = self.after(100, self.cameraRefresh)
 
@@ -1339,7 +1339,7 @@ class CNCCanvas(Canvas, object):
     def cameraSave(self, event=None):
         try:
             self._count += 1
-        except:
+        except Exception:
             self._count = 1
         self.camera.save("camera%02d.png" % (self._count))
 
@@ -1516,7 +1516,7 @@ class CNCCanvas(Canvas, object):
         d = min(dx, dy)
         try:
             s = math.pow(10.0, int(math.log10(d)))
-        except:
+        except Exception:
             if CNC.inch:
                 s = 10.0
             else:
@@ -1971,7 +1971,7 @@ class CNCCanvas(Canvas, object):
                             cmd = CNC.breakLine(cmd)
                     except AlarmException:
                         raise
-                    except:
+                    except Exception:
                         sys.stderr.write(
                             _(">>> ERROR: %s\n") % (str(sys.exc_info()[1]))
                         )
