@@ -1039,7 +1039,8 @@ class Application(Toplevel, Sender):
         )
         la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
 
-        def closeFunc(e=None, t=toplevel): return t.destroy()
+        def closeFunc(e=None, t=toplevel):
+            return t.destroy()
         b = Button(toplevel, text=_("Close"), command=closeFunc)
         b.pack(pady=5)
         frame.grid_columnconfigure(1, weight=1)
@@ -1296,7 +1297,8 @@ class Application(Toplevel, Sender):
         frame = Frame(toplevel)
         frame.pack(fill=X)
 
-        def closeFunc(e=None, t=toplevel): return t.destroy()
+        def closeFunc(e=None, t=toplevel):
+            return t.destroy()
         b = Button(frame, text=_("Close"), command=closeFunc)
         b.pack(pady=5)
         frame.grid_columnconfigure(1, weight=1)
