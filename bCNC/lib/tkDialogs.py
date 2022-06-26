@@ -94,10 +94,10 @@ class Dialog(Toplevel):
         self.tk.call("grid", "anchor", fbot._w, CENTER)
         # self.grid_anchor(CENTER)
 
-        l = Label(
+        lbl = Label(
             ftop, text=cnf["text"], wraplength="3i", font="TkCaptionFont", justify=LEFT
         )
-        l.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
+        lbl.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
 
         if cnf["bitmap"]:
             lbl = Label(ftop, bitmap=cnf["bitmap"])
@@ -437,8 +437,8 @@ class Printer(Toplevel):
         frame.pack(fill=BOTH)
 
         row = 0
-        l = Label(frame, text="Orientation")
-        l.grid(row=row, column=0, sticky=E)
+        lbl = Label(frame, text="Orientation")
+        lbl.grid(row=row, column=0, sticky=E)
 
         b = Radiobutton(frame, text="Portrait",
                         variable=self.landscapeVar, value=0)
@@ -449,15 +449,15 @@ class Printer(Toplevel):
         b.grid(row=row, column=2, columnspan=2, sticky=W)
 
         row += 1
-        l = Label(frame, text="Paper Size")
-        l.grid(row=row, column=0, sticky=E)
+        lbl = Label(frame, text="Paper Size")
+        lbl.grid(row=row, column=0, sticky=E)
 
         paperlist = sorted(Printer.PAPER_FORMAT.keys())
         o = OptionMenu(frame, self.paperVar, *paperlist)
         o.grid(row=row, column=1, sticky=W)
 
-        l = Label(frame, text="Copies")
-        l.grid(row=row, column=2, sticky=E)
+        lbl = Label(frame, text="Copies")
+        lbl.grid(row=row, column=2, sticky=E)
 
         s = Spinbox(
             frame,
