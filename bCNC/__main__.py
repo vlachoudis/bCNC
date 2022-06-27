@@ -824,7 +824,7 @@ class Application(Toplevel, Sender):
         toplevel.transient(self)
         toplevel.title(_("About %s v%s") % (Utils.__prg__, __version__))
         if sys.platform == "win32":
-            self.iconbitmap("bCNC.ico")
+            self.iconbitmap("%s\\bCNC.ico" % (Utils.prgpath))
         else:
             self.iconbitmap("@%s/bCNC.xbm" % (Utils.prgpath))
 
