@@ -1765,7 +1765,7 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.apap.mcontrol.jog("Z%s"%(self.getStep('z')))
+		self.app.mcontrol.jog("Z%s"%(self.getStep('z')))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
