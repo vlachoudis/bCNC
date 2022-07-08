@@ -20,7 +20,7 @@ try:
     import serial
 except ImportError:
     serial = None
-print("testing mode, could not import serial")
+    print("testing mode, could not import serial")
 try:
     import Tkinter
     from Queue import *
