@@ -1461,17 +1461,17 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 
 		try:
 			self.zsteplist = [float(x) for x in Utils.config.get("sliderControl", "zsteplist").split()]
-		except:
+		except ValueError:
 			self.zsteplist = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0]
 
 		try:
 			self.steplist = [float(x) for x in Utils.config.get("sliderControl", "steplist").split()]
-		except:
+		except ValueError:
 			self.steplist = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0, 500.0]
 
 		try:
 			step = float(Utils.config.get("sliderControl", "step"))
-		except:
+		except ValueError:
 			step = float(self.steplist[int(len(self.steplist)/2-1)])
 
 		try:
@@ -1480,7 +1480,7 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 				zstep = float(Utils.config.get("sliderControl", "step"))
 			else:
 				zstep = float(zstep)
-		except:
+		except ValueError:
 			zstep = float(self.zsteplist[int(len(self.zsteplist)/2-1)])
 
 		frame = Frame(self())
@@ -1706,7 +1706,7 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 		try:
 			if float(inStr) > 0.0:
 				self.zScaleValue.set(math.log10(float(inStr)))
-		except:
+		except ValueError:
 			return True
 		return True
 
@@ -1714,7 +1714,7 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 		try:
 			if float(inStr) > 0.0:
 				self.xyScaleValue.set(math.log10(float(inStr)))
-		except:
+		except ValueError:
 			return True
 		return True
 
@@ -1765,7 +1765,7 @@ class sliderControlFrame(CNCRibbon.PageExLabelFrame):
 
 	def moveZup(self, event=None):
 		if event is not None and not self.acceptKey(): return
-		self.app.mcontrol.jog("Z%s"%(self.getStep('z')))
+		self.apap.mcontrol.jog("Z%s"%(self.getStep('z')))
 
 	def moveZdown(self, event=None):
 		if event is not None and not self.acceptKey(): return
@@ -1786,7 +1786,7 @@ class continuousControlFrame(CNCRibbon.PageExLabelFrame):
 
 		try:
 			jograte = float(Utils.config.get("continuousControl", "jograte"))
-		except:
+		except ValueError:
 			jograte = 100.0
 
 		frame = Frame(self())
@@ -1974,7 +1974,7 @@ class continuousControlFrame(CNCRibbon.PageExLabelFrame):
 		try:
 			if float(inStr) > 0.0:
 				self.jogScaleValue.set(math.log10(float(inStr)))
-		except:
+		except ValueError:
 			return True
 		return True
 
@@ -2447,7 +2447,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 		self._gUpdate = True
 		try:
 			focus = self.focus_get()
-		except:
+		except KeyError:
 			focus = None
 
 		try:
