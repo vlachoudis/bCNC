@@ -6936,12 +6936,6 @@ class SVGText(SVGElement, GraphicObject, Transformable):
         font_size = match.group(5)
         line_height = match.group(6)
         font_family = match.group(7)
-        if len(font_weight) > 0:
-            self.font_weight = self.parse_font_weight(font_weight)
-        if len(font_size) > 0:
-            self.font_size = Length(font_size).value()
-        if len(font_family) > 0:
-            self.font_family = font_family
 
     def parse_font_weight(self, weight):
         if weight == 'bold':
