@@ -93,7 +93,7 @@ STL (Binary and ASCII)
 PLY (ASCII only)
 
 You can use external software to edit and convert meshes to desired format.
-It can also help you to visualy inspect your meshes before slicing.
+It can also help you to visually inspect your meshes before slicing.
 Example of useful free software for working with meshes is called "MeshLab".
 
 WARNING:

@@ -38,7 +38,7 @@ There are too much commits, so i've created this brief overview of new features 
   - Added button to activate GRBL sleep mode (= disable motors) #1099
   - Added button to trigger GRBL door alarm
   - Added button to scan autoleveling margins (to see what will be probed)
-  - Added some usefull jog buttons
+  - Added some useful jog buttons
   - Added framework to show help text and images for each plugin #806
 - Bug Fixes
   - Proper path direction detection and climb/conventional support #881

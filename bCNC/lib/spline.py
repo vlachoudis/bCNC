@@ -74,7 +74,7 @@ class CardinalSpline:
 # Cubic spline ensuring that the first and second derivative are continuous
 # adapted from Penelope Manual Appending B.1
 # It requires all the points (xi,yi) and the assumption on how to deal
-# with the second derviative on the extremeties
+# with the second derivative on the extremeties
 # Option 1: assume zero as second derivative on both ends
 # Option 2: assume the same as the next or previous one
 # =============================================================================

@@ -42,7 +42,7 @@
 # ----------------------------------------------------------------------------
 
 #
-# Deriver from Alex Holkner work for pyglet
+# Derived from Alex Holkner work for pyglet
 # Glyph data ported from
 # * http://stevehanov.ca/blog/index.php?id=143
 # the JavaScript code to extract also Glyph data as vector.

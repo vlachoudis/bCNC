@@ -7,7 +7,7 @@ def to_int(input_, default=0, exception=(ValueError, TypeError), regexp=None):
     Convert the given input to an integer or return default
 
     When trying to convert the exceptions given in the exception parameter
-    are automatically catched and the default will be returned.
+    are automatically caught and the default will be returned.
 
     The regexp parameter allows for a regular expression to find the digits
     in a string.
@@ -88,7 +88,7 @@ def to_float(input_,
     Convert the given `input_` to an integer or return default
 
     When trying to convert the exceptions given in the exception parameter
-    are automatically catched and the default will be returned.
+    are automatically caught and the default will be returned.
 
     The regexp parameter allows for a regular expression to find the digits
     in a string.
