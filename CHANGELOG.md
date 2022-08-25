@@ -2,6 +2,10 @@
 
 There are too much commits, so i've created this brief overview of new features in bCNC.
 
+## Next
+- Breaking changes:
+  - Python3.8 is the lowest supported version. Starting bCNC with any prior version will fail. [#1719](https://github.com/vlachoudis/bCNC/issues/1719)
+
 ## 0.9.15
 
 - New features

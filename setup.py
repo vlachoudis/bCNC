@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-import sys  # added for python2 support
 
+import sys
 from setuptools import find_packages, setup
+
+if not (sys.version_info.major == 3 and sys.version_info.minor >= 8):
+    print("ERROR: Python3.8 or newer is required to run bCNC!!")
+    sys.exit(1)
 
 print("Running bCNC setup...")
 
-with open("README.md", "r") as fh:
+with open("README.md") as fh:
     long_description = fh.read()
-
-if sys.version_info[0] >= 3:
-    opencv_version = "4.5.5.62"  # Recent version for Puthon 3
-else:  # python version lower then 3 compatability
-    opencv_version = "4.2.0.32"  # use the last opencv version for python 2.7
 
 setup(
     name="bCNC",
@@ -25,25 +24,24 @@ setup(
     author_email="vvlachoudis@gmail.com",
     url="https://github.com/vlachoudis/bCNC",
     include_package_data=True,
-    # python_requires="<3.0",
     install_requires=[
         "pyobjc ; sys_platform == 'darwin'",
         "pyobjc-core; sys_platform == 'darwin'",
         "pyobjc-framework-Quartz; sys_platform == 'darwin'",
-        # Windows XP can't handle pyserial newer than 3.0.1 (it can be installed, but does not work)
+        # Windows XP can't handle pyserial newer than 3.0.1
+        #   (it can be installed, but does not work)
         "pyserial ; sys_platform != 'win32'",
         "pyserial<=3.0.1 ; sys_platform == 'win32'",
         "numpy>=1.12",
         "Pillow>=4.0",
-        'opencv-python==%s ; ("arm" not in platform_machine) and ("aarch64" not in platform_machine)'
-        % (
-            opencv_version
-        ),  # Note there are no PyPI OpenCV packages for ARM (Raspberry PI, Orange PI, etc...)
+        # Note there are no PyPI OpenCV packages for ARM
+        # (Raspberry PI, Orange PI, etc...)
+        "opencv-python==4.5.5.62 ; "
+        + "(\"arm\" not in platform_machine) and "
+        + "(\"aarch64\" not in platform_machine)"
     ],
     entry_points={
         "console_scripts": [
-            #'bCNC = {package}.{module}:{main_function}',
-            #'bCNC = bCNC.bCNC:main',
             "bCNC = bCNC.__main__:main",
         ]
     },
