@@ -29,16 +29,15 @@
 # LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	10-Mar-2015
-from __future__ import absolute_import
+# Author    :Vasilis.Vlachoudis@cern.ch
+# Date:     10-Mar-2015
 
 import math
 import sys
 
 import spline
 from bmath import Vector
-from Utils import to_zip
+from Helpers import to_zip
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
@@ -51,7 +50,7 @@ EPS2 = EPS**2
 errors = {}
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def error(msg):
     global errors
     if msg in errors:
@@ -61,9 +60,9 @@ def error(msg):
         errors[msg] = 1
 
 
-# ==============================================================================
+# =============================================================================
 # Entity holder
-# ==============================================================================
+# =============================================================================
 class Entity(dict):
     CLOSED = 0x01
     PERIODIC = 0x02
@@ -342,12 +341,14 @@ class Entity(dict):
 
     # ----------------------------------------------------------------------
     def __repr__(self):
-        out = "{} {} {} {}".format(
-            self.type, self.name, self.start(), self.end())
+        out = f"{self.type} {self.name} {self.start()} {self.end()}"
         if self.type == "ARC":
-            out += " R=%g" % (self.radius())
-            out += " sPhi=%g" % (self.startPhi())
-            out += " ePhi=%g" % (self.endPhi())
+            out = " ".join([
+                out,
+                f"R={self.radius():g}",
+                f"sPhi={self.startPhi():g}",
+                f"ePhi={self.endPhi():g}",
+            ])
         return out
 
     # ----------------------------------------------------------------------
@@ -374,7 +375,8 @@ class Entity(dict):
     # ----------------------------------------------------------------------
     def point3D(self, idx=0):
         """return 3D point 10+idx,20+idx"""
-        return Vector(self.get(10 + idx), self.get(20 + idx), self.get(30 + idx))
+        return Vector(
+            self.get(10 + idx), self.get(20 + idx), self.get(30 + idx))
 
     # ----------------------------------------------------------------------
     def radius(self):
@@ -400,7 +402,7 @@ class Entity(dict):
     def color(self):
         try:
             return Entity.COLORS[self.get(62, 0)]
-        except:
+        except Exception:
             return None
 
     # ----------------------------------------------------------------------
@@ -456,11 +458,8 @@ class Entity(dict):
         elif self.type in ("POINT", "ELLIPSE", "DIMENSION", "@START"):
             self._start = self._end = self.point()
         else:
-            error(
-                "Cannot handle entity type: {} in layer: {}\n".format(
-                    self.type, self.name)
-            )
-            # import traceback; traceback.print_stack()
+            error("Cannot handle entity type: "
+                  + f"{self.type} in layer: {self.name}\n")
             self._start = self._end = self.point()
 
     # ----------------------------------------------------------------------
@@ -544,17 +543,6 @@ class Entity(dict):
             xyz = to_zip(self[10], self[20], self[30])
             flag = int(self.get(70, 0))
             closed = bool(flag & Entity.CLOSED)
-            periodic = bool(flag & Entity.PERIODIC)
-            rational = bool(flag & Entity.RATIONAL)
-            planar = bool(flag & Entity.PLANAR)
-            linear = bool(flag & Entity.LINEAR)
-            # 			print "\nSPLINE"
-            # 			print "closed=",closed
-            # 			print "periodic=",periodic
-            # 			print "rational=",rational
-            # 			print "planar=",planar
-            # 			print "linear=",linear
-            # 			for n in sorted(self.keys()): print n,"=",self[n]
             knots = self[40]
             xx, yy, zz = spline.spline2Polyline(
                 xyz, int(self[71]), closed, splineSegs, knots
@@ -607,7 +595,6 @@ class Entity(dict):
 
         while True:
             tag, value = dxf.read()
-            # print tag,value
             if tag is None:
                 return
             if tag == 0:
@@ -623,8 +610,7 @@ class Entity(dict):
                     self[30].append(0.0)
                     self[42].append(0.0)
                 else:
-                    raise Exception(
-                        "Entity %s found in wrong context" % (value))
+                    raise Exception(f"Entity {value} found in wrong context")
 
             elif tag in (10, 20, 30, 42):
                 self[tag][-1] = value
@@ -668,9 +654,9 @@ class Entity(dict):
                         self[42].append(0.0)
 
 
-# ==============================================================================
+# =============================================================================
 # DXF layer
-# ==============================================================================
+# =============================================================================
 class Layer:
     # ----------------------------------------------------------------------
     def __init__(self, name, tbl=None):
@@ -695,12 +681,12 @@ class Layer:
     def color(self):
         try:
             return Entity.COLORS[self.table.get(62, 0)]
-        except:
+        except Exception:
             return None
 
     # ----------------------------------------------------------------------
     def __repr__(self):
-        return "Layer: %s" % (self.name)
+        return f"Layer: {self.name}"
 
     # ----------------------------------------------------------------------
     # Sort layer in continuation order of entities
@@ -745,8 +731,6 @@ class Layer:
         while self.entities:
             # End point
             ex, ey = new[-1].end()
-            # print
-            # print "*-*",new[-1].start(),new[-1].end()
 
             # Find the entity that starts after the last one
             for i, entity in enumerate(self.entities):
@@ -754,7 +738,8 @@ class Layer:
                 sx, sy = entity.start()
                 d2 = (sx - ex) ** 2 + (sy - ey) ** 2
                 err = EPS2 * ((abs(sx) + abs(ex)) ** 2
-                              + (abs(sy) + abs(ey)) ** 2 + 1.0)
+                              + (abs(sy) + abs(ey)) ** 2
+                              + 1.0)
                 if d2 < err:
                     new.append(entity)
                     del self.entities[i]
@@ -764,7 +749,8 @@ class Layer:
                 sx, sy = entity.end()
                 d2 = (sx - ex) ** 2 + (sy - ey) ** 2
                 err = EPS2 * ((abs(sx) + abs(ex)) ** 2
-                              + (abs(sy) + abs(ey)) ** 2 + 1.0)
+                              + (abs(sy) + abs(ey)) ** 2
+                              + 1.0)
                 if d2 < err:
                     entity.invert()
                     new.append(entity)
@@ -778,7 +764,7 @@ class Layer:
         self.entities = new
 
 
-# ==============================================================================
+# =============================================================================
 # DXF Block
 # Block-type flags (bit coded values, may be combined):
 #   1 = This is an anonymous block generated by hatching, associative
@@ -792,7 +778,7 @@ class Layer:
 #  32 = This is a resolved external reference, or dependent of an external
 #       reference (ignored on input).
 #  64 = This definition is a referenced external reference (ignored on input).
-# ==============================================================================
+# =============================================================================
 class Block(dict):
     # ----------------------------------------------------------------------
     def __init__(self):
@@ -805,7 +791,7 @@ class Block(dict):
 
     # ----------------------------------------------------------------------
     def __repr__(self):
-        return "Block: %s [%d] Base:%s" % (self.name, self.type, str(self.base))
+        return f"Block: {self.name} [{int(self.type)}] Base:{str(self.base)}"
 
     # ----------------------------------------------------------------------
     def sort(self):
@@ -853,9 +839,9 @@ class Block(dict):
                 self[tag] = value
 
 
-# ==============================================================================
+# =============================================================================
 # DXF importer/exporter class
-# ==============================================================================
+# =============================================================================
 class DXF:
     # Default drawing units for AutoCAD DesignCenter blocks:
     UNITLESS = 0
@@ -954,8 +940,7 @@ class DXF:
             return new
 
         else:
-            raise Exception("Cannot convert type {} {}".format(
-                type(value), str(value)))
+            raise Exception(f"Cannot convert type {type(value)} {str(value)}")
 
     # ----------------------------------------------------------------------
     def open(self, filename, mode):
@@ -970,36 +955,38 @@ class DXF:
 
     # ----------------------------------------------------------------------
     # From the DXF reference manual
-    # http://www.autodesk.com/techpubs/autocad/acad2000/dxf/group_code_value_types_dxf_01.htm
+    # http://www.autodesk.com/techpubs/autocad/acad2000/dxf/
+    #   group_code_value_types_dxf_01.htm
     #
-    # Code range	python	Group value type
-    # 0-9		str	String. (With the introduction of extended symbol names
-    # 			in AutoCAD 2000, the 255 character limit has been lifted.
-    # 			There is no explicit limit to the number of bytes per line,
-    # 			although most lines should fall within 2049 bytes.)
-    # 10-59		float	Double precision 3D point
-    # 60-79		int	16-bit integer value
-    # 90-99		int	32-bit integer value
-    # 100		str	String (255-character maximum; less for Unicode strings)
-    # 102		str	String (255-character maximum; less for Unicode strings)
-    # 105		str	String representing hexadecimal (hex) handle value
-    # 140-147	float	Double precision scalar floating-point value
-    # 170-175	int	16-bit integer value
-    # 280-289	int	8-bit integer value
-    # 300-309	str	Arbitrary text string
-    # 310-319	str	String representing hex value of binary chunk
-    # 320-329	str	String representing hex handle value
-    # 330-369	str	String representing hex object IDs
-    # 370-379	int	8-bit integer value
-    # 380-389	int	8-bit integer value
-    # 390-399	str	String representing hex handle value
-    # 400-409	int	16-bit integer value
-    # 410-419	str	String
-    # 999		str	Comment (string)
-    # 1000-1009	str	String. (Same limits as indicated with 0-9 code range.)
-    # 1010-1059	float	Floating-point value
-    # 1060-1070	int	16-bit integer value
-    # 1071		int	32-bit integer value
+    # Code range    python      Group value type
+    # 0-9           str         String. (With the introduction of extended
+    #                           symbol names
+    #           in AutoCAD 2000, the 255 character limit has been lifted.
+    #           There is no explicit limit to the number of bytes per line,
+    #           although most lines should fall within 2049 bytes.)
+    # 10-59         float       Double precision 3D point
+    # 60-79         int         16-bit integer value
+    # 90-99         int         32-bit integer value
+    # 100           str         String (255-character maximum; less for Unicode strings)
+    # 102           str         String (255-character maximum; less for Unicode strings)
+    # 105           str         String representing hexadecimal (hex) handle value
+    # 140-147       float       Double precision scalar floating-point value
+    # 170-175       int         16-bit integer value
+    # 280-289       int         8-bit integer value
+    # 300-309       str         Arbitrary text string
+    # 310-319       str         String representing hex value of binary chunk
+    # 320-329       str         String representing hex handle value
+    # 330-369       str         String representing hex object IDs
+    # 370-379       int         8-bit integer value
+    # 380-389       int         8-bit integer value
+    # 390-399       str         String representing hex handle value
+    # 400-409       int         16-bit integer value
+    # 410-419       str         String
+    # 999           str         Comment (string)
+    # 1000-1009     str         String. (Same limits as indicated with 0-9 code range.)
+    # 1010-1059     float       Floating-point value
+    # 1060-1070     int         16-bit integer value
+    # 1071          int         32-bit integer value
     # ----------------------------------------------------------------------
     def read(self):
         """Read one pair tag,value either from file or previously saved"""
@@ -1014,8 +1001,8 @@ class DXF:
             return None, None
         try:
             tag = int(line.strip())
-        except:
-            error("Error reading line %s, tag was expected\n" % (line))
+        except Exception:
+            error(f"Error reading line {line}, tag was expected\n")
             return None, None
 
         # and the value
@@ -1031,11 +1018,9 @@ class DXF:
         ):
             try:
                 value = float(value)
-            except:
-                error(
-                    "Error reading line '%s', tag=%d, floating point expected found \"%s\"\n"
-                    % (line, tag, value)
-                )
+            except Exception:
+                error(f"Error reading line '{line}', tag={int(tag)}, "
+                      + f"floating point expected found \"{value}\"\n")
                 return None, None
 
         # int
@@ -1050,11 +1035,9 @@ class DXF:
         ):
             try:
                 value = int(value)
-            except:
-                error(
-                    "Error reading line '%s', tag=%d, integer expected found \"%s\"\n"
-                    % (line, tag, value)
-                )
+            except Exception:
+                error(f"Error reading line '{line}', tag={int(tag)}, "
+                      + f"integer expected found \"{value}\"\n")
                 return None, None
 
         return tag, value
@@ -1074,7 +1057,8 @@ class DXF:
 
     # ----------------------------------------------------------------------
     def mustbe(self, t, v=None):
-        """Read next tag, value pair which must be (t,v) otherwise report error"""
+        """Read next tag, value pair which must be (t,v)
+        otherwise report error"""
         tag, value = self.read()
         if t != tag:
             self.push(tag, value)
@@ -1083,7 +1067,6 @@ class DXF:
             self.push(tag, value)
             return False
         return True
-        # raise Exception("DXF expecting %d,%s found %s,%s"%(t,v,str(tag),str(value)))
 
     # ----------------------------------------------------------------------
     def skipBlock(self):
@@ -1157,9 +1140,6 @@ class DXF:
                 return None
             entity = Entity(value)
             entity.read(self)
-            # 			print
-            # 			print ">>>",entity
-            # 			for n in sorted(entity.keys()): print n,":",entity[n]
             if entity.type in ("HATCH",):
                 continue  # ignore
             self.addEntity(entity)
@@ -1170,7 +1150,6 @@ class DXF:
         block = None
         while True:
             tag, value = self.read()
-            # print ">>>",tag,value
             if tag is None:
                 return
             elif tag == 0:
@@ -1180,11 +1159,10 @@ class DXF:
                     block = Block()
                     block.read(self)
                     self.blocks[block.name] = block
-                    # print block
                 elif value == "ENDBLK":
                     self.skipBlock()
                 else:
-                    error("Unknown %s section in blocks" % (value))
+                    error(f"Unknown {value} section in blocks")
 
     # ----------------------------------------------------------------------
     def readTable(self):
@@ -1231,7 +1209,6 @@ class DXF:
         if tag != 2:
             self.push()
             return None
-        # print "-"*40,value,"-"*40
         if value == "HEADER":
             self.readHeader()
 
@@ -1261,15 +1238,15 @@ class DXF:
     # ----------------------------------------------------------------------
     def write(self, tag, value):
         """Write one tag,value pair"""
-        self._f.write("%d\n%s\n" % (tag, str(value)))
+        self._f.write(f"{int(tag)}\n{str(value)}\n")
 
     # ----------------------------------------------------------------------
     def writeVector(self, idx, x, y, z=None):
         """Write a vector for index idx"""
-        self.write(10 + idx, "%g" % (x))
-        self.write(20 + idx, "%g" % (y))
+        self.write(10 + idx, f"{x:g}")
+        self.write(20 + idx, f"{y:g}")
         if z is not None:
-            self.write(30 + idx, "%g" % (z))
+            self.write(30 + idx, f"{z:g}")
 
     # ----------------------------------------------------------------------
     def writeHeader(self):
@@ -1335,7 +1312,6 @@ class DXF:
             self.write(8, name)
         self.writeVector(0, x, y)
         self.write(40, r)
-        # if start > end: start,end = end,start
         self.write(50, start)
         self.write(51, end)
 
@@ -1417,50 +1393,8 @@ class DXF:
                                     self.addEntity(e2)
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
-    # 	from dxfwrite.algebra import CubicSpline, CubicBezierCurve
     dxf = DXF(sys.argv[1], "r")
     dxf.readFile()
     dxf.close()
-# 	for name,layer in dxf.layers.items():
-# 		print "#",name
-# 		for entity in layer.entities:
-# 			print entity.name, entity.type
-# 			if entity.type == "SPLINE":
-# 				xy = to_zip(entity[10], entity[20])
-# 				cs = CubicBezierCurve(xy)
-# 				for x,y in cs.approximate(100):
-# 					print x,y
-
-# 	for name,layer in dxf.layers.items():
-# 		#print "Frozen=",not bool(layer.isFrozen())
-# 		for entity in dxf.sortLayer(name):
-# 			print entity, entity._invert
-
-# 	dxf = DXF("test.dxf","w")
-# 	dxf.writeHeader()
-# 	#dxf.line( 0, 0, 20, 0, "line1")
-# 	#dxf.line(20, 0, 20,10, "line1")
-# 	#dxf.line(20,10,  0,10, "line1")
-# 	#dxf.line( 0,10,  0, 0, "line1")
-# 	#dxf.circle(20,10,5,"circle")
-#
-# 	dxf.arc(0,0,5,30,90,"arc")
-# 	dxf.arc(0,0,10,90,30,"arc")
-# 	dxf.line(8.660254037844387, 5, 20,30,"arc")
-# 	dxf.line(0,5,0,10,"arc")
-# 	dxf.arc(0,0,20,90,30,"arc")
-#
-# 	#dxf.polyline([(100,0),(200,200),(100,200)],"polyline")
-# 	dxf.writeEOF()
-# 	dxf.close()
-#
-# 	dxf.open("test2.dxf","r")
-# 	dxf.readFile()
-# 	dxf.close()
-# 	#print "-"*80
-# 	#for name in dxf.layers:
-# 	#	for entity in dxf.sortLayer(name):
-# 	#		print entity
-# 	dxf.close()

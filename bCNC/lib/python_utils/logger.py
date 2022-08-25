@@ -1,12 +1,10 @@
-from __future__ import absolute_import
-
 import functools
 import logging
 
 __all__ = ["Logged"]
 
 
-class Logged(object):
+class Logged:
     """Class which automatically adds a named logger to your class when
     interiting
 
@@ -27,7 +25,7 @@ class Logged(object):
     def __new__(cls, *args, **kwargs):
         cls.logger = logging.getLogger(
             cls.__get_name(__name__, cls.__class__.__name__))
-        return super(Logged, cls).__new__(cls)
+        return super().__new__(cls)
 
     @classmethod
     def __get_name(cls, *name_parts):

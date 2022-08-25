@@ -1,9 +1,7 @@
 # $Id$
 #
 # Author: @CarlosGS
-# Date:	2-Jan-2017
-
-from __future__ import absolute_import, print_function
+# Date:      2-Jan-2017
 
 import math
 
@@ -17,9 +15,9 @@ __name__ = _("Zig-Zag")
 __version__ = "0.0.1"
 
 
-# ==============================================================================
+# =============================================================================
 # ZigZag class
-# ==============================================================================
+# =============================================================================
 class ZigZag:
     def __init__(self, name="ZigZag"):
         self.name = name
@@ -41,7 +39,8 @@ class ZigZag:
                 centerX = x + r
                 centerY = y
                 for j in range(CornerRes):
-                    y = centerY + r * math.sin(math.pi * (j + 1) / CornerRes) * (
+                    y = centerY + r * math.sin(math.pi
+                                               * (j + 1) / CornerRes) * (
                         -1 if goingUp else 1
                     )
                     x = centerX - r * math.cos(math.pi * (j + 1) / CornerRes)
@@ -91,9 +90,9 @@ class ZigZag:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a ZigZag path
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create a Zig-Zag path")
 

@@ -3,7 +3,21 @@
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015
 
-from __future__ import absolute_import, print_function
+from tkinter import (
+    FALSE,
+    TRUE,
+    W,
+    NSEW,
+    Y,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    VERTICAL,
+    EXTENDED,
+    Menu,
+    Scrollbar,
+)
 
 import CNCList
 import CNCRibbon
@@ -12,18 +26,15 @@ import tkExtra
 import Utils
 from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 
+from Helpers import N_
+
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
 
-try:
-    from Tkinter import *
-except ImportError:
-    from tkinter import *
 
-
-# ===============================================================================
+# =============================================================================
 # Clipboard Group
-# ===============================================================================
+# =============================================================================
 class ClipboardGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Clipboard"), app)
@@ -77,9 +88,9 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Select Group
-# ===============================================================================
+# =============================================================================
 class SelectGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Select"), app)
@@ -169,12 +180,12 @@ class SelectGroup(CNCRibbon.ButtonGroup):
     # -----------------------------------------------------------------------
     def filter(self, event=None):
         txt = self.filterString.get()
-        self.app.insertCommand("FILTER %s" % (txt), True)
+        self.app.insertCommand(f"FILTER {txt}", True)
 
 
-# ===============================================================================
+# =============================================================================
 # Edit Group
-# ===============================================================================
+# =============================================================================
 class EditGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(
@@ -206,15 +217,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
 
         # ---
         col, row = 0, 0
-        # 		b = Ribbon.LabelButton(self.frame, app, "<<Add>>",
-        # 				image=Utils.icons["add"],
-        # 				text=_("Add"),
-        # 				compound=LEFT,
-        # 				anchor=W,
-        # 				background=Ribbon._BACKGROUND)
-        # 		b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
-        # 		tkExtra.Balloon.set(b, _("Insert a new block or line of code [Ins or Ctrl-Enter]"))
-        # 		self.addWidget(b)
         b = Ribbon.LabelButton(
             self.frame,
             self.app,
@@ -230,8 +232,16 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
         self.addWidget(b)
 
         menulist = [
-            (_("Line"), "add", lambda a=self.app: a.event_generate("<<AddLine>>")),
-            (_("Block"), "add", lambda a=self.app: a.event_generate("<<AddBlock>>")),
+            (
+                _("Line"),
+                "add",
+                lambda a=self.app: a.event_generate("<<AddLine>>")
+            ),
+            (
+                _("Block"),
+                "add",
+                lambda a=self.app: a.event_generate("<<AddBlock>>")
+            ),
         ]
         b = Ribbon.MenuButton(
             self.frame,
@@ -286,18 +296,22 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
             self.app,
             "<<EnableToggle>>",
             image=Utils.icons["toggle"],
-            # text=_("Toggle"),
-            # compound=LEFT,
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
         b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(
-            b, _("Toggle enable/disable block of g-code [Ctrl-L]"))
+            b,
+            _("Toggle enable/disable block of g-code [Ctrl-L]")
+        )
         self.addWidget(b)
 
         menulist = [
-            (_("Enable"), "enable", lambda a=self.app: a.event_generate("<<Enable>>")),
+            (
+                _("Enable"),
+                "enable",
+                lambda a=self.app: a.event_generate("<<Enable>>")
+            ),
             (
                 _("Disable"),
                 "disable",
@@ -330,7 +344,9 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
         )
         b.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(
-            b, _("Toggle expand/collapse blocks of gcode [Ctrl-E]"))
+            b,
+            _("Toggle expand/collapse blocks of gcode [Ctrl-E]")
+        )
         self.addWidget(b)
 
         # ---
@@ -381,9 +397,9 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Move Group
-# ===============================================================================
+# =============================================================================
 class MoveGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Move"), app)
@@ -448,9 +464,9 @@ class MoveGroup(CNCRibbon.ButtonMenuGroup):
         return menu
 
 
-# ===============================================================================
+# =============================================================================
 # Order Group
-# ===============================================================================
+# =============================================================================
 class OrderGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(
@@ -482,7 +498,9 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
         )
         b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(
-            b, _("Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"))
+            b,
+            _("Move selected g-code up [Ctrl-Up, Ctrl-PgUp]")
+        )
         self.addWidget(b)
 
         # ---
@@ -499,7 +517,9 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
         )
         b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(
-            b, _("Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"))
+            b,
+            _("Move selected g-code down [Ctrl-Down, Ctrl-PgDn]")
+        )
         self.addWidget(b)
 
         # ---
@@ -519,9 +539,9 @@ class OrderGroup(CNCRibbon.ButtonMenuGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Transform Group
-# ===============================================================================
+# =============================================================================
 class TransformGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Transform"), app)
@@ -604,13 +624,9 @@ class TransformGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
 
 
-# 		submenu.add_command(label=_("Rotate command"), underline=0,
-# 					command=lambda s=self:s.insertCommand("ROTATE ang x0 y0", False))
-
-
-# ===============================================================================
+# =============================================================================
 # Route Group
-# ===============================================================================
+# =============================================================================
 class RouteGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Route"), app)
@@ -630,7 +646,8 @@ class RouteGroup(CNCRibbon.ButtonGroup):
         )
         b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(
-            b, _("Change cut direction to conventional for selected gcode blocks")
+            b,
+            _("Change cut direction to conventional for selected gcode blocks")
         )
         self.addWidget(b)
 
@@ -702,9 +719,9 @@ class RouteGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Info Group
-# ===============================================================================
+# =============================================================================
 class InfoGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Info"), app)
@@ -743,9 +760,9 @@ class InfoGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Main Frame of Editor
-# ===============================================================================
+# =============================================================================
 class EditorFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "Editor", app)
@@ -764,9 +781,9 @@ class EditorFrame(CNCRibbon.PageFrame):
         self.editor.config(yscrollcommand=sb.set)
 
 
-# ===============================================================================
+# =============================================================================
 # Editor Page
-# ===============================================================================
+# =============================================================================
 class EditorPage(CNCRibbon.Page):
     __doc__ = _("GCode editor")
     _name_ = N_("Editor")

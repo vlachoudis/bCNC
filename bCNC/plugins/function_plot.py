@@ -1,7 +1,3 @@
-from __future__ import absolute_import, print_function
-
-from math import *  # Math in formulas
-
 from CNC import CNC, Block
 from ToolsPage import Plugin
 
@@ -86,7 +82,6 @@ TODO
 
         # Define coordinate system mins and maxes
         minX = -cent[0]
-        maxX = ran[0] - cent[0]
 
         minY = -cent[1]
         maxY = ran[1] - cent[1]
@@ -119,7 +114,7 @@ TODO
         # Clip values out of bounds, replace with None, not to loose sync with X
         for i, item in enumerate(Y):
             y = Y[i]
-            if not y is None and (y < minY or y > maxY):
+            if y is not None and (y < minY or y > maxY):
                 Y[i] = None
 
         # Y without "None", min() and max() can't compare them
@@ -251,16 +246,19 @@ TODO
             else:
                 y = Y[i]  # only for tne None checks next
 
-            if y is None and not raised:  # If a None "period" just started raise Z
+            # If a None "period" just started raise Z
+            if y is None and not raised:
                 raised = True
                 block.append(CNC.grapid(z=3))
-            elif (
-                not y is None and raised
-            ):  # If Z was raised and the None "period" ended move to new coordinates
+            # If Z was raised and the None "period" ended move to new
+            # coordinates
+            elif (y is not None and raised):
+
                 block.append(CNC.grapid(round(x, 2), round(y, 2)))
                 block.append(CNC.grapid(z=0))  # Lower Z
                 raised = False
-            elif not y is None and not raised:  # Nothing to do with Nones? Just draw
+            # Nothing to do with Nones? Just draw
+            elif y is not None and not raised:
                 block.append(CNC.gline(round(x, 2), round(y, 2)))
 
         block.append(CNC.grapid(z=3))  # Raise on the end

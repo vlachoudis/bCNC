@@ -1,28 +1,7 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 25 sept 2018
 
-from __future__ import absolute_import, print_function
-
-import math
-import os.path
-import re
-from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
-    cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
-    sin,
-    sqrt,
-)
-
-from bpath import Path, Segment, eq
-from CNC import CNC, Block
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -90,16 +69,10 @@ Before this plugin tries to fit arcs it also tries to fit and merge longest poss
         linpreci = self.fromMm("linpreci")
         numseg = self["numseg"]
 
-        # print("go!")
         blocks = []
         for bid in app.editor.getSelectedBlocks():
             if len(app.gcode.toPath(bid)) < 1:
                 continue
-
-            # nblock = Block("flat "+app.gcode[bid].name())
-            # for i in app.gcode[bid]:
-            # 	nblock.append(re.sub(r"\s?z-?[0-9\.]+","",i))
-            # blocks.append(nblock)
 
             eblock = Block("fit " + app.gcode[bid].name())
             npath = app.gcode.toPath(bid)[0]
@@ -112,12 +85,9 @@ Before this plugin tries to fit arcs it also tries to fit and merge longest poss
             eblock = app.gcode.fromPath(npath, eblock)
             blocks.append(eblock)
 
-        # active = app.activeBlock()
-        # if active == 0: active+=1
         active = -1  # add to end
         app.gcode.insBlocks(
             active, blocks, "Arc fit"
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Arc fit"))  # <<< feed back result
-        # app.gcode.blocks.append(block)

@@ -1,9 +1,7 @@
 # $Id$
 #
-# Author:	Filippo Rivato
-# Date:	2015/10/04
-
-from __future__ import absolute_import, print_function
+# Author:    Filippo Rivato
+# Date:      2015/10/04
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
@@ -15,9 +13,9 @@ __name__ = _("Flatten")
 __version__ = "0.0.2"
 
 
-# ==============================================================================
+# =============================================================================
 # Flatten class
-# ==============================================================================
+# =============================================================================
 class Flatten:
     def __init__(self, name="Flatten"):
         self.name = name
@@ -203,10 +201,9 @@ class Flatten:
 
         # Blocks for pocketing
         block = Block(self.name)
-        block.append("(Flatten from X={:g} Y={:g})".format(XStart, YStart))
-        block.append("(W={:g} x H={:g} x D={:g})".format(
-            FlatWidth, FlatHeight, FlatDepth))
-        block.append("(Approach: {} {})".format(PocketType, CutDirection))
+        block.append(f"(Flatten from X={XStart:g} Y={YStart:g})")
+        block.append(f"(W={FlatWidth:g} x H={FlatHeight:g} x D={FlatDepth:g})")
+        block.append(f"(Approach: {PocketType} {CutDirection})")
         if BorderPass:
             block.append("(with border)")
 
@@ -230,7 +227,6 @@ class Flatten:
             # Pocketing
             lastxy = None
             for x, y in zip(xP, yP):
-                # 				block.append(CNC.gline(x,y))
                 if lastxy != CNC.gline(x, y) or None:
                     block.append(CNC.gline(x, y))
                 lastxy = CNC.gline(x, y)
@@ -276,9 +272,9 @@ class Flatten:
             return zag
 
 
-# ==============================================================================
+# =============================================================================
 # Create a flatten surface
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Flatten an area in different ways")
 
@@ -294,7 +290,10 @@ class Tool(Plugin):
             ("FlatHeight", "mm", 20.0, _("Height to flatten")),
             ("FlatDepth", "mm", 0.0, _("Depth to flatten")),
             ("BorderPass", "bool", True, _("Raster border")),
-            ("CutDirection", "Climb,Conventional", "Climb", _("Cut Direction")),
+            ("CutDirection",
+             "Climb,Conventional",
+             "Climb",
+             _("Cut Direction")),
             ("PocketType", "Raster,Offset", "Raster", _("Pocket type")),
         ]
         self.buttons.append("exe")

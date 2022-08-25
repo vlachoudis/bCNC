@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 
 
@@ -145,8 +143,8 @@ def _get_terminal_size_linux():  # pragma: no cover
             import termios
             import struct
 
-            size = struct.unpack("hh", fcntl.ioctl(
-                fd, termios.TIOCGWINSZ, "1234"))
+            size = struct.unpack("hh",
+                                 fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234"))
         except Exception:
             return None
         return size

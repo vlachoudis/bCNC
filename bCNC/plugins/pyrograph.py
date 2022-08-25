@@ -1,13 +1,10 @@
 # $Id$
 #
-# Author:	Filippo Rivato
+# Author:    Filippo Rivato
 # Date: 16 October 2015
-
-from __future__ import absolute_import, print_function
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
-from Utils import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
@@ -16,17 +13,17 @@ __name__ = _("Pyrograph")
 __version__ = "0.0.3"
 
 
-# ==============================================================================
+# =============================================================================
 # Pyrograph class
-# ==============================================================================
+# =============================================================================
 class Pyrograph:
     def __init__(self, name="Pyrograph"):
         self.name = name
 
 
-# ==============================================================================
+# =============================================================================
 # Create pyrograph
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create a variable feed path based upon image brightness")
 
@@ -42,7 +39,10 @@ class Tool(Plugin):
             ("MaxSize", "mm", 100.0, _("Maximum size")),
             ("FeedMin", "int", 250, _("Minimum feed")),
             ("FeedMax", "int", 5000, _("Maximum feed")),
-            ("Direction", "Horizontal,Vertical,Both", "Horizontal", _("Direction")),
+            ("Direction",
+             "Horizontal,Vertical,Both",
+             "Horizontal",
+             _("Direction")),
             ("DrawBorder", "bool", False, _("Draw border")),
             ("File", "file", "", _("Image to process")),
         ]
@@ -53,7 +53,8 @@ class Tool(Plugin):
         try:
             from PIL import Image
         except ImportError:
-            app.setStatus(_("Pyrograph abort: This plugin requires PIL/Pillow"))
+            app.setStatus(
+                _("Pyrograph abort: This plugin requires PIL/Pillow"))
             return
 
         n = self["name"]
@@ -112,7 +113,6 @@ class Tool(Plugin):
         # Create a thumbnail image to work faster
         img.thumbnail((newWidth, newHeight), Image.ANTIALIAS)
         newWidth, newHeight = img.size
-        # img.save("thumb.png")
         pixels = list(img.getdata())
 
         # Extract luminance
@@ -121,8 +121,8 @@ class Tool(Plugin):
             gRow = []
             for y in range(0, newHeight):
                 R, G, B = pixels[(y * newWidth) + x]
-                L = 0.299 * R + 0.587 * G + 0.114 * \
-                    B  # Luminance (Rec. 601 standard)
+                # Luminance (Rec. 601 standard)
+                L = 0.299 * R + 0.587 * G + 0.114 * B
                 gRow.append(L)
             gMap.append(gRow)
 
@@ -130,8 +130,8 @@ class Tool(Plugin):
         blocks = []
         block = Block(self.name)
         block.append(
-            "(Pyrograph W=%g x H=%g x D=%g)"
-            % (newWidth * toolSize, newHeight * toolSize, depth)
+            f"(Pyrograph W={newWidth * toolSize:g} x "
+            + f"H={newHeight * toolSize:g} x D={depth:g})"
         )
 
         # Create points for vertical scan
@@ -144,8 +144,8 @@ class Tool(Plugin):
                 r = r[::-1]
                 fPrec = -1
                 for y in r:
-                    f = int(feedMin + ((feedMax - feedMin)
-                            * gMap[x][y] / 255.0))
+                    f = int(feedMin
+                            + ((feedMax - feedMin) * gMap[x][y] / 255.0))
                     if f != fPrec or y == 0 or y == newHeight - 1:
                         xH.append(x * toolSize)
                         yH.append((newHeight - y) * toolSize)
@@ -161,8 +161,8 @@ class Tool(Plugin):
             for y in reversed(range(0, newHeight)):
                 fPrec = -1
                 for x in r:
-                    f = int(feedMin + ((feedMax - feedMin)
-                            * gMap[x][y] / 255.0))
+                    f = int(feedMin
+                            + ((feedMax - feedMin) * gMap[x][y] / 255.0))
                     if f != fPrec or x == 0 or x == newWidth - 1:
                         xV.append(x * toolSize)
                         yV.append((newHeight - y) * toolSize)
@@ -208,7 +208,7 @@ class Tool(Plugin):
             active = 1
         app.gcode.insBlocks(active, blocks, "Pyrograph")
         app.refresh()
-        app.setStatus(
-            _("Generated Pyrograph W=%g x H=%g x D=%g")
-            % (newWidth * toolSize, newHeight * toolSize, depth)
+        app.setStatus(_("Generated Pyrograph W={:g} x "
+                        + "H={:g} x D={:g}").format(
+            newWidth * toolSize, newHeight * toolSize, depth)
         )

@@ -1,10 +1,5 @@
 # GRBL 1.0+ motion controller plugin
 
-from __future__ import absolute_import, print_function
-
-import time
-
-import Utils
 from _GenericController import SPLITPAT
 from _GenericGRBL import _GenericGRBL
 from CNC import CNC
@@ -36,11 +31,10 @@ class Controller(_GenericGRBL):
         self.gcode_case = 0
         self.has_override = True
         self.master = master
-        # print("grbl1 loaded")
 
-    def jog(self, dir):
-        self.master.sendGCode("$J=G91 %s F100000" %
-                              (dir))  # XXX is F100000 correct?
+    def jog(self, direction):
+        self.master.sendGCode(f"$J=G91 {direction} F100000")
+        # XXX is F100000 correct?
 
     def overrideSet(self):
         CNC.vars["_OvChanged"] = False  # Temporary
@@ -69,10 +63,11 @@ class Controller(_GenericGRBL):
             pass
         elif target == 100:
             self.master.serial_write(OV_RAPID_100)
+        # FIXME: GRBL protocol does not specify 75% override command at all
         elif target == 75:
             self.master.serial_write(
                 OV_RAPID_50
-            )  # FIXME: GRBL protocol does not specify 75% override command at all
+            )
         elif target == 50:
             self.master.serial_write(OV_RAPID_50)
         elif target == 25:
@@ -127,7 +122,6 @@ class Controller(_GenericGRBL):
                     CNC.vars["wz"] = round(
                         CNC.vars["mz"] - CNC.vars["wcoz"], CNC.digits
                     )
-                    # if Utils.config.get("bCNC","enable6axis") == "true":
                     if len(word) > 4:
                         CNC.vars["ma"] = float(word[4])
                         CNC.vars["wa"] = round(
@@ -145,8 +139,7 @@ class Controller(_GenericGRBL):
                         )
                     self.master._posUpdate = True
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -154,8 +147,7 @@ class Controller(_GenericGRBL):
                 try:
                     CNC.vars["curfeed"] = float(word[1])
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -164,8 +156,7 @@ class Controller(_GenericGRBL):
                     CNC.vars["curfeed"] = float(word[1])
                     CNC.vars["curspindle"] = float(word[2])
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -174,8 +165,7 @@ class Controller(_GenericGRBL):
                     CNC.vars["planner"] = int(word[1])
                     CNC.vars["rxbytes"] = int(word[2])
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -185,8 +175,7 @@ class Controller(_GenericGRBL):
                     CNC.vars["OvRapid"] = int(word[2])
                     CNC.vars["OvSpindle"] = int(word[3])
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -195,7 +184,7 @@ class Controller(_GenericGRBL):
                     CNC.vars["wcox"] = float(word[1])
                     CNC.vars["wcoy"] = float(word[2])
                     CNC.vars["wcoz"] = float(word[3])
-                    # if Utils.config.get("bCNC","enable6axis") == "true":
+
                     if len(word) > 4:
                         CNC.vars["wcoa"] = float(word[4])
                     if len(word) > 5:
@@ -203,8 +192,7 @@ class Controller(_GenericGRBL):
                     if len(word) > 6:
                         CNC.vars["wcoc"] = float(word[6])
                 except (ValueError, IndexError):
-                    CNC.vars["state"] = "Garbage receive {}: {}".format(
-                        word[0], line)
+                    CNC.vars["state"] = f"Garbage receive {word[0]}: {line}"
                     self.master.log.put(
                         (self.master.MSG_RECEIVE, CNC.vars["state"]))
                     break
@@ -212,12 +200,15 @@ class Controller(_GenericGRBL):
                 try:
                     CNC.vars["pins"] = word[1]
                     if "S" in word[1]:
-                        if CNC.vars["state"] == "Idle" and not self.master.running:
-                            print("Stream requested by CYCLE START machine button")
+                        if (CNC.vars["state"] == "Idle"
+                                and not self.master.running):
+                            print("Stream requested by CYCLE START "
+                                  + "machine button")
                             self.master.event_generate("<<Run>>", when="tail")
                         else:
                             print(
-                                "Ignoring machine stream request, because of state: ",
+                                "Ignoring machine stream request, "
+                                + "because of state: ",
                                 CNC.vars["state"],
                                 self.master.running,
                             )
@@ -230,18 +221,15 @@ class Controller(_GenericGRBL):
             and not cline
             and fields[0] not in ("Run", "Jog", "Hold")
         ):
-            # if not self.master.running: self.master.jobDone() #This is not a good idea, it purges the controller while waiting for toolchange. see #1061
             self.master.sio_wait = False
             self.master._gcount += 1
 
     def parseBracketSquare(self, line):
         word = SPLITPAT.split(line[1:-1])
-        # print word
         if word[0] == "PRB":
             CNC.vars["prbx"] = float(word[1])
             CNC.vars["prby"] = float(word[2])
             CNC.vars["prbz"] = float(word[3])
-            # if self.running:
             self.master.gcode.probe.add(
                 CNC.vars["prbx"] - CNC.vars["wcox"],
                 CNC.vars["prby"] - CNC.vars["wcoy"],
@@ -253,7 +241,6 @@ class Controller(_GenericGRBL):
             CNC.vars["G92X"] = float(word[1])
             CNC.vars["G92Y"] = float(word[2])
             CNC.vars["G92Z"] = float(word[3])
-            # if Utils.config.get("bCNC","enable6axis") == "true":
             if len(word) > 4:
                 CNC.vars["G92A"] = float(word[4])
             if len(word) > 5:

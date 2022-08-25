@@ -3,7 +3,6 @@
 # Author: Vasilis Vlachoudis
 #  Email: Vasilis.Vlachoudis@cern.ch
 #   Date: 16-Apr-2015
-from __future__ import absolute_import, print_function
 
 import gettext
 import glob
@@ -11,9 +10,51 @@ import os
 import sys
 import traceback
 
+from tkinter import (
+    TclError,
+    YES,
+    N,
+    W,
+    E,
+    EW,
+    X,
+    Y,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    RAISED,
+    VERTICAL,
+    END,
+    DISABLED,
+    TkVersion,
+    TclVersion,
+    BooleanVar,
+    Toplevel,
+    Button,
+    Checkbutton,
+    Entry,
+    Frame,
+    Label,
+    Scrollbar,
+    Text,
+    PhotoImage,
+    LabelFrame,
+    messagebox,
+)
+import tkinter.font as tkfont
+import configparser
+
 import Ribbon
-from lib import tkExtra
+import tkExtra
+
 from lib.log import say
+
+try:
+    import serial
+except Exception:
+    serial = None
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
@@ -28,95 +69,7 @@ __platform_fingerprint__ = "({} py{}.{}.{})".format(
     sys.version_info.minor,
     sys.version_info.micro,
 )
-__title__ = "{} {} {}".format(__prg__, __version__, __platform_fingerprint__)
-
-__all__ = (
-    # Override builtins
-    "basestring",
-    "unicode",
-    "unichr",
-    "bytes",
-    "str",
-    # Utility functions in here
-    "to_unicode",
-    "to_zip" "OLD",  # Leave this ol'comma alone!
-)
-
-# ------------------------------------------------------------------------------
-# We only need one try here for compatability check (for the moment at least!)
-OLD = False
-try:
-    # old version
-    unicode
-except (NameError, AttributeError):
-    # newer version
-    str = str
-    unichr = chr  # pylint: disable=redefined-builtin,invalid-name,unichr-builtin
-    unicode = str  # pylint: disable=redefined-builtin,invalid-name,unicode-builtin
-    bytes = bytes
-    basestring = (
-        str,
-        bytes,
-    )  # pylint: disable=redefined-builtin,invalid-name,basestring-builtin
-else:
-    # old version
-    str = str
-    unichr = unichr
-    unicode = unicode
-    bytes = str
-    basestring = basestring
-    OLD = True
-
-# ------------------------------------------------------------------------------
-# Standard imports
-if OLD:
-    from Tkinter import *
-    import tkFont
-    import tkMessageBox
-    import ConfigParser
-    import __builtin__
-
-    def to_unicode(s):
-        if isinstance(s, (unicode)) or type(s) == "unicode":
-            s = s.encode("utf-8")
-        return s
-
-    def to_zip(*args, **kwargs):
-        return zip(*args, **kwargs)
-
-    def to_decode(s):
-        if isinstance(s, bytes):
-            return s.decode("utf-8")
-        else:
-            return s
-
-else:
-    from tkinter import *
-    import tkinter.font as tkFont
-    import tkinter.messagebox as tkMessageBox
-    import configparser as ConfigParser
-    import builtins as __builtin__
-
-    def to_unicode(s):
-        return s
-
-    def to_zip(*args, **kwargs):
-        return list(zip(*args, **kwargs))
-
-    def to_decode(s):
-        return s
-
-
-# try:
-# 	import __builtin__
-# except Exception:
-# 	import builtins as __builtin__
-# 	#__builtin__.unicode = str		# Dirty hack for Python 3
-
-try:
-    import serial
-except Exception:
-    serial = None
+__title__ = f"{__prg__} {__version__} {__platform_fingerprint__}"
 
 __prg__ = "bCNC"
 prgpath = os.path.abspath(os.path.dirname(__file__))
@@ -124,16 +77,18 @@ if getattr(sys, "frozen", False):
     # When being bundled by pyinstaller, paths are different
     print("Running as pyinstaller bundle!", sys.argv[0])
     prgpath = os.path.abspath(os.path.dirname(sys.argv[0]))
-iniSystem = os.path.join(prgpath, "%s.ini" % (__prg__))
-iniUser = os.path.expanduser("~/.%s" % (__prg__))
-hisFile = os.path.expanduser("~/.%s.history" % (__prg__))
+iniSystem = os.path.join(prgpath, f"{__prg__}.ini")
+iniUser = os.path.expanduser(f"~/.{__prg__}")
+hisFile = os.path.expanduser(f"~/.{__prg__}.history")
 
-# dirty way of substituting the "_" on the builtin namespace
-# __builtin__.__dict__["_"] = gettext.translation('bCNC', 'locale', fallback=True).ugettext
-__builtin__._ = gettext.translation(
+
+_ = gettext.translation(
     "bCNC", os.path.join(prgpath, "locale"), fallback=True
 ).gettext
-__builtin__.N_ = lambda message: message
+
+
+def N_(message):
+    return message
 
 
 __www__ = "https://github.com/vlachoudis/bCNC"
@@ -185,7 +140,7 @@ LANGUAGES = {
 
 icons = {}
 images = {}
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 print(
     "new-config", __prg__, config
 )  # This is here to debug the fact that config is sometimes instantiated twice
@@ -202,14 +157,14 @@ _FONT_SECTION = "Font"
 # FIXME: create single instance of this and pass it to all parts of application
 class Config:
     def greet(self, who=__prg__):
-        print("Config class loaded in %s" % (who))
+        print(f"Config class loaded in {who}")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def loadIcons():
     global icons
     icons = {}
-    for img in glob.glob("{}{}icons{}*.gif".format(prgpath, os.sep, os.sep)):
+    for img in glob.glob(f"{prgpath}{os.sep}icons{os.sep}*.gif"):
         name, ext = os.path.splitext(os.path.basename(img))
         try:
             icons[name] = PhotoImage(file=img)
@@ -221,7 +176,7 @@ def loadIcons():
     # Images
     global images
     images = {}
-    for img in glob.glob("{}{}images{}*.gif".format(prgpath, os.sep, os.sep)):
+    for img in glob.glob(f"{prgpath}{os.sep}images{os.sep}*.gif"):
         name, ext = os.path.splitext(os.path.basename(img))
         try:
             images[name] = PhotoImage(file=img)
@@ -231,7 +186,7 @@ def loadIcons():
             pass
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def delIcons():
     global icons
     if len(icons) > 0:
@@ -246,31 +201,31 @@ def delIcons():
         images = {}  # needed otherwise it complains on deleting the icons
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Load configuration
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def loadConfiguration(systemOnly=False):
     global config, _errorReport, language
     if systemOnly:
         config.read(iniSystem)
     else:
         config.read([iniSystem, iniUser])
-        _errorReport = getInt("Connection", "errorreport", 1)
+        errorReport = getInt("Connection", "errorreport", 1)
 
         language = getStr(__prg__, "language")
-        if language:
+        if language and language != "en":
             # replace language
-            __builtin__._ = gettext.translation(
-                "bCNC",
-                os.path.join(prgpath, "locale"),
-                fallback=True,
-                languages=[language],
-            ).gettext
+            lang = gettext.translation(
+                __prg__,
+                os.path.join(prgpath, "locales"),
+                languages=[language]
+            )
+            lang.install()
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Save configuration file
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def saveConfiguration():
     global config
     cleanConfiguration()
@@ -286,7 +241,7 @@ def saveConfiguration():
 def cleanConfiguration():
     global config
     newconfig = config  # Remember config
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
 
     loadConfiguration(True)
 
@@ -297,21 +252,21 @@ def cleanConfiguration():
                 new = newconfig.get(section, item)
                 if value == new:
                     newconfig.remove_option(section, item)
-            except ConfigParser.NoOptionError:
+            except configparser.NoOptionError:
                 pass
     config = newconfig
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # add section if it doesn't exist
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def addSection(section):
     global config
     if not config.has_section(section):
         config.add_section(section)
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getStr(section, name, default=""):
     global config
     try:
@@ -320,7 +275,7 @@ def getStr(section, name, default=""):
         return default
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getUtf(section, name, default=""):
     global config
     try:
@@ -329,7 +284,7 @@ def getUtf(section, name, default=""):
         return default
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getInt(section, name, default=0):
     global config
     try:
@@ -338,7 +293,7 @@ def getInt(section, name, default=0):
         return default
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getFloat(section, name, default=0.0):
     global config
     try:
@@ -347,7 +302,7 @@ def getFloat(section, name, default=0.0):
         return default
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getBool(section, name, default=False):
     global config
     try:
@@ -356,14 +311,14 @@ def getBool(section, name, default=False):
         return default
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Return a font from a string
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def makeFont(name, value=None):
     try:
-        font = tkFont.Font(name=name, exists=True)
+        font = tkfont.Font(name=name, exists=True)
     except TclError:
-        font = tkFont.Font(name=name)
+        font = tkfont.Font(name=name)
         font.delete_font = False
     except AttributeError:
         return None
@@ -388,33 +343,33 @@ def makeFont(name, value=None):
     return font
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Create a font string
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def fontString(font):
     name = str(font[0])
     size = str(font[1])
     if name.find(" ") >= 0:
-        s = '"{}" {}'.format(name, size)
+        s = f"\"{name}\" {size}"
     else:
-        s = "{} {}".format(name, size)
+        s = f"{name} {size}"
 
     try:
-        if font[2] == tkFont.BOLD:
+        if font[2] == tkfont.BOLD:
             s += " bold"
     except Exception:
         pass
     try:
-        if font[3] == tkFont.ITALIC:
+        if font[3] == tkfont.ITALIC:
             s += " italic"
     except Exception:
         pass
     return s
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Get font from configuration
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getFont(name, default=None):
     try:
         value = config.get(_FONT_SECTION, name)
@@ -436,9 +391,9 @@ def getFont(name, default=None):
     return value
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Set font in configuration
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def setFont(name, font):
     if font is None:
         return
@@ -450,24 +405,23 @@ def setFont(name, font):
         config.set(
             _FONT_SECTION,
             name,
-            "{},{},{}".format(font.cget("family"), font.cget(
-                "size"), font.cget("weight")),
+            f"{font.cget('family')},{font.cget('size')},{font.cget('weight')}",
         )
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def setBool(section, name, value):
     global config
     config.set(section, name, str(int(value)))
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def setStr(section, name, value):
     global config
     config.set(section, name, str(value))
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def setUtf(section, name, value):
     global config
     try:
@@ -481,9 +435,9 @@ setInt = setStr
 setFloat = setStr
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Add Recent
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def addRecent(filename):
     try:
         sfn = str(os.path.abspath(filename))
@@ -504,28 +458,28 @@ def addRecent(filename):
 
     # Shift everything by one
     for i in range(last, -1, -1):
-        config.set("File", "recent.%d" % (i + 1), getRecent(i))
+        config.set("File", f"recent.{i + 1}", getRecent(i))
     config.set("File", "recent.0", sfn)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def getRecent(recent):
     try:
-        return config.get("File", "recent.%d" % (recent))
-    except ConfigParser.NoOptionError:
+        return config.get("File", f"recent.{int(recent)}")
+    except configparser.NoOptionError:
         return None
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Return all comports when serial.tools.list_ports is not available!
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def comports(include_links=True):
     locations = ["/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyS", "com"]
 
     comports = []
     for prefix in locations:
         for i in range(32):
-            device = "%s%d" % (prefix, i)
+            device = f"{prefix}{i}"
             try:
                 os.stat(device)
                 comports.append((device, None, None))
@@ -542,10 +496,9 @@ def comports(include_links=True):
     return comports
 
 
-# ===============================================================================
+# =============================================================================
 def addException():
     global errors
-    # self.widget._report_exception()
     try:
         typ, val, tb = sys.exc_info()
         traceback.print_exception(typ, val, tb)
@@ -555,14 +508,15 @@ def addException():
         errors.extend(exception)
         if len(errors) > 100:
             # If too many errors are found send the error report
-            ReportDialog(self.widget)
+            # FIXME: self outside of Class
+            ReportDialog(self.widget)  # noqa: F821 - see fixme
     except Exception:
         say(str(sys.exc_info()))
 
 
-# ===============================================================================
+# =============================================================================
 class CallWrapper:
-    """Replaces the Tkinter.CallWrapper with extra functionality"""
+    """Replaces the tkinter.CallWrapper with extra functionality"""
 
     def __init__(self, func, subst, widget):
         """Store FUNC, SUBST and WIDGET as members."""
@@ -577,11 +531,6 @@ class CallWrapper:
             if self.subst:
                 args = self.subst(*args)
             return self.func(*args)
-        # One possible fix is to make an external file for the wrapper
-        # and import depending the version
-        # except SystemExit, msg:	# python2.4 syntax
-        # except SystemExit as msg:	# python3 syntax
-        # 	raise SystemExit(msg)
         except SystemExit:  # both
             raise SystemExit(sys.exc_info()[1])
         except KeyboardInterrupt:
@@ -590,9 +539,9 @@ class CallWrapper:
             addException()
 
 
-# ===============================================================================
+# =============================================================================
 # Error message reporting dialog
-# ===============================================================================
+# =============================================================================
 class ReportDialog(Toplevel):
     _shown = False  # avoid re-entry when multiple errors are displayed
 
@@ -612,8 +561,8 @@ class ReportDialog(Toplevel):
 
         la = Label(
             frame,
-            text=_("The following report is about to be send " "to the author of %s")
-            % (__prg__),
+            text=_("The following report is about to be send "
+                   + "to the author of {}").format(__prg__),
             justify=LEFT,
             anchor=W,
         )
@@ -657,24 +606,23 @@ class ReportDialog(Toplevel):
         b = Button(
             frame,
             text=_("Send report"),
-            # Error reporting endpoint is currently offline (#824), disabled this to avoid timeout and confusion
+            # Error reporting endpoint is currently offline (#824),
+            # disabled this to avoid timeout and confusion
             state=DISABLED,
             compound=LEFT,
             command=self.send,
         )
         b.pack(side=RIGHT)
 
-        from Utils import __version__, __date__
-
         # Fill report
         txt = [
-            "Program     : %s" % (__prg__),
-            "Version     : %s" % (__version__),
-            "Last Change : %s" % (__date__),
-            "Platform    : %s" % (sys.platform),
-            "Python      : %s" % (sys.version),
-            "TkVersion   : %s" % (TkVersion),
-            "TclVersion  : %s" % (TclVersion),
+            f"Program     : {__prg__}",
+            f"Version     : {__version__}",
+            f"Last Change : {__date__}",
+            f"Platform    : {sys.platform}",
+            f"Python      : {sys.version}",
+            f"TkVersion   : {TkVersion}",
+            f"TclVersion  : {TclVersion}",
             "\nTraceback:",
         ]
         for e in errors:
@@ -689,7 +637,7 @@ class ReportDialog(Toplevel):
         user = os.getenv("USER")
         host = os.getenv("HOSTNAME")
         if user and host:
-            email = "{}@{}".format(user, host)
+            email = f"{user}@{host}"
         else:
             email = ""
         self.email.insert(0, email)
@@ -731,24 +679,25 @@ class ReportDialog(Toplevel):
             conn.request("POST", "/flair/send_email_bcnc.php", params, headers)
             response = conn.getresponse()
         except Exception:
-            tkMessageBox.showwarning(
+            messagebox.showwarning(
                 _("Error sending report"),
                 _("There was a problem connecting to the web site"),
                 parent=self,
             )
         else:
             if response.status == 200:
-                tkMessageBox.showinfo(
+                messagebox.showinfo(
                     _("Report successfully send"),
                     _("Report was successfully uploaded to web site"),
                     parent=self,
                 )
                 del errors[:]
             else:
-                tkMessageBox.showwarning(
+                messagebox.showwarning(
                     _("Error sending report"),
-                    _("There was an error sending the report\nCode=%d %s")
-                    % (response.status, response.reason),
+                    _("There was an error sending the report\n"
+                      + "Code={} {}").format(int(response.status),
+                                             response.reason),
                     parent=self,
                 )
         conn.close()
@@ -769,9 +718,9 @@ class ReportDialog(Toplevel):
         ReportDialog(None)
 
 
-# ===============================================================================
+# =============================================================================
 # User Button
-# ===============================================================================
+# =============================================================================
 class UserButton(Ribbon.LabelButton):
     TOOLTIP = "User configurable button.\n<RightClick> to configure"
 
@@ -783,7 +732,6 @@ class UserButton(Ribbon.LabelButton):
         self.cnc = cnc
         self.button = button
         self.get()
-        # self.bind("<Control-Button-1>", self.edit)
         self.bind("<Button-3>", self.edit)
         self.bind("<Control-Button-1>", self.edit)
         self["command"] = self.execute
@@ -796,8 +744,6 @@ class UserButton(Ribbon.LabelButton):
             return
         name = self.name()
         self["text"] = name
-        # if icon == "":
-        # 	icon = icons.get("empty","")
         self["image"] = icons.get(self.icon(), icons["material"])
         self["compound"] = LEFT
         tooltip = self.tooltip()
@@ -808,28 +754,28 @@ class UserButton(Ribbon.LabelButton):
     # ----------------------------------------------------------------------
     def name(self):
         try:
-            return config.get("Buttons", "name.%d" % (self.button))
+            return config.get("Buttons", f"name.{int(self.button)}")
         except Exception:
             return str(self.button)
 
     # ----------------------------------------------------------------------
     def icon(self):
         try:
-            return config.get("Buttons", "icon.%d" % (self.button))
+            return config.get("Buttons", f"icon.{int(self.button)}")
         except Exception:
             return None
 
     # ----------------------------------------------------------------------
     def tooltip(self):
         try:
-            return config.get("Buttons", "tooltip.%d" % (self.button))
+            return config.get("Buttons", f"tooltip.{int(self.button)}")
         except Exception:
             return ""
 
     # ----------------------------------------------------------------------
     def command(self):
         try:
-            return config.get("Buttons", "command.%d" % (self.button))
+            return config.get("Buttons", f"command.{int(self.button)}")
         except Exception:
             return ""
 
@@ -852,9 +798,9 @@ class UserButton(Ribbon.LabelButton):
             self.cnc.pendant.put(line)
 
 
-# ===============================================================================
+# =============================================================================
 # User Configurable Buttons
-# ===============================================================================
+# =============================================================================
 class UserButtonDialog(Toplevel):
     NONE = "<none>"
 
@@ -891,7 +837,8 @@ class UserButtonDialog(Toplevel):
         row, col = row + 1, 0
         Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
         col += 1
-        self.tooltip = Entry(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.tooltip = Entry(self,
+                             background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
         self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
         tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
 
@@ -900,7 +847,8 @@ class UserButtonDialog(Toplevel):
         Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N + E)
         col += 1
         self.command = Text(
-            self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=40, height=10
+            self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            width=40, height=10
         )
         self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
 
@@ -934,14 +882,14 @@ class UserButtonDialog(Toplevel):
     # ----------------------------------------------------------------------
     def ok(self, event=None):
         n = self.button.button
-        config.set("Buttons", "name.%d" % (n), self.name.get().strip())
+        config.set("Buttons", f"name.{int(n)}", self.name.get().strip())
         icon = self.iconCombo.get()
         if icon == UserButtonDialog.NONE:
             icon = ""
-        config.set("Buttons", "icon.%d" % (n), icon)
-        config.set("Buttons", "tooltip.%d" % (n), self.tooltip.get().strip())
-        config.set("Buttons", "command.%d" %
-                   (n), self.command.get("1.0", END).strip())
+        config.set("Buttons", f"icon.{int(n)}", icon)
+        config.set("Buttons", f"tooltip.{int(n)}", self.tooltip.get().strip())
+        config.set("Buttons", f"command.{int(n)}",
+                   self.command.get("1.0", END).strip())
         self.destroy()
 
     # ----------------------------------------------------------------------

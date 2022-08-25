@@ -29,8 +29,8 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGES.
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	04-Sep-2014
+# Author:    Vasilis.Vlachoudis@cern.ch
+# Date:      04-Sep-2014
 
 # Greek characters http://en.wikipedia.org/wiki/List_of_Unicode_characters
 GREEK_NUMERAL_SIGN = "\u0374"

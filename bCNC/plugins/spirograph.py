@@ -1,16 +1,14 @@
 # $Id$
 #
-# Author:	Filippo Rivato
-# Date:	26 September 2015
+# Author:    Filippo Rivato
+# Date:      26 September 2015
 # special thanks to my wonderful wife Giulia.
-
-from __future__ import absolute_import, print_function
 
 import math
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
-from Utils import to_zip
+from Helpers import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
@@ -24,9 +22,9 @@ except ImportError:
     from math import gcd
 
 
-# ==============================================================================
+# =============================================================================
 # Spirograph class
-# ==============================================================================
+# =============================================================================
 class Spirograph:
     def __init__(self, name="Spirograph"):
         self.name = name
@@ -38,14 +36,19 @@ class Spirograph:
     # ----------------------------------------------------------------------
     def calc_dots(self, resolution=2 * math.pi / 360):
         def x():
-            return (self.RExt - self.RInt) * math.cos(
-                self.theta
-            ) + self.ROff * math.cos((self.RExt - self.RInt) / self.RInt * self.theta)
+            return (
+                (self.RExt - self.RInt)
+                * math.cos(self.theta)
+                + self.ROff
+                * math.cos(
+                    (self.RExt - self.RInt) / self.RInt * self.theta))
 
         def y():
-            return (self.RExt - self.RInt) * math.sin(
-                self.theta
-            ) - self.ROff * math.sin((self.RExt - self.RInt) / self.RInt * self.theta)
+            return (
+                (self.RExt - self.RInt)
+                * math.sin(self.theta)
+                - self.ROff
+                * math.sin((self.RExt - self.RInt) / self.RInt * self.theta))
 
         while self.theta < (2 * self.PI * self.Spins):
             yield (x(), y())
@@ -69,9 +72,9 @@ class Spirograph:
         blocks = []
         block = Block(self.name)
 
-        block.append("(External Radius = %g)" % (self.RExt))
-        block.append("(Internal Radius = %g)" % (self.RInt))
-        block.append("(Offset Radius = %g)" % (self.ROff))
+        block.append(f"(External Radius = {self.RExt:g})")
+        block.append(f"(Internal Radius = {self.RInt:g})")
+        block.append(f"(Offset Radius = {self.ROff:g})")
 
         xi, yi = to_zip(*(self.calc_dots()))
 
@@ -100,9 +103,9 @@ class Spirograph:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a sphirograph plot
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create a spirograph path")
 

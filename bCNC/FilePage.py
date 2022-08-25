@@ -3,38 +3,44 @@
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015
 
-from __future__ import absolute_import, print_function
-
 import os
 import sys
-
+from tkinter import (
+    YES,
+    W,
+    E,
+    EW,
+    NSEW,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BooleanVar,
+    Checkbutton,
+    Label,
+    Menu,
+)
 import CNCRibbon
 import Ribbon
-import Sender
 import tkExtra
 import Utils
+
+from Helpers import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
 
-
-try:
-    from Tkinter import *
-except ImportError:
-    from tkinter import *
-
-
 try:
     from serial.tools.list_ports import comports
-except:
+except Exception:
     print("Using fallback Utils.comports()!")
     from Utils import comports
 
 BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400]
 
-# ===============================================================================
+# =============================================================================
 # Recent Menu button
-# ===============================================================================
+# =============================================================================
 
 
 class _RecentMenuButton(Ribbon.MenuButton):
@@ -61,9 +67,9 @@ class _RecentMenuButton(Ribbon.MenuButton):
         return menu
 
 
-# ===============================================================================
+# =============================================================================
 # File Group
-# ===============================================================================
+# =============================================================================
 class FileGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("File"), app)
@@ -154,26 +160,13 @@ class FileGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Options Group
-# ===============================================================================
+# =============================================================================
 class OptionsGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Options"), app)
         self.grid3rows()
-
-        # 		# ---
-        # 		col,row=0,0
-        # 		b = Ribbon.LabelButton(self.frame, #self.page, "<<Config>>",
-        # 				text=_("Config"),
-        # 				image=Utils.icons["config32"],
-        # command=self.app.preferences,
-        # 				state=DISABLED,
-        # 				compound=TOP,
-        # 				anchor=W,
-        # 				background=Ribbon._BACKGROUND)
-        # 		b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NS)
-        # 		tkExtra.Balloon.set(b, _("Open configuration dialog"))
 
         # ===
         col, row = 1, 0
@@ -217,9 +210,9 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("About the program"))
 
 
-# ===============================================================================
+# =============================================================================
 # Pendant Group
-# ===============================================================================
+# =============================================================================
 class PendantGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Pendant"), app)
@@ -252,9 +245,9 @@ class PendantGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Stop pendant"))
 
 
-# ===============================================================================
+# =============================================================================
 # Close Group
-# ===============================================================================
+# =============================================================================
 class CloseGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Close"), app)
@@ -273,9 +266,9 @@ class CloseGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Close program [Ctrl-Q]"))
 
 
-# ===============================================================================
+# =============================================================================
 # Serial Frame
-# ===============================================================================
+# =============================================================================
 class SerialFrame(CNCRibbon.PageLabelFrame):
     def __init__(self, master, app):
         CNCRibbon.PageLabelFrame.__init__(
@@ -331,7 +324,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         )
         self.ctrlCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(self.ctrlCombo, _("Select controller board"))
-        # self.ctrlCombo.fill(sorted(Utils.CONTROLLER.keys()))
         self.ctrlCombo.fill(self.app.controllerList())
         self.ctrlCombo.set(app.controller)
         self.addWidget(self.ctrlCombo)
@@ -341,7 +333,8 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         b = Checkbutton(self, text=_("Connect on startup"),
                         variable=self.autostart)
         b.grid(row=row, column=col, columnspan=2, sticky=W)
-        tkExtra.Balloon.set(b, _("Connect to serial on startup of the program"))
+        tkExtra.Balloon.set(
+            b, _("Connect to serial on startup of the program"))
         self.autostart.set(Utils.getBool("Connection", "openserial"))
         self.addWidget(b)
 
@@ -359,7 +352,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         tkExtra.Balloon.set(self.comrefBtn, _("Refresh list of serial ports"))
 
         # ---
-        # col += 2
         row = 0
 
         self.connectBtn = Ribbon.LabelButton(
@@ -378,8 +370,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
     # -----------------------------------------------------------------------
     def ctrlChange(self):
-        # self.app.controller = Utils.CONTROLLER.get(self.ctrlCombo.get(), 0)
-        # print("selected",self.ctrlCombo.get())
         self.app.controllerSet(self.ctrlCombo.get())
 
     # -----------------------------------------------------------------------
@@ -411,23 +401,21 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
                 hwgrep += ["hwgrep://" + hw + "\t" + i[1]]
 
         # Populate combobox
-        devices = sorted([x[0] + "\t" + x[1] for x in self.comportsGet()])
+        devices = sorted(x[0] + "\t" + x[1] for x in self.comportsGet())
         devices += [""]
         devices += sorted(set(hwgrep))
         devices += [""]
-        if sys.version_info[0] != 3:  # Pyserial raw spy currently broken in python3
+        # Pyserial raw spy currently broken in python3
+        # TODO: search for python3 replacement for raw spy
+        if sys.version_info[0] != 3:
             devices += sorted(
-                [
-                    "spy://" + x[0] + "?raw&color" + "\t(Debug) " + x[1]
-                    for x in self.comportsGet()
-                ]
+                "spy://" + x[0] + "?raw&color" + "\t(Debug) " + x[1]
+                for x in self.comportsGet()
             )
         else:
             devices += sorted(
-                [
-                    "spy://" + x[0] + "?color" + "\t(Debug) " + x[1]
-                    for x in self.comportsGet()
-                ]
+                "spy://" + x[0] + "?color" + "\t(Debug) " + x[1]
+                for x in self.comportsGet()
             )
         devices += ["", "socket://localhost:23", "rfc2217://localhost:2217"]
 
@@ -450,9 +438,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         Utils.setBool("Connection", "openserial", self.autostart.get())
 
 
-# ===============================================================================
+# =============================================================================
 # File Page
-# ===============================================================================
+# =============================================================================
 class FilePage(CNCRibbon.Page):
     __doc__ = _("File I/O and configuration")
     _name_ = N_("File")

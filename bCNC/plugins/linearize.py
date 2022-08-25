@@ -1,32 +1,11 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 25 sept 2018
 
-from __future__ import absolute_import, print_function
 
-import math
-import os.path
-import re
-from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
-    cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
-    sin,
-    sqrt,
-)
-
-from bpath import Path, Segment, eq
-from CNC import CNC, Block
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
-# __email__  = ""
 
 __name__ = _("Linearize")
 __version__ = "0.2"
@@ -42,7 +21,6 @@ class Tool(Plugin):
         # <<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
         self.icon = "linearize"
         self.group = "CAM"  # <<< This is the name of group that plugin belongs
-        # self.oneshot = True
         # Here we are creating the widgets presented to the user inside the plugin
         # Name, Type , Default value, Description
         self.variables = [  # <<< Define a list of components for the GUI
@@ -90,16 +68,10 @@ If you set the segment size large enough, you can even use this to create inscri
         maxseg = self.fromMm("maxseg")
         splitlines = self["splitlines"]
 
-        # print("go!")
         blocks = []
         for bid in app.editor.getSelectedBlocks():
             if len(app.gcode.toPath(bid)) < 1:
                 continue
-
-            # nblock = Block("flat "+app.gcode[bid].name())
-            # for i in app.gcode[bid]:
-            # 	nblock.append(re.sub(r"\s?z-?[0-9\.]+","",i))
-            # blocks.append(nblock)
 
             eblock = Block("lin " + app.gcode[bid].name())
             opath = app.gcode.toPath(bid)[0]
@@ -107,12 +79,9 @@ If you set the segment size large enough, you can even use this to create inscri
             eblock = app.gcode.fromPath(npath, eblock)
             blocks.append(eblock)
 
-        # active = app.activeBlock()
-        # if active == 0: active+=1
         active = -1  # add to end
         app.gcode.insBlocks(
             active, blocks, "Linearized"
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Linearize"))  # <<< feed back result
-        # app.gcode.blocks.append(block)

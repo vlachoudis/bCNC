@@ -1,29 +1,15 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 25 sept 2018
 
-from __future__ import absolute_import, print_function
-
-import math
-import os.path
-import re
 from math import (
     acos,
-    asin,
-    atan2,
-    copysign,
-    cos,
     degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
-    sin,
     sqrt,
 )
 
 from bmath import Vector
 from bpath import Path, Segment, eq
-from CNC import CNC, Block
+from CNC import CNC
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -43,7 +29,6 @@ class Tool(Plugin):
         # <<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
         self.icon = "dragknife"
         self.group = "CAM_Core"  # <<< This is the name of group that plugin belongs
-        # self.oneshot = True
         # Here we are creating the widgets presented to the user inside the plugin
         # Name, Type , Default value, Description
         self.variables = [  # <<< Define a list of components for the GUI
@@ -127,16 +112,16 @@ This fact introduces the need for preprocessing the g-code to account with that 
         simulate = self["simulate"]
         simpreci = self["simpreci"]
 
-        def initPoint(P, dir, offset):
+        def initPoint(P, direction, offset):
             P = Vector(P[0], P[1])
 
-            if dir == "X+":
+            if direction == "X+":
                 P[0] += offset
-            elif dir == "X-":
+            elif direction == "X-":
                 P[0] -= offset
-            elif dir == "Y+":
+            elif direction == "Y+":
                 P[1] += offset
-            elif dir == "Y-":
+            elif direction == "Y-":
                 P[1] -= offset
             return P
 
@@ -146,21 +131,22 @@ This fact introduces the need for preprocessing the g-code to account with that 
                 continue
 
             opath = app.gcode.toPath(bid)[0]
-            npath = Path("dragknife {}: {}".format(
-                dragoff, app.gcode[bid].name()))
+            npath = Path(f"dragknife {dragoff}: {app.gcode[bid].name()}")
 
             if not simulate:
 
                 # Entry vector
                 ventry = Segment(
-                    Segment.LINE, initPoint(
-                        opath[0].A, initdir, -dragoff), opath[0].A
+                    Segment.LINE,
+                    initPoint(opath[0].A, initdir, -dragoff),
+                    opath[0].A
                 )
 
                 # Exit vector
                 vexit = Segment(
-                    Segment.LINE, opath[-1].B, initPoint(
-                        opath[-1].B, initdir, dragoff)
+                    Segment.LINE,
+                    opath[-1].B,
+                    initPoint(opath[-1].B, initdir, dragoff)
                 )
                 opath.append(vexit)
 
@@ -171,7 +157,8 @@ This fact introduces the need for preprocessing the g-code to account with that 
                     TA = prevseg.tangentEnd()
                     TB = seg.tangentStart()
 
-                    # Compute difference between tangential vectors of two neighbor segments
+                    # Compute difference between tangential vectors of
+                    # two neighbor segments
                     angle = degrees(acos(TA.dot(TB)))
 
                     # Compute swivel direction
@@ -181,7 +168,8 @@ This fact introduces the need for preprocessing the g-code to account with that 
                     else:
                         arcdir = Segment.CCW
 
-                    # Append swivel if needed (with an angle threshold of 1 degree on entry/exit segments)
+                    # Append swivel if needed (with an angle threshold of
+                    # 1 degree on entry/exit segments)
                     if abs(angle) > angleth or (
                         abs(angle) > 1 and (i == 0 or i == len(opath) - 1)
                     ):
@@ -216,25 +204,22 @@ This fact introduces the need for preprocessing the g-code to account with that 
                 opath = opath.linearize(simpreci, True)
                 prevknife = initPoint(opath[0].A, initdir, -dragoff)
                 for seg in opath:
-                    dist = sqrt(
-                        (seg.B[0] - prevknife[0]) ** 2
-                        + (seg.B[1] - prevknife[1]) ** 2
-                    )
+                    dist = sqrt((seg.B[0] - prevknife[0]) ** 2
+                                + (seg.B[1] - prevknife[1]) ** 2)
                     move = (seg.B - prevknife).unit() * (dist - dragoff)
                     newknife = prevknife + move
                     if not eq(newknife, prevknife):
-                        npath.append(Segment(Segment.LINE, prevknife, newknife))
+                        npath.append(Segment(Segment.LINE,
+                                             prevknife,
+                                             newknife))
                     prevknife = newknife
 
             eblock = app.gcode.fromPath(npath)
             blocks.append(eblock)
 
-        # active = app.activeBlock()
-        # if active == 0: active+=1
         active = -1  # add to end
         app.gcode.insBlocks(
             active, blocks, "Dragknife"
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Dragknife"))  # <<< feed back result
-        # app.gcode.blocks.append(block)

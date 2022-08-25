@@ -30,31 +30,56 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGES.
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	29-Nov-2009
-
-from __future__ import absolute_import
+# Author:   Vasilis.Vlachoudis@cern.ch
+# Date:     29-Nov-2009
 
 import fnmatch
 import os
 import time
-from stat import *
+from stat import (
+    ST_MODE,
+    ST_SIZE,
+    ST_MTIME,
+    S_ISDIR,
+    S_ISLNK,
+)
+from tkinter import (
+    TclError,
+    E,
+    EW,
+    NSEW,
+    X,
+    Y,
+    YES,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    RAISED,
+    SUNKEN,
+    VERTICAL,
+    END,
+    ACTIVE,
+    BROWSE,
+    EXTENDED,
+    Tk,
+    Toplevel,
+    Button,
+    Entry,
+    Frame,
+    Label,
+    Listbox,
+    Scrollbar,
+    PhotoImage,
+)
+import tkinter.messagebox as messagebox
 
-from lib import tkExtra
+import tkExtra
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
-
-if "_" not in dir():
-    def _(x): return x
-
-try:
-    from Tkinter import *
-    import tkMessageBox as messagebox
-except ImportError:
-    from tkinter import *
-    import tkinter.messagebox as messagebox
 
 _DIR_TYPE = " <DIR>"
 _FILE_TYPE = "-file-"
@@ -163,7 +188,7 @@ Bxc5TGgUAUKDhgoRElrMQEECAwQGChAYIABAgEUwBQUCADs=
 _history = []
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def append2History(path):
     global _history
     if not path:
@@ -172,7 +197,7 @@ def append2History(path):
         _history.append(path)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def fileTypeColor(filename):
     fn = os.path.basename(filename)
     dot = fn.rfind(".")
@@ -209,9 +234,9 @@ def fileTypeColor(filename):
     return ext, color
 
 
-# ===============================================================================
+# =============================================================================
 # FileDialog
-# ===============================================================================
+# =============================================================================
 class FileDialog(Toplevel):
     _active = False  # Avoid re-entrance of the dialog if by accident
     # someone double clicks a button
@@ -231,7 +256,7 @@ class FileDialog(Toplevel):
         defaultextension=None,
         multiple=False,
         filetypes=None,
-        **kw
+        **kw,
     ):
 
         Toplevel.__init__(self)
@@ -305,8 +330,8 @@ class FileDialog(Toplevel):
 
         lbl = Label(frame, text=_("File name:"))
         lbl.grid(row=0, column=0, sticky=E)
-        self.filename = Entry(
-            frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.filename = Entry(frame,
+                              background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
         self.filename.grid(row=0, column=1, sticky=EW)
         self.ok = Button(frame, text=_("Open"), command=self.openFilename)
         self.ok.grid(row=0, column=2, sticky=EW)
@@ -325,10 +350,10 @@ class FileDialog(Toplevel):
             self.filter = filetypes[0]
             for desc, ext in filetypes:
                 if isinstance(ext, str):
-                    s = "{} ({})".format(desc, ext)
+                    s = f"{desc} ({ext})"
                     ext = (ext,)
                 else:
-                    s = "{} ({})".format(desc, ",".join(ext))
+                    s = f"{desc} ({','.join(ext)})"
                 self.typeCombo.insert(END, s)
                 self.filetypes[s] = ext
 
@@ -372,7 +397,7 @@ class FileDialog(Toplevel):
     def show(self):
         self.deiconify()
         if FileDialog.width > 0:
-            self.geometry("%dx%d" % (FileDialog.width, FileDialog.height))
+            self.geometry(f"{int(FileDialog.width)}x{int(FileDialog.height)}")
 
         self.buttonPath(self.path)
         self.typeCombo.set(self.typeCombo.get(0))  # will fill the files
@@ -454,7 +479,7 @@ class FileDialog(Toplevel):
 
     # ----------------------------------------------------------------------
     def button(self, b):
-        path = [x["text"] for x in self.buttons[0: b + 1]]
+        path = [x["text"] for x in self.buttons[0:b + 1]]
         if path[0] == os.sep:
             path = os.sep + os.sep.join(path[1:])
         else:
@@ -481,7 +506,7 @@ class FileDialog(Toplevel):
         y = self.buttons[0].winfo_rooty() + self.buttons[0].winfo_height() - 2
         w = self.downButton.winfo_rootx() + self.downButton.winfo_width() - x
         h = self.fileList.winfo_height() - 20
-        self._popup.geometry("%dx%d+%d+%d" % (w, h, x, y))
+        self._popup.geometry(f"{int(w)}x{int(h)}+{int(x)}+{int(y)}")
 
         sb = Scrollbar(self._popup, orient=VERTICAL, takefocus=False)
         sb.pack(side=RIGHT, fill=Y)
@@ -553,7 +578,7 @@ class FileDialog(Toplevel):
             os.lstat(path)
         except OSError:
             messagebox.showerror(
-                _("Error"), _('Cannot access path "%s"') % (path), parent=self
+                _("Error"), _("Cannot access path \"{}\"").format(path), parent=self
             )
             return
         self.buttonPath(path)
@@ -616,8 +641,8 @@ class FileDialog(Toplevel):
                             fn,
                             ext,
                             size,
-                            time.strftime(
-                                _TIME_FORMAT, time.localtime(s[ST_MTIME])),
+                            time.strftime(_TIME_FORMAT,
+                                          time.localtime(s[ST_MTIME])),
                         ),
                     )
                     if not self.files and not isdir:
@@ -626,7 +651,7 @@ class FileDialog(Toplevel):
                         self.fileList.setColor(END, color)
         except OSError:
             messagebox.showerror(
-                _("Error"), _('Error listing folder "%s"') % (path), parent=self
+                _("Error"), _("Error listing folder \"{}\"").format(path), parent=self
             )
 
         if FileDialog.sort is None:
@@ -695,8 +720,8 @@ class FileDialog(Toplevel):
 
         # Multiple file selection
         else:
-            self.selFile = [os.path.join(self.path, f)
-                            for f in fn[1:-1].split('","')]
+            self.selFile = [
+                os.path.join(self.path, f) for f in fn[1:-1].split('","')]
 
         if self.check():
             global _history
@@ -793,7 +818,7 @@ class FileDialog(Toplevel):
                     pass
         else:
             lget = self.fileList.get
-            files = ['"%s"' % (lget(i)[0]) for i in sel]
+            files = [f"\"{lget(i)[0]}\"" for i in sel]
 
             if files:
                 self.filename.delete(0, END)
@@ -851,7 +876,7 @@ class FileDialog(Toplevel):
             except OSError:
                 messagebox.showerror(
                     _("Error"),
-                    _('Error creating folder "%s"') % (edit.value),
+                    _("Error creating folder \"{}\"").format(edit.value),
                     parent=self,
                 )
                 self.fileList.delete(END)
@@ -873,13 +898,13 @@ class FileDialog(Toplevel):
         if edit.value and edit.value != fn:
             try:
                 os.rename(
-                    os.path.join(self.path, fn), os.path.join(
-                        self.path, edit.value)
+                    os.path.join(self.path, fn),
+                    os.path.join(self.path, edit.value)
                 )
             except OSError:
                 messagebox.showerror(
                     _("Error"),
-                    _('Error renaming "%s" to "%s"') % (fn, edit.value),
+                    _("Error renaming \"{}\" to \"{}\"").format(fn, edit.value),
                     parent=self,
                 )
         self.select()
@@ -902,12 +927,12 @@ class FileDialog(Toplevel):
                 self.fileList.delete(i)
         except OSError:
             messagebox.showerror(
-                _("Error"), _('Error deleting file "%s"') % (fn), parent=self
+                _("Error"), _("Error deleting file \"{}\"").format(fn), parent=self
             )
         self.select()
 
 
-# ===============================================================================
+# =============================================================================
 class OpenDialog(FileDialog):
     _title = _("Open")
 
@@ -922,7 +947,7 @@ class OpenDialog(FileDialog):
                 except Exception:
                     messagebox.showwarning(
                         _("File does not exist"),
-                        _('File "%s" does not exist') % (f),
+                        _("File \"{}\" does not exist").format(f),
                         parent=self,
                     )
                     self.selFile = ""
@@ -933,7 +958,7 @@ class OpenDialog(FileDialog):
             except Exception:
                 messagebox.showwarning(
                     _("File does not exist"),
-                    _('File "%s" does not exist') % (self.selFile),
+                    _("File \"{}\" does not exist").format(self.selFile),
                     parent=self,
                 )
                 self.selFile = ""
@@ -941,7 +966,7 @@ class OpenDialog(FileDialog):
         return True
 
 
-# ===============================================================================
+# =============================================================================
 class SaveAsDialog(FileDialog):
     _title = _("Save As")
 
@@ -956,7 +981,7 @@ class SaveAsDialog(FileDialog):
             os.lstat(self.selFile)
             ans = messagebox.askyesno(
                 _("File already exists"),
-                _("Overwrite existing file %r?") % (self.selFile),
+                _("Overwrite existing file {}?").format(repr(self.selFile)),
                 parent=self,
             )
             if str(ans) != messagebox.YES and not ans:
@@ -967,7 +992,7 @@ class SaveAsDialog(FileDialog):
         return True
 
 
-# ===============================================================================
+# =============================================================================
 class DirectoryDialog(FileDialog):
     _title = _("Choose Directory")
 
@@ -985,7 +1010,7 @@ class DirectoryDialog(FileDialog):
         self.filename.insert(0, path)
 
 
-# ===============================================================================
+# =============================================================================
 def askfilename(**options):
     """Ask for a filename"""
     if FileDialog._active:
@@ -1022,7 +1047,7 @@ def askdirectory(**options):
     return DirectoryDialog(**options).show()
 
 
-# ===============================================================================
+# =============================================================================
 if __name__ == "__main__":
     import sys
 
@@ -1031,20 +1056,10 @@ if __name__ == "__main__":
     initdir = None
     if len(sys.argv) > 1:
         initdir = os.path.abspath(sys.argv[1])
-    # print askdirectory()
 
     files = asksaveasfilename(
         title=_("Open"),
         initialdir=initdir,
-        # 			initialfile="test.f",
         filetypes=(("All", "*"), ("Python", "*.py"),
                    ("Flair", ("*.flair", "*.inp"))),
     )
-    # print files
-
-    # import tkFileDialog
-    # print tkFileDialog.asksaveasfilename( title="Open flair project",
-    # 		initialdir=initdir,
-    # 		filetypes=(("All","*"),
-    # 			("Python", "*.py"),
-    # 			("Flair",("*.flair", "*.inp"))))

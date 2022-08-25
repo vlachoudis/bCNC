@@ -7,8 +7,8 @@
 # Usage:
 # svgcode = SVGcode('./image.svg')
 # for path in svgcode.get_gcode():
-# 	print(path['id'])
-# 	print(path['path'])
+#   print(path['id'])
+#   print(path['path'])
 
 import numpy
 from svg_elements import SVG, Arc, Close, Line, Move, Path, Shape
@@ -24,39 +24,39 @@ class SVGcode:
             path = Path(path)
 
         def rv(v):
-            return ("%*f" % (d, round(v, d))).rstrip("0").rstrip(".")
+            return (f"{round(v, d):{d}}").rstrip("0").rstrip(".")
 
         for segment in path:
             subdiv = max(1, round(segment.length(
                 error=1e-5) * samples_per_unit))
 
             if isinstance(segment, Move):
-                gcode.append("G0 X{} Y{}".format(
-                    rv(segment.end.x), rv(-segment.end.y)))
+                gcode.append(f"G0 X{rv(segment.end.x)} Y{rv(-segment.end.y)}")
             elif isinstance(segment, (Line, Close)):
-                gcode.append("G1 X{} Y{}".format(
-                    rv(segment.end.x), rv(-segment.end.y)))
-            elif isinstance(segment, Arc) and abs(segment.rx - segment.ry) < 1e-9:
-                # Strictly speaking, svg arcs can be non circular, whereas gcode only permits circular arcs.
+                gcode.append(f"G1 X{rv(segment.end.x)} Y{rv(-segment.end.y)}")
+            elif (isinstance(segment, Arc)
+                  and abs(segment.rx - segment.ry) < 1e-9):
+                # Strictly speaking, svg arcs can be non circular,
+                # whereas gcode only permits circular arcs.
                 garc = "G02" if segment.sweep > 0 else "G03"
-                gcode.append(
-                    "{} X{} Y{} R{}".format(
-                        garc, rv(
-                            segment.end.x), rv(-segment.end.y), rv(segment.rx)
-                    )
-                )
+                gcode.append(" ".join([
+                    f"{garc}", f"X{rv(segment.end.x)}",
+                    f"Y{rv(-segment.end.y)}", f"R{rv(segment.rx)}"
+                ]))
             else:  # Non-circular arc, Cubic or Quad Bezier Curves.
                 subdiv_points = numpy.linspace(0, 1, subdiv, endpoint=True)[1:]
                 # numpy accelerated point() call
                 points = segment.npoint(subdiv_points)
                 gcode.extend(
-                    ["G1 X{} Y{}".format(rv(sp[0]), rv(-sp[1]))
-                     for sp in points]
-                )
+                    [f"G1 X{rv(sp[0])} Y{rv(-sp[1])}" for sp in points])
 
         return "\n".join(gcode)
 
-    def get_gcode(self, scale=1.0 / 96.0, samples_per_unit=100, digits=4, ppi=96.0):
+    def get_gcode(self,
+                  scale=1.0 / 96.0,
+                  samples_per_unit=100,
+                  digits=4,
+                  ppi=96.0):
         """
         Parse gcode from an SVG file.
 
@@ -66,7 +66,7 @@ class SVGcode:
         ppi: pixels per inch of the file being loaded. 96 is standard.
         """
         gcode = []
-        transform = "scale(%g)" % scale if scale != 1.0 else None
+        transform = f"scale({scale:g})" if scale != 1.0 else None
         svg = SVG.parse(self._filepath, reify=False,
                         ppi=ppi, transform=transform)
         for element in svg.elements():

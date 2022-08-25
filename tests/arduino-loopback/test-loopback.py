@@ -5,9 +5,9 @@
 
 # This script is meant to test serial loopback
 # You need serial port with RX and TX shorted together
-# Also you can use included arduino sketch that echoes back everything it receives
-# This script sends random data and then checks if it gets received back
-# If received data are different from the sent data, it reports error
+# Also you can use included arduino sketch that echoes back everything it
+# receives This script sends random data and then checks if it gets received
+# back If received data are different from the sent data, it reports error
 # Leave this running for extended period of time to detect problems
 # with wiring, EMI, chipset, etc...
 
@@ -19,7 +19,7 @@ import serial
 
 # Parse args
 if len(sys.argv) <= 1:
-    print("Usage: %s serial_device" % (sys.argv[0]))
+    print(f"Usage: {sys.argv[0]} serial_device")
     exit(1)
 
 device = sys.argv[1]
@@ -37,7 +37,8 @@ ser = serial.serial_for_url(
 )
 
 # Wait for arduino to reset
-# (Increase this if you have just one error in the beginning and then everything's OK)
+# (Increase this if you have just one error in the beginning and then
+# everything's OK)
 time.sleep(2)
 
 # Init stats
@@ -57,19 +58,16 @@ while True:
     # Compare
     if received != byte:
         print(
-            "\nERROR!\nExpected: %s\nReceived: %s"
-            % (byte.encode("hex"), received.encode("hex"))
+            f"\nERROR!\nExpected: {byte.encode('hex')}\n"
+            f"Received: {received.encode('hex')}"
         )
 
     # Stats
     received_len += len(received)
     time_elapsed = time.time() - time_start
     sys.stdout.write(
-        "\rTotal: %f MiB\tElapsed: %f seconds\tSpeed: %f MiB/s     "
-        % (
-            received_len / (1024 * 1024),
-            time_elapsed,
-            received_len / (1024 * 1024 * time_elapsed),
-        )
+        f"\rTotal: {received_len / (1024 * 1024):f} "
+        f"MiB\tElapsed: {time_elapsed:f} seconds\tSpeed: "
+        f"{received_len / (1024 * 1024 * time_elapsed):f} MiB/s     "
     )
     # sys.stdout.flush()

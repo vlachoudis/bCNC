@@ -1,27 +1,14 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
 
-from __future__ import absolute_import, print_function
-
-import math
-import os.path
-import re
 from math import (
-    acos,
-    asin,
     atan2,
-    copysign,
     cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
     radians,
     sin,
-    sqrt,
 )
 
-from CNC import CNC, Block
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -38,11 +25,14 @@ class Tool(Plugin):
 
     def __init__(self, master):
         Plugin.__init__(self, master, "Trochoidal")
-        # Helical_Descent: is the name of the plugin show in the tool ribbon button
-        # <<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
+        # Helical_Descent: is the name of the plugin show in the tool
+        # ribbon button
+        # <<< This is the name of file used as icon for the ribbon button.
+        # It will be search in the "icons" subfolder
         self.icon = "trochoidal"
         self.group = "CAM"  # <<< This is the name of group that plugin belongs
-        # Here we are creating the widgets presented to the user inside the plugin
+        # Here we are creating the widgets presented to the user inside
+        # the plugin
         # Name, Type , Default value, Description
         self.variables = [  # <<< Define a list of components for the GUI
             (
@@ -54,14 +44,18 @@ class Tool(Plugin):
             ("cw", "bool", True, _("Clockwise")),
             ("circ", "bool", False, _("Circular")),
             ("evenspacing", "bool", True, _("Even spacing across segment")),
-            ("entry", "bool", False, _("Trochoid entry (prepare for helicut)")),
-            ("rdoc", "mm", "0.2", _("Radial depth of cut (<= cutter D * 0.4)")),
+            ("entry", "bool", False,
+             _("Trochoid entry (prepare for helicut)")),
+            ("rdoc", "mm", "0.2",
+             _("Radial depth of cut (<= cutter D * 0.4)")),
             ("dia", "mm", "3", _("Trochoid diameter (<= cutter D)")),
             ("feed", "mm", "2000", _("Feedrate")),
         ]
+        # <<< This is the button added at bottom to call the execute
+        # method below
         self.buttons.append(
             "exe"
-        )  # <<< This is the button added at bottom to call the execute method below
+        )
 
     # ----------------------------------------------------------------------
     # This method is executed when user presses the plugin execute button
@@ -84,13 +78,10 @@ class Tool(Plugin):
         else:
             arcg = "g3"
 
-        # print("go!")
         blocks = []
         # Loop over selected blocks
         for bid in app.editor.getSelectedBlocks():
-            # print(blocks[bid])
             path = app.gcode.toPath(bid)[0]
-            # print(path)
 
             # create new block which encorporates trochoidal path
             block = Block(
@@ -105,14 +96,13 @@ class Tool(Plugin):
             block.append("G1 Z0")
             # Loop over segments within path
             for segment in path:
-                # print(segment.A)
                 # create Block for circular entry into path
                 if entry:
                     eblock = Block("trochoid-in")
                     eblock.append("G0 Z0")
                     eblock.append(
-                        "G0 x" + str(segment.A[0])
-                        + " y" + str(segment.A[1] - radius)
+                        "G0 x" + str(segment.A[0]) + " y"
+                        + str(segment.A[1] - radius)
                     )
                     eblock.append(
                         "G2 x"
@@ -128,7 +118,8 @@ class Tool(Plugin):
                     entry = False
 
                 # Continuity BEGINING
-                # calculate number of subsegments to be transformed to trochoidal motion
+                # calculate number of subsegments to be transformed to
+                # trochoidal motion
                 srdoc = rdoc
                 segmentLength = segment.length()
                 subsegs = segmentLength // rdoc
@@ -147,16 +138,16 @@ class Tool(Plugin):
                     pos = i * srdoc
 
                     B = segment.distPoint(pos)
-                    block.extend(self.trochoid(
-                        A, B, radius, cw, circ, startSegment))
+                    block.extend(
+                        self.trochoid(A, B, radius, cw, circ, startSegment))
                     A = B
                     # Lead in performed, so clear flag
                     startSegment = False
                 # Process remainder
                 if remainder > 0:
                     B = segment.distPoint(segmentLength)
-                    block.extend(self.trochoid(
-                        A, B, radius, cw, circ, startSegment))
+                    block.extend(
+                        self.trochoid(A, B, radius, cw, circ, startSegment))
                     A = B
 
                 # Continuity END
@@ -185,7 +176,9 @@ class Tool(Plugin):
         return [round(a[0] + r * cos(phi), 4), round(a[1] + r * sin(phi), 4)]
 
     # Generate single trochoidal element between two points
-    def trochoid(self, A, B, radius, cw=True, circular=False, startSegment=False):
+    def trochoid(
+            self, A, B, radius, cw=True, circular=False, startSegment=False
+    ):
         block = []
 
         if cw:
@@ -196,7 +189,6 @@ class Tool(Plugin):
             arc = "G3"
 
         phi = atan2(B[1] - A[1], B[0] - A[0])
-        step = sqrt((A[0] - B[0]) ** 2 + (A[1] - B[1]) ** 2)
 
         lval = self.pol2car(radius, phi + radians(90 * u))
         r = self.pol2car(radius, phi + radians(-90 * u))
@@ -226,13 +218,15 @@ class Tool(Plugin):
         #        *   *
 
         # TODO: improve strategies
-        # This is lead in circle of segment (moving from center (A) to cutting edge (AL))
+        # This is lead in circle of segment (moving from center (A) to
+        # cutting edge (AL))
         if startSegment:
             block.append(
-                arc + " x" + str(al[0]) + " y"
-                + str(al[1]) + " r" + str(radius / 2)
+                arc + " x" + str(al[0]) + " y" + str(al[1]) + " r"
+                + str(radius / 2)
             )
-        # This is circular cutting cycle (very simple, less motion cycles but not so accurate AL->BL->BR-BL)
+        # This is circular cutting cycle (very simple, less motion cycles but
+        # not so accurate AL->BL->BR-BL)
         if circular:
             block.append("g1 x" + str(bl[0]) + " y" + str(bl[1]))
             block.append(
@@ -257,7 +251,8 @@ class Tool(Plugin):
                 + " j"
                 + str(lval[1])
             )
-        # This is more detailed, performing complete cycle AL->BL->BR->AR->AL->BL
+        # This is more detailed, performing complete cycle
+        # AL->BL->BR->AR->AL->BL
         else:
             block.append("g1 x" + str(bl[0]) + " y" + str(bl[1]))
             block.append(

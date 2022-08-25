@@ -1,32 +1,19 @@
 # $Id$
 #
-# Author:	DodoLaSaumure
-# Date:	30-Dec-2019
+# Author:    DodoLaSaumure
+# Date:      30-Dec-2019
 
-from __future__ import absolute_import, print_function
+from tkinter import messagebox
 
-import math
-
-from bmath import Vector
-from CNC import CNC, CW, Block
-from CNCRibbon import Page
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
 __email__ = ""
 
 
-try:
-    import Tkinter
-    import tkMessageBox
-except ImportError:
-    import tkinter
-    import tkinter.messagebox as tkMessageBox
-
-
-# ==============================================================================
+# =============================================================================
 # Create a simple Translate
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Translates a block to a new position")
 
@@ -44,7 +31,6 @@ class Tool(Plugin):
 
     # ----------------------------------------------------------------------
     def execute(self, app):
-        n = self["name"]
         dx = self["xinc"]
         dy = self["yinc"]
         nbrepeat = self["nbrepeat"]
@@ -56,8 +42,8 @@ class Tool(Plugin):
             app.editor.selectAll()
             blocks = app.editor.getSelectedBlocks()
         if not blocks:
-            tkMessageBox.showerror(
-                _("Tile error"), _("No g-code blocks selected"))
+            messagebox.showerror(_("Tile error"),
+                                 _("No g-code blocks selected"))
             return
         pos = blocks[-1]  # insert position
         y = dy

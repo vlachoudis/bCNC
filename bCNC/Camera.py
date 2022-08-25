@@ -3,8 +3,6 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from __future__ import absolute_import, print_function
-
 import Utils
 
 try:
@@ -24,15 +22,15 @@ except ImportError:
     cv = None
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def hasOpenCV():
     return cv is not None
 
 
-# ===============================================================================
+# =============================================================================
 # Camera processing class
 # A wrapper to opencv needed functions
-# ===============================================================================
+# =============================================================================
 class Camera:
     # -----------------------------------------------------------------------
     # prefix is the prefix to get configuration parameters from ini
@@ -162,7 +160,6 @@ class Camera:
         if cv is None or self.camera is None:
             return
         self.camera.release()
-        # 		del self.camera
         self.camera = None
 
     # -----------------------------------------------------------------------
@@ -177,8 +174,6 @@ class Camera:
         self.rotation = Utils.getFloat("Camera", self.prefix + "_rotation")
         self.xcenter = Utils.getFloat("Camera", self.prefix + "_xcenter")
         self.ycenter = Utils.getFloat("Camera", self.prefix + "_ycenter")
-
-    # 		self.camera.set(38, 3) # CV_CAP_PROP_BUFFERSIZE
 
     # -----------------------------------------------------------------------
     # Read one image and rotated if needed
@@ -262,7 +257,6 @@ class Camera:
             self.image = cv.resize(self.image, (0, 0), fx=factor, fy=factor)
         except Exception:
             # FIXME Too much zoom out, results in void image!
-            # self.image = None
             pass
 
     # -----------------------------------------------------------------------
@@ -312,11 +306,8 @@ class Camera:
             top_left = min_loc
         else:
             top_left = max_loc
-        # bottom_right = (top_left[0]+2*r, top_left[1]+2*r)
         dx = w2 - r - top_left[0]
         dy = h2 - r - top_left[1]
-        # cv.rectangle(img, top_left, bottom_right, 255, 2)
-        # print "Match=",dx,dy
         return dx, dy
 
     # -----------------------------------------------------------------------
@@ -326,7 +317,7 @@ class Camera:
         if self.image is None:
             return None
         self.imagetk = ImageTk.PhotoImage(
-            image=Image.fromarray(cv.cvtColor(
-                self.image, cv.COLOR_BGR2RGB), "RGB")
+            image=Image.fromarray(cv.cvtColor(self.image, cv.COLOR_BGR2RGB),
+                                  "RGB")
         )
         return self.imagetk

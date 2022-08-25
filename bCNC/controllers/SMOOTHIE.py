@@ -1,7 +1,5 @@
 # Smoothieboard motion controller plugin
 
-from __future__ import absolute_import, print_function
-
 import time
 
 from _GenericController import DOLLARPAT, POSPAT, TLOPAT, _GenericController
@@ -13,7 +11,6 @@ class Controller(_GenericController):
         self.gcode_case = 1
         self.has_override = False
         self.master = master
-        # print("smoothie loaded")
 
     def executeCommand(self, oline, line, cmd):
         if line[0] in (
@@ -75,7 +72,7 @@ class Controller(_GenericController):
         lval = ln.split("|")
 
         # strip off status
-        CNC.vars["state"] = l[0]
+        CNC.vars["state"] = lval[0]
 
         # strip of rest into a dict of name: [values,...,]
         d = {
@@ -97,7 +94,7 @@ class Controller(_GenericController):
 
         # Machine is Idle buffer is empty
         # stop waiting and go on
-        if self.master.sio_wait and not cline and l[0] not in ("Run", "Jog", "Hold"):
+        if self.master.sio_wait and not cline and lval[0] not in ("Run", "Jog", "Hold"):
             self.master.sio_wait = False
             self.master._gcount += 1
 
@@ -108,7 +105,6 @@ class Controller(_GenericController):
                 CNC.vars["prbx"] = float(pat.group(2))
                 CNC.vars["prby"] = float(pat.group(3))
                 CNC.vars["prbz"] = float(pat.group(4))
-                # if self.running:
                 self.master.gcode.probe.add(
                     CNC.vars["prbx"] + CNC.vars["wx"] - CNC.vars["mx"],
                     CNC.vars["prby"] + CNC.vars["wy"] - CNC.vars["my"],

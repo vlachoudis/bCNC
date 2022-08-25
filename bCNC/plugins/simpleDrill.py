@@ -1,23 +1,18 @@
 # $Id$
 #
-# Author:	DodoLaSaumure
-# Date:	30-Dec-2019
+# Author:    DodoLaSaumure
+# Date:      30-Dec-2019
 
-from __future__ import absolute_import, print_function
-
-import math
-
-from bmath import Vector
-from CNC import CNC, CW, Block
+from CNC import CNC, Block
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
 __email__ = ""
 
 
-# ==============================================================================
+# =============================================================================
 # SimpleDrill class
-# ==============================================================================
+# =============================================================================
 class SimpleDrill:
     def __init__(self, name):
         self.name = name
@@ -48,7 +43,7 @@ class SimpleDrill:
                 self.block.append(CNC.grapid(z=0.0 + self.safeZforG0))
             else:
                 self.block.append(CNC.grapid(z=CNC.vars["safe"]))
-            self.block.append("g4 %s" % (CNC.fmt("p", float(dwell))))
+            self.block.append(f"g4 {CNC.fmt('p', float(dwell))}")
             if currentz > depth:
                 self.accelerateIfNeeded(currentz, drillFeed)
         self.block.append("(exiting)")
@@ -57,9 +52,9 @@ class SimpleDrill:
         return self.blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a simple drill
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a simple Drill")
 
@@ -76,10 +71,15 @@ class Tool(Plugin):
             ("drillFeed", "mm/mn", "", _("Z feed for drilling")),
             ("safeZforG0", "mm", -1.0, _("Safe z secu for G0")),
         ]
-        self.help = """This plugin drills a hole, by going back and forth. when safe Z secu for G0 is -1 A drill sequence consists in making a G1 to the current depth, then G0 to default zSafe.
-The depth is increased progressively by steps of "peck" value.
-When a value is entered in safe Z secu, the tool will go G0 above the current depth, then will drill.
-This can accelerate the process """
+        self.help = "\n".join([
+            "This plugin drills a hole, by going back and forth. when safe "
+            + "Z secu for G0 is -1 A drill sequence consists in making a G1 "
+            + "to the current depth, then G0 to default zSafe.",
+            "The depth is increased progressively by steps of \"peck\" value.",
+            "When a value is entered in safe Z secu, the tool will go G0 "
+            + "above the current depth, then will drill.",
+            "This can accelerate the process ",
+        ])
         self.buttons.append("exe")
 
     # ----------------------------------------------------------------------

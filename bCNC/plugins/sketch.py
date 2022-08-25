@@ -1,16 +1,14 @@
 # $Id$
 #
-# Author:	Filippo Rivato
-# Date: 	07 January 2016
+# Author:   Filippo Rivato
+# Date:     07 January 2016
 # Inspired by: "Death to sharpie" a drawbot by Scott Cooper
 # see at http://www.dullbits.com/drawbot/drawbot
 
-from __future__ import absolute_import, print_function
-
 import math
+
 # import time
 import random
-from array import *
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
@@ -22,9 +20,9 @@ __name__ = _("Sketch")
 __version__ = "0.5.1"
 
 
-# ==============================================================================
+# =============================================================================
 # Create sketch
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create sketch based on picture brightness")
 
@@ -64,7 +62,7 @@ class Tool(Plugin):
     def findFirst(self, pix, scanAll, casual):
         most = 0
         if casual:
-            for e in xrange(1, 500):
+            for e in range(1, 500):
                 x = random.randint(2, self.imgWidth - 3)
                 y = random.randint(2, self.imgHeight - 3)
                 val = pix[x, y]
@@ -84,8 +82,8 @@ class Tool(Plugin):
             most = pix[2, 2]
             bestX = 2
             bestY = 2
-            for x in xrange(2, self.imgWidth - 2):
-                for y in xrange(2, self.imgHeight - 2):
+            for x in range(2, self.imgWidth - 2):
+                for y in range(2, self.imgHeight - 2):
                     val = pix[x, y]
                     if val < most:
                         most = val
@@ -107,13 +105,14 @@ class Tool(Plugin):
         distance = 1
 
         most = pix[startX, startY]
-        for x in xrange(xmin, xmax):
-            for y in xrange(ymin, ymax):
+        for x in range(xmin, xmax):
+            for y in range(ymin, ymax):
                 distance = math.sqrt((startX - x) ** 2 + (startY - y) ** 2)
                 if distance > maxRange:
                     continue
                 val = pix[x, y]
-                val += random.random() * 2.0  # avoid ugly straight lines, steal time
+                # avoid ugly straight lines, steal time
+                val += random.random() * 2.0
                 if val < most:
                     most = val
                     bestX = x
@@ -123,7 +122,7 @@ class Tool(Plugin):
         return bestX, bestY, distance
 
     def fadePixel(self, x, y, pix, fad, repetition):
-        if repetition == False:
+        if repetition is False:
             pix[x, y] = 256
         pix[x, y] += 10 * fad
         pix[x + 1, y] += 6 * fad
@@ -197,7 +196,8 @@ class Tool(Plugin):
             from PIL import Image
         except ImportError:
             app.setStatus(
-                _("Sketch abort: This plugin requires PIL/Pillow to read image data")
+                _("Sketch abort: This plugin requires PIL/Pillow to "
+                  + "read image data")
             )
             return
 
@@ -254,11 +254,13 @@ class Tool(Plugin):
             app.setStatus(_("Sketch abort: Can't read image file"))
             return
 
-        # Create a scaled image to work faster with big image and better with small ones
+        # Create a scaled image to work faster with big image and better
+        # with small ones
         iWidth, iHeight = img.size
         resampleRatio = 800.0 / iHeight
         img = img.resize(
-            (int(iWidth * resampleRatio), int(iHeight * resampleRatio)), Image.ANTIALIAS
+            (int(iWidth * resampleRatio),
+             int(iHeight * resampleRatio)), Image.ANTIALIAS
         )
         if channel == "Blue":
             img = img.convert("RGB")
@@ -288,22 +290,22 @@ class Tool(Plugin):
         # Info block
         block = Block("Info")
         block.append(
-            "(Sketch size W=%d x H=%d x distance=%d)"
-            % (self.imgWidth * self.ratio, self.imgHeight * self.ratio, depth)
-        )
-        block.append("(Channel = %s)" % (channel))
+            f"(Sketch size W={int(self.imgWidth * self.ratio):d} x "
+            + f"H={int(self.imgHeight * self.ratio):d} x "
+            + f"distance={int(depth):d})")
+        block.append(f"(Channel = {channel})")
         blocks.append(block)
 
         # Border block
-        block = Block("%s-border" % (self.name))
+        block = Block(f"{self.name}-border")
         block.enable = drawBorder
         block.append(CNC.zsafe())
         block.append(CNC.grapid(0, 0))
         block.append(CNC.zenter(depth))
         block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
         block.append(CNC.gline(self.imgWidth * self.ratio, 0))
-        block.append(CNC.gline(self.imgWidth * self.ratio,
-                     self.imgHeight * self.ratio))
+        block.append(
+            CNC.gline(self.imgWidth * self.ratio, self.imgHeight * self.ratio))
         block.append(CNC.gline(0, self.imgHeight * self.ratio))
         block.append(CNC.gline(0, 0))
         blocks.append(block)
@@ -316,7 +318,6 @@ class Tool(Plugin):
         self.mostest = 256
         x, y = self.findFirst(pix, True, casual)
 
-        # startAll = time.time()
         total_line = 0
         total_length = 0
         for c in range(squiggleTotal):
@@ -324,8 +325,6 @@ class Tool(Plugin):
             if pix[x, y] > max_light:
                 continue
             block = Block(self.name)
-            # print c,x,y
-            # start = time.time()
 
             total_line += 1
             total_length += 1
@@ -337,7 +336,6 @@ class Tool(Plugin):
             # restore cut/draw feed
             block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
 
-            # start = time.time()
             s = 0
             while s < squiggleLength:
                 x, y, distance = self.findInRange(x, y, pix, radius)
@@ -351,7 +349,6 @@ class Tool(Plugin):
                     x, y, pix, fading, repetition
                 )  # adjustbrightness int the bright map
             # tool up
-            # print 'Squiggle: %f' % (time.time() - start)
             # Gcode Zsafe
             block.append(CNC.zsafe())
             blocks.append(block)
@@ -360,15 +357,15 @@ class Tool(Plugin):
         app.refresh()
         app.setStatus(
             _(
-                "Generated Sketch size W=%d x H=%d x distance=%d, Total line:%i, Total length:%d"
-            )
-            % (
-                self.imgWidth * self.ratio,
-                self.imgHeight * self.ratio,
-                depth,
-                total_line,
-                total_length,
+                "Generated Sketch size W={} x "
+                + "H={} x "
+                + "distance={}, Total line:{}, "
+                + "Total length:{}"
+            ).format(
+                int(self.imgWidth * self.ratio),
+                int(self.imgHeight * self.ratio),
+                int(depth),
+                int(total_line),
+                int(total_length)
             )
         )
-        # img.save('test.png')
-        # print 'Time: %f' % (time.time() - startAll)

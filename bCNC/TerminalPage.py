@@ -3,25 +3,36 @@
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015
 
-from __future__ import absolute_import, print_function
+from tkinter import (
+    YES,
+    W,
+    NS,
+    NSEW,
+    BOTH,
+    LEFT,
+    TOP,
+    VERTICAL,
+    END,
+    NORMAL,
+    DISABLED,
+    EXTENDED,
+    Listbox,
+    Scrollbar,
+)
 
 import CNCRibbon
 import Ribbon
 import tkExtra
 import Utils
+from Helpers import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
 
-try:
-    from Tkinter import *
-except ImportError:
-    from tkinter import *
 
-
-# ===============================================================================
+# =============================================================================
 # Terminal Group
-# ===============================================================================
+# =============================================================================
 class TerminalGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Terminal"), app)
@@ -39,9 +50,9 @@ class TerminalGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Clear terminal"))
 
 
-# ===============================================================================
+# =============================================================================
 # Commands Group
-# ===============================================================================
+# =============================================================================
 class CommandsGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(
@@ -50,7 +61,8 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
             N_("Commands"),
             app,
             [
-                (_("Restore Settings"), "grbl_settings", app.grblRestoreSettings),
+                (_("Restore Settings"),
+                 "grbl_settings", app.grblRestoreSettings),
                 (_("Restore Workspace"), "grbl_params", app.grblRestoreWCS),
                 (_("Restore All"), "reset", app.grblRestoreAll),
             ],
@@ -171,7 +183,7 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, N_("Terminal"), app)
@@ -189,8 +201,8 @@ class TerminalFrame(CNCRibbon.PageFrame):
         self.terminal.config(yscrollcommand=sb.set)
         self.terminal.bind("<<Copy>>", self.copy)
         self.terminal.bind("<Control-Key-c>", self.copy)
-        tkExtra.Balloon.set(self.terminal, _(
-            "Terminal communication with controller"))
+        tkExtra.Balloon.set(self.terminal,
+                            _("Terminal communication with controller"))
 
         # ---
         self.buffer = Listbox(
@@ -216,15 +228,15 @@ class TerminalFrame(CNCRibbon.PageFrame):
     def copy(self, event):
         self.clipboard_clear()
         self.clipboard_append(
-            "\n".join([event.widget.get(x)
-                      for x in event.widget.curselection()])
+            "\n".join(
+                [event.widget.get(x) for x in event.widget.curselection()])
         )
         return "break"
 
 
-# ===============================================================================
+# =============================================================================
 # Terminal Page
-# ===============================================================================
+# =============================================================================
 class TerminalPage(CNCRibbon.Page):
     __doc__ = _("Serial Terminal")
     _name_ = "Terminal"

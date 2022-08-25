@@ -4,8 +4,6 @@
 #  Email: vvlachoudis@gmail.com
 #   Date: 17-Jun-2015
 
-from __future__ import absolute_import, print_function
-
 import glob
 import os
 import re
@@ -15,30 +13,24 @@ import time
 import traceback
 import webbrowser
 from datetime import datetime
+from tkinter import messagebox
+from queue import (
+    Empty,
+    Queue,
+)
 
 import Pendant
 import rexx
 import Utils
-from _GenericGRBL import ERROR_CODES
-from CNC import CNC, MSG, UPDATE, WAIT, WCS, GCode
+from CNC import CNC, MSG, UPDATE, WAIT, GCode
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
-
 
 try:
     import serial
 except ImportError:
     serial = None
-try:
-    from Queue import *
-except ImportError:
-    from queue import *
-try:
-    import tkMessageBox
-except ImportError:
-    import tkinter.messagebox as tkMessageBox
-
 
 WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
@@ -76,15 +68,16 @@ STATECOLOR = {
 }
 
 
-# ==============================================================================
+# =============================================================================
 # bCNC Sender class
-# ==============================================================================
+# =============================================================================
 class Sender:
     # Messages types for log Queue
     MSG_BUFFER = 0  # write to buffer one command
     MSG_SEND = 1  # send message
     MSG_RECEIVE = 2  # receive message from controller
-    MSG_OK = 3  # ok response from controller, move top most command to terminal
+    # ok response from controller, move top most command to terminal
+    MSG_OK = 3
     MSG_ERROR = 4  # error message or exception
     MSG_RUNEND = 5  # run ended
     MSG_CLEAR = 6  # clear buffer
@@ -94,7 +87,6 @@ class Sender:
         self.history = []
         self._historyPos = None
 
-        # self.mcontrol     = None
         self.controllers = {}
         self.controllerLoad()
         self.controllerSet("GRBL1")
@@ -133,33 +125,27 @@ class Sender:
     # ----------------------------------------------------------------------
     def controllerLoad(self):
         # Find plugins in the controllers directory and load them
-        for f in glob.glob("%s/controllers/*.py" % (Utils.prgpath)):
+        for f in glob.glob(f"{Utils.prgpath}/controllers/*.py"):
             name, ext = os.path.splitext(os.path.basename(f))
             if name[0] == "_":
                 continue
-            # print("Loaded motion controller plugin: %s"%(name))
             try:
-                exec("import %s" % (name))
-                self.controllers[name] = eval("%s.Controller(self)" % (name))
+                exec(f"import {name}")
+                self.controllers[name] = eval(f"{name}.Controller(self)")
             except (ImportError, AttributeError):
                 typ, val, tb = sys.exc_info()
                 traceback.print_exception(typ, val, tb)
 
     # ----------------------------------------------------------------------
     def controllerList(self):
-        # print("ctrlist")
-        # self.controllers["GRBL1"].test()
-        # if len(self.controllers.keys()) < 1: self.controllerLoad()
         return sorted(self.controllers.keys())
 
     # ----------------------------------------------------------------------
     def controllerSet(self, ctl):
-        # print("Activating motion controller plugin: %s"%(ctl))
         if ctl in self.controllers.keys():
             self.controller = ctl
             CNC.vars["controller"] = ctl
             self.mcontrol = self.controllers[ctl]
-            # self.mcontrol.test()
 
     # ----------------------------------------------------------------------
     def quit(self, event=None):
@@ -180,7 +166,7 @@ class Sender:
     # ----------------------------------------------------------------------
     def loadHistory(self):
         try:
-            f = open(Utils.hisFile, "r")
+            f = open(Utils.hisFile)
         except Exception:
             return
         self.history = [x.strip() for x in f]
@@ -205,7 +191,7 @@ class Sender:
     # ----------------------------------------------------------------------
     # Execute a line as gcode if pattern matches
     # @return True on success
-    # 	  False otherwise
+    #         False otherwise
     # ----------------------------------------------------------------------
     def executeGcode(self, line):
         if (
@@ -221,14 +207,6 @@ class Sender:
     # Execute a single command
     # ----------------------------------------------------------------------
     def executeCommand(self, line):
-        # print
-        # print "<<<",line
-        # try:
-        # 	line = self.gcode.evaluate(CNC.compileLine(line,True))
-        # except Exception:
-        # 	return "Evaluation error", sys.exc_info()[1]
-        # print ">>>",line
-
         if line is None:
             return
 
@@ -292,7 +270,7 @@ class Sender:
                 CNC.vars["safe"] = float(line[1])
             except Exception:
                 pass
-            self.statusbar["text"] = "Safe Z= %g" % (CNC.vars["safe"])
+            self.statusbar["text"] = f"Safe Z= {CNC.vars['safe']:g}"
 
         # SA*VE [filename]: save to filename or to default name
         elif rexx.abbrev("SAVE", cmd, 2):
@@ -358,7 +336,7 @@ class Sender:
             pass
 
         else:
-            return _("unknown command"), _("Invalid command %s") % (oline)
+            return _("unknown command"), _("Invalid command {}").format(oline)
 
     # ----------------------------------------------------------------------
     def help(self, event=None):
@@ -417,8 +395,8 @@ class Sender:
             filename = self.gcode.filename
         Utils.setUtf("File", "dir", os.path.dirname(os.path.abspath(filename)))
         Utils.setUtf("File", "file", os.path.basename(filename))
-        Utils.setUtf("File", "probe", os.path.basename(
-            self.gcode.probe.filename))
+        Utils.setUtf(
+            "File", "probe", os.path.basename(self.gcode.probe.filename))
 
     # ----------------------------------------------------------------------
     # Load a file into editor
@@ -435,22 +413,13 @@ class Sender:
             # save orientation file
             self.gcode.orient.load(filename)
         elif ext == ".stl" or ext == ".ply":
-            # FIXME: implements solid import???
-            try:
-                import tkMessageBox
+            messagebox.showinfo(
+                "Open 3D Mesh",
+                "Importing of 3D mesh files in .STL and .PLY format is "
+                + "supported by SliceMesh plugin.\n"
+                + "You can find it in CAM->SliceMesh.",
+            )
 
-                tkMessageBox.showinfo(
-                    "Open 3D Mesh",
-                    "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.",
-                )
-            except Exception as e:
-                import tkinter
-                import tkinter.messagebox
-
-                tkinter.messagebox.showinfo(
-                    "Open 3D Mesh",
-                    "Importing of 3D mesh files in .STL and .PLY format is supported by SliceMesh plugin.\nYou can find it in CAM->SliceMesh.",
-                )
         elif ext == ".dxf":
             self.gcode.init()
             self.gcode.importDXF(filename)
@@ -506,10 +475,6 @@ class Sender:
     # Serial write
     # ----------------------------------------------------------------------
     def serial_write(self, data):
-        # 		print('W %s : %s'%(type(data),data))
-
-        # if sys.version_info[0] == 2:
-        # 	ret = self.serial.write(str(data))
         if isinstance(data, bytes):
             ret = self.serial.write(data)
         else:
@@ -520,7 +485,6 @@ class Sender:
     # Open serial port
     # ----------------------------------------------------------------------
     def open(self, device, baudrate):
-        # self.serial = serial.Serial(
         self.serial = serial.serial_for_url(
             device.replace("\\", "\\\\"),  # Escape for windows
             baudrate,
@@ -534,22 +498,19 @@ class Sender:
         # Toggle DTR to reset Arduino
         try:
             self.serial.setDTR(0)
-        except IOError:
+        except OSError:
             pass
         time.sleep(1)
         CNC.vars["state"] = CONNECTED
         CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-        # self.state.config(text=CNC.vars["state"],
-        # 		background=CNC.vars["color"])
         # toss any data already received, see
         # http://pyserial.sourceforge.net/pyserial_api.html#serial.Serial.flushInput
         self.serial.flushInput()
         try:
             self.serial.setDTR(1)
-        except IOError:
+        except OSError:
             pass
         time.sleep(1)
-        # 		self.serial_write(b"\n\n") # serial_write should be handling this
         self.serial_write("\n\n")
         self._gcount = 0
         self._alarm = True
@@ -728,7 +689,7 @@ class Sender:
     # See https://github.com/vlachoudis/bCNC/issues/1035
     # ----------------------------------------------------------------------
     def jobDone(self):
-        print("Job done. Purging the controller. (Running: %s)" % (self.running))
+        print(f"Job done. Purging the controller. (Running: {self.running})")
         self.purgeController()
 
     # ----------------------------------------------------------------------
@@ -737,13 +698,15 @@ class Sender:
     # Right now the primary idea of this is to detect when job stopped running
     # ----------------------------------------------------------------------
     def controllerStateChange(self, state):
-        print("Controller state changed to: {} (Running: {})".format(
-            state, self.running))
+        print(
+            f"Controller state changed to: {state} (Running: {self.running})")
         if state in ("Idle"):
             self.mcontrol.viewParameters()
             self.mcontrol.viewState()
 
-        if self.cleanAfter is True and self.running is False and state in ("Idle"):
+        if (self.cleanAfter is True
+                and self.running is False
+                and state in ("Idle")):
             self.cleanAfter = False
             self.jobDone()
 
@@ -779,15 +742,11 @@ class Sender:
             ):
                 try:
                     tosend = self.queue.get_nowait()
-                    # print "+++",repr(tosend)
                     if isinstance(tosend, tuple):
-                        # print "gcount tuple=",self._gcount
                         # wait to empty the grbl buffer and status is Idle
                         if tosend[0] == WAIT:
                             # Don't count WAIT until we are idle!
                             self.sio_wait = True
-                            # print "+++ WAIT ON"
-                            # print "gcount=",self._gcount, self._runLines
                         elif tosend[0] == MSG:
                             # Count executed commands as well
                             self._gcount += 1
@@ -806,16 +765,11 @@ class Sender:
                     elif not isinstance(tosend, str):
                         try:
                             tosend = self.gcode.evaluate(tosend, self)
-                            # 							if isinstance(tosend, list):
-                            # 								cline.append(len(tosend[0]))
-                            # 								sline.append(tosend[0])
                             if isinstance(tosend, str):
                                 tosend += "\n"
                             else:
                                 # Count executed commands as well
                                 self._gcount += 1
-                                # print "gcount str=",self._gcount
-                            # print "+++ eval=",repr(tosend),type(tosend)
                         except Exception:
                             for s in str(sys.exc_info()[1]).splitlines():
                                 self.log.put((Sender.MSG_ERROR, s))
@@ -833,20 +787,20 @@ class Sender:
                     if pat is not None:
                         self._lastFeed = pat.group(2)
 
-                    # Modify sent g-code to reflect overrided feed for controllers without override support
+                    # Modify sent g-code to reflect overrided feed for
+                    # controllers without override support
                     if not self.mcontrol.has_override:
                         if CNC.vars["_OvChanged"]:
                             CNC.vars["_OvChanged"] = False
                             self._newFeed = (
-                                float(self._lastFeed)
-                                * CNC.vars["_OvFeed"] / 100.0
+                                float(self._lastFeed) * CNC.vars["_OvFeed"] / 100.0
                             )
                             if (
                                 pat is None
                                 and self._newFeed != 0
                                 and not tosend.startswith("$")
                             ):
-                                tosend = "f{:g}{}".format(self._newFeed, tosend)
+                                tosend = f"f{self._newFeed:g}{tosend}"
 
                         # Apply override Feed
                         if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
@@ -875,8 +829,6 @@ class Sender:
                     self.close()
                     return
 
-                # print "<R<",repr(line)
-                # print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
                 if not line:
                     pass
                 elif self.mcontrol.parseLine(line, cline, sline):
@@ -895,15 +847,8 @@ class Sender:
                 if self._runLines != sys.maxsize:
                     self._stop = False
 
-            # print "tosend='%s'"%(repr(tosend)),"stack=",sline,
-            # 	"sum=",sum(cline),"wait=",wait,"pause=",self._pause
             if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
                 self._sumcline = sum(cline)
-                # 				if isinstance(tosend, list):
-                # 					self.serial_write(str(tosend.pop(0)))
-                # 					if not tosend: tosend = None
-
-                # print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
                 if self.mcontrol.gcode_case > 0:
                     tosend = tosend.upper()
                 if self.mcontrol.gcode_case < 0:
@@ -911,8 +856,6 @@ class Sender:
 
                 self.serial_write(tosend)
 
-                # self.serial_write(tosend)
-                # self.serial.flush()
                 self.log.put((Sender.MSG_BUFFER, tosend))
 
                 tosend = None

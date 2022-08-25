@@ -1,23 +1,19 @@
 # $Id$
 #
-# Author:	DodoLaSaumure
-# Date:	30-Dec-2019
-
-from __future__ import absolute_import, print_function
-
-import math
+# Author:    DodoLaSaumure
+# Date:      30-Dec-2019
 
 from bmath import Vector
-from CNC import CNC, CW, Block
+from CNC import CNC, Block
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
 __email__ = ""
 
 
-# ==============================================================================
+# =============================================================================
 # SimpleLine class
-# ==============================================================================
+# =============================================================================
 class SimpleLine:
     def __init__(self, name):
         self.name = name
@@ -40,9 +36,9 @@ class SimpleLine:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a simple Line
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a simple line")
 

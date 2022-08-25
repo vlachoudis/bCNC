@@ -1,25 +1,6 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
 
-from __future__ import absolute_import, print_function
-
-import math
-import os.path
-import re
-from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
-    cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
-    sin,
-    sqrt,
-)
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
@@ -61,7 +42,6 @@ class Tool(Plugin):
     # This method is executed when user presses the plugin execute button
     # ----------------------------------------------------------------------
     def execute(self, app):
-        # print("go!")
         blocks = []
         for bid in app.editor.getSelectedBlocks():
             if len(app.gcode.toPath(bid)) < 1:
@@ -69,20 +49,18 @@ class Tool(Plugin):
             path = app.gcode.toPath(bid)[0]
             x, y = path.center()
             eblock = Block("center of " + app.gcode[bid].name())
-            eblock.append(
-                "G0 x" + str(round(x, CNC.digits)) + " y"
-                + str(round(y, CNC.digits))
-            )
+            eblock.append("G0 x"
+                          + str(round(x, CNC.digits))
+                          + " y"
+                          + str(round(y, CNC.digits))
+                          )
             eblock.append("G1 Z0 F200")
             eblock.append("G0 Z10")
             blocks.append(eblock)
 
-        # active = app.activeBlock()
-        # if active == 0: active+=1
         active = -1  # add to end
         app.gcode.insBlocks(
             active, blocks, "Center created"
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Center"))  # <<< feed back result
-        # app.gcode.blocks.append(block)

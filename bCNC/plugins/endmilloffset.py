@@ -1,53 +1,20 @@
 # Author: @DodoLaSaumure Pierre KLein
 # Date: 9 feb 2021
 
-from __future__ import print_function
-
-import math
-import os.path
-import re
 import sys
 from copy import deepcopy
-from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
-    cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
-    sin,
-    sqrt,
-)
+from tkinter import messagebox
 
-from bmath import Vector
-from bpath import EPS, Path, Segment, eq
-from CNC import CNC, Block  # ,toPath,importPath,addUndo
+from bpath import Path, Segment
 from ToolsPage import Plugin
 
 __author__ = "@DodoLaSaumure  (Pierre Klein)"
-# __email__  = ""
 
 __name__ = _("Offset")
 __version__ = "0.0.1"
 
 
-try:
-    import Tkinter
-    from Tkinter import *
-    import tkMessageBox
-except ImportError:
-    import tkinter
-    from tkinter import *
-    import tkinter.messagebox as tkMessageBox
-
 # =============================================================================
-# ==============================================================================
-
-
 def pocket(
     selectedblocks,
     RecursiveDepth,
@@ -84,7 +51,6 @@ def pocket(
     for bid in reversed(selectedblocks):  # selected blocks
         if allblocks[bid].name() in ("Header", "Footer"):
             continue
-        newpath = []
         block = allblocks[bid]
         if (
             block.operationTest("island")
@@ -95,7 +61,7 @@ def pocket(
                 islandslist.append(islandPath)
         for path in gcode.toPath(bid):
             if not path.isClosed():
-                m = "Path: '%s' is OPEN" % (path.name)
+                m = f"Path: '{path.name}' is OPEN"
                 if m not in msg:
                     if msg:
                         msg += "\n"
@@ -196,7 +162,8 @@ class PocketIsland:
         self.selectCutDir = cutDirChoice.get(self.CutDir, 1.0)
         self.profiledir = profileDirChoice.get(self.ProfileDir, 1.0)
         if self.RecursiveDepth == "Full pocket":
-            # to avoid making full pockets, with full recursive depth, outside the path
+            # to avoid making full pockets, with full recursive depth,
+            # outside the path
             self.profiledir = 1.0
         maxdepth = maxdepthchoice.get(self.RecursiveDepth, 0)
         maxdepth = min(maxdepth, 999)
@@ -287,17 +254,19 @@ class PocketIsland:
             if self.depth == 0:
                 path.directionSet(self.selectCutDir * float(self.profiledir))
             direct = path.direction()
-            opathCopy = path.offset(
-                self.profiledir * self.offset * float(direct))
-            points = opathCopy.intersectSelf()
+            opathCopy = path.offset(self.profiledir
+                                    * self.offset
+                                    * float(direct))
             opathCopy.removeExcluded(path, abs(self.offset))
             if (
                 len(opathCopy) > 0
             ):  # there remains some path after full offset : not the last pass
-                opath = path.offset(
-                    self.profiledir * self.offset * float(direct))
+                opath = path.offset(self.profiledir
+                                    * self.offset
+                                    * float(direct))
                 offset = self.offset
-            else:  # nothing remaining after the last pass => apply offsetLastPass
+            # nothing remaining after the last pass => apply offsetLastPass
+            else:
                 opath = path.offset(
                     self.profiledir * self.offsetLastPass * float(direct)
                 )
@@ -306,7 +275,6 @@ class PocketIsland:
             if len(opath) > 0:
                 opath.removeExcluded(path, abs(offset))
             opath.removeZeroLength(abs(self.diameter) / 100.0)
-            # 			opath.removeZeroLength(abs(EPS*10.))
             opath.convert2Lines(abs(self.diameter) / 10.0)
             if self.depth == 0 and self.Overcuts:
                 opath.overcut(self.profiledir * self.offset * float(direct))
@@ -321,15 +289,16 @@ class PocketIsland:
             if len(island) > 0:
                 p3 = island[0].A
             if self.depth == 0:
-                island.directionSet(-self.selectCutDir * float(self.profiledir))
+                island.directionSet(-self.selectCutDir
+                                    * float(self.profiledir))
             direct = island.direction()
             offIsl = island.offset(-self.profiledir
-                                   * self.offset * float(direct))
+                                   * self.offset
+                                   * float(direct))
             offIsl.intersectSelf()
             if len(offIsl) > 0:
                 offIsl.removeExcluded(island, abs(self.offset))
             offIsl.removeZeroLength(abs(self.diameter) / 100.0)
-            # 			offIsl.removeZeroLength(abs(EPS*10.))
             offIsl.convert2Lines(abs(self.diameter) / 10.0)
             if len(offIsl) > 0:
                 p4 = offIsl[0].A
@@ -392,7 +361,7 @@ class PocketIsland:
                 for island in self.IntersectedIslands:
                     issegin = island.isSegInside(seg) == 1
                     if issegin:
-                        if not seg in island:
+                        if seg not in island:
                             inside = True
                             break
                 if not inside:
@@ -414,8 +383,8 @@ class PocketIsland:
             for elt in self.CleanPath:  # List of paths
                 for elt2 in self.CleanPath:
                     if (
-                        not elt2 in self.childrenIslands
-                        and not elt2 in self.childrenOutpath
+                        elt2 not in self.childrenIslands
+                        and elt2 not in self.childrenOutpath
                     ):
                         self.childrenOutpath.append(elt2)
 
@@ -455,8 +424,7 @@ class PocketIsland:
 
 
 class Tool(Plugin):
-    __doc__ = _(
-        "Generate a pocket or profile for selected shape (regarding islands)")
+    __doc__ = _("Generate a pocket or profile for selected shape (regarding islands)")
 
     def __init__(self, master):
         Plugin.__init__(self, master, "Offset")
@@ -592,8 +560,8 @@ Grey is simulation of how part will look after machining
             app,
         )
         if msg:
-            tkMessageBox.showwarning(
-                _("Open paths"), _("WARNING: %s") % (msg), parent=app
+            messagebox.showwarning(
+                _("Open paths"), _("WARNING: {}").format(msg), parent=app
             )
         app.editor.fill()
         app.editor.selectBlocks(selectedblocks)

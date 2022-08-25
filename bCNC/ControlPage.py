@@ -3,10 +3,42 @@
 # Author: vvlachoudis@gmail.com
 # Date: 18-Jun-2015
 
-from __future__ import absolute_import, print_function
-
 import math
-from math import *  # Math in DRO
+from tkinter import (
+    TclError,
+    FALSE,
+    YES,
+    N,
+    S,
+    W,
+    E,
+    EW,
+    NSEW,
+    CENTER,
+    X,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    FLAT,
+    HORIZONTAL,
+    END,
+    NORMAL,
+    DISABLED,
+    #  UNITS,
+    IntVar,
+    BooleanVar,
+    Button,
+    Checkbutton,
+    Entry,
+    Frame,
+    Label,
+    Menu,
+    Radiobutton,
+    Scale,
+    messagebox,
+)
 
 from CNC import CNC
 import CNCRibbon
@@ -15,18 +47,13 @@ import Sender
 import tkExtra
 import Unicode
 import Utils
-from CNC import DISTANCE_MODE, FEED_MODE, PLANE, UNITS, WCS
-from Sender import ERROR_CODES
+from CNC import DISTANCE_MODE, FEED_MODE, PLANE, WCS
+from _GenericGRBL import ERROR_CODES
+
+from Helpers import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
-
-try:
-    from Tkinter import *
-    import tkMessageBox
-except ImportError:
-    from tkinter import *
-    import tkinter.messagebox as tkMessageBox
 
 
 _LOWSTEP = 0.0001
@@ -41,13 +68,12 @@ OVERRIDES = ["Feed", "Rapid", "Spindle"]
 # override for init
 UNITS = {"G20": "inch", "G21": "mm"}
 
-# ===============================================================================
+# =============================================================================
 # Connection Group
-# ===============================================================================
+# =============================================================================
 
 
 class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
-
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(
             self,
@@ -117,9 +143,9 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
         self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # User Group
-# ===============================================================================
+# =============================================================================
 class UserGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "User", app)
@@ -128,16 +154,17 @@ class UserGroup(CNCRibbon.ButtonGroup):
         n = Utils.getInt("Buttons", "n", 6)
         for i in range(1, n):
             b = Utils.UserButton(
-                self.frame, self.app, i, anchor=W, background=Ribbon._BACKGROUND
+                self.frame, self.app, i, anchor=W,
+                background=Ribbon._BACKGROUND
             )
             col, row = divmod(i - 1, 3)
             b.grid(row=row, column=col, sticky=NSEW)
             self.addWidget(b)
 
 
-# ===============================================================================
+# =============================================================================
 # Run Group
-# ===============================================================================
+# =============================================================================
 class RunGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "Run", app)
@@ -167,7 +194,9 @@ class RunGroup(CNCRibbon.ButtonGroup):
         )
         b.pack(side=LEFT, fill=BOTH)
         tkExtra.Balloon.set(
-            b, _("Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~")
+            b,
+            _("Pause running program. Sends either FEED_HOLD ! "
+              + "or CYCLE_START ~")
         )
 
         b = Ribbon.LabelButton(
@@ -181,13 +210,14 @@ class RunGroup(CNCRibbon.ButtonGroup):
         )
         b.pack(side=LEFT, fill=BOTH)
         tkExtra.Balloon.set(
-            b, _("Pause running program and soft reset controller to empty the buffer.")
+            b, _("Pause running program and soft reset controller to "
+                 + "empty the buffer.")
         )
 
 
-# ===============================================================================
+# =============================================================================
 # DRO Frame
-# ===============================================================================
+# =============================================================================
 class DROFrame(CNCRibbon.PageFrame):
     dro_status = ("Helvetica", 12, "bold")
     dro_wpos = ("Helvetica", 12, "bold")
@@ -222,7 +252,6 @@ class DROFrame(CNCRibbon.PageFrame):
                 "Right-Click to clear alarm/errors"
             ),
         )
-        # self.state.bind("<Button-3>", lambda e,s=self : s.event_generate("<<AlarmClear>>"))
         self.state.bind("<Button-3>", self.stateMenu)
 
         row += 1
@@ -323,8 +352,8 @@ class DROFrame(CNCRibbon.PageFrame):
         )
         self.xzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
-            self.xzero, _(
-                "Set X coordinate to zero (or to typed coordinate in WPos)")
+            self.xzero, _("Set X coordinate to zero "
+                          + "(or to typed coordinate in WPos)")
         )
         self.addWidget(self.xzero)
 
@@ -339,8 +368,8 @@ class DROFrame(CNCRibbon.PageFrame):
         )
         self.yzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
-            self.yzero, _(
-                "Set Y coordinate to zero (or to typed coordinate in WPos)")
+            self.yzero, _("Set Y coordinate to zero "
+                          + "(or to typed coordinate in WPos)")
         )
         self.addWidget(self.yzero)
 
@@ -355,8 +384,8 @@ class DROFrame(CNCRibbon.PageFrame):
         )
         self.zzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
-            self.zzero, _(
-                "Set Z coordinate to zero (or to typed coordinate in WPos)")
+            self.zzero, _("Set Z coordinate to zero "
+                          + "(or to typed coordinate in WPos)")
         )
         self.addWidget(self.zzero)
 
@@ -373,8 +402,8 @@ class DROFrame(CNCRibbon.PageFrame):
         )
         self.xyzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
-            self.xyzero, _(
-                "Set XY coordinate to zero (or to typed coordinate in WPos)")
+            self.xyzero, _("Set XY coordinate to zero "
+                           + "(or to typed coordinate in WPos)")
         )
         self.addWidget(self.xyzero)
 
@@ -414,7 +443,6 @@ class DROFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
         self.addWidget(b)
 
-        # col += 2
         b = Button(
             f,
             text=_("Move Gantry"),
@@ -425,7 +453,6 @@ class DROFrame(CNCRibbon.PageFrame):
             padx=2,
             pady=1,
         )
-        # b.grid(row=row, column=col, pady=0, sticky=EW)
         b.pack(side=RIGHT, fill=X, expand=YES)
         tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
         self.addWidget(b)
@@ -498,7 +525,7 @@ class DROFrame(CNCRibbon.PageFrame):
     # ----------------------------------------------------------------------
     def padFloat(self, decimals, value):
         if decimals > 0:
-            return "%0.*f" % (decimals, value)
+            return f"{value:0.{decimals}f}"
         else:
             return value
 
@@ -560,16 +587,10 @@ class DROFrame(CNCRibbon.PageFrame):
             pass
 
     # ----------------------------------------------------------------------
-    # def wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
-
-    # ----------------------------------------------------------------------
-    # def _wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
-
-    # ----------------------------------------------------------------------
     def showState(self):
         err = CNC.vars["errline"]
         if err:
-            msg = _("Last error: %s\n") % (CNC.vars["errline"])
+            msg = _("Last error: {}\n").format(CNC.vars["errline"])
         else:
             msg = ""
 
@@ -577,26 +598,27 @@ class DROFrame(CNCRibbon.PageFrame):
         msg += ERROR_CODES.get(
             state, _("No info available.\nPlease contact the author.")
         )
-        tkMessageBox.showinfo(_("State: %s") % (state), msg, parent=self)
+        messagebox.showinfo(_("State: {}").format(state), msg, parent=self)
 
-# ===============================================================================
+
+# =============================================================================
 # DRO Frame ABC
-# ===============================================================================
-
-
+# =============================================================================
 class abcDROFrame(CNCRibbon.PageExLabelFrame):
 
-    dro_status = ('Helvetica', 12, 'bold')
-    dro_wpos = ('Helvetica', 12, 'bold')
-    dro_mpos = ('Helvetica', 12)
+    dro_status = ("Helvetica", 12, "bold")
+    dro_wpos = ("Helvetica", 12, "bold")
+    dro_mpos = ("Helvetica", 12)
 
     def __init__(self, master, app):
-        CNCRibbon.PageExLabelFrame.__init__(self, master, "abcDRO", _("abcDRO"), app)
+        CNCRibbon.PageExLabelFrame.__init__(
+            self, master, "abcDRO", _("abcDRO"), app)
 
         frame = Frame(self())
         frame.pack(side=TOP, fill=X)
 
-        abcDROFrame.dro_status = Utils.getFont("dro.status", abcDROFrame.dro_status)
+        abcDROFrame.dro_status = Utils.getFont(
+            "dro.status", abcDROFrame.dro_status)
         abcDROFrame.dro_wpos = Utils.getFont("dro.wpos", abcDROFrame.dro_wpos)
         abcDROFrame.dro_mpos = Utils.getFont("dro.mpos", abcDROFrame.dro_mpos)
 
@@ -607,50 +629,53 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         # work
         col += 1
         self.awork = Entry(
-            frame, font=abcDROFrame.dro_wpos,
+            frame,
+            font=abcDROFrame.dro_wpos,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
             relief=FLAT,
             borderwidth=0,
-            justify=RIGHT
+            justify=RIGHT,
         )
         self.awork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.awork, _("A work position (click to set)"))
-        self.awork.bind('<FocusIn>', self.workFocus)
-        self.awork.bind('<Return>', self.setA)
-        self.awork.bind('<KP_Enter>', self.setA)
+        self.awork.bind("<FocusIn>", self.workFocus)
+        self.awork.bind("<Return>", self.setA)
+        self.awork.bind("<KP_Enter>", self.setA)
 
         # ---
         col += 1
         self.bwork = Entry(
-            frame, font=abcDROFrame.dro_wpos,
+            frame,
+            font=abcDROFrame.dro_wpos,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
             relief=FLAT,
             borderwidth=0,
-            justify=RIGHT
+            justify=RIGHT,
         )
         self.bwork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.bwork, _("B work position (click to set)"))
-        self.bwork.bind('<FocusIn>', self.workFocus)
-        self.bwork.bind('<Return>', self.setB)
-        self.bwork.bind('<KP_Enter>', self.setB)
+        self.bwork.bind("<FocusIn>", self.workFocus)
+        self.bwork.bind("<Return>", self.setB)
+        self.bwork.bind("<KP_Enter>", self.setB)
 
         # ---
         col += 1
         self.cwork = Entry(
-            frame, font=abcDROFrame.dro_wpos,
+            frame,
+            font=abcDROFrame.dro_wpos,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
             relief=FLAT,
             borderwidth=0,
-            justify=RIGHT
+            justify=RIGHT,
         )
         self.cwork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.cwork, _("C work position (click to set)"))
-        self.cwork.bind('<FocusIn>', self.workFocus)
-        self.cwork.bind('<Return>', self.setC)
-        self.cwork.bind('<KP_Enter>', self.setC)
+        self.cwork.bind("<FocusIn>", self.workFocus)
+        self.cwork.bind("<Return>", self.setC)
+        self.cwork.bind("<KP_Enter>", self.setC)
 
         # Machine
         row += 1
@@ -658,14 +683,29 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         Label(frame, text=_("MPos:")).grid(row=row, column=col, sticky=E),
 
         col += 1
-        self.amachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+        self.amachine = Label(
+            frame,
+            font=abcDROFrame.dro_mpos,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            anchor=E,
+        )
         self.amachine.grid(row=row, column=col, padx=1, sticky=EW)
         col += 1
-        self.bmachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+        self.bmachine = Label(
+            frame,
+            font=abcDROFrame.dro_mpos,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            anchor=E,
+        )
         self.bmachine.grid(row=row, column=col, padx=1, sticky=EW)
 
         col += 1
-        self.cmachine = Label(frame, font=abcDROFrame.dro_mpos, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, anchor=E)
+        self.cmachine = Label(
+            frame,
+            font=abcDROFrame.dro_mpos,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            anchor=E,
+        )
         self.cmachine.grid(row=row, column=col, padx=1, sticky=EW)
 
         # Set buttons
@@ -673,59 +713,84 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         col = 1
 
         azero = Button(
-            frame, text=_("A=0"),
+            frame,
+            text=_("A=0"),
             command=self.setA0,
             activebackground="LightYellow",
-            padx=2, pady=1
+            padx=2,
+            pady=1,
         )
         azero.grid(row=row, column=col, pady=0, sticky=EW)
-        tkExtra.Balloon.set(azero, _("Set A coordinate to zero (or to typed coordinate in WPos)"))
+        tkExtra.Balloon.set(
+            azero, _("Set A coordinate to zero "
+                     + "(or to typed coordinate in WPos)")
+        )
         self.addWidget(azero)
 
         col += 1
         bzero = Button(
-            frame, text=_("B=0"),
+            frame,
+            text=_("B=0"),
             command=self.setB0,
             activebackground="LightYellow",
-            padx=2, pady=1
+            padx=2,
+            pady=1,
         )
         bzero.grid(row=row, column=col, pady=0, sticky=EW)
-        tkExtra.Balloon.set(bzero, _("Set B coordinate to zero (or to typed coordinate in WPos)"))
+        tkExtra.Balloon.set(
+            bzero, _("Set B coordinate to zero "
+                     + "(or to typed coordinate in WPos)")
+        )
         self.addWidget(bzero)
 
         col += 1
         czero = Button(
-            frame, text=_("C=0"),
+            frame,
+            text=_("C=0"),
             command=self.setC0,
             activebackground="LightYellow",
-            padx=2, pady=1
+            padx=2,
+            pady=1,
         )
         czero.grid(row=row, column=col, pady=0, sticky=EW)
-        tkExtra.Balloon.set(czero, _("Set C coordinate to zero (or to typed coordinate in WPos)"))
+        tkExtra.Balloon.set(
+            czero, _("Set C coordinate to zero "
+                     + "(or to typed coordinate in WPos)")
+        )
         self.addWidget(czero)
 
         # Set buttons
         row += 1
         col = 1
         bczero = Button(
-            frame, text=_("BC=0"),
+            frame,
+            text=_("BC=0"),
             command=self.setBC0,
             activebackground="LightYellow",
-            padx=2, pady=1
+            padx=2,
+            pady=1,
         )
         bczero.grid(row=row, column=col, pady=0, sticky=EW)
-        tkExtra.Balloon.set(bczero, _("Set BC coordinate to zero (or to typed coordinate in WPos)"))
+        tkExtra.Balloon.set(
+            bczero, _("Set BC coordinate to zero "
+                      + "(or to typed coordinate in WPos)")
+        )
         self.addWidget(bczero)
 
         col += 1
         abczero = Button(
-            frame, text=_("ABC=0"),
+            frame,
+            text=_("ABC=0"),
             command=self.setABC0,
             activebackground="LightYellow",
-            padx=2, pady=1
+            padx=2,
+            pady=1,
         )
         abczero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
-        tkExtra.Balloon.set(abczero, _("Set ABC coordinate to zero (or to typed coordinate in WPos)"))
+        tkExtra.Balloon.set(
+            abczero, _("Set ABC coordinate to zero "
+                       + "(or to typed coordinate in WPos)")
+        )
         self.addWidget(abczero)
 
     # ----------------------------------------------------------------------
@@ -737,22 +802,29 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             focus = None
             if focus is not self.awork:
                 self.awork.delete(0, END)
-                self.awork.insert(0, self.padFloat(CNC.drozeropad, CNC.vars["wa"]))
+                self.awork.insert(0, self.padFloat(CNC.drozeropad,
+                                                   CNC.vars["wa"]))
             if focus is not self.bwork:
                 self.bwork.delete(0, END)
-                self.bwork.insert(0, self.padFloat(CNC.drozeropad, CNC.vars["wb"]))
+                self.bwork.insert(0, self.padFloat(CNC.drozeropad,
+                                                   CNC.vars["wb"]))
             if focus is not self.cwork:
                 self.cwork.delete(0, END)
-                self.cwork.insert(0, self.padFloat(CNC.drozeropad, CNC.vars["wc"]))
+                self.cwork.insert(0, self.padFloat(CNC.drozeropad,
+                                                   CNC.vars["wc"]))
 
-            self.amachine["text"] = self.padFloat(CNC.drozeropad, CNC.vars["ma"])
-            self.bmachine["text"] = self.padFloat(CNC.drozeropad, CNC.vars["mb"])
-            self.cmachine["text"] = self.padFloat(CNC.drozeropad, CNC.vars["mc"])
+            self.amachine["text"] = self.padFloat(CNC.drozeropad,
+                                                  CNC.vars["ma"])
+            self.bmachine["text"] = self.padFloat(CNC.drozeropad,
+                                                  CNC.vars["mb"])
+            self.cmachine["text"] = self.padFloat(CNC.drozeropad,
+                                                  CNC.vars["mc"])
+
     # ----------------------------------------------------------------------
 
     def padFloat(self, decimals, value):
         if decimals > 0:
-            return "%0.*f" % (decimals, value)
+            return f"{value:0.{decimals}f}"
         else:
             return value
 
@@ -763,6 +835,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
     def workFocus(self, event=None):
         if self.app.running:
             self.app.focus_set()
+
     # ----------------------------------------------------------------------
 
     def setA0(self, event=None):
@@ -815,30 +888,23 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             pass
 
     # ----------------------------------------------------------------------
-    # def wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
-
-    # ----------------------------------------------------------------------
-    # def _wcsSet(self, x, y, z): self.app.mcontrol._wcsSet(x, y, z)
-    # ----------------------------------------------------------------------
-
     def showState(self):
         err = CNC.vars["errline"]
         if err:
-            msg = _("Last error: %s\n") % (CNC.vars["errline"])
+            msg = _("Last error: {}\n").format(CNC.vars["errline"])
         else:
             msg = ""
 
             state = CNC.vars["state"]
             msg += ERROR_CODES.get(
-                state,
-                _("No info available.\nPlease contact the author.")
+                state, _("No info available.\nPlease contact the author.")
             )
-            tkMessageBox.showinfo(_("State: %s") % (state), msg, parent=self)
+            messagebox.showinfo(_("State: {}").format(state), msg, parent=self)
 
 
-# ===============================================================================
+# =============================================================================
 # ControlFrame
-# ===============================================================================
+# =============================================================================
 class ControlFrame(CNCRibbon.PageExLabelFrame):
     def __init__(self, master, app):
         CNCRibbon.PageExLabelFrame.__init__(
@@ -912,7 +978,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 2
         b = Button(
-            frame, text="\u00D710", command=self.mulStep, width=3, padx=1, pady=1
+            frame, text="\u00D710", command=self.mulStep,
+            width=3, padx=1, pady=1
         )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Multiply step by 10"))
@@ -929,8 +996,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         row += 1
 
         col = 1
-        Label(frame, text=_("X"), width=3, anchor=E).grid(
-            row=row, column=col, sticky=E)
+        Label(frame, text=_("X"),
+              width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
         col += 1
         b = Button(
@@ -959,7 +1026,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b,
-            _("Move to Origin.\nUser configurable button.\nRight click to configure."),
+            _("Move to Origin.\nUser configurable button.\n"
+              + "Right click to configure."),
         )
         self.addWidget(b)
 
@@ -986,8 +1054,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.step.set(Utils.config.get("Control", "step"))
-        self.step.fill(map(float, Utils.config.get(
-            "Control", "steplist").split()))
+        self.step.fill(
+            map(float, Utils.config.get("Control", "steplist").split()))
         tkExtra.Balloon.set(self.step, _("Step for every move operation"))
         self.addWidget(self.step)
 
@@ -1000,8 +1068,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.zstep.set(zstep)
             zsl = [_NOZSTEP]
-            zsl.extend(map(float, Utils.config.get(
-                "Control", "zsteplist").split()))
+            zsl.extend(
+                map(float, Utils.config.get("Control", "zsteplist").split()))
             self.zstep.fill(zsl)
             tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
             self.addWidget(self.zstep)
@@ -1080,7 +1148,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(b)
 
         col += 2
-        b = Button(frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
+        b = Button(
+            frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Divide step by 10"))
         self.addWidget(b)
@@ -1091,9 +1160,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
         self.addWidget(b)
 
-        # self.grid_columnconfigure(6,weight=1)
         try:
-            # self.grid_anchor(CENTER)
             self.tk.call("grid", "anchor", self, CENTER)
         except TclError:
             pass
@@ -1120,55 +1187,52 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
     def moveXup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("X%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"X{self.step.get()}")
 
     def moveXdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("X-%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"X-{self.step.get()}")
 
     def moveYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("Y%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"Y{self.step.get()}")
 
     def moveYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("Y-%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"Y-{self.step.get()}")
 
     def moveXdownYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "X-{}Y{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"X-{self.step.get()}Y{self.step.get()}")
 
     def moveXupYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("X{}Y{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"X{self.step.get()}Y{self.step.get()}")
 
     def moveXdownYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "X-{}Y-{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"X-{self.step.get()}Y-{self.step.get()}")
 
     def moveXupYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "X{}Y-{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"X{self.step.get()}Y-{self.step.get()}")
 
     def moveZup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("Z%s" % (self.getStep("z")))
+        self.app.mcontrol.jog(f"Z{self.getStep('z')}")
 
     def moveZdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("Z-%s" % (self.getStep("z")))
+        self.app.mcontrol.jog(f"Z-{self.getStep('z')}")
 
     def go2origin(self, event=None):
         self.sendGCode("G90")
@@ -1178,15 +1242,13 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
     # ----------------------------------------------------------------------
     def setStep(self, s, zs=None):
-        self.step.set("%.4g" % (s))
+        self.step.set(f"{s:.4g}")
         if self.zstep is self.step or zs is None:
-            self.event_generate("<<Status>>", data=_("Step: %g") % (s))
-            # data=(_("Step: %g")%(s)))
+            self.event_generate("<<Status>>", data=_("Step: {:g}").format(s))
         else:
-            self.zstep.set("%.4g" % (zs))
-            self.event_generate("<<Status>>", data=_(
-                "Step: %g    Zstep:%g ") % (s, zs))
-            # data=(_("Step: %g    Zstep:%g ")%(s,zs)))
+            self.zstep.set(f"{zs:.4g}")
+            self.event_generate(
+                "<<Status>>", data=_("Step: {:g}  Zstep: {:g} ").format(s, zs))
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -1306,13 +1368,13 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             return
         self.setStep(self.step3, self.step2)
 
-# ===============================================================================
+
+# =============================================================================
 # abc ControlFrame
-# ===============================================================================
+# =============================================================================
 
 
 class abcControlFrame(CNCRibbon.PageExLabelFrame):
-
     def __init__(self, master, app):
         CNCRibbon.PageExLabelFrame.__init__(
             self, master, "abcControl", _("abcControl"), app
@@ -1388,15 +1450,16 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 2
         b = Button(
-            frame, text="\u00D710", command=self.mulStep, width=3, padx=1, pady=1
+            frame, text="\u00D710", command=self.mulStep,
+            width=3, padx=1, pady=1
         )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Multiply step by 10"))
         self.addWidget(b)
 
         col += 1
-        b = Button(frame, text=_("+"), command=self.incStep,
-                   width=3, padx=1, pady=1)
+        b = Button(
+            frame, text=_("+"), command=self.incStep, width=3, padx=1, pady=1)
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
         self.addWidget(b)
@@ -1405,8 +1468,8 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         row += 1
 
         col = 1
-        Label(frame, text=_("B"), width=3, anchor=E).grid(
-            row=row, column=col, sticky=E)
+        Label(frame, text=_("B"),
+              width=3, anchor=E).grid(row=row, column=col, sticky=E)
 
         col += 1
         b = Button(
@@ -1472,8 +1535,9 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.astep.set(astep)
             asl = [_NOASTEP]
-            asl.extend(map(float, Utils.config.get(
-                "abcControl", "asteplist").split()))
+            asl.extend(
+                map(float,
+                    Utils.config.get("abcControl", "asteplist").split()))
             self.astep.fill(asl)
             tkExtra.Balloon.set(self.astep, _("Step for A move operation"))
             self.addWidget(self.astep)
@@ -1552,7 +1616,8 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(b)
 
         col += 2
-        b = Button(frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
+        b = Button(
+            frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Divide step by 10"))
         self.addWidget(b)
@@ -1563,9 +1628,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
         self.addWidget(b)
 
-        # self.grid_columnconfigure(6,weight=1)
         try:
-            #    self.grid_anchor(CENTER)
             self.tk.call("grid", "anchor", self, CENTER)
         except TclError:
             pass
@@ -1592,74 +1655,70 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
     def moveBup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("B%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"B{self.step.get()}")
 
     def moveBdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("B-%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"B-{self.step.get()}")
 
     def moveCup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("C%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"C{self.step.get()}")
 
     def moveCdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("C-%s" % (self.step.get()))
+        self.app.mcontrol.jog(f"C-{self.step.get()}")
 
     def moveBdownCup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "B-{:C}{}".format(self.step.get(), self.step.get()))
+        # XXX: Posible error in original code lead to %C string; fixed by guessing from methods below.
+        # Original: self.app.mcontrol.jog("B-%C%s"%(self.step.get(),self.step.get()))
+        self.app.mcontrol.jog(f"B-{self.step.get()}C{self.step.get()}")
 
     def moveBupCup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("B{}C{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"B{self.step.get()}C{self.step.get()}")
 
     def moveBdownCdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "B-{}C-{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"B-{self.step.get()}C-{self.step.get()}")
 
     def moveBupCdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(
-            "B{}C-{}".format(self.step.get(), self.step.get()))
+        self.app.mcontrol.jog(f"B{self.step.get()}C-{self.step.get()}")
 
     def moveAup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("A%s" % (self.getStep("z")))
+        self.app.mcontrol.jog(f"A{self.getStep('z')}")
 
     def moveAdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog("A-%s" % (self.getStep("z")))
+        self.app.mcontrol.jog(f"A-{self.getStep('z')}")
 
     def go2abcorigin(self, event=None):
         self.sendGCode("G90")
-        # self.sendGCode("G0A%d"%(CNC.vars['safe']))
         self.sendGCode("G0B0C0")
         self.sendGCode("G0A0")
 
     # ----------------------------------------------------------------------
     def setStep(self, s, aas=None):
-        self.step.set("%.4g" % (s))
+        self.step.set(f"{s:.4g}")
         if self.astep is self.step or aas is None:
-            self.event_generate("<<Status>>", data=_("Step: %g") % (s))
-            # data=(_("Step: %g")%(s)))
+            self.event_generate("<<Status>>", data=_("Step: {:g}").format(s))
         else:
-            self.astep.set("%.4g" % (aas))
+            self.astep.set(f"{aas:.4g}")
             self.event_generate(
-                "<<Status>>", data=_("Step: %g    Astep:%g ") % (s, aas)
+                "<<Status>>", data=_("Step: {:g}   Astep:{:g} ").format(s, aas)
             )
-            # data=(_("Step: %g    Zstep:%g ")%(s,zs)))
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -1780,13 +1839,13 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             return
         self.setStep(self.step3, self.step2)
 
-# ===============================================================================
+
+# =============================================================================
 # StateFrame
-# ===============================================================================
+# =============================================================================
 
 
 class StateFrame(CNCRibbon.PageExLabelFrame):
-
     def __init__(self, master, app):
         global wcsvar
         CNCRibbon.PageExLabelFrame.__init__(
@@ -1817,7 +1876,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
                 command=self.wcsChange,
             )
             b.pack(side=LEFT, fill=X, expand=YES)
-            tkExtra.Balloon.set(b, _("Switch to workspace %s") % (w))
+            tkExtra.Balloon.set(b, _("Switch to workspace {}").format(w))
             self.addWidget(b)
 
         # Absolute or relative mode
@@ -2010,11 +2069,12 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         )
         self.overrideScale.bind("<Double-1>", self.resetOverride)
         self.overrideScale.bind("<Button-3>", self.resetOverride)
-        self.overrideScale.grid(row=row, column=col,
-                                rowspan=2, columnspan=4, sticky=EW)
+        self.overrideScale.grid(
+            row=row, column=col, rowspan=2, columnspan=4, sticky=EW)
         tkExtra.Balloon.set(
             self.overrideScale,
-            _("Set Feed/Rapid/Spindle Override. Right or Double click to reset."),
+            _("Set Feed/Rapid/Spindle Override. "
+              + "Right or Double click to reset."),
         )
 
         self.overrideCombo.set(OVERRIDES[0])
@@ -2164,18 +2224,16 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             return
         try:
             feed = float(self.feedRate.get())
-            self.sendGCode("F%g" % (feed))
+            self.sendGCode(f"F{feed:g}")
             self.event_generate("<<CanvasFocus>>")
         except ValueError:
             pass
 
     # ----------------------------------------------------------------------
     def setTLO(self, event=None):
-        # if self._probeUpdate: return
         try:
             tlo = float(self.tlo.get())
-            # print("G43.1Z%g"%(tlo))
-            self.sendGCode("G43.1Z%g" % (tlo))
+            self.sendGCode(f"G43.1Z{tlo:g}")
             self.app.mcontrol.viewParameters()
             self.event_generate("<<CanvasFocus>>")
         except ValueError:
@@ -2238,10 +2296,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
     def updateG(self):
         global wcsvar
         self._gUpdate = True
-        try:
-            focus = self.focus_get()
-        except Exception:
-            focus = None
 
         try:
             wcsvar.set(WCS.index(CNC.vars["WCS"]))
@@ -2275,9 +2329,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         self.app.mcontrol.viewState()
 
 
-# ===============================================================================
+# =============================================================================
 # Control Page
-# ===============================================================================
+# =============================================================================
 class ControlPage(CNCRibbon.Page):
     __doc__ = _("CNC communication and control")
     _name_ = N_("Control")
