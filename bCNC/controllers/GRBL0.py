@@ -1,9 +1,5 @@
 # GRBL <=0.9 motion controller plugin
 
-from __future__ import absolute_import, print_function
-
-import time
-
 from _GenericController import DOLLARPAT, POSPAT, STATUSPAT, TLOPAT
 from _GenericGRBL import _GenericGRBL
 from CNC import CNC
@@ -14,7 +10,6 @@ class Controller(_GenericGRBL):
         self.gcode_case = 0
         self.has_override = False
         self.master = master
-        # print("grbl0 loaded")
 
     def parseBracketAngle(self, line, cline):
         self.master.sio_status = False
@@ -37,16 +32,12 @@ class Controller(_GenericGRBL):
 
             # Machine is Idle buffer is empty
             # stop waiting and go on
-            # print "<<< WAIT=",wait,sline,pat.group(1),sum(cline)
-            # print ">>>", line
             if (
                 self.master.sio_wait
                 and not cline
                 and pat.group(1) not in ("Run", "Jog", "Hold")
             ):
-                # print ">>>",line
                 self.master.sio_wait = False
-                # print "<<< NO MORE WAIT"
                 self.master._gcount += 1
             else:
                 self.master.log.put((self.master.MSG_RECEIVE, line))
@@ -58,7 +49,6 @@ class Controller(_GenericGRBL):
                 CNC.vars["prbx"] = float(pat.group(2))
                 CNC.vars["prby"] = float(pat.group(3))
                 CNC.vars["prbz"] = float(pat.group(4))
-                # if self.running:
                 self.master.gcode.probe.add(
                     CNC.vars["prbx"] + CNC.vars["wx"] - CNC.vars["mx"],
                     CNC.vars["prby"] + CNC.vars["wy"] - CNC.vars["my"],

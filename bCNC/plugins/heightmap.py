@@ -1,6 +1,6 @@
 # $Id$
 #
-# Author:	Filippo Rivato
+# Author:    Filippo Rivato
 # Date:     18 November 2015
 # Porting of image2gcode and based on dmap2gcode
 # Source was used from the following works:
@@ -9,12 +9,28 @@
 #              Author.py(linuxcnc) 2007 Jeff Epler  jepler@unpythonic.net
 #              dmap2gcode G-Code Generator 2015  @schorchworks
 
-from __future__ import absolute_import, print_function
-
 import math
+import importlib
 
 from CNC import CNC, Block
-from imageToGcode import *
+from imageToGcode import (
+    Image_Matrix_Numpy,
+    Image_Matrix_List,
+    Convert_Scan_Increasing,
+    Convert_Scan_Decreasing,
+    Convert_Scan_Alternating,
+    Convert_Scan_Upmill,
+    Convert_Scan_Downmill,
+    Reduce_Scan_Lace,
+    Reduce_Scan_Lace_new,
+    ArcEntryCut,
+    SimpleEntryCut,
+    convert,
+    make_tool_shape,
+    endmill,
+    vee_common,
+    ball_tool,
+)
 from ToolsPage import Plugin
 
 __author__ = "Filippo Rivato"
@@ -24,19 +40,19 @@ __name__ = _("Heightmap")
 __version__ = "0.0.1"
 
 
-# ==============================================================================
+# =============================================================================
 # Heightmap class
-# ==============================================================================
+# =============================================================================
 class Heightmap:
     def __init__(self, name="Heightmap"):
         self.name = name
 
 
-# ==============================================================================
+# =============================================================================
 # Create heightmap
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
-    __doc__ = _("Use a brightess map to create a variable Z path")
+    __doc__ = _("Use a brightness map to create a variable Z path")
 
     def __init__(self, master):
         Plugin.__init__(self, master, "Heightmap")
@@ -67,8 +83,9 @@ class Tool(Plugin):
         # Try import PIL
         try:
             from PIL import Image
-        except:
-            app.setStatus(_("Heightmap abort: This plugin requires PIL/Pillow"))
+        except Exception:
+            app.setStatus(
+                _("Heightmap abort: This plugin requires PIL/Pillow"))
             return
 
         # Try read image
@@ -76,7 +93,7 @@ class Tool(Plugin):
         try:
             img = Image.open(fileName)
             img = img.convert("L")  # Luminance
-        except:
+        except Exception:
             app.setStatus(_("Heightmap abort: Can't read image file"))
             return
 
@@ -84,19 +101,11 @@ class Tool(Plugin):
             app.setStatus(_("Heightmap abort: depth must be < 0"))
             return
 
-        # Define type of matrix manipulation
-        NUMPY = True
-        if NUMPY == True:
-            try:
-                import numpy
-            except:
-                NUMPY = False
-
-        if NUMPY == True:
+        NUMPY = importlib.util.find_spec("numpy") is not None
+        if NUMPY:
             Image_Matrix = Image_Matrix_Numpy
         else:
             Image_Matrix = Image_Matrix_List
-            # print "Install NumPy will speed up heightmap creation"
 
         MAT = Image_Matrix()
         MAT.FromImage(img, True)
@@ -138,7 +147,6 @@ class Tool(Plugin):
         zStep = CNC.vars["stepz"]
         if self["SinglePass"]:
             zStep = 0.0
-        rough_offset = 0.0
         rough_feed = CNC.vars["cutfeed"]
 
         plunge_feed = CNC.vars["cutfeedz"]
@@ -156,9 +164,10 @@ class Tool(Plugin):
         elif tool_shape == "V-cutting":
             try:
                 v_angle = float(tool["angle"])
-            except:
+            except Exception:
                 app.setStatus(
-                    _("Heightmap abort: angle not defined for selected End Mill")
+                    _("Heightmap abort: angle not defined for selected "
+                      + "End Mill")
                 )
                 return
             TOOL = make_tool_shape(
@@ -180,7 +189,8 @@ class Tool(Plugin):
             columns_first = 1
 
         ######################################################
-        # Options are "Alternating", "Positive"   , "Negative",  "Up Mill", "Down Mill"
+        # Options are
+        # "Alternating", "Positive", "Negative",  "Up Mill", "Down Mill"
         converter = self["ScanDir"]
 
         if converter == "Positive":
@@ -221,7 +231,6 @@ class Tool(Plugin):
         ######################################################
         lace_bound_val = "None"  # "None","Secondary","Full"
         if lace_bound_val != "None" and rows and columns:
-            # 			slope = tan( Cont_Angle*pi/180 )
             slope = math.tan(Cont_Angle * math.pi / 180)
             if columns_first:
                 convert_rows = Reduce_Scan_Lace(convert_rows, slope, step + 1)
@@ -229,21 +238,17 @@ class Tool(Plugin):
                 convert_cols = Reduce_Scan_Lace(convert_cols, slope, step + 1)
             if lace_bound_val == "Full":
                 if columns_first:
-                    convert_cols = Reduce_Scan_Lace(
-                        convert_cols, slope, step + 1)
+                    convert_cols = Reduce_Scan_Lace(convert_cols,
+                                                    slope,
+                                                    step + 1)
                 else:
-                    convert_rows = Reduce_Scan_Lace(
-                        convert_rows, slope, step + 1)
+                    convert_rows = Reduce_Scan_Lace(convert_rows,
+                                                    slope,
+                                                    step + 1)
 
         ######################################################
         #                START COMMON STUFF                  #
         ######################################################
-        # sunits = "mm"
-        # if units == "in":
-        #    units = 'G20'
-        # else:
-        #    units = 'G21'
-        # Units not used
         units = ""
 
         ######################################################
@@ -377,11 +382,9 @@ class Tool(Plugin):
         if not n or n == "default":
             n = "Heightmap"
         block = Block(n)
-        block.append("(Size: %d x %d x %d)" % (image_w, image_h, depth))
+        block.append(f"(Size: {int(image_w)} x {int(image_h)} x {int(depth)})")
         block.append(
-            "(Endmill shape: {} , Diameter: {:.3f})".format(
-                tool_shape, tool_diameter)
-        )
+            f"(Endmill shape: {tool_shape} , Diameter: {tool_diameter:.3f})")
         for line in gcode:
             block.append(line)
 
@@ -393,5 +396,6 @@ class Tool(Plugin):
         app.gcode.insBlocks(active, blocks, n)
         app.refresh()
         app.setStatus(
-            _("Generated Heightmap %d x %d x %d ") % (image_w, image_h, depth)
+            _("Generated Heightmap {} x {} x "
+              + "{}").format(int(image_w), int(image_h), int(depth))
         )

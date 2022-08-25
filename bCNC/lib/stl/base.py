@@ -1,6 +1,5 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
+
 # import enum
 import math
 
@@ -189,16 +188,16 @@ class BaseMesh(logger.Logged, Mapping):
         remove_duplicate_polygons=RemoveDuplicates.NONE,
         name="",
         speedups=True,
-        **kwargs
+        **kwargs,
     ):
-        super(BaseMesh, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.speedups = speedups
         if remove_empty_areas:
             data = self.remove_empty_areas(data)
 
         if RemoveDuplicates.map(remove_duplicate_polygons):
-            data = self.remove_duplicate_polygons(
-                data, remove_duplicate_polygons)
+            data = self.remove_duplicate_polygons(data,
+                                                  remove_duplicate_polygons)
 
         self.name = name
         self.data = data
@@ -264,27 +263,27 @@ class BaseMesh(logger.Logged, Mapping):
 
     @property
     def x(self):
-        return self.points[:, Dimension.X:: 3]
+        return self.points[:, Dimension.X :: 3]  # noqa: E203
 
     @x.setter
     def x(self, value):
-        self.points[:, Dimension.X:: 3] = value
+        self.points[:, Dimension.X :: 3] = value  # noqa: E203
 
     @property
     def y(self):
-        return self.points[:, Dimension.Y:: 3]
+        return self.points[:, Dimension.Y :: 3]  # noqa: E203
 
     @y.setter
     def y(self, value):
-        self.points[:, Dimension.Y:: 3] = value
+        self.points[:, Dimension.Y :: 3] = value  # noqa: E203
 
     @property
     def z(self):
-        return self.points[:, Dimension.Z:: 3]
+        return self.points[:, Dimension.Z :: 3]  # noqa: E203
 
     @z.setter
     def z(self, value):
-        self.points[:, Dimension.Z:: 3] = value
+        self.points[:, Dimension.Z :: 3] = value  # noqa: E203
 
     @classmethod
     def remove_duplicate_polygons(cls, data, value=RemoveDuplicates.SINGLE):
@@ -471,8 +470,8 @@ class BaseMesh(logger.Logged, Mapping):
 
         Uses the :py:func:`rotation_matrix` in the background.
 
-        .. note:: Note that the `point` was accidentaly inverted with the
-           old version of the code. To get the old and incorrect behaviour
+        .. note:: Note that the `point` was accidentally inverted with the
+           old version of the code. To get the old and incorrect behavior
            simply pass `-point` instead of `point` or `-numpy.array(point)` if
            you're passing along an array.
 
@@ -546,27 +545,32 @@ class BaseMesh(logger.Logged, Mapping):
         self.y += matrix[1, 3]
         self.z += matrix[2, 3]
 
-    def _get_or_update(key):
+    def _get_or_update(key):  # noqa: N805
         def _get(self):
-            if not hasattr(self, "_%s" % key):
-                getattr(self, "update_%s" % key)()
-            return getattr(self, "_%s" % key)
+            if not hasattr(self, f"_{key}"):
+                getattr(self, f"update_{key}")()
+            return getattr(self, f"_{key}")
 
         return _get
 
-    def _set(key):
+    def _set(key):  # noqa N805
         def _set(self, value):
-            setattr(self, "_%s" % key, value)
+            setattr(self, f"_{key}", value)
 
         return _set
 
-    min_ = property(_get_or_update("min"), _set(
-        "min"), doc="Mesh minimum value")
-    max_ = property(_get_or_update("max"), _set(
-        "max"), doc="Mesh maximum value")
-    areas = property(_get_or_update("areas"), _set("areas"), doc="Mesh areas")
-    units = property(_get_or_update("units"), _set(
-        "units"), doc="Mesh unit vectors")
+    min_ = property(_get_or_update("min"),
+                    _set("min"),
+                    doc="Mesh minimum value")
+    max_ = property(_get_or_update("max"),
+                    _set("max"),
+                    doc="Mesh maximum value")
+    areas = property(_get_or_update("areas"),
+                     _set("areas"),
+                     doc="Mesh areas")
+    units = property(_get_or_update("units"),
+                     _set("units"),
+                     doc="Mesh unit vectors")
 
     def __getitem__(self, k):
         return self.points[k]
@@ -578,5 +582,4 @@ class BaseMesh(logger.Logged, Mapping):
         return self.points.shape[0]
 
     def __iter__(self):
-        for point in self.points:
-            yield point
+        yield from self.points

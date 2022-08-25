@@ -1,22 +1,19 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 11 july 2018
 
-from __future__ import absolute_import, print_function
-
 import os
-# import math
+
 import os.path
 
-# import numpy.linalg as la
-# import itertools
-# import utils
 import meshcut
 import numpy as np
-# FIXME: write PLY parser which supports binary PLY files (currently can only do ASCII PLY)
+
+# FIXME: write PLY parser which supports binary PLY files
+#        (currently can only do ASCII PLY)
 import ply
 import stl  # FIXME: write smaller STL parser
-# import re
-from CNC import CNC, Block
+
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -25,12 +22,6 @@ __author__ = "@harvie Tomas Mudrunka"
 __name__ = _("slicemesh")
 __version__ = "0.0.6"
 
-# from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
-
-# FIXME: not sure how to force bCNC to prefer importing from bCNC/lib to importing from system
-# 	if having conflicts with system libs, you can try this. It helped for me:
-# 	pip2 uninstall meshcut stl ply itertools utils python-utils
-# 	pip2 install scipy numpy
 
 # If needed trimesh supports following formats:
 # binary/ASCII STL, Wavefront OBJ, ASCII OFF, binary/ASCII PLY, GLTF/GLB 2.0, 3MF, XAML, 3DXML, etc.
@@ -57,7 +48,8 @@ class Tool(Plugin):
                 "",
                 _("Name"),
             ),  # used to store plugin settings in the internal database
-            ("file", "file", "", _(".STL/.PLY file to slice"), "What file to slice"),
+            ("file", "file", "",
+             _(".STL/.PLY file to slice"), "What file to slice"),
             (
                 "flat",
                 "bool",
@@ -65,9 +57,10 @@ class Tool(Plugin):
                 _("Get flat slice"),
                 "Pack all slices into single Z height?",
             ),
-            ("cam3d", "bool", False, _("3D slice (devel)"), "This is just for testing"),
-            ("faceup", "Z,-Z,X,-X,Y,-Y", "Z",
-             _("Flip upwards"), "Which face goes up?"),
+            ("cam3d", "bool", False,
+             _("3D slice (devel)"), "This is just for testing"),
+            ("faceup", "Z,-Z,X,-X,Y,-Y", "Z", _("Flip upwards"),
+             "Which face goes up?"),
             (
                 "scale",
                 "float",
@@ -75,7 +68,8 @@ class Tool(Plugin):
                 _("scale factor"),
                 "Size will be multiplied by this factor",
             ),
-            ("zoff", "mm", 0, _("z offset"), "This will be added to Z"),
+            ("zoff", "mm", 0, _("z offset"),
+             "This will be added to Z"),
             (
                 "zstep",
                 "mm",
@@ -83,8 +77,10 @@ class Tool(Plugin):
                 _("layer height (0 = only single zmin)"),
                 "Distance between layers of slices",
             ),
-            ("zmin", "mm", -1, _("minimum Z height"), "Height to start slicing"),
-            ("zmax", "mm", 1, _("maximum Z height"), "Height to stop slicing"),
+            ("zmin", "mm", -1, _("minimum Z height"),
+             "Height to start slicing"),
+            ("zmax", "mm", 1, _("maximum Z height"),
+             "Height to stop slicing"),
         ]
         self.buttons.append(
             "exe"
@@ -131,7 +127,7 @@ Also note you can export resulting slices to DXF and SVG if needed.
         blocks = []
 
         # Load mesh
-        self.app.setStatus(_("Loading mesh: %s" % (file)), True)
+        self.app.setStatus(_("Loading mesh: {}").format(file), True)
         verts, faces = self.loadMesh(file)
 
         # Rotate/flip mesh
@@ -167,14 +163,14 @@ Also note you can export resulting slices to DXF and SVG if needed.
                 # cut only single layer if zstep <= 0
                 zmax = zmin
                 zstep = 1
-            zmin, zmax = min(zmin, zmax), max(zmin, zmax)  # make sure zmin<zmax
+            # make sure zmin<zmax
+            zmin, zmax = min(zmin, zmax), max(zmin, zmax)
             # loop over multiple layers if zstep > 0
             z = zmax
             while z >= zmin:
-                # print(_("Slicing %f / %f"%(z,zmax)))
                 self.app.setStatus(
-                    _("Slicing {} {:f} in {:f} -> {:f} of {}".format(axis,
-                      z, zmin, zmax, file)),
+                    _("Slicing {} {:f} in {:f} -> "
+                      + "{:f} of {}").format(axis, z, zmin, zmax, file),
                     True,
                 )
                 block = self.slice(verts, faces, z, zout, axis)
@@ -215,8 +211,8 @@ Also note you can export resulting slices to DXF and SVG if needed.
     def slice(self, verts, faces, z, zout=None, axis="z"):
         tags = "[slice]"
         if axis == "z":
-            tags = "[slice,minz:%f]" % (float(z))
-        block = Block("slice {}{:f} {}".format(axis, float(z), tags))
+            tags = f"[slice,minz:{float(z):f}]"
+        block = Block(f"slice {axis}{float(z):f} {tags}")
 
         # FIXME: slice along different axes
         if axis == "x":
@@ -240,17 +236,14 @@ Also note you can export resulting slices to DXF and SVG if needed.
 
         # Contours to G-code
         for contour in contours:
-            # print(contour)
             gtype = 0
             for segment in contour:
                 block.append(
-                    "g{} x{:f} y{:f} z{:f}".format(
-                        gtype, segment[0], segment[1], segment[2])
+                    f"g{gtype} x{segment[0]:f} y{segment[1]:f} z{segment[2]:f}"
                 )
                 gtype = 1
             block.append(
-                "g1 x{:f} y{:f} z{:f}".format(
-                    contour[0][0], contour[0][1], contour[0][2])
+                f"g1 x{contour[0][0]:f} y{contour[0][1]:f} z{contour[0][2]:f}"
             )  # Close shape
             block.append("( ---------- cut-here ---------- )")
         if block:
@@ -262,9 +255,9 @@ Also note you can export resulting slices to DXF and SVG if needed.
 
     def vert_dist(self, A, B):
         # return np.sqrt(np.sum(np.square(B-A)))
-        return ((B[0] - A[0]) ** 2 + (B[1] - A[1]) ** 2 + (B[2] - A[2]) ** 2) ** (
-            1.0 / 2
-        )
+        return (
+            ((B[0] - A[0]) ** 2 + (B[1] - A[1]) ** 2 + (B[2] - A[2]) ** 2)
+            ** (1.0 / 2))
 
     def vert_dist_matrix(self, verts):
         # FIXME: This is VERY SLOW:
@@ -272,20 +265,17 @@ Also note you can export resulting slices to DXF and SVG if needed.
         for i, _v in enumerate(verts):
             self.app.setStatus(
                 _(
-                    "Calculating distance %d of %d (SciPy not installed => using SLOW fallback method)"
-                    % (i, len(verts))
-                ),
+                    "Calculating distance {} of {} (SciPy not installed => "
+                    + "using SLOW fallback method)"
+                ).format(i, len(verts)),
                 True,
             )
-            D[i] = D[:, i] = np.sqrt(
-                np.sum(np.square(verts - verts[i]), axis=1))
-            # for j in range(i,len(verts)):
-            # 	D[j][i] = D[i][j] = self.vert_dist(v,verts[j])
-            # 	#D[j][i] = D[i][j] = la.norm(verts[j]-v)
+            D[i] = D[:, i] = np.sqrt(np.sum(np.square(verts - verts[i]), axis=1))
         return D
 
     def pdist_squareformed_numpy(self, a):
-        # Thanks to Divakar Roy (@droyed) https://stackoverflow.com/questions/52030458/vectorized-spatial-distance-in-python-using-numpy
+        # Thanks to Divakar Roy (@droyed)
+        # https://stackoverflow.com/questions/52030458/vectorized-spatial-distance-in-python-using-numpy
         a_sumrows = np.einsum("ij,ij->i", a, a)
         dist = a_sumrows[:, None] + a_sumrows - 2 * np.dot(a, a.T)
         np.fill_diagonal(dist, 0)
@@ -297,8 +287,8 @@ Also note you can export resulting slices to DXF and SVG if needed.
 
         Warning, this has a O(n^2) memory usage because we compute the full
         vert-to-vert distance matrix. If you have a large mesh, might want
-        to use some kind of spatial search structure like an octree or some fancy
-        hashing scheme
+        to use some kind of spatial search structure like an octree or some
+        fancy hashing scheme
 
         Returns: new_verts, new_faces
         """
@@ -314,11 +304,9 @@ Also note you can export resulting slices to DXF and SVG if needed.
 
         # Test
         print(len(verts), len(D), len(D[0]))
-        # print(D)
-        # print(spdist.cdist(verts, verts))
 
-        # Compute a mapping from old to new : for each input vert, store the index
-        # of the new vert it will be merged into
+        # Compute a mapping from old to new : for each input vert, store the
+        # index of the new vert it will be merged into
         close_epsilon = 1e-5
         old2new = np.zeros(D.shape[0], dtype=np.int)
         # A mask indicating if a vertex has already been merged into another
@@ -345,7 +333,6 @@ Also note you can export resulting slices to DXF and SVG if needed.
         return new_verts, new_faces
 
     def load_stl(self, stl_fname):
-        # import stl
         m = stl.mesh.Mesh.from_file(stl_fname)
 
         # Flatten our vert array to Nx3 and generate corresponding faces array

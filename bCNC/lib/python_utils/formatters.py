@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import datetime
 
 
@@ -32,7 +30,7 @@ def camel_to_underscore(name):
             elif i > 3 and not c.isupper():
                 # Will return the last 3 letters to check if we are changing
                 # case
-                previous = name[i - 3: i]
+                previous = name[i - 3:i]
                 if previous.isalpha() and previous.isupper():
                     output.insert(len(output) - 1, "_")
 
@@ -104,11 +102,11 @@ def timesince(dt, default="just now"):
     for period, singular, plural in periods:
         if int(period):
             if int(period) == 1:
-                output.append("%d %s" % (period, singular))
+                output.append(f"{int(period)} {singular}")
             else:
-                output.append("%d %s" % (period, plural))
+                output.append(f"{int(period)} {plural}")
 
     if output:
-        return "%s ago" % " and ".join(output[:2])
+        return f"{' and '.join(output[:2])} ago"
 
     return default

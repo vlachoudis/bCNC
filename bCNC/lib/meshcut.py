@@ -1,7 +1,6 @@
 """
 Functions to slice a mesh. For now, computes planar cross-section
 """
-from __future__ import absolute_import
 
 import collections
 
@@ -10,7 +9,6 @@ import numpy.linalg as la
 
 try:
     import scipy.spatial.distance as spdist
-
     USE_SCIPY = True
 except ImportError:
     USE_SCIPY = False
@@ -26,7 +24,7 @@ def make_edge(v1, v2):
     return tuple(sorted((v1, v2)))
 
 
-class TriangleMesh(object):
+class TriangleMesh:
     def __init__(self, verts, tris):
         """
         Args:
@@ -72,13 +70,13 @@ class TriangleMesh(object):
         return self.verts_to_tris[vidx]
 
 
-class Plane(object):
+class Plane:
     def __init__(self, orig, normal):
         self.orig = orig
         self.n = normal / la.norm(normal)
 
     def __str__(self):
-        return "plane(o={}, n={})".format(self.orig, self.n)
+        return f"plane(o={self.orig}, n={self.n})"
 
 
 def point_to_plane_dist(p, plane):
@@ -90,8 +88,8 @@ def triangle_intersects_plane(mesh, tid, plane):
     Returns true if the given triangle is cut by the plane. This will return
     false if a single vertex of the triangle lies on the plane
     """
-    dists = [point_to_plane_dist(mesh.verts[vid], plane)
-             for vid in mesh.tris[tid]]
+    dists = [
+        point_to_plane_dist(mesh.verts[vid], plane) for vid in mesh.tris[tid]]
     side = np.sign(dists)
     return not (side[0] == side[1] == side[2])
 
@@ -119,8 +117,9 @@ def compute_triangle_plane_intersections(mesh, tid, plane, dist_tol=1e-8):
           vertex-vertex or edge-edge)
     """
     # TODO: Use a distance cache
-    dists = {vid: point_to_plane_dist(
-        mesh.verts[vid], plane) for vid in mesh.tris[tid]}
+    dists = {
+        vid: point_to_plane_dist(mesh.verts[vid],
+                                 plane) for vid in mesh.tris[tid]}
     # TODO: Use an edge intersection cache (we currently compute each edge
     # intersection twice : once for each tri)
 
@@ -179,7 +178,7 @@ def get_next_triangle(mesh, T, plane, intersection, dist_tol):
     elif intersection[0] == INTERSECT_VERTEX:
         tris = mesh.triangles_for_vert(intersection[2])
     else:
-        assert False, "Invalid intersection[0] value : %d" % intersection[0]
+        assert False, f"Invalid intersection[0] value : {int(intersection[0])}"
 
     # Knowing where we come from is not enough. If an edge of the triangle
     # lies exactly on the plane, i.e. :
@@ -221,8 +220,11 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
     while True:
         p.append(intersect[1])
 
-        tid, intersections, T = get_next_triangle(
-            mesh, T, plane, intersect, dist_tol)
+        tid, intersections, T = get_next_triangle(mesh,
+                                                  T,
+                                                  plane,
+                                                  intersect,
+                                                  dist_tol)
         if tid is None:
             break
 
@@ -238,7 +240,7 @@ def _walk_polyline(tid, intersect, T, mesh, plane, dist_tol):
         else:
             assert (
                 la.norm(intersections[1][1] - p[-1]) < dist_tol
-            ), "{} not close to {}".format(str(p[-1]), str(intersections))
+            ), f"{str(p[-1])} not close to {str(intersections)}"
             intersect = intersections[0]
 
     return p, T
@@ -260,13 +262,19 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
     while len(T) > 0:
         tid = T.pop()
 
-        intersections = compute_triangle_plane_intersections(
-            mesh, tid, plane, dist_tol)
+        intersections = compute_triangle_plane_intersections(mesh,
+                                                             tid,
+                                                             plane,
+                                                             dist_tol)
 
         if len(intersections) == 2:
             for intersection in intersections:
-                p, T = _walk_polyline(tid, intersection, T,
-                                      mesh, plane, dist_tol)
+                p, T = _walk_polyline(tid,
+                                      intersection,
+                                      T,
+                                      mesh,
+                                      plane,
+                                      dist_tol)
                 if len(p) > 1:
                     P.append(np.array(p))
     return P

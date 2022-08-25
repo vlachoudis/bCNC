@@ -29,14 +29,43 @@
 # LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	02-Aug-2006
-
-from __future__ import absolute_import
+# Author:   Vasilis.Vlachoudis@cern.ch
+# Date:     02-Aug-2006
 
 import subprocess
 import sys
 import time
+from tkinter import (
+    YES,
+    W,
+    E,
+    EW,
+    CENTER,
+    X,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    RAISED,
+    END,
+    NORMAL,
+    DISABLED,
+    StringVar,
+    IntVar,
+    Tk,
+    Toplevel,
+    Button,
+    Checkbutton,
+    Entry,
+    Frame,
+    Label,
+    Radiobutton,
+    OptionMenu,
+    Spinbox,
+    LabelFrame,
+)
+from tkinter import _cnfmerge
 
 import bFileDialog
 import tkExtra
@@ -45,15 +74,7 @@ __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
 
-try:
-    from Tkinter import *
-    from Tkinter import _cnfmerge
-except ImportError:
-    from tkinter import *
-    from tkinter import _cnfmerge
-
-
-# ===============================================================================
+# =============================================================================
 # Similar to the Dialog.py from Tk but transient to master
 #
 # This class displays a dialog box, waits for a button in the dialog
@@ -61,15 +82,15 @@ except ImportError:
 # dialog somehow gets destroyed, -1 is returned.
 #
 # Arguments:
-# w -		Window to use for dialog top-level.
-# title -	Title to display in dialog's decorative frame.
-# text -	Message to display in dialog.
-# bitmap -	Bitmap to display in dialog (empty string means none).
-# default -	Index of button that is to display the default ring
-# 		(-1 means none).
-# args -	One or more strings to display in buttons across the
-# 		bottom of the dialog box.
-# ===============================================================================
+# w -       Window to use for dialog top-level.
+# title -   Title to display in dialog's decorative frame.
+# text -    Message to display in dialog.
+# bitmap -  Bitmap to display in dialog (empty string means none).
+# default - Index of button that is to display the default ring
+#           (-1 means none).
+# args -    One or more strings to display in buttons across the
+#           bottom of the dialog box.
+# =============================================================================
 class Dialog(Toplevel):
     def __init__(self, master=None, cnf={}, **kw):
         Toplevel.__init__(self, master, class_="Dialog", **kw)
@@ -81,21 +102,15 @@ class Dialog(Toplevel):
 
         cnf = _cnfmerge((cnf, kw))
 
-        # Fill the top part with bitmap and message (use the option
-        # database for -wraplength and -font so that they can be
-        # overridden by the caller).
-        # self.option_add("*Dialog.msg.wrapLength","3i","widgetDefault")
-        # self.option_add("*Dialog.msg.font","TkCaptionFont","widgetDefault")
-
         fbot = Frame(self, relief=RAISED, bd=1)
         ftop = Frame(self, relief=RAISED, bd=1)
         fbot.pack(side=BOTTOM, fill=BOTH)
         ftop.pack(side=TOP, fill=BOTH, expand=YES)
         self.tk.call("grid", "anchor", fbot._w, CENTER)
-        # self.grid_anchor(CENTER)
 
         lbl = Label(
-            ftop, text=cnf["text"], wraplength="3i", font="TkCaptionFont", justify=LEFT
+            ftop, text=cnf["text"], wraplength="3i",
+            font="TkCaptionFont", justify=LEFT
         )
         lbl.pack(side=RIGHT, fill=BOTH, expand=YES, padx="3m", pady="3m")
 
@@ -144,32 +159,33 @@ class InputDialog(Toplevel):
     """
 
     def __init__(
-        self, master, title, message, input="", type_="str", from_=None, to_=None
+        self, master, title, message, input_="",
+        type_="str", from_=None, to_=None
     ):
 
         Toplevel.__init__(self, master)
         self.transient(master)
-        Label(self, text=message, justify=LEFT).pack(
-            expand=YES, fill=BOTH, side=TOP)
+        Label(self, text=message,
+              justify=LEFT).pack(expand=YES, fill=BOTH, side=TOP)
 
         if type_ == "int":
             self.entry = tkExtra.IntegerEntry(self)
-            self.entry.insert(0, input)
+            self.entry.insert(0, input_)
             w = self.entry
 
         elif type_ == "float":
             self.entry = tkExtra.FloatEntry(self)
-            self.entry.insert(0, input)
+            self.entry.insert(0, input_)
             w = self.entry
 
         elif type_ == "spin":
             self.entry = IntVar()
-            self.entry.set(input)
+            self.entry.set(input_)
             w = Spinbox(self, text=self.entry, from_=from_, to_=to_)
 
         else:  # default str
             self.entry = Entry(self)
-            self.entry.insert(0, input)
+            self.entry.insert(0, input_)
             w = self.entry
 
         w.pack(padx=5, expand=YES, fill=X)
@@ -256,7 +272,8 @@ class FindReplaceDialog(Toplevel):
             self.title("Find")
 
         btn = Button(
-            bottom_frame, text="Close", underline=0, width=8, command=self._close
+            bottom_frame, text="Close", underline=0,
+            width=8, command=self._close
         )
         btn.pack(side=RIGHT)
 
@@ -281,7 +298,8 @@ class FindReplaceDialog(Toplevel):
             label.pack(side=LEFT)
 
             self.replaceString_entry = Entry(
-                replaceString_frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                replaceString_frame,
+                background=tkExtra.GLOBAL_CONTROL_BACKGROUND
             )
             self.replaceString_entry.pack(side=RIGHT, fill=X, expand=YES)
 
@@ -335,7 +353,8 @@ class FindReplaceDialog(Toplevel):
         self.findString = self.findString_entry.get()
         self.replaceString = self.replaceString_entry.get()
         if self.objReplace:
-            self.objReplace(self.findString, self.replaceString,
+            self.objReplace(self.findString,
+                            self.replaceString,
                             self.caseVar.get())
 
     # --------------------------------------------------------------------
@@ -343,8 +362,9 @@ class FindReplaceDialog(Toplevel):
         self.findString = self.findString_entry.get()
         self.replaceString = self.replaceString_entry.get()
         if self.objReplaceAll:
-            self.objReplaceAll(
-                self.findString, self.replaceString, self.caseVar.get())
+            self.objReplaceAll(self.findString,
+                               self.replaceString,
+                               self.caseVar.get())
 
     # --------------------------------------------------------------------
     def _close(self, event=None):
@@ -385,8 +405,6 @@ class Printer(Toplevel):
         self.paperVar.set(Printer.paper)
         self.copiesVar = IntVar()
         self.copiesVar.set(Printer.copies)
-
-        # self.geometry('+265+230')
 
         # -----
         frame = LabelFrame(self, text="Print To")
@@ -495,7 +513,7 @@ class Printer(Toplevel):
         # On unix
         if sys.platform in ("linux", "linux2"):
             try:
-                f = open("/etc/printcap", "r")
+                f = open("/etc/printcap")
                 for line in f:
                     if len(line) == 0:
                         continue
@@ -506,7 +524,7 @@ class Printer(Toplevel):
                     if Printer.printer == "":
                         Printer.printer = field[0]
                 f.close()
-            except IOError:
+            except OSError:
                 pass
         else:
             raise Exception("Unknown operating system")
@@ -593,15 +611,14 @@ class Printer(Toplevel):
             printer = printer[:bar]
 
         if Printer.cmd.find("%p") == -1:
-            cmd = Printer.cmd + " -P %s" % (printer)
+            cmd = Printer.cmd + f" -P {printer}"
         else:
-            cmd = Printer.cmd.replace("%p", "%s") % (printer)
+            cmd = Printer.cmd.replace("%p", f"{printer}")
 
         if cmd.find("%#") == -1:
             cmd += " -# %d" % (Printer.copies)
         else:
-            cmd = cmd.replace("%#", "%d") % (Printer.copies)
-        # print "Printing command=\"%s\""%(cmd)
+            cmd = cmd.replace("%#", f"{int(Printer.copies)}")
         return cmd
 
     # --------------------------------------------------------------------
@@ -624,7 +641,7 @@ class Printer(Toplevel):
         try:
             self.hnd.write(s)
             return True
-        except:
+        except Exception:
             return False
 
     # --------------------------------------------------------------------
@@ -660,7 +677,7 @@ class ProgressDialog(Toplevel):
 
         x = master.winfo_rootx() + (master.winfo_width() - self.winfo_width()) / 2
         y = master.winfo_rooty() + (master.winfo_height() - self.winfo_height()) / 2
-        self.geometry("+%d+%d" % (x, y))
+        self.geometry(f"+{int(x)}+{int(y)}")
         self.lastTime = time.time()
         self.refreshInterval = 0.25
 
@@ -677,7 +694,6 @@ class ProgressDialog(Toplevel):
         self.bar.setProgress(pos)
         if text is not None:
             self.label["text"] = text
-        # self.update_idletasks()
         self.update()
         return self.ended
 
@@ -697,7 +713,5 @@ if __name__ == "__main__":
     root = Tk()
     sd = Printer(root)
     sd = FindReplaceDialog(root)
-    # print("FindReplace=",sd.show(None,"Hello"))
     d = InputDialog(root, "Title", "Message Line1\nMessage Line2")
-    # print("Input=",d.show())
     root.mainloop()

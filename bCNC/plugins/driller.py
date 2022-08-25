@@ -4,8 +4,6 @@
 # Date: 9 November 2015
 # A special thanks to Vasilis for his patient explanations
 
-from __future__ import absolute_import, print_function
-
 import math
 import os.path
 import re
@@ -22,17 +20,17 @@ __name__ = _("Driller")
 __version__ = "0.0.10"
 
 
-# ==============================================================================
+# =============================================================================
 # Driller class
-# ==============================================================================
+# =============================================================================
 class Driller:
     def __init__(self, name="Driller"):
         self.name = name
 
 
-# ==============================================================================
+# =============================================================================
 # Create holes along selected blocks
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create holes along selected blocks")
 
@@ -56,30 +54,29 @@ class Tool(Plugin):
                 "",
                 _("Feed rapid G0"),
                 "Defaults from config, if blank",
-            ),  # default = min(CNC.feedmax_x, CNC.feedmax_y)
+            ),
             (
                 "spinMin",
                 "int",
                 "",
                 _("Laser power minimum"),
                 "Defaults from config, if blank",
-            ),  # default = Utils.config.get("CNC","spindlemin")
+            ),
             (
                 "spinMax",
                 "int",
                 "",
                 _("Laser power maximum"),
                 "Defaults from config, if blank",
-            ),  # default = Utils.config.get("CNC","spindlemax")
+            ),
         ]
         self.buttons.append("exe")
-        # self.help = "Plugin: Driller\n"
 
     # Excellon Coordsconvert
     def coord2float(self, text, unitinch, decimals=0.001):
         if "." in text:
             return float(text)
-        if unitinch == True:
+        if unitinch is True:
             return float(text) * 0.0001
         # Unit mm
         # modified to read the number of decimals from file
@@ -89,14 +86,14 @@ class Tool(Plugin):
     def convunit(self, value, unitinch):
         if unitinch == CNC.inch:
             return value
-        if unitinch == True and CNC.inch == False:
+        if unitinch is True and CNC.inch is False:
             return value * 25.4
-        if unitinch == False and CNC.inch:
+        if unitinch is False and CNC.inch:
             return value / 25.4
 
     # Excellon Import
     def excellonimport(self, filename, app):
-        fo = open(filename, "r")
+        fo = open(filename)
         header = None
         current_tool = None
         incrementcoord = False
@@ -110,8 +107,9 @@ class Tool(Plugin):
                     # Read header
                     if line == "M48":
                         header = True
-                    if header == True:
-                        if line.startswith("INCH") or line.startswith("METRIC"):
+                    if header is True:
+                        if (line.startswith("INCH")
+                                or line.startswith("METRIC")):
                             unitinch = line.startswith("INCH")
                             decimals = 0.1 ** len(
                                 line[line.index("."): -1]
@@ -127,23 +125,23 @@ class Tool(Plugin):
                             }
                         if line == "ICI":
                             incrementcoord = True
-                    if header == False:
+                    if header is False:
                         if line[0] == "T":
                             current_tool = line
                         if line[0] == "X":
                             m = re.match(r"X([\d\.-]+)Y([\d\.-]+)", line)
                             # Convert to system
                             x = self.convunit(
-                                self.coord2float(
-                                    m.group(1), unitinch, decimals),
+                                self.coord2float(m.group(1),
+                                                 unitinch, decimals),
                                 unitinch,
                             )
                             y = self.convunit(
-                                self.coord2float(
-                                    m.group(2), unitinch, decimals),
+                                self.coord2float(m.group(2),
+                                                 unitinch, decimals),
                                 unitinch,
                             )
-                            if incrementcoord == True:
+                            if incrementcoord is True:
                                 if len(data["tools"][current_tool]["holes"]) == 0:
                                     prevx = 0
                                     prevy = 0
@@ -202,14 +200,13 @@ class Tool(Plugin):
             block = allBlocks[bid]
             if block.name() in ("Header", "Footer"):
                 continue
-            # if not block.enable : continue
             app.gcode.initPath(bid)
             for line in block:
                 try:
                     cmd = app.cnc.breakLine(
                         app.gcode.evaluate(app.cnc.compileLine(line))
                     )
-                except:
+                except Exception:
                     cmd = None
 
                 if cmd:
@@ -227,8 +224,7 @@ class Tool(Plugin):
                         segLenth = self.calcSegmentLength(xyz)
 
                         if len(xyz) < 3:
-                            bidSegments.append(
-                                [xyz[0], xyz[1], exclude, segLenth])
+                            bidSegments.append([xyz[0], xyz[1], exclude, segLenth])
                         else:
                             for i in range(len(xyz) - 1):
                                 bidSegments.append(
@@ -273,7 +269,7 @@ class Tool(Plugin):
         # ------------------------------------------------------------------
 
         # Check inputs
-        if holesDistance <= 0 and useAnchor == False:
+        if holesDistance <= 0 and useAnchor is False:
             app.setStatus(_("Driller abort: Distance must be > 0"))
             return
 
@@ -313,7 +309,7 @@ class Tool(Plugin):
             if len(bidSegment) == 0:
                 continue
 
-            if useAnchor == True:
+            if useAnchor is True:
                 bidHoles = []
                 for idx, anchor in enumerate(bidSegment):
                     if idx > 0:
@@ -329,8 +325,7 @@ class Tool(Plugin):
                                 )
                                 bidHoles.append(newHolePoint)
                         else:
-                            newHolePoint = (
-                                anchor[0][0], anchor[0][1], anchor[0][2])
+                            newHolePoint = (anchor[0][0], anchor[0][1], anchor[0][2])
                             bidHoles.append(newHolePoint)
             else:
                 # Sum all path length
@@ -411,10 +406,8 @@ class Tool(Plugin):
                 holesCount += 1
 
                 if self.useCustom:
-                    block.append(CNC.grapid(x=xH, y=yH)
-                                 + CNC.fmt(" F", self.rFeed))
+                    block.append(CNC.grapid(x=xH, y=yH) + CNC.fmt(" F", self.rFeed))
                 else:
-                    # block.append(CNC.zsafe()) # Moved up
                     block.append(CNC.grapid(xH, yH))
 
                 if peck != 0:
@@ -431,7 +424,7 @@ class Tool(Plugin):
                             block.append(CNC.zsafe())
 
                 if self.useCustom:
-                    block.append("G1 S%s" % (self.spinMax))
+                    block.append(f"G1 S{self.spinMax}")
                     block.append(CNC.gline(x=xH, y=yH))
                 else:
                     block.append(CNC.zenter(targetDepth))
@@ -441,7 +434,7 @@ class Tool(Plugin):
                     block.append(CNC.gcode(4, [("P", dwell)]))
 
                 if self.useCustom:
-                    block.append("G1 S%s" % (self.spinMin))
+                    block.append(f"G1 S{self.spinMin}")
                 else:
                     block.append(CNC.zsafe())
 
@@ -459,4 +452,4 @@ class Tool(Plugin):
             active = 1
         app.gcode.insBlocks(active, blocks, "Driller")
         app.refresh()
-        app.setStatus(_("Generated Driller: %d holes") % numberholes)
+        app.setStatus(_("Generated Driller: {} holes").format(numberholes))

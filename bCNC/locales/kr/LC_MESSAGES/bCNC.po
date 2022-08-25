@@ -1,0 +1,5742 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-19 19:55+0200\n"
+"PO-Revision-Date: 2022-07-19 20:25+0200\n"
+"Last-Translator: @SteveMoto [GitHub]\n"
+"Language-Team: \n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: bCNC/controllers/_GenericGRBL.py:51
+msgid ""
+"(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
+"supported."
+msgstr "(컴파일 옵션) Grbl '$ '설정 값이 지원되는 최대 스텝 속도를 초과합니다."
+
+#: bCNC/controllers/_GenericGRBL.py:55
+msgid ""
+"(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
+"limit."
+msgstr ""
+"(오직 Grbl-Mega에서) 빌드 정보 또는 시작 라인이 EEPROM 라인 길이 제한을 초과"
+"했습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:69
+msgid ""
+"A G-code command implicitly or explicitly requires XYZ axis words in the "
+"block, but none were detected."
+msgstr ""
+"암시적 또는 명시적으로 G 코드 명령은 블록에서 XYZ 축 단어를 필요로 하지만 감"
+"지된 것은 없습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:75
+msgid ""
+"A G-code command was sent, but is missing some required P or L value words "
+"in the line."
+msgstr ""
+"G 코드 명령이 전송되었지만 회선에서 일부 필수 P 또는 L 값 단어가 누락되었습니"
+"다."
+
+#: bCNC/controllers/_GenericGRBL.py:87
+msgid ""
+"A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
+"plane to trace the arc."
+msgstr ""
+"G2 또는 G3 호가 명령되었지만 호를 추적하기 위해 선택된 평면에 XYZ 축 단어가 "
+"없습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:96
+msgid ""
+"A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
+"word in the selected plane to trace the arc."
+msgstr ""
+"오프세 정의로 추적한 G2 또는 G3 호에 선택한 평면에서 호를 추적할 IJK 옵셋 단"
+"어가 누락되었습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:93
+msgid ""
+"A G2 or G3 arc, traced with the radius definition, had a mathematical error "
+"when computing the arc geometry. Try either breaking up the arc into semi-"
+"circles or quadrants, or redefine them with the arc offset definition."
+msgstr ""
+"반지름 정의로 추적 한 G2 또는 G3 호에는 호 형상을 계산할 때 수학적 오류가 있"
+"었습니다. 호를 반원형 또는 사분원형으로 분해하거나 아크 오프셋 정의로 다시 정"
+"의하십시오."
+
+#: bCNC/ToolsPage.py:824
+msgid ""
+"Add additional margin/offset around islands to compensate for endmill "
+"radius. This is automaticaly done for all islands if they are marked as tabs."
+msgstr ""
+
+#: bCNC/ProbePage.py:714
+msgid ""
+"Add an orientation marker. Jog first the machine to the marker position and "
+"then click on canvas to add the marker."
+msgstr ""
+"방향 표식을 추가하십시오. 먼저 기계를 마커 위치로 조그 한 다음 캔버스를 클릭"
+"하여 마커를 추가하십시오."
+
+#: bCNC/controllers/_GenericGRBL.py:16
+msgid ""
+"Alarm is an emergency state. Something has gone terribly wrong when these "
+"occur. Typically, they are caused by limit error when the machine has moved "
+"or wants to move outside the machine space and crash into something. They "
+"also report problems if Grbl is lost and can't guarantee positioning or a "
+"probe command has failed. Once in alarm-mode, Grbl will lock out and shut "
+"down everything until the user issues a reset. Even after a reset, Grbl will "
+"remain in alarm-mode, block all G-code from being executed, but allows the "
+"user to override the alarm manually. This is to ensure the user knows and "
+"acknowledges the problem and has taken steps to fix or account for it."
+msgstr ""
+"알람이 비상 사태입니다. 무언가 잘못되었습니다. 일반적으로 기계가 움직이거나 "
+"기계 공간 밖으로 이동하여 무언가에 충돌하려고 할 때 한계 오류로 인해 발생합니"
+"다. 또한 Grbl이 손실되어 위치를 보장할 수 없거나 검사 명령이 실패한 경우 문제"
+"를 보고합니다. 알람 모드가 되면 Grbl은 사용자가 재설정을 할 때까지 모든 것을 "
+"잠그고 종료합니다. 리셋 후에도 Grbl은 알람 모드로 유지되고 모든 G 코드가 실행"
+"되는 것을 차단하지만 사용자가 수동으로 알람을 무시할 수 있습니다. 이는 사용자"
+"가 문제를 알고 인식하고 수정 또는 조치를 취하도록 보장하기 위한 것입니다."
+
+#: bCNC/controllers/_GenericGRBL.py:33
+msgid ""
+"All is good! Everything in the last line was understood by Grbl and was "
+"successfully processed and executed."
+msgstr ""
+"모두 좋습니다! 마지막 라인까지 모든 것을 Grbl이 이해했으며 성공적으로 처리되"
+"고 실행되었습니다."
+
+#: bCNC/plugins/linearize.py:50
+msgid ""
+"Also subdivide the lines. Otherwise only arcs and splines will be subdivided"
+msgstr ""
+
+#: bCNC/bmain.py:2418
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+"자동레벨/프로브 정보가 이미 존재합니다.\n"
+"삭제하겠습니까?"
+
+#: bCNC/plugins/slicemesh.py:276
+msgid ""
+"Calculating distance {} of {} (SciPy not installed => using SLOW fallback "
+"method)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:505
+msgid ""
+"Currently there is some weird behaviour sometimes when trying to link "
+"segments of pocket internally, so it can be disabled using this option. This "
+"workaround should be fixed and removed in future."
+msgstr ""
+
+#: bCNC/ToolsPage.py:797
+msgid ""
+"Do the last cut once more in opposite direction. Helix bottom is disabled in "
+"such case."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:168
+msgid ""
+"Door closed and resuming. Restoring from park, if applicable. Reset will "
+"throw an alarm."
+msgstr ""
+"문 닫힘 및 다시 시작됩니다. 해당되는 경우 주차장에서 복원합니다. 리셋하면 알"
+"람이 울립니다."
+
+#: bCNC/controllers/_GenericGRBL.py:165
+msgid ""
+"Door opened. Hold (or parking retract) in-progress. Reset will throw an "
+"alarm."
+msgstr ""
+"문이 열렸습니다. 보류 (또는 주차 취소)가 진행 중입니다. 리셋하면 알람이 울립"
+"니다."
+
+#: bCNC/controllers/_GenericGRBL.py:131
+msgid ""
+"G-code motion target exceeds machine travel. Machine position safely "
+"retained. Alarm may be unlocked."
+msgstr ""
+"G 코드 모션 타겟이 기계 주행 거리를 초과합니다. 기계 위치는 안전하게 유지됩니"
+"다. 알람은 잠금 해제 될 수 있습니다."
+
+#: bCNC/bmain.py:2526
+#, fuzzy
+#| msgid ""
+#| "Gcode file {} was changed since editing started\n"
+#| "Reload new version?"
+msgid ""
+"Gcode file {} was changed since editing started\n"
+"Reload new version?"
+msgstr ""
+"편집을 시작한 이후 Gcode 파일 {} 이 (가) 변경되었습니다.\n"
+"새 버전을 다시로드 하시겠습니까?"
+
+#: bCNC/ToolsPage.py:1027
+msgid ""
+"Generate pocket after profiling? Useful for making pockets with overcuts."
+msgstr ""
+
+#: bCNC/plugins/sketch.py:368
+#, fuzzy
+#| msgid "Generated Sketch size W={} x H={} x distance={}, Total length:{}"
+msgid ""
+"Generated Sketch size W={} x H={} x distance={}, Total line:{}, Total length:"
+"{}"
+msgstr "생성된 스케치 크기 W={} x H={} x 거리={}, 총 길이 : {}"
+
+#: bCNC/controllers/_GenericGRBL.py:43
+msgid ""
+"Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
+"operation during a job."
+msgstr ""
+"Grbl '$' 명령은 Grbl이 유휴 상태가 아니면 사용할 수 없습니다. 작업 중 원활한 "
+"작동을 보장하시오."
+
+#: bCNC/controllers/_GenericGRBL.py:19
+msgid ""
+"Grbl is in g-code check mode. If you send g-code to it, it will only check "
+"it without actualy doing any motion. You can exit this by $C command (Or "
+"equivalent button in terminal tab)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:26
+msgid ""
+"Grbl is in queue state. This also means you have relatively old GRBL "
+"version, there are even 0.9 versions newer than this."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:23
+msgid ""
+"Grbl is in sleep mode. Motors are disabled, so you can move them manualy. "
+"That also means that your machine might have lost the position (or "
+"microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to "
+"wake Grbl again."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:78
+msgid ""
+"Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
+"are not supported."
+msgstr ""
+"Grbl은 6개의 작업 좌표계 G54-G59를 지원합니다. G59.1, G59.2 및 G59.3은 지원되"
+"지 않습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:128
+msgid ""
+"Hard limit triggered. Machine position is likely lost due to sudden and "
+"immediate halt. Re-homing is highly recommended."
+msgstr ""
+"하드 제한이 발동되었습니다. 기계 위치는 갑작스럽고 즉각적인 정지로 인해 손실"
+"될 수 있습니다. 리 호밍 (re-homing)을 적극 권장합니다."
+
+#: bCNC/controllers/_GenericGRBL.py:148
+msgid ""
+"Homing fail. Could not find limit switch within search distance. Defined as "
+"1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgstr ""
+"호밍(Homing)은 실패합니다. 검색 거리 내에 리미트 스위치를 찾을 수 없습니다. "
+"검색 시 1.5 * max_travel과 위치 단계에서 5 * pulloff로 정의됩니다."
+
+#: bCNC/controllers/_GenericGRBL.py:158
+#, fuzzy
+#| msgid ""
+#| "Homing fail. Could not find limit switch within search distance. Defined "
+#| "as 1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgid ""
+"Homing fail. Could not find second limit switch for auto squared axis within "
+"search distances. Try increasing max travel, decreasing pull-off distance, "
+"or check wiring. (grblHAL)"
+msgstr ""
+"호밍(Homing)은 실패합니다. 검색 거리 내에 리미트 스위치를 찾을 수 없습니다. "
+"검색 시 1.5 * max_travel과 위치 단계에서 5 * pulloff로 정의됩니다."
+
+#: bCNC/controllers/_GenericGRBL.py:145
+msgid ""
+"Homing fail. Cycle failed to clear limit switch when pulling off. Try "
+"increasing pull-off setting or check wiring."
+msgstr ""
+"호밍(Homing)이 실패합니다. 당겨주기 할 때 사이클이 한계 스위치를 지우지 못했"
+"습니다. pull-off 설정을 늘리거나 배선을 점검하십시오."
+
+#: bCNC/bmain.py:231
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+"MDI 명령 줄 : g- 코드 명령이나 매크로 명령 (RESET / HOME ...) 또는 편집기 명"
+"령 (move, inkscape, round ...)을 받아들입니다. [Space or Ctrl-Space] "
+
+#: bCNC/plugins/linearize.py:41
+msgid ""
+"Maximal length of resulting lines, smaller number means more precise output "
+"and longer g-code. Length will be automaticaly truncated to be even across "
+"whole subdivided segment."
+msgstr ""
+
+#: bCNC/ControlPage.py:1045
+msgid ""
+"Move to Origin.\n"
+"User configurable button.\n"
+"Right click to configure."
+msgstr ""
+"원점으로 이동합니다.\n"
+"사용자가 구성 할 수 있는 버튼.\n"
+"마우스 오른쪽 버튼을 클릭하여 구성하십시오."
+
+#: bCNC/ControlPage.py:609 bCNC/ControlPage.py:916
+msgid ""
+"No info available.\n"
+"Please contact the author."
+msgstr ""
+"정보가 없습니다.\n"
+"저자에게 연락하십시오."
+
+#: bCNC/plugins/endmilloffset.py:454
+msgid ""
+"Number of contours (Custom offset count) : indicates the number of contours "
+"if custom selected. MAX:"
+msgstr ""
+
+#: bCNC/ProbePage.py:904
+msgid ""
+"Please verify that the probe is connected.\n"
+"\n"
+"Show this message again?"
+msgstr ""
+"프로브가 연결되어 있는지 확인하십시오.\n"
+"이 메시지를 다시 표시 하시겠습니까?"
+
+#: bCNC/controllers/_GenericGRBL.py:140
+msgid ""
+"Probe fail. Probe did not contact the workpiece within the programmed travel "
+"for G38.2 and G38.4."
+msgstr ""
+"프로브가 실패합니다. 프로브가 G38.2 및 G38.4의 프로그래밍 된 이동 범위 내에"
+"서 공작물과 접촉하지 않았습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:137
+msgid ""
+"Probe fail. The probe is not in the expected initial state before starting "
+"probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
+"triggered."
+msgstr ""
+"프로브가 실패합니다. 프로브 사이클을 시작하기 전에 프로브가 예상된 초기 상태"
+"가 아닙니다. 여기서 G38.2 및 G38.3은 발동되지 않고 G38.4 및 G38.5가 발동됩니"
+"다."
+
+#: bCNC/controllers/_GenericGRBL.py:134
+msgid ""
+"Reset while in motion. Grbl cannot guarantee position. Lost steps are "
+"likely. Re-homing is highly recommended."
+msgstr ""
+"동작 중 재설정합니다. Grbl은 위치를 보장할 수 없습니다. 분실된 단계가있을 수 "
+"있습니다. 리 호밍 (re-homing)을 적극 권장합니다."
+
+#: bCNC/ProbePage.py:211
+msgid ""
+"Set current XY location as autoleveling Z-zero (recalculate probed data to "
+"be relative to this XY origin point)"
+msgstr ""
+
+#: bCNC/ControlPage.py:251
+msgid ""
+"Show current state of the machine\n"
+"Click to see details\n"
+"Right-Click to clear alarm/errors"
+msgstr ""
+"기계의 현재 상태를 표시합니다.\n"
+"세부 정보를 보려면 클릭하십시오.\n"
+"알람 / 오류를 지우려면 마우스 오른쪽 버튼을 클릭하십시오."
+
+#: bCNC/plugins/dragknife.py:91
+msgid ""
+"Simulation is currently approximated by using lots of short lines. This is "
+"the length of these lines."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:110
+msgid ""
+"Spindle not running when motion commanded in CSS or spindle sync mode. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:487 bCNC/plugins/endmilloffset.py:496
+msgid ""
+"Tabs are always ignored. You can select if all islands are active, none, or "
+"only selected"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:102
+msgid ""
+"The G43.1 dynamic tool length offset command cannot apply an offset to an "
+"axis other than its configured axis. The Grbl default axis is the Z-axis."
+msgstr ""
+"G43.1 동적 공구 길이 오프셋 명령은 구성된 축 이외의 축에 오프셋을 적용 할 수 "
+"없습니다. Grbl 기본 축은 Z축입니다."
+
+#: bCNC/controllers/_GenericGRBL.py:81
+msgid ""
+"The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
+"be active. A different motion was active."
+msgstr ""
+"G53 G 코드 명령은 G0 찾기 또는 G1 피드 동작 모드를 활성화해야합니다. 다른 동"
+"작이 활성화되었습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:90
+msgid ""
+"The motion command has an invalid target. G2, G3, and G38.2 generates this "
+"error, if the arc is impossible to generate or if the probe target is the "
+"current position."
+msgstr ""
+"동작 명령에 잘못된 대상이 있습니다. 호를 생성 할 수 없거나 프로브 타겟이 현"
+"재 위치인 경우 G2, G3 및 G38.2가 이 오류를 생성합니다."
+
+#: bCNC/controllers/_GenericGRBL.py:84
+msgid ""
+"There are unused axis words in the block and G80 motion mode cancel is "
+"active."
+msgstr ""
+"블록에 사용되지 않은 축 단어가 있으며 G80 모션 모드 취소가 활성화됩니다."
+
+#: bCNC/controllers/_GenericGRBL.py:99
+msgid ""
+"There are unused, leftover G-code words that aren't used by any command in "
+"the block."
+msgstr "블록의 명령에 사용되지 않은 남은 G 코드 단어가 있습니다."
+
+#: bCNC/Utils.py:709
+#, fuzzy
+#| msgid ""
+#| "There was an error sending the report\n"
+#| "Code={} {}"
+msgid ""
+"There was an error sending the report\n"
+"Code={} {}"
+msgstr ""
+"보고서를 보내는 중 오류가 발생했습니다.\n"
+"코드 = {} {}"
+
+#: bCNC/plugins/endmilloffset.py:471
+msgid ""
+"This can be used to switch between Conventional and Climb milling. If unsure "
+"use Convetional (default)."
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:23
+msgid ""
+"This plugin is for creating drilling marks with a laser engraver\n"
+"        for manual drilling"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:105
+msgid ""
+"Tool number greater than max supported value or undefined tool selected. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:65
+msgid ""
+"Two G-code commands that both require the use of the XYZ axis words were "
+"detected in the block."
+msgstr ""
+"XYZ 축 단어를 사용해야 하는 두 개의 G 코드 명령이 블록에서 감지되었습니다."
+
+#: bCNC/plugins/dragknife.py:82
+msgid ""
+"Use this option to simulate cuting of dragknife path. Resulting shape will "
+"reflect what shape will actuall be cut. This should reverse the dragknife "
+"procedure and give you back the original shape from g-code that was "
+"previously processed for dragknife."
+msgstr ""
+
+#: bCNC/bmain.py:2722
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+"\n"
+"로컬로 열어 보시겠습니까?"
+
+#: bCNC/bmain.py:888
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+"bCNC / 고급 기능\n"
+"GRBL 용 g-code 발신자."
+
+#: bCNC/plugins/dragknife.py:72
+msgid ""
+"direction that knife blade is facing before and after cut. Eg.: if you set "
+"this to X+, then the knifes rotation axis should be on the right side of the "
+"tip. Meaning that the knife is ready to cut towards right immediately "
+"without pivoting. If you cut multiple shapes in single operation, it's "
+"important to have this set consistently across all of them."
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:47
+msgid ""
+"how precisely must line fit. set to 0 to disable line fitting, but at least "
+"some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can "
+"be fit"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:445
+msgid ""
+"indicates the number of profile passes (single,custom number,full pocket)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:783
+msgid ""
+"positive value = relative to tool diameter (5 to 10 probably makes sense), "
+"negative = absolute ramp distance (you probably don't need this). Also note "
+"that ramp can't currently be shorter than affected g-code segment."
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:63
+msgid ""
+"retract to this height for pivots (useful for thick materials, you should "
+"enter number slightly lower than material thickness)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2003
+#, fuzzy
+#| msgid "     line: {}\n"
+msgid "     line: {}\n"
+msgstr "줄:{}\n"
+
+#: bCNC/bmain.py:1195 bCNC/bmain.py:1276
+msgid "# Blocks:"
+msgstr "# 블락들: "
+
+#: bCNC/TerminalPage.py:182
+msgid "$ Display build information of Grbl"
+msgstr "$ GRBL의 빌드 정보 보기"
+
+#: bCNC/TerminalPage.py:103
+msgid "$# Display parameters of Grbl"
+msgstr "$# GRBL 매개 변수 보기"
+
+#: bCNC/TerminalPage.py:88
+msgid "$$ Display settings of Grbl"
+msgstr "$$ GRBL 설정 보기"
+
+#: bCNC/ToolsPage.py:1173
+msgid "$0 Step pulse time [us]"
+msgstr "%0 단계 펄스 시간[us]"
+
+#: bCNC/ToolsPage.py:1174
+msgid "$1 Step idle delay [ms]"
+msgstr "$1 단계 지연 시간[ms]"
+
+#: bCNC/ToolsPage.py:1180
+msgid "$10 Status report [mask]"
+msgstr "$10 상태 보고서[mask]"
+
+#: bCNC/ToolsPage.py:1195
+msgid "$100 X steps/mm"
+msgstr "$100 X stpes/mm"
+
+#: bCNC/ToolsPage.py:1196
+msgid "$101 Y steps/mm"
+msgstr "$101 Y steps/mm"
+
+#: bCNC/ToolsPage.py:1197
+msgid "$102 Z steps/mm"
+msgstr "$102 Z steps/mm"
+
+#: bCNC/ToolsPage.py:1181
+msgid "$11 Junction deviation [mm]"
+msgstr "$11 접합무 편차[mm]"
+
+#: bCNC/ToolsPage.py:1198
+msgid "$110 X max rate [mm/min]"
+msgstr "$110 X최대 비율[mm/min]"
+
+#: bCNC/ToolsPage.py:1199
+msgid "$111 Y max rate [mm/min]"
+msgstr "$111 Y최대 비율[mm/min]"
+
+#: bCNC/ToolsPage.py:1200
+msgid "$112 Z max rate [mm/min]"
+msgstr "$112 Z최대 비율[mm/min]"
+
+#: bCNC/ToolsPage.py:1182
+msgid "$12 Arc tolerance [mm]"
+msgstr "$12 아크 공차"
+
+#: bCNC/ToolsPage.py:1201
+msgid "$120 X acceleration [mm/sec^2]"
+msgstr "$120 X 가속도[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1202
+msgid "$121 Y acceleration [mm/sec^2]"
+msgstr "$121 Y 가속도[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1203
+msgid "$122 Z acceleration [mm/sec^2]"
+msgstr "$122 Z가속도[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1183
+msgid "$13 Report inches"
+msgstr "$13 인치 보고"
+
+#: bCNC/ToolsPage.py:1204
+msgid "$130 X max travel [mm]"
+msgstr "$130 X 최대 트래블[mm]"
+
+#: bCNC/ToolsPage.py:1205
+msgid "$131 Y max travel [mm]"
+msgstr "$131 Y 최대 트래블[mm]"
+
+#: bCNC/ToolsPage.py:1206
+msgid "$132 Z max travel [mm]"
+msgstr "$132 Z 최대 트래블[mm]"
+
+#: bCNC/ToolsPage.py:1207
+msgid "$140 X homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1208
+msgid "$141 Y homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1209
+msgid "$142 Z homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1175
+msgid "$2 Step port invert [mask]"
+msgstr "$2 단계 포트 반전[mask]"
+
+#: bCNC/ToolsPage.py:1184
+msgid "$20 Soft limits"
+msgstr "$20 종류 제한"
+
+#: bCNC/ToolsPage.py:1185
+msgid "$21 Hard limits"
+msgstr "$21 엄격한 제한"
+
+#: bCNC/ToolsPage.py:1186
+msgid "$22 Homing cycle"
+msgstr "$22 원점 복귀주기"
+
+#: bCNC/ToolsPage.py:1187
+msgid "$23 Homing direction invert [mask]"
+msgstr "$23 원점 방향 반전[mask]"
+
+#: bCNC/ToolsPage.py:1188
+msgid "$24 Homing feed [mm/min]"
+msgstr "#24 귀환 피드[mm/min]"
+
+#: bCNC/ToolsPage.py:1189
+msgid "$25 Homing seek [mm/min]"
+msgstr "#25 귀환 찾기[mm/min]"
+
+#: bCNC/ToolsPage.py:1190
+msgid "$26 Homing debounce [ms]"
+msgstr "$26 원점 복귀 논쟁 "
+
+#: bCNC/ToolsPage.py:1191
+msgid "$27 Homing pull-off [mm]"
+msgstr "$27 원점 잡아당기기[mm]"
+
+#: bCNC/ToolsPage.py:1176
+msgid "$3 Direction port invert [mask]"
+msgstr "$3 방향 포트 반전[mask]"
+
+#: bCNC/ToolsPage.py:1192
+msgid "$30 Max spindle speed [RPM]"
+msgstr "$30 최대 스핀들 속도[RPM]"
+
+#: bCNC/ToolsPage.py:1193
+msgid "$31 Min spindle speed [RPM]"
+msgstr "$31 최소 스핀들 속도[RPM]"
+
+#: bCNC/ToolsPage.py:1194
+msgid "$32 Laser mode enable"
+msgstr "$32 레이저 모드 허용"
+
+#: bCNC/ToolsPage.py:1177
+msgid "$4 Step enable invert"
+msgstr "$4 반전 가능 단계"
+
+#: bCNC/ToolsPage.py:1178
+msgid "$5 Limit pins invert"
+msgstr "$5 핀 반전 제한"
+
+#: bCNC/ToolsPage.py:1179
+msgid "$6 Probe pin invert"
+msgstr "$6 핀 반전 확인"
+
+#: bCNC/TerminalPage.py:165
+msgid "$C Enable/Disable checking of gcode"
+msgstr "$C G코드 확인 켜기/끄기"
+
+#: bCNC/TerminalPage.py:117
+msgid "$G Display state of Grbl"
+msgstr "$G GRBL의 상태 보기"
+
+#: bCNC/TerminalPage.py:133
+msgid "$I Display build information of Grbl"
+msgstr "$l GRBL의 빌드 정보 보기"
+
+#: bCNC/TerminalPage.py:148
+msgid "$N Display startup configuration of Grbl"
+msgstr "$N GRBL의 시작 구성 보기"
+
+#: bCNC/bmain.py:2450
+#, fuzzy
+#| msgid "'{}' loaded"
+msgid "'{}' loaded"
+msgstr "'{}'가 로드되었습니다."
+
+#: bCNC/bmain.py:2446
+#, fuzzy
+#| msgid "'{}' reloaded at '{}'"
+msgid "'{}' reloaded at '{}'"
+msgstr "'{}'이 (가) '{}'에서 다시로드되었습니다."
+
+#: bCNC/bmain.py:2459
+#, fuzzy
+#| msgid "'{}' saved"
+msgid "'{}' saved"
+msgstr "'{}'가 저장되었습니다."
+
+#: bCNC/EditorPage.py:376
+msgid "(Un)Comment selected lines"
+msgstr "선택된 행에 주석 달기 또는 해제"
+
+#: bCNC/controllers/_GenericGRBL.py:120
+msgid "(grblHAL internal)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1005 bCNC/ControlPage.py:1482
+msgid "+"
+msgstr ""
+
+#: bCNC/ControlPage.py:1174 bCNC/ControlPage.py:1646
+msgid "-"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:58
+msgid ".STL/.PLY file to slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:1742
+msgid "1. Spindle"
+msgstr "1. 스핀들"
+
+#: bCNC/ProbePage.py:1748
+msgid "2. Camera"
+msgstr "2. 카메라"
+
+#: bCNC/plugins/slicemesh.py:67
+msgid "3D slice (devel)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2001
+#, fuzzy
+#| msgid ">>> ERROR: {}\n"
+msgid ">>> ERROR: {}\n"
+msgstr ">>>에러:{}\n"
+
+#: bCNC/ControlPage.py:1407
+msgid "A"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:67
+msgid "A G-code word was repeated in the block."
+msgstr "G 코드 단어가 블록에서 반복되었습니다."
+
+#: bCNC/ControlPage.py:651
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "A work position (click to set)"
+msgstr "X 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ControlPage.py:727
+msgid "A=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:793
+msgid "ABC=0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:117
+msgid "ATC: current tool is not set. Set current tool with M61. (grblHAL)"
+msgstr ""
+
+#: bCNC/FilePage.py:216
+msgid "About"
+msgstr "대하여"
+
+#: bCNC/FilePage.py:224
+msgid "About the program"
+msgstr "프로그램에 대하여"
+
+#: bCNC/bmain.py:847
+#, fuzzy
+#| msgid "About {}"
+msgid "About {} v{}"
+msgstr "{}에 관하여"
+
+#: bCNC/ToolsPage.py:641
+msgid "Acceleration x"
+msgstr "가속도 x"
+
+#: bCNC/ToolsPage.py:642
+msgid "Acceleration y"
+msgstr "가속도 y"
+
+#: bCNC/ToolsPage.py:643
+msgid "Acceleration z"
+msgstr "가속도 z"
+
+#: bCNC/EditorPage.py:335
+msgid "Active"
+msgstr "작동"
+
+#: bCNC/plugins/trochoidPath.py:48 bCNC/plugins/trochoidal_3D.py:72
+msgid "Adaptative"
+msgstr ""
+
+#: bCNC/EditorPage.py:258 bCNC/ProbePage.py:702 bCNC/ToolsPage.py:1472
+msgid "Add"
+msgstr "추가"
+
+#: bCNC/ToolsPage.py:1478
+msgid "Add a new operation/object"
+msgstr "새로운 작업 / 객체 만들기"
+
+#: bCNC/CNCCanvas.py:468
+msgid "Add an orientation marker"
+msgstr "방향 표식 추가"
+
+#: bCNC/plugins/zigzag.py:108
+msgid "Additional length at start/end"
+msgstr "시작/종료시 추가 길이"
+
+#: bCNC/plugins/endmilloffset.py:478
+#, fuzzy
+#| msgid "Additional offset distance"
+msgid "Additional offset (mm)"
+msgstr "추가 오프센 거리"
+
+#: bCNC/plugins/trochoidPath.py:41 bCNC/plugins/trochoidal_3D.py:65
+#: bCNC/ToolsPage.py:1013
+msgid "Additional offset distance"
+msgstr "추가 오프센 거리"
+
+#: bCNC/ProbePage.py:2111
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr "ProbeZ에서 시작하여 스캔 할 공구 교환 거리가 끝난 후"
+
+#: bCNC/ToolsPage.py:617
+msgid "Align Camera"
+msgstr "카메라 정렬"
+
+#: bCNC/ToolsPage.py:620
+msgid "Align Camera Angle"
+msgstr "카메라 각도 맞추기"
+
+#: bCNC/ToolsPage.py:619
+msgid "Align Camera Height"
+msgstr "카메라 높이 맞추기"
+
+#: bCNC/ToolsPage.py:618
+msgid "Align Camera Width"
+msgstr "카메라 너비 맞추기"
+
+#: bCNC/ProbePage.py:831
+msgid "Align GCode with the machine markers"
+msgstr "GCode를 기계 마커와 정렬"
+
+#: bCNC/EditorPage.py:106 bCNC/bmain.py:140
+msgid "All"
+msgstr "전체"
+
+#: bCNC/bmain.py:1235
+msgid "All GCode"
+msgstr "모든 GCode "
+
+#: bCNC/bmain.py:119
+msgid "All accepted"
+msgstr "모두 승인되었습니다."
+
+#: bCNC/bmain.py:2609
+msgid "Already running"
+msgstr "이미 실행중입니다. "
+
+#: bCNC/ToolsPage.py:717
+msgid "Angle"
+msgstr "각도"
+
+#: bCNC/ProbePage.py:808
+msgid "Angle:"
+msgstr "각:"
+
+#: bCNC/plugins/spiral.py:481
+msgid "Approach Height (Safe Z)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:11
+msgid "ArcFit"
+msgstr ""
+
+#: bCNC/ProbePage.py:956
+msgid "At least one probe direction should be specified"
+msgstr "적어도 하나의 프로브 방향을 지정해야 합니다."
+
+#: bCNC/EditorPage.py:198 bCNC/ProbePage.py:128 bCNC/ProbePage.py:254
+#: bCNC/ProbePage.py:1224
+msgid "Autolevel"
+msgstr "자동 수준"
+
+#: bCNC/ProbePage.py:135
+msgid "Autolevel Z surface"
+msgstr "자동 Z 표면"
+
+#: bCNC/ProbePage.py:573
+msgid "Automatic GOTO after probing"
+msgstr ""
+
+#: bCNC/Utils.py:602
+msgid "Automatic error reporting"
+msgstr "자동 오류 보고"
+
+#: bCNC/plugins/midi2cnc.py:70
+msgid "Axis to be used"
+msgstr "사용할 축"
+
+#: bCNC/ControlPage.py:1491
+msgid "B"
+msgstr ""
+
+#: bCNC/ControlPage.py:668
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "B work position (click to set)"
+msgstr "X 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ControlPage.py:743
+msgid "B=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:777
+msgid "BC=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:73
+msgid "BEFORE & AFTER probing"
+msgstr "probing하기 전과 후"
+
+#: bCNC/FilePage.py:316
+msgid "Baud:"
+msgstr "Baud:"
+
+#: bCNC/EditorPage.py:250
+msgid "Block"
+msgstr "블록"
+
+#: bCNC/controllers/_GenericGRBL.py:126
+msgid "Bluetooth initalisation failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:362
+msgid "Board height"
+msgstr "보드 높이"
+
+#: bCNC/plugins/jigsaw.py:361
+msgid "Board width"
+msgstr "보드 너비"
+
+#: bCNC/EditorPage.py:464
+msgid "Bottom"
+msgstr "아래"
+
+#: bCNC/EditorPage.py:461
+msgid "Bottom-Left"
+msgstr "왼쪽 아래"
+
+#: bCNC/EditorPage.py:467
+msgid "Bottom-Right"
+msgstr "오른쪽 아래"
+
+#: bCNC/plugins/bowl.py:14
+msgid "Bowl"
+msgstr "Bowl"
+
+#: bCNC/plugins/box.py:19
+msgid "Box"
+msgstr "박스"
+
+#: bCNC/TerminalPage.py:215
+msgid "Buffered commands"
+msgstr "버퍼된 커맨드"
+
+#: bCNC/TerminalPage.py:126
+msgid "Build"
+msgstr "빌드"
+
+#: bCNC/plugins/drillmark.py:49
+msgid "Burn power for drillmark"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:48
+msgid "Burn time for drillmark"
+msgstr ""
+
+#: bCNC/ControlPage.py:1410
+#, fuzzy
+#| msgid "CW"
+msgid "C"
+msgstr "CW"
+
+#: bCNC/ControlPage.py:685
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "C work position (click to set)"
+msgstr "X 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ControlPage.py:759
+msgid "C=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1522 bCNC/ToolsPage.py:2090
+msgid "CAM"
+msgstr "CAM"
+
+#: bCNC/EditorPage.py:596
+msgid "CCW"
+msgstr "CCW"
+
+#: bCNC/ProbePage.py:507
+msgid "CIRCLE"
+msgstr ""
+
+#: bCNC/ControlPage.py:2363
+msgid "CNC communication and control"
+msgstr "CNC 통신 및 제어"
+
+#: bCNC/bmain.py:636
+msgid "CNC is currently running, please stop it before."
+msgstr "CNC가 현재 실행 중입니다. 전에 중지하십시오. "
+
+#: bCNC/ToolsPage.py:926
+msgid "CUT selected paths"
+msgstr "선택된 경로 삭제"
+
+#: bCNC/EditorPage.py:566
+msgid "CW"
+msgstr "CW"
+
+#: bCNC/ProbePage.py:1926 bCNC/ProbePage.py:2132
+msgid "Calibrate"
+msgstr "보정"
+
+#: bCNC/ProbePage.py:2121
+msgid "Calibration:"
+msgstr "구경측정: "
+
+#: bCNC/ProbePage.py:142 bCNC/ProbePage.py:1630 bCNC/ToolsPage.py:1870
+msgid "Camera"
+msgstr "카메라"
+
+#: bCNC/ToolsPage.py:1878
+msgid "Camera Configuration"
+msgstr "카메라 구성"
+
+#: bCNC/ProbePage.py:1701
+msgid "Camera cross hair diameter [units]"
+msgstr "카메라 십자선 지름 [단위]"
+
+#: bCNC/ProbePage.py:1643
+msgid "Camera location inside canvas"
+msgstr "캔버스 안 카메라 위치"
+
+#: bCNC/ProbePage.py:1718 bCNC/ProbePage.py:1727
+msgid "Camera offset from gantry"
+msgstr "갠트리로부터 오프셋 된 카메라"
+
+#: bCNC/ProbePage.py:1862
+msgid "Camera offset is updated"
+msgstr "카메라 오프셋이 업데이트 되었습니다."
+
+#: bCNC/ProbePage.py:1655
+msgid "Camera rotation [degrees]"
+msgstr "카메라 회전 [각도]"
+
+#: bCNC/ProbePage.py:1688
+msgid "Camera scale [pixels / unit]"
+msgstr "카메라 스케일 [픽셀/단위]"
+
+#: bCNC/lib/bFileDialog.py:361 bCNC/Utils.py:876
+msgid "Cancel"
+msgstr "취소"
+
+#: bCNC/lib/bFileDialog.py:582
+#, fuzzy
+#| msgid "Cannot access path \"{}\""
+msgid "Cannot access path \"{}\""
+msgstr "경로 \"{}\"에 접근 할 수 없습니다."
+
+#: bCNC/plugins/sketch.py:50
+msgid "Casual first point"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:47
+msgid "Cell size"
+msgstr "셀 크기"
+
+#: bCNC/plugins/center.py:12 bCNC/EditorPage.py:463 bCNC/ProbePage.py:646
+#: bCNC/ProbePage.py:662
+msgid "Center"
+msgstr "센터"
+
+#: bCNC/plugins/simpleArc.py:65
+#, fuzzy
+#| msgid "Center"
+msgid "Center X"
+msgstr "센터"
+
+#: bCNC/plugins/function_plot.py:28
+msgid "Center X coordinate"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:66
+#, fuzzy
+#| msgid "Center"
+msgid "Center Y"
+msgstr "센터"
+
+#: bCNC/plugins/function_plot.py:29
+msgid "Center Y coordinate"
+msgstr ""
+
+#: bCNC/ProbePage.py:671
+msgid "Center probing using a ring"
+msgstr "ring을 이용한 센터 probing"
+
+#: bCNC/ProbePage.py:1944
+msgid "Change"
+msgstr "바꾸기"
+
+#: bCNC/EditorPage.py:732
+msgid "Change cut direction to CCW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:715
+msgid "Change cut direction to CW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:682
+msgid "Change cut direction to climb for selected gcode blocks"
+msgstr "선택된 g코드 블록의 절단 방향 역방향으로 바꾸기"
+
+#: bCNC/EditorPage.py:665
+msgid "Change cut direction to conventional for selected gcode blocks"
+msgstr "선택된 g코드 블록의 기존 절단 방향 바꾸기"
+
+#: bCNC/ToolsPage.py:1810
+msgid "Change program language restart is required"
+msgstr "프로그램의 언어를 바꾸려면 재시작해야 합니다."
+
+#: bCNC/CNCCanvas.py:2250
+msgid "Change viewing angle"
+msgstr "보는 각도 변경"
+
+#: bCNC/ProbePage.py:2011
+msgid "Change:"
+msgstr "변경: "
+
+#: bCNC/plugins/halftone.py:43 bCNC/plugins/sketch.py:57
+msgid "Channel to analyze"
+msgstr "분석할 채널"
+
+#: bCNC/Updates.py:86
+msgid "Check Interval"
+msgstr "검토 간격"
+
+#: bCNC/Updates.py:135
+msgid "Check Now"
+msgstr "현재 검토"
+
+#: bCNC/FilePage.py:211
+msgid "Check Updates"
+msgstr "업데이트 확인"
+
+#: bCNC/TerminalPage.py:157
+msgid "Check gcode"
+msgstr "G코드 확인"
+
+#: bCNC/Updates.py:142
+msgid "Check the web site for new versions of bCNC"
+msgstr "bCNC의 새로운 버전을 위한 웹 사이트 검토"
+
+#: bCNC/lib/bFileDialog.py:998
+msgid "Choose Directory"
+msgstr "디렉토리를 선택하세요."
+
+#: bCNC/ProbePage.py:530
+msgid "Circle radius"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:46
+msgid "Circular"
+msgstr ""
+
+#: bCNC/plugins/gear.py:163
+msgid "Circular Pitch"
+msgstr "원형 피치"
+
+#: bCNC/ProbePage.py:224 bCNC/ProbePage.py:794 bCNC/TerminalPage.py:45
+msgid "Clear"
+msgstr "해결"
+
+#: bCNC/ControlPage.py:479
+msgid "Clear Message"
+msgstr "메시지 지우기"
+
+#: bCNC/ProbePage.py:230
+msgid "Clear probe data"
+msgstr "probe 데이터 해결"
+
+#: bCNC/TerminalPage.py:50
+msgid "Clear terminal"
+msgstr "터미널 삭제"
+
+#: bCNC/CNCCanvas.py:440
+msgid "Click to set the origin (zero)"
+msgstr "초기화 버튼(zero)"
+
+#: bCNC/EditorPage.py:674
+msgid "Climb"
+msgstr "역방향"
+
+#: bCNC/plugins/endmilloffset.py:469
+msgid "Climb milling"
+msgstr ""
+
+#: bCNC/EditorPage.py:40
+msgid "Clipboard"
+msgstr "클립보드"
+
+#: bCNC/plugins/trochoidal.py:45 bCNC/plugins/trochoidal_3D.py:92
+msgid "Clockwise"
+msgstr ""
+
+#: bCNC/EditorPage.py:276 bCNC/ToolsPage.py:1489
+msgid "Clone"
+msgstr "복제"
+
+#: bCNC/EditorPage.py:282
+msgid "Clone selected lines or blocks [Ctrl-D]"
+msgstr "선택된 선 또는 블록 복제[Ctrl-D]"
+
+#: bCNC/ToolsPage.py:1495
+msgid "Clone selected operation/object"
+msgstr "선택된 작업 / 객체 복사"
+
+#: bCNC/FilePage.py:267 bCNC/Updates.py:126 bCNC/Utils.py:613
+#: bCNC/bmain.py:1085 bCNC/bmain.py:1320 bCNC/bmain.py:2554
+msgid "Close"
+msgstr "닫기"
+
+#: bCNC/plugins/text.py:42
+msgid "Close Contours"
+msgstr ""
+
+#: bCNC/FilePage.py:280
+msgid "Close program [Ctrl-Q]"
+msgstr "프로그램 닫기 [Ctrl-Q]"
+
+#: bCNC/plugins/closepath.py:17
+msgid "Close the path"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:11
+msgid "ClosePath"
+msgstr ""
+
+#: bCNC/ToolsPage.py:712
+msgid "Coating"
+msgstr "코팅"
+
+#: bCNC/CNCList.py:749 bCNC/EditorPage.py:203
+msgid "Color"
+msgstr "색깔"
+
+#: bCNC/ToolsPage.py:1934
+msgid "Colors"
+msgstr "색상"
+
+#: bCNC/Utils.py:861 bCNC/bmain.py:215
+msgid "Command:"
+msgstr "명령어:"
+
+#: bCNC/TerminalPage.py:61
+msgid "Commands"
+msgstr "커맨드"
+
+#: bCNC/EditorPage.py:370 bCNC/ToolsPage.py:681 bCNC/ToolsPage.py:708
+#: bCNC/ToolsPage.py:738
+msgid "Comment"
+msgstr "주석"
+
+#: bCNC/ProbePage.py:295
+msgid "Common"
+msgstr "공통"
+
+#: bCNC/ToolsPage.py:822
+msgid "Compensate islands for cutter radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1795 bCNC/ToolsPage.py:1821
+msgid "Config"
+msgstr "구성"
+
+#: bCNC/FilePage.py:348
+msgid "Connect on startup"
+msgstr "시작시 연결"
+
+#: bCNC/FilePage.py:352
+msgid "Connect to serial on startup of the program"
+msgstr "프로그램 시작시 포트 연결"
+
+#: bCNC/ControlPage.py:82 bCNC/ControlPage.py:122
+msgid "Connection"
+msgstr "연결"
+
+#: bCNC/controllers/_GenericGRBL.py:31
+msgid "Connection is established with Grbl"
+msgstr "Grbl과 연결됩니다."
+
+#: bCNC/ControlPage.py:927 bCNC/ControlPage.py:2364
+msgid "Control"
+msgstr "통제"
+
+#: bCNC/ToolsPage.py:591 bCNC/ToolsPage.py:592 bCNC/ToolsPage.py:593
+#: bCNC/ToolsPage.py:594 bCNC/ToolsPage.py:595 bCNC/ToolsPage.py:596
+#: bCNC/ToolsPage.py:597 bCNC/ToolsPage.py:598 bCNC/ToolsPage.py:599
+#: bCNC/ToolsPage.py:600 bCNC/ToolsPage.py:601 bCNC/ToolsPage.py:602
+msgid "Control-"
+msgstr "Control-"
+
+#: bCNC/ToolsPage.py:1854
+msgid "Controller"
+msgstr "컨트롤러"
+
+#: bCNC/ToolsPage.py:1862
+msgid "Controller (GRBL) configuration"
+msgstr "컨트롤러(GRBL) 구성"
+
+#: bCNC/bmain.py:202
+msgid "Controller buffer fill"
+msgstr "컨트롤러 버퍼 채우기"
+
+#: bCNC/FilePage.py:330
+msgid "Controller:"
+msgstr "컨트롤러:"
+
+#: bCNC/EditorPage.py:655
+msgid "Conventional"
+msgstr "기존의"
+
+#: bCNC/ControlPage.py:2149
+msgid "Coolant:"
+msgstr ""
+
+#: bCNC/EditorPage.py:80
+msgid "Copy"
+msgstr "복사하기"
+
+#: bCNC/EditorPage.py:86
+msgid "Copy [Ctrl-C]"
+msgstr "복사하기 [Ctrl-C] "
+
+#: bCNC/plugins/simpleRectangle.py:96
+#, fuzzy
+#| msgid "Internal Radius"
+msgid "Corner Radius"
+msgstr "내부 반경"
+
+#: bCNC/plugins/zigzag.py:110
+msgid "Corner resolution"
+msgstr "코너 해상도"
+
+#: bCNC/plugins/simpleArc.py:89
+#, fuzzy
+#| msgid "Create Spur GEAR"
+msgid "Create Simple Arc"
+msgstr "평 기어 만들기"
+
+#: bCNC/plugins/simpleDrill.py:104
+msgid "Create Simple Drill"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:73
+msgid "Create Simple Line"
+msgstr ""
+
+#: bCNC/plugins/simpleRectangle.py:118
+msgid "Create Simple Rectangle"
+msgstr ""
+
+#: bCNC/plugins/gear.py:178
+msgid "Create Spur GEAR"
+msgstr "평 기어 만들기"
+
+#: bCNC/plugins/hilbert.py:104
+msgid "Create a Hilbert path"
+msgstr "힐버트 경로 만들기"
+
+#: bCNC/plugins/zigzag.py:98
+msgid "Create a Zig-Zag path"
+msgstr "지그재그 경로 생성"
+
+#: bCNC/plugins/spirograph.py:111
+msgid "Create a spirograph path"
+msgstr "스피로그래프 경로 생성"
+
+#: bCNC/plugins/trochoidPath.py:29
+msgid "Create a trochoid rute along selected blocks"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:29
+msgid "Create a variable feed path based upon image brightness"
+msgstr "이미지 밝기에 따라 가변 피드 경로 생성"
+
+#: bCNC/plugins/box.py:393
+msgid "Create finger BOX"
+msgstr "손가락 박스 생성"
+
+#: bCNC/plugins/halftone.py:29
+msgid "Create halftone pattern from a picture"
+msgstr "그림에서 하프톤 패턴 만들기"
+
+#: bCNC/plugins/driller.py:36
+msgid "Create holes along selected blocks"
+msgstr "선택한 블록을 따라 구멍 만들기"
+
+#: bCNC/plugins/sketch.py:28
+msgid "Create sketch based on picture brightness"
+msgstr "그림 밝기에 따라 스케치 생성"
+
+#: bCNC/ToolsPage.py:1162
+msgid "Create tabs on blocks"
+msgstr "블록에 탭 만들기"
+
+#: bCNC/plugins/text.py:29
+msgid "Create text using a ttf font"
+msgstr "ttf 글꼴을 사용하여 텍스트 만들기"
+
+#: bCNC/plugins/trochoidal_3D.py:38
+#, fuzzy
+#| msgid "Create holes along selected blocks"
+msgid "Create trochoids along selected blocks"
+msgstr "선택한 블록을 따라 구멍 만들기"
+
+#: bCNC/ProbePage.py:1692
+msgid "Crosshair:"
+msgstr "십자선: "
+
+#: bCNC/plugins/endmilloffset.py:452
+msgid "Custom offset count"
+msgstr ""
+
+#: bCNC/plugins/box.py:356 bCNC/EditorPage.py:64 bCNC/ToolsPage.py:1530
+msgid "Cut"
+msgstr "자르기 "
+
+#: bCNC/plugins/heightmap.py:75
+msgid "Cut Border"
+msgstr "테두리 자르기"
+
+#: bCNC/EditorPage.py:724
+msgid "Cut CCW"
+msgstr ""
+
+#: bCNC/EditorPage.py:707
+msgid "Cut CW"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:38
+#, fuzzy
+#| msgid "Diameter"
+msgid "Cut Diameter"
+msgstr "직경"
+
+#: bCNC/plugins/flatten.py:298
+msgid "Cut Direction"
+msgstr "절단 방향"
+
+#: bCNC/plugins/spiral.py:482
+msgid "Cut Pattern"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:74
+msgid "Cut Top"
+msgstr "상단 자르기"
+
+#: bCNC/EditorPage.py:70
+msgid "Cut [Ctrl-X]"
+msgstr "자르기 [Ctrl-X]"
+
+#: bCNC/ToolsPage.py:829
+msgid "Cut contours of selected islands"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1539
+msgid "Cut for the full stock thickness selected code"
+msgstr "선택된 코드의 전체 스톡 구께 절단"
+
+#: bCNC/plugins/spiral.py:483
+#, fuzzy
+#| msgid "Cut Direction"
+msgid "Cut in Both Directions"
+msgstr "절단 방향"
+
+#: bCNC/ToolsPage.py:775
+msgid "Cutting strategy"
+msgstr ""
+
+#: bCNC/ToolsPage.py:987
+msgid "DRILL selected points"
+msgstr "드릴 선택된 지점"
+
+#: bCNC/ToolsPage.py:655
+msgid "DRO Zero padding"
+msgstr "DRO 제로 패딩"
+
+#: bCNC/ToolsPage.py:1397
+msgid "Database"
+msgstr "데이터베이스"
+
+#: bCNC/lib/bFileDialog.py:307
+msgid "Date"
+msgstr "날짜"
+
+#: bCNC/Updates.py:101
+#, fuzzy
+#| msgid "Date of last checking"
+msgid "Date last checked"
+msgstr "마지막 검토 날짜"
+
+#: bCNC/Updates.py:119
+msgid "Days-interval to remind again for checking"
+msgstr "검토를 위한 리마인드 날짜 간격"
+
+#: bCNC/ToolsPage.py:650
+msgid "Decimal digits"
+msgstr "10진수"
+
+#: bCNC/ControlPage.py:1176 bCNC/ControlPage.py:1648
+msgid "Decrease step by 1 unit"
+msgstr "1 단위씩 단계 감소"
+
+#: bCNC/EditorPage.py:292 bCNC/ProbePage.py:750 bCNC/ToolsPage.py:1506
+msgid "Delete"
+msgstr "삭ㅈ"
+
+#: bCNC/ProbePage.py:803 bCNC/ProbePage.py:1061
+msgid "Delete all markers"
+msgstr "모든 마커 삭제"
+
+#: bCNC/ProbePage.py:1497
+msgid "Delete autolevel information"
+msgstr "자동레벨정보 삭제"
+
+#: bCNC/ProbePage.py:759
+msgid "Delete current marker"
+msgstr "현재 마커 삭제"
+
+#: bCNC/EditorPage.py:298
+msgid "Delete selected lines or blocks [Del]"
+msgstr "선택된 선 또는 블록 삭제[Del]"
+
+#: bCNC/ToolsPage.py:1512
+msgid "Delete selected operation/object"
+msgstr "산택된 작업 / 객체 삭제"
+
+#: bCNC/plugins/hilbert.py:114 bCNC/plugins/zigzag.py:111
+msgid "Depth"
+msgstr "깊이"
+
+#: bCNC/plugins/box.py:349
+msgid "Depth Dy"
+msgstr "Dy 깊이"
+
+#: bCNC/plugins/trochoidPath.py:55 bCNC/plugins/trochoidal_3D.py:89
+#: bCNC/ToolsPage.py:684 bCNC/ToolsPage.py:768
+msgid "Depth Increment"
+msgstr "깊이 증분"
+
+#: bCNC/plugins/spiral.py:478
+#, fuzzy
+#| msgid "Depth to flatten"
+msgid "Depth to Reduce"
+msgstr "깊이 전개"
+
+#: bCNC/plugins/flatten.py:293
+msgid "Depth to flatten"
+msgstr "깊이 전개"
+
+#: bCNC/plugins/bowl.py:113 bCNC/ToolsPage.py:713
+msgid "Diameter"
+msgstr "직경"
+
+#: bCNC/plugins/Helical_Descent.py:83
+#, fuzzy
+msgid "Diameter Cut"
+msgstr "직경"
+
+#: bCNC/ProbePage.py:649
+msgid "Diameter:"
+msgstr "지름"
+
+#: bCNC/plugins/difference.py:18
+msgid "Difference"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:365
+msgid "Difference between pieces"
+msgstr "조각 간 차이"
+
+#: bCNC/plugins/difference.py:24
+msgid "Difference of two shapes"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:40 bCNC/plugins/trochoidal_3D.py:60
+#: bCNC/plugins/pyrograph.py:46 bCNC/ToolsPage.py:1010
+msgid "Direction"
+msgstr "방향"
+
+#: bCNC/bmain.py:1584
+msgid "Direction command error"
+msgstr "방향 커맨드 오류 "
+
+#: bCNC/lib/bFileDialog.py:275
+msgid "Directory:"
+msgstr "디렉토리:"
+
+#: bCNC/EditorPage.py:327
+msgid "Disable"
+msgstr "비활성화"
+
+#: bCNC/ToolsPage.py:942
+msgid "Distance (mm)"
+msgstr "거리(mm)"
+
+#: bCNC/ControlPage.py:1921
+msgid "Distance Mode [G90,G91]"
+msgstr "거리 모드 [G90, G91]"
+
+#: bCNC/plugins/driller.py:45
+msgid "Distance between holes"
+msgstr "구멍 간 거리"
+
+#: bCNC/ControlPage.py:1910 bCNC/ProbePage.py:2103
+msgid "Distance:"
+msgstr "거리:"
+
+#: bCNC/ControlPage.py:1170 bCNC/ControlPage.py:1642
+msgid "Divide step by 10"
+msgstr "10 단계씩 나눕니다."
+
+#: bCNC/ProbePage.py:1498
+msgid "Do you want to delete all autolevel in formation?"
+msgstr "정보안의 모든 자동레벨을 삭제하시겠습니까?"
+
+#: bCNC/ProbePage.py:1062
+msgid "Do you want to delete all orientation markers?"
+msgstr "모든 방향 마커를 삭제하시겠습니까?"
+
+#: bCNC/controllers/_GenericGRBL.py:162
+msgid "Door closed. Ready to resume."
+msgstr "문이 닫혔습니다. 다시 시작할 준비가 되었습니다."
+
+#: bCNC/ToolsPage.py:639
+msgid "Double Size Icon"
+msgstr "두배 크기 아이콘"
+
+#: bCNC/EditorPage.py:524
+msgid "Down"
+msgstr "아래"
+
+#: bCNC/Updates.py:182
+msgid "Download"
+msgstr "다운로드"
+
+#: bCNC/CNCCanvas.py:463
+msgid "Drag a ruler to measure distances"
+msgstr "거리 측정을 위한 자 드래그"
+
+#: bCNC/plugins/dragknife.py:25
+msgid "Drag knife postprocessor"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:19
+msgid "DragKnife"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:51 bCNC/plugins/sketch.py:49
+#: bCNC/plugins/pyrograph.py:47
+msgid "Draw border"
+msgstr "경계선 그리기"
+
+#: bCNC/plugins/function_plot.py:35
+msgid "Draw coordinate system?"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2432
+msgid "Draw timeout in seconds"
+msgstr "타임아웃 초단위로 그리기"
+
+#: bCNC/CNCCanvas.py:2335
+msgid "Draw:"
+msgstr "그리기:"
+
+#: bCNC/ToolsPage.py:1621
+msgid "Drill"
+msgstr "드릴"
+
+#: bCNC/ToolsPage.py:938
+msgid "Drill in center only"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:44
+msgid "Drill mark size"
+msgstr ""
+
+#: bCNC/plugins/driller.py:20
+msgid "Driller"
+msgstr "드릴러"
+
+#: bCNC/plugins/driller.py:276
+msgid "Driller abort: Distance must be > 0"
+msgstr "드릴러 중단 : 거리는 0보다 커야합니다."
+
+#: bCNC/plugins/driller.py:285
+msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
+msgstr ""
+"드릴러 중단 : 휴지 시간이 영보다 크거나 같으면 시간은 앞으로만 움직입니다!"
+
+#: bCNC/plugins/driller.py:293
+msgid "Driller abort: Excellon-File not a file"
+msgstr ""
+
+#: bCNC/plugins/driller.py:280
+msgid "Driller abort: Peck must be >= 0"
+msgstr "드릴러 중단 : 펙은 0보다 크거나 같아야 합니다."
+
+#: bCNC/plugins/driller.py:303
+msgid "Driller abort: Please select some path"
+msgstr "드릴러 중단 : 경로를 선택하세요."
+
+#: bCNC/plugins/Helical_Descent.py:86
+msgid "Drop by lap"
+msgstr ""
+
+#: bCNC/ToolsPage.py:941
+msgid "Dwell (s)"
+msgstr "일시정지"
+
+#: bCNC/plugins/simpleDrill.py:71
+#, fuzzy
+#| msgid "Dwell (s)"
+msgid "Dwell time (s)"
+msgstr "일시정지"
+
+#: bCNC/plugins/driller.py:48
+msgid "Dwell time, 0 means None"
+msgstr "휴지 시간, 0은 없음을 의미합니다."
+
+#: bCNC/controllers/_GenericGRBL.py:41
+msgid "EEPROM read failed. Reset and restored to default values."
+msgstr "EEPROM 읽기가 실패했습니다. 재설정하고 기본값으로 복원하시오."
+
+#: bCNC/CNCCanvas.py:525
+msgid "ERROR: Cannot set X-Y marker  with the current view"
+msgstr "에러 : 현재 시점에서는 X-Y표식을 놓을 수 없습니다"
+
+#: bCNC/controllers/_GenericGRBL.py:150
+msgid "EStop asserted. Clear and reset (grblHAL)"
+msgstr ""
+
+#: bCNC/ProbePage.py:1560
+msgid "Edge Detection"
+msgstr "가장자리 감지"
+
+#: bCNC/EditorPage.py:194
+msgid "Edit"
+msgstr "편집"
+
+#: bCNC/ToolsPage.py:1461
+msgid "Edit name of current operation/object"
+msgstr "현재 작업 / 객체 이름 편집"
+
+#: bCNC/ToolsPage.py:1445
+msgid "Editable database of EndMills properties"
+msgstr "편집가능한 엔드빌의 데이터베이스"
+
+#: bCNC/ToolsPage.py:1429
+msgid "Editable database of material properties"
+msgstr "편집 가능한 소재의 데이터 베이스"
+
+#: bCNC/EditorPage.py:804
+msgid "Editor"
+msgstr "편집기"
+
+#: bCNC/controllers/_GenericGRBL.py:119
+msgid "Emergency stop active. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2657
+msgid "Empty gcode"
+msgstr "빈 gcode "
+
+#: bCNC/EditorPage.py:322
+msgid "Enable"
+msgstr "활성화"
+
+#: bCNC/ToolsPage.py:640
+msgid "Enable 6 Axis Displays"
+msgstr ""
+
+#: bCNC/EditorPage.py:342
+msgid "Enable or disable blocks of gcode"
+msgstr "g코드의 블록 활성화 또는 비활성화"
+
+#: bCNC/bmain.py:1154
+msgid "Enabled GCode"
+msgstr "가능한 GCode "
+
+#: bCNC/plugins/simpleArc.py:69
+msgid "End Angle in Degrees "
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:84 bCNC/plugins/endmilloffset.py:438
+#: bCNC/plugins/trochoidPath.py:43 bCNC/plugins/trochoidal_3D.py:48
+#: bCNC/ToolsPage.py:1003 bCNC/ToolsPage.py:1074 bCNC/ToolsPage.py:1437
+msgid "End Mill"
+msgstr "밀 끝내기"
+
+#: bCNC/plugins/Helical_Descent.py:100
+msgid "End in the Deep"
+msgstr ""
+
+#: bCNC/bmain.py:1953
+#, fuzzy
+#| msgid "EndMill: {} %g"
+msgid "EndMill: {} {}"
+msgstr "엔드밀: {} {:g} "
+
+#: bCNC/plugins/Helical_Descent.py:96
+msgid "Entry and Exit"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:582 bCNC/lib/bFileDialog.py:655
+#: bCNC/lib/bFileDialog.py:879 bCNC/lib/bFileDialog.py:907
+#: bCNC/lib/bFileDialog.py:931
+msgid "Error"
+msgstr "오류"
+
+#: bCNC/Utils.py:565
+msgid "Error Reporting"
+msgstr "오류 보고"
+
+#: bCNC/lib/bFileDialog.py:880
+#, fuzzy
+#| msgid "Error creating folder \"{}\""
+msgid "Error creating folder \"{}\""
+msgstr "폴더 \"{}\"을 (를) 만드는 중 오류가 발생했습니다."
+
+#: bCNC/lib/bFileDialog.py:931
+#, fuzzy
+#| msgid "Error deleting file \"{}\""
+msgid "Error deleting file \"{}\""
+msgstr "\"{}\"파일을 삭제하는 중 오류가 발생했습니다."
+
+#: bCNC/lib/bFileDialog.py:655
+#, fuzzy
+#| msgid "Error listing folder \"{}\""
+msgid "Error listing folder \"{}\""
+msgstr "폴더 \"{}\"을 (를) 나열하는 중 오류가 발생했습니다."
+
+#: bCNC/bmain.py:2568
+msgid "Error opening serial"
+msgstr "직렬 열기 오류"
+
+#: bCNC/lib/bFileDialog.py:908
+#, fuzzy
+#| msgid "Error renaming \"{}\" to \"{}\""
+msgid "Error renaming \"{}\" to \"{}\""
+msgstr "\"{}\"의 이름을 \"{}\"(으)로 변경하는 중 오류가 발생했습니다."
+
+#: bCNC/Utils.py:694 bCNC/Utils.py:708
+msgid "Error sending report"
+msgstr "전송 오류 보고"
+
+#: bCNC/Updates.py:193
+#, fuzzy
+#| msgid "Error {} in connection"
+msgid "Error {} in connection"
+msgstr "연결에서 {} 에러"
+
+#: bCNC/ProbePage.py:853
+msgid "Error:"
+msgstr "오류:"
+
+#: bCNC/plugins/bowl.py:136
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr "오류 : Bowl과 엔드 밀 매개 변수 확인"
+
+#: bCNC/plugins/jigsaw.py:406
+msgid "Error: Check the parameters and your endmill config"
+msgstr "오류 : 매개 변수 및 엔드 밀 구성을 확인하세요."
+
+#: bCNC/plugins/midi2cnc.py:155
+msgid "Error: Sorry can't parse the Midi file."
+msgstr "오류 : 죄송하지만 미디 파일을 구문 분석 할 수 없습니다."
+
+#: bCNC/plugins/midi2cnc.py:116
+msgid "Error: This plugin requires midiparser.py"
+msgstr "오류 : 이 플러그인에는 midiparser.py가 필요합니다."
+
+#: bCNC/bmain.py:1487
+msgid "Evaluation error"
+msgstr "평가 오류"
+
+#: bCNC/plugins/trochoidal.py:47
+msgid "Even spacing across segment"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1927
+msgid "Events"
+msgstr "이벤트"
+
+#: bCNC/plugins/driller.py:50
+msgid "Excellon-File"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1967
+msgid "Execute"
+msgstr "실행"
+
+#: bCNC/bmain.py:2417
+msgid "Existing Autolevel"
+msgstr "존재하는 자동레벨"
+
+#: bCNC/FilePage.py:272
+msgid "Exit"
+msgstr "나가기"
+
+#: bCNC/ToolsPage.py:805
+msgid "Exit strategy (usefull for threads)"
+msgstr ""
+
+#: bCNC/EditorPage.py:351
+msgid "Expand"
+msgstr "확장"
+
+#: bCNC/plugins/spirograph.py:119
+msgid "External Radius"
+msgstr "외부 반경"
+
+#: bCNC/ToolsPage.py:567 bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:591
+msgid "F1"
+msgstr "F1"
+
+#: bCNC/ToolsPage.py:576 bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:600
+msgid "F10"
+msgstr "F10"
+
+#: bCNC/ToolsPage.py:577 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:601
+msgid "F11"
+msgstr "F11"
+
+#: bCNC/ToolsPage.py:578 bCNC/ToolsPage.py:590 bCNC/ToolsPage.py:602
+msgid "F12"
+msgstr "F12"
+
+#: bCNC/ToolsPage.py:568 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:592
+msgid "F2"
+msgstr "F2"
+
+#: bCNC/ToolsPage.py:569 bCNC/ToolsPage.py:581 bCNC/ToolsPage.py:593
+msgid "F3"
+msgstr "F3"
+
+#: bCNC/ToolsPage.py:570 bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:594
+msgid "F4"
+msgstr "F4"
+
+#: bCNC/ToolsPage.py:571 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:595
+msgid "F5"
+msgstr "F5"
+
+#: bCNC/ToolsPage.py:572 bCNC/ToolsPage.py:584 bCNC/ToolsPage.py:596
+msgid "F6"
+msgstr "F6"
+
+#: bCNC/ToolsPage.py:573 bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:597
+msgid "F7"
+msgstr "F7"
+
+#: bCNC/ToolsPage.py:574 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:598
+msgid "F8"
+msgstr "F8"
+
+#: bCNC/ToolsPage.py:575 bCNC/ToolsPage.py:587 bCNC/ToolsPage.py:599
+msgid "F9"
+msgstr "F9"
+
+#: bCNC/ProbePage.py:485
+msgid "FEED"
+msgstr ""
+
+#: bCNC/ProbePage.py:518
+msgid "FINISH"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:47
+msgid "Fading force"
+msgstr ""
+
+#: bCNC/ProbePage.py:306
+msgid "Fast Probe Feed:"
+msgstr "빠른 probe feed"
+
+#: bCNC/plugins/scaling.py:43 bCNC/plugins/trochoidal_3D.py:95
+#: bCNC/ToolsPage.py:682 bCNC/ToolsPage.py:769
+msgid "Feed"
+msgstr "피드"
+
+#: bCNC/ControlPage.py:2021
+msgid "Feed Mode [G93, G94, G95]"
+msgstr "공급 모드 [G93, G94, G95]"
+
+#: bCNC/ControlPage.py:1999
+msgid "Feed Rate [F#]"
+msgstr "공급률 [F#]"
+
+#: bCNC/plugins/trochoidal_3D.py:411
+#, fuzzy
+msgid "Feed has to be greater than 0"
+msgstr "높이 지도 중단 : 깊이가 0보다 작아야 합니다."
+
+#: bCNC/ControlPage.py:487
+msgid "Feed hold"
+msgstr "피드 보류"
+
+#: bCNC/ToolsPage.py:644
+msgid "Feed max x"
+msgstr "최대 피드 X"
+
+#: bCNC/ToolsPage.py:645
+msgid "Feed max y"
+msgstr "최대 피드 y"
+
+#: bCNC/ToolsPage.py:646
+msgid "Feed max z"
+msgstr "최대 피드 z"
+
+#: bCNC/plugins/driller.py:56
+#, fuzzy
+#| msgid "Feed max x"
+msgid "Feed rapid G0"
+msgstr "최대 피드 X"
+
+#: bCNC/controllers/_GenericGRBL.py:62
+msgid "Feed rate has not yet been set or is undefined."
+msgstr "이송 속도가 아직 설정되지 않았거나 정의되지 않았습니다."
+
+#: bCNC/ControlPage.py:1987
+msgid "Feed:"
+msgstr "공급:"
+
+#: bCNC/plugins/trochoidal.py:53
+msgid "Feedrate"
+msgstr ""
+
+#: bCNC/FilePage.py:75 bCNC/FilePage.py:464
+msgid "File"
+msgstr "파일"
+
+#: bCNC/FilePage.py:463
+msgid "File I/O and configuration"
+msgstr "파일 I / O 및 구성"
+
+#: bCNC/lib/bFileDialog.py:951 bCNC/lib/bFileDialog.py:962
+#, fuzzy
+#| msgid "File \"{}\" does not exist"
+msgid "File \"{}\" does not exist"
+msgstr "\"{}\"파일이 존재하지 않습니다."
+
+#: bCNC/lib/bFileDialog.py:984
+msgid "File already exists"
+msgstr "이미 존재하는 파일입니다."
+
+#: bCNC/lib/bFileDialog.py:950 bCNC/lib/bFileDialog.py:961
+msgid "File does not exist"
+msgstr "파일이 존재하지 않습니다."
+
+#: bCNC/bmain.py:2378
+msgid "File modified"
+msgstr "변경된 파일"
+
+#: bCNC/lib/bFileDialog.py:332
+msgid "File name:"
+msgstr "파일 이름:"
+
+#: bCNC/lib/bFileDialog.py:340
+msgid "Files of type:"
+msgstr "파일 타입:"
+
+#: bCNC/EditorPage.py:167
+msgid "Filter"
+msgstr ""
+
+#: bCNC/EditorPage.py:175
+msgid "Filter blocks"
+msgstr "필터 블록"
+
+#: bCNC/plugins/Helical_Descent.py:87
+#, fuzzy
+msgid "Final Depth"
+msgstr "작업 깊이"
+
+#: bCNC/plugins/center.py:18
+msgid "Find center of bounding box"
+msgstr ""
+
+#: bCNC/plugins/box.py:351
+msgid "Fingers Nx"
+msgstr "손가락 Nx"
+
+#: bCNC/plugins/box.py:352
+msgid "Fingers Ny"
+msgstr "손가락 Ny"
+
+#: bCNC/plugins/box.py:353
+msgid "Fingers Nz"
+msgstr "손가락 Nz"
+
+#: bCNC/ProbePage.py:1214
+msgid "Finished recording"
+msgstr ""
+
+#: bCNC/ToolsPage.py:790
+msgid "First cut at surface height"
+msgstr "표면 높이에서 첫 번째 절단"
+
+#: bCNC/CNCCanvas.py:2270
+msgid "Fit to screen [F]"
+msgstr "화면에 맞추기[F]"
+
+#: bCNC/plugins/flatpath.py:12
+msgid "FlatPath"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:13
+msgid "Flatten"
+msgstr "전개"
+
+#: bCNC/plugins/flatten.py:43
+msgid "Flatten abort: Cut Direction is undefined"
+msgstr "전개 중단 : 절단 방향이 정의되지 않았습니다."
+
+#: bCNC/plugins/flatten.py:52
+msgid "Flatten abort: Flatten Area dimensions must be > 0"
+msgstr "전개 중단 : 전개 된 영역 크기는 0보다 커야합니다."
+
+#: bCNC/plugins/flatten.py:98
+msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgstr "전개 중단 : 이 엔드 밀에서는 전개 영역이 너무 작습니다."
+
+#: bCNC/plugins/flatten.py:58
+msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
+msgstr "전개 중단 : 이 기계는 감산 기계에서만 사용됩니다! 깊이를 확인하세요!"
+
+#: bCNC/plugins/flatten.py:47
+msgid "Flatten abort: Pocket Type is undefined"
+msgstr "전개 중단 : 포켓 유형이 정의되지 않았습니다."
+
+#: bCNC/plugins/flatten.py:281
+msgid "Flatten an area in different ways"
+msgstr "여러 가지 방법으로 영역 전개하기"
+
+#: bCNC/plugins/flatpath.py:18
+msgid "Flatten the path"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:328
+msgid "Flatten: Generated flatten surface"
+msgstr "전개 : 생성된 전개 표면"
+
+#: bCNC/EditorPage.py:581
+msgid "Flip"
+msgstr "뒤집기"
+
+#: bCNC/plugins/slicemesh.py:68
+msgid "Flip upwards"
+msgstr ""
+
+#: bCNC/ControlPage.py:2168
+msgid "Flood"
+msgstr ""
+
+#: bCNC/ToolsPage.py:715
+msgid "Flutes"
+msgstr "플루트"
+
+#: bCNC/plugins/text.py:41
+msgid "Font file"
+msgstr "글꼴 파일"
+
+#: bCNC/plugins/text.py:40
+msgid "Font size"
+msgstr "글꼴 크기"
+
+#: bCNC/ToolsPage.py:1941
+msgid "Fonts"
+msgstr "글꼴 "
+
+#: bCNC/ToolsPage.py:657
+msgid "Footer gcode"
+msgstr "g코드 바닥글"
+
+#: bCNC/plugins/function_plot.py:24
+msgid "Formula"
+msgstr ""
+
+#: bCNC/ProbePage.py:1575
+msgid "Freeze"
+msgstr "얼다"
+
+#: bCNC/plugins/function_plot.py:8
+#, fuzzy
+#| msgid "Connection"
+msgid "Function"
+msgstr "연결"
+
+#: bCNC/bmain.py:133 bCNC/bmain.py:2487
+msgid "G-Code"
+msgstr "G-Code"
+
+#: bCNC/plugins/arcfit.py:17
+msgid "G-Code arc-fit"
+msgstr ""
+
+#: bCNC/bmain.py:134
+msgid "G-Code clean"
+msgstr "G-Code 정리"
+
+#: bCNC/plugins/linearize.py:17
+msgid "G-Code linearizer"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:63
+msgid "G-code command in block requires an integer value."
+msgstr "블록의 G 코드 명령에는 정수 값이 필요합니다."
+
+#: bCNC/controllers/_GenericGRBL.py:108
+msgid "G-code command not allowed when tool change is pending. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:45
+msgid "G-code locked out during alarm or jog state"
+msgstr "알람 또는 조그 상태 중 G 코드 잠김"
+
+#: bCNC/controllers/_GenericGRBL.py:35
+msgid "G-code words consist of a letter and a value. Letter was not found."
+msgstr "G 코드 단어는 문자와 값으로 구성됩니다. 문자를 찾을 수 없습니다."
+
+#: bCNC/ProbePage.py:59
+msgid "G38.2 stop on contact else error"
+msgstr "G38.2 접속 중지 오류"
+
+#: bCNC/ProbePage.py:60
+msgid "G38.3 stop on contact"
+msgstr "G38.3 접속 중단"
+
+#: bCNC/ProbePage.py:61
+msgid "G38.4 stop on loss contact else error"
+msgstr "G38.4 연결 없음으로 인한 접촉 중지 오류"
+
+#: bCNC/ProbePage.py:62
+msgid "G38.5 stop on loss contact"
+msgstr "G38.5 연결 없음시 중단"
+
+#: bCNC/ControlPage.py:2051
+msgid "G92:"
+msgstr ""
+
+#: bCNC/ProbePage.py:733
+msgid "GCode X coordinate of orientation point"
+msgstr "GCode X 방향 점의 X 좌표"
+
+#: bCNC/ProbePage.py:744
+msgid "GCode Y coordinate of orientation point"
+msgstr "GCode Y 방향 점의 Y 좌표"
+
+#: bCNC/EditorPage.py:803
+msgid "GCode editor"
+msgstr "G코드 편집기"
+
+#: bCNC/ToolsPage.py:2089
+msgid "GCode manipulation tools and user plugins"
+msgstr "G코드 조작도구 및 사용자 플러그인 "
+
+#: bCNC/bmain.py:2379
+msgid "Gcode was modified do you want to save it first?"
+msgstr "Gcode가 수정 되었습니다. 먼저 저장 하시겠습니까?"
+
+#: bCNC/ProbePage.py:723
+msgid "Gcode:"
+msgstr "Gcode:"
+
+#: bCNC/plugins/gear.py:16
+msgid "Gear"
+msgstr "기어"
+
+#: bCNC/plugins/bowl.py:105
+msgid "Generate a bowl cavity"
+msgstr "Bowl 구멍 생성"
+
+#: bCNC/plugins/box.py:339
+msgid "Generate a finger box"
+msgstr "손가락 박스 생성"
+
+#: bCNC/plugins/endmilloffset.py:430
+msgid "Generate a pocket or profile for selected shape (regarding islands)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:58
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Arc"
+msgstr "평 기어 생성"
+
+#: bCNC/plugins/simpleDrill.py:60
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Drill"
+msgstr "평 기어 생성"
+
+#: bCNC/plugins/simpleLine.py:44
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple line"
+msgstr "평 기어 생성"
+
+#: bCNC/plugins/simpleRectangle.py:85
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple rectangle"
+msgstr "평 기어 생성"
+
+#: bCNC/plugins/gear.py:153
+msgid "Generate a spur gear"
+msgstr "평 기어 생성"
+
+#: bCNC/plugins/halftone.py:53
+msgid "Generate for conical end mill"
+msgstr "원추형 엔드 밀 생성"
+
+#: bCNC/plugins/endmilloffset.py:175 bCNC/plugins/endmilloffset.py:183
+#: bCNC/plugins/endmilloffset.py:191 bCNC/plugins/endmilloffset.py:199
+#: bCNC/plugins/endmilloffset.py:207 bCNC/plugins/endmilloffset.py:215
+#: bCNC/plugins/endmilloffset.py:223 bCNC/plugins/endmilloffset.py:573
+#: bCNC/ToolsPage.py:1088
+msgid "Generate pocket path"
+msgstr "포켓 경로 생성"
+
+#: bCNC/ToolsPage.py:1062
+msgid "Generate profile path"
+msgstr "프로필 경로 생성"
+
+#: bCNC/plugins/Random.py:22 bCNC/plugins/tile.py:20
+msgid "Generate replicas of selected code"
+msgstr "선택한 코드의 복사본 생성"
+
+#: bCNC/plugins/driller.py:459
+#, fuzzy
+#| msgid "Generated Driller: {} holes"
+msgid "Generated Driller: {} holes"
+msgstr "생성된 드릴러 : {} 구멍"
+
+#: bCNC/plugins/halftone.py:285
+#, fuzzy
+#| msgid "Generated Halftone size W={} x H={} x D={} ,Total points:%i"
+msgid "Generated Halftone size W={} x H={} x D={}, Total points: {}"
+msgstr "생성된 하프톤 크기 W={} x H={} x D={}, 총 포인트 {}"
+
+#: bCNC/plugins/heightmap.py:408
+#, fuzzy
+#| msgid "Generated Heightmap {} x {} x {} "
+msgid "Generated Heightmap {} x {} x {}"
+msgstr "생성된 높이 지도 {} x {} x {}"
+
+#: bCNC/plugins/midi2cnc.py:353
+msgid "Generated Midi2CNC, ready to play?"
+msgstr "Midi2CNC 파일을 생성하였습니다. 재생하시겠습니까.?"
+
+#: bCNC/plugins/pyrograph.py:213
+#, fuzzy
+#| msgid "Generated Pyrograph W=%g x H=%g x D=%g"
+msgid "Generated Pyrograph W={:g} x H={:g} x D={:g}"
+msgstr "생성 된 파이로그래프 W={:g} x H={:g} x D={:g}"
+
+#: bCNC/plugins/function_plot.py:273
+#, fuzzy
+#| msgid "Generated: Spirograph"
+msgid "Generated function graph"
+msgstr "생성완료 : 스피로그래프"
+
+#: bCNC/plugins/trochoidPath.py:110
+#, fuzzy
+#| msgid "Generate for conical end mill"
+msgid "Generated path for trochoidal cutting"
+msgstr "원추형 엔드 밀 생성"
+
+#: bCNC/plugins/arcfit.py:102
+msgid "Generated: Arc fit"
+msgstr ""
+
+#: bCNC/plugins/bowl.py:134
+msgid "Generated: BOWL"
+msgstr "생성완료 : Bowl"
+
+#: bCNC/plugins/box.py:395
+msgid "Generated: BOX with fingers"
+msgstr "생성완료 : 손가락 박스"
+
+#: bCNC/plugins/center.py:70
+msgid "Generated: Center"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:52
+msgid "Generated: Closepath"
+msgstr ""
+
+#: bCNC/plugins/difference.py:102
+msgid "Generated: Diff"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:229
+msgid "Generated: Dragknife"
+msgstr ""
+
+#: bCNC/plugins/flatpath.py:60
+msgid "Generated: Flat"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:545
+#, fuzzy
+msgid "Generated: Helical_Descent Result"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/hilbert.py:146
+msgid "Generated: Hilbert"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/intersection.py:86
+msgid "Generated: Intersect"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:97
+msgid "Generated: Linearize"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:319
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Manual drillmark"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/simpleArc.py:91
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Arc"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/simpleDrill.py:106
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Drill"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/simpleLine.py:75
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Line"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/simpleRectangle.py:120
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Rectangle"
+msgstr "생성완료 : 힐버트"
+
+#: bCNC/plugins/spirograph.py:145
+msgid "Generated: Spirograph"
+msgstr "생성완료 : 스피로그래프"
+
+#: bCNC/plugins/gear.py:180
+msgid "Generated: Spur GEAR"
+msgstr "생성완료 : 평 기어"
+
+#: bCNC/plugins/trochoidal.py:177
+msgid "Generated: Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:158
+msgid "Generated: Zig-Zag"
+msgstr "생성완료 : 지그재그"
+
+#: bCNC/plugins/function_plot.py:14
+msgid "Generates gcode from a formula"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:387
+msgid "Generating puzzle..."
+msgstr "퍼즐 생성중..."
+
+#: bCNC/ProbePage.py:1704
+msgid "Get"
+msgstr "가져오기"
+
+#: bCNC/ProbePage.py:2050
+msgid "Get current gantry position as machine tool change location"
+msgstr "공작 기계 변경 위치로 현재 갠트리 위치 가져오기 "
+
+#: bCNC/ProbePage.py:2096
+msgid "Get current gantry position as machine tool probe location"
+msgstr "공작 기계 변경 위치로 현재 갠트리 위치 가져오기 "
+
+#: bCNC/ProbePage.py:1706
+msgid "Get diameter from active endmill"
+msgstr "활성 엔드 밀로 직경을 확보하십시오."
+
+#: bCNC/plugins/slicemesh.py:63
+msgid "Get flat slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:192
+msgid "Get margins from gcode file"
+msgstr "gcode 파일에서 여백 가져오기"
+
+#: bCNC/ProbePage.py:583
+msgid "Goto"
+msgstr "이동"
+
+#: bCNC/controllers/_GenericGRBL.py:37
+msgid "Grbl '$' system command was not recognized or supported."
+msgstr "Grbl '$' 시스템 명령이 인식되거나 지원되지 않습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:21
+msgid "Grbl executes jogging motion"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:13
+msgid "Grbl is in idle state and waiting for user commands"
+msgstr "Grbl이 유휴 상태에서 사용자 명령을 기다리고 있습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:29
+msgid "Grbl is not connected. Please specify the correct port and click Open."
+msgstr ""
+"Grbl이 연결되지 않았습니다. 올바른 포트를 지정하고 열기를 클릭하십시오."
+
+#: bCNC/controllers/_GenericGRBL.py:14
+msgid "Grbl is on hold state. Click on resume (pause) to continue"
+msgstr "Grbl이 붙들어진 상태입니다. 계속하려면 재시작(멈춤) 버튼을 누르시오."
+
+#: bCNC/plugins/sketch.py:41
+msgid "Grundgy, search radius"
+msgstr "검색 반경"
+
+#: bCNC/ProbePage.py:1659
+msgid "Haircross Offset:"
+msgstr "외벽 오프셋:"
+
+#: bCNC/ProbePage.py:1667
+msgid "Haircross X offset [unit]"
+msgstr "외벽 X 오프셋 [단위]"
+
+#: bCNC/ProbePage.py:1676
+msgid "Haircross Y offset [unit]"
+msgstr "외벽 Y 오프셋 [단위]"
+
+#: bCNC/plugins/halftone.py:15
+msgid "Halftone"
+msgstr "하프톤"
+
+#: bCNC/plugins/halftone.py:159
+msgid "Halftone abort: Angle in V-Cutting end mill is missing"
+msgstr "하프톤 중단 : V-절단 엔드 밀의 각도가 누락되었습니다."
+
+#: bCNC/plugins/halftone.py:173
+msgid "Halftone abort: Can't read image file"
+msgstr "하프톤 중단 : 이미지 파일을 읽을 수 없습니다."
+
+#: bCNC/plugins/halftone.py:148
+msgid "Halftone abort: Cell size too small"
+msgstr "하프톤 중단 : 셀 크기가 너무 작습니다."
+
+#: bCNC/plugins/halftone.py:165
+msgid "Halftone abort: Conical path need V-Cutting end mill"
+msgstr "하프톤 중단 : V-절단 엔드 밀에 원추형 경로가 필요합니다."
+
+#: bCNC/plugins/halftone.py:144
+msgid "Halftone abort: Maximum diameter too small"
+msgstr "하프톤 중단 : 최대 지름이 너무 작습니다."
+
+#: bCNC/plugins/halftone.py:138
+msgid "Halftone abort: Minimum diameter must be minor then Maximum"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/halftone.py:133
+msgid "Halftone abort: Size too small to draw anything!"
+msgstr "하프톤 중단 : 사이즈가 작아서 아무것도 그릴 수 없습니다!"
+
+#: bCNC/plugins/halftone.py:109
+msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
+msgstr ""
+"하프톤 중단 : 이 플러그인에서 이미지 데이터를 읽으려면 PIL/Pillow가 필요합니"
+"다."
+
+#: bCNC/ControlPage.py:84
+msgid "Hard Reset"
+msgstr "하드 리셋"
+
+#: bCNC/ToolsPage.py:656
+msgid "Header gcode"
+msgstr "g코드 머리글"
+
+#: bCNC/ToolsPage.py:1105
+msgid "Height"
+msgstr "높이"
+
+#: bCNC/plugins/box.py:350
+msgid "Height Dz"
+msgstr "Dz 높이"
+
+#: bCNC/plugins/flatten.py:292
+msgid "Height to flatten"
+msgstr "높이 전개"
+
+#: bCNC/plugins/heightmap.py:40
+msgid "Heightmap"
+msgstr "높이지도 "
+
+#: bCNC/plugins/heightmap.py:98
+msgid "Heightmap abort: Can't read image file"
+msgstr "높이 지도 중단 : 이미지 파일을 읽을 수 없습니다."
+
+#: bCNC/plugins/heightmap.py:89
+msgid "Heightmap abort: This plugin requires PIL/Pillow"
+msgstr "높이 지도 중단 : 이 플러그인은 PIL/Pillow가 필요합니다."
+
+#: bCNC/plugins/heightmap.py:171
+msgid "Heightmap abort: angle not defined for selected End Mill"
+msgstr "높이 지도 중단 : 선택된 엔드 밀에서 각도가 정의되지 않았습니다."
+
+#: bCNC/plugins/heightmap.py:102
+msgid "Heightmap abort: depth must be < 0"
+msgstr "높이 지도 중단 : 깊이가 0보다 작아야 합니다."
+
+#: bCNC/plugins/Helical_Descent.py:271
+#, fuzzy
+msgid "Helical Abort: Drop must be greater than 0"
+msgstr "높이 지도 중단 : 깊이가 0보다 작아야 합니다."
+
+#: bCNC/plugins/Helical_Descent.py:286
+msgid "Helical Abort: Entry Edge Clearence may be positive"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:261
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be greater than the end mill"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/Helical_Descent.py:267
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be positive"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/Helical_Descent.py:257
+#, fuzzy
+msgid "Helical Abort: Please select helical type"
+msgstr "드릴러 중단 : 경로를 선택하세요."
+
+#: bCNC/plugins/Helical_Descent.py:281
+#, fuzzy
+msgid "Helical Abort: Please selecte Entry and Exit type"
+msgstr "텍스트 중단 : 글꼴 파일을 선택하세요."
+
+#: bCNC/plugins/Helical_Descent.py:275
+#, fuzzy
+msgid "Helical Abort: Z Feed Multiplier must be greater than 0"
+msgstr "최소 스텝 펄스 시간은 3usec보다 커야합니다."
+
+#: bCNC/plugins/trochoidal_3D.py:407
+#, fuzzy
+msgid "Helical Descent Diameter has to be greater than End mill"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/Helical_Descent.py:94
+msgid "Helical Type"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:320
+#, fuzzy
+msgid "Helical abort: Please select some path"
+msgstr "드릴러 중단 : 경로를 선택하세요."
+
+#: bCNC/TerminalPage.py:175
+msgid "Help"
+msgstr "도움말"
+
+#: bCNC/Ribbon.py:641
+msgid "Help [F1]"
+msgstr "도움말 [F1]"
+
+#: bCNC/plugins/hilbert.py:15
+msgid "Hilbert"
+msgstr "힐버트"
+
+#: bCNC/plugins/hilbert.py:136
+msgid "Hilbert abort: depth must be minor or equal to zero"
+msgstr "힐버트 중단 : 깊이는 0보다 작거나 같아야 합니다."
+
+#: bCNC/plugins/hilbert.py:131
+msgid "Hilbert abort: verify the size"
+msgstr "힐버트 중단 : 크기를 확인하세요."
+
+#: bCNC/controllers/_GenericGRBL.py:160
+msgid "Hold complete. Ready to resume."
+msgstr "잠시만 기다려주세요. 다시 시작할 준비가 되었습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:161
+msgid "Hold in-progress. Reset will throw an alarm."
+msgstr "진행 중입니다. 리셋하면 알람이 울립니다."
+
+#: bCNC/ControlPage.py:93
+msgid "Home"
+msgstr "홈"
+
+#: bCNC/controllers/_GenericGRBL.py:116
+msgid "Home machine to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:39
+msgid "Homing cycle is not enabled via settings."
+msgstr "원점 복귀 싸이클은 설정을 통해 가능하지 않습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:142
+msgid "Homing fail. Reset during active homing cycle."
+msgstr "호밍(Homing)이 실패합니다. 활성 원점 복귀 사이클 중에 재설정하십시오."
+
+#: bCNC/controllers/_GenericGRBL.py:143
+msgid "Homing fail. Safety door was opened during active homing cycle."
+msgstr ""
+"호밍(Homing)이 실패합니다. 활성 원점 복귀 사이클 중에 안전 도어가 열렸습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:152
+msgid "Homing required. Execute homing command ($H) to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:612
+msgid "Horizontal"
+msgstr "수평"
+
+#: bCNC/Utils.py:848
+msgid "Icon to appear on button"
+msgstr "버튼에 표시할 아이콘"
+
+#: bCNC/Utils.py:837
+msgid "Icon:"
+msgstr "아이콘:"
+
+#: bCNC/plugins/Helical_Descent.py:97
+msgid "If Eddge, Edge Clearance"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:253
+msgid "If block selected false, please make a value of x"
+msgstr ""
+
+#: bCNC/ProbePage.py:67
+msgid "Ignore M6 commands"
+msgstr "M6 명령 무시 "
+
+#: bCNC/plugins/text.py:44
+msgid "Image chars width"
+msgstr "이미지 문자 너비"
+
+#: bCNC/plugins/halftone.py:50
+msgid "Image rotation angle"
+msgstr "이미지 회전 각도"
+
+#: bCNC/plugins/text.py:43
+msgid "Image to Ascii"
+msgstr "이미지에서 아스키로"
+
+#: bCNC/plugins/halftone.py:38 bCNC/plugins/sketch.py:52
+#: bCNC/plugins/heightmap.py:78 bCNC/plugins/pyrograph.py:48
+msgid "Image to process"
+msgstr "처리할 이미지"
+
+#: bCNC/EditorPage.py:207 bCNC/FilePage.py:126
+msgid "Import"
+msgstr "들여오기"
+
+#: bCNC/bmain.py:2482
+msgid "Import Gcode/DXF file"
+msgstr "Gcode / DXF 파일 가져 오기"
+
+#: bCNC/FilePage.py:131
+msgid "Import gcode/dxf file"
+msgstr ""
+
+#: bCNC/ControlPage.py:1008 bCNC/ControlPage.py:1484
+msgid "Increase step by 1 unit"
+msgstr "1 단위 단계 증가"
+
+#: bCNC/EditorPage.py:742 bCNC/EditorPage.py:765
+msgid "Info"
+msgstr "정보"
+
+#: bCNC/ToolsPage.py:1630
+msgid "Insert a drill cycle on current objects/location"
+msgstr "현재 오브젝트/위치에 드릴 사이클 삽입"
+
+#: bCNC/EditorPage.py:239 bCNC/EditorPage.py:266
+msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
+msgstr "새로운 블록이나 코드 삽입p[lns 또는 Ctrl-Enter]"
+
+#: bCNC/ToolsPage.py:1646
+msgid "Insert holding tabs"
+msgstr "대기 탭을 삽입"
+
+#: bCNC/Updates.py:60
+msgid "Installed Version:"
+msgstr "설치된 버전:"
+
+#: bCNC/plugins/box.py:347
+msgid "Internal Dimensions"
+msgstr "내부 치수"
+
+#: bCNC/plugins/spirograph.py:120
+msgid "Internal Radius"
+msgstr "내부 반경"
+
+#: bCNC/plugins/intersection.py:18
+msgid "Intersection"
+msgstr ""
+
+#: bCNC/plugins/intersection.py:24
+msgid "Intersection of two shapes"
+msgstr ""
+
+#: bCNC/Updates.py:103
+msgid "Interval (days):"
+msgstr "간격 (일) :"
+
+#: bCNC/ProbePage.py:1412
+msgid "Invalid X probing region"
+msgstr "유효하지 않은 X 조사 지역"
+
+#: bCNC/ProbePage.py:1421
+msgid "Invalid X range [xmin>=xmax]"
+msgstr "무효한 X 범위 [xmin>=xmax]"
+
+#: bCNC/ProbePage.py:1436
+msgid "Invalid Y probing region"
+msgstr "유효하지 않은 Y 조사 지역"
+
+#: bCNC/ProbePage.py:1445
+msgid "Invalid Y range [ymin>=ymax]"
+msgstr "무효한 Y 범위 [ymin>=ymax]"
+
+#: bCNC/ProbePage.py:1457
+msgid "Invalid Z probing region"
+msgstr "유효하지 않은 Z 조사 지역"
+
+#: bCNC/ProbePage.py:1466
+msgid "Invalid Z range [zmin>=zmax]"
+msgstr "무효한 Z 범위 [zmin>=zmax]"
+
+#: bCNC/Sender.py:355
+#, fuzzy
+#| msgid "Invalid command {}"
+msgid "Invalid command {}"
+msgstr "잘못된 명령 {}"
+
+#: bCNC/ProbePage.py:988
+msgid "Invalid diameter entered"
+msgstr "무효한 지름이 입력되었습니다."
+
+#: bCNC/bmain.py:1585
+#, fuzzy
+#| msgid "Invalid direction {} specified"
+msgid "Invalid direction {} specified"
+msgstr "잘못된 방향 {}이 지정되었습니다."
+
+#: bCNC/ProbePage.py:923 bCNC/ProbePage.py:1475
+msgid "Invalid probe feed rate"
+msgstr "무효한 probe 피드율"
+
+#: bCNC/ProbePage.py:2199
+msgid "Invalid tool change position"
+msgstr "무효한 도구 변경 포지션"
+
+#: bCNC/ProbePage.py:2231
+msgid "Invalid tool height or not calibrated"
+msgstr "공구 높이가 잘못되었거나 보정되지 않았습니다."
+
+#: bCNC/ProbePage.py:2211
+msgid "Invalid tool probe location"
+msgstr "무효한 도구 프로브 위치"
+
+#: bCNC/ProbePage.py:2221 bCNC/ProbePage.py:2241
+msgid "Invalid tool scanning distance entered"
+msgstr "툴 스캐닝 거리가 잘못 입력되었습니다."
+
+#: bCNC/bmain.py:1978
+#, fuzzy
+#| msgid "Invalid user command {}"
+msgid "Invalid user command {}"
+msgstr "무효한 유저 커맨드 {}"
+
+#: bCNC/plugins/heightmap.py:76 bCNC/EditorPage.py:138 bCNC/EditorPage.py:543
+msgid "Invert"
+msgstr "거꾸로하기"
+
+#: bCNC/plugins/halftone.py:45
+msgid "Invert Colors"
+msgstr "색상 반전"
+
+#: bCNC/EditorPage.py:549
+msgid "Invert cutting order of selected blocks"
+msgstr "선택된 블록들 반전시키기"
+
+#: bCNC/EditorPage.py:144
+msgid "Invert selection [Ctrl-I]"
+msgstr "반전 선택 [Ctrl-I]"
+
+#: bCNC/ToolsPage.py:1655
+msgid "Island"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:494
+msgid "Island behaviour"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:403
+msgid "Jigsaw puzzle generated in {}s"
+msgstr "{}s에서 생성된 조각그림 퍼즐"
+
+#: bCNC/plugins/jigsaw.py:353
+msgid "Jigsaw puzzle generator"
+msgstr "조각그림 생성기"
+
+#: bCNC/controllers/_GenericGRBL.py:58
+msgid "Jog command with no '=' or contains prohibited g-code."
+msgstr "조그 명령에 '='가 없거나 금지된 g 코드가 포함되어 있습니다."
+
+#: bCNC/controllers/_GenericGRBL.py:57
+msgid "Jog target exceeds machine travel. Command ignored."
+msgstr "조그 타겟이 기계 주행 거리를 초과합니다. 명령이 무시되었습니다."
+
+#: bCNC/EditorPage.py:386
+msgid "Join"
+msgstr ""
+
+#: bCNC/EditorPage.py:392
+msgid "Join selected blocks"
+msgstr ""
+
+#: bCNC/plugins/simpleTranslate.py:29
+msgid "Keep original Yes/No"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:30
+msgid "Keep original yes/no"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1911
+msgid "Language change"
+msgstr "언어 변경"
+
+#: bCNC/ToolsPage.py:638
+msgid "Laser Adaptive Power"
+msgstr "레이저 적응력"
+
+#: bCNC/ToolsPage.py:637
+msgid "Laser Cutter"
+msgstr "레이저 커터"
+
+#: bCNC/controllers/_GenericGRBL.py:59
+msgid "Laser mode requires PWM output."
+msgstr "레이저 모드는 PWM 출력이 필요합니다."
+
+#: bCNC/plugins/driller.py:70
+msgid "Laser power maximum"
+msgstr ""
+
+#: bCNC/plugins/driller.py:63
+msgid "Laser power minimum"
+msgstr ""
+
+#: bCNC/Updates.py:89
+msgid "Last Check:"
+msgstr "마지막 검토:"
+
+#: bCNC/ControlPage.py:603 bCNC/ControlPage.py:910
+#, fuzzy
+#| msgid "Last error: {}\n"
+msgid "Last error: {}\n"
+msgstr "마지막 에러: {}\n"
+
+#: bCNC/Updates.py:67
+msgid "Latest Github Version:"
+msgstr "최신 Github 버전:"
+
+#: bCNC/Updates.py:73
+#, fuzzy
+#| msgid "Latest release version on on github"
+msgid "Latest release version on github"
+msgstr "Github에 최신 발포된 버전"
+
+#: bCNC/EditorPage.py:154
+msgid "Layer"
+msgstr "레이어"
+
+#: bCNC/ToolsPage.py:811
+msgid "Leave islands uncut"
+msgstr ""
+
+#: bCNC/EditorPage.py:460
+msgid "Left"
+msgstr "왼쪽"
+
+#: bCNC/ToolsPage.py:716
+msgid "Length"
+msgstr "길이"
+
+#: bCNC/plugins/spiral.py:477
+msgid "Length of Stock to Reduce"
+msgstr ""
+
+#: bCNC/bmain.py:1204 bCNC/bmain.py:1290
+msgid "Length:"
+msgstr "길이: "
+
+#: bCNC/plugins/spiral.py:484
+msgid "Lift before rotate"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:154
+msgid "Limit switch engaged. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:245
+msgid "Line"
+msgstr "선"
+
+#: bCNC/plugins/zigzag.py:107
+msgid "Line length"
+msgstr "라인 길이"
+
+#: bCNC/plugins/linearize.py:11
+msgid "Linearize"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:503
+msgid "Link segments"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:136
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading mesh: {}"
+msgstr "로딩: {} ..."
+
+#: bCNC/bmain.py:2424
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading: {} ..."
+msgstr "로딩: {} ..."
+
+#: bCNC/ProbePage.py:1635
+msgid "Location:"
+msgstr "위치: "
+
+#: bCNC/plugins/driller.py:51
+msgid "M3 for laser (settings below)"
+msgstr ""
+
+#: bCNC/ControlPage.py:314 bCNC/ControlPage.py:693
+msgid "MPos:"
+msgstr "Mpos:"
+
+#: bCNC/ProbePage.py:2002
+msgid "MX"
+msgstr ""
+
+#: bCNC/ProbePage.py:2004
+msgid "MY"
+msgstr ""
+
+#: bCNC/ProbePage.py:2006
+msgid "MZ"
+msgstr ""
+
+#: bCNC/ProbePage.py:775
+msgid "Machine X coordinate of orientation point"
+msgstr "기계 X 방향 점의 좌표"
+
+#: bCNC/ProbePage.py:787
+msgid "Machine Y coordinate of orientation point"
+msgstr "기계 Y 방향 점의 좌표"
+
+#: bCNC/ToolsPage.py:1829
+msgid "Machine configuration for bCNC"
+msgstr "bCNC의 기계 구성"
+
+#: bCNC/controllers/_GenericGRBL.py:163
+msgid "Machine stopped. Door still ajar. Can't resume until closed."
+msgstr ""
+"기계가 중지되었습니다. 아직 문 열려 있습니다. 닫을 때까지 재개할 수 없습니다."
+
+#: bCNC/ProbePage.py:1962
+msgid "Manual Tool Change"
+msgstr "메뉴얼 도구 변경"
+
+#: bCNC/ProbePage.py:70
+msgid "Manual Tool Change (NoProbe)"
+msgstr "수동 도구 교환 (NoProbe)"
+
+#: bCNC/ProbePage.py:69
+msgid "Manual Tool Change (TLO)"
+msgstr "수동 도구 교환 (TLO)"
+
+#: bCNC/ProbePage.py:68
+msgid "Manual Tool Change (WCS)"
+msgstr "수동 도구 교환 (WCS)"
+
+#: bCNC/plugins/drillmark.py:317
+msgid "Manual drill mark"
+msgstr ""
+
+#: bCNC/ProbePage.py:2018
+msgid "Manual tool change Machine X location"
+msgstr "수동 공구 교환 머신 X 위치"
+
+#: bCNC/ProbePage.py:2029
+msgid "Manual tool change Machine Y location"
+msgstr "수동 공구 교환 머신 Y 위치"
+
+#: bCNC/ProbePage.py:2040
+msgid "Manual tool change Machine Z location"
+msgstr "수동 공구 교환 머신 Z 위치"
+
+#: bCNC/ProbePage.py:2064
+msgid "Manual tool change Probing MX location"
+msgstr "수동 공구 교환 MX 위치 탐색"
+
+#: bCNC/ProbePage.py:2075
+msgid "Manual tool change Probing MY location"
+msgstr "수동 공구 교환 MY 위치 탐색"
+
+#: bCNC/ProbePage.py:2086
+msgid "Manual tool change Probing MZ location"
+msgstr "수동 공구 교환 MZ 위치 탐색"
+
+#: bCNC/ProbePage.py:186
+msgid "Margins"
+msgstr "여백 "
+
+#: bCNC/bmain.py:1159 bCNC/bmain.py:1240
+msgid "Margins X:"
+msgstr "X 여백: "
+
+#: bCNC/plugins/drillmark.py:46
+msgid "Mark X center"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:47
+msgid "Mark Y center"
+msgstr ""
+
+#: bCNC/ProbePage.py:1752
+msgid "Mark camera position for calculating offset"
+msgstr "오프셋 계산을 위한 카메라 위치 표시"
+
+#: bCNC/plugins/drillmark.py:50
+msgid "Mark drawing power"
+msgstr ""
+
+#: bCNC/ProbePage.py:1745
+msgid "Mark spindle position for calculating offset"
+msgstr "오프셋 계산을 위한 스핀들 위치 표시"
+
+#: bCNC/ProbePage.py:683
+msgid "Markers:"
+msgstr "마커"
+
+#: bCNC/ToolsPage.py:711 bCNC/ToolsPage.py:739 bCNC/ToolsPage.py:1421
+msgid "Material"
+msgstr "재료"
+
+#: bCNC/ProbePage.py:1232
+msgid "Max"
+msgstr "최대"
+
+#: bCNC/plugins/spiral.py:479
+msgid "Max Depth per Pass"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:48
+msgid "Max characters per line exceeded. Line was not processed and executed."
+msgstr ""
+"한 줄당 최대 글자 수를 초과했습니다. 라인이 처리되고 실행되지 않았습니다."
+
+#: bCNC/plugins/halftone.py:48
+msgid "Max diameter, cap limit"
+msgstr "최대 지름, 한도"
+
+#: bCNC/plugins/halftone.py:46
+msgid "Max draw size (Width or Height)"
+msgstr "최대 그림 크기(너비 또는 높이)"
+
+#: bCNC/controllers/_GenericGRBL.py:113
+msgid "Max. feed rate exceeded. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:64
+msgid "Maximum X travel"
+msgstr "최대 X 이동"
+
+#: bCNC/plugins/midi2cnc.py:65
+msgid "Maximum Y travel"
+msgstr "최대 Y 이동"
+
+#: bCNC/plugins/midi2cnc.py:66
+msgid "Maximum Z travel"
+msgstr "최대 Z 이동"
+
+#: bCNC/plugins/pyrograph.py:42
+msgid "Maximum feed"
+msgstr "최대 피드"
+
+#: bCNC/plugins/sketch.py:48
+msgid "Maximum light"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:44 bCNC/plugins/heightmap.py:66
+#: bCNC/plugins/pyrograph.py:40
+msgid "Maximum size"
+msgstr "최대 크기"
+
+#: bCNC/plugins/slicemesh.py:194
+msgid "Mesh sliced"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:71
+msgid "Midi to process"
+msgstr "처리할 미디어"
+
+#: bCNC/ProbePage.py:1230
+msgid "Min"
+msgstr "최소"
+
+#: bCNC/plugins/halftone.py:49
+msgid "Min diameter, cut off"
+msgstr "최소 지름"
+
+#: bCNC/ToolsPage.py:1102
+msgid "Min. Distance of tabs"
+msgstr "탭의 최단 경로"
+
+#: bCNC/plugins/trochoidal_3D.py:420
+#, fuzzy
+#| msgid "Minimum step pulse time must be greater than 3usec"
+msgid "Minimum Adaptative Feed has to be greater than 0"
+msgstr "최소 스텝 펄스 시간은 3usec보다 커야합니다."
+
+#: bCNC/plugins/pyrograph.py:41
+msgid "Minimum feed"
+msgstr "최소 피드"
+
+#: bCNC/controllers/_GenericGRBL.py:40
+msgid "Minimum step pulse time must be greater than 3usec"
+msgstr "최소 스텝 펄스 시간은 3usec보다 커야합니다."
+
+#: bCNC/EditorPage.py:619
+msgid "Mirror horizontally X=-X selected gcode"
+msgstr "선택된 g코드 X축에서 -X축으로 수평 반전"
+
+#: bCNC/EditorPage.py:634
+msgid "Mirror vertically Y=-Y selected gcode"
+msgstr "선택된 g코드 Y축에서 -Y축으로 수직 반전"
+
+#: bCNC/ControlPage.py:2182
+msgid "Mist"
+msgstr ""
+
+#: bCNC/ControlPage.py:2009
+msgid "Mode:"
+msgstr "모드:"
+
+#: bCNC/ProbePage.py:261
+msgid "Modify selected G-Code to match autolevel"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:61
+msgid "More than one g-code command from same modal group found in block."
+msgstr ""
+"블록에 있는 동일한 모달 그룹에서 하나 이상의 g-code 명령이 발견되었습니다."
+
+#: bCNC/ToolsPage.py:714
+msgid "Mount Axis"
+msgstr "마운트 축"
+
+#: bCNC/EditorPage.py:416 bCNC/EditorPage.py:424
+msgid "Move"
+msgstr "이동"
+
+#: bCNC/ControlPage.py:1428
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +A"
+msgstr "+X 이동"
+
+#: bCNC/ControlPage.py:1530
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +B"
+msgstr "+X 이동"
+
+#: bCNC/ControlPage.py:1468
+#, fuzzy
+#| msgid "Move +X +Y"
+msgid "Move +B +C"
+msgstr "+X +Y 이동"
+
+#: bCNC/ControlPage.py:1635
+#, fuzzy
+#| msgid "Move +X -Y"
+msgid "Move +B -C"
+msgstr "+X -Y 이동"
+
+#: bCNC/ControlPage.py:1455
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +C"
+msgstr "+X 이동"
+
+#: bCNC/ControlPage.py:1060
+msgid "Move +X"
+msgstr "+X 이동"
+
+#: bCNC/ControlPage.py:992
+msgid "Move +X +Y"
+msgstr "+X +Y 이동"
+
+#: bCNC/ControlPage.py:1163
+msgid "Move +X -Y"
+msgstr "+X -Y 이동"
+
+#: bCNC/ControlPage.py:980
+msgid "Move +Y"
+msgstr "+Y 이동"
+
+#: bCNC/ControlPage.py:954
+msgid "Move +Z"
+msgstr "+Z 이동"
+
+#: bCNC/ControlPage.py:1596
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -A"
+msgstr "-X 이동"
+
+#: bCNC/ControlPage.py:1504
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -B"
+msgstr "-X 이동"
+
+#: bCNC/ControlPage.py:1442
+#, fuzzy
+#| msgid "Move -X +Y"
+msgid "Move -B +C"
+msgstr "-X + Y 이동"
+
+#: bCNC/ControlPage.py:1609
+#, fuzzy
+#| msgid "Move -X -Y"
+msgid "Move -B -C"
+msgstr "-X -Y 이동"
+
+#: bCNC/ControlPage.py:1622
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -C"
+msgstr "-X 이동"
+
+#: bCNC/ControlPage.py:1028
+msgid "Move -X"
+msgstr "-X 이동"
+
+#: bCNC/ControlPage.py:967
+msgid "Move -X +Y"
+msgstr "-X + Y 이동"
+
+#: bCNC/ControlPage.py:1137
+msgid "Move -X -Y"
+msgstr "-X -Y 이동"
+
+#: bCNC/ControlPage.py:1150
+msgid "Move -Y"
+msgstr "-Y 이동"
+
+#: bCNC/ControlPage.py:1124
+msgid "Move -Z"
+msgstr "-Z 이동"
+
+#: bCNC/CNCCanvas.py:451
+msgid "Move CNC gantry to mouse location"
+msgstr "CNC 갠트리 마우스 위치로 이동"
+
+#: bCNC/ControlPage.py:451
+msgid "Move Gantry"
+msgstr "갠트리 이동"
+
+#: bCNC/EditorPage.py:451
+msgid "Move all gcode such as origin is on mouse location [O]"
+msgstr "마우스 위치로 모든 g코드 옮기기[O]"
+
+#: bCNC/CNCCanvas.py:760
+#, fuzzy
+#| msgid "Move by %g, %g, %g"
+msgid "Move by {:g}, {:g}, {:g}"
+msgstr "{:g}, {:g}, {:g}로 이동"
+
+#: bCNC/ControlPage.py:461
+msgid "Move gantry to mouse location [g]"
+msgstr "갠트리를 마우스 위치로 이동 [g]"
+
+#: bCNC/CNCCanvas.py:445
+msgid "Move graphically objects"
+msgstr "도표로 물체 이동"
+
+#: bCNC/EditorPage.py:433
+msgid "Move objects [M]"
+msgstr "물체 이동[M]"
+
+#: bCNC/EditorPage.py:532
+msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
+msgstr "선택된 g코드 아래로 옮기기[Ctrl-Down, Ctrl-PgDn]"
+
+#: bCNC/EditorPage.py:513
+msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
+msgstr "선택된 g코드 위로 옮기기[Ctrl-Up, Ctrl-PgUp]"
+
+#: bCNC/plugins/simpleTranslate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Moved selected blocks"
+msgstr "바둑판식으로 선택된 블록"
+
+#: bCNC/ControlPage.py:1001 bCNC/ControlPage.py:1477
+msgid "Multiply step by 10"
+msgstr "10 단계씩 곱하기"
+
+#: bCNC/ProbePage.py:1236
+msgid "N"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:72
+msgid "N line number value is not within the valid range of 1 - 9,999,999."
+msgstr "N행 번호 값이 1 - 9,999,999의 유효 범위 내에 있지 않습니다."
+
+#: bCNC/lib/bFileDialog.py:304 bCNC/plugins/Helical_Descent.py:77
+#: bCNC/plugins/Random.py:29 bCNC/plugins/arcfit.py:32 bCNC/plugins/bowl.py:112
+#: bCNC/plugins/box.py:346 bCNC/plugins/center.py:35
+#: bCNC/plugins/difference.py:40 bCNC/plugins/dragknife.py:41
+#: bCNC/plugins/driller.py:44 bCNC/plugins/drillmark.py:38
+#: bCNC/plugins/endmilloffset.py:437 bCNC/plugins/flatten.py:288
+#: bCNC/plugins/function_plot.py:23 bCNC/plugins/gear.py:160
+#: bCNC/plugins/halftone.py:37 bCNC/plugins/hilbert.py:111
+#: bCNC/plugins/intersection.py:41 bCNC/plugins/jigsaw.py:360
+#: bCNC/plugins/linearize.py:33 bCNC/plugins/midi2cnc.py:60
+#: bCNC/plugins/scaling.py:38 bCNC/plugins/sketch.py:36
+#: bCNC/plugins/spiral.py:471 bCNC/plugins/spirograph.py:118
+#: bCNC/plugins/text.py:37 bCNC/plugins/tile.py:27
+#: bCNC/plugins/trochoidPath.py:37 bCNC/plugins/trochoidal.py:43
+#: bCNC/plugins/trochoidal_3D.py:46 bCNC/plugins/zigzag.py:105
+#: bCNC/plugins/heightmap.py:64 bCNC/plugins/pyrograph.py:37
+#: bCNC/plugins/slicemesh.py:55 bCNC/ToolsPage.py:680 bCNC/ToolsPage.py:707
+#: bCNC/ToolsPage.py:737 bCNC/ToolsPage.py:765 bCNC/ToolsPage.py:937
+#: bCNC/ToolsPage.py:998 bCNC/ToolsPage.py:1073 bCNC/ToolsPage.py:1099
+#: bCNC/ToolsPage.py:1981
+msgid "Name"
+msgstr "이름"
+
+#: bCNC/Utils.py:833
+msgid "Name to appear on button"
+msgstr "버튼에 표시할 이름"
+
+#: bCNC/Utils.py:829
+msgid "Name:"
+msgstr "이름:"
+
+#: bCNC/controllers/_GenericGRBL.py:38
+msgid "Negative value received for an expected positive value."
+msgstr "양수 값이 예상되나 음수 값이 수신되었습니다."
+
+#: bCNC/FilePage.py:85
+msgid "New"
+msgstr "새로 생성"
+
+#: bCNC/Ribbon.py:574
+msgid "New file"
+msgstr "새로운 파일"
+
+#: bCNC/FilePage.py:90
+msgid "New gcode/dxf file"
+msgstr "새로운 gcode/dxf 파일"
+
+#: bCNC/lib/bFileDialog.py:863
+msgid "NewFolder"
+msgstr "새 폴더"
+
+#: bCNC/plugins/Random.py:45 bCNC/plugins/simpleRotate.py:49
+#: bCNC/plugins/simpleTranslate.py:47 bCNC/plugins/tile.py:44
+msgid "No g-code blocks selected"
+msgstr "선택된 G코드 블록이 없습니다."
+
+#: bCNC/plugins/gear.py:161
+msgid "No of teeth"
+msgstr "톱니의 수"
+
+#: bCNC/EditorPage.py:122
+msgid "None"
+msgstr "없음"
+
+#: bCNC/bmain.py:2658
+msgid "Not gcode file was loaded"
+msgstr "gcode 파일이 로드되지 않았습니다."
+
+#: bCNC/bmain.py:2035
+msgid "Nothing to do"
+msgstr "할 것이 아무것도 없습니다."
+
+#: bCNC/ToolsPage.py:943
+msgid "Number"
+msgstr "번호"
+
+#: bCNC/plugins/trochoidPath.py:60
+#, fuzzy
+#| msgid "Number of tabs"
+msgid "Number of Tabs 0 = Not Tabs"
+msgstr "탭의 숫자"
+
+#: bCNC/plugins/zigzag.py:106
+msgid "Number of lines"
+msgstr "라인 수"
+
+#: bCNC/ToolsPage.py:1101
+msgid "Number of tabs"
+msgstr "탭의 숫자"
+
+#: bCNC/controllers/_GenericGRBL.py:36
+msgid "Numeric value format is not valid or missing an expected value."
+msgstr "숫자 값 형식이 유효하지 않거나 예상 값이 누락되었습니다."
+
+#: bCNC/ControlPage.py:2154
+msgid "OFF"
+msgstr ""
+
+#: bCNC/ProbePage.py:73
+msgid "ONLY before probing"
+msgstr "오직 probing 이전"
+
+#: bCNC/plugins/endmilloffset.py:14
+#, fuzzy
+#| msgid "Offset:"
+msgid "Offset"
+msgstr "오프셋: "
+
+#: bCNC/plugins/spirograph.py:121
+msgid "Offset radius"
+msgstr "오프셋 반경"
+
+#: bCNC/plugins/endmilloffset.py:462
+#, fuzzy
+#| msgid "Offset radius"
+msgid "Offset side"
+msgstr "오프셋 반경"
+
+#: bCNC/ProbePage.py:836 bCNC/ProbePage.py:1710
+msgid "Offset:"
+msgstr "오프셋: "
+
+#: bCNC/Utils.py:877
+msgid "Ok"
+msgstr "승인"
+
+#: bCNC/controllers/_GenericGRBL.py:115
+msgid "Only homing is allowed when a limit switch is engaged. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:816
+msgid "Only leave selected islands uncut"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:337 bCNC/lib/bFileDialog.py:938
+#: bCNC/lib/bFileDialog.py:1063 bCNC/FilePage.py:110 bCNC/FilePage.py:376
+#: bCNC/bmain.py:2546
+msgid "Open"
+msgstr "열기"
+
+#: bCNC/FilePage.py:103
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr "기존 gcode / dxf 파일 열기 [Ctrl-O]"
+
+#: bCNC/bmain.py:2345
+msgid "Open file"
+msgstr "파일 열기"
+
+#: bCNC/Ribbon.py:584
+msgid "Open file [Ctrl-O]"
+msgstr "파일 열기 [Ctrl-O]"
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+msgid "Open paths"
+msgstr "열린 경로 "
+
+#: bCNC/FilePage.py:116
+msgid "Open recent file"
+msgstr "최신 파일 열기"
+
+#: bCNC/Updates.py:186
+msgid "Open web browser to download bCNC"
+msgstr "bCNC 다운을 위한 웹 브라우저 열기"
+
+#: bCNC/ControlPage.py:129
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Open/Close connection"
+msgstr "시리얼 포트 열기 / 닫기"
+
+#: bCNC/FilePage.py:384
+msgid "Open/Close serial port"
+msgstr "시리얼 포트 열기 / 닫기"
+
+#: bCNC/plugins/endmilloffset.py:443
+#, fuzzy
+#| msgid "Operation error"
+msgid "Operation"
+msgstr "작동 오류 "
+
+#: bCNC/bmain.py:2083
+msgid "Operation error"
+msgstr "작동 오류 "
+
+#: bCNC/bmain.py:2036
+#, fuzzy
+#| msgid "Operation {} requires some gcode to be selected"
+msgid "Operation {} requires some gcode to be selected"
+msgstr "{} 작업을 수행하려면 일부 gcode를 선택해야합니다."
+
+#: bCNC/EditorPage.py:490 bCNC/bmain.py:1780
+msgid "Optimize"
+msgstr "최적화 "
+
+#: bCNC/FilePage.py:168
+msgid "Options"
+msgstr "옵션"
+
+#: bCNC/plugins/hilbert.py:113 bCNC/EditorPage.py:486
+msgid "Order"
+msgstr "명령"
+
+#: bCNC/ProbePage.py:677 bCNC/ProbePage.py:822 bCNC/bmain.py:138
+msgid "Orient"
+msgstr "방향"
+
+#: bCNC/EditorPage.py:441
+msgid "Origin"
+msgstr "원본"
+
+#: bCNC/plugins/box.py:355 bCNC/plugins/trochoidPath.py:52
+#: bCNC/plugins/trochoidal_3D.py:76 bCNC/ToolsPage.py:1018
+msgid "Overcut"
+msgstr "오버 컷"
+
+#: bCNC/plugins/endmilloffset.py:485
+#, fuzzy
+#| msgid "Overcut"
+msgid "Overcut corners"
+msgstr "오버 컷"
+
+#: bCNC/lib/bFileDialog.py:985
+#, fuzzy
+#| msgid "Overwrite existing file %r?"
+msgid "Overwrite existing file {}?"
+msgstr "기존 파일 {}ㅇ 덮어 쓰시겠습니까?"
+
+#: bCNC/ProbePage.py:496
+msgid "POINT"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:435
+msgid "Pan viewport"
+msgstr "시점 상하 회전"
+
+#: bCNC/CNCCanvas.py:2300
+msgid "Pan viewport [X]"
+msgstr "뷰포트 상하반전[X]"
+
+#: bCNC/TerminalPage.py:96
+msgid "Parameters"
+msgstr "매개 변수"
+
+#: bCNC/EditorPage.py:49
+msgid "Paste"
+msgstr "붙여넣기"
+
+#: bCNC/EditorPage.py:55
+msgid "Paste [Ctrl-V]"
+msgstr "붙여넣기 [Ctrl-V]"
+
+#: bCNC/ControlPage.py:192
+msgid "Pause"
+msgstr "일시정지"
+
+#: bCNC/ControlPage.py:214
+msgid "Pause running program and soft reset controller to empty the buffer."
+msgstr ""
+"실행중인 프로그램을 일시 중지하고 소프트 재설정 제어기를 사용하여 버퍼를 비웁"
+"니다."
+
+#: bCNC/ControlPage.py:199
+msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+msgstr ""
+"실행중인 프로그램을 일시 중지합니다. FEED_HOLD 또는 CYCLE_START ~ 중 하나를 "
+"보냅니다."
+
+#: bCNC/ProbePage.py:1985
+msgid "Pause:"
+msgstr "중지"
+
+#: bCNC/ToolsPage.py:940
+msgid "Peck depth"
+msgstr "펙 깊이"
+
+#: bCNC/plugins/simpleDrill.py:70
+#, fuzzy
+#| msgid "Peck depth"
+msgid "Peck depth (positive)"
+msgstr "펙 깊이"
+
+#: bCNC/plugins/driller.py:47
+#, fuzzy
+#| msgid "Peck, 0 meas None"
+msgid "Peck, 0 means None"
+msgstr "펙, 0은 없음을 의미합니다."
+
+#: bCNC/FilePage.py:232 bCNC/bmain.py:2713 bCNC/bmain.py:2719
+#: bCNC/bmain.py:2733
+msgid "Pendant"
+msgstr "팬던트"
+
+#: bCNC/bmain.py:2720
+msgid "Pendant already started:\n"
+msgstr "펜던트가 이미 시작되었습니다\n"
+
+#: bCNC/bmain.py:2714
+msgid "Pendant started:\n"
+msgstr "펜던트가 시작된 곳:\n"
+
+#: bCNC/bmain.py:2734
+msgid "Pendant stopped"
+msgstr "펜던트가 중지되었습니다."
+
+#: bCNC/ProbePage.py:2135
+msgid "Perform a calibration probing to determine the height"
+msgstr "캘리브레이션 프로빙을 수행하여 높이 결정"
+
+#: bCNC/ControlPage.py:100
+#, fuzzy
+#| msgid "Perform a homing cycle [$H]"
+msgid "Perform a homing cycle [$H] now"
+msgstr "원점 복귀주기 수행 [$ H]"
+
+#: bCNC/ToolsPage.py:1613
+msgid "Perform a pocket operation on selected code"
+msgstr "선택한 코드에 주머지 막업 수행"
+
+#: bCNC/ToolsPage.py:1595
+msgid "Perform a profile operation on selected code"
+msgstr "선택된 코드의 프로필 작업 실행"
+
+#: bCNC/ProbePage.py:1935
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr "단일 공구 교환주기를 수행하여 교정 필드 설정"
+
+#: bCNC/ProbePage.py:636
+msgid "Perform a single probe cycle"
+msgstr "단일 probe cycle 수행"
+
+#: bCNC/ProbePage.py:1951
+msgid "Perform a tool change cycle"
+msgstr "툴 변경 사이클 수행"
+
+#: bCNC/plugins/jigsaw.py:363
+msgid "Piece count"
+msgstr "조각 수"
+
+#: bCNC/ControlPage.py:1978
+msgid "Plane [G17,G18,G19]"
+msgstr "평면 [G17,G18,G19]"
+
+#: bCNC/controllers/_GenericGRBL.py:112
+msgid "Plane must be ZX for threading. (grblHAL)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1967
+msgid "Plane:"
+msgstr "평면:"
+
+#: bCNC/ToolsPage.py:1912
+msgid "Please restart the program."
+msgstr "프로그램을 재시작 하십시오."
+
+#: bCNC/bmain.py:1781
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "최적화 할 gcode 블록을 선택하십시오."
+
+#: bCNC/bmain.py:2609
+msgid "Please stop before"
+msgstr "먼저 중지해주시기 바랍니다."
+
+#: bCNC/ToolsPage.py:651
+msgid "Plotting Arc accuracy"
+msgstr "아크 정확도 정리"
+
+#: bCNC/plugins/scaling.py:44 bCNC/plugins/trochoidal_3D.py:96
+#: bCNC/ToolsPage.py:683 bCNC/ToolsPage.py:770
+msgid "Plunge Feed"
+msgstr "급경사 피드"
+
+#: bCNC/plugins/trochoidal_3D.py:415
+msgid "Plunge Feed has to be greater than 0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1025 bCNC/ToolsPage.py:1604
+msgid "Pocket"
+msgstr "포켓"
+
+#: bCNC/plugins/flatten.py:299
+msgid "Pocket type"
+msgstr "포켓 타입"
+
+#: bCNC/ProbePage.py:1164
+msgid "Pointrec"
+msgstr ""
+
+#: bCNC/ProbePage.py:1967
+msgid "Policy:"
+msgstr "정책: "
+
+#: bCNC/FilePage.py:294
+msgid "Port:"
+msgstr "포트:"
+
+#: bCNC/ProbePage.py:596
+msgid "Pos:"
+msgstr "위치:"
+
+#: bCNC/EditorPage.py:209
+msgid "Postprocess Inkscape g-code"
+msgstr ""
+
+#: bCNC/plugins/gear.py:162
+msgid "Pressure angle"
+msgstr "압력 각"
+
+#: bCNC/ProbePage.py:106 bCNC/ProbePage.py:114 bCNC/ProbePage.py:539
+#: bCNC/ProbePage.py:627 bCNC/bmain.py:137
+msgid "Probe"
+msgstr "조사"
+
+#: bCNC/ProbePage.py:987
+msgid "Probe Center Error"
+msgstr "프로브 센터 오류"
+
+#: bCNC/ProbePage.py:369
+msgid "Probe Command"
+msgstr "조사"
+
+#: bCNC/ProbePage.py:922 bCNC/ProbePage.py:955 bCNC/ProbePage.py:1411
+#: bCNC/ProbePage.py:1420 bCNC/ProbePage.py:1435 bCNC/ProbePage.py:1444
+#: bCNC/ProbePage.py:1456 bCNC/ProbePage.py:1465 bCNC/ProbePage.py:1474
+msgid "Probe Error"
+msgstr "프로브 에러 "
+
+#: bCNC/ProbePage.py:328
+msgid "Probe Feed:"
+msgstr "프로브 피드"
+
+#: bCNC/bmain.py:2390
+msgid "Probe File modified"
+msgstr "프로브 파일 수정 됨"
+
+#: bCNC/ProbePage.py:2198 bCNC/ProbePage.py:2210 bCNC/ProbePage.py:2220
+#: bCNC/ProbePage.py:2230 bCNC/ProbePage.py:2240
+msgid "Probe Tool Change Error"
+msgstr "프로브 도구 변경 오류"
+
+#: bCNC/ProbePage.py:603
+msgid "Probe along X direction"
+msgstr "X 방향을 따라 탐침"
+
+#: bCNC/ProbePage.py:611
+msgid "Probe along Y direction"
+msgstr "Y 방향을 따라 탐침"
+
+#: bCNC/ProbePage.py:619
+msgid "Probe along Z direction"
+msgstr "Z 방향을 따라 탐침"
+
+#: bCNC/ProbePage.py:2366
+msgid "Probe configuration and probing"
+msgstr "프로브 구성 및 프로빙"
+
+#: bCNC/ProbePage.py:902
+msgid "Probe connected?"
+msgstr "probe가 연결 되었습니까?"
+
+#: bCNC/controllers/_GenericGRBL.py:155
+msgid "Probe protection triggered. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2391
+msgid "Probe was modified do you want to save it first?"
+msgstr "프로브가 수정 되었습니다. 먼저 저장 하시겠습니까?"
+
+#: bCNC/ProbePage.py:543 bCNC/ProbePage.py:2057
+msgid "Probe:"
+msgstr "조사"
+
+#: bCNC/ProbePage.py:655
+msgid "Probing ring internal diameter"
+msgstr "probing ring 내부 지름"
+
+#: bCNC/plugins/box.py:354 bCNC/ToolsPage.py:1586
+msgid "Profile"
+msgstr "프로필"
+
+#: bCNC/bmain.py:2129 bCNC/bmain.py:2231
+#, fuzzy
+#| msgid "Profile block distance=%g"
+msgid "Profile block distance={:g}"
+msgstr "프로파일 블락 거리={:g}"
+
+#: bCNC/plugins/bowl.py:115
+msgid "Progressive"
+msgstr "점진적"
+
+#: bCNC/Updates.py:74
+msgid "Published at:"
+msgstr "발포된 곳"
+
+#: bCNC/Updates.py:80
+msgid "Published date of the latest github release"
+msgstr "최신 GitHub 발포 날짜"
+
+#: bCNC/plugins/midi2cnc.py:61
+msgid "Pulse per unit for X"
+msgstr "X에 대한 단위당 펄스"
+
+#: bCNC/plugins/midi2cnc.py:62
+msgid "Pulse per unit for Y"
+msgstr "Y에 대한 단위당 펄스"
+
+#: bCNC/plugins/midi2cnc.py:63
+msgid "Pulse per unit for Z"
+msgstr "Z에 대한 단위당 펄스"
+
+#: bCNC/plugins/pyrograph.py:13
+msgid "Pyrograph"
+msgstr "파이로그래프"
+
+#: bCNC/plugins/pyrograph.py:97
+msgid "Pyrograph abort: Can't read image file"
+msgstr "파이로그래프 중단 : 이미지 파일을 읽을 수 없습니다."
+
+#: bCNC/plugins/pyrograph.py:85
+msgid "Pyrograph abort: Please check feed rate parameters"
+msgstr "파이로그래프 중단 : 이송 속도 매개 변수를 확인하십시오."
+
+#: bCNC/plugins/pyrograph.py:58
+msgid "Pyrograph abort: This plugin requires PIL/Pillow"
+msgstr "파이로그래프 중단 :이 플러그인에ㄴ PIL/Pillow가 필요합니다."
+
+#: bCNC/plugins/pyrograph.py:80
+msgid "Pyrograph abort: Tool Size must be > 0"
+msgstr "파이로그래프 중단 : 도구 크기는 0보다 커야합니다."
+
+#: bCNC/plugins/pyrograph.py:76
+msgid "Pyrograph abort: please define a scan Direction"
+msgstr "파이로그래프 중단 : 스캔 방향을 설정하세요."
+
+#: bCNC/plugins/pyrograph.py:38
+msgid "Pyrograph tip size"
+msgstr "파이로그래프 팁 크기"
+
+#: bCNC/ProbePage.py:474
+msgid "RAPID"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:45 bCNC/plugins/trochoidal_3D.py:94
+msgid "RPM"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:114
+msgid "RPM out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:51
+msgid "Radial depth of cut (<= cutter D * 0.4)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:67
+msgid "Radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:781
+msgid "Ramp length"
+msgstr ""
+
+#: bCNC/plugins/Random.py:15
+msgid "Random"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:364
+msgid "Random seed"
+msgstr "임의 시드"
+
+#: bCNC/plugins/function_plot.py:26
+msgid "Range of X"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:27
+msgid "Range of Y"
+msgstr ""
+
+#: bCNC/ProbePage.py:592
+msgid "Rapid goto to last probe location"
+msgstr "마지막 probe 장소로 빠른 이동"
+
+#: bCNC/bmain.py:1213
+msgid "Rapid:"
+msgstr "빠른: "
+
+#: bCNC/plugins/flatten.py:294
+msgid "Raster border"
+msgstr "래스터 경계선"
+
+#: bCNC/ProbePage.py:452
+msgid "Record"
+msgstr ""
+
+#: bCNC/ProbePage.py:468
+msgid "Record Z coordinate?"
+msgstr ""
+
+#: bCNC/Ribbon.py:624
+msgid "Redo [Ctrl-Y]"
+msgstr "다시 실행 [Ctrl-Y]"
+
+#: bCNC/CNCCanvas.py:2425
+msgid "Redraw display [Ctrl-R]"
+msgstr "표시 다시 그리기 [Ctrl-R]"
+
+#: bCNC/plugins/spiral.py:464
+msgid "Reduce Diameter of 4th Axis Stock"
+msgstr ""
+
+#: bCNC/FilePage.py:361
+msgid "Refresh"
+msgstr ""
+
+#: bCNC/FilePage.py:367
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Refresh list of serial ports"
+msgstr "시리얼 포트 열기 / 닫기"
+
+#: bCNC/ProbePage.py:1740
+msgid "Register:"
+msgstr "등록:"
+
+#: bCNC/ToolsPage.py:1455
+msgid "Rename"
+msgstr "이름 수정"
+
+#: bCNC/plugins/sketch.py:51
+msgid "Repetition of a point"
+msgstr ""
+
+#: bCNC/FilePage.py:189 bCNC/Utils.py:568
+msgid "Report"
+msgstr "보고"
+
+#: bCNC/Utils.py:701
+msgid "Report successfully send"
+msgstr "보고가 성공적으로 전달되었습니다."
+
+#: bCNC/Utils.py:702
+msgid "Report was successfully uploaded to web site"
+msgstr "보고가 성공적으로 웹 사이트에 업로드되었습니다."
+
+#: bCNC/ControlPage.py:136 bCNC/ControlPage.py:2080
+msgid "Reset"
+msgstr "재설정"
+
+#: bCNC/ControlPage.py:2082
+msgid "Reset override to 100%"
+msgstr "오버라이드를 100 %로 재설정"
+
+#: bCNC/plugins/function_plot.py:25
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "Resolution"
+msgstr "해상도(도)"
+
+#: bCNC/plugins/bowl.py:114
+msgid "Resolution (degrees)"
+msgstr "해상도(도)"
+
+#: bCNC/TerminalPage.py:67
+msgid "Restore All"
+msgstr "모두 복원"
+
+#: bCNC/TerminalPage.py:64
+msgid "Restore Settings"
+msgstr "설정 복원"
+
+#: bCNC/TerminalPage.py:66
+msgid "Restore Workspace"
+msgstr "작업 공간 복원 "
+
+#: bCNC/ControlPage.py:493
+msgid "Resume"
+msgstr "재시작"
+
+#: bCNC/ControlPage.py:1517
+msgid "Return ABC to 0."
+msgstr ""
+
+#: bCNC/EditorPage.py:691
+msgid "Reverse"
+msgstr "반전"
+
+#: bCNC/EditorPage.py:699
+msgid "Reverse cut direction for selected gcode blocks"
+msgstr "선택된 g코드 블록의 절단 방향 반전시키기"
+
+#: bCNC/EditorPage.py:466
+msgid "Right"
+msgstr "오른쪽"
+
+#: bCNC/plugins/drillmark.py:58
+msgid "Ring mark (d/2)"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:94
+#, fuzzy
+#| msgid "All accepted"
+msgid "Risk Accepted"
+msgstr "모두 승인되었습니다."
+
+#: bCNC/plugins/spiral.py:475
+msgid "Rotary Alignment Axis"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:476
+#, fuzzy
+#| msgid "Mount Axis"
+msgid "Rotary Axis"
+msgstr "마운트 축"
+
+#: bCNC/EditorPage.py:588
+msgid "Rotate selected gcode by 180deg"
+msgstr "선택된 g코드 180도 회전시키기"
+
+#: bCNC/EditorPage.py:573
+msgid "Rotate selected gcode clock-wise (-90deg)"
+msgstr "선택된 g코드 시계방향으로 회전시키키(-90도)"
+
+#: bCNC/EditorPage.py:604
+msgid "Rotate selected gcode counter-clock-wise (90deg)"
+msgstr ""
+"선택된 g코드 반시계방향으로 회전시키키(\n"
+"90도)"
+
+#: bCNC/plugins/simpleRotate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Rotated selected blocks"
+msgstr "바둑판식으로 선택된 블록"
+
+#: bCNC/plugins/simpleRotate.py:19
+msgid "Rotates a block to a new position"
+msgstr ""
+
+#: bCNC/ProbePage.py:1647
+msgid "Rotation:"
+msgstr "회전: "
+
+#: bCNC/EditorPage.py:213
+msgid "Round"
+msgstr "둥글게"
+
+#: bCNC/EditorPage.py:647
+msgid "Route"
+msgstr "노선"
+
+#: bCNC/CNCCanvas.py:2329
+msgid "Ruler [R]"
+msgstr "자[R]"
+
+#: bCNC/Sender.py:685
+msgid "Run ended"
+msgstr "실행 종료됨"
+
+#: bCNC/ControlPage.py:184
+msgid "Run g-code commands from editor to controller"
+msgstr "편집기에서 컨트롤러로 g 코드 명령 실행"
+
+#: bCNC/bmain.py:635
+msgid "Running"
+msgstr "실행중"
+
+#: bCNC/Updates.py:65
+msgid "Running version of bCNC"
+msgstr "bCNC의 러닝 버전"
+
+#: bCNC/bmain.py:2695
+msgid "Running..."
+msgstr "실행중..."
+
+#: bCNC/controllers/_GenericGRBL.py:123
+msgid "SD Card directory listing failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:124
+msgid "SD Card directory not found. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:125
+msgid "SD Card file empty. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:122
+msgid "SD Card file open/read failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:121
+msgid "SD Card mount failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:40
+msgid "STL/PLY Slicer"
+msgstr ""
+
+#: bCNC/ToolsPage.py:740
+msgid "Safe Z"
+msgstr "세이프 Z"
+
+#: bCNC/plugins/simpleDrill.py:73
+msgid "Safe z secu for G0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:53
+msgid "Safety door detected as opened and door state initiated."
+msgstr "안전 도어가 열린 상태로 감지되고 도어 상태가 시작되었습니다."
+
+#: bCNC/lib/bFileDialog.py:977 bCNC/FilePage.py:153
+msgid "Save"
+msgstr "저장"
+
+#: bCNC/lib/bFileDialog.py:972
+msgid "Save As"
+msgstr "다른이름으로 저장"
+
+#: bCNC/Ribbon.py:594
+msgid "Save all [Ctrl-S]"
+msgstr "모두 저장 [Ctrl-S]"
+
+#: bCNC/bmain.py:2366
+msgid "Save file"
+msgstr "파일 저장하기"
+
+#: bCNC/FilePage.py:159
+msgid "Save gcode/dxf AS"
+msgstr "gcode / dxf AS 저장"
+
+#: bCNC/FilePage.py:145
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr "gcode/dxf 파일 저장 [Ctrl-S]"
+
+#: bCNC/ProbePage.py:1680
+msgid "Scale:"
+msgstr "스케일: "
+
+#: bCNC/plugins/scaling.py:22
+msgid "Scaling"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:291
+msgid "Scaling Generated"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:175
+msgid "Scaling abort: Please select some path"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:30
+msgid "Scaling the selected block"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:67 bCNC/ProbePage.py:241 bCNC/ProbePage.py:271
+msgid "Scan"
+msgstr "스캔"
+
+#: bCNC/ProbePage.py:247
+msgid "Scan Autolevel Margins"
+msgstr ""
+
+#: bCNC/ProbePage.py:280
+msgid "Scan probed area for level information on Z plane"
+msgstr "Z 평면의 레벨 정보에 대해 검사 영역 검사"
+
+#: bCNC/plugins/heightmap.py:72
+msgid "ScanDir"
+msgstr "스캔 디렉토리"
+
+#: bCNC/EditorPage.py:96
+msgid "Select"
+msgstr "선택하기"
+
+#: bCNC/FilePage.py:307
+msgid "Select (or manual enter) port to connect"
+msgstr "연결할 포트를 선택하거나 직접 입력하십시오."
+
+#: bCNC/EditorPage.py:112
+msgid "Select all blocks [Ctrl-A]"
+msgstr "모든 블락 선택하기 [Ctrl-A]"
+
+#: bCNC/EditorPage.py:160
+msgid "Select all blocks from current layer"
+msgstr "현재 레이어에서 모든 블록 선택"
+
+#: bCNC/FilePage.py:323
+msgid "Select connection baud rate"
+msgstr "연결 속도 선택"
+
+#: bCNC/FilePage.py:340
+msgid "Select controller board"
+msgstr "컨트롤러 보드 선택"
+
+#: bCNC/CNCCanvas.py:430
+msgid "Select objects with mouse"
+msgstr "마우스로 물체 선택"
+
+#: bCNC/ProbePage.py:696
+msgid "Select orientation marker"
+msgstr "방향 마커 선택"
+
+#: bCNC/ControlPage.py:2078
+msgid "Select override type."
+msgstr "오버라이드의 유형을 선택하십시오."
+
+#: bCNC/CNCCanvas.py:2288
+msgid "Select tool [S]"
+msgstr "도구 선택[S]"
+
+#: bCNC/plugins/Helical_Descent.py:79
+#, fuzzy
+msgid "Selected Block"
+msgstr "바둑판식으로 선택된 블록"
+
+#: bCNC/FilePage.py:197
+msgid "Send Error Report"
+msgstr "에러 보고 보내기"
+
+#: bCNC/ProbePage.py:66
+msgid "Send M6 commands"
+msgstr "M6 명령 보내기"
+
+#: bCNC/Utils.py:617
+msgid "Send report"
+msgstr "오류 보내기"
+
+#: bCNC/FilePage.py:289
+msgid "Serial"
+msgstr ""
+
+#: bCNC/bmain.py:2601
+msgid "Serial Error"
+msgstr "시리얼 오류"
+
+#: bCNC/TerminalPage.py:241
+msgid "Serial Terminal"
+msgstr "시리얼 터미널"
+
+#: bCNC/bmain.py:2601
+msgid "Serial is not connected"
+msgstr "시리얼이 연결되지 않았습니다."
+
+#: bCNC/ControlPage.py:735
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set A coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:801
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set ABC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:751
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set B coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:785
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set BC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:767
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set C coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:2101
+msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
+msgstr ""
+"급지 / 급속 / 스핀들 오버라이드를 설정하십시오. 오른쪽 또는 더블 클릭하여 재"
+"설정하십시오."
+
+#: bCNC/ControlPage.py:436
+msgid "Set WPOS"
+msgstr "WPOS 설정"
+
+#: bCNC/ControlPage.py:445
+msgid "Set WPOS to mouse location"
+msgstr "WPOS를 마우스 위치로 설정"
+
+#: bCNC/ControlPage.py:357
+msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgstr "X 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:407
+msgid "Set XY coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: bCNC/ControlPage.py:424
+msgid "Set XYZ coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: bCNC/ControlPage.py:373
+msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Y 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ControlPage.py:389
+msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Z 좌표를 0으로 설정 (또는 WPos에서 입력된 좌표로)"
+
+#: bCNC/ProbePage.py:320
+msgid "Set initial probe feed rate for tool change and calibration"
+msgstr "공구 교환 및 교정을 위한 초기 probe 이송 속도 설정"
+
+#: bCNC/CNCCanvas.py:458
+msgid "Set mouse location as current machine position (X/Y only)"
+msgstr "마우스 위치현재 기계 위치로 놓기(X/Y만)"
+
+#: bCNC/ControlPage.py:2056
+msgid "Set position [G92 X# Y# Z#]"
+msgstr ""
+
+#: bCNC/ProbePage.py:340
+msgid "Set probe feed rate"
+msgstr "probe feed rate 설정"
+
+#: bCNC/ControlPage.py:2135
+msgid "Set spindle RPM"
+msgstr "스핀들 회전 수 설정"
+
+#: bCNC/ProbePage.py:354
+msgid "Set tool offset for probing"
+msgstr "메뉴얼 도구 변경을 위한 probing 셋업"
+
+#: bCNC/controllers/_GenericController.py:163
+#, fuzzy
+#| msgid "Set workspace {} to {}"
+msgid "Set workspace {} to {}"
+msgstr "작업 공간 {}을 {}로 설정하십시오"
+
+#: bCNC/ToolsPage.py:1019
+msgid "Sets if we want to overcut or not."
+msgstr ""
+
+#: bCNC/TerminalPage.py:80
+msgid "Settings"
+msgstr "설정"
+
+#: bCNC/ProbePage.py:165
+msgid "Setup probing for manual tool change"
+msgstr "메뉴얼 도구 변경을 위한 probing 셋업"
+
+#: bCNC/ToolsPage.py:710
+msgid "Shape"
+msgstr "모양"
+
+#: bCNC/plugins/jigsaw.py:369
+msgid "Shape of the tap"
+msgstr "마개의 모양"
+
+#: bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:581
+#: bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:584
+#: bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:587
+#: bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:590
+msgid "Shift-"
+msgstr "Shift-"
+
+#: bCNC/ToolsPage.py:1837
+msgid "Shortcuts"
+msgstr "바로가기"
+
+#: bCNC/ToolsPage.py:1845
+msgid "Shortcuts configuration"
+msgstr "바로가기 구성"
+
+#: bCNC/ToolsPage.py:1011
+msgid "Should we machine on inside or outside of the shape?"
+msgstr ""
+
+#: bCNC/ControlPage.py:473
+msgid "Show Info"
+msgstr "정보 표시"
+
+#: bCNC/EditorPage.py:773
+msgid "Show cutting information on selected blocks [Ctrl-n]"
+msgstr "선택된 블록의 절단 정보 보기[Ctrl-N]"
+
+#: bCNC/EditorPage.py:757
+msgid "Show statistics for enabled gcode"
+msgstr "활성화된 g코드의 통계보기"
+
+#: bCNC/ProbePage.py:121
+msgid "Simple probing along a direction"
+msgstr "방향을 따라 간단한 probing"
+
+#: bCNC/plugins/heightmap.py:77
+msgid "Single pass"
+msgstr "단일 패스"
+
+#: bCNC/lib/bFileDialog.py:306 bCNC/plugins/hilbert.py:112
+msgid "Size"
+msgstr "크기"
+
+#: bCNC/ToolsPage.py:1004
+msgid "Size of this endmill will be used as offset distance"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:20
+msgid "Sketch"
+msgstr "스케치"
+
+#: bCNC/plugins/sketch.py:255
+msgid "Sketch abort: Can't read image file"
+msgstr "스케치 중단 : 이미지 파일을 읽을 수 없습니다."
+
+#: bCNC/plugins/sketch.py:244
+msgid "Sketch abort: Please let me draw at least 1 squiggle"
+msgstr "스케치 중단 : 최소한 1개의 선을 그려주십시오."
+
+#: bCNC/plugins/sketch.py:248
+msgid "Sketch abort: Squiggle Length must be > 0"
+msgstr "스케치 중단 : 선 길이는 0보다 커야합니다."
+
+#: bCNC/plugins/sketch.py:200
+msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
+msgstr ""
+"스케치 중단 : 이 플러그인에서 이미지 데이터를 읽으려면 PIL/Pillow가 필요합니"
+"다."
+
+#: bCNC/plugins/sketch.py:234
+msgid "Sketch abort: Too small to draw anything!"
+msgstr "스케치 중단 : 너무 작아서 아무것도 그리지 못합니다!"
+
+#: bCNC/plugins/slicemesh.py:179
+msgid "Slicing {} {:f} in {:f} -> {:f} of {}"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:34
+#, fuzzy
+#| msgid "Line length"
+msgid "Small line length"
+msgstr "라인 길이"
+
+#: bCNC/controllers/_GenericGRBL.py:46
+msgid "Soft limits cannot be enabled without homing also enabled."
+msgstr "원점 복귀를 사용할 수 없으면 소프트 제한 또한 사용할 수 없습니다."
+
+#: bCNC/ControlPage.py:143
+msgid "Software reset of controller [ctrl-x]"
+msgstr "컨트롤러의 소프트웨어 리셋 [ctrl-x]"
+
+#: bCNC/plugins/midi2cnc.py:32
+msgid "Sound your machine from a midi file"
+msgstr "기계 소리를 미디어 파일로 재생합니다."
+
+#: bCNC/ControlPage.py:2112
+msgid "Spindle"
+msgstr "스핀들"
+
+#: bCNC/ProbePage.py:1737
+msgid "Spindle Z position when camera was registered"
+msgstr "카메라 등록시 스핀들 Z 위치"
+
+#: bCNC/controllers/_GenericGRBL.py:156
+msgid "Spindle at speed timeout. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:654
+msgid "Spindle max (RPM)"
+msgstr "최대 스핀들(RPM)"
+
+#: bCNC/ToolsPage.py:653
+msgid "Spindle min (RPM)"
+msgstr "최소 스핀들(RPM)"
+
+#: bCNC/ProbePage.py:1854
+msgid "Spindle position is not registered"
+msgstr "스핀들 위치가 등록되지 않았습니다."
+
+#: bCNC/ProbePage.py:1846
+msgid "Spindle position is registered"
+msgstr "스핀들 위치 등록"
+
+#: bCNC/ProbePage.py:1855
+msgid "Spindle position must be registered before camera"
+msgstr "스핀들 위치는 카메라 이전에 반드시 등록되어야 합니다."
+
+#: bCNC/plugins/spiral.py:18
+#, fuzzy
+#| msgid "Spirograph"
+msgid "Spiral"
+msgstr "스피로그래프"
+
+#: bCNC/plugins/spiral.py:69
+#, fuzzy
+msgid "Spiral abort: Approach height must be greater than Z Start"
+msgstr "높이 지도 중단 : 깊이가 0보다 작아야 합니다."
+
+#: bCNC/plugins/spiral.py:74
+msgid "Spiral abort: Depth Reduction must be negative"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:156 bCNC/plugins/spiral.py:179
+#: bCNC/plugins/spiral.py:192 bCNC/plugins/spiral.py:220
+#: bCNC/plugins/spiral.py:284 bCNC/plugins/spiral.py:318
+#: bCNC/plugins/spiral.py:357 bCNC/plugins/spiral.py:379
+#: bCNC/plugins/spiral.py:430
+msgid "Spiral abort: Rotary Axis Not Assigned."
+msgstr ""
+
+#: bCNC/plugins/spiral.py:60
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Rotary Axis is undefined"
+msgstr "전개 중단 : 포켓 유형이 정의되지 않았습니다."
+
+#: bCNC/plugins/spiral.py:64
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Spiral Type is undefined"
+msgstr "전개 중단 : 포켓 유형이 정의되지 않았습니다."
+
+#: bCNC/plugins/spiral.py:80
+msgid "Spiral abort: Step Over exceeds tool limits"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:124
+#, fuzzy
+#| msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgid "Spiral abort: Stock Length is too small for this End Mill."
+msgstr "전개 중단 : 이 엔드 밀에서는 전개 영역이 너무 작습니다."
+
+#: bCNC/plugins/spiral.py:100
+#, fuzzy
+msgid "Spiral abort: Stock Length to cut must be positive"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/spiral.py:518
+msgid "Spiral: Reduced 4th Axis Stock"
+msgstr ""
+
+#: bCNC/plugins/spirograph.py:17
+msgid "Spirograph"
+msgstr "스피로그래프"
+
+#: bCNC/EditorPage.py:401
+msgid "Split"
+msgstr ""
+
+#: bCNC/EditorPage.py:407
+msgid "Split selected blocks"
+msgstr ""
+
+#: bCNC/ToolsPage.py:795
+msgid "Spring pass"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:46
+msgid "Squiggle Length"
+msgstr "길이를 늘리십시오."
+
+#: bCNC/plugins/sketch.py:45
+msgid "Squiggle total count"
+msgstr "총 개수를 늘리십시오."
+
+#: bCNC/ControlPage.py:178 bCNC/FilePage.py:238
+msgid "Start"
+msgstr "시작"
+
+#: bCNC/plugins/simpleArc.py:68
+msgid "Start Angle in Degrees"
+msgstr ""
+
+#: bCNC/ControlPage.py:2175
+msgid "Start flood (M8)"
+msgstr ""
+
+#: bCNC/ControlPage.py:2189
+msgid "Start mist (M7)"
+msgstr ""
+
+#: bCNC/FilePage.py:246
+msgid "Start pendant"
+msgstr "시작 팬던트"
+
+#: bCNC/ToolsPage.py:652
+msgid "Start up"
+msgstr "시작"
+
+#: bCNC/ControlPage.py:2121
+msgid "Start/Stop spindle (M3/M5)"
+msgstr "스핀들 시작 / 정지 (M3/M5)"
+
+#: bCNC/TerminalPage.py:140
+msgid "Startup"
+msgstr "시작"
+
+#: bCNC/ControlPage.py:1877 bCNC/TerminalPage.py:110
+msgid "State"
+msgstr "상태"
+
+#: bCNC/ControlPage.py:611 bCNC/ControlPage.py:918
+#, fuzzy
+#| msgid "State: {}"
+msgid "State: {}"
+msgstr "상태 : {}"
+
+#: bCNC/EditorPage.py:750 bCNC/bmain.py:1133
+msgid "Statistics"
+msgstr "통계 "
+
+#: bCNC/ControlPage.py:236
+msgid "Status:"
+msgstr "상태:"
+
+#: bCNC/ProbePage.py:1234
+msgid "Step"
+msgstr "단계"
+
+#: bCNC/plugins/zigzag.py:109
+msgid "Step distance"
+msgstr "단계 거리"
+
+#: bCNC/ControlPage.py:1562
+#, fuzzy
+#| msgid "Step for Z move operation"
+msgid "Step for A move operation"
+msgstr "Z 이동 작업을 위한 단계"
+
+#: bCNC/ControlPage.py:1090
+msgid "Step for Z move operation"
+msgstr "Z 이동 작업을 위한 단계"
+
+#: bCNC/ControlPage.py:1075 bCNC/ControlPage.py:1546
+msgid "Step for every move operation"
+msgstr "모든 이동 작업을 위한 단계"
+
+#: bCNC/ControlPage.py:1265 bCNC/ControlPage.py:1739
+#, fuzzy
+#| msgid "Step: %g"
+msgid "Step: {:g}"
+msgstr "단계: {:g}"
+
+#: bCNC/ControlPage.py:1744
+#, fuzzy
+#| msgid "Step: %g    Zstep:%g "
+msgid "Step: {:g}   Astep:{:g} "
+msgstr "단계 : {:g}    Z단계 : {:g} "
+
+#: bCNC/ControlPage.py:1270
+#, fuzzy
+#| msgid "Step: %g    Zstep:%g "
+msgid "Step: {:g}  Zstep: {:g} "
+msgstr "단계 : {:g}    Z단계 : {:g} "
+
+#: bCNC/ToolsPage.py:718
+msgid "Stepover %"
+msgstr "스텝오버 %"
+
+#: bCNC/plugins/spiral.py:480
+msgid "Stepover (spiral=mm, lines=deg)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1405
+msgid "Stock"
+msgstr "스톡"
+
+#: bCNC/ToolsPage.py:1413
+msgid "Stock material currently on machine"
+msgstr "현재 기계 재고 있음"
+
+#: bCNC/ControlPage.py:208 bCNC/FilePage.py:251
+msgid "Stop"
+msgstr "중단"
+
+#: bCNC/ControlPage.py:2161
+msgid "Stop cooling (M9)"
+msgstr ""
+
+#: bCNC/FilePage.py:259
+msgid "Stop pendant"
+msgstr "정지 펜던트"
+
+#: bCNC/ToolsPage.py:741 bCNC/ToolsPage.py:766
+msgid "Surface Z"
+msgstr "표면 Z"
+
+#: bCNC/ProbePage.py:1543
+msgid "Switch To"
+msgstr "~로 전환"
+
+#: bCNC/ProbePage.py:1553
+msgid "Switch between camera and spindle"
+msgstr "카메라와 축 사이의 전환"
+
+#: bCNC/ControlPage.py:1904
+#, fuzzy
+#| msgid "Switch to workspace {}"
+msgid "Switch to workspace {}"
+msgstr "작업 공간 {} (으)로 전환하십시오."
+
+#: bCNC/ProbePage.py:347
+msgid "TLO"
+msgstr "수동 도구 교환 (TLO)"
+
+#: bCNC/ControlPage.py:2029
+msgid "TLO:"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1638
+msgid "Tabs"
+msgstr "탭 "
+
+#: bCNC/plugins/trochoidPath.py:63
+#, fuzzy
+#| msgid "Diameter"
+msgid "Tabs Diameter"
+msgstr "직경"
+
+#: bCNC/plugins/trochoidPath.py:64
+#, fuzzy
+#| msgid "Height"
+msgid "Tabs Height"
+msgstr "높이"
+
+#: bCNC/ToolsPage.py:1153
+msgid "Tabs error"
+msgstr "탭 에러"
+
+#: bCNC/plugins/driller.py:46 bCNC/plugins/spirograph.py:122
+#: bCNC/plugins/trochoidPath.py:53 bCNC/plugins/trochoidal_3D.py:82
+#: bCNC/ToolsPage.py:767 bCNC/ToolsPage.py:939
+msgid "Target Depth"
+msgstr "목표 깊이"
+
+#: bCNC/plugins/simpleDrill.py:69
+msgid "Target z (negative under surface)"
+msgstr ""
+
+#: bCNC/TerminalPage.py:38 bCNC/TerminalPage.py:189
+msgid "Terminal"
+msgstr "터미널"
+
+#: bCNC/TerminalPage.py:205
+msgid "Terminal communication with controller"
+msgstr "컨트롤러와 터미널 통신"
+
+#: bCNC/plugins/text.py:94
+#, fuzzy
+#| msgid "Text abort: That embarrassing, I can't read this font file!"
+msgid "Text abort: That's embarrassing, I can't read this font file!"
+msgstr "텍스트 중단 : 당황스럽네요, 이 글꼴 파일을 읽을 수 없습니다."
+
+#: bCNC/plugins/text.py:62
+msgid "Text abort: please input a Font size > 0"
+msgstr "텍스트 중단 : 글꼴 크기가 0보다 커야합니다."
+
+#: bCNC/plugins/text.py:65
+msgid "Text abort: please select a font file"
+msgstr "텍스트 중단 : 글꼴 파일을 선택하세요."
+
+#: bCNC/plugins/text.py:38
+msgid "Text to generate"
+msgstr "생성할 텍스트"
+
+#: bCNC/Utils.py:573
+#, fuzzy
+#| msgid "The following report is about to be send to the author of {}"
+msgid "The following report is about to be send to the author of {}"
+msgstr "다음 보고는 {}의 작성자에게 보내질 것입니다."
+
+#: bCNC/plugins/sketch.py:239
+msgid "The maximum illumination shouldn't be more than 250!"
+msgstr ""
+
+#: bCNC/Utils.py:695
+msgid "There was a problem connecting to the web site"
+msgstr "웹 사이트에 연결하는 중에 문제가 발생했습니다."
+
+#: bCNC/ToolsPage.py:742
+msgid "Thickness"
+msgstr "두께"
+
+#: bCNC/plugins/Helical_Descent.py:57
+msgid "This is my Helical Descent"
+msgstr ""
+
+#: bCNC/plugins/tile.py:13
+msgid "Tile"
+msgstr "타일"
+
+#: bCNC/plugins/Random.py:44 bCNC/plugins/simpleRotate.py:48
+#: bCNC/plugins/simpleTranslate.py:46 bCNC/plugins/tile.py:44
+msgid "Tile error"
+msgstr "타일 오류"
+
+#: bCNC/plugins/Random.py:80 bCNC/plugins/tile.py:85
+msgid "Tiled selected blocks"
+msgstr "바둑판식으로 선택된 블록"
+
+#: bCNC/bmain.py:1222 bCNC/bmain.py:1301
+msgid "Time:"
+msgstr "속도: "
+
+#: bCNC/CNCCanvas.py:2437
+#, fuzzy
+msgid "Timeout:"
+msgstr "속도: "
+
+#: bCNC/CNCCanvas.py:2347
+msgid "Toggle display of axes"
+msgstr "축 표시 토글"
+
+#: bCNC/CNCCanvas.py:2418
+msgid "Toggle display of camera"
+msgstr "카메라 표시 토글"
+
+#: bCNC/CNCCanvas.py:2357
+msgid "Toggle display of grid lines"
+msgstr "그리드 라인 표시 토글"
+
+#: bCNC/CNCCanvas.py:2367
+msgid "Toggle display of margins"
+msgstr "여백 표시 토글"
+
+#: bCNC/CNCCanvas.py:2388
+msgid "Toggle display of paths (G1,G2,G3)"
+msgstr "경로 표시 토글(G1,G2,G3)"
+
+#: bCNC/CNCCanvas.py:2378
+msgid "Toggle display of probe"
+msgstr "조사 표시 토글"
+
+#: bCNC/CNCCanvas.py:2398
+msgid "Toggle display of rapid motion (G0)"
+msgstr "빠른 행동 표시 토글(G0)"
+
+#: bCNC/CNCCanvas.py:2408
+msgid "Toggle display of workarea"
+msgstr "작업영역 표시 토글"
+
+#: bCNC/EditorPage.py:316
+msgid "Toggle enable/disable block of g-code [Ctrl-L]"
+msgstr "G 코드의 활성화/비활성화 토글"
+
+#: bCNC/EditorPage.py:359
+msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
+msgstr "g코드의 블록 확장 또는 축소 토글[Ctrl-E]"
+
+#: bCNC/ToolsPage.py:1662
+msgid "Toggle island"
+msgstr ""
+
+#: bCNC/ProbePage.py:158
+msgid "Tool"
+msgstr "도구"
+
+#: bCNC/Utils.py:852
+msgid "Tool Tip:"
+msgstr "도구 설명:"
+
+#: bCNC/ProbePage.py:1979
+msgid "Tool change policy"
+msgstr "도구 변경 정책"
+
+#: bCNC/ControlPage.py:2041
+msgid "Tool length offset [G43.1#]"
+msgstr ""
+
+#: bCNC/ControlPage.py:1957
+msgid "Tool number [T#]"
+msgstr "도구 숫자 [T#]"
+
+#: bCNC/ProbePage.py:2127
+msgid "Tool probe height"
+msgstr "도구 프로브 높이"
+
+#: bCNC/CNCCanvas.py:2273 bCNC/ControlPage.py:1950
+msgid "Tool:"
+msgstr "도구:"
+
+#: bCNC/Utils.py:857
+msgid "Tooltip for button"
+msgstr "버튼 설명"
+
+#: bCNC/EditorPage.py:462
+msgid "Top"
+msgstr "위"
+
+#: bCNC/EditorPage.py:459
+msgid "Top-Left"
+msgstr "왼쪽 상단"
+
+#: bCNC/EditorPage.py:465
+msgid "Top-Right"
+msgstr "오른쪽 위"
+
+#: bCNC/EditorPage.py:558
+msgid "Transform"
+msgstr "변형"
+
+#: bCNC/plugins/simpleTranslate.py:19
+msgid "Translates a block to a new position"
+msgstr ""
+
+#: bCNC/ToolsPage.py:647
+msgid "Travel x"
+msgstr "이동 x"
+
+#: bCNC/ToolsPage.py:648
+msgid "Travel y"
+msgstr "이동 y"
+
+#: bCNC/ToolsPage.py:649
+msgid "Travel z"
+msgstr "이동 z"
+
+#: bCNC/plugins/trochoidal_3D.py:47
+msgid "Trochoid Cut Diameter"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:402
+#, fuzzy
+msgid "Trochoid Cut Diameter has to be greater than End mill"
+msgstr "하프톤 중단 : 최소 지름은 최대값보다 작아야 합니다."
+
+#: bCNC/plugins/trochoidal_3D.py:1672
+msgid "Trochoid Generated"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:397
+#, fuzzy
+#| msgid "Driller abort: Please select some path"
+msgid "Trochoid abort: Please select some path"
+msgstr "드릴러 중단 : 경로를 선택하세요."
+
+#: bCNC/plugins/trochoidal.py:52
+msgid "Trochoid diameter (<= cutter D)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:49
+msgid "Trochoid entry (prepare for helicut)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:18
+msgid "Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:20
+msgid "Trochoidal Path"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:24
+msgid "Trochoidal g-code postprocessor"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:30
+msgid "Trochoidcut"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:50
+msgid "Trochoids Advance"
+msgstr ""
+
+#: bCNC/ProbePage.py:1568
+msgid "Turn on/off edge detection"
+msgstr "가장자리 감지를 켜기/끄기"
+
+#: bCNC/ProbePage.py:1583
+msgid "Turn on/off freeze image"
+msgstr "정지 이미지 켜기/끄기"
+
+#: bCNC/lib/bFileDialog.py:305 bCNC/ToolsPage.py:709
+msgid "Type"
+msgstr "형태"
+
+#: bCNC/plugins/trochoidal_3D.py:56
+msgid "Type of Splice"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:56
+#, fuzzy
+#| msgid "Shape of the tap"
+msgid "Type of the mark"
+msgstr "마개의 모양"
+
+#: bCNC/Ribbon.py:604
+msgid "Undo [Ctrl-Z]"
+msgstr "실행 취소 [Ctrl-Z]"
+
+#: bCNC/ToolsPage.py:636
+msgid "Units (inches)"
+msgstr "단위(인치)"
+
+#: bCNC/ControlPage.py:1942
+msgid "Units [G20, G21]"
+msgstr "단위 [G20, G21]"
+
+#: bCNC/ControlPage.py:1931
+msgid "Units:"
+msgstr "단위:"
+
+#: bCNC/ControlPage.py:108
+msgid "Unlock"
+msgstr "잠금 해제"
+
+#: bCNC/ControlPage.py:115
+msgid "Unlock controller [$X]"
+msgstr "컨트롤러 잠금 해제 [$ X]"
+
+#: bCNC/EditorPage.py:128
+msgid "Unselect all blocks [Ctrl-Shift-A]"
+msgstr "선택되지 않은 블락 [Ctrl-Shift-A]"
+
+#: bCNC/controllers/_GenericGRBL.py:60
+msgid "Unsupported or invalid g-code command found in block."
+msgstr "지원되지 않거나 유효하지 않은 g 코드 명령이 블록에서 발견되었습니다."
+
+#: bCNC/EditorPage.py:505
+msgid "Up"
+msgstr "위"
+
+#: bCNC/FilePage.py:203
+msgid "Updates"
+msgstr "업데이트"
+
+#: bCNC/plugins/heightmap.py:56
+#, fuzzy
+#| msgid "Use a brightess map to create a variable Z path"
+msgid "Use a brightness map to create a variable Z path"
+msgstr "밝기 맵을 사용하여 변수 Z 경로 만들기"
+
+#: bCNC/plugins/driller.py:49
+msgid "Use anchor"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1921
+msgid "User File"
+msgstr "사용자 파일 "
+
+#: bCNC/Utils.py:823
+msgid "User configurable button"
+msgstr "사용자가 구성 할 수 있는 버튼"
+
+#: bCNC/ToolsPage.py:1981
+msgid "Value"
+msgstr "값/가치"
+
+#: bCNC/controllers/_GenericGRBL.py:107
+msgid "Value out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:118
+msgid "Value word conflict. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:627
+msgid "Vertical"
+msgstr "수직"
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+#, fuzzy
+#| msgid "WARNING: {}"
+msgid "WARNING: {}"
+msgstr "오류: {}"
+
+#: bCNC/ControlPage.py:261 bCNC/ProbePage.py:765
+msgid "WPos:"
+msgstr "작업위치:"
+
+#: bCNC/bmain.py:2524
+msgid "Warning"
+msgstr "경고"
+
+#: bCNC/plugins/function_plot.py:110
+#, fuzzy
+#| msgid "Warning"
+msgid "Warning: "
+msgstr "경고"
+
+#: bCNC/ToolsPage.py:621
+msgid "Web Camera"
+msgstr "웹 카메라"
+
+#: bCNC/ToolsPage.py:624
+msgid "Web Camera Angle"
+msgstr "웹 카메라 각도"
+
+#: bCNC/ToolsPage.py:623
+msgid "Web Camera Height"
+msgstr "웹 카메라 높이"
+
+#: bCNC/ToolsPage.py:622
+msgid "Web Camera Width"
+msgstr "웹 카메라 너비"
+
+#: bCNC/plugins/box.py:348
+msgid "Width Dx"
+msgstr "Dx 너비"
+
+#: bCNC/plugins/flatten.py:291
+msgid "Width to flatten"
+msgstr "너비 전개"
+
+#: bCNC/ProbePage.py:149
+msgid "Work surface camera view and alignment"
+msgstr "작업 표면 카메라보기 및 정렬"
+
+#: bCNC/plugins/halftone.py:52 bCNC/plugins/sketch.py:43
+#: bCNC/plugins/text.py:39 bCNC/plugins/heightmap.py:65
+#: bCNC/plugins/pyrograph.py:39
+msgid "Working Depth"
+msgstr "작업 깊이"
+
+#: bCNC/plugins/simpleDrill.py:67 bCNC/ControlPage.py:1015
+msgid "X"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:80
+msgid "X Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:39
+msgid "X Scale"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:42
+#, fuzzy
+#| msgid "Center"
+msgid "X Y Center"
+msgstr "센터"
+
+#: bCNC/ProbePage.py:1275
+msgid "X bins"
+msgstr "X 상자"
+
+#: bCNC/plugins/function_plot.py:30
+#, fuzzy
+#| msgid "Internal Dimensions"
+msgid "X dimension"
+msgstr "내부 치수"
+
+#: bCNC/ProbePage.py:1255
+msgid "X maximum"
+msgstr "최대 X"
+
+#: bCNC/ProbePage.py:1247
+msgid "X minimum"
+msgstr "최소 X"
+
+#: bCNC/plugins/function_plot.py:32
+msgid "X number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:289 bCNC/plugins/spiral.py:472
+msgid "X start"
+msgstr "X 시작"
+
+#: bCNC/ProbePage.py:1263
+msgid "X step"
+msgstr "X 단계"
+
+#: bCNC/ControlPage.py:274
+msgid "X work position (click to set)"
+msgstr "X 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ProbePage.py:1241
+msgid "X:"
+msgstr ""
+
+#: bCNC/ControlPage.py:349
+msgid "X=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:399
+msgid "XY=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:415
+msgid "XYZ=0"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:68 bCNC/ControlPage.py:936
+msgid "Y"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:81
+msgid "Y Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:40
+msgid "Y Scale"
+msgstr ""
+
+#: bCNC/ProbePage.py:1315
+msgid "Y bins"
+msgstr "Y 상자"
+
+#: bCNC/plugins/function_plot.py:31
+#, fuzzy
+#| msgid "Internal Dimensions"
+msgid "Y dimension"
+msgstr "내부 치수"
+
+#: bCNC/ProbePage.py:1295
+msgid "Y maximum"
+msgstr "최대 Y"
+
+#: bCNC/ProbePage.py:1287
+msgid "Y minimum"
+msgstr "최소 Y"
+
+#: bCNC/plugins/function_plot.py:33
+msgid "Y number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:290 bCNC/plugins/spiral.py:473
+msgid "Y start"
+msgstr "Y 시작"
+
+#: bCNC/ProbePage.py:1303
+msgid "Y step"
+msgstr "Y 단계"
+
+#: bCNC/ControlPage.py:290
+msgid "Y work position (click to set)"
+msgstr "Y 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ProbePage.py:1281
+msgid "Y:"
+msgstr ""
+
+#: bCNC/ControlPage.py:365
+msgid "Y=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1154
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr "탭 수나 거리를 모두 0으로 설정할 수는 없습니다"
+
+#: bCNC/ToolsPage.py:807
+msgid "You should probably always use 'on path', unless you are threadmilling!"
+msgstr ""
+
+#: bCNC/Utils.py:591
+msgid "Your email"
+msgstr "당신의 email"
+
+#: bCNC/ControlPage.py:933 bCNC/ProbePage.py:462
+msgid "Z"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:88
+msgid "Z Feed Multiplier"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:82
+msgid "Z Initial"
+msgstr ""
+
+#: bCNC/ProbePage.py:1328
+msgid "Z Minimum depth to scan"
+msgstr "Z 최소 스캔 깊이"
+
+#: bCNC/plugins/scaling.py:41
+msgid "Z Scale"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:72
+msgid "Z feed for drilling"
+msgstr ""
+
+#: bCNC/ProbePage.py:1336
+msgid "Z safe to move"
+msgstr "Z 안전한 이동"
+
+#: bCNC/plugins/spiral.py:474
+#, fuzzy
+#| msgid "X start"
+msgid "Z start"
+msgstr "X 시작"
+
+#: bCNC/ControlPage.py:306
+msgid "Z work position (click to set)"
+msgstr "Z 작업 위치 (클릭하여 설정)"
+
+#: bCNC/ProbePage.py:1322
+msgid "Z:"
+msgstr ""
+
+#: bCNC/ControlPage.py:381
+msgid "Z=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:202
+msgid "Zero"
+msgstr "제로"
+
+#: bCNC/plugins/zigzag.py:15
+msgid "Zig-Zag"
+msgstr "지그재그"
+
+#: bCNC/plugins/zigzag.py:148
+msgid "Zig-Zag abort: depth must be minor or equal to zero"
+msgstr "지그재그 중단 : 깊이는 0보다 작거나 같아야 합니다."
+
+#: bCNC/plugins/zigzag.py:143
+msgid "Zig-Zag abort: verify CornerRes >= 0"
+msgstr "지그재그 중단 : 코너 해상도는 0보다 크거나 같아야 합니다."
+
+#: bCNC/plugins/zigzag.py:135
+msgid "Zig-Zag abort: verify LineLen > 0"
+msgstr "지그재그 중단 : 라인의 길이는 0보다 커야합니다."
+
+#: bCNC/plugins/zigzag.py:131
+msgid "Zig-Zag abort: verify Nlines > 0"
+msgstr "지그재그 중단 : 라인의 수는 0보다 커야합니다."
+
+#: bCNC/plugins/zigzag.py:139
+msgid "Zig-Zag abort: verify Step > 0"
+msgstr "지그재그 중단 : 단계는 0보다 커야합니다."
+
+#: bCNC/CNCCanvas.py:2256
+msgid "Zoom In [Ctrl-=]"
+msgstr "줌인[Ctrl-=]"
+
+#: bCNC/CNCCanvas.py:2263
+msgid "Zoom Out [Ctrl--]"
+msgstr "줌아웃[Ctrl--]"
+
+#: bCNC/ControlPage.py:1400
+#, fuzzy
+#| msgid "Control"
+msgid "abcControl"
+msgstr "통제"
+
+#: bCNC/ControlPage.py:625
+msgid "abcDRO"
+msgstr ""
+
+#: bCNC/ControlPage.py:637
+#, fuzzy
+#| msgid "WPos:"
+msgid "abcWPos:"
+msgstr "작업위치:"
+
+#: bCNC/plugins/endmilloffset.py:479
+msgid "acts like a tool corrector inside the profile"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:28
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "angle step (degrees)"
+msgstr "해상도(도)"
+
+#: bCNC/plugins/dragknife.py:54
+msgid "angle threshold"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:38
+msgid "arc precision (mm)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:12
+msgid "bCNC is currently sending a gcode program to Grbl"
+msgstr "bCNC는 최근 Grbl로 gcode 프로그램을 보내고 있습니다."
+
+#: bCNC/plugins/simpleRectangle.py:97
+msgid "clockwise"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:48
+msgid "distance from dragknife rotation center to the tip of the blade"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:55
+msgid "do not perform pivot action for angles smaller than this"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:47
+msgid "dragknife offset"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:678
+#, fuzzy
+#| msgid "dx=%g  dy=%g  dz=%g  length=%g  angle=%g"
+msgid "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+msgstr ""
+"dx={:g}  dy={:g}  dz={:g}  길이={:g}  각도\n"
+"={:g}"
+
+#: bCNC/plugins/dragknife.py:75
+msgid "feedrate"
+msgstr ""
+
+#: bCNC/ProbePage.py:2047 bCNC/ProbePage.py:2092
+msgid "get"
+msgstr "가져오다"
+
+#: bCNC/plugins/arcfit.py:39
+msgid "how precisely must arc fit. set to 0 to disable arc fitting"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:463
+msgid "indicates the direction (inside / outside) for making profiles"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:70
+msgid "initial direction"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:83
+msgid "layer height (0 = only single zmin)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:45
+msgid "line precision (mm)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:88
+msgid "maximum Z height"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:50
+msgid "minimal number of segments to create arc"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:86
+msgid "minimum Z height"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:29 bCNC/plugins/simpleTranslate.py:28
+msgid "nb repeat including original"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:627
+#, fuzzy
+#| msgid "origin %g %g %g"
+msgid "origin {:g} {:g} {:g}"
+msgstr "원본 {:g} {:g} {:g}"
+
+#: bCNC/bmain.py:3097
+msgid "python serial missing"
+msgstr "파이선 시리얼 누락"
+
+#: bCNC/plugins/slicemesh.py:74
+msgid "scale factor"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:39
+msgid "segment size"
+msgstr ""
+
+#: bCNC/ControlPage.py:1961 bCNC/ControlPage.py:2003 bCNC/ControlPage.py:2045
+#: bCNC/ProbePage.py:360
+msgid "set"
+msgstr "설정"
+
+#: bCNC/plugins/dragknife.py:80
+msgid "simulate"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:89
+msgid "simulation precision"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:23
+msgid "slicemesh"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:101
+msgid "splice steps every 360 degrees"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:48
+msgid "subdiv lines"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:61
+msgid "swivel height"
+msgstr ""
+
+#: bCNC/Sender.py:355
+msgid "unknown command"
+msgstr "알 수 없는 명령"
+
+#: bCNC/plugins/simpleRotate.py:26
+#, fuzzy
+#| msgid "Center"
+msgid "x center"
+msgstr "센터"
+
+#: bCNC/plugins/simpleTranslate.py:26
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "x increment"
+msgstr "깊이 증분"
+
+#: bCNC/plugins/simpleLine.py:52 bCNC/plugins/simpleRectangle.py:93
+msgid "xEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:51 bCNC/plugins/simpleRectangle.py:92
+#, fuzzy
+#| msgid "Start"
+msgid "xStart"
+msgstr "시작"
+
+#: bCNC/plugins/simpleRotate.py:27
+#, fuzzy
+#| msgid "Center"
+msgid "y center"
+msgstr "센터"
+
+#: bCNC/plugins/simpleTranslate.py:27
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "y increment"
+msgstr "깊이 증분"
+
+#: bCNC/plugins/simpleLine.py:54 bCNC/plugins/simpleRectangle.py:95
+msgid "yEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:53 bCNC/plugins/simpleRectangle.py:94
+#, fuzzy
+#| msgid "Start"
+msgid "yStart"
+msgstr "시작"
+
+#: bCNC/plugins/slicemesh.py:77
+msgid "z offset"
+msgstr ""
+
+#~ msgid ""
+#~ "ERROR: Please install the python pyserial module\n"
+#~ "Windows:\n"
+#~ "\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+#~ "Mac:\tpip install pyserial\n"
+#~ "Linux:\tsudo apt-get install python-serial\n"
+#~ "\tor yum install python-serial\n"
+#~ "\tor dnf install python-pyserial"
+#~ msgstr ""
+#~ "오류 : 파이썬 pyserial 모듈을 설치하십시오.\n"
+#~ "Windows :\n"
+#~ "C : \\ PythonXX \\ Scripts \\ easy_install pyserial\n"
+#~ "맥 : pip 설치 pyserial\n"
+#~ "리눅스 : sudo apt-get python-serial 설치하기\n"
+#~ "또는 yum은 python-serial을 설치합니다.\n"
+#~ "또는 dnf python-pyserial을 설치하십시오."
+
+#~ msgid "Color configuration"
+#~ msgstr "색상 구성 "
+
+#~ msgid "Font configuration"
+#~ msgstr "글꼴 구성"
+
+#~ msgid "Tools"
+#~ msgstr "도구"
+
+#~ msgid "Set current location as Z-zero for leveling"
+#~ msgstr "레벨링을 위해 현재 위치를 Z-zero로 설정하십시오."
+
+#~ msgid "Inkscape"
+#~ msgstr "잉크 스케이프"

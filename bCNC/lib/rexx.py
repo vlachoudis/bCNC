@@ -29,10 +29,8 @@
 # LIABILITY OR OTHERWISE, ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	14-May-2004
-
-from __future__ import absolute_import
+# Author:   Vasilis.Vlachoudis@cern.ch
+# Date:     14-May-2004
 
 import string
 
@@ -72,43 +70,43 @@ def center(s, lngt, pad=" "):
     elif i < 0:
         i = -i
         a = i // 2
-        return s[a: a + lngt]
+        return s[a:a + lngt]
     else:
         a = i // 2
-        return "{}{}{}".format(pad * a, s, pad * (i - a))
+        return f"{pad * a}{s}{pad * (i - a)}"
 
 
 # datatype
-def datatype(str, check="N"):
+def datatype(str_, check="N"):
     """rexx datatype function"""
 
     try:
-        if len(str) == 0:
+        if len(str_) == 0:
             return check == "X" or check == "B"
-    except:
+    except Exception:
         return check == "X" or check == "B"
 
     if check == "N":
-        return _isnum(str)
+        return _isnum(str_)
 
     if check == "A":
-        return verify(str, _letters_digits) == -1
+        return verify(str_, _letters_digits) == -1
     elif check == "L":
-        return verify(str, string.ascii_lowercase) == -1
+        return verify(str_, string.ascii_lowercase) == -1
     elif check == "M":
-        return verify(str, string.ascii_letters) == -1
+        return verify(str_, string.ascii_letters) == -1
     elif check == "U":
-        return verify(str, string.ascii_uppercase) == -1
+        return verify(str_, string.ascii_uppercase) == -1
     elif check == "O":
-        return verify(str, string.octdigits) == -1
+        return verify(str_, string.octdigits) == -1
     elif check == "X":
-        return verify(str, string.hexdigits) == -1
+        return verify(str_, string.hexdigits) == -1
     elif check == "S":
-        return (str[0] in string.ascii_letters) and (
-            verify(str[1:], _letters_digits_symbol) == -1
+        return (str_[0] in string.ascii_letters) and (
+            verify(str_[1:], _letters_digits_symbol) == -1
         )
     else:
-        return _isnum(str)
+        return _isnum(str_)
 
 
 # insert
@@ -125,20 +123,20 @@ def insert(new, target, n, pad=" "):
 
 
 # left
-def left(str, length, pad=" "):
-    """return left of string str of length padded with pad chars"""
-    if length < len(str):
-        return str[0:length]
+def left(str_, length, pad=" "):
+    """return left of string str_ of length padded with pad chars"""
+    if length < len(str_):
+        return str_[0:length]
     else:
-        return str + (pad * (length - len(str)))
+        return str_ + (pad * (length - len(str_)))
 
 
 # translate
-def translate(str, tableo=None, tablei=None, pad=" "):
+def translate(str_, tableo=None, tablei=None, pad=" "):
     """translate string"""
     # If neither input nor output tables, uppercase.
     if tableo is None and tablei is None:
-        return str.upper()
+        return str_.upper()
 
     if tableo is None:
         tableo = xrange(0, 255)
@@ -154,17 +152,17 @@ def translate(str, tableo=None, tablei=None, pad=" "):
         tablei += pad * (-dl)
 
     tbl = string.maketrans(tablei, tableo)
-    return str.translate(tbl)
+    return str_.translate(tbl)
 
 
 # reverse
-def reverse(str):
+def reverse(str_):
     """reverse string"""
-    return str[::-1]
+    return str_[::-1]
 
 
 # verify
-def verify(str, ref, match=0, start=0):
+def verify(str_, ref, match=0, start=0):
     """
     return the index of the first character in string that
     is not also in reference. if "Match" is given, then return
@@ -173,11 +171,11 @@ def verify(str, ref, match=0, start=0):
 
     if start < 0:
         start = 0
-    if start >= len(str):
+    if start >= len(str_):
         return -1
 
-    for i in range(start, len(str)):
-        found = ref.find(str[i]) == -1
+    for i in range(start, len(str_)):
+        found = ref.find(str_[i]) == -1
         if found ^ match:
             return i
     return -1
@@ -189,39 +187,39 @@ def xrange(start, stop):
 
 
 # isnum - return true if string is number
-def _isnum(str):
-    str = str.strip()
+def _isnum(str_):
+    str_ = str_.strip()
 
     # accept one sign
     i = 0
-    lngte = len(str)
+    lngte = len(str_)
 
     if lngte == 0:
         return False
 
-    if str[i] == "-" or str[i] == "+":
+    if str_[i] == "-" or str_[i] == "+":
         i += 1
 
     # skip spaces after sign
-    while i < l and str[i].isspace():
+    while i < lngte and str_[i].isspace():
         i += 1
 
     # accept many digits
-    if i < lngte and "0" <= str[i] <= "9":
+    if i < lngte and "0" <= str_[i] <= "9":
         i += 1
         F = 1
-        while i < lngte and "0" <= str[i] <= "9":
+        while i < lngte and "0" <= str_[i] <= "9":
             i += 1
     else:
         F = 0
 
     # accept one dot
-    if i < lngte and str[i] == ".":
+    if i < lngte and str_[i] == ".":
         i += 1
 
         # accept many digits
-        if i < lngte and "0" <= str[i] <= "9":
-            while i < lngte and "0" <= str[i] <= "9":
+        if i < lngte and "0" <= str_[i] <= "9":
+            while i < lngte and "0" <= str_[i] <= "9":
                 i += 1
         else:
             if not F:
@@ -231,15 +229,19 @@ def _isnum(str):
             return False
 
     # accept one e/E/d/D
-    if i < lngte and (str[i] == "e" or str[i] == "E" or str[i] == "d" or str[i] == "D"):
+    if (i < lngte
+            and (str_[i] == "e"
+                 or str_[i] == "E"
+                 or str_[i] == "d"
+                 or str_[i] == "D")):
         i += 1
         # accept one sign
-        if i < lngte and (str[i] == "-" or str[i] == "+"):
+        if i < lngte and (str_[i] == "-" or str_[i] == "+"):
             i += 1
 
         # accept many digits
-        if i < lngte and "0" <= str[i] <= "9":
-            while i < l and "0" <= str[i] <= "9":
+        if i < lngte and "0" <= str_[i] <= "9":
+            while i < lngte and "0" <= str_[i] <= "9":
                 i += 1
         else:
             return False
@@ -327,10 +329,7 @@ if __name__ == "__main__":
     assert insert("abc", "def", 5, "*") == "def**abc"
 
     say("translate")
-    # 	assert translate("Foo Bar"), "FOO BAR"
     assert translate("Foo Bar", "", "") == "Foo Bar"
-    # 	assert translate("Foo Bar","") == "       "
-    # 	assert translate("Foo Bar",None,None,'*') == "*******"
     assert translate("Foo Bar", xrange(1, 255)) == "Gpp!Cbs"
     assert translate("", "klasjdf", "woieruw") == ""
     assert translate("foobar", "abcdef", "fedcba") == "aooefr"

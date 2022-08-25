@@ -1,9 +1,7 @@
 # $Id$
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	20-Aug-2015
-
-from __future__ import absolute_import, print_function
+# Author:    Vasilis.Vlachoudis@cern.ch
+# Date:      20-Aug-2015
 
 import math
 
@@ -17,9 +15,9 @@ __email__ = "Vasilis.Vlachoudis@cern.ch"
 __name__ = _("Gear")
 
 
-# ==============================================================================
+# =============================================================================
 # Gear class
-# ==============================================================================
+# =============================================================================
 class Gear:
     def __init__(self, name):  # , R, nteeth):
         self.name = name
@@ -55,15 +53,6 @@ class Gear:
 
         # Outside Circle
         Ro = R + a
-        Do = 2.0 * Ro
-
-        # Tooth thickness
-        T = math.pi * D / (2 * N)
-
-        # undercut?
-        U = 2.0 / (math.sin(phi) * (math.sin(phi)))
-        needs_undercut = N < U
-        # sys.stderr.write("N:%s R:%s Rb:%s\n" % (N,R,Rb))
 
         # Clearance
         c = 0.0
@@ -72,7 +61,6 @@ class Gear:
 
         # Root Circle
         Rr = R - b
-        Dr = 2.0 * Rr
 
         two_pi = 2.0 * math.pi
         half_thick_angle = two_pi / (4.0 * N)
@@ -138,16 +126,12 @@ class Gear:
 
         block.append(CNC.grapid(first.x(), first.y()))
         block.append(CNC.zenter(0.0))
-        # print first.x(), first.y()
         for v in points:
             block.append(CNC.gline(v.x(), v.y()))
-            # print v.x(), v.y()
-        # print first.x(), first.y()
         block.append(CNC.gline(first.x(), first.y()))
         block.append(CNC.zsafe())
 
-        # block = Block("%s-center"%(self.name))
-        block = Block("%s-basecircle" % (self.name))
+        block = Block(f"{self.name}-basecircle")
         block.enable = False
         block.append(CNC.grapid(Db / 2, 0.0))
         block.append(CNC.zenter(0.0))
@@ -157,9 +141,9 @@ class Gear:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a simple Gear
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a spur gear")
 
@@ -195,5 +179,3 @@ if __name__ == "__main__":
     gear = Gear()
     gear.calc(12, math.radians(10), math.radians(10))
     gear.calc(36, math.radians(10), math.radians(10))
-# 	gear.calc(10, math.radians(10), math.radians(10))
-# b:scale(Coord(0,0),Coord(10,10))

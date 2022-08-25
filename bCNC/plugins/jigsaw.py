@@ -1,9 +1,7 @@
 # $Id$
 #
 # Author: Gonzalo Cobos Bergillos
-# Date:	15-Nov-2017
-
-from __future__ import absolute_import, print_function
+# Date:      15-Nov-2017
 
 import copy
 import math
@@ -17,7 +15,7 @@ __author__ = "Gonzalo Cobos Bergillos"
 __email__ = "gcobos@gmail.com"
 
 
-class Arc(object):
+class Arc:
 
     _eq_threshold = 2.0  # Difference allowed to consider two arcs equal
     _used_arcs = {}
@@ -50,7 +48,8 @@ class Arc(object):
                 self.y - self._eq_threshold, self.y + self._eq_threshold
             )
             self.r = random.uniform(
-                self.r - self._eq_threshold / 3.0, self.r + self._eq_threshold / 3.0
+                self.r - self._eq_threshold / 3.0, self.r
+                + self._eq_threshold / 3.0
             )
             i += 1
         Arc._used_arcs[self.key].append(copy.deepcopy(self))
@@ -76,8 +75,13 @@ class Arc(object):
         )
 
 
-class Jigsaw(object):
-    def __init__(self, name="", thickness=0, cut_feed=100, z_safe=10.0, step_z=0.5):
+class Jigsaw:
+    def __init__(self,
+                 name="",
+                 thickness=0,
+                 cut_feed=100,
+                 z_safe=10.0,
+                 step_z=0.5):
         self.name = name or "Jigsaw"
         self.thickness = thickness
         self.cut_feed = cut_feed
@@ -87,7 +91,6 @@ class Jigsaw(object):
     @staticmethod
     def calculate_piece_size(board_width, board_height, number_of_pieces):
 
-        board_area = float(board_width * board_height)
         board_ratio = board_width / board_height
 
         vertical_pieces = int(round(math.sqrt(number_of_pieces / board_ratio)))
@@ -179,8 +182,9 @@ class Jigsaw(object):
             template_width * template_height
         )
         for i, j in (
-            reversed(list(enumerate(new_piece))
-                     ) if inverted else enumerate(new_piece)
+            reversed(list(enumerate(new_piece)))
+            if inverted
+            else enumerate(new_piece)
         ):
             # Ensure every arc is different
             if i > 0 and i < len(new_piece) - 1:
@@ -240,7 +244,9 @@ class Jigsaw(object):
             piece_height,
             horizontal_pieces,
             vertical_pieces,
-        ) = cls.calculate_piece_size(board_width, board_height, number_of_pieces)
+        ) = cls.calculate_piece_size(board_width,
+                                     board_height,
+                                     number_of_pieces)
 
         # Vertical cuts
         x = piece_width
@@ -311,8 +317,10 @@ class Jigsaw(object):
                 for arc in cut:
                     if arc.r:
                         block.append(
-                            CNC.garc(arc.direction, x + arc.x,
-                                     y + arc.y, r=arc.r)
+                            CNC.garc(arc.direction,
+                                     x + arc.x,
+                                     y + arc.y,
+                                     r=arc.r)
                         )
 
         blocks.append(block)
@@ -337,9 +345,9 @@ class Jigsaw(object):
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Jigsaw puzzle generator
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("""Jigsaw puzzle generator""")
 
@@ -354,7 +362,10 @@ class Tool(Plugin):
             ("piece_count", "int", 100, _("Piece count")),
             ("random_seed", "int", 1, _("Random seed")),
             ("threshold", "float", 1.2, _("Difference between pieces")),
-            ("tap_shape", "basic,heart,anchor", "basic", _("Shape of the tap")),
+            ("tap_shape",
+             "basic,heart,anchor",
+             "basic",
+             _("Shape of the tap")),
         ]
         self.buttons.append("exe")
 

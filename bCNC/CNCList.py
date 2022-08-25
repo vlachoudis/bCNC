@@ -3,31 +3,18 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from __future__ import absolute_import, print_function
-
 import json
 import re
+from tkinter import (
+    TclError,
+    END,
+    ACTIVE,
+    Listbox,
+)
+import tkinter.font as tkfont
 
 import tkExtra
 from CNC import CNC, Block
-from CNCCanvas import TAB_COLOR
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-try:
-    from Tkinter import *
-    import tkFont
-except ImportError:
-    from tkinter import *
-    import tkinter.font as tkFont
-
-# import tkDialogs
 
 BLOCK_COLOR = "LightYellow"
 COMMENT_COLOR = "Blue"
@@ -36,9 +23,9 @@ DISABLE_COLOR = "Gray"
 MAXINT = 1000000000  # python3 doesn't have maxint
 
 
-# ==============================================================================
+# =============================================================================
 # CNC Listbox
-# ==============================================================================
+# =============================================================================
 class CNCListbox(Listbox):
     def __init__(self, master, app, *kw, **kwargs):
         Listbox.__init__(self, master, *kw, **kwargs)
@@ -74,7 +61,7 @@ class CNCListbox(Listbox):
         self._items = []  # each listbox lien which item (bid,lid) shows
         self.app = app
         self.gcode = app.gcode
-        self.font = tkFont.nametofont(self.cget("font"))
+        self.font = tkfont.nametofont(self.cget("font"))
         self._ystart = 0
         self._double = False  # double clicked handled
         self._hadfocus = False
@@ -109,7 +96,6 @@ class CNCListbox(Listbox):
         ypos = self.yview()[0]
         act = self.index(ACTIVE)
 
-        # sel = self.curselection()
         items = self.getSelection()
         self.delete(0, END)
 
@@ -146,7 +132,6 @@ class CNCListbox(Listbox):
                 self._items.append((bi, lj))
 
         self.select(items)
-        # for i in sel: self.selection_set(i)
         self.yview_moveto(ypos)
         self.activate(act)
         self.see(act)
@@ -215,12 +200,12 @@ class CNCListbox(Listbox):
                 else:
                     self._lid += 1
                     selitems.append((self._bid, self._lid))
-                undoinfo.append(self.gcode.insLineUndo(
-                    self._bid, self._lid, line))
+                undoinfo.append(
+                    self.gcode.insLineUndo(self._bid, self._lid, line))
 
         try:
             objs = json.loads(clipboard)
-        except Exception as e:
+        except Exception:
             objs = [clipboard]
         for obj in objs:
             if isinstance(obj, list):
@@ -243,8 +228,6 @@ class CNCListbox(Listbox):
         self.yview_moveto(ypos)
         self.select(selitems, clear=True)
 
-        # self.selection_set(ACTIVE)
-        # self.see(ACTIVE)
         self.winfo_toplevel().event_generate("<<Modified>>")
 
     # ----------------------------------------------------------------------
@@ -700,7 +683,6 @@ class CNCListbox(Listbox):
     def joinBlocks(self, event=None):
         if not self._items:
             return
-        all_items = self._items
         sel_items = list(map(int, self.curselection()))
         change = True
         bl = Block(self.gcode[sel_items[0]].name())
@@ -721,23 +703,17 @@ class CNCListbox(Listbox):
     def splitBlocks(self, event=None):
         if not self._items:
             return
-        all_items = self._items
         sel_items = list(map(int, self.curselection()))
         change = True
-        newblocks = []
         for bid in sel_items:
             bl = Block(self.gcode[bid].name())
             for line in self.gcode[bid]:
                 if line == "( ---------- cut-here ---------- )":
-                    # newblocks.append(bl)
-                    # self.insertBlock(bl)
                     self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
                     bl = Block(self.gcode[bid].name())
                 else:
                     bl.append(line)
         self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
-        # newblocks.append(bl)
-        # self.gcode.extend(newblocks)
         if change:
             self.fill()
         self.deleteBlock()
@@ -759,7 +735,9 @@ class CNCListbox(Listbox):
 
         try:
             rgb, color = tkExtra.askcolor(
-                title=_("Color"), initialcolor=self.gcode[bid].color, parent=self
+                title=_("Color"),
+                initialcolor=self.gcode[bid].color,
+                parent=self
             )
         except TclError:
             color = None

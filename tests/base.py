@@ -14,7 +14,7 @@ class BaseGUITestCase(unittest.TestCase):
     SCREENSHOT_DIR = os.path.join(os.path.dirname(__file__), "../screenshots/")
 
     def setUp(self):
-        super(BaseGUITestCase, self).setUp()
+        super().setUp()
         self.screenshot_counter = 0
         self.screenshots = []
 
@@ -44,7 +44,7 @@ class BaseGUITestCase(unittest.TestCase):
         )
 
         if self.grbl_proc.poll():
-            print("Serial port failed to start: %s" % self.grbl_proc.poll())
+            print(f"Serial port failed to start: {self.grbl_proc.poll()}")
 
         self.save_screenshot()
         for _ in range(5):
@@ -84,10 +84,7 @@ class BaseGUITestCase(unittest.TestCase):
         durations.append(1)
 
         imageio.mimsave(
-            os.path.join(
-                self.SCREENSHOT_DIR, "{test_name}.gif".format(
-                    test_name=self.id())
-            ),
+            os.path.join(self.SCREENSHOT_DIR, f"{self.id()}.gif"),
             images,
             duration=durations,
         )
@@ -120,9 +117,7 @@ class BaseGUITestCase(unittest.TestCase):
 
     def save_screenshot(self, name=None):
         if name is None:
-            name = "{test_name}.{counter}.png".format(
-                test_name=self.id(), counter=self.screenshot_counter
-            )
+            name = f"{self.id()}.{self.screenshot_counter}.png"
 
         if not os.path.isdir(self.SCREENSHOT_DIR):
             os.mkdir(self.SCREENSHOT_DIR)

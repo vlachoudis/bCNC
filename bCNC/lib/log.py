@@ -30,10 +30,8 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGES.
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	10-Oct-2014
-
-from __future__ import absolute_import
+# Author:   Vasilis.Vlachoudis@cern.ch
+# Date:     10-Oct-2014
 
 import sys
 
@@ -41,11 +39,11 @@ __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 _log = None
 
 
-def set(li):
+def set_(li):
     global _log
     _log = li
 
@@ -56,7 +54,7 @@ def say(*kw):
     if _log:
         _log(txt)
     else:
-        sys.stdout.write("%s\n" % (txt))
+        sys.stdout.write(f"{txt}\n")
 
 
 def null(*kw):

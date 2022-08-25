@@ -1,29 +1,14 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
 
-from __future__ import absolute_import, print_function
-
-import math
-import os.path
-import re
 from copy import deepcopy
 from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
     cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
     sin,
-    sqrt,
 )
 
 from bpath import EPS, Path, Segment, eq
-from CNC import CNC, Block
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -63,7 +48,6 @@ class Tool(Plugin):
     # This method is executed when user presses the plugin execute button
     # ----------------------------------------------------------------------
     def execute(self, app):
-        # print("go!")
         blocks = []
 
         bid = app.editor.getSelectedBlocks()[0]
@@ -75,22 +59,11 @@ class Tool(Plugin):
         xbasepath.intersectPath(xislandpath)
         xislandpath.intersectPath(xbasepath)
 
-        # xnewisland = self.pathBoolIntersection(xbasepath, xislandpath)
         xnewisland = self.pathBoolIntersection(xislandpath, xbasepath)
-
-        # pth = Path("temp")
-        # basepath.invert()
-        # pth.extend(basepath)
-        # pth.extend(basepath)
-        # pth.invert()
 
         block = Block("intersect")
         block.extend(app.gcode.fromPath(xnewisland))
         blocks.append(block)
-
-        # block = Block("diff")
-        # block.extend(app.gcode.fromPath(pth))
-        # blocks.append(block)
 
         active = app.activeBlock()
         app.gcode.insBlocks(
@@ -98,7 +71,6 @@ class Tool(Plugin):
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Intersect"))  # <<< feed back result
-        # app.gcode.blocks.append(block)
 
     ##############################################
 
@@ -127,7 +99,7 @@ class Tool(Plugin):
         print("finding", A, B)
 
         sub = None
-        for i in xrange(0, len(path) * 2):  # iterate twice with wrap around
+        for i in range(0, len(path) * 2):  # iterate twice with wrap around
             j = i % len(path)
             seg = path[j]
 
@@ -143,9 +115,6 @@ class Tool(Plugin):
         return sub
 
     def pathBoolIntersection(self, basepath, islandpath):
-        # basepath = deepcopy(basepath)
-        # islandpath = deepcopy(islandpath)
-
         # find first intersecting segment
         first = None
         for i, segment in enumerate(islandpath):
@@ -158,7 +127,7 @@ class Tool(Plugin):
         # generate intersected path
         newisland = Path("new")
         A = None
-        for i in xrange(first, 2 * len(islandpath) + first):
+        for i in range(first, 2 * len(islandpath) + first):
             j = i % len(islandpath)
             segment = islandpath[j]
             if segment.length() < EPS:
@@ -172,7 +141,5 @@ class Tool(Plugin):
                     print("new", newisland)
                     A = None
                 newisland.append(segment)
-        # for i,seg in enumerate(newisland):
-        # 	newisland[i].correct();
         print("new2", newisland)
         return newisland

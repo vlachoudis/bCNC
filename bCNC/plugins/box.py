@@ -1,17 +1,16 @@
 # $Id$
 #
-# Author:	Vasilis.Vlachoudis@cern.ch
-# Date:	20-Aug-2015
-
-from __future__ import absolute_import, print_function
+# Author:    Vasilis.Vlachoudis@cern.ch
+# Date:      20-Aug-2015
 
 import math
 
-from bmath import *
+from bmath import (
+    sqrt,
+    Vector,
+)
 from CNC import CNC, Block
 from ToolsPage import Plugin
-
-# from Utils import to_zip
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
@@ -19,9 +18,9 @@ __email__ = "Vasilis.Vlachoudis@cern.ch"
 __name__ = _("Box")
 
 
-# ==============================================================================
+# =============================================================================
 # Create a box with finger joints
-# ==============================================================================
+# =============================================================================
 class Box:
     def __init__(self, dx=100.0, dy=50.0, dz=25.0):
         self.name = "Box"
@@ -74,10 +73,10 @@ class Box:
 
     # ----------------------------------------------------------------------
     # Draw a zig zag line
-    # @param pos	starting position
-    # @param lstep	longitudinal step
-    # @param tstep	transverse step
-    # @param n	number of steps
+    # @param pos    starting position
+    # @param lstep  longitudinal step
+    # @param tstep  transverse step
+    # @param n      number of steps
     # ----------------------------------------------------------------------
     def zigZagLine(self, block, pos, du, dv, U, V, n, extra=0.0):
         sgn = math.copysign(1.0, n)
@@ -87,18 +86,11 @@ class Box:
         # round edges in the inner teeth
         if self.r > 0.0:
             overcut = self.overcut
-            # rd = (sqrt(2.)-1.0) * self.r
             rd = (1.0 - 1.0 / sqrt(2.0)) * (1.0 + self.overcutAdd) * self.r
         else:
             overcut = None
 
         for i in range(n):
-            # 			if sgn<0.0 and overcut=="U":
-            # 				pos -= self.r*U
-            # 				block.append(CNC.glinev(1, pos, self.feed))
-            # 				pos += self.r*U
-            # 				block.append(CNC.glinev(1, pos))
-
             x = du
             if sgn < 0.0 and n > 1:
                 if 0 < i < n - 1:
@@ -116,12 +108,6 @@ class Box:
                 block.append(CNC.glinev(1, pos, self.feed))
             else:
                 block.append(CNC.glinev(1, pos))
-
-            # 			if sgn<0.0 and overcut=="U":
-            # 				pos += self.r*U
-            # 				block.append(CNC.glinev(1, pos))
-            # 				pos -= self.r*U
-            # 				block.append(CNC.glinev(1, pos))
 
             if self.r > 0.0:
                 if sgn < 0.0:
@@ -179,16 +165,19 @@ class Box:
         return pos
 
     # ----------------------------------------------------------------------
-    # @param x0,y0		starting position
-    # @param dx,dyz		width/height of box (if negative inside, positive outside)
-    # @param nx,ny		number of teeth (negative to start from internal, positive for external)
-    # @param ex,ey		additional space for x and y not included in the sx/y calculation
+    # @param x0,y0      starting position
+    # @param dx,dyz     width/height of box
+    #                   (if negative inside, positive outside)
+    # @param nx,ny      number of teeth (negative to start from internal,
+    #                   positive for external)
+    # @param ex,ey      additional space for x and y not included in the sx/y
+    #                   calculation
     # ----------------------------------------------------------------------
     def _rectangle(self, block, x0, y0, dx, dy, nx, ny, ex=0.0, ey=0.0):
-        block.append("(  Location: {:g},{:g} )".format(x0, y0))
-        block.append("(  Dimensions: {:g},{:g} )".format(dx, dy))
-        block.append("(  Teeth: %d,%d )" % (nx, ny))
-        block.append("(  Tool diameter: %g )" % (self.tool))
+        block.append(f"(  Location: {x0:g},{y0:g} )")
+        block.append(f"(  Dimensions: {dx:g},{dy:g} )")
+        block.append(f"(  Teeth: {int(nx)},{int(ny)} )")
+        block.append(f"(  Tool diameter: {self.tool:g} )")
 
         # Start with full length
         sx = dx / abs(nx)
@@ -199,7 +188,6 @@ class Box:
         pos -= self.r * Vector.Y  # r*V
         block.append(CNC.gcode(0, zip("XY", pos[:2])))
         z = self.surface
-        # for z in frange(self.surface-self.stepz, self.surface-self.thick, -self.stepz):
         last = False
         while True:
             if self.cut:
@@ -234,9 +222,14 @@ class Box:
             block.append("")
 
             # Right
-            pos = self.zigZagLine(
-                block, pos, sy, self.thick, -Vector.Y, Vector.X, ny, ey
-            )
+            pos = self.zigZagLine(block,
+                                  pos,
+                                  sy,
+                                  self.thick,
+                                  -Vector.Y,
+                                  Vector.X,
+                                  ny,
+                                  ey)
             block.append("")
             if last:
                 break
@@ -267,41 +260,69 @@ class Box:
             dz = self.dz
 
         blocks = []
-        block = Block("%s-Bottom" % (self.name))
-        block.append("(Box: {:g} x {:g} x {:g})".format(
-            self.dx, self.dy, self.dz))
-        block.append("(Fingers: %d x %d x %d)" % (self.nx, self.ny, self.nz))
+        block = Block(f"{self.name}-Bottom")
+        block.append(f"(Box: {self.dx:g} x {self.dy:g} x {self.dz:g})")
+        block.append(f"(Fingers: {(self.nx)} x {(self.ny)} x {(self.nz)})")
         self._rectangle(block, 0.0, -d, dx, dy, self.nx, -self.ny, 0, d)
         blocks.append(block)
 
-        block = Block("%s-Left" % (self.name))
-        self._rectangle(block, -(dz + 5 * d), -d, dz,
-                        dy, self.nz, self.ny, d, d)
+        block = Block(f"{self.name}-Left")
+        self._rectangle(block,
+                        -(dz + 5 * d),
+                        -d,
+                        dz,
+                        dy,
+                        self.nz,
+                        self.ny,
+                        d,
+                        d)
         blocks.append(block)
 
-        block = Block("%s-Right" % (self.name))
+        block = Block(f"{self.name}-Right")
         self._rectangle(block, dx + 3 * d, -d, dz, dy, self.nz, self.ny, d, d)
         blocks.append(block)
 
-        block = Block("%s-Front" % (self.name))
-        self._rectangle(block, 0, -(dz + 4 * d), dx,
-                        dz, -self.nx, -self.nz, 0, 0)
+        block = Block(f"{self.name}-Front")
+        self._rectangle(block,
+                        0,
+                        -(dz + 4 * d),
+                        dx,
+                        dz,
+                        -self.nx,
+                        -self.nz,
+                        0,
+                        0)
         blocks.append(block)
 
-        block = Block("%s-Back" % (self.name))
-        self._rectangle(block, 0, dy + 4 * d, dx, dz, -self.nx, -self.nz, 0, 0)
+        block = Block(f"{self.name}-Back")
+        self._rectangle(block,
+                        0,
+                        dy + 4 * d,
+                        dx,
+                        dz,
+                        -self.nx,
+                        -self.nz,
+                        0,
+                        0)
         blocks.append(block)
 
-        block = Block("%s-Top" % (self.name))
-        self._rectangle(block, dx + dz + 8 * d, -d, dx,
-                        dy, self.nx, -self.ny, 0, d)
+        block = Block(f"{self.name}-Top")
+        self._rectangle(block,
+                        dx + dz + 8 * d,
+                        -d,
+                        dx,
+                        dy,
+                        self.nx,
+                        -self.ny,
+                        0,
+                        d)
         blocks.append(block)
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a BOX
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a finger box")
 
@@ -362,45 +383,32 @@ class Tool(Plugin):
         app.setStatus(_("Generated: BOX with fingers"))
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     import sys
-
-    # 	box = Box(90., 60., 30.)
-    # 	box.thick = 5.0
-    # 	box.stepz = 5
-    # 	box.setTool(0.0)
-    # 	box.setNTeeth(3, 3, 3)
-    # 	box.make()
-
-    # 	box = Box(120.0, 75.0, 30.0)
     box = Box(71.0, 62.0, 52.0)
     box.thick = 3.0
     box.feed = 1000
     box.feedz = 500
     box.stepz = 1.5
-    # 	box.setNTeeth(7, 5, 3)
     box.setNTeeth(5, 5, 3)
 
     box.setTool(3.175)
     box.setTool(0.0)
-    # 	box.overcut = 'V'
     box.overcut = "D"
     blocks = box.make()
-    # 	d = 0.0; box._rectangle(0.,0.,100., 50., NX, NY)
-    # 	d = 4.0; box._rectangle(0.,0.,100., 50., NX, NY)
 
     def dump(filename):
         try:
-            f = open(filename, "r")
+            f = open(filename)
         except Exception:
             return
         for line in f:
-            sys.stdout.write("%s\n" % (line))
+            sys.stdout.write(f"{line}\n")
         f.close()
 
     dump("header")
     for block in blocks:
         for line in block:
-            sys.stdout.write("%s\n" % (line))
+            sys.stdout.write(f"{line}\n")
     dump("footer")

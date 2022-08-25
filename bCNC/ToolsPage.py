@@ -3,14 +3,38 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from __future__ import absolute_import, print_function
-
 import glob
 import os
 import sys
 import time
 import traceback
 from operator import attrgetter
+from tkinter import (
+    TclError,
+    YES,
+    W,
+    NSEW,
+    X,
+    Y,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    VERTICAL,
+    END,
+    NORMAL,
+    DISABLED,
+    ACTIVE,
+    StringVar,
+    Button,
+    Frame,
+    Label,
+    Menu,
+    Scrollbar,
+    Text,
+    PanedWindow,
+    messagebox,
+)
 
 import CNCRibbon
 import Ribbon
@@ -18,31 +42,24 @@ import tkExtra
 import Unicode
 import Utils
 from CNC import CNC
+from Helpers import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
-try:
-    from Tkinter import *
-    import tkMessageBox
-except ImportError:
-    from tkinter import *
-    import tkinter.messagebox as tkMessageBox
-
-
 _EXE_FONT = ("Helvetica", 12, "bold")
 
 
-# ===============================================================================
+# =============================================================================
 class InPlaceText(tkExtra.InPlaceText):
     def defaultBinds(self):
         tkExtra.InPlaceText.defaultBinds(self)
         self.edit.bind("<Escape>", self.ok)
 
 
-# ==============================================================================
+# =============================================================================
 # Tools Base class
-# ==============================================================================
+# =============================================================================
 class _Base:
     def __init__(self, master, name=None):
         self.master = master
@@ -141,14 +158,12 @@ class _Base:
                     value = round(value, self.master.digits)
                 except Exception:
                     value = ""
-            # elif t == "list":
-            # 	value += " " + Unicode.BLACK_DOWN_POINTING_TRIANGLE
             self.master.listbox.insert(END, (lp, value))
 
             if t == "color":
                 try:
-                    self.master.listbox.listbox(
-                        1).itemconfig(END, background=value)
+                    self.master.listbox.listbox(1).itemconfig(
+                        END, background=value)
                 except TclError:
                     pass
 
@@ -164,8 +179,8 @@ class _Base:
                     varhelp += "\n=== Module options ===\n\n"
                     varhelpheader = False
                 varhelp += (
-                    "* " + var[0].upper() + ": " + var[3]
-                    + "\n" + var[4] + "\n\n"
+                    "* " + var[0].upper() + ": "
+                    + var[3] + "\n" + var[4] + "\n\n"
                 )
 
         self.master.widget["paned"].remove(self.master.widget["toolHelpFrame"])
@@ -173,14 +188,17 @@ class _Base:
         self.master.widget["toolHelp"].delete(1.0, END)
         if len(varhelp) > 0:
             for line in varhelp.splitlines():
-                if len(line) > 0 and line[0] == "#" and line[1:] in Utils.images.keys():
+                if (len(line) > 0
+                        and line[0] == "#"
+                        and line[1:] in Utils.images.keys()):
                     self.master.widget["toolHelp"].image_create(
                         END, image=Utils.images[line[1:]]
                     )
                     self.master.widget["toolHelp"].insert(END, "\n")
                 else:
                     self.master.widget["toolHelp"].insert(END, line + "\n")
-            self.master.widget["paned"].add(self.master.widget["toolHelpFrame"])
+            self.master.widget["paned"].add(self.master.widget[
+                "toolHelpFrame"])
         self.master.widget["toolHelp"].config(state=DISABLED)
 
     # ----------------------------------------------------------------------
@@ -331,9 +349,9 @@ class _Base:
             elif edit.lastkey in ("Return", "KP_Enter", "Down") and active > 0:
                 self._editNext()
 
-    # ==============================================================================
+    # =========================================================================
     # Additional persistence class for config
-    # ==============================================================================
+    # =========================================================================
     # class _Config:
     # ----------------------------------------------------------------------
     # Load from a configuration file
@@ -409,7 +427,7 @@ class _Base:
         else:
             for var in self.variables:
                 n, t, d, lp = var[:4]
-                val = Utils.to_unicode(self.values.get(n, d))
+                val = self.values.get(n, d)
                 Utils.setStr(self.name, n, str(val))
 
     # ----------------------------------------------------------------------
@@ -420,9 +438,9 @@ class _Base:
             return default
 
 
-# ==============================================================================
+# =============================================================================
 # Base class of all databases
-# ==============================================================================
+# =============================================================================
 class DataBase(_Base):
     def __init__(self, master, name):
         _Base.__init__(self, master, name)
@@ -449,8 +467,8 @@ class DataBase(_Base):
             n, t, d, lp = var[:4]
             for i in range(self.current, self.n):
                 try:
-                    self.values["%s.%d" %
-                                (n, i)] = self.values["%s.%d" % (n, i + 1)]
+                    self.values["%s.%d" % (n, i)] = self.values[
+                        "%s.%d" % (n, i + 1)]
                 except KeyError:
                     try:
                         del self.values["%s.%d" % (n, i)]
@@ -496,7 +514,7 @@ class DataBase(_Base):
         self.edit(None, True)
 
 
-# ==============================================================================
+# =============================================================================
 class Plugin(DataBase):
     def __init__(self, master, name):
         DataBase.__init__(self, master, name)
@@ -506,9 +524,9 @@ class Plugin(DataBase):
         self.help = None
 
 
-# ==============================================================================
+# =============================================================================
 # Generic ini configuration
-# ==============================================================================
+# =============================================================================
 class Ini(_Base):
     def __init__(self, master, name, vartype, include=(), ignore=()):
         _Base.__init__(self, master)
@@ -521,25 +539,25 @@ class Ini(_Base):
             self.variables.append((name, vartype, value, name))
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Font(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Font", "str")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Color(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Color", "color")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Events(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Events", "str")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Shortcut(_Base):
     def __init__(self, master):
         _Base.__init__(self, master, "Shortcut")
@@ -589,7 +607,7 @@ class Shortcut(_Base):
         app.loadShortcuts()
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Camera(_Base):
     def __init__(self, master):
         _Base.__init__(self, master, "Camera")
@@ -605,9 +623,9 @@ class Camera(_Base):
         ]
 
 
-# ==============================================================================
+# =============================================================================
 # CNC machine configuration
-# ==============================================================================
+# =============================================================================
 class Config(_Base):
     def __init__(self, master):
         _Base.__init__(self, master)
@@ -650,9 +668,9 @@ class Config(_Base):
         return False
 
 
-# ==============================================================================
+# =============================================================================
 # Material database
-# ==============================================================================
+# =============================================================================
 class Material(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Material")
@@ -677,9 +695,9 @@ class Material(DataBase):
         return False
 
 
-# ==============================================================================
+# =============================================================================
 # EndMill Bit database
-# ==============================================================================
+# =============================================================================
 class EndMill(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "EndMill")
@@ -707,9 +725,9 @@ class EndMill(DataBase):
         return False
 
 
-# ==============================================================================
+# =============================================================================
 # Stock material on worksurface
-# ==============================================================================
+# =============================================================================
 class Stock(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Stock")
@@ -734,9 +752,9 @@ class Stock(DataBase):
         return False
 
 
-# ==============================================================================
+# =============================================================================
 # Cut material
-# ==============================================================================
+# =============================================================================
 class Cut(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Cut")
@@ -760,7 +778,11 @@ class Cut(DataBase):
                 10,
                 _("Ramp length"),
                 _(
-                    "positive value = relative to tool diameter (5 to 10 probably makes sense), negative = absolute ramp distance (you probably don't need this). Also note that ramp can't currently be shorter than affected g-code segment."
+                    "positive value = relative to tool diameter (5 to 10 "
+                    + "probably makes sense), negative = absolute ramp "
+                    + "distance (you probably don't need this). Also note "
+                    + "that ramp can't currently be shorter than affected "
+                    + "g-code segment."
                 ),
             ),
             ("cutFromTop", "bool", False, _("First cut at surface height")),
@@ -770,7 +792,8 @@ class Cut(DataBase):
                 False,
                 _("Spring pass"),
                 _(
-                    "Do the last cut once more in opposite direction. Helix bottom is disabled in such case."
+                    "Do the last cut once more in opposite direction. "
+                    + "Helix bottom is disabled in such case."
                 ),
             ),
             (
@@ -779,7 +802,8 @@ class Cut(DataBase):
                 "on path",
                 _("Exit strategy (usefull for threads)"),
                 _(
-                    "You should probably always use 'on path', unless you are threadmilling!"
+                    "You should probably always use 'on path', unless "
+                    + "you are threadmilling!"
                 ),
             ),
             ("islandsLeave", "bool", True, _("Leave islands uncut")),
@@ -795,21 +819,32 @@ class Cut(DataBase):
                 False,
                 _("Compensate islands for cutter radius"),
                 _(
-                    "Add additional margin/offset around islands to compensate for endmill radius. This is automaticaly done for all islands if they are marked as tabs."
+                    "Add additional margin/offset around islands to "
+                    + "compensate for endmill radius. This is automaticaly "
+                    + "done for all islands if they are marked as tabs."
                 ),
             ),
             ("islandsCut", "bool", True, _("Cut contours of selected islands")),
         ]
         self.buttons.append("exe")
-        self.help = """Cut selected toolpath into Z depth of stock material.
-
-For short paths, you should probably use helical cut with bottom.
-For long toolpaths and pocketing you should use ramp cut (length around 10).
-Also there's classic flat cuting strategy, but that will lead to plunging straight down to material, which is not really desirable (especially when milling harder materials).
-
-If you have generated tabs and want them to be left uncut, you should check "leave islands" and uncheck "cut contours of islands"
-If you want islands to get finishing pass, cou can use "cut contours of selected islands" or cut them individualy afterwards.
-"""
+        self.help = "\n".join([
+            "Cut selected toolpath into Z depth of stock material.",
+            "",
+            "For short paths, you should probably use helical cut with "
+            + "bottom.",
+            "For long toolpaths and pocketing you should use ramp cut "
+            + "(length around 10).",
+            "Also there's classic flat cuting strategy, but that will lead to "
+            + "plunging straight down to material, which is not really "
+            + "desirable (especially when milling harder materials).",
+            "",
+            "If you have generated tabs and want them to be left uncut, you "
+            + "should check \"leave islands\" and uncheck "
+            + "\"cut contours of islands\"",
+            "If you want islands to get finishing pass, cou can use "
+            + "\"cut contours of selected islands\" or cut them "
+            + "individualy afterwards.",
+        ])
 
     # ----------------------------------------------------------------------
     def execute(self, app):
@@ -889,9 +924,9 @@ If you want islands to get finishing pass, cou can use "cut contours of selected
         app.setStatus(_("CUT selected paths"))
 
 
-# ==============================================================================
+# =============================================================================
 # Drill material
-# ==============================================================================
+# =============================================================================
 class Drill(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Drill")
@@ -905,21 +940,31 @@ class Drill(DataBase):
             ("distance", "mm", "", _("Distance (mm)")),
             ("number", "int", "", _("Number")),
         ]
-        self.help = """Drill a hole in the center of the selected path or drill many holes along the selected path.
-
-MODULE PARAMETERS:
-
-* center : if checked, there is only one drill in the center of the selected path. (Otherwise drill along path)
-
-* depth : Depth of the drill. If not provided, stock material thickness is used. (usually negative value)
-
-* peck: Peck step depth. If provided, drill with peck depth step, raising the drill to z travel value. If not provided, one pass drill is generated.
-
-* dwell: Dwell time at the bottom. If pecking is defined, dwell also at lifted height.
-
-* distance: Distance between drills if drilling alog path. (Number of drills will superceed this parameter))
-
-* number: Number of drills if drilling along path. If nonzero, Parameter 'distance' has no effect."""
+        self.help = "\n".join([
+            "Drill a hole in the center of the selected path or drill many "
+            + "holes along the selected path.",
+            "",
+            "MODULE PARAMETERS:",
+            "",
+            "* center : if checked, there is only one drill in the center of "
+            + "the selected path. (Otherwise drill along path)",
+            "",
+            "* depth : Depth of the drill. If not provided, stock material "
+            + "thickness is used. (usually negative value)",
+            "",
+            "* peck: Peck step depth. If provided, drill with peck depth "
+            + "step, raising the drill to z travel value. If not provided, "
+            + "one pass drill is generated.",
+            "",
+            "* dwell: Dwell time at the bottom. If pecking is defined, dwell "
+            + "also at lifted height.",
+            "",
+            "* distance: Distance between drills if drilling alog path. "
+            + "(Number of drills will superceed this parameter))",
+            "",
+            "* number: Number of drills if drilling along path. If nonzero, "
+            + "Parameter 'distance' has no effect.",
+        ])
         self.buttons.append("exe")
 
     # ----------------------------------------------------------------------
@@ -940,9 +985,9 @@ MODULE PARAMETERS:
         app.setStatus(_("DRILL selected points"))
 
 
-# ==============================================================================
+# =============================================================================
 # Profile
-# ==============================================================================
+# =============================================================================
 class Profile(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Profile")
@@ -977,26 +1022,30 @@ class Profile(DataBase):
                 0,
                 _("Pocket"),
                 _(
-                    "Generate pocket after profiling? Useful for making pockets with overcuts."
+                    "Generate pocket after profiling? Useful for making "
+                    + "pockets with overcuts."
                 ),
             ),
         ]
         self.buttons.append("exe")
-        self.help = """This plugin offsets shapes to create toolpaths for profiling operation.
-Shape needs to be offset by the radius of endmill to get cut correctly.
-
-Currently we have two modes.
-
-Without overcut:
-#overcut-without
-
-And with overcut:
-#overcut-with
-
-Blue is the original shape from CAD
-Turquoise is the generated toolpath
-Grey is simulation of how part will look after machining
-"""
+        self.help = "\n".join([
+            "This plugin offsets shapes to create toolpaths for profiling "
+            + "operation.",
+            "Shape needs to be offset by the radius of endmill to get cut "
+            + "correctly.",
+            "",
+            "Currently we have two modes.",
+            "",
+            "Without overcut:",
+            "#overcut-without",
+            "",
+            "And with overcut:",
+            "#overcut-with",
+            "",
+            "Blue is the original shape from CAD",
+            "Turquoise is the generated toolpath",
+            "Grey is simulation of how part will look after machining",
+        ])
 
     # ----------------------------------------------------------------------
     def execute(self, app):
@@ -1011,9 +1060,9 @@ Grey is simulation of how part will look after machining
         app.setStatus(_("Generate profile path"))
 
 
-# ==============================================================================
+# =============================================================================
 # Pocket
-# ==============================================================================
+# =============================================================================
 class Pocket(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Pocket")
@@ -1037,37 +1086,45 @@ class Pocket(DataBase):
         app.setStatus(_("Generate pocket path"))
 
 
-# ==============================================================================
+# =============================================================================
 # Tabs
-# ==============================================================================
+# =============================================================================
 class Tabs(DataBase):
     def __init__(self, master):
         DataBase.__init__(self, master, "Tabs")
         self.icon = "tab"
         self.variables = [
             ("name", "db", "", _("Name")),
-            # ("circ",     "bool", True, _("Create circular tabs (constant width in all angles)"), _("You should only use circular tabs, they are better in all ways. I've left the rectangles here just so people can experiment and get used to circular ones, but i think they can be safely deprecated.")),
             ("ntabs", "int", 5, _("Number of tabs")),
             ("dtabs", "mm", 0.0, _("Min. Distance of tabs")),
             ("dx", "mm", 5.0, "Width"),
-            # ("dy",        "mm",    5.0,   "Dy"),
             ("z", "mm", -3.0, _("Height")),
         ]
         self.buttons.append("exe")
-        self.help = """Create tabs, which will be left uncut to hold the part in place after cutting.
-
-Tabs after creation:
-#tabs-created
-
-Tabs after cutting the path they're attached to:
-#tabs-cut
-
-Tab shows the size of material, which will be left in place after cutting. It's compensated for endmill diameter during cut operation.
-
-Note that tabs used to be square, but if there was a diagonal segment crossing such tab, it resulted in larger tab without any reason. If we use circular tabs, the tab size is always the same, no matter the angle of segment.
-
-You can move selected tabs using "Move" feature in "Editor". If you want to modify individual tabs, you have to first use "Split" feature to break the block into individual tabs. After moving them, you can "Join" them back together.
-"""
+        self.help = "\n".join([
+            "Create tabs, which will be left uncut to hold the part in place "
+            + "after cutting.",
+            "",
+            "Tabs after creation:",
+            "#tabs-created",
+            "",
+            "Tabs after cutting the path they're attached to:",
+            "#tabs-cut",
+            "",
+            "Tab shows the size of material, which will be left in place "
+            + "after cutting. It's compensated for endmill diameter during "
+            + "cut operation.",
+            "",
+            "Note that tabs used to be square, but if there was a diagonal "
+            + "segment crossing such tab, it resulted in larger tab without "
+            + "any reason. If we use circular tabs, the tab size is always "
+            + "the same, no matter the angle of segment.",
+            "",
+            "You can move selected tabs using \"Move\" feature in \"Editor\". "
+            + "If you want to modify individual tabs, you have to first use "
+            + "\"Split\" feature to break the block into individual tabs. "
+            + "After moving them, you can \"Join\" them back together.",
+        ])
 
     # ----------------------------------------------------------------------
     def execute(self, app):
@@ -1078,7 +1135,6 @@ You can move selected tabs using "Move" feature in "Editor". If you want to modi
 
         dtabs = self.fromMm("dtabs", 0.0)
         dx = self.fromMm("dx", self.master.fromMm(5.0))
-        # dy    = self.fromMm("dy", self.master.fromMm(5.))
         dy = dx
         z = self.fromMm("z", -self.master.fromMm(3.0))
 
@@ -1088,21 +1144,21 @@ You can move selected tabs using "Move" feature in "Editor". If you want to modi
             dtabs = 0
 
         if ntabs == 0 and dtabs == 0:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Tabs error"),
-                _("You cannot have both the number of tabs or distance equal to zero"),
+                _("You cannot have both the number of tabs or distance equal "
+                  + "to zero"),
             )
 
-        # circ = self["circ"]
         circ = True
 
         app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
         app.setStatus(_("Create tabs on blocks"))
 
 
-# ==============================================================================
+# =============================================================================
 # Controller setup
-# ==============================================================================
+# =============================================================================
 class Controller(_Base):
     def __init__(self, master):
         _Base.__init__(self, master)
@@ -1162,7 +1218,7 @@ class Controller(_Base):
                         continue
             except Exception:
                 continue
-            lines.append("${}={}".format(n[5:], str(v)))
+            lines.append(f"${n[5:]}={str(v)}")
             lines.append("%wait")
         lines.append("$$")
         app.run(lines=lines)
@@ -1186,9 +1242,9 @@ class Controller(_Base):
         _Base.populate(self)
 
 
-# ==============================================================================
+# =============================================================================
 # Tools container class
-# ==============================================================================
+# =============================================================================
 class Tools:
     def __init__(self, gcode):
         self.gcode = gcode
@@ -1223,11 +1279,11 @@ class Tools:
             self.addTool(tool)
 
         # Find plugins in the plugins directory and load them
-        for f in glob.glob("%s/plugins/*.py" % (Utils.prgpath)):
+        for f in glob.glob(f"{Utils.prgpath}/plugins/*.py"):
             name, ext = os.path.splitext(os.path.basename(f))
             try:
-                exec("import %s" % (name))
-                tool = eval("%s.Tool(self)" % (name))
+                exec(f"import {name}")
+                tool = eval(f"{name}.Tool(self)")
                 self.addTool(tool)
             except (ImportError, AttributeError):
                 typ, val, tb = sys.exc_info()
@@ -1327,9 +1383,9 @@ class Tools:
         self.buttons["exe"].config(image=Utils.icons[icon])
 
 
-# ===============================================================================
+# =============================================================================
 # DataBase Group
-# ===============================================================================
+# =============================================================================
 class DataBaseGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Database"), app)
@@ -1452,9 +1508,9 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
         app.tools.addButton("delete", b)
 
 
-# ===============================================================================
+# =============================================================================
 # CAM Group
-# ===============================================================================
+# =============================================================================
 class CAMGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("CAM"), app)
@@ -1485,7 +1541,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
                     continue
                 # ===
                 if tool.oneshot:
-                    # print("oneshot", tool.name)
                     b = Ribbon.LabelButton(
                         self.frame,
                         image=Utils.icons[tool.icon + "32"],
@@ -1547,7 +1602,8 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
             background=Ribbon._BACKGROUND,
         )
         b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(b, _("Perform a pocket operation on selected code"))
+        tkExtra.Balloon.set(
+            b, _("Perform a pocket operation on selected code"))
         self.addWidget(b)
 
         # ---
@@ -1601,8 +1657,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
 
         # ---
         row += 1
-        # col += 1
-        # row  = 0  #do not start new column before plugins to save space
 
         # Find plugins in the plugins directory and load them
         for group in ["CAM_Core", "CAM"]:
@@ -1611,7 +1665,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
                     continue
                 # ===
                 if tool.oneshot:
-                    # print("oneshot", tool.name)
                     b = Ribbon.LabelButton(
                         self.frame,
                         image=Utils.icons[tool.icon],
@@ -1621,7 +1674,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
                         command=lambda s=self, a=app, t=tool: a.tools[
                             t.name.upper()
                         ].execute(a),
-                        # command=tool.execute,
                         background=Ribbon._BACKGROUND,
                     )
                 else:
@@ -1648,7 +1700,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
     # ----------------------------------------------------------------------
     def createMenu(self):
         menu = Menu(self, tearoff=0)
-        # for group in ("Artistic", "Generator", "Macros"):
         for group in ("Artistic", "Generator", "Development"):
             submenu = Menu(menu, tearoff=0)
             menu.add_cascade(label=group, menu=submenu)
@@ -1676,59 +1727,11 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
         return menu
 
 
-# ===============================================================================
-# Plugins Group
-# ===============================================================================
-# class PluginsGroup(CNCRibbon.ButtonGroup):
-# 	def __init__(self, master, group, app):
-# 		CNCRibbon.ButtonGroup.__init__(self, master, group, app)
-# 		self.grid3rows()
-#
-# 		col,row=0,0
-# 		# Find plugins in the plugins directory and load them
-# 		for tool in app.tools.pluginList():
-# 			if tool.group != group: continue
-# 			# ===
-# 			b = Ribbon.LabelRadiobutton(self.frame,
-# 					image=Utils.icons[tool.icon],
-# 					text=tool.name,
-# 					compound=LEFT,
-# 					anchor=W,
-# 					variable=app.tools.active,
-# 					value=tool.name,
-# 					background=Ribbon._BACKGROUND)
-# 			b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-# 			tkExtra.Balloon.set(b, tool.__doc__)
-# 			self.addWidget(b)
-#
-# 			row += 1
-# 			if row==3:
-# 				col += 1
-# 				row  = 0
-
-
-# ===============================================================================
-# Macros Groups based on plugins
-# ===============================================================================
-# class MacrosGroup(PluginsGroup):
-# 	def __init__(self, master, app):
-# 		PluginsGroup.__init__(self, master, N_("Macros"), app)
-#
-# class GeneratorGroup(PluginsGroup):
-# 	def __init__(self, master, app):
-# 		PluginsGroup.__init__(self, master, N_("Generator"), app)
-#
-# class ArtisticGroup(PluginsGroup):
-# 	def __init__(self, master, app):
-# 		PluginsGroup.__init__(self, master, N_("Artistic"), app)
-
-
-# ===============================================================================
+# =============================================================================
 # Config
-# ===============================================================================
+# =============================================================================
 class ConfigGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
-        # CNCRibbon.ButtonGroup.__init__(self, master, N_("Config"), app)
         CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("Config"), app)
         self.grid3rows()
 
@@ -1815,20 +1818,6 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
         tkExtra.Balloon.set(b, _("Camera Configuration"))
         self.addWidget(b)
 
-    # 		# ---
-    # 		row += 1
-    # 		b = Ribbon.LabelRadiobutton(self.frame,
-    # 				image=Utils.icons["event"],
-    # 				text=_("Events"),
-    # 				compound=LEFT,
-    # 				anchor=W,
-    # 				variable=app.tools.active,
-    # 				value="Events",
-    # 				background=Ribbon._BACKGROUND)
-    # 		b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
-    # 		tkExtra.Balloon.set(b, _("Events configuration"))
-    # 		self.addWidget(b)
-
     # ----------------------------------------------------------------------
     def fillLanguage(self):
         self.language.set(Utils.LANGUAGES.get(Utils.language, ""))
@@ -1844,7 +1833,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
                     return
                 Utils.language = a
                 Utils.setStr(Utils.__prg__, "language", Utils.language)
-                tkMessageBox.showinfo(
+                messagebox.showinfo(
                     _("Language change"),
                     _("Please restart the program."),
                     parent=self.winfo_toplevel(),
@@ -1885,9 +1874,9 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
         return menu
 
 
-# ==============================================================================
+# =============================================================================
 # Tools Frame
-# ==============================================================================
+# =============================================================================
 class ToolsFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "CAM", app)
@@ -1926,8 +1915,6 @@ class ToolsFrame(CNCRibbon.PageFrame):
         self.toolList.bindList("<Double-1>", self.help)
         self.toolList.bindList("<Return>", self.edit)
         self.toolList.bindList("<Key-space>", self.edit)
-        # 		self.toolList.bindList("<Key-space>",	self.commandFocus)
-        # 		self.toolList.bindList("<Control-Key-space>",	self.commandFocus)
         self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
         self.tools.setListbox(self.toolList)
         self.addWidget(self.toolList)
@@ -1966,19 +1953,16 @@ class ToolsFrame(CNCRibbon.PageFrame):
     # Edit tool listbox
     # ----------------------------------------------------------------------
     def help(self, event=None, rename=False):
-        # lb = self.master.listbox.listbox(1)
-        # print("help",item)
-        # tkMessageBox.showinfo("Help for "+item, "Help for "+item)
         item = self.toolList.get(self.toolList.curselection())[0]
         for var in self.tools.getActive().variables:
             if var[3] == item or _(var[3]) == item:
                 varname = var[0]
-                helpname = "Help for ({}) {}".format(varname, item)
+                helpname = f"Help for ({varname}) {item}"
                 if len(var) > 4 and var[4] is not None:
                     helptext = var[4]
                 else:
-                    helptext = "%s:\nnot available yet!" % (helpname)
-                tkMessageBox.showinfo(helpname, helptext)
+                    helptext = f"{helpname}:\nnot available yet!"
+                messagebox.showinfo(helpname, helptext)
 
     # ----------------------------------------------------------------------
     # Edit tool listbox
@@ -2015,13 +1999,9 @@ class ToolsFrame(CNCRibbon.PageFrame):
     # ----------------------------------------------------------------------
 
 
-# 	def selectTab(self, tabid):
-#
-
-
-# ===============================================================================
+# =============================================================================
 # Tools Page
-# ===============================================================================
+# =============================================================================
 class ToolsPage(CNCRibbon.Page):
     __doc__ = _("GCode manipulation tools and user plugins")
     _name_ = N_("CAM")

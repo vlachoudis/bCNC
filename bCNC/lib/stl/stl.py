@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import datetime
 import io
 import logging
@@ -22,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class Mode:
-    #: Automatically detect whether the output is a TTY, if so, write ASCII
-    #: otherwise write BINARY
+    #: Automatically detect whether the output is a TTY,
+    #:  if so, write ASCII otherwise write BINARY
     AUTOMATIC = 0
     #: Force writing ASCII
     ASCII = 1
@@ -104,8 +102,9 @@ class BaseStl(base.BaseMesh):
             (count,) = struct.unpack(s("<i"), b(count_data))
         # raise RuntimeError()
         assert count < MAX_COUNT, (
-            "File too large, got %d triangles which " "exceeds the maximum of %d"
-        ) % (count, MAX_COUNT)
+            f"File too large, got {int(count)} triangles which "
+            f"exceeds the maximum of {int(MAX_COUNT)}"
+        )
 
         if check_size:
             try:
@@ -117,7 +116,7 @@ class BaseStl(base.BaseMesh):
                     "Expected %d vectors but " "header indicates %d"
                 ) % (expected_count, count)
                 fh.seek(HEADER_SIZE + COUNT_SIZE)
-            except IOError:  # pragma: no cover
+            except OSError:  # pragma: no cover
                 pass
 
         name = header.strip()
@@ -158,7 +157,8 @@ class BaseStl(base.BaseMesh):
                     values = line.replace(prefix, b(""), 1).strip().split()
                 elif line.startswith(b("endsolid")):
                     # go back to the beginning of new solid part
-                    size_unprocessedlines = sum(len(li) + 1 for li in lines) - 1
+                    size_unprocessedlines = \
+                        sum(len(li) + 1 for li in lines) - 1
                     if size_unprocessedlines > 0:
                         position = fh.tell()
                         fh.seek(position - size_unprocessedlines)
@@ -166,14 +166,14 @@ class BaseStl(base.BaseMesh):
                 else:
                     raise RuntimeError(
                         recoverable[0],
-                        "{!r} should start with {!r}".format(line, prefix),
+                        f"{line!r} should start with {prefix!r}",
                     )
 
                 if len(values) == 3:
                     return [float(v) for v in values]
                 else:  # pragma: no cover
-                    raise RuntimeError(
-                        recoverable[0], "Incorrect value %r" % line)
+                    raise RuntimeError(recoverable[0],
+                                       f"Incorrect value {line!r}")
             else:
                 return b(line)
 
@@ -188,8 +188,8 @@ class BaseStl(base.BaseMesh):
             )
 
         if not lines:
-            raise RuntimeError(
-                recoverable[0], "No lines found, impossible to read")
+            raise RuntimeError(recoverable[0],
+                               "No lines found, impossible to read")
 
         # Yield the name
         yield line[5:].strip()
@@ -252,7 +252,7 @@ class BaseStl(base.BaseMesh):
         elif mode is ASCII:
             write = self._write_ascii
         else:
-            raise ValueError("Mode %r is invalid" % mode)
+            raise ValueError(f"Mode {mode!r} is invalid")
 
         name = os.path.split(filename)[-1]
         try:
@@ -261,7 +261,7 @@ class BaseStl(base.BaseMesh):
             else:
                 with open(filename, "wb") as fh:
                     write(fh, filename)
-        except IOError:  # pragma: no cover
+        except OSError:  # pragma: no cover
             pass
 
     def _write_ascii(self, fh, name):
@@ -270,9 +270,9 @@ class BaseStl(base.BaseMesh):
         else:
 
             def p(s, file):
-                file.write(b("%s\n" % s))
+                file.write(b(f"{s}\n"))
 
-            p("solid %s" % name, file=fh)
+            p(f"solid {name}", file=fh)
 
             for row in self.data:
                 vectors = row["vectors"]
@@ -284,7 +284,7 @@ class BaseStl(base.BaseMesh):
                 p("  endloop", file=fh)
                 p("endfacet", file=fh)
 
-            p("endsolid %s" % name, file=fh)
+            p(f"endsolid {name}", file=fh)
 
     def _write_binary(self, fh, name):
         # Create the header
@@ -323,7 +323,7 @@ class BaseStl(base.BaseMesh):
         fh=None,
         mode=Mode.AUTOMATIC,
         speedups=True,
-        **kwargs
+        **kwargs,
     ):
         r"""Load a mesh from a STL file
 
@@ -344,7 +344,11 @@ class BaseStl(base.BaseMesh):
                 with open(filename, "rb") as fh:
                     name, data = cls.load(fh, mode=Mode.ASCII, speedups=False)
 
-        return cls(data, calculate_normals, name=name, speedups=speedups, **kwargs)
+        return cls(data,
+                   calculate_normals,
+                   name=name,
+                   speedups=speedups,
+                   **kwargs)
 
     @classmethod
     def from_multi_file(
@@ -354,7 +358,7 @@ class BaseStl(base.BaseMesh):
         fh=None,
         mode=ASCII,
         speedups=True,
-        **kwargs
+        **kwargs,
     ):
         r"""Load multiple meshes from a STL file
 
@@ -376,9 +380,11 @@ class BaseStl(base.BaseMesh):
             raw_data = cls.load(fh, mode=mode, speedups=speedups)
             while raw_data:
                 name, data = raw_data
-                yield cls(
-                    data, calculate_normals, name=name, speedups=speedups, **kwargs
-                )
+                yield cls(data,
+                          calculate_normals,
+                          name=name,
+                          speedups=speedups,
+                          **kwargs)
                 raw_data = cls.load(fh, mode=ASCII, speedups=speedups)
 
         finally:

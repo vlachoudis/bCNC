@@ -1,23 +1,20 @@
 # $Id$
 #
-# Author:	DodoLaSaumure
-# Date:	30-Dec-2019
-
-from __future__ import absolute_import, print_function
+# Author:    DodoLaSaumure
+# Date:      30-Dec-2019
 
 import math
 
-from bmath import Vector
-from CNC import CNC, CW, Block
+from CNC import CNC, Block
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
 __email__ = ""
 
 
-# ==============================================================================
+# =============================================================================
 # SimpleArc class
-# ==============================================================================
+# =============================================================================
 class SimpleArc:
     def __init__(self, name):
         self.name = name
@@ -53,9 +50,9 @@ class SimpleArc:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a simple Arc
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a simple Arc")
 

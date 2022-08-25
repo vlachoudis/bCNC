@@ -1,23 +1,18 @@
 # $Id$
 #
-# Author:	DodoLaSaumure
-# Date:	30-Dec-2019
+# Author:    DodoLaSaumure
+# Date:      30-Dec-2019
 
-from __future__ import absolute_import, print_function
-
-import math
-
-from bmath import Vector
-from CNC import CNC, CW, Block
+from CNC import CNC, Block
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
 __email__ = ""
 
 
-# ==============================================================================
+# =============================================================================
 # SimpleRectangle class
-# ==============================================================================
+# =============================================================================
 class SimpleRectangle:
     def __init__(self, name):
         self.name = name
@@ -82,9 +77,9 @@ class SimpleRectangle:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a simple Rectangle
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Generate a simple rectangle")
 

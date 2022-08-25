@@ -8,15 +8,15 @@
 # are met:
 #
 #  * Redistributions of source code must retain the above copyright
-# 	notice, this list of conditions and the following disclaimer.
+#       notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above copyright
-# 	notice, this list of conditions and the following disclaimer in
-# 	the documentation and/or other materials provided with the
-# 	distribution.
+#       notice, this list of conditions and the following disclaimer in
+#       the documentation and/or other materials provided with the
+#       distribution.
 #  * Neither the name of the pyglet nor the names of its
-# 	contributors may be used to endorse or promote products
-# 	derived from this software without specific prior written
-# 	permission.
+#       contributors may be used to endorse or promote products
+#       derived from this software without specific prior written
+#       permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -46,25 +46,17 @@
 # Glyph data ported from
 # * http://stevehanov.ca/blog/index.php?id=143
 # the JavaScript code to extract also Glyph data as vector.
-# To extract contours out of ttf structure data, here are some other useful links:
-#  * http://chanae.walon.org/pub/ttf/ttf_glyphs.htm
-#  * http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html#section-1
+# To extract contours out of ttf structure data, here are some other useful
+# links:
+# http://chanae.walon.org/pub/ttf/ttf_glyphs.htm
+# http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html#section-1
 #
 #   Filippo Rivato f.rivato@gmail.com
-
-from __future__ import absolute_import
 
 import codecs
 import mmap
 import os
 import struct
-
-try:
-    # old version
-    unichr
-except:
-    # newer version
-    unichr = chr  # pylint: disable=redefined-builtin,invalid-name,unichr-builtin
 
 
 class TruetypeInfo:
@@ -120,7 +112,7 @@ class TruetypeInfo:
 
         :Parameters:
                 `filename`
-                        The name of any Windows, OS2 or Macintosh Truetype file.
+                       The name of any Windows, OS2 or Macintosh Truetype file.
 
         The object must be closed (see `close`) after use.
 
@@ -129,13 +121,15 @@ class TruetypeInfo:
         """
         if not filename:
             filename = ""
-        len = os.stat(filename).st_size
+        len_ = os.stat(filename).st_size
         self._fileno = os.open(filename, os.O_RDONLY)
         if hasattr(mmap, "MAP_SHARED"):
-            self._data = mmap.mmap(
-                self._fileno, len, mmap.MAP_SHARED, mmap.PROT_READ)
+            self._data = mmap.mmap(self._fileno,
+                                   len_,
+                                   mmap.MAP_SHARED,
+                                   mmap.PROT_READ)
         else:
-            self._data = mmap.mmap(self._fileno, len, None, mmap.ACCESS_READ)
+            self._data = mmap.mmap(self._fileno, len_, None, mmap.ACCESS_READ)
 
         offsets = _read_offset_table(self._data, 0)
         self._tables = {}
@@ -161,7 +155,8 @@ class TruetypeInfo:
     def get_font_selection_flags(self):
         """Return the font selection flags, as defined in OS/2 table"""
         if not self._font_selection_flags:
-            OS2_table = _read_OS2_table(self._data, self._tables["OS/2"].offset)
+            OS2_table = _read_OS2_table(self._data,
+                                        self._tables["OS/2"].offset)
             self._font_selection_flags = OS2_table.fs_selection
         return self._font_selection_flags
 
@@ -185,8 +180,8 @@ class TruetypeInfo:
         """
         if self._names:
             return self._names
-        naming_table = _read_naming_table(
-            self._data, self._tables["name"].offset)
+        naming_table = _read_naming_table(self._data,
+                                          self._tables["name"].offset)
         name_records = _read_name_record.array(
             self._data,
             self._tables["name"].offset + naming_table.size,
@@ -196,7 +191,8 @@ class TruetypeInfo:
         self._names = {}
         for record in name_records:
             value = self._data[
-                record.offset + storage: record.offset + storage + record.length
+                record.offset + storage:
+                record.offset + storage + record.length
             ]
             key = record.platform_id, record.name_id
             value = (record.encoding_id, record.language_id, value)
@@ -209,18 +205,18 @@ class TruetypeInfo:
         """Returns the value of the given name in this font.
 
         :Parameters:
-                `name`
-                        Either an integer, representing the name_id desired (see
-                        font format); or a string describing it, see below for
-                        valid names.
-                `platform`
-                        Platform for the requested name.  Can be the integer ID,
-                        or a string describing it.  By default, the Microsoft
-                        platform is searched first, then Macintosh.
-                `languages`
-                        A list of language IDs to search.  The first language
-                        which defines the requested name will be used.  By default,
-                        all English dialects are searched.
+            `name`
+                    Either an integer, representing the name_id desired (see
+                    font format); or a string describing it, see below for
+                    valid names.
+            `platform`
+                    Platform for the requested name.  Can be the integer ID,
+                    or a string describing it.  By default, the Microsoft
+                    platform is searched first, then Macintosh.
+            `languages`
+                    A list of language IDs to search.  The first language
+                    which defines the requested name will be used.  By default,
+                    all English dialects are searched.
 
         If the name is not found, ``None`` is returned.  If the name
         is found, the value will be decoded and returned as a unicode
@@ -353,8 +349,8 @@ class TruetypeInfo:
         """
         if self._glyph_kernings:
             return self._glyph_kernings
-        header = _read_kern_header_table(
-            self._data, self._tables["kern"].offset)
+        header = _read_kern_header_table(self._data,
+                                         self._tables["kern"].offset)
         offset = self._tables["kern"].offset + header.size
         kernings = {}
         for _i in range(header.n_tables):
@@ -411,7 +407,8 @@ class TruetypeInfo:
             return self._character_map
         cmap = _read_cmap_header(self._data, self._tables["cmap"].offset)
         records = _read_cmap_encoding_record.array(
-            self._data, self._tables["cmap"].offset + cmap.size, cmap.num_tables
+            self._data, self._tables["cmap"].offset
+            + cmap.size, cmap.num_tables
         )
         self._character_map = {}
         for record in records:
@@ -420,8 +417,8 @@ class TruetypeInfo:
                 offset = self._tables["cmap"].offset + record.offset
                 format_header = _read_cmap_format_header(self._data, offset)
                 if format_header.format == 4:
-                    self._character_map = self._get_character_map_format4(
-                        offset)
+                    self._character_map = \
+                        self._get_character_map_format4(offset)
                     break
         return self._character_map
 
@@ -431,19 +428,22 @@ class TruetypeInfo:
         # a fuckwit.
         header = _read_cmap_format4Header(self._data, offset)
         seg_count = header.seg_count_x2 // 2
-        array_size = struct.calcsize(">%dH" % seg_count)
-        end_count = self._read_array(">%dH" % seg_count, offset + header.size)
+        array_size = struct.calcsize(f">{int(seg_count)}H")
+        end_count = self._read_array(f">{int(seg_count)}H",
+                                     offset + header.size)
         start_count = self._read_array(
-            ">%dH" % seg_count, offset + header.size + array_size + 2
+            f">{int(seg_count)}H",
+            offset + header.size + array_size + 2
         )
         id_delta = self._read_array(
-            ">%dh" % seg_count, offset + header.size + array_size + 2 + array_size
+            f">{int(seg_count)}h",
+            offset + header.size + array_size + 2 + array_size
         )
         id_range_offset_address = (
             offset + header.size + array_size + 2 + array_size + array_size
         )
-        id_range_offset = self._read_array(
-            ">%dH" % seg_count, id_range_offset_address)
+        id_range_offset = self._read_array(f">{int(seg_count)}H",
+                                           id_range_offset_address)
         character_map = {}
         for i in range(0, seg_count):
             if id_range_offset[i] != 0:
@@ -456,19 +456,20 @@ class TruetypeInfo:
                         + id_range_offset_address
                         + 2 * i
                     )
-                    g = struct.unpack(">H", self._data[addr: addr + 2])[0]
+                    g = struct.unpack(">H", self._data[addr:addr + 2])[0]
                     if g != 0:
                         try:
-                            character_map[unichr(c)] = (g + id_delta[i]) % 65536
-                        except Exception as e:
-                            character_map[chr(c)] = (g + id_delta[i]) % 65536
+                            character_map[chr(c)] = \
+                                (g + id_delta[i]) & 0xFFFF
+                        except Exception:
+                            character_map[chr(c)] = (g + id_delta[i]) & 0xFFFF
             else:
                 for c in range(start_count[i], end_count[i] + 1):
-                    g = (c + id_delta[i]) % 65536
+                    g = (c + id_delta[i]) & 0xFFFF
                     if g != 0:
                         try:
-                            character_map[unichr(c)] = g
-                        except Exception as e:
+                            character_map[chr(c)] = g
+                        except Exception:
                             character_map[chr(c)] = g
         return character_map
 
@@ -482,7 +483,7 @@ class TruetypeInfo:
             mul = 2
         size = struct.calcsize(fmt)
         offset = loca.offset + (size * index)
-        res = struct.unpack(fmt, self._data[offset: offset + size])[0] * mul
+        res = struct.unpack(fmt, self._data[offset:offset + size])[0] * mul
         return res + self._tables["glyf"].offset
 
     def _read_glyph(self, index):
@@ -505,10 +506,9 @@ class TruetypeInfo:
         Y_DELTA = 32
 
         glyph = Glyph()
-        glyph.type = "simple"
+        glyph.type_ = "simple"
         glyph.contoursEnd = []
         glyph.points = []
-        # glyph.size = glyph_size
 
         # add contours end
         for i in range(0, glyph_size.numContours):
@@ -534,7 +534,8 @@ class TruetypeInfo:
             glyph.points.append(gp)
 
             if flag & REPEAT:
-                repeat_count, g_offset = self._get_data(">B", g_offset)  # uint8
+                repeat_count, g_offset = \
+                    self._get_data(">B", g_offset)  # uint8
                 i += repeat_count
                 while repeat_count > 0:
                     flags.append(flag)
@@ -544,7 +545,6 @@ class TruetypeInfo:
                     repeat_count -= 1
             i += 1
 
-        # c = len(flags)
         # Parse for xValues
         xValue = 0
         for i, f in enumerate(flags):
@@ -556,7 +556,7 @@ class TruetypeInfo:
                     xValue -= vx
             elif (
                 -(f + 1) & X_DELTA
-            ) > 0:  # ??????????  else if ( ~flag & deltaFlag ) -(N+1)
+            ) > 0:
                 vx, g_offset = self._get_data(">h", g_offset)  # int16
                 xValue += vx
             else:
@@ -573,7 +573,7 @@ class TruetypeInfo:
                     yValue += vy
                 else:
                     yValue -= vy
-            elif (-(f + 1) & Y_DELTA) > 0:  # ??????????  else if ( ~flag & deltaFlag )
+            elif (-(f + 1) & Y_DELTA) > 0:
                 vy, g_offset = self._get_data(">h", g_offset)  # int16
                 yValue += vy
             else:
@@ -584,7 +584,7 @@ class TruetypeInfo:
 
     def _get_data(self, fmt, g_offset):
         size = struct.calcsize(fmt)
-        data = struct.unpack(fmt, self._data[g_offset: g_offset + size])[0]
+        data = struct.unpack(fmt, self._data[g_offset:g_offset + size])[0]
         g_offset += size
         return data, g_offset
 
@@ -592,18 +592,14 @@ class TruetypeInfo:
         # FIXME:implements extraction of data for complex glyph
         ARG_1_AND_2_ARE_WORDS = 1
         ARGS_ARE_XY_VALUES = 2
-        ROUND_XY_TO_GRID = 4
         WE_HAVE_A_SCALE = 8
-        RESERVED = 16
         MORE_COMPONENTS = 32
         WE_HAVE_AN_X_AND_Y_SCALE = 64
         WE_HAVE_A_TWO_BY_TWO = 128
         WE_HAVE_INSTRUCTIONS = 256
-        USE_MY_METRICS = 512
-        OVERLAP_COMPONENT = 1024
 
         glyph = Glyph()
-        glyph.type = "compound"
+        glyph.type_ = "compound"
         glyph.components = []
 
         flags = MORE_COMPONENTS
@@ -611,8 +607,8 @@ class TruetypeInfo:
             flags, g_offset = self._get_data(">H", g_offset)  # uint16
 
             component = GlyphComponent()
-            component.glyphIndex, g_offset = self._get_data(
-                ">H", g_offset)  # uint16
+            component.glyphIndex, g_offset = \
+                self._get_data(">H", g_offset)  # uint16
 
             arg1 = 0
             arg2 = 0
@@ -652,10 +648,9 @@ class TruetypeInfo:
         # Create glyph points
         ceOffset = 0
         for component in glyph.components:
-            # 			print component.glyphIndex
             subGlyph = self._read_glyph(component.glyphIndex)
             # apply transformation to points
-            # FIX ME: not all transformations (es. scale) are applied correctly
+            # FIXME: not all transformations (es. scale) are applied correctly
             for p in subGlyph.points:
                 tp = GlyphPoint(p.x, p.y)
                 tp.ON_CURVE = p.ON_CURVE
@@ -702,7 +697,8 @@ class TruetypeInfo:
                 contours.append(newContour)  # add contour to list
                 newContour = []
 
-        # add virtual ON point if double OFF sequence is encounter (from cubic to quadratic curve)
+        # add virtual ON point if double OFF sequence is encounter
+        # (from cubic to quadratic curve)
         normContours = []
         for cont in contours:
             newCont = []
@@ -762,9 +758,9 @@ class TruetypeInfo:
         nP = GlyphPoint(b_x, b_y)
         return nP
 
-    def _read_array(self, format, offset):
-        size = struct.calcsize(format)
-        return struct.unpack(format, self._data[offset: offset + size])
+    def _read_array(self, format_, offset):
+        size = struct.calcsize(format_)
+        return struct.unpack(format_, self._data[offset:offset + size])
 
     def close(self):
         """Close the font file.
@@ -784,15 +780,15 @@ def _read_table(*entries):
     fmt = ">"
     names = []
     for entry in entries:
-        name, type = entry.split(":")
+        name, type_ = entry.split(":")
         names.append(name)
-        fmt += type
+        fmt += type_
 
     class _table_class:
         size = struct.calcsize(fmt)
 
         def __init__(self, data, offset):
-            items = struct.unpack(fmt, data[offset: offset + self.size])
+            items = struct.unpack(fmt, data[offset:offset + self.size])
             self.pairs = zip(names, items)
             for name, value in self.pairs:
                 if isinstance(value, bytes):
@@ -802,10 +798,7 @@ def _read_table(*entries):
         def __repr__(self):
             s = (
                 "{"
-                + ", ".join(
-                    ["{} = {}".format(name, value)
-                     for name, value in self.pairs]
-                )
+                + ", ".join([f"{p[0]} = {p[1]}" for p in self.pairs])
                 + "}"
             )
             return s
@@ -918,8 +911,9 @@ _read_kern_subtable_format0Pair = _read_table("left:H", "right:H", "value:h")
 
 _read_cmap_header = _read_table("version:H", "num_tables:H")
 
-_read_cmap_encoding_record = _read_table(
-    "platform_id:H", "encoding_id:H", "offset:L")
+_read_cmap_encoding_record = _read_table("platform_id:H",
+                                         "encoding_id:H",
+                                         "offset:L")
 
 _read_cmap_format_header = _read_table("format:H", "length:H")
 _read_cmap_format4Header = _read_table(
@@ -972,7 +966,7 @@ _read_glyph_size_table = _read_table(
 
 class Glyph:
     def __init__(self):
-        self.type = ""
+        self.type_ = ""
         self.contoursEnd = []
         self.points = []
 
@@ -987,9 +981,6 @@ class GlyphPoint:
 class GlyphComponent:
     def __init__(self):
         self.glyphIndex = 0
-        #
-        destPointIndex = 0
-        srcPointIndex = 0
         # Matrix
         self.a = 1
         self.b = 0

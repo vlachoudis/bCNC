@@ -3,53 +3,39 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from __future__ import absolute_import, print_function
-
-# import cgi
 import json
 import os
 import re
-import sys
 import tempfile
 import threading
-import urllib
 
 import Camera
 from CNC import CNC
 from Utils import prgpath
 
-__author__ = "Vasilis Vlachoudis"
-__email__ = "Vasilis.Vlachoudis@cern.ch"
-
-
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
+import urllib.parse as urlparse
+import http.server as httpserver
 
 try:
     from PIL import Image
 except ImportError:
     Image = None
 
-try:
-    import BaseHTTPServer as HTTPServer
-except ImportError:
-    import http.server as HTTPServer
-
+__author__ = "Vasilis Vlachoudis"
+__email__ = "Vasilis.Vlachoudis@cern.ch"
 
 HOSTNAME = "localhost"
 port = 8080
 
 httpd = None
-webpath = "%s/pendant" % (prgpath)
-iconpath = "%s/icons/" % (prgpath)
+webpath = f"{prgpath}/pendant"
+iconpath = f"{prgpath}/icons/"
 
 
-# ==============================================================================
+# =============================================================================
 # Simple Pendant controller for CNC
-# ==============================================================================
-class Pendant(HTTPServer.BaseHTTPRequestHandler):
+# =============================================================================
+class Pendant(httpserver.BaseHTTPRequestHandler):
     camera = None
 
     # ----------------------------------------------------------------------
@@ -58,7 +44,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
         if args[0].startswith("GET / ") or args[0].startswith("GET /send"):
             args = list(args)
             args[0] = self.address_string() + '" : "' + args[0]
-            HTTPServer.BaseHTTPRequestHandler.log_message(self, fmt, *args)
+            httpserver.BaseHTTPRequestHandler.log_message(self, fmt, *args)
 
     # ----------------------------------------------------------------------
     def do_HEAD(self, rc=200, content="text/html", cl=0):
@@ -77,10 +63,6 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
         else:
             page = self.path
             arg = None
-
-        # 		print self.path,type(self.path)
-        # 		print page
-        # 		print arg
 
         if page == "/send":
             if arg is None:
@@ -136,7 +118,8 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
             if arg is None:
                 return
             filename = os.path.join(iconpath, arg["name"] + ".gif")
-            self.do_HEAD(200, content="image/gif", cl=os.path.getsize(filename))
+            self.do_HEAD(200, content="image/gif",
+                         cl=os.path.getsize(filename))
             try:
                 f = open(filename, "rb")
                 self.wfile.write(f.read())
@@ -159,7 +142,9 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                         out.flush()
                         out.seek(0)
                         self.do_HEAD(
-                            200, content="image/gif", cl=os.path.getsize(tmp.name)
+                            200,
+                            content="image/gif",
+                            cl=os.path.getsize(tmp.name)
                         )
                         self.wfile.write(out.read())
                 except Exception:
@@ -182,7 +167,6 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
 
             if Pendant.camera.read():
                 Pendant.camera.save("camera.jpg")
-                # cv.imwrite("camera.jpg",img)
                 self.do_HEAD(
                     200, content="image/jpeg", cl=os.path.getsize("camera.jpg")
                 )
@@ -220,7 +204,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
         remainbytes -= len(line)
         try:
             out = open(fn, "wb")
-        except IOError:
+        except OSError:
             return (
                 False,
                 "Can't create file to write, do you have permission to write?",
@@ -237,7 +221,7 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
                     preline = preline[0:-1]
                 out.write(preline)
                 out.close()
-                return (True, "%s" % fn)
+                return (True, f"{fn}")
             else:
                 out.write(preline)
                 preline = line
@@ -280,26 +264,26 @@ class Pendant(HTTPServer.BaseHTTPRequestHandler):
             f = open(os.path.join(webpath, page), "rb")
             self.wfile.write(f.read())
             f.close()
-        except IOError:
-            self.wfile.write(
-                b"""<!DOCTYPE html>
-<html>
-<head>
-<title>Errortitle</title>
-<meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=yes" />
-</head>
-<body>
-Page not found.
-</body>
-</html>
-"""
-            )
+        except OSError:
+            self.wfile.write("\n".join([
+                b"<!DOCTYPE html>",
+                b"<html>",
+                b"<head>",
+                b"<title>Errortitle</title>",
+                b"<meta name=\"viewport\" content=\"width=device-width,"
+                + b"initial-scale=1, user-scalable=yes\" />",
+                b"</head>",
+                b"<body>",
+                b"Page not found.",
+                b"</body>",
+                b"</html>",
+            ]))
 
 
 # -----------------------------------------------------------------------------
 def _server(app):
     global httpd
-    server_class = HTTPServer.HTTPServer
+    server_class = httpserver.HTTPServer
     try:
         httpd = server_class(("", port), Pendant)
         httpd.app = app

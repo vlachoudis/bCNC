@@ -1,14 +1,12 @@
 # $Id$
 #
 # Author: Filippo Rivato
-# Date:	11 March 2016
+# Date:      11 March 2016
 # Done in Annonay at Hotel "Du midi" after a business trip and 10 hours of work.
-
-from __future__ import absolute_import, print_function
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
-from Utils import to_zip
+from Helpers import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
@@ -17,9 +15,9 @@ __name__ = _("Hilbert")
 __version__ = "0.0.1"
 
 
-# ==============================================================================
+# =============================================================================
 # Hilbert class
-# ==============================================================================
+# =============================================================================
 class Hilbert:
     def __init__(self, name="Hilbert"):
         self.name = name
@@ -33,13 +31,17 @@ class Hilbert:
             return y0 + (xj + yj) / 2.0
 
         if n > 0:
-            for ye in self.hilbert(x0, y0, yi / 2, yj / 2, xi / 2, xj / 2, n - 1):
-                yield ye
-            for ye in self.hilbert(
+            yield from self.hilbert(x0,
+                                    y0,
+                                    yi / 2,
+                                    yj / 2,
+                                    xi / 2,
+                                    xj / 2,
+                                    n - 1)
+            yield from self.hilbert(
                 x0 + xi / 2, y0 + xj / 2, xi / 2, xj / 2, yi / 2, yj / 2, n - 1
-            ):
-                yield ye
-            for ye in self.hilbert(
+            )
+            yield from self.hilbert(
                 x0 + xi / 2 + yi / 2,
                 y0 + xj / 2 + yj / 2,
                 xi / 2,
@@ -47,9 +49,8 @@ class Hilbert:
                 yi / 2,
                 yj / 2,
                 n - 1,
-            ):
-                yield ye
-            for ye in self.hilbert(
+            )
+            yield from self.hilbert(
                 x0 + xi / 2 + yi,
                 y0 + xj / 2 + yj,
                 -yi / 2,
@@ -57,8 +58,7 @@ class Hilbert:
                 -xi / 2,
                 -xj / 2,
                 n - 1,
-            ):
-                yield ye
+            )
         else:
             yield (x(), y())
 
@@ -96,9 +96,9 @@ class Hilbert:
         return blocks
 
 
-# ==============================================================================
+# =============================================================================
 # Create a Hilbert curve
-# ==============================================================================
+# =============================================================================
 class Tool(Plugin):
     __doc__ = _("Create a Hilbert path")
 

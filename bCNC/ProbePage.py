@@ -4,11 +4,44 @@
 #  Email: vvlachoudis@gmail.com
 #   Date: 18-Jun-2015
 
-from __future__ import absolute_import, print_function
-
 # import time
 import math
 import sys
+from tkinter import (
+    YES,
+    N,
+    S,
+    W,
+    E,
+    NW,
+    SW,
+    NE,
+    SE,
+    EW,
+    NSEW,
+    CENTER,
+    NONE,
+    X,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    HORIZONTAL,
+    END,
+    NORMAL,
+    DISABLED,
+    StringVar,
+    IntVar,
+    BooleanVar,
+    Button,
+    Checkbutton,
+    Label,
+    Scale,
+    Spinbox,
+    LabelFrame,
+    messagebox,
+)
 
 import Camera
 import CNCRibbon
@@ -16,19 +49,11 @@ import Ribbon
 import tkExtra
 import Utils
 from CNC import CNC, Block
-from Utils import to_unicode
+
+from Helpers import N_
 
 __author__ = Utils.__author__
 __email__ = Utils.__email__
-
-
-try:
-    from Tkinter import *
-    import tkMessageBox
-except ImportError:
-    from tkinter import *
-    import tkinter.messagebox as tkMessageBox
-
 
 PROBE_CMD = [
     _("G38.2 stop on contact else error"),
@@ -73,9 +98,9 @@ CAMERA_LOCATION_ORDER = [
 ]
 
 
-# ===============================================================================
+# =============================================================================
 # Probe Tab Group
-# ===============================================================================
+# =============================================================================
 class ProbeTabGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Probe"), app)
@@ -142,9 +167,9 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
         self.frame.grid_rowconfigure(0, weight=1)
 
 
-# ===============================================================================
+# =============================================================================
 # Autolevel Group
-# ===============================================================================
+# =============================================================================
 class AutolevelGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Autolevel", app)
@@ -183,7 +208,8 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(
             b,
             _(
-                "Set current XY location as autoleveling Z-zero (recalculate probed data to be relative to this XY origin point)"
+                "Set current XY location as autoleveling Z-zero (recalculate "
+                + "probed data to be relative to this XY origin point)"
             ),
         )
         self.addWidget(b)
@@ -254,9 +280,9 @@ class AutolevelGroup(CNCRibbon.ButtonGroup):
             b, _("Scan probed area for level information on Z plane"))
 
 
-# ===============================================================================
+# =============================================================================
 # Probe Common Offset
-# ===============================================================================
+# =============================================================================
 class ProbeCommonFrame(CNCRibbon.PageFrame):
     probeFeed = None
     tlo = None
@@ -276,11 +302,12 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
         # ----
         # Fast Probe Feed
-        Label(frame, text=_("Fast Probe Feed:")).grid(
-            row=row, column=col, sticky=E)
+        Label(frame,
+              text=_("Fast Probe Feed:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.fastProbeFeed = StringVar()
-        self.fastProbeFeed.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+        self.fastProbeFeed.trace(
+            "w", lambda *_: ProbeCommonFrame.probeUpdate())
         ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(
             frame,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
@@ -309,8 +336,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             textvariable=self.probeFeedVar,
         )
         ProbeCommonFrame.probeFeed.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(ProbeCommonFrame.probeFeed,
-                            _("Set probe feed rate"))
+        tkExtra.Balloon.set(
+            ProbeCommonFrame.probeFeed, _("Set probe feed rate"))
         self.addWidget(ProbeCommonFrame.probeFeed)
 
         # ----
@@ -323,8 +350,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
         )
         ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(ProbeCommonFrame.tlo, _(
-            "Set tool offset for probing"))
+        tkExtra.Balloon.set(
+            ProbeCommonFrame.tlo, _("Set tool offset for probing"))
         self.addWidget(ProbeCommonFrame.tlo)
         self.tlo.bind("<Return>", self.tloSet)
         self.tlo.bind("<KP_Enter>", self.tloSet)
@@ -338,8 +365,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         # feed command
         row += 1
         col = 0
-        Label(frame, text=_("Probe Command")).grid(
-            row=row, column=col, sticky=E)
+        Label(frame,
+              text=_("Probe Command")).grid(row=row, column=col, sticky=E)
         col += 1
         ProbeCommonFrame.probeCmd = tkExtra.Combobox(
             frame,
@@ -359,7 +386,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
     def tloSet(self, event=None):
         try:
             CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-            cmd = "G43.1Z%s" % (ProbeCommonFrame.tlo.get())
+            cmd = f"G43.1Z{ProbeCommonFrame.tlo.get()}"
             self.sendGCode(cmd)
         except Exception:
             pass
@@ -372,7 +399,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             CNC.vars["fastprbfeed"] = float(
                 ProbeCommonFrame.fastProbeFeed.get())
             CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
-            CNC.vars["prbcmd"] = str(ProbeCommonFrame.probeCmd.get().split()[0])
+            CNC.vars["prbcmd"] = str(
+                ProbeCommonFrame.probeCmd.get().split()[0])
             return False
         except Exception:
             return True
@@ -390,12 +418,12 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
 
     # -----------------------------------------------------------------------
     def saveConfig(self):
-        Utils.setFloat("Probe", "fastfeed",
-                       ProbeCommonFrame.fastProbeFeed.get())
+        Utils.setFloat("Probe",
+                       "fastfeed", ProbeCommonFrame.fastProbeFeed.get())
         Utils.setFloat("Probe", "feed", ProbeCommonFrame.probeFeed.get())
         Utils.setFloat("Probe", "tlo", ProbeCommonFrame.tlo.get())
-        Utils.setFloat(
-            "Probe", "cmd", ProbeCommonFrame.probeCmd.get().split()[0])
+        Utils.setFloat("Probe", "cmd",
+                       ProbeCommonFrame.probeCmd.get().split()[0])
 
     # -----------------------------------------------------------------------
     def loadConfig(self):
@@ -409,9 +437,9 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
                 break
 
 
-# ===============================================================================
+# =============================================================================
 # Probe Frame
-# ===============================================================================
+# =============================================================================
 class ProbeFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "Probe:Probe", app)
@@ -423,10 +451,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
         recframe = tkExtra.ExLabelFrame(
             self, text=_("Record"), foreground="DarkBlue")
         recframe.pack(side=TOP, expand=YES, fill=X)
-
-        # Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
-        # self.diameter = tkExtra.FloatEntry(lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
-        # self.diameter.pack(side=LEFT, expand=YES, fill=X)
 
         self.recz = IntVar()
         self.reczb = Checkbutton(
@@ -536,14 +560,13 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.autogoto = Checkbutton(
             lframe(),
             "",
-            variable=self.probeautogoto,  # onvalue=1, offvalue=0,
+            variable=self.probeautogoto,
             activebackground="LightYellow",
             padx=2,
             pady=1,
         )
         self.autogoto.select()
         tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
-        # self.autogoto.pack(side=LEFT, expand=YES, fill=X)
         self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
         self.addWidget(self.autogoto)
 
@@ -555,7 +578,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Goto"),
             compound=LEFT,
             command=self.goto2Probe,
-            # 				width=48,
             padx=5,
             pady=0,
         )
@@ -599,7 +621,6 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Probe"),
             compound=LEFT,
             command=self.probe,
-            # 				width=48,
             padx=5,
             pady=0,
         )
@@ -623,7 +644,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
         )
         self.diameter.pack(side=LEFT, expand=YES, fill=X)
-        tkExtra.Balloon.set(self.diameter, _("Probing ring internal diameter"))
+        tkExtra.Balloon.set(
+            self.diameter, _("Probing ring internal diameter"))
         self.addWidget(self.diameter)
 
         # ---
@@ -700,8 +722,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.x_orient.bind("<FocusOut>", self.orientUpdate)
         self.x_orient.bind("<Return>", self.orientUpdate)
         self.x_orient.bind("<KP_Enter>", self.orientUpdate)
-        tkExtra.Balloon.set(self.x_orient, _(
-            "GCode X coordinate of orientation point"))
+        tkExtra.Balloon.set(
+            self.x_orient, _("GCode X coordinate of orientation point"))
 
         col += 1
         self.y_orient = tkExtra.FloatEntry(
@@ -711,8 +733,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.y_orient.bind("<FocusOut>", self.orientUpdate)
         self.y_orient.bind("<Return>", self.orientUpdate)
         self.y_orient.bind("<KP_Enter>", self.orientUpdate)
-        tkExtra.Balloon.set(self.y_orient, _(
-            "GCode Y coordinate of orientation point"))
+        tkExtra.Balloon.set(
+            self.y_orient, _("GCode Y coordinate of orientation point"))
 
         # Buttons
         col += 1
@@ -869,10 +891,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
     # -----------------------------------------------------------------------
     def warnMessage(self):
         if self.warn:
-            ans = tkMessageBox.askquestion(
+            ans = messagebox.askquestion(
                 _("Probe connected?"),
                 _(
-                    "Please verify that the probe is connected.\n\nShow this message again?"
+                    "Please verify that the probe is connected.\n\n"
+                    + "Show this message again?"
                 ),
                 icon="warning",
                 parent=self.winfo_toplevel(),
@@ -888,7 +911,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             self.probeautogotonext = True
 
         if ProbeCommonFrame.probeUpdate():
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Error"),
                 _("Invalid probe feed rate"),
                 parent=self.winfo_toplevel(),
@@ -901,29 +924,29 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         v = self.probeXdir.get()
         if v != "":
-            cmd += "X%s" % (v)
+            cmd += f"X{v}"
             ok = True
 
         v = self.probeYdir.get()
         if v != "":
-            cmd += "Y%s" % (v)
+            cmd += f"Y{v}"
             ok = True
 
         v = self.probeZdir.get()
         if v != "":
-            cmd += "Z%s" % (v)
+            cmd += f"Z{v}"
             ok = True
 
         v = ProbeCommonFrame.probeFeed.get()
         if v != "":
-            cmd += "F%s" % (v)
+            cmd += f"F{v}"
 
         if ok:
             self.sendGCode(cmd)
         else:
-            tkMessageBox.showerror(
-                _("Probe Error"), _(
-                    "At least one probe direction should be specified")
+            messagebox.showerror(
+                _("Probe Error"),
+                _("At least one probe direction should be specified")
             )
 
     # -----------------------------------------------------------------------
@@ -946,14 +969,14 @@ class ProbeFrame(CNCRibbon.PageFrame):
     def probeCenter(self, event=None):
         self.warnMessage()
 
-        cmd = "G91 {} F{}".format(CNC.vars["prbcmd"], CNC.vars["prbfeed"])
+        cmd = f"G91 {CNC.vars['prbcmd']} F{CNC.vars['prbfeed']}"
         try:
             diameter = abs(float(self.diameter.get()))
         except Exception:
             diameter = 0.0
 
         if diameter < 0.001:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Center Error"),
                 _("Invalid diameter entered"),
                 parent=self.winfo_toplevel(),
@@ -961,21 +984,21 @@ class ProbeFrame(CNCRibbon.PageFrame):
             return
 
         lines = []
-        lines.append("{} x-{}".format(cmd, diameter))
+        lines.append(f"{cmd} x-{diameter}")
         lines.append("%wait")
         lines.append("tmp=prbx")
-        lines.append("g53 g0 x[prbx+%g]" % (diameter / 10.0))
+        lines.append(f"g53 g0 x[prbx+{diameter / 10.0:g}]")
         lines.append("%wait")
-        lines.append("{} x{}".format(cmd, diameter))
+        lines.append(f"{cmd} x{diameter}")
         lines.append("%wait")
         lines.append("g53 g0 x[0.5*(tmp+prbx)]")
         lines.append("%wait")
-        lines.append("{} y-{}".format(cmd, diameter))
+        lines.append(f"{cmd} y-{diameter}")
         lines.append("%wait")
         lines.append("tmp=prby")
-        lines.append("g53 g0 y[prby+%g]" % (diameter / 10.0))
+        lines.append(f"g53 g0 y[prby+{diameter / 10.0:g}]")
         lines.append("%wait")
-        lines.append("{} y{}".format(cmd, diameter))
+        lines.append(f"{cmd} y{diameter}")
         lines.append("%wait")
         lines.append("g53 g0 y[0.5*(tmp+prby)]")
         lines.append("%wait")
@@ -1027,12 +1050,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
     def orientClear(self, event=None):
         if self.scale_orient.cget("to") == 0:
             return
-        ans = tkMessageBox.askquestion(
+        ans = messagebox.askquestion(
             _("Delete all markers"),
             _("Do you want to delete all orientation markers?"),
             parent=self.winfo_toplevel(),
         )
-        if ans != tkMessageBox.YES:
+        if ans != messagebox.YES:
             return
         self.app.gcode.orient.clear()
         self.orientUpdateScale()
@@ -1133,22 +1156,18 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.app.refresh()
         self.app.setStatus(_("Pointrec"))
 
-        # print("hello",x,y,z)
-        # print(self.app.editor.getSelectedBlocks())
-
     def recordCoords(self, gcode="G0", point=False):
-        # print("Z",self.recz.get())
         x = CNC.vars["wx"]
         y = CNC.vars["wy"]
         z = CNC.vars["wz"]
 
-        coords = "X{} Y{}".format(x, y)
+        coords = f"X{x} Y{y}"
         if self.recz.get() == 1:
-            coords += " Z%s" % (z)
+            coords += f" Z{z}"
 
         if point:
-            self.recordAppend("G0 Z%s" % (CNC.vars["safe"]))
-        self.recordAppend("{} {}".format(gcode, coords))
+            self.recordAppend(f"G0 Z{CNC.vars['safe']}")
+        self.recordAppend(f"{gcode} {coords}")
         if point:
             self.recordAppend("G1 Z0")
 
@@ -1163,18 +1182,16 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
     def recordCircle(self):
         r = float(self.recsiz.get())
-        # self.recordCoords('G02 R%s'%(r))
         x = CNC.vars["wx"] - r
         y = CNC.vars["wy"]
         z = CNC.vars["wz"]
 
-        coords = "X{} Y{}".format(x, y)
+        coords = f"X{x} Y{y}"
         if self.recz.get() == 1:
-            coords += " Z%s" % (z)
+            coords += f" Z{z}"
 
-        # self.recordAppend('G0 %s R%s'%(coords, r))
-        self.recordAppend("G0 %s" % (coords))
-        self.recordAppend("G02 {} I{}".format(coords, r))
+        self.recordAppend(f"G0 {coords}")
+        self.recordAppend(f"G02 {coords} I{r}")
 
     def recordFinishAll(self):
         for bid, block in enumerate(self.app.gcode):
@@ -1184,9 +1201,9 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.app.setStatus(_("Finished recording"))
 
 
-# ===============================================================================
+# =============================================================================
 # Autolevel Frame
-# ===============================================================================
+# =============================================================================
 class AutolevelFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "Probe:Autolevel", app)
@@ -1373,11 +1390,11 @@ class AutolevelFrame(CNCRibbon.PageFrame):
             probe.xmin = float(self.probeXmin.get())
             probe.xmax = float(self.probeXmax.get())
             probe.xn = max(2, int(self.probeXbins.get()))
-            self.probeXstep["text"] = "%.5g" % (probe.xstep())
+            self.probeXstep["text"] = f"{probe.xstep():.5g}"
         except ValueError:
             self.probeXstep["text"] = ""
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid X probing region"),
                     parent=self.winfo_toplevel(),
@@ -1386,7 +1403,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         if probe.xmin >= probe.xmax:
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid X range [xmin>=xmax]"),
                     parent=self.winfo_toplevel(),
@@ -1397,11 +1414,11 @@ class AutolevelFrame(CNCRibbon.PageFrame):
             probe.ymin = float(self.probeYmin.get())
             probe.ymax = float(self.probeYmax.get())
             probe.yn = max(2, int(self.probeYbins.get()))
-            self.probeYstep["text"] = "%.5g" % (probe.ystep())
+            self.probeYstep["text"] = f"{probe.ystep():.5g}"
         except ValueError:
             self.probeYstep["text"] = ""
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid Y probing region"),
                     parent=self.winfo_toplevel(),
@@ -1410,7 +1427,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         if probe.ymin >= probe.ymax:
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid Y range [ymin>=ymax]"),
                     parent=self.winfo_toplevel(),
@@ -1422,7 +1439,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
             probe.zmax = float(self.probeZmax.get())
         except ValueError:
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid Z probing region"),
                     parent=self.winfo_toplevel(),
@@ -1431,7 +1448,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         if probe.zmin >= probe.zmax:
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid Z range [zmin>=zmax]"),
                     parent=self.winfo_toplevel(),
@@ -1440,7 +1457,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         if ProbeCommonFrame.probeUpdate():
             if verbose:
-                tkMessageBox.showerror(
+                messagebox.showerror(
                     _("Probe Error"),
                     _("Invalid probe feed rate"),
                     parent=self.winfo_toplevel(),
@@ -1463,12 +1480,12 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
     # -----------------------------------------------------------------------
     def clear(self, event=None):
-        ans = tkMessageBox.askquestion(
+        ans = messagebox.askquestion(
             _("Delete autolevel information"),
             _("Do you want to delete all autolevel in formation?"),
             parent=self.winfo_toplevel(),
         )
-        if ans != tkMessageBox.YES:
+        if ans != messagebox.YES:
             return
         self.app.gcode.probe.clear()
         self.draw()
@@ -1492,9 +1509,9 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         self.app.run(lines=self.app.gcode.probe.scanMargins())
 
 
-# ===============================================================================
+# =============================================================================
 # Camera Group
-# ===============================================================================
+# =============================================================================
 class CameraGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
@@ -1519,8 +1536,8 @@ class CameraGroup(CNCRibbon.ButtonGroup):
         self.switchButton.grid(
             row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW
         )
-        tkExtra.Balloon.set(self.switchButton, _(
-            "Switch between camera and spindle"))
+        tkExtra.Balloon.set(self.switchButton,
+                            _("Switch between camera and spindle"))
 
         # ---
         col, row = 1, 0
@@ -1564,16 +1581,16 @@ class CameraGroup(CNCRibbon.ButtonGroup):
         z = self.app.canvas.cameraZ
         if self.switch.get():
             self.switchButton.config(image=Utils.icons["endmill32"])
-            self.sendGCode("G92X{:g}Y{:g}".format(dx + wx, dy + wy))
+            self.sendGCode(f"G92X{dx + wx:g}Y{dy + wy:g}")
             self.app.canvas.cameraSwitch = True
         else:
             self.switchButton.config(image=Utils.icons["camera32"])
             self.sendGCode("G92.1")
             self.app.canvas.cameraSwitch = False
         if z is None:
-            self.sendGCode("G0X{:g}Y{:g}".format(wx, wy))
+            self.sendGCode(f"G0X{wx:g}Y{wy:g}")
         else:
-            self.sendGCode("G0X{:g}Y{:g}Z{:g}".format(wx, wy, z))
+            self.sendGCode(f"G0X{wx:g}Y{wy:g}Z{z:g}")
 
     # -----------------------------------------------------------------------
     def switchCamera(self, event=None):
@@ -1589,9 +1606,9 @@ class CameraGroup(CNCRibbon.ButtonGroup):
         self.app.canvas.cameraFreeze(self.freeze.get())
 
 
-# ===============================================================================
+# =============================================================================
 # Camera Frame
-# ===============================================================================
+# =============================================================================
 class CameraFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "Probe:Camera", app)
@@ -1604,7 +1621,8 @@ class CameraFrame(CNCRibbon.PageFrame):
         row = 0
         Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
         self.location = tkExtra.Combobox(
-            lframe, True, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=16
+            lframe, True,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=16
         )
         self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
         self.location.fill(CAMERA_LOCATION_ORDER)
@@ -1624,8 +1642,8 @@ class CameraFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(self.rotation, _("Camera rotation [degrees]"))
         # ----
         row += 1
-        Label(lframe, text=_("Haircross Offset:")).grid(
-            row=row, column=0, sticky=E)
+        Label(lframe,
+              text=_("Haircross Offset:")).grid(row=row, column=0, sticky=E)
         self.xcenter = tkExtra.FloatEntry(
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
         )
@@ -1666,11 +1684,11 @@ class CameraFrame(CNCRibbon.PageFrame):
         self.diameter.bind("<Return>", self.updateValues)
         self.diameter.bind("<KP_Enter>", self.updateValues)
         self.diameter.bind("<FocusOut>", self.updateValues)
-        tkExtra.Balloon.set(self.diameter, _(
-            "Camera cross hair diameter [units]"))
+        tkExtra.Balloon.set(
+            self.diameter, _("Camera cross hair diameter [units]"))
 
-        b = Button(lframe, text=_("Get"),
-                   command=self.getDiameter, padx=1, pady=1)
+        b = Button(
+            lframe, text=_("Get"), command=self.getDiameter, padx=1, pady=1)
         b.grid(row=row, column=2, sticky=W)
         tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
 
@@ -1714,9 +1732,11 @@ class CameraFrame(CNCRibbon.PageFrame):
             b, _("Mark spindle position for calculating offset"))
         b.grid(row=row, column=1, sticky=EW)
         b = Button(
-            lframe, text=_("2. Camera"), command=self.registerCamera, padx=1, pady=1
+            lframe, text=_("2. Camera"),
+            command=self.registerCamera, padx=1, pady=1
         )
-        tkExtra.Balloon.set(b, _("Mark camera position for calculating offset"))
+        tkExtra.Balloon.set(
+            b, _("Mark camera position for calculating offset"))
         b.grid(row=row, column=2, sticky=EW)
 
         lframe.grid_columnconfigure(1, weight=1)
@@ -1809,15 +1829,15 @@ class CameraFrame(CNCRibbon.PageFrame):
     def registerSpindle(self):
         self.spindleX = CNC.vars["wx"]
         self.spindleY = CNC.vars["wy"]
-        self.event_generate("<<Status>>", data=_(
-            "Spindle position is registered"))
+        self.event_generate(
+            "<<Status>>", data=_("Spindle position is registered"))
 
     # -----------------------------------------------------------------------
     # Register camera position
     # -----------------------------------------------------------------------
     def registerCamera(self):
         if self.spindleX is None:
-            tkMessageBox.showwarning(
+            messagebox.showwarning(
                 _("Spindle position is not registered"),
                 _("Spindle position must be registered before camera"),
                 parent=self,
@@ -1830,56 +1850,9 @@ class CameraFrame(CNCRibbon.PageFrame):
         self.updateValues()
 
 
-# 	#-----------------------------------------------------------------------
-# 	def findScale(self):
-# 		return
-# 		self.app.canvas.cameraMakeTemplate(30)
-#
-# 		self.app.control.moveXup()
-# 		#self.app.wait4Idle()
-# 		time.sleep(2)
-# 		dx,dy = self.app.canvas.cameraMatchTemplate()	# right
-#
-# 		self.app.control.moveXdown()
-# 		self.app.control.moveXdown()
-# 		#self.app.wait4Idle()
-# 		time.sleep(2)
-# 		dx,dy = self.app.canvas.cameraMatchTemplate()	# left
-#
-# 		self.app.control.moveXup()
-# 		self.app.control.moveYup()
-# 		#self.app.wait4Idle()
-# 		time.sleep(2)
-# 		dx,dy = self.app.canvas.cameraMatchTemplate()	# top
-#
-# 		self.app.control.moveYdown()
-# 		self.app.control.moveYdown()
-# 		#self.app.wait4Idle()
-# 		time.sleep(2)
-# 		dx,dy = self.app.canvas.cameraMatchTemplate()	# down
-#
-# 		self.app.control.moveYup()
-
-# -----------------------------------------------------------------------
-# Move camera to spindle location and change coordinates to relative
-# to camera via g92
-# -----------------------------------------------------------------------
-# 	def switch2Camera(self, event=None):
-# 		print("Switch to camera")
-# 		wx = CNC.vars["wx"]
-# 		wy = CNC.vars["wy"]
-# 		dx = float(self.dx.get())
-# 		dy = float(self.dy.get())
-# 		if self.switchVar.get():
-# 			self.sendGCode("G92X%gY%g"%(dx+wx,dy+wy))
-# 		else:
-# 			self.sendGCode("G92.1")
-# 		self.sendGCode("G0X%gY%g"%(wx,wy))
-
-
-# ===============================================================================
+# =============================================================================
 # Tool Group
-# ===============================================================================
+# =============================================================================
 class ToolGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Tool", app)
@@ -1898,7 +1871,9 @@ class ToolGroup(CNCRibbon.ButtonGroup):
         b.pack(side=LEFT, fill=BOTH, expand=YES)
         self.addWidget(b)
         tkExtra.Balloon.set(
-            b, _("Perform a single a tool change cycle to set the calibration field")
+            b,
+            _("Perform a single a tool change cycle to set the "
+              + "calibration field")
         )
 
         b = Ribbon.LabelButton(
@@ -1916,15 +1891,15 @@ class ToolGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Perform a tool change cycle"))
 
 
-# ===============================================================================
+# =============================================================================
 # Tool Frame
-# ===============================================================================
+# =============================================================================
 class ToolFrame(CNCRibbon.PageFrame):
     def __init__(self, master, app):
         CNCRibbon.PageFrame.__init__(self, master, "Probe:Tool", app)
 
-        lframe = LabelFrame(self, text=_(
-            "Manual Tool Change"), foreground="DarkBlue")
+        lframe = LabelFrame(
+            self, text=_("Manual Tool Change"), foreground="DarkBlue")
         lframe.pack(side=TOP, fill=X)
 
         # --- Tool policy ---
@@ -1979,8 +1954,8 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.changeX.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.changeX, _(
-            "Manual tool change Machine X location"))
+        tkExtra.Balloon.set(
+            self.changeX, _("Manual tool change Machine X location"))
         self.addWidget(self.changeX)
         self.changeX.bind("<KeyRelease>", self.setProbeParams)
         self.changeX.bind("<FocusOut>", self.setProbeParams)
@@ -1990,8 +1965,8 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.changeY.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.changeY, _(
-            "Manual tool change Machine Y location"))
+        tkExtra.Balloon.set(
+            self.changeY, _("Manual tool change Machine Y location"))
         self.addWidget(self.changeY)
         self.changeY.bind("<KeyRelease>", self.setProbeParams)
         self.changeY.bind("<FocusOut>", self.setProbeParams)
@@ -2001,15 +1976,15 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.changeZ.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.changeZ, _(
-            "Manual tool change Machine Z location"))
+        tkExtra.Balloon.set(
+            self.changeZ, _("Manual tool change Machine Z location"))
         self.addWidget(self.changeZ)
         self.changeZ.bind("<KeyRelease>", self.setProbeParams)
         self.changeZ.bind("<FocusOut>", self.setProbeParams)
 
         col += 1
-        b = Button(lframe, text=_("get"),
-                   command=self.getChange, padx=2, pady=1)
+        b = Button(
+            lframe, text=_("get"), command=self.getChange, padx=2, pady=1)
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Get current gantry position as machine tool change location")
@@ -2025,8 +2000,8 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeX.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.probeX, _(
-            "Manual tool change Probing MX location"))
+        tkExtra.Balloon.set(
+            self.probeX, _("Manual tool change Probing MX location"))
         self.addWidget(self.probeX)
         self.probeX.bind("<KeyRelease>", self.setProbeParams)
         self.probeX.bind("<FocusOut>", self.setProbeParams)
@@ -2036,8 +2011,8 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeY.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.probeY, _(
-            "Manual tool change Probing MY location"))
+        tkExtra.Balloon.set(
+            self.probeY, _("Manual tool change Probing MY location"))
         self.addWidget(self.probeY)
         self.probeY.bind("<KeyRelease>", self.setProbeParams)
         self.probeY.bind("<FocusOut>", self.setProbeParams)
@@ -2047,14 +2022,15 @@ class ToolFrame(CNCRibbon.PageFrame):
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeZ.grid(row=row, column=col, sticky=EW)
-        tkExtra.Balloon.set(self.probeZ, _(
-            "Manual tool change Probing MZ location"))
+        tkExtra.Balloon.set(
+            self.probeZ, _("Manual tool change Probing MZ location"))
         self.addWidget(self.probeZ)
         self.probeZ.bind("<KeyRelease>", self.setProbeParams)
         self.probeZ.bind("<FocusOut>", self.setProbeParams)
 
         col += 1
-        b = Button(lframe, text=_("get"), command=self.getProbe, padx=2, pady=1)
+        b = Button(lframe, text=_("get"),
+                   command=self.getProbe, padx=2, pady=1)
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Get current gantry position as machine tool probe location")
@@ -2081,8 +2057,8 @@ class ToolFrame(CNCRibbon.PageFrame):
         # --- Calibration ---
         row += 1
         col = 0
-        Label(lframe, text=_("Calibration:")).grid(
-            row=row, column=col, sticky=E)
+        Label(lframe,
+              text=_("Calibration:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.toolHeight = tkExtra.FloatEntry(
             lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
@@ -2092,8 +2068,8 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.addWidget(self.toolHeight)
 
         col += 1
-        b = Button(lframe, text=_("Calibrate"),
-                   command=self.calibrate, padx=2, pady=1)
+        b = Button(lframe,
+                   text=_("Calibrate"), command=self.calibrate, padx=2, pady=1)
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Perform a calibration probing to determine the height")
@@ -2108,15 +2084,13 @@ class ToolFrame(CNCRibbon.PageFrame):
 
     # -----------------------------------------------------------------------
     def saveConfig(self):
-        # 		Utils.setInt(  "Probe", "toolpolicy",  TOOL_POLICY.index(self.toolPolicy.get()))
-        # 		Utils.setInt(  "Probe", "toolwait",    TOOL_WAIT.index(self.toolWait.get()))
         Utils.setInt(
-            "Probe", "toolpolicy", TOOL_POLICY.index(
-                to_unicode(self.toolPolicy.get()))
+            "Probe", "toolpolicy",
+            TOOL_POLICY.index(self.toolPolicy.get())
         )
         Utils.setInt(
-            "Probe", "toolwait", TOOL_WAIT.index(
-                to_unicode(self.toolWait.get()))
+            "Probe", "toolwait",
+            TOOL_WAIT.index(self.toolWait.get())
         )
 
         Utils.setFloat("Probe", "toolchangex", self.changeX.get())
@@ -2143,7 +2117,8 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         self.probeDistance.set(Utils.getFloat("Probe", "tooldistance"))
         self.toolHeight.set(Utils.getFloat("Probe", "toolheight"))
-        self.toolPolicy.set(TOOL_POLICY[Utils.getInt("Probe", "toolpolicy", 0)])
+        self.toolPolicy.set(
+            TOOL_POLICY[Utils.getInt("Probe", "toolpolicy", 0)])
         self.toolWait.set(TOOL_WAIT[Utils.getInt("Probe", "toolwait", 1)])
         CNC.vars["toolmz"] = Utils.getFloat("Probe", "toolmz")
         self.set()
@@ -2157,7 +2132,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             CNC.vars["toolchangey"] = float(self.changeY.get())
             CNC.vars["toolchangez"] = float(self.changeZ.get())
         except Exception:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool change position"),
                 parent=self.winfo_toplevel(),
@@ -2169,7 +2144,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             CNC.vars["toolprobey"] = float(self.probeY.get())
             CNC.vars["toolprobez"] = float(self.probeZ.get())
         except Exception:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool probe location"),
                 parent=self.winfo_toplevel(),
@@ -2179,7 +2154,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         try:
             CNC.vars["tooldistance"] = abs(float(self.probeDistance.get()))
         except Exception:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool scanning distance entered"),
                 parent=self.winfo_toplevel(),
@@ -2189,7 +2164,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         try:
             CNC.vars["toolheight"] = float(self.toolHeight.get())
         except Exception:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool height or not calibrated"),
                 parent=self.winfo_toplevel(),
@@ -2199,7 +2174,7 @@ class ToolFrame(CNCRibbon.PageFrame):
     # -----------------------------------------------------------------------
     def check4Errors(self):
         if CNC.vars["tooldistance"] <= 0.0:
-            tkMessageBox.showerror(
+            messagebox.showerror(
                 _("Probe Tool Change Error"),
                 _("Invalid tool scanning distance entered"),
                 parent=self.winfo_toplevel(),
@@ -2209,14 +2184,12 @@ class ToolFrame(CNCRibbon.PageFrame):
 
     # -----------------------------------------------------------------------
     def policyChange(self):
-        # 		CNC.toolPolicy = int(TOOL_POLICY.index(self.toolPolicy.get()))
-        b = to_unicode(self.toolPolicy.get())
+        b = self.toolPolicy.get()
         CNC.toolPolicy = int(TOOL_POLICY.index(b))
 
     # -----------------------------------------------------------------------
     def waitChange(self):
-        # 		CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(self.toolWait.get()))
-        b = to_unicode(self.toolWait.get())
+        b = self.toolWait.get()
         CNC.toolWaitAfterProbe = int(TOOL_WAIT.index(b))
 
     # -----------------------------------------------------------------------
@@ -2270,13 +2243,13 @@ class ToolFrame(CNCRibbon.PageFrame):
             while currentFeedrate > CNC.vars["prbfeed"]:
                 lines.append("%wait")
                 lines.append(
-                    "g91 [prbcmd] %s z[toolprobez-mz-tooldistance]"
-                    % CNC.fmt("f", currentFeedrate)
+                    f"g91 [prbcmd] {CNC.fmt('f', currentFeedrate)} "
+                    + "z[toolprobez-mz-tooldistance]"
                 )
                 lines.append("%wait")
                 lines.append(
-                    "[prbcmdreverse] %s z[toolprobez-mz]"
-                    % CNC.fmt("f", currentFeedrate)
+                    f"[prbcmdreverse] {CNC.fmt('f', currentFeedrate)} "
+                    + "z[toolprobez-mz]"
                 )
                 currentFeedrate /= 10
         lines.append("%wait")
@@ -2302,29 +2275,9 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.app.run(lines=lines)
 
 
-# ===============================================================================
-# Help Frame
-# ===============================================================================
-# class HelpFrame(CNCRibbon.PageFrame):
-# 	def __init__(self, master, app):
-# 		CNCRibbon.PageFrame.__init__(self, master, "Help", app)
-#
-# 		lframe = tkExtra.ExLabelFrame(self, text="Help", foreground="DarkBlue")
-# 		lframe.pack(side=TOP, fill=X)
-# 		frame = lframe.frame
-#
-# 		self.text = Label(frame,
-# 				text="One\nTwo\nThree",
-# 				image=Utils.icons["gear32"],
-# 				compound=TOP,
-# 				anchor=W,
-# 				justify=LEFT)
-# 		self.text.pack(fill=BOTH, expand=YES)
-
-
-# ===============================================================================
+# =============================================================================
 # Probe Page
-# ===============================================================================
+# =============================================================================
 class ProbePage(CNCRibbon.Page):
     __doc__ = _("Probe configuration and probing")
     _name_ = "Probe"
@@ -2336,7 +2289,8 @@ class ProbePage(CNCRibbon.Page):
     def register(self):
         self._register(
             (ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
-            (ProbeCommonFrame, ProbeFrame, AutolevelFrame, CameraFrame, ToolFrame),
+            (ProbeCommonFrame, ProbeFrame, AutolevelFrame,
+             CameraFrame, ToolFrame),
         )
 
         self.tabGroup = CNCRibbon.Page.groups["Probe"]
@@ -2353,11 +2307,11 @@ class ProbePage(CNCRibbon.Page):
         self.frames = [x for x in self.frames if ":" not in x[0].name]
 
         try:
-            self.addRibbonGroup("Probe:%s" % (tab))
+            self.addRibbonGroup(f"Probe:{tab}")
         except KeyError:
             pass
         try:
-            self.addPageFrame("Probe:%s" % (tab))
+            self.addPageFrame(f"Probe:{tab}")
         except KeyError:
             pass
 

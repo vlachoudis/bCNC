@@ -1,30 +1,14 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 7 july 2018
 
-from __future__ import print_function
-
-import math
-import os.path
-import re
 from copy import deepcopy
 from math import (
-    acos,
-    asin,
-    atan2,
-    copysign,
     cos,
-    degrees,
-    fmod,
-    hypot,
-    pi,
-    radians,
     sin,
-    sqrt,
 )
 
-from bmath import Vector
-from bpath import EPS, Path, Segment, eq
-from CNC import CNC, Block
+from bpath import EPS, Path, eq
+from CNC import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"
@@ -63,7 +47,6 @@ class Tool(Plugin):
     # This method is executed when user presses the plugin execute button
     # ----------------------------------------------------------------------
     def execute(self, app):
-        # print("go!")
         blocks = []
 
         paths_base = []
@@ -99,37 +82,24 @@ class Tool(Plugin):
 
                 # Eulerize
                 paths_newbase.extend(newbase.eulerize())
-                # paths_newbase.extend(newbase.split2contours())
             paths_base = paths_newbase
 
         for base in paths_base:
             print(base)
-            # base = base.eulerize(True)
             block = Block("diff")
             block.extend(app.gcode.fromPath(base))
             blocks.append(block)
 
-        # active = app.activeBlock()
         app.gcode.insBlocks(
             -1, blocks, "Diff"
         )  # <<< insert blocks over active block in the editor
         app.refresh()  # <<< refresh editor
         app.setStatus(_("Generated: Diff"))  # <<< feed back result
-        # app.gcode.blocks.append(block)
 
     ##############################################
 
     def pol2car(self, r, phi, a=[0, 0]):
         return [round(a[0] + r * cos(phi), 4), round(a[1] + r * sin(phi), 4)]
-
-    # def findSegment(self, path,A,B): #FIXME: not used for now...
-    # 	for seg in path:
-    # 		if seg.A == A and seg.B == B:
-    # 			return seg
-    # 		elif seg.A == B and seg.B == A:
-    # 			seg.invert()
-    # 			return seg
-    # 		else: return Segment(1, A, B)
 
     def findSubpath(self, path, A, B, inside):
         path = deepcopy(path)
@@ -143,7 +113,7 @@ class Tool(Plugin):
         print("finding", A, B)
 
         sub = None
-        for i in xrange(0, len(path) * 2):  # iterate twice with wrap around
+        for i in range(0, len(path) * 2):  # iterate twice with wrap around
             j = i % len(path)
             seg = path[j]
             if inside.isInside(seg.midPoint()):
@@ -162,8 +132,6 @@ class Tool(Plugin):
     def pathBoolIntersection(self, basepath, islandpath):
         basepath.intersectPath(islandpath)
         islandpath.intersectPath(basepath)
-        # basepath = deepcopy(basepath)
-        # islandpath = deepcopy(islandpath)
 
         # find first intersecting segment
         first = None
@@ -177,7 +145,7 @@ class Tool(Plugin):
         # generate intersected path
         newisland = Path("new")
         A = None
-        for i in xrange(first, 2 * len(basepath) + first):
+        for i in range(first, 2 * len(basepath) + first):
             j = i % len(basepath)
             segment = basepath[j]
             if segment.length() < EPS:
@@ -193,8 +161,5 @@ class Tool(Plugin):
                     )
                     print("new", newisland)
                     A = None
-                # newisland.append(segment)
-        # for i,seg in enumerate(newisland):
-        # 	newisland[i].correct();
         print("new2", newisland)
         return newisland

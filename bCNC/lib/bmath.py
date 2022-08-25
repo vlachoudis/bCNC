@@ -5,9 +5,6 @@
 # Author: Vasilis.Vlachoudis@cern.ch
 # Date:   15-May-2004
 
-
-from __future__ import absolute_import
-
 import random
 from math import (
     acos,
@@ -34,23 +31,20 @@ __email__ = "Vasilis.Vlachoudis@cern.ch"
 # Accuracy for comparison operators
 _accuracy = 1e-15
 
-# Formatting
-_format = "%15g"
 
-
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def sign(x):
     """Return sign of number"""
     return int(copysign(1, x))
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def Cmp0(x):
     """Compare against zero within _accuracy"""
     return abs(x) < _accuracy
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def frange(start, stop, step):
     """range(start,stop,step) for floating point numbers"""
     x = start
@@ -64,19 +58,19 @@ def frange(start, stop, step):
             x += step
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def limit(min_, num, max_):
     """limit a number within a specific range"""
     return max(min(num, max_), min_)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def dms(d, m, s):
     """dms - degrees from degrees, minutes, seconds"""
     return d + m / 60.0 + s / 3600.0
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def cbrt(x):
     """cubic root, this cubic root routine handles negative arguments"""
     if x == 0.0:
@@ -87,7 +81,7 @@ def cbrt(x):
         return -pow(-x, 1.0 / 3.0)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def d2s(ang, fmt=""):
     """degrees to string
     D2S(angle[,"H"|"M"|"D"|"N"])
@@ -100,9 +94,9 @@ def d2s(ang, fmt=""):
         neg = ""
 
     ang = round(ang * 360000) / 100
-    SS = "%05.2f" % (fmod(ang, 60))
+    SS = f"{fmod(ang, 60):05.2f}"
     ang = int(ang / 60.0)
-    MM = "%02d" % (ang % 60)
+    MM = f"{int(ang % 60):02d}"
     HH = neg + str(ang / 60)
 
     if fmt == "H":
@@ -116,14 +110,14 @@ def d2s(ang, fmt=""):
     return HH + ":" + MM + ":" + SS
 
 
-# -------------------------------------------------------------------------------
-def format(number, length=10, useExp=False, useD=False):
+# -----------------------------------------------------------------------------
+def format__(number, length=10, useExp=False, useD=False):
     """Format a number to fit in the minimum space given by length"""
 
     _MAXLEN = 22
 
     # Convert number to string
-    # XXX str cuts at 12 digits, repr shows everything but
+    # XXX: str cuts at 12 digits, repr shows everything but
     # numbers like e.g 9.2 will be converted to 9.1999999999999
     # What should I do
     # Fields also in the CardWidget are converted with str and
@@ -152,7 +146,7 @@ def format(number, length=10, useExp=False, useD=False):
 
     if number == "0":
         if useExp:
-            return "0.%s0" % (expE)
+            return f"0.{expE}0"
         else:
             return "0.0"
 
@@ -200,14 +194,14 @@ def format(number, length=10, useExp=False, useD=False):
             break
     else:
         if useExp:
-            return "0.%s0" % (expE)
+            return f"0.{expE}0"
         else:
             return "0.0"
 
     # ... and trailing
     for p in range(len(integer) - 1, 0, -1):
         if integer[p] != "0":
-            integer = integer[0: p + 1]
+            integer = integer[0:(p + 1)]
             break
 
     exponent += point
@@ -225,7 +219,7 @@ def format(number, length=10, useExp=False, useD=False):
                     integer = integer[0:_MAXLEN]
 
     # Now the number is described by:
-    # 	sgn 0.integer "E" exponent
+    #   sgn 0.integer "E" exponent
 
     # Make space for sign
     if sgn:
@@ -234,39 +228,39 @@ def format(number, length=10, useExp=False, useD=False):
     while True:
         # Minimum length representation of a number
         # Length = Length of integer
-        # 	    + 1 for Dot if needed (no exponent)
-        # 	    + (2-4) for exponent
-        # 	exponent can be in the following forms
-        # 		nothing if dot can placed inside integer
-        # 		E#	2
-        # 		E##	3
-        # 		E-#	3
-        # 		E-##	4
-        # 	integer is given as  0.integer
+        #       + 1 for Dot if needed (no exponent)
+        #       + (2-4) for exponent
+        #   exponent can be in the following forms
+        #       nothing if dot can placed inside integer
+        #       E#	2
+        #       E##	3
+        #       E-#	3
+        #       E-##	4
+        #   integer is given as  0.integer
         lint = len(integer)
         if useExp:
-            mNum = "%s%s%d" % (rexx.insert(".", integer, 1), expE, exponent - 1)
+            mNum = f"{rexx.insert('.', integer, 1)}{expE}{int(exponent - 1)}"
         elif exponent == -2:
-            mNum = ".00%s" % (integer)
+            mNum = f".00{integer}"
         elif exponent == -1:
-            mNum = ".0%s" % (integer)
+            mNum = f".0{integer}"
         elif exponent == 0:
-            mNum = ".%s" % (integer)
+            mNum = f".{integer}"
         elif exponent == 1:
             mNum = rexx.insert(".", integer, 1)
         elif exponent == length:
-            mNum = "{}{}".format(integer, "0" * (length - lint))
+            mNum = f"{integer}{'0' * (length - lint)}"
         elif exponent > 1 and exponent <= lint:
             mNum = rexx.insert(".", integer, exponent)
         elif exponent > 1 and exponent <= lint + 2:
             if exponent > lint:
-                mNum = "{}{}.".format(integer, "0" * (exponent - lint))
+                mNum = f"{integer}{'0' * (exponent - lint)}."
             else:
-                mNum = "%s." % (integer.ljust(exponent))
+                mNum = f"{integer.ljust(exponent)}."
         elif exponent > lint and exponent + 1 < length:
-            mNum = "{}{}.".format(integer, "0" * (exponent - lint))
+            mNum = f"{integer}{'0' * (exponent - lint)}."
         else:
-            mNum = "%s%s%d" % (rexx.insert(".", integer, 1), expE, exponent - 1)
+            mNum = f"{rexx.insert('.', integer, 1)}{expE}{int(exponent - 1)}"
 
         diff = len(mNum) - length
         if diff <= 0:
@@ -289,23 +283,23 @@ def format(number, length=10, useExp=False, useD=False):
         # Remove trailing zeros
         for p in range(len(integer) - 1, -1, -1):
             if integer[p] != "0":
-                integer = integer[0: p + 1]
+                integer = integer[0:(p + 1)]
                 break
         else:
             if useExp:
-                return "0.%s0" % (expE)
+                return f"0.{expE}0"
             else:
                 return "0.0"
 
     if sgn:
-        mNum = "-%s" % (mNum)
+        mNum = f"-{mNum}"
     return mNum
 
 
-# ==============================================================================
+# =============================================================================
 # Dangerous dictionary that unknown keys return a user default value
 # Use it with care
-# ==============================================================================
+# =============================================================================
 class DefaultDict(dict):
     """Dictionary where unknown keys will return a default value"""
 
@@ -318,7 +312,7 @@ class DefaultDict(dict):
         return self.get(key, self._default)
 
 
-# ==============================================================================
+# =============================================================================
 class ZeroDict(DefaultDict):
     """Dictionary where unknown keys will return 0.0"""
 
@@ -326,7 +320,7 @@ class ZeroDict(DefaultDict):
         DefaultDict.__init__(self, 0.0)
 
 
-# ==============================================================================
+# =============================================================================
 class ZeroIntDict(DefaultDict):
     """Dictionary where unknown keys will return 0"""
 
@@ -334,10 +328,10 @@ class ZeroIntDict(DefaultDict):
         DefaultDict.__init__(self, 0)
 
 
-# ===============================================================================
+# =============================================================================
 # Vector class
 # Inherits from List
-# ===============================================================================
+# =============================================================================
 class Vector(list):
     """Vector class"""
 
@@ -368,11 +362,11 @@ class Vector(list):
 
     # ----------------------------------------------------------------------
     def __repr__(self):
-        return "[%s]" % (", ".join([repr(x) for x in self]))
+        return f"[{', '.join([repr(x) for x in self])}]"
 
     # ----------------------------------------------------------------------
     def __str__(self):
-        return "[%s]" % (", ".join([(_format % (x)).strip() for x in self]))
+        return "[" + ', '.join([(f"{x:15g}").strip() for x in self]) + "]"
 
     # ----------------------------------------------------------------------
     def eq(self, v, acc=_accuracy):
@@ -469,7 +463,8 @@ class Vector(list):
         for a, b in zip(self, v):
             s += a * b
 
-        # Float precision error was causing dot product to be 1.00000000000002 or so...
+        # Float precision error was causing dot product
+        # to be 1.00000000000002 or so...
         s = min(1, s)
         s = max(-1, s)
 
@@ -519,7 +514,7 @@ class Vector(list):
         if le > 0.0:
             invlen = 1.0 / le
             for _i in range(len(self)):
-                self[i] *= invlen
+                self[_i] *= invlen
         return le
 
     normalize = norm
@@ -569,7 +564,8 @@ class Vector(list):
 
     # ----------------------------------------------------------------------
     def direction(self, zero=_accuracy):
-        """return containing the direction if normalized with any of the axis"""
+        """return containing the direction if normalized
+        with any of the axis"""
 
         v = self.clone()
         le = v.norm()
@@ -654,18 +650,18 @@ class Vector(list):
         return Vector(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Basic 3D Vectors
-# -------------------------------------------------------------------------------
-Vector.O = Vector(0.0, 0.0, 0.0)
+# -----------------------------------------------------------------------------
+Vector.null = Vector(0.0, 0.0, 0.0)
 Vector.X = Vector(1.0, 0.0, 0.0)
 Vector.Y = Vector(0.0, 1.0, 0.0)
 Vector.Z = Vector(0.0, 0.0, 1.0)
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Return a random color
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def rndColor(x):
     def rnd(zw):
         w = zw & 0xFFFF
@@ -683,17 +679,17 @@ def rndColor(x):
     return R << 16 | G << 8 | B
 
 
-# ===============================================================================
+# =============================================================================
 # Matrix class
 # Use 4x4 matrix for vector transformations
-# ===============================================================================
+# =============================================================================
 class Matrix(list):
     """Matrix 4x4 used for vector transformations"""
 
     # ----------------------------------------------------------------------
-    def __init__(self, rows=4, cols=-1, type=0):
+    def __init__(self, rows=4, cols=-1, type_=0):
         """
-        Matrix(rows=4, cols=-1, type=0|1)
+        Matrix(rows=4, cols=-1, type_=0|1)
         if rows is integer then
                 Create a matrix rows x cols either
                 zero(type=0) or unary(type=1)
@@ -732,7 +728,7 @@ class Matrix(list):
     # ----------------------------------------------------------------------
     @staticmethod
     def diagonal(lst):
-        m = Matrix(len(lst), type=0)
+        m = Matrix(len(lst), type_=0)
         i = 0
         for item in lst:
             m[i][i] = item
@@ -751,7 +747,7 @@ class Matrix(list):
     def translate(x, y=0.0, z=0.0):
         """m = Matrix.translate(x,y,z|vector)
         @return a translation matrix"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         if isinstance(x, (list, tuple)):
             m[0][3] = x[0]
             m[1][3] = x[1]
@@ -767,7 +763,7 @@ class Matrix(list):
     def scale(sx, sy=None, sz=None):
         """m = Matrix.scale(scale|vector)
         @return a scaling matrix"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         if sy is None:
             sy = sx
         if sz is None:
@@ -850,7 +846,7 @@ class Matrix(list):
                 first = last = "|"
             s += first
             for j in range(self.cols):
-                s += " " + _format % self[i][j]
+                s += " " + f"{self[i][j]:15g}"
             s += " " + last + "\n"
         return s
 
@@ -859,13 +855,13 @@ class Matrix(list):
         """Write an octave matrix file"""
         f = open(filename, "w")
         f.write("# bmath.Matrix\n")
-        f.write("# name: %s\n" % (name))
+        f.write(f"# name: {name}\n")
         f.write("# type: matrix\n")
-        f.write("# rows: %d\n" % (self.rows))
-        f.write("# columns: %d\n" % (self.cols))
+        f.write(f"# rows: {int(self.rows)}\n")
+        f.write(f"# columns: {int(self.cols)}\n")
         for i in range(self.rows):
             for j in range(self.cols):
-                f.write("%s " % (repr(self[i][j])))
+                f.write(f"{repr(self[i][j])} ")
             f.write("\n")
         f.close()
 
@@ -901,9 +897,9 @@ class Matrix(list):
 
     # ----------------------------------------------------------------------
     # Create a rotation matrix around one axis
-    # 	X = 0
-    # 	Y = 1
-    # 	Z = 2
+    #   X = 0
+    #   Y = 1
+    #   Z = 2
     # or an arbitrary vector
     # ----------------------------------------------------------------------
     def rotate(self, angle, axis):
@@ -947,7 +943,7 @@ class Matrix(list):
     @staticmethod
     def rotX(angle):
         """m = Matrix.rotX(angle) - Return a rotation matrix around X"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         m.rotate(angle, 0)
         return m
 
@@ -955,7 +951,7 @@ class Matrix(list):
     @staticmethod
     def rotY(angle):
         """m = Matrix.rotY(angle) - Return a rotation matrix arround Y"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         m.rotate(angle, 1)
         return m
 
@@ -963,7 +959,7 @@ class Matrix(list):
     @staticmethod
     def rotZ(angle):
         """m = Matrix.rotZ(angle) - Return a rotation matrix arround Z"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         m.rotate(angle, 2)
         return m
 
@@ -972,14 +968,14 @@ class Matrix(list):
         """return the Euler rotation angles
         ROTX(x) * ROTY(y) * ROTZ(z)"""
         #  cos(z)*cos(y)
-        # 			sin(z)*cos(y)
-        # 						-sin(y)
+        #           sin(z)*cos(y)
+        #                       -sin(y)
         # -sin(z)*cos(x)+cos(z)*sin(y)*sin(x)
-        # 			cos(z)*cos(x)+sin(z)*sin(y)*sin(x)
-        # 						cos(y)*sin(x)
+        #           cos(z)*cos(x)+sin(z)*sin(y)*sin(x)
+        #                       cos(y)*sin(x)
         #  sin(z)*sin(x)+cos(z)*sin(y)*cos(x)
-        # 			-cos(z)*sin(x)+sin(z)*sin(y)*cos(x)
-        # 						cos(y)*cos(x)
+        #           -cos(z)*sin(x)+sin(z)*sin(y)*cos(x)
+        #                       cos(y)*cos(x)
         rx = atan2(self[1][2], self[2][2])
         ry = -asin(self[0][2])
         rz = atan2(self[0][1], self[0][0])
@@ -990,7 +986,7 @@ class Matrix(list):
     def eulerRotation(rx, ry, rz):
         """return a rotation matrix based on the Euler rotation
         ROTX(x) * ROTY(y) * ROTZ(z)"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         cx = cos(rx)
         cy = cos(ry)
         cz = cos(rz)
@@ -1137,7 +1133,8 @@ class Matrix(list):
             return self[0][0] * self[1][1] - self[1][0] * self[0][1]
         elif self.rows == 3:
             return (
-                self[0][0] * (self[1][1] * self[2][2] - self[2][1] * self[1][2])
+                self[0][0] * (self[1][1] * self[2][2]
+                              - self[2][1] * self[1][2])
                 - self[0][1] * (self[1][0] * self[2][2]
                                 - self[2][0] * self[1][2])
                 + self[0][2] * (self[1][0] * self[2][1]
@@ -1185,7 +1182,7 @@ class Matrix(list):
     # ----------------------------------------------------------------------
     # LU decomposition.
     # Parameters
-    #      index[0:size]	row permutation record
+    #      index[0:size]    row permutation record
     # ----------------------------------------------------------------------
     def __ludcmp(self, index):  # procedure expose indx.
         size = self.rows
@@ -1235,8 +1232,8 @@ class Matrix(list):
 
     # ----------------------------------------------------------------------
     # backward substitution
-    #      index[0:size]	  row permutation record
-    #      col[0:size]	  right hand vector (?)
+    #      index[0:size]      row permutation record
+    #      col[0:size]    right hand vector (?)
     # ----------------------------------------------------------------------
     def __lubksb(self, index, col):
         ii = -1
@@ -1259,14 +1256,14 @@ class Matrix(list):
             col[i] = s / self[i][i]
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Basic Matrices
-# -------------------------------------------------------------------------------
-Matrix.O = Matrix(4, type=0)
-Matrix.U = Matrix(4, type=1)
+# -----------------------------------------------------------------------------
+Matrix.null = Matrix(4, type_=0)
+Matrix.U = Matrix(4, type_=1)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Quaternion
 #
 # Note: See the following for more information on quaternions:
@@ -1275,7 +1272,7 @@ Matrix.U = Matrix(4, type=1)
 #   Graphics 19, No 3 (Proc. SIGGRAPH'85), 245-254, 1985.
 # - Pletinckx, D., Quaternion calculus as a basic tool in computer
 #   graphics, The Visual Computer 5, 2-13, 1989.
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class Quaternion(list):
     def __init__(self, a, b=None, c=None, d=None):
         list.__init__(self)
@@ -1347,7 +1344,7 @@ class Quaternion(list):
     # ----------------------------------------------------------------------
     def matrix(self):
         """return rotation matrix"""
-        m = Matrix(4, type=1)
+        m = Matrix(4, type_=1)
         m[0][0] = 1.0 - 2.0 * (self[1] * self[1] + self[2] * self[2])
         m[0][1] = 2.0 * (self[0] * self[1] - self[2] * self[3])
         m[0][2] = 2.0 * (self[2] * self[0] + self[1] * self[3])
@@ -1396,7 +1393,7 @@ class Quaternion(list):
         return self
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def gauss(A, B):
     """Solve A*X = B using the Gauss elimination method"""
 
@@ -1406,7 +1403,7 @@ def gauss(A, B):
 
     p = [i for i in range(n)]
     for i in range(n):
-        s[i] = max([abs(x) for x in A[i]])
+        s[i] = max(abs(x) for x in A[i])
 
     for k in range(n - 1):
         # select j>=k so that
@@ -1441,7 +1438,7 @@ def gauss(A, B):
     return X
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def solveOverDetermined(A, B, W=None):
     """Solve the overdetermined linear system defined by the matrices A,B
             such as A*X = B
@@ -1462,7 +1459,7 @@ def solveOverDetermined(A, B, W=None):
     return [RT[i][0] for i in range(len(RT))]
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def linear(X, Y):
     """
     Solve linear regression y = ax + b
@@ -1480,15 +1477,15 @@ def linear(X, Y):
     try:
         b = (Sxy - Sx * Sy / n) / (Sx2 - Sx * Sx / n)
         a = Sy / n - b * Sx / n
-        r = (Sxy - Sx * Sy / n) / sqrt(Sx2 - Sx * Sx / n) * \
-            sqrt(Sy2 - Sy * Sy / n)
+        r = ((Sxy - Sx * Sy / n) / sqrt(Sx2 - Sx * Sx / n)
+             * sqrt(Sy2 - Sy * Sy / n))
         return a, b, r
 
     except ZeroDivisionError:
         return None
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #   Idiotimes pragmatikwv symmetrikwv pivakwv
 #
 #   O algori8mos poy xrnsimopoieitai stnv roytiva eivai gvwstos sav
@@ -1497,7 +1494,7 @@ def linear(X, Y):
 #   pivakes, dnladn pivakes me mndevika ola ta stoixeia ektos tns
 #   kyrias diagwvioy, va exoyv sav idiotimes ta diagwvia stoixeia.
 #   Me tov metasxnmatismo.
-# 	      T			      T
+#      T                       T
 #      A1 = R1 (f) A R1(f),    A2 = R2 (f) A1 R2(f)
 #   metaballoyme syvexws tov pivaka A, mexris otoy to a8roisma olwv
 #   twv mn diagwviwv stoixeiwv f8asei mia ka8orismevn timn tns eklogns
@@ -1510,23 +1507,24 @@ def linear(X, Y):
 #   4. Elegxos av to a8roisma twv mn diagwviwv stoixeiwv exei f8asei tnv
 #      epi8ymntn timn. Eav vai tote ta diagwvia stoixeia eivai oi
 #      proseggiseis twv idiotimwv, eav oxi tote epistrefoyme sto 1.
-#      px.     |  1 -2 -1 |
-# 	   A = | -2  1 -1 |
-# 	       | -1 -1 2.5|
+#      px.
+#          |  1 -2 -1 |
+#      A = | -2  1 -1 |
+#          | -1 -1 2.5|
 #      apolyto megisto A(1,2) = -2
 #      Ypologizoyme tnv gwvia f, co=cos(f), si=sin(f) kai kavoyme tov
 #      metasxnmatismo
-# 	   | co -si  0 |   |  1 -2 -1 |   |  co  si  0 |
+#          | co -si  0 |   |  1 -2 -1 |   |  co  si  0 |
 #      A = | si  co  0 | x | -2  1 -1 | x | -si  co  0 |
-# 	   |  0   0  1 |   | -1 -1 2.5|   |   0   0  1 |
+#          |  0   0  1 |   | -1 -1 2.5|   |   0   0  1 |
 #
 #
 #      Oi parametroi tns roytivas eivai oi e3ns:
-# 	 A     - pivakas tetragwvikos
-# 	 eps   - akribeia (a8roisma tetragwvwv)
-# 	 check - av prepei va elejei tnv symmetria toy arxikoy pivaka
-# 		 n oxi
-# -------------------------------------------------------------------------------
+#    A     - pivakas tetragwvikos
+#    eps   - akribeia (a8roisma tetragwvwv)
+#    check - av prepei va elejei tnv symmetria toy arxikoy pivaka
+#            n oxi
+# -----------------------------------------------------------------------------
 def eigenvalues(M, eps=_accuracy, check=False):
     """Return eigen values and eigen vectors of a symmetric matrix"""
     n = M.rows
@@ -1542,9 +1540,9 @@ def eigenvalues(M, eps=_accuracy, check=False):
 
     # Allocate arrays
     A = M.clone()
-    R = Matrix(n, type=0)
-    RT = Matrix(n, type=0)
-    ZW = Matrix(n, type=0)
+    R = Matrix(n, type_=0)
+    RT = Matrix(n, type_=0)
+    ZW = Matrix(n, type_=0)
     V = None
 
     # kavovika 8a prepei meta apo merikes prospa8eies va tov aporiptei
@@ -1584,8 +1582,8 @@ def eigenvalues(M, eps=_accuracy, check=False):
         RT[q][p] = si
 
         # Bnma 3. metasxnmatismos Ai+1 = Rt * Ai * R
-        # 	  ka8os kai to ginomeno Rn*...*R2*R1 that
-        # 	  gives us the eigenvectors
+        #   ka8os kai to ginomeno Rn*...*R2*R1 that
+        #   gives us the eigenvectors
         if V is None:
             V = R.clone()
         else:
@@ -1626,7 +1624,7 @@ def eigenvalues(M, eps=_accuracy, check=False):
     return ([A[i][i] for i in range(n)], V.T())
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Given a function, and given a bracketing triplet of abscissas ax,bx,cx (such
 # that bx is between ax and cx, and f(bx) is less than both f(ax) and f(cx),
 # this routing performs a golden section search for the minimum, isolating it
@@ -1634,14 +1632,14 @@ def eigenvalues(M, eps=_accuracy, check=False):
 # returned as xmin, and the minimum function value is returned as golden, the
 # returned function value.
 #
-# @param func	function to be evaluated
-# @param ax	triplet of abscissas ax,bx,cx
-# @param bx	where func(x+bx*d) < min[ func(x+ax*d), func(x+cx*d) ]
-# @param cx	...
-# @param x	starting vector/value
-# @param d	direction vector/value
-# @param eps	accuracy of search
-# -------------------------------------------------------------------------------
+# @param func   function to be evaluated
+# @param ax     triplet of abscissas ax,bx,cx
+# @param bx     where func(x+bx*d) < min[ func(x+ax*d), func(x+cx*d) ]
+# @param cx     ...
+# @param x      starting vector/value
+# @param d      direction vector/value
+# @param eps    accuracy of search
+# -----------------------------------------------------------------------------
 def goldenSectionSearch(func, ax, bx, cx, x, d=1, eps=_accuracy):
     R = 0.61803399  # The golden ratio
     C = 1.0 - R
@@ -1676,7 +1674,7 @@ def goldenSectionSearch(func, ax, bx, cx, x, d=1, eps=_accuracy):
         return x2
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Generators for calculating a) the permutations of a sequence and
 # b) the combinations and selections of a number of elements from a
 # sequence. Uses Python 2.2 generators.
@@ -1686,7 +1684,7 @@ def goldenSectionSearch(func, ax, bx, cx, x, d=1, eps=_accuracy):
 # See also: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/105962
 # See also: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66463
 # See also: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66465
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def xcombinations(items, n):
     if n <= 0:
         yield []
@@ -1696,7 +1694,7 @@ def xcombinations(items, n):
                 yield [items[i]] + cc
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def xuniqueCombinations(items, n):
     if n <= 0:
         yield []
@@ -1706,7 +1704,7 @@ def xuniqueCombinations(items, n):
                 yield [items[i]] + cc
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def xselections(items, n):
     if n <= 0:
         yield []
@@ -1716,19 +1714,19 @@ def xselections(items, n):
                 yield [items[i]] + ss
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def xpermutations(items):
     return xcombinations(items, len(items))
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Conversion between rectangular and polar coordinates
 # Usage:
-# 	real, real = rect(real, real [, deg=False])
-# 	real, real = polar(real, real [, deg=False])
+#   real, real = rect(real, real [, deg=False])
+#   real, real = polar(real, real [, deg=False])
 # Normally, rect() and polar() uses radian for angle; but,
 # if deg=True specified, degree is used instead.
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # radian if deg=False; degree if deg=True
 def rect(r, w, deg=False):
     """
@@ -1741,9 +1739,9 @@ def rect(r, w, deg=False):
     return r * cos(w), r * sin(w)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # radian if deg=False; degree if deg=True
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def polar(x, y, deg=False):
     """
     Convert from rectangular (x,y) to polar (r,w)
@@ -1756,34 +1754,17 @@ def polar(x, y, deg=False):
         return hypot(x, y), atan2(y, x)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Quadratic equation: x^2 + ax + b = 0 (or ax^2 + bx + c = 0)
 #    Solve quadratic equation with real coefficients
 #
 # Usage
 #    number, number = quadratic(real, real [, real])
 #
-# Normally, x^2 + ax + b = 0 is assumed with the 2 coefficients # as
-# arguments; but, if 3 arguments are present, then ax^2 + bx + c = 0 is assumed.
-# -------------------------------------------------------------------------------
-# def quadratic(a, b, c=None):
-# 	"""
-# 	x^2 + ax + b = 0 (or ax^2 + bx + c = 0)
-# 	By substituting x = y-t and t = a/2,
-# 	the equation reduces to y^2 + (b-t^2) = 0
-# 	which has easy solution
-# 	y = +/- sqrt(t^2-b)
-# 	"""
-# 	if c: # (ax^2 + bx + c = 0)
-# 		a, b = b / float(a), c / float(a)
-# 	t = a / 2.0
-# 	r = t**2 - b
-# 	if r >= 0: # real roots
-# 		y1 = sqrt(r)
-# 	else: # complex roots
-# 		y1 = cmath.sqrt(r)
-# 	y2 = -y1
-# 	return y1 - t, y2 - t
+# Normally, x^2 + ax + b = 0 is assumed with the 2 coefficients
+# as arguments; but, if 3 arguments are present,
+# then ax^2 + bx + c = 0 is assumed.
+# -----------------------------------------------------------------------------
 def quadratic(b, c, eps=_accuracy):
     D = b * b - 4.0 * c
     if D <= 0.0:
@@ -1800,7 +1781,7 @@ def quadratic(b, c, eps=_accuracy):
         return 0.5 * bD, 2.0 * c / bD
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Cubic equation: y^3 + a*y^2 + b*y + c = 0 (or ax^3 + bx^2 + cx + d = 0)
 #
 # Normally, x^3 + ax^2 + bx + c = 0 is assumed with the 3 coefficients as
@@ -1810,7 +1791,7 @@ def quadratic(b, c, eps=_accuracy):
 # Even though both quadratic() and cubic() functions take real arguments, they
 # can be modified to accept any real or complex coefficients because the method
 # of solution does not make any assumptions.
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def cubic(a, b, c, d=None, eps=_accuracy):
     if d is not None:  # (ax^3 + bx^2 + cx + d = 0)
         a, b, c = b / float(a), c / float(a), d / float(a)
@@ -1841,9 +1822,9 @@ def cubic(a, b, c, d=None, eps=_accuracy):
     # x3 = -(A+B)/2 - a/3 - i*sqrt(3)*(A-B)
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Fit a plane to a set of points using least square fitting
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def fitPlane(xyz):
     # First do statistics with points
     Sx = Sy = Sz = 0.0
@@ -1922,10 +1903,10 @@ def fitPlane(xyz):
         return None
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Evaluating n'th degree polynomial is simple loop, starting with highest
 # coefficient a[n].
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def polyeval(a, x):
     """
     p(x) = polyeval(a, x)
@@ -1940,9 +1921,9 @@ def polyeval(a, x):
     return p
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Find the first derivative of a polynomial
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def polyderiv(a):
     """
     p'(x) = polyderiv(a)
@@ -1955,11 +1936,11 @@ def polyderiv(a):
     return b
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Factor out a root from n'th degree polynomial, and return the remaining
 # (n-1)'th degree polynomial.
 # list = polyreduce(list, number)
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def polyreduce(a, root):
     """
     Given x = r is a root of n'th degree polynomial p(x) = (x-r)q(x),
@@ -1978,15 +1959,15 @@ def polyreduce(a, root):
     return c[1:]
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Conversion from integer to Roman
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def int2roman(num):
     """
     Convert an integer to Roman numeral
     """
     if not isinstance(num, int):
-        raise TypeError("expected integer, got %s" % type(input))
+        raise TypeError(f"expected integer, got {type(input)}")
 
     if not 0 < num < 4000:
         raise ValueError("Argument must be between 1 and 3999")
@@ -2002,22 +1983,22 @@ def int2roman(num):
     return result
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Conversion from Roman to integer
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def roman2int(roman):
     """
     convert a roman string to integer
     """
     if not isinstance(roman, str):
-        raise TypeError("expected string, got %s" % type(roman))
+        raise TypeError(f"expected string, got {type(roman)}")
     roman = roman.upper()
     nums = ("M", "D", "C", "L", "X", "V", "I")
     ints = (1000, 500, 100, 50, 10, 5, 1)
     places = []
     for c in roman:
-        if not c in nums:
-            raise ValueError("input is not a valid roman numeral: %s" % roman)
+        if c not in nums:
+            raise ValueError(f"input is not a valid roman numeral: {roman}")
     for i in range(len(roman)):
         c = roman[i]
         value = ints[nums.index(c)]
@@ -2038,4 +2019,4 @@ def roman2int(roman):
     if int2roman(s) == roman:
         return s
     else:
-        raise ValueError("input is not a valid roman numeral: %s" % roman)
+        raise ValueError(f"input is not a valid roman numeral: {roman}")

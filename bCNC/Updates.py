@@ -1,12 +1,32 @@
 # $Id: Updates.py 3349 2014-11-28 14:09:26Z bnv $
 
-# Author: vvlachoudis@gmail.com
-# Date:	5-Apr-2007
-
-from __future__ import absolute_import, print_function
+# Author:   vvlachoudis@gmail.com
+# Date:     5-Apr-2007
 
 import json
 import time
+import http.client as http
+from tkinter import (
+    W,
+    E,
+    EW,
+    X,
+    BOTH,
+    LEFT,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    RAISED,
+    DISABLED,
+    IntVar,
+    Tk,
+    Toplevel,
+    Button,
+    Frame,
+    Label,
+    Spinbox,
+    LabelFrame,
+)
 
 import tkExtra
 import Utils
@@ -15,18 +35,9 @@ __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
 
 
-try:
-    import httplib as http
-    from Tkinter import *
-except ImportError:
-    import http.client as http
-    from tkinter import *
-
-# ===============================================================================
+# =============================================================================
 # Check for updates of bCNC
-# ===============================================================================
-
-
+# =============================================================================
 class CheckUpdateDialog(Toplevel):
     def __init__(self, master, version):
         Toplevel.__init__(self, master)
@@ -38,7 +49,7 @@ class CheckUpdateDialog(Toplevel):
 
         # -----
         la = Label(self, image=Utils.icons["bCNC"],
-                  relief=RAISED, padx=0, pady=0)
+                   relief=RAISED, padx=0, pady=0)
         la.pack(side=TOP, fill=BOTH)
 
         # ----
@@ -57,8 +68,8 @@ class CheckUpdateDialog(Toplevel):
 
         self.webversion = Label(frame, anchor=W)
         self.webversion.grid(row=1, column=1, sticky=EW)
-        tkExtra.Balloon.set(self.webversion, _(
-            "Latest release version on github"))
+        tkExtra.Balloon.set(self.webversion,
+                            _("Latest release version on github"))
         la = Label(frame, text=_("Published at:"))
         la.grid(row=2, column=0, sticky=E, pady=1)
 
@@ -132,10 +143,6 @@ class CheckUpdateDialog(Toplevel):
 
         self.bind("<Escape>", self.close)
 
-        # x = master.winfo_rootx() + 200
-        # y = master.winfo_rooty() + 50
-        # self.geometry("+%d+%d" % (x,y))
-        # self.wait_visibility()
         self.wait_window()
 
     # ----------------------------------------------------------------------
@@ -167,7 +174,8 @@ class CheckUpdateDialog(Toplevel):
             if self.isNewer(latest_version):
                 self.webversion.config(background="LightGreen")
                 self.checkButton.config(
-                    text=_("Download"), background="LightYellow", command=self.download
+                    text=_("Download"), background="LightYellow",
+                    command=self.download
                 )
                 tkExtra.Balloon.set(
                     self.checkButton, _("Open web browser to download bCNC")
@@ -177,9 +185,7 @@ class CheckUpdateDialog(Toplevel):
 
         else:
             self.webversion.config(
-                text=_("Error %d in connection") % (r.status))
-
-        # self.laterButton.config(state=DISABLED)
+                text=_("Error {} in connection").format(r.status))
 
         # Save today as lastcheck date
         Utils.config.set(Utils.__prg__, "lastcheck", str(int(time.time())))
@@ -201,17 +207,17 @@ class CheckUpdateDialog(Toplevel):
     def close(self, event=None):
         try:
             Utils.config.set(
-                Utils.__prg__, "checkinterval", str(
-                    int(self.checkInterval.get()))
+                Utils.__prg__, "checkinterval",
+                str(int(self.checkInterval.get()))
             )
         except TypeError:
             pass
         self.destroy()
 
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Check if interval has passed from last check
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def need2Check():
     lastCheck = Utils.getInt(Utils.__prg__, "lastcheck", 0)
     if lastCheck == 0:  # Unknown
@@ -224,7 +230,7 @@ def need2Check():
     return lastCheck + checkInt * 86400 < int(time.time())
 
 
-# ===============================================================================
+# =============================================================================
 if __name__ == "__main__":
     tk = Tk()
     Utils.loadIcons()
