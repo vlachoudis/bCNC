@@ -469,9 +469,9 @@ class Sender:
 	# Serial write
 	#----------------------------------------------------------------------
 	def serial_write(self, data):
-        if self.serial is None:
-            print("warning - serial_write ignored, bCNC not connected to controller")
-            return False
+		if self.serial is None:
+			print("warning - serial_write ignored, bCNC not connected to controller")
+			return False
 		if isinstance(data, bytes):
 			ret = self.serial.write(data)
 		else:
