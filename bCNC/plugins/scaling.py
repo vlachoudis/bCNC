@@ -98,7 +98,7 @@ class Tool(Plugin):
                     xyz = app.cnc.motionPath()
                     app.cnc.motionEnd()
                     if xyz:
-                        # coment its?
+                        # comment its?
                         # -----------------------------------------------------
                         # exclude if fast move or z only movement
                         Zonly = (xyz[0][0] == xyz[1][0]

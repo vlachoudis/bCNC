@@ -19,7 +19,7 @@ ERROR_CODES = {
     ),
     "Jog": _("Grbl executes jogging motion"),
     "Sleep": _(
-        "Grbl is in sleep mode. Motors are disabled, so you can move them manualy. That also means that your machine might have lost the position (or microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to wake Grbl again."
+        "Grbl is in sleep mode. Motors are disabled, so you can move them manually. That also means that your machine might have lost the position (or microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to wake Grbl again."
     ),
     "Queue": _(
         "Grbl is in queue state. This also means you have relatively old GRBL version, there are even 0.9 versions newer than this."
@@ -122,7 +122,7 @@ ERROR_CODES = {
     "error:62": _("SD Card directory listing failed. (grblHAL bdring)"),
     "error:63": _("SD Card directory not found. (grblHAL bdring)"),
     "error:64": _("SD Card file empty. (grblHAL bdring)"),
-    "error:70": _("Bluetooth initalisation failed. (grblHAL bdring)"),
+    "error:70": _("Bluetooth initialisation failed. (grblHAL bdring)"),
     "ALARM:1": _(
         "Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended."
     ),

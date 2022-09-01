@@ -8,7 +8,7 @@ __name__ = _("Function")
 __version__ = "2.5.1"
 
 
-# I'm not commenting theese lines, I just copied them from https://github.com/vlachoudis/bCNC/wiki/Tutorials:-How-to-create-a-plugin
+# I'm not commenting these lines, I just copied them from https://github.com/vlachoudis/bCNC/wiki/Tutorials:-How-to-create-a-plugin
 class Tool(Plugin):
     __doc__ = _("""Generates gcode from a formula""")
 
@@ -37,7 +37,7 @@ class Tool(Plugin):
 
         self.help = """
 This plugin plots graph of a function.
-There are some examples of function formulas that can be ploted:
+There are some examples of function formulas that can be plotted:
 
 - x**2
 - sin(x)
@@ -90,12 +90,12 @@ TODO
         X = []
         Y = []
 
-        e_old = ""  # Store old exception to comapre
+        e_old = ""  # Store old exception to compare
 
         # Calculate values for arguments with a resolution
         for i in range(
             0, int(ran[0] / res + 1)
-        ):  # Complaints about values beeing floats
+        ):  # Complaints about values being floats
             x = i * res + minX  # Iterate x
             X.append(x)
             try:
@@ -244,7 +244,7 @@ TODO
                 x = mapc(X[i] + cent[0], 0)  # Take an argument
                 y = mapc(Y[i] + cent[1], 1)  # Take a value
             else:
-                y = Y[i]  # only for tne None checks next
+                y = Y[i]  # only for the None checks next
 
             # If a None "period" just started raise Z
             if y is None and not raised:

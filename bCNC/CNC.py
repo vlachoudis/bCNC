@@ -1028,7 +1028,7 @@ class CNC:
         )
 
     # ----------------------------------------------------------------------
-    # Number formating
+    # Number formatting
     # ----------------------------------------------------------------------
     @staticmethod
     def fmt(c, v, d=None):
@@ -1252,7 +1252,7 @@ class CNC:
             return None
 
         out = []  # output list of commands
-        braket = 0  # bracket count []
+        bracket = 0  # bracket count []
         paren = 0  # parenthesis count ()
         expr = ""  # expression string
         cmd = ""  # cmd string
@@ -1261,7 +1261,7 @@ class CNC:
             if ch == "(":
                 # comment start?
                 paren += 1
-                inComment = braket == 0
+                inComment = bracket == 0
                 if not inComment:
                     expr += ch
             elif ch == ")":
@@ -1276,8 +1276,8 @@ class CNC:
                 if not inComment:
                     if CNC.stdexpr:
                         ch = "("
-                    braket += 1
-                    if braket == 1:
+                    bracket += 1
+                    if bracket == 1:
                         if cmd:
                             out.append(cmd)
                             cmd = ""
@@ -1290,8 +1290,8 @@ class CNC:
                 if not inComment:
                     if CNC.stdexpr:
                         ch = ")"
-                    braket -= 1
-                    if braket == 0:
+                    bracket -= 1
+                    if bracket == 0:
                         try:
                             out.append(compile(expr, "", "eval"))
                         except Exception:
@@ -1304,7 +1304,7 @@ class CNC:
                     CNC.comment += ch
             elif ch == "=":
                 # check for assignments (FIXME very bad)
-                if not out and braket == 0 and paren == 0:
+                if not out and bracket == 0 and paren == 0:
                     for i in " ()-+*/^$":
                         if i in cmd:
                             cmd += ch
@@ -1317,13 +1317,13 @@ class CNC:
                             return None
             elif ch == ";":
                 # Skip everything after the semicolon on normal lines
-                if not inComment and paren == 0 and braket == 0:
+                if not inComment and paren == 0 and bracket == 0:
                     CNC.comment += line[i + 1:]
                     break
                 else:
                     expr += ch
 
-            elif braket > 0:
+            elif bracket > 0:
                 expr += ch
 
             elif not inComment:
@@ -3722,7 +3722,7 @@ class GCode:
                     drillHole(lines)
 
             elif distance is None and number == 0:
-                # Drill on path begining only
+                # Drill on path beginning only
                 for i, line in enumerate(block):
                     cmds = CNC.parseLine(line)
                     if cmds is None:
@@ -4174,7 +4174,7 @@ class GCode:
                 # tablock.color = "#FF0000"
                 tablock.color = "orange"
                 tablock.enable = (
-                    False  # Prevent tabs from being accidentaly cut as path
+                    False  # Prevent tabs from being accidentally cut as path
                 )
 
                 # Add regular tabs
@@ -4260,7 +4260,7 @@ class GCode:
             side = self.blocks[bid].operationSide()
             if abs(direction) > 1 and side == 0:
                 msg = "Conventional/Climb feature only works for paths with 'in/out/pocket' tags!\n"
-                msg += "Some of the selected paths were not taged (or are both in+out). You can still use CW/CCW for them."
+                msg += "Some of the selected paths were not tagged (or are both in+out). You can still use CW/CCW for them."
                 continue
             if direction == 2:
                 operation = "conventional,"

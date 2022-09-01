@@ -36,7 +36,7 @@ class Tool(Plugin):
                 "1",
                 _("segment size"),
                 _(
-                    "Maximal length of resulting lines, smaller number means more precise output and longer g-code. Length will be automaticaly truncated to be even across whole subdivided segment."
+                    "Maximal length of resulting lines, smaller number means more precise output and longer g-code. Length will be automatically truncated to be even across whole subdivided segment."
                 ),
             ),
             (

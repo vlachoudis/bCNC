@@ -162,7 +162,7 @@ class Tool(Plugin):
         blocks = []
         for tool in data["tools"]:
             dia = self.convunit(data["tools"][tool]["diameter"], unitinch)
-            # Duplicates shouldn't be in the list - remove unnessesary
+            # Duplicates shouldn't be in the list - remove unnecessary
             blockholes = [data["tools"][tool]["holes"]]
             block, holesCount = self.create_block(
                 blockholes, n + " (" + str(dia) + " " + unittext + ")"

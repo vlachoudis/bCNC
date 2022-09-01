@@ -67,7 +67,7 @@ class Tool(Plugin):
                 "X+",
                 _("initial direction"),
                 _(
-                    "direction that knife blade is facing before and after cut. Eg.: if you set this to X+, then the knifes rotation axis should be on the right side of the tip. Meaning that the knife is ready to cut towards right immediately without pivoting. If you cut multiple shapes in single operation, it's important to have this set consistently across all of them."
+                    "direction that knife blade is facing before and after cut. Eg.: if you set this to X+, then the knife's rotation axis should be on the right side of the tip. Meaning that the knife is ready to cut towards right immediately without pivoting. If you cut multiple shapes in single operation, it's important to have this set consistently across all of them."
                 ),
             ),
             ("feed", "mm", 200, _("feedrate")),
@@ -77,7 +77,7 @@ class Tool(Plugin):
                 False,
                 _("simulate"),
                 _(
-                    "Use this option to simulate cuting of dragknife path. Resulting shape will reflect what shape will actuall be cut. This should reverse the dragknife procedure and give you back the original shape from g-code that was previously processed for dragknife."
+                    "Use this option to simulate cuting of dragknife path. Resulting shape will reflect what shape will actually be cut. This should reverse the dragknife procedure and give you back the original shape from g-code that was previously processed for dragknife."
                 ),
             ),
             (

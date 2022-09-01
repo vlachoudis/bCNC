@@ -229,7 +229,7 @@ def spline2Polyline(xyz, degree, closed, segments, knots):
 # equal to the order at the ends.
 #    c            = order of the basis function
 #    n            = the number of defining polygon vertices
-#    n+2          = index of x[] for the first occurence of the maximum knot
+#    n+2          = index of x[] for the first occurrence of the maximum knot
 #                   vector value
 #    n+order      = maximum value of the knot vector -- $n + c$
 #    x[]          = array containing the knot vector

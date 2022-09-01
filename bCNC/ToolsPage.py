@@ -800,7 +800,7 @@ class Cut(DataBase):
                 "exitpoint",
                 "on path,inside,outside",
                 "on path",
-                _("Exit strategy (usefull for threads)"),
+                _("Exit strategy (useful for threads)"),
                 _(
                     "You should probably always use 'on path', unless "
                     + "you are threadmilling!"
@@ -820,7 +820,7 @@ class Cut(DataBase):
                 _("Compensate islands for cutter radius"),
                 _(
                     "Add additional margin/offset around islands to "
-                    + "compensate for endmill radius. This is automaticaly "
+                    + "compensate for endmill radius. This is automatically "
                     + "done for all islands if they are marked as tabs."
                 ),
             ),
@@ -843,7 +843,7 @@ class Cut(DataBase):
             + "\"cut contours of islands\"",
             "If you want islands to get finishing pass, cou can use "
             + "\"cut contours of selected islands\" or cut them "
-            + "individualy afterwards.",
+            + "individually afterwards.",
         ])
 
     # ----------------------------------------------------------------------
@@ -959,7 +959,7 @@ class Drill(DataBase):
             "* dwell: Dwell time at the bottom. If pecking is defined, dwell "
             + "also at lifted height.",
             "",
-            "* distance: Distance between drills if drilling alog path. "
+            "* distance: Distance between drills if drilling along path. "
             + "(Number of drills will superceed this parameter))",
             "",
             "* number: Number of drills if drilling along path. If nonzero, "
