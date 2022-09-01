@@ -6,7 +6,7 @@ __all__ = ["Logged"]
 
 class Logged:
     """Class which automatically adds a named logger to your class when
-    interiting
+    inheriting
 
     Adds easy access to debug, info, warning, error, exception and log methods
 

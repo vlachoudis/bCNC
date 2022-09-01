@@ -218,7 +218,7 @@ class _GenericController:
         # Do not show g-code errors, when machine is already in alarm state
         if (CNC.vars["state"].startswith("ALARM:")
                 and state.startswith("error:")):
-            print(f"Supressed: {state}")
+            print(f"Suppressed: {state}")
             return
 
         # Do not show alarm without number when we already
@@ -287,5 +287,5 @@ class _GenericController:
             # Sender will log the line in such case
             return False
 
-        # Parsing succesfull
+        # Parsing successful
         return True

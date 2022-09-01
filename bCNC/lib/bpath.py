@@ -298,7 +298,7 @@ class Segment:
         return self.extrapolatePoint(self.length() / 2)
 
     # ----------------------------------------------------------------------
-    # Return segment, which naturaly continues this segment
+    # Return segment, which naturally continues this segment
     # ----------------------------------------------------------------------
     def suffixSegment(self, dist):
         suffix = Segment(self.type, self.B, self.extrapolatePoint(dist, True))
@@ -307,7 +307,7 @@ class Segment:
         return suffix
 
     # ----------------------------------------------------------------------
-    # Return segment, which naturaly continues this segment
+    # Return segment, which naturally continues this segment
     # ----------------------------------------------------------------------
     def shortenedSegment(self, dist):
         start = self.extrapolatePoint(dist)
@@ -838,7 +838,7 @@ class Path(list):
         # This is kinda heuristic. If we ever need better results, there's way to do it:
         # Just split all arcs into 10 smaller arcs before processing.
         # That will vastly increase the resolution of linear approximation.
-        # If you know to split arcs, plese do it. For now we have this heuristic:
+        # If you know to split arcs, please do it. For now we have this heuristic:
 
         if sum_ == 0:
             if cwarc < 0:
@@ -952,7 +952,7 @@ class Path(list):
 
             # Check if there are no parts of arc going far away from the
             # original lines
-            # FIXME: currently only comparing lenghts and middle points
+            # FIXME: currently only comparing lengths and middle points
             if len(path) > 1:
                 path._length = None
                 arc = Segment(arcd2seg(arcd), path[0].A, path[-1].B, C)
@@ -1358,7 +1358,7 @@ class Path(list):
             oi = self[i].order(P)
             points.append((i, oi, P))
 
-        # Find all interesection points
+        # Find all intersection points
         for i, si in enumerate(self[:-2]):
             if si.type == Segment.LINE and self[i + 1].type == Segment.LINE:
                 j = i + 2
@@ -1377,7 +1377,7 @@ class Path(list):
                     addPoint(j, P2)
                 j += 1
 
-        # sort accoring to index, and position of point
+        # sort according to index, and position of point
         points.sort(key=itemgetter(0, 1))
 
         # split paths
@@ -1411,7 +1411,7 @@ class Path(list):
             oi = self[i].order(P)
             points.append((i, oi, P))
 
-        # Find all interesection points
+        # Find all intersection points
         for i, si in enumerate(self):
             for cut in path:
                 P1, P2 = si.intersect(cut)
@@ -1423,7 +1423,7 @@ class Path(list):
                 if P2:
                     addPoint(i, P2)
 
-        # sort accoring to index, and position of point
+        # sort according to index, and position of point
         points.sort(key=itemgetter(0, 1))
 
         # split paths
@@ -1436,7 +1436,7 @@ class Path(list):
         # Mark inside segments
         # FIXME: for some reason this fails if doing multiple intersections
         #        in such case you have to intersect all paths and then mark
-        #        them using markInside() additionaly
+        #        them using markInside() additionally
         if setinside is not None:
             self.markInside(path, setinside)
 
@@ -1637,7 +1637,7 @@ class Path(list):
 
     # ----------------------------------------------------------------------
     # @return True if distance of P to the current path is < EPS,
-    # refering to minimum distance from P to every Segment of path
+    # referring to minimum distance from P to every Segment of path
     # ----------------------------------------------------------------------
     def isOnPath(self, P):
         mindist = float("inf")
@@ -1660,10 +1660,10 @@ class Path(list):
     # the intersections added must be different from previous found
     # if there is no intersection (nbInter == 0) ,
     #     the the segment is inside if one of its points is inside,
-    #     else it is outisde
+    #     else it is outside
     # if there is one single intersection(nbInter == 1),
     #     segment is inside if it has one point inisde
-    # if there are 2 ore more interesections (nbInter >=2),
+    # if there are 2 or more intersections (nbInter >=2),
     #     this is a little ambiguous, since the segment could make a
     #     chord on an arc, or could be a chord of a seg
     # in this case, we ignore chords, and consider that if 2 points of

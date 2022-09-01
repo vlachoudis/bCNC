@@ -274,7 +274,7 @@ class Tool(Plugin):
         else:
             img = img.convert("L")  # to calculate luminance
 
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)  # ouput correct image
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)  # output correct image
         pix = img.load()
         # Get image size
         self.imgWidth, self.imgHeight = img.size

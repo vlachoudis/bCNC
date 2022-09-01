@@ -91,7 +91,7 @@ class Spiral:
             if dr is True or dr == "yes":
                 app.setStatus(
                     _("Risk Accepted")
-                )  # Using positive logic, if python returns ANYTHING other than True/yes this will not make g-code.  Incase Python uses No instead of False
+                )  # Using positive logic, if python returns ANYTHING other than True/yes this will not make g-code.  In case Python uses No instead of False
             else:
                 return
         if StockLeng <= 0:

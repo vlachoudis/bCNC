@@ -128,7 +128,7 @@ class Tool(Plugin):
                 else:
                     xOffset += 1
 
-        # Remeber to close Font
+        # Remember to close Font
         font.close()
 
         # Gcode Zsafe

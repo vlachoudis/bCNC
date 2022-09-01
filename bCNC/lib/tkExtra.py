@@ -205,7 +205,7 @@ ADs=
 #     widget.event_generate("<<VirtualEvent>>", data=("One","Two"))
 #     widget.event_generate("<<VirtualEvent>>", serial=10, data=("One","Two"))
 #
-# WARNING: Unfortunatelly it will convert data to STRING!!!
+# WARNING: Unfortunately it will convert data to STRING!!!
 # -----------------------------------------------------------------------------
 def bindEventData(widget, sequence, func, add=None):
     def _substitute(*args):
@@ -824,7 +824,7 @@ class ExListbox(Listbox):
         self.usermenu = None  # Assign a user-popup menu
         # Should be a list with tuples
         #  in the form:
-        #  (label, underline, commmand)
+        #  (label, underline, command)
         # or None for separator
 
     # ----------------------------------------------------------------------
@@ -3518,7 +3518,7 @@ class Splitter(Frame):
     # Set the split position
     # ----------------------------------------------------------------------
     def setSplit(self, newSplit):
-        """Change the spliting position"""
+        """Change the splitting position"""
         self._setSplit(newSplit)
         self.placeChilds()
 

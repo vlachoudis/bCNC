@@ -28,7 +28,7 @@ class Tool(Plugin):
         self.icon = "crosshair"
         self.group = "Generator"
 
-        # a variable that will be converted in mm/inch based on bCNC settting
+        # a variable that will be converted in mm/inch based on bCNC setting
         self.variables = [
             (
                 "name",

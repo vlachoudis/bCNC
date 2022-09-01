@@ -1,7 +1,7 @@
 # $Id$
 #
 # Author:    Filippo Rivato
-# Date: 14 Febbruary 2016
+# Date: 14 February 2016
 
 import math
 

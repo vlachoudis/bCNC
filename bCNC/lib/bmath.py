@@ -950,7 +950,7 @@ class Matrix(list):
     # ----------------------------------------------------------------------
     @staticmethod
     def rotY(angle):
-        """m = Matrix.rotY(angle) - Return a rotation matrix arround Y"""
+        """m = Matrix.rotY(angle) - Return a rotation matrix around Y"""
         m = Matrix(4, type_=1)
         m.rotate(angle, 1)
         return m
@@ -958,7 +958,7 @@ class Matrix(list):
     # ----------------------------------------------------------------------
     @staticmethod
     def rotZ(angle):
-        """m = Matrix.rotZ(angle) - Return a rotation matrix arround Z"""
+        """m = Matrix.rotZ(angle) - Return a rotation matrix around Z"""
         m = Matrix(4, type_=1)
         m.rotate(angle, 2)
         return m

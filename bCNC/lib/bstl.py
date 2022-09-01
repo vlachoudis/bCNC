@@ -38,7 +38,7 @@ def normalto(u, v):
 def crossProduct(a, b):
     # calculate cross product of two threedimensional vectors
     if (len(a) != 3) or (len(b) != 3):
-        raise ValueError("unvalid value")
+        raise ValueError("invalid value")
     return [
         a[1] * b[2] - a[2] * b[1],
         a[2] * b[0] - a[0] * b[2],
@@ -47,9 +47,9 @@ def crossProduct(a, b):
 
 
 def diff(v1, v2):
-    # substracting one list from another
+    # subtracting one list from another
     if (len(v1) != 3) or (len(v2) != 3):
-        raise ValueError("unvalid value")
+        raise ValueError("invalid value")
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]
 
 
@@ -57,7 +57,7 @@ def normal(v1, v2, v3):
     # calculate normal vector on triangle spanned by the three vertices
     # tells in which direction the plane looks "right-thumb-rule"
     if (len(v1) != 3) or (len(v2) != 3) or (len(v2) != 3):
-        raise ValueError("unvalid value")
+        raise ValueError("invalid value")
     n = crossProduct(diff(v2, v1), diff(v3, v1))
     absolut = 0
     for i in n:

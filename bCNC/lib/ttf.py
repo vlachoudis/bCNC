@@ -515,7 +515,7 @@ class TruetypeInfo:
             ce, g_offset = self._get_data(">H", g_offset)  # uint16
             glyph.contoursEnd.append(ce)
 
-        # skip over intructions
+        # skip over instructions
         seek, g_offset = self._get_data(">H", g_offset)  # uint16
         g_offset += seek
 

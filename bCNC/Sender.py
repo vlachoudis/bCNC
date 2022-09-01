@@ -183,7 +183,7 @@ class Sender:
 
     # ----------------------------------------------------------------------
     # Evaluate a line for possible expressions
-    # can return a python exception, needs to be catched
+    # can return a python exception, needs to be caught
     # ----------------------------------------------------------------------
     def evaluate(self, line):
         return self.gcode.evaluate(CNC.compileLine(line, True), self)
@@ -787,7 +787,7 @@ class Sender:
                     if pat is not None:
                         self._lastFeed = pat.group(2)
 
-                    # Modify sent g-code to reflect overrided feed for
+                    # Modify sent g-code to reflect overridden feed for
                     # controllers without override support
                     if not self.mcontrol.has_override:
                         if CNC.vars["_OvChanged"]:

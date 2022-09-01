@@ -570,7 +570,7 @@ class Application(Tk, Sender):
         self.setStatus(_(event.data))
 
     # -----------------------------------------------------------------------
-    # Show popup dialog asking for value entry, usefull in g-code scripts
+    # Show popup dialog asking for value entry, useful in g-code scripts
     # -----------------------------------------------------------------------
     def entry(
         self,
@@ -1606,7 +1606,7 @@ class Application(Tk, Sender):
             except Exception:
                 self.importFile()
 
-        # INK*SCAPE: remove uneccessary Z motion as a result of inkscape
+        # INK*SCAPE: remove unnecessary Z motion as a result of inkscape
         # gcodetools
         elif rexx.abbrev("INKSCAPE", cmd, 3):
             if len(line) > 1 and rexx.abbrev("ALL", line[1].upper()):

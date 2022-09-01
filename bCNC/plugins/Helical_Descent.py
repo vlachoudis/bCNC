@@ -92,7 +92,7 @@ class Tool(Plugin):
                 _("Helical Type"),
             ),
             ("Entry", "Center,Edge", "Center", _("Entry and Exit")),
-            ("ClearanceEntry", "mm", 0.0, _("If Eddge, Edge Clearance")),
+            ("ClearanceEntry", "mm", 0.0, _("If Edge, Edge Clearance")),
             ("NoReturnToSafeZ", "bool", "False", _("End in the Deep")),
         ]
 
@@ -265,7 +265,7 @@ class Tool(Plugin):
 
         elif entry == "":
             app.setStatus(
-                _("Helical Abort: Please selecte Entry and Exit type"))
+                _("Helical Abort: Please select Entry and Exit type"))
             return
 
         elif clearanceEntry < 0 or clearanceEntry == "":

@@ -555,7 +555,7 @@ class Tool(Plugin):
                                     )
                             adaptativepolice = 0
 
-                        # /////// Adapative method //////////////////////////
+                        # /////// Adaptive method //////////////////////////
                         else:
                             if adaptativepolice == 1:
                                 # goes to de two warning movements
@@ -775,7 +775,7 @@ class Tool(Plugin):
                         tr_block.extend(
                             self.helical(B, B, helicalRadius, phi, u))
                         if round(helicalRadius, 4) != round(radius, 4):
-                            tr_block.append("(Spiral adjustement)")
+                            tr_block.append("(Spiral adjustment)")
                             tr_block.append(
                                 "(Spiral " + str(spiral_twists) + " twists)"
                             )
@@ -1186,7 +1186,7 @@ class Tool(Plugin):
                     alpha1 -= 2 * pi
         if steps == 0:
             steps = 2
-        # delta or increas in values radius, anle, center position
+        # delta or increase in values radius, anle, center position
         d_r = r2 - r1
         d_r = d_r / steps
 
