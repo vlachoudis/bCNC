@@ -1,9 +1,8 @@
-from __future__ import absolute_import
 import os
 
 
 def get_terminal_size():  # pragma: no cover
-    '''Get the current size of your terminal
+    """Get the current size of your terminal
 
     Multiple returns are not always a good idea, but in this case it greatly
     simplifies the code so I believe it's justified. It's not the prettiest
@@ -11,13 +10,15 @@ def get_terminal_size():  # pragma: no cover
 
     Returns:
         width, height: Two integers containing width and height
-    '''
+    """
 
     try:
         # Default to 79 characters for IPython notebooks
         from IPython import get_ipython
+
         ipython = get_ipython()
         from ipykernel import zmqshell
+
         if isinstance(ipython, zmqshell.ZMQInteractiveShell):
             return 79, 24
     except Exception:  # pragma: no cover
@@ -27,6 +28,7 @@ def get_terminal_size():  # pragma: no cover
         # This works for Python 3, but not Pypy3. Probably the best method if
         # it's supported so let's always try
         import shutil
+
         w, h = shutil.get_terminal_size()
         if w and h:
             # The off by one is needed due to progressbars in some cases, for
@@ -36,8 +38,8 @@ def get_terminal_size():  # pragma: no cover
         pass
 
     try:
-        w = int(os.environ.get('COLUMNS'))
-        h = int(os.environ.get('LINES'))
+        w = int(os.environ.get("COLUMNS"))
+        h = int(os.environ.get("LINES"))
         if w and h:
             return w, h
     except Exception:  # pragma: no cover
@@ -45,6 +47,7 @@ def get_terminal_size():  # pragma: no cover
 
     try:
         import blessings
+
         terminal = blessings.Terminal()
         w = terminal.width
         h = terminal.height
@@ -96,8 +99,10 @@ def _get_terminal_size_windows():  # pragma: no cover
 
     if res:
         import struct
-        (_, _, _, _, _, left, top, right, bottom, _, _) = \
-            struct.unpack("hhhhHhhhhhh", csbi.raw)
+
+        (_, _, _, _, _, left, top, right, bottom, _, _) = struct.unpack(
+            "hhhhHhhhhhh", csbi.raw
+        )
         w = right - left
         h = bottom - top
         return w, h
@@ -109,14 +114,21 @@ def _get_terminal_size_tput():  # pragma: no cover
     # get terminal width src: http://stackoverflow.com/questions/263890/
     try:
         import subprocess
+
         proc = subprocess.Popen(
-            ['tput', 'cols'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            ["tput", "cols"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         output = proc.communicate(input=None)
         w = int(output[0])
         proc = subprocess.Popen(
-            ['tput', 'lines'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            ["tput", "lines"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         output = proc.communicate(input=None)
         h = int(output[0])
         return w, h
@@ -130,8 +142,9 @@ def _get_terminal_size_linux():  # pragma: no cover
             import fcntl
             import termios
             import struct
-            size = struct.unpack(
-                'hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
+
+            size = struct.unpack("hh",
+                                 fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234"))
         except Exception:
             return None
         return size
@@ -147,7 +160,7 @@ def _get_terminal_size_linux():  # pragma: no cover
             pass
     if not size:
         try:
-            size = os.environ['LINES'], os.environ['COLUMNS']
+            size = os.environ["LINES"], os.environ["COLUMNS"]
         except Exception:
             return None
 

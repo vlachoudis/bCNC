@@ -1,0 +1,6067 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-19 19:55+0200\n"
+"PO-Revision-Date: 2022-07-19 20:33+0200\n"
+"Last-Translator: @SteveMoto [GitHub]\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: bCNC/controllers/_GenericGRBL.py:51
+msgid ""
+"(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
+"supported."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:55
+msgid ""
+"(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
+"limit."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:69
+msgid ""
+"A G-code command implicitly or explicitly requires XYZ axis words in the "
+"block, but none were detected."
+msgstr ""
+"Команда G-кода явно или косвенно подразумевает наличие слов XYZ в блоке, но "
+"таких не обнаружено."
+
+#: bCNC/controllers/_GenericGRBL.py:75
+msgid ""
+"A G-code command was sent, but is missing some required P or L value words "
+"in the line."
+msgstr ""
+"Команда g-кода была отправлена, но в строке пропущены требуемые значения P "
+"или L."
+
+#: bCNC/controllers/_GenericGRBL.py:87
+msgid ""
+"A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
+"plane to trace the arc."
+msgstr ""
+"Использована команда G2 или G3, но нет слов XYZ в выбранной плоскости, чтобы "
+"нарисовать кривую."
+
+#: bCNC/controllers/_GenericGRBL.py:96
+msgid ""
+"A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
+"word in the selected plane to trace the arc."
+msgstr ""
+"В кривой G2 или G3 заданной через смещение, нет слов IJK смещения в "
+"выбранной плоскости, чтобы отрисовать кривую."
+
+#: bCNC/controllers/_GenericGRBL.py:93
+msgid ""
+"A G2 or G3 arc, traced with the radius definition, had a mathematical error "
+"when computing the arc geometry. Try either breaking up the arc into semi-"
+"circles or quadrants, or redefine them with the arc offset definition."
+msgstr ""
+"Команда G2 или G3 заданная через радиус выдаёт математическую ошибку при "
+"расчете геометрии кривой. Попробуйте либо разбить кривую на половинки кругов "
+"или четвертинки, или поменять команды на кривые, заданные через смещение."
+
+#: bCNC/ToolsPage.py:824
+msgid ""
+"Add additional margin/offset around islands to compensate for endmill "
+"radius. This is automaticaly done for all islands if they are marked as tabs."
+msgstr ""
+
+#: bCNC/ProbePage.py:714
+msgid ""
+"Add an orientation marker. Jog first the machine to the marker position and "
+"then click on canvas to add the marker."
+msgstr ""
+"Добавить маркер ориентации. Сначала передвиньте машину в позицию маркера, "
+"потом щелкните на поле чтобы добавить маркер"
+
+#: bCNC/controllers/_GenericGRBL.py:16
+msgid ""
+"Alarm is an emergency state. Something has gone terribly wrong when these "
+"occur. Typically, they are caused by limit error when the machine has moved "
+"or wants to move outside the machine space and crash into something. They "
+"also report problems if Grbl is lost and can't guarantee positioning or a "
+"probe command has failed. Once in alarm-mode, Grbl will lock out and shut "
+"down everything until the user issues a reset. Even after a reset, Grbl will "
+"remain in alarm-mode, block all G-code from being executed, but allows the "
+"user to override the alarm manually. This is to ensure the user knows and "
+"acknowledges the problem and has taken steps to fix or account for it."
+msgstr ""
+"Тревога - это аварийное состояние. Что-то пошло не так, когда это случилось. "
+"Обычно тревога вызвана ошибками лимитов когда машина переместилась, или "
+"собиралась переместиться за пределы рабочего поля и врезалась во что-то. "
+"Сообщение также может показываться, если соединение с Grbl было утеряно, и "
+"невозможно гарантировать правильность позиционирования или проверки "
+"поверхности. Когда Grbl находится в состоянии тревоги, он блокируется и "
+"выключает все до тех пор, пока пользователь не нажмет на сброс. Даже после "
+"сброса Grbl останется в состоянии тревоги, блокируя исполнение G-кода, но "
+"разрешит пользователю перекрыть состояние тревоги вручную. Это сделано, "
+"чтобы убедиться, что пользователь знает и понимает в чем проблема и "
+"предпринял шаги чтобы исправить её, или принял наличие проблемы к сведению."
+
+#: bCNC/controllers/_GenericGRBL.py:33
+msgid ""
+"All is good! Everything in the last line was understood by Grbl and was "
+"successfully processed and executed."
+msgstr ""
+"Отлично! Все в последней строке было распознано Grbl и успешно обработано и "
+"выполнено."
+
+#: bCNC/plugins/linearize.py:50
+msgid ""
+"Also subdivide the lines. Otherwise only arcs and splines will be subdivided"
+msgstr ""
+
+#: bCNC/bmain.py:2418
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+"Информация автоуровня/пробы уже существует.\n"
+"Удалить её?"
+
+#: bCNC/plugins/slicemesh.py:276
+msgid ""
+"Calculating distance {} of {} (SciPy not installed => using SLOW fallback "
+"method)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:505
+msgid ""
+"Currently there is some weird behaviour sometimes when trying to link "
+"segments of pocket internally, so it can be disabled using this option. This "
+"workaround should be fixed and removed in future."
+msgstr ""
+
+#: bCNC/ToolsPage.py:797
+msgid ""
+"Do the last cut once more in opposite direction. Helix bottom is disabled in "
+"such case."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:168
+msgid ""
+"Door closed and resuming. Restoring from park, if applicable. Reset will "
+"throw an alarm."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:165
+msgid ""
+"Door opened. Hold (or parking retract) in-progress. Reset will throw an "
+"alarm."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:131
+msgid ""
+"G-code motion target exceeds machine travel. Machine position safely "
+"retained. Alarm may be unlocked."
+msgstr ""
+
+#: bCNC/bmain.py:2526
+#, fuzzy
+#| msgid ""
+#| "Gcode file {} was changed since editing started\n"
+#| "Reload new version?"
+msgid ""
+"Gcode file {} was changed since editing started\n"
+"Reload new version?"
+msgstr ""
+"Файл g-кода {} был изменен после начала редактирования\n"
+"Загрузить новую версию?"
+
+#: bCNC/ToolsPage.py:1027
+msgid ""
+"Generate pocket after profiling? Useful for making pockets with overcuts."
+msgstr ""
+
+#: bCNC/plugins/sketch.py:368
+#, fuzzy
+#| msgid "Generated Sketch size W={} x H={} x distance={}, Total length:{}"
+msgid ""
+"Generated Sketch size W={} x H={} x distance={}, Total line:{}, Total length:"
+"{}"
+msgstr "Создан Набросок размером Ш={} x В={} x расстояние={}, Общая длина:{}"
+
+#: bCNC/controllers/_GenericGRBL.py:43
+msgid ""
+"Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
+"operation during a job."
+msgstr ""
+"Команды Grbl '$' не могут быть использованы пока Grbl в состоянии IDLE. Это "
+"гарантирует беспрепятственное выполнение операций во время работы."
+
+#: bCNC/controllers/_GenericGRBL.py:19
+msgid ""
+"Grbl is in g-code check mode. If you send g-code to it, it will only check "
+"it without actualy doing any motion. You can exit this by $C command (Or "
+"equivalent button in terminal tab)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:26
+msgid ""
+"Grbl is in queue state. This also means you have relatively old GRBL "
+"version, there are even 0.9 versions newer than this."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:23
+msgid ""
+"Grbl is in sleep mode. Motors are disabled, so you can move them manualy. "
+"That also means that your machine might have lost the position (or "
+"microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to "
+"wake Grbl again."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:78
+msgid ""
+"Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
+"are not supported."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:128
+msgid ""
+"Hard limit triggered. Machine position is likely lost due to sudden and "
+"immediate halt. Re-homing is highly recommended."
+msgstr ""
+"Получен сигнал от концевых датчиков. Скорее всего, позиция машиныпотеряна из-"
+"за случайно и неожиданной остановки. Крайне рекомендуется выполнить поиск "
+"базы."
+
+#: bCNC/controllers/_GenericGRBL.py:148
+msgid ""
+"Homing fail. Could not find limit switch within search distance. Defined as "
+"1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:158
+msgid ""
+"Homing fail. Could not find second limit switch for auto squared axis within "
+"search distances. Try increasing max travel, decreasing pull-off distance, "
+"or check wiring. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:145
+msgid ""
+"Homing fail. Cycle failed to clear limit switch when pulling off. Try "
+"increasing pull-off setting or check wiring."
+msgstr ""
+
+#: bCNC/bmain.py:231
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+"Командная строка MDI. Для ввода команд g-кода или макро команд (RESET/"
+"HOME...) или команд редактора (move, inkscape, round...) [Пробел или Ctrl-"
+"Пробел]"
+
+#: bCNC/plugins/linearize.py:41
+msgid ""
+"Maximal length of resulting lines, smaller number means more precise output "
+"and longer g-code. Length will be automaticaly truncated to be even across "
+"whole subdivided segment."
+msgstr ""
+
+#: bCNC/ControlPage.py:1045
+msgid ""
+"Move to Origin.\n"
+"User configurable button.\n"
+"Right click to configure."
+msgstr ""
+"Перемещение в ноль.\n"
+"Пользовательская кнопка.\n"
+"Клик правой кнопкой мыши - настроить."
+
+#: bCNC/ControlPage.py:609 bCNC/ControlPage.py:916
+msgid ""
+"No info available.\n"
+"Please contact the author."
+msgstr ""
+"Нет информации.\n"
+"Пожалуйста свяжитесь с автором."
+
+#: bCNC/plugins/endmilloffset.py:454
+msgid ""
+"Number of contours (Custom offset count) : indicates the number of contours "
+"if custom selected. MAX:"
+msgstr ""
+
+#: bCNC/ProbePage.py:904
+msgid ""
+"Please verify that the probe is connected.\n"
+"\n"
+"Show this message again?"
+msgstr ""
+"Пожалуйста проверьте что проба подключена\n"
+"\n"
+"Показывать это сообщение снова?"
+
+#: bCNC/controllers/_GenericGRBL.py:140
+msgid ""
+"Probe fail. Probe did not contact the workpiece within the programmed travel "
+"for G38.2 and G38.4."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:137
+msgid ""
+"Probe fail. The probe is not in the expected initial state before starting "
+"probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
+"triggered."
+msgstr ""
+"Проба не удалась. Состояние датчика пробы имеет недопустимое начальное "
+"состояние перед началом пробы, в момент, когда G38.2 или G38.3 не сработали, "
+"и G38.4 или G38.5 сработали."
+
+#: bCNC/controllers/_GenericGRBL.py:134
+msgid ""
+"Reset while in motion. Grbl cannot guarantee position. Lost steps are "
+"likely. Re-homing is highly recommended."
+msgstr ""
+"Сброс во время движения. Grbl не может гарантировать позицию. Скорее всего "
+"пропущены щаги. Крайне рекомендуется выполнить поиск базы."
+
+#: bCNC/ProbePage.py:211
+msgid ""
+"Set current XY location as autoleveling Z-zero (recalculate probed data to "
+"be relative to this XY origin point)"
+msgstr ""
+"Установить текущую позицию XY как нулевую позицию Z для автовыравнивания "
+"(пересчитать данные проб относительно данной исходной точки XY)"
+
+#: bCNC/ControlPage.py:251
+msgid ""
+"Show current state of the machine\n"
+"Click to see details\n"
+"Right-Click to clear alarm/errors"
+msgstr ""
+"Показывает текущий статус станка\n"
+"Щелкните чтобы посмотреть подробности\n"
+"Правой мышкой чтобы очистить тревогу/ошибки"
+
+#: bCNC/plugins/dragknife.py:91
+msgid ""
+"Simulation is currently approximated by using lots of short lines. This is "
+"the length of these lines."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:110
+msgid ""
+"Spindle not running when motion commanded in CSS or spindle sync mode. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:487 bCNC/plugins/endmilloffset.py:496
+msgid ""
+"Tabs are always ignored. You can select if all islands are active, none, or "
+"only selected"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:102
+msgid ""
+"The G43.1 dynamic tool length offset command cannot apply an offset to an "
+"axis other than its configured axis. The Grbl default axis is the Z-axis."
+msgstr ""
+"Команда G43.1 динамическая компенсация длины инструмента TLO не может "
+"применяться к другим осям, кроме заданной. По умолчанию в Grbl это ось Z."
+
+#: bCNC/controllers/_GenericGRBL.py:81
+msgid ""
+"The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
+"be active. A different motion was active."
+msgstr ""
+"Команда G53 g-кода требует, чтобы было активно либо перемещение G0, либо "
+"подача G1. Другое перемещение было активным."
+
+#: bCNC/controllers/_GenericGRBL.py:90
+msgid ""
+"The motion command has an invalid target. G2, G3, and G38.2 generates this "
+"error, if the arc is impossible to generate or if the probe target is the "
+"current position."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:84
+msgid ""
+"There are unused axis words in the block and G80 motion mode cancel is "
+"active."
+msgstr ""
+"Остались неиспользованные слова в блоке, и активна G80 команда отмены режима "
+"циклов."
+
+#: bCNC/controllers/_GenericGRBL.py:99
+msgid ""
+"There are unused, leftover G-code words that aren't used by any command in "
+"the block."
+msgstr ""
+"Остались неиспользованные, невостребованные слова g-кода, которые не были "
+"использованы ни одной из команд в блоке."
+
+#: bCNC/Utils.py:709
+#, fuzzy
+#| msgid ""
+#| "There was an error sending the report\n"
+#| "Code={} {}"
+msgid ""
+"There was an error sending the report\n"
+"Code={} {}"
+msgstr ""
+"Ошибка отправки отчета\n"
+"Код={} {}"
+
+#: bCNC/plugins/endmilloffset.py:471
+msgid ""
+"This can be used to switch between Conventional and Climb milling. If unsure "
+"use Convetional (default)."
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:23
+msgid ""
+"This plugin is for creating drilling marks with a laser engraver\n"
+"        for manual drilling"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:105
+msgid ""
+"Tool number greater than max supported value or undefined tool selected. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:65
+msgid ""
+"Two G-code commands that both require the use of the XYZ axis words were "
+"detected in the block."
+msgstr ""
+"Обнаружено сразу две команды G-кода в блоке, обе из которых требуют "
+"использования XYZ слов."
+
+#: bCNC/plugins/dragknife.py:82
+msgid ""
+"Use this option to simulate cuting of dragknife path. Resulting shape will "
+"reflect what shape will actuall be cut. This should reverse the dragknife "
+"procedure and give you back the original shape from g-code that was "
+"previously processed for dragknife."
+msgstr ""
+
+#: bCNC/bmain.py:2722
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+"\n"
+"Хотите открыть его локально?"
+
+#: bCNC/bmain.py:888
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+"bCNC/\tПродвинутый полнофункциональный\n"
+"\tотправитель g-кода для GRBL."
+
+#: bCNC/plugins/dragknife.py:72
+msgid ""
+"direction that knife blade is facing before and after cut. Eg.: if you set "
+"this to X+, then the knifes rotation axis should be on the right side of the "
+"tip. Meaning that the knife is ready to cut towards right immediately "
+"without pivoting. If you cut multiple shapes in single operation, it's "
+"important to have this set consistently across all of them."
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:47
+msgid ""
+"how precisely must line fit. set to 0 to disable line fitting, but at least "
+"some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can "
+"be fit"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:445
+msgid ""
+"indicates the number of profile passes (single,custom number,full pocket)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:783
+#, fuzzy
+#| msgid ""
+#| "positive value = relative to tool diameter (5 to 10 probably makes "
+#| "sense), negative = absolute ramp distance (you probably don't need this)"
+msgid ""
+"positive value = relative to tool diameter (5 to 10 probably makes sense), "
+"negative = absolute ramp distance (you probably don't need this). Also note "
+"that ramp can't currently be shorter than affected g-code segment."
+msgstr ""
+"положительное значение = относительно диаметра инструмента (возможно, имеет "
+"смысл значение от 5 до 10), отрицательное = абсолютное значение дистанции "
+"уклона (скорее всего вам это не нужно)"
+
+#: bCNC/plugins/dragknife.py:63
+msgid ""
+"retract to this height for pivots (useful for thick materials, you should "
+"enter number slightly lower than material thickness)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2003
+#, fuzzy
+#| msgid "     line: {}\n"
+msgid "     line: {}\n"
+msgstr "     строка: {}\n"
+
+#: bCNC/bmain.py:1195 bCNC/bmain.py:1276
+msgid "# Blocks:"
+msgstr "# блоков:"
+
+#: bCNC/TerminalPage.py:182
+msgid "$ Display build information of Grbl"
+msgstr "$ Показать помощь по Grbl"
+
+#: bCNC/TerminalPage.py:103
+msgid "$# Display parameters of Grbl"
+msgstr "$# Показать параметры Grbl"
+
+#: bCNC/TerminalPage.py:88
+msgid "$$ Display settings of Grbl"
+msgstr "$$ Показать настройки Grbl"
+
+#: bCNC/ToolsPage.py:1173
+msgid "$0 Step pulse time [us]"
+msgstr "$0 Время шагового импульса [мкс]"
+
+#: bCNC/ToolsPage.py:1174
+msgid "$1 Step idle delay [ms]"
+msgstr "$1 Задержка ожидания шага [мс]"
+
+#: bCNC/ToolsPage.py:1180
+msgid "$10 Status report [mask]"
+msgstr "$10 Отчет статуса [маска]"
+
+#: bCNC/ToolsPage.py:1195
+msgid "$100 X steps/mm"
+msgstr "$100 X шагов/мм"
+
+#: bCNC/ToolsPage.py:1196
+msgid "$101 Y steps/mm"
+msgstr "$101 Y шагов/мм"
+
+#: bCNC/ToolsPage.py:1197
+msgid "$102 Z steps/mm"
+msgstr "$102 Z шагов/мм"
+
+#: bCNC/ToolsPage.py:1181
+msgid "$11 Junction deviation [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1198
+msgid "$110 X max rate [mm/min]"
+msgstr "$110 X макс. подача [мм/мин]"
+
+#: bCNC/ToolsPage.py:1199
+msgid "$111 Y max rate [mm/min]"
+msgstr "$111 Y макс. подача [мм/мин]"
+
+#: bCNC/ToolsPage.py:1200
+msgid "$112 Z max rate [mm/min]"
+msgstr "$112 Z макс. подача [мм/мин]"
+
+#: bCNC/ToolsPage.py:1182
+msgid "$12 Arc tolerance [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1201
+msgid "$120 X acceleration [mm/sec^2]"
+msgstr "$120 Z - ускорение [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1202
+msgid "$121 Y acceleration [mm/sec^2]"
+msgstr "$121 Y - ускорение [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1203
+msgid "$122 Z acceleration [mm/sec^2]"
+msgstr "$122 Z - ускорение [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1183
+msgid "$13 Report inches"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1204
+msgid "$130 X max travel [mm]"
+msgstr "$130 X - макс. ускорение при перемещении [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1205
+msgid "$131 Y max travel [mm]"
+msgstr "$131 Y - макс. ускорение при перемещении [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1206
+msgid "$132 Z max travel [mm]"
+msgstr "$132 Z - макс. ускорение при перемещении [мм/сек^2]"
+
+#: bCNC/ToolsPage.py:1207
+msgid "$140 X homing pull-off [mm]"
+msgstr "$140 X - отход при поиске базы [мм]"
+
+#: bCNC/ToolsPage.py:1208
+msgid "$141 Y homing pull-off [mm]"
+msgstr "$141 Y - отход при поиске базы [мм]"
+
+#: bCNC/ToolsPage.py:1209
+msgid "$142 Z homing pull-off [mm]"
+msgstr "$142 Z - отход при поиске базы [мм]"
+
+#: bCNC/ToolsPage.py:1175
+msgid "$2 Step port invert [mask]"
+msgstr "$2 Инверсия сигнала шагового двигателя [маска]"
+
+#: bCNC/ToolsPage.py:1184
+msgid "$20 Soft limits"
+msgstr "$20 Программные ограничения"
+
+#: bCNC/ToolsPage.py:1185
+msgid "$21 Hard limits"
+msgstr "$21 Ограничения по датчикам"
+
+#: bCNC/ToolsPage.py:1186
+msgid "$22 Homing cycle"
+msgstr "$22 Поиск базы"
+
+#: bCNC/ToolsPage.py:1187
+msgid "$23 Homing direction invert [mask]"
+msgstr "$23 Инверсия направления поиска базы [маска]"
+
+#: bCNC/ToolsPage.py:1188
+msgid "$24 Homing feed [mm/min]"
+msgstr "$24 Скорость точного поиска базы [мм/мин]"
+
+#: bCNC/ToolsPage.py:1189
+msgid "$25 Homing seek [mm/min]"
+msgstr "$25 Скорость быстрого поиска базы [мм/мин]"
+
+#: bCNC/ToolsPage.py:1190
+msgid "$26 Homing debounce [ms]"
+msgstr "$26 Подавление помех при поиске базы [мс]"
+
+#: bCNC/ToolsPage.py:1191
+msgid "$27 Homing pull-off [mm]"
+msgstr "$27 Отходить от датчика ограничения [мм]"
+
+#: bCNC/ToolsPage.py:1176
+msgid "$3 Direction port invert [mask]"
+msgstr "$3 Инверсия направления двигателя [маска]"
+
+#: bCNC/ToolsPage.py:1192
+msgid "$30 Max spindle speed [RPM]"
+msgstr "$30 Макс. скорость шпинделя [об/мин]"
+
+#: bCNC/ToolsPage.py:1193
+msgid "$31 Min spindle speed [RPM]"
+msgstr "$31 Мин. скорость шпинделя [об/мин]"
+
+#: bCNC/ToolsPage.py:1194
+msgid "$32 Laser mode enable"
+msgstr "$32 Включить режим лазера"
+
+#: bCNC/ToolsPage.py:1177
+msgid "$4 Step enable invert"
+msgstr "$4 Инверсия сигнала включения двигателя"
+
+#: bCNC/ToolsPage.py:1178
+msgid "$5 Limit pins invert"
+msgstr "$5 Инверсия сигналов ограничителей"
+
+#: bCNC/ToolsPage.py:1179
+msgid "$6 Probe pin invert"
+msgstr "$6 Инверсия сигнала датчика пробы"
+
+#: bCNC/TerminalPage.py:165
+msgid "$C Enable/Disable checking of gcode"
+msgstr "$C Показать/Скрыть проверку g-кода"
+
+#: bCNC/TerminalPage.py:117
+msgid "$G Display state of Grbl"
+msgstr "$G Показать состояние Grbl"
+
+#: bCNC/TerminalPage.py:133
+msgid "$I Display build information of Grbl"
+msgstr "$I Показать информацию о сборке Grbl"
+
+#: bCNC/TerminalPage.py:148
+msgid "$N Display startup configuration of Grbl"
+msgstr "$N Показать начальную конфигурацию Grbl"
+
+#: bCNC/bmain.py:2450
+#, fuzzy
+#| msgid "'{}' loaded"
+msgid "'{}' loaded"
+msgstr "'{}' загружен"
+
+#: bCNC/bmain.py:2446
+#, fuzzy
+#| msgid "'{}' reloaded at '{}'"
+msgid "'{}' reloaded at '{}'"
+msgstr "'{}' перезагружен '{}'"
+
+#: bCNC/bmain.py:2459
+#, fuzzy
+#| msgid "'{}' saved"
+msgid "'{}' saved"
+msgstr "'{}' сохранен"
+
+#: bCNC/EditorPage.py:376
+msgid "(Un)Comment selected lines"
+msgstr "Закомментировать/раскомментировать выделенные строки"
+
+#: bCNC/controllers/_GenericGRBL.py:120
+msgid "(grblHAL internal)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1005 bCNC/ControlPage.py:1482
+msgid "+"
+msgstr ""
+
+#: bCNC/ControlPage.py:1174 bCNC/ControlPage.py:1646
+msgid "-"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:58
+msgid ".STL/.PLY file to slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:1742
+msgid "1. Spindle"
+msgstr "1. Шпиндель"
+
+#: bCNC/ProbePage.py:1748
+msgid "2. Camera"
+msgstr "2. Камера"
+
+#: bCNC/plugins/slicemesh.py:67
+msgid "3D slice (devel)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2001
+#, fuzzy
+#| msgid ">>> ERROR: {}\n"
+msgid ">>> ERROR: {}\n"
+msgstr ">>> ОШИБКА: {}\n"
+
+#: bCNC/ControlPage.py:1407
+msgid "A"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:67
+msgid "A G-code word was repeated in the block."
+msgstr "Слово g-кода повторяется в блоке."
+
+#: bCNC/ControlPage.py:651
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "A work position (click to set)"
+msgstr "Рабочая позиция X (щелкните чтобы установить)"
+
+#: bCNC/ControlPage.py:727
+msgid "A=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:793
+msgid "ABC=0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:117
+msgid "ATC: current tool is not set. Set current tool with M61. (grblHAL)"
+msgstr ""
+
+#: bCNC/FilePage.py:216
+msgid "About"
+msgstr "О программе"
+
+#: bCNC/FilePage.py:224
+msgid "About the program"
+msgstr "Об этой замечательной программе"
+
+#: bCNC/bmain.py:847
+#, fuzzy
+#| msgid "About {}"
+msgid "About {} v{}"
+msgstr "О программе {}"
+
+#: bCNC/ToolsPage.py:641
+msgid "Acceleration x"
+msgstr "Ускорение x"
+
+#: bCNC/ToolsPage.py:642
+msgid "Acceleration y"
+msgstr "Ускорение y"
+
+#: bCNC/ToolsPage.py:643
+msgid "Acceleration z"
+msgstr "Ускорение z"
+
+#: bCNC/EditorPage.py:335
+msgid "Active"
+msgstr "Активен"
+
+#: bCNC/plugins/trochoidPath.py:48 bCNC/plugins/trochoidal_3D.py:72
+msgid "Adaptative"
+msgstr ""
+
+#: bCNC/EditorPage.py:258 bCNC/ProbePage.py:702 bCNC/ToolsPage.py:1472
+msgid "Add"
+msgstr "Добавить"
+
+#: bCNC/ToolsPage.py:1478
+msgid "Add a new operation/object"
+msgstr "Добавить новую операцию/объект"
+
+#: bCNC/CNCCanvas.py:468
+msgid "Add an orientation marker"
+msgstr "Добавьте маркер ориентации"
+
+#: bCNC/plugins/zigzag.py:108
+msgid "Additional length at start/end"
+msgstr "Доп. длина в начале/конце"
+
+#: bCNC/plugins/endmilloffset.py:478
+#, fuzzy
+#| msgid "Additional offset distance"
+msgid "Additional offset (mm)"
+msgstr "Доп. смещение"
+
+#: bCNC/plugins/trochoidPath.py:41 bCNC/plugins/trochoidal_3D.py:65
+#: bCNC/ToolsPage.py:1013
+msgid "Additional offset distance"
+msgstr "Доп. смещение"
+
+#: bCNC/ProbePage.py:2111
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr ""
+"После смены инструмента, дистанция для сканирования начинается с ПробаZ"
+
+#: bCNC/ToolsPage.py:617
+msgid "Align Camera"
+msgstr "Камера позиционирования"
+
+#: bCNC/ToolsPage.py:620
+msgid "Align Camera Angle"
+msgstr "Камера позиц. Угол"
+
+#: bCNC/ToolsPage.py:619
+msgid "Align Camera Height"
+msgstr "Камера позиц. Высота"
+
+#: bCNC/ToolsPage.py:618
+msgid "Align Camera Width"
+msgstr "Камера позиц. Ширина"
+
+#: bCNC/ProbePage.py:831
+msgid "Align GCode with the machine markers"
+msgstr "Выровнять G-Код с машинными маркерами"
+
+#: bCNC/EditorPage.py:106 bCNC/bmain.py:140
+msgid "All"
+msgstr "Все"
+
+#: bCNC/bmain.py:1235
+msgid "All GCode"
+msgstr "По всему g-коду"
+
+#: bCNC/bmain.py:119
+msgid "All accepted"
+msgstr "все подходящие"
+
+#: bCNC/bmain.py:2609
+msgid "Already running"
+msgstr "Уже запущен"
+
+#: bCNC/ToolsPage.py:717
+msgid "Angle"
+msgstr "Угол"
+
+#: bCNC/ProbePage.py:808
+msgid "Angle:"
+msgstr "Угол:"
+
+#: bCNC/plugins/spiral.py:481
+msgid "Approach Height (Safe Z)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:11
+msgid "ArcFit"
+msgstr ""
+
+#: bCNC/ProbePage.py:956
+msgid "At least one probe direction should be specified"
+msgstr "Должно быть задано как минимум одно направление для пробы"
+
+#: bCNC/EditorPage.py:198 bCNC/ProbePage.py:128 bCNC/ProbePage.py:254
+#: bCNC/ProbePage.py:1224
+msgid "Autolevel"
+msgstr "Автоуровень"
+
+#: bCNC/ProbePage.py:135
+msgid "Autolevel Z surface"
+msgstr "Автоуровень поверхности Z"
+
+#: bCNC/ProbePage.py:573
+msgid "Automatic GOTO after probing"
+msgstr "Автоматический переход после пробы"
+
+#: bCNC/Utils.py:602
+msgid "Automatic error reporting"
+msgstr "Автоматический отчет об ошибке"
+
+#: bCNC/plugins/midi2cnc.py:70
+msgid "Axis to be used"
+msgstr ""
+
+#: bCNC/ControlPage.py:1491
+msgid "B"
+msgstr ""
+
+#: bCNC/ControlPage.py:668
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "B work position (click to set)"
+msgstr "Рабочая позиция X (щелкните чтобы установить)"
+
+#: bCNC/ControlPage.py:743
+msgid "B=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:777
+msgid "BC=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:73
+msgid "BEFORE & AFTER probing"
+msgstr "ПЕРЕД и ПОСЛЕ пробы"
+
+#: bCNC/FilePage.py:316
+msgid "Baud:"
+msgstr "Скорость:"
+
+#: bCNC/EditorPage.py:250
+msgid "Block"
+msgstr "Блок"
+
+#: bCNC/controllers/_GenericGRBL.py:126
+msgid "Bluetooth initalisation failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:362
+#, fuzzy
+msgid "Board height"
+msgstr "Высота пробника"
+
+#: bCNC/plugins/jigsaw.py:361
+msgid "Board width"
+msgstr ""
+
+#: bCNC/EditorPage.py:464
+msgid "Bottom"
+msgstr "Вниз"
+
+#: bCNC/EditorPage.py:461
+msgid "Bottom-Left"
+msgstr "Вниз-Влево"
+
+#: bCNC/EditorPage.py:467
+msgid "Bottom-Right"
+msgstr "Вниз-Вправо"
+
+#: bCNC/plugins/bowl.py:14
+msgid "Bowl"
+msgstr "Миска"
+
+#: bCNC/plugins/box.py:19
+msgid "Box"
+msgstr "Шкатулка"
+
+#: bCNC/TerminalPage.py:215
+msgid "Buffered commands"
+msgstr "Команды в ожидании"
+
+#: bCNC/TerminalPage.py:126
+msgid "Build"
+msgstr "Сборка"
+
+#: bCNC/plugins/drillmark.py:49
+msgid "Burn power for drillmark"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:48
+msgid "Burn time for drillmark"
+msgstr ""
+
+#: bCNC/ControlPage.py:1410
+#, fuzzy
+#| msgid "CW"
+msgid "C"
+msgstr "CW"
+
+#: bCNC/ControlPage.py:685
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "C work position (click to set)"
+msgstr "Рабочая позиция X (щелкните чтобы установить)"
+
+#: bCNC/ControlPage.py:759
+msgid "C=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1522 bCNC/ToolsPage.py:2090
+msgid "CAM"
+msgstr ""
+
+#: bCNC/EditorPage.py:596
+msgid "CCW"
+msgstr "CCW"
+
+#: bCNC/ProbePage.py:507
+msgid "CIRCLE"
+msgstr "КРУГ"
+
+#: bCNC/ControlPage.py:2363
+msgid "CNC communication and control"
+msgstr "ЧПУ связь и управление"
+
+#: bCNC/bmain.py:636
+msgid "CNC is currently running, please stop it before."
+msgstr "ЧПУ выполняет задание, пожалуйста остановите его сначала."
+
+#: bCNC/ToolsPage.py:926
+msgid "CUT selected paths"
+msgstr "ВЫРЕЗАТЬ выделенные контуры"
+
+#: bCNC/EditorPage.py:566
+msgid "CW"
+msgstr "CW"
+
+#: bCNC/ProbePage.py:1926 bCNC/ProbePage.py:2132
+msgid "Calibrate"
+msgstr "Калибровка"
+
+#: bCNC/ProbePage.py:2121
+msgid "Calibration:"
+msgstr "Калибровка:"
+
+#: bCNC/ProbePage.py:142 bCNC/ProbePage.py:1630 bCNC/ToolsPage.py:1870
+msgid "Camera"
+msgstr "Камера"
+
+#: bCNC/ToolsPage.py:1878
+msgid "Camera Configuration"
+msgstr "Настройка камеры"
+
+#: bCNC/ProbePage.py:1701
+msgid "Camera cross hair diameter [units]"
+msgstr "Диаметр прицела камеры [ед.изм.]"
+
+#: bCNC/ProbePage.py:1643
+msgid "Camera location inside canvas"
+msgstr "Позиция камеры внутри изображения"
+
+#: bCNC/ProbePage.py:1718 bCNC/ProbePage.py:1727
+msgid "Camera offset from gantry"
+msgstr "Смещение камеры от курсора мыши"
+
+#: bCNC/ProbePage.py:1862
+msgid "Camera offset is updated"
+msgstr "Смещение камеры было обновлено"
+
+#: bCNC/ProbePage.py:1655
+msgid "Camera rotation [degrees]"
+msgstr "Угол поворота изображения [градусы]"
+
+#: bCNC/ProbePage.py:1688
+msgid "Camera scale [pixels / unit]"
+msgstr "Разрешение камеры [пикселей / ед.изм.]"
+
+#: bCNC/lib/bFileDialog.py:361 bCNC/Utils.py:876
+msgid "Cancel"
+msgstr "Отмена"
+
+#: bCNC/lib/bFileDialog.py:582
+#, fuzzy
+#| msgid "Cannot access path \"{}\""
+msgid "Cannot access path \"{}\""
+msgstr "Нет доступа к пути \"{}\""
+
+#: bCNC/plugins/sketch.py:50
+msgid "Casual first point"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:47
+msgid "Cell size"
+msgstr "Размер клетки"
+
+#: bCNC/plugins/center.py:12 bCNC/EditorPage.py:463 bCNC/ProbePage.py:646
+#: bCNC/ProbePage.py:662
+msgid "Center"
+msgstr "Центр"
+
+#: bCNC/plugins/simpleArc.py:65
+#, fuzzy
+#| msgid "Center"
+msgid "Center X"
+msgstr "Центр"
+
+#: bCNC/plugins/function_plot.py:28
+#, fuzzy
+#| msgid "Record Z coordinate?"
+msgid "Center X coordinate"
+msgstr "Запомнить координату Z?"
+
+#: bCNC/plugins/simpleArc.py:66
+#, fuzzy
+#| msgid "Center"
+msgid "Center Y"
+msgstr "Центр"
+
+#: bCNC/plugins/function_plot.py:29
+#, fuzzy
+#| msgid "Record Z coordinate?"
+msgid "Center Y coordinate"
+msgstr "Запомнить координату Z?"
+
+#: bCNC/ProbePage.py:671
+msgid "Center probing using a ring"
+msgstr "Центровка - проба с использованием кольца"
+
+#: bCNC/ProbePage.py:1944
+msgid "Change"
+msgstr "Смена"
+
+#: bCNC/EditorPage.py:732
+msgid "Change cut direction to CCW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:715
+msgid "Change cut direction to CW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:682
+msgid "Change cut direction to climb for selected gcode blocks"
+msgstr "Изменить направление резки по подаче для выбранных блоков кода"
+
+#: bCNC/EditorPage.py:665
+msgid "Change cut direction to conventional for selected gcode blocks"
+msgstr "Изменить направление резки против подачи для выбранных блоков кода"
+
+#: bCNC/ToolsPage.py:1810
+msgid "Change program language restart is required"
+msgstr "Изменить язык программы. Потребуется перезапуск"
+
+#: bCNC/CNCCanvas.py:2250
+msgid "Change viewing angle"
+msgstr "Изменить угол обзора"
+
+#: bCNC/ProbePage.py:2011
+msgid "Change:"
+msgstr "Замена:"
+
+#: bCNC/plugins/halftone.py:43 bCNC/plugins/sketch.py:57
+msgid "Channel to analyze"
+msgstr "Канал для анализа"
+
+#: bCNC/Updates.py:86
+msgid "Check Interval"
+msgstr "Интервал проверки"
+
+#: bCNC/Updates.py:135
+msgid "Check Now"
+msgstr "Проверить сейчас"
+
+#: bCNC/FilePage.py:211
+msgid "Check Updates"
+msgstr "Проверить обновления"
+
+#: bCNC/TerminalPage.py:157
+msgid "Check gcode"
+msgstr "Проверить g-код"
+
+#: bCNC/Updates.py:142
+msgid "Check the web site for new versions of bCNC"
+msgstr "Проверить сайт на новую версию bCNC"
+
+#: bCNC/lib/bFileDialog.py:998
+msgid "Choose Directory"
+msgstr "Выберите Папку"
+
+#: bCNC/ProbePage.py:530
+msgid "Circle radius"
+msgstr "Радиус окружности"
+
+#: bCNC/plugins/trochoidal.py:46
+msgid "Circular"
+msgstr ""
+
+#: bCNC/plugins/gear.py:163
+msgid "Circular Pitch"
+msgstr "Круговой шаг"
+
+#: bCNC/ProbePage.py:224 bCNC/ProbePage.py:794 bCNC/TerminalPage.py:45
+msgid "Clear"
+msgstr "Очистить"
+
+#: bCNC/ControlPage.py:479
+msgid "Clear Message"
+msgstr "Очистить сообщения"
+
+#: bCNC/ProbePage.py:230
+msgid "Clear probe data"
+msgstr "Очистить данные пробы"
+
+#: bCNC/TerminalPage.py:50
+msgid "Clear terminal"
+msgstr "Очистить терминал"
+
+#: bCNC/CNCCanvas.py:440
+msgid "Click to set the origin (zero)"
+msgstr "Щелкните чтобы установить ноль"
+
+#: bCNC/EditorPage.py:674
+msgid "Climb"
+msgstr "По подаче"
+
+#: bCNC/plugins/endmilloffset.py:469
+msgid "Climb milling"
+msgstr ""
+
+#: bCNC/EditorPage.py:40
+msgid "Clipboard"
+msgstr "Буфер обмена"
+
+#: bCNC/plugins/trochoidal.py:45 bCNC/plugins/trochoidal_3D.py:92
+msgid "Clockwise"
+msgstr ""
+
+#: bCNC/EditorPage.py:276 bCNC/ToolsPage.py:1489
+msgid "Clone"
+msgstr "Клон"
+
+#: bCNC/EditorPage.py:282
+msgid "Clone selected lines or blocks [Ctrl-D]"
+msgstr "Клонировать выделенные строки или блоки [Ctrl-D]"
+
+#: bCNC/ToolsPage.py:1495
+msgid "Clone selected operation/object"
+msgstr "Клонировать выделенную операцию/объект"
+
+#: bCNC/FilePage.py:267 bCNC/Updates.py:126 bCNC/Utils.py:613
+#: bCNC/bmain.py:1085 bCNC/bmain.py:1320 bCNC/bmain.py:2554
+msgid "Close"
+msgstr "Закрыть"
+
+#: bCNC/plugins/text.py:42
+msgid "Close Contours"
+msgstr ""
+
+#: bCNC/FilePage.py:280
+msgid "Close program [Ctrl-Q]"
+msgstr "Закрыть программу [Ctrl-Q]"
+
+#: bCNC/plugins/closepath.py:17
+msgid "Close the path"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:11
+msgid "ClosePath"
+msgstr ""
+
+#: bCNC/ToolsPage.py:712
+msgid "Coating"
+msgstr "Покрытие"
+
+#: bCNC/CNCList.py:749 bCNC/EditorPage.py:203
+msgid "Color"
+msgstr "Цвет"
+
+#: bCNC/ToolsPage.py:1934
+msgid "Colors"
+msgstr "Цвета"
+
+#: bCNC/Utils.py:861 bCNC/bmain.py:215
+msgid "Command:"
+msgstr "Команда:"
+
+#: bCNC/TerminalPage.py:61
+msgid "Commands"
+msgstr "Команды"
+
+#: bCNC/EditorPage.py:370 bCNC/ToolsPage.py:681 bCNC/ToolsPage.py:708
+#: bCNC/ToolsPage.py:738
+msgid "Comment"
+msgstr "Коммент."
+
+#: bCNC/ProbePage.py:295
+msgid "Common"
+msgstr "Общие"
+
+#: bCNC/ToolsPage.py:822
+msgid "Compensate islands for cutter radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1795 bCNC/ToolsPage.py:1821
+msgid "Config"
+msgstr "Конфигурация"
+
+#: bCNC/FilePage.py:348
+msgid "Connect on startup"
+msgstr "Подключать при запуске"
+
+#: bCNC/FilePage.py:352
+msgid "Connect to serial on startup of the program"
+msgstr "Подключаться к последовательному порту при запуске программы"
+
+#: bCNC/ControlPage.py:82 bCNC/ControlPage.py:122
+msgid "Connection"
+msgstr "Соединение"
+
+#: bCNC/controllers/_GenericGRBL.py:31
+msgid "Connection is established with Grbl"
+msgstr "Соединение с Grbl установлено"
+
+#: bCNC/ControlPage.py:927 bCNC/ControlPage.py:2364
+msgid "Control"
+msgstr "Управление"
+
+#: bCNC/ToolsPage.py:591 bCNC/ToolsPage.py:592 bCNC/ToolsPage.py:593
+#: bCNC/ToolsPage.py:594 bCNC/ToolsPage.py:595 bCNC/ToolsPage.py:596
+#: bCNC/ToolsPage.py:597 bCNC/ToolsPage.py:598 bCNC/ToolsPage.py:599
+#: bCNC/ToolsPage.py:600 bCNC/ToolsPage.py:601 bCNC/ToolsPage.py:602
+msgid "Control-"
+msgstr "Ctrl-"
+
+#: bCNC/ToolsPage.py:1854
+msgid "Controller"
+msgstr "Контроллер:"
+
+#: bCNC/ToolsPage.py:1862
+msgid "Controller (GRBL) configuration"
+msgstr "Настройка контроллера (GRBL)"
+
+#: bCNC/bmain.py:202
+msgid "Controller buffer fill"
+msgstr "Заполнение буфера контроллера"
+
+#: bCNC/FilePage.py:330
+msgid "Controller:"
+msgstr "Контроллер:"
+
+#: bCNC/EditorPage.py:655
+msgid "Conventional"
+msgstr "Против подачи"
+
+#: bCNC/ControlPage.py:2149
+msgid "Coolant:"
+msgstr "Охлаждение:"
+
+#: bCNC/EditorPage.py:80
+msgid "Copy"
+msgstr "Копировать"
+
+#: bCNC/EditorPage.py:86
+msgid "Copy [Ctrl-C]"
+msgstr "Копировать [Ctrl-C]"
+
+#: bCNC/plugins/simpleRectangle.py:96
+#, fuzzy
+#| msgid "Internal Radius"
+msgid "Corner Radius"
+msgstr "Внутренний радиус"
+
+#: bCNC/plugins/zigzag.py:110
+msgid "Corner resolution"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:89
+#, fuzzy
+#| msgid "Create Spur GEAR"
+msgid "Create Simple Arc"
+msgstr "Создать прямозубую шестерню"
+
+#: bCNC/plugins/simpleDrill.py:104
+msgid "Create Simple Drill"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:73
+msgid "Create Simple Line"
+msgstr ""
+
+#: bCNC/plugins/simpleRectangle.py:118
+msgid "Create Simple Rectangle"
+msgstr ""
+
+#: bCNC/plugins/gear.py:178
+msgid "Create Spur GEAR"
+msgstr "Создать прямозубую шестерню"
+
+#: bCNC/plugins/hilbert.py:104
+msgid "Create a Hilbert path"
+msgstr "Создать фрактал Гильберта"
+
+#: bCNC/plugins/zigzag.py:98
+msgid "Create a Zig-Zag path"
+msgstr "Создать путь типа 'Зигзаг'"
+
+#: bCNC/plugins/spirograph.py:111
+msgid "Create a spirograph path"
+msgstr "Создать путь спирографа"
+
+#: bCNC/plugins/trochoidPath.py:29
+msgid "Create a trochoid rute along selected blocks"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:29
+msgid "Create a variable feed path based upon image brightness"
+msgstr "Создает путь с переменной подачей на основе яркости картинки"
+
+#: bCNC/plugins/box.py:393
+msgid "Create finger BOX"
+msgstr "Создать шкатулку"
+
+#: bCNC/plugins/halftone.py:29
+msgid "Create halftone pattern from a picture"
+msgstr "Создать заштрихованный узор из картинки"
+
+#: bCNC/plugins/driller.py:36
+msgid "Create holes along selected blocks"
+msgstr "Создает отверстия вдоль выделенных блоков"
+
+#: bCNC/plugins/sketch.py:28
+msgid "Create sketch based on picture brightness"
+msgstr "Создает набросок на базе яркости картинки"
+
+#: bCNC/ToolsPage.py:1162
+msgid "Create tabs on blocks"
+msgstr "Создание крепежей"
+
+#: bCNC/plugins/text.py:29
+msgid "Create text using a ttf font"
+msgstr "Создать текст используя TTF шрифт"
+
+#: bCNC/plugins/trochoidal_3D.py:38
+#, fuzzy
+#| msgid "Create holes along selected blocks"
+msgid "Create trochoids along selected blocks"
+msgstr "Создает отверстия вдоль выделенных блоков"
+
+#: bCNC/ProbePage.py:1692
+msgid "Crosshair:"
+msgstr "Прицел:"
+
+#: bCNC/plugins/endmilloffset.py:452
+msgid "Custom offset count"
+msgstr ""
+
+#: bCNC/plugins/box.py:356 bCNC/EditorPage.py:64 bCNC/ToolsPage.py:1530
+msgid "Cut"
+msgstr "Вырезать"
+
+#: bCNC/plugins/heightmap.py:75
+msgid "Cut Border"
+msgstr "Вырез рамки"
+
+#: bCNC/EditorPage.py:724
+msgid "Cut CCW"
+msgstr "Резка CCW"
+
+#: bCNC/EditorPage.py:707
+msgid "Cut CW"
+msgstr "Резка CW"
+
+#: bCNC/plugins/trochoidPath.py:38
+#, fuzzy
+#| msgid "Diameter"
+msgid "Cut Diameter"
+msgstr "Диаметр"
+
+#: bCNC/plugins/flatten.py:298
+msgid "Cut Direction"
+msgstr "Направление резки"
+
+#: bCNC/plugins/spiral.py:482
+msgid "Cut Pattern"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:74
+msgid "Cut Top"
+msgstr "Вырез верх"
+
+#: bCNC/EditorPage.py:70
+msgid "Cut [Ctrl-X]"
+msgstr "Вырезать [Ctrl-X]"
+
+#: bCNC/ToolsPage.py:829
+msgid "Cut contours of selected islands"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1539
+msgid "Cut for the full stock thickness selected code"
+msgstr "Вырезать выбранный код на полную глубину заготовки"
+
+#: bCNC/plugins/spiral.py:483
+#, fuzzy
+#| msgid "Cut Direction"
+msgid "Cut in Both Directions"
+msgstr "Направление резки"
+
+#: bCNC/ToolsPage.py:775
+msgid "Cutting strategy"
+msgstr "Режим резки"
+
+#: bCNC/ToolsPage.py:987
+msgid "DRILL selected points"
+msgstr "ПРОСВЕРЛИТЬ выбранные точки"
+
+#: bCNC/ToolsPage.py:655
+msgid "DRO Zero padding"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1397
+msgid "Database"
+msgstr "База данных"
+
+#: bCNC/lib/bFileDialog.py:307
+msgid "Date"
+msgstr "Дата"
+
+#: bCNC/Updates.py:101
+#, fuzzy
+#| msgid "Date of last checking"
+msgid "Date last checked"
+msgstr "Дата последней проверки"
+
+#: bCNC/Updates.py:119
+msgid "Days-interval to remind again for checking"
+msgstr "Интервал в днях о следующем напоминании для проверки"
+
+#: bCNC/ToolsPage.py:650
+msgid "Decimal digits"
+msgstr "Знаков после запятой"
+
+#: bCNC/ControlPage.py:1176 bCNC/ControlPage.py:1648
+msgid "Decrease step by 1 unit"
+msgstr "Уменьшить шаг на 1 мм"
+
+#: bCNC/EditorPage.py:292 bCNC/ProbePage.py:750 bCNC/ToolsPage.py:1506
+msgid "Delete"
+msgstr "Удалить"
+
+#: bCNC/ProbePage.py:803 bCNC/ProbePage.py:1061
+msgid "Delete all markers"
+msgstr "Удалить все маркеры"
+
+#: bCNC/ProbePage.py:1497
+msgid "Delete autolevel information"
+msgstr "Удалить информацию автоуровня"
+
+#: bCNC/ProbePage.py:759
+msgid "Delete current marker"
+msgstr "Удалить текущий маркер"
+
+#: bCNC/EditorPage.py:298
+msgid "Delete selected lines or blocks [Del]"
+msgstr "Удалить выбранные строки или блоки [Del]"
+
+#: bCNC/ToolsPage.py:1512
+msgid "Delete selected operation/object"
+msgstr "Удалить выделенную операцию/объект"
+
+#: bCNC/plugins/hilbert.py:114 bCNC/plugins/zigzag.py:111
+msgid "Depth"
+msgstr "Глубина"
+
+#: bCNC/plugins/box.py:349
+msgid "Depth Dy"
+msgstr "Глубина Dy"
+
+#: bCNC/plugins/trochoidPath.py:55 bCNC/plugins/trochoidal_3D.py:89
+#: bCNC/ToolsPage.py:684 bCNC/ToolsPage.py:768
+msgid "Depth Increment"
+msgstr "Шаг на заглублении"
+
+#: bCNC/plugins/spiral.py:478
+#, fuzzy
+#| msgid "Depth to flatten"
+msgid "Depth to Reduce"
+msgstr "Глубина для выравнивания"
+
+#: bCNC/plugins/flatten.py:293
+msgid "Depth to flatten"
+msgstr "Глубина для выравнивания"
+
+#: bCNC/plugins/bowl.py:113 bCNC/ToolsPage.py:713
+msgid "Diameter"
+msgstr "Диаметр"
+
+#: bCNC/plugins/Helical_Descent.py:83
+#, fuzzy
+msgid "Diameter Cut"
+msgstr "Диаметр"
+
+#: bCNC/ProbePage.py:649
+msgid "Diameter:"
+msgstr "Диаметр:"
+
+#: bCNC/plugins/difference.py:18
+msgid "Difference"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:365
+#, fuzzy
+msgid "Difference between pieces"
+msgstr "Расстояние между отверстиями"
+
+#: bCNC/plugins/difference.py:24
+msgid "Difference of two shapes"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:40 bCNC/plugins/trochoidal_3D.py:60
+#: bCNC/plugins/pyrograph.py:46 bCNC/ToolsPage.py:1010
+msgid "Direction"
+msgstr "Направление"
+
+#: bCNC/bmain.py:1584
+msgid "Direction command error"
+msgstr "Ошибка команды направления"
+
+#: bCNC/lib/bFileDialog.py:275
+msgid "Directory:"
+msgstr "Папка:"
+
+#: bCNC/EditorPage.py:327
+msgid "Disable"
+msgstr "Выключить"
+
+#: bCNC/ToolsPage.py:942
+msgid "Distance (mm)"
+msgstr "Расстояние (мм)"
+
+#: bCNC/ControlPage.py:1921
+msgid "Distance Mode [G90,G91]"
+msgstr "Режим дистанции [G90, G91]"
+
+#: bCNC/plugins/driller.py:45
+msgid "Distance between holes"
+msgstr "Расстояние между отверстиями"
+
+#: bCNC/ControlPage.py:1910 bCNC/ProbePage.py:2103
+msgid "Distance:"
+msgstr "Расстояние:"
+
+#: bCNC/ControlPage.py:1170 bCNC/ControlPage.py:1642
+msgid "Divide step by 10"
+msgstr "Поделить шаг на 10"
+
+#: bCNC/ProbePage.py:1498
+msgid "Do you want to delete all autolevel in formation?"
+msgstr "Удалить всю информацию автоуровня?"
+
+#: bCNC/ProbePage.py:1062
+msgid "Do you want to delete all orientation markers?"
+msgstr "Удалить все маркеры ориентации?"
+
+#: bCNC/controllers/_GenericGRBL.py:162
+msgid "Door closed. Ready to resume."
+msgstr ""
+
+#: bCNC/ToolsPage.py:639
+msgid "Double Size Icon"
+msgstr "Двойной размер иконок"
+
+#: bCNC/EditorPage.py:524
+msgid "Down"
+msgstr "Ниже"
+
+#: bCNC/Updates.py:182
+msgid "Download"
+msgstr "Скачать"
+
+#: bCNC/CNCCanvas.py:463
+msgid "Drag a ruler to measure distances"
+msgstr "Вытяните линейку для измерения расстояния"
+
+#: bCNC/plugins/dragknife.py:25
+msgid "Drag knife postprocessor"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:19
+msgid "DragKnife"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:51 bCNC/plugins/sketch.py:49
+#: bCNC/plugins/pyrograph.py:47
+msgid "Draw border"
+msgstr "Рамка"
+
+#: bCNC/plugins/function_plot.py:35
+#, fuzzy
+#| msgid "Record Z coordinate?"
+msgid "Draw coordinate system?"
+msgstr "Запомнить координату Z?"
+
+#: bCNC/CNCCanvas.py:2432
+msgid "Draw timeout in seconds"
+msgstr "Максимальная длительность отрисовки в секундах"
+
+#: bCNC/CNCCanvas.py:2335
+msgid "Draw:"
+msgstr "Отрисовка:"
+
+#: bCNC/ToolsPage.py:1621
+msgid "Drill"
+msgstr "Сверление"
+
+#: bCNC/ToolsPage.py:938
+msgid "Drill in center only"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:44
+msgid "Drill mark size"
+msgstr ""
+
+#: bCNC/plugins/driller.py:20
+msgid "Driller"
+msgstr "Сверловка"
+
+#: bCNC/plugins/driller.py:276
+msgid "Driller abort: Distance must be > 0"
+msgstr "Ошибка сверловки: Дистанция должна быть > 0"
+
+#: bCNC/plugins/driller.py:285
+msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
+msgstr "Ошибка сверловки: Задержка >=0, здесь время идет только вперед!"
+
+#: bCNC/plugins/driller.py:293
+msgid "Driller abort: Excellon-File not a file"
+msgstr ""
+
+#: bCNC/plugins/driller.py:280
+msgid "Driller abort: Peck must be >= 0"
+msgstr "Ошибка сверловки: Долбление должно быть >= 0"
+
+#: bCNC/plugins/driller.py:303
+msgid "Driller abort: Please select some path"
+msgstr "Ошибка сверловки: пожалуйста выберите какой-нибудь контур"
+
+#: bCNC/plugins/Helical_Descent.py:86
+msgid "Drop by lap"
+msgstr ""
+
+#: bCNC/ToolsPage.py:941
+msgid "Dwell (s)"
+msgstr "Задержка (с)"
+
+#: bCNC/plugins/simpleDrill.py:71
+#, fuzzy
+#| msgid "Dwell (s)"
+msgid "Dwell time (s)"
+msgstr "Задержка (с)"
+
+#: bCNC/plugins/driller.py:48
+msgid "Dwell time, 0 means None"
+msgstr "Задержка, 0 означает нет"
+
+#: bCNC/controllers/_GenericGRBL.py:41
+msgid "EEPROM read failed. Reset and restored to default values."
+msgstr "Ошибка чтения EEPROM. Сброшены и восстановление значение по умолчанию."
+
+#: bCNC/CNCCanvas.py:525
+msgid "ERROR: Cannot set X-Y marker  with the current view"
+msgstr "ОШИБКА: Невозможно установить X-Y маркер в текущем виде"
+
+#: bCNC/controllers/_GenericGRBL.py:150
+msgid "EStop asserted. Clear and reset (grblHAL)"
+msgstr ""
+
+#: bCNC/ProbePage.py:1560
+msgid "Edge Detection"
+msgstr "Определение границ"
+
+#: bCNC/EditorPage.py:194
+msgid "Edit"
+msgstr "Редактирование"
+
+#: bCNC/ToolsPage.py:1461
+msgid "Edit name of current operation/object"
+msgstr "Редактировать название текущей операции/объекта"
+
+#: bCNC/ToolsPage.py:1445
+msgid "Editable database of EndMills properties"
+msgstr "Редактируемая база свойств фрез"
+
+#: bCNC/ToolsPage.py:1429
+msgid "Editable database of material properties"
+msgstr "Редактируемая база свойств материалов"
+
+#: bCNC/EditorPage.py:804
+msgid "Editor"
+msgstr "Редактор"
+
+#: bCNC/controllers/_GenericGRBL.py:119
+msgid "Emergency stop active. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2657
+msgid "Empty gcode"
+msgstr "Пустой g-код"
+
+#: bCNC/EditorPage.py:322
+msgid "Enable"
+msgstr "Включить"
+
+#: bCNC/ToolsPage.py:640
+msgid "Enable 6 Axis Displays"
+msgstr ""
+
+#: bCNC/EditorPage.py:342
+msgid "Enable or disable blocks of gcode"
+msgstr "Включить или выключить блоки g-кода"
+
+#: bCNC/bmain.py:1154
+msgid "Enabled GCode"
+msgstr "По включённому g-коду"
+
+#: bCNC/plugins/simpleArc.py:69
+msgid "End Angle in Degrees "
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:84 bCNC/plugins/endmilloffset.py:438
+#: bCNC/plugins/trochoidPath.py:43 bCNC/plugins/trochoidal_3D.py:48
+#: bCNC/ToolsPage.py:1003 bCNC/ToolsPage.py:1074 bCNC/ToolsPage.py:1437
+msgid "End Mill"
+msgstr "Фреза"
+
+#: bCNC/plugins/Helical_Descent.py:100
+msgid "End in the Deep"
+msgstr ""
+
+#: bCNC/bmain.py:1953
+#, fuzzy
+#| msgid "EndMill: {} {:g}"
+msgid "EndMill: {} {}"
+msgstr "Фреза: {} {:g}"
+
+#: bCNC/plugins/Helical_Descent.py:96
+msgid "Entry and Exit"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:582 bCNC/lib/bFileDialog.py:655
+#: bCNC/lib/bFileDialog.py:879 bCNC/lib/bFileDialog.py:907
+#: bCNC/lib/bFileDialog.py:931
+msgid "Error"
+msgstr "Ошибка"
+
+#: bCNC/Utils.py:565
+msgid "Error Reporting"
+msgstr "Отчет об ошибке"
+
+#: bCNC/lib/bFileDialog.py:880
+#, fuzzy
+#| msgid "Error creating folder \"{}\""
+msgid "Error creating folder \"{}\""
+msgstr "Ошибка создания папки \"{}\""
+
+#: bCNC/lib/bFileDialog.py:931
+#, fuzzy
+#| msgid "Error deleting file \"{}\""
+msgid "Error deleting file \"{}\""
+msgstr "Ошибка удаления файла \"{}\""
+
+#: bCNC/lib/bFileDialog.py:655
+#, fuzzy
+#| msgid "Error listing folder \"{}\""
+msgid "Error listing folder \"{}\""
+msgstr "Невозможно просмотреть папку \"{}\""
+
+#: bCNC/bmain.py:2568
+msgid "Error opening serial"
+msgstr "Ошибка открытия последовательного порта"
+
+#: bCNC/lib/bFileDialog.py:908
+#, fuzzy
+#| msgid "Error renaming \"{}\" to \"{}\""
+msgid "Error renaming \"{}\" to \"{}\""
+msgstr "Ошибка переименования \"{}\" в \"{}\""
+
+#: bCNC/Utils.py:694 bCNC/Utils.py:708
+msgid "Error sending report"
+msgstr "Ошибка отправки отчета"
+
+#: bCNC/Updates.py:193
+#, fuzzy
+#| msgid "Error {} in connection"
+msgid "Error {} in connection"
+msgstr "Ошибка {} при соединении"
+
+#: bCNC/ProbePage.py:853
+msgid "Error:"
+msgstr "Погрешность:"
+
+#: bCNC/plugins/bowl.py:136
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr "Ошибка: Проверьте параметры Миски и Фрезы"
+
+#: bCNC/plugins/jigsaw.py:406
+msgid "Error: Check the parameters and your endmill config"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:155
+msgid "Error: Sorry can't parse the Midi file."
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:116
+msgid "Error: This plugin requires midiparser.py"
+msgstr ""
+
+#: bCNC/bmain.py:1487
+msgid "Evaluation error"
+msgstr "Ошибка вычисления"
+
+#: bCNC/plugins/trochoidal.py:47
+msgid "Even spacing across segment"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1927
+msgid "Events"
+msgstr "События"
+
+#: bCNC/plugins/driller.py:50
+msgid "Excellon-File"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1967
+msgid "Execute"
+msgstr "Выполнить"
+
+#: bCNC/bmain.py:2417
+msgid "Existing Autolevel"
+msgstr "Информация Автоуровня"
+
+#: bCNC/FilePage.py:272
+msgid "Exit"
+msgstr "Выход"
+
+#: bCNC/ToolsPage.py:805
+msgid "Exit strategy (usefull for threads)"
+msgstr ""
+
+#: bCNC/EditorPage.py:351
+msgid "Expand"
+msgstr "Развернуть"
+
+#: bCNC/plugins/spirograph.py:119
+msgid "External Radius"
+msgstr "Внешний радиус"
+
+#: bCNC/ToolsPage.py:567 bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:591
+msgid "F1"
+msgstr ""
+
+#: bCNC/ToolsPage.py:576 bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:600
+msgid "F10"
+msgstr ""
+
+#: bCNC/ToolsPage.py:577 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:601
+msgid "F11"
+msgstr ""
+
+#: bCNC/ToolsPage.py:578 bCNC/ToolsPage.py:590 bCNC/ToolsPage.py:602
+msgid "F12"
+msgstr ""
+
+#: bCNC/ToolsPage.py:568 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:592
+msgid "F2"
+msgstr ""
+
+#: bCNC/ToolsPage.py:569 bCNC/ToolsPage.py:581 bCNC/ToolsPage.py:593
+msgid "F3"
+msgstr ""
+
+#: bCNC/ToolsPage.py:570 bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:594
+msgid "F4"
+msgstr ""
+
+#: bCNC/ToolsPage.py:571 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:595
+msgid "F5"
+msgstr ""
+
+#: bCNC/ToolsPage.py:572 bCNC/ToolsPage.py:584 bCNC/ToolsPage.py:596
+msgid "F6"
+msgstr ""
+
+#: bCNC/ToolsPage.py:573 bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:597
+msgid "F7"
+msgstr ""
+
+#: bCNC/ToolsPage.py:574 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:598
+msgid "F8"
+msgstr ""
+
+#: bCNC/ToolsPage.py:575 bCNC/ToolsPage.py:587 bCNC/ToolsPage.py:599
+msgid "F9"
+msgstr ""
+
+#: bCNC/ProbePage.py:485
+msgid "FEED"
+msgstr "ПОДАЧА"
+
+#: bCNC/ProbePage.py:518
+msgid "FINISH"
+msgstr "ЗАВЕРШЕНИЕ"
+
+#: bCNC/plugins/sketch.py:47
+msgid "Fading force"
+msgstr ""
+
+#: bCNC/ProbePage.py:306
+msgid "Fast Probe Feed:"
+msgstr "Быстрая подача:"
+
+#: bCNC/plugins/scaling.py:43 bCNC/plugins/trochoidal_3D.py:95
+#: bCNC/ToolsPage.py:682 bCNC/ToolsPage.py:769
+msgid "Feed"
+msgstr "Подача"
+
+#: bCNC/ControlPage.py:2021
+msgid "Feed Mode [G93, G94, G95]"
+msgstr "Режим подачи [G93, G94, G95]"
+
+#: bCNC/ControlPage.py:1999
+msgid "Feed Rate [F#]"
+msgstr "Подача [F#]"
+
+#: bCNC/plugins/trochoidal_3D.py:411
+#, fuzzy
+msgid "Feed has to be greater than 0"
+msgstr "Ошибка карты высот: глубина должна быть < 0"
+
+#: bCNC/ControlPage.py:487
+msgid "Feed hold"
+msgstr "Пауза"
+
+#: bCNC/ToolsPage.py:644
+msgid "Feed max x"
+msgstr "Макс. подача x"
+
+#: bCNC/ToolsPage.py:645
+msgid "Feed max y"
+msgstr "Макс. подача y"
+
+#: bCNC/ToolsPage.py:646
+msgid "Feed max z"
+msgstr "Макс. подача z"
+
+#: bCNC/plugins/driller.py:56
+#, fuzzy
+#| msgid "Feed max x"
+msgid "Feed rapid G0"
+msgstr "Макс. подача x"
+
+#: bCNC/controllers/_GenericGRBL.py:62
+msgid "Feed rate has not yet been set or is undefined."
+msgstr "Скорость подачи не задана или еще не была определена."
+
+#: bCNC/ControlPage.py:1987
+msgid "Feed:"
+msgstr "Подача:"
+
+#: bCNC/plugins/trochoidal.py:53
+msgid "Feedrate"
+msgstr ""
+
+#: bCNC/FilePage.py:75 bCNC/FilePage.py:464
+msgid "File"
+msgstr "Файл"
+
+#: bCNC/FilePage.py:463
+msgid "File I/O and configuration"
+msgstr "Файлы и конфигурация"
+
+#: bCNC/lib/bFileDialog.py:951 bCNC/lib/bFileDialog.py:962
+#, fuzzy
+#| msgid "File \"{}\" does not exist"
+msgid "File \"{}\" does not exist"
+msgstr "Файл \"{}\" не существует"
+
+#: bCNC/lib/bFileDialog.py:984
+msgid "File already exists"
+msgstr "Файл уже существует"
+
+#: bCNC/lib/bFileDialog.py:950 bCNC/lib/bFileDialog.py:961
+msgid "File does not exist"
+msgstr "Файл не существует"
+
+#: bCNC/bmain.py:2378
+msgid "File modified"
+msgstr "Файл изменен"
+
+#: bCNC/lib/bFileDialog.py:332
+msgid "File name:"
+msgstr "Имя файла:"
+
+#: bCNC/lib/bFileDialog.py:340
+msgid "Files of type:"
+msgstr "Файлы типов:"
+
+#: bCNC/EditorPage.py:167
+msgid "Filter"
+msgstr "Фильтр"
+
+#: bCNC/EditorPage.py:175
+msgid "Filter blocks"
+msgstr "Фильтровать блоки"
+
+#: bCNC/plugins/Helical_Descent.py:87
+#, fuzzy
+msgid "Final Depth"
+msgstr "Рабочая глубина"
+
+#: bCNC/plugins/center.py:18
+msgid "Find center of bounding box"
+msgstr ""
+
+#: bCNC/plugins/box.py:351
+msgid "Fingers Nx"
+msgstr "Зацепы Nx"
+
+#: bCNC/plugins/box.py:352
+msgid "Fingers Ny"
+msgstr "Зацепы Ny"
+
+#: bCNC/plugins/box.py:353
+msgid "Fingers Nz"
+msgstr "Зацепы Nz"
+
+#: bCNC/ProbePage.py:1214
+msgid "Finished recording"
+msgstr "Запись окончена"
+
+#: bCNC/ToolsPage.py:790
+msgid "First cut at surface height"
+msgstr "Первый рез на поверхности"
+
+#: bCNC/CNCCanvas.py:2270
+msgid "Fit to screen [F]"
+msgstr "Вместить в экран [F]"
+
+#: bCNC/plugins/flatpath.py:12
+msgid "FlatPath"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:13
+msgid "Flatten"
+msgstr "Выравнивание"
+
+#: bCNC/plugins/flatten.py:43
+msgid "Flatten abort: Cut Direction is undefined"
+msgstr "Ошибка выравнивания: направление не определено"
+
+#: bCNC/plugins/flatten.py:52
+msgid "Flatten abort: Flatten Area dimensions must be > 0"
+msgstr "Ошибка выравнивания: площадь выравнивания должна быть > 0"
+
+#: bCNC/plugins/flatten.py:98
+msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgstr "Ошибка выравнивания: площадь слишком мала для этой фрезы"
+
+#: bCNC/plugins/flatten.py:58
+msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
+msgstr ""
+"Ошибка выравнивания: эта штука умеет только убирать материал! Проверьте "
+"глубину!"
+
+#: bCNC/plugins/flatten.py:47
+msgid "Flatten abort: Pocket Type is undefined"
+msgstr "Ошибка выравнивания: тип кармана не определен"
+
+#: bCNC/plugins/flatten.py:281
+msgid "Flatten an area in different ways"
+msgstr "Выравнивание поверхности несколькими вариантами"
+
+#: bCNC/plugins/flatpath.py:18
+msgid "Flatten the path"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:328
+msgid "Flatten: Generated flatten surface"
+msgstr "Выравнивание: Создана выровненная поверхность"
+
+#: bCNC/EditorPage.py:581
+msgid "Flip"
+msgstr "180"
+
+#: bCNC/plugins/slicemesh.py:68
+msgid "Flip upwards"
+msgstr ""
+
+#: bCNC/ControlPage.py:2168
+msgid "Flood"
+msgstr "Поток"
+
+#: bCNC/ToolsPage.py:715
+msgid "Flutes"
+msgstr "Желобков"
+
+#: bCNC/plugins/text.py:41
+msgid "Font file"
+msgstr "Файл шрифта"
+
+#: bCNC/plugins/text.py:40
+msgid "Font size"
+msgstr "Размер шрифта"
+
+#: bCNC/ToolsPage.py:1941
+msgid "Fonts"
+msgstr "Шрифты"
+
+#: bCNC/ToolsPage.py:657
+msgid "Footer gcode"
+msgstr "Окончание g-кода"
+
+#: bCNC/plugins/function_plot.py:24
+msgid "Formula"
+msgstr ""
+
+#: bCNC/ProbePage.py:1575
+msgid "Freeze"
+msgstr "Пауза"
+
+#: bCNC/plugins/function_plot.py:8
+#, fuzzy
+#| msgid "Connection"
+msgid "Function"
+msgstr "Соединение"
+
+#: bCNC/bmain.py:133 bCNC/bmain.py:2487
+msgid "G-Code"
+msgstr "G-Код"
+
+#: bCNC/plugins/arcfit.py:17
+msgid "G-Code arc-fit"
+msgstr ""
+
+#: bCNC/bmain.py:134
+msgid "G-Code clean"
+msgstr "Очистка G-Кода"
+
+#: bCNC/plugins/linearize.py:17
+msgid "G-Code linearizer"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:63
+msgid "G-code command in block requires an integer value."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:108
+msgid "G-code command not allowed when tool change is pending. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:45
+msgid "G-code locked out during alarm or jog state"
+msgstr "G-код заблокирован во время аварии или ручного управления."
+
+#: bCNC/controllers/_GenericGRBL.py:35
+msgid "G-code words consist of a letter and a value. Letter was not found."
+msgstr ""
+"Типичная команды G-кода состоит из буквы и значения. Буква отсутствует."
+
+#: bCNC/ProbePage.py:59
+msgid "G38.2 stop on contact else error"
+msgstr "G38.2 по контакту или ошибка"
+
+#: bCNC/ProbePage.py:60
+msgid "G38.3 stop on contact"
+msgstr "G38.3 стоп по контакту"
+
+#: bCNC/ProbePage.py:61
+msgid "G38.4 stop on loss contact else error"
+msgstr "G38.4 по нет контакта или ошибка"
+
+#: bCNC/ProbePage.py:62
+msgid "G38.5 stop on loss contact"
+msgstr "G38.5 по нет контакта"
+
+#: bCNC/ControlPage.py:2051
+msgid "G92:"
+msgstr ""
+
+#: bCNC/ProbePage.py:733
+msgid "GCode X coordinate of orientation point"
+msgstr "G-код X координата точки ориентации"
+
+#: bCNC/ProbePage.py:744
+msgid "GCode Y coordinate of orientation point"
+msgstr "G-код Y координата точки ориентации"
+
+#: bCNC/EditorPage.py:803
+msgid "GCode editor"
+msgstr "Редактор G-кода"
+
+#: bCNC/ToolsPage.py:2089
+msgid "GCode manipulation tools and user plugins"
+msgstr ""
+"Инструменты для создания и управления g-кодом и пользовательские плагины"
+
+#: bCNC/bmain.py:2379
+msgid "Gcode was modified do you want to save it first?"
+msgstr "G-код был изменен, хотите его сохранить?"
+
+#: bCNC/ProbePage.py:723
+msgid "Gcode:"
+msgstr "G-код:"
+
+#: bCNC/plugins/gear.py:16
+msgid "Gear"
+msgstr "Шестерня"
+
+#: bCNC/plugins/bowl.py:105
+msgid "Generate a bowl cavity"
+msgstr "Создает пустоту в форме миски"
+
+#: bCNC/plugins/box.py:339
+msgid "Generate a finger box"
+msgstr "Создать шкатулку"
+
+#: bCNC/plugins/endmilloffset.py:430
+msgid "Generate a pocket or profile for selected shape (regarding islands)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:58
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Arc"
+msgstr "Создание прямозубой шестерни"
+
+#: bCNC/plugins/simpleDrill.py:60
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Drill"
+msgstr "Создание прямозубой шестерни"
+
+#: bCNC/plugins/simpleLine.py:44
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple line"
+msgstr "Создание прямозубой шестерни"
+
+#: bCNC/plugins/simpleRectangle.py:85
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple rectangle"
+msgstr "Создание прямозубой шестерни"
+
+#: bCNC/plugins/gear.py:153
+msgid "Generate a spur gear"
+msgstr "Создание прямозубой шестерни"
+
+#: bCNC/plugins/halftone.py:53
+msgid "Generate for conical end mill"
+msgstr "Создать для конической фрезы"
+
+#: bCNC/plugins/endmilloffset.py:175 bCNC/plugins/endmilloffset.py:183
+#: bCNC/plugins/endmilloffset.py:191 bCNC/plugins/endmilloffset.py:199
+#: bCNC/plugins/endmilloffset.py:207 bCNC/plugins/endmilloffset.py:215
+#: bCNC/plugins/endmilloffset.py:223 bCNC/plugins/endmilloffset.py:573
+#: bCNC/ToolsPage.py:1088
+msgid "Generate pocket path"
+msgstr "Создание кармана"
+
+#: bCNC/ToolsPage.py:1062
+msgid "Generate profile path"
+msgstr "Создание пути по профилю"
+
+#: bCNC/plugins/Random.py:22 bCNC/plugins/tile.py:20
+msgid "Generate replicas of selected code"
+msgstr "Создает ряд копий выбранного кода"
+
+#: bCNC/plugins/driller.py:459
+#, fuzzy
+#| msgid "Generated Driller: {} holes"
+msgid "Generated Driller: {} holes"
+msgstr "Cверлилка: {} отверстий"
+
+#: bCNC/plugins/halftone.py:285
+#, fuzzy
+#| msgid "Generated Halftone size W={} x H={} x D={} ,Total points:{}"
+msgid "Generated Halftone size W={} x H={} x D={}, Total points: {}"
+msgstr "Создана заштриховка размером Ш={} x В={} x Д={} , всего точек:{}"
+
+#: bCNC/plugins/heightmap.py:408
+#, fuzzy
+#| msgid "Generated Heightmap {} x {} x {} "
+msgid "Generated Heightmap {} x {} x {}"
+msgstr "Создана карта высоты {} x {} x {} "
+
+#: bCNC/plugins/midi2cnc.py:353
+msgid "Generated Midi2CNC, ready to play?"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:213
+#, fuzzy
+#| msgid "Generated Pyrograph W={:g} x H={:g} x D={:g}"
+msgid "Generated Pyrograph W={:g} x H={:g} x D={:g}"
+msgstr "Создана картинка для выжигания Ш={:g} x В={:g} x Д={:g}"
+
+#: bCNC/plugins/function_plot.py:273
+#, fuzzy
+#| msgid "Generated: Spirograph"
+msgid "Generated function graph"
+msgstr "Создано: Спирограф"
+
+#: bCNC/plugins/trochoidPath.py:110
+#, fuzzy
+#| msgid "Generate for conical end mill"
+msgid "Generated path for trochoidal cutting"
+msgstr "Создать для конической фрезы"
+
+#: bCNC/plugins/arcfit.py:102
+msgid "Generated: Arc fit"
+msgstr ""
+
+#: bCNC/plugins/bowl.py:134
+msgid "Generated: BOWL"
+msgstr "Создано: МИСКА"
+
+#: bCNC/plugins/box.py:395
+msgid "Generated: BOX with fingers"
+msgstr "Создана: ШКАТУЛКА с зацепами"
+
+#: bCNC/plugins/center.py:70
+msgid "Generated: Center"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:52
+msgid "Generated: Closepath"
+msgstr ""
+
+#: bCNC/plugins/difference.py:102
+msgid "Generated: Diff"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:229
+msgid "Generated: Dragknife"
+msgstr ""
+
+#: bCNC/plugins/flatpath.py:60
+msgid "Generated: Flat"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:545
+#, fuzzy
+msgid "Generated: Helical_Descent Result"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/hilbert.py:146
+msgid "Generated: Hilbert"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/intersection.py:86
+msgid "Generated: Intersect"
+msgstr "Создано: Пересечение"
+
+#: bCNC/plugins/linearize.py:97
+msgid "Generated: Linearize"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:319
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Manual drillmark"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/simpleArc.py:91
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Arc"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/simpleDrill.py:106
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Drill"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/simpleLine.py:75
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Line"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/simpleRectangle.py:120
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Rectangle"
+msgstr "Создано: фрактал Гильберта"
+
+#: bCNC/plugins/spirograph.py:145
+msgid "Generated: Spirograph"
+msgstr "Создано: Спирограф"
+
+#: bCNC/plugins/gear.py:180
+msgid "Generated: Spur GEAR"
+msgstr "Создана: прямозубая ШЕСТЕРНЯ"
+
+#: bCNC/plugins/trochoidal.py:177
+msgid "Generated: Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:158
+msgid "Generated: Zig-Zag"
+msgstr "Создано: Зигзаг"
+
+#: bCNC/plugins/function_plot.py:14
+msgid "Generates gcode from a formula"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:387
+msgid "Generating puzzle..."
+msgstr ""
+
+#: bCNC/ProbePage.py:1704
+msgid "Get"
+msgstr "Получить"
+
+#: bCNC/ProbePage.py:2050
+msgid "Get current gantry position as machine tool change location"
+msgstr "Принять текущую позицию как положение для смены инструмента"
+
+#: bCNC/ProbePage.py:2096
+msgid "Get current gantry position as machine tool probe location"
+msgstr "Принять текущую позицию как положение для пробы при смене инструмента"
+
+#: bCNC/ProbePage.py:1706
+msgid "Get diameter from active endmill"
+msgstr "Взять диаметр текущей фрезы"
+
+#: bCNC/plugins/slicemesh.py:63
+msgid "Get flat slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:192
+msgid "Get margins from gcode file"
+msgstr "Получить границы из файла g-кода"
+
+#: bCNC/ProbePage.py:583
+msgid "Goto"
+msgstr "Переход"
+
+#: bCNC/controllers/_GenericGRBL.py:37
+msgid "Grbl '$' system command was not recognized or supported."
+msgstr "Системная команда Grbl '$' не распознана или не поддерживается."
+
+#: bCNC/controllers/_GenericGRBL.py:21
+msgid "Grbl executes jogging motion"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:13
+msgid "Grbl is in idle state and waiting for user commands"
+msgstr "Grbl в состоянии бездействия и ожидает команд пользователя"
+
+#: bCNC/controllers/_GenericGRBL.py:29
+msgid "Grbl is not connected. Please specify the correct port and click Open."
+msgstr ""
+"Нет подключения к Grbl. Пожалуйста укажите правильный порт и нажмите Открыть."
+
+#: bCNC/controllers/_GenericGRBL.py:14
+msgid "Grbl is on hold state. Click on resume (pause) to continue"
+msgstr "Grbl стоит на паузе. Нажмите продолжить (паузу)"
+
+#: bCNC/plugins/sketch.py:41
+msgid "Grundgy, search radius"
+msgstr "Неровность, радиус поиска"
+
+#: bCNC/ProbePage.py:1659
+msgid "Haircross Offset:"
+msgstr "Смещение прицела:"
+
+#: bCNC/ProbePage.py:1667
+msgid "Haircross X offset [unit]"
+msgstr "Смещение прицела X [ед.изм.]"
+
+#: bCNC/ProbePage.py:1676
+msgid "Haircross Y offset [unit]"
+msgstr "Смещение прицела Y [ед.изм.]"
+
+#: bCNC/plugins/halftone.py:15
+msgid "Halftone"
+msgstr "Штриховка"
+
+#: bCNC/plugins/halftone.py:159
+msgid "Halftone abort: Angle in V-Cutting end mill is missing"
+msgstr "Ошибка заштриховки: Не указан угол у V-образной фрезы"
+
+#: bCNC/plugins/halftone.py:173
+msgid "Halftone abort: Can't read image file"
+msgstr "Ошибка заштриховки: Не читается картинка"
+
+#: bCNC/plugins/halftone.py:148
+msgid "Halftone abort: Cell size too small"
+msgstr "Ошибка заштриховки: Размер клетки слишком мал"
+
+#: bCNC/plugins/halftone.py:165
+msgid "Halftone abort: Conical path need V-Cutting end mill"
+msgstr "Ошибка заштриховки: Конический путь требует V-образной фрезы"
+
+#: bCNC/plugins/halftone.py:144
+msgid "Halftone abort: Maximum diameter too small"
+msgstr "Ошибка заштриховки: Максимальный диаметр слишком мал"
+
+#: bCNC/plugins/halftone.py:138
+msgid "Halftone abort: Minimum diameter must be minor then Maximum"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/halftone.py:133
+msgid "Halftone abort: Size too small to draw anything!"
+msgstr ""
+"Ошибка заштриховки: размер слишком маленький чтобы нарисовать что-нибудь!"
+
+#: bCNC/plugins/halftone.py:109
+msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
+msgstr ""
+"Ошибка заштриховки: Этот плагин требует PIL/Pillow чтобы считать картинку"
+
+#: bCNC/ControlPage.py:84
+msgid "Hard Reset"
+msgstr "Аппаратный Сброс"
+
+#: bCNC/ToolsPage.py:656
+msgid "Header gcode"
+msgstr "Заголовок g-кода"
+
+#: bCNC/ToolsPage.py:1105
+msgid "Height"
+msgstr "Высота"
+
+#: bCNC/plugins/box.py:350
+msgid "Height Dz"
+msgstr "Высота Dz"
+
+#: bCNC/plugins/flatten.py:292
+msgid "Height to flatten"
+msgstr "Высота для выравнивания"
+
+#: bCNC/plugins/heightmap.py:40
+msgid "Heightmap"
+msgstr "Карта высот"
+
+#: bCNC/plugins/heightmap.py:98
+msgid "Heightmap abort: Can't read image file"
+msgstr "Ошибка карты высот: Невозможно прочитать картинку"
+
+#: bCNC/plugins/heightmap.py:89
+msgid "Heightmap abort: This plugin requires PIL/Pillow"
+msgstr "Ошибка карты высот: Этот плагин требует PIL/Pillow"
+
+#: bCNC/plugins/heightmap.py:171
+msgid "Heightmap abort: angle not defined for selected End Mill"
+msgstr "Ошибка карты высот: угол не определен для выбранной фрезы"
+
+#: bCNC/plugins/heightmap.py:102
+msgid "Heightmap abort: depth must be < 0"
+msgstr "Ошибка карты высот: глубина должна быть < 0"
+
+#: bCNC/plugins/Helical_Descent.py:271
+#, fuzzy
+msgid "Helical Abort: Drop must be greater than 0"
+msgstr "Ошибка карты высот: глубина должна быть < 0"
+
+#: bCNC/plugins/Helical_Descent.py:286
+msgid "Helical Abort: Entry Edge Clearence may be positive"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:261
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be greater than the end mill"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/Helical_Descent.py:267
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be positive"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/Helical_Descent.py:257
+#, fuzzy
+msgid "Helical Abort: Please select helical type"
+msgstr "Ошибка сверловки: пожалуйста выберите какой-нибудь контур"
+
+#: bCNC/plugins/Helical_Descent.py:281
+#, fuzzy
+msgid "Helical Abort: Please selecte Entry and Exit type"
+msgstr "Ошибка текста: пожалуйста выберите файл шрифта"
+
+#: bCNC/plugins/Helical_Descent.py:275
+msgid "Helical Abort: Z Feed Multiplier must be greater than 0"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:407
+#, fuzzy
+msgid "Helical Descent Diameter has to be greater than End mill"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/Helical_Descent.py:94
+msgid "Helical Type"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:320
+#, fuzzy
+msgid "Helical abort: Please select some path"
+msgstr "Ошибка сверловки: пожалуйста выберите какой-нибудь контур"
+
+#: bCNC/TerminalPage.py:175
+msgid "Help"
+msgstr "Помощь"
+
+#: bCNC/Ribbon.py:641
+msgid "Help [F1]"
+msgstr "Помощь [F1]"
+
+#: bCNC/plugins/hilbert.py:15
+msgid "Hilbert"
+msgstr "Гильберт"
+
+#: bCNC/plugins/hilbert.py:136
+msgid "Hilbert abort: depth must be minor or equal to zero"
+msgstr "Ошибка Гильберта: глубина должна быть отрицательной или равна нулю"
+
+#: bCNC/plugins/hilbert.py:131
+msgid "Hilbert abort: verify the size"
+msgstr "Ошибка Гильберта: пожалуйста проверьте размер"
+
+#: bCNC/controllers/_GenericGRBL.py:160
+msgid "Hold complete. Ready to resume."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:161
+msgid "Hold in-progress. Reset will throw an alarm."
+msgstr ""
+
+#: bCNC/ControlPage.py:93
+msgid "Home"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:116
+msgid "Home machine to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:39
+msgid "Homing cycle is not enabled via settings."
+msgstr "Режим поиска базы не включен в настройках"
+
+#: bCNC/controllers/_GenericGRBL.py:142
+msgid "Homing fail. Reset during active homing cycle."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:143
+msgid "Homing fail. Safety door was opened during active homing cycle."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:152
+msgid "Homing required. Execute homing command ($H) to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:612
+msgid "Horizontal"
+msgstr "Гориз."
+
+#: bCNC/Utils.py:848
+msgid "Icon to appear on button"
+msgstr "Иконка которая будет на кнопке"
+
+#: bCNC/Utils.py:837
+msgid "Icon:"
+msgstr "Иконка:"
+
+#: bCNC/plugins/Helical_Descent.py:97
+msgid "If Eddge, Edge Clearance"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:253
+msgid "If block selected false, please make a value of x"
+msgstr ""
+
+#: bCNC/ProbePage.py:67
+msgid "Ignore M6 commands"
+msgstr "Игнорировать команды M6"
+
+#: bCNC/plugins/text.py:44
+msgid "Image chars width"
+msgstr "Ширина символов картинки"
+
+#: bCNC/plugins/halftone.py:50
+msgid "Image rotation angle"
+msgstr "Угол поворота изображения"
+
+#: bCNC/plugins/text.py:43
+msgid "Image to Ascii"
+msgstr "Картинку в ASCII графику"
+
+#: bCNC/plugins/halftone.py:38 bCNC/plugins/sketch.py:52
+#: bCNC/plugins/heightmap.py:78 bCNC/plugins/pyrograph.py:48
+msgid "Image to process"
+msgstr "Картинка для обработки"
+
+#: bCNC/EditorPage.py:207 bCNC/FilePage.py:126
+msgid "Import"
+msgstr "Импорт"
+
+#: bCNC/bmain.py:2482
+msgid "Import Gcode/DXF file"
+msgstr "Импорт файла G-кода/DXF"
+
+#: bCNC/FilePage.py:131
+msgid "Import gcode/dxf file"
+msgstr "Импорт файла g-кода/dxf"
+
+#: bCNC/ControlPage.py:1008 bCNC/ControlPage.py:1484
+msgid "Increase step by 1 unit"
+msgstr "Увеличить шаг на 1 мм"
+
+#: bCNC/EditorPage.py:742 bCNC/EditorPage.py:765
+msgid "Info"
+msgstr "Информация"
+
+#: bCNC/ToolsPage.py:1630
+msgid "Insert a drill cycle on current objects/location"
+msgstr "Вставляет сверление по циклу для текущего объекта/позиции"
+
+#: bCNC/EditorPage.py:239 bCNC/EditorPage.py:266
+msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
+msgstr "Вставить новый блок или строку кода [Ins или Ctrl-Enter]"
+
+#: bCNC/ToolsPage.py:1646
+msgid "Insert holding tabs"
+msgstr "Вставляет придерживающие крепления"
+
+#: bCNC/Updates.py:60
+msgid "Installed Version:"
+msgstr "Установленная Версия:"
+
+#: bCNC/plugins/box.py:347
+#, fuzzy
+msgid "Internal Dimensions"
+msgstr "Внутренний радиус"
+
+#: bCNC/plugins/spirograph.py:120
+msgid "Internal Radius"
+msgstr "Внутренний радиус"
+
+#: bCNC/plugins/intersection.py:18
+msgid "Intersection"
+msgstr "Пересечение"
+
+#: bCNC/plugins/intersection.py:24
+msgid "Intersection of two shapes"
+msgstr ""
+
+#: bCNC/Updates.py:103
+msgid "Interval (days):"
+msgstr "Интервал (дней):"
+
+#: bCNC/ProbePage.py:1412
+msgid "Invalid X probing region"
+msgstr "Неверный регион пробы по X"
+
+#: bCNC/ProbePage.py:1421
+msgid "Invalid X range [xmin>=xmax]"
+msgstr "Неверный диапазон по оси X [x мин. >= x макс.]"
+
+#: bCNC/ProbePage.py:1436
+msgid "Invalid Y probing region"
+msgstr "Неверный регион пробы по Y"
+
+#: bCNC/ProbePage.py:1445
+msgid "Invalid Y range [ymin>=ymax]"
+msgstr "Неверный диапазон по оси Y [y мин. >= y макс.]"
+
+#: bCNC/ProbePage.py:1457
+msgid "Invalid Z probing region"
+msgstr "Неверный регион пробы по Z"
+
+#: bCNC/ProbePage.py:1466
+msgid "Invalid Z range [zmin>=zmax]"
+msgstr "Неверный диапазон по оси Z [z мин. >= z макс.]"
+
+#: bCNC/Sender.py:355
+#, fuzzy
+#| msgid "Invalid command {}"
+msgid "Invalid command {}"
+msgstr "Неверная команда {}"
+
+#: bCNC/ProbePage.py:988
+msgid "Invalid diameter entered"
+msgstr "Введен неверный диаметр"
+
+#: bCNC/bmain.py:1585
+#, fuzzy
+#| msgid "Invalid direction {} specified"
+msgid "Invalid direction {} specified"
+msgstr "Указано неверное направление {}"
+
+#: bCNC/ProbePage.py:923 bCNC/ProbePage.py:1475
+msgid "Invalid probe feed rate"
+msgstr "Неверная подача для пробы"
+
+#: bCNC/ProbePage.py:2199
+msgid "Invalid tool change position"
+msgstr "Неверная позиция для замены инструмента"
+
+#: bCNC/ProbePage.py:2231
+msgid "Invalid tool height or not calibrated"
+msgstr "Неверная высота инструмента или не откалиброван"
+
+#: bCNC/ProbePage.py:2211
+msgid "Invalid tool probe location"
+msgstr "Неверная позиция для пробы"
+
+#: bCNC/ProbePage.py:2221 bCNC/ProbePage.py:2241
+msgid "Invalid tool scanning distance entered"
+msgstr "Введена неверная дистанция для пробы"
+
+#: bCNC/bmain.py:1978
+#, fuzzy
+#| msgid "Invalid user command {}"
+msgid "Invalid user command {}"
+msgstr "Неверная пользовательская команда {}"
+
+#: bCNC/plugins/heightmap.py:76 bCNC/EditorPage.py:138 bCNC/EditorPage.py:543
+msgid "Invert"
+msgstr "Инверт."
+
+#: bCNC/plugins/halftone.py:45
+msgid "Invert Colors"
+msgstr "Инвертировать цвета"
+
+#: bCNC/EditorPage.py:549
+msgid "Invert cutting order of selected blocks"
+msgstr "Инвертировать порядок резки выделенных блоков"
+
+#: bCNC/EditorPage.py:144
+msgid "Invert selection [Ctrl-I]"
+msgstr "Инвертировать выделение [Ctrl-I]"
+
+#: bCNC/ToolsPage.py:1655
+msgid "Island"
+msgstr "Регион"
+
+#: bCNC/plugins/endmilloffset.py:494
+msgid "Island behaviour"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:403
+msgid "Jigsaw puzzle generated in {}s"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:353
+msgid "Jigsaw puzzle generator"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:58
+msgid "Jog command with no '=' or contains prohibited g-code."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:57
+msgid "Jog target exceeds machine travel. Command ignored."
+msgstr ""
+
+#: bCNC/EditorPage.py:386
+msgid "Join"
+msgstr "Объединить"
+
+#: bCNC/EditorPage.py:392
+msgid "Join selected blocks"
+msgstr "Объединить выбранные блоки"
+
+#: bCNC/plugins/simpleTranslate.py:29
+msgid "Keep original Yes/No"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:30
+msgid "Keep original yes/no"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1911
+msgid "Language change"
+msgstr "Изменение языка"
+
+#: bCNC/ToolsPage.py:638
+msgid "Laser Adaptive Power"
+msgstr "Адаптивная мощность лазера"
+
+#: bCNC/ToolsPage.py:637
+msgid "Laser Cutter"
+msgstr "Лазерная резка"
+
+#: bCNC/controllers/_GenericGRBL.py:59
+msgid "Laser mode requires PWM output."
+msgstr ""
+
+#: bCNC/plugins/driller.py:70
+msgid "Laser power maximum"
+msgstr ""
+
+#: bCNC/plugins/driller.py:63
+msgid "Laser power minimum"
+msgstr ""
+
+#: bCNC/Updates.py:89
+msgid "Last Check:"
+msgstr "Последняя проверка:"
+
+#: bCNC/ControlPage.py:603 bCNC/ControlPage.py:910
+#, fuzzy
+#| msgid "Last error: {}\n"
+msgid "Last error: {}\n"
+msgstr "Последняя ошибка: {}\n"
+
+#: bCNC/Updates.py:67
+msgid "Latest Github Version:"
+msgstr "Последняя Версия на Github:"
+
+#: bCNC/Updates.py:73
+#, fuzzy
+#| msgid "Latest release version on on github"
+msgid "Latest release version on github"
+msgstr "Последняя опубликованная версия на github"
+
+#: bCNC/EditorPage.py:154
+msgid "Layer"
+msgstr "Слой"
+
+#: bCNC/ToolsPage.py:811
+msgid "Leave islands uncut"
+msgstr "Оставлять островки"
+
+#: bCNC/EditorPage.py:460
+msgid "Left"
+msgstr "Влево"
+
+#: bCNC/ToolsPage.py:716
+msgid "Length"
+msgstr "Длина"
+
+#: bCNC/plugins/spiral.py:477
+msgid "Length of Stock to Reduce"
+msgstr ""
+
+#: bCNC/bmain.py:1204 bCNC/bmain.py:1290
+msgid "Length:"
+msgstr "Длина:"
+
+#: bCNC/plugins/spiral.py:484
+msgid "Lift before rotate"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:154
+msgid "Limit switch engaged. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:245
+msgid "Line"
+msgstr "Линия"
+
+#: bCNC/plugins/zigzag.py:107
+msgid "Line length"
+msgstr "Длина линии"
+
+#: bCNC/plugins/linearize.py:11
+msgid "Linearize"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:503
+msgid "Link segments"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:136
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading mesh: {}"
+msgstr "Загрузка: {} ..."
+
+#: bCNC/bmain.py:2424
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading: {} ..."
+msgstr "Загрузка: {} ..."
+
+#: bCNC/ProbePage.py:1635
+msgid "Location:"
+msgstr "Позиция:"
+
+#: bCNC/plugins/driller.py:51
+msgid "M3 for laser (settings below)"
+msgstr ""
+
+#: bCNC/ControlPage.py:314 bCNC/ControlPage.py:693
+msgid "MPos:"
+msgstr "Маш.Поз:"
+
+#: bCNC/ProbePage.py:2002
+msgid "MX"
+msgstr ""
+
+#: bCNC/ProbePage.py:2004
+msgid "MY"
+msgstr ""
+
+#: bCNC/ProbePage.py:2006
+msgid "MZ"
+msgstr ""
+
+#: bCNC/ProbePage.py:775
+msgid "Machine X coordinate of orientation point"
+msgstr "Машинная X координата точки ориентации"
+
+#: bCNC/ProbePage.py:787
+msgid "Machine Y coordinate of orientation point"
+msgstr "Машинная Y координата точки ориентации"
+
+#: bCNC/ToolsPage.py:1829
+msgid "Machine configuration for bCNC"
+msgstr "Настройки станка для bCNC"
+
+#: bCNC/controllers/_GenericGRBL.py:163
+msgid "Machine stopped. Door still ajar. Can't resume until closed."
+msgstr ""
+
+#: bCNC/ProbePage.py:1962
+msgid "Manual Tool Change"
+msgstr "Смена Инструмента Вручную"
+
+#: bCNC/ProbePage.py:70
+msgid "Manual Tool Change (NoProbe)"
+msgstr "Ручная смена инструмента (без пробы)"
+
+#: bCNC/ProbePage.py:69
+msgid "Manual Tool Change (TLO)"
+msgstr "Ручная смена инструмента (TLO)"
+
+#: bCNC/ProbePage.py:68
+msgid "Manual Tool Change (WCS)"
+msgstr "Ручная смена инструмента (WCS)"
+
+#: bCNC/plugins/drillmark.py:317
+msgid "Manual drill mark"
+msgstr ""
+
+#: bCNC/ProbePage.py:2018
+msgid "Manual tool change Machine X location"
+msgstr "Машинная X координата для ручной смены инструмента"
+
+#: bCNC/ProbePage.py:2029
+msgid "Manual tool change Machine Y location"
+msgstr "Машинная Y координата для ручной смены инструмента"
+
+#: bCNC/ProbePage.py:2040
+msgid "Manual tool change Machine Z location"
+msgstr "Машинная Z координата для ручной смены инструмента"
+
+#: bCNC/ProbePage.py:2064
+msgid "Manual tool change Probing MX location"
+msgstr "Машинная X координата для пробы при ручной смене инструмента"
+
+#: bCNC/ProbePage.py:2075
+msgid "Manual tool change Probing MY location"
+msgstr "Машинная Y координата для пробы при ручной смене инструмента"
+
+#: bCNC/ProbePage.py:2086
+msgid "Manual tool change Probing MZ location"
+msgstr "Машинная Z координата для пробы при ручной смене инструмента"
+
+#: bCNC/ProbePage.py:186
+msgid "Margins"
+msgstr "Границы"
+
+#: bCNC/bmain.py:1159 bCNC/bmain.py:1240
+msgid "Margins X:"
+msgstr "Границы X:"
+
+#: bCNC/plugins/drillmark.py:46
+msgid "Mark X center"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:47
+msgid "Mark Y center"
+msgstr ""
+
+#: bCNC/ProbePage.py:1752
+msgid "Mark camera position for calculating offset"
+msgstr "Взять позицию камеры для вычисления смещения"
+
+#: bCNC/plugins/drillmark.py:50
+msgid "Mark drawing power"
+msgstr ""
+
+#: bCNC/ProbePage.py:1745
+msgid "Mark spindle position for calculating offset"
+msgstr "Взять позицию шпинделя для вычисления смещения"
+
+#: bCNC/ProbePage.py:683
+msgid "Markers:"
+msgstr "Маркеры:"
+
+#: bCNC/ToolsPage.py:711 bCNC/ToolsPage.py:739 bCNC/ToolsPage.py:1421
+msgid "Material"
+msgstr "Материал"
+
+#: bCNC/ProbePage.py:1232
+msgid "Max"
+msgstr "Макс"
+
+#: bCNC/plugins/spiral.py:479
+msgid "Max Depth per Pass"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:48
+msgid "Max characters per line exceeded. Line was not processed and executed."
+msgstr ""
+"Превышен лимит максимальной длины строки. Строка не была обработана и "
+"выполнена."
+
+#: bCNC/plugins/halftone.py:48
+msgid "Max diameter, cap limit"
+msgstr "Макс. диаметр, лимит"
+
+#: bCNC/plugins/halftone.py:46
+msgid "Max draw size (Width or Height)"
+msgstr "Макс. размер (Ширина или Высота)"
+
+#: bCNC/controllers/_GenericGRBL.py:113
+msgid "Max. feed rate exceeded. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:64
+msgid "Maximum X travel"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:65
+msgid "Maximum Y travel"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:66
+msgid "Maximum Z travel"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:42
+msgid "Maximum feed"
+msgstr "Макс. подача"
+
+#: bCNC/plugins/sketch.py:48
+msgid "Maximum light"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:44 bCNC/plugins/heightmap.py:66
+#: bCNC/plugins/pyrograph.py:40
+msgid "Maximum size"
+msgstr "Макс. размер"
+
+#: bCNC/plugins/slicemesh.py:194
+msgid "Mesh sliced"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:71
+msgid "Midi to process"
+msgstr ""
+
+#: bCNC/ProbePage.py:1230
+msgid "Min"
+msgstr "Мин"
+
+#: bCNC/plugins/halftone.py:49
+msgid "Min diameter, cut off"
+msgstr "Мин. диаметр, отсечка"
+
+#: bCNC/ToolsPage.py:1102
+msgid "Min. Distance of tabs"
+msgstr "Мин. расстояние для крепежей"
+
+#: bCNC/plugins/trochoidal_3D.py:420
+#, fuzzy
+#| msgid "Minimum step pulse time must be greater than 3usec"
+msgid "Minimum Adaptative Feed has to be greater than 0"
+msgstr "Минимальное время шагового импульса должно быть больше 3 мск"
+
+#: bCNC/plugins/pyrograph.py:41
+msgid "Minimum feed"
+msgstr "Мин. подача"
+
+#: bCNC/controllers/_GenericGRBL.py:40
+msgid "Minimum step pulse time must be greater than 3usec"
+msgstr "Минимальное время шагового импульса должно быть больше 3 мск"
+
+#: bCNC/EditorPage.py:619
+msgid "Mirror horizontally X=-X selected gcode"
+msgstr "Отразить горизонтально X=-X выбранный g-код"
+
+#: bCNC/EditorPage.py:634
+msgid "Mirror vertically Y=-Y selected gcode"
+msgstr "Отразить вертикально Y=-Y выбранный g-код"
+
+#: bCNC/ControlPage.py:2182
+msgid "Mist"
+msgstr "Туман"
+
+#: bCNC/ControlPage.py:2009
+msgid "Mode:"
+msgstr "Режим:"
+
+#: bCNC/ProbePage.py:261
+msgid "Modify selected G-Code to match autolevel"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:61
+msgid "More than one g-code command from same modal group found in block."
+msgstr ""
+
+#: bCNC/ToolsPage.py:714
+msgid "Mount Axis"
+msgstr "Ось крепления"
+
+#: bCNC/EditorPage.py:416 bCNC/EditorPage.py:424
+msgid "Move"
+msgstr "Переместить"
+
+#: bCNC/ControlPage.py:1428
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +A"
+msgstr "Перемещение +X"
+
+#: bCNC/ControlPage.py:1530
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +B"
+msgstr "Перемещение +X"
+
+#: bCNC/ControlPage.py:1468
+#, fuzzy
+#| msgid "Move +X +Y"
+msgid "Move +B +C"
+msgstr "Перемещение +X +Y"
+
+#: bCNC/ControlPage.py:1635
+#, fuzzy
+#| msgid "Move +X -Y"
+msgid "Move +B -C"
+msgstr "Перемещение +X -Y"
+
+#: bCNC/ControlPage.py:1455
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +C"
+msgstr "Перемещение +X"
+
+#: bCNC/ControlPage.py:1060
+msgid "Move +X"
+msgstr "Перемещение +X"
+
+#: bCNC/ControlPage.py:992
+msgid "Move +X +Y"
+msgstr "Перемещение +X +Y"
+
+#: bCNC/ControlPage.py:1163
+msgid "Move +X -Y"
+msgstr "Перемещение +X -Y"
+
+#: bCNC/ControlPage.py:980
+msgid "Move +Y"
+msgstr "Перемещение +Y"
+
+#: bCNC/ControlPage.py:954
+msgid "Move +Z"
+msgstr "Перемещение +Z"
+
+#: bCNC/ControlPage.py:1596
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -A"
+msgstr "Перемещение -X"
+
+#: bCNC/ControlPage.py:1504
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -B"
+msgstr "Перемещение -X"
+
+#: bCNC/ControlPage.py:1442
+#, fuzzy
+#| msgid "Move -X +Y"
+msgid "Move -B +C"
+msgstr "Перемещение -X +Y"
+
+#: bCNC/ControlPage.py:1609
+#, fuzzy
+#| msgid "Move -X -Y"
+msgid "Move -B -C"
+msgstr "Перемещение -X -Y"
+
+#: bCNC/ControlPage.py:1622
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -C"
+msgstr "Перемещение -X"
+
+#: bCNC/ControlPage.py:1028
+msgid "Move -X"
+msgstr "Перемещение -X"
+
+#: bCNC/ControlPage.py:967
+msgid "Move -X +Y"
+msgstr "Перемещение -X +Y"
+
+#: bCNC/ControlPage.py:1137
+msgid "Move -X -Y"
+msgstr "Перемещение -X -Y"
+
+#: bCNC/ControlPage.py:1150
+msgid "Move -Y"
+msgstr "Перемещение -Y"
+
+#: bCNC/ControlPage.py:1124
+msgid "Move -Z"
+msgstr "Перемещение -Z"
+
+#: bCNC/CNCCanvas.py:451
+msgid "Move CNC gantry to mouse location"
+msgstr "Перемещение ЧПУ в координаты мышки"
+
+#: bCNC/ControlPage.py:451
+msgid "Move Gantry"
+msgstr "В точку"
+
+#: bCNC/EditorPage.py:451
+msgid "Move all gcode such as origin is on mouse location [O]"
+msgstr "Передвинуть ноль g-кода в позицию мышки [O]"
+
+#: bCNC/CNCCanvas.py:760
+#, fuzzy
+#| msgid "Move by {:g}, {:g}, {:g}"
+msgid "Move by {:g}, {:g}, {:g}"
+msgstr "Перемещение на {:g}, {:g}, {:g}"
+
+#: bCNC/ControlPage.py:461
+msgid "Move gantry to mouse location [g]"
+msgstr "Переместить станок в позицию мышки [g]"
+
+#: bCNC/CNCCanvas.py:445
+msgid "Move graphically objects"
+msgstr "Перемещайте объекты"
+
+#: bCNC/EditorPage.py:433
+msgid "Move objects [M]"
+msgstr "Перемещение объектов [M]"
+
+#: bCNC/EditorPage.py:532
+msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
+msgstr "Переместить выделенный g-код ниже [Ctrl-Down, Ctrl-PgDn]"
+
+#: bCNC/EditorPage.py:513
+msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
+msgstr "Переместить выделенный g-код выше [Ctrl-Up, Ctrl-PgUp]"
+
+#: bCNC/plugins/simpleTranslate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Moved selected blocks"
+msgstr "Созданы ряды выбранных блоков"
+
+#: bCNC/ControlPage.py:1001 bCNC/ControlPage.py:1477
+msgid "Multiply step by 10"
+msgstr "Умножить шаг на 10"
+
+#: bCNC/ProbePage.py:1236
+msgid "N"
+msgstr "Кол-во"
+
+#: bCNC/controllers/_GenericGRBL.py:72
+msgid "N line number value is not within the valid range of 1 - 9,999,999."
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:304 bCNC/plugins/Helical_Descent.py:77
+#: bCNC/plugins/Random.py:29 bCNC/plugins/arcfit.py:32 bCNC/plugins/bowl.py:112
+#: bCNC/plugins/box.py:346 bCNC/plugins/center.py:35
+#: bCNC/plugins/difference.py:40 bCNC/plugins/dragknife.py:41
+#: bCNC/plugins/driller.py:44 bCNC/plugins/drillmark.py:38
+#: bCNC/plugins/endmilloffset.py:437 bCNC/plugins/flatten.py:288
+#: bCNC/plugins/function_plot.py:23 bCNC/plugins/gear.py:160
+#: bCNC/plugins/halftone.py:37 bCNC/plugins/hilbert.py:111
+#: bCNC/plugins/intersection.py:41 bCNC/plugins/jigsaw.py:360
+#: bCNC/plugins/linearize.py:33 bCNC/plugins/midi2cnc.py:60
+#: bCNC/plugins/scaling.py:38 bCNC/plugins/sketch.py:36
+#: bCNC/plugins/spiral.py:471 bCNC/plugins/spirograph.py:118
+#: bCNC/plugins/text.py:37 bCNC/plugins/tile.py:27
+#: bCNC/plugins/trochoidPath.py:37 bCNC/plugins/trochoidal.py:43
+#: bCNC/plugins/trochoidal_3D.py:46 bCNC/plugins/zigzag.py:105
+#: bCNC/plugins/heightmap.py:64 bCNC/plugins/pyrograph.py:37
+#: bCNC/plugins/slicemesh.py:55 bCNC/ToolsPage.py:680 bCNC/ToolsPage.py:707
+#: bCNC/ToolsPage.py:737 bCNC/ToolsPage.py:765 bCNC/ToolsPage.py:937
+#: bCNC/ToolsPage.py:998 bCNC/ToolsPage.py:1073 bCNC/ToolsPage.py:1099
+#: bCNC/ToolsPage.py:1981
+msgid "Name"
+msgstr "Название"
+
+#: bCNC/Utils.py:833
+msgid "Name to appear on button"
+msgstr "Название которое будет на кнопке"
+
+#: bCNC/Utils.py:829
+msgid "Name:"
+msgstr "Название:"
+
+#: bCNC/controllers/_GenericGRBL.py:38
+msgid "Negative value received for an expected positive value."
+msgstr ""
+"Получено отрицательное значение, хотя ожидалось положительное значение."
+
+#: bCNC/FilePage.py:85
+msgid "New"
+msgstr "Создать"
+
+#: bCNC/Ribbon.py:574
+msgid "New file"
+msgstr "Новый файл"
+
+#: bCNC/FilePage.py:90
+msgid "New gcode/dxf file"
+msgstr "Создать g-код/dxf файл"
+
+#: bCNC/lib/bFileDialog.py:863
+msgid "NewFolder"
+msgstr "НоваяПапка"
+
+#: bCNC/plugins/Random.py:45 bCNC/plugins/simpleRotate.py:49
+#: bCNC/plugins/simpleTranslate.py:47 bCNC/plugins/tile.py:44
+msgid "No g-code blocks selected"
+msgstr "Нет выделеных блоков g-кода"
+
+#: bCNC/plugins/gear.py:161
+msgid "No of teeth"
+msgstr "Кол-во зубьев"
+
+#: bCNC/EditorPage.py:122
+msgid "None"
+msgstr "Сброс"
+
+#: bCNC/bmain.py:2658
+msgid "Not gcode file was loaded"
+msgstr "Был загружен файл не с g-кодом"
+
+#: bCNC/bmain.py:2035
+msgid "Nothing to do"
+msgstr "Нечего делать"
+
+#: bCNC/ToolsPage.py:943
+msgid "Number"
+msgstr "Количество"
+
+#: bCNC/plugins/trochoidPath.py:60
+#, fuzzy
+#| msgid "Number of tabs"
+msgid "Number of Tabs 0 = Not Tabs"
+msgstr "Количество крепежей"
+
+#: bCNC/plugins/zigzag.py:106
+msgid "Number of lines"
+msgstr "Количество линий"
+
+#: bCNC/ToolsPage.py:1101
+msgid "Number of tabs"
+msgstr "Количество крепежей"
+
+#: bCNC/controllers/_GenericGRBL.py:36
+msgid "Numeric value format is not valid or missing an expected value."
+msgstr "Числовой формат значения неверный или отсутствует ожидаемое значение."
+
+#: bCNC/ControlPage.py:2154
+msgid "OFF"
+msgstr "ВЫКЛ"
+
+#: bCNC/ProbePage.py:73
+msgid "ONLY before probing"
+msgstr "ТОЛЬКО перед пробой"
+
+#: bCNC/plugins/endmilloffset.py:14
+#, fuzzy
+#| msgid "Offset:"
+msgid "Offset"
+msgstr "Сдвиг:"
+
+#: bCNC/plugins/spirograph.py:121
+msgid "Offset radius"
+msgstr "Радиус смещения"
+
+#: bCNC/plugins/endmilloffset.py:462
+#, fuzzy
+#| msgid "Offset radius"
+msgid "Offset side"
+msgstr "Радиус смещения"
+
+#: bCNC/ProbePage.py:836 bCNC/ProbePage.py:1710
+msgid "Offset:"
+msgstr "Сдвиг:"
+
+#: bCNC/Utils.py:877
+msgid "Ok"
+msgstr "Ok"
+
+#: bCNC/controllers/_GenericGRBL.py:115
+msgid "Only homing is allowed when a limit switch is engaged. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:816
+msgid "Only leave selected islands uncut"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:337 bCNC/lib/bFileDialog.py:938
+#: bCNC/lib/bFileDialog.py:1063 bCNC/FilePage.py:110 bCNC/FilePage.py:376
+#: bCNC/bmain.py:2546
+msgid "Open"
+msgstr "Открыть"
+
+#: bCNC/FilePage.py:103
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr "Открыть существующий g-код/dxf файл [Ctrl-O]"
+
+#: bCNC/bmain.py:2345
+msgid "Open file"
+msgstr "Открыть файл"
+
+#: bCNC/Ribbon.py:584
+msgid "Open file [Ctrl-O]"
+msgstr "Открыть файл [Ctrl-O]"
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+msgid "Open paths"
+msgstr "Открытые пути"
+
+#: bCNC/FilePage.py:116
+msgid "Open recent file"
+msgstr "Открыть последние файлы"
+
+#: bCNC/Updates.py:186
+msgid "Open web browser to download bCNC"
+msgstr "Открыть браузер для загрузки bCNC"
+
+#: bCNC/ControlPage.py:129
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Open/Close connection"
+msgstr "Подключить/отключить последовательный порт"
+
+#: bCNC/FilePage.py:384
+msgid "Open/Close serial port"
+msgstr "Подключить/отключить последовательный порт"
+
+#: bCNC/plugins/endmilloffset.py:443
+#, fuzzy
+#| msgid "Operation error"
+msgid "Operation"
+msgstr "Ошибка операции"
+
+#: bCNC/bmain.py:2083
+msgid "Operation error"
+msgstr "Ошибка операции"
+
+#: bCNC/bmain.py:2036
+#, fuzzy
+#| msgid "Operation {} requires some gcode to be selected"
+msgid "Operation {} requires some gcode to be selected"
+msgstr "Для операция {} требуется выбрать g-код"
+
+#: bCNC/EditorPage.py:490 bCNC/bmain.py:1780
+msgid "Optimize"
+msgstr "Оптимизировать"
+
+#: bCNC/FilePage.py:168
+msgid "Options"
+msgstr "Опции"
+
+#: bCNC/plugins/hilbert.py:113 bCNC/EditorPage.py:486
+msgid "Order"
+msgstr "Порядок"
+
+#: bCNC/ProbePage.py:677 bCNC/ProbePage.py:822 bCNC/bmain.py:138
+msgid "Orient"
+msgstr "Ориентировать"
+
+#: bCNC/EditorPage.py:441
+msgid "Origin"
+msgstr "Ноль"
+
+#: bCNC/plugins/box.py:355 bCNC/plugins/trochoidPath.py:52
+#: bCNC/plugins/trochoidal_3D.py:76 bCNC/ToolsPage.py:1018
+msgid "Overcut"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:485
+msgid "Overcut corners"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:985
+#, fuzzy
+#| msgid "Overwrite existing file {}?"
+msgid "Overwrite existing file {}?"
+msgstr "Перезаписать существующий файл {}?"
+
+#: bCNC/ProbePage.py:496
+msgid "POINT"
+msgstr "ТОЧКА"
+
+#: bCNC/CNCCanvas.py:435
+msgid "Pan viewport"
+msgstr "Прокручивайте окно"
+
+#: bCNC/CNCCanvas.py:2300
+msgid "Pan viewport [X]"
+msgstr "Прокрутка в окне [X]"
+
+#: bCNC/TerminalPage.py:96
+msgid "Parameters"
+msgstr "Параметры"
+
+#: bCNC/EditorPage.py:49
+msgid "Paste"
+msgstr "Вставка"
+
+#: bCNC/EditorPage.py:55
+msgid "Paste [Ctrl-V]"
+msgstr "Вставка [Ctrl-V]"
+
+#: bCNC/ControlPage.py:192
+msgid "Pause"
+msgstr "Пауза"
+
+#: bCNC/ControlPage.py:214
+msgid "Pause running program and soft reset controller to empty the buffer."
+msgstr ""
+"Приостанавливает выполнение программы и делает программный сброс контроллера "
+"чтобы очистить буфер."
+
+#: bCNC/ControlPage.py:199
+msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+msgstr ""
+"Приостанавливает выполнение программы. Посылает или FEED_HOLD ! или "
+"CYCLE_START ~"
+
+#: bCNC/ProbePage.py:1985
+msgid "Pause:"
+msgstr "Пауза:"
+
+#: bCNC/ToolsPage.py:940
+msgid "Peck depth"
+msgstr "Глубина до подпрыжки"
+
+#: bCNC/plugins/simpleDrill.py:70
+#, fuzzy
+#| msgid "Peck depth"
+msgid "Peck depth (positive)"
+msgstr "Глубина до подпрыжки"
+
+#: bCNC/plugins/driller.py:47
+#, fuzzy
+#| msgid "Peck, 0 meas None"
+msgid "Peck, 0 means None"
+msgstr "Долбление, 0 означает Нет"
+
+#: bCNC/FilePage.py:232 bCNC/bmain.py:2713 bCNC/bmain.py:2719
+#: bCNC/bmain.py:2733
+msgid "Pendant"
+msgstr "Пульт"
+
+#: bCNC/bmain.py:2720
+msgid "Pendant already started:\n"
+msgstr "Пульт уже запущен:\n"
+
+#: bCNC/bmain.py:2714
+msgid "Pendant started:\n"
+msgstr "Пульт запущен:\n"
+
+#: bCNC/bmain.py:2734
+msgid "Pendant stopped"
+msgstr "Пульт остановлен"
+
+#: bCNC/ProbePage.py:2135
+msgid "Perform a calibration probing to determine the height"
+msgstr "Выполнить калибровку, чтобы определить высоту пробника"
+
+#: bCNC/ControlPage.py:100
+#, fuzzy
+#| msgid "Perform a homing cycle [$H]"
+msgid "Perform a homing cycle [$H] now"
+msgstr "Выполняет цикл базирования осей [$H]"
+
+#: bCNC/ToolsPage.py:1613
+msgid "Perform a pocket operation on selected code"
+msgstr "Выполнить карман для выбранного кода"
+
+#: bCNC/ToolsPage.py:1595
+msgid "Perform a profile operation on selected code"
+msgstr "Выполнить операцию профиля для выбранного кода"
+
+#: bCNC/ProbePage.py:1935
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr "Выполнить один цикл смены инструмента для установки поля калибровки"
+
+#: bCNC/ProbePage.py:636
+msgid "Perform a single probe cycle"
+msgstr "Выполнить один цикл пробы"
+
+#: bCNC/ProbePage.py:1951
+msgid "Perform a tool change cycle"
+msgstr "Выполнить смену инструмента"
+
+#: bCNC/plugins/jigsaw.py:363
+msgid "Piece count"
+msgstr ""
+
+#: bCNC/ControlPage.py:1978
+msgid "Plane [G17,G18,G19]"
+msgstr "Плоскость [G17,G18,G19]"
+
+#: bCNC/controllers/_GenericGRBL.py:112
+msgid "Plane must be ZX for threading. (grblHAL)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1967
+msgid "Plane:"
+msgstr "Плоскость:"
+
+#: bCNC/ToolsPage.py:1912
+msgid "Please restart the program."
+msgstr "Пожалуйста перезапустите программу"
+
+#: bCNC/bmain.py:1781
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "Пожалуйста выберите блоки g-кода, которые вы хотите оптимизировать"
+
+#: bCNC/bmain.py:2609
+msgid "Please stop before"
+msgstr "Пожалуйста сначала остановите"
+
+#: bCNC/ToolsPage.py:651
+msgid "Plotting Arc accuracy"
+msgstr "Точность построения дуги"
+
+#: bCNC/plugins/scaling.py:44 bCNC/plugins/trochoidal_3D.py:96
+#: bCNC/ToolsPage.py:683 bCNC/ToolsPage.py:770
+msgid "Plunge Feed"
+msgstr "Подача на заглублении"
+
+#: bCNC/plugins/trochoidal_3D.py:415
+msgid "Plunge Feed has to be greater than 0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1025 bCNC/ToolsPage.py:1604
+msgid "Pocket"
+msgstr "Карман"
+
+#: bCNC/plugins/flatten.py:299
+msgid "Pocket type"
+msgstr "Тип кармана"
+
+#: bCNC/ProbePage.py:1164
+msgid "Pointrec"
+msgstr ""
+
+#: bCNC/ProbePage.py:1967
+msgid "Policy:"
+msgstr "Правило:"
+
+#: bCNC/FilePage.py:294
+msgid "Port:"
+msgstr "Порт:"
+
+#: bCNC/ProbePage.py:596
+msgid "Pos:"
+msgstr "Коорд:"
+
+#: bCNC/EditorPage.py:209
+msgid "Postprocess Inkscape g-code"
+msgstr ""
+
+#: bCNC/plugins/gear.py:162
+msgid "Pressure angle"
+msgstr "Угол от нормали"
+
+#: bCNC/ProbePage.py:106 bCNC/ProbePage.py:114 bCNC/ProbePage.py:539
+#: bCNC/ProbePage.py:627 bCNC/bmain.py:137
+msgid "Probe"
+msgstr "Проба"
+
+#: bCNC/ProbePage.py:987
+msgid "Probe Center Error"
+msgstr "Ошибка пробы - центровки"
+
+#: bCNC/ProbePage.py:369
+msgid "Probe Command"
+msgstr "Команда пробы"
+
+#: bCNC/ProbePage.py:922 bCNC/ProbePage.py:955 bCNC/ProbePage.py:1411
+#: bCNC/ProbePage.py:1420 bCNC/ProbePage.py:1435 bCNC/ProbePage.py:1444
+#: bCNC/ProbePage.py:1456 bCNC/ProbePage.py:1465 bCNC/ProbePage.py:1474
+msgid "Probe Error"
+msgstr "Ошибка пробы"
+
+#: bCNC/ProbePage.py:328
+msgid "Probe Feed:"
+msgstr "Подача пробы:"
+
+#: bCNC/bmain.py:2390
+msgid "Probe File modified"
+msgstr "Файл пробы изменён"
+
+#: bCNC/ProbePage.py:2198 bCNC/ProbePage.py:2210 bCNC/ProbePage.py:2220
+#: bCNC/ProbePage.py:2230 bCNC/ProbePage.py:2240
+msgid "Probe Tool Change Error"
+msgstr "Ошибка смены инструмента для пробы"
+
+#: bCNC/ProbePage.py:603
+msgid "Probe along X direction"
+msgstr "Проба вдоль оси X"
+
+#: bCNC/ProbePage.py:611
+msgid "Probe along Y direction"
+msgstr "Проба вдоль оси Y"
+
+#: bCNC/ProbePage.py:619
+msgid "Probe along Z direction"
+msgstr "Проба вдоль оси Z"
+
+#: bCNC/ProbePage.py:2366
+msgid "Probe configuration and probing"
+msgstr "Проба и настройки"
+
+#: bCNC/ProbePage.py:902
+msgid "Probe connected?"
+msgstr "Проба подключена?"
+
+#: bCNC/controllers/_GenericGRBL.py:155
+msgid "Probe protection triggered. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2391
+msgid "Probe was modified do you want to save it first?"
+msgstr "Файл пробы был изменён, хотите его сохранить?"
+
+#: bCNC/ProbePage.py:543 bCNC/ProbePage.py:2057
+msgid "Probe:"
+msgstr "Проба:"
+
+#: bCNC/ProbePage.py:655
+msgid "Probing ring internal diameter"
+msgstr "Внутренний диаметр кольца для пробы"
+
+#: bCNC/plugins/box.py:354 bCNC/ToolsPage.py:1586
+msgid "Profile"
+msgstr "Профиль"
+
+#: bCNC/bmain.py:2129 bCNC/bmain.py:2231
+msgid "Profile block distance={:g}"
+msgstr ""
+
+#: bCNC/plugins/bowl.py:115
+msgid "Progressive"
+msgstr "Прогрессивный"
+
+#: bCNC/Updates.py:74
+msgid "Published at:"
+msgstr "Опубликовано:"
+
+#: bCNC/Updates.py:80
+msgid "Published date of the latest github release"
+msgstr "Дата публикации последней версии на github"
+
+#: bCNC/plugins/midi2cnc.py:61
+msgid "Pulse per unit for X"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:62
+msgid "Pulse per unit for Y"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:63
+msgid "Pulse per unit for Z"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:13
+msgid "Pyrograph"
+msgstr "Выжигание"
+
+#: bCNC/plugins/pyrograph.py:97
+msgid "Pyrograph abort: Can't read image file"
+msgstr "Ошибка выжигания: Не удается считать файл картинки"
+
+#: bCNC/plugins/pyrograph.py:85
+msgid "Pyrograph abort: Please check feed rate parameters"
+msgstr "Ошибка выжигания: Пожалуйста проверьте параметры подачи"
+
+#: bCNC/plugins/pyrograph.py:58
+msgid "Pyrograph abort: This plugin requires PIL/Pillow"
+msgstr "Ошибка выжигания: Этот плагин требует PIL/Pillow"
+
+#: bCNC/plugins/pyrograph.py:80
+msgid "Pyrograph abort: Tool Size must be > 0"
+msgstr "Ошибка выжигания: Размер инструмента должен быть > 0"
+
+#: bCNC/plugins/pyrograph.py:76
+msgid "Pyrograph abort: please define a scan Direction"
+msgstr "Ошибка выжигания: Пожалуйста укажите направление обхода"
+
+#: bCNC/plugins/pyrograph.py:38
+msgid "Pyrograph tip size"
+msgstr "Размер пятна инструмента"
+
+#: bCNC/ProbePage.py:474
+msgid "RAPID"
+msgstr "ПЕРЕМЕЩЕНИЕ"
+
+#: bCNC/plugins/scaling.py:45 bCNC/plugins/trochoidal_3D.py:94
+msgid "RPM"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:114
+msgid "RPM out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:51
+msgid "Radial depth of cut (<= cutter D * 0.4)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:67
+msgid "Radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:781
+msgid "Ramp length"
+msgstr "Длина площадки"
+
+#: bCNC/plugins/Random.py:15
+msgid "Random"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:364
+msgid "Random seed"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:26
+msgid "Range of X"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:27
+msgid "Range of Y"
+msgstr ""
+
+#: bCNC/ProbePage.py:592
+msgid "Rapid goto to last probe location"
+msgstr "Быстрое перемещение в позицию последней пробы"
+
+#: bCNC/bmain.py:1213
+msgid "Rapid:"
+msgstr "Холостые:"
+
+#: bCNC/plugins/flatten.py:294
+msgid "Raster border"
+msgstr "Обойти границу"
+
+#: bCNC/ProbePage.py:452
+msgid "Record"
+msgstr "Запись"
+
+#: bCNC/ProbePage.py:468
+msgid "Record Z coordinate?"
+msgstr "Запомнить координату Z?"
+
+#: bCNC/Ribbon.py:624
+msgid "Redo [Ctrl-Y]"
+msgstr "Повтор [Ctrl-Y]"
+
+#: bCNC/CNCCanvas.py:2425
+msgid "Redraw display [Ctrl-R]"
+msgstr "Обновить экран [Ctrl-R]"
+
+#: bCNC/plugins/spiral.py:464
+msgid "Reduce Diameter of 4th Axis Stock"
+msgstr ""
+
+#: bCNC/FilePage.py:361
+msgid "Refresh"
+msgstr "Обновить"
+
+#: bCNC/FilePage.py:367
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Refresh list of serial ports"
+msgstr "Подключить/отключить последовательный порт"
+
+#: bCNC/ProbePage.py:1740
+msgid "Register:"
+msgstr "Определить:"
+
+#: bCNC/ToolsPage.py:1455
+msgid "Rename"
+msgstr "Переименовать"
+
+#: bCNC/plugins/sketch.py:51
+msgid "Repetition of a point"
+msgstr ""
+
+#: bCNC/FilePage.py:189 bCNC/Utils.py:568
+msgid "Report"
+msgstr "Отчет"
+
+#: bCNC/Utils.py:701
+msgid "Report successfully send"
+msgstr "Отчет успешно отправлен"
+
+#: bCNC/Utils.py:702
+msgid "Report was successfully uploaded to web site"
+msgstr "Отчет успешно загружен на сайт"
+
+#: bCNC/ControlPage.py:136 bCNC/ControlPage.py:2080
+msgid "Reset"
+msgstr "Сброс"
+
+#: bCNC/ControlPage.py:2082
+msgid "Reset override to 100%"
+msgstr "Сбросить корректировку до 100%"
+
+#: bCNC/plugins/function_plot.py:25
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "Resolution"
+msgstr "Разрешение (в градусах)"
+
+#: bCNC/plugins/bowl.py:114
+msgid "Resolution (degrees)"
+msgstr "Разрешение (в градусах)"
+
+#: bCNC/TerminalPage.py:67
+msgid "Restore All"
+msgstr "Восстановить Все"
+
+#: bCNC/TerminalPage.py:64
+msgid "Restore Settings"
+msgstr "Восстановить Настройки"
+
+#: bCNC/TerminalPage.py:66
+msgid "Restore Workspace"
+msgstr "Восстановить Координатную систему"
+
+#: bCNC/ControlPage.py:493
+msgid "Resume"
+msgstr "Продолжить"
+
+#: bCNC/ControlPage.py:1517
+msgid "Return ABC to 0."
+msgstr ""
+
+#: bCNC/EditorPage.py:691
+msgid "Reverse"
+msgstr "Реверсировать"
+
+#: bCNC/EditorPage.py:699
+msgid "Reverse cut direction for selected gcode blocks"
+msgstr "Поменять направление резки для выбранных блоков кода"
+
+#: bCNC/EditorPage.py:466
+msgid "Right"
+msgstr "Вправо"
+
+#: bCNC/plugins/drillmark.py:58
+msgid "Ring mark (d/2)"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:94
+#, fuzzy
+#| msgid "All accepted"
+msgid "Risk Accepted"
+msgstr "все подходящие"
+
+#: bCNC/plugins/spiral.py:475
+msgid "Rotary Alignment Axis"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:476
+#, fuzzy
+#| msgid "Mount Axis"
+msgid "Rotary Axis"
+msgstr "Ось крепления"
+
+#: bCNC/EditorPage.py:588
+msgid "Rotate selected gcode by 180deg"
+msgstr "Повернуть выделенный g-код на 180 градусов"
+
+#: bCNC/EditorPage.py:573
+msgid "Rotate selected gcode clock-wise (-90deg)"
+msgstr "Повернуть выделенный g-код по часовой стрелке (-90 градусов)"
+
+#: bCNC/EditorPage.py:604
+msgid "Rotate selected gcode counter-clock-wise (90deg)"
+msgstr "Повернуть выделенный g-код против часовой стрелки (90 градусов)"
+
+#: bCNC/plugins/simpleRotate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Rotated selected blocks"
+msgstr "Созданы ряды выбранных блоков"
+
+#: bCNC/plugins/simpleRotate.py:19
+msgid "Rotates a block to a new position"
+msgstr ""
+
+#: bCNC/ProbePage.py:1647
+msgid "Rotation:"
+msgstr "Поворот:"
+
+#: bCNC/EditorPage.py:213
+msgid "Round"
+msgstr "Округление"
+
+#: bCNC/EditorPage.py:647
+msgid "Route"
+msgstr "Маршрут"
+
+#: bCNC/CNCCanvas.py:2329
+msgid "Ruler [R]"
+msgstr "Линейка [R]"
+
+#: bCNC/Sender.py:685
+msgid "Run ended"
+msgstr "Выполнение закончено"
+
+#: bCNC/ControlPage.py:184
+msgid "Run g-code commands from editor to controller"
+msgstr "Запуск программы g-кода из редактора в контроллер"
+
+#: bCNC/bmain.py:635
+msgid "Running"
+msgstr "Выполняется"
+
+#: bCNC/Updates.py:65
+msgid "Running version of bCNC"
+msgstr "Запущенная версия bCNC"
+
+#: bCNC/bmain.py:2695
+msgid "Running..."
+msgstr "Выполняется..."
+
+#: bCNC/controllers/_GenericGRBL.py:123
+msgid "SD Card directory listing failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:124
+msgid "SD Card directory not found. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:125
+msgid "SD Card file empty. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:122
+msgid "SD Card file open/read failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:121
+msgid "SD Card mount failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:40
+msgid "STL/PLY Slicer"
+msgstr ""
+
+#: bCNC/ToolsPage.py:740
+msgid "Safe Z"
+msgstr "Z безопасная"
+
+#: bCNC/plugins/simpleDrill.py:73
+msgid "Safe z secu for G0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:53
+msgid "Safety door detected as opened and door state initiated."
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:977 bCNC/FilePage.py:153
+msgid "Save"
+msgstr "Сохранить"
+
+#: bCNC/lib/bFileDialog.py:972
+msgid "Save As"
+msgstr "Сохранить Как"
+
+#: bCNC/Ribbon.py:594
+msgid "Save all [Ctrl-S]"
+msgstr "Сохранить все [Ctrl-S]"
+
+#: bCNC/bmain.py:2366
+msgid "Save file"
+msgstr "Сохранить файл"
+
+#: bCNC/FilePage.py:159
+msgid "Save gcode/dxf AS"
+msgstr "Сохранить g-код/dxf КАК"
+
+#: bCNC/FilePage.py:145
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr "Сохранить g-код/dxf файл [Ctrl-S]"
+
+#: bCNC/ProbePage.py:1680
+msgid "Scale:"
+msgstr "Разрешение:"
+
+#: bCNC/plugins/scaling.py:22
+msgid "Scaling"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:291
+msgid "Scaling Generated"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:175
+msgid "Scaling abort: Please select some path"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:30
+msgid "Scaling the selected block"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:67 bCNC/ProbePage.py:241 bCNC/ProbePage.py:271
+msgid "Scan"
+msgstr "Измерить"
+
+#: bCNC/ProbePage.py:247
+msgid "Scan Autolevel Margins"
+msgstr "Поиск границ автовыравнивания"
+
+#: bCNC/ProbePage.py:280
+msgid "Scan probed area for level information on Z plane"
+msgstr "Сканировать зону пробы для получения даннах о уровне поверхности Z"
+
+#: bCNC/plugins/heightmap.py:72
+msgid "ScanDir"
+msgstr "Направление"
+
+#: bCNC/EditorPage.py:96
+msgid "Select"
+msgstr "Выбор"
+
+#: bCNC/FilePage.py:307
+msgid "Select (or manual enter) port to connect"
+msgstr "Выберите (или введите) порт для подключения"
+
+#: bCNC/EditorPage.py:112
+msgid "Select all blocks [Ctrl-A]"
+msgstr "Выделить все блоки [Ctrl-A]"
+
+#: bCNC/EditorPage.py:160
+msgid "Select all blocks from current layer"
+msgstr "Выделить все блоки из текущего слоя"
+
+#: bCNC/FilePage.py:323
+msgid "Select connection baud rate"
+msgstr "Выберите скорость подключения (в бод)"
+
+#: bCNC/FilePage.py:340
+msgid "Select controller board"
+msgstr "Выберите плату контроллер"
+
+#: bCNC/CNCCanvas.py:430
+msgid "Select objects with mouse"
+msgstr "Выделите объекты мышкой"
+
+#: bCNC/ProbePage.py:696
+msgid "Select orientation marker"
+msgstr "Выбрать маркер ориентации"
+
+#: bCNC/ControlPage.py:2078
+msgid "Select override type."
+msgstr "Выберите тип корректировки."
+
+#: bCNC/CNCCanvas.py:2288
+msgid "Select tool [S]"
+msgstr "Выбрать инструмент [S]"
+
+#: bCNC/plugins/Helical_Descent.py:79
+#, fuzzy
+msgid "Selected Block"
+msgstr "Созданы ряды выбранных блоков"
+
+#: bCNC/FilePage.py:197
+msgid "Send Error Report"
+msgstr "Отправить отчет об ошибке"
+
+#: bCNC/ProbePage.py:66
+msgid "Send M6 commands"
+msgstr "Отправлять команды M6"
+
+#: bCNC/Utils.py:617
+msgid "Send report"
+msgstr "Отправить отчет"
+
+#: bCNC/FilePage.py:289
+msgid "Serial"
+msgstr "Посл. порт"
+
+#: bCNC/bmain.py:2601
+msgid "Serial Error"
+msgstr "Ошибка последовательного порта"
+
+#: bCNC/TerminalPage.py:241
+msgid "Serial Terminal"
+msgstr "Терминал последовательного порта"
+
+#: bCNC/bmain.py:2601
+msgid "Serial is not connected"
+msgstr "Последовательный порт не подключен"
+
+#: bCNC/ControlPage.py:735
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set A coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:801
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set ABC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:751
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set B coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:785
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set BC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:767
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set C coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:2101
+msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
+msgstr ""
+"Установить корректировку для Подачи/Быстрого перемещения/Шпинделя. Правый "
+"или двойной клик мышкой для сброса."
+
+#: bCNC/ControlPage.py:436
+msgid "Set WPOS"
+msgstr "Уст.Раб.Поз"
+
+#: bCNC/ControlPage.py:445
+msgid "Set WPOS to mouse location"
+msgstr "Установить Рабочую Позицию в позицию мышки"
+
+#: bCNC/ControlPage.py:357
+msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить X координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:407
+msgid "Set XY coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить XY координаты в 0 (или во введенные в поле Раб.Поз.)"
+
+#: bCNC/ControlPage.py:424
+msgid "Set XYZ coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить XYZ координаты в 0 (или во введенные в поле Раб.Поз.)"
+
+#: bCNC/ControlPage.py:373
+msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить Y координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ControlPage.py:389
+msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
+msgstr "Установить Z координату в 0 (или во введенную координату в Раб.Поз.)"
+
+#: bCNC/ProbePage.py:320
+msgid "Set initial probe feed rate for tool change and calibration"
+msgstr ""
+"Установить начальную скорость подачи для смены инструмента и калибровки"
+
+#: bCNC/CNCCanvas.py:458
+msgid "Set mouse location as current machine position (X/Y only)"
+msgstr "Установить позицию мышки как текущую координату станка (только X/Y)"
+
+#: bCNC/ControlPage.py:2056
+msgid "Set position [G92 X# Y# Z#]"
+msgstr ""
+
+#: bCNC/ProbePage.py:340
+msgid "Set probe feed rate"
+msgstr "Установить подачу (скорость) для пробы"
+
+#: bCNC/ControlPage.py:2135
+msgid "Set spindle RPM"
+msgstr "Установить обороты (об/мин)"
+
+#: bCNC/ProbePage.py:354
+msgid "Set tool offset for probing"
+msgstr "Установить коррекцию на длину инструмента (TLO)"
+
+#: bCNC/controllers/_GenericController.py:163
+#, fuzzy
+#| msgid "Set workspace {} to {}"
+msgid "Set workspace {} to {}"
+msgstr "Координатная система {} установлена в позицию {}"
+
+#: bCNC/ToolsPage.py:1019
+msgid "Sets if we want to overcut or not."
+msgstr ""
+
+#: bCNC/TerminalPage.py:80
+msgid "Settings"
+msgstr "Настройки"
+
+#: bCNC/ProbePage.py:165
+msgid "Setup probing for manual tool change"
+msgstr "Настроить пробу для ручной смены инструмента"
+
+#: bCNC/ToolsPage.py:710
+msgid "Shape"
+msgstr "Форма"
+
+#: bCNC/plugins/jigsaw.py:369
+msgid "Shape of the tap"
+msgstr ""
+
+#: bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:581
+#: bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:584
+#: bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:587
+#: bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:590
+msgid "Shift-"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1837
+msgid "Shortcuts"
+msgstr "Быстрые клавиши"
+
+#: bCNC/ToolsPage.py:1845
+msgid "Shortcuts configuration"
+msgstr "Настройка быстрых клавиш"
+
+#: bCNC/ToolsPage.py:1011
+msgid "Should we machine on inside or outside of the shape?"
+msgstr "Нужно обрабатывать внутри или снаружи фигуры?"
+
+#: bCNC/ControlPage.py:473
+msgid "Show Info"
+msgstr "Показать информацию"
+
+#: bCNC/EditorPage.py:773
+msgid "Show cutting information on selected blocks [Ctrl-n]"
+msgstr "Показать информацию по выделенным блокам [Ctrl-n]"
+
+#: bCNC/EditorPage.py:757
+msgid "Show statistics for enabled gcode"
+msgstr "Показать статистику для включенного g-кода"
+
+#: bCNC/ProbePage.py:121
+msgid "Simple probing along a direction"
+msgstr "Простая проверка поверхности по направлению"
+
+#: bCNC/plugins/heightmap.py:77
+msgid "Single pass"
+msgstr "В один проход"
+
+#: bCNC/lib/bFileDialog.py:306 bCNC/plugins/hilbert.py:112
+msgid "Size"
+msgstr "Размер"
+
+#: bCNC/ToolsPage.py:1004
+msgid "Size of this endmill will be used as offset distance"
+msgstr "Размеры этой фрезы будут использоваться как дистанция смещения"
+
+#: bCNC/plugins/sketch.py:20
+msgid "Sketch"
+msgstr "Набросок"
+
+#: bCNC/plugins/sketch.py:255
+msgid "Sketch abort: Can't read image file"
+msgstr "Ошибка наброска: Не удается прочитать картинку"
+
+#: bCNC/plugins/sketch.py:244
+msgid "Sketch abort: Please let me draw at least 1 squiggle"
+msgstr "Ошибка наброска: Пожалуйста дайте мне нарисовать хоть 1 чёрточки"
+
+#: bCNC/plugins/sketch.py:248
+msgid "Sketch abort: Squiggle Length must be > 0"
+msgstr "Ошибка наброска: Длина чёрточки должна быть > 0"
+
+#: bCNC/plugins/sketch.py:200
+msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
+msgstr "Ошибка наброска: Этот плагин требует PIL/Pillow чтобы считать картинку"
+
+#: bCNC/plugins/sketch.py:234
+msgid "Sketch abort: Too small to draw anything!"
+msgstr "Ошибка наброска: Слишком маленький чтобы нарисовать что-то!"
+
+#: bCNC/plugins/slicemesh.py:179
+msgid "Slicing {} {:f} in {:f} -> {:f} of {}"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:34
+#, fuzzy
+#| msgid "Line length"
+msgid "Small line length"
+msgstr "Длина линии"
+
+#: bCNC/controllers/_GenericGRBL.py:46
+msgid "Soft limits cannot be enabled without homing also enabled."
+msgstr ""
+"Программные ограничения не могут быть включены без включения поиска базы."
+
+#: bCNC/ControlPage.py:143
+msgid "Software reset of controller [ctrl-x]"
+msgstr "Программный сброс контроллера [Ctrl-X]"
+
+#: bCNC/plugins/midi2cnc.py:32
+msgid "Sound your machine from a midi file"
+msgstr "Заставляет ваш станок петь мелодию из MIDI файла"
+
+#: bCNC/ControlPage.py:2112
+msgid "Spindle"
+msgstr "Шпиндель"
+
+#: bCNC/ProbePage.py:1737
+msgid "Spindle Z position when camera was registered"
+msgstr "Позиция Z шпинделя, когда подключена камера "
+
+#: bCNC/controllers/_GenericGRBL.py:156
+msgid "Spindle at speed timeout. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:654
+msgid "Spindle max (RPM)"
+msgstr "Макс. шпинделя (об/мин)"
+
+#: bCNC/ToolsPage.py:653
+msgid "Spindle min (RPM)"
+msgstr "Мин. шпинделя (об/мин)"
+
+#: bCNC/ProbePage.py:1854
+msgid "Spindle position is not registered"
+msgstr "Позиция шпинделя не получена"
+
+#: bCNC/ProbePage.py:1846
+msgid "Spindle position is registered"
+msgstr "Позиция шпинделя получена"
+
+#: bCNC/ProbePage.py:1855
+msgid "Spindle position must be registered before camera"
+msgstr "Позиция шпинделя должна быть получена до позиции камеры"
+
+#: bCNC/plugins/spiral.py:18
+#, fuzzy
+#| msgid "Spirograph"
+msgid "Spiral"
+msgstr "Спирограф"
+
+#: bCNC/plugins/spiral.py:69
+#, fuzzy
+msgid "Spiral abort: Approach height must be greater than Z Start"
+msgstr "Ошибка карты высот: глубина должна быть < 0"
+
+#: bCNC/plugins/spiral.py:74
+msgid "Spiral abort: Depth Reduction must be negative"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:156 bCNC/plugins/spiral.py:179
+#: bCNC/plugins/spiral.py:192 bCNC/plugins/spiral.py:220
+#: bCNC/plugins/spiral.py:284 bCNC/plugins/spiral.py:318
+#: bCNC/plugins/spiral.py:357 bCNC/plugins/spiral.py:379
+#: bCNC/plugins/spiral.py:430
+msgid "Spiral abort: Rotary Axis Not Assigned."
+msgstr ""
+
+#: bCNC/plugins/spiral.py:60
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Rotary Axis is undefined"
+msgstr "Ошибка выравнивания: тип кармана не определен"
+
+#: bCNC/plugins/spiral.py:64
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Spiral Type is undefined"
+msgstr "Ошибка выравнивания: тип кармана не определен"
+
+#: bCNC/plugins/spiral.py:80
+msgid "Spiral abort: Step Over exceeds tool limits"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:124
+#, fuzzy
+#| msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgid "Spiral abort: Stock Length is too small for this End Mill."
+msgstr "Ошибка выравнивания: площадь слишком мала для этой фрезы"
+
+#: bCNC/plugins/spiral.py:100
+#, fuzzy
+msgid "Spiral abort: Stock Length to cut must be positive"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/spiral.py:518
+msgid "Spiral: Reduced 4th Axis Stock"
+msgstr ""
+
+#: bCNC/plugins/spirograph.py:17
+msgid "Spirograph"
+msgstr "Спирограф"
+
+#: bCNC/EditorPage.py:401
+msgid "Split"
+msgstr "Разделить"
+
+#: bCNC/EditorPage.py:407
+msgid "Split selected blocks"
+msgstr "Разделить выбранные блоки"
+
+#: bCNC/ToolsPage.py:795
+msgid "Spring pass"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:46
+msgid "Squiggle Length"
+msgstr "Длина чёрточек"
+
+#: bCNC/plugins/sketch.py:45
+msgid "Squiggle total count"
+msgstr "Общее кол-во чёрточек"
+
+#: bCNC/ControlPage.py:178 bCNC/FilePage.py:238
+msgid "Start"
+msgstr "Запуск"
+
+#: bCNC/plugins/simpleArc.py:68
+msgid "Start Angle in Degrees"
+msgstr ""
+
+#: bCNC/ControlPage.py:2175
+msgid "Start flood (M8)"
+msgstr "Запустить поток (M8)"
+
+#: bCNC/ControlPage.py:2189
+msgid "Start mist (M7)"
+msgstr "Запустить туман (M7)"
+
+#: bCNC/FilePage.py:246
+msgid "Start pendant"
+msgstr "Запустить пульт"
+
+#: bCNC/ToolsPage.py:652
+msgid "Start up"
+msgstr "При запуске"
+
+#: bCNC/ControlPage.py:2121
+msgid "Start/Stop spindle (M3/M5)"
+msgstr "Пуск/Стоп шпинделя (M3/M5)"
+
+#: bCNC/TerminalPage.py:140
+msgid "Startup"
+msgstr "Начальные"
+
+#: bCNC/ControlPage.py:1877 bCNC/TerminalPage.py:110
+msgid "State"
+msgstr "Состояние"
+
+#: bCNC/ControlPage.py:611 bCNC/ControlPage.py:918
+#, fuzzy
+#| msgid "State: {}"
+msgid "State: {}"
+msgstr "Состояние: {}"
+
+#: bCNC/EditorPage.py:750 bCNC/bmain.py:1133
+msgid "Statistics"
+msgstr "Статистика"
+
+#: bCNC/ControlPage.py:236
+msgid "Status:"
+msgstr "Статус:"
+
+#: bCNC/ProbePage.py:1234
+msgid "Step"
+msgstr "Шаг"
+
+#: bCNC/plugins/zigzag.py:109
+msgid "Step distance"
+msgstr "Дистанция шага"
+
+#: bCNC/ControlPage.py:1562
+#, fuzzy
+#| msgid "Step for Z move operation"
+msgid "Step for A move operation"
+msgstr "Шаг перемещения по оси Z"
+
+#: bCNC/ControlPage.py:1090
+msgid "Step for Z move operation"
+msgstr "Шаг перемещения по оси Z"
+
+#: bCNC/ControlPage.py:1075 bCNC/ControlPage.py:1546
+msgid "Step for every move operation"
+msgstr "Шаг перемещения"
+
+#: bCNC/ControlPage.py:1265 bCNC/ControlPage.py:1739
+#, fuzzy
+#| msgid "Step: {:g}"
+msgid "Step: {:g}"
+msgstr "Шаг: {:g}"
+
+#: bCNC/ControlPage.py:1744
+#, fuzzy
+#| msgid "Step: {:g}    Zstep:{:g} "
+msgid "Step: {:g}   Astep:{:g} "
+msgstr "Шаг: {:g}    Z шаг:{:g} "
+
+#: bCNC/ControlPage.py:1270
+#, fuzzy
+#| msgid "Step: {:g}    Zstep:{:g} "
+msgid "Step: {:g}  Zstep: {:g} "
+msgstr "Шаг: {:g}    Z шаг:{:g} "
+
+#: bCNC/ToolsPage.py:718
+msgid "Stepover %"
+msgstr "Шаг % между проходами (stepover)"
+
+#: bCNC/plugins/spiral.py:480
+msgid "Stepover (spiral=mm, lines=deg)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1405
+msgid "Stock"
+msgstr "Заготовка"
+
+#: bCNC/ToolsPage.py:1413
+msgid "Stock material currently on machine"
+msgstr "Заготовка в данный момент на станке"
+
+#: bCNC/ControlPage.py:208 bCNC/FilePage.py:251
+msgid "Stop"
+msgstr "Остановить"
+
+#: bCNC/ControlPage.py:2161
+msgid "Stop cooling (M9)"
+msgstr "Остановить охлаждение (M9)"
+
+#: bCNC/FilePage.py:259
+msgid "Stop pendant"
+msgstr "Остановить пульт"
+
+#: bCNC/ToolsPage.py:741 bCNC/ToolsPage.py:766
+msgid "Surface Z"
+msgstr "Z поверхности"
+
+#: bCNC/ProbePage.py:1543
+msgid "Switch To"
+msgstr "Переключить на"
+
+#: bCNC/ProbePage.py:1553
+msgid "Switch between camera and spindle"
+msgstr "Переключение между камерой и шпинделем"
+
+#: bCNC/ControlPage.py:1904
+#, fuzzy
+#| msgid "Switch to workspace {}"
+msgid "Switch to workspace {}"
+msgstr "Переключение в координатную систему {}"
+
+#: bCNC/ProbePage.py:347
+msgid "TLO"
+msgstr "TLO"
+
+#: bCNC/ControlPage.py:2029
+msgid "TLO:"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1638
+msgid "Tabs"
+msgstr "Крепления"
+
+#: bCNC/plugins/trochoidPath.py:63
+#, fuzzy
+#| msgid "Diameter"
+msgid "Tabs Diameter"
+msgstr "Диаметр"
+
+#: bCNC/plugins/trochoidPath.py:64
+#, fuzzy
+#| msgid "Height"
+msgid "Tabs Height"
+msgstr "Высота"
+
+#: bCNC/ToolsPage.py:1153
+msgid "Tabs error"
+msgstr "Ошибка крепежей"
+
+#: bCNC/plugins/driller.py:46 bCNC/plugins/spirograph.py:122
+#: bCNC/plugins/trochoidPath.py:53 bCNC/plugins/trochoidal_3D.py:82
+#: bCNC/ToolsPage.py:767 bCNC/ToolsPage.py:939
+msgid "Target Depth"
+msgstr "Заданная глубина"
+
+#: bCNC/plugins/simpleDrill.py:69
+msgid "Target z (negative under surface)"
+msgstr ""
+
+#: bCNC/TerminalPage.py:38 bCNC/TerminalPage.py:189
+msgid "Terminal"
+msgstr "Терминал"
+
+#: bCNC/TerminalPage.py:205
+msgid "Terminal communication with controller"
+msgstr "Терминальные команды для ЧПУ"
+
+#: bCNC/plugins/text.py:94
+#, fuzzy
+#| msgid "Text abort: That embarrassing, I can't read this font file!"
+msgid "Text abort: That's embarrassing, I can't read this font file!"
+msgstr "Ошибка текста: да что это такое, не удается прочитать файл шрифта!"
+
+#: bCNC/plugins/text.py:62
+msgid "Text abort: please input a Font size > 0"
+msgstr "Ошибка текста: пожалуйста выберите размер шрифта > 0"
+
+#: bCNC/plugins/text.py:65
+msgid "Text abort: please select a font file"
+msgstr "Ошибка текста: пожалуйста выберите файл шрифта"
+
+#: bCNC/plugins/text.py:38
+msgid "Text to generate"
+msgstr "Текст для создания"
+
+#: bCNC/Utils.py:573
+#, fuzzy
+#| msgid "The following report is about to be send to the author of {}"
+msgid "The following report is about to be send to the author of {}"
+msgstr "Следующий отчет будет отправлен автору {}"
+
+#: bCNC/plugins/sketch.py:239
+msgid "The maximum illumination shouldn't be more than 250!"
+msgstr ""
+
+#: bCNC/Utils.py:695
+msgid "There was a problem connecting to the web site"
+msgstr "Не удается подключиться к сайту"
+
+#: bCNC/ToolsPage.py:742
+msgid "Thickness"
+msgstr "Толщина"
+
+#: bCNC/plugins/Helical_Descent.py:57
+msgid "This is my Helical Descent"
+msgstr ""
+
+#: bCNC/plugins/tile.py:13
+msgid "Tile"
+msgstr "Ряды"
+
+#: bCNC/plugins/Random.py:44 bCNC/plugins/simpleRotate.py:48
+#: bCNC/plugins/simpleTranslate.py:46 bCNC/plugins/tile.py:44
+msgid "Tile error"
+msgstr "Ошибка ряда"
+
+#: bCNC/plugins/Random.py:80 bCNC/plugins/tile.py:85
+msgid "Tiled selected blocks"
+msgstr "Созданы ряды выбранных блоков"
+
+#: bCNC/bmain.py:1222 bCNC/bmain.py:1301
+msgid "Time:"
+msgstr "Время:"
+
+#: bCNC/CNCCanvas.py:2437
+msgid "Timeout:"
+msgstr "Интервал:"
+
+#: bCNC/CNCCanvas.py:2347
+msgid "Toggle display of axes"
+msgstr "Включить отображение осей"
+
+#: bCNC/CNCCanvas.py:2418
+msgid "Toggle display of camera"
+msgstr "Включить отображение камеры"
+
+#: bCNC/CNCCanvas.py:2357
+msgid "Toggle display of grid lines"
+msgstr "Включить отображение сетки"
+
+#: bCNC/CNCCanvas.py:2367
+msgid "Toggle display of margins"
+msgstr "Включить отображение границ"
+
+#: bCNC/CNCCanvas.py:2388
+msgid "Toggle display of paths (G1,G2,G3)"
+msgstr "Включить отображение путей (G1, G2, G3)"
+
+#: bCNC/CNCCanvas.py:2378
+msgid "Toggle display of probe"
+msgstr "Включить отображение пробы"
+
+#: bCNC/CNCCanvas.py:2398
+msgid "Toggle display of rapid motion (G0)"
+msgstr "Включить отображение холостых перемещений (G0)"
+
+#: bCNC/CNCCanvas.py:2408
+msgid "Toggle display of workarea"
+msgstr "Включить отображение рабочего поля"
+
+#: bCNC/EditorPage.py:316
+msgid "Toggle enable/disable block of g-code [Ctrl-L]"
+msgstr "Включить/выключить блок g-кода [Ctrl-L]"
+
+#: bCNC/EditorPage.py:359
+msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
+msgstr "Развернуть/свернуть блоки кода [Ctrl-E]"
+
+#: bCNC/ToolsPage.py:1662
+msgid "Toggle island"
+msgstr "Включить регион"
+
+#: bCNC/ProbePage.py:158
+msgid "Tool"
+msgstr "Инструмент"
+
+#: bCNC/Utils.py:852
+msgid "Tool Tip:"
+msgstr "Подсказка:"
+
+#: bCNC/ProbePage.py:1979
+msgid "Tool change policy"
+msgstr "Правило смены инструмента:"
+
+#: bCNC/ControlPage.py:2041
+msgid "Tool length offset [G43.1#]"
+msgstr ""
+
+#: bCNC/ControlPage.py:1957
+msgid "Tool number [T#]"
+msgstr "Номер инструмента [T#]"
+
+#: bCNC/ProbePage.py:2127
+msgid "Tool probe height"
+msgstr "Высота пробника"
+
+#: bCNC/CNCCanvas.py:2273 bCNC/ControlPage.py:1950
+msgid "Tool:"
+msgstr "Выбор:"
+
+#: bCNC/Utils.py:857
+msgid "Tooltip for button"
+msgstr "Подсказка для кнопки"
+
+#: bCNC/EditorPage.py:462
+msgid "Top"
+msgstr "Вверх"
+
+#: bCNC/EditorPage.py:459
+msgid "Top-Left"
+msgstr "Вверх-Влево"
+
+#: bCNC/EditorPage.py:465
+msgid "Top-Right"
+msgstr "Вверх-Вправо"
+
+#: bCNC/EditorPage.py:558
+msgid "Transform"
+msgstr "Изменение"
+
+#: bCNC/plugins/simpleTranslate.py:19
+msgid "Translates a block to a new position"
+msgstr ""
+
+#: bCNC/ToolsPage.py:647
+msgid "Travel x"
+msgstr "Перемещение x"
+
+#: bCNC/ToolsPage.py:648
+msgid "Travel y"
+msgstr "Перемещение y"
+
+#: bCNC/ToolsPage.py:649
+msgid "Travel z"
+msgstr "Перемещение z"
+
+#: bCNC/plugins/trochoidal_3D.py:47
+msgid "Trochoid Cut Diameter"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:402
+#, fuzzy
+msgid "Trochoid Cut Diameter has to be greater than End mill"
+msgstr ""
+"Ошибка заштриховки: Минимальный диаметр должен быть меньше чем Максимальный"
+
+#: bCNC/plugins/trochoidal_3D.py:1672
+msgid "Trochoid Generated"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:397
+#, fuzzy
+#| msgid "Driller abort: Please select some path"
+msgid "Trochoid abort: Please select some path"
+msgstr "Ошибка сверловки: пожалуйста выберите какой-нибудь контур"
+
+#: bCNC/plugins/trochoidal.py:52
+msgid "Trochoid diameter (<= cutter D)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:49
+msgid "Trochoid entry (prepare for helicut)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:18
+msgid "Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:20
+msgid "Trochoidal Path"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:24
+msgid "Trochoidal g-code postprocessor"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:30
+msgid "Trochoidcut"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:50
+msgid "Trochoids Advance"
+msgstr ""
+
+#: bCNC/ProbePage.py:1568
+msgid "Turn on/off edge detection"
+msgstr "Включить/Выключить определение границ"
+
+#: bCNC/ProbePage.py:1583
+msgid "Turn on/off freeze image"
+msgstr "Включить/Выключить паузу изображения"
+
+#: bCNC/lib/bFileDialog.py:305 bCNC/ToolsPage.py:709
+msgid "Type"
+msgstr "Тип"
+
+#: bCNC/plugins/trochoidal_3D.py:56
+msgid "Type of Splice"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:56
+msgid "Type of the mark"
+msgstr ""
+
+#: bCNC/Ribbon.py:604
+msgid "Undo [Ctrl-Z]"
+msgstr "Отмена [Ctrl-Z]"
+
+#: bCNC/ToolsPage.py:636
+msgid "Units (inches)"
+msgstr "Единицы (дюймы)"
+
+#: bCNC/ControlPage.py:1942
+msgid "Units [G20, G21]"
+msgstr "Единицы [G20, G21]"
+
+#: bCNC/ControlPage.py:1931
+msgid "Units:"
+msgstr "Единицы:"
+
+#: bCNC/ControlPage.py:108
+msgid "Unlock"
+msgstr "Разблок."
+
+#: bCNC/ControlPage.py:115
+msgid "Unlock controller [$X]"
+msgstr "Разблокировать контроллер [$X]"
+
+#: bCNC/EditorPage.py:128
+msgid "Unselect all blocks [Ctrl-Shift-A]"
+msgstr "Сбросить выделение для всех блоков [Ctrl-Shift-A]"
+
+#: bCNC/controllers/_GenericGRBL.py:60
+msgid "Unsupported or invalid g-code command found in block."
+msgstr "Найдена не поддерживаемая или неверная команда g-кода в блоке."
+
+#: bCNC/EditorPage.py:505
+msgid "Up"
+msgstr "Выше"
+
+#: bCNC/FilePage.py:203
+msgid "Updates"
+msgstr "Обновления"
+
+#: bCNC/plugins/heightmap.py:56
+#, fuzzy
+#| msgid "Use a brightess map to create a variable Z path"
+msgid "Use a brightness map to create a variable Z path"
+msgstr "Использует яркость картинки чтобы создать путь Z переменной высоты"
+
+#: bCNC/plugins/driller.py:49
+msgid "Use anchor"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1921
+msgid "User File"
+msgstr "Файл пользователя"
+
+#: bCNC/Utils.py:823
+msgid "User configurable button"
+msgstr "Кнопки назначаемые пользователем"
+
+#: bCNC/ToolsPage.py:1981
+msgid "Value"
+msgstr "Значение"
+
+#: bCNC/controllers/_GenericGRBL.py:107
+msgid "Value out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:118
+msgid "Value word conflict. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:627
+msgid "Vertical"
+msgstr "Вертик."
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+#, fuzzy
+#| msgid "WARNING: {}"
+msgid "WARNING: {}"
+msgstr "ВНИМАНИЕ: {}"
+
+#: bCNC/ControlPage.py:261 bCNC/ProbePage.py:765
+msgid "WPos:"
+msgstr "Раб.Поз:"
+
+#: bCNC/bmain.py:2524
+msgid "Warning"
+msgstr "Предупреждение"
+
+#: bCNC/plugins/function_plot.py:110
+#, fuzzy
+#| msgid "Warning"
+msgid "Warning: "
+msgstr "Предупреждение"
+
+#: bCNC/ToolsPage.py:621
+msgid "Web Camera"
+msgstr "Веб камера"
+
+#: bCNC/ToolsPage.py:624
+msgid "Web Camera Angle"
+msgstr "Веб камера. Угол"
+
+#: bCNC/ToolsPage.py:623
+msgid "Web Camera Height"
+msgstr "Веб камера. Высота"
+
+#: bCNC/ToolsPage.py:622
+msgid "Web Camera Width"
+msgstr "Веб камера. Ширина"
+
+#: bCNC/plugins/box.py:348
+msgid "Width Dx"
+msgstr "Ширина Dx"
+
+#: bCNC/plugins/flatten.py:291
+msgid "Width to flatten"
+msgstr "Ширина для выравнивания"
+
+#: bCNC/ProbePage.py:149
+msgid "Work surface camera view and alignment"
+msgstr "Камера рабочей поверхности и выравнивания"
+
+#: bCNC/plugins/halftone.py:52 bCNC/plugins/sketch.py:43
+#: bCNC/plugins/text.py:39 bCNC/plugins/heightmap.py:65
+#: bCNC/plugins/pyrograph.py:39
+msgid "Working Depth"
+msgstr "Рабочая глубина"
+
+#: bCNC/plugins/simpleDrill.py:67 bCNC/ControlPage.py:1015
+msgid "X"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:80
+msgid "X Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:39
+msgid "X Scale"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:42
+#, fuzzy
+#| msgid "Center"
+msgid "X Y Center"
+msgstr "Центр"
+
+#: bCNC/ProbePage.py:1275
+msgid "X bins"
+msgstr "Проб X"
+
+#: bCNC/plugins/function_plot.py:30
+#, fuzzy
+msgid "X dimension"
+msgstr "Внутренний радиус"
+
+#: bCNC/ProbePage.py:1255
+msgid "X maximum"
+msgstr "X максимум"
+
+#: bCNC/ProbePage.py:1247
+msgid "X minimum"
+msgstr "X минимум"
+
+#: bCNC/plugins/function_plot.py:32
+msgid "X number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:289 bCNC/plugins/spiral.py:472
+msgid "X start"
+msgstr "Начало X"
+
+#: bCNC/ProbePage.py:1263
+msgid "X step"
+msgstr "X шаг"
+
+#: bCNC/ControlPage.py:274
+msgid "X work position (click to set)"
+msgstr "Рабочая позиция X (щелкните чтобы установить)"
+
+#: bCNC/ProbePage.py:1241
+msgid "X:"
+msgstr ""
+
+#: bCNC/ControlPage.py:349
+msgid "X=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:399
+msgid "XY=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:415
+msgid "XYZ=0"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:68 bCNC/ControlPage.py:936
+msgid "Y"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:81
+msgid "Y Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:40
+msgid "Y Scale"
+msgstr ""
+
+#: bCNC/ProbePage.py:1315
+msgid "Y bins"
+msgstr "Проб Y"
+
+#: bCNC/plugins/function_plot.py:31
+#, fuzzy
+msgid "Y dimension"
+msgstr "Внутренний радиус"
+
+#: bCNC/ProbePage.py:1295
+msgid "Y maximum"
+msgstr "Y максимум"
+
+#: bCNC/ProbePage.py:1287
+msgid "Y minimum"
+msgstr "Y минимум"
+
+#: bCNC/plugins/function_plot.py:33
+msgid "Y number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:290 bCNC/plugins/spiral.py:473
+msgid "Y start"
+msgstr "Начало Y"
+
+#: bCNC/ProbePage.py:1303
+msgid "Y step"
+msgstr "Y шаг"
+
+#: bCNC/ControlPage.py:290
+msgid "Y work position (click to set)"
+msgstr "Рабочая позиция Y (щелкните чтобы установить)"
+
+#: bCNC/ProbePage.py:1281
+msgid "Y:"
+msgstr ""
+
+#: bCNC/ControlPage.py:365
+msgid "Y=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1154
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr ""
+"Нельзя устанавливать нулевым одновременно количество крепежей и дистанцию "
+"между ними"
+
+#: bCNC/ToolsPage.py:807
+msgid "You should probably always use 'on path', unless you are threadmilling!"
+msgstr ""
+
+#: bCNC/Utils.py:591
+msgid "Your email"
+msgstr "Ваша почта"
+
+#: bCNC/ControlPage.py:933 bCNC/ProbePage.py:462
+msgid "Z"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:88
+msgid "Z Feed Multiplier"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:82
+msgid "Z Initial"
+msgstr ""
+
+#: bCNC/ProbePage.py:1328
+msgid "Z Minimum depth to scan"
+msgstr "Z глубина сканирования"
+
+#: bCNC/plugins/scaling.py:41
+msgid "Z Scale"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:72
+msgid "Z feed for drilling"
+msgstr ""
+
+#: bCNC/ProbePage.py:1336
+msgid "Z safe to move"
+msgstr "Z безопасная высота"
+
+#: bCNC/plugins/spiral.py:474
+#, fuzzy
+#| msgid "X start"
+msgid "Z start"
+msgstr "Начало X"
+
+#: bCNC/ControlPage.py:306
+msgid "Z work position (click to set)"
+msgstr "Рабочая позиция Z (щелкните чтобы установить)"
+
+#: bCNC/ProbePage.py:1322
+msgid "Z:"
+msgstr ""
+
+#: bCNC/ControlPage.py:381
+msgid "Z=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:202
+msgid "Zero"
+msgstr "Ноль"
+
+#: bCNC/plugins/zigzag.py:15
+msgid "Zig-Zag"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:148
+msgid "Zig-Zag abort: depth must be minor or equal to zero"
+msgstr "Ошибка зигзага: глубина должна быть больше или равна нулю"
+
+#: bCNC/plugins/zigzag.py:143
+msgid "Zig-Zag abort: verify CornerRes >= 0"
+msgstr "Ошибка зигзага: проверьте CornerRes >= 0"
+
+#: bCNC/plugins/zigzag.py:135
+msgid "Zig-Zag abort: verify LineLen > 0"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:131
+msgid "Zig-Zag abort: verify Nlines > 0"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:139
+#, fuzzy
+msgid "Zig-Zag abort: verify Step > 0"
+msgstr "Ошибка зигзага: пожалуйста проверьте шаг > 0"
+
+#: bCNC/CNCCanvas.py:2256
+msgid "Zoom In [Ctrl-=]"
+msgstr "Приблизить [Ctrl-=]"
+
+#: bCNC/CNCCanvas.py:2263
+msgid "Zoom Out [Ctrl--]"
+msgstr "Отдалить [Ctrl--]"
+
+#: bCNC/ControlPage.py:1400
+#, fuzzy
+#| msgid "Control"
+msgid "abcControl"
+msgstr "Управление"
+
+#: bCNC/ControlPage.py:625
+msgid "abcDRO"
+msgstr ""
+
+#: bCNC/ControlPage.py:637
+#, fuzzy
+#| msgid "WPos:"
+msgid "abcWPos:"
+msgstr "Раб.Поз:"
+
+#: bCNC/plugins/endmilloffset.py:479
+msgid "acts like a tool corrector inside the profile"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:28
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "angle step (degrees)"
+msgstr "Разрешение (в градусах)"
+
+#: bCNC/plugins/dragknife.py:54
+msgid "angle threshold"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:38
+msgid "arc precision (mm)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:12
+msgid "bCNC is currently sending a gcode program to Grbl"
+msgstr "bCNC сейчас отправляет gcode в Grbl"
+
+#: bCNC/plugins/simpleRectangle.py:97
+msgid "clockwise"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:48
+msgid "distance from dragknife rotation center to the tip of the blade"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:55
+msgid "do not perform pivot action for angles smaller than this"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:47
+msgid "dragknife offset"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:678
+#, fuzzy
+#| msgid "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+msgid "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+msgstr "dx={:g}  dy={:g}  dz={:g}  длина={:g}  угол={:g}"
+
+#: bCNC/plugins/dragknife.py:75
+msgid "feedrate"
+msgstr ""
+
+#: bCNC/ProbePage.py:2047 bCNC/ProbePage.py:2092
+msgid "get"
+msgstr "здесь"
+
+#: bCNC/plugins/arcfit.py:39
+msgid "how precisely must arc fit. set to 0 to disable arc fitting"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:463
+msgid "indicates the direction (inside / outside) for making profiles"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:70
+msgid "initial direction"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:83
+msgid "layer height (0 = only single zmin)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:45
+msgid "line precision (mm)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:88
+msgid "maximum Z height"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:50
+msgid "minimal number of segments to create arc"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:86
+msgid "minimum Z height"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:29 bCNC/plugins/simpleTranslate.py:28
+msgid "nb repeat including original"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:627
+#, fuzzy
+#| msgid "origin {:g} {:g} {:g}"
+msgid "origin {:g} {:g} {:g}"
+msgstr "Ноль {:g} {:g} {:g}"
+
+#: bCNC/bmain.py:3097
+msgid "python serial missing"
+msgstr "python serial (для последовательного порта) отсутствует "
+
+#: bCNC/plugins/slicemesh.py:74
+msgid "scale factor"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:39
+msgid "segment size"
+msgstr ""
+
+#: bCNC/ControlPage.py:1961 bCNC/ControlPage.py:2003 bCNC/ControlPage.py:2045
+#: bCNC/ProbePage.py:360
+msgid "set"
+msgstr "ок"
+
+#: bCNC/plugins/dragknife.py:80
+msgid "simulate"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:89
+msgid "simulation precision"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:23
+msgid "slicemesh"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:101
+msgid "splice steps every 360 degrees"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:48
+msgid "subdiv lines"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:61
+msgid "swivel height"
+msgstr ""
+
+#: bCNC/Sender.py:355
+msgid "unknown command"
+msgstr "неизвестная команда"
+
+#: bCNC/plugins/simpleRotate.py:26
+#, fuzzy
+#| msgid "Center"
+msgid "x center"
+msgstr "Центр"
+
+#: bCNC/plugins/simpleTranslate.py:26
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "x increment"
+msgstr "Шаг на заглублении"
+
+#: bCNC/plugins/simpleLine.py:52 bCNC/plugins/simpleRectangle.py:93
+msgid "xEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:51 bCNC/plugins/simpleRectangle.py:92
+#, fuzzy
+#| msgid "Start"
+msgid "xStart"
+msgstr "Запуск"
+
+#: bCNC/plugins/simpleRotate.py:27
+#, fuzzy
+#| msgid "Center"
+msgid "y center"
+msgstr "Центр"
+
+#: bCNC/plugins/simpleTranslate.py:27
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "y increment"
+msgstr "Шаг на заглублении"
+
+#: bCNC/plugins/simpleLine.py:54 bCNC/plugins/simpleRectangle.py:95
+msgid "yEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:53 bCNC/plugins/simpleRectangle.py:94
+#, fuzzy
+#| msgid "Start"
+msgid "yStart"
+msgstr "Запуск"
+
+#: bCNC/plugins/slicemesh.py:77
+msgid "z offset"
+msgstr ""
+
+#~ msgid ""
+#~ "ERROR: Please install the python pyserial module\n"
+#~ "Windows:\n"
+#~ "\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+#~ "Mac:\tpip install pyserial\n"
+#~ "Linux:\tsudo apt-get install python-serial\n"
+#~ "\tor yum install python-serial\n"
+#~ "\tor dnf install python-pyserial"
+#~ msgstr ""
+#~ "ОШИБКА: Пожалуйcта, установите модуль python pyserial\n"
+#~ "(для работы последовательного порта)\n"
+#~ "Windows:\n"
+#~ "\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+#~ "Mac:\tpip install pyserial\n"
+#~ "Linux:\tsudo apt-get install python-serial\n"
+#~ "\tor yum install python-serial\n"
+#~ "\tor dnf install python-pyserial"
+
+#~ msgid "Color configuration"
+#~ msgstr "Настройка цветов"
+
+#~ msgid "Font configuration"
+#~ msgstr "Настройка шрифтов"
+
+#~ msgid "ConnectionHome"
+#~ msgstr "СоединениеБаза"
+
+#~ msgid "Run"
+#~ msgstr "Запуск"
+
+#~ msgid "Scan Margins"
+#~ msgstr "Поиск границ"
+
+#~ msgid "Tools"
+#~ msgstr "Инструменты"
+
+#~ msgid "User"
+#~ msgstr "Пользовательские команды"
+
+#~ msgid "Set current location as Z-zero for leveling"
+#~ msgstr "Установить текущее положение как Z-ноль для выравнивания"
+
+#~ msgid "Inkscape"
+#~ msgstr "Inkscape"
+
+#~ msgid ""
+#~ "G-code is composed of G-code 'words', which consists of a letter followed "
+#~ "by a number value. This error occurs when the letter prefix of a G-code "
+#~ "word is missing in the G-code block (aka line)."
+#~ msgstr ""
+#~ "G-код состоит из \"команд\" G-кода, которые представляют собой букву и "
+#~ "цифру за ней. Эта ошибка возникает, когда буквенный префикс команды "
+#~ "отсутствует в блоке G-кода (то есть в строке)."
+
+#~ msgid ""
+#~ "The number value suffix of a G-code word is missing in the G-code block, "
+#~ "or when configuring a $Nx=line or $x=val Grbl setting and the x is not a "
+#~ "number value."
+#~ msgstr ""
+#~ "Пропущено значение (цифра) команды G-кода в текущем блоке G-кода. Или, "
+#~ "возможно, при отправке настроек $Nx=line или $x=val x не цифровое "
+#~ "значение."
+
+#~ msgid ""
+#~ "The value of a $x=val Grbl setting, F feed rate, N line number, P word, T "
+#~ "tool number, or S spindle speed is negative."
+#~ msgstr ""
+#~ "Значение $x=val настроек Grbl, F подачи, N строки, P команды, T номера "
+#~ "инструмента, или S скорости шпинделя отрицательное."
+
+#~ msgid "Homing is disabled when issuing a $H command."
+#~ msgstr "Базирование отключено когда была выдана $H команда."
+
+#~ msgid ""
+#~ "Step pulse time length cannot be less than 3 microseconds (for technical "
+#~ "reasons)."
+#~ msgstr ""
+#~ "Длина импульса Step (шага) не может быть меньше чем 3 микросекунды (по "
+#~ "техническим причинам)."
+
+#~ msgid ""
+#~ "If Grbl can't read data contained in the EEPROM, this error is returned. "
+#~ "Grbl will also clear and restore the effected data back to defaults."
+#~ msgstr ""
+#~ "Эта ошибка возникает, когда Grbl не может прочитать данные из EEPROM. "
+#~ "Grbl также очистит и восстановит по умолчанию поврежденные настройки."
+
+#~ msgid ""
+#~ "Certain Grbl $ commands are blocked depending Grbl's current state, or "
+#~ "what its doing. In general, Grbl blocks any command that fetches from or "
+#~ "writes to the EEPROM since the AVR microcontroller will shutdown all of "
+#~ "the interrupts for a few clock cycles when this happens. There is no work "
+#~ "around, other than blocking it. This ensures both the serial and step "
+#~ "generator interrupts are working smoothly throughout operation."
+#~ msgstr ""
+#~ "Определённые $ команды Grbl заблокированы в зависимости от текущего "
+#~ "состояния Grbl, или по причине выполнения операций. В общем, Grbl "
+#~ "блокирует любые команды, которые считывают или записывают EEPROM, так как "
+#~ "AVR микроконтроллер остановит все прерывания на несколько циклов, пока "
+#~ "это происходит. Другого варианта, кроме блокировки, нет. Таким образом "
+#~ "гарантируется что прерывания последовательного порта и генератора степов "
+#~ "(шагов) выполняются чётко на протяжении всей операции."
+
+#~ msgid ""
+#~ "Grbl enters an ALARM state when Grbl doesn't know where it is and will "
+#~ "then block all G-code commands from being executed. This error occurs if "
+#~ "G-code commands are sent while in the alarm state. Grbl has two alarm "
+#~ "scenarios: When homing is enabled, Grbl automatically goes into an alarm "
+#~ "state to remind the user to home before doing anything; When something "
+#~ "has went critically wrong, usually when Grbl can't guarantee positioning. "
+#~ "This typically happens when something causes Grbl to force an immediate "
+#~ "stop while its moving from a hard limit being triggered or a user "
+#~ "commands an ill-timed reset."
+#~ msgstr ""
+#~ "Grbl переходит в состояние ТРЕВОГА (ALARM), когда Grbl не знает где он "
+#~ "находится, и поэтому блокирует все команды g-кода от исполнения. Эта "
+#~ "ошибка возникает, если команды g-кода были отправлены в состоянии "
+#~ "тревоги. Grbl имеет два сценария для тревоги: Или включено базирование "
+#~ "осей, и Grbl автоматически переходит в состояние тревоги, чтобы напомнить "
+#~ "пользователю что необходимо базировать оси перед другими операциями; Или "
+#~ "что-то пошло совсем не так, обычно в случае когда Grbl не может "
+#~ "гарантировать позиционирование. Такое случается, когда что-то заставило "
+#~ "Grbl немедленно остановиться во время перемещения, вроде сработавшего "
+#~ "аппаратного концевика, или пользователя, скомандовавшего несвоевременный "
+#~ "Сброс."
+
+#~ msgid ""
+#~ "Soft limits cannot be enabled if homing is not enabled, because Grbl has "
+#~ "no idea where it is when you startup your machine unless you perform a "
+#~ "homing cycle."
+#~ msgstr ""
+#~ "Софт лимиты не могут быть включены, если не включено базирование, потому "
+#~ "что Grbl абсолютно без понятия где он находится в момент включения "
+#~ "станка. По крайней мере до тех пор, пока вы не выполните цикл базирования "
+#~ "осей."
+
+#~ msgid ""
+#~ "Grbl has to do everything it does within 2KB of RAM. Not much at all. So, "
+#~ "we had to make some decisions on what's important. Grbl limits the number "
+#~ "of characters in each line to less than 80 characters (70 in v0.8, 50 in "
+#~ "v0.7 or earlier), excluding spaces or comments. The G-code standard "
+#~ "mandates 256 characters, but Grbl simply doesn't have the RAM to spare. "
+#~ "However, we don't think there will be any problems with this with all of "
+#~ "the expected G-code commands sent to Grbl. This error almost always "
+#~ "occurs when a user or CAM-generated G-code program sends position values "
+#~ "that are in double precision (i.e. -2.003928578394852), which is not "
+#~ "realistic or physically possible. Users and GUIs need to send Grbl "
+#~ "floating point values in single precision (i.e. -2.003929) to avoid this "
+#~ "error."
+#~ msgstr ""
+#~ "Grbl должен делать все что должен, используя всего 2 КБ оперативной "
+#~ "памяти. Это в общем, немного. Поэтому нам пришлось принять решение о том, "
+#~ "что важнее. Grbl ограничивает количество символов в строке в 80 знаков "
+#~ "(70 в версии 0.8, 50 в версии 0.7 и ранее), за вычетом пробелов и "
+#~ "комментариев. Вообще, стандарт G-кода требует 256 символов, но Grbl "
+#~ "просто не имеет столько свободной памяти в запасе. Тем не менее, мы не "
+#~ "думаем, что предполагаются какие-то проблемы с командами, которые ожидает "
+#~ "Grbl. Эта ошибка почти всегда возникает, если пользователь или CAM "
+#~ "программа создают g-код с координатами, значения которых записаны с "
+#~ "двойной точностью (т.е. -2.003928578394852). Такая точность нереалистична "
+#~ "или физически невозможна. Пользователи и GUI должны отправлять в Grbl "
+#~ "числа с плавающей точкой с единичной точностью (т.е. -2.003929) чтобы "
+#~ "избежать этой ошибки."
+
+#~ msgid ""
+#~ "The G-code parser has detected two G-code commands that belong to the "
+#~ "same modal group in the block/line. Modal groups are sets of G-code "
+#~ "commands that mutually exclusive. For example, you can't issue both a G0 "
+#~ "rapids and G2 arc in the same line, since they both need to use the XYZ "
+#~ "target position values in the line. LinuxCNC.org has some great "
+#~ "documentation on modal groups."
+#~ msgstr ""
+#~ "Парсер G-кода обнаружил две команды в блоке/строке g-кода, которые "
+#~ "принадлежат к одной модальной группе. Модальные группы это группы команд "
+#~ "g-кода, которые являются взаимоисключающими между собой. Например, вы не "
+#~ "можете выполнить одновременно холостое перемещение G0 и кривую G2 в одной "
+#~ "строке, так как обе эти команды требуют использования параметров XYZ в "
+#~ "этой строке. LinuxCNC.org опубликовал замечательную документацию по "
+#~ "модальным группам."
+
+#~ msgid ""
+#~ "The G-code parser doesn't recognize or support one of the G-code commands "
+#~ "in the line. Check your G-code program for any unsupported commands and "
+#~ "either remove them or update them to be compatible with Grbl."
+#~ msgstr ""
+#~ "Парсер G-кода не распознал или не поддерживает одну из команд G-кода в "
+#~ "строке. Проверьте вашу программу на предмет неподдерживаемых команд и "
+#~ "либо удалите их, или поправьте их чтобы обеспечить совместимость с Grbl."
+
+#~ msgid ""
+#~ "There is no feed rate programmed, and a G-code command that requires one "
+#~ "is in the block/line. The G-code standard mandates F feed rates to be "
+#~ "undefined upon a reset or when switching from inverse time mode to units "
+#~ "mode. Older Grbl versions had a default feed rate setting, which was "
+#~ "illegal and was removed in Grbl v0.9."
+#~ msgstr ""
+#~ "Не было указано значение Подачи, и в строке/блоке G-кода встретилась "
+#~ "команда, которая требует подачи. Стандарт g-кода требует, чтобы F Подача "
+#~ "не была объявлена до Сброса (или после переключения из режима "
+#~ "инвертированного времени в режим мм). Старые версии Grbl имели значение "
+#~ "Подачи по умолчанию, но это было нелегальным и было удалено из Grbl "
+#~ "версии 0.9."
+
+#~ msgid ""
+#~ "A G or M command value in the block is not an integer. For example, G4 "
+#~ "can't be G4.13. Some G-code commands are floating point (G92.1), but "
+#~ "these are ignored."
+#~ msgstr ""
+#~ "Значение G или M команды в блоке не является целым. Например, G4 не может "
+#~ "быть G4.13. Некоторые G-команды могут быть с точкой (G92.1), но они "
+#~ "игнорируются."
+
+#~ msgid ""
+#~ "The G-code protocol mandates N line numbers to be within the range of "
+#~ "1-99,999. We think that's a bit silly and arbitrary. So, we increased the "
+#~ "max number to 9,999,999. This error occurs when you send a number more "
+#~ "than this."
+#~ msgstr ""
+#~ "Протокол G-кода требует, чтобы номера строк N находились в пределах 1 - "
+#~ "99 999. Мы считаем что это число выбрано произвольно и слегка простовато. "
+#~ "Так что мы увеличили максимальный номер до 9 999 999. Эти ошибки "
+#~ "возникают когда вы отправляете номер больший чем этот."
+
+#~ msgid ""
+#~ "Grbl supports six work coordinate systems G54-G59. This error happens "
+#~ "when trying to use or configure an unsupported work coordinate system, "
+#~ "such as G59.1, G59.2, and G59.3."
+#~ msgstr ""
+#~ "Grbl поддерживает шесть координатных систем G54 - G59. Эта ошибка "
+#~ "возникает при попытке использования или настройки неподдерживаемой "
+#~ "координатной системы, например G59.1, G59.2 и G59.3."
+
+#~ msgid ""
+#~ "The motion command has an invalid target. G2, G3, and G38.2 generates "
+#~ "this error. For both probing and arcs traced with the radius definition, "
+#~ "the current position cannot be the same as the target. This also errors "
+#~ "when the arc is mathematically impossible to trace, where the current "
+#~ "position, the target position, and the radius of the arc doesn't define a "
+#~ "valid arc."
+#~ msgstr ""
+#~ "Команда перемещения показала неверную цель. G2, G3 и G38.2 выдают такую "
+#~ "ошибку. И для пробы и для отрисовки кривой с радиусом, текущая позиция не "
+#~ "может быть той же что и позиция цели. Еще эта ошибка возникает, когда "
+#~ "математически невозможно отрисовать кривую, т.е. текущее положение, "
+#~ "положение цели и радиус кривой не могут верно задать геометрическую "
+#~ "кривую."
+
+#~ msgid ""
+#~ "Hard and/or soft limits must be enabled for this error to occur. With "
+#~ "hard limits, Grbl will enter alarm mode when a hard limit switch has been "
+#~ "triggered and force kills all motion. Machine position will be lost and "
+#~ "require re-homing. With soft limits, the alarm occurs when Grbl detects a "
+#~ "programmed motion trying to move outside of the machine space, set by "
+#~ "homing and the max travel settings. However, upon the alarm, a soft limit "
+#~ "violation will instruct a feed hold and wait until the machine has "
+#~ "stopped before issuing the alarm. Soft limits do not lose machine "
+#~ "position because of this."
+#~ msgstr ""
+#~ "Должно быть включены аппаратные и/или софт лимиты, если встретилась такая "
+#~ "ошибка. С аппаратными лимитами Grbl перейдет в режим тревоги как только "
+#~ "сработает концевик лимитов и немедленно остановит все перемещения. "
+#~ "Позиция станка будет потеряна и потребует нового базирования. С софт "
+#~ "лимитами Grbl перейдет в режим тревоги, если обнаружит попытку "
+#~ "перемещения за пределы станка, определенными базированием и настройками "
+#~ "размеров станка. Однако сначала софт лимиты скомандуют встать на паузу и "
+#~ "ожидать плавной остановки станка перед выдачей тревоги. Поэтому софт "
+#~ "лимиты не потеряют координаты станка."
+
+#~ msgid ""
+#~ "This alarm occurs when a user issues a soft-reset while the machine is in "
+#~ "a cycle and moving. The soft-reset will kill all current motion, and, "
+#~ "much like the hard limit alarm, the uncontrolled stop causes Grbl to lose "
+#~ "position."
+#~ msgstr ""
+#~ "Это сообщение о тревоге возникает, когда пользователь нажимает "
+#~ "программный сброс во время работы и перемещения. Программный сброс "
+#~ "остановит все текущие перемещения, и в общем, также как и с аппаратным "
+#~ "сбросом, неконтролируемая остановка вызовет потерю Grbl текущего "
+#~ "положения."
+
+#~ msgid ""
+#~ "The G38.2 straight probe command requires an alarm or error when the "
+#~ "probe fails to trigger within the programmed probe distance. Grbl enters "
+#~ "the alarm state to indicate to the user the probe has failed, but will "
+#~ "not lose machine position, since the probe motion comes to a controlled "
+#~ "stop before the error."
+#~ msgstr ""
+#~ "Команда пробы G38.2 вызовет тревогу или ошибку, если проба не сможет "
+#~ "сработать на указанном расстоянии. Grbl перейдет в состояние тревоги "
+#~ "чтобы показать пользователю, что проба была неудачной, но не потеряет "
+#~ "позицию станка, так как проба плавно остановится перед выдачей ошибки."
+
+#~ msgid "Machine"
+#~ msgstr "Станок"
+
+#~ msgid "Change color for block of g-code"
+#~ msgstr "Изменить цвет блока g-кода"
+
+#~ msgid "T-L"
+#~ msgstr "В-Л"
+
+#~ msgid "Move origin of g-code to Top-Left corner"
+#~ msgstr "Передвинуть ноль g-кода в Верхний-Левый угол"
+
+#~ msgid "L"
+#~ msgstr "Л"
+
+#~ msgid "Move origin of g-code to Left side"
+#~ msgstr "Передвинуть ноль g-кода на Левую сторону"
+
+#~ msgid "B-L"
+#~ msgstr "Н-Л"
+
+#~ msgid "Move origin of g-code to Bottom-Left corner"
+#~ msgstr "Передвинуть ноль g-кода в Нижний-Левый угол"
+
+#~ msgid "Move origin of g-code to Top side"
+#~ msgstr "Передвинуть ноль g-кода на Верхнюю сторону"
+
+#~ msgid "Move origin of g-code to center"
+#~ msgstr "Передвинуть ноль g-кода в Центр"
+
+#~ msgid "Move origin of g-code to Bottom side"
+#~ msgstr "Передвинуть ноль g-кода на Нижнюю сторону"
+
+#~ msgid "T-R"
+#~ msgstr "В-П"
+
+#~ msgid "Move origin of g-code to Top-Right corner"
+#~ msgstr "Передвинуть ноль g-кода в Верхний-Правый угол"
+
+#~ msgid "R"
+#~ msgstr "П"
+
+#~ msgid "Move origin of g-code to Right side"
+#~ msgstr "Передвинуть ноль g-кода на Правую сторону"
+
+#~ msgid "B-R"
+#~ msgstr "Н-Р"
+
+#~ msgid "Move origin of g-code to Bottom-Right corner"
+#~ msgstr "Передвинуть ноль g-кода в Нижний-Правый угол"
+
+#~ msgid ""
+#~ "Feed\n"
+#~ "Override:"
+#~ msgstr ""
+#~ "Поправка\n"
+#~ "подачи:"
+
+#~ msgid "Set Feed Override"
+#~ msgstr "Поправка подачи"
