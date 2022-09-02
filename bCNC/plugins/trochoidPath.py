@@ -25,7 +25,7 @@ __version__ = "1.0"
 # Create Trochoidadl route along selected blocks
 # =============================================================================
 class Tool(Plugin):
-	__doc__ = _("Create a trochoid route along selected blocks")
+    __doc__ = _("Create a trochoid route along selected blocks")
 
     def __init__(self, master):
         Plugin.__init__(self, master, "Trochoid_Path")  # NAME OF THE PLUGIN
