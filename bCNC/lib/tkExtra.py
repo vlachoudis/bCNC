@@ -345,8 +345,44 @@ def bindClasses(root):
     root.bind_class("Entry", "<<Paste>>", _entryPaste)
     root.bind_class("Text", "<<Paste>>", _textPaste)
 
+# ===============================================================================
+# TimedButton. A Button which has a starting, ending and time dependant action
+# ===============================================================================
+class TimedButton(Button):
+    """A tkinter Button whose action can depend on the
+    duration it was pressed, besides the standard button command, two aditional
+    commands are allowed: StartCommand and TimedCommand.
+    """
+    def __init__(self, master, StartCommand=None, TimedCommand=None, TimeTrigger=None, **kw):
+        Button.__init__(self, master, **kw)
+        self.downCommand = StartCommand
+        self.timedCommand = TimedCommand
+        self.trigger = TimeTrigger
+        self.start, self.end = 0, 0
+        self.set_down()
+        self.set_up()
 
-# =============================================================================
+    def set_down(self):
+        self.bind('<ButtonPress>', self.start_time)
+
+    def set_up(self):
+        self.bind('<ButtonRelease>', self.end_time)
+
+    def start_time(self, e):
+        self.start = time.time()
+        self.downCommand()
+
+    def end_time(self, e):
+        if self.start is not None:  # prevents a possible first click to take focus to generate an improbable time
+            self.end = time.time()
+            if self.trigger is not None:
+                if (self.end - self.start) > self.trigger:
+                    self.timedCommand()
+        else:
+            self.start = 0
+
+
+#===============================================================================
 # LabelEntry. display a label when entry field is empty
 # =============================================================================
 class LabelEntry(Entry):

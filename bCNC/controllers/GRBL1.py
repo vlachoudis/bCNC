@@ -4,6 +4,8 @@ from _GenericController import SPLITPAT
 from _GenericGRBL import _GenericGRBL
 from CNC import CNC
 
+OV_JOG_CANCEL = chr(0x85)
+
 OV_FEED_100 = chr(0x90)  # Extended override commands
 OV_FEED_i10 = chr(0x91)
 OV_FEED_d10 = chr(0x92)
@@ -34,7 +36,12 @@ class Controller(_GenericGRBL):
 
     def jog(self, direction):
         self.master.sendGCode(f"$J=G91 {direction} F100000")
-        # XXX is F100000 correct?
+
+    def cjog(self, direction, feed):
+        self.master.sendGCode(f"$J=G91 {direction} F{float(feed)}")
+
+    def cjogcancel(self):
+        self.master.serial_write(OV_JOG_CANCEL)
 
     def overrideSet(self):
         CNC.vars["_OvChanged"] = False  # Temporary
