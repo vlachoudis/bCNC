@@ -198,10 +198,10 @@ class PocketIsland:
             _("Generate pocket path")
             + " - depth:"
             + str(self.depth + 1)
-            + " -> interesect",
+            + " -> intersect",
             True,
         )
-        self.interesect()
+        self.intersect()
         self.app.setStatus(
             _("Generate pocket path")
             + " - depth:"
@@ -327,7 +327,7 @@ class PocketIsland:
         self.outPathG1SegList = self.tmpoutG1
         self.islandG1SegList = self.tmpinG1
 
-    def interesect(self):
+    def intersect(self):
         self.IntersectedIslands = []
         for island in self.islandOffPaths:
             for path in self.OutOffsetPathList:
