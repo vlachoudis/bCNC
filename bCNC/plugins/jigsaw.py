@@ -45,7 +45,7 @@ class Arc(object):
 		while self in self._used_arcs[self.key] and i < tries:
 			self.x = random.uniform(self.x - self._eq_threshold, self.x + self._eq_threshold)
 			self.y = random.uniform(self.y - self._eq_threshold, self.y + self._eq_threshold)
-			self.r = random.uniform(self.r - self._eq_threshold/3.0, self.r + self._eq_threshold/3.0)
+			self.r = random.uniform(self.r, self.r + self._eq_threshold/5.0)
 			i += 1
 		Arc._used_arcs[self.key].append(copy.deepcopy(self))
 
@@ -95,7 +95,7 @@ class Jigsaw(object):
 					Arc('b2', 70, 13, 40, CCW),
 					Arc('b3', 63, 37, 30, CW),
 					Arc('b4', 107, 37, 29, CW),
-					Arc('b5', 100, 13 , 30, CW),
+					Arc('b5', 100, 13, 30, CW),
 					Arc('b6', 120, 1, 40, CCW),
 					Arc('b7', 170, 0, 120, CW),
 				],
@@ -110,7 +110,7 @@ class Jigsaw(object):
 					Arc('h3', 63, 37, 20, CW),
 					Arc('h4', 85, 35, 21, CW),
 					Arc('h5', 107, 37, 21, CW),
-					Arc('h6', 100, 13 , 27, CW),
+					Arc('h6', 100, 13, 27, CW),
 					Arc('h7', 120, 1, 40, CCW),
 					Arc('h8', 170, 0, 120, CW),
 				],
@@ -126,7 +126,7 @@ class Jigsaw(object):
 					Arc('a4', 60, 36, 200, CW),
 					Arc('a5', 110, 36, 100, CW),
 					Arc('a6', 110, 24, 50, CW),
-					Arc('a7', 100, 25 , 200, CW),
+					Arc('a7', 100, 25, 200, CW),
 					Arc('a8', 100, 0, 200, CCW),
 					Arc('a9', 170, 0, 200, CW),
 				],
