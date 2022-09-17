@@ -2808,7 +2808,7 @@ class Application(Tk, Sender):
             )
             CNC.vars["msg"] = self.statusbar.msg
             self.bufferbar.setProgress(Sender.getBufferFill(self))
-            self.bufferbar.setText(f"{Sender.getBufferFill(self:3.0f)}%")
+            self.bufferbar.setText(f"{Sender.getBufferFill(self):3.0f}%")
 
             if self._selectI >= 0 and self._paths:
                 while self._selectI <= self._gcount and self._selectI < len(
