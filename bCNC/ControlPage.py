@@ -935,7 +935,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         try:
             jogRate = float(Utils.config.get("Control", "jograte"))
         except Exception:
-            JogRate  = min(CNC.feedmax_x, CNC.feedmax_y, CNC.feedmax_z)
+            JogRate = min(CNC.feedmax_x, CNC.feedmax_y, CNC.feedmax_z)
 
         frame = Frame(self())
         frame.pack(side=TOP, fill=X)
