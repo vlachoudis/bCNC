@@ -48,8 +48,7 @@ class Arc:
                 self.y - self._eq_threshold, self.y + self._eq_threshold
             )
             self.r = random.uniform(
-                self.r - self._eq_threshold / 3.0, self.r
-                + self._eq_threshold / 3.0
+                self.r, self.r + self._eq_threshold / 3.0
             )
             i += 1
         Arc._used_arcs[self.key].append(copy.deepcopy(self))
@@ -110,9 +109,9 @@ class Jigsaw:
                     Arc("b0", 0, 0, 0, CW),
                     Arc("b1", 50, 1, 120, CW),
                     Arc("b2", 70, 13, 40, CCW),
-                    Arc("b3", 63, 37, 26, CW),
-                    Arc("b4", 107, 37, 25, CW),
-                    Arc("b5", 100, 13, 26, CW),
+                    Arc("b3", 63, 37, 32, CW),
+                    Arc("b4", 107, 37, 31, CW),
+                    Arc("b5", 100, 13, 32, CW),
                     Arc("b6", 120, 1, 40, CCW),
                     Arc("b7", 170, 0, 120, CW),
                 ],
@@ -125,9 +124,9 @@ class Jigsaw:
                     Arc("h1", 50, 1, 120, CW),
                     Arc("h2", 70, 13, 40, CCW),
                     Arc("h3", 63, 37, 20, CW),
-                    Arc("h4", 85, 35, 14, CW),
-                    Arc("h5", 107, 37, 14, CW),
-                    Arc("h6", 100, 13, 20, CW),
+                    Arc("h4", 85, 35, 21, CW),
+                    Arc("h5", 107, 37, 21, CW),
+                    Arc("h6", 100, 13, 27, CW),
                     Arc("h7", 120, 1, 40, CCW),
                     Arc("h8", 170, 0, 120, CW),
                 ],
@@ -369,7 +368,6 @@ class Tool(Plugin):
         ]
         self.buttons.append("exe")
 
-    # ----------------------------------------------------------------------
     def execute(self, app):
         name = self["name"]
         if not name or name == "default":
