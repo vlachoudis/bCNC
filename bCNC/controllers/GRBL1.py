@@ -32,7 +32,7 @@ class Controller(_GenericGRBL):
         self.has_override = True
         self.master = master
 
-    def jog(self, direction, feed):
+    def jog(self, direction, feed=10000):
         self.master.sendGCode(f"$J=G91 {direction} F{float(feed)}")
 
     def overrideSet(self):
