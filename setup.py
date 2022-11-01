@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, setup
 
 if not (sys.version_info.major == 3 and sys.version_info.minor >= 8):
     print("ERROR: Python3.8 or newer is required to run bCNC!!")
@@ -19,7 +19,7 @@ setup(
     description="Swiss army knife for all your CNC/g-code needs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     author="Vasilis Vlachoudis",
     author_email="vvlachoudis@gmail.com",
     url="https://github.com/vlachoudis/bCNC",
