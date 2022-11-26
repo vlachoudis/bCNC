@@ -8,7 +8,6 @@
 # Please refer to https://github.com/vlachoudis/bCNC/pull/1561
 
 from __future__ import print_function
-from __future__ import print_function
 
 from copy import deepcopy
 # from math import pi, sqrt, sin, cos, asin, acos, atan2, hypot, degrees, radians, copysign, fmod
@@ -170,7 +169,7 @@ class stlImporter():
 			p1sign = (triangle.p1.z-height)>0
 			p2sign = (triangle.p2.z-height)>0
 			p3sign = (triangle.p3.z-height)>0
-			activeTriangle = (p1sign^p2sign)or (p1sign^p3sign)  or (p2sign^p3sign)
+			activeTriangle = (p1sign^p2sign)or (p1sign^p3sign) or (p2sign^p3sign)
 			signToFind = not ((p1sign and p2sign) or (p1sign and p3sign) or (p2sign and p3sign) )
 			isZero = triangle.p1.z-height==0 or triangle.p2.z-height==0 or triangle.p3.z-height==0
 			index = -1
@@ -240,7 +239,7 @@ class SliceRemoval:
 			self.RawSlicePathList = deepcopy(self.sliceFinePathList)
 		else :
 			self.RawSlicePathList = []
-		if RoughRemovalOperation  or RoughContourOperation :
+		if RoughRemovalOperation or RoughContourOperation :
 			self.sliceFinePathList =self.keepOutside(self.sliceFinePathList,previousSlicesList)
 		else :
 			self.sliceFinePathList = []
@@ -254,7 +253,7 @@ class SliceRemoval:
 		while currentposdir2 <= dir2end:
 			even = not even
 			dir1startstart = dir1start if even else dir1end
-			dir1endend  = dir1end if even else dir1start
+			dir1endend = dir1end if even else dir1start
 			if self.direction =="x":
 				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,currentposdir2),Vector(dir1endend,currentposdir2))
 			else :
@@ -312,7 +311,7 @@ class SliceRemoval:
 		for seg in segList :
 			for path in pathlist :
 				inside =path.isSegInside(seg)==1#outseg inside offsetislands =>pop
-				if  inside and seg in tmpout:
+				if inside and seg in tmpout:
 					tmpout.remove(seg)
 		newpath = Path("tmp")
 		newpath.extend(tmpout)
@@ -554,7 +553,7 @@ class BallFinish():
 	def applyOffsets(self,rotatingBufferSlicesPathList):
 		newlist = []
 		for index,path in enumerate(rotatingBufferSlicesPathList):
-			offZ  = self.slicesOffsets[index][1]
+			offZ = self.slicesOffsets[index][1]
 			opath = path.offset(offZ)
 		# Post clean
 			if opath:
@@ -576,7 +575,7 @@ class BallFinish():
 		newblock = []
 		if sliceNmax is None or len(sliceNmax)<1:
 			return newblock
-		if  not evenSense:
+		if not evenSense:
 			sliceOriented = self.reverse(sliceNmax)
 		else:
 			sliceOriented = sliceNmax
@@ -625,7 +624,7 @@ class BallFinish():
 		while abs(currentposdir2 - dir2end)>EPSV:
 			block = Block("Ball Finish dir:%s %.02f"%(self.direction,currentposdir2))
 			evenSense = not evenSense
-			dir1endend  = dir1end if evenSense else dir1start
+			dir1endend = dir1end if evenSense else dir1start
 			#do the stuff
 			offsetPathList = self.applyOffsets(rotatingBufferSlicesPathList)
 			offsetPathTopIntersected = self.getTopSegs2(offsetPathList)
@@ -805,27 +804,27 @@ class Tool(Plugin):
 
 	def __init__(self, master):
 		Plugin.__init__(self, master, __name__)#"3D Slicer")
-		self.icon  = "mesh"
+		self.icon = "mesh"
 		self.group = "Development"
 		self.variables = [
-			("name",      "db" ,    "", _("Name")),
-			("file"    ,    "file" ,    "", _(".STL binary file to slice"), "What file to slice"),
-			("endmill",   "db" ,    "", _("End Mill")),
-			("marginxlow"    ,    "mm" ,    10., _("max x additional bound to model"), "x max additional bound"),
-			("marginxhigh"    ,    "mm" ,    10., _("min x additional bound to model"), "x min additional bound"),
-			("marginylow"    ,    "mm" ,    10., _("max y additional bound to model"), "y max additional bound"),
-			("marginyhihgh"    ,    "mm" ,    10., _("min y additional bound to model"), "y min additional bound"),
-			("marginZHigh"    ,    "mm" ,    1., _("max Z height mm above model"), "Height to start slicing"),
-			("marginZlow"    ,    "mm" ,   0., _("min Z height mm under model"), "Height to stop slicing"),
-			("xoff"  ,    "bool" ,    True, _("Set xmin to Zero"), "This will place the xmin bound to zero"),
-			("yoff"  ,    "bool" ,    True, _("Set ymin to Zero"), "This will place the ymin bound to zero"),
-			("zoff"  ,    "bool" ,    True, _("Set Zmax to Zero"), "This will place the higher point of bound to zero"),
+			("name",      "db",    "", _("Name")),
+			("file"    ,    "file",    "", _(".STL binary file to slice"), "What file to slice"),
+			("endmill",   "db",    "", _("End Mill")),
+			("marginxlow"    ,    "mm",    10., _("max x additional bound to model"), "x max additional bound"),
+			("marginxhigh"    ,    "mm",    10., _("min x additional bound to model"), "x min additional bound"),
+			("marginylow"    ,    "mm",    10., _("max y additional bound to model"), "y max additional bound"),
+			("marginyhihgh"    ,    "mm",    10., _("min y additional bound to model"), "y min additional bound"),
+			("marginZHigh"    ,    "mm",    1., _("max Z height mm above model"), "Height to start slicing"),
+			("marginZlow"    ,    "mm",   0., _("min Z height mm under model"), "Height to stop slicing"),
+			("xoff"  ,    "bool",    True, _("Set xmin to Zero"), "This will place the xmin bound to zero"),
+			("yoff"  ,    "bool",    True, _("Set ymin to Zero"), "This will place the ymin bound to zero"),
+			("zoff"  ,    "bool",    True, _("Set Zmax to Zero"), "This will place the higher point of bound to zero"),
 			("direction","x,y","x",_("main direction x or y"),_("direction for Slice removal / Surface removal")),
-			("scale"    ,    "float" ,    1.,_("scale factor"), "Size will be multiplied by this factor"),
-			("zstep"    ,    "mm" ,    3., _("layer height"), "Distance between layers of slices"),
-			("toolstep"    ,    "mm" ,    -1., _("tool step (-1: From tool database)"), "tool step along x y"),
-			("finishfeed"    ,    "mm" ,    100, _("finish xyz feed"), "finish feed (x,y,z)"),
-			("AdditionalOffsetRadius"  ,         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
+			("scale"    ,    "float",    1.,_("scale factor"), "Size will be multiplied by this factor"),
+			("zstep"    ,    "mm",    3., _("layer height"), "Distance between layers of slices"),
+			("toolstep"    ,    "mm",    -1., _("tool step (-1: From tool database)"), "tool step along x y"),
+			("finishfeed"    ,    "mm",    100, _("finish xyz feed"), "finish feed (x,y,z)"),
+			("AdditionalOffsetRadius",         "mm" ,     0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
 			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice contour(cylindrical nose),3-Finish Surface removal (ball nose)",
 			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
 			]
@@ -851,7 +850,7 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 		except TypeError:
 			stepover = 0.
 		if float(self["toolstep"])<=0:
-			toolStep  = diameter*stepover
+			toolStep = diameter*stepover
 		else :
 			toolStep = float(self["toolstep"])
 		print ("toolStep",toolStep)
@@ -892,7 +891,7 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 			yend = stlObj.maxy + marginyhihgh
 			zstart = stlObj.maxz+marginZHigh
 			zend = stlObj.minz-marginZlow
-		dictoperation = 			{
+		dictoperation = {
 			"0-Raw Slice(information only)":0,
 			"1-Rough Slice rough removal(cylindrical nose)":1,
 			"2-Rough Slice contour(cylindrical nose)":2,
@@ -905,24 +904,24 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 		FinishSurfaceOperation = operation ==3
 		gcode = app.gcode
 		gcode.headerFooter()
-		if RawSliceOperation or RoughRemovalOperation or  RoughContourOperation and stlObj is not None:
+		if RawSliceOperation or RoughRemovalOperation or RoughContourOperation and stlObj is not None:
 			z = zstart
 			previousSliceList=[]
-			operations  = [RawSliceOperation,RoughRemovalOperation,RoughContourOperation]
+			operations = [RawSliceOperation,RoughRemovalOperation,RoughContourOperation]
 			while z > zend:
-				blocks  = []
+				blocks = []
 				app.setStatus(_("Making slice...z=")+str(z),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
 										z,toolStep,direction,AdditionalOffsetRadius,diameter)
 				rawSlice=[]
 				pathlist = []
-				if  RoughContourOperation or RoughRemovalOperation or  RawSliceOperation:
+				if RoughContourOperation or RoughRemovalOperation or RawSliceOperation:
 					[RoughDirectionList,ContourList,rawSlice] = sliceremoval.getpathListSlice(previousSliceList,operations)
 					if RoughContourOperation:
 						pathlist.extend(ContourList)
-					if  RoughRemovalOperation :
+					if RoughRemovalOperation :
 						pathlist.extend(RoughDirectionList)
-					if  RawSliceOperation:
+					if RawSliceOperation:
 						pathlist.extend(rawSlice)
 					previousSliceList = ContourList
 
