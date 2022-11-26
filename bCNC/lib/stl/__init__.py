@@ -9,12 +9,12 @@ from .base import RemoveDuplicates
 from .mesh import Mesh
 
 __all__ = [
-    'BUFFER_SIZE',
-    'HEADER_SIZE',
-    'COUNT_SIZE',
-    'MAX_COUNT',
-    'Mode',
-    'Dimension',
-    'RemoveDuplicates',
-    'Mesh',
+    "BUFFER_SIZE",
+    "HEADER_SIZE",
+    "COUNT_SIZE",
+    "MAX_COUNT",
+    "Mode",
+    "Dimension",
+    "RemoveDuplicates",
+    "Mesh",
 ]
