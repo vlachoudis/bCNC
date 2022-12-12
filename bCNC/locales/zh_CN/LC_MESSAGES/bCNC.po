@@ -1,0 +1,5678 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-19 19:55+0200\n"
+"PO-Revision-Date: 2022-07-19 20:34+0200\n"
+"Last-Translator: @SteveMoto [GitHub]\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: bCNC/controllers/_GenericGRBL.py:51
+msgid ""
+"(Compile Option) Grbl '$' setting value exceeds the maximum step rate "
+"supported."
+msgstr "（编译选项）Grbl'$'设置值超过所支持的最大步进率."
+
+#: bCNC/controllers/_GenericGRBL.py:55
+msgid ""
+"(Grbl-Mega Only) Build info or startup line exceeded EEPROM line length "
+"limit."
+msgstr "（仅限Grbl-Mega）生成信息或启动行超过EEPROM行长度限制."
+
+#: bCNC/controllers/_GenericGRBL.py:69
+msgid ""
+"A G-code command implicitly or explicitly requires XYZ axis words in the "
+"block, but none were detected."
+msgstr "G代码命令隐式或显式地在块中请求XYZ轴关键字，但没有检测到."
+
+#: bCNC/controllers/_GenericGRBL.py:75
+msgid ""
+"A G-code command was sent, but is missing some required P or L value words "
+"in the line."
+msgstr "发送G代码命令，但缺少必需的P或L值字."
+
+#: bCNC/controllers/_GenericGRBL.py:87
+msgid ""
+"A G2 or G3 arc was commanded but there are no XYZ axis words in the selected "
+"plane to trace the arc."
+msgstr "G2或G3弧命令，在所选平面中没有XYZ轴字的弧."
+
+#: bCNC/controllers/_GenericGRBL.py:96
+msgid ""
+"A G2 or G3 arc, traced with the offset definition, is missing the IJK offset "
+"word in the selected plane to trace the arc."
+msgstr "使用偏移定义跟踪的G2或G3弧在所选平面中缺少IJK偏移字以跟踪弧。"
+
+#: bCNC/controllers/_GenericGRBL.py:93
+msgid ""
+"A G2 or G3 arc, traced with the radius definition, had a mathematical error "
+"when computing the arc geometry. Try either breaking up the arc into semi-"
+"circles or quadrants, or redefine them with the arc offset definition."
+msgstr ""
+"用半径定义跟踪的G2或G3弧在计算弧几何时有数学误差。可将弧分解为半圆或像限，或"
+"使用弧偏移定义重新定义它们."
+
+#: bCNC/ToolsPage.py:824
+msgid ""
+"Add additional margin/offset around islands to compensate for endmill "
+"radius. This is automaticaly done for all islands if they are marked as tabs."
+msgstr ""
+
+#: bCNC/ProbePage.py:714
+msgid ""
+"Add an orientation marker. Jog first the machine to the marker position and "
+"then click on canvas to add the marker."
+msgstr "添加方向标记。先将机器移动到标记位置，然后单击画布添加标记。"
+
+#: bCNC/controllers/_GenericGRBL.py:16
+msgid ""
+"Alarm is an emergency state. Something has gone terribly wrong when these "
+"occur. Typically, they are caused by limit error when the machine has moved "
+"or wants to move outside the machine space and crash into something. They "
+"also report problems if Grbl is lost and can't guarantee positioning or a "
+"probe command has failed. Once in alarm-mode, Grbl will lock out and shut "
+"down everything until the user issues a reset. Even after a reset, Grbl will "
+"remain in alarm-mode, block all G-code from being executed, but allows the "
+"user to override the alarm manually. This is to ensure the user knows and "
+"acknowledges the problem and has taken steps to fix or account for it."
+msgstr ""
+"报警属紧急状态。一旦发生，说明出现严重错误。通常是在机器移动中或将机器移动到"
+"空间之外时碰撞到物体时的极限误差而引起的。如果Grbl丢失并且无法定位或探针命令"
+"失败，也会报警。一旦进入报警模式，Grbl将锁定并关闭所有内容，直到用户复位。在"
+"复位后，Grbl将保持报警模式，阻止执行所有G代码，但允许用户手动消除报警。以便用"
+"户获知问题，并采取措施解决。"
+
+#: bCNC/controllers/_GenericGRBL.py:33
+msgid ""
+"All is good! Everything in the last line was understood by Grbl and was "
+"successfully processed and executed."
+msgstr "一切OK！全部能被Grbl认可并成功处理和执行."
+
+#: bCNC/plugins/linearize.py:50
+msgid ""
+"Also subdivide the lines. Otherwise only arcs and splines will be subdivided"
+msgstr ""
+
+#: bCNC/bmain.py:2418
+msgid ""
+"Autolevel/probe information already exists.\n"
+"Delete it?"
+msgstr ""
+"自动调平/探测信息已存在.\n"
+"删除？"
+
+#: bCNC/plugins/slicemesh.py:276
+msgid ""
+"Calculating distance {} of {} (SciPy not installed => using SLOW fallback "
+"method)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:505
+msgid ""
+"Currently there is some weird behaviour sometimes when trying to link "
+"segments of pocket internally, so it can be disabled using this option. This "
+"workaround should be fixed and removed in future."
+msgstr ""
+
+#: bCNC/ToolsPage.py:797
+msgid ""
+"Do the last cut once more in opposite direction. Helix bottom is disabled in "
+"such case."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:168
+msgid ""
+"Door closed and resuming. Restoring from park, if applicable. Reset will "
+"throw an alarm."
+msgstr "门关闭后正在恢复。若可用，将从暂停中恢复，复位出现报警。"
+
+#: bCNC/controllers/_GenericGRBL.py:165
+msgid ""
+"Door opened. Hold (or parking retract) in-progress. Reset will throw an "
+"alarm."
+msgstr "门打开。暂停（或驻车缩回）中，复位出现报警。"
+
+#: bCNC/controllers/_GenericGRBL.py:131
+msgid ""
+"G-code motion target exceeds machine travel. Machine position safely "
+"retained. Alarm may be unlocked."
+msgstr "G代码运动目标超出行程。机器保持位置安全。报警可能解锁。"
+
+#: bCNC/bmain.py:2526
+#, fuzzy
+#| msgid ""
+#| "Gcode file {} was changed since editing started\n"
+#| "Reload new version?"
+msgid ""
+"Gcode file {} was changed since editing started\n"
+"Reload new version?"
+msgstr "编辑打开后G代码文件{}已更改，重新加载新版本？"
+
+#: bCNC/ToolsPage.py:1027
+msgid ""
+"Generate pocket after profiling? Useful for making pockets with overcuts."
+msgstr ""
+
+#: bCNC/plugins/sketch.py:368
+#, fuzzy
+#| msgid "Generated Sketch size W={} x H={} x distance={}, Total length:{}"
+msgid ""
+"Generated Sketch size W={} x H={} x distance={}, Total line:{}, Total length:"
+"{}"
+msgstr "生成草图尺寸 宽={} x高={} x距离={}，总长度：{}"
+
+#: bCNC/controllers/_GenericGRBL.py:43
+msgid ""
+"Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth "
+"operation during a job."
+msgstr "当Grbl在待机状态下，Grbl“$”命令不可作用，在加工期间，以确保证运行平稳."
+
+#: bCNC/controllers/_GenericGRBL.py:19
+msgid ""
+"Grbl is in g-code check mode. If you send g-code to it, it will only check "
+"it without actualy doing any motion. You can exit this by $C command (Or "
+"equivalent button in terminal tab)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:26
+msgid ""
+"Grbl is in queue state. This also means you have relatively old GRBL "
+"version, there are even 0.9 versions newer than this."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:23
+msgid ""
+"Grbl is in sleep mode. Motors are disabled, so you can move them manualy. "
+"That also means that your machine might have lost the position (or "
+"microsteps) and you may need to re-zero. Perform reset+unlock (or stop) to "
+"wake Grbl again."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:78
+msgid ""
+"Grbl supports six work coordinate systems G54-G59. G59.1, G59.2, and G59.3 "
+"are not supported."
+msgstr "Grbl支持六个工作坐标系G54-G59。不支持G59.1，G59.2和G59.3."
+
+#: bCNC/controllers/_GenericGRBL.py:128
+msgid ""
+"Hard limit triggered. Machine position is likely lost due to sudden and "
+"immediate halt. Re-homing is highly recommended."
+msgstr "硬限位被触发。机器位置值由于突然和立即停止而丢失。强烈推荐重新归位。"
+
+#: bCNC/controllers/_GenericGRBL.py:148
+msgid ""
+"Homing fail. Could not find limit switch within search distance. Defined as "
+"1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgstr ""
+"归位失败。在行程内未找到限位开关。行程设置为1.5倍最大行程，定位设置为5倍距离."
+
+#: bCNC/controllers/_GenericGRBL.py:158
+#, fuzzy
+#| msgid ""
+#| "Homing fail. Could not find limit switch within search distance. Defined "
+#| "as 1.5 * max_travel on search and 5 * pulloff on locate phases."
+msgid ""
+"Homing fail. Could not find second limit switch for auto squared axis within "
+"search distances. Try increasing max travel, decreasing pull-off distance, "
+"or check wiring. (grblHAL)"
+msgstr ""
+"归位失败。在行程内未找到限位开关。行程设置为1.5倍最大行程，定位设置为5倍距离."
+
+#: bCNC/controllers/_GenericGRBL.py:145
+msgid ""
+"Homing fail. Cycle failed to clear limit switch when pulling off. Try "
+"increasing pull-off setting or check wiring."
+msgstr "归位失败。触碰时无法清除限位开关。请增加触碰设置或检查接线。"
+
+#: bCNC/bmain.py:231
+msgid ""
+"MDI Command line: Accept g-code commands or macro commands (RESET/HOME...) "
+"or editor commands (move,inkscape, round...) [Space or Ctrl-Space]"
+msgstr ""
+"MDI命令行：接受g代码命令或宏命令（RESET / HOME…）或编辑器命令（move，"
+"inkscape，round…）[Space或Ctrl-Space]"
+
+#: bCNC/plugins/linearize.py:41
+msgid ""
+"Maximal length of resulting lines, smaller number means more precise output "
+"and longer g-code. Length will be automaticaly truncated to be even across "
+"whole subdivided segment."
+msgstr ""
+
+#: bCNC/ControlPage.py:1045
+msgid ""
+"Move to Origin.\n"
+"User configurable button.\n"
+"Right click to configure."
+msgstr ""
+"移动到原点\n"
+"用户可配置按钮\n"
+"右键单击配置"
+
+#: bCNC/ControlPage.py:609 bCNC/ControlPage.py:916
+msgid ""
+"No info available.\n"
+"Please contact the author."
+msgstr ""
+"无可用信息。\n"
+"请联系作者。"
+
+#: bCNC/plugins/endmilloffset.py:454
+msgid ""
+"Number of contours (Custom offset count) : indicates the number of contours "
+"if custom selected. MAX:"
+msgstr ""
+
+#: bCNC/ProbePage.py:904
+msgid ""
+"Please verify that the probe is connected.\n"
+"\n"
+"Show this message again?"
+msgstr ""
+"请确认探针连接.\n"
+"\n"
+"再次显示此消息？"
+
+#: bCNC/controllers/_GenericGRBL.py:140
+msgid ""
+"Probe fail. Probe did not contact the workpiece within the programmed travel "
+"for G38.2 and G38.4."
+msgstr "探头故障。在G38.2和G38.4的编程行程中，探头未接触工件。"
+
+#: bCNC/controllers/_GenericGRBL.py:137
+msgid ""
+"Probe fail. The probe is not in the expected initial state before starting "
+"probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is "
+"triggered."
+msgstr ""
+"探头故障。探头在启动循环探测之前未处于预期初始状态，其中G38.2和G38.3未触发，"
+"而G38.4和G38.5被触发。"
+
+#: bCNC/controllers/_GenericGRBL.py:134
+msgid ""
+"Reset while in motion. Grbl cannot guarantee position. Lost steps are "
+"likely. Re-homing is highly recommended."
+msgstr "运动时复位，Grbl不能确保位置，可能丢步。强烈推荐重新归位。"
+
+#: bCNC/ProbePage.py:211
+msgid ""
+"Set current XY location as autoleveling Z-zero (recalculate probed data to "
+"be relative to this XY origin point)"
+msgstr ""
+
+#: bCNC/ControlPage.py:251
+msgid ""
+"Show current state of the machine\n"
+"Click to see details\n"
+"Right-Click to clear alarm/errors"
+msgstr ""
+"显示机器当前状态\n"
+"点击查看详情\n"
+"右击解除警报/错误"
+
+#: bCNC/plugins/dragknife.py:91
+msgid ""
+"Simulation is currently approximated by using lots of short lines. This is "
+"the length of these lines."
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:110
+msgid ""
+"Spindle not running when motion commanded in CSS or spindle sync mode. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:487 bCNC/plugins/endmilloffset.py:496
+msgid ""
+"Tabs are always ignored. You can select if all islands are active, none, or "
+"only selected"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:102
+msgid ""
+"The G43.1 dynamic tool length offset command cannot apply an offset to an "
+"axis other than its configured axis. The Grbl default axis is the Z-axis."
+msgstr ""
+"G43.1动态刀具长度补偿命令不能对除其组态轴之外的轴使用偏移。Grbl默认轴为Z轴。"
+
+#: bCNC/controllers/_GenericGRBL.py:81
+msgid ""
+"The G53 G-code command requires either a G0 seek or G1 feed motion mode to "
+"be active. A different motion was active."
+msgstr "G53的G代码命令需激活G0寻迹或G1进给运行模式。但激活了其他运行模式."
+
+#: bCNC/controllers/_GenericGRBL.py:90
+msgid ""
+"The motion command has an invalid target. G2, G3, and G38.2 generates this "
+"error, if the arc is impossible to generate or if the probe target is the "
+"current position."
+msgstr ""
+"运动命令目标无效。若无法生成弧或探测目标是当前位置，则G2，G3和G38.2将产生此错"
+"误"
+
+#: bCNC/controllers/_GenericGRBL.py:84
+msgid ""
+"There are unused axis words in the block and G80 motion mode cancel is "
+"active."
+msgstr "块中未使用的轴字，G80运动模式取消激活."
+
+#: bCNC/controllers/_GenericGRBL.py:99
+msgid ""
+"There are unused, leftover G-code words that aren't used by any command in "
+"the block."
+msgstr "有未使用的，剩馀的G代码字，不被块中的任何命令使用。"
+
+#: bCNC/Utils.py:709
+#, fuzzy
+#| msgid ""
+#| "There was an error sending the report\n"
+#| "Code={} {}"
+msgid ""
+"There was an error sending the report\n"
+"Code={} {}"
+msgstr ""
+"发送报告时出错\n"
+"代码={} {}"
+
+#: bCNC/plugins/endmilloffset.py:471
+msgid ""
+"This can be used to switch between Conventional and Climb milling. If unsure "
+"use Convetional (default)."
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:23
+msgid ""
+"This plugin is for creating drilling marks with a laser engraver\n"
+"        for manual drilling"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:105
+msgid ""
+"Tool number greater than max supported value or undefined tool selected. "
+"(grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:65
+msgid ""
+"Two G-code commands that both require the use of the XYZ axis words were "
+"detected in the block."
+msgstr "在块中检测到两个都需要使用XYZ轴字的G代码命令."
+
+#: bCNC/plugins/dragknife.py:82
+msgid ""
+"Use this option to simulate cuting of dragknife path. Resulting shape will "
+"reflect what shape will actuall be cut. This should reverse the dragknife "
+"procedure and give you back the original shape from g-code that was "
+"previously processed for dragknife."
+msgstr ""
+
+#: bCNC/bmain.py:2722
+msgid ""
+"\n"
+"Would you like open it locally?"
+msgstr ""
+"\n"
+"在本地打开吗？"
+
+#: bCNC/bmain.py:888
+msgid ""
+"bCNC/\tAn advanced fully featured\n"
+"\tg-code sender for GRBL."
+msgstr ""
+"bCNC /\t先进的全功能\n"
+"\t适宜GRBL的g代码发送器."
+
+#: bCNC/plugins/dragknife.py:72
+msgid ""
+"direction that knife blade is facing before and after cut. Eg.: if you set "
+"this to X+, then the knifes rotation axis should be on the right side of the "
+"tip. Meaning that the knife is ready to cut towards right immediately "
+"without pivoting. If you cut multiple shapes in single operation, it's "
+"important to have this set consistently across all of them."
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:47
+msgid ""
+"how precisely must line fit. set to 0 to disable line fitting, but at least "
+"some line fitting (0.001 to 0.01) might be needed to fix arcs, so they can "
+"be fit"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:445
+msgid ""
+"indicates the number of profile passes (single,custom number,full pocket)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:783
+msgid ""
+"positive value = relative to tool diameter (5 to 10 probably makes sense), "
+"negative = absolute ramp distance (you probably don't need this). Also note "
+"that ramp can't currently be shorter than affected g-code segment."
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:63
+msgid ""
+"retract to this height for pivots (useful for thick materials, you should "
+"enter number slightly lower than material thickness)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2003
+#, fuzzy
+#| msgid "     line: {}\n"
+msgid "     line: {}\n"
+msgstr "     行: {}\n"
+
+#: bCNC/bmain.py:1195 bCNC/bmain.py:1276
+msgid "# Blocks:"
+msgstr "区块:"
+
+#: bCNC/TerminalPage.py:182
+msgid "$ Display build information of Grbl"
+msgstr "$显示Grbl的构建信息"
+
+#: bCNC/TerminalPage.py:103
+msgid "$# Display parameters of Grbl"
+msgstr "$#显示Grbl的参数"
+
+#: bCNC/TerminalPage.py:88
+msgid "$$ Display settings of Grbl"
+msgstr "$$显示Grbl的设置"
+
+#: bCNC/ToolsPage.py:1173
+msgid "$0 Step pulse time [us]"
+msgstr "$0 步进脉冲时间[us]"
+
+#: bCNC/ToolsPage.py:1174
+msgid "$1 Step idle delay [ms]"
+msgstr "$1 步进空闲延迟[ms]"
+
+#: bCNC/ToolsPage.py:1180
+msgid "$10 Status report [mask]"
+msgstr "$10 状态报告选项[mask]"
+
+#: bCNC/ToolsPage.py:1195
+msgid "$100 X steps/mm"
+msgstr "$100 X轴步进数/mm"
+
+#: bCNC/ToolsPage.py:1196
+msgid "$101 Y steps/mm"
+msgstr "$101 Y轴步进数/mm"
+
+#: bCNC/ToolsPage.py:1197
+msgid "$102 Z steps/mm"
+msgstr "$102 Z轴步进数/mm"
+
+#: bCNC/ToolsPage.py:1181
+msgid "$11 Junction deviation [mm]"
+msgstr "$11 归零偏差[mm]"
+
+#: bCNC/ToolsPage.py:1198
+msgid "$110 X max rate [mm/min]"
+msgstr "$110 X轴最大速率[mm/min]"
+
+#: bCNC/ToolsPage.py:1199
+msgid "$111 Y max rate [mm/min]"
+msgstr "$111 Y轴最大速率[mm/min]"
+
+#: bCNC/ToolsPage.py:1200
+msgid "$112 Z max rate [mm/min]"
+msgstr "$112 Z轴最大速率[mm/min]"
+
+#: bCNC/ToolsPage.py:1182
+msgid "$12 Arc tolerance [mm]"
+msgstr "$12 弧公差[mm]"
+
+#: bCNC/ToolsPage.py:1201
+msgid "$120 X acceleration [mm/sec^2]"
+msgstr "$ 120 X轴加速度[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1202
+msgid "$121 Y acceleration [mm/sec^2]"
+msgstr "$ 121 Y轴加速度[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1203
+msgid "$122 Z acceleration [mm/sec^2]"
+msgstr "$ 122 Z轴加速度[mm/sec^2]"
+
+#: bCNC/ToolsPage.py:1183
+msgid "$13 Report inches"
+msgstr "$13 以英寸为单位"
+
+#: bCNC/ToolsPage.py:1204
+msgid "$130 X max travel [mm]"
+msgstr "$130 X轴最大行程[mm]"
+
+#: bCNC/ToolsPage.py:1205
+msgid "$131 Y max travel [mm]"
+msgstr "$131 Y轴最大行程[mm]"
+
+#: bCNC/ToolsPage.py:1206
+msgid "$132 Z max travel [mm]"
+msgstr "$132 Z轴最大行程[mm]"
+
+#: bCNC/ToolsPage.py:1207
+msgid "$140 X homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1208
+msgid "$141 Y homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1209
+msgid "$142 Z homing pull-off [mm]"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1175
+msgid "$2 Step port invert [mask]"
+msgstr "$2 步进脉冲反转[mask]"
+
+#: bCNC/ToolsPage.py:1184
+msgid "$20 Soft limits"
+msgstr "$20 启用软限位"
+
+#: bCNC/ToolsPage.py:1185
+msgid "$21 Hard limits"
+msgstr "$21 启用硬限位"
+
+#: bCNC/ToolsPage.py:1186
+msgid "$22 Homing cycle"
+msgstr "$22 归位过程"
+
+#: bCNC/ToolsPage.py:1187
+msgid "$23 Homing direction invert [mask]"
+msgstr "$23 归位反向[mask]"
+
+#: bCNC/ToolsPage.py:1188
+msgid "$24 Homing feed [mm/min]"
+msgstr "$24 归位进给率[mm / min]"
+
+#: bCNC/ToolsPage.py:1189
+msgid "$25 Homing seek [mm/min]"
+msgstr "$25 归位寻迹率[mm / min]"
+
+#: bCNC/ToolsPage.py:1190
+msgid "$26 Homing debounce [ms]"
+msgstr "$26 归位开关延迟时间，ms"
+
+#: bCNC/ToolsPage.py:1191
+msgid "$27 Homing pull-off [mm]"
+msgstr "$27 归位触碰[mm]"
+
+#: bCNC/ToolsPage.py:1176
+msgid "$3 Direction port invert [mask]"
+msgstr "$3 步进方向反转[mask]"
+
+#: bCNC/ToolsPage.py:1192
+msgid "$30 Max spindle speed [RPM]"
+msgstr "$30 主轴最大转速[RPM]"
+
+#: bCNC/ToolsPage.py:1193
+msgid "$31 Min spindle speed [RPM]"
+msgstr "$31 主轴最小转速[RPM]"
+
+#: bCNC/ToolsPage.py:1194
+msgid "$32 Laser mode enable"
+msgstr "$32 启用激光模式"
+
+#: bCNC/ToolsPage.py:1177
+msgid "$4 Step enable invert"
+msgstr "$4 反转步进使能引脚"
+
+#: bCNC/ToolsPage.py:1178
+msgid "$5 Limit pins invert"
+msgstr "$5 反转限位引脚"
+
+#: bCNC/ToolsPage.py:1179
+msgid "$6 Probe pin invert"
+msgstr "$6 反转探针引脚"
+
+#: bCNC/TerminalPage.py:165
+msgid "$C Enable/Disable checking of gcode"
+msgstr "$C启用/禁用G代码检查"
+
+#: bCNC/TerminalPage.py:117
+msgid "$G Display state of Grbl"
+msgstr "$G显示Grbl的状态"
+
+#: bCNC/TerminalPage.py:133
+msgid "$I Display build information of Grbl"
+msgstr "$I显示Grbl的构建信息"
+
+#: bCNC/TerminalPage.py:148
+msgid "$N Display startup configuration of Grbl"
+msgstr "$N显示Grbl的启动配置"
+
+#: bCNC/bmain.py:2450
+#, fuzzy
+#| msgid "'{}' loaded"
+msgid "'{}' loaded"
+msgstr "'{}' 已加载"
+
+#: bCNC/bmain.py:2446
+#, fuzzy
+#| msgid "'{}' reloaded at '{}'"
+msgid "'{}' reloaded at '{}'"
+msgstr "'{}' 重加载 '{}'"
+
+#: bCNC/bmain.py:2459
+#, fuzzy
+#| msgid "'{}' saved"
+msgid "'{}' saved"
+msgstr "'{}' 已存储"
+
+#: bCNC/EditorPage.py:376
+msgid "(Un)Comment selected lines"
+msgstr "（Un）注释所选行"
+
+#: bCNC/controllers/_GenericGRBL.py:120
+msgid "(grblHAL internal)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1005 bCNC/ControlPage.py:1482
+msgid "+"
+msgstr ""
+
+#: bCNC/ControlPage.py:1174 bCNC/ControlPage.py:1646
+msgid "-"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:58
+msgid ".STL/.PLY file to slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:1742
+msgid "1. Spindle"
+msgstr "1.主轴"
+
+#: bCNC/ProbePage.py:1748
+msgid "2. Camera"
+msgstr "2.相机"
+
+#: bCNC/plugins/slicemesh.py:67
+msgid "3D slice (devel)"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2001
+#, fuzzy
+#| msgid ">>> ERROR: {}\n"
+msgid ">>> ERROR: {}\n"
+msgstr ">>> 错误: {}\n"
+
+#: bCNC/ControlPage.py:1407
+msgid "A"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:67
+msgid "A G-code word was repeated in the block."
+msgstr "在块中重复G代码关键字."
+
+#: bCNC/ControlPage.py:651
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "A work position (click to set)"
+msgstr "X 工作位置（点击设置）"
+
+#: bCNC/ControlPage.py:727
+msgid "A=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:793
+msgid "ABC=0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:117
+msgid "ATC: current tool is not set. Set current tool with M61. (grblHAL)"
+msgstr ""
+
+#: bCNC/FilePage.py:216
+msgid "About"
+msgstr "关于"
+
+#: bCNC/FilePage.py:224
+msgid "About the program"
+msgstr "关于程序"
+
+#: bCNC/bmain.py:847
+#, fuzzy
+#| msgid "About {}"
+msgid "About {} v{}"
+msgstr "有关 {}"
+
+#: bCNC/ToolsPage.py:641
+msgid "Acceleration x"
+msgstr "x 加速度"
+
+#: bCNC/ToolsPage.py:642
+msgid "Acceleration y"
+msgstr "y 加速度"
+
+#: bCNC/ToolsPage.py:643
+msgid "Acceleration z"
+msgstr "z 加速度"
+
+#: bCNC/EditorPage.py:335
+msgid "Active"
+msgstr "激活"
+
+#: bCNC/plugins/trochoidPath.py:48 bCNC/plugins/trochoidal_3D.py:72
+msgid "Adaptative"
+msgstr ""
+
+#: bCNC/EditorPage.py:258 bCNC/ProbePage.py:702 bCNC/ToolsPage.py:1472
+msgid "Add"
+msgstr "添加"
+
+#: bCNC/ToolsPage.py:1478
+msgid "Add a new operation/object"
+msgstr "添加新操作/对象"
+
+#: bCNC/CNCCanvas.py:468
+msgid "Add an orientation marker"
+msgstr "添加方向标记"
+
+#: bCNC/plugins/zigzag.py:108
+msgid "Additional length at start/end"
+msgstr "开始/结束时的附加长度"
+
+#: bCNC/plugins/endmilloffset.py:478
+#, fuzzy
+#| msgid "Additional offset distance"
+msgid "Additional offset (mm)"
+msgstr "附加偏移距离"
+
+#: bCNC/plugins/trochoidPath.py:41 bCNC/plugins/trochoidal_3D.py:65
+#: bCNC/ToolsPage.py:1013
+msgid "Additional offset distance"
+msgstr "附加偏移距离"
+
+#: bCNC/ProbePage.py:2111
+msgid "After a tool change distance to scan starting from ProbeZ"
+msgstr "刀具切换后探测Z扫描距离"
+
+#: bCNC/ToolsPage.py:617
+msgid "Align Camera"
+msgstr "对准相机"
+
+#: bCNC/ToolsPage.py:620
+msgid "Align Camera Angle"
+msgstr "对准相机角度"
+
+#: bCNC/ToolsPage.py:619
+msgid "Align Camera Height"
+msgstr "对准相机高度"
+
+#: bCNC/ToolsPage.py:618
+msgid "Align Camera Width"
+msgstr "对准相机宽度"
+
+#: bCNC/ProbePage.py:831
+msgid "Align GCode with the machine markers"
+msgstr "将G代码与机器标记对齐"
+
+#: bCNC/EditorPage.py:106 bCNC/bmain.py:140
+msgid "All"
+msgstr "全部"
+
+#: bCNC/bmain.py:1235
+msgid "All GCode"
+msgstr "所有G代码"
+
+#: bCNC/bmain.py:119
+msgid "All accepted"
+msgstr "全部接受"
+
+#: bCNC/bmain.py:2609
+msgid "Already running"
+msgstr "已经运行"
+
+#: bCNC/ToolsPage.py:717
+msgid "Angle"
+msgstr "角度"
+
+#: bCNC/ProbePage.py:808
+msgid "Angle:"
+msgstr "角度:"
+
+#: bCNC/plugins/spiral.py:481
+msgid "Approach Height (Safe Z)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:11
+msgid "ArcFit"
+msgstr ""
+
+#: bCNC/ProbePage.py:956
+msgid "At least one probe direction should be specified"
+msgstr "至少要确定一个探测方向"
+
+#: bCNC/EditorPage.py:198 bCNC/ProbePage.py:128 bCNC/ProbePage.py:254
+#: bCNC/ProbePage.py:1224
+msgid "Autolevel"
+msgstr "自动调平"
+
+#: bCNC/ProbePage.py:135
+msgid "Autolevel Z surface"
+msgstr "Z轴表面自动调平"
+
+#: bCNC/ProbePage.py:573
+msgid "Automatic GOTO after probing"
+msgstr ""
+
+#: bCNC/Utils.py:602
+msgid "Automatic error reporting"
+msgstr "自动错误报告"
+
+#: bCNC/plugins/midi2cnc.py:70
+msgid "Axis to be used"
+msgstr "已用的軸"
+
+#: bCNC/ControlPage.py:1491
+msgid "B"
+msgstr ""
+
+#: bCNC/ControlPage.py:668
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "B work position (click to set)"
+msgstr "X 工作位置（点击设置）"
+
+#: bCNC/ControlPage.py:743
+msgid "B=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:777
+msgid "BC=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:73
+msgid "BEFORE & AFTER probing"
+msgstr "探测前后"
+
+#: bCNC/FilePage.py:316
+msgid "Baud:"
+msgstr "波特率:"
+
+#: bCNC/EditorPage.py:250
+msgid "Block"
+msgstr "块"
+
+#: bCNC/controllers/_GenericGRBL.py:126
+msgid "Bluetooth initalisation failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:362
+msgid "Board height"
+msgstr "板高"
+
+#: bCNC/plugins/jigsaw.py:361
+msgid "Board width"
+msgstr "板宽"
+
+#: bCNC/EditorPage.py:464
+msgid "Bottom"
+msgstr "下部"
+
+#: bCNC/EditorPage.py:461
+msgid "Bottom-Left"
+msgstr "左下角"
+
+#: bCNC/EditorPage.py:467
+msgid "Bottom-Right"
+msgstr "右下角"
+
+#: bCNC/plugins/bowl.py:14
+msgid "Bowl"
+msgstr "碗状"
+
+#: bCNC/plugins/box.py:19
+msgid "Box"
+msgstr "箱体"
+
+#: bCNC/TerminalPage.py:215
+msgid "Buffered commands"
+msgstr "命令缓冲"
+
+#: bCNC/TerminalPage.py:126
+msgid "Build"
+msgstr "建立"
+
+#: bCNC/plugins/drillmark.py:49
+msgid "Burn power for drillmark"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:48
+msgid "Burn time for drillmark"
+msgstr ""
+
+#: bCNC/ControlPage.py:1410
+#, fuzzy
+#| msgid "CW"
+msgid "C"
+msgstr "顺时针"
+
+#: bCNC/ControlPage.py:685
+#, fuzzy
+#| msgid "X work position (click to set)"
+msgid "C work position (click to set)"
+msgstr "X 工作位置（点击设置）"
+
+#: bCNC/ControlPage.py:759
+msgid "C=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1522 bCNC/ToolsPage.py:2090
+msgid "CAM"
+msgstr "计算机辅助加工"
+
+#: bCNC/EditorPage.py:596
+msgid "CCW"
+msgstr "逆时针"
+
+#: bCNC/ProbePage.py:507
+msgid "CIRCLE"
+msgstr ""
+
+#: bCNC/ControlPage.py:2363
+msgid "CNC communication and control"
+msgstr "CNC通信和控制"
+
+#: bCNC/bmain.py:636
+msgid "CNC is currently running, please stop it before."
+msgstr "CNC当前正在运行，请先停止。"
+
+#: bCNC/ToolsPage.py:926
+msgid "CUT selected paths"
+msgstr "已选切割路径"
+
+#: bCNC/EditorPage.py:566
+msgid "CW"
+msgstr "顺时针"
+
+#: bCNC/ProbePage.py:1926 bCNC/ProbePage.py:2132
+msgid "Calibrate"
+msgstr "校准"
+
+#: bCNC/ProbePage.py:2121
+msgid "Calibration:"
+msgstr "校准:"
+
+#: bCNC/ProbePage.py:142 bCNC/ProbePage.py:1630 bCNC/ToolsPage.py:1870
+msgid "Camera"
+msgstr "相机"
+
+#: bCNC/ToolsPage.py:1878
+msgid "Camera Configuration"
+msgstr "相机配置"
+
+#: bCNC/ProbePage.py:1701
+msgid "Camera cross hair diameter [units]"
+msgstr "相机十字焦点直径[单位]"
+
+#: bCNC/ProbePage.py:1643
+msgid "Camera location inside canvas"
+msgstr "相机定位在画布内"
+
+#: bCNC/ProbePage.py:1718 bCNC/ProbePage.py:1727
+msgid "Camera offset from gantry"
+msgstr "相机距龙门架的偏移"
+
+#: bCNC/ProbePage.py:1862
+msgid "Camera offset is updated"
+msgstr "相机偏移已更新"
+
+#: bCNC/ProbePage.py:1655
+msgid "Camera rotation [degrees]"
+msgstr "相机旋转[度]"
+
+#: bCNC/ProbePage.py:1688
+msgid "Camera scale [pixels / unit]"
+msgstr "相机幅面[像素/单位]"
+
+#: bCNC/lib/bFileDialog.py:361 bCNC/Utils.py:876
+msgid "Cancel"
+msgstr "取消"
+
+#: bCNC/lib/bFileDialog.py:582
+#, fuzzy
+#| msgid "Cannot access path \"{}\""
+msgid "Cannot access path \"{}\""
+msgstr "无法访问路径“{}”"
+
+#: bCNC/plugins/sketch.py:50
+msgid "Casual first point"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:47
+msgid "Cell size"
+msgstr "元件尺寸"
+
+#: bCNC/plugins/center.py:12 bCNC/EditorPage.py:463 bCNC/ProbePage.py:646
+#: bCNC/ProbePage.py:662
+msgid "Center"
+msgstr "中心"
+
+#: bCNC/plugins/simpleArc.py:65
+#, fuzzy
+#| msgid "Center"
+msgid "Center X"
+msgstr "中心"
+
+#: bCNC/plugins/function_plot.py:28
+msgid "Center X coordinate"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:66
+#, fuzzy
+#| msgid "Center"
+msgid "Center Y"
+msgstr "中心"
+
+#: bCNC/plugins/function_plot.py:29
+msgid "Center Y coordinate"
+msgstr ""
+
+#: bCNC/ProbePage.py:671
+msgid "Center probing using a ring"
+msgstr "采用圆环中心探测"
+
+#: bCNC/ProbePage.py:1944
+msgid "Change"
+msgstr "切换"
+
+#: bCNC/EditorPage.py:732
+msgid "Change cut direction to CCW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:715
+msgid "Change cut direction to CW for selected gcode blocks"
+msgstr ""
+
+#: bCNC/EditorPage.py:682
+msgid "Change cut direction to climb for selected gcode blocks"
+msgstr "将所选G代码块的切割方向改为上升"
+
+#: bCNC/EditorPage.py:665
+msgid "Change cut direction to conventional for selected gcode blocks"
+msgstr "将所选G代码块的切割方向改为常规"
+
+#: bCNC/ToolsPage.py:1810
+msgid "Change program language restart is required"
+msgstr "改变语言需重新启动"
+
+#: bCNC/CNCCanvas.py:2250
+msgid "Change viewing angle"
+msgstr "变换视角"
+
+#: bCNC/ProbePage.py:2011
+msgid "Change:"
+msgstr "切换:"
+
+#: bCNC/plugins/halftone.py:43 bCNC/plugins/sketch.py:57
+msgid "Channel to analyze"
+msgstr "频道分析"
+
+#: bCNC/Updates.py:86
+msgid "Check Interval"
+msgstr "检查间隔"
+
+#: bCNC/Updates.py:135
+msgid "Check Now"
+msgstr "当前检查"
+
+#: bCNC/FilePage.py:211
+msgid "Check Updates"
+msgstr "检查更新"
+
+#: bCNC/TerminalPage.py:157
+msgid "Check gcode"
+msgstr "检查G代码"
+
+#: bCNC/Updates.py:142
+msgid "Check the web site for new versions of bCNC"
+msgstr "在网上检查新版bCNC"
+
+#: bCNC/lib/bFileDialog.py:998
+msgid "Choose Directory"
+msgstr "选择目录"
+
+#: bCNC/ProbePage.py:530
+msgid "Circle radius"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:46
+msgid "Circular"
+msgstr ""
+
+#: bCNC/plugins/gear.py:163
+msgid "Circular Pitch"
+msgstr "圆形节距"
+
+#: bCNC/ProbePage.py:224 bCNC/ProbePage.py:794 bCNC/TerminalPage.py:45
+msgid "Clear"
+msgstr "清除"
+
+#: bCNC/ControlPage.py:479
+msgid "Clear Message"
+msgstr "清除信息"
+
+#: bCNC/ProbePage.py:230
+msgid "Clear probe data"
+msgstr "清除探测数据"
+
+#: bCNC/TerminalPage.py:50
+msgid "Clear terminal"
+msgstr "清除终端"
+
+#: bCNC/CNCCanvas.py:440
+msgid "Click to set the origin (zero)"
+msgstr "单击设置原点（零）"
+
+#: bCNC/EditorPage.py:674
+msgid "Climb"
+msgstr "非常规"
+
+#: bCNC/plugins/endmilloffset.py:469
+msgid "Climb milling"
+msgstr ""
+
+#: bCNC/EditorPage.py:40
+msgid "Clipboard"
+msgstr "剪切板"
+
+#: bCNC/plugins/trochoidal.py:45 bCNC/plugins/trochoidal_3D.py:92
+msgid "Clockwise"
+msgstr ""
+
+#: bCNC/EditorPage.py:276 bCNC/ToolsPage.py:1489
+msgid "Clone"
+msgstr "复制"
+
+#: bCNC/EditorPage.py:282
+msgid "Clone selected lines or blocks [Ctrl-D]"
+msgstr "复制所选线或块[Ctrl-D]"
+
+#: bCNC/ToolsPage.py:1495
+msgid "Clone selected operation/object"
+msgstr "复制选定的操作/对象"
+
+#: bCNC/FilePage.py:267 bCNC/Updates.py:126 bCNC/Utils.py:613
+#: bCNC/bmain.py:1085 bCNC/bmain.py:1320 bCNC/bmain.py:2554
+msgid "Close"
+msgstr "关闭"
+
+#: bCNC/plugins/text.py:42
+msgid "Close Contours"
+msgstr ""
+
+#: bCNC/FilePage.py:280
+msgid "Close program [Ctrl-Q]"
+msgstr "关闭程序[CTRL-Q]"
+
+#: bCNC/plugins/closepath.py:17
+msgid "Close the path"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:11
+msgid "ClosePath"
+msgstr ""
+
+#: bCNC/ToolsPage.py:712
+msgid "Coating"
+msgstr "塗层"
+
+#: bCNC/CNCList.py:749 bCNC/EditorPage.py:203
+msgid "Color"
+msgstr "颜色"
+
+#: bCNC/ToolsPage.py:1934
+msgid "Colors"
+msgstr "颜色"
+
+#: bCNC/Utils.py:861 bCNC/bmain.py:215
+msgid "Command:"
+msgstr "命令:"
+
+#: bCNC/TerminalPage.py:61
+msgid "Commands"
+msgstr "命令"
+
+#: bCNC/EditorPage.py:370 bCNC/ToolsPage.py:681 bCNC/ToolsPage.py:708
+#: bCNC/ToolsPage.py:738
+msgid "Comment"
+msgstr "注释"
+
+#: bCNC/ProbePage.py:295
+msgid "Common"
+msgstr "公共"
+
+#: bCNC/ToolsPage.py:822
+msgid "Compensate islands for cutter radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1795 bCNC/ToolsPage.py:1821
+msgid "Config"
+msgstr "配置"
+
+#: bCNC/FilePage.py:348
+msgid "Connect on startup"
+msgstr "启动时连接"
+
+#: bCNC/FilePage.py:352
+msgid "Connect to serial on startup of the program"
+msgstr "程序启动时连接到串口"
+
+#: bCNC/ControlPage.py:82 bCNC/ControlPage.py:122
+msgid "Connection"
+msgstr "连接"
+
+#: bCNC/controllers/_GenericGRBL.py:31
+msgid "Connection is established with Grbl"
+msgstr "与Grbl建立连接"
+
+#: bCNC/ControlPage.py:927 bCNC/ControlPage.py:2364
+msgid "Control"
+msgstr "控制"
+
+#: bCNC/ToolsPage.py:591 bCNC/ToolsPage.py:592 bCNC/ToolsPage.py:593
+#: bCNC/ToolsPage.py:594 bCNC/ToolsPage.py:595 bCNC/ToolsPage.py:596
+#: bCNC/ToolsPage.py:597 bCNC/ToolsPage.py:598 bCNC/ToolsPage.py:599
+#: bCNC/ToolsPage.py:600 bCNC/ToolsPage.py:601 bCNC/ToolsPage.py:602
+msgid "Control-"
+msgstr "Control-"
+
+#: bCNC/ToolsPage.py:1854
+msgid "Controller"
+msgstr "控制器"
+
+#: bCNC/ToolsPage.py:1862
+msgid "Controller (GRBL) configuration"
+msgstr "控制器 (GRBL) 配置"
+
+#: bCNC/bmain.py:202
+msgid "Controller buffer fill"
+msgstr "控制器缓冲区填充"
+
+#: bCNC/FilePage.py:330
+msgid "Controller:"
+msgstr "控制器:"
+
+#: bCNC/EditorPage.py:655
+msgid "Conventional"
+msgstr "惯例"
+
+#: bCNC/ControlPage.py:2149
+msgid "Coolant:"
+msgstr ""
+
+#: bCNC/EditorPage.py:80
+msgid "Copy"
+msgstr "复制"
+
+#: bCNC/EditorPage.py:86
+msgid "Copy [Ctrl-C]"
+msgstr "复制 [Ctrl-C]"
+
+#: bCNC/plugins/simpleRectangle.py:96
+#, fuzzy
+#| msgid "Internal Radius"
+msgid "Corner Radius"
+msgstr "内径"
+
+#: bCNC/plugins/zigzag.py:110
+msgid "Corner resolution"
+msgstr "角分辨率(細度)"
+
+#: bCNC/plugins/simpleArc.py:89
+#, fuzzy
+#| msgid "Create Spur GEAR"
+msgid "Create Simple Arc"
+msgstr "创建正齿轮"
+
+#: bCNC/plugins/simpleDrill.py:104
+msgid "Create Simple Drill"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:73
+msgid "Create Simple Line"
+msgstr ""
+
+#: bCNC/plugins/simpleRectangle.py:118
+msgid "Create Simple Rectangle"
+msgstr ""
+
+#: bCNC/plugins/gear.py:178
+msgid "Create Spur GEAR"
+msgstr "创建正齿轮"
+
+#: bCNC/plugins/hilbert.py:104
+msgid "Create a Hilbert path"
+msgstr "建立一个Hilbert路径"
+
+#: bCNC/plugins/zigzag.py:98
+msgid "Create a Zig-Zag path"
+msgstr "创建折线路径"
+
+#: bCNC/plugins/spirograph.py:111
+msgid "Create a spirograph path"
+msgstr "创建螺旋形路径"
+
+#: bCNC/plugins/trochoidPath.py:29
+msgid "Create a trochoid rute along selected blocks"
+msgstr ""
+
+#: bCNC/plugins/pyrograph.py:29
+msgid "Create a variable feed path based upon image brightness"
+msgstr "根据图像亮度建立一个可变的给进路径"
+
+#: bCNC/plugins/box.py:393
+msgid "Create finger BOX"
+msgstr "创建图示箱体"
+
+#: bCNC/plugins/halftone.py:29
+msgid "Create halftone pattern from a picture"
+msgstr "从图片创建半色调图案"
+
+#: bCNC/plugins/driller.py:36
+msgid "Create holes along selected blocks"
+msgstr "依选定块创建孔"
+
+#: bCNC/plugins/sketch.py:28
+msgid "Create sketch based on picture brightness"
+msgstr "基于图象亮度创建草图"
+
+#: bCNC/ToolsPage.py:1162
+msgid "Create tabs on blocks"
+msgstr "创建块标签"
+
+#: bCNC/plugins/text.py:29
+msgid "Create text using a ttf font"
+msgstr "用TTF字体创建文本"
+
+#: bCNC/plugins/trochoidal_3D.py:38
+#, fuzzy
+#| msgid "Create holes along selected blocks"
+msgid "Create trochoids along selected blocks"
+msgstr "依选定块创建孔"
+
+#: bCNC/ProbePage.py:1692
+msgid "Crosshair:"
+msgstr "十字线:"
+
+#: bCNC/plugins/endmilloffset.py:452
+msgid "Custom offset count"
+msgstr ""
+
+#: bCNC/plugins/box.py:356 bCNC/EditorPage.py:64 bCNC/ToolsPage.py:1530
+msgid "Cut"
+msgstr "剪切"
+
+#: bCNC/plugins/heightmap.py:75
+msgid "Cut Border"
+msgstr "切割边沿"
+
+#: bCNC/EditorPage.py:724
+msgid "Cut CCW"
+msgstr ""
+
+#: bCNC/EditorPage.py:707
+msgid "Cut CW"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:38
+#, fuzzy
+#| msgid "Diameter"
+msgid "Cut Diameter"
+msgstr "直径"
+
+#: bCNC/plugins/flatten.py:298
+msgid "Cut Direction"
+msgstr "切割方向"
+
+#: bCNC/plugins/spiral.py:482
+msgid "Cut Pattern"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:74
+msgid "Cut Top"
+msgstr "切割顶部"
+
+#: bCNC/EditorPage.py:70
+msgid "Cut [Ctrl-X]"
+msgstr "剪切 [Ctrl-X]"
+
+#: bCNC/ToolsPage.py:829
+msgid "Cut contours of selected islands"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1539
+msgid "Cut for the full stock thickness selected code"
+msgstr "以所选代码对工件进行厚度切割"
+
+#: bCNC/plugins/spiral.py:483
+#, fuzzy
+#| msgid "Cut Direction"
+msgid "Cut in Both Directions"
+msgstr "切割方向"
+
+#: bCNC/ToolsPage.py:775
+msgid "Cutting strategy"
+msgstr ""
+
+#: bCNC/ToolsPage.py:987
+msgid "DRILL selected points"
+msgstr "所选钻点"
+
+#: bCNC/ToolsPage.py:655
+msgid "DRO Zero padding"
+msgstr "DRO零添加"
+
+#: bCNC/ToolsPage.py:1397
+msgid "Database"
+msgstr "数据库"
+
+#: bCNC/lib/bFileDialog.py:307
+msgid "Date"
+msgstr "日期"
+
+#: bCNC/Updates.py:101
+#, fuzzy
+#| msgid "Date of last checking"
+msgid "Date last checked"
+msgstr "最后检查的日期"
+
+#: bCNC/Updates.py:119
+msgid "Days-interval to remind again for checking"
+msgstr "间隔设定再次确认"
+
+#: bCNC/ToolsPage.py:650
+msgid "Decimal digits"
+msgstr "十进制数字"
+
+#: bCNC/ControlPage.py:1176 bCNC/ControlPage.py:1648
+msgid "Decrease step by 1 unit"
+msgstr "递减1个单位步进"
+
+#: bCNC/EditorPage.py:292 bCNC/ProbePage.py:750 bCNC/ToolsPage.py:1506
+msgid "Delete"
+msgstr "删除"
+
+#: bCNC/ProbePage.py:803 bCNC/ProbePage.py:1061
+msgid "Delete all markers"
+msgstr "刪除所有标记"
+
+#: bCNC/ProbePage.py:1497
+msgid "Delete autolevel information"
+msgstr "删除自动找平信息"
+
+#: bCNC/ProbePage.py:759
+msgid "Delete current marker"
+msgstr "删除现标记"
+
+#: bCNC/EditorPage.py:298
+msgid "Delete selected lines or blocks [Del]"
+msgstr "删除所选线或块[Del]"
+
+#: bCNC/ToolsPage.py:1512
+msgid "Delete selected operation/object"
+msgstr "刪除选定的操作/对象"
+
+#: bCNC/plugins/hilbert.py:114 bCNC/plugins/zigzag.py:111
+msgid "Depth"
+msgstr "深度"
+
+#: bCNC/plugins/box.py:349
+msgid "Depth Dy"
+msgstr "深度 Dy"
+
+#: bCNC/plugins/trochoidPath.py:55 bCNC/plugins/trochoidal_3D.py:89
+#: bCNC/ToolsPage.py:684 bCNC/ToolsPage.py:768
+msgid "Depth Increment"
+msgstr "深度增量"
+
+#: bCNC/plugins/spiral.py:478
+#, fuzzy
+#| msgid "Depth to flatten"
+msgid "Depth to Reduce"
+msgstr "深度平扩"
+
+#: bCNC/plugins/flatten.py:293
+msgid "Depth to flatten"
+msgstr "深度平扩"
+
+#: bCNC/plugins/bowl.py:113 bCNC/ToolsPage.py:713
+msgid "Diameter"
+msgstr "直径"
+
+#: bCNC/plugins/Helical_Descent.py:83
+#, fuzzy
+msgid "Diameter Cut"
+msgstr "直径"
+
+#: bCNC/ProbePage.py:649
+msgid "Diameter:"
+msgstr "直径:"
+
+#: bCNC/plugins/difference.py:18
+msgid "Difference"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:365
+msgid "Difference between pieces"
+msgstr "段间差距"
+
+#: bCNC/plugins/difference.py:24
+msgid "Difference of two shapes"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:40 bCNC/plugins/trochoidal_3D.py:60
+#: bCNC/plugins/pyrograph.py:46 bCNC/ToolsPage.py:1010
+msgid "Direction"
+msgstr "方向"
+
+#: bCNC/bmain.py:1584
+msgid "Direction command error"
+msgstr "方向命令错误"
+
+#: bCNC/lib/bFileDialog.py:275
+msgid "Directory:"
+msgstr "目录:"
+
+#: bCNC/EditorPage.py:327
+msgid "Disable"
+msgstr "禁用"
+
+#: bCNC/ToolsPage.py:942
+msgid "Distance (mm)"
+msgstr "距离(mm)"
+
+#: bCNC/ControlPage.py:1921
+msgid "Distance Mode [G90,G91]"
+msgstr "距离模式[G90，G91]"
+
+#: bCNC/plugins/driller.py:45
+msgid "Distance between holes"
+msgstr "孔间距离"
+
+#: bCNC/ControlPage.py:1910 bCNC/ProbePage.py:2103
+msgid "Distance:"
+msgstr "距离:"
+
+#: bCNC/ControlPage.py:1170 bCNC/ControlPage.py:1642
+msgid "Divide step by 10"
+msgstr "除以10倍步进"
+
+#: bCNC/ProbePage.py:1498
+msgid "Do you want to delete all autolevel in formation?"
+msgstr "是否要删除所有自动水平？"
+
+#: bCNC/ProbePage.py:1062
+msgid "Do you want to delete all orientation markers?"
+msgstr "是否删除所有的方向标记？"
+
+#: bCNC/controllers/_GenericGRBL.py:162
+msgid "Door closed. Ready to resume."
+msgstr "门关闭，准备恢复。"
+
+#: bCNC/ToolsPage.py:639
+msgid "Double Size Icon"
+msgstr "大尺寸图标"
+
+#: bCNC/EditorPage.py:524
+msgid "Down"
+msgstr "下"
+
+#: bCNC/Updates.py:182
+msgid "Download"
+msgstr "下载"
+
+#: bCNC/CNCCanvas.py:463
+msgid "Drag a ruler to measure distances"
+msgstr "拖动标尺测量距离"
+
+#: bCNC/plugins/dragknife.py:25
+msgid "Drag knife postprocessor"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:19
+msgid "DragKnife"
+msgstr ""
+
+#: bCNC/plugins/halftone.py:51 bCNC/plugins/sketch.py:49
+#: bCNC/plugins/pyrograph.py:47
+msgid "Draw border"
+msgstr "绘制边延"
+
+#: bCNC/plugins/function_plot.py:35
+msgid "Draw coordinate system?"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:2432
+msgid "Draw timeout in seconds"
+msgstr "以秒为单位绘制超时"
+
+#: bCNC/CNCCanvas.py:2335
+msgid "Draw:"
+msgstr "绘制:"
+
+#: bCNC/ToolsPage.py:1621
+msgid "Drill"
+msgstr "钻孔"
+
+#: bCNC/ToolsPage.py:938
+msgid "Drill in center only"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:44
+msgid "Drill mark size"
+msgstr ""
+
+#: bCNC/plugins/driller.py:20
+msgid "Driller"
+msgstr "钻机"
+
+#: bCNC/plugins/driller.py:276
+msgid "Driller abort: Distance must be > 0"
+msgstr "钻机中止: 距离必须大于0"
+
+#: bCNC/plugins/driller.py:285
+msgid "Driller abort: Dwell time >= 0, here time runs only forward!"
+msgstr "钻机中止: 停留时间> = 0，这里时间只向前运行！"
+
+#: bCNC/plugins/driller.py:293
+msgid "Driller abort: Excellon-File not a file"
+msgstr ""
+
+#: bCNC/plugins/driller.py:280
+msgid "Driller abort: Peck must be >= 0"
+msgstr "钻机中止: 铣钻必须> = 0"
+
+#: bCNC/plugins/driller.py:303
+msgid "Driller abort: Please select some path"
+msgstr "钻机中止: 请选择一些路径"
+
+#: bCNC/plugins/Helical_Descent.py:86
+msgid "Drop by lap"
+msgstr ""
+
+#: bCNC/ToolsPage.py:941
+msgid "Dwell (s)"
+msgstr "驻留"
+
+#: bCNC/plugins/simpleDrill.py:71
+#, fuzzy
+#| msgid "Dwell (s)"
+msgid "Dwell time (s)"
+msgstr "驻留"
+
+#: bCNC/plugins/driller.py:48
+msgid "Dwell time, 0 means None"
+msgstr "驻留时间，0表示无"
+
+#: bCNC/controllers/_GenericGRBL.py:41
+msgid "EEPROM read failed. Reset and restored to default values."
+msgstr "EEPROM读取失败.重置并恢复预设值."
+
+#: bCNC/CNCCanvas.py:525
+msgid "ERROR: Cannot set X-Y marker  with the current view"
+msgstr "错误：无法在当前视图设置X-Y标记"
+
+#: bCNC/controllers/_GenericGRBL.py:150
+msgid "EStop asserted. Clear and reset (grblHAL)"
+msgstr ""
+
+#: bCNC/ProbePage.py:1560
+msgid "Edge Detection"
+msgstr "边缘检测"
+
+#: bCNC/EditorPage.py:194
+msgid "Edit"
+msgstr "编辑"
+
+#: bCNC/ToolsPage.py:1461
+msgid "Edit name of current operation/object"
+msgstr "编辑当前操作/对象的名称"
+
+#: bCNC/ToolsPage.py:1445
+msgid "Editable database of EndMills properties"
+msgstr "可编辑铣刀性能数据库"
+
+#: bCNC/ToolsPage.py:1429
+msgid "Editable database of material properties"
+msgstr "可编辑材料特性数据库"
+
+#: bCNC/EditorPage.py:804
+msgid "Editor"
+msgstr "编辑器"
+
+#: bCNC/controllers/_GenericGRBL.py:119
+msgid "Emergency stop active. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2657
+msgid "Empty gcode"
+msgstr "清空G代码"
+
+#: bCNC/EditorPage.py:322
+msgid "Enable"
+msgstr "启用"
+
+#: bCNC/ToolsPage.py:640
+msgid "Enable 6 Axis Displays"
+msgstr ""
+
+#: bCNC/EditorPage.py:342
+msgid "Enable or disable blocks of gcode"
+msgstr "启用或禁用G代码块"
+
+#: bCNC/bmain.py:1154
+msgid "Enabled GCode"
+msgstr "启用G代码"
+
+#: bCNC/plugins/simpleArc.py:69
+msgid "End Angle in Degrees "
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:84 bCNC/plugins/endmilloffset.py:438
+#: bCNC/plugins/trochoidPath.py:43 bCNC/plugins/trochoidal_3D.py:48
+#: bCNC/ToolsPage.py:1003 bCNC/ToolsPage.py:1074 bCNC/ToolsPage.py:1437
+msgid "End Mill"
+msgstr "铣刀"
+
+#: bCNC/plugins/Helical_Descent.py:100
+msgid "End in the Deep"
+msgstr ""
+
+#: bCNC/bmain.py:1953
+#, fuzzy
+#| msgid "EndMill: {} {:g}"
+msgid "EndMill: {} {}"
+msgstr "铣刀: {} {:g}"
+
+#: bCNC/plugins/Helical_Descent.py:96
+msgid "Entry and Exit"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:582 bCNC/lib/bFileDialog.py:655
+#: bCNC/lib/bFileDialog.py:879 bCNC/lib/bFileDialog.py:907
+#: bCNC/lib/bFileDialog.py:931
+msgid "Error"
+msgstr "错误"
+
+#: bCNC/Utils.py:565
+msgid "Error Reporting"
+msgstr "错误报告"
+
+#: bCNC/lib/bFileDialog.py:880
+#, fuzzy
+#| msgid "Error creating folder \"{}\""
+msgid "Error creating folder \"{}\""
+msgstr "创建文件夹出错“{}”"
+
+#: bCNC/lib/bFileDialog.py:931
+#, fuzzy
+#| msgid "Error deleting file \"{}\""
+msgid "Error deleting file \"{}\""
+msgstr "删除文件出错“{}”"
+
+#: bCNC/lib/bFileDialog.py:655
+#, fuzzy
+#| msgid "Error listing folder \"{}\""
+msgid "Error listing folder \"{}\""
+msgstr "列出文件夹出错 \"{}\""
+
+#: bCNC/bmain.py:2568
+msgid "Error opening serial"
+msgstr "打开串口错误"
+
+#: bCNC/lib/bFileDialog.py:908
+#, fuzzy
+#| msgid "Error renaming \"{}\" to \"{}\""
+msgid "Error renaming \"{}\" to \"{}\""
+msgstr "将“{}”重命名为“{}”出错"
+
+#: bCNC/Utils.py:694 bCNC/Utils.py:708
+msgid "Error sending report"
+msgstr "发送报告错误"
+
+#: bCNC/Updates.py:193
+#, fuzzy
+#| msgid "Error {} in connection"
+msgid "Error {} in connection"
+msgstr "{}连接错误"
+
+#: bCNC/ProbePage.py:853
+msgid "Error:"
+msgstr "错误:"
+
+#: bCNC/plugins/bowl.py:136
+msgid "Error: Check the Bowl and End Mill parameters"
+msgstr "错误: 检查碗状和铣刀参数"
+
+#: bCNC/plugins/jigsaw.py:406
+msgid "Error: Check the parameters and your endmill config"
+msgstr "错误: 检测参数和铣刀配置"
+
+#: bCNC/plugins/midi2cnc.py:155
+msgid "Error: Sorry can't parse the Midi file."
+msgstr "错误: 抱歉，无法解析MIDI文件。"
+
+#: bCNC/plugins/midi2cnc.py:116
+msgid "Error: This plugin requires midiparser.py"
+msgstr "错误: 此插件需要midiparser.py"
+
+#: bCNC/bmain.py:1487
+msgid "Evaluation error"
+msgstr "评价错误"
+
+#: bCNC/plugins/trochoidal.py:47
+msgid "Even spacing across segment"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1927
+msgid "Events"
+msgstr "事件"
+
+#: bCNC/plugins/driller.py:50
+msgid "Excellon-File"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1967
+msgid "Execute"
+msgstr "执行"
+
+#: bCNC/bmain.py:2417
+msgid "Existing Autolevel"
+msgstr "正退出自动调平"
+
+#: bCNC/FilePage.py:272
+msgid "Exit"
+msgstr "退出"
+
+#: bCNC/ToolsPage.py:805
+msgid "Exit strategy (usefull for threads)"
+msgstr ""
+
+#: bCNC/EditorPage.py:351
+msgid "Expand"
+msgstr "扩展"
+
+#: bCNC/plugins/spirograph.py:119
+msgid "External Radius"
+msgstr "外径"
+
+#: bCNC/ToolsPage.py:567 bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:591
+msgid "F1"
+msgstr "F1"
+
+#: bCNC/ToolsPage.py:576 bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:600
+msgid "F10"
+msgstr "F10"
+
+#: bCNC/ToolsPage.py:577 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:601
+msgid "F11"
+msgstr "F11"
+
+#: bCNC/ToolsPage.py:578 bCNC/ToolsPage.py:590 bCNC/ToolsPage.py:602
+msgid "F12"
+msgstr "F12"
+
+#: bCNC/ToolsPage.py:568 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:592
+msgid "F2"
+msgstr "F2"
+
+#: bCNC/ToolsPage.py:569 bCNC/ToolsPage.py:581 bCNC/ToolsPage.py:593
+msgid "F3"
+msgstr "F3"
+
+#: bCNC/ToolsPage.py:570 bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:594
+msgid "F4"
+msgstr "F4"
+
+#: bCNC/ToolsPage.py:571 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:595
+msgid "F5"
+msgstr "F5"
+
+#: bCNC/ToolsPage.py:572 bCNC/ToolsPage.py:584 bCNC/ToolsPage.py:596
+msgid "F6"
+msgstr "F6"
+
+#: bCNC/ToolsPage.py:573 bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:597
+msgid "F7"
+msgstr "F7"
+
+#: bCNC/ToolsPage.py:574 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:598
+msgid "F8"
+msgstr "F8"
+
+#: bCNC/ToolsPage.py:575 bCNC/ToolsPage.py:587 bCNC/ToolsPage.py:599
+msgid "F9"
+msgstr "F9"
+
+#: bCNC/ProbePage.py:485
+msgid "FEED"
+msgstr ""
+
+#: bCNC/ProbePage.py:518
+msgid "FINISH"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:47
+msgid "Fading force"
+msgstr ""
+
+#: bCNC/ProbePage.py:306
+msgid "Fast Probe Feed:"
+msgstr "快速探测给进"
+
+#: bCNC/plugins/scaling.py:43 bCNC/plugins/trochoidal_3D.py:95
+#: bCNC/ToolsPage.py:682 bCNC/ToolsPage.py:769
+msgid "Feed"
+msgstr "给进"
+
+#: bCNC/ControlPage.py:2021
+msgid "Feed Mode [G93, G94, G95]"
+msgstr "给进模式 [G93, G94, G95]"
+
+#: bCNC/ControlPage.py:1999
+msgid "Feed Rate [F#]"
+msgstr "给进速率[F#]"
+
+#: bCNC/plugins/trochoidal_3D.py:411
+#, fuzzy
+msgid "Feed has to be greater than 0"
+msgstr "高度图中止: 深度必须< 0"
+
+#: bCNC/ControlPage.py:487
+msgid "Feed hold"
+msgstr "保持给进"
+
+#: bCNC/ToolsPage.py:644
+msgid "Feed max x"
+msgstr "x 最大进给速率"
+
+#: bCNC/ToolsPage.py:645
+msgid "Feed max y"
+msgstr "y 最大进给速率"
+
+#: bCNC/ToolsPage.py:646
+msgid "Feed max z"
+msgstr "z 最大进给速率"
+
+#: bCNC/plugins/driller.py:56
+#, fuzzy
+#| msgid "Feed max x"
+msgid "Feed rapid G0"
+msgstr "x 最大进给速率"
+
+#: bCNC/controllers/_GenericGRBL.py:62
+msgid "Feed rate has not yet been set or is undefined."
+msgstr "进给率未设置或未定义."
+
+#: bCNC/ControlPage.py:1987
+msgid "Feed:"
+msgstr "给进:"
+
+#: bCNC/plugins/trochoidal.py:53
+msgid "Feedrate"
+msgstr ""
+
+#: bCNC/FilePage.py:75 bCNC/FilePage.py:464
+msgid "File"
+msgstr "文件"
+
+#: bCNC/FilePage.py:463
+msgid "File I/O and configuration"
+msgstr "文件I / O和配置"
+
+#: bCNC/lib/bFileDialog.py:951 bCNC/lib/bFileDialog.py:962
+#, fuzzy
+#| msgid "File \"{}\" does not exist"
+msgid "File \"{}\" does not exist"
+msgstr "文件 \"{}\" 不存在"
+
+#: bCNC/lib/bFileDialog.py:984
+msgid "File already exists"
+msgstr "文件已存在"
+
+#: bCNC/lib/bFileDialog.py:950 bCNC/lib/bFileDialog.py:961
+msgid "File does not exist"
+msgstr "文件不存在"
+
+#: bCNC/bmain.py:2378
+msgid "File modified"
+msgstr "文件已修改"
+
+#: bCNC/lib/bFileDialog.py:332
+msgid "File name:"
+msgstr "文件名:"
+
+#: bCNC/lib/bFileDialog.py:340
+msgid "Files of type:"
+msgstr "文件类型:"
+
+#: bCNC/EditorPage.py:167
+msgid "Filter"
+msgstr ""
+
+#: bCNC/EditorPage.py:175
+msgid "Filter blocks"
+msgstr "过滤块"
+
+#: bCNC/plugins/Helical_Descent.py:87
+#, fuzzy
+msgid "Final Depth"
+msgstr "加工深度"
+
+#: bCNC/plugins/center.py:18
+msgid "Find center of bounding box"
+msgstr ""
+
+#: bCNC/plugins/box.py:351
+msgid "Fingers Nx"
+msgstr "图示 Nx"
+
+#: bCNC/plugins/box.py:352
+msgid "Fingers Ny"
+msgstr "图示 Ny"
+
+#: bCNC/plugins/box.py:353
+msgid "Fingers Nz"
+msgstr "图示 Nz"
+
+#: bCNC/ProbePage.py:1214
+msgid "Finished recording"
+msgstr ""
+
+#: bCNC/ToolsPage.py:790
+msgid "First cut at surface height"
+msgstr "初次切割表面高度"
+
+#: bCNC/CNCCanvas.py:2270
+msgid "Fit to screen [F]"
+msgstr "适合屏幕[F]"
+
+#: bCNC/plugins/flatpath.py:12
+msgid "FlatPath"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:13
+msgid "Flatten"
+msgstr "平扩"
+
+#: bCNC/plugins/flatten.py:43
+msgid "Flatten abort: Cut Direction is undefined"
+msgstr "平扩中止: 切割方向未定义"
+
+#: bCNC/plugins/flatten.py:52
+msgid "Flatten abort: Flatten Area dimensions must be > 0"
+msgstr "平扩中止: 平展区域尺寸必须大于0"
+
+#: bCNC/plugins/flatten.py:98
+msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgstr "平扩中止: 平展区域对于该铣刀太小。"
+
+#: bCNC/plugins/flatten.py:58
+msgid "Flatten abort: Hey this is only for subtractive machine! Check depth!"
+msgstr "平扩中止: 这只是减法机！检查深度！"
+
+#: bCNC/plugins/flatten.py:47
+msgid "Flatten abort: Pocket Type is undefined"
+msgstr "平扩中止: 紧凑类型未定义"
+
+#: bCNC/plugins/flatten.py:281
+msgid "Flatten an area in different ways"
+msgstr "以不同的方式平扩区域"
+
+#: bCNC/plugins/flatpath.py:18
+msgid "Flatten the path"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:328
+msgid "Flatten: Generated flatten surface"
+msgstr "平扩: 生成平扩表面"
+
+#: bCNC/EditorPage.py:581
+msgid "Flip"
+msgstr "翻转"
+
+#: bCNC/plugins/slicemesh.py:68
+msgid "Flip upwards"
+msgstr ""
+
+#: bCNC/ControlPage.py:2168
+msgid "Flood"
+msgstr ""
+
+#: bCNC/ToolsPage.py:715
+msgid "Flutes"
+msgstr "槽"
+
+#: bCNC/plugins/text.py:41
+msgid "Font file"
+msgstr "字体文件"
+
+#: bCNC/plugins/text.py:40
+msgid "Font size"
+msgstr "字体尺寸"
+
+#: bCNC/ToolsPage.py:1941
+msgid "Fonts"
+msgstr "字体"
+
+#: bCNC/ToolsPage.py:657
+msgid "Footer gcode"
+msgstr "G代码尾部"
+
+#: bCNC/plugins/function_plot.py:24
+msgid "Formula"
+msgstr ""
+
+#: bCNC/ProbePage.py:1575
+msgid "Freeze"
+msgstr "冻结"
+
+#: bCNC/plugins/function_plot.py:8
+#, fuzzy
+#| msgid "Connection"
+msgid "Function"
+msgstr "连接"
+
+#: bCNC/bmain.py:133 bCNC/bmain.py:2487
+msgid "G-Code"
+msgstr "G代码"
+
+#: bCNC/plugins/arcfit.py:17
+msgid "G-Code arc-fit"
+msgstr ""
+
+#: bCNC/bmain.py:134
+msgid "G-Code clean"
+msgstr "清除G代码"
+
+#: bCNC/plugins/linearize.py:17
+msgid "G-Code linearizer"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:63
+msgid "G-code command in block requires an integer value."
+msgstr "块中的G代码命令须是整数值."
+
+#: bCNC/controllers/_GenericGRBL.py:108
+msgid "G-code command not allowed when tool change is pending. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:45
+msgid "G-code locked out during alarm or jog state"
+msgstr "在报警或点动状态下G代码被锁定"
+
+#: bCNC/controllers/_GenericGRBL.py:35
+msgid "G-code words consist of a letter and a value. Letter was not found."
+msgstr "G代码是由英文字母和数字组成.该字符不存在."
+
+#: bCNC/ProbePage.py:59
+msgid "G38.2 stop on contact else error"
+msgstr "G38.2 stop on contact else error"
+
+#: bCNC/ProbePage.py:60
+msgid "G38.3 stop on contact"
+msgstr "G38.3停止接触"
+
+#: bCNC/ProbePage.py:61
+msgid "G38.4 stop on loss contact else error"
+msgstr "G38.4停止非接触否则出错"
+
+#: bCNC/ProbePage.py:62
+msgid "G38.5 stop on loss contact"
+msgstr "G38.5停止非接触"
+
+#: bCNC/ControlPage.py:2051
+msgid "G92:"
+msgstr ""
+
+#: bCNC/ProbePage.py:733
+msgid "GCode X coordinate of orientation point"
+msgstr "G代码X坐标原点"
+
+#: bCNC/ProbePage.py:744
+msgid "GCode Y coordinate of orientation point"
+msgstr "G代码Y坐标原点"
+
+#: bCNC/EditorPage.py:803
+msgid "GCode editor"
+msgstr "G代码编辑器"
+
+#: bCNC/ToolsPage.py:2089
+msgid "GCode manipulation tools and user plugins"
+msgstr "G代码操作刀具和用户插件"
+
+#: bCNC/bmain.py:2379
+msgid "Gcode was modified do you want to save it first?"
+msgstr "G代码已修改，是否保存？"
+
+#: bCNC/ProbePage.py:723
+msgid "Gcode:"
+msgstr "G代码:"
+
+#: bCNC/plugins/gear.py:16
+msgid "Gear"
+msgstr "齿轮"
+
+#: bCNC/plugins/bowl.py:105
+msgid "Generate a bowl cavity"
+msgstr "生成碗状凹腔"
+
+#: bCNC/plugins/box.py:339
+msgid "Generate a finger box"
+msgstr "创建一图示箱体"
+
+#: bCNC/plugins/endmilloffset.py:430
+msgid "Generate a pocket or profile for selected shape (regarding islands)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:58
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Arc"
+msgstr "生成正齿轮"
+
+#: bCNC/plugins/simpleDrill.py:60
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple Drill"
+msgstr "生成正齿轮"
+
+#: bCNC/plugins/simpleLine.py:44
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple line"
+msgstr "生成正齿轮"
+
+#: bCNC/plugins/simpleRectangle.py:85
+#, fuzzy
+#| msgid "Generate a spur gear"
+msgid "Generate a simple rectangle"
+msgstr "生成正齿轮"
+
+#: bCNC/plugins/gear.py:153
+msgid "Generate a spur gear"
+msgstr "生成正齿轮"
+
+#: bCNC/plugins/halftone.py:53
+msgid "Generate for conical end mill"
+msgstr "生成圆锥形铣刀"
+
+#: bCNC/plugins/endmilloffset.py:175 bCNC/plugins/endmilloffset.py:183
+#: bCNC/plugins/endmilloffset.py:191 bCNC/plugins/endmilloffset.py:199
+#: bCNC/plugins/endmilloffset.py:207 bCNC/plugins/endmilloffset.py:215
+#: bCNC/plugins/endmilloffset.py:223 bCNC/plugins/endmilloffset.py:573
+#: bCNC/ToolsPage.py:1088
+msgid "Generate pocket path"
+msgstr "生成数据路径"
+
+#: bCNC/ToolsPage.py:1062
+msgid "Generate profile path"
+msgstr "生成配置文件路径"
+
+#: bCNC/plugins/Random.py:22 bCNC/plugins/tile.py:20
+msgid "Generate replicas of selected code"
+msgstr "生成所选代码副本"
+
+#: bCNC/plugins/driller.py:459
+#, fuzzy
+#| msgid "Generated Driller: {} holes"
+msgid "Generated Driller: {} holes"
+msgstr "生成钻机: {}个钻孔"
+
+#: bCNC/plugins/halftone.py:285
+#, fuzzy
+#| msgid "Generated Halftone size W={} x H={} x D={} ,Total points:{}"
+msgid "Generated Halftone size W={} x H={} x D={}, Total points: {}"
+msgstr "生成图象尺寸 宽={} x高={} x深={}，总分：{}"
+
+#: bCNC/plugins/heightmap.py:408
+#, fuzzy
+#| msgid "Generated Heightmap {} x {} x {} "
+msgid "Generated Heightmap {} x {} x {}"
+msgstr "生成的高度图{} x {} x {} "
+
+#: bCNC/plugins/midi2cnc.py:353
+msgid "Generated Midi2CNC, ready to play?"
+msgstr "生成MIDI2CNC，准备播放？"
+
+#: bCNC/plugins/pyrograph.py:213
+#, fuzzy
+#| msgid "Generated Pyrograph W={:g} x H={:g} x D={:g}"
+msgid "Generated Pyrograph W={:g} x H={:g} x D={:g}"
+msgstr "生成的烙画宽={:g} x高={:g} x深={:g}"
+
+#: bCNC/plugins/function_plot.py:273
+#, fuzzy
+#| msgid "Generated: Spirograph"
+msgid "Generated function graph"
+msgstr "生成: 螺旋形"
+
+#: bCNC/plugins/trochoidPath.py:110
+#, fuzzy
+#| msgid "Generate for conical end mill"
+msgid "Generated path for trochoidal cutting"
+msgstr "生成圆锥形铣刀"
+
+#: bCNC/plugins/arcfit.py:102
+msgid "Generated: Arc fit"
+msgstr ""
+
+#: bCNC/plugins/bowl.py:134
+msgid "Generated: BOWL"
+msgstr "生成: 碗状"
+
+#: bCNC/plugins/box.py:395
+msgid "Generated: BOX with fingers"
+msgstr "生成: 图示箱体"
+
+#: bCNC/plugins/center.py:70
+msgid "Generated: Center"
+msgstr ""
+
+#: bCNC/plugins/closepath.py:52
+msgid "Generated: Closepath"
+msgstr ""
+
+#: bCNC/plugins/difference.py:102
+msgid "Generated: Diff"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:229
+msgid "Generated: Dragknife"
+msgstr ""
+
+#: bCNC/plugins/flatpath.py:60
+msgid "Generated: Flat"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:545
+#, fuzzy
+msgid "Generated: Helical_Descent Result"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/hilbert.py:146
+msgid "Generated: Hilbert"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/intersection.py:86
+msgid "Generated: Intersect"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:97
+msgid "Generated: Linearize"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:319
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Manual drillmark"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/simpleArc.py:91
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Arc"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/simpleDrill.py:106
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Drill"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/simpleLine.py:75
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Line"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/simpleRectangle.py:120
+#, fuzzy
+#| msgid "Generated: Hilbert"
+msgid "Generated: Simple Rectangle"
+msgstr "产生: Hilbert"
+
+#: bCNC/plugins/spirograph.py:145
+msgid "Generated: Spirograph"
+msgstr "生成: 螺旋形"
+
+#: bCNC/plugins/gear.py:180
+msgid "Generated: Spur GEAR"
+msgstr "生成：正齿轮"
+
+#: bCNC/plugins/trochoidal.py:177
+msgid "Generated: Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/zigzag.py:158
+msgid "Generated: Zig-Zag"
+msgstr "产生：折线"
+
+#: bCNC/plugins/function_plot.py:14
+msgid "Generates gcode from a formula"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:387
+msgid "Generating puzzle..."
+msgstr "产生推测"
+
+#: bCNC/ProbePage.py:1704
+msgid "Get"
+msgstr "获取"
+
+#: bCNC/ProbePage.py:2050
+msgid "Get current gantry position as machine tool change location"
+msgstr "把现龙门架位置作为机器切换位置"
+
+#: bCNC/ProbePage.py:2096
+msgid "Get current gantry position as machine tool probe location"
+msgstr "把现龙门架位置作为机器探测位置"
+
+#: bCNC/ProbePage.py:1706
+msgid "Get diameter from active endmill"
+msgstr "获取在工作的铣刀直径"
+
+#: bCNC/plugins/slicemesh.py:63
+msgid "Get flat slice"
+msgstr ""
+
+#: bCNC/ProbePage.py:192
+msgid "Get margins from gcode file"
+msgstr "从gcode文件获取边距"
+
+#: bCNC/ProbePage.py:583
+msgid "Goto"
+msgstr "转到"
+
+#: bCNC/controllers/_GenericGRBL.py:37
+msgid "Grbl '$' system command was not recognized or supported."
+msgstr "Grbl '$'系统命令无法识别或支持."
+
+#: bCNC/controllers/_GenericGRBL.py:21
+msgid "Grbl executes jogging motion"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:13
+msgid "Grbl is in idle state and waiting for user commands"
+msgstr "Grbl 处于待命状态等待用户指令"
+
+#: bCNC/controllers/_GenericGRBL.py:29
+msgid "Grbl is not connected. Please specify the correct port and click Open."
+msgstr "Grbl未连接。请设定正确的端口，然后单击打开。"
+
+#: bCNC/controllers/_GenericGRBL.py:14
+msgid "Grbl is on hold state. Click on resume (pause) to continue"
+msgstr "Grbl处于暂停状态。点击恢复（暂停）继续工作"
+
+#: bCNC/plugins/sketch.py:41
+msgid "Grundgy, search radius"
+msgstr "Grundgy，搜索半径"
+
+#: bCNC/ProbePage.py:1659
+msgid "Haircross Offset:"
+msgstr "十字线偏移:"
+
+#: bCNC/ProbePage.py:1667
+msgid "Haircross X offset [unit]"
+msgstr "十字线X偏移:"
+
+#: bCNC/ProbePage.py:1676
+msgid "Haircross Y offset [unit]"
+msgstr "十字线Y偏移:"
+
+#: bCNC/plugins/halftone.py:15
+msgid "Halftone"
+msgstr "半色调"
+
+#: bCNC/plugins/halftone.py:159
+msgid "Halftone abort: Angle in V-Cutting end mill is missing"
+msgstr "中止Halftone处理: 缺少V型切割铣刀角度"
+
+#: bCNC/plugins/halftone.py:173
+msgid "Halftone abort: Can't read image file"
+msgstr "中止Halftone 处理: 无法读取图片文件"
+
+#: bCNC/plugins/halftone.py:148
+msgid "Halftone abort: Cell size too small"
+msgstr "中止Halftone处理: 内存块太小"
+
+#: bCNC/plugins/halftone.py:165
+msgid "Halftone abort: Conical path need V-Cutting end mill"
+msgstr "中止Halftone处理: 锥形路径需要V型切削铣刀"
+
+#: bCNC/plugins/halftone.py:144
+msgid "Halftone abort: Maximum diameter too small"
+msgstr "中止Halftone处理: 最大直径太小"
+
+#: bCNC/plugins/halftone.py:138
+msgid "Halftone abort: Minimum diameter must be minor then Maximum"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/halftone.py:133
+msgid "Halftone abort: Size too small to draw anything!"
+msgstr "中止Halftone处理: 尺寸太小，无法得出任何东西！"
+
+#: bCNC/plugins/halftone.py:109
+msgid "Halftone abort: This plugin requires PIL/Pillow to read image data"
+msgstr "中止Halftone处理: 此插件需要PIL/枕头读取图象数据"
+
+#: bCNC/ControlPage.py:84
+msgid "Hard Reset"
+msgstr "硬复位"
+
+#: bCNC/ToolsPage.py:656
+msgid "Header gcode"
+msgstr "G代码头部"
+
+#: bCNC/ToolsPage.py:1105
+msgid "Height"
+msgstr "高度"
+
+#: bCNC/plugins/box.py:350
+msgid "Height Dz"
+msgstr "高度 Dz"
+
+#: bCNC/plugins/flatten.py:292
+msgid "Height to flatten"
+msgstr "高度平扩"
+
+#: bCNC/plugins/heightmap.py:40
+msgid "Heightmap"
+msgstr "高度图"
+
+#: bCNC/plugins/heightmap.py:98
+msgid "Heightmap abort: Can't read image file"
+msgstr "高度图中止: 无法读取图象文件"
+
+#: bCNC/plugins/heightmap.py:89
+msgid "Heightmap abort: This plugin requires PIL/Pillow"
+msgstr "高度图中止: 此插件需要PIL /Pillow"
+
+#: bCNC/plugins/heightmap.py:171
+msgid "Heightmap abort: angle not defined for selected End Mill"
+msgstr "高度图中止: 所选铣刀未定义角度"
+
+#: bCNC/plugins/heightmap.py:102
+msgid "Heightmap abort: depth must be < 0"
+msgstr "高度图中止: 深度必须< 0"
+
+#: bCNC/plugins/Helical_Descent.py:271
+#, fuzzy
+msgid "Helical Abort: Drop must be greater than 0"
+msgstr "高度图中止: 深度必须< 0"
+
+#: bCNC/plugins/Helical_Descent.py:286
+msgid "Helical Abort: Entry Edge Clearence may be positive"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:261
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be greater than the end mill"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/Helical_Descent.py:267
+#, fuzzy
+msgid "Helical Abort: Helix diameter must be positive"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/Helical_Descent.py:257
+#, fuzzy
+msgid "Helical Abort: Please select helical type"
+msgstr "钻机中止: 请选择一些路径"
+
+#: bCNC/plugins/Helical_Descent.py:281
+#, fuzzy
+msgid "Helical Abort: Please selecte Entry and Exit type"
+msgstr "文本中止: 请选择字体文件"
+
+#: bCNC/plugins/Helical_Descent.py:275
+#, fuzzy
+msgid "Helical Abort: Z Feed Multiplier must be greater than 0"
+msgstr "最小步进脉冲时间必须大于3微秒（us）"
+
+#: bCNC/plugins/trochoidal_3D.py:407
+#, fuzzy
+msgid "Helical Descent Diameter has to be greater than End mill"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/Helical_Descent.py:94
+msgid "Helical Type"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:320
+#, fuzzy
+msgid "Helical abort: Please select some path"
+msgstr "钻机中止: 请选择一些路径"
+
+#: bCNC/TerminalPage.py:175
+msgid "Help"
+msgstr "帮助"
+
+#: bCNC/Ribbon.py:641
+msgid "Help [F1]"
+msgstr "帮助 [F1]"
+
+#: bCNC/plugins/hilbert.py:15
+msgid "Hilbert"
+msgstr "Hilbert算法"
+
+#: bCNC/plugins/hilbert.py:136
+msgid "Hilbert abort: depth must be minor or equal to zero"
+msgstr "Hilbert 终止: 深度必须小于或等于0"
+
+#: bCNC/plugins/hilbert.py:131
+msgid "Hilbert abort: verify the size"
+msgstr "Hilbert 终止: 校验尺寸"
+
+#: bCNC/controllers/_GenericGRBL.py:160
+msgid "Hold complete. Ready to resume."
+msgstr "暂停结束，准备恢复。"
+
+#: bCNC/controllers/_GenericGRBL.py:161
+msgid "Hold in-progress. Reset will throw an alarm."
+msgstr "暂停过程中，复位出现报警。"
+
+#: bCNC/ControlPage.py:93
+msgid "Home"
+msgstr "起始点"
+
+#: bCNC/controllers/_GenericGRBL.py:116
+msgid "Home machine to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:39
+msgid "Homing cycle is not enabled via settings."
+msgstr "已设置，但归位周期并未启动."
+
+#: bCNC/controllers/_GenericGRBL.py:142
+msgid "Homing fail. Reset during active homing cycle."
+msgstr "归位失败。在主动归位期间复位。"
+
+#: bCNC/controllers/_GenericGRBL.py:143
+msgid "Homing fail. Safety door was opened during active homing cycle."
+msgstr "归位失败。在主动归位期间安全门被打开。"
+
+#: bCNC/controllers/_GenericGRBL.py:152
+msgid "Homing required. Execute homing command ($H) to continue. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:612
+msgid "Horizontal"
+msgstr "水平"
+
+#: bCNC/Utils.py:848
+msgid "Icon to appear on button"
+msgstr "按钮上的图标"
+
+#: bCNC/Utils.py:837
+msgid "Icon:"
+msgstr "图标:"
+
+#: bCNC/plugins/Helical_Descent.py:97
+msgid "If Eddge, Edge Clearance"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:253
+msgid "If block selected false, please make a value of x"
+msgstr ""
+
+#: bCNC/ProbePage.py:67
+msgid "Ignore M6 commands"
+msgstr "忽略M6命令"
+
+#: bCNC/plugins/text.py:44
+msgid "Image chars width"
+msgstr "图形字符宽度"
+
+#: bCNC/plugins/halftone.py:50
+msgid "Image rotation angle"
+msgstr "图象旋转角度"
+
+#: bCNC/plugins/text.py:43
+msgid "Image to Ascii"
+msgstr "图形转到ASCII"
+
+#: bCNC/plugins/halftone.py:38 bCNC/plugins/sketch.py:52
+#: bCNC/plugins/heightmap.py:78 bCNC/plugins/pyrograph.py:48
+msgid "Image to process"
+msgstr "图像处理"
+
+#: bCNC/EditorPage.py:207 bCNC/FilePage.py:126
+msgid "Import"
+msgstr "导入"
+
+#: bCNC/bmain.py:2482
+msgid "Import Gcode/DXF file"
+msgstr "导入Gcode / DXF文件"
+
+#: bCNC/FilePage.py:131
+msgid "Import gcode/dxf file"
+msgstr ""
+
+#: bCNC/ControlPage.py:1008 bCNC/ControlPage.py:1484
+msgid "Increase step by 1 unit"
+msgstr "递增1个单位步进"
+
+#: bCNC/EditorPage.py:742 bCNC/EditorPage.py:765
+msgid "Info"
+msgstr "信息"
+
+#: bCNC/ToolsPage.py:1630
+msgid "Insert a drill cycle on current objects/location"
+msgstr "在当前对象/位置上插入钻孔过程"
+
+#: bCNC/EditorPage.py:239 bCNC/EditorPage.py:266
+msgid "Insert a new block or line of code [Ins or Ctrl-Enter]"
+msgstr "插入一个新块或一行代码 [Ins or Ctrl-Enter]"
+
+#: bCNC/ToolsPage.py:1646
+msgid "Insert holding tabs"
+msgstr "插入保持标签记"
+
+#: bCNC/Updates.py:60
+msgid "Installed Version:"
+msgstr "已安装版本："
+
+#: bCNC/plugins/box.py:347
+msgid "Internal Dimensions"
+msgstr "内部坐标"
+
+#: bCNC/plugins/spirograph.py:120
+msgid "Internal Radius"
+msgstr "内径"
+
+#: bCNC/plugins/intersection.py:18
+msgid "Intersection"
+msgstr ""
+
+#: bCNC/plugins/intersection.py:24
+msgid "Intersection of two shapes"
+msgstr ""
+
+#: bCNC/Updates.py:103
+msgid "Interval (days):"
+msgstr "间隔时间(天)"
+
+#: bCNC/ProbePage.py:1412
+msgid "Invalid X probing region"
+msgstr "X探测区域无效"
+
+#: bCNC/ProbePage.py:1421
+msgid "Invalid X range [xmin>=xmax]"
+msgstr "无效的 X 区域[Xmin>=Xmax]"
+
+#: bCNC/ProbePage.py:1436
+msgid "Invalid Y probing region"
+msgstr "Y探测区域无效"
+
+#: bCNC/ProbePage.py:1445
+msgid "Invalid Y range [ymin>=ymax]"
+msgstr "无效的 Y 区域[Ymin>=Ymax]"
+
+#: bCNC/ProbePage.py:1457
+msgid "Invalid Z probing region"
+msgstr "Y探测区域无效"
+
+#: bCNC/ProbePage.py:1466
+msgid "Invalid Z range [zmin>=zmax]"
+msgstr "无效的 Z 区域[Zmin>=Zmax]"
+
+#: bCNC/Sender.py:355
+#, fuzzy
+#| msgid "Invalid command {}"
+msgid "Invalid command {}"
+msgstr "{} 命令无效"
+
+#: bCNC/ProbePage.py:988
+msgid "Invalid diameter entered"
+msgstr "输入的直径无效"
+
+#: bCNC/bmain.py:1585
+#, fuzzy
+#| msgid "Invalid direction {} specified"
+msgid "Invalid direction {} specified"
+msgstr "设定方向 {} 无效"
+
+#: bCNC/ProbePage.py:923 bCNC/ProbePage.py:1475
+msgid "Invalid probe feed rate"
+msgstr "无效的探测进给率"
+
+#: bCNC/ProbePage.py:2199
+msgid "Invalid tool change position"
+msgstr "刀具切换位置无效"
+
+#: bCNC/ProbePage.py:2231
+msgid "Invalid tool height or not calibrated"
+msgstr "刀具高度无效或未校准"
+
+#: bCNC/ProbePage.py:2211
+msgid "Invalid tool probe location"
+msgstr "刀具探测定位无效"
+
+#: bCNC/ProbePage.py:2221 bCNC/ProbePage.py:2241
+msgid "Invalid tool scanning distance entered"
+msgstr "输入的刀具扫描距离无效"
+
+#: bCNC/bmain.py:1978
+#, fuzzy
+#| msgid "Invalid user command {}"
+msgid "Invalid user command {}"
+msgstr "用户命令{}无效"
+
+#: bCNC/plugins/heightmap.py:76 bCNC/EditorPage.py:138 bCNC/EditorPage.py:543
+msgid "Invert"
+msgstr "反向"
+
+#: bCNC/plugins/halftone.py:45
+msgid "Invert Colors"
+msgstr "反转颜色"
+
+#: bCNC/EditorPage.py:549
+msgid "Invert cutting order of selected blocks"
+msgstr "反转所选块的切割顺序"
+
+#: bCNC/EditorPage.py:144
+msgid "Invert selection [Ctrl-I]"
+msgstr "反向选择[Ctrl-I]"
+
+#: bCNC/ToolsPage.py:1655
+msgid "Island"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:494
+msgid "Island behaviour"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:403
+msgid "Jigsaw puzzle generated in {}s"
+msgstr "拼图产生在{}中"
+
+#: bCNC/plugins/jigsaw.py:353
+msgid "Jigsaw puzzle generator"
+msgstr "拼图产生器"
+
+#: bCNC/controllers/_GenericGRBL.py:58
+msgid "Jog command with no '=' or contains prohibited g-code."
+msgstr "以非'='或包含禁止的G代码的点动命令."
+
+#: bCNC/controllers/_GenericGRBL.py:57
+msgid "Jog target exceeds machine travel. Command ignored."
+msgstr "点动操作超出设备的移动的范围，命令被忽略."
+
+#: bCNC/EditorPage.py:386
+msgid "Join"
+msgstr ""
+
+#: bCNC/EditorPage.py:392
+msgid "Join selected blocks"
+msgstr ""
+
+#: bCNC/plugins/simpleTranslate.py:29
+msgid "Keep original Yes/No"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:30
+msgid "Keep original yes/no"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1911
+msgid "Language change"
+msgstr "更改语言"
+
+#: bCNC/ToolsPage.py:638
+msgid "Laser Adaptive Power"
+msgstr "激光功率"
+
+#: bCNC/ToolsPage.py:637
+msgid "Laser Cutter"
+msgstr "激光切割"
+
+#: bCNC/controllers/_GenericGRBL.py:59
+msgid "Laser mode requires PWM output."
+msgstr "激光模式需要输出PWM"
+
+#: bCNC/plugins/driller.py:70
+msgid "Laser power maximum"
+msgstr ""
+
+#: bCNC/plugins/driller.py:63
+msgid "Laser power minimum"
+msgstr ""
+
+#: bCNC/Updates.py:89
+msgid "Last Check:"
+msgstr "最后检查:"
+
+#: bCNC/ControlPage.py:603 bCNC/ControlPage.py:910
+#, fuzzy
+#| msgid "Last error: {}\n"
+msgid "Last error: {}\n"
+msgstr "{}出现错误：\n"
+
+#: bCNC/Updates.py:67
+msgid "Latest Github Version:"
+msgstr "在Github上的最新版本:"
+
+#: bCNC/Updates.py:73
+#, fuzzy
+#| msgid "Latest release version on on github"
+msgid "Latest release version on github"
+msgstr "在GitHub上发布的最新版本"
+
+#: bCNC/EditorPage.py:154
+msgid "Layer"
+msgstr "层"
+
+#: bCNC/ToolsPage.py:811
+msgid "Leave islands uncut"
+msgstr ""
+
+#: bCNC/EditorPage.py:460
+msgid "Left"
+msgstr "左"
+
+#: bCNC/ToolsPage.py:716
+msgid "Length"
+msgstr "长度"
+
+#: bCNC/plugins/spiral.py:477
+msgid "Length of Stock to Reduce"
+msgstr ""
+
+#: bCNC/bmain.py:1204 bCNC/bmain.py:1290
+msgid "Length:"
+msgstr "长度:"
+
+#: bCNC/plugins/spiral.py:484
+msgid "Lift before rotate"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:154
+msgid "Limit switch engaged. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:245
+msgid "Line"
+msgstr "行"
+
+#: bCNC/plugins/zigzag.py:107
+msgid "Line length"
+msgstr "线长度"
+
+#: bCNC/plugins/linearize.py:11
+msgid "Linearize"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:503
+msgid "Link segments"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:136
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading mesh: {}"
+msgstr "加载: {} ..."
+
+#: bCNC/bmain.py:2424
+#, fuzzy
+#| msgid "Loading: {} ..."
+msgid "Loading: {} ..."
+msgstr "加载: {} ..."
+
+#: bCNC/ProbePage.py:1635
+msgid "Location:"
+msgstr "位置:"
+
+#: bCNC/plugins/driller.py:51
+msgid "M3 for laser (settings below)"
+msgstr ""
+
+#: bCNC/ControlPage.py:314 bCNC/ControlPage.py:693
+msgid "MPos:"
+msgstr "Mpos:"
+
+#: bCNC/ProbePage.py:2002
+msgid "MX"
+msgstr ""
+
+#: bCNC/ProbePage.py:2004
+msgid "MY"
+msgstr ""
+
+#: bCNC/ProbePage.py:2006
+msgid "MZ"
+msgstr ""
+
+#: bCNC/ProbePage.py:775
+msgid "Machine X coordinate of orientation point"
+msgstr "机器X坐标原点"
+
+#: bCNC/ProbePage.py:787
+msgid "Machine Y coordinate of orientation point"
+msgstr "机器Y坐标原点"
+
+#: bCNC/ToolsPage.py:1829
+msgid "Machine configuration for bCNC"
+msgstr "bCNC设备配置"
+
+#: bCNC/controllers/_GenericGRBL.py:163
+msgid "Machine stopped. Door still ajar. Can't resume until closed."
+msgstr "机器已停止，门未关闭。只有关闭才能恢复。"
+
+#: bCNC/ProbePage.py:1962
+msgid "Manual Tool Change"
+msgstr "手动切换刀具"
+
+#: bCNC/ProbePage.py:70
+msgid "Manual Tool Change (NoProbe)"
+msgstr "手动切换（NoProbe）"
+
+#: bCNC/ProbePage.py:69
+msgid "Manual Tool Change (TLO)"
+msgstr "手动切换（TLO）"
+
+#: bCNC/ProbePage.py:68
+msgid "Manual Tool Change (WCS)"
+msgstr "手动切换（WCS）"
+
+#: bCNC/plugins/drillmark.py:317
+msgid "Manual drill mark"
+msgstr ""
+
+#: bCNC/ProbePage.py:2018
+msgid "Manual tool change Machine X location"
+msgstr "手动切换机器X位置"
+
+#: bCNC/ProbePage.py:2029
+msgid "Manual tool change Machine Y location"
+msgstr "手动切换机器Y位置"
+
+#: bCNC/ProbePage.py:2040
+msgid "Manual tool change Machine Z location"
+msgstr "手动切换机器Z位置"
+
+#: bCNC/ProbePage.py:2064
+msgid "Manual tool change Probing MX location"
+msgstr "手动切换探测MX位置"
+
+#: bCNC/ProbePage.py:2075
+msgid "Manual tool change Probing MY location"
+msgstr "手动切换探测MY位置"
+
+#: bCNC/ProbePage.py:2086
+msgid "Manual tool change Probing MZ location"
+msgstr "手动切换探测MZ位置"
+
+#: bCNC/ProbePage.py:186
+msgid "Margins"
+msgstr "边距"
+
+#: bCNC/bmain.py:1159 bCNC/bmain.py:1240
+msgid "Margins X:"
+msgstr "边距X:"
+
+#: bCNC/plugins/drillmark.py:46
+msgid "Mark X center"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:47
+msgid "Mark Y center"
+msgstr ""
+
+#: bCNC/ProbePage.py:1752
+msgid "Mark camera position for calculating offset"
+msgstr "标记用于计算偏移的相机位置"
+
+#: bCNC/plugins/drillmark.py:50
+msgid "Mark drawing power"
+msgstr ""
+
+#: bCNC/ProbePage.py:1745
+msgid "Mark spindle position for calculating offset"
+msgstr "标记用于计算偏移的主轴位置"
+
+#: bCNC/ProbePage.py:683
+msgid "Markers:"
+msgstr "标记:"
+
+#: bCNC/ToolsPage.py:711 bCNC/ToolsPage.py:739 bCNC/ToolsPage.py:1421
+msgid "Material"
+msgstr "材料"
+
+#: bCNC/ProbePage.py:1232
+msgid "Max"
+msgstr "最大"
+
+#: bCNC/plugins/spiral.py:479
+msgid "Max Depth per Pass"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:48
+msgid "Max characters per line exceeded. Line was not processed and executed."
+msgstr "超过每行的最大字数，此行不处理执行."
+
+#: bCNC/plugins/halftone.py:48
+msgid "Max diameter, cap limit"
+msgstr "最大直径，上限"
+
+#: bCNC/plugins/halftone.py:46
+msgid "Max draw size (Width or Height)"
+msgstr "最大绘制尺寸（宽度或高度）"
+
+#: bCNC/controllers/_GenericGRBL.py:113
+msgid "Max. feed rate exceeded. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:64
+msgid "Maximum X travel"
+msgstr "X 最大行程"
+
+#: bCNC/plugins/midi2cnc.py:65
+msgid "Maximum Y travel"
+msgstr "Y 最大行程"
+
+#: bCNC/plugins/midi2cnc.py:66
+msgid "Maximum Z travel"
+msgstr "Z 最大行程"
+
+#: bCNC/plugins/pyrograph.py:42
+msgid "Maximum feed"
+msgstr "最大给进率"
+
+#: bCNC/plugins/sketch.py:48
+msgid "Maximum light"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:44 bCNC/plugins/heightmap.py:66
+#: bCNC/plugins/pyrograph.py:40
+msgid "Maximum size"
+msgstr "最大尺寸"
+
+#: bCNC/plugins/slicemesh.py:194
+msgid "Mesh sliced"
+msgstr ""
+
+#: bCNC/plugins/midi2cnc.py:71
+msgid "Midi to process"
+msgstr "MIDI处理"
+
+#: bCNC/ProbePage.py:1230
+msgid "Min"
+msgstr "最小"
+
+#: bCNC/plugins/halftone.py:49
+msgid "Min diameter, cut off"
+msgstr "最小直径，切除"
+
+#: bCNC/ToolsPage.py:1102
+msgid "Min. Distance of tabs"
+msgstr "标签最小距离"
+
+#: bCNC/plugins/trochoidal_3D.py:420
+#, fuzzy
+#| msgid "Minimum step pulse time must be greater than 3usec"
+msgid "Minimum Adaptative Feed has to be greater than 0"
+msgstr "最小步进脉冲时间必须大于3微秒（us）"
+
+#: bCNC/plugins/pyrograph.py:41
+msgid "Minimum feed"
+msgstr "最小给进率"
+
+#: bCNC/controllers/_GenericGRBL.py:40
+msgid "Minimum step pulse time must be greater than 3usec"
+msgstr "最小步进脉冲时间必须大于3微秒（us）"
+
+#: bCNC/EditorPage.py:619
+msgid "Mirror horizontally X=-X selected gcode"
+msgstr "水平镜像 X = -X  所选gcode"
+
+#: bCNC/EditorPage.py:634
+msgid "Mirror vertically Y=-Y selected gcode"
+msgstr "垂直镜像 Y = -Y 所选gcode"
+
+#: bCNC/ControlPage.py:2182
+msgid "Mist"
+msgstr ""
+
+#: bCNC/ControlPage.py:2009
+msgid "Mode:"
+msgstr "模式:"
+
+#: bCNC/ProbePage.py:261
+msgid "Modify selected G-Code to match autolevel"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:61
+msgid "More than one g-code command from same modal group found in block."
+msgstr "在块中发现来自相同模态组的多个g-code命令."
+
+#: bCNC/ToolsPage.py:714
+msgid "Mount Axis"
+msgstr "安裝轴"
+
+#: bCNC/EditorPage.py:416 bCNC/EditorPage.py:424
+msgid "Move"
+msgstr "移动"
+
+#: bCNC/ControlPage.py:1428
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +A"
+msgstr "移动 +X"
+
+#: bCNC/ControlPage.py:1530
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +B"
+msgstr "移动 +X"
+
+#: bCNC/ControlPage.py:1468
+#, fuzzy
+#| msgid "Move +X +Y"
+msgid "Move +B +C"
+msgstr "移动 +X +Y"
+
+#: bCNC/ControlPage.py:1635
+#, fuzzy
+#| msgid "Move +X -Y"
+msgid "Move +B -C"
+msgstr "移动 +X -Y"
+
+#: bCNC/ControlPage.py:1455
+#, fuzzy
+#| msgid "Move +X"
+msgid "Move +C"
+msgstr "移动 +X"
+
+#: bCNC/ControlPage.py:1060
+msgid "Move +X"
+msgstr "移动 +X"
+
+#: bCNC/ControlPage.py:992
+msgid "Move +X +Y"
+msgstr "移动 +X +Y"
+
+#: bCNC/ControlPage.py:1163
+msgid "Move +X -Y"
+msgstr "移动 +X -Y"
+
+#: bCNC/ControlPage.py:980
+msgid "Move +Y"
+msgstr "移动 +Y"
+
+#: bCNC/ControlPage.py:954
+msgid "Move +Z"
+msgstr "移动 +Z"
+
+#: bCNC/ControlPage.py:1596
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -A"
+msgstr "移动 -X"
+
+#: bCNC/ControlPage.py:1504
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -B"
+msgstr "移动 -X"
+
+#: bCNC/ControlPage.py:1442
+#, fuzzy
+#| msgid "Move -X +Y"
+msgid "Move -B +C"
+msgstr "移动 -X +Y"
+
+#: bCNC/ControlPage.py:1609
+#, fuzzy
+#| msgid "Move -X -Y"
+msgid "Move -B -C"
+msgstr "移动 -X -Y"
+
+#: bCNC/ControlPage.py:1622
+#, fuzzy
+#| msgid "Move -X"
+msgid "Move -C"
+msgstr "移动 -X"
+
+#: bCNC/ControlPage.py:1028
+msgid "Move -X"
+msgstr "移动 -X"
+
+#: bCNC/ControlPage.py:967
+msgid "Move -X +Y"
+msgstr "移动 -X +Y"
+
+#: bCNC/ControlPage.py:1137
+msgid "Move -X -Y"
+msgstr "移动 -X -Y"
+
+#: bCNC/ControlPage.py:1150
+msgid "Move -Y"
+msgstr "移动 -Y"
+
+#: bCNC/ControlPage.py:1124
+msgid "Move -Z"
+msgstr "移动 -Z"
+
+#: bCNC/CNCCanvas.py:451
+msgid "Move CNC gantry to mouse location"
+msgstr "将CNC龙门架移动到鼠标位置"
+
+#: bCNC/ControlPage.py:451
+msgid "Move Gantry"
+msgstr "移动龙门架"
+
+#: bCNC/EditorPage.py:451
+msgid "Move all gcode such as origin is on mouse location [O]"
+msgstr "移动所有G代码如原点在鼠标位置[O]"
+
+#: bCNC/CNCCanvas.py:760
+#, fuzzy
+#| msgid "Move by {:g}, {:g}, {:g}"
+msgid "Move by {:g}, {:g}, {:g}"
+msgstr "移动 {:g}, {:g}, {:g}"
+
+#: bCNC/ControlPage.py:461
+msgid "Move gantry to mouse location [g]"
+msgstr "将龙门架移动到鼠标点选位置[g]"
+
+#: bCNC/CNCCanvas.py:445
+msgid "Move graphically objects"
+msgstr "移动图形对象"
+
+#: bCNC/EditorPage.py:433
+msgid "Move objects [M]"
+msgstr "移动对象 [M]"
+
+#: bCNC/EditorPage.py:532
+msgid "Move selected g-code down [Ctrl-Down, Ctrl-PgDn]"
+msgstr "将所选G代码下移[Ctrl-Down，Ctrl-PgDn]"
+
+#: bCNC/EditorPage.py:513
+msgid "Move selected g-code up [Ctrl-Up, Ctrl-PgUp]"
+msgstr "将所选G代码上移[Ctrl-Up，Ctrl-PgUp]"
+
+#: bCNC/plugins/simpleTranslate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Moved selected blocks"
+msgstr "平整所选块"
+
+#: bCNC/ControlPage.py:1001 bCNC/ControlPage.py:1477
+msgid "Multiply step by 10"
+msgstr "乘以10倍步进"
+
+#: bCNC/ProbePage.py:1236
+msgid "N"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:72
+msgid "N line number value is not within the valid range of 1 - 9,999,999."
+msgstr "N行号值不在1 - 9,999,999的有效范围内."
+
+#: bCNC/lib/bFileDialog.py:304 bCNC/plugins/Helical_Descent.py:77
+#: bCNC/plugins/Random.py:29 bCNC/plugins/arcfit.py:32 bCNC/plugins/bowl.py:112
+#: bCNC/plugins/box.py:346 bCNC/plugins/center.py:35
+#: bCNC/plugins/difference.py:40 bCNC/plugins/dragknife.py:41
+#: bCNC/plugins/driller.py:44 bCNC/plugins/drillmark.py:38
+#: bCNC/plugins/endmilloffset.py:437 bCNC/plugins/flatten.py:288
+#: bCNC/plugins/function_plot.py:23 bCNC/plugins/gear.py:160
+#: bCNC/plugins/halftone.py:37 bCNC/plugins/hilbert.py:111
+#: bCNC/plugins/intersection.py:41 bCNC/plugins/jigsaw.py:360
+#: bCNC/plugins/linearize.py:33 bCNC/plugins/midi2cnc.py:60
+#: bCNC/plugins/scaling.py:38 bCNC/plugins/sketch.py:36
+#: bCNC/plugins/spiral.py:471 bCNC/plugins/spirograph.py:118
+#: bCNC/plugins/text.py:37 bCNC/plugins/tile.py:27
+#: bCNC/plugins/trochoidPath.py:37 bCNC/plugins/trochoidal.py:43
+#: bCNC/plugins/trochoidal_3D.py:46 bCNC/plugins/zigzag.py:105
+#: bCNC/plugins/heightmap.py:64 bCNC/plugins/pyrograph.py:37
+#: bCNC/plugins/slicemesh.py:55 bCNC/ToolsPage.py:680 bCNC/ToolsPage.py:707
+#: bCNC/ToolsPage.py:737 bCNC/ToolsPage.py:765 bCNC/ToolsPage.py:937
+#: bCNC/ToolsPage.py:998 bCNC/ToolsPage.py:1073 bCNC/ToolsPage.py:1099
+#: bCNC/ToolsPage.py:1981
+msgid "Name"
+msgstr "名称"
+
+#: bCNC/Utils.py:833
+msgid "Name to appear on button"
+msgstr "按钮上显示的名称"
+
+#: bCNC/Utils.py:829
+msgid "Name:"
+msgstr "名称:"
+
+#: bCNC/controllers/_GenericGRBL.py:38
+msgid "Negative value received for an expected positive value."
+msgstr "预期是正值而接收到负值."
+
+#: bCNC/FilePage.py:85
+msgid "New"
+msgstr "新文件"
+
+#: bCNC/Ribbon.py:574
+msgid "New file"
+msgstr "新文件"
+
+#: bCNC/FilePage.py:90
+msgid "New gcode/dxf file"
+msgstr "新gcode/dxf"
+
+#: bCNC/lib/bFileDialog.py:863
+msgid "NewFolder"
+msgstr "新文件夹"
+
+#: bCNC/plugins/Random.py:45 bCNC/plugins/simpleRotate.py:49
+#: bCNC/plugins/simpleTranslate.py:47 bCNC/plugins/tile.py:44
+msgid "No g-code blocks selected"
+msgstr "未选择G代码块"
+
+#: bCNC/plugins/gear.py:161
+msgid "No of teeth"
+msgstr "齿数"
+
+#: bCNC/EditorPage.py:122
+msgid "None"
+msgstr "无"
+
+#: bCNC/bmain.py:2658
+msgid "Not gcode file was loaded"
+msgstr "未加载G代码文件"
+
+#: bCNC/bmain.py:2035
+msgid "Nothing to do"
+msgstr "没有执行"
+
+#: bCNC/ToolsPage.py:943
+msgid "Number"
+msgstr "编号"
+
+#: bCNC/plugins/trochoidPath.py:60
+#, fuzzy
+#| msgid "Number of tabs"
+msgid "Number of Tabs 0 = Not Tabs"
+msgstr "标签数"
+
+#: bCNC/plugins/zigzag.py:106
+msgid "Number of lines"
+msgstr "行数"
+
+#: bCNC/ToolsPage.py:1101
+msgid "Number of tabs"
+msgstr "标签数"
+
+#: bCNC/controllers/_GenericGRBL.py:36
+msgid "Numeric value format is not valid or missing an expected value."
+msgstr "数值格式无效或缺少预期值."
+
+#: bCNC/ControlPage.py:2154
+msgid "OFF"
+msgstr ""
+
+#: bCNC/ProbePage.py:73
+msgid "ONLY before probing"
+msgstr "仅在探测前"
+
+#: bCNC/plugins/endmilloffset.py:14
+#, fuzzy
+#| msgid "Offset:"
+msgid "Offset"
+msgstr "偏移:"
+
+#: bCNC/plugins/spirograph.py:121
+msgid "Offset radius"
+msgstr "半径偏移"
+
+#: bCNC/plugins/endmilloffset.py:462
+#, fuzzy
+#| msgid "Offset radius"
+msgid "Offset side"
+msgstr "半径偏移"
+
+#: bCNC/ProbePage.py:836 bCNC/ProbePage.py:1710
+msgid "Offset:"
+msgstr "偏移:"
+
+#: bCNC/Utils.py:877
+msgid "Ok"
+msgstr "Ok"
+
+#: bCNC/controllers/_GenericGRBL.py:115
+msgid "Only homing is allowed when a limit switch is engaged. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:816
+msgid "Only leave selected islands uncut"
+msgstr ""
+
+#: bCNC/lib/bFileDialog.py:337 bCNC/lib/bFileDialog.py:938
+#: bCNC/lib/bFileDialog.py:1063 bCNC/FilePage.py:110 bCNC/FilePage.py:376
+#: bCNC/bmain.py:2546
+msgid "Open"
+msgstr "打开"
+
+#: bCNC/FilePage.py:103
+msgid "Open existing gcode/dxf file [Ctrl-O]"
+msgstr "打开现有的gcode / dxf文件[Ctrl-O]"
+
+#: bCNC/bmain.py:2345
+msgid "Open file"
+msgstr "打开文件"
+
+#: bCNC/Ribbon.py:584
+msgid "Open file [Ctrl-O]"
+msgstr "打开文件[Ctrl-O]"
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+msgid "Open paths"
+msgstr "打开路径"
+
+#: bCNC/FilePage.py:116
+msgid "Open recent file"
+msgstr "打开最近的文件"
+
+#: bCNC/Updates.py:186
+msgid "Open web browser to download bCNC"
+msgstr "打开浏览器下载bCNC"
+
+#: bCNC/ControlPage.py:129
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Open/Close connection"
+msgstr "打开/关闭串口"
+
+#: bCNC/FilePage.py:384
+msgid "Open/Close serial port"
+msgstr "打开/关闭串口"
+
+#: bCNC/plugins/endmilloffset.py:443
+#, fuzzy
+#| msgid "Operation error"
+msgid "Operation"
+msgstr "操作错误"
+
+#: bCNC/bmain.py:2083
+msgid "Operation error"
+msgstr "操作错误"
+
+#: bCNC/bmain.py:2036
+#, fuzzy
+#| msgid "Operation {} requires some gcode to be selected"
+msgid "Operation {} requires some gcode to be selected"
+msgstr "操作{}需要选择g代码"
+
+#: bCNC/EditorPage.py:490 bCNC/bmain.py:1780
+msgid "Optimize"
+msgstr "优化"
+
+#: bCNC/FilePage.py:168
+msgid "Options"
+msgstr "选项"
+
+#: bCNC/plugins/hilbert.py:113 bCNC/EditorPage.py:486
+msgid "Order"
+msgstr "序号"
+
+#: bCNC/ProbePage.py:677 bCNC/ProbePage.py:822 bCNC/bmain.py:138
+msgid "Orient"
+msgstr "源点"
+
+#: bCNC/EditorPage.py:441
+msgid "Origin"
+msgstr "原点"
+
+#: bCNC/plugins/box.py:355 bCNC/plugins/trochoidPath.py:52
+#: bCNC/plugins/trochoidal_3D.py:76 bCNC/ToolsPage.py:1018
+msgid "Overcut"
+msgstr "切割完毕"
+
+#: bCNC/plugins/endmilloffset.py:485
+#, fuzzy
+#| msgid "Overcut"
+msgid "Overcut corners"
+msgstr "切割完毕"
+
+#: bCNC/lib/bFileDialog.py:985
+#, fuzzy
+#| msgid "Overwrite existing file {}?"
+msgid "Overwrite existing file {}?"
+msgstr "覆盖现有文件{}？"
+
+#: bCNC/ProbePage.py:496
+msgid "POINT"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:435
+msgid "Pan viewport"
+msgstr "平移视图"
+
+#: bCNC/CNCCanvas.py:2300
+msgid "Pan viewport [X]"
+msgstr "平移视图[X]"
+
+#: bCNC/TerminalPage.py:96
+msgid "Parameters"
+msgstr "参数"
+
+#: bCNC/EditorPage.py:49
+msgid "Paste"
+msgstr "粘贴"
+
+#: bCNC/EditorPage.py:55
+msgid "Paste [Ctrl-V]"
+msgstr "粘贴 [ctrl-V]"
+
+#: bCNC/ControlPage.py:192
+msgid "Pause"
+msgstr "暂停"
+
+#: bCNC/ControlPage.py:214
+msgid "Pause running program and soft reset controller to empty the buffer."
+msgstr "暂停运行，控制器软复位并清空缓冲区。"
+
+#: bCNC/ControlPage.py:199
+msgid "Pause running program. Sends either FEED_HOLD ! or CYCLE_START ~"
+msgstr "暂停运行。发送FEED_HOLD ! 或 CYCLE_START~"
+
+#: bCNC/ProbePage.py:1985
+msgid "Pause:"
+msgstr "暂停:"
+
+#: bCNC/ToolsPage.py:940
+msgid "Peck depth"
+msgstr "深度增量"
+
+#: bCNC/plugins/simpleDrill.py:70
+#, fuzzy
+#| msgid "Peck depth"
+msgid "Peck depth (positive)"
+msgstr "深度增量"
+
+#: bCNC/plugins/driller.py:47
+#, fuzzy
+#| msgid "Peck, 0 meas None"
+msgid "Peck, 0 means None"
+msgstr "铣钻，0表示无"
+
+#: bCNC/FilePage.py:232 bCNC/bmain.py:2713 bCNC/bmain.py:2719
+#: bCNC/bmain.py:2733
+msgid "Pendant"
+msgstr "挂接"
+
+#: bCNC/bmain.py:2720
+msgid "Pendant already started:\n"
+msgstr "挂接已经开始:\n"
+
+#: bCNC/bmain.py:2714
+msgid "Pendant started:\n"
+msgstr "挂接开始:\n"
+
+#: bCNC/bmain.py:2734
+msgid "Pendant stopped"
+msgstr "挂接停止"
+
+#: bCNC/ProbePage.py:2135
+msgid "Perform a calibration probing to determine the height"
+msgstr "执行校准探测以确定高度"
+
+#: bCNC/ControlPage.py:100
+#, fuzzy
+#| msgid "Perform a homing cycle [$H]"
+msgid "Perform a homing cycle [$H] now"
+msgstr "执行归位过程[$H]"
+
+#: bCNC/ToolsPage.py:1613
+msgid "Perform a pocket operation on selected code"
+msgstr "以选定代码进行紧凑操作"
+
+#: bCNC/ToolsPage.py:1595
+msgid "Perform a profile operation on selected code"
+msgstr "以选定的代码进行轮廓操作"
+
+#: bCNC/ProbePage.py:1935
+msgid "Perform a single a tool change cycle to set the calibration field"
+msgstr "执行单刀切换以设置校准字段"
+
+#: bCNC/ProbePage.py:636
+msgid "Perform a single probe cycle"
+msgstr "执行单一探测过程"
+
+#: bCNC/ProbePage.py:1951
+msgid "Perform a tool change cycle"
+msgstr "执行刀具切换"
+
+#: bCNC/plugins/jigsaw.py:363
+msgid "Piece count"
+msgstr "段数"
+
+#: bCNC/ControlPage.py:1978
+msgid "Plane [G17,G18,G19]"
+msgstr "平面 [G17,G18,G19]"
+
+#: bCNC/controllers/_GenericGRBL.py:112
+msgid "Plane must be ZX for threading. (grblHAL)"
+msgstr ""
+
+#: bCNC/ControlPage.py:1967
+msgid "Plane:"
+msgstr "平面:"
+
+#: bCNC/ToolsPage.py:1912
+msgid "Please restart the program."
+msgstr "请重新启动软件."
+
+#: bCNC/bmain.py:1781
+msgid "Please select the blocks of gcode you want to optimize."
+msgstr "请选择要优化的G代码区块"
+
+#: bCNC/bmain.py:2609
+msgid "Please stop before"
+msgstr "请先停止"
+
+#: bCNC/ToolsPage.py:651
+msgid "Plotting Arc accuracy"
+msgstr "弧绘制精度"
+
+#: bCNC/plugins/scaling.py:44 bCNC/plugins/trochoidal_3D.py:96
+#: bCNC/ToolsPage.py:683 bCNC/ToolsPage.py:770
+msgid "Plunge Feed"
+msgstr "下刀给进"
+
+#: bCNC/plugins/trochoidal_3D.py:415
+msgid "Plunge Feed has to be greater than 0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1025 bCNC/ToolsPage.py:1604
+msgid "Pocket"
+msgstr "紧凑"
+
+#: bCNC/plugins/flatten.py:299
+msgid "Pocket type"
+msgstr "紧凑型"
+
+#: bCNC/ProbePage.py:1164
+msgid "Pointrec"
+msgstr ""
+
+#: bCNC/ProbePage.py:1967
+msgid "Policy:"
+msgstr "策略:"
+
+#: bCNC/FilePage.py:294
+msgid "Port:"
+msgstr "端口:"
+
+#: bCNC/ProbePage.py:596
+msgid "Pos:"
+msgstr "位置:"
+
+#: bCNC/EditorPage.py:209
+msgid "Postprocess Inkscape g-code"
+msgstr ""
+
+#: bCNC/plugins/gear.py:162
+msgid "Pressure angle"
+msgstr "压力角"
+
+#: bCNC/ProbePage.py:106 bCNC/ProbePage.py:114 bCNC/ProbePage.py:539
+#: bCNC/ProbePage.py:627 bCNC/bmain.py:137
+msgid "Probe"
+msgstr "探测"
+
+#: bCNC/ProbePage.py:987
+msgid "Probe Center Error"
+msgstr "探测中心误差"
+
+#: bCNC/ProbePage.py:369
+msgid "Probe Command"
+msgstr "探测命令"
+
+#: bCNC/ProbePage.py:922 bCNC/ProbePage.py:955 bCNC/ProbePage.py:1411
+#: bCNC/ProbePage.py:1420 bCNC/ProbePage.py:1435 bCNC/ProbePage.py:1444
+#: bCNC/ProbePage.py:1456 bCNC/ProbePage.py:1465 bCNC/ProbePage.py:1474
+msgid "Probe Error"
+msgstr "探测错误"
+
+#: bCNC/ProbePage.py:328
+msgid "Probe Feed:"
+msgstr "探测给进"
+
+#: bCNC/bmain.py:2390
+msgid "Probe File modified"
+msgstr "探测文件已修改"
+
+#: bCNC/ProbePage.py:2198 bCNC/ProbePage.py:2210 bCNC/ProbePage.py:2220
+#: bCNC/ProbePage.py:2230 bCNC/ProbePage.py:2240
+msgid "Probe Tool Change Error"
+msgstr "探针切换错误"
+
+#: bCNC/ProbePage.py:603
+msgid "Probe along X direction"
+msgstr "沿X方向探测"
+
+#: bCNC/ProbePage.py:611
+msgid "Probe along Y direction"
+msgstr "沿Y方向探测"
+
+#: bCNC/ProbePage.py:619
+msgid "Probe along Z direction"
+msgstr "沿Z方向探测"
+
+#: bCNC/ProbePage.py:2366
+msgid "Probe configuration and probing"
+msgstr "探针配置与探测"
+
+#: bCNC/ProbePage.py:902
+msgid "Probe connected?"
+msgstr "探针已连接吗？"
+
+#: bCNC/controllers/_GenericGRBL.py:155
+msgid "Probe protection triggered. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/bmain.py:2391
+msgid "Probe was modified do you want to save it first?"
+msgstr "探测已修改，保存吗？"
+
+#: bCNC/ProbePage.py:543 bCNC/ProbePage.py:2057
+msgid "Probe:"
+msgstr "探测:"
+
+#: bCNC/ProbePage.py:655
+msgid "Probing ring internal diameter"
+msgstr "探测圆内径"
+
+#: bCNC/plugins/box.py:354 bCNC/ToolsPage.py:1586
+msgid "Profile"
+msgstr "轮廓"
+
+#: bCNC/bmain.py:2129 bCNC/bmain.py:2231
+#, fuzzy
+#| msgid "Profile block distance={:g}"
+msgid "Profile block distance={:g}"
+msgstr "外形块距离={:g}"
+
+#: bCNC/plugins/bowl.py:115
+msgid "Progressive"
+msgstr "改进"
+
+#: bCNC/Updates.py:74
+msgid "Published at:"
+msgstr "发布时间:"
+
+#: bCNC/Updates.py:80
+msgid "Published date of the latest github release"
+msgstr "发布最新github版本的日期"
+
+#: bCNC/plugins/midi2cnc.py:61
+msgid "Pulse per unit for X"
+msgstr "X 单位脉冲"
+
+#: bCNC/plugins/midi2cnc.py:62
+msgid "Pulse per unit for Y"
+msgstr "Y 单位脉冲"
+
+#: bCNC/plugins/midi2cnc.py:63
+msgid "Pulse per unit for Z"
+msgstr "Y 单位脉冲"
+
+#: bCNC/plugins/pyrograph.py:13
+msgid "Pyrograph"
+msgstr "烙画"
+
+#: bCNC/plugins/pyrograph.py:97
+msgid "Pyrograph abort: Can't read image file"
+msgstr "烙画中止: 无法读取图象文件"
+
+#: bCNC/plugins/pyrograph.py:85
+msgid "Pyrograph abort: Please check feed rate parameters"
+msgstr "烙画中止: 请检查进给速率参数"
+
+#: bCNC/plugins/pyrograph.py:58
+msgid "Pyrograph abort: This plugin requires PIL/Pillow"
+msgstr "烙画中止: 这个插件需要PIL / Pillow"
+
+#: bCNC/plugins/pyrograph.py:80
+msgid "Pyrograph abort: Tool Size must be > 0"
+msgstr "烙画中止: 刀具尺寸必须大于0"
+
+#: bCNC/plugins/pyrograph.py:76
+msgid "Pyrograph abort: please define a scan Direction"
+msgstr "烙画中止: 请定义扫描方向"
+
+#: bCNC/plugins/pyrograph.py:38
+msgid "Pyrograph tip size"
+msgstr "烙画经验尺寸"
+
+#: bCNC/ProbePage.py:474
+msgid "RAPID"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:45 bCNC/plugins/trochoidal_3D.py:94
+msgid "RPM"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:114
+msgid "RPM out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:51
+msgid "Radial depth of cut (<= cutter D * 0.4)"
+msgstr ""
+
+#: bCNC/plugins/simpleArc.py:67
+msgid "Radius"
+msgstr ""
+
+#: bCNC/ToolsPage.py:781
+msgid "Ramp length"
+msgstr ""
+
+#: bCNC/plugins/Random.py:15
+msgid "Random"
+msgstr ""
+
+#: bCNC/plugins/jigsaw.py:364
+msgid "Random seed"
+msgstr "随机寻迹"
+
+#: bCNC/plugins/function_plot.py:26
+msgid "Range of X"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:27
+msgid "Range of Y"
+msgstr ""
+
+#: bCNC/ProbePage.py:592
+msgid "Rapid goto to last probe location"
+msgstr "进入当前探测位置的速率"
+
+#: bCNC/bmain.py:1213
+msgid "Rapid:"
+msgstr "速度:"
+
+#: bCNC/plugins/flatten.py:294
+msgid "Raster border"
+msgstr "光栅边延"
+
+#: bCNC/ProbePage.py:452
+msgid "Record"
+msgstr ""
+
+#: bCNC/ProbePage.py:468
+msgid "Record Z coordinate?"
+msgstr ""
+
+#: bCNC/Ribbon.py:624
+msgid "Redo [Ctrl-Y]"
+msgstr "重做 [Ctrl-Y]"
+
+#: bCNC/CNCCanvas.py:2425
+msgid "Redraw display [Ctrl-R]"
+msgstr "刷新[Ctrl-R]"
+
+#: bCNC/plugins/spiral.py:464
+msgid "Reduce Diameter of 4th Axis Stock"
+msgstr ""
+
+#: bCNC/FilePage.py:361
+msgid "Refresh"
+msgstr ""
+
+#: bCNC/FilePage.py:367
+#, fuzzy
+#| msgid "Open/Close serial port"
+msgid "Refresh list of serial ports"
+msgstr "打开/关闭串口"
+
+#: bCNC/ProbePage.py:1740
+msgid "Register:"
+msgstr "记录:"
+
+#: bCNC/ToolsPage.py:1455
+msgid "Rename"
+msgstr "重命名"
+
+#: bCNC/plugins/sketch.py:51
+msgid "Repetition of a point"
+msgstr ""
+
+#: bCNC/FilePage.py:189 bCNC/Utils.py:568
+msgid "Report"
+msgstr "报告"
+
+#: bCNC/Utils.py:701
+msgid "Report successfully send"
+msgstr "报告发送成功"
+
+#: bCNC/Utils.py:702
+msgid "Report was successfully uploaded to web site"
+msgstr "报告已成功上传到网站"
+
+#: bCNC/ControlPage.py:136 bCNC/ControlPage.py:2080
+msgid "Reset"
+msgstr "复位"
+
+#: bCNC/ControlPage.py:2082
+msgid "Reset override to 100%"
+msgstr "将倍率重置为100%"
+
+#: bCNC/plugins/function_plot.py:25
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "Resolution"
+msgstr "分辨率 (角度)"
+
+#: bCNC/plugins/bowl.py:114
+msgid "Resolution (degrees)"
+msgstr "分辨率 (角度)"
+
+#: bCNC/TerminalPage.py:67
+msgid "Restore All"
+msgstr "还原所有"
+
+#: bCNC/TerminalPage.py:64
+msgid "Restore Settings"
+msgstr "还原设置"
+
+#: bCNC/TerminalPage.py:66
+msgid "Restore Workspace"
+msgstr "还原工作区"
+
+#: bCNC/ControlPage.py:493
+msgid "Resume"
+msgstr "恢复"
+
+#: bCNC/ControlPage.py:1517
+msgid "Return ABC to 0."
+msgstr ""
+
+#: bCNC/EditorPage.py:691
+msgid "Reverse"
+msgstr "反向"
+
+#: bCNC/EditorPage.py:699
+msgid "Reverse cut direction for selected gcode blocks"
+msgstr "将所选G代码块反向切割"
+
+#: bCNC/EditorPage.py:466
+msgid "Right"
+msgstr "右"
+
+#: bCNC/plugins/drillmark.py:58
+msgid "Ring mark (d/2)"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:94
+#, fuzzy
+#| msgid "All accepted"
+msgid "Risk Accepted"
+msgstr "全部接受"
+
+#: bCNC/plugins/spiral.py:475
+msgid "Rotary Alignment Axis"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:476
+#, fuzzy
+#| msgid "Mount Axis"
+msgid "Rotary Axis"
+msgstr "安裝轴"
+
+#: bCNC/EditorPage.py:588
+msgid "Rotate selected gcode by 180deg"
+msgstr "所选G代码旋转180度"
+
+#: bCNC/EditorPage.py:573
+msgid "Rotate selected gcode clock-wise (-90deg)"
+msgstr "顺时针旋转所选G代码（-90度）"
+
+#: bCNC/EditorPage.py:604
+msgid "Rotate selected gcode counter-clock-wise (90deg)"
+msgstr "逆时针旋转所选G代码（90度）"
+
+#: bCNC/plugins/simpleRotate.py:68
+#, fuzzy
+#| msgid "Tiled selected blocks"
+msgid "Rotated selected blocks"
+msgstr "平整所选块"
+
+#: bCNC/plugins/simpleRotate.py:19
+msgid "Rotates a block to a new position"
+msgstr ""
+
+#: bCNC/ProbePage.py:1647
+msgid "Rotation:"
+msgstr "旋转:"
+
+#: bCNC/EditorPage.py:213
+msgid "Round"
+msgstr "圆角"
+
+#: bCNC/EditorPage.py:647
+msgid "Route"
+msgstr "路径"
+
+#: bCNC/CNCCanvas.py:2329
+msgid "Ruler [R]"
+msgstr "标尺[R]"
+
+#: bCNC/Sender.py:685
+msgid "Run ended"
+msgstr "运行结束"
+
+#: bCNC/ControlPage.py:184
+msgid "Run g-code commands from editor to controller"
+msgstr "将编辑器g-code命令发送到控制器"
+
+#: bCNC/bmain.py:635
+msgid "Running"
+msgstr "在运行"
+
+#: bCNC/Updates.py:65
+msgid "Running version of bCNC"
+msgstr "运行的bCNC版本"
+
+#: bCNC/bmain.py:2695
+msgid "Running..."
+msgstr "在运行...."
+
+#: bCNC/controllers/_GenericGRBL.py:123
+msgid "SD Card directory listing failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:124
+msgid "SD Card directory not found. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:125
+msgid "SD Card file empty. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:122
+msgid "SD Card file open/read failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:121
+msgid "SD Card mount failed. (grblHAL bdring)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:40
+msgid "STL/PLY Slicer"
+msgstr ""
+
+#: bCNC/ToolsPage.py:740
+msgid "Safe Z"
+msgstr "Z 安全高度"
+
+#: bCNC/plugins/simpleDrill.py:73
+msgid "Safe z secu for G0"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:53
+msgid "Safety door detected as opened and door state initiated."
+msgstr "检测到安全门已打开，门状态被初始化."
+
+#: bCNC/lib/bFileDialog.py:977 bCNC/FilePage.py:153
+msgid "Save"
+msgstr "保存"
+
+#: bCNC/lib/bFileDialog.py:972
+msgid "Save As"
+msgstr "另存为"
+
+#: bCNC/Ribbon.py:594
+msgid "Save all [Ctrl-S]"
+msgstr "保存所有 [Ctrl-S]"
+
+#: bCNC/bmain.py:2366
+msgid "Save file"
+msgstr "存储文件"
+
+#: bCNC/FilePage.py:159
+msgid "Save gcode/dxf AS"
+msgstr "保存gcode / dxf AS"
+
+#: bCNC/FilePage.py:145
+msgid "Save gcode/dxf file [Ctrl-S]"
+msgstr "保存gcode / dxf文件 [Ctrl-S]"
+
+#: bCNC/ProbePage.py:1680
+msgid "Scale:"
+msgstr "幅面:"
+
+#: bCNC/plugins/scaling.py:22
+msgid "Scaling"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:291
+msgid "Scaling Generated"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:175
+msgid "Scaling abort: Please select some path"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:30
+msgid "Scaling the selected block"
+msgstr ""
+
+#: bCNC/plugins/heightmap.py:67 bCNC/ProbePage.py:241 bCNC/ProbePage.py:271
+msgid "Scan"
+msgstr "扫描"
+
+#: bCNC/ProbePage.py:247
+msgid "Scan Autolevel Margins"
+msgstr ""
+
+#: bCNC/ProbePage.py:280
+msgid "Scan probed area for level information on Z plane"
+msgstr "扫描探测区域以获取Z平面上的水平信息"
+
+#: bCNC/plugins/heightmap.py:72
+msgid "ScanDir"
+msgstr "扫描目录"
+
+#: bCNC/EditorPage.py:96
+msgid "Select"
+msgstr "选择"
+
+#: bCNC/FilePage.py:307
+msgid "Select (or manual enter) port to connect"
+msgstr "选择连接端口（手动输入）"
+
+#: bCNC/EditorPage.py:112
+msgid "Select all blocks [Ctrl-A]"
+msgstr "选择所有块[Ctrl-A]"
+
+#: bCNC/EditorPage.py:160
+msgid "Select all blocks from current layer"
+msgstr "选择当前层所有块"
+
+#: bCNC/FilePage.py:323
+msgid "Select connection baud rate"
+msgstr "选择连接波特率"
+
+#: bCNC/FilePage.py:340
+msgid "Select controller board"
+msgstr "选择控制器波特率"
+
+#: bCNC/CNCCanvas.py:430
+msgid "Select objects with mouse"
+msgstr "用鼠标选择对象"
+
+#: bCNC/ProbePage.py:696
+msgid "Select orientation marker"
+msgstr "选择方向标记"
+
+#: bCNC/ControlPage.py:2078
+msgid "Select override type."
+msgstr "选择倍率类型."
+
+#: bCNC/CNCCanvas.py:2288
+msgid "Select tool [S]"
+msgstr "选择[S]"
+
+#: bCNC/plugins/Helical_Descent.py:79
+#, fuzzy
+msgid "Selected Block"
+msgstr "平整所选块"
+
+#: bCNC/FilePage.py:197
+msgid "Send Error Report"
+msgstr "发送错误报告"
+
+#: bCNC/ProbePage.py:66
+msgid "Send M6 commands"
+msgstr "发送M6命令"
+
+#: bCNC/Utils.py:617
+msgid "Send report"
+msgstr "发送报告"
+
+#: bCNC/FilePage.py:289
+msgid "Serial"
+msgstr ""
+
+#: bCNC/bmain.py:2601
+msgid "Serial Error"
+msgstr "串口错误"
+
+#: bCNC/TerminalPage.py:241
+msgid "Serial Terminal"
+msgstr "串行终端"
+
+#: bCNC/bmain.py:2601
+msgid "Serial is not connected"
+msgstr "串口未连接"
+
+#: bCNC/ControlPage.py:735
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set A coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:801
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set ABC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:751
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set B coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:785
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set BC coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:767
+#, fuzzy
+#| msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgid "Set C coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:2101
+msgid "Set Feed/Rapid/Spindle Override. Right or Double click to reset."
+msgstr "设置进给/快速/主轴倍率。右键或双击重置."
+
+#: bCNC/ControlPage.py:436
+msgid "Set WPOS"
+msgstr "设置WPOS"
+
+#: bCNC/ControlPage.py:445
+msgid "Set WPOS to mouse location"
+msgstr "鼠标设置WPOS"
+
+#: bCNC/ControlPage.py:357
+msgid "Set X coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将X坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:407
+msgid "Set XY coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: bCNC/ControlPage.py:424
+msgid "Set XYZ coordinate to zero (or to typed coordinate in WPos)"
+msgstr ""
+
+#: bCNC/ControlPage.py:373
+msgid "Set Y coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将Y坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ControlPage.py:389
+msgid "Set Z coordinate to zero (or to typed coordinate in WPos)"
+msgstr "将Z坐标置零（或在WPos中键入坐标）"
+
+#: bCNC/ProbePage.py:320
+msgid "Set initial probe feed rate for tool change and calibration"
+msgstr "为刀具更换和校准设置初始探测给进率"
+
+#: bCNC/CNCCanvas.py:458
+msgid "Set mouse location as current machine position (X/Y only)"
+msgstr "将鼠标位置设为当前机器位置（仅限X / Y）"
+
+#: bCNC/ControlPage.py:2056
+msgid "Set position [G92 X# Y# Z#]"
+msgstr ""
+
+#: bCNC/ProbePage.py:340
+msgid "Set probe feed rate"
+msgstr "设置探测给进率"
+
+#: bCNC/ControlPage.py:2135
+msgid "Set spindle RPM"
+msgstr "设置主轴转速"
+
+#: bCNC/ProbePage.py:354
+msgid "Set tool offset for probing"
+msgstr "设置刀具探测偏移值"
+
+#: bCNC/controllers/_GenericController.py:163
+#, fuzzy
+#| msgid "Set workspace {} to {}"
+msgid "Set workspace {} to {}"
+msgstr "将工作区{}设置为{}"
+
+#: bCNC/ToolsPage.py:1019
+msgid "Sets if we want to overcut or not."
+msgstr ""
+
+#: bCNC/TerminalPage.py:80
+msgid "Settings"
+msgstr "设置"
+
+#: bCNC/ProbePage.py:165
+msgid "Setup probing for manual tool change"
+msgstr "设置探测手动切换"
+
+#: bCNC/ToolsPage.py:710
+msgid "Shape"
+msgstr "形状"
+
+#: bCNC/plugins/jigsaw.py:369
+msgid "Shape of the tap"
+msgstr "阀门形状"
+
+#: bCNC/ToolsPage.py:579 bCNC/ToolsPage.py:580 bCNC/ToolsPage.py:581
+#: bCNC/ToolsPage.py:582 bCNC/ToolsPage.py:583 bCNC/ToolsPage.py:584
+#: bCNC/ToolsPage.py:585 bCNC/ToolsPage.py:586 bCNC/ToolsPage.py:587
+#: bCNC/ToolsPage.py:588 bCNC/ToolsPage.py:589 bCNC/ToolsPage.py:590
+msgid "Shift-"
+msgstr "Shift-"
+
+#: bCNC/ToolsPage.py:1837
+msgid "Shortcuts"
+msgstr "快捷键"
+
+#: bCNC/ToolsPage.py:1845
+msgid "Shortcuts configuration"
+msgstr "快捷键配置"
+
+#: bCNC/ToolsPage.py:1011
+msgid "Should we machine on inside or outside of the shape?"
+msgstr ""
+
+#: bCNC/ControlPage.py:473
+msgid "Show Info"
+msgstr "显示信息"
+
+#: bCNC/EditorPage.py:773
+msgid "Show cutting information on selected blocks [Ctrl-n]"
+msgstr "显示所选块的切割信息[Ctrl-n]"
+
+#: bCNC/EditorPage.py:757
+msgid "Show statistics for enabled gcode"
+msgstr "显示启用G代码的统计信息"
+
+#: bCNC/ProbePage.py:121
+msgid "Simple probing along a direction"
+msgstr "沿单方向简单探测"
+
+#: bCNC/plugins/heightmap.py:77
+msgid "Single pass"
+msgstr "单程"
+
+#: bCNC/lib/bFileDialog.py:306 bCNC/plugins/hilbert.py:112
+msgid "Size"
+msgstr "尺寸"
+
+#: bCNC/ToolsPage.py:1004
+msgid "Size of this endmill will be used as offset distance"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:20
+msgid "Sketch"
+msgstr "草图"
+
+#: bCNC/plugins/sketch.py:255
+msgid "Sketch abort: Can't read image file"
+msgstr "草图中止: 无法读取图像文件"
+
+#: bCNC/plugins/sketch.py:244
+msgid "Sketch abort: Please let me draw at least 1 squiggle"
+msgstr "草图中止: 请至少画1个曲线"
+
+#: bCNC/plugins/sketch.py:248
+msgid "Sketch abort: Squiggle Length must be > 0"
+msgstr "草图中止: 曲线长度必须大于0"
+
+#: bCNC/plugins/sketch.py:200
+msgid "Sketch abort: This plugin requires PIL/Pillow to read image data"
+msgstr "草图中止: 此插件需要PIL / Pillow读取图象数据"
+
+#: bCNC/plugins/sketch.py:234
+msgid "Sketch abort: Too small to draw anything!"
+msgstr "草图中止: 太小而不能绘制！"
+
+#: bCNC/plugins/slicemesh.py:179
+msgid "Slicing {} {:f} in {:f} -> {:f} of {}"
+msgstr ""
+
+#: bCNC/plugins/function_plot.py:34
+#, fuzzy
+#| msgid "Line length"
+msgid "Small line length"
+msgstr "线长度"
+
+#: bCNC/controllers/_GenericGRBL.py:46
+msgid "Soft limits cannot be enabled without homing also enabled."
+msgstr "若未启用归位，则无法启用软限位."
+
+#: bCNC/ControlPage.py:143
+msgid "Software reset of controller [ctrl-x]"
+msgstr "控制器软复位[ctrl-x]"
+
+#: bCNC/plugins/midi2cnc.py:32
+msgid "Sound your machine from a midi file"
+msgstr "MIDI文件发声"
+
+#: bCNC/ControlPage.py:2112
+msgid "Spindle"
+msgstr "主轴"
+
+#: bCNC/ProbePage.py:1737
+msgid "Spindle Z position when camera was registered"
+msgstr "相机在录后主轴Z位置"
+
+#: bCNC/controllers/_GenericGRBL.py:156
+msgid "Spindle at speed timeout. Clear before continuing. (grblHAL)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:654
+msgid "Spindle max (RPM)"
+msgstr "主轴最高转速（RPM）"
+
+#: bCNC/ToolsPage.py:653
+msgid "Spindle min (RPM)"
+msgstr "主轴最低转速（RPM）"
+
+#: bCNC/ProbePage.py:1854
+msgid "Spindle position is not registered"
+msgstr "主轴位置未记录"
+
+#: bCNC/ProbePage.py:1846
+msgid "Spindle position is registered"
+msgstr "主轴位置已记录"
+
+#: bCNC/ProbePage.py:1855
+msgid "Spindle position must be registered before camera"
+msgstr "主轴位置必须在相机前记录"
+
+#: bCNC/plugins/spiral.py:18
+#, fuzzy
+#| msgid "Spirograph"
+msgid "Spiral"
+msgstr "螺旋形"
+
+#: bCNC/plugins/spiral.py:69
+#, fuzzy
+msgid "Spiral abort: Approach height must be greater than Z Start"
+msgstr "高度图中止: 深度必须< 0"
+
+#: bCNC/plugins/spiral.py:74
+msgid "Spiral abort: Depth Reduction must be negative"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:156 bCNC/plugins/spiral.py:179
+#: bCNC/plugins/spiral.py:192 bCNC/plugins/spiral.py:220
+#: bCNC/plugins/spiral.py:284 bCNC/plugins/spiral.py:318
+#: bCNC/plugins/spiral.py:357 bCNC/plugins/spiral.py:379
+#: bCNC/plugins/spiral.py:430
+msgid "Spiral abort: Rotary Axis Not Assigned."
+msgstr ""
+
+#: bCNC/plugins/spiral.py:60
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Rotary Axis is undefined"
+msgstr "平扩中止: 紧凑类型未定义"
+
+#: bCNC/plugins/spiral.py:64
+#, fuzzy
+#| msgid "Flatten abort: Pocket Type is undefined"
+msgid "Spiral abort: Spiral Type is undefined"
+msgstr "平扩中止: 紧凑类型未定义"
+
+#: bCNC/plugins/spiral.py:80
+msgid "Spiral abort: Step Over exceeds tool limits"
+msgstr ""
+
+#: bCNC/plugins/spiral.py:124
+#, fuzzy
+#| msgid "Flatten abort: Flatten area is too small for this End Mill."
+msgid "Spiral abort: Stock Length is too small for this End Mill."
+msgstr "平扩中止: 平展区域对于该铣刀太小。"
+
+#: bCNC/plugins/spiral.py:100
+#, fuzzy
+msgid "Spiral abort: Stock Length to cut must be positive"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/spiral.py:518
+msgid "Spiral: Reduced 4th Axis Stock"
+msgstr ""
+
+#: bCNC/plugins/spirograph.py:17
+msgid "Spirograph"
+msgstr "螺旋形"
+
+#: bCNC/EditorPage.py:401
+msgid "Split"
+msgstr ""
+
+#: bCNC/EditorPage.py:407
+msgid "Split selected blocks"
+msgstr ""
+
+#: bCNC/ToolsPage.py:795
+msgid "Spring pass"
+msgstr ""
+
+#: bCNC/plugins/sketch.py:46
+msgid "Squiggle Length"
+msgstr "曲线长度"
+
+#: bCNC/plugins/sketch.py:45
+msgid "Squiggle total count"
+msgstr "曲线总数"
+
+#: bCNC/ControlPage.py:178 bCNC/FilePage.py:238
+msgid "Start"
+msgstr "启动"
+
+#: bCNC/plugins/simpleArc.py:68
+msgid "Start Angle in Degrees"
+msgstr ""
+
+#: bCNC/ControlPage.py:2175
+msgid "Start flood (M8)"
+msgstr ""
+
+#: bCNC/ControlPage.py:2189
+msgid "Start mist (M7)"
+msgstr ""
+
+#: bCNC/FilePage.py:246
+msgid "Start pendant"
+msgstr "开始挂接"
+
+#: bCNC/ToolsPage.py:652
+msgid "Start up"
+msgstr "启动"
+
+#: bCNC/ControlPage.py:2121
+msgid "Start/Stop spindle (M3/M5)"
+msgstr "启动/停止主轴(M3/M5)"
+
+#: bCNC/TerminalPage.py:140
+msgid "Startup"
+msgstr "启动"
+
+#: bCNC/ControlPage.py:1877 bCNC/TerminalPage.py:110
+msgid "State"
+msgstr "状态"
+
+#: bCNC/ControlPage.py:611 bCNC/ControlPage.py:918
+#, fuzzy
+#| msgid "State: {}"
+msgid "State: {}"
+msgstr "状态: {}"
+
+#: bCNC/EditorPage.py:750 bCNC/bmain.py:1133
+msgid "Statistics"
+msgstr "统计"
+
+#: bCNC/ControlPage.py:236
+msgid "Status:"
+msgstr "状态:"
+
+#: bCNC/ProbePage.py:1234
+msgid "Step"
+msgstr "步进"
+
+#: bCNC/plugins/zigzag.py:109
+msgid "Step distance"
+msgstr "步进距离"
+
+#: bCNC/ControlPage.py:1562
+#, fuzzy
+#| msgid "Step for Z move operation"
+msgid "Step for A move operation"
+msgstr "Z移动操作步进"
+
+#: bCNC/ControlPage.py:1090
+msgid "Step for Z move operation"
+msgstr "Z移动操作步进"
+
+#: bCNC/ControlPage.py:1075 bCNC/ControlPage.py:1546
+msgid "Step for every move operation"
+msgstr "每次移动操作步进"
+
+#: bCNC/ControlPage.py:1265 bCNC/ControlPage.py:1739
+#, fuzzy
+#| msgid "Step: {:g}"
+msgid "Step: {:g}"
+msgstr "步进: {:g}"
+
+#: bCNC/ControlPage.py:1744
+#, fuzzy
+#| msgid "Step: {:g}    Zstep:{:g} "
+msgid "Step: {:g}   Astep:{:g} "
+msgstr "步进: {:g}    Z步进:{:g} "
+
+#: bCNC/ControlPage.py:1270
+#, fuzzy
+#| msgid "Step: {:g}    Zstep:{:g} "
+msgid "Step: {:g}  Zstep: {:g} "
+msgstr "步进: {:g}    Z步进:{:g} "
+
+#: bCNC/ToolsPage.py:718
+msgid "Stepover %"
+msgstr "步进超出%"
+
+#: bCNC/plugins/spiral.py:480
+msgid "Stepover (spiral=mm, lines=deg)"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1405
+msgid "Stock"
+msgstr "工件"
+
+#: bCNC/ToolsPage.py:1413
+msgid "Stock material currently on machine"
+msgstr "机器上的工件材料"
+
+#: bCNC/ControlPage.py:208 bCNC/FilePage.py:251
+msgid "Stop"
+msgstr "停止"
+
+#: bCNC/ControlPage.py:2161
+msgid "Stop cooling (M9)"
+msgstr ""
+
+#: bCNC/FilePage.py:259
+msgid "Stop pendant"
+msgstr "停止挂接"
+
+#: bCNC/ToolsPage.py:741 bCNC/ToolsPage.py:766
+msgid "Surface Z"
+msgstr "Z 表面"
+
+#: bCNC/ProbePage.py:1543
+msgid "Switch To"
+msgstr "切换到"
+
+#: bCNC/ProbePage.py:1553
+msgid "Switch between camera and spindle"
+msgstr "在相机和主轴之间切换"
+
+#: bCNC/ControlPage.py:1904
+#, fuzzy
+#| msgid "Switch to workspace {}"
+msgid "Switch to workspace {}"
+msgstr "切换到工作区{}"
+
+#: bCNC/ProbePage.py:347
+msgid "TLO"
+msgstr "TLO"
+
+#: bCNC/ControlPage.py:2029
+msgid "TLO:"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1638
+msgid "Tabs"
+msgstr "标记"
+
+#: bCNC/plugins/trochoidPath.py:63
+#, fuzzy
+#| msgid "Diameter"
+msgid "Tabs Diameter"
+msgstr "直径"
+
+#: bCNC/plugins/trochoidPath.py:64
+#, fuzzy
+#| msgid "Height"
+msgid "Tabs Height"
+msgstr "高度"
+
+#: bCNC/ToolsPage.py:1153
+msgid "Tabs error"
+msgstr "标签错误"
+
+#: bCNC/plugins/driller.py:46 bCNC/plugins/spirograph.py:122
+#: bCNC/plugins/trochoidPath.py:53 bCNC/plugins/trochoidal_3D.py:82
+#: bCNC/ToolsPage.py:767 bCNC/ToolsPage.py:939
+msgid "Target Depth"
+msgstr "目标深度"
+
+#: bCNC/plugins/simpleDrill.py:69
+msgid "Target z (negative under surface)"
+msgstr ""
+
+#: bCNC/TerminalPage.py:38 bCNC/TerminalPage.py:189
+msgid "Terminal"
+msgstr "终端"
+
+#: bCNC/TerminalPage.py:205
+msgid "Terminal communication with controller"
+msgstr "与控制器的端子通信"
+
+#: bCNC/plugins/text.py:94
+#, fuzzy
+#| msgid "Text abort: That embarrassing, I can't read this font file!"
+msgid "Text abort: That's embarrassing, I can't read this font file!"
+msgstr "文本中止: 不能读这个字体文件！"
+
+#: bCNC/plugins/text.py:62
+msgid "Text abort: please input a Font size > 0"
+msgstr "文本中止: 请输入字体大小> 0"
+
+#: bCNC/plugins/text.py:65
+msgid "Text abort: please select a font file"
+msgstr "文本中止: 请选择字体文件"
+
+#: bCNC/plugins/text.py:38
+msgid "Text to generate"
+msgstr "生成文本"
+
+#: bCNC/Utils.py:573
+#, fuzzy
+#| msgid "The following report is about to be send to the author of {}"
+msgid "The following report is about to be send to the author of {}"
+msgstr "以下报告将发送给{}的作者"
+
+#: bCNC/plugins/sketch.py:239
+msgid "The maximum illumination shouldn't be more than 250!"
+msgstr ""
+
+#: bCNC/Utils.py:695
+msgid "There was a problem connecting to the web site"
+msgstr "连接到网站时出现问题"
+
+#: bCNC/ToolsPage.py:742
+msgid "Thickness"
+msgstr "厚度"
+
+#: bCNC/plugins/Helical_Descent.py:57
+msgid "This is my Helical Descent"
+msgstr ""
+
+#: bCNC/plugins/tile.py:13
+msgid "Tile"
+msgstr "平整"
+
+#: bCNC/plugins/Random.py:44 bCNC/plugins/simpleRotate.py:48
+#: bCNC/plugins/simpleTranslate.py:46 bCNC/plugins/tile.py:44
+msgid "Tile error"
+msgstr "平整錯誤"
+
+#: bCNC/plugins/Random.py:80 bCNC/plugins/tile.py:85
+msgid "Tiled selected blocks"
+msgstr "平整所选块"
+
+#: bCNC/bmain.py:1222 bCNC/bmain.py:1301
+msgid "Time:"
+msgstr "时间:"
+
+#: bCNC/CNCCanvas.py:2437
+#, fuzzy
+msgid "Timeout:"
+msgstr "时间:"
+
+#: bCNC/CNCCanvas.py:2347
+msgid "Toggle display of axes"
+msgstr "轴"
+
+#: bCNC/CNCCanvas.py:2418
+msgid "Toggle display of camera"
+msgstr "相机"
+
+#: bCNC/CNCCanvas.py:2357
+msgid "Toggle display of grid lines"
+msgstr "网格线"
+
+#: bCNC/CNCCanvas.py:2367
+msgid "Toggle display of margins"
+msgstr "边界"
+
+#: bCNC/CNCCanvas.py:2388
+msgid "Toggle display of paths (G1,G2,G3)"
+msgstr "路径（G1，G2，G3）"
+
+#: bCNC/CNCCanvas.py:2378
+msgid "Toggle display of probe"
+msgstr "探针"
+
+#: bCNC/CNCCanvas.py:2398
+msgid "Toggle display of rapid motion (G0)"
+msgstr "快速运动（G0）"
+
+#: bCNC/CNCCanvas.py:2408
+msgid "Toggle display of workarea"
+msgstr "工作区"
+
+#: bCNC/EditorPage.py:316
+msgid "Toggle enable/disable block of g-code [Ctrl-L]"
+msgstr "切换G代码块启用/禁用[Ctrl-L]"
+
+#: bCNC/EditorPage.py:359
+msgid "Toggle expand/collapse blocks of gcode [Ctrl-E]"
+msgstr "切换G代码块展开/折叠[Ctrl-E]"
+
+#: bCNC/ToolsPage.py:1662
+msgid "Toggle island"
+msgstr ""
+
+#: bCNC/ProbePage.py:158
+msgid "Tool"
+msgstr "工具"
+
+#: bCNC/Utils.py:852
+msgid "Tool Tip:"
+msgstr "刀具提示:"
+
+#: bCNC/ProbePage.py:1979
+msgid "Tool change policy"
+msgstr "刀具更换策略"
+
+#: bCNC/ControlPage.py:2041
+msgid "Tool length offset [G43.1#]"
+msgstr ""
+
+#: bCNC/ControlPage.py:1957
+msgid "Tool number [T#]"
+msgstr "刀具编号[T#]"
+
+#: bCNC/ProbePage.py:2127
+msgid "Tool probe height"
+msgstr "刀具探测高度"
+
+#: bCNC/CNCCanvas.py:2273 bCNC/ControlPage.py:1950
+msgid "Tool:"
+msgstr "工具:"
+
+#: bCNC/Utils.py:857
+msgid "Tooltip for button"
+msgstr "按钮刀具提示"
+
+#: bCNC/EditorPage.py:462
+msgid "Top"
+msgstr "上部"
+
+#: bCNC/EditorPage.py:459
+msgid "Top-Left"
+msgstr "左上角"
+
+#: bCNC/EditorPage.py:465
+msgid "Top-Right"
+msgstr "右上角"
+
+#: bCNC/EditorPage.py:558
+msgid "Transform"
+msgstr "转换"
+
+#: bCNC/plugins/simpleTranslate.py:19
+msgid "Translates a block to a new position"
+msgstr ""
+
+#: bCNC/ToolsPage.py:647
+msgid "Travel x"
+msgstr "x 行程"
+
+#: bCNC/ToolsPage.py:648
+msgid "Travel y"
+msgstr "y 行程"
+
+#: bCNC/ToolsPage.py:649
+msgid "Travel z"
+msgstr "z 行程"
+
+#: bCNC/plugins/trochoidal_3D.py:47
+msgid "Trochoid Cut Diameter"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:402
+#, fuzzy
+msgid "Trochoid Cut Diameter has to be greater than End mill"
+msgstr "中止Halftone处理: 最小直径必须是最大值"
+
+#: bCNC/plugins/trochoidal_3D.py:1672
+msgid "Trochoid Generated"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:397
+#, fuzzy
+#| msgid "Driller abort: Please select some path"
+msgid "Trochoid abort: Please select some path"
+msgstr "钻机中止: 请选择一些路径"
+
+#: bCNC/plugins/trochoidal.py:52
+msgid "Trochoid diameter (<= cutter D)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:49
+msgid "Trochoid entry (prepare for helicut)"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:18
+msgid "Trochoidal"
+msgstr ""
+
+#: bCNC/plugins/trochoidPath.py:20
+msgid "Trochoidal Path"
+msgstr ""
+
+#: bCNC/plugins/trochoidal.py:24
+msgid "Trochoidal g-code postprocessor"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:30
+msgid "Trochoidcut"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:50
+msgid "Trochoids Advance"
+msgstr ""
+
+#: bCNC/ProbePage.py:1568
+msgid "Turn on/off edge detection"
+msgstr "开/关边缘检测"
+
+#: bCNC/ProbePage.py:1583
+msgid "Turn on/off freeze image"
+msgstr "开/关冻结图象"
+
+#: bCNC/lib/bFileDialog.py:305 bCNC/ToolsPage.py:709
+msgid "Type"
+msgstr "类型"
+
+#: bCNC/plugins/trochoidal_3D.py:56
+msgid "Type of Splice"
+msgstr ""
+
+#: bCNC/plugins/drillmark.py:56
+#, fuzzy
+#| msgid "Shape of the tap"
+msgid "Type of the mark"
+msgstr "阀门形状"
+
+#: bCNC/Ribbon.py:604
+msgid "Undo [Ctrl-Z]"
+msgstr "撤消 [Ctrl-Z]"
+
+#: bCNC/ToolsPage.py:636
+msgid "Units (inches)"
+msgstr "单位（英寸）"
+
+#: bCNC/ControlPage.py:1942
+msgid "Units [G20, G21]"
+msgstr "单位 [G20, G21]"
+
+#: bCNC/ControlPage.py:1931
+msgid "Units:"
+msgstr "单位:"
+
+#: bCNC/ControlPage.py:108
+msgid "Unlock"
+msgstr "解锁"
+
+#: bCNC/ControlPage.py:115
+msgid "Unlock controller [$X]"
+msgstr "解锁控制器[$X]"
+
+#: bCNC/EditorPage.py:128
+msgid "Unselect all blocks [Ctrl-Shift-A]"
+msgstr "取消所有块[Ctrl-Shift-A]"
+
+#: bCNC/controllers/_GenericGRBL.py:60
+msgid "Unsupported or invalid g-code command found in block."
+msgstr "在块中有不支持或无效的g代码命令."
+
+#: bCNC/EditorPage.py:505
+msgid "Up"
+msgstr "上"
+
+#: bCNC/FilePage.py:203
+msgid "Updates"
+msgstr "更新"
+
+#: bCNC/plugins/heightmap.py:56
+#, fuzzy
+#| msgid "Use a brightess map to create a variable Z path"
+msgid "Use a brightness map to create a variable Z path"
+msgstr "使用亮度图创建变量Z路径"
+
+#: bCNC/plugins/driller.py:49
+msgid "Use anchor"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1921
+msgid "User File"
+msgstr "用户文件"
+
+#: bCNC/Utils.py:823
+msgid "User configurable button"
+msgstr "用户可配置按钮"
+
+#: bCNC/ToolsPage.py:1981
+msgid "Value"
+msgstr "值"
+
+#: bCNC/controllers/_GenericGRBL.py:107
+msgid "Value out of range. (grblHAL)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:118
+msgid "Value word conflict. (grblHAL)"
+msgstr ""
+
+#: bCNC/EditorPage.py:627
+msgid "Vertical"
+msgstr "垂直"
+
+#: bCNC/plugins/endmilloffset.py:567 bCNC/bmain.py:2146
+#, fuzzy
+#| msgid "WARNING: {}"
+msgid "WARNING: {}"
+msgstr "警告:{}"
+
+#: bCNC/ControlPage.py:261 bCNC/ProbePage.py:765
+msgid "WPos:"
+msgstr "Wpos:"
+
+#: bCNC/bmain.py:2524
+msgid "Warning"
+msgstr "警告"
+
+#: bCNC/plugins/function_plot.py:110
+#, fuzzy
+#| msgid "Warning"
+msgid "Warning: "
+msgstr "警告"
+
+#: bCNC/ToolsPage.py:621
+msgid "Web Camera"
+msgstr "网页相机"
+
+#: bCNC/ToolsPage.py:624
+msgid "Web Camera Angle"
+msgstr "网页相机角度"
+
+#: bCNC/ToolsPage.py:623
+msgid "Web Camera Height"
+msgstr "网页相机高度"
+
+#: bCNC/ToolsPage.py:622
+msgid "Web Camera Width"
+msgstr "网页相机宽度"
+
+#: bCNC/plugins/box.py:348
+msgid "Width Dx"
+msgstr "宽度 Dx"
+
+#: bCNC/plugins/flatten.py:291
+msgid "Width to flatten"
+msgstr "宽度平扩"
+
+#: bCNC/ProbePage.py:149
+msgid "Work surface camera view and alignment"
+msgstr "工作面相机视角与对齐"
+
+#: bCNC/plugins/halftone.py:52 bCNC/plugins/sketch.py:43
+#: bCNC/plugins/text.py:39 bCNC/plugins/heightmap.py:65
+#: bCNC/plugins/pyrograph.py:39
+msgid "Working Depth"
+msgstr "加工深度"
+
+#: bCNC/plugins/simpleDrill.py:67 bCNC/ControlPage.py:1015
+msgid "X"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:80
+msgid "X Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:39
+msgid "X Scale"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:42
+#, fuzzy
+#| msgid "Center"
+msgid "X Y Center"
+msgstr "中心"
+
+#: bCNC/ProbePage.py:1275
+msgid "X bins"
+msgstr "X 容距"
+
+#: bCNC/plugins/function_plot.py:30
+#, fuzzy
+#| msgid "Internal Dimensions"
+msgid "X dimension"
+msgstr "内部坐标"
+
+#: bCNC/ProbePage.py:1255
+msgid "X maximum"
+msgstr "X 最大值"
+
+#: bCNC/ProbePage.py:1247
+msgid "X minimum"
+msgstr "X 最小值"
+
+#: bCNC/plugins/function_plot.py:32
+msgid "X number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:289 bCNC/plugins/spiral.py:472
+msgid "X start"
+msgstr "X 开始"
+
+#: bCNC/ProbePage.py:1263
+msgid "X step"
+msgstr "X 步进"
+
+#: bCNC/ControlPage.py:274
+msgid "X work position (click to set)"
+msgstr "X 工作位置（点击设置）"
+
+#: bCNC/ProbePage.py:1241
+msgid "X:"
+msgstr ""
+
+#: bCNC/ControlPage.py:349
+msgid "X=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:399
+msgid "XY=0"
+msgstr ""
+
+#: bCNC/ControlPage.py:415
+msgid "XYZ=0"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:68 bCNC/ControlPage.py:936
+msgid "Y"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:81
+msgid "Y Initial"
+msgstr ""
+
+#: bCNC/plugins/scaling.py:40
+msgid "Y Scale"
+msgstr ""
+
+#: bCNC/ProbePage.py:1315
+msgid "Y bins"
+msgstr "Y 容距"
+
+#: bCNC/plugins/function_plot.py:31
+#, fuzzy
+#| msgid "Internal Dimensions"
+msgid "Y dimension"
+msgstr "内部坐标"
+
+#: bCNC/ProbePage.py:1295
+msgid "Y maximum"
+msgstr "Y 最大值"
+
+#: bCNC/ProbePage.py:1287
+msgid "Y minimum"
+msgstr "Y 最小值"
+
+#: bCNC/plugins/function_plot.py:33
+msgid "Y number line xpacing"
+msgstr ""
+
+#: bCNC/plugins/flatten.py:290 bCNC/plugins/spiral.py:473
+msgid "Y start"
+msgstr "Y 开始"
+
+#: bCNC/ProbePage.py:1303
+msgid "Y step"
+msgstr "Y 步进"
+
+#: bCNC/ControlPage.py:290
+msgid "Y work position (click to set)"
+msgstr "Y 工作位置（点击设置）"
+
+#: bCNC/ProbePage.py:1281
+msgid "Y:"
+msgstr ""
+
+#: bCNC/ControlPage.py:365
+msgid "Y=0"
+msgstr ""
+
+#: bCNC/ToolsPage.py:1154
+msgid "You cannot have both the number of tabs or distance equal to zero"
+msgstr "标签数量或距离不能同时为零"
+
+#: bCNC/ToolsPage.py:807
+msgid "You should probably always use 'on path', unless you are threadmilling!"
+msgstr ""
+
+#: bCNC/Utils.py:591
+msgid "Your email"
+msgstr "你的E-mail地址"
+
+#: bCNC/ControlPage.py:933 bCNC/ProbePage.py:462
+msgid "Z"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:88
+msgid "Z Feed Multiplier"
+msgstr ""
+
+#: bCNC/plugins/Helical_Descent.py:82
+msgid "Z Initial"
+msgstr ""
+
+#: bCNC/ProbePage.py:1328
+msgid "Z Minimum depth to scan"
+msgstr "Z轴向最小扫描深度"
+
+#: bCNC/plugins/scaling.py:41
+msgid "Z Scale"
+msgstr ""
+
+#: bCNC/plugins/simpleDrill.py:72
+msgid "Z feed for drilling"
+msgstr ""
+
+#: bCNC/ProbePage.py:1336
+msgid "Z safe to move"
+msgstr "Z轴安全高度"
+
+#: bCNC/plugins/spiral.py:474
+#, fuzzy
+#| msgid "X start"
+msgid "Z start"
+msgstr "X 开始"
+
+#: bCNC/ControlPage.py:306
+msgid "Z work position (click to set)"
+msgstr "Z 工作位置（点击设置）"
+
+#: bCNC/ProbePage.py:1322
+msgid "Z:"
+msgstr ""
+
+#: bCNC/ControlPage.py:381
+msgid "Z=0"
+msgstr ""
+
+#: bCNC/ProbePage.py:202
+msgid "Zero"
+msgstr "零"
+
+#: bCNC/plugins/zigzag.py:15
+msgid "Zig-Zag"
+msgstr "折线"
+
+#: bCNC/plugins/zigzag.py:148
+msgid "Zig-Zag abort: depth must be minor or equal to zero"
+msgstr "中止折线处理：深度必须小于或等于零"
+
+#: bCNC/plugins/zigzag.py:143
+msgid "Zig-Zag abort: verify CornerRes >= 0"
+msgstr "中止折线处理：请确认CornerRes >= 0"
+
+#: bCNC/plugins/zigzag.py:135
+msgid "Zig-Zag abort: verify LineLen > 0"
+msgstr "中止折线处理：请确认LineLen > 0"
+
+#: bCNC/plugins/zigzag.py:131
+msgid "Zig-Zag abort: verify Nlines > 0"
+msgstr "中止折线处理：请确认Nlines > 0"
+
+#: bCNC/plugins/zigzag.py:139
+msgid "Zig-Zag abort: verify Step > 0"
+msgstr "中止折线处理：请确认Step > 0"
+
+#: bCNC/CNCCanvas.py:2256
+msgid "Zoom In [Ctrl-=]"
+msgstr "放大[Ctrl- =]"
+
+#: bCNC/CNCCanvas.py:2263
+msgid "Zoom Out [Ctrl--]"
+msgstr "缩小[Ctrl--]"
+
+#: bCNC/ControlPage.py:1400
+#, fuzzy
+#| msgid "Control"
+msgid "abcControl"
+msgstr "控制"
+
+#: bCNC/ControlPage.py:625
+msgid "abcDRO"
+msgstr ""
+
+#: bCNC/ControlPage.py:637
+#, fuzzy
+#| msgid "WPos:"
+msgid "abcWPos:"
+msgstr "Wpos:"
+
+#: bCNC/plugins/endmilloffset.py:479
+msgid "acts like a tool corrector inside the profile"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:28
+#, fuzzy
+#| msgid "Resolution (degrees)"
+msgid "angle step (degrees)"
+msgstr "分辨率 (角度)"
+
+#: bCNC/plugins/dragknife.py:54
+msgid "angle threshold"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:38
+msgid "arc precision (mm)"
+msgstr ""
+
+#: bCNC/controllers/_GenericGRBL.py:12
+msgid "bCNC is currently sending a gcode program to Grbl"
+msgstr "bCNC正在向Grbl发送一个G代码程序"
+
+#: bCNC/plugins/simpleRectangle.py:97
+msgid "clockwise"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:48
+msgid "distance from dragknife rotation center to the tip of the blade"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:55
+msgid "do not perform pivot action for angles smaller than this"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:47
+msgid "dragknife offset"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:678
+#, fuzzy
+#| msgid "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+msgid "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+msgstr "dx={:g}  dy={:g}  dz={:g}  length={:g}  angle={:g}"
+
+#: bCNC/plugins/dragknife.py:75
+msgid "feedrate"
+msgstr ""
+
+#: bCNC/ProbePage.py:2047 bCNC/ProbePage.py:2092
+msgid "get"
+msgstr "获取"
+
+#: bCNC/plugins/arcfit.py:39
+msgid "how precisely must arc fit. set to 0 to disable arc fitting"
+msgstr ""
+
+#: bCNC/plugins/endmilloffset.py:463
+msgid "indicates the direction (inside / outside) for making profiles"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:70
+msgid "initial direction"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:83
+msgid "layer height (0 = only single zmin)"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:45
+msgid "line precision (mm)"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:88
+msgid "maximum Z height"
+msgstr ""
+
+#: bCNC/plugins/arcfit.py:50
+msgid "minimal number of segments to create arc"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:86
+msgid "minimum Z height"
+msgstr ""
+
+#: bCNC/plugins/simpleRotate.py:29 bCNC/plugins/simpleTranslate.py:28
+msgid "nb repeat including original"
+msgstr ""
+
+#: bCNC/CNCCanvas.py:627
+#, fuzzy
+#| msgid "origin {:g} {:g} {:g}"
+msgid "origin {:g} {:g} {:g}"
+msgstr "源点 {:g} {:g} {:g}"
+
+#: bCNC/bmain.py:3097
+msgid "python serial missing"
+msgstr "Python串口丟失"
+
+#: bCNC/plugins/slicemesh.py:74
+msgid "scale factor"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:39
+msgid "segment size"
+msgstr ""
+
+#: bCNC/ControlPage.py:1961 bCNC/ControlPage.py:2003 bCNC/ControlPage.py:2045
+#: bCNC/ProbePage.py:360
+msgid "set"
+msgstr "组"
+
+#: bCNC/plugins/dragknife.py:80
+msgid "simulate"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:89
+msgid "simulation precision"
+msgstr ""
+
+#: bCNC/plugins/slicemesh.py:23
+msgid "slicemesh"
+msgstr ""
+
+#: bCNC/plugins/trochoidal_3D.py:101
+msgid "splice steps every 360 degrees"
+msgstr ""
+
+#: bCNC/plugins/linearize.py:48
+msgid "subdiv lines"
+msgstr ""
+
+#: bCNC/plugins/dragknife.py:61
+msgid "swivel height"
+msgstr ""
+
+#: bCNC/Sender.py:355
+msgid "unknown command"
+msgstr "未知的命令"
+
+#: bCNC/plugins/simpleRotate.py:26
+#, fuzzy
+#| msgid "Center"
+msgid "x center"
+msgstr "中心"
+
+#: bCNC/plugins/simpleTranslate.py:26
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "x increment"
+msgstr "深度增量"
+
+#: bCNC/plugins/simpleLine.py:52 bCNC/plugins/simpleRectangle.py:93
+msgid "xEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:51 bCNC/plugins/simpleRectangle.py:92
+#, fuzzy
+#| msgid "Start"
+msgid "xStart"
+msgstr "启动"
+
+#: bCNC/plugins/simpleRotate.py:27
+#, fuzzy
+#| msgid "Center"
+msgid "y center"
+msgstr "中心"
+
+#: bCNC/plugins/simpleTranslate.py:27
+#, fuzzy
+#| msgid "Depth Increment"
+msgid "y increment"
+msgstr "深度增量"
+
+#: bCNC/plugins/simpleLine.py:54 bCNC/plugins/simpleRectangle.py:95
+msgid "yEnd"
+msgstr ""
+
+#: bCNC/plugins/simpleLine.py:53 bCNC/plugins/simpleRectangle.py:94
+#, fuzzy
+#| msgid "Start"
+msgid "yStart"
+msgstr "启动"
+
+#: bCNC/plugins/slicemesh.py:77
+msgid "z offset"
+msgstr ""
+
+#~ msgid ""
+#~ "ERROR: Please install the python pyserial module\n"
+#~ "Windows:\n"
+#~ "\tC:\\PythonXX\\Scripts\\easy_install pyserial\n"
+#~ "Mac:\tpip install pyserial\n"
+#~ "Linux:\tsudo apt-get install python-serial\n"
+#~ "\tor yum install python-serial\n"
+#~ "\tor dnf install python-pyserial"
+#~ msgstr ""
+#~ "错误：请安装Python pyserial模块\n"
+#~ "Windows：\n"
+#~ "\tC:\\ PythonXX \\ Scripts \\ easy_install pyserial\n"
+#~ "Mac:\tpip install Python\n"
+#~ "Linux:\tsudo apt-get install Python-serial\n"
+#~ "\tor yum install Python-serial\n"
+#~ "\tor dnf install Python-pyserial"
+
+#~ msgid "Color configuration"
+#~ msgstr "顔色配置"
+
+#~ msgid "Font configuration"
+#~ msgstr "字体配置"
+
+#~ msgid "Tools"
+#~ msgstr "工具"
+
+#~ msgid "Set current location as Z-zero for leveling"
+#~ msgstr "将当前位置设置为Z轴0点调平"
+
+#~ msgid "Inkscape"
+#~ msgstr "Inkscape"
