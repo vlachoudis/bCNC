@@ -196,7 +196,7 @@ class Sender:
     def executeGcode(self, line):
         if (
             isinstance(line, tuple)
-            or line[0] in ("$", "!", "~", "?", "(", "@")
+            or line[0] in ("$", "!", "~", "?", "(", "@", "{")
             or GPAT.match(line)
         ):
             self.sendGCode(line)
@@ -512,6 +512,7 @@ class Sender:
             pass
         time.sleep(1)
         self.serial_write("\n\n")
+        self.mcontrol.initController()
         self._gcount = 0
         self._alarm = True
         self.thread = threading.Thread(target=self.serialIO)
