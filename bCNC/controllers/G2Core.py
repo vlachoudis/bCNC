@@ -76,43 +76,36 @@ class Controller(_GenericController):
 		return states[state]
 
 	def setState(self, stat):
-		try:
-			state = self.mapState(stat)
-			if CNC.vars["state"] != state or self.master.runningPrev != self.master.running:
-				self.master.controllerStateChange(state)
-			self.master.runningPrev = self.master.running
+		state = self.mapState(stat)
+		if CNC.vars["state"] != state or self.master.runningPrev != self.master.running:
+			self.master.controllerStateChange(state)
+		self.master.runningPrev = self.master.running
 
-			self.displayState(state)
-		except:
-			pass
+		self.displayState(state)
 
 	def processStatusReport(self, sr):
 		if "stat" in sr:
 			self.setState(sr["stat"])
-		try:
-			if "feed" in sr:
-				CNC.vars["curfeed"] = float(sr["feed"])
-			# if "vel" in sr:
-			# 	CNC.vars["curvel"] = float(sr["vel"])
-			# "line" comes back, but only matters if gcode has it.
-			# spindle does not.  Nor a responds from gcode changing.
-			# "tool" in theory could return haven't seen it.
-			# "units",  "coor" come back
-			if "unit" in sr:
-				CNC.vars["unit"] = float(sr["unit"])
-			if "posx" in sr:
-				CNC.vars["mx"] = float(sr["posx"]) #( relative!)
-			if "posy" in sr:
-				CNC.vars["my"] = float(sr["posy"])# mposx is absolute machine
-			if "posz" in sr:
-				CNC.vars["mz"] = float(sr["posz"])
-			CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-			CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-			CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
-			self.master._posUpdate = True
-		except:
-			print("Problem parsing status report")
-			pass
+		if "feed" in sr:
+			CNC.vars["curfeed"] = float(sr["feed"])
+		# if "vel" in sr:
+		# 	CNC.vars["curvel"] = float(sr["vel"])
+		# "line" comes back, but only matters if gcode has it.
+		# spindle does not.  Nor a responds from gcode changing.
+		# "tool" in theory could return haven't seen it.
+		# "units",  "coor" come back
+		if "unit" in sr:
+			CNC.vars["unit"] = float(sr["unit"])
+		if "posx" in sr:
+			CNC.vars["mx"] = float(sr["posx"]) #( relative!)
+		if "posy" in sr:
+			CNC.vars["my"] = float(sr["posy"])# mposx is absolute machine
+		if "posz" in sr:
+			CNC.vars["mz"] = float(sr["posz"])
+		CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
+		CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
+		CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+		self.master._posUpdate = True
 
 	def processErrorReport(er):
 		fb = er["fb"]
@@ -210,7 +203,6 @@ class Controller(_GenericController):
 		# self.master.serial_write(b"?\n")
 		self.master.serial_write(b"{sr:n}\n")
 		self.master.sio_status = True
-		pass
 
 	def viewParameters(self):
 		self.master.sendGCode("$$\n")
@@ -220,10 +212,10 @@ class Controller(_GenericController):
 		# self.master.sendGCode('{"sr":n}\n')
 		self.master.serial_write('{"sr":n}\n')
 
-# Recognized single character commands are:
-# ! - Feedhold request
-# ~ - Feedhold exit (restart)
-# % - Queue flush
-# ^d - Kill job (ASCII 0x04)
-# ^x - Reset board (ASCII 0x18)
-# ENQ - Enquire communications status (ASCII 0x05)
+	# Recognized single character commands are:
+	# ! - Feedhold request
+	# ~ - Feedhold exit (restart)
+	# % - Queue flush
+	# ^d - Kill job (ASCII 0x04)
+	# ^x - Reset board (ASCII 0x18)
+	# ENQ - Enquire communications status (ASCII 0x05)
