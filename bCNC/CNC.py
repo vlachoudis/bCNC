@@ -4519,6 +4519,7 @@ class GCode:
                     "ccw",
                     "pocket",
                 ]
+
                 if name is None:
                     path.name = Block.operationName(
                         path.name, "pocket,conventional,cw", remove
@@ -4526,7 +4527,12 @@ class GCode:
                 else:
                     path.name = Block.operationName(path.name, name, remove)
 
-                newpath.extend(self._pocket(path, -D * diameter, stepover, 0))
+#                newpath.extend(self._pocket(path, -D * diameter, stepover, 0))
+                try:
+                    newpath.extend(self._pocket(path, -D*diameter, stepover, 0))
+                except:
+                    msg="'%s' is too narrow to generate a pocket"%(path.name)
+                    pass
 
             if newpath:
                 # remember length to shift all new blocks
