@@ -6,6 +6,8 @@ import time
 
 from CNC import CNC, WCS
 
+import Utils
+
 # GRBLv1
 SPLITPAT = re.compile(r"[:,]")
 
@@ -28,6 +30,15 @@ VARPAT = re.compile(r"^\$(\d+)=(\d*\.?\d*) *\(?.*")
 class _GenericController:
     def test(self):
         print("test supergen")
+
+    def initController(self):
+        text = Utils.getStr("Controller","initstring")
+        if text:
+            # Deal with a device in feedhold from prior session
+            self.master.serial_write("%~\n")
+            time.sleep(1)
+            # And write out the firmware config
+            self.master.serial_write(text)
 
     def executeCommand(self, oline, line, cmd):
         return False
