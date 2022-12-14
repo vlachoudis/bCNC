@@ -1,4 +1,4 @@
-# Smoothieboard motion controller plugin
+# G2Core motion controller plugin
 
 from __future__ import absolute_import
 from __future__ import print_function
