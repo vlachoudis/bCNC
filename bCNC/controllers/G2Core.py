@@ -107,7 +107,7 @@ class Controller(_GenericController):
         CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
         self.master._posUpdate = True
 
-    def processErrorReport(er):
+    def processErrorReport(self, er):
         fb = er["fb"]
         st = er["st"]
         msg = er["msg"]
@@ -121,7 +121,7 @@ class Controller(_GenericController):
         if "sr" in values:
             self.processStatusReport(values["sr"])
         if "err" in values:
-            self.processErrorReport(values["er"])
+            self.processErrorReport(values["err"])
         if "f" in values:
             self.processFooter(values["f"])
         if "r" in values:
@@ -199,18 +199,17 @@ class Controller(_GenericController):
     def viewStatusReport(self):
         # Don't actually need to send this, because we'll get an
         # automatic report if anything changes
-        # Except for at M2 end of gcode, because nothing updates status :(
-        # self.master.serial_write(b"?\n")
-        self.master.serial_write(b"{sr:n}\n")
-        self.master.sio_status = True
+        # if we do send it, eventually overflows controller after thousands
+        # of commands.
+        # self.master.serial_write(b"{sr:n}\n")
+        # self.master.sio_status = True
+        pass
 
     def viewParameters(self):
-        self.master.sendGCode("$$\n")
-        # self.master.sendGCode('{"sr":n}\n')
+        self.master.sendGCode('{"sys":""}\n')
 
-    def viewState(self): #Maybe rename to viewParserState() ???
-        # self.master.sendGCode('{"sr":n}\n')
-        self.master.serial_write('{"sr":n}\n')
+    def viewState(self):
+        self.master.serial_write(b'{"sr":n}\n')
 
 	# Recognized single character commands are:
 	# ! - Feedhold request
