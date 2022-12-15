@@ -861,9 +861,5 @@ class Sender:
 
                 tosend = None
                 if not self.running and t - tg > G_POLL:
-                    #tosend = b"$G\n"  # FIXME: move to controller specific class
-                    #sline.append(tosend)
-                    #cline.append(len(tosend))
                     self.mcontrol.viewState()
-
                     tg = t
