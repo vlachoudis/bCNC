@@ -17,6 +17,10 @@ class Controller(_GenericController):
         self.master = master
         print("G2Core loaded")
 
+    def setTLO(self, tlo):
+        self.master.serial_write('{{tofz:{0}}}\n{{gc:"G0"}}\n'.format(tlo))
+        self.viewState()
+
     def hardResetPre(self):
         self.master.serial_write(b"\030")
 
@@ -25,10 +29,14 @@ class Controller(_GenericController):
         self.initController()	# Required to reload values
 
     def viewBuild(self):
-        self.master.serial_write(b'{"sys":n}')
+        self.master.serial_write(b'{"sys":n}\n')
 
     def grblHelp(self):
-        self.master.serial_write(b"%\n")
+        self.master.serial_write(b"{h:n}\n")
+
+    def executeCommand(self, oline, line, cmd):
+        print("ec",oline,line,cmd)
+        return False
 
     def softReset(self, clearAlarm=True):
         # Don't do this, it resets all the config values in firmware.
@@ -83,52 +91,59 @@ class Controller(_GenericController):
 
         self.displayState(state)
 
+    def setCNCgvar(self, target, list, value):
+        text = list[value]
+        CNC.vars[target] = text
+        for key in list:
+            CNC.vars[key] = ""
+        CNC.vars[text] = text
+
     def processStatusReport(self, sr):
         if "stat" in sr:
             self.setState(sr["stat"])
         if "feed" in sr:
             CNC.vars["curfeed"] = float(sr["feed"])
             CNC.vars["feed"] = float(sr["feed"])
-        if "plan" in sr:
-            CNC.vars["plane"] = int(sr["plan"])
         if "frmo" in sr:
             CNC.vars["feedmode"] = int(sr["frmo"])
+        if "vel" in sr:
+        	CNC.vars["curvel"] = float(sr["vel"])
+        if "plan" in sr:
+            self.setCNCgvar("plane", ["G17","G18","G19"], int(sr["plan"]))
         if "dist" in sr:
-            CNC.vars["distance"] = int(sr["dist"])
-        # if "vel" in sr:
-        # 	CNC.vars["curvel"] = float(sr["vel"])
-        # "line" comes back, but only matters if gcode has it.
-        # spindle does not.  Nor a responds from gcode changing.
-        # "tool" in theory could return haven't seen it.
-        # "units",  "coor" come back
+            self.setCNCgvar("distance", ["G90","G91"], int(sr["dist"]))
         if "unit" in sr:
-            CNC.vars["units"] = int(sr["unit"])
-        if "coor" in sr:
-            CNC.vars["WCS"] = ["G53", "G54", "G55", "G56", "G57", "G58", "G59"][int(sr["coor"])]
+            self.setCNCgvar("units", ["G20","G21"], int(sr["unit"]))
+        if "coor" in sr and int(sr["coor"]) > 0:
+            self.setCNCgvar("WCS",
+                            ["G54", "G55", "G56", "G57", "G58", "G59"],
+                            int(sr["coor"])-1)
         if "g92e" in sr:
-            CNC.vars["G92"] = int(sr["g92e"])
+            CNC.vars["G92"] = ["","G92"][int(sr["g92e"])]
         if "tool" in sr:
             CNC.vars["tool"] = int(sr["tool"])
         if "posx" in sr:
-            CNC.vars["mx"] = float(sr["posx"]) #( relative!)
+            CNC.vars["wx"] = float(sr["posx"]) #( relative!)
         if "posy" in sr:
-            CNC.vars["my"] = float(sr["posy"])# mposx is absolute machine
+            CNC.vars["wy"] = float(sr["posy"])# mposx is absolute machine
         if "posz" in sr:
-            CNC.vars["mz"] = float(sr["posz"])
-        CNC.vars["wx"] = round(CNC.vars["mx"]-CNC.vars["wcox"], CNC.digits)
-        CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
-        CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
+            CNC.vars["wz"] = float(sr["posz"])
+        if "mpox" in sr:
+            CNC.vars["mx"] = float(sr["mpox"]) #( relative!)
+        if "mpoy" in sr:
+            CNC.vars["my"] = float(sr["mpoy"])# mposx is absolute machine
+        if "mpoz" in sr:
+            CNC.vars["mz"] = float(sr["mpoz"])
+        if "tofx" in sr:
+            CNC.vars["tofx"] = float(sr["tofx"]) #( relative!)
+        if "tofy" in sr:
+            CNC.vars["tofy"] = float(sr["tofy"])# mposx is absolute machine
+        if "tofz" in sr:
+            CNC.vars["tofz"] = float(sr["tofz"])
+            CNC.vars["TLO"] = float(sr["tofz"])
         self.master._posUpdate = True
         self.master._gUpdate = True
         self.master._update = True
-
-        # self.feedRate.set(str(CNC.vars["feed"]))
-        # self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
-        # self.spindle.set(CNC.vars["spindle"] == "M3")
-        # self.spindleSpeed.set(int(CNC.vars["rpm"]))
-        # self.tlo.set(str(CNC.vars["TLO"]))
-        # self.g92.config(text=str(CNC.vars["G92"]))
-
 
     def processErrorReport(self, er):
         fb = er["fb"]
@@ -143,8 +158,10 @@ class Controller(_GenericController):
     def parseValues(self, values):
         if "sr" in values:
             self.processStatusReport(values["sr"])
-        if "err" in values:
+        if "err" in values: # JSON Syntax Errors
             self.processErrorReport(values["err"])
+        if "er" in values:  # Lower level errors
+            self.processErrorReport(values["er"])
         if "f" in values:
             self.processFooter(values["f"])
         if "r" in values:
@@ -204,7 +221,7 @@ class Controller(_GenericController):
         self.master.serial.flush()
         time.sleep(1)
         # remember and send all G commands
-        G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"])  # remember $G
+        G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"] and x != "G43.1")  # remember $G
         TLO = CNC.vars["TLO"]
         self.softReset(False)  # reset controller
         self.purgeControllerExtra()
@@ -212,7 +229,7 @@ class Controller(_GenericController):
         self.master.stopProbe()
         if G:
             self.master.sendGCode(G)  # restore $G
-        self.master.sendGCode(f"G43.1Z{TLO}")  # restore TLO
+        self.setTLO(TLO)
         self.viewState()
 
 
@@ -229,4 +246,4 @@ class Controller(_GenericController):
         self.master.sendGCode('{"sys":""}\n')
 
     def viewState(self):
-        self.master.serial_write(b'{"sr":n}\n')
+        self.master.serial_write(b'{sr:{stat:t,n:t,line:t,vel:t,feed:t,unit:t,coor:t,momo:t,plan:t,path:t,dist:t,admo:t,macs:t,cycs:t,mots:t,hold:t,tool:t,g92e:t,tofx:t,tofy:t,tofz:t,posx:t,posy:t,posz:t,mpox:t,mpoy:t,mpoz:t}}\n')
