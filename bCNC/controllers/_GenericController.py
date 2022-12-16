@@ -40,6 +40,9 @@ class _GenericController:
             # And write out the firmware config
             self.master.serial_write(text)
 
+    def setTLO(self, tlo):
+        pass
+
     def executeCommand(self, oline, line, cmd):
         return False
 
