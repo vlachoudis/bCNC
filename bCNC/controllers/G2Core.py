@@ -88,6 +88,13 @@ class Controller(_GenericController):
             self.setState(sr["stat"])
         if "feed" in sr:
             CNC.vars["curfeed"] = float(sr["feed"])
+            CNC.vars["feed"] = float(sr["feed"])
+        if "plan" in sr:
+            CNC.vars["plane"] = int(sr["plan"])
+        if "frmo" in sr:
+            CNC.vars["feedmode"] = int(sr["frmo"])
+        if "dist" in sr:
+            CNC.vars["distance"] = int(sr["dist"])
         # if "vel" in sr:
         # 	CNC.vars["curvel"] = float(sr["vel"])
         # "line" comes back, but only matters if gcode has it.
@@ -95,7 +102,13 @@ class Controller(_GenericController):
         # "tool" in theory could return haven't seen it.
         # "units",  "coor" come back
         if "unit" in sr:
-            CNC.vars["unit"] = float(sr["unit"])
+            CNC.vars["units"] = int(sr["unit"])
+        if "coor" in sr:
+            CNC.vars["WCS"] = ["G53", "G54", "G55", "G56", "G57", "G58", "G59"][int(sr["coor"])]
+        if "g92e" in sr:
+            CNC.vars["G92"] = int(sr["g92e"])
+        if "tool" in sr:
+            CNC.vars["tool"] = int(sr["tool"])
         if "posx" in sr:
             CNC.vars["mx"] = float(sr["posx"]) #( relative!)
         if "posy" in sr:
@@ -106,6 +119,16 @@ class Controller(_GenericController):
         CNC.vars["wy"] = round(CNC.vars["my"]-CNC.vars["wcoy"], CNC.digits)
         CNC.vars["wz"] = round(CNC.vars["mz"]-CNC.vars["wcoz"], CNC.digits)
         self.master._posUpdate = True
+        self.master._gUpdate = True
+        self.master._update = True
+
+        # self.feedRate.set(str(CNC.vars["feed"]))
+        # self.feedMode.set(FEED_MODE[CNC.vars["feedmode"]])
+        # self.spindle.set(CNC.vars["spindle"] == "M3")
+        # self.spindleSpeed.set(int(CNC.vars["rpm"]))
+        # self.tlo.set(str(CNC.vars["TLO"]))
+        # self.g92.config(text=str(CNC.vars["G92"]))
+
 
     def processErrorReport(self, er):
         fb = er["fb"]
@@ -144,7 +167,6 @@ class Controller(_GenericController):
                     # CNC.vars[gcode+"C"] = values[k[0]]['c']
 
     def parseLine(self, line, cline, sline):
-        # print("Parsing:",line, cline, sline)
         if not line:
             return True
 
@@ -152,13 +174,11 @@ class Controller(_GenericController):
             self.master.log.put((self.master.MSG_RECEIVE, line))
             values = json.loads(line)
             if "r" in values:
-                # print(self.master.sio_status)
                 if not self.master.sio_status:
                     self.master.log.put((self.master.MSG_OK, line))
                     self.master._gcount += 1
                     if cline: del cline[0]
                     if sline: del sline[0]
-            # if "sr" in values:
                 self.master.sio_status = False
             self.parseValues(values)
 
@@ -210,11 +230,3 @@ class Controller(_GenericController):
 
     def viewState(self):
         self.master.serial_write(b'{"sr":n}\n')
-
-	# Recognized single character commands are:
-	# ! - Feedhold request
-	# ~ - Feedhold exit (restart)
-	# % - Queue flush
-	# ^d - Kill job (ASCII 0x04)
-	# ^x - Reset board (ASCII 0x18)
-	# ENQ - Enquire communications status (ASCII 0x05)
