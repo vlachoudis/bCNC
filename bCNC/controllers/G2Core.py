@@ -98,16 +98,25 @@ class Controller(_GenericController):
             CNC.vars[key] = ""
         CNC.vars[text] = text
 
+    def setCNCfloats(self, sr, maps ):
+        for key1, key2 in maps.items():
+            if key1 in sr:
+                CNC.vars[key2] = float(sr[key1])
+
     def processStatusReport(self, sr):
         if "stat" in sr:
             self.setState(sr["stat"])
-        if "feed" in sr:
-            CNC.vars["curfeed"] = float(sr["feed"])
-            CNC.vars["feed"] = float(sr["feed"])
-        if "frmo" in sr:
-            CNC.vars["feedmode"] = int(sr["frmo"])
-        if "vel" in sr:
-        	CNC.vars["curvel"] = float(sr["vel"])
+        self.setCNCfloats(sr, { "feed" : "curfeed",
+                                "vel":"curvel",
+                                "posx" : "wx",
+                                "posy" : "wy",
+                                "posz" : "wz",
+                                "mpox" : "mx",
+                                "mpoy" : "my",
+                                "mpoz" : "mz",
+                                "tofx" : "tofx",
+                                "tofy" : "tofy",
+                                "tofz" : "TLO"  })
         if "plan" in sr:
             self.setCNCgvar("plane", ["G17","G18","G19"], int(sr["plan"]))
         if "dist" in sr:
@@ -119,28 +128,11 @@ class Controller(_GenericController):
                             ["G54", "G55", "G56", "G57", "G58", "G59"],
                             int(sr["coor"])-1)
         if "g92e" in sr:
-            CNC.vars["G92"] = ["","G92"][int(sr["g92e"])]
+            self.setCNCgvar("G92", ["","G92"],int(sr["g92e"]))
         if "tool" in sr:
             CNC.vars["tool"] = int(sr["tool"])
-        if "posx" in sr:
-            CNC.vars["wx"] = float(sr["posx"]) #( relative!)
-        if "posy" in sr:
-            CNC.vars["wy"] = float(sr["posy"])# mposx is absolute machine
-        if "posz" in sr:
-            CNC.vars["wz"] = float(sr["posz"])
-        if "mpox" in sr:
-            CNC.vars["mx"] = float(sr["mpox"]) #( relative!)
-        if "mpoy" in sr:
-            CNC.vars["my"] = float(sr["mpoy"])# mposx is absolute machine
-        if "mpoz" in sr:
-            CNC.vars["mz"] = float(sr["mpoz"])
-        if "tofx" in sr:
-            CNC.vars["tofx"] = float(sr["tofx"]) #( relative!)
-        if "tofy" in sr:
-            CNC.vars["tofy"] = float(sr["tofy"])# mposx is absolute machine
-        if "tofz" in sr:
-            CNC.vars["tofz"] = float(sr["tofz"])
-            CNC.vars["TLO"] = float(sr["tofz"])
+        if "frmo" in sr:
+            CNC.vars["feedmode"] = int(sr["frmo"])
         self.master._posUpdate = True
         self.master._gUpdate = True
         self.master._update = True
