@@ -2233,7 +2233,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
     def setTLO(self, event=None):
         try:
             tlo = float(self.tlo.get())
-            self.sendGCode(f"G43.1Z{tlo:g}")
             self.app.mcontrol.setTLO(tlo)
             self.app.mcontrol.viewParameters()
             self.event_generate("<<CanvasFocus>>")
