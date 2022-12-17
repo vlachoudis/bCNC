@@ -103,6 +103,11 @@ class Controller(_GenericController):
             if key1 in sr:
                 CNC.vars[key2] = float(sr[key1])
 
+    def setCNCints(self, sr, maps ):
+        for key1, key2 in maps.items():
+            if key1 in sr:
+                CNC.vars[key2] = int(sr[key1])
+
     def processStatusReport(self, sr):
         if "stat" in sr:
             self.setState(sr["stat"])
@@ -117,6 +122,9 @@ class Controller(_GenericController):
                                 "tofx" : "tofx",
                                 "tofy" : "tofy",
                                 "tofz" : "TLO"  })
+        self.setCNCints(sr, { "tool" : "tool",
+                              "frmo" : "feedmode",
+                              "sps" : "rpm" })
         if "plan" in sr:
             self.setCNCgvar("plane", ["G17","G18","G19"], int(sr["plan"]))
         if "dist" in sr:
@@ -129,10 +137,9 @@ class Controller(_GenericController):
                             int(sr["coor"])-1)
         if "g92e" in sr:
             self.setCNCgvar("G92", ["","G92"],int(sr["g92e"]))
-        if "tool" in sr:
-            CNC.vars["tool"] = int(sr["tool"])
-        if "frmo" in sr:
-            CNC.vars["feedmode"] = int(sr["frmo"])
+        if "spc" in sr:
+            self.setCNCgvar("spindle", ["","M3"],int(sr["spc"]))
+
         self.master._posUpdate = True
         self.master._gUpdate = True
         self.master._update = True
@@ -238,4 +245,4 @@ class Controller(_GenericController):
         self.master.sendGCode('{"sys":""}\n')
 
     def viewState(self):
-        self.master.serial_write(b'{sr:{stat:t,n:t,line:t,vel:t,feed:t,unit:t,coor:t,momo:t,plan:t,path:t,dist:t,admo:t,macs:t,cycs:t,mots:t,hold:t,tool:t,g92e:t,tofx:t,tofy:t,tofz:t,posx:t,posy:t,posz:t,mpox:t,mpoy:t,mpoz:t}}\n')
+        self.master.serial_write(b'{sr:{stat:t,n:t,line:t,vel:t,feed:t,unit:t,coor:t,momo:t,plan:t,path:t,dist:t,admo:t,macs:t,cycs:t,mots:t,hold:t,tool:t,g92e:t,tofx:t,tofy:t,tofz:t,posx:t,posy:t,posz:t,mpox:t,mpoy:t,mpoz:t,spc:t,sps:t}}\n')
