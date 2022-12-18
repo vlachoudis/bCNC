@@ -41,7 +41,7 @@ class _GenericController:
             self.master.serial_write(text)
 
     def setTLO(self, tlo):
-        self.sendGCode(f"G43.1Z{tlo:g}")    
+        self.master.sendGCode(f"G43.1Z{tlo}")    
 
     def executeCommand(self, oline, line, cmd):
         return False
