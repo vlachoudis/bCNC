@@ -25,7 +25,7 @@ from math import (
     atan,
     atan2,
 )
-from xml.etree.ElementTree import iterparse
+from defusedxml.ElementTree import iterparse
 
 from Helpers import to_zip
 
@@ -327,28 +327,22 @@ class SVGLexicalParser:
             cmd = self._command()
             if cmd is None:
                 return
-            elif cmd == "z" or cmd == "Z":
+            rel = cmd.islower()
+            cmd = cmd.tolower()
+            if cmd == "z":
                 if self._more():
                     raise ValueError
-                self.parser.closed(relative=cmd.islower())
+                self.parser.closed(relative=rel)
                 self.inline_close = None
                 continue
             elif cmd == "m":
                 if not self._more():
                     raise ValueError
                 coord = self._rcoord()
-                self.parser.move(coord, relative=True)
+                self.parser.move(coord, relative=rel)
                 while self._more():
                     coord = self._rcoord()
-                    self.parser.line(coord, relative=True)
-            elif cmd == "M":
-                if not self._more():
-                    raise ValueError
-                coord = self._coord()
-                self.parser.move(coord, relative=False)
-                while self._more():
-                    coord = self._coord()
-                    self.parser.line(coord, relative=False)
+                    self.parser.line(coord, relative=rel)
             elif cmd == "l":
                 while True:
                     coord = self._rcoord()
@@ -356,17 +350,7 @@ class SVGLexicalParser:
                         coord = self.inline_close
                         if coord is None:
                             raise ValueError
-                    self.parser.line(coord, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "L":
-                while True:
-                    coord = self._coord()
-                    if coord is None:
-                        coord = self.inline_close
-                        if coord is None:
-                            raise ValueError
-                    self.parser.line(coord, relative=False)
+                    self.parser.line(coord, relative=rel)
                     if not self._more():
                         break
             elif cmd == "t":
@@ -376,48 +360,33 @@ class SVGLexicalParser:
                         coord = self.inline_close
                         if coord is None:
                             raise ValueError
-                    self.parser.smooth_quad(coord, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "T":
-                while True:
-                    coord = self._coord()
-                    if coord is None:
-                        coord = self.inline_close
-                        if coord is None:
-                            raise ValueError
-                    self.parser.smooth_quad(coord, relative=False)
+                    self.parser.smooth_quad(coord, relative=rel)
                     if not self._more():
                         break
             elif cmd == "h":
                 while True:
                     value = self._number()
-                    self.parser.horizontal(value, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "H":
-                while True:
-                    value = self._number()
-                    self.parser.horizontal(value, relative=False)
+                    self.parser.horizontal(value, relative=rel)
                     if not self._more():
                         break
             elif cmd == "v":
                 while True:
                     value = self._number()
-                    self.parser.vertical(value, relative=True)
+                    self.parser.vertical(value, relative=rel)
                     if not self._more():
                         break
-            elif cmd == "V":
-                while self._more():
-                    value = self._number()
-                    self.parser.vertical(value, relative=False)
             elif cmd == "c":
                 while True:
-                    coord1, coord2, coord3 = (
-                        self._rcoord(),
-                        self._rcoord(),
-                        self._rcoord(),
-                    )
+                    if rel:
+                        coord1, coord2, coord3 = (
+                            self._rcoord(),
+                            self._rcoord(),
+                            self._rcoord() )
+                    else:
+                        coord1, coord2, coord3 = (
+                            self._coord(),
+                            self._coord(),
+                            self._coord() )
                     if coord1 is None:
                         coord1 = self.inline_close
                         if coord1 is None:
@@ -430,30 +399,15 @@ class SVGLexicalParser:
                         coord3 = self.inline_close
                         if coord3 is None:
                             raise ValueError
-                    self.parser.cubic(coord1, coord2, coord3, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "C":
-                while True:
-                    coord1, coord2, coord3 = self._coord(), self._coord(), self._coord()
-                    if coord1 is None:
-                        coord1 = self.inline_close
-                        if coord1 is None:
-                            raise ValueError
-                    if coord2 is None:
-                        coord2 = self.inline_close
-                        if coord2 is None:
-                            raise ValueError
-                    if coord3 is None:
-                        coord3 = self.inline_close
-                        if coord3 is None:
-                            raise ValueError
-                    self.parser.cubic(coord1, coord2, coord3, relative=False)
+                    self.parser.cubic(coord1, coord2, coord3, relative=rel)
                     if not self._more():
                         break
             elif cmd == "q":
                 while True:
-                    coord1, coord2 = self._rcoord(), self._rcoord()
+                    if rel:
+                        coord1, coord2 = self._rcoord(), self._rcoord()
+                    else:
+                        coord1, coord2 = self._coord(), self._coord()
                     if coord1 is None:
                         coord1 = self.inline_close
                         if coord1 is None:
@@ -462,26 +416,15 @@ class SVGLexicalParser:
                         coord2 = self.inline_close
                         if coord2 is None:
                             raise ValueError
-                    self.parser.quad(coord1, coord2, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "Q":
-                while True:
-                    coord1, coord2 = self._coord(), self._coord()
-                    if coord1 is None:
-                        coord1 = self.inline_close
-                        if coord1 is None:
-                            raise ValueError
-                    if coord2 is None:
-                        coord2 = self.inline_close
-                        if coord2 is None:
-                            raise ValueError
-                    self.parser.quad(coord1, coord2, relative=False)
+                    self.parser.quad(coord1, coord2, relative=rel)
                     if not self._more():
                         break
             elif cmd == "s":
                 while True:
-                    coord1, coord2 = self._rcoord(), self._rcoord()
+                    if rel:
+                        coord1, coord2 = self._rcoord(), self._rcoord()
+                    else:
+                        coord1, coord2 = self._coord(), self._coord()
                     if coord1 is None:
                         coord1 = self.inline_close
                         if coord1 is None:
@@ -490,21 +433,7 @@ class SVGLexicalParser:
                         coord2 = self.inline_close
                         if coord2 is None:
                             raise ValueError
-                    self.parser.smooth_cubic(coord1, coord2, relative=True)
-                    if not self._more():
-                        break
-            elif cmd == "S":
-                while True:
-                    coord1, coord2 = self._coord(), self._coord()
-                    if coord1 is None:
-                        coord1 = self.inline_close
-                        if coord1 is None:
-                            raise ValueError
-                    if coord2 is None:
-                        coord2 = self.inline_close
-                        if coord2 is None:
-                            raise ValueError
-                    self.parser.smooth_cubic(coord1, coord2, relative=False)
+                    self.parser.smooth_cubic(coord1, coord2, relative=rel)
                     if not self._more():
                         break
             elif cmd == "a":
@@ -515,32 +444,20 @@ class SVGLexicalParser:
                         self._number(),
                         self._flag(),
                         self._flag(),
-                        self._rcoord(),
                     )
-                    if sweep is None:
-                        raise ValueError
+                    if rel:
+                        coord = self._rcoord()
+                        # should this next if be up a level?
+                        if sweep is None:
+                            raise ValueError
+                    else:
+                        coord = self._coord()
                     if coord is None:
                         coord = self.inline_close
                         if coord is None:
                             raise ValueError
                     self.parser.arc(rx, ry, rotation, arc,
-                                    sweep, coord, relative=True)
-            elif cmd == "A":
-                while self._more():
-                    rx, ry, rotation, arc, sweep, coord = (
-                        self._number(),
-                        self._number(),
-                        self._number(),
-                        self._flag(),
-                        self._flag(),
-                        self._coord(),
-                    )
-                    if coord is None:
-                        coord = self.inline_close
-                        if coord is None:
-                            raise ValueError
-                    self.parser.arc(rx, ry, rotation, arc, sweep,
-                                    coord, relative=False)
+                                    sweep, coord, relative=rel)
         self.parser.end()
 
 
@@ -1141,308 +1058,163 @@ class Color(object):
     @staticmethod
     def parse_color_lookup(v):
         """Parse SVG Color by Keyword on dictionary lookup"""
+
+        colortable = {  "aliceblue": (250, 248, 255),
+                        "antiquewhite": (250, 235, 215),
+                        "aqua": (0, 255, 255),
+                        "aquamarine": (127, 255, 212),
+                        "azure": (240, 255, 255),
+                        "beige": (245, 245, 220),
+                        "bisque": (255, 228, 196),
+                        "black": (0, 0, 0),
+                        "blanchedalmond": (255, 235, 205),
+                        "blue": (0, 0, 255),
+                        "blueviolet": (138, 43, 226),
+                        "brown": (165, 42, 42),
+                        "burlywood": (222, 184, 135),
+                        "cadetblue": (95, 158, 160),
+                        "chartreuse": (127, 255, 0),
+                        "chocolate": (210, 105, 30),
+                        "coral": (255, 127, 80),
+                        "cornflowerblue": (100, 149, 237),
+                        "cornsilk": (255, 248, 220),
+                        "crimson": (220, 20, 60),
+                        "cyan": (0, 255, 255),
+						"darkblue": (0, 0, 139),
+						"darkcyan": (0, 139, 139),
+						"darkgoldenrod": (184, 134, 11),
+						"darkgray": (169, 169, 169),
+						"darkgreen": (0, 100, 0),
+						"darkgrey": (169, 169, 169),
+						"darkkhaki": (189, 183, 107),
+						"darkmagenta": (139, 0, 139),
+						"darkolivegreen": (85, 107, 47),
+						"darkorange": (255, 140, 0),
+						"darkorchid": (153, 50, 204),
+						"darkred": (139, 0, 0),
+						"darksalmon": (233, 150, 122),
+						"darkseagreen": (143, 188, 143),
+						"darkslateblue": (72, 61, 139),
+						"darkslategray": (47, 79, 79),
+						"darkslategrey": (47, 79, 79),
+						"darkturquoise": (0, 206, 209),
+						"darkviolet": (148, 0, 211),
+						"deeppink": (255, 20, 147),
+						"deepskyblue": (0, 191, 255),
+						"dimgray": (105, 105, 105),
+						"dimgrey": (105, 105, 105),
+						"dodgerblue": (30, 144, 255),
+						"firebrick": (178, 34, 34),
+						"floralwhite": (255, 250, 240),
+						"forestgreen": (34, 139, 34),
+						"fuchsia": (255, 0, 255),
+						"gainsboro": (220, 220, 220),
+						"ghostwhite": (248, 248, 255),
+						"gold": (255, 215, 0),
+						"goldenrod": (218, 165, 32),
+						"gray": (128, 128, 128),
+						"grey": (128, 128, 128),
+						"green": (0, 128, 0),
+						"greenyellow": (173, 255, 47),
+						"honeydew": (240, 255, 240),
+						"hotpink": (255, 105, 180),
+						"indianred": (205, 92, 92),
+						"indigo": (75, 0, 130),
+						"ivory": (255, 255, 240),
+						"khaki": (240, 230, 140),
+						"lavender": (230, 230, 250),
+						"lavenderblush": (255, 240, 245),
+						"lawngreen": (124, 252, 0),
+						"lemonchiffon": (255, 250, 205),
+						"lightblue": (173, 216, 230),
+						"lightcoral": (240, 128, 128),
+						"lightcyan": (224, 255, 255),
+						"lightgoldenrodyellow": (250, 250, 210),
+						"lightgray": (211, 211, 211),
+						"lightgreen": (144, 238, 144),
+						"lightgrey": (211, 211, 211),
+						"lightpink": (255, 182, 193),
+						"lightsalmon": (255, 160, 122),
+						"lightseagreen": (32, 178, 170),
+						"lightskyblue": (135, 206, 250),
+						"lightslategray": (119, 136, 153),
+						"lightslategrey": (119, 136, 153),
+						"lightsteelblue": (176, 196, 222),
+						"lightyellow": (255, 255, 224),
+						"lime": (0, 255, 0),
+						"limegreen": (50, 205, 50),
+						"linen": (250, 240, 230),
+						"magenta": (255, 0, 255),
+						"maroon": (128, 0, 0),
+						"mediumaquamarine": (102, 205, 170),
+						"mediumblue": (0, 0, 205),
+						"mediumorchid": (186, 85, 211),
+						"mediumpurple": (147, 112, 219),
+						"mediumseagreen": (60, 179, 113),
+						"mediumslateblue": (123, 104, 238),
+						"mediumspringgreen": (0, 250, 154),
+						"mediumturquoise": (72, 209, 204),
+						"mediumvioletred": (199, 21, 133),
+						"midnightblue": (25, 25, 112),
+						"mintcream": (245, 255, 250),
+						"mistyrose": (255, 228, 225),
+						"moccasin": (255, 228, 181),
+						"navajowhite": (255, 222, 173),
+						"navy": (0, 0, 128),
+						"oldlace": (253, 245, 230),
+						"olive": (128, 128, 0),
+						"olivedrab": (107, 142, 35),
+						"orange": (255, 165, 0),
+						"orangered": (255, 69, 0),
+						"orchid": (218, 112, 214),
+						"palegoldenrod": (238, 232, 170),
+						"palegreen": (152, 251, 152),
+						"paleturquoise": (175, 238, 238),
+						"palevioletred": (219, 112, 147),
+						"papayawhip": (255, 239, 213),
+						"peachpuff": (255, 218, 185),
+						"peru": (205, 133, 63),
+						"pink": (255, 192, 203),
+						"plum": (221, 160, 221),
+						"powderblue": (176, 224, 230),
+						"purple": (128, 0, 128),
+						"red": (255, 0, 0),
+						"rosybrown": (188, 143, 143),
+						"royalblue": (65, 105, 225),
+						"saddlebrown": (139, 69, 19),
+						"salmon": (250, 128, 114),
+						"sandybrown": (244, 164, 96),
+						"seagreen": (46, 139, 87),
+						"seashell": (255, 245, 238),
+						"sienna": (160, 82, 45),
+						"silver": (192, 192, 192),
+						"skyblue": (135, 206, 235),
+						"slateblue": (106, 90, 205),
+						"slategray": (112, 128, 144),
+						"slategrey": (112, 128, 144),
+						"snow": (255, 250, 250),
+						"springgreen": (0, 255, 127),
+						"steelblue": (70, 130, 180),
+						"tan": (210, 180, 140),
+						"teal": (0, 128, 128),
+						"thistle": (216, 191, 216),
+						"tomato": (255, 99, 71),
+						"turquoise": (64, 224, 208),
+						"violet": (238, 130, 238),
+						"wheat": (245, 222, 179),
+						"white": (255, 255, 255),
+						"whitesmoke": (245, 245, 245),
+						"yellow": (255, 255, 0),
+						"yellowgreen": (154, 205, 50) }
         if not isinstance(v, str):
             return Color.rgb_to_int(0, 0, 0)
         else:
             v = v.replace(" ", "").lower()
         if v == "transparent":
             return Color.rgb_to_int(0, 0, 0, 0.0)
-        if v == "aliceblue":
-            return Color.rgb_to_int(250, 248, 255)
-        if v == "aliceblue":
-            return Color.rgb_to_int(240, 248, 255)
-        if v == "antiquewhite":
-            return Color.rgb_to_int(250, 235, 215)
-        if v == "aqua":
-            return Color.rgb_to_int(0, 255, 255)
-        if v == "aquamarine":
-            return Color.rgb_to_int(127, 255, 212)
-        if v == "azure":
-            return Color.rgb_to_int(240, 255, 255)
-        if v == "beige":
-            return Color.rgb_to_int(245, 245, 220)
-        if v == "bisque":
-            return Color.rgb_to_int(255, 228, 196)
-        if v == "black":
-            return Color.rgb_to_int(0, 0, 0)
-        if v == "blanchedalmond":
-            return Color.rgb_to_int(255, 235, 205)
-        if v == "blue":
-            return Color.rgb_to_int(0, 0, 255)
-        if v == "blueviolet":
-            return Color.rgb_to_int(138, 43, 226)
-        if v == "brown":
-            return Color.rgb_to_int(165, 42, 42)
-        if v == "burlywood":
-            return Color.rgb_to_int(222, 184, 135)
-        if v == "cadetblue":
-            return Color.rgb_to_int(95, 158, 160)
-        if v == "chartreuse":
-            return Color.rgb_to_int(127, 255, 0)
-        if v == "chocolate":
-            return Color.rgb_to_int(210, 105, 30)
-        if v == "coral":
-            return Color.rgb_to_int(255, 127, 80)
-        if v == "cornflowerblue":
-            return Color.rgb_to_int(100, 149, 237)
-        if v == "cornsilk":
-            return Color.rgb_to_int(255, 248, 220)
-        if v == "crimson":
-            return Color.rgb_to_int(220, 20, 60)
-        if v == "cyan":
-            return Color.rgb_to_int(0, 255, 255)
-        if v == "darkblue":
-            return Color.rgb_to_int(0, 0, 139)
-        if v == "darkcyan":
-            return Color.rgb_to_int(0, 139, 139)
-        if v == "darkgoldenrod":
-            return Color.rgb_to_int(184, 134, 11)
-        if v == "darkgray":
-            return Color.rgb_to_int(169, 169, 169)
-        if v == "darkgreen":
-            return Color.rgb_to_int(0, 100, 0)
-        if v == "darkgrey":
-            return Color.rgb_to_int(169, 169, 169)
-        if v == "darkkhaki":
-            return Color.rgb_to_int(189, 183, 107)
-        if v == "darkmagenta":
-            return Color.rgb_to_int(139, 0, 139)
-        if v == "darkolivegreen":
-            return Color.rgb_to_int(85, 107, 47)
-        if v == "darkorange":
-            return Color.rgb_to_int(255, 140, 0)
-        if v == "darkorchid":
-            return Color.rgb_to_int(153, 50, 204)
-        if v == "darkred":
-            return Color.rgb_to_int(139, 0, 0)
-        if v == "darksalmon":
-            return Color.rgb_to_int(233, 150, 122)
-        if v == "darkseagreen":
-            return Color.rgb_to_int(143, 188, 143)
-        if v == "darkslateblue":
-            return Color.rgb_to_int(72, 61, 139)
-        if v == "darkslategray":
-            return Color.rgb_to_int(47, 79, 79)
-        if v == "darkslategrey":
-            return Color.rgb_to_int(47, 79, 79)
-        if v == "darkturquoise":
-            return Color.rgb_to_int(0, 206, 209)
-        if v == "darkviolet":
-            return Color.rgb_to_int(148, 0, 211)
-        if v == "deeppink":
-            return Color.rgb_to_int(255, 20, 147)
-        if v == "deepskyblue":
-            return Color.rgb_to_int(0, 191, 255)
-        if v == "dimgray":
-            return Color.rgb_to_int(105, 105, 105)
-        if v == "dimgrey":
-            return Color.rgb_to_int(105, 105, 105)
-        if v == "dodgerblue":
-            return Color.rgb_to_int(30, 144, 255)
-        if v == "firebrick":
-            return Color.rgb_to_int(178, 34, 34)
-        if v == "floralwhite":
-            return Color.rgb_to_int(255, 250, 240)
-        if v == "forestgreen":
-            return Color.rgb_to_int(34, 139, 34)
-        if v == "fuchsia":
-            return Color.rgb_to_int(255, 0, 255)
-        if v == "gainsboro":
-            return Color.rgb_to_int(220, 220, 220)
-        if v == "ghostwhite":
-            return Color.rgb_to_int(248, 248, 255)
-        if v == "gold":
-            return Color.rgb_to_int(255, 215, 0)
-        if v == "goldenrod":
-            return Color.rgb_to_int(218, 165, 32)
-        if v == "gray":
-            return Color.rgb_to_int(128, 128, 128)
-        if v == "grey":
-            return Color.rgb_to_int(128, 128, 128)
-        if v == "green":
-            return Color.rgb_to_int(0, 128, 0)
-        if v == "greenyellow":
-            return Color.rgb_to_int(173, 255, 47)
-        if v == "honeydew":
-            return Color.rgb_to_int(240, 255, 240)
-        if v == "hotpink":
-            return Color.rgb_to_int(255, 105, 180)
-        if v == "indianred":
-            return Color.rgb_to_int(205, 92, 92)
-        if v == "indigo":
-            return Color.rgb_to_int(75, 0, 130)
-        if v == "ivory":
-            return Color.rgb_to_int(255, 255, 240)
-        if v == "khaki":
-            return Color.rgb_to_int(240, 230, 140)
-        if v == "lavender":
-            return Color.rgb_to_int(230, 230, 250)
-        if v == "lavenderblush":
-            return Color.rgb_to_int(255, 240, 245)
-        if v == "lawngreen":
-            return Color.rgb_to_int(124, 252, 0)
-        if v == "lemonchiffon":
-            return Color.rgb_to_int(255, 250, 205)
-        if v == "lightblue":
-            return Color.rgb_to_int(173, 216, 230)
-        if v == "lightcoral":
-            return Color.rgb_to_int(240, 128, 128)
-        if v == "lightcyan":
-            return Color.rgb_to_int(224, 255, 255)
-        if v == "lightgoldenrodyellow":
-            return Color.rgb_to_int(250, 250, 210)
-        if v == "lightgray":
-            return Color.rgb_to_int(211, 211, 211)
-        if v == "lightgreen":
-            return Color.rgb_to_int(144, 238, 144)
-        if v == "lightgrey":
-            return Color.rgb_to_int(211, 211, 211)
-        if v == "lightpink":
-            return Color.rgb_to_int(255, 182, 193)
-        if v == "lightsalmon":
-            return Color.rgb_to_int(255, 160, 122)
-        if v == "lightseagreen":
-            return Color.rgb_to_int(32, 178, 170)
-        if v == "lightskyblue":
-            return Color.rgb_to_int(135, 206, 250)
-        if v == "lightslategray":
-            return Color.rgb_to_int(119, 136, 153)
-        if v == "lightslategrey":
-            return Color.rgb_to_int(119, 136, 153)
-        if v == "lightsteelblue":
-            return Color.rgb_to_int(176, 196, 222)
-        if v == "lightyellow":
-            return Color.rgb_to_int(255, 255, 224)
-        if v == "lime":
-            return Color.rgb_to_int(0, 255, 0)
-        if v == "limegreen":
-            return Color.rgb_to_int(50, 205, 50)
-        if v == "linen":
-            return Color.rgb_to_int(250, 240, 230)
-        if v == "magenta":
-            return Color.rgb_to_int(255, 0, 255)
-        if v == "maroon":
-            return Color.rgb_to_int(128, 0, 0)
-        if v == "mediumaquamarine":
-            return Color.rgb_to_int(102, 205, 170)
-        if v == "mediumblue":
-            return Color.rgb_to_int(0, 0, 205)
-        if v == "mediumorchid":
-            return Color.rgb_to_int(186, 85, 211)
-        if v == "mediumpurple":
-            return Color.rgb_to_int(147, 112, 219)
-        if v == "mediumseagreen":
-            return Color.rgb_to_int(60, 179, 113)
-        if v == "mediumslateblue":
-            return Color.rgb_to_int(123, 104, 238)
-        if v == "mediumspringgreen":
-            return Color.rgb_to_int(0, 250, 154)
-        if v == "mediumturquoise":
-            return Color.rgb_to_int(72, 209, 204)
-        if v == "mediumvioletred":
-            return Color.rgb_to_int(199, 21, 133)
-        if v == "midnightblue":
-            return Color.rgb_to_int(25, 25, 112)
-        if v == "mintcream":
-            return Color.rgb_to_int(245, 255, 250)
-        if v == "mistyrose":
-            return Color.rgb_to_int(255, 228, 225)
-        if v == "moccasin":
-            return Color.rgb_to_int(255, 228, 181)
-        if v == "navajowhite":
-            return Color.rgb_to_int(255, 222, 173)
-        if v == "navy":
-            return Color.rgb_to_int(0, 0, 128)
-        if v == "oldlace":
-            return Color.rgb_to_int(253, 245, 230)
-        if v == "olive":
-            return Color.rgb_to_int(128, 128, 0)
-        if v == "olivedrab":
-            return Color.rgb_to_int(107, 142, 35)
-        if v == "orange":
-            return Color.rgb_to_int(255, 165, 0)
-        if v == "orangered":
-            return Color.rgb_to_int(255, 69, 0)
-        if v == "orchid":
-            return Color.rgb_to_int(218, 112, 214)
-        if v == "palegoldenrod":
-            return Color.rgb_to_int(238, 232, 170)
-        if v == "palegreen":
-            return Color.rgb_to_int(152, 251, 152)
-        if v == "paleturquoise":
-            return Color.rgb_to_int(175, 238, 238)
-        if v == "palevioletred":
-            return Color.rgb_to_int(219, 112, 147)
-        if v == "papayawhip":
-            return Color.rgb_to_int(255, 239, 213)
-        if v == "peachpuff":
-            return Color.rgb_to_int(255, 218, 185)
-        if v == "peru":
-            return Color.rgb_to_int(205, 133, 63)
-        if v == "pink":
-            return Color.rgb_to_int(255, 192, 203)
-        if v == "plum":
-            return Color.rgb_to_int(221, 160, 221)
-        if v == "powderblue":
-            return Color.rgb_to_int(176, 224, 230)
-        if v == "purple":
-            return Color.rgb_to_int(128, 0, 128)
-        if v == "red":
-            return Color.rgb_to_int(255, 0, 0)
-        if v == "rosybrown":
-            return Color.rgb_to_int(188, 143, 143)
-        if v == "royalblue":
-            return Color.rgb_to_int(65, 105, 225)
-        if v == "saddlebrown":
-            return Color.rgb_to_int(139, 69, 19)
-        if v == "salmon":
-            return Color.rgb_to_int(250, 128, 114)
-        if v == "sandybrown":
-            return Color.rgb_to_int(244, 164, 96)
-        if v == "seagreen":
-            return Color.rgb_to_int(46, 139, 87)
-        if v == "seashell":
-            return Color.rgb_to_int(255, 245, 238)
-        if v == "sienna":
-            return Color.rgb_to_int(160, 82, 45)
-        if v == "silver":
-            return Color.rgb_to_int(192, 192, 192)
-        if v == "skyblue":
-            return Color.rgb_to_int(135, 206, 235)
-        if v == "slateblue":
-            return Color.rgb_to_int(106, 90, 205)
-        if v == "slategray":
-            return Color.rgb_to_int(112, 128, 144)
-        if v == "slategrey":
-            return Color.rgb_to_int(112, 128, 144)
-        if v == "snow":
-            return Color.rgb_to_int(255, 250, 250)
-        if v == "springgreen":
-            return Color.rgb_to_int(0, 255, 127)
-        if v == "steelblue":
-            return Color.rgb_to_int(70, 130, 180)
-        if v == "tan":
-            return Color.rgb_to_int(210, 180, 140)
-        if v == "teal":
-            return Color.rgb_to_int(0, 128, 128)
-        if v == "thistle":
-            return Color.rgb_to_int(216, 191, 216)
-        if v == "tomato":
-            return Color.rgb_to_int(255, 99, 71)
-        if v == "turquoise":
-            return Color.rgb_to_int(64, 224, 208)
-        if v == "violet":
-            return Color.rgb_to_int(238, 130, 238)
-        if v == "wheat":
-            return Color.rgb_to_int(245, 222, 179)
-        if v == "white":
-            return Color.rgb_to_int(255, 255, 255)
-        if v == "whitesmoke":
-            return Color.rgb_to_int(245, 245, 245)
-        if v == "yellow":
-            return Color.rgb_to_int(255, 255, 0)
-        if v == "yellowgreen":
-            return Color.rgb_to_int(154, 205, 50)
+        if v in colortable:
+            r, g, b = colortable[v]
+            return Color.rgb_to_int(r, g, b)
         return Color.rgb_to_int(0, 0, 0)
 
     @staticmethod
@@ -4453,20 +4225,15 @@ class Arc(Curve):
             self.prx = Point(self.center.x + rx, self.center.y)
             self.pry = Point(self.center.x, self.center.y + ry)
         len_args = len(args)
-        if len_args > 0:
-            if args[0] is not None:
+        if len_args > 0 and args[0] is not None:
                 self.start = Point(args[0])
-        if len_args > 1:
-            if args[1] is not None:
+        if len_args > 1 and args[1] is not None:
                 self.end = Point(args[1])
-        if len_args > 2:
-            if args[2] is not None:
+        if len_args > 2 and args[2] is not None:
                 self.center = Point(args[2])
-        if len_args > 3:
-            if args[3] is not None:
+        if len_args > 3 and args[3] is not None:
                 self.prx = Point(args[3])
-        if len_args > 4:
-            if args[4] is not None:
+        if len_args > 4 and args[4] is not None:
                 self.pry = Point(args[4])
         if len_args > 5:
             self.sweep = args[5]
