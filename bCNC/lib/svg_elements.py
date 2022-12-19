@@ -530,6 +530,21 @@ class Length(object):
                 return self
         raise ValueError
 
+    def _conv_factor(self,other):
+        conversion_table = { "": {"" : 1, "px" : 1, "pt" : 1.3333, "pc": 16.0},
+                            "px": {"" : 1, "px" : 1, "pt" : 1.3333, "pc": 16.0},
+                            "pt": {"" : 1 / 1.3333, "px" : 1 / 1.3333, "pc": 12.0},
+                            "pc": {"" : 1 / 16.0, "px" : 1 / 16.0, "pt": 1 / 12.0},
+                            "cm": {"mm" : 1 / 10.0, "in" : 1 / 0.393701 },
+                            "mm": {"cm" : 10.0, "in" : 1 / 0.0393701 },
+                            "in": {"cm" : 0.393701, "mm" : 0.0393701 },
+        }
+        if not self.units in conversion_table:
+            raise ValueError(f"{self.units} units were not determined.")
+        if not other.units in conversion_table[self.units]:
+            raise ValueError
+        return conversion_table[self.units][other.units]
+
     def __iadd__(self, other):
         if not isinstance(other, Length):
             other = Length(other)
@@ -542,57 +557,8 @@ class Length(object):
             return self
         if other.amount == 0:
             return self
-        if self.units == "px" or self.units == "":
-            if other.units == "px" or other.units == "":
-                self.amount += other.amount
-            elif other.units == "pt":
-                self.amount += other.amount * 1.3333
-            elif other.units == "pc":
-                self.amount += other.amount * 16.0
-            else:
-                raise ValueError
-            return self
-        if self.units == "pt":
-            if other.units == "px" or other.units == "":
-                self.amount += other.amount / 1.3333
-            elif other.units == "pc":
-                self.amount += other.amount * 12.0
-            else:
-                raise ValueError
-            return self
-        elif self.units == "pc":
-            if other.units == "px" or other.units == "":
-                self.amount += other.amount / 16.0
-            elif other.units == "pt":
-                self.amount += other.amount / 12.0
-            else:
-                raise ValueError
-            return self
-        elif self.units == "cm":
-            if other.units == "mm":
-                self.amount += other.amount / 10.0
-            elif other.units == "in":
-                self.amount += other.amount / 0.393701
-            else:
-                raise ValueError
-            return self
-        elif self.units == "mm":
-            if other.units == "cm":
-                self.amount += other.amount * 10.0
-            elif other.units == "in":
-                self.amount += other.amount / 0.0393701
-            else:
-                raise ValueError
-            return self
-        elif self.units == "in":
-            if other.units == "cm":
-                self.amount += other.amount * 0.393701
-            elif other.units == "mm":
-                self.amount += other.amount * 0.0393701
-            else:
-                raise ValueError
-            return self
-        raise ValueError(f"{self.units} units were not determined.")
+        self.amount += other.amount * self._conv_factor(other)
+        return self
 
     def __abs__(self):
         c = self.__copy__()
@@ -612,51 +578,7 @@ class Length(object):
             if self.units == other.units:
                 q = self.amount / other.amount
                 return q  # no units
-        if self.units == "px" or self.units == "":
-            if other.units == "px" or other.units == "":
-                return self.amount / other.amount
-            elif other.units == "pt":
-                return self.amount / (other.amount * 1.3333)
-            elif other.units == "pc":
-                return self.amount / (other.amount * 16.0)
-            else:
-                raise ValueError
-        if self.units == "pt":
-            if other.units == "px" or other.units == "":
-                return self.amount / (other.amount / 1.3333)
-            elif other.units == "pc":
-                return self.amount / (other.amount * 12.0)
-            else:
-                raise ValueError
-        if self.units == "pc":
-            if other.units == "px" or other.units == "":
-                return self.amount / (other.amount / 16.0)
-            elif other.units == "pt":
-                return self.amount / (other.amount / 12.0)
-            else:
-                raise ValueError
-        if self.units == "cm":
-            if other.units == "mm":
-                return self.amount / (other.amount / 10.0)
-            elif other.units == "in":
-                return self.amount / (other.amount / 0.393701)
-            else:
-                raise ValueError
-        if self.units == "mm":
-            if other.units == "cm":
-                return self.amount / (other.amount * 10.0)
-            elif other.units == "in":
-                return self.amount / (other.amount / 0.0393701)
-            else:
-                raise ValueError
-        if self.units == "in":
-            if other.units == "cm":
-                return self.amount / (other.amount * 0.393701)
-            elif other.units == "mm":
-                return self.amount / (other.amount * 0.0393701)
-            else:
-                raise ValueError
-        raise ValueError
+        return self.amount / other.amount * self._conv_factor(other)
 
     __floordiv__ = __truediv__
     __div__ = __truediv__
