@@ -536,7 +536,7 @@ class Surfacer():
 					block.append(CNC.grapid(z=zsafe))
 					block.append(CNC.grapid(x=seg.A[0],y=seg.A[1]))
 					block.append(CNC.gline(z=z,f=CNC.vars["cutfeedz"]))
-				block.append(CNC.gline(x=seg.A[0], y=seg.A[1],z=z,f=CNC.vars["cutfeedz"]))
+# 				block.append(CNC.gline(x=seg.A[0], y=seg.A[1],z=z,f=CNC.vars["cutfeedz"]))
 				block.append(CNC.gline(x=seg.B[0],y=seg.B[1],z=z,f=CNC.vars["cutfeed"]))
 				lastSeg = seg
 		return block
