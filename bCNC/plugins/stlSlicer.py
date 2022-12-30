@@ -403,7 +403,8 @@ class Surfacer():
 				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,z),Vector(dir1endend,z))
 			else :
 # 				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,dir1startstart),Vector(currentposdir2,dir1endend))
-				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,z),Vector(currentposdir2,z))
+# 				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,z),Vector(currentposdir2,z))
+				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,z),Vector(dir1endend,z))
 			self.PathSliceRoughList = []
 			self.tmpSlicePath = Path("tmp")
 			self.PathLineIntersect = Path("line intersect")
@@ -413,7 +414,7 @@ class Surfacer():
 			inter = currentsliceCopy.intersectPath(self.PathLineIntersect)
 			for point in inter:
 				intersectionsPoints.append(point[2])
-			indice = 0 if self.direction == "x" else 1
+			indice = 0 if self.direction == "x" else 0
 			liste = sorted(intersectionsPoints, key=lambda point: point[indice],reverse = not even)
 			currentdir1pos = dir1startstart
 			index = -1
@@ -422,13 +423,13 @@ class Surfacer():
 				if self.direction =="x":
 					segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(point[0],currentposdir2))
 				else :
-					segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,point[1]))
+					segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,point[0]))
 				if index %2 ==0:
 					if segment.length()>0:
 						self.tmpSlicePath.append(segment)
 					self.PathSliceRoughList.append(self.tmpSlicePath)
 					self.tmpSlicePath = Path("tmp")
-				currentdir1pos = point[0] if self.direction == "x" else point[1]
+				currentdir1pos = point[0]# if self.direction == "x" else point[0]
 			if self.direction =="x":
 				segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(dir1endend,currentposdir2))
 			else :
@@ -445,7 +446,7 @@ class Surfacer():
 			currentposdir2+=self.toolStep
 			currentposdir2=min(currentposdir2,dir2end)
 			self.PathSliceRoughList.append(self.tmpSlicePath)
-			self.FullPathRoughList.append(self.PathSliceRoughList)
+			self.FullPathRoughList.extend(self.PathSliceRoughList)
 			indexSlice +=1
 		return self.FullPathRoughList
 		
@@ -526,6 +527,19 @@ class Surfacer():
 			app.setStatus("progress %.2f "%(currentposdir2/dir2end*100.)+"%",True)
 		return blocks
 
+	def fromPath(self,pathlist,z,zsafe):
+		block = Block("new")
+		lastSeg = pathlist[0][0]
+		for path in pathlist :
+			for seg in path:
+				if not eq(lastSeg.B,seg.A) :
+					block.append(CNC.grapid(z=zsafe))
+					block.append(CNC.grapid(x=seg.A[0],y=seg.A[1]))
+					block.append(CNC.gline(z=z,f=CNC.vars["cutfeedz"]))
+				block.append(CNC.gline(x=seg.A[0], y=seg.A[1],z=z,f=CNC.vars["cutfeedz"]))
+				block.append(CNC.gline(x=seg.B[0],y=seg.B[1],z=z,f=CNC.vars["cutfeed"]))
+				lastSeg = seg
+		return block
 
 class Vecteur():
 	def __init__(self,coordsTuple=None):
@@ -793,8 +807,8 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 				pathlist.extend(rawSliceList)
 				if len(pathlist)>0:
 					allblocks = gcode.blocks
-					newblocks = gcode.fromPath(pathlist,z=z+AdditionalOffsetRadius,zstart=z+AdditionalOffsetRadius)
-					block = Block("Slice z="+str(z+AdditionalOffsetRadius))
+					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
+					block = Block("Slice z="+str(z))
 					block.extend(newblocks)
 					blocks.append(block)
 					bid = len (allblocks)-1
@@ -822,7 +836,7 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 					allblocks = gcode.blocks
 # 					newblocks = gcode.fromPath(pathlist,z=z+AdditionalOffsetRadius,zstart=z+AdditionalOffsetRadius)
 # 					block = Block("Slice z="+str(z+AdditionalOffsetRadius))
-					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
+					newblocks = RoughSurfacer.fromPath(roughRemoval,z=z,zsafe=CNC.vars["safe"])
 					block = Block("Slice z="+str(z))
 					block.extend(newblocks)
 					blocks.append(block)
