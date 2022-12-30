@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: ascii -*-
 
-# Author: @DodoLaSaumure Pierre KLein
+# Author: @LittlePierre Pierre KLein
 # Date: 28 feb 2021
 
 # for further information about the algorithms,
@@ -206,184 +206,20 @@ class SliceRemoval:
 		self.diameter = diameter
 		self.direction = direction
 		
-	def getpathListSlice(self,previousSlicesList,operations):
-		[RawSliceOperation,RoughRemovalOperation,RoughContourOperation]=operations
-		self.computeRawSlice(self.z,previousSlicesList,operations)
-		if RoughRemovalOperation :
-			self.sliceRemoveXY()
-		else :
-			self.FullPathRoughList = []
-		return [self.FullPathRoughList,self.sliceFinePathList,self.RawSlicePathList]
+	def getpathListSlice(self):
+		self.computeRawSlice(self.z)
+		return self.RawSlicePathList
+# 		return [self.FullPathRoughList,self.RawSlicePathList,self.RawSlicePathList]
 
-	def computeRawSlice(self,height,previousSlicesList,operations):
-		[RawSliceOperation,RoughRemovalOperation,RoughContourOperation]=operations
+	def computeRawSlice(self,height):
 		z= height
-		print ('z',z)
 		slicePath = self.stlObj.getSliceAlongDir("z",z)
 		splitList = slicePath.split2contours()
-		splitList = self.tagPlainAndEmpty(splitList)
-		self.sliceFinePathList = []
-		for p in splitList :
-			if p.getTag("plain")==True :
-				offs = self.diameter/2.+self.AdditionalOffsetRadius
-			else :
-				offs = -self.diameter/2.-self.AdditionalOffsetRadius
-			pathlist = p.offsetClean(offs)
-			for index,p in enumerate(pathlist):
-# 				pass#should be the best, but there remain some intersections that are not managed correctly
-				p.convert2Lines(float("inf"))# This is not good, since arcs are shortcut...
-# 				pathlist[index]=p.approximateArcsToLines(10.)#there remains sides effects...
-			self.sliceFinePathList.extend(pathlist)
-		self.sliceFinePathList=self.removeIntersections(self.sliceFinePathList)
-		if RawSliceOperation:
-			self.RawSlicePathList = deepcopy(self.sliceFinePathList)
-		else :
-			self.RawSlicePathList = []
-		if RoughRemovalOperation or RoughContourOperation :
-			self.sliceFinePathList =self.keepOutside(self.sliceFinePathList,previousSlicesList)
-		else :
-			self.sliceFinePathList = []
-
-	def sliceRemoveXY(self):
-		[dir1start,dir1end] = [self.xstart,self.xend] if self.direction =="x" else [self.ystart,self.yend]
-		[dir2start,dir2end] = [self.ystart,self.yend] if self.direction =="x" else [self.xstart,self.xend] 
-		currentposdir2 = dir2start
-		even = False
-		self.FullPathRoughList = []
-		while currentposdir2 <= dir2end:
-			even = not even
-			dir1startstart = dir1start if even else dir1end
-			dir1endend = dir1end if even else dir1start
-			if self.direction =="x":
-				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,currentposdir2),Vector(dir1endend,currentposdir2))
-			else :
-				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,dir1startstart),Vector(currentposdir2,dir1endend))
-			self.PathSliceRoughList = []
-			self.tmpSlicePath = Path("tmp")
-			self.PathLineIntersect = Path("line intersect")
-			self.PathLineIntersect.append(lineIntersect)
-			intersectionsPoints =[]
-			sliceFinePathListcopy = deepcopy(self.sliceFinePathList)
-			for path in sliceFinePathListcopy :
-				inter = path.intersectPath(self.PathLineIntersect)
-				for point in inter:
-					intersectionsPoints.append(point[2])
-			indice = 0 if self.direction == "x" else 1
-			liste = sorted(intersectionsPoints, key=lambda point: point[indice],reverse = not even)
-			currentdir1pos = dir1startstart
-			index = -1
-			for point in liste :
-				index +=1
-				if self.direction =="x":
-					segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(point[0],currentposdir2))
-				else :
-					segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,point[1]))
-				if index %2 ==0:
-					if segment.length()>0:
-						self.tmpSlicePath.append(segment)
-					self.PathSliceRoughList.append(self.tmpSlicePath)
-					self.tmpSlicePath = Path("tmp")
-				currentdir1pos = point[0] if self.direction == "x" else point[1]
-			if self.direction =="x":
-				segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(dir1endend,currentposdir2))
-			else :
-				segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,dir1endend))
-			self.tmpSlicePath.append(segment)
-			if self.direction =="x":
-				segment = Segment(Segment.LINE,Vector(dir1endend,currentposdir2),Vector(dir1endend,currentposdir2+self.toolStep))
-			else :
-				segment = Segment(Segment.LINE,Vector(currentposdir2,dir1endend),Vector(currentposdir2+self.toolStep,dir1endend))
-			if currentposdir2 +self.toolStep < dir2end :
-				self.tmpSlicePath.append(segment)
-			if currentposdir2 == dir2end:
-				break
-			currentposdir2+=self.toolStep
-			currentposdir2=min(currentposdir2,dir2end)
-			self.PathSliceRoughList.append(self.tmpSlicePath)
-			self.FullPathRoughList.append(self.PathSliceRoughList)
-			
-	def removeIntersections(self,pathlist):
-		segList = []
-		for path in pathlist:
-			for seg in path:
-				segList.append(seg)
-		tmpout = deepcopy(segList)
-		for seg in segList :
-			for path in pathlist :
-				inside =path.isSegInside(seg)==1#outseg inside offsetislands =>pop
-				if inside and seg in tmpout:
-					tmpout.remove(seg)
-		newpath = Path("tmp")
-		newpath.extend(tmpout)
-		newpathlist=newpath.split2contours()
-		return newpathlist
-	
-	#input : path list
-	# tag each path plain or empty material
-	# result [[pathlist],[bool plainmateriallist],[firstinsidepathlist]
-	def tagPlainAndEmpty(self,pathlist):
-		Pout0 = Vector(self.stlObj.minx-10.,self.stlObj.miny-10.)
-		for path in pathlist:
-			point = path[0].A
-			line = Segment(Segment.LINE , Pout0 , point)
-			nbInter = self.countPathListIntersect(line,pathlist,pathToExclude=path)
-			plain = not bool(nbInter % 2)
-			path.setTag("plain",plain)
-		return pathlist
-
-	#----------------------------------------------------------------------
-	# Input : pathlist : list of paths
-	# Output : Nb Intersections between line and pathlist
-	# Usage : Check if a path is odd or even in a path list
-	# return value : nb intersections between line and pathlist 
-	#----------------------------------------------------------------------
-	def countPathListIntersect(self,line,pathlist,pathToExclude=None):
-		newpathlist = []
-		for path in pathlist :
-			if not pathToExclude ==path:
-				newpathlist.append(path)
-		count = 0
-		for path in newpathlist :
-			for seg in path:
-				inter1,inter2 = line.intersect(seg)
-				if inter1 is not None and not eq(inter1,seg.A) and not eq(inter1,seg.B): 
-					count +=1
-				if inter2 is not None and not eq(inter2,seg.A) and not eq(inter2,seg.B): 
-					count +=1
-		return count
-
-	def isInEmptyContour(self,seg,pathlist,pathToExclude=None):
-		Pout0 = Vector(self.stlObj.minx,self.stlObj.miny)
-		P = seg.midPoint()
-		line = Segment(Segment.LINE , Pout0 , P)
-		nbInter = self.countPathListIntersect(line,pathlist,pathToExclude=pathToExclude)
-		plain = bool(nbInter % 2)
-		return not plain
-			
-	def keepOutside(self,currentList,previousList):
-		if len(previousList) == 0:
-			return self.tagPlainAndEmpty(currentList)
-		previous = deepcopy(previousList)
-		current = deepcopy(currentList)
-		for pathprevious in previous :
-			for pathcurrent in current :
-				pathprevious.intersectPath(pathcurrent)
-		for pathcurrent in current :
-			for pathprevious in previous :
-				pathcurrent.intersectPath(pathprevious)
-		newPath = Path('New')
-		for path in previous :
-			for seg in path:
-				if self.isInEmptyContour(seg, current) and not seg in newPath:
-					newPath.append(seg)
-		for path in current :
-			for seg in path:
-				if self.isInEmptyContour(seg, previous) and not seg in newPath:
-					newPath.append(seg)
-		return self.tagPlainAndEmpty(newPath.split2contours())
+		self.RawSlicePathList = deepcopy(splitList)
 
 
-class BallFinish():
+
+class Surfacer():
 	def __init__(self,stlObj,xstart,xend,ystart,yend,toolStep,direction,AdditionalOffsetRadius,diameter,zend,finishfeed):
 		self.stlObj = stlObj
 		self.xstart = xstart
@@ -398,7 +234,7 @@ class BallFinish():
 		self.direction = direction
 		self.radiusCorrected = self.diameter/2.+AdditionalOffsetRadius
 		self.ballSlicesOffsets()
-		
+		print ("self.zend",self.zend)
 	def ballSlicesOffsets(self):
 		slicesToolSteps = []
 		sliceToolStep = 0.
@@ -433,88 +269,31 @@ class BallFinish():
 		newpath = Path("PostCleaned")
 		tmppath = Path("tmpPath")
 		lastpos = path[0].A
+		zlimit = self.zend+self.diameter/2.
 		for seg in path:
 			newpos =seg.A
-			if (lastpos-newpos).length()>EPS:#new A <> last B=>move from last B to A, then new A to B
-				if newpos[0]>lastpos[0]:
+			if (lastpos-newpos).length()>EPS :#and seg.B[1]>=zlimit and seg.A[1] >= zlimit: #and  :#and lastpos[1]>zlimit :#new A <> last B=>move from last B to A, then new A to B
+				if newpos[0]>lastpos[0] :
 					tmppath.append(Segment(Segment.LINE,lastpos,newpos))
-				if seg.B[0]> newpos[0]:
-					tmppath.append(Segment(Segment.LINE,newpos,seg.B))
-			elif seg.B[0]>lastpos[0] : # new A== last B => mobr to newB from last pos
-				tmppath.append(Segment(Segment.LINE,lastpos,seg.B))
-			lastpos = seg.B
+					lastpos = newpos
+				if seg.B[0]> lastpos[0] :
+					tmppath.append(Segment(Segment.LINE,lastpos,seg.B))
+					lastpos = seg.B
 		lastSeg=tmppath[0]
-		for newSeg in tmppath:
-			ignore = False
-			if newSeg.B[0]<lastSeg.B[0]:#move backwards
-				ignore =True
-			if newSeg.B[0]>lastSeg.A[0] and not ignore and len(newpath)>0:
-				if newSeg.A[0]<lastSeg.A[0]:
-					theSeg = Segment(Segment.LINE,lastSeg.B,newSeg.B)
-					newpath.append(theSeg)
-					lastSeg = theSeg
-				elif lastSeg.B[0]- newSeg.A[0]> EPSV:#interpolate
-					segToCut = lastSeg
-					lineX = Segment(Segment.LINE,Vector(newSeg.A[0],1000.),Vector(newSeg.A[0],-1000.))
-					P1,dummy = segToCut.intersect(lineX)
-					P2 = newSeg.A
-					if P1 is not None :
-						newpath[-1]=Segment(Segment.LINE,segToCut.A,P1)
-						newpath.append(Segment(Segment.LINE,P1,P2))
-						newpath.append(newSeg)
-					else : 
-						newpath[-1]=Segment(Segment.LINE,segToCut.A,newSeg.B)
-					lastSeg = newSeg
-				elif lastSeg.B[0] -newSeg.A[0]<-EPSV:
-					newpath.append(Segment(Segment.LINE,lastSeg.B,newSeg.A))
-					newpath.append(newSeg)
-					lastSeg = newSeg
-				else:
-					newpath.append(newSeg)
-					lastSeg = newSeg
-			if len(newpath)==0:
-				newpath.append(newSeg)
-				lastSeg = newSeg
-		return newpath
-	
-	def findSuperposedSegsXi(self,xi,pathlist,exlcudeList=[]):
-		listfound =[]
-		for path in pathlist:
-			for seg in path:
-				if seg.minx <= xi and seg.maxx >xi and not seg in exlcudeList:
-					listfound.append(seg)
-		return listfound
-	
-	def maxseg(self,seglist):
-		maxiZ = -float("inf")
-		mxSeg = None
-		for seg in seglist :
-			z = seg.midPoint()[1]
-			if z > maxiZ and seg.length()>0:
-				maxiZ = z
-				mxSeg = seg
-		return mxSeg
+		return tmppath
+# 
 
 	def areSuperposed(self,seg0,seg1):
 		return max(seg0.minx,seg1.minx) < min(seg0.maxx,seg1.maxx)
 
-	def getsuperposed(self,seg0,pathlist):
-		superposedList =[]
-		for path in pathlist :
-			for seg in path:
-				if self.areSuperposed(seg0,seg):
-					if not seg in superposedList:
-						superposedList.append(seg)
-		return superposedList
-
-	def findSegXi(self,xi,orderedPathList,excludelist=None):
-		listSegs = []
-		for path in orderedPathList:
-			for seg in path:
-				if abs(seg.A[0]-xi)<EPSV and excludelist is not None and not seg in excludelist:
-					listSegs.append(seg)
-		return listSegs
-	
+	def completePath(self,path):
+		seg0 = path[0]
+		seglast = path[-1]
+		seg00 = Segment(Segment.LINE,Vector(seg0.A[0],self.zend),seg0.A)
+		path.insert(0,seg00)
+		seglastLast=Segment(Segment.LINE,seglast.B,Vector(seglast.B[0],self.zend))
+		path.append(seglastLast)
+		return path
 	def getTopSegs2(self,pathlist,postClean=True):
 		newPath = Path("max")
 		listx = []
@@ -572,6 +351,8 @@ class BallFinish():
 		return newpath
 	
 	def generategcode(self,sliceNmax,evenSense):
+		self.diameterz = self.diameter
+# 		self.diameterz = 0.
 		newblock = []
 		if sliceNmax is None or len(sliceNmax)<1:
 			return newblock
@@ -584,22 +365,114 @@ class BallFinish():
 			newblock.append(CNC.gline(x=seg.A[0],f=self.finishfeed))
 		else :
 			newblock.append(CNC.gline(y=seg.A[0],f=self.finishfeed))
-		newblock.append(CNC.gline(z=seg.A[1]-self.diameter/2.,f=self.finishfeed))
+# 		newblock.append(CNC.gline(z=seg.A[1]+self.diameter/2.,f=self.finishfeed))
+		newblock.append(CNC.gline(z=seg.A[1]-self.diameterz/2.,f=self.finishfeed))
 		lastpos = Vector(seg.A[0],self.zend)
 		for seg in sliceOriented :
 			newpos = seg.A
 			if self.direction == "x":
 				if (lastpos-newpos).length()>EPSV :
-					newblock.append(CNC.gline(x=seg.A[0],z=seg.A[1]-self.diameter/2.,f=self.finishfeed))
-				newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1]-self.diameter/2.,f=self.finishfeed))
+# 					newblock.append(CNC.gline(x=seg.A[0],z=seg.A[1]+self.diameter/2.,f=self.finishfeed))
+					newblock.append(CNC.gline(x=seg.A[0],z=seg.A[1]-self.diameterz/2.,f=self.finishfeed))
+# 				newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1]+self.diameter/2.,f=self.finishfeed))
+				newblock.append(CNC.gline(x=seg.B[0],z=seg.B[1]-self.diameterz/2.,f=self.finishfeed))
 			else :
 				if (lastpos-newpos).length()>EPSV :
-					newblock.append(CNC.gline(y=seg.A[0],z=seg.A[1]-self.diameter/2.,f=self.finishfeed))
-				newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1]-self.diameter/2.,f=self.finishfeed))
+# 					newblock.append(CNC.gline(y=seg.A[0],z=seg.A[1]+self.diameter/2.,f=self.finishfeed))
+					newblock.append(CNC.gline(y=seg.A[0],z=seg.A[1]-self.diameterz/2.,f=self.finishfeed))
+# 				newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1]+self.diameter/2.,f=self.finishfeed))
+				newblock.append(CNC.gline(y=seg.B[0],z=seg.B[1]-self.diameterz/2.,f=self.finishfeed))
 			lastpos = seg.B
 		newblock.append(CNC.gline(z=self.zend,f=self.finishfeed))
 		return newblock
-
+	def sliceRemoveXY(self,z,app):
+		self.PathSliceRoughList=[]
+		self.FullPathRoughList = []
+		[dir1start,dir1end] = [self.xstart,self.xend] if self.direction =="x" else [self.ystart,self.yend]
+		[dir2start,dir2end] = [self.ystart,self.yend] if self.direction =="x" else [self.xstart,self.xend] 
+		currentposdir2 = dir2start
+		even = False
+		indexSlice = 0
+		while currentposdir2 < dir2end:
+			currentslice = self.allSlices[indexSlice]
+			even = not even
+			dir1startstart = dir1start if even else dir1end
+			dir1endend = dir1end if even else dir1start
+			if self.direction =="x":
+# 				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,currentposdir2),Vector(dir1endend,currentposdir2))
+				lineIntersect = Segment(Segment.LINE,Vector(dir1startstart,z),Vector(dir1endend,z))
+			else :
+# 				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,dir1startstart),Vector(currentposdir2,dir1endend))
+				lineIntersect = Segment(Segment.LINE,Vector(currentposdir2,z),Vector(currentposdir2,z))
+			self.PathSliceRoughList = []
+			self.tmpSlicePath = Path("tmp")
+			self.PathLineIntersect = Path("line intersect")
+			self.PathLineIntersect.append(lineIntersect)
+			intersectionsPoints =[]
+			currentsliceCopy = deepcopy(currentslice)
+			inter = currentsliceCopy.intersectPath(self.PathLineIntersect)
+			for point in inter:
+				intersectionsPoints.append(point[2])
+			indice = 0 if self.direction == "x" else 1
+			liste = sorted(intersectionsPoints, key=lambda point: point[indice],reverse = not even)
+			currentdir1pos = dir1startstart
+			index = -1
+			for point in liste :
+				index +=1
+				if self.direction =="x":
+					segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(point[0],currentposdir2))
+				else :
+					segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,point[1]))
+				if index %2 ==0:
+					if segment.length()>0:
+						self.tmpSlicePath.append(segment)
+					self.PathSliceRoughList.append(self.tmpSlicePath)
+					self.tmpSlicePath = Path("tmp")
+				currentdir1pos = point[0] if self.direction == "x" else point[1]
+			if self.direction =="x":
+				segment = Segment(Segment.LINE,Vector(currentdir1pos,currentposdir2),Vector(dir1endend,currentposdir2))
+			else :
+				segment = Segment(Segment.LINE,Vector(currentposdir2,currentdir1pos),Vector(currentposdir2,dir1endend))
+			self.tmpSlicePath.append(segment)
+			if self.direction =="x":
+				segment = Segment(Segment.LINE,Vector(dir1endend,currentposdir2),Vector(dir1endend,currentposdir2+self.toolStep))
+			else :
+				segment = Segment(Segment.LINE,Vector(currentposdir2,dir1endend),Vector(currentposdir2+self.toolStep,dir1endend))
+			if currentposdir2 +self.toolStep < dir2end :
+				self.tmpSlicePath.append(segment)
+			if currentposdir2 == dir2end:
+				break
+			currentposdir2+=self.toolStep
+			currentposdir2=min(currentposdir2,dir2end)
+			self.PathSliceRoughList.append(self.tmpSlicePath)
+			self.FullPathRoughList.append(self.PathSliceRoughList)
+			indexSlice +=1
+		return self.FullPathRoughList
+		
+	def getAllSlicesWithOfssetAlongDir(self,app):
+		allSlices = []
+# 		[dir1start,dir1end] = [self.xstart,self.xend] if self.direction =="x" else [self.ystart,self.yend]
+		[dir2start,dir2end] = [self.ystart,self.yend] if self.direction =="x" else [self.xstart,self.xend]
+		currentposdir2 = dir2start
+		while dir2end>=currentposdir2:
+			RawSlicePath = self.stlObj.getSliceAlongDir(self.direction,currentposdir2)
+			RawSlicePath =self.getTopSegs2([RawSlicePath])
+			offZ = self.radiusCorrected
+			opath = RawSlicePath.offset(offZ)
+		# Post clean
+			if opath:
+				opath.intersectSelf()
+				opath.removeExcluded(RawSlicePath, offZ)
+				opath.removeZeroLength(abs(offZ)/100.)
+				opath=self.getTopSegs2([opath])
+			if len(opath)>0:
+				opath=self.completePath(opath)
+			allSlices.append(opath)
+			currentposdir2+=self.toolStep
+# 			currentposdir2=min(currentposdir2,dir2end)
+			app.setStatus("step 1/2 : progress %.2f "%(currentposdir2/dir2end*100.)+"%",True)
+		self.allSlices = allSlices
+		return allSlices
 	def calcGcode(self,app):
 		app.setStatus(_("initializing"),True)
 		blocks = []
@@ -616,7 +489,7 @@ class BallFinish():
 		for index,sliceOffset in enumerate(self.slicesOffsets) :
 			app.setStatus(_("initializing %.02f"%(float(index)/float(len(self.slicesOffsets))*100.)),True)
 			sliceToolStep = sliceOffset[0]
-			RawSliceNPath = self.stlObj.getSliceAlongDir(self.direction,currentposdir2+sliceToolStep)#.split2contours()
+			RawSliceNPath = self.stlObj.getSliceAlongDir(self.direction,currentposdir2+sliceToolStep).arcFit()#.split2contours()
 			sliceNmaxPath = self.getTopSegs2([RawSliceNPath])
 			rotatingBufferSlicesPathList.append(sliceNmaxPath)
 		app.setStatus(_("init done"),True)
@@ -825,7 +698,7 @@ class Tool(Plugin):
 			("toolstep", "mm", -1., _("tool step (-1: From tool database)"), "tool step along x y"),
 			("finishfeed", "mm", 100, _("finish xyz feed"), "finish feed (x,y,z)"),
 			("AdditionalOffsetRadius", "mm" , 0., _("radius offset outside material (mm)"), _('acts like a tool corrector outside the material')),
-			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Rough Slice contour(cylindrical nose),3-Finish Surface removal (ball nose)",
+			("operations","0-Raw Slice(information only),1-Rough Slice rough removal(cylindrical nose),2-Finish Surface removal (ball nose)",
 			"1-Rough Slice rough removal(cylindrical nose)",_("Operation Type"),"choose your operation here"),
 			]
 		self.help = '''This plugin can slice meshes
@@ -894,37 +767,30 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 		dictoperation = {
 			"0-Raw Slice(information only)":0,
 			"1-Rough Slice rough removal(cylindrical nose)":1,
-			"2-Rough Slice contour(cylindrical nose)":2,
-			"3-Finish Surface removal (ball nose)":3,
+# 			"2-Rough Slice contour(cylindrical nose)":2,
+			"2-Finish Surface removal (ball nose)":2,
 									}
 		operation = dictoperation.get(self["operations"],1)
 		RawSliceOperation = operation ==0
 		RoughRemovalOperation =operation ==1
-		RoughContourOperation = operation ==2
-		FinishSurfaceOperation = operation ==3
+# 		RoughContourOperation = operation ==2
+		FinishSurfaceOperation = operation ==2
 		gcode = app.gcode
 		gcode.headerFooter()
-		if RawSliceOperation or RoughRemovalOperation or RoughContourOperation and stlObj is not None:
+		if RawSliceOperation and stlObj is not None:
 			z = zstart
-			previousSliceList=[]
-			operations = [RawSliceOperation,RoughRemovalOperation,RoughContourOperation]
+# 			previousSliceList=[]
+# 			previousRawSliceList = []
+			rawSliceList=[]
 			while z > zend:
+				print ("z",z,"/zend",zend)
 				blocks = []
-				app.setStatus(_("Making slice...z=")+str(z),True)
+				app.setStatus(_("Making slice...z=")+str(z)+"/"+str(zend)+"->%.2f%%"%(z/zend*100.),True)
 				sliceremoval = SliceRemoval(stlObj,xstart,xend,ystart,yend,
 										z,toolStep,direction,AdditionalOffsetRadius,diameter)
-				rawSlice=[]
 				pathlist = []
-				if RoughContourOperation or RoughRemovalOperation or RawSliceOperation:
-					[RoughDirectionList,ContourList,rawSlice] = sliceremoval.getpathListSlice(previousSliceList,operations)
-					if RoughContourOperation:
-						pathlist.extend(ContourList)
-					if RoughRemovalOperation :
-						pathlist.extend(RoughDirectionList)
-					if RawSliceOperation:
-						pathlist.extend(rawSlice)
-					previousSliceList = ContourList
-
+				rawSliceList= sliceremoval.getpathListSlice()
+				pathlist.extend(rawSliceList)
 				if len(pathlist)>0:
 					allblocks = gcode.blocks
 					newblocks = gcode.fromPath(pathlist,z=z+AdditionalOffsetRadius,zstart=z+AdditionalOffsetRadius)
@@ -935,14 +801,36 @@ NB : This plugin does not work for flat surfaces, please use Offset, Profile, Cu
 					app.gcode.addBlockUndo( bid, block)
 				z -= zstep
 		if FinishSurfaceOperation and stlObj is not None:
-			ballfinish = BallFinish(stlObj,xstart,xend,ystart,yend,
+			ballfinish = Surfacer(stlObj,xstart,xend,ystart,yend,
 										toolStep,direction,AdditionalOffsetRadius,diameter,zend,finishfeed)
 			blocks = ballfinish.calcGcode(app)
 			allblocks = gcode.blocks
 			bid = len (allblocks)-1
 			app.gcode.insBlocks(bid, blocks, _("BALL FINISH"))
+		if RoughRemovalOperation and stlObj is not None:
+			RoughSurfacer = Surfacer(stlObj,xstart,xend,ystart,yend,
+					toolStep,direction,AdditionalOffsetRadius,diameter,zend,finishfeed)
+			slices = RoughSurfacer.getAllSlicesWithOfssetAlongDir(app)
+			z = zstart
+			while z > zend:
+				app.setStatus("step 2/2 : progress %.2f "%(z/zend*100.)+"%",True)
+				blocks = []
+				pathlist = []
+				roughRemoval= RoughSurfacer.sliceRemoveXY(z,app)
+				pathlist.extend(roughRemoval)
+				if len(pathlist)>0:
+					allblocks = gcode.blocks
+# 					newblocks = gcode.fromPath(pathlist,z=z+AdditionalOffsetRadius,zstart=z+AdditionalOffsetRadius)
+# 					block = Block("Slice z="+str(z+AdditionalOffsetRadius))
+					newblocks = gcode.fromPath(pathlist,z=z,zstart=z)
+					block = Block("Slice z="+str(z))
+					block.extend(newblocks)
+					blocks.append(block)
+					bid = len (allblocks)-1
+					app.gcode.addBlockUndo( bid, block)
+				z -= zstep
 		if zend < -toolLength :
-			msg = "Be careful, the tool lenght might be too short..."
+			msg = "Be careful, the tool length might be too short..."
 			tkMessageBox.showwarning(_("Tool Length too short"),
 		_("WARNING: %s")%(msg),
 			parent=app)

@@ -719,11 +719,10 @@ class Segment:
 # ignore zero length segments
 # =============================================================================
 class Path(list):
-    def __init__(self, name, color=None,tagsDict = {}):
-        self.name    = name
-        self.color   = color
+    def __init__(self, name, color=None):
+        self.name = name
+        self.color = color
         self._length = None
-        self.tags = tagsDict
 
     # ----------------------------------------------------------------------
     def __repr__(self):
@@ -1999,17 +1998,3 @@ class Path(list):
                         except Exception:
                             self.append(Segment(Segment.LINE, A, B))
                     A = B
-    def setTag(self,tag,value):
-        self.tags[tag]=value
-        
-    def getTag(self,tag):
-        return self.tags.get(tag,None)
-    
-    def getAllTags(self):
-        return self.tags.keys()
-    
-    def getTagsDict(self):
-        return self.tags
-    
-    def hasTag(self,tag):
-        return tag in self.tags.keys()
