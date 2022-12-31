@@ -32,7 +32,7 @@ class _GenericController:
         print("test supergen")
 
     def initController(self):
-        text = Utils.getStr("Controller","initstring")
+        text = Utils.getStr("CNC","init")
         if text:
             # Deal with a device in feedhold from prior session
             self.master.serial_write("%~\n")

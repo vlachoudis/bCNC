@@ -653,6 +653,7 @@ class Config(_Base):
             ("drozeropad", "int", 0, _("DRO Zero padding")),
             ("header", "text", "", _("Header gcode")),
             ("footer", "text", "", _("Footer gcode")),
+            ("init", "text", "", _("Connection init string")),
         ]
 
     # ----------------------------------------------------------------------
