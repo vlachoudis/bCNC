@@ -4408,9 +4408,16 @@ class GCode:
         # Idealy it should be generated as single block containing both pocket
         # and profile
         if pocket:
+            diameter = CNC.vars["diameter"]
+            stepover = CNC.vars["stepover"]/100.0
             msg = msg + self.pocket(
-                newblocks, abs(offset), CNC.vars["stepover"] / 50, name, True
+                sorted(newblocks), diameter, stepover, name, True, True
             )
+            withpocketblocks=sorted(newblocks).copy()
+            for i in range(0,len(withpocketblocks)):
+                    withpocketblocks[i]+=i
+                    withpocketblocks.append(withpocketblocks[i]+1)
+            newblocks = sorted(withpocketblocks,reverse=True)
         blocks.extend(newblocks)
         return msg
 
@@ -4480,7 +4487,7 @@ class GCode:
     # make a pocket on block
     # return new blocks inside the blocks list
     # ----------------------------------------------------------------------
-    def pocket(self, blocks, diameter, stepover, name, nested=False):
+    def pocket(self, blocks, diameter, stepover, name, nested=False, updown=False):
         undoinfo = []
         msg = ""
         newblocks = []
@@ -4532,9 +4539,14 @@ class GCode:
                 # remember length to shift all new blocks
                 # the are inserted before
                 before = len(newblocks)
-                undoinfo.extend(
-                    self.importPath(bid + 1, newpath, newblocks, True, False)
-                )
+                if updown:
+                    undoinfo.extend(
+                    self.importPath(bid, newpath, newblocks, True, False)
+                    )
+                else:
+                    undoinfo.extend(
+                        self.importPath(bid + 1, newpath, newblocks, True, False)
+                    )
                 new = len(newblocks) - before
                 for i in range(before):
                     newblocks[i] += new
