@@ -1,0 +1,12 @@
+*.pyc
+*.pyo
+lib/*.pyc
+lib/*.pyo
+.idea
+bCNC.egg-info
+.eggs
+dist
+build
+
+*.code-workspace
+.vscode/
