@@ -4434,6 +4434,7 @@ class GCode:
 
         sys.setrecursionlimit(max(sys.getrecursionlimit(), maxdepth + 100))
 
+        newpath = []
         if depth > maxdepth:
             return None
         if depth == 0:
@@ -4451,34 +4452,33 @@ class GCode:
         opath.removeZeroLength(abs(offset) / 100.0)
         opath = opath.split2contours()
 
-        if not opath:
-            return None
+#        if not opath:
+#            return None
+        if opath:
+            for pout in opath:
+                pin = self._pocket(pout, diameter, stepover, depth + 1)
+                if not pin:
+                    newpath.append(pout)
 
-        newpath = []
-        for pout in opath:
-            pin = self._pocket(pout, diameter, stepover, depth + 1)
-            if not pin:
-                newpath.append(pout)
+                # else: # FIXME
+                # 1. Find closest node that we can move with
+                #    a straight line without intersecting the path
+                # 2. rotate the pout to start from this node
+                # 3. join with a normal line
+                # else
+                # join with a rapid move as a separate path
+                elif len(pin) == 1:
+                    # FIXME maybe it is dangerous!!
+                    # Have to check before making a straight move
+                    pin[0].join(pout)
+                    newpath.append(pin[0])
 
-            # else: # FIXME
-            # 1. Find closest node that we can move with
-            #    a straight line without intersecting the path
-            # 2. rotate the pout to start from this node
-            # 3. join with a normal line
-            # else
-            # join with a rapid move as a separate path
-            elif len(pin) == 1:
-                # FIXME maybe it is dangerous!!
-                # Have to check before making a straight move
-                pin[0].join(pout)
-                newpath.append(pin[0])
-
-            else:
-                # FIXME needs to check if we can go in normal move
-                # needs to find the closest segment and rotate
-                # pin[-1].join(pout)
-                newpath.extend(pin)
-                newpath.append(pout)
+                else:
+                    # FIXME needs to check if we can go in normal move
+                    # needs to find the closest segment and rotate
+                    # pin[-1].join(pout)
+                    newpath.extend(pin)
+                    newpath.append(pout)
         return newpath
 
     # ----------------------------------------------------------------------
