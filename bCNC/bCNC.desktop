@@ -1,6 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
+Categories=Science;Electronics;Engineering
 Name=bCNC
 Comment=bCNC Controller
 Exec=bCNC
