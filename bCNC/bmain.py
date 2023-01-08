@@ -1731,8 +1731,7 @@ class Application(Tk, Sender):
             else:
                 self.executeOnSelection("OPTIMIZE", True)
 
-        # # FIXME comment for ORIENT not OPTIMIZE
-        # OPT*IMIZE: reorder selected blocks to minimize rapid motions
+        # OPIE*NT: rotate selection by angle phi and xo,yo offset
         elif rexx.abbrev("ORIENT", cmd, 4):
             if not self.editor.curselection():
                 self.editor.selectAll()
