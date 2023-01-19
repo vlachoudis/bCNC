@@ -224,6 +224,7 @@ class _GenericController:
             self.master.sendGCode(G)  # restore $G
         self.master.sendGCode(f"G43.1Z{TLO}")  # restore TLO
         self.viewState()
+        self.viewParameters()
 
     # ----------------------------------------------------------------------
     def displayState(self, state):
