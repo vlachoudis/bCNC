@@ -38,7 +38,7 @@ class Arc:
         cls._eq_threshold = float(threshold)
 
     def randomize(self):
-        tries = 100
+        tries = 1 + self._eq_threshold * 10
         i = 0
         while self in self._used_arcs[self.key] and i < tries:
             self.x = random.uniform(
@@ -48,7 +48,7 @@ class Arc:
                 self.y - self._eq_threshold, self.y + self._eq_threshold
             )
             self.r = random.uniform(
-                self.r, self.r + self._eq_threshold / 3.0
+                self.r, self.r + self._eq_threshold / 5.0
             )
             i += 1
         Arc._used_arcs[self.key].append(copy.deepcopy(self))
@@ -86,6 +86,7 @@ class Jigsaw:
         self.cut_feed = cut_feed
         self.z_safe = z_safe
         self.step_z = step_z
+        self.piece_crossing_deviations = []
 
     @staticmethod
     def calculate_piece_size(board_width, board_height, number_of_pieces):
@@ -109,9 +110,9 @@ class Jigsaw:
                     Arc("b0", 0, 0, 0, CW),
                     Arc("b1", 50, 1, 120, CW),
                     Arc("b2", 70, 13, 40, CCW),
-                    Arc("b3", 63, 37, 32, CW),
-                    Arc("b4", 107, 37, 31, CW),
-                    Arc("b5", 100, 13, 32, CW),
+                    Arc("b3", 63, 37, 26, CW),
+                    Arc("b4", 107, 37, 30, CW),
+                    Arc("b5", 100, 13, 26, CW),
                     Arc("b6", 120, 1, 40, CCW),
                     Arc("b7", 170, 0, 120, CW),
                 ],
@@ -247,6 +248,22 @@ class Jigsaw:
                                      board_height,
                                      number_of_pieces)
 
+        # Generate piece crossing deviations
+        threshold_int = int(threshold * 50.0)
+        max_cuts = max(horizontal_pieces, vertical_pieces) - 1
+        cls.piece_crossing_deviations = list(
+            zip(
+                random.sample(
+                    range(-threshold_int, threshold_int),
+                    max_cuts
+                ),
+                random.sample(
+                    range(-threshold_int, threshold_int),
+                    max_cuts
+                )
+            ) if threshold_int > 0 else ((0, 0), ) * max_cuts
+        )
+
         # Vertical cuts
         x = piece_width
         y = 0
@@ -263,7 +280,7 @@ class Jigsaw:
                     inverted=i % 2,
                 )
             )
-            x += piece_width
+            x += piece_width + cls.piece_crossing_deviations[i][0] * 0.001
 
         # Horizontal cuts
         x = 0
@@ -281,7 +298,7 @@ class Jigsaw:
                     inverted=i % 2,
                 )
             )
-            y += piece_height
+            y += piece_height + cls.piece_crossing_deviations[i][1] * 0.001
 
         return cuts
 
