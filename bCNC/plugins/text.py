@@ -5,13 +5,14 @@
 
 from CNC import CNC, Block
 from ToolsPage import Plugin
-
+from PIL.FontFile import FontFile
+from shxparser import ShxFont,ShxPath
+from svgelements import Arc
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
 
 __name__ = "Text"
-__version__ = "0.0.1"
-
+__version__ = "0.0.2" #0.0.2 on 2023 03 05 : SHX font import
 
 # =============================================================================
 # Text class
@@ -34,13 +35,13 @@ class Tool(Plugin):
 
         self.variables = [
             ("name", "db", "", _("Name")),
-            ("Text", "text", "Write this!", _("Text to generate")),
-            ("Depth", "mm", 0.0, _("Working Depth")),
-            ("FontSize", "mm", 10.0, _("Font size")),
-            ("FontFile", "file", "", _("Font file")),
-            ("Closed", "bool", True, _("Close Contours")),
+            ("Text", "text", "Write this!", _("Text to generate"),"enter here text to generate"),
+            ("Depth", "mm", 0.0, _("Working Depth"),"enter here depth (negative inside material)"),
+            ("FontSize", "mm", 10.0, _("Font size"),"enter here font height"),
+            ("FontFile", "file", "", _("Font file"),"pick the ttf or shx font"),
+            ("Closed", "bool", True, _("Close Contours"),"only for ttf fonts"),
             ("ImageToAscii", "file", "", _("Image to Ascii")),
-            ("CharsWidth", "int", 80, _("Image chars width")),
+            ("CharsWidth", "int", 80, _("Image chars width"),"for ttf fonts only"),
         ]
         self.buttons.append("exe")
 
@@ -73,7 +74,7 @@ class Tool(Plugin):
             return
 
         # Init blocks
-        blocks = []
+        self.blocks = []
         n = self["name"]
         if not n or n == "default":
             n = "Text"
@@ -84,6 +85,62 @@ class Tool(Plugin):
                 block.append(f"({line})")
         else:
             block.append(f"(Text: {textToWrite})")
+        if fontFileName.upper().endswith(".SHX") :
+            try :
+                shx = ShxFont(fontFileName)
+                paths = ShxPath()
+                shx.render(paths, textToWrite, font_size=fontSize)
+                self.shxtoGcode(paths.path,block,depth,app)
+            except Exception as exc :
+                app.setStatus(_("Text abort: That's embarrassing, "+ "I can't read this font file!"))
+                return
+        else :
+            self.ttftoGcode(fontFileName,textToWrite,closed,fontSize,depth,block,app)
+
+#     (x0,y0) -- Move to Position.
+#     ((x0,y0), (x1, y1)) --- Straight Line start->end
+#     ((x0,y0), (cx, cy), (x1, y1)) --- Arc start->control->end where control is a point on the arc that starts at start and ends at end.
+
+    def shxtoGcode(self,path,block,depth,app):
+        block.append(CNC.zsafe())
+        block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
+        for element in path:
+            if element is None :
+                break
+            if len (element) == 2 :
+                block.append("( ---------- cut-here ---------- )")
+                block.append(CNC.zsafe())
+                block.append(CNC.grapid(element[0] , element[1]))
+                block.append(CNC.zenter(depth))
+                block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
+            elif len(element)==4 :
+                block.append(CNC.gline(element[2],element[3]))
+            elif len(element)==6 : 
+                x0 = element[0]
+                y0 = element[1]
+                x1 = element[2]
+                y1= element[3]
+                x2 = element[4]
+                y2 = element[5]
+                arc = Arc(start=(x0, y0), control=(x1, y1), end=(x2, y2))
+                step = 1./10.
+                t = 0
+                for i in range(10):
+                    p1 = arc.point(t)
+                    p2 = arc.point(t+step)
+                    t += step
+                    block.append(CNC.gline(p2[0],p2[1]))
+        # Gcode Zsafe
+        block.append(CNC.zsafe())
+        self.blocks.append(block)
+        active = app.activeBlock()
+        if active == 0:
+            active = 1
+        app.gcode.insBlocks(active, self.blocks, "Text")
+        app.refresh()
+        app.setStatus("Generated Text")
+        
+    def ttftoGcode(self,fontFileName,textToWrite,closed,fontSize,depth,block,app):
         try:
             import ttf
 
@@ -134,11 +191,11 @@ class Tool(Plugin):
         # Gcode Zsafe
         block.append(CNC.zsafe())
 
-        blocks.append(block)
+        self.blocks.append(block)
         active = app.activeBlock()
         if active == 0:
             active = 1
-        app.gcode.insBlocks(active, blocks, "Text")
+        app.gcode.insBlocks(active, self.blocks, "Text")
         app.refresh()
         app.setStatus("Generated Text")
 
