@@ -752,30 +752,30 @@ class UserButton(Ribbon.LabelButton):
         tkExtra.Balloon.set(self, tooltip)
 
     # ----------------------------------------------------------------------
-    def name(self):
+    def name(self, raw=False):
         try:
-            return config.get("Buttons", f"name.{int(self.button)}")
+            return config.get("Buttons", f"name.{int(self.button)}", raw=raw)
         except Exception:
             return str(self.button)
 
     # ----------------------------------------------------------------------
-    def icon(self):
+    def icon(self, raw=False):
         try:
-            return config.get("Buttons", f"icon.{int(self.button)}")
+            return config.get("Buttons", f"icon.{int(self.button)}", raw=raw)
         except Exception:
             return None
 
     # ----------------------------------------------------------------------
-    def tooltip(self):
+    def tooltip(self, raw=False):
         try:
-            return config.get("Buttons", f"tooltip.{int(self.button)}")
+            return config.get("Buttons", f"tooltip.{int(self.button)}", raw=raw)
         except Exception:
             return ""
 
     # ----------------------------------------------------------------------
-    def command(self):
+    def command(self, raw=False):
         try:
-            return config.get("Buttons", f"command.{int(self.button)}")
+            return config.get("Buttons", f"command.{int(self.button)}", raw=raw)
         except Exception:
             return ""
 
@@ -863,15 +863,15 @@ class UserButtonDialog(Toplevel):
         Button(f, text=_("Ok"), command=self.ok).pack(side=RIGHT)
 
         # Set variables
-        self.name.insert(0, self.button.name())
-        self.tooltip.insert(0, self.button.tooltip())
-        icon = self.button.icon()
+        self.name.insert(0, self.button.name(raw=True))
+        self.tooltip.insert(0, self.button.tooltip(raw=True))
+        icon = self.button.icon(raw=True)
         if icon is None:
             self.iconCombo.set(UserButtonDialog.NONE)
         else:
             self.iconCombo.set(icon)
         self.icon["image"] = icons.get(icon, "")
-        self.command.insert("1.0", self.button.command())
+        self.command.insert("1.0", self.button.command(raw=True))
 
         # Wait action
         self.wait_visibility()
