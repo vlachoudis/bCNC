@@ -46,6 +46,15 @@ __email__ = "Vasilis.Vlachoudis@cern.ch"
 EPS = 0.000001
 EPS2 = EPS**2
 
+# For each entity type, list the tags having multiple entries
+# See https://help.autodesk.com/view/OARX/2023/ENU/?guid=GUID-7D07C886-FD1D-4A0C-A7AB-B4D21F18E484
+MULTIPLE_ENTRIES_TAGS = {
+    "LEADER": (10,),
+    "LWPOLYLINE": (10, 20, 40, 41, 42),
+    "MLINE": (11, 12, 13),
+    "SPLINE": (10, 11, 20, 21, 30, 31, 40)
+}
+
 # Just to avoid repeating errors
 errors = {}
 
@@ -58,6 +67,11 @@ def error(msg):
     else:
         sys.stderr.write(msg)
         errors[msg] = 1
+
+
+# -----------------------------------------------------------------------------
+def is_multiple_entries_tag(entityType, tag):
+    return tag in MULTIPLE_ENTRIES_TAGS.get(entityType, ())
 
 
 # =============================================================================
@@ -640,11 +654,9 @@ class Entity(dict):
                     # Replace last value
                     self[42][-1] = value
                 elif existing is None:
-                    self[tag] = value
+                    self[tag] = [value] if is_multiple_entries_tag(self.type, tag) else value
                 elif isinstance(existing, list):
                     existing.append(value)
-                else:
-                    self[tag] = [existing, value]
                 # Synchronize optional bulge with number of vertices
                 if tag == 10 and self.type == "LWPOLYLINE":
                     bulge = self.get(42)
