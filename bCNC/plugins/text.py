@@ -6,7 +6,7 @@
 from CNC import CNC, Block
 from ToolsPage import Plugin
 from PIL.FontFile import FontFile
-from shxparser import ShxFont,ShxPath
+from shxparser.shxparser import ShxFont,ShxPath
 from svgelements import Arc
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
