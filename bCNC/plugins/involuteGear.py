@@ -46,10 +46,10 @@ def involutePolyLigne(baseRadius, limitRadius, order, fstart, fstop):
     def involuteYPolyLigne(theta):
         return Rb * (sin(theta) - theta * cos(theta))
     nb = 10
-    step  = (te - ts)/nb
+    step = (te - ts)/nb
     current = ts
     result = []
-    for  index in range(nb+1):
+    for index in range(nb+1):
         bx = involuteXPolyLigne(current)
         by = involuteYPolyLigne(current)
         result.append((bx, by))
@@ -103,15 +103,15 @@ class Arc():#sweep = True => antiClockWise
         return result
     def center(self):
         start_end_vector = tuple( map(sub, self.end, self.start) )
-        l = sqrt(sum(elt*elt for elt in start_end_vector))
-        if l/2. > self.r:
+        lg = sqrt(sum(elt*elt for elt in start_end_vector))
+        if lg/2. > self.r:
             raise Exception("Arc error : radius is smaller than distance between points")
-        unit = tuple(elt/l for elt in start_end_vector)
+        unit = tuple(elt/lg for elt in start_end_vector)
         norm = (-unit[1],unit[0])
         middlePoint = tuple(elt/2. for elt in tuple(sum(x) for x in zip(self.start, self.end)))
-        h = sqrt(self.r**2-l**2/4.)
+        h = sqrt(self.r**2-lg**2/4.)
 
-        if  self.sweep :#anticlockwise
+        if self.sweep :#anticlockwise
             y = tuple(elt*h for elt in norm)
         else :#clockwise
             y = tuple(-elt*h for elt in norm)
@@ -151,7 +151,7 @@ class PathBuilder(object):
         sweep (0 or 1) determine the orientation of the arc
         """
         p = rotate(p, self.theta)
-        start =  self.pos
+        start = self.pos
         end = p
         self.wire.append(Arc(start, end,r,sweep))
         self.pos = end
