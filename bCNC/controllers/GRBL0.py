@@ -11,7 +11,7 @@ class Controller(_GenericGRBL):
         self.has_override = False
         self.master = master
 
-    def parseBracketAngle(self, line, cline):
+    async def parseBracketAngle(self, line, cline):
         self.master.sio_status = False
         pat = STATUSPAT.match(line)
         if pat:
