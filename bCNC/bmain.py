@@ -4,6 +4,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import asyncio
 import os
 import socket
 import sys
@@ -146,6 +147,7 @@ class Application(Tk, Sender):
         Tk.__init__(self, **kw)
         Sender.__init__(self)
 
+        self.idleFunction = self._monitorSerial
         Utils.loadIcons()
         tkinter.CallWrapper = Utils.CallWrapper
         tkExtra.bindClasses(self)
@@ -2731,6 +2733,7 @@ class Application(Tk, Sender):
 
                 elif msg == Sender.MSG_CLEAR:
                     self.buffer.delete(0, END)
+                    asyncio.run_coroutine_threadsafe(self.triggerBufferSync(), self.loop)
 
                 else:
                     # Unknown?

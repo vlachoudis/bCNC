@@ -128,7 +128,9 @@ class Sender:
         self._onStop = ""
         
         self.loop = asyncio.new_event_loop()
+        self.bufferSyncEvent = None
         self.resetEvent = None
+        self.idleFunction = None
 
     # ----------------------------------------------------------------------
     def controllerLoad(self):
@@ -735,23 +737,24 @@ class Sender:
     # thread performing I/O on serial line
     # ----------------------------------------------------------------------
     def scheduleCoroutine(self, coro):
-        def taskDoneCallback(cv, task):
-            with cv:
-                cv.notifyAll()
         if self.context.name in self.SERIAL_IO_THREAD_NAME:
             asyncio.create_task(coro)
         else:
-            cv = threading.Condition()
-            with cv:
-                task = asyncio.run_coroutine_threadsafe(coro, self.loop)
-                task.add_done_callback(functools.partial(taskDoneCallback,cv))
-                if not task.done():
-                    cv.wait()
+            task = asyncio.run_coroutine_threadsafe(coro, self.loop)
+            while not task.done():
+                if self.idleFunction:
+                    self.idleFunction()
+                else:
+                    time.sleep(0.1)
         
     def serialIOWrapper(self):
         self.context.name = self.SERIAL_IO_THREAD_NAME
         asyncio.set_event_loop(self.loop)
         self.loop.run_forever()
+    
+    async def triggerBufferSync(self):
+        if self.bufferSyncEvent:
+            self.bufferSyncEvent.set()
         
     async def serialIO(self):
         # wait for commands to complete (status change to Idle)
@@ -759,11 +762,11 @@ class Sender:
         self.sio_status = False  # waiting for status <...> report
         self.context.cline = []  # length of pipeline commands
         self.context.sline = []  # pipeline commands
+        self.context.tosend = None  # next string to send
         self.loop.create_task(self.writeSerialI0())
         self.loop.create_task(self.readSerialI0())
 
     async def writeSerialI0(self):
-        tosend = None  # next string to send
         tr = tg = time.time()  # last time a ? or $G was send to grbl
         while self.thread:
             t = time.time()
@@ -778,38 +781,38 @@ class Sender:
 
             # Fetch new command to send if...
             if (
-                tosend is None
+                self.context.tosend is None
                 and not self.sio_wait
                 and not self._pause
                 and self.queue.qsize() > 0
             ):
                 try:
-                    tosend = self.queue.get_nowait()
-                    if isinstance(tosend, tuple):
+                    self.context.tosend = self.queue.get_nowait()
+                    if isinstance(self.context.tosend, tuple):
                         # wait to empty the grbl buffer and status is Idle
-                        if tosend[0] == WAIT:
+                        if self.context.tosend[0] == WAIT:
                             # Don't count WAIT until we are idle!
                             self.sio_wait = True
-                        elif tosend[0] == MSG:
+                        elif self.context.tosend[0] == MSG:
                             # Count executed commands as well
                             self._gcount += 1
-                            if tosend[1] is not None:
+                            if self.context.tosend[1] is not None:
                                 # show our message on machine status
-                                self._msg = tosend[1]
-                        elif tosend[0] == UPDATE:
+                                self._msg = self.context.tosend[1]
+                        elif self.context.tosend[0] == UPDATE:
                             # Count executed commands as well
                             self._gcount += 1
-                            self._update = tosend[1]
+                            self._update = self.context.tosend[1]
                         else:
                             # Count executed commands as well
                             self._gcount += 1
-                        tosend = None
+                        self.context.tosend = None
 
-                    elif not isinstance(tosend, str):
+                    elif not isinstance(self.context.tosend, str):
                         try:
-                            tosend = self.gcode.evaluate(tosend, self)
-                            if isinstance(tosend, str):
-                                tosend += "\n"
+                            self.context.tosend = self.gcode.evaluate(self.context.tosend, self)
+                            if isinstance(self.context.tosend, str):
+                                self.context.tosend += "\n"
                             else:
                                 # Count executed commands as well
                                 self._gcount += 1
@@ -817,16 +820,16 @@ class Sender:
                             for s in str(sys.exc_info()[1]).splitlines():
                                 self.log.put((Sender.MSG_ERROR, s))
                             self._gcount += 1
-                            tosend = None
+                            self.context.tosend = None
                 except Empty:
                     break
 
-                if tosend is not None:
-                    # All modification in tosend should be
+                if self.context.tosend is not None:
+                    # All modification in self.context.tosend should be
                     # done before adding it to cline
 
                     # Keep track of last feed
-                    pat = FEEDPAT.match(tosend)
+                    pat = FEEDPAT.match(self.context.tosend)
                     if pat is not None:
                         self._lastFeed = pat.group(2)
 
@@ -841,16 +844,16 @@ class Sender:
                             if (
                                 pat is None
                                 and self._newFeed != 0
-                                and not tosend.startswith("$")
+                                and not self.context.tosend.startswith("$")
                             ):
-                                tosend = f"f{self._newFeed:g}{tosend}"
+                                self.context.tosend = f"f{self._newFeed:g}{self.context.tosend}"
 
                         # Apply override Feed
                         if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
-                            pat = FEEDPAT.match(tosend)
+                            pat = FEEDPAT.match(self.context.tosend)
                             if pat is not None:
                                 try:
-                                    tosend = "{}f{:g}{}\n".format(
+                                    self.context.tosend = "{}f{:g}{}\n".format(
                                         pat.group(1),
                                         self._newFeed,
                                         pat.group(3),
@@ -859,14 +862,19 @@ class Sender:
                                     pass
 
                     # Bookkeeping of the buffers
-                    self.context.sline.append(tosend)
-                    self.context.cline.append(len(tosend))
+                    self.context.sline.append(self.context.tosend)
+                    self.context.cline.append(len(self.context.tosend))
 
             # Received external message to stop
             if self._stop:
                 self.emptyQueue()
-                tosend = None
+                self.context.tosend = None
+                self.bufferSyncEvent = asyncio.Event()
                 self.log.put((Sender.MSG_CLEAR, ""))
+                print('clear buffer wait')
+                await self.bufferSyncEvent.wait()
+                print('clear buffer wait done')
+                self.bufferSyncEvent = None
                 # WARNING if runLines==maxint then it means we are
                 # still preparing/sending lines from from bCNC.run(),
                 # so don't stop
@@ -875,18 +883,18 @@ class Sender:
                     if self.resetEvent:
                         self.resetEvent.set()
 
-            if tosend is not None and sum(self.context.cline) < RX_BUFFER_SIZE:
+            if self.context.tosend is not None and sum(self.context.cline) < RX_BUFFER_SIZE:
                 self._sumcline = sum(self.context.cline)
                 if self.mcontrol.gcode_case > 0:
-                    tosend = tosend.upper()
+                    self.context.tosend = self.context.tosend.upper()
                 if self.mcontrol.gcode_case < 0:
-                    tosend = tosend.lower()
+                    self.context.tosend = self.context.tosend.lower()
 
-                self.serial_write(tosend)
+                self.serial_write(self.context.tosend)
 
-                self.log.put((Sender.MSG_BUFFER, tosend))
+                self.log.put((Sender.MSG_BUFFER, self.context.tosend))
 
-                tosend = None
+                self.context.tosend = None
                 if not self.running and t - tg > G_POLL:
                     self.mcontrol.viewState()
                     tg = t
@@ -896,7 +904,7 @@ class Sender:
     async def readSerialI0(self):
         while self.thread:
             # Anything to receive?
-            if self.serial.inWaiting():
+            if self.serial.inWaiting() or self.context.tosend is None:
                 try:
                     line = str(self.serial.readline().decode("ascii", "ignore")).strip()
                 except Exception:
