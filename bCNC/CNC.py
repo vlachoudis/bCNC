@@ -746,6 +746,8 @@ class CNC:
         "stepover": 40.0,
         "PRB": None,
         "TLO": 0.0,
+        "Zsensor": 0.0
+        "sensor": ""
         "version": "",
         "controller": "",
         "running": False,
