@@ -140,7 +140,7 @@ LANGUAGES = {
 
 icons = {}
 images = {}
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(interpolation=None)
 print(
     "new-config", __prg__, config
 )  # This is here to debug the fact that config is sometimes instantiated twice
