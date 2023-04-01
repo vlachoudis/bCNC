@@ -2583,12 +2583,12 @@ class Application(Tk, Sender):
             self.statusbar.setProgress(0, 0)
             self._paths = self.gcode.compile(self.queue, self.checkStop)
             if self._paths is None:
-                self._runLines = 0;
+                self._runLines = 0
                 self.emptyQueue()
                 self.purgeController()
                 return
             elif not self._paths:
-                self._runLines = 0;
+                self._runLines = 0
                 self.runEnded()
                 messagebox.showerror(
                     _("Empty gcode"),
