@@ -127,9 +127,10 @@ class Sender:
         self._onStart = ""
         self._onStop = ""
         
-        self.loop = None
+        self.loop = asyncio.new_event_loop()
+        self.resetCondition = None
         self.bufferSyncEvent = None
-        self.resetEvent = None
+        self.resetLock =None
         self.idleFunction = None
 
     # ----------------------------------------------------------------------
@@ -525,10 +526,8 @@ class Sender:
         self.mcontrol.initController()
         self._gcount = 0
         self._alarm = True
-        self.loop = asyncio.new_event_loop()
         self.thread = threading.Thread(target=self.serialIOWrapper)
         self.thread.start()
-        asyncio.run_coroutine_threadsafe(self.serialIO(), self.loop)
         return True
 
     # ----------------------------------------------------------------------
@@ -544,9 +543,6 @@ class Sender:
         self._runLines = 0
         
         self.thread = None
-        if self.loop:
-            self.loop.stop()
-            
         
         try:
             self.serial.close()
@@ -555,7 +551,6 @@ class Sender:
         self.serial = None
         CNC.vars["state"] = NOT_CONNECTED
         CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
-        self.loop = None
 
     # ----------------------------------------------------------------------
     # Send to controller a gcode or command
@@ -582,7 +577,7 @@ class Sender:
         self.mcontrol.hardReset()
 
     def softReset(self, clearAlarm=True):
-        if self.loop and not self.loop.is_running():
+        if not self.loop.is_running():
                 return
         self.scheduleCoroutine(self.mcontrol.softReset(clearAlarm))
 
@@ -638,7 +633,7 @@ class Sender:
         self.mcontrol.pause(event)
 
     def purgeController(self):
-        if self.loop and not self.loop.is_running():
+        if not self.loop.is_running():
                 return
         self.scheduleCoroutine(self.mcontrol.purgeController())
 
@@ -739,8 +734,6 @@ class Sender:
         if self.context.name in self.SERIAL_IO_THREAD_NAME:
             asyncio.create_task(coro)
         else:
-            if not self.loop:
-                return
             task = asyncio.run_coroutine_threadsafe(coro, self.loop)
             while not task.done():
                 if self.idleFunction:
@@ -750,11 +743,10 @@ class Sender:
         
     def serialIOWrapper(self):
         self.context.name = self.SERIAL_IO_THREAD_NAME
-        if not self.loop:
-            return
         asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
-        print('Serial thread done')
+        self.loop.run_until_complete(self.serialIO())
+        for task in asyncio.all_tasks(self.loop):
+            task.cancel()
     
     async def triggerBufferSync(self):
         if self.bufferSyncEvent:
@@ -768,13 +760,17 @@ class Sender:
         self.context.sline = []  # pipeline commands
         self.context.tosend = None  # next string to send
         self.context.tr = self.context.tg = time.time()  # last time a ? or $G was send to grbl
+        self.resetCondition = asyncio.Condition()
+        self.resetLock = asyncio.Lock()
         while self.thread:
             await self.writeSerialI0()
             if not self.thread:
                 return
             await self.readSerialI0()
-        print('Serial IO done')
-
+            await asyncio.sleep(0.01)
+        
+        self.resetCondition = None
+        self.resetLock = None
 
     async def writeSerialI0(self):
         try:
@@ -887,8 +883,8 @@ class Sender:
                 # so don't stop
                 if self._runLines != sys.maxsize:
                     self._stop = False
-                    if self.resetEvent:
-                        self.resetEvent.set()
+                    async with self.resetCondition:
+                        self.resetCondition.notify_all()
 
             if self.context.tosend is not None and sum(self.context.cline) < RX_BUFFER_SIZE:
                 self._sumcline = sum(self.context.cline)

@@ -91,15 +91,15 @@ class _GenericController:
 
     # ----------------------------------------------------------------------
     async def softReset(self, clearAlarm=True):
-        self.master.resetEvent = asyncio.Event()
-        if self.master.serial:
-            self.master.serial_write(b"\030")
-        self.master.stopProbe()
-        if clearAlarm:
-            self.master._alarm = False
-        CNC.vars["_OvChanged"] = True  # force a feed change if any
-        await self.master.resetEvent.wait()
-        self.master.resetEvent = None
+        async with self.master.resetLock:
+            async with self.master.resetCondition:
+                if self.master.serial:
+                    self.master.serial_write(b"\030")
+                self.master.stopProbe()
+                if clearAlarm:
+                    self.master._alarm = False
+                CNC.vars["_OvChanged"] = True  # force a feed change if any
+                await self.master.resetCondition.wait()
 
     # ----------------------------------------------------------------------
     def unlock(self, clearAlarm=True):
