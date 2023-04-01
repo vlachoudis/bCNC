@@ -127,7 +127,7 @@ class Sender:
         self._onStart = ""
         self._onStop = ""
         
-        self.loop = asyncio.new_event_loop()
+        self.loop = None
         self.bufferSyncEvent = None
         self.resetEvent = None
         self.idleFunction = None
@@ -525,6 +525,7 @@ class Sender:
         self.mcontrol.initController()
         self._gcount = 0
         self._alarm = True
+        self.loop = asyncio.new_event_loop()
         self.thread = threading.Thread(target=self.serialIOWrapper)
         self.thread.start()
         asyncio.run_coroutine_threadsafe(self.serialIO(), self.loop)
@@ -541,14 +542,11 @@ class Sender:
         except Exception:
             pass
         self._runLines = 0
-        self.loop.stop()
-        self.thread = None
         
-        pending = asyncio.Task.all_tasks()
-
-        # Run loop until tasks done:
-        for task in pending:
-            asyncio.wait_for(task)
+        self.thread = None
+        if self.loop:
+            self.loop.stop()
+            
         
         try:
             self.serial.close()
@@ -557,6 +555,7 @@ class Sender:
         self.serial = None
         CNC.vars["state"] = NOT_CONNECTED
         CNC.vars["color"] = STATECOLOR[CNC.vars["state"]]
+        self.loop = None
 
     # ----------------------------------------------------------------------
     # Send to controller a gcode or command
@@ -583,7 +582,7 @@ class Sender:
         self.mcontrol.hardReset()
 
     def softReset(self, clearAlarm=True):
-        if not self.loop.is_running():
+        if self.loop and not self.loop.is_running():
                 return
         self.scheduleCoroutine(self.mcontrol.softReset(clearAlarm))
 
@@ -639,7 +638,7 @@ class Sender:
         self.mcontrol.pause(event)
 
     def purgeController(self):
-        if not self.loop.is_running():
+        if self.loop and not self.loop.is_running():
                 return
         self.scheduleCoroutine(self.mcontrol.purgeController())
 
@@ -740,6 +739,8 @@ class Sender:
         if self.context.name in self.SERIAL_IO_THREAD_NAME:
             asyncio.create_task(coro)
         else:
+            if not self.loop:
+                return
             task = asyncio.run_coroutine_threadsafe(coro, self.loop)
             while not task.done():
                 if self.idleFunction:
@@ -749,8 +750,11 @@ class Sender:
         
     def serialIOWrapper(self):
         self.context.name = self.SERIAL_IO_THREAD_NAME
+        if not self.loop:
+            return
         asyncio.set_event_loop(self.loop)
         self.loop.run_forever()
+        print('Serial thread done')
     
     async def triggerBufferSync(self):
         if self.bufferSyncEvent:
@@ -763,17 +767,22 @@ class Sender:
         self.context.cline = []  # length of pipeline commands
         self.context.sline = []  # pipeline commands
         self.context.tosend = None  # next string to send
-        self.loop.create_task(self.writeSerialI0())
-        self.loop.create_task(self.readSerialI0())
+        self.context.tr = self.context.tg = time.time()  # last time a ? or $G was send to grbl
+        while self.thread:
+            await self.writeSerialI0()
+            if not self.thread:
+                return
+            await self.readSerialI0()
+        print('Serial IO done')
+
 
     async def writeSerialI0(self):
-        tr = tg = time.time()  # last time a ? or $G was send to grbl
-        while self.thread:
+        try:
             t = time.time()
             # refresh machine position?
-            if t - tr > SERIAL_POLL:
+            if t - self.context.tr > SERIAL_POLL:
                 self.mcontrol.viewStatusReport()
-                tr = t
+                self.context.tr = t
 
                 # If Override change, attach feed
                 if CNC.vars["_OvChanged"]:
@@ -822,7 +831,7 @@ class Sender:
                             self._gcount += 1
                             self.context.tosend = None
                 except Empty:
-                    break
+                    return
 
                 if self.context.tosend is not None:
                     # All modification in self.context.tosend should be
@@ -871,9 +880,7 @@ class Sender:
                 self.context.tosend = None
                 self.bufferSyncEvent = asyncio.Event()
                 self.log.put((Sender.MSG_CLEAR, ""))
-                print('clear buffer wait')
                 await self.bufferSyncEvent.wait()
-                print('clear buffer wait done')
                 self.bufferSyncEvent = None
                 # WARNING if runLines==maxint then it means we are
                 # still preparing/sending lines from from bCNC.run(),
@@ -889,34 +896,43 @@ class Sender:
                     self.context.tosend = self.context.tosend.upper()
                 if self.mcontrol.gcode_case < 0:
                     self.context.tosend = self.context.tosend.lower()
-
+                
                 self.serial_write(self.context.tosend)
 
                 self.log.put((Sender.MSG_BUFFER, self.context.tosend))
 
                 self.context.tosend = None
-                if not self.running and t - tg > G_POLL:
+                if not self.running and t - self.context.tg > G_POLL:
                     self.mcontrol.viewState()
-                    tg = t
-        
-            await asyncio.sleep(0)
+                    self.context.tg = t
+
+        except serial.SerialException:
+            self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+            self.emptyQueue()
+            if self.thread:
+                self.event_generate("<<Connect>>")
+            return
+        except Exception:
+            return
+                
 
     async def readSerialI0(self):
-        while self.thread:
-            # Anything to receive?
+        # Anything to receive?
+        try:
             if self.serial.inWaiting() or self.context.tosend is None:
-                try:
-                    line = str(self.serial.readline().decode("ascii", "ignore")).strip()
-                except Exception:
-                    self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
-                    self.emptyQueue()
-                    self.close()
-                    return
+                line = str(self.serial.readline().decode("ascii", "ignore")).strip()
 
-                if not line:
-                    pass
-                elif await self.mcontrol.parseLine(line, self.context.cline, self.context.sline):
-                    pass
-                else:
-                    self.log.put((Sender.MSG_RECEIVE, line))
-            await asyncio.sleep(0)
+            if not line:
+                pass
+            elif await self.mcontrol.parseLine(line, self.context.cline, self.context.sline):
+                pass
+            else:
+                self.log.put((Sender.MSG_RECEIVE, line))
+        except serial.SerialException:
+            self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+            self.emptyQueue()
+            if self.thread:
+                self.event_generate("<<Connect>>")
+            return
+        except Exception:
+            return
