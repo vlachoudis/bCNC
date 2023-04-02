@@ -2223,11 +2223,12 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.setProbeParams()
 
     # -----------------------------------------------------------------------
-    def updateTool(self):
+    def updateToolHeight(self):
         state = self.toolHeight.cget("state")
         self.toolHeight.config(state=NORMAL)
         self.toolHeight.set(CNC.vars["toolheight"])
         self.toolHeight.config(state=state)
+        self.event_generate("<<StateTool>>")
 
     # -----------------------------------------------------------------------
     def calibrate(self, event=None):
@@ -2239,31 +2240,18 @@ class ToolFrame(CNCRibbon.PageFrame):
         lines.append("g53 g0 x[toolchangex] y[toolchangey]")
         lines.append("g53 g0 x[toolprobex] y[toolprobey]")
         lines.append("g53 g0 z[toolprobez]")
-        if CNC.vars["fastprbfeed"]:
-            prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
-            CNC.vars["prbcmdreverse"] = (
-                CNC.vars["prbcmd"][:-1] + prb_reverse[CNC.vars["prbcmd"][-1]]
-            )
-            currentFeedrate = CNC.vars["fastprbfeed"]
-            while currentFeedrate > CNC.vars["prbfeed"]:
-                lines.append("%wait")
-                lines.append(
-                    f"g91 [prbcmd] {CNC.fmt('f', currentFeedrate)} "
-                    + "z[toolprobez-mz-tooldistance]"
-                )
-                lines.append("%wait")
-                lines.append(
-                    f"[prbcmdreverse] {CNC.fmt('f', currentFeedrate)} "
-                    + "z[toolprobez-mz]"
-                )
-                currentFeedrate /= 10
-        lines.append("%wait")
-        lines.append("g91 [prbcmd] f[prbfeed] z[toolprobez-mz-tooldistance]")
-        lines.append("g4 p1")  # wait a sec
+        lines.append("g91")
+        lines.append("[prbcmd] z-[tooldistance] f[fastprbfeed]")   # switch search
+        lines.append("g0 z[1]")                                    # Switch clearence
+        lines.append("[prbcmd] z[-2] f[prbfeed]")                  # Measure
+        lines.append("g90")                                        # restore initial state
+        lines.append("g4 p1")                                      # wait a sec
         lines.append("%wait")
         lines.append("%global toolheight; toolheight=wz")
         lines.append("%global toolmz; toolmz=prbz")
+        lines.append("%global Zsensor; Zsensor=wz")                # sensor height update
         lines.append("%update toolheight")
+        lines.append("%update Zsensor")
         lines.append("g53 g0 z[toolchangez]")
         lines.append("g53 g0 x[toolchangex] y[toolchangey]")
         lines.append("g90")
