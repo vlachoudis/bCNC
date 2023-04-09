@@ -170,23 +170,25 @@ class PathBuilder(object):
 class involuteGearControler():
     def __init__(self):
         pass 
-    def makeGear(self,Z,m,phi,addCoeff,dedCoeff,filletCoeff,external,useDefault):
+    def makeGear(self,Z,m,phi,addCoeff,dedCoeff,filletCoeff,shiftCoeff,external,useDefault):
         self.w = PathBuilder()
         if external :
             if useDefault :
                 addCoeff = 1.0
                 dedCoeff = 1.25
                 filletCoeff = 0.38
+                shiftCoeff = 0.0
                 phi = 20.
-            involute.CreateExternalGear(self.w, m, Z, phi, split=False,addCoeff=addCoeff,dedCoeff=dedCoeff,filletCoeff=filletCoeff)
+            involute.CreateExternalGear(self.w, m, Z, phi, split=False,addCoeff=addCoeff,dedCoeff=dedCoeff,filletCoeff=filletCoeff,shiftCoeff=shiftCoeff)
 
         else :
             if useDefault :
                 addCoeff = 0.6
                 dedCoeff = 1.25
                 filletCoeff = 0.38
+                shiftCoeff = 0.
                 phi = 20.
-            involute.CreateInternalGear(self.w, m, Z, phi, split=False,addCoeff=addCoeff,dedCoeff=dedCoeff,filletCoeff=filletCoeff)
+            involute.CreateInternalGear(self.w, m, Z, phi, split=False,addCoeff=addCoeff,dedCoeff=dedCoeff,filletCoeff=filletCoeff,shiftCoeff=shiftCoeff)
 
     def calcGcode(self):
         blocks = []
@@ -237,6 +239,7 @@ class Tool(Plugin):
             ("addCoeff", "float", 1.0, _("Addendum coeff"),"this is the addendum coeff, default is 1.0*m in external gears, 0.6 for internal"),
             ("dedCoeff", "float", 1.25, _("Dedendum coeff"),"This is the deddendum coef, default is 1.25*m"),
             ("filletCoeff", "float", 0.38, _("fillet coeff"),"This is the fillet coef, default is 0.38 in ISO Rack specifications"),
+            ("shiftCoeff", "float", 0.0, _("shiftCoeff"),"shiftCoeff is the profile shift coefficient (profile shift normalized by module)"),
         ]
         self.buttons.append("exe")
 
@@ -253,9 +256,10 @@ class Tool(Plugin):
         addCoeff =self["addCoeff"]
         dedCoeff=self["dedCoeff"]
         filletCoeff=self["filletCoeff"]
+        shiftCoeff = self["shiftCoeff"]
         try : 
             controler = involuteGearControler()
-            controler.makeGear(Z,m,phi,addCoeff,dedCoeff,filletCoeff,external,useDefault)
+            controler.makeGear(Z,m,phi,addCoeff,dedCoeff,filletCoeff,shiftCoeff,external,useDefault)
             blocks = controler.calcGcode()
         except Exception as exc :
             print(exc)
