@@ -44,17 +44,22 @@ class Controller(_GenericGRBL):
             pass
         elif CNC.vars["_OvFeed"] == 100:
             self.master.serial_write(OV_FEED_100)
+            CNC.vars["OvFeed"] = 100
         elif diff >= 10:
             self.master.serial_write(OV_FEED_i10)
+            CNC.vars["OvFeed"] += 10
             CNC.vars["_OvChanged"] = diff > 10
         elif diff <= -10:
             self.master.serial_write(OV_FEED_d10)
+            CNC.vars["OvFeed"] -= 10
             CNC.vars["_OvChanged"] = diff < -10
         elif diff >= 1:
             self.master.serial_write(OV_FEED_i1)
+            CNC.vars["OvFeed"] += 1
             CNC.vars["_OvChanged"] = diff > 1
         elif diff <= -1:
             self.master.serial_write(OV_FEED_d1)
+            CNC.vars["OvFeed"] -= 1
             CNC.vars["_OvChanged"] = diff < -1
         # Check rapid
         target = CNC.vars["_OvRapid"]
@@ -78,17 +83,22 @@ class Controller(_GenericGRBL):
             pass
         elif CNC.vars["_OvSpindle"] == 100:
             self.master.serial_write(OV_SPINDLE_100)
+            CNC.vars["OvSpindle"] = 100
         elif diff >= 10:
             self.master.serial_write(OV_SPINDLE_i10)
+            CNC.vars["OvSpindle"] += 10
             CNC.vars["_OvChanged"] = diff > 10
         elif diff <= -10:
             self.master.serial_write(OV_SPINDLE_d10)
+            CNC.vars["OvSpindle"] -= 10
             CNC.vars["_OvChanged"] = diff < -10
         elif diff >= 1:
             self.master.serial_write(OV_SPINDLE_i1)
+            CNC.vars["OvSpindle"] += 1
             CNC.vars["_OvChanged"] = diff > 1
         elif diff <= -1:
             self.master.serial_write(OV_SPINDLE_d1)
+            CNC.vars["OvSpindle"] -= 1
             CNC.vars["_OvChanged"] = diff < -1
 
     def parseBracketAngle(self, line, cline):
