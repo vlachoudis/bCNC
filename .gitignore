@@ -10,3 +10,6 @@ build
 
 *.code-workspace
 .vscode/
+
+flatpak/builddir
+flatpak/.flatpak-builder

@@ -1,0 +1,91 @@
+{
+  "app-id": "io.github.bcnc",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "22.08",
+  "sdk": "org.freedesktop.Sdk",
+  "build-options": {
+    "build-args": [
+      "--share=network"
+    ]
+  },
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=x11"
+  ],
+  "command": "bCNC",
+  "modules": [
+    {
+      "name": "bcnc",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install --prefix=${FLATPAK_DEST} pyserial",
+        "pip3 install --prefix=${FLATPAK_DEST} shxparser",
+        "pip3 install --prefix=${FLATPAK_DEST} svgelements",
+        "pip3 install --prefix=${FLATPAK_DEST} Pillow",
+        "pip3 install --prefix=${FLATPAK_DEST} numpy",
+        "pip3 install --prefix=${FLATPAK_DEST} opencv-python==4.5.5.62",
+        "pip3 install --prefix=/app --upgrade ."
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "path": ".."
+        }
+      ]
+    },
+    {
+      "name": "tcl",
+      "buildsystem": "autotools",
+      "subdir": "unix",
+      "post-install": [
+        "chmod 755 /app/lib/libtcl*.so"
+      ],
+      "cleanup": [
+        "/bin",
+        "/lib/pkgconfig",
+        "/man"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://prdownloads.sourceforge.net/tcl/tcl8.6.13-src.tar.gz",
+          "sha256": "43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066"
+        }
+      ]
+    },
+    {
+      "name": "tk",
+      "buildsystem": "autotools",
+      "subdir": "unix",
+      "post-install": [
+        "chmod 755 /app/lib/libtk*.so"
+      ],
+      "cleanup": [
+        "/bin",
+        "/lib/pkgconfig",
+        "/man"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://prdownloads.sourceforge.net/tcl/tk8.6.13-src.tar.gz",
+          "sha256": "2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675"
+        }
+      ]
+    },
+    {
+      "name": "tkinter",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install --prefix=${FLATPAK_DEST} ."
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/iwalton3/tkinter-standalone"
+        }
+      ]
+    }
+  ]
+}
