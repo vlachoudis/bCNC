@@ -2646,7 +2646,7 @@ class CNCCanvas(Canvas):
     # ----------------------------------------------------------------------
     def redrawBlockPaths(self, bid):
 
-        if bid >= len(self.gcode):
+        if bid >= len(self.gcode.blocks):
             return
         block = self.gcode[bid]
         if block is None:
