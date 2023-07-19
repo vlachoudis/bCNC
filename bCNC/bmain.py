@@ -2726,7 +2726,7 @@ class Application(Tk, Sender):
                 pathdata = block.pathdata(p[1])
                 startXYZ = None
                 feedrate = None
-                if pathdata and block._pathdata:
+                if block._pathdata:
                     # find the next line with xyz coordinates and use start position. independent feedrate
                     pathStart = 0 if p[1] is None else p[1]
                     for lid in range(pathStart, len(block._pathdata)):
