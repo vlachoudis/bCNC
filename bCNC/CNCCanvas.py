@@ -1066,7 +1066,7 @@ class CNCCanvas(Canvas):
             zxf = float(self.winfo_width()/bbox_width)
             zyf = float(self.winfo_height()/bbox_height)
             tzoom = min(zxf, zyf)
-        except:
+        except (ZeroDivisionError, ValueError):
             tzoom = 1.0/self.zoom
 
         self.__tzoom = tzoom
@@ -1159,7 +1159,7 @@ class CNCCanvas(Canvas):
             ]
 
         xyzp = self.plotCoords(xyz)
-        return  self.minMaxPlotCoords(xyzp)
+        return self.minMaxPlotCoords(xyzp)
 
     # ----------------------------------------------------------------------
     # Get the 4 plot coords of selected blocks/paths using 3D projection.
@@ -1169,11 +1169,10 @@ class CNCCanvas(Canvas):
         items = self.getSelection()
 
         for item in items:
-            try:
-                bid, lid = self._items[item]
-                pathdata = self.gcode.blocks[bid].pathdata(lid)
-            except:
-                pass
+            if item is None or self._items[item] is None:
+                continue
+            bid, lid = self._items[item]
+            pathdata = self.gcode.blocks[bid].pathdata(lid)
             if pathdata:
                 (xyz, _, line_mode, _) = pathdata
                 if enabled or (self.filter_inactive and line_mode != LINEMODE_ENABLED):
@@ -1974,7 +1973,7 @@ class CNCCanvas(Canvas):
         xmax = (axmax // scalex + 1) * scalex
         ymin = (aymin // scaley    ) * scaley
         ymax = (aymax // scaley + 1) * scaley
-        return  xmin, ymin, xmax, ymax, scalex, scaley
+        return xmin, ymin, xmax, ymax, scalex, scaley
 
     # ----------------------------------------------------------------------
     # Display orientation markers
@@ -2647,9 +2646,10 @@ class CNCCanvas(Canvas):
     # ----------------------------------------------------------------------
     def redrawBlockPaths(self, bid):
 
-        try:
-            block = self.gcode[bid]
-        except:
+        if bid >= len(self.gcode):
+            return
+        block = self.gcode[bid]
+        if block is None:
             return
 
         pathcount = len(block._path)
