@@ -10,7 +10,8 @@ import sys
 import time
 import traceback
 import webbrowser
-from datetime import datetime
+import json
+from datetime import datetime, timedelta
 import tkinter
 from queue import Empty
 from tkinter import (
@@ -68,7 +69,7 @@ import tkExtra
 # Load configuration before anything else
 # and if needed replace the  translate function _()
 # before any string is initialized
-from CNC import CNC, WAIT, GCode
+from CNC import CNC, WAIT, GCode, AlarmException
 import Ribbon
 import Pendant
 from CNCRibbon import Page
@@ -172,7 +173,8 @@ class Application(Tk, Sender):
         frame.pack(side=BOTTOM, fill=X)
         self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
         self.statusbar.pack(side=LEFT, fill=X, expand=YES)
-        self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
+        self.statusbar.configText(fill=CNCCanvas.PROGRESS_TEXT_COLOR, justify=LEFT, anchor=W)
+        self.statusbar.itemconfig(self.statusbar.doneBox, fill=CNCCanvas.PROGRESS_COLOR)
 
         self.statusz = Label(
             frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
@@ -415,12 +417,19 @@ class Application(Tk, Sender):
 
         self.bind("<<CanvasFocus>>", self.canvasFocus)
         self.bind("<<Draw>>", self.draw)
-        self.bind("<<DrawProbe>>", lambda e,
-                  c=self.canvasFrame: c.drawProbe(True))
+        self.bind("<<Redraw>>", self.redraw)
+        tkExtra.bindEventData(self, "<<RedrawBlocks>>",
+            lambda e, s=self: s.redrawBlocks(bids=json.loads(e.data)))
+        self.bind("<<Refresh>>", self.refresh)
+        self.bind("<<Process>>", self.process)
+        self.bind("<<Reprocess>>", self.reprocess)
+        self.bind("<<DrawProbe>>",
+            lambda e, c=self.canvasFrame: c.drawProbe(True))
         self.bind("<<DrawOrient>>", self.canvas.drawOrient)
 
         self.bind("<<ListboxSelect>>", self.selectionChange)
-        self.bind("<<Modified>>", self.drawAfter)
+        self.bind("<<ListboxSelectRefresh>>", self.selectionRefresh)
+        self.bind("<<Modified>>", self.modified)
 
         self.bind("<Control-Key-a>", self.selectAll)
         self.bind("<Control-Key-A>", self.unselectAll)
@@ -438,7 +447,7 @@ class Application(Tk, Sender):
         self.bind("<Control-Key-l>", self.editor.toggleEnable)
         self.bind("<Control-Key-q>", self.quit)
         self.bind("<Control-Key-o>", self.loadDialog)
-        self.bind("<Control-Key-r>", self.drawAfter)
+        self.bind("<Control-Key-r>", self.redrawAfter)
         self.bind("<Control-Key-s>", self.saveAll)
         self.bind("<Control-Key-y>", self.redo)
         self.bind("<Control-Key-z>", self.undo)
@@ -537,8 +546,11 @@ class Application(Tk, Sender):
         # END - insertCount lines where ok was applied to for $xxx commands
         self._insertCount = (0)
         self._selectI = 0
+        self._resume_point = None
         self.monitorSerial()
+        self.canvas.view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
         self.canvasFrame.toggleDrawFlag()
+        self.draw(fit2screen=True)
 
         self.paned.sash_place(0, Utils.getInt(Utils.__prg__, "sash", 340), 0)
 
@@ -558,7 +570,7 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def setStatus(self, msg, force_update=False):
-        self.statusbar.configText(text=msg, fill="DarkBlue")
+        self.statusbar.configText(text=msg, fill=CNCCanvas.PROGRESS_TEXT_COLOR)
         if force_update:
             self.statusbar.update_idletasks()
             self.bufferbar.update_idletasks()
@@ -755,6 +767,7 @@ class Application(Tk, Sender):
         )
 
         self.tools.loadConfig()
+        CNC.loadConfig(Utils.config)
         Sender.loadConfig(self)
         self.loadShortcuts()
 
@@ -773,6 +786,7 @@ class Application(Tk, Sender):
         # Connection
         Page.saveConfig()
         Sender.saveConfig(self)
+        CNC.saveConfig()
         self.tools.saveConfig()
         self.canvasFrame.saveConfig()
 
@@ -800,6 +814,7 @@ class Application(Tk, Sender):
         focus = self.focus_get()
         if focus in (self.canvas, self.editor):
             self.editor.cut()
+            self.refresh(draw_after=True)
             return "break"
 
     # -----------------------------------------------------------------------
@@ -814,22 +829,21 @@ class Application(Tk, Sender):
         focus = self.focus_get()
         if focus in (self.canvas, self.editor):
             self.editor.paste()
+            self.refresh(draw_after=True)
             return "break"
 
     # -----------------------------------------------------------------------
     def undo(self, event=None):
         if not self.running and self.gcode.canUndo():
             self.gcode.undo()
-            self.editor.fill()
-            self.drawAfter()
+            self.refresh(draw_after=True)
         return "break"
 
     # -----------------------------------------------------------------------
     def redo(self, event=None):
         if not self.running and self.gcode.canRedo():
             self.gcode.redo()
-            self.editor.fill()
-            self.drawAfter()
+            self.refresh(draw_after=True)
         return "break"
 
     # -----------------------------------------------------------------------
@@ -1320,26 +1334,77 @@ class Application(Tk, Sender):
     def viewChange(self, event=None):
         if self.running:
             self._selectI = 0  # last selection pointer in items
-        self.draw()
+        self.redraw(fit2screen=True)
 
     # ----------------------------------------------------------------------
-    def refresh(self, event=None):
-        self.editor.fill()
-        self.draw()
+    def refresh(self, event=None, timeout=sys.maxsize, draw_after=False, fit2screen=False):
+        self.editor.fill(update_function=self.canvas.update, timeout=timeout)
+        self.reprocess(event=event, draw_after=draw_after, fit2screen=fit2screen)
 
     # ----------------------------------------------------------------------
-    def draw(self):
+    def process(self, event=None):
+        if self.canvas._inProcessing:
+            return
+        self.canvas.processPaths()
+        self.reprocessLoop()
+
+    # ----------------------------------------------------------------------
+    def reprocess(self, event=None, draw_after=False, fit2screen=False):
+        if self.running:
+            return
+        if self.canvas._inProcessing:
+            self.canvas._cancelProcessing = True
+            return
+        self.canvas.reprocessPathData()
+        self.reprocessLoop()
+        if draw_after:
+            self.redrawAfter(fit2screen=fit2screen)
+        else:
+            self.redraw(fit2screen=fit2screen)
+
+    # ----------------------------------------------------------------------
+    def reprocessLoop(self):
+        while(self.canvas._cancelProcessing):
+            # loop is safe as long as there is...
+            # ...no way to set _cancelProcessing to True in function processPaths()
+            self.canvas._cancelProcessing = False
+            self.canvas.reprocessPathData()
+
+    # ----------------------------------------------------------------------
+    def modified(self, event=None):
+        self.reprocess(event=event, draw_after=True)
+
+    # ----------------------------------------------------------------------
+    def draw(self, event=None, fit2screen=False):
         view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
-        self.canvas.draw(view)
-        self.selectionChange()
+        self.canvas.draw(view=view, fit2screen=fit2screen)
+
+    # ----------------------------------------------------------------------
+    def redraw(self, event=None, fit2screen=False):
+        view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
+        self.canvas.redraw(view=view, fit2screen=fit2screen)
+
+    # ----------------------------------------------------------------------
+    def redrawBlocks(self, event=None, bids=[]):
+        for bid in bids:
+            self.canvas.redrawBlockPaths(bid)
 
     # ----------------------------------------------------------------------
     # Redraw with a small delay
     # ----------------------------------------------------------------------
-    def drawAfter(self, event=None):
+    def drawAfter(self, event=None, fit2screen=False):
         if self._drawAfter is not None:
             self.after_cancel(self._drawAfter)
-        self._drawAfter = self.after(DRAW_AFTER, self.draw)
+        self._drawAfter = self.after(DRAW_AFTER, self.draw(fit2screen=fit2screen))
+        return "break"
+
+    # ----------------------------------------------------------------------
+    # Redraw with a small delay
+    # ----------------------------------------------------------------------
+    def redrawAfter(self, event=None, fit2screen=False):
+        if self._drawAfter is not None:
+            self.after_cancel(self._drawAfter)
+        self._drawAfter = self.after(DRAW_AFTER, self.redraw(fit2screen=fit2screen))
         return "break"
 
     # -----------------------------------------------------------------------
@@ -1361,7 +1426,7 @@ class Application(Tk, Sender):
     def unselectAll(self, event=None):
         focus = self.focus_get()
         if focus in (self.canvas, self.editor):
-            self.ribbon.changePage("Editor")
+            #self.ribbon.changePage("Editor") #unselecting is common in other windows
             self.editor.selectClear()
             self.selectionChange()
             return "break"
@@ -1766,6 +1831,20 @@ class Application(Tk, Sender):
             else:
                 self.profile()
 
+        # RES*TART: Restart a job from a selected position. Clears the setting if none selected.
+        elif rexx.abbrev("RESTART", cmd, 3):
+            selection = self.editor.getSelection()
+            if selection:
+                self._resume_point = selection[0]
+                msg = "Job RESTART Position set to Block {0}, Line {1}. Be Careful!".format(
+                        self._resume_point[0]+1,
+                        self._resume_point[1]+1 if self._resume_point[1] is not None else 0 )
+            else:
+                self._resume_point = None
+                msg = "Job RESTART Position cleared."
+            self.setStatus(msg)
+            print(msg)
+
         # REV*ERSE: reverse path direction
         elif rexx.abbrev("REVERSE", cmd, 3):
             self.executeOnSelection("REVERSE", True)
@@ -1960,6 +2039,10 @@ class Application(Tk, Sender):
         elif cmd in ("YZ", "ZY"):
             self.canvasFrame.viewYZ()
 
+        # XY: switch to XY view
+        elif cmd in ("XY-IMG", "IMG"):
+            self.canvasFrame.viewIMG()
+
         else:
             rc = self.executeCommand(oline)
             if rc:
@@ -2021,17 +2104,18 @@ class Application(Tk, Sender):
             sel = self.gcode.createTabs(items, *args)
 
         # Fill listbox and update selection
-        self.editor.fill()
+        self.editor.fill(update_function=self.canvas.update)
+        self.draw()
         if sel is not None:
             if isinstance(sel, str):
                 messagebox.showerror(_("Operation error"), sel, parent=self)
             else:
                 self.editor.select(sel, clear=True)
-        self.drawAfter()
         self.notBusy()
         self.setStatus(
             f"{cmd} {' '.join([str(a) for a in args if a is not None])}"
         )
+        self.refresh(draw_after=False)
 
     # -----------------------------------------------------------------------
     def profile(
@@ -2071,9 +2155,8 @@ class Application(Tk, Sender):
         if msg:
             messagebox.showwarning(
                 "Open paths", f"WARNING: {msg}", parent=self)
-        self.editor.fill()
+        self.refresh()
         self.editor.selectBlocks(blocks)
-        self.draw()
         self.notBusy()
         self.setStatus(_("Profile block distance={:g}").format(ofs * sign))
 
@@ -2094,9 +2177,8 @@ class Application(Tk, Sender):
             messagebox.showwarning(
                 _("Open paths"), _("WARNING: {}").format(msg), parent=self
             )
-        self.editor.fill()
         self.editor.selectBlocks(blocks)
-        self.draw()
+        self.refresh()
         self.notBusy()
 
     # -----------------------------------------------------------------------
@@ -2169,9 +2251,8 @@ class Application(Tk, Sender):
                 parent=self,
             )
 
-        self.editor.fill()
         self.editor.selectBlocks(blocks)
-        self.draw()
+        self.refresh()
         self.notBusy()
         self.setStatus(_("Profile block distance={:g}").format(ofs * sign))
 
@@ -2251,15 +2332,27 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def select(self, items, double, clear, toggle=True):
-        self.editor.select(items, double, clear, toggle)
+        self.editor.select(items=items, double=double, clear=clear, toggle=toggle)
         self.selectionChange()
 
     # ----------------------------------------------------------------------
     # Selection has changed highlight the canvas
     # ----------------------------------------------------------------------
     def selectionChange(self, event=None):
+        if self.editor._selection_cache is not None:
+            return
         items = self.editor.getSelection()
         self.canvas.clearSelection()
+        if not items:
+            return
+        self.canvas.select(items)
+        self.canvas.activeMarker(self.editor.getActive())
+
+    # ----------------------------------------------------------------------
+    # Refresh selection without clearing selection
+    # ----------------------------------------------------------------------
+    def selectionRefresh(self, event=None):
+        items = self.editor.getSelection()
         if not items:
             return
         self.canvas.select(items)
@@ -2275,8 +2368,7 @@ class Application(Tk, Sender):
             return
         self.gcode.init()
         self.gcode.headerFooter()
-        self.editor.fill()
-        self.draw()
+        self.refresh()
         self.title(f"{Utils.__prg__} {__version__} {__platform_fingerprint__}")
 
     # -----------------------------------------------------------------------
@@ -2367,7 +2459,23 @@ class Application(Tk, Sender):
                     self.gcode.probe.init()
 
         self.setStatus(_("Loading: {} ...").format(filename), True)
-        Sender.load(self, filename)
+        startTime = time.time()
+        self.canvas.clearPaths()
+        self.gcode.clearBlocks()
+        self.canvas.delete('all')
+        self.update()
+        try:
+            Sender.load(
+                    self,
+                    filename,
+                    timeout=float(self.canvasFrame.processTime.get()),
+                    update_function=self.update
+            )
+        except AlarmException:
+            self.canvas.status("Timeout loading file. Interrupted. Loading editor... File: {0}".format(filename))
+        else:
+            self.canvas.status("Loading editor... File: {0}".format(filename))
+        self.canvas.update()
 
         if ext == ".probe":
             self.autolevel.setValues()
@@ -2380,10 +2488,7 @@ class Application(Tk, Sender):
 
         else:
             self.editor.selectClear()
-            self.editor.fill()
-            self.canvas.reset()
-            self.draw()
-            self.canvas.fit2Screen()
+            self.refresh(fit2screen=True)
             Page.frames["CAM"].populate()
 
         if autoloaded:
@@ -2392,7 +2497,9 @@ class Application(Tk, Sender):
                     filename, str(datetime.now()))
             )
         else:
-            self.setStatus(_("'{}' loaded").format(filename))
+            totalTime = time.time() - startTime
+            loadTime = str(timedelta(seconds=round(totalTime, 2))).rstrip("0")
+            self.setStatus(_("'{0}' loaded in {1}").format(filename, loadTime))
         self.title(
             f"{Utils.__prg__} {__version__}: {self.gcode.filename} "
             + f"{__platform_fingerprint__}"
@@ -2435,6 +2542,10 @@ class Application(Tk, Sender):
                 ],
             )
         if filename:
+            self.setStatus(_("Importing: {} ...").format(filename), True)
+            self.update()
+
+            startTime = time.time()
             fn, ext = os.path.splitext(filename)
             ext = ext.lower()
             gcode = GCode()
@@ -2443,7 +2554,17 @@ class Application(Tk, Sender):
             elif ext == ".svg":
                 gcode.importSVG(filename)
             else:
-                gcode.load(filename)
+                try:
+                    gcode.load(filename,
+                                update_function=self.canvas.update,
+                                timeout=float(self.canvasFrame.processTime.get()))
+                except AlarmException:
+                    self.canvas.status("Timeout importing file. Interrupted. Loading editor... File: {0}"\
+                        .format(filename))
+                else:
+                    self.canvas.status("Loading editor... Import File: {0}".format(filename))
+                self.canvas.update()
+
             sel = self.editor.getSelectedBlocks()
             if not sel:
                 pos = None
@@ -2451,9 +2572,18 @@ class Application(Tk, Sender):
                 pos = sel[-1]
             self.addUndo(self.gcode.insBlocksUndo(pos, gcode.blocks))
             del gcode
-            self.editor.fill()
-            self.draw()
-            self.canvas.fit2Screen()
+            try:
+                self.refresh(timeout=float(self.canvasFrame.processTime.get()))
+            except AlarmException:
+                totalTime = time.time() - startTime
+                loadTime = str(timedelta(seconds=round(totalTime, 2))).rstrip("0")
+                self.canvas.status("Timeout importing file. Interrupted. Loading editor... File: {0} in {1}"\
+                    .format(filename, loadTime))
+            else:
+                totalTime = time.time() - startTime
+                loadTime = str(timedelta(seconds=round(totalTime, 2))).rstrip("0")
+                self.canvas.status("Editor loaded. Import File: {0} in {1}".format(filename, loadTime))
+            self.canvas.update()
 
     # -----------------------------------------------------------------------
     def focusIn(self, event):
@@ -2543,7 +2673,14 @@ class Application(Tk, Sender):
 
         if self.serial is None and not CNC.developer:
             messagebox.showerror(
-                _("Serial Error"), _("Serial is not connected"), parent=self
+                "Serial Error", "Serial is not connected", parent=self
+            )
+            return
+        if self.canvas.isProcessing():
+            messagebox.showerror(
+                "Processing in progress...",
+                "Please wait until processing is complete before starting job.",
+                parent=self
             )
             return
         if self.running:
@@ -2551,7 +2688,7 @@ class Application(Tk, Sender):
                 self.resume()
                 return
             messagebox.showerror(
-                _("Already running"), _("Please stop before"), parent=self
+                "Already running", "Please stop before", parent=self
             )
             return
 
@@ -2577,33 +2714,73 @@ class Application(Tk, Sender):
                 pass
 
         if lines is None:
+            self.statusbar.configText(fill=CNCCanvas.PROGRESS_TEXT_COLOR)
+            self.statusbar.itemconfig(self.statusbar.doneBox, fill=CNCCanvas.PROGRESS_COLOR)
             self.statusbar.setLimits(0, 9999)
             self.statusbar.setProgress(0, 0)
-            self._paths = self.gcode.compile(self.queue, self.checkStop)
+            startPoint = self._resume_point if self._resume_point else (0, None)
+            prefixPaths = []
+            if self._resume_point:
+                p = self._resume_point
+                block = self.gcode[p[0]]
+                pathdata = block.pathdata(p[1])
+                startXYZ = None
+                feedrate = None
+                if not pathdata and block._pathdata:
+                    # find the next line with xyz coordinates and use start position. independent feedrate
+                    pathStart = 0 if p[1] is None else p[1]
+                    for lid in range(pathStart, len(block._pathdata)):
+                        pathdata = block.pathdata(lid)
+                        if pathdata:
+                            (xyz_t, _, _, feedrate_t) = pathdata
+                            if startXYZ is None:
+                                startXYZ = xyz_t[0]
+                            if feedrate is None and feedrate_t:
+                                feedrate = feedrate_t
+                            if startXYZ and feedrate:
+                                break
+                if startXYZ or feedrate:
+                    if startXYZ:
+                        cmd_pos = "G00X{0}Y{1}Z{2}\n"\
+                            .format(startXYZ[0], startXYZ[1], startXYZ[2])
+                        self.queue.put(cmd_pos)
+                        prefixPaths += [None]
+                        print("Restart Injection: {0}".format(cmd_pos.strip()))
+                    if feedrate:
+                        cmd_feed = "F{0}\n".format(feedrate)
+                        self.queue.put(cmd_feed)
+                        prefixPaths += [None]
+                        print("Restart Injection: {0}".format(cmd_feed.strip()))
+            self._paths = self.gcode.compile(self.queue, self.checkStop, startPoint)
             if self._paths is None:
                 self.emptyQueue()
                 self.purgeController()
                 return
             elif not self._paths:
+                if prefixPaths:
+                    self.emptyQueue()
                 self.runEnded()
                 messagebox.showerror(
-                    _("Empty gcode"),
-                    _("Not gcode file was loaded"),
+                    "Empty gcode",
+                    "Not gcode file was loaded",
                     parent=self
                 )
                 return
 
-            # reset colors
+            self._paths = prefixPaths + self._paths
             before = time.time()
+            # reset colors
             for ij in self._paths:  # Slow loop
                 if not ij:
                     continue
                 path = self.gcode[ij[0]].path(ij[1])
                 if path:
                     color = self.canvas.itemcget(path, "fill")
-                    if color != CNCCanvas.ENABLE_COLOR:
+                    if color in (CNCCanvas.PROCESS_COLOR, CNCCanvas.PROCESS_COLOR2):
+                        pathdata = self.gcode[ij[0]].pathdata(ij[1])
+                        color = pathdata[CNCCanvas.PD_COLOR] if pathdata else CNCCanvas.ENABLE_COLOR
                         self.canvas.itemconfig(
-                            path, width=1, fill=CNCCanvas.ENABLE_COLOR
+                            path, width=CNCCanvas.PATH_WIDTH, fill=color
                         )
                     # Force a periodic update since this loop can take time
                     if time.time() - before > 0.25:
@@ -2625,12 +2802,12 @@ class Application(Tk, Sender):
             self._runLines = n
         self.queue.put((WAIT,))  # wait at the end to become idle
 
-        self.setStatus(_("Running..."))
+        self.setStatus("Running...")
         self.statusbar.setLimits(0, self._runLines)
-        self.statusbar.configText(fill="White")
+        self.statusbar.configText(fill=CNCCanvas.PROGRESS_TEXT_COLOR)
         self.statusbar.config(background="DarkGray")
 
-        self.bufferbar.configText(fill="White")
+        self.bufferbar.configText(fill=CNCCanvas.PROGRESS_TEXT_COLOR)
         self.bufferbar.config(background="DarkGray")
         self.bufferbar.setText("")
 
@@ -2810,17 +2987,30 @@ class Application(Tk, Sender):
             self.bufferbar.setProgress(Sender.getBufferFill(self))
             self.bufferbar.setText(f"{Sender.getBufferFill(self):3.0f}%")
 
-            if self._selectI >= 0 and self._paths:
+            if not self._paths:
+                return  # run may not be ended yet. Controller could be loading the queue
+            if self._selectI >= 0:
                 while self._selectI <= self._gcount and self._selectI < len(
                     self._paths
                 ):
                     if self._paths[self._selectI]:
                         i, j = self._paths[self._selectI]
-                        path = self.gcode[i].path(j)
+                        block = self.gcode[i]
+                        path = block.path(j)
+                        pathdata = block.pathdata(j)
                         if path:
-                            self.canvas.itemconfig(
-                                path, width=2, fill=CNCCanvas.PROCESS_COLOR
-                            )
+                            color = self.canvas.itemcget(path, "fill")
+                            line_mode = CNCCanvas.LINEMODE_ENABLED if pathdata is None\
+                                else pathdata[CNCCanvas.PD_LINEMODE]
+                            if (line_mode != CNCCanvas.LINEMODE_ENABLED or
+                                    (block.color is not None and color != block.color) or
+                                    (block.color is None and color != CNCCanvas.ENABLE_COLOR)
+                            ):
+                                self.canvas.itemconfig(path, width=2, fill=CNCCanvas.PROCESS_COLOR2)
+                            elif line_mode == CNCCanvas.LINEMODE_ENABLED or color == block.color:
+                                self.canvas.itemconfig(
+                                    path, width=2, fill=CNCCanvas.PROCESS_COLOR
+                                )
                     self._selectI += 1
 
             if self._gcount >= self._runLines:

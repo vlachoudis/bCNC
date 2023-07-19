@@ -534,28 +534,53 @@ class Ini(_Base):
 
         # detect variables from ini file
         for name, value in Utils.config.items(self.name):
-            if name in ignore:
+            if name in ignore or (include and name not in include):
                 continue
             self.variables.append((name, vartype, value, name))
-
 
 # -----------------------------------------------------------------------------
 class Font(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Font", "str")
 
-
 # -----------------------------------------------------------------------------
 class Color(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Color", "color")
+        self.buttons.append("exe")
 
+    def execute(self, app):
+        self.save()
+        app.canvasFrame.loadConfig()
+        self.event_generate("<<Reprocess>>")
+
+# -----------------------------------------------------------------------------
+class Canvas(Ini):
+    def __init__(self, master):
+        textMap = { "adv_block_colors": ("Advanced Block Color", 'bool'),
+                    "fast_render":      ("Fast Render", 'bool'),
+                    "filter_s":         ("Filter by S Values", 'bool'),
+                    "filter_z":         ("Filter by Z Values", 'bool'),
+                    "filter_sval":      ("S Threshold >", 'float'),
+                    "filter_zval":      ("Z Threshold <=", 'float'),
+                   }
+        Ini.__init__(self, master, "Canvas", "bool", include=textMap.keys())
+        for i, var in enumerate(self.variables):
+            key = var[0]
+            text = textMap[key][0]
+            cast = textMap[key][1]
+            self.variables[i] = (key, cast, var[2], text)
+        self.buttons.append("exe")
+
+    def execute(self, app):
+        self.save()
+        app.canvasFrame.loadConfig()
+        self.event_generate("<<Reprocess>>")
 
 # -----------------------------------------------------------------------------
 class Events(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Events", "str")
-
 
 # -----------------------------------------------------------------------------
 class Shortcut(_Base):
@@ -1264,6 +1289,7 @@ class Tools:
             Config,
             Font,
             Color,
+            Canvas,
             Controller,
             Cut,
             Drill,
@@ -1851,11 +1877,11 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             command=self.app.showUserFile,
         )
         menu.add_radiobutton(
-            label=_("Events"),
-            image=Utils.icons["event"],
+            label=_("Canvas"),
+            image=Utils.icons["all"],
             compound=LEFT,
             variable=self.app.tools.active,
-            value="Events",
+            value="Canvas",
         )
         menu.add_radiobutton(
             label=_("Colors"),
@@ -1870,6 +1896,13 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             compound=LEFT,
             variable=self.app.tools.active,
             value="Font",
+        )
+        menu.add_radiobutton(
+            label=_("Events"),
+            image=Utils.icons["event"],
+            compound=LEFT,
+            variable=self.app.tools.active,
+            value="Events",
         )
 
         return menu
