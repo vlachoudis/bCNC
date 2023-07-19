@@ -2785,36 +2785,38 @@ class Application(Tk, Sender):
     # -----------------------------------------------------------------------
     def checkRestartPoint(self):
         prefixPaths = []
-        if self._restart_point:
-            bid_r, lid_r = self._restart_point
-            block = self.gcode[bid_r]
-            startXYZ = None
-            feedrate = None
-            if block._pathdata:
-                # find the next line with xyz coordinates and use start position. independent feedrate
-                pathStart = 0 if lid_r is None else lid_r
-                for lid in range(pathStart, len(block._pathdata)):
-                    pathdata = block.pathdata(lid)
-                    if pathdata:
-                        (xyz_t, _, _, feedrate_t) = pathdata
-                        if startXYZ is None:
-                            startXYZ = xyz_t[0]
-                        if feedrate is None and feedrate_t:
-                            feedrate = feedrate_t
-                        if startXYZ and feedrate:
-                            break
-            if startXYZ or feedrate:
-                if startXYZ:
-                    cmd_pos = "G00X{0}Y{1}Z{2}\n"\
-                        .format(startXYZ[0], startXYZ[1], startXYZ[2])
-                    self.queue.put(cmd_pos)
-                    prefixPaths += [None]
-                    print("Restart Injection: {0}".format(cmd_pos.strip()))
-                if feedrate:
-                    cmd_feed = "F{0}\n".format(feedrate)
-                    self.queue.put(cmd_feed)
-                    prefixPaths += [None]
-                print("Restart Injection: {0}".format(cmd_feed.strip()))
+        if not self._restart_point:
+            return prefixPaths
+
+        bid_r, lid_r = self._restart_point
+        block = self.gcode[bid_r]
+        startXYZ = None
+        feedrate = None
+        if block._pathdata:
+            # find the next line with xyz coordinates and use start position. independent feedrate
+            pathStart = 0 if lid_r is None else lid_r
+            for lid in range(pathStart, len(block._pathdata)):
+                pathdata = block.pathdata(lid)
+                if pathdata:
+                    (xyz_t, _, _, feedrate_t) = pathdata
+                    if startXYZ is None:
+                        startXYZ = xyz_t[0]
+                    if feedrate is None and feedrate_t:
+                        feedrate = feedrate_t
+                    if startXYZ and feedrate:
+                        break
+        if startXYZ or feedrate:
+            if startXYZ:
+                cmd_pos = "G00X{0}Y{1}Z{2}\n"\
+                    .format(startXYZ[0], startXYZ[1], startXYZ[2])
+                self.queue.put(cmd_pos)
+                prefixPaths += [None]
+                print("Restart Injection: {0}".format(cmd_pos.strip()))
+            if feedrate:
+                cmd_feed = "F{0}\n".format(feedrate)
+                self.queue.put(cmd_feed)
+                prefixPaths += [None]
+            print("Restart Injection: {0}".format(cmd_feed.strip()))
 
         return prefixPaths
 
