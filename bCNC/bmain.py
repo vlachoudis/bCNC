@@ -546,7 +546,7 @@ class Application(Tk, Sender):
         # END - insertCount lines where ok was applied to for $xxx commands
         self._insertCount = (0)
         self._selectI = 0
-        self._resume_point = None
+        self._restart_point = None
         self.monitorSerial()
         self.canvas.view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
         self.canvasFrame.toggleDrawFlag()
@@ -1835,12 +1835,12 @@ class Application(Tk, Sender):
         elif rexx.abbrev("RESTART", cmd, 3):
             selection = self.editor.getSelection()
             if selection:
-                self._resume_point = selection[0]
+                self._restart_point = selection[0]
                 msg = "Job RESTART Position set to Block {0}, Line {1}. Be Careful!".format(
-                        self._resume_point[0]+1,
-                        self._resume_point[1]+1 if self._resume_point[1] is not None else 0 )
+                        self._restart_point[0]+1,
+                        self._restart_point[1]+1 if self._restart_point[1] is not None else 0 )
             else:
-                self._resume_point = None
+                self._restart_point = None
                 msg = "Job RESTART Position cleared."
             self.setStatus(msg)
             print(msg)
@@ -2718,38 +2718,8 @@ class Application(Tk, Sender):
             self.statusbar.itemconfig(self.statusbar.doneBox, fill=CNCCanvas.PROGRESS_COLOR)
             self.statusbar.setLimits(0, 9999)
             self.statusbar.setProgress(0, 0)
-            startPoint = self._resume_point if self._resume_point else (0, None)
-            prefixPaths = []
-            if self._resume_point:
-                p = self._resume_point
-                block = self.gcode[p[0]]
-                startXYZ = None
-                feedrate = None
-                if block._pathdata:
-                    # find the next line with xyz coordinates and use start position. independent feedrate
-                    pathStart = 0 if p[1] is None else p[1]
-                    for lid in range(pathStart, len(block._pathdata)):
-                        pathdata = block.pathdata(lid)
-                        if pathdata:
-                            (xyz_t, _, _, feedrate_t) = pathdata
-                            if startXYZ is None:
-                                startXYZ = xyz_t[0]
-                            if feedrate is None and feedrate_t:
-                                feedrate = feedrate_t
-                            if startXYZ and feedrate:
-                                break
-                if startXYZ or feedrate:
-                    if startXYZ:
-                        cmd_pos = "G00X{0}Y{1}Z{2}\n"\
-                            .format(startXYZ[0], startXYZ[1], startXYZ[2])
-                        self.queue.put(cmd_pos)
-                        prefixPaths += [None]
-                        print("Restart Injection: {0}".format(cmd_pos.strip()))
-                    if feedrate:
-                        cmd_feed = "F{0}\n".format(feedrate)
-                        self.queue.put(cmd_feed)
-                        prefixPaths += [None]
-                        print("Restart Injection: {0}".format(cmd_feed.strip()))
+            startPoint = self._restart_point if self._restart_point else (0, None)
+            prefixPaths = self.checkRestartPoint()
             self._paths = self.gcode.compile(self.queue, self.checkStop, startPoint)
             if self._paths is None:
                 self.emptyQueue()
@@ -2761,7 +2731,7 @@ class Application(Tk, Sender):
                 self.runEnded()
                 messagebox.showerror(
                     "Empty gcode",
-                    "Not gcode file was loaded",
+                    "No gcode file was loaded",
                     parent=self
                 )
                 return
@@ -2809,6 +2779,44 @@ class Application(Tk, Sender):
         self.bufferbar.configText(fill=CNCCanvas.PROGRESS_TEXT_COLOR)
         self.bufferbar.config(background="DarkGray")
         self.bufferbar.setText("")
+
+    # -----------------------------------------------------------------------
+    # Checks for restart point and queues feedrate and starting position commands
+    # -----------------------------------------------------------------------
+    def checkRestartPoint(self):
+        prefixPaths = []
+        if self._restart_point:
+            bid_r, lid_r = self._restart_point
+            block = self.gcode[bid_r]
+            startXYZ = None
+            feedrate = None
+            if block._pathdata:
+                # find the next line with xyz coordinates and use start position. independent feedrate
+                pathStart = 0 if lid_r is None else lid_r
+                for lid in range(pathStart, len(block._pathdata)):
+                    pathdata = block.pathdata(lid)
+                    if pathdata:
+                        (xyz_t, _, _, feedrate_t) = pathdata
+                        if startXYZ is None:
+                            startXYZ = xyz_t[0]
+                        if feedrate is None and feedrate_t:
+                            feedrate = feedrate_t
+                        if startXYZ and feedrate:
+                            break
+            if startXYZ or feedrate:
+                if startXYZ:
+                    cmd_pos = "G00X{0}Y{1}Z{2}\n"\
+                        .format(startXYZ[0], startXYZ[1], startXYZ[2])
+                    self.queue.put(cmd_pos)
+                    prefixPaths += [None]
+                    print("Restart Injection: {0}".format(cmd_pos.strip()))
+                if feedrate:
+                    cmd_feed = "F{0}\n".format(feedrate)
+                    self.queue.put(cmd_feed)
+                    prefixPaths += [None]
+                print("Restart Injection: {0}".format(cmd_feed.strip()))
+
+        return prefixPaths
 
     # -----------------------------------------------------------------------
     # Start the web pendant
