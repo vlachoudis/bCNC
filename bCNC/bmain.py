@@ -2723,7 +2723,6 @@ class Application(Tk, Sender):
             if self._resume_point:
                 p = self._resume_point
                 block = self.gcode[p[0]]
-                pathdata = block.pathdata(p[1])
                 startXYZ = None
                 feedrate = None
                 if block._pathdata:
