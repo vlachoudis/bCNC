@@ -2807,11 +2807,16 @@ class Application(Tk, Sender):
                         break
         if startXYZ or feedrate:
             if startXYZ:
-                cmd_pos = "G00X{0}Y{1}Z{2}\n"\
-                    .format(startXYZ[0], startXYZ[1], startXYZ[2])
-                self.queue.put(cmd_pos)
-                prefixPaths += [None]
-                print("Restart Injection: {0}".format(cmd_pos.strip()))
+                cmd_safez = "G00Z{0}\n".format(CNC.vars["safe"])
+                cmd_posXY = "G00X{0}Y{1}\n".format(startXYZ[0], startXYZ[1])
+                cmd_posZ = "G00Z{0}\n".format(startXYZ[2])
+                self.queue.put(cmd_safez)
+                self.queue.put(cmd_posXY)
+                self.queue.put(cmd_posZ)
+                prefixPaths += [None, None, None]
+                print("Restart Injection: {0}".format(cmd_safez.strip()))
+                print("Restart Injection: {0}".format(cmd_posXY.strip()))
+                print("Restart Injection: {0}".format(cmd_posZ.strip()))
             if feedrate:
                 cmd_feed = "F{0}\n".format(feedrate)
                 self.queue.put(cmd_feed)
