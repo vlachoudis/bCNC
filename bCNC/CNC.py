@@ -2490,7 +2490,7 @@ class GCode:
         self.init()
         self.filename = filename
         try:
-            f = open(self.filename)
+            f = open(self.filename, "r", encoding='utf-8')
         except Exception:
             return False
         self._lastModified = os.stat(self.filename).st_mtime
