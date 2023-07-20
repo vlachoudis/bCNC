@@ -2406,9 +2406,8 @@ class CNCCanvas(Canvas):
                 self._last = xyz[-1]
 
             if self.cnc.gcode == 0:
-                if self.draw_rapid:
-                    line_mode = LINEMODE_RAPID
-                    return (xyz, color, line_mode, self.cnc.feed)
+                line_mode = LINEMODE_RAPID
+                return (xyz, color, line_mode, self.cnc.feed)
             elif self.cnc.gcode in (1, 2, 3):
                 line_mode = LINEMODE_ENABLED if active else LINEMODE_DISABLED
                 if not active:
