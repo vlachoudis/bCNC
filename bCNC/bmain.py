@@ -547,6 +547,8 @@ class Application(Tk, Sender):
         self._insertCount = (0)
         self._selectI = 0
         self._restart_point = None
+        self._restart_button = None
+        self._restart_inject = True
         self.monitorSerial()
         self.canvas.view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
         self.canvasFrame.toggleDrawFlag()
@@ -1845,6 +1847,28 @@ class Application(Tk, Sender):
             self.setStatus(msg)
             print(msg)
 
+        # RESTART_BUTTON: Bind a button to be called at the beginning of a restart.
+        elif rexx.abbrev("RESTART_BUTTON", cmd, 3):
+            if len(line) > 1:
+                self._restart_button = line[1]
+                msg = "RESTART_BUTTON set to \"{0}\". Button commands will execute before a run."\
+                        .format(self._restart_button)
+            else:
+                self._restart_button = None
+                msg = "RESTART_BUTTON cleared."
+            self.setStatus(msg)
+            print(msg)
+
+        # RESTART_INJECT: Bind a button to be called at the beginning of a restart.
+        elif rexx.abbrev("RESTART_INJECT", cmd, 3):
+            self._restart_inject = True
+            if len(line) > 1:
+                self._restart_inject = False if line[1].lower() in ("0", "false", "f", "no", "n", "off") else True
+            msg = "RESTART_INJECT commands set to \"{0}\". Initial position and feedrate {1} be send on restart."\
+                    .format(bool(self._restart_inject), "WILL" if self._restart_inject else "will NOT")
+            self.setStatus(msg)
+            print(msg)
+
         # REV*ERSE: reverse path direction
         elif rexx.abbrev("REVERSE", cmd, 3):
             self.executeOnSelection("REVERSE", True)
@@ -2805,23 +2829,32 @@ class Application(Tk, Sender):
                         feedrate = feedrate_t
                     if startXYZ and feedrate:
                         break
-        if startXYZ or feedrate:
+        if self._restart_button:
+            for wid in self.widgets:
+                if wid.winfo_name().startswith("!userbutton") and wid.name() == self._restart_button:
+                    print("Restart Button \"{0}\" commands queued.".format(self._restart_button))
+                    for cmd_user in wid.command().split("\n"):
+                        self.queue.put("{0}\n".format(cmd_user))
+                        prefixPaths += [None]
+                        print("Restart Injection: {0}".format(cmd_user))
+                    break
+        if self._restart_inject:
             if startXYZ:
-                cmd_safez = "G00Z{0}\n".format(CNC.vars["safe"])
+                cmd_safeZ = "G00Z{0}\n".format(CNC.vars["safe"])
                 cmd_posXY = "G00X{0}Y{1}\n".format(startXYZ[0], startXYZ[1])
                 cmd_posZ = "G00Z{0}\n".format(startXYZ[2])
-                self.queue.put(cmd_safez)
+                self.queue.put(cmd_safeZ)
                 self.queue.put(cmd_posXY)
                 self.queue.put(cmd_posZ)
                 prefixPaths += [None, None, None]
-                print("Restart Injection: {0}".format(cmd_safez.strip()))
+                print("Restart Injection: {0}".format(cmd_safeZ.strip()))
                 print("Restart Injection: {0}".format(cmd_posXY.strip()))
                 print("Restart Injection: {0}".format(cmd_posZ.strip()))
             if feedrate:
                 cmd_feed = "F{0}\n".format(feedrate)
                 self.queue.put(cmd_feed)
                 prefixPaths += [None]
-            print("Restart Injection: {0}".format(cmd_feed.strip()))
+                print("Restart Injection: {0}".format(cmd_feed.strip()))
 
         return prefixPaths
 
