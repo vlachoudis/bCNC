@@ -2834,9 +2834,10 @@ class Application(Tk, Sender):
                 if wid.winfo_name().startswith("!userbutton") and wid.name() == self._restart_button:
                     print("Restart Button \"{0}\" commands queued.".format(self._restart_button))
                     for cmd_user in wid.command().split("\n"):
-                        self.queue.put("{0}\n".format(cmd_user))
-                        prefixPaths += [None]
-                        print("Restart Injection: {0}".format(cmd_user))
+                        if cmd_user:
+                            self.queue.put("{0}\n".format(cmd_user))
+                            prefixPaths += [None]
+                            print("Restart Injection: {0}".format(cmd_user))
                     break
         if self._restart_inject:
             if startXYZ:
