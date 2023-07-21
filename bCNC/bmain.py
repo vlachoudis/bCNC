@@ -2828,7 +2828,8 @@ class Application(Tk, Sender):
             for lid in range(pathStart, len(block._pathdata)):
                 pathdata = block.pathdata(lid)
                 if pathdata:
-                    (xyz_t, _, _, feedrate_t) = pathdata
+                    xyz_t = pathdata[CNCCanvas.PD_COORDS]
+                    feedrate_t = pathdata[CNCCanvas.PD_FEEDRATE]
                     if startXYZ is None:
                         startXYZ = xyz_t[0]
                     if feedrate is None and feedrate_t:

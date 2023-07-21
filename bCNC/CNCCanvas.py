@@ -1174,7 +1174,8 @@ class CNCCanvas(Canvas):
             bid, lid = self._items[item]
             pathdata = self.gcode.blocks[bid].pathdata(lid)
             if pathdata:
-                (xyz, _, line_mode, _) = pathdata
+                xyz = pathdata[PD_COORDS]
+                line_mode = pathdata[PD_LINEMODE]
                 if enabled or (self.filter_inactive and line_mode != LINEMODE_ENABLED):
                     continue
                 if not found:
@@ -2564,7 +2565,9 @@ class CNCCanvas(Canvas):
     def drawPath(self, pathdata, enable=True):
         if not pathdata:
             return None
-        (xyz, fill, line_mode, _) = pathdata
+        xyz = pathdata[PD_COORDS]
+        fill = pathdata[PD_COLOR]
+        line_mode = pathdata[PD_LINEMODE]
         if not enable:
             fill = DISABLE_COLOR
         coords = self.plotCoords(xyz)
