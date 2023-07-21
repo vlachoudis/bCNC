@@ -2840,7 +2840,7 @@ class Application(Tk, Sender):
                     break
         if self._restart_inject:
             if startXYZ:
-                cmd_safeZ = "G00Z{0}\n".format(CNC.vars["safe"])
+                cmd_safeZ = "G90G00Z{0}\n".format(CNC.vars["safe"])
                 cmd_posXY = "G00X{0}Y{1}\n".format(startXYZ[0], startXYZ[1])
                 cmd_posZ = "G00Z{0}\n".format(startXYZ[2])
                 self.queue.put(cmd_safeZ)
