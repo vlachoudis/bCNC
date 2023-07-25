@@ -2487,6 +2487,7 @@ class Application(Tk, Sender):
         self.canvas.clearPaths()
         self.gcode.clearBlocks()
         self.canvas.delete('all')
+        self.editor.fill()
         self.update()
         try:
             Sender.load(

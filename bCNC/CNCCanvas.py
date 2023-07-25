@@ -2389,7 +2389,6 @@ class CNCCanvas(Canvas):
     # Process a motion command into the tuple (coordinate, color, line_mode)
     # ----------------------------------------------------------------------
     def processPath(self, block, cmds, start=False):
-
         self.cnc.motionStart(cmds)
         active = self.isActive()
         color = ENABLE_COLOR if block.color is None else block.color
@@ -2735,7 +2734,6 @@ class CNCCanvas(Canvas):
     # Canvas to real coordinates
     # ----------------------------------------------------------------------
     def canvas2xyz(self, i, j):
-
         if self.view == VIEW_XY:
             x = i / self.zoom
             y = -j / self.zoom

@@ -538,10 +538,12 @@ class Ini(_Base):
                 continue
             self.variables.append((name, vartype, value, name))
 
+
 # -----------------------------------------------------------------------------
 class Font(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Font", "str")
+
 
 # -----------------------------------------------------------------------------
 class Color(Ini):
@@ -581,6 +583,7 @@ class Canvas(Ini):
 class Events(Ini):
     def __init__(self, master):
         Ini.__init__(self, master, "Events", "str")
+
 
 # -----------------------------------------------------------------------------
 class Shortcut(_Base):
