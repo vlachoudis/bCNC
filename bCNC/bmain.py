@@ -2821,7 +2821,7 @@ class Application(Tk, Sender):
             return prefixPaths
 
         bid_r, lid_r = self._restart_point
-        if bid_r not in self.gcode:
+        if bid_r >= len(self.gcode.blocks):
             print("RESTART position ignored because Not Found. Block: {0} | Line: {1}".format(bid_r, lid_r))
             return prefixPaths
         block = self.gcode[bid_r]
