@@ -15,14 +15,19 @@ flatpak-builder --force-clean --user --install builddir io.github.bcnc.json
 # flatpak-builder remove                                io.github.bcnc
 ```
 
-Test application running
+To give (read-only) access to host filesystem run:
+```
+flatpak override --user --filesystem=host:ro io.github.bcnc
+```
+
+To launch the application from the command line run:
 ```
 flatpak run io.github.bcnc
 ```
 
-Launch application with allow device `/dev/ttyUSB1` and home user folder
+Launch application with access to serial devices run:
 ```
-flatpak run --device=/dev/ttyUSB1 --share="$HOME" io.github.bcnc
+flatpak run --device=all io.github.bcnc
 ```
 
 if replace `".."` to `"https://github.com/vlachoudis/bCNC"` in manifest-file
