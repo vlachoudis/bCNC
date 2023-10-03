@@ -1,34 +1,29 @@
-Flatpak build and run
+Flatpak - how to build, install and run
 ===
 
-Download data if need
+Download the source code:
 ```
-git clone https://github.com/vlachoudis/bCNC
-cd bCNC/flatpak
-```
-
-Build flatpak packet from manifest-file `io.github.bcnc.json`
-```
-flatpak-builder --force-clean                  builddir io.github.bcnc.json
-flatpak-builder --force-clean --user --install builddir io.github.bcnc.json
-# For remove application use
-# flatpak-builder remove                                io.github.bcnc
+$ git clone https://github.com/vlachoudis/bCNC
+$ cd bCNC/flatpak
 ```
 
-To give (read-only) access to host filesystem run:
+Build flatpak bundle from the manifest-file `io.github.bcnc.json`:
 ```
-flatpak override --user --filesystem=host:ro io.github.bcnc
-```
-
-To launch the application from the command line run:
-```
-flatpak run io.github.bcnc
+$ flatpak-builder --ccache --jobs=$(getconf _NPROCESSORS_ONLN) --force-clean builddir io.github.bcnc.json
 ```
 
-Launch application with access to serial devices run:
+Install the application using:
 ```
-flatpak run --device=all io.github.bcnc
+$ flatpak-builder --force-clean --user --install builddir io.github.bcnc.json
 ```
 
-if replace `".."` to `"https://github.com/vlachoudis/bCNC"` in manifest-file
-you can use it singly
+For uninstalling the application use:
+```
+$ flatpak-builder remove io.github.bcnc
+```
+
+You should be able to launch the application from your desktop
+environment. To launch the application from the command line run:
+```
+$ flatpak run io.github.bcnc
+```
