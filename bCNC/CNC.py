@@ -3013,6 +3013,7 @@ class GCode:
         comments=True,
         exitpoint=None,
         truncate=None,
+        dwell=None
     ):
         # Recursion for multiple paths
         if not isinstance(path, Path):
@@ -3139,6 +3140,8 @@ class GCode:
             # Retract to zsafe
             if retract:
                 block.append(f"g0 {self.fmt('z', CNC.vars['safe'], 7)}")
+                if dwell:
+                    block.append(f"g4 {self.fmt('p', float(dwell))}")
 
             # Rapid to beginning of the path
             block.append(f"g0 {self.fmt('x', x, 7)} {self.fmt('y', y, 7)}")
@@ -3150,6 +3153,8 @@ class GCode:
             else:
                 # without entry just rapid to Z
                 block.append(f"g0 {self.fmt('z', max(zh, ztab), 7)}")
+                if dwell:
+                    block.append(f"g4 {self.fmt('p', float(dwell))}")
 
             # Begin pass
             if comments:
@@ -3222,6 +3227,8 @@ class GCode:
                         f"{self.fmt('y', exitpoint[1])}"
                     )
                 block.append(CNC.zsafe())
+                if dwell:
+                    block.append(f"g4 {self.fmt('p', float(dwell))}")
 
         return block
 

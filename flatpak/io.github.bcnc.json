@@ -11,7 +11,9 @@
   "finish-args": [
     "--share=network",
     "--share=ipc",
-    "--socket=x11"
+    "--socket=x11",
+    "--filesystem=home:rw",
+    "--device=all"
   ],
   "command": "bCNC",
   "modules": [
@@ -25,7 +27,10 @@
         "pip3 install --prefix=${FLATPAK_DEST} Pillow",
         "pip3 install --prefix=${FLATPAK_DEST} numpy",
         "pip3 install --prefix=${FLATPAK_DEST} opencv-python==4.5.5.62",
-        "pip3 install --prefix=/app --upgrade ."
+        "pip3 install --prefix=/app --upgrade .",
+        "install -p -m644 -D bCNC/bCNC.png ${FLATPAK_DEST}/share/icons/hicolor/192x192/apps/io.github.bcnc.png",
+        "install -p -m644 -D bCNC/bCNC.desktop ${FLATPAK_DEST}/share/applications/io.github.bcnc.desktop",
+        "desktop-file-install --dir=${FLATPAK_DEST}/share/applications/ --set-key=Icon --set-value=io.github.bcnc ${FLATPAK_DEST}/share/applications/io.github.bcnc.desktop"
       ],
       "sources": [
         {

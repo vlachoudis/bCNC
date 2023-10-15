@@ -89,6 +89,15 @@ class Tool(Plugin):
                     "Simulation is currently approximated by using lots of short lines. This is the length of these lines."
                 ),
             ),
+            (
+                "dwell",
+                "s",
+                0.0,
+                _("pause / dwell"),
+                _(
+                    "On some machines the solenoid that drops and lifts the knife simply isn't fast enough, which leaves uncut segments when the knife enters a cut and leaves scratches when the knife exits a cut. Use this variable to add delay after the knife is droppend/lifted to allow the solenoid to catch up."
+                ),
+            ),
         ]
         self.buttons.append(
             "exe"
@@ -111,6 +120,7 @@ This fact introduces the need for preprocessing the g-code to account with that 
         CNC.vars["cutfeed"] = self.fromMm("feed")
         simulate = self["simulate"]
         simpreci = self["simpreci"]
+        dwell = self["dwell"]
 
         def initPoint(P, direction, offset):
             P = Vector(P[0], P[1])
@@ -214,7 +224,7 @@ This fact introduces the need for preprocessing the g-code to account with that 
                                              newknife))
                     prevknife = newknife
 
-            eblock = app.gcode.fromPath(npath)
+            eblock = app.gcode.fromPath(path=npath, dwell=dwell)
             blocks.append(eblock)
 
         active = -1  # add to end
