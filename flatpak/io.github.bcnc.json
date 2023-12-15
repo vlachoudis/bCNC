@@ -88,7 +88,8 @@
       "sources": [
         {
           "type": "git",
-          "url": "https://github.com/iwalton3/tkinter-standalone"
+          "url": "https://github.com/iwalton3/tkinter-standalone",
+          "commit": "20950173c51b7d4b67cfb5d765d41c2600f9bee3"
         }
       ]
     }
