@@ -44,10 +44,12 @@
 			}
 		});
 		var canvas = $("#cnc-canvas");
-		canvas.attr(
-			'src',
-			canvas.attr('src') + '?' + new Date().getTime()
-		);
+		if (canvas.prop('complete')){
+			canvas.attr(
+				'src',
+				'/canvas?' + new Date().getTime()
+			);
+		}
 	} // getState
 
 	/* parse once configuration */

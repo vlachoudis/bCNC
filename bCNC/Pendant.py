@@ -39,6 +39,17 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
     camera = None
 
     # ----------------------------------------------------------------------
+    def get_file_size(fh):
+	# Returns file length. 
+	# This is workaround for os.path.getsize() function - IDK why, 
+	# but it returns wrong value.
+        cur_pos=fh.tell()
+        fh.seek(0,2)
+        content_length=fh.tell()
+        fh.seek(cur_pos,0)
+        return content_length
+
+    # ----------------------------------------------------------------------
     def log_message(self, fmt, *args):
         # Only requests to the main page log them, all other ignore
         if args[0].startswith("GET / ") or args[0].startswith("GET /send"):
@@ -118,10 +129,9 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
             if arg is None:
                 return
             filename = os.path.join(iconpath, arg["name"] + ".gif")
-            self.do_HEAD(200, content="image/gif",
-                         cl=os.path.getsize(filename))
             try:
-                f = open(filename, "rb")
+                f = open(filename,"rb")
+                self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
                 self.wfile.write(f.read())
                 f.close()
             except Exception:
@@ -140,19 +150,14 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
                     with tempfile.NamedTemporaryFile(suffix=".gif") as out:
                         Image.open(tmp.name).save(out.name, "GIF")
                         out.flush()
+                        self.do_HEAD(200, content="image/gif", cl=out.tell())
                         out.seek(0)
-                        self.do_HEAD(
-                            200,
-                            content="image/gif",
-                            cl=os.path.getsize(tmp.name)
-                        )
                         self.wfile.write(out.read())
                 except Exception:
                     filename = os.path.join(iconpath, "warn.gif")
-                    self.do_HEAD(200, content="image/gif",
-                                 cl=os.path.getsize(filename))
                     try:
-                        f = open(filename, "rb")
+                        f = open(filename,"rb")
+                        self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
                         self.wfile.write(f.read())
                         f.close()
                     except Exception:
@@ -167,11 +172,9 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
 
             if Pendant.camera.read():
                 Pendant.camera.save("camera.jpg")
-                self.do_HEAD(
-                    200, content="image/jpeg", cl=os.path.getsize("camera.jpg")
-                )
                 try:
-                    f = open("camera.jpg", "rb")
+                    f = open("camera.jpg","rb")
+                    self.do_HEAD(200, content="image/jpeg", cl=self.get_file_size(f))
                     self.wfile.write(f.read())
                     f.close()
                 except Exception:
@@ -181,23 +184,39 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
 
     # ----------------------------------------------------------------------
     def deal_post_data(self):
-        boundary = self.headers.plisttext.split("=")[1]
+        str_ok = True
+        b_tmp = False
+        try:
+            boundary = self.headers.plisttext.split("=")[1]
+        except Exception:
+            str_ok=False
+            boundary=self.headers.get_boundary()
+            pass
         remainbytes = int(self.headers["content-length"])
         line = self.rfile.readline()
         remainbytes -= len(line)
-        if boundary not in line:
-            return (False, "Content NOT begin with boundary")
+        if (str_ok):
+            b_tmp = not boundary in line
+        else:
+            b_tmp = not boundary.encode() in line
+        if b_tmp:
+                return (False, "Content NOT begin with boundary")
         line = self.rfile.readline()
         remainbytes -= len(line)
-        fn = re.findall(
-            r'Content-Disposition.*name="file"; filename="(.*)"', line)
+        if (str_ok):
+            fn = re.findall(r'Content-Disposition.*name="file"; filename="(.*)"', line)
+        else:
+            fn = re.findall(r'Content-Disposition.*name="file"; filename="(.*)"'.encode(), line)
         if not fn:
             return (False, "Can't find out file name...")
         path = os.path.expanduser("~")
         path = os.path.join(path, "bCNCUploads")
         if not os.path.exists(path):
             os.makedirs(path)
-        fn = os.path.join(path, fn[0])
+        if (str_ok):
+            fn = os.path.join(path, fn[0])
+        else:
+            fn = os.path.join(path.encode(), fn[0])
         line = self.rfile.readline()
         remainbytes -= len(line)
         line = self.rfile.readline()
@@ -215,13 +234,20 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
         while remainbytes > 0:
             line = self.rfile.readline()
             remainbytes -= len(line)
-            if boundary in line:
+            if (str_ok):
+                b_tmp= boundary in line
+            else:
+                b_tmp= boundary.encode() in line
+            if b_tmp:
                 preline = preline[0:-1]
-                if preline.endswith("\r"):
+                if preline.endswith("\r".encode()):
                     preline = preline[0:-1]
                 out.write(preline)
                 out.close()
-                return (True, f"{fn}")
+                if (str_ok):
+                    return (True, f"{fn}")
+                else:
+                    return (True, fn)
             else:
                 out.write(preline)
                 preline = line
@@ -265,19 +291,19 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
             self.wfile.write(f.read())
             f.close()
         except OSError:
-            self.wfile.write("\n".join([
-                b"<!DOCTYPE html>",
-                b"<html>",
-                b"<head>",
-                b"<title>Errortitle</title>",
-                b"<meta name=\"viewport\" content=\"width=device-width,"
-                + b"initial-scale=1, user-scalable=yes\" />",
-                b"</head>",
-                b"<body>",
-                b"Page not found.",
-                b"</body>",
-                b"</html>",
-            ]))
+            self.wfile.write(("\n".join([
+                u"<!DOCTYPE html>",
+                u"<html>",
+                u"<head>",
+                u"<title>Errortitle</title>",
+                u"<meta name=\"viewport\" content=\"width=device-width,"
+                u"initial-scale=1, user-scalable=yes\" />",
+                u"</head>",
+                u"<body>",
+                u"Page not found.",
+                u"</body>",
+                u"</html>"
+            ])).encode())
 
 
 # -----------------------------------------------------------------------------
@@ -317,3 +343,4 @@ def stop():
 
 if __name__ == "__main__":
     start()
+
