@@ -210,7 +210,7 @@ def loadConfiguration(systemOnly=False):
         config.read(iniSystem)
     else:
         config.read([iniSystem, iniUser])
-        errorReport = getInt("Connection", "errorreport", 1)
+        _errorReport = getInt("Connection", "errorreport", 1)
 
         language = getStr(__prg__, "language")
         if language and language != "en":

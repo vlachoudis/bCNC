@@ -69,7 +69,7 @@ Procedure to generate tabs created with bCNC for laser cutting/engraving.
  1) Load file and use the 'Tabs' function with parameter Height = 0
  2) Run 'Cut' function with Surface Z = 0, Target Depth = Depth Increment, First cut at surface height unchecked. 
  3) Run 'LaserCut' plugin to change feed, speed, M3 or M4 commands in the selected blocks and repead selected blocks.
- 
+
 Change log:
 Version 1.0: 
 	Initial code.
@@ -94,6 +94,7 @@ class Tool(Plugin):
 		#  self.listdb = {}  # lists database
 
 		# Define the list of components for the GUI
+
 		self.variables = [
 			("name", "db", "", _("Name")), # Name of the settings stored in the internal database.
 			("Feed", "int", 500, _("XYZ feed rate (F parm)")), # Feed rate in mm/s or inch/s based on bCNC setting.
@@ -312,6 +313,7 @@ Read file LaserCut.py for more documentation.
 			# Show some progress messages.
 			if (New_Block_Count % 10 == 0):
 				app.setStatus(_("Processing block #" + str(New_Block_ID) + " of " + str(Valid_Block_IDs)))
+
 			block = All_Blocks[New_Block_ID]
 			# Disable the original block.
 			undoinfo.append(app.gcode.setBlockEnableUndo(Block_ID + New_Block_Count, False))
