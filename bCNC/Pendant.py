@@ -39,6 +39,17 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
     camera = None
 
     # ----------------------------------------------------------------------
+    def get_file_size(fh):
+	# Returns file length. 
+	# This is workaround for os.path.getsize() function - IDK why, 
+	# but it returns wrong value.
+        cur_pos=fh.tell()
+        fh.seek(0,2)
+        content_length=fh.tell()
+        fh.seek(cur_pos,0)
+        return content_length
+
+    # ----------------------------------------------------------------------
     def log_message(self, fmt, *args):
         # Only requests to the main page log them, all other ignore
         if args[0].startswith("GET / ") or args[0].startswith("GET /send"):
@@ -120,9 +131,7 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
             filename = os.path.join(iconpath, arg["name"] + ".gif")
             try:
                 f = open(filename,"rb")
-                f.seek(0,2)
-                self.do_HEAD(200, content="image/gif", cl=f.tell())
-                f.seek(0,0)
+                self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
                 self.wfile.write(f.read())
                 f.close()
             except Exception:
@@ -148,9 +157,7 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
                     filename = os.path.join(iconpath, "warn.gif")
                     try:
                         f = open(filename,"rb")
-                        f.seek(0,2)
-                        self.do_HEAD(200, content="image/gif", cl=f.tell())
-                        f.seek(0,0)
+                        self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
                         self.wfile.write(f.read())
                         f.close()
                     except Exception:
@@ -167,9 +174,7 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
                 Pendant.camera.save("camera.jpg")
                 try:
                     f = open("camera.jpg","rb")
-                    f.seek(0,2)
-                    self.do_HEAD(200, content="image/jpeg", cl=f.tell())
-                    f.seek(0,0)
+                    self.do_HEAD(200, content="image/jpeg", cl=self.get_file_size(f))
                     self.wfile.write(f.read())
                     f.close()
                 except Exception:
