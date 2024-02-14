@@ -3,13 +3,13 @@
 # $Id$
 #
 # Author:	Bruno Lahousse 
-# Date:		Dec 2023  
+# Date:		Fev 2024  
 
 __author__ = "Bruno Lahousse"
-__email__  = ""  
+__email__ = ""
 
 __name__ = _("LaserCut")
-__version__ = "1.0"
+__version__ = "1.1"
 
 from CNC import CNC,Block
 from ToolsPage import Plugin
@@ -69,6 +69,13 @@ Procedure to generate tabs created with bCNC for laser cutting/engraving.
  1) Load file and use the 'Tabs' function with parameter Height = 0
  2) Run 'Cut' function with Surface Z = 0, Target Depth = Depth Increment, First cut at surface height unchecked. 
  3) Run 'LaserCut' plugin to change feed, speed, M3 or M4 commands in the selected blocks and repead selected blocks.
+ 
+Change log:
+Version 1.0: 
+	Initial code.
+Version 1.1: 
+	Call Prepare_Block for the footer block.
+
 """
 
 #==============================================================================
@@ -87,15 +94,15 @@ class Tool(Plugin):
 		#  self.listdb = {}  # lists database
 
 		# Define the list of components for the GUI
-		self.variables = [			
-			("name",		"db",			"",		_("Name")),						# Name of the settings stored in the internal database.
-			("Feed",		"int", 	    	500,	_("XYZ feed rate (F parm)")),	# Feed rate in mm/s or inch/s based on bCNC setting.
-			("Power",		"int", 			500,	_("Power level (S parm)")),		# Laser power level.
-			("Mode",		"Auto,M3,M4",	"Auto",	_("Laser mode")),				# Laser mode. 
-			("BlockCount",	"int", 			1,		_("Block count")),				# Number of repeated blocks.
-			("ZStart",		"float", 		0,		_("Z start position")),			# Z start position. 
-			("ZDownStep",	"float", 		0,		_("Z down step")),				# Z down step for repreated blocks. 
-			("BackupBlock","bool",			True,	_("Backup original blocks")),	# Keep a copy of the original block.
+		self.variables = [
+			("name", "db", "", _("Name")), # Name of the settings stored in the internal database.
+			("Feed", "int", 500, _("XYZ feed rate (F parm)")), # Feed rate in mm/s or inch/s based on bCNC setting.
+			("Power", "int", 500, _("Power level (S parm)")), # Laser power level.
+			("Mode", "Auto,M3,M4", "Auto", _("Laser mode")), # Laser mode. 
+			("BlockCount", "int", 1, _("Block count")), # Number of repeated blocks.
+			("ZStart", "float", 0, _("Z start position")), # Z start position. 
+			("ZDownStep", "float", 0, _("Z down step")), # Z down step for repeated blocks. 
+			("BackupBlock", "bool", True, _("Backup original blocks")), # Keep a copy of the original block.
 		]
 		self.buttons.append("exe")  #  This is the button added at bottom to call the execute method below
 		
@@ -130,36 +137,36 @@ Read file LaserCut.py for more documentation.
 	def Prepare_Block(self,block):
 		# ----------------------------------------------------------------
 		# Line_Cleanup
-		# 	Cleanup Z,F,S commands in line l.
+		# 	Cleanup Z,F,S commands in line L.
 		# 	Replace M3/M4 commands with userLaserMode value.
 		#	Delete the line if it only contains Z,F,S commands.
 		# ----------------------------------------------------------------
-		def Line_Cleanup(l):
+		def Line_Cleanup(L):
 			X_Chars = ["Z", "F", "S", "M3", "M4"]
-			# Change line l to upper case to simplify cleanup.
-			block[l] = block[l].upper()
-			L = block[l]
+			# Change line L to upper case to simplify cleanup.
+			block[L] = block[L].upper()
+			### L = block[L]
 			for X_Char in X_Chars:
 				# Search command begin/end positions.
-				X_Index = block[l].find(X_Char)
+				X_Index = block[L].find(X_Char)
 				if X_Index != -1:
 					# Get the last digit position of a command parameter.
-					Last_Digit_Index = Find_Last_Digit(X_Index, l)
+					Last_Digit_Index = Find_Last_Digit(X_Index, L)
 					# Set X_GIndex when Z,F or S commands are not the last commands in line.
-					if (Last_Digit_Index < len(block[l])):
+					if (Last_Digit_Index < len(block[L])):
 						X_GIndex = X_Index
 					else:
 						# Check if G command ahead of X_Char command.
-						X_GIndex = Find_GIndex(X_Index, l)
+						X_GIndex = Find_GIndex(X_Index, L)
 					# Line cleanup.
-					block[l] = block[l].replace(block[l][X_GIndex:Last_Digit_Index], "")
+					block[L] = block[L].replace(block[L][X_GIndex:Last_Digit_Index], "")
 			return
 
 		# ----------------------------------------------------------------
 		#	Returns the index of the G char found before X_Index.
 		#	Returns -1 if no G char is found.
 		# ----------------------------------------------------------------
-		def Find_GIndex(X_Index, l):
+		def Find_GIndex(X_Index, L):
 			# Search for Gx command ahead of X_Index.
 			if X_Index == 0:
 				return 0
@@ -167,11 +174,11 @@ Read file LaserCut.py for more documentation.
 			G_Offsets = [2, 3]
 			for G_Pos in G_Offsets:
 				# G char found at position (X_Index - G_Pos).
-				if (block[l][X_Index - G_Pos] == "G"):
+				if (block[L][X_Index - G_Pos] == "G"):
 					G_Index = X_Index - G_Pos
 					return G_Index
 			# Set G_Index if no Gx immediately precedes the X_Index. Ex G0 X10 Z50.
-			if (G_Index == -1) and (block[l][X_Index - 1] == " "):
+			if (G_Index == -1) and (block[L][X_Index - 1] == " "):
 				G_Index = X_Index
 			return G_Index
 
@@ -179,17 +186,17 @@ Read file LaserCut.py for more documentation.
 		#	Returns the index of the last digit of the command parameter.
 		#	Number scanned may include '-' or '.' characters.
 		# ----------------------------------------------------------------
-		def Find_Last_Digit(D_Index, l):
+		def Find_Last_Digit(D_Index, L):
 			# d = 2 to skip the 1st digit or possible blank space.
 			d = 2
-			for i in range(D_Index + d, len(block[l])):
+			for i in range(D_Index + d, len(block[L])):
 				# Skip '-' or '.'chars.
-				if block[l][D_Index + d].isdigit() or block[l][D_Index + d] == "-" or block[l][D_Index + d] == ".":
+				if block[L][D_Index + d].isdigit() or block[L][D_Index + d] == "-" or block[L][D_Index + d] == ".":
 					d += 1
-				if D_Index + d == len(block[l]):
+				if D_Index + d == len(block[L]):
 					break
 				# Space after the last parameter digit means there could be more command in the line..
-				if block[l][D_Index + d] == " ":
+				if block[L][D_Index + d] == " ":
 					d +=1
 					break
 			return D_Index + d
@@ -198,68 +205,68 @@ Read file LaserCut.py for more documentation.
 		# Cleanup commands in the current block.
 		#	X_Chars area contains command types to be deleted.
 		# ----------------------------------------------------------------
-		l = 0
-		while l < (len(block)):
-			block[l] = block[l].strip()
+		L = 0
+		while L < (len(block)):
+			block[L] = block[L].strip()
 			#
 			# Update 'tab up' section generated by bCNC. 
 			#
-			if block[l].startswith("(tab up"):
-				block[l] = "(laser off)"
+			if block[L].startswith("(tab up"):
+				block[L] = "(laser off)"
 				# Check for M5 command in next line.
-				l += 1
-				block[l] = block[l].upper()
+				L += 1
+				block[L] = block[L].upper()
 				# Add M5 command if missing.
-				if not block[l].startswith("M5"):
-					block.insert(l, "M5")
-					l += 1
+				if not block[L].startswith("M5"):
+					block.insert(L, "M5")
+					L += 1
 				# Change G1 command to G0.
-				block[l+1] = block[l+1].upper()
-				if block[l+1].startswith("G1"):
-					block[l+1] = block[l+1].replace("G1","G0")
+				block[L+1] = block[L+1].upper()
+				if block[L+1].startswith("G1"):
+					block[L+1] = block[L+1].replace("G1","G0")
 				continue
 			#
 			# Update/fix (M3/M4 is sometime missing) 'tab down' section generated by bCNC. 
 			#
-			if block[l].startswith("(tab down"):
-				block[l] = "(laser on)"
+			if block[L].startswith("(tab down"):
+				block[L] = "(laser on)"
 				# Change M3/M4 command to userLaserMode in next line.
-				l += 1
-				block[l] = block[l].upper()
-				block[l] = block[l].replace("M3",userLaserMode)
-				block[l] = block[l].replace("M4",userLaserMode)
+				L += 1
+				block[L] = block[L].upper()
+				block[L] = block[L].replace("M3",userLaserMode)
+				block[L] = block[L].replace("M4",userLaserMode)
 				# Add M3 or M4 command if missing.
-				if not (block[l].startswith("M3") or block[l].startswith("M4")):
-					block.insert(l, userLaserMode)
-				l += 1
+				if not (block[L].startswith("M3") or block[L].startswith("M4")):
+					block.insert(L, userLaserMode)
+				L += 1
 				continue
 			#
 			# Clear line with '(pass ...) text added by the Cut function.
 			#
-			if block[l].startswith("(pass "):
-				block[l] = ""
+			if block[L].startswith("(pass "):
+				block[L] = ""
 				continue
 			#
 			# Skip empty or comment line.
 			#
-			if (len(block[l]) == 0)  or (block[l][0] in "(;"):
-				l += 1
+			if (len(block[L]) == 0) or (block[L][0] in "(;"):
+				L += 1
 				continue
 			#
-			# Cleanup X_Chars commands in line l.
+			# Cleanup X_Chars commands in line L.
 			#
-			Line_Cleanup(l)
-			l += 1
+			Line_Cleanup(L)
+			L += 1
 		#
 		# Delete the empty lines in the current block.
 		#
-		l = 0
-		while l < (len(block)):
-			block[l] = block[l].strip()
-			if len(block[l]) == 0:
-				del(block[l])
+		L = 0
+		while L < (len(block)):
+			block[L] = block[L].strip()
+			if len(block[L]) == 0:
+				del(block[L])
 				continue
-			l += 1
+			L += 1
 		return
 
 
@@ -284,7 +291,6 @@ Read file LaserCut.py for more documentation.
 		# Append command in the Header block to set laser power to 0.
 		#
 		if All_Blocks[0].name() == "Header":
-			#  self.Prepare_Block(All_Blocks[0],["Z"])
 			self.Prepare_Block(All_Blocks[0])
 			if All_Blocks[0][-1].upper() in ("M3 S0", "M4 S0"):
 				All_Blocks[0][-1] = All_Blocks[0][-1].replace("M3", userLaserMode)
@@ -292,10 +298,12 @@ Read file LaserCut.py for more documentation.
 			else:
 				All_Blocks[0].append(userLaserMode + " S0")
 		#
-		# Append M5 command to the Footer block.
+		# Cleanup Z commands and append M5 command to the Footer block.
 		#
-		if All_Blocks[-1].name() == "Footer" and  All_Blocks[-1][-1] != "M5":
-			All_Blocks[-1].append("M5")
+		if All_Blocks[-1].name() == "Footer":
+			self.Prepare_Block(All_Blocks[-1])
+			if All_Blocks[-1][-1] != "M5":
+				All_Blocks[-1].append("M5")
 		#
 		# Update the valid blocks.
 		#
@@ -303,7 +311,7 @@ Read file LaserCut.py for more documentation.
 			New_Block_ID = Block_ID + New_Block_Count
 			# Show some progress messages.
 			if (New_Block_Count % 10 == 0):
-				app.setStatus(_("Processing block #"  + str(New_Block_ID) + " of " + str(Valid_Block_IDs)))
+				app.setStatus(_("Processing block #" + str(New_Block_ID) + " of " + str(Valid_Block_IDs)))
 			block = All_Blocks[New_Block_ID]
 			# Disable the original block.
 			undoinfo.append(app.gcode.setBlockEnableUndo(Block_ID + New_Block_Count, False))
