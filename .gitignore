@@ -7,3 +7,9 @@ bCNC.egg-info
 .eggs
 dist
 build
+
+*.code-workspace
+.vscode/
+
+flatpak/builddir
+flatpak/.flatpak-builder

@@ -1,12 +1,9 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
+Categories=Science;Electronics;Engineering
 Name=bCNC
 Comment=bCNC Controller
 Exec=bCNC
-Icon=bCNC.png
+Icon=bCNC
 Keywords=CNC;PCB;
-Path=
-Terminal=true
-StartupNotify=false
-Name[en_US]=bCNC

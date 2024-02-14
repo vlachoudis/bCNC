@@ -10,11 +10,6 @@ svg.path ( https://github.com/regebro/svg.path )
 Copyright (c) 2013-2014 Lennart Regebro
 	lib/svg/*
 
-svg.elements ( https://github.com/meerk40t/svg.elements )
-Copyright (c) 2019 David Olsen, 2019 meerk40t, Zingl
-	lib/svg_elements.py
-
-
 This is the text of their original license:
 
 The MIT License (MIT)
