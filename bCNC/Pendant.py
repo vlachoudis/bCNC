@@ -188,7 +188,7 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
         b_tmp = False
         try:
             boundary = self.headers.plisttext.split("=")[1]
-        except:
+        except Exception:
             str_ok=False
             boundary=self.headers.get_boundary()
             pass
