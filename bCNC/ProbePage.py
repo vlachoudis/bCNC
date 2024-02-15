@@ -72,6 +72,13 @@ TOOL_POLICY = [
 
 TOOL_WAIT = [_("ONLY before probing"), _("BEFORE & AFTER probing")]
 
+MOVE_DIRECTION = [
+    _("NORTH"),
+    _("SOUTH"),
+    _("EAST"),
+    _("WEST")
+]
+
 CAMERA_LOCATION = {
     "Gantry": NONE,
     "Top-Left": NW,
@@ -119,6 +126,20 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
         )
         b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Simple probing along a direction"))
+
+        # ---
+        col += 1
+        b = Ribbon.LabelRadiobutton(
+            self.frame,
+            image=Utils.icons["origin32"],
+            text=_("Probe Origin"),
+            compound=TOP,
+            variable=self.tab,
+            value="ProbeOrigin",
+            background=Ribbon._BACKGROUND,
+        )
+        b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+        tkExtra.Balloon.set(b, _("Origin lookup with probe"))
 
         # ---
         col += 1
@@ -1200,6 +1221,470 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.app.refresh()
         self.app.setStatus(_("Finished recording"))
 
+# =============================================================================
+# Probe Origin Frame
+# =============================================================================
+class ProbeOriginStatus:
+    IDLE = 0
+    PRB_TOOL_DIAMETER_WAITING_START = 1
+    PRB_TOOL_DIAMETER_WAITING_EDGE_1 = 2
+    PRB_TOOL_DIAMETER_WAITING_EDGE_2 = 3
+    PRB_ORIGIN_WAIT_X = 4
+    PRB_ORIGIN_WAIT_Y = 5
+    PRB_ORIGIN_WAIT_Z = 6
+
+class ProbeOriginFrame(CNCRibbon.PageFrame):
+    
+    PROBING_LEN = 5
+    BOUNCE_LEN = 1
+            
+    def __init__(self, master, app):
+        CNCRibbon.PageFrame.__init__(self, master, "Probe:ProbeOrigin", app)
+
+        # ----------------------------------------------------------------
+        # Tool diameter
+        # ----------------------------------------------------------------
+        lframe = tkExtra.ExLabelFrame(
+            self, text=_("Detect tool diameter"), foreground="DarkBlue")
+        lframe.pack(side=TOP, fill=X)
+
+        row, col = 0, 0
+        Label(lframe(), text=_("Direction:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.toolProbeDiameterDir = tkExtra.Combobox(
+            lframe(),
+            True,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+        )
+        tkExtra.Balloon.set(self.toolProbeDiameterDir, _("Direction where probe is placed"))
+        self.toolProbeDiameterDir.grid(row=row, column=col, sticky=EW)
+        self.toolProbeDiameterDir.fill(MOVE_DIRECTION)
+        self.addWidget(self.toolProbeDiameterDir)
+        # ---
+        row, col = row + 1, 0
+        Label(lframe(), text=_("Probe width:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.toolProbeDiameterWidth = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.toolProbeDiameterWidth.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(self.toolProbeDiameterWidth, _("How far should we move to touch probe from opposite side"))
+        self.addWidget(self.toolProbeDiameterWidth)
+        # ---
+        row, col = row + 1, 0
+        Label(lframe(), text=_("Probe height:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.toolProbeDiameterHeight = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.toolProbeDiameterHeight.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(self.toolProbeDiameterHeight, _("When gantry moved over probe this height + safe Z will be used as Z value"))
+        self.addWidget(self.toolProbeDiameterHeight)
+        # ---
+        row, col = row + 1, 0
+        Label(lframe(), text=_("Tool bounds:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.toolProbeDiameterSafeBounds = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.toolProbeDiameterSafeBounds.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(self.toolProbeDiameterSafeBounds, _("Bounds where tool will fits. It is require to calculate movement distance which guarantee that tool will toch probe from side, not top. Must be greater or equal tool size."))
+        self.addWidget(self.toolProbeDiameterSafeBounds)
+
+        row, col = row + 1, 0
+        b = Button(
+            lframe(),  # "<<Probe>>",
+            image=Utils.icons["calibrate32"],
+            text=_("Detect tool diameter"),
+            compound=LEFT,
+            command=self.detectToolDiameter,
+            padx=5,
+            pady=0,
+        )
+        b.grid(row=row, column=col, columnspan=2, padx=1, sticky=EW)
+        self.addWidget(b)
+        tkExtra.Balloon.set(b, _("Detect tool diameter"))
+
+        lframe().grid_columnconfigure(1, weight=1)
+
+        # ----------------------------------------------------------------
+        # Find origin
+        # ----------------------------------------------------------------
+        lframe = tkExtra.ExLabelFrame(
+            self, text=_("Find origin"), foreground="DarkBlue")
+        lframe.pack(side=TOP, fill=X)
+
+        row, col = 0, 1
+        # ---
+        Label(lframe(), text=_("Tool diameter:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.toolDiameter = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.toolDiameter.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.toolDiameter, _("Tool diameter."))
+        self.addWidget(self.toolDiameter)
+        # ---
+        row, col = row + 1, 1
+        Label(lframe(), text=_("Rapid move:")).grid(row=row, column=col, sticky=W)
+
+        col += 1
+        Label(lframe(), text=_("Probe move:")).grid(row=row, column=col, sticky=W)
+
+        # --- X axis
+        row, col = row + 1, 0
+        Label(lframe(), text=_("X:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.probeXRapidDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeXRapidDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeXRapidDir, _("Rapid move along X direction from current position"))
+        self.addWidget(self.probeXRapidDir)
+
+        col += 1
+        self.probeXProbeDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeXProbeDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeXProbeDir, _("Rapid move along X direction from current position"))
+        self.addWidget(self.probeXProbeDir)
+
+        col += 2
+        b = Button(
+            lframe(),  # "<<Probe>>",
+            image=Utils.icons["probe32"],
+            text=_("Probe"),
+            compound=LEFT,
+            command=lambda s=self: s.probe('x'),
+            padx=5,
+            pady=0,
+        )
+        b.grid(row=row, column=col, padx=1, sticky=EW)
+        self.addWidget(b)
+        tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+
+        # --- Y axis
+        row, col = row + 1, 0
+        Label(lframe(), text=_("Y:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.probeYRapidDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeYRapidDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeYRapidDir, _("Rapid move along Y direction from current position"))
+        self.addWidget(self.probeYRapidDir)
+
+        col += 1
+        self.probeYProbeDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeYProbeDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeYProbeDir, _("Rapid move along Y direction from current position"))
+        self.addWidget(self.probeYProbeDir)
+
+        col += 2
+        b = Button(
+            lframe(),  # "<<Probe>>",
+            image=Utils.icons["probe32"],
+            text=_("Probe"),
+            compound=LEFT,
+            command=lambda s=self: s.probe('y'),
+            padx=5,
+            pady=0,
+        )
+        b.grid(row=row, column=col, padx=1, sticky=EW)
+        self.addWidget(b)
+        tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+
+        # --- Z axis
+        row, col = row + 1, 0
+        Label(lframe(), text=_("Z:")).grid(row=row, column=col, sticky=E)
+
+        col += 1
+        self.probeZRapidDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeZRapidDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeZRapidDir, _("Rapid move along Z direction from current position"))
+        self.addWidget(self.probeZRapidDir)
+
+        col += 1
+        self.probeZProbeDir = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+        )
+        self.probeZProbeDir.grid(row=row, column=col, sticky=W)
+        tkExtra.Balloon.set(self.probeZProbeDir, _("Rapid move along Z direction from current position"))
+        self.addWidget(self.probeZProbeDir)
+
+        col += 2
+        b = Button(
+            lframe(),  # "<<Probe>>",
+            image=Utils.icons["probe32"],
+            text=_("Probe"),
+            compound=LEFT,
+            command=lambda s=self: s.probe('z'),
+            padx=5,
+            pady=0,
+        )
+        b.grid(row=row, column=col, padx=1, sticky=EW)
+        self.addWidget(b)
+        tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
+
+        lframe().grid_columnconfigure(1, weight=1)
+        lframe().grid_columnconfigure(2, weight=1)
+        lframe().grid_columnconfigure(3, weight=2)
+
+        self.probe_status = ProbeOriginStatus.IDLE
+        self.prb_first_edge_pos = None
+        self.prb_second_edge_pos = None
+        self.warn = False
+        
+        self.loadConfig()
+
+    # -----------------------------------------------------------------------
+    def loadConfig(self):
+        self.toolProbeDiameterDir.set(Utils.getStr("ProbeOrigin", "toolProbeDiameterDir"))
+        self.toolProbeDiameterWidth.set(Utils.getStr("ProbeOrigin", "toolProbeDiameterWidth"))
+        self.toolProbeDiameterHeight.set(Utils.getStr("ProbeOrigin", "toolProbeDiameterHeight"))
+        self.toolProbeDiameterSafeBounds.set(Utils.getStr("ProbeOrigin", "toolProbeDiameterSafeBounds"))
+        
+        self.toolDiameter.set(Utils.getStr("ProbeOrigin", "toolDiameter"))
+        
+        self.probeXRapidDir.set(Utils.getStr("ProbeOrigin", "probeXRapidDir"))
+        self.probeXProbeDir.set(Utils.getStr("ProbeOrigin", "probeXProbeDir"))
+        
+        self.probeYRapidDir.set(Utils.getStr("ProbeOrigin", "probeYRapidDir"))
+        self.probeYProbeDir.set(Utils.getStr("ProbeOrigin", "probeYProbeDir"))
+        
+        self.probeZRapidDir.set(Utils.getStr("ProbeOrigin", "probeZRapidDir"))
+        self.probeZProbeDir.set(Utils.getStr("ProbeOrigin", "probeZProbeDir"))
+        
+
+    # -----------------------------------------------------------------------
+    def saveConfig(self):
+        Utils.addSection("ProbeOrigin")
+        Utils.setStr("ProbeOrigin", "toolProbeDiameterDir", self.toolProbeDiameterDir.get())
+        Utils.setFloat("ProbeOrigin", "toolProbeDiameterWidth", self.toolProbeDiameterWidth.get())
+        Utils.setFloat("ProbeOrigin", "toolProbeDiameterHeight", self.toolProbeDiameterHeight.get())
+        Utils.setStr("ProbeOrigin", "toolProbeDiameterSafeBounds", self.toolProbeDiameterSafeBounds.get())
+
+        Utils.setFloat("ProbeOrigin", "toolDiameter", self.toolDiameter.get())
+
+        Utils.setFloat("ProbeOrigin", "probeXRapidDir", self.probeXRapidDir.get())
+        Utils.setFloat("ProbeOrigin", "probeXProbeDir", self.probeXProbeDir.get())
+
+        Utils.setFloat("ProbeOrigin", "probeYRapidDir", self.probeYRapidDir.get())
+        Utils.setFloat("ProbeOrigin", "probeYProbeDir", self.probeYProbeDir.get())
+
+        Utils.setFloat("ProbeOrigin", "probeZRapidDir", self.probeZRapidDir.get())
+        Utils.setFloat("ProbeOrigin", "probeZProbeDir", self.probeZProbeDir.get())
+
+    # -----------------------------------------------------------------------
+    def warnMessage(self):
+        if self.warn:
+            ans = messagebox.askquestion(
+                _("Probe connected?"),
+                _(
+                    "Please verify that the probe is connected.\n\n"
+                    + "Show this message again?"
+                ),
+                icon="warning",
+                parent=self.winfo_toplevel(),
+            )
+            if ans != YES:
+                self.warn = False
+    # -----------------------------------------------------------------------
+    def probe(self, axis):
+        rapid_move = None
+        probe_move = None
+        if axis == 'x':
+            rapid_move = self.probeXRapidDir.get()
+            probe_move = self.probeXProbeDir.get()
+            self.probe_status = ProbeOriginStatus.PRB_ORIGIN_WAIT_X
+
+        if axis == 'y':
+            rapid_move = self.probeYRapidDir.get()
+            probe_move = self.probeYProbeDir.get()
+            self.probe_status = ProbeOriginStatus.PRB_ORIGIN_WAIT_Y
+            
+        if axis == 'z':
+            rapid_move = self.probeZRapidDir.get()
+            probe_move = self.probeZProbeDir.get()
+            self.probe_status = ProbeOriginStatus.PRB_ORIGIN_WAIT_Z
+        
+        if rapid_move is not None and probe_move is not None:
+            sign = "-" if float(probe_move) > 0 else "" 
+            commands = []
+            commands.append(f"G91 G0 {axis}{rapid_move}")
+            commands.append(f"G91 {CNC.vars['prbcmd']} F{CNC.vars['prbfeed']} {axis}{probe_move}")
+            commands.append("%wait")
+            commands.append(f"G91 G0 {axis}{sign}{ProbeOriginFrame.BOUNCE_LEN}")
+            print(commands)
+            self.app.run(lines=commands)
+  
+    # -----------------------------------------------------------------------
+    def detectToolDiameter(self):
+        if ProbeCommonFrame.probeUpdate():
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Invalid probe feed rate"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        self.warnMessage()
+        
+        probeWidth = self.toolProbeDiameterWidth.get()
+        if probeWidth == "":
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Probe width is required to run tool diameter routine"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+            
+        probeHeight = self.toolProbeDiameterHeight.get()
+        if probeHeight == "":
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Probe height is required to run tool diameter routine"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        
+        toolSafeDiameter = self.toolProbeDiameterSafeBounds.get()
+        if toolSafeDiameter == "":
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Tool safe diameter is required to run tool diameter routine"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        
+        toolProbeDiameterDir = self.toolProbeDiameterDir.get()
+        if toolProbeDiameterDir == "":
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Tool probe diameter direction is required to run tool diameter routine"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+
+        probe_axis = "y"
+        if toolProbeDiameterDir == _("EAST") or toolProbeDiameterDir == _("WEST"):
+            probe_axis = "x"
+
+        first_edge_sign = ""
+        second_edge_sign = "-"
+        if toolProbeDiameterDir == _("SOUTH") or toolProbeDiameterDir == _("WEST"):
+            first_edge_sign = "-"
+            second_edge_sign = ""
+        
+        zMovement = float(probeHeight) + 3.0
+        commands = []
+        commands.append(f"G91 {CNC.vars['prbcmd']} F{CNC.vars['prbfeed']} {probe_axis}{first_edge_sign}{ProbeOriginFrame.PROBING_LEN}")
+        commands.append("%wait")
+        commands.append(f"G91 G0 {probe_axis}{second_edge_sign}{ProbeOriginFrame.BOUNCE_LEN}")
+        commands.append(f"G91 G0 Z{zMovement}")
+        jump_len = 1.0 + float(probeWidth) + float(toolSafeDiameter)
+        commands.append(f"G91 G0 {probe_axis}{first_edge_sign}{jump_len}")
+        commands.append(f"G91 G0 Z-{zMovement}")
+        commands.append(f"{CNC.vars['prbcmd']} F{CNC.vars['prbfeed']} {probe_axis}{second_edge_sign}{ProbeOriginFrame.PROBING_LEN}")
+        commands.append("%wait")
+        
+        commands.append(f"G91 G0 {probe_axis}{first_edge_sign}{ProbeOriginFrame.BOUNCE_LEN}")
+        commands.append("%wait")
+        
+        self.probe_status = ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_1
+        self.app.run(lines=commands)
+
+    # -----------------------------------------------------------------------
+    def updateProbe(self):
+        if self.probe_status in range(ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_START, ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_2+1):
+            self._update_probe_tool_diameter()
+        if self.probe_status in range(ProbeOriginStatus.PRB_ORIGIN_WAIT_X, ProbeOriginStatus.PRB_ORIGIN_WAIT_Z+1):
+            self._update_probe()
+
+    # -----------------------------------------------------------------------
+    def _update_probe_tool_diameter(self):
+            try:
+                if self.probe_status == ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_START:
+                    self.probe_status = ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_1
+                    return
+                    
+                toolProbeDiameterDir = self.toolProbeDiameterDir.get()
+                probe_axis = "y"
+                if toolProbeDiameterDir == _("EAST") or toolProbeDiameterDir == _("WEST"):
+                    probe_axis = "x"
+
+                if self.probe_status == ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_1:
+                    self.prb_first_edge_pos = CNC.vars.get(f"prb{probe_axis}")
+                    self.probe_status = ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_2
+                    return
+
+                if self.probe_status == ProbeOriginStatus.PRB_TOOL_DIAMETER_WAITING_EDGE_2:
+
+                    self.prb_second_edge_pos = CNC.vars.get(f"prb{probe_axis}")
+
+                    probeWidth = float(self.toolProbeDiameterWidth.get())
+                    if(self.prb_first_edge_pos > self.prb_second_edge_pos):
+                        self.prb_first_edge_pos, self.prb_second_edge_pos = self.prb_second_edge_pos, self.prb_first_edge_pos
+                    dist = self.prb_second_edge_pos - self.prb_first_edge_pos - probeWidth
+                    self.probeDiameter.config(state="normal")
+                    self.probeDiameter.set(dist)
+                    self.probeDiameter.config(state="disabled")
+                    self.probe_status = ProbeOriginStatus.IDLE
+                    self.prb_first_edge_pos = None
+                    self.prb_second_edge_pos = None
+                    return
+                
+                messagebox.showerror(
+                    _("Probe Error"),
+                    _("Probe statemachine reached unreachable code. Contact developers"),
+                    parent=self.winfo_toplevel(),
+                )
+                self.probe_status = ProbeOriginStatus.IDLE
+                self.prb_first_edge_pos = None
+                self.prb_second_edge_pos = None
+
+            except Exception as e:
+                return
+
+    # -----------------------------------------------------------------------
+    def _update_probe(self):
+        if self.app.running:
+            return
+        
+        axis = None
+        position = 0.0
+        sign = ""
+        tool_diameter = float(self.toolDiameter.get())
+        if self.probe_status == ProbeOriginStatus.PRB_ORIGIN_WAIT_X:
+            axis = 'x'
+            position = ProbeOriginFrame.BOUNCE_LEN+tool_diameter / 2
+            sign = "-" if float(self.probeXProbeDir.get()) > 0 else ""
+        if self.probe_status == ProbeOriginStatus.PRB_ORIGIN_WAIT_Y:
+            axis = 'y'
+            position = ProbeOriginFrame.BOUNCE_LEN+tool_diameter / 2
+            sign = "-" if float(self.probeYProbeDir.get()) > 0 else ""
+        if self.probe_status == ProbeOriginStatus.PRB_ORIGIN_WAIT_Z:
+            axis = 'z'
+            position = ProbeOriginFrame.BOUNCE_LEN
+  
+        self.probe_status = ProbeOriginStatus.IDLE
+
+        if axis is not None:
+            commands = []
+            commands.append(f"G10 L20 P0 {axis}{sign}{position}")
+            self.app.run(lines=commands)
+            
 
 # =============================================================================
 # Autolevel Frame
@@ -2194,7 +2679,6 @@ class ToolFrame(CNCRibbon.PageFrame):
 
     # -----------------------------------------------------------------------
     def setProbeParams(self, dummy=None):
-        print("probe chg handler")
         CNC.vars["toolchangex"] = float(self.changeX.get())
         CNC.vars["toolchangey"] = float(self.changeY.get())
         CNC.vars["toolchangez"] = float(self.changeZ.get())
@@ -2289,7 +2773,7 @@ class ProbePage(CNCRibbon.Page):
     def register(self):
         self._register(
             (ProbeTabGroup, AutolevelGroup, CameraGroup, ToolGroup),
-            (ProbeCommonFrame, ProbeFrame, AutolevelFrame,
+            (ProbeCommonFrame, ProbeFrame, ProbeOriginFrame, AutolevelFrame,
              CameraFrame, ToolFrame),
         )
 
