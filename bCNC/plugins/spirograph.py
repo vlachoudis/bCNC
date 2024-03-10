@@ -31,7 +31,7 @@ class Spirograph:
 
     # ----------------------------------------------------------------------
     def lcm(self, x, y):
-        return (x * y) / gcd(x, y)
+        return (x * y) / gcd(int(x), int(y))
 
     # ----------------------------------------------------------------------
     def calc_dots(self, resolution=2 * math.pi / 360):
