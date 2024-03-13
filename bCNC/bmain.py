@@ -80,6 +80,7 @@ from ProbePage import ProbePage
 from Sender import NOT_CONNECTED, STATECOLOR, STATECOLORDEF, Sender
 from TerminalPage import TerminalPage
 from ToolsPage import Tools, ToolsPage
+from VScrollFrame import VScrollFrame
 
 Utils.loadConfiguration()
 
@@ -200,7 +201,10 @@ class Application(Tk, Sender):
         frame = Frame(self.paned)
         self.paned.add(frame)  # , minsize=340)
 
-        pageframe = Frame(frame)
+        vscrollframe = VScrollFrame(frame)
+        vscrollframe.pack(side=TOP, fill=BOTH, expand=YES)
+
+        pageframe = Frame(vscrollframe.frame)
         pageframe.pack(side=TOP, expand=YES, fill=BOTH)
         self.ribbon.setPageFrame(pageframe)
 

@@ -11,9 +11,10 @@ An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a 
 [![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
 
+All pull requests that do change GUI should have attached screenshots of GUI before and after the changes.
 Please note that all pull requests should pass the Travis-CI build in order to get merged.
 Most pull requests should also pass CodeFactor checks if there is not good reason for failure.
-Before making pull request, please test your code on both python2 and python3.
+Before making pull request, please test your code on ~~both python2 and~~ python3.
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
