@@ -337,9 +337,9 @@ def merge_close_vertices(verts, faces, close_epsilon=1e-5):
 
     # Compute a mapping from old to new : for each input vert, store the index
     # of the new vert it will be merged into
-    old2new = np.zeros(D.shape[0], dtype=np.int)
+    old2new = np.zeros(D.shape[0], dtype=np.int_)
     # A mask indicating if a vertex has already been merged into another
-    merged_verts = np.zeros(D.shape[0], dtype=np.bool)
+    merged_verts = np.zeros(D.shape[0], dtype=np.bool_)
     new_verts = []
     for i in range(D.shape[0]):
         if merged_verts[i]:
@@ -354,7 +354,7 @@ def merge_close_vertices(verts, faces, close_epsilon=1e-5):
     new_verts = np.array(new_verts)
 
     # Recompute face indices to index in new_verts
-    new_faces = np.zeros((len(faces), 3), dtype=np.int)
+    new_faces = np.zeros((len(faces), 3), dtype=np.int_)
     for i, f in enumerate(faces):
         new_faces[i] = (old2new[f[0]], old2new[f[1]], old2new[f[2]])
 
