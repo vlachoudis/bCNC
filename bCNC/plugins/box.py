@@ -2,7 +2,6 @@
 #
 # Author:    Vasilis.Vlachoudis@cern.ch
 # Date:      20-Aug-2015
-
 import math
 
 from bmath import (
@@ -46,6 +45,7 @@ class Box:
         self.feed = 1200
         self.digits = 4
         self.cut = True
+        self.cover = True
 
     # ----------------------------------------------------------------------
     def init(self):
@@ -166,14 +166,15 @@ class Box:
 
     # ----------------------------------------------------------------------
     # @param x0,y0      starting position
-    # @param dx,dyz     width/height of box
+    # @param dx,dy      width/height of box
     #                   (if negative inside, positive outside)
     # @param nx,ny      number of teeth (negative to start from internal,
     #                   positive for external)
     # @param ex,ey      additional space for x and y not included in the sx/y
     #                   calculation
+    # @param flat       flat teeth on one side (0 to 3), or None
     # ----------------------------------------------------------------------
-    def _rectangle(self, block, x0, y0, dx, dy, nx, ny, ex=0.0, ey=0.0):
+    def _rectangle(self, block, x0, y0, dx, dy, nx, ny, ex=0.0, ey=0.0, flat=None):
         block.append(f"(  Location: {x0:g},{y0:g} )")
         block.append(f"(  Dimensions: {dx:g},{dy:g} )")
         block.append(f"(  Teeth: {int(nx)},{int(ny)} )")
@@ -186,6 +187,8 @@ class Box:
         # Bottom
         pos = Vector(x0, y0, self.surface)
         pos -= self.r * Vector.Y  # r*V
+        if flat == 0:
+            pos -= self.thick * Vector.Y
         block.append(CNC.gcode(0, zip("XY", pos[:2])))
         z = self.surface
         last = False
@@ -204,32 +207,56 @@ class Box:
             block.append(CNC.zenter(pos[2]))
 
             # Bottom
+            sx2 = dx if flat == 0 else sx
+            nx2 = int(math.copysign(1, nx)) if flat == 0 else nx
             pos = self.zigZagLine(
-                block, pos, sx, self.thick, Vector.X, Vector.Y, nx, ex
+                block, pos, sx2, self.thick, Vector.X, Vector.Y, nx2, ex
             )
             block.append("")
 
             # Right
+            if flat == 0:
+                pos += self.thick * Vector.Y
+                block.append(CNC.glinev(1, pos))
+
+            sy2 = dy + self.thick if flat == 1 else sy
+            ny2 = int(math.copysign(1, ny)) if flat == 1 else ny
             pos = self.zigZagLine(
-                block, pos, sy, self.thick, Vector.Y, -Vector.X, ny, ey
+                block, pos, sy2, self.thick, Vector.Y, -Vector.X, ny2, ey
             )
+            if flat == 2:
+                pos += self.thick * Vector.Y
+                block.append(CNC.glinev(1, pos))
+
             block.append("")
 
             # Top
+            sx2 = dx if flat == 2 else sx
+            nx2 = int(math.copysign(1, nx)) if flat == 2 else nx
             pos = self.zigZagLine(
-                block, pos, sx, self.thick, -Vector.X, -Vector.Y, nx, ex
+                block, pos, sx2, self.thick, -Vector.X, -Vector.Y, nx2, ex
             )
             block.append("")
 
-            # Right
+            # Left
+            if flat == 2:
+                pos -= self.thick * Vector.Y
+                block.append(CNC.glinev(1, pos))
+
+            sy2 = dy + self.thick if flat == 3 else sy
+            ny2 = int(math.copysign(1, ny)) if flat == 3 else ny
             pos = self.zigZagLine(block,
                                   pos,
-                                  sy,
+                                  sy2,
                                   self.thick,
                                   -Vector.Y,
                                   Vector.X,
-                                  ny,
+                                  ny2,
                                   ey)
+            if flat == 0:
+                pos -= self.thick * Vector.Y
+                block.append(CNC.glinev(1, pos))
+
             block.append("")
             if last:
                 break
@@ -275,11 +302,21 @@ class Box:
                         self.nz,
                         self.ny,
                         d,
-                        d)
+                        d,
+                        None if self.cover else 3)
         blocks.append(block)
 
         block = Block(f"{self.name}-Right")
-        self._rectangle(block, dx + 3 * d, -d, dz, dy, self.nz, self.ny, d, d)
+        self._rectangle(block,
+                        dx + 3 * d,
+                        -d,
+                        dz,
+                        dy,
+                        self.nz,
+                        self.ny,
+                        d,
+                        d,
+                        None if self.cover else 1)
         blocks.append(block)
 
         block = Block(f"{self.name}-Front")
@@ -291,7 +328,8 @@ class Box:
                         -self.nx,
                         -self.nz,
                         0,
-                        0)
+                        0,
+                        None if self.cover else 0)
         blocks.append(block)
 
         block = Block(f"{self.name}-Back")
@@ -303,20 +341,23 @@ class Box:
                         -self.nx,
                         -self.nz,
                         0,
-                        0)
+                        0,
+                        None if self.cover else 2)
         blocks.append(block)
 
-        block = Block(f"{self.name}-Top")
-        self._rectangle(block,
-                        dx + dz + 8 * d,
-                        -d,
-                        dx,
-                        dy,
-                        self.nx,
-                        -self.ny,
-                        0,
-                        d)
-        blocks.append(block)
+        if self.cover:
+            block = Block(f"{self.name}-Top")
+            self._rectangle(block,
+                            dx + dz + 8 * d,
+                            -d,
+                            dx,
+                            dy,
+                            self.nx,
+                            -self.ny,
+                            0,
+                            d)
+            blocks.append(block)
+
         return blocks
 
 
@@ -342,6 +383,7 @@ class Tool(Plugin):
             ("profile", "bool", 0, _("Profile")),
             ("overcut", "bool", 1, _("Overcut")),
             ("cut", "bool", 0, _("Cut")),
+            ("cover", "bool", 1, _("Include Top Cover")),
         ]
         self.buttons.append("exe")
 
@@ -364,6 +406,7 @@ class Tool(Plugin):
         box.safe = app.cnc["safe"]
         box.stepz = app.cnc["stepz"]
         box.setNTeeth(self["nx"], self["ny"], self["nz"])
+        box.cover = self["cover"]  # include box top cover or not
         if self["profile"]:
             box.setTool(app.cnc["diameter"])
         else:
@@ -396,6 +439,7 @@ if __name__ == "__main__":
     box.setTool(3.175)
     box.setTool(0.0)
     box.overcut = "D"
+    box.cover = False
     blocks = box.make()
 
     def dump(filename):

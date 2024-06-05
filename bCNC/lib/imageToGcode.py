@@ -871,7 +871,7 @@ class Image_Matrix_Numpy:
         import numpy
 
         ts = tool.width
-        self.t_offset = (ts - 1) / 2
+        self.t_offset = int((ts - 1) / 2)
         to = self.t_offset
 
         w, h = self.shape
