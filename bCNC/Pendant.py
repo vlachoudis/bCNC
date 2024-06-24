@@ -168,15 +168,14 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
                 return
             if Pendant.camera is None:
                 Pendant.camera = Camera.Camera("webcam")
-                Pendant.camera.start()
+                if not Pendant.camera.start():
+                    Pendant.camera = None
 
             if Pendant.camera.read():
-                Pendant.camera.save("camera.jpg")
                 try:
-                    f = open("camera.jpg","rb")
-                    self.do_HEAD(200, content="image/jpeg", cl=self.get_file_size(f))
-                    self.wfile.write(f.read())
-                    f.close()
+                    img = Pendant.camera.jpg()
+                    self.do_HEAD(200, content="image/jpeg", cl=len(img))
+                    self.wfile.write(img)
                 except Exception:
                     pass
         else:

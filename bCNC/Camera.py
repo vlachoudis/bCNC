@@ -196,6 +196,10 @@ class Camera:
     def save(self, filename):
         cv.imwrite(filename, self.original)
 
+    def jpg(self):
+        s, jpg = cv.imencode(".jpg", self.image)
+        return jpg if s else None
+
     # -----------------------------------------------------------------------
     # Rotate image in steps of 90deg
     # -----------------------------------------------------------------------
