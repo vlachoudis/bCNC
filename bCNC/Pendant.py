@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 import threading
+import io
 
 import Camera
 from CNC import CNC
@@ -140,28 +141,22 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
         elif page == "/canvas":
             if not Image:
                 return
-            with tempfile.NamedTemporaryFile(suffix=".ps") as tmp:
-                httpd.app.canvas.postscript(
-                    file=tmp.name,
-                    colormode="color",
-                )
-                tmp.flush()
+            ps = httpd.app.canvas.postscript(colormode="color")
+            try:
+                with io.BytesIO() as out:
+                    Image.open(io.BytesIO(ps.encode('utf-8'))).save(out, "gif")
+                    self.do_HEAD(200, content="image/gif", cl=out.tell())
+                    out.seek(0)
+                    self.wfile.write(out.read())
+            except Exception:
+                filename = os.path.join(iconpath, "warn.gif")
                 try:
-                    with tempfile.NamedTemporaryFile(suffix=".gif") as out:
-                        Image.open(tmp.name).save(out.name, "GIF")
-                        out.flush()
-                        self.do_HEAD(200, content="image/gif", cl=out.tell())
-                        out.seek(0)
-                        self.wfile.write(out.read())
+                    f = open(filename,"rb")
+                    self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
+                    self.wfile.write(f.read())
+                    f.close()
                 except Exception:
-                    filename = os.path.join(iconpath, "warn.gif")
-                    try:
-                        f = open(filename,"rb")
-                        self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
-                        self.wfile.write(f.read())
-                        f.close()
-                    except Exception:
-                        pass
+                    pass
 
         elif page == "/camera":
             if not Camera.hasOpenCV():
