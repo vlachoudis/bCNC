@@ -176,11 +176,9 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
 
         elif page == "/text.ngc":
             #Provide loaded g-code via web interface, so we can use nice webgl preview in the future
-            #TODO: only pass enabled blocks (gcode.lines() now iterates even over disabled ones)
             self.do_HEAD(200, content="text/text")
-            for line in httpd.app.gcode.lines():
-                self.wfile.write(line.encode())
-                self.wfile.write("\n".encode())
+            for block in httpd.app.gcode.blocks:
+                block.write_encoded(f=self.wfile)
 
         else:
             self.mainPage(page[1:])

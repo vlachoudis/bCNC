@@ -2180,6 +2180,15 @@ class Block(list):
                 f.write(
                     f"(Block-X: {line.replace('(', '[').replace(')', ']')})\n")
 
+    def write_encoded(self, f):
+        f.write(self.write_header().encode())
+        for line in self:
+            if self.enable:
+                f.write(f"{line}\n".encode())
+            else:
+                f.write(
+                    f"(Block-X: {line.replace('(', '[').replace(')', ']')})\n".encode())
+
     # ----------------------------------------------------------------------
     # Return a dump object for pickler
     # ----------------------------------------------------------------------
