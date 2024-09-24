@@ -59,11 +59,13 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
             httpserver.BaseHTTPRequestHandler.log_message(self, fmt, *args)
 
     # ----------------------------------------------------------------------
-    def do_HEAD(self, rc=200, content="text/html", cl=0):
+    def do_HEAD(self, rc=200, content="text/html", cl=0, headers_extra=[]):
         self.send_response(rc)
         self.send_header("Content-type", content)
         if cl != 0:
             self.send_header("Content-length", cl)
+        for header in headers_extra:
+            self.send_header(*header)
         self.end_headers()
 
     # ----------------------------------------------------------------------
@@ -176,7 +178,7 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
 
         elif page == "/text.ngc":
             #Provide loaded g-code via web interface, so we can use nice webgl preview in the future
-            self.do_HEAD(200, content="text/text")
+            self.do_HEAD(200, content="text/text", headers_extra=[['Access-Control-Allow-Origin', '*']])
             for block in httpd.app.gcode.blocks:
                 block.write_encoded(f=self.wfile)
 
