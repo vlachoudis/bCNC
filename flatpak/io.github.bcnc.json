@@ -1,7 +1,7 @@
 {
   "app-id": "io.github.bcnc",
   "runtime": "org.freedesktop.Platform",
-  "runtime-version": "22.08",
+  "runtime-version": "24.08",
   "sdk": "org.freedesktop.Sdk",
   "build-options": {
     "build-args": [
