@@ -7,6 +7,7 @@ import time
 from CNC import CNC, WCS
 
 import Utils
+import asyncio
 
 # GRBLv1
 SPLITPAT = re.compile(r"[:,]")
@@ -89,13 +90,16 @@ class _GenericController:
         self.master.notBusy()
 
     # ----------------------------------------------------------------------
-    def softReset(self, clearAlarm=True):
-        if self.master.serial:
-            self.master.serial_write(b"\030")
-        self.master.stopProbe()
-        if clearAlarm:
-            self.master._alarm = False
-        CNC.vars["_OvChanged"] = True  # force a feed change if any
+    async def softReset(self, clearAlarm=True):
+        async with self.master.resetLock:
+            async with self.master.resetCondition:
+                if self.master.serial:
+                    self.master.serial_write(b"\030")
+                self.master.stopProbe()
+                if clearAlarm:
+                    self.master._alarm = False
+                CNC.vars["_OvChanged"] = True  # force a feed change if any
+                await self.master.resetCondition.wait()
 
     # ----------------------------------------------------------------------
     def unlock(self, clearAlarm=True):
@@ -209,14 +213,14 @@ class _GenericController:
     # Purge the buffer of the controller. Unfortunately we have to perform
     # a reset to clear the buffer of the controller
     # ---------------------------------------------------------------------
-    def purgeController(self):
+    async def purgeController(self):
         self.master.serial_write(b"!")
         self.master.serial.flush()
         time.sleep(1)
         # remember and send all G commands
         G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"])  # remember $G
         TLO = CNC.vars["TLO"]
-        self.softReset(False)  # reset controller
+        await self.softReset(False)  # reset controller
         self.purgeControllerExtra()
         self.master.runEnded()
         self.master.stopProbe()
@@ -244,7 +248,7 @@ class _GenericController:
         CNC.vars["state"] = state
 
     # ----------------------------------------------------------------------
-    def parseLine(self, line, cline, sline):
+    async def parseLine(self, line, cline, sline):
         if not line:
             return True
 
@@ -252,7 +256,7 @@ class _GenericController:
             if not self.master.sio_status:
                 self.master.log.put((self.master.MSG_RECEIVE, line))
             else:
-                self.parseBracketAngle(line, cline)
+                await self.parseBracketAngle(line, cline)
 
         elif line[0] == "[":
             self.master.log.put((self.master.MSG_RECEIVE, line))
