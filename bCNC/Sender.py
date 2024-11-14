@@ -130,8 +130,8 @@ class Sender:
             if name[0] == "_":
                 continue
             try:
-                exec(f"import {name}")
-                self.controllers[name] = eval(f"{name}.Controller(self)")
+                package = __import__(name, globals(), locals(), [], 0)
+                self.controllers[name] = package.Controller(self)
             except (ImportError, AttributeError):
                 typ, val, tb = sys.exc_info()
                 traceback.print_exception(typ, val, tb)

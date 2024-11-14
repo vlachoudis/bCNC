@@ -1283,8 +1283,8 @@ class Tools:
         for f in glob.glob(f"{Utils.prgpath}/plugins/*.py"):
             name, ext = os.path.splitext(os.path.basename(f))
             try:
-                exec(f"import {name}")
-                tool = eval(f"{name}.Tool(self)")
+                package = __import__(name, globals(), locals(), [], 0)
+                tool = package.Tool(self)
                 self.addTool(tool)
             except (ImportError, AttributeError):
                 typ, val, tb = sys.exc_info()
