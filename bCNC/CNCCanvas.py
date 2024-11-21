@@ -1324,7 +1324,7 @@ class CNCCanvas(Canvas):
         hc //= 2
         x = w // 2  # everything on center
         y = h // 2
-        if self.cameraAnchor is None:
+        if self.cameraAnchor is NONE:
             if self._lastGantry is not None:
                 x, y = self.plotCoords([self._lastGantry])[0]
             else:
