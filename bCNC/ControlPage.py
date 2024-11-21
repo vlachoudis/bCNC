@@ -149,15 +149,17 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 class UserGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "User", app)
-        self.grid3rows()
 
-        n = Utils.getInt("Buttons", "n", 6)
-        for i in range(1, n):
+        numRows = Utils.getInt("Buttons", "nrows", 4)
+        self.gridNrows(numRows)
+
+        n = Utils.getInt("Buttons", "n", 12)
+        for i in range(n):
             b = Utils.UserButton(
-                self.frame, self.app, i, anchor=W,
+                self.frame, self.app, i + 1, anchor=W,
                 background=Ribbon._BACKGROUND
             )
-            col, row = divmod(i - 1, 3)
+            col, row = divmod(i, numRows)
             b.grid(row=row, column=col, sticky=NSEW)
             self.addWidget(b)
 
