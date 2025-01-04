@@ -800,25 +800,26 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             focus = self.focus_get()
         except Exception:
             focus = None
-            if focus is not self.awork:
-                self.awork.delete(0, END)
-                self.awork.insert(0, self.padFloat(CNC.drozeropad,
-                                                   CNC.vars["wa"]))
-            if focus is not self.bwork:
-                self.bwork.delete(0, END)
-                self.bwork.insert(0, self.padFloat(CNC.drozeropad,
-                                                   CNC.vars["wb"]))
-            if focus is not self.cwork:
-                self.cwork.delete(0, END)
-                self.cwork.insert(0, self.padFloat(CNC.drozeropad,
-                                                   CNC.vars["wc"]))
+        
+        if focus is not self.awork:
+            self.awork.delete(0, END)
+            self.awork.insert(0, self.padFloat(CNC.drozeropad,
+                                               CNC.vars["wa"]))
+        if focus is not self.bwork:
+            self.bwork.delete(0, END)
+            self.bwork.insert(0, self.padFloat(CNC.drozeropad,
+                                               CNC.vars["wb"]))
+        if focus is not self.cwork:
+            self.cwork.delete(0, END)
+            self.cwork.insert(0, self.padFloat(CNC.drozeropad,
+                                               CNC.vars["wc"]))
 
-            self.amachine["text"] = self.padFloat(CNC.drozeropad,
-                                                  CNC.vars["ma"])
-            self.bmachine["text"] = self.padFloat(CNC.drozeropad,
-                                                  CNC.vars["mb"])
-            self.cmachine["text"] = self.padFloat(CNC.drozeropad,
-                                                  CNC.vars["mc"])
+        self.amachine["text"] = self.padFloat(CNC.drozeropad,
+                                              CNC.vars["ma"])
+        self.bmachine["text"] = self.padFloat(CNC.drozeropad,
+                                              CNC.vars["mb"])
+        self.cmachine["text"] = self.padFloat(CNC.drozeropad,
+                                              CNC.vars["mc"])
 
     # ----------------------------------------------------------------------
 
