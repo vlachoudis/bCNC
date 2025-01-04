@@ -53,7 +53,9 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
     # ----------------------------------------------------------------------
     def log_message(self, fmt, *args):
         # Only requests to the main page log them, all other ignore
-        if args[0].startswith("GET / ") or args[0].startswith("GET /send"):
+        # 2025-01-04 str(args[0]) added to handle enum in case of error message
+        #   (<HTTPStatus.REQUEST_URI_TOO_LONG: 414>, 'Request-URI Too Long')
+        if str(args[0]).startswith("GET / ") or str(args[0]).startswith("GET /send"):
             args = list(args)
             args[0] = self.address_string() + '" : "' + args[0]
             httpserver.BaseHTTPRequestHandler.log_message(self, fmt, *args)
