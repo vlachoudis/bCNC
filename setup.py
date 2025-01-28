@@ -38,7 +38,7 @@ setup(
         "Pillow>=4.0",
         # Note there are no PyPI OpenCV packages for ARM
         # (Raspberry PI, Orange PI, etc...)
-        "opencv-python==4.5.5.62 ; "
+        "opencv-python==4.5.5.64 ; "
         + "(\"arm\" not in platform_machine) and "
         + "(\"aarch64\" not in platform_machine)"
     ],
