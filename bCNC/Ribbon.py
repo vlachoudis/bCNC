@@ -104,14 +104,17 @@ class LabelGroup(Frame):
         self.label.pack(side=BOTTOM, fill=X, pady=0)
 
     # -----------------------------------------------------------------------
+    def gridNrows(self, numRows: int):
+        for i in range(numRows):
+            self.frame.grid_rowconfigure(i, weight=1)
+
+    # -----------------------------------------------------------------------
     def grid2rows(self):
-        self.frame.grid_rowconfigure(0, weight=1)
-        self.frame.grid_rowconfigure(1, weight=1)
+        self.gridNrows(2)
 
     # -----------------------------------------------------------------------
     def grid3rows(self):
-        self.grid2rows()
-        self.frame.grid_rowconfigure(2, weight=1)
+        self.gridNrows(3)
 
 
 # =============================================================================
