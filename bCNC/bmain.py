@@ -5,6 +5,7 @@
 # Date: 24-Aug-2014
 
 import os
+import subprocess
 import socket
 import sys
 import time
@@ -2572,7 +2573,7 @@ class Application(Tk, Sender):
         CNC.vars["_OvChanged"] = True  # force a feed change if any
         if self._onStart:
             try:
-                os.system(self._onStart)
+                subprocess.call(self._onStart, shell=False)
             except Exception:
                 pass
 
