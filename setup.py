@@ -40,7 +40,8 @@ setup(
         # (Raspberry PI, Orange PI, etc...)
         "opencv-python==4.5.5.64 ; "
         + "(\"arm\" not in platform_machine) and "
-        + "(\"aarch64\" not in platform_machine)"
+        + "(\"aarch64\" not in platform_machine)",
+	"tkinter-gl>=1.0"
     ],
     entry_points={
         "console_scripts": [
