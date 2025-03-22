@@ -14,7 +14,7 @@ with open("README.md") as fh:
 
 setup(
     name="bCNC",
-    version="0.9.15",
+    version="0.9.16",
     license="GPLv2",
     description="Swiss army knife for all your CNC/g-code needs",
     long_description=long_description,
