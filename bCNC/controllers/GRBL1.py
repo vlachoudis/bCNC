@@ -91,7 +91,7 @@ class Controller(_GenericGRBL):
             self.master.serial_write(OV_SPINDLE_d1)
             CNC.vars["_OvChanged"] = diff < -1
 
-    def parseBracketAngle(self, line, cline):
+    async def parseBracketAngle(self, line, cline):
         self.master.sio_status = False
         fields = line[1:-1].split("|")
         CNC.vars["pins"] = ""
@@ -101,7 +101,7 @@ class Controller(_GenericGRBL):
             CNC.vars["state"] != fields[0]
             or self.master.runningPrev != self.master.running
         ):
-            self.master.controllerStateChange(fields[0])
+            await self.master.controllerStateChange(fields[0])
         self.master.runningPrev = self.master.running
 
         self.displayState(fields[0])
