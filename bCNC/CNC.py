@@ -682,6 +682,8 @@ class CNC:
         "prbx": 0.0,
         "prby": 0.0,
         "prbz": 0.0,
+        "prb_first_edge_pos":0.0,
+        "prb_second_edge_pos":0.0,
         "prbcmd": "G38.2",
         "prbfeed": 10.0,
         "errline": "",
