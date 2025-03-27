@@ -3,6 +3,8 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import sys
+import time
 import json
 import re
 from tkinter import (
@@ -14,7 +16,8 @@ from tkinter import (
 import tkinter.font as tkfont
 
 import tkExtra
-from CNC import CNC, Block
+from CNC import CNC, Block, AlarmException
+import CNCCanvas
 
 BLOCK_COLOR = "LightYellow"
 COMMENT_COLOR = "Blue"
@@ -65,6 +68,7 @@ class CNCListbox(Listbox):
         self._ystart = 0
         self._double = False  # double clicked handled
         self._hadfocus = False
+        self._selection_cache = None
         self.filter = None
 
     # ----------------------------------------------------------------------
@@ -92,7 +96,7 @@ class CNCListbox(Listbox):
     # ----------------------------------------------------------------------
     # Fill listbox with enable items
     # ----------------------------------------------------------------------
-    def fill(self, event=None):
+    def fill(self, event=None, timeout=sys.maxsize, update_function=None):
         ypos = self.yview()[0]
         act = self.index(ACTIVE)
 
@@ -102,7 +106,10 @@ class CNCListbox(Listbox):
         del self._blockPos[:]
         del self._items[:]
         y = 0
+        n = 1
+        startTime = before = time.time()
         for bi, block in enumerate(self.gcode.blocks):
+            (n, before) = self.updater(update_function, before, n=n, timeout=timeout, start_time=startTime)
             if self.filter is not None:
                 if not (
                     self.filter in block.name()
@@ -130,11 +137,31 @@ class CNCListbox(Listbox):
                 if line and line[0] in ("(", "%"):
                     self.itemconfig(END, foreground=COMMENT_COLOR)
                 self._items.append((bi, lj))
+                (n, before) = self.updater(update_function, before, n=n, timeout=timeout, start_time=startTime)
 
         self.select(items)
         self.yview_moveto(ypos)
         self.activate(act)
         self.see(act)
+
+    # ----------------------------------------------------------------------
+    # Try to update within a loop
+    # ----------------------------------------------------------------------
+    def updater(self, update_function, before, n=0, timeout=sys.maxsize, start_time=sys.maxsize):
+        n -= 1
+        if n <= 0:
+            if update_function and time.time() - before > 0.25:
+                update_function()
+                before = time.time()
+            if time.time() - start_time > timeout:
+                errmsg = "List updater timeout: {0}...".format(timeout)
+                sys.stderr.write(_("{0}\n").format(errmsg))
+                sys.stderr.flush()
+                if(update_function):
+                    update_function()
+                raise AlarmException(errmsg)
+            n = 100
+        return (before, n)
 
     # ----------------------------------------------------------------------
     # Copy selected items to clipboard
@@ -478,13 +505,20 @@ class CNCListbox(Listbox):
         # to be used later in editing
         self._hadfocus = self.focus_get() == self
 
+        # sometimes save current selection for restoration
+        self._selection_cache = None
+
         # from a single click
         self._ystart = self.nearest(event.y)
         selected = self.selection_includes(self._ystart)
         loc = self._headerLocation(event)
         if loc is None:
             pass
-        elif self._headerLocation(event) < 2 and selected:
+        elif loc in (0,1):
+            self._selection_cache = self.getSelection()
+            if selected:
+                return "break"
+        elif loc < 2 and selected:
             return "break"  # do not alter selection!
 
     # ----------------------------------------------------------------------
@@ -494,10 +528,6 @@ class CNCListbox(Listbox):
     def release1(self, event):
         if not self._items:
             return
-        if self._double:
-            self._double = False
-            return
-
         self._double = False
         active = self.index(ACTIVE)
 
@@ -518,6 +548,12 @@ class CNCListbox(Listbox):
             self.toggleExpand()
         elif loc == 1:
             self.toggleEnable()
+        elif loc == 2:
+            bid, lid = self._items[y]
+            if self.gcode[bid].expand:
+                self.selectBlock(bid)
+
+        self._selection_cache = None
         return "break"
 
     # ----------------------------------------------------------------------
@@ -576,13 +612,15 @@ class CNCListbox(Listbox):
 
         if undoinfo:
             self.gcode.addUndo(undoinfo)
+            selection = self.getSelection() if self._selection_cache is None else self._selection_cache
             self.selection_clear(0, END)
             self.fill()
-            active = self._blockPos[bactive]
+            self.select(selection, clear=True, toggle=False)
             for bid in blocks:
-                self.selectBlock(bid)
-            self.activate(active)
-            self.see(active)
+                if (bid, None) in selection and self.gcode[bid].expand:
+                    self.selectBlock(bid)
+            self.see(self._blockPos[bactive])
+            self._selection_cache = None
 
         self.winfo_toplevel().event_generate(
             "<<Status>>", data="Toggled Expand of selected objects"
@@ -592,43 +630,64 @@ class CNCListbox(Listbox):
     def _toggleEnable(self, enable=None):
         if not self._items:
             return None
-        items = list(map(int, self.curselection()))
-        active = self.index(ACTIVE)
-        ypos = self.yview()[0]
-        undoinfo = []
-        blocks = []
-        for i in items:
-            bid, lid = self._items[i]
-            if lid is not None:
-                if bid in blocks:
+
+        try:
+            curselection = self.curselection()
+            if not curselection:
+                return None
+            selection = self.getSelection() if self._selection_cache is None else self._selection_cache
+            items = list(map(int, curselection))
+            active = self.index(ACTIVE)
+            ypos = self.yview()[0]
+            undoinfo = []
+            blocks = []
+            for i in items:
+                bid, lid = self._items[i]
+                if lid is not None:
+                    if bid in blocks:
+                        continue
+                    pos = self._blockPos[bid]
+                else:
+                    pos = i
+
+                blocks.append(bid)
+                block = self.gcode[bid]
+                if block.name() in ("Header", "Footer"):
                     continue
-                pos = self._blockPos[bid]
-            else:
-                pos = i
+                enable_current = not block.enable if enable is None else enable
+                undoinfo.append(self.gcode.setBlockEnableUndo(bid, enable_current))
+                self.gcode[bid].enable = enable_current
 
-            blocks.append(bid)
-            block = self.gcode[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            if enable is None:
-                enable = not block.enable
-            undoinfo.append(self.gcode.setBlockEnableUndo(bid, enable))
+                sel = self.selection_includes(pos)
+                self.delete(pos)
+                self.insert(pos, block.header())
+                pathdata = block.pathdata(lid)
+                self.itemconfig(pos, background=BLOCK_COLOR)
+                if not block.enable:
+                    self.itemconfig(pos, foreground=DISABLE_COLOR)
 
-            sel = self.selection_includes(pos)
-            self.delete(pos)
-            self.insert(pos, block.header())
-            self.itemconfig(pos, background=BLOCK_COLOR)
-            if not block.enable:
-                self.itemconfig(pos, foreground=DISABLE_COLOR)
-            if sel:
-                self.selection_set(pos)
+            if undoinfo:
+                self.gcode.addUndo(undoinfo)
 
-        if undoinfo:
-            self.gcode.calculateEnableMargins()
-            self.gcode.addUndo(undoinfo)
-            self.activate(active)
+            prev_action = self.app.canvas.action
+            try:
+                self.app.canvas.config(cursor="watch")
+                self.config(cursor="watch")
+                self.app.canvas.status("Toggling...please wait...")
+                self.app.canvas.update()
+                self.app.redrawBlocks(bids=blocks) # blocking is intended here
+                #self.winfo_toplevel().event_generate("<<RedrawBlocks>>", data=json.dumps(blocks))
+            finally:
+                self.app.canvas.config(cursor=CNCCanvas.mouseCursor(prev_action))
+                self.config(cursor="")
+
+            self.select(selection, clear=True, toggle=False)
+            self.app.canvas.select(self.getSelection())
             self.yview_moveto(ypos)
-            self.winfo_toplevel().event_generate("<<ListboxSelect>>")
+        finally:
+            self._selection_cache = None
+
+        self.winfo_toplevel().event_generate("<<Reprocess>>")
 
     # ----------------------------------------------------------------------
     def enable(self, event=None):
@@ -703,20 +762,41 @@ class CNCListbox(Listbox):
     def splitBlocks(self, event=None):
         if not self._items:
             return
-        sel_items = list(map(int, self.curselection()))
+        curselection = self.curselection()
+        if not curselection:
+            return
+        sel_items = list(map(int, curselection))
         change = True
-        for bid in sel_items:
-            bl = Block(self.gcode[bid].name())
-            for line in self.gcode[bid]:
+        first = sel_items[0]
+        bid, lid = self._items[first]
+        bl = Block(self.gcode[bid].name())
+        for i in sel_items:
+            bid, lid = self._items[i]
+            block = self.gcode[bid]
+            prevBid = bid
+            if block is not None and lid is not None:
+                line = block[lid]
                 if line == "( ---------- cut-here ---------- )":
                     self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
                     bl = Block(self.gcode[bid].name())
                 else:
                     bl.append(line)
+            elif block is not None and not block.expand:
+                if i != first:
+                    self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
+                    bl = Block(self.gcode[bid].name())
+                for line in self.gcode[bid]:
+                    if line == "( ---------- cut-here ---------- )":
+                        self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
+                        bl = Block(self.gcode[bid].name())
+                    else:
+                        bl.append(line)
+
         self.gcode.addUndo(self.gcode.addBlockUndo(bid + 1, bl))
-        if change:
-            self.fill()
         self.deleteBlock()
+        self.selection_clear(0, END)
+        self.activate(first)
+        self.see(first-1 if first else first)
         self.winfo_toplevel().event_generate("<<Modified>>")
 
     # ----------------------------------------------------------------------
@@ -732,7 +812,6 @@ class CNCListbox(Listbox):
 
         # Find initial color
         bid, lid = self._items[items[0]]
-
         try:
             rgb, color = tkExtra.askcolor(
                 title=_("Color"),
@@ -757,22 +836,37 @@ class CNCListbox(Listbox):
 
         if undoinfo:
             self.gcode.addUndo(undoinfo)
+
+        if blocks:
             for bid in blocks:
-                self.gcode[bid].color = color
-            self.winfo_toplevel().event_generate("<<Modified>>")
+                block = self.gcode[bid]
+                block.color = color
+                for lid, pathdata in enumerate(block._pathdata):
+                    path = block.path(lid)
+                    current_color = color if block.enable else CNCCanvas.DISABLE_COLOR
+                    if pathdata is not None:
+                        (xyz, line_color, line_mode, feed) = pathdata
+                        current_color = current_color if line_mode == CNCCanvas.LINEMODE_ENABLED else line_color
+                        if line_mode == CNCCanvas.LINEMODE_ENABLED and path is not None:
+                            self.app.canvas.itemconfig(path, fill=current_color)
+                        block._pathdata[lid] = (xyz, current_color, line_mode, feed)
+                    elif path is not None:
+                        self.app.canvas.delete(path)
+            self.winfo_toplevel().event_generate("<<ListboxSelectRefresh>>")
         self.winfo_toplevel().event_generate(
             "<<Status>>", data="Changed color of block"
         )
+        self.app.canvas.update()
 
     # ----------------------------------------------------------------------
     # Select items in the form of (block, item)
     # ----------------------------------------------------------------------
     def select(self, items, double=False, clear=False, toggle=True):
+        prev_selection = self.curselection()
         if clear:
             self.selection_clear(0, END)
-            toggle = False
-        first = None
 
+        first = None
         for bi in items:
             bid, lid = bi
             try:
@@ -781,17 +875,7 @@ class CNCListbox(Listbox):
                 continue
 
             if double:
-                if block.expand:
-                    # select whole block
-                    y = self._blockPos[bid]
-                else:
-                    # select all blocks with the same name
-                    name = block.nameNop()
-                    for i, bl in enumerate(self.gcode.blocks):
-                        if name == bl.nameNop():
-                            self.selection_set(self._blockPos[i])
-                    continue
-
+                y = self._blockPos[bid]
             elif not block.expand or lid is None:
                 # select whole block
                 y = self._blockPos[bid]
@@ -808,16 +892,20 @@ class CNCListbox(Listbox):
                 continue
 
             if toggle:
-                select = not self.selection_includes(y)
+                select = not (y in prev_selection)
             else:
                 select = True
 
             if select:
                 self.selection_set(y)
+                if block.expand and double:
+                    self.selectBlock(bid)
                 if first is None:
                     first = y
-            elif toggle:
+            else:
                 self.selection_clear(y)
+                if block.expand and double:
+                    self.deselectBlock(bid)
 
         if first is not None:
             self.activate(first)
@@ -837,6 +925,21 @@ class CNCListbox(Listbox):
                 end = self._blockPos[bid] - 1
                 break
         self.selection_set(start, end)
+
+    # ----------------------------------------------------------------------
+    # Deselect whole block lines if expanded
+    # ----------------------------------------------------------------------
+    def deselectBlock(self, bid):
+        start = self._blockPos[bid]
+        while True:
+            bid += 1
+            if bid >= len(self._blockPos):
+                end = END
+                break
+            elif self._blockPos[bid] is not None:
+                end = self._blockPos[bid] - 1
+                break
+        self.selection_clear(start, end)
 
     # ----------------------------------------------------------------------
     def selectBlocks(self, blocks):
@@ -953,8 +1056,7 @@ class CNCListbox(Listbox):
         if not blocks:
             return
         self.gcode.addUndo(self.gcode.invertBlocksUndo(blocks))
-        self.fill()
-        # do not send a modified message, no need to redraw
+        self.winfo_toplevel().event_generate("<<Refresh>>")
         return "break"
 
     # ----------------------------------------------------------------------
