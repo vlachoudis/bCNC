@@ -612,7 +612,7 @@ class Camera(_Base):
     def __init__(self, master):
         _Base.__init__(self, master, "Camera")
         self.variables = [
-            ("aligncam", "int", 0, _("Align Camera")),
+            ("aligncam", "str", 0, _("Align Camera")),  # value can be int or str
             ("aligncam_width", "int", 0, _("Align Camera Width")),
             ("aligncam_height", "int", 0, _("Align Camera Height")),
             ("aligncam_angle", "0,90,180,270", 0, _("Align Camera Angle")),
