@@ -112,7 +112,7 @@ class Tool(Plugin):
                                 or line.startswith("METRIC")):
                             unitinch = line.startswith("INCH")
                             decimals = 0.1 ** len(
-                                line[line.index("."): -1]
+                                line[line.find("."): -1]
                             )  # calculates the multiplier for decimal places
                         if line == "M95" or line == "%":
                             header = False
