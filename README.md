@@ -87,8 +87,9 @@ That is solely for caching purposes and you should delete it before redistributi
 If you are going to report bugs in .exe version of bCNC,
 please check first if that bug occurs even when running directly in python (without .exe build).
 
-# IMPORTANT! Motion controller (grblHAL) settings
-- We strongly recommend you to use 32b microcontroller with grblHAL firmware for the new machine builds. https://github.com/grblHAL (Original GRBL firmware is still supported, but it is currently reaching the end-of-life due to limitations of 8b microcontrollers)
+# IMPORTANT! Motion controller configuration
+- We strongly recommend you to use 32b microcontroller with FluidNC https://github.com/bdring/FluidNC http://wiki.fluidnc.com firmware for the new machine builds.
+- In case you are using grblHAL https://github.com/grblHAL (Original GRBL firmware is still supported, but it is currently reaching the end-of-life due to limitations of 8b microcontrollers)
 - GRBL should be configured to use **MPos** rather than **Wpos**. This means that `$10=` should be set to odd number. As of GRBL 1.1 we recommend setting `$10=3`. If you have troubles communicating with your machine, you can try to set failsafe value `$10=1`.
 - CADs, bCNC and GRBL all work in millimeters by default. Make sure that `$13=0` is set in GRBL, if you experience strange behavior. (unless you've configured your CAD and bCNC to use inches)
 - Before filing bug please make sure you use latest stable official release of GRBL. Older and unofficial releases might work, but we frequently see cases where they don't. So please upgrade firmware in your Arduinos to reasonably recent version if you can.
