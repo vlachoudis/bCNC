@@ -2875,14 +2875,14 @@ msgid "Last error: {}\n"
 msgstr ""
 
 #: bCNC/Updates.py:67
-msgid "Latest Github Version:"
-msgstr "Githubの最新バージョン"
+msgid "Latest PyPI Version:"
+msgstr "PyPIの最新バージョン"
 
 #: bCNC/Updates.py:73
 #, fuzzy
-#| msgid "Latest release version on on github"
-msgid "Latest release version on github"
-msgstr "Githubの最新のリリースバージョン"
+#| msgid "Latest release version on on PyPI"
+msgid "Latest release version on PyPI"
+msgstr "PyPIの最新のリリースバージョン"
 
 #: bCNC/EditorPage.py:154
 msgid "Layer"
@@ -3783,7 +3783,7 @@ msgstr "公開場所:"
 
 #: bCNC/Updates.py:80
 #, fuzzy
-msgid "Published date of the latest github release"
+msgid "Published date of the latest PyPI release"
 msgstr "最新のリリース公開日"
 
 #: bCNC/plugins/midi2cnc.py:61

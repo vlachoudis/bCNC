@@ -3015,14 +3015,14 @@ msgid "Last error: {}\n"
 msgstr "마지막 에러: {}\n"
 
 #: bCNC/Updates.py:67
-msgid "Latest Github Version:"
-msgstr "최신 Github 버전:"
+msgid "Latest PyPI Version:"
+msgstr "최신 PyPI 버전:"
 
 #: bCNC/Updates.py:73
 #, fuzzy
-#| msgid "Latest release version on on github"
-msgid "Latest release version on github"
-msgstr "Github에 최신 발포된 버전"
+#| msgid "Latest release version on on PyPI"
+msgid "Latest release version on PyPI"
+msgstr "PyPI에 최신 발포된 버전"
 
 #: bCNC/EditorPage.py:154
 msgid "Layer"
@@ -3972,8 +3972,8 @@ msgid "Published at:"
 msgstr "발포된 곳"
 
 #: bCNC/Updates.py:80
-msgid "Published date of the latest github release"
-msgstr "최신 GitHub 발포 날짜"
+msgid "Published date of the latest PyPI release"
+msgstr "최신 PyPI 발포 날짜"
 
 #: bCNC/plugins/midi2cnc.py:61
 msgid "Pulse per unit for X"

@@ -5,6 +5,7 @@
 
 import json
 import time
+from datetime import datetime
 import http.client as http
 from tkinter import (
     W,
@@ -63,20 +64,20 @@ class CheckUpdateDialog(Toplevel):
         la.grid(row=0, column=1, sticky=EW)
         tkExtra.Balloon.set(la, _("Running version of bCNC"))
 
-        la = Label(frame, text=_("Latest Github Version:"))
+        la = Label(frame, text=_("Latest PyPI Version:"))
         la.grid(row=1, column=0, sticky=E, pady=1)
 
         self.webversion = Label(frame, anchor=W)
         self.webversion.grid(row=1, column=1, sticky=EW)
         tkExtra.Balloon.set(self.webversion,
-                            _("Latest release version on github"))
+                            _("Latest release version on PyPI"))
         la = Label(frame, text=_("Published at:"))
         la.grid(row=2, column=0, sticky=E, pady=1)
 
         self.published = Label(frame, anchor=W)
         self.published.grid(row=2, column=1, sticky=EW)
         tkExtra.Balloon.set(
-            self.published, _("Published date of the latest github release")
+            self.published, _("Published date of the latest PyPI release")
         )
 
         frame.grid_columnconfigure(1, weight=1)
@@ -156,20 +157,26 @@ class CheckUpdateDialog(Toplevel):
 
     # ----------------------------------------------------------------------
     def check(self):
-        h = http.HTTPSConnection("api.github.com")
+        h = http.HTTPSConnection("pypi.org")
         h.request(
             "GET",
-            "/repos/vlachoudis/bCNC/releases/latest",
+            "/pypi/bCNC/json",
             None,
             {"User-Agent": "bCNC"},
         )
         r = h.getresponse()
         if r.status == http.OK:
             data = json.loads(r.read().decode("utf-8"))
-            latest_version = data["tag_name"]
+            latest_version = data["info"]["version"]
 
             self.webversion.config(text=latest_version)
-            self.published.config(text=data["published_at"])
+            # Parse upload_time in ISO8601 format to local date time string
+
+            upload_time_iso = data["urls"][0]["upload_time_iso_8601"]  # e.g. "2025-03-22T19:40:50.268938Z"
+            dtUTC = datetime.fromisoformat(upload_time_iso)
+            timestamp = dtUTC.timestamp()
+            uploadTimeStr = time.asctime(time.localtime(timestamp))
+            self.published.config(text=uploadTimeStr)
 
             if self.isNewer(latest_version):
                 self.webversion.config(background="LightGreen")
@@ -200,7 +207,7 @@ class CheckUpdateDialog(Toplevel):
     def download(self):
         import webbrowser
 
-        webbrowser.open("https://github.com/vlachoudis/bCNC/releases/latest")
+        webbrowser.open("https://pypi.org/project/bCNC/")
         self.checkButton.config(background="LightGray")
 
     # ----------------------------------------------------------------------

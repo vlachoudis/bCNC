@@ -3005,14 +3005,14 @@ msgid "Last error: {}\n"
 msgstr "上次最後一個錯誤: {}\n"
 
 #: bCNC/Updates.py:67
-msgid "Latest Github Version:"
-msgstr "最新版本Github上："
+msgid "Latest PyPI Version:"
+msgstr "最新版本PyPI上："
 
 #: bCNC/Updates.py:73
 #, fuzzy
-#| msgid "Latest release version on on github"
-msgid "Latest release version on github"
-msgstr "GitHub上的最新版本"
+#| msgid "Latest release version on on PyPI"
+msgid "Latest release version on PyPI"
+msgstr "PyPI上的最新版本"
 
 #: bCNC/EditorPage.py:154
 msgid "Layer"
@@ -3957,8 +3957,8 @@ msgid "Published at:"
 msgstr "發佈時間："
 
 #: bCNC/Updates.py:80
-msgid "Published date of the latest github release"
-msgstr "最新的github發布日期"
+msgid "Published date of the latest PyPI release"
+msgstr "最新的PyPI發布日期"
 
 #: bCNC/plugins/midi2cnc.py:61
 msgid "Pulse per unit for X"
@@ -5778,5 +5778,5 @@ msgstr "z軸 偏移量"
 #~ msgid "$6 Invert probe pin"
 #~ msgstr "$6 反轉探頭針引腳"
 
-#~ msgid "Published date of the latest github relase"
-#~ msgstr "GitHub最新发布日期"
+#~ msgid "Published date of the latest PyPI relase"
+#~ msgstr "PyPI最新发布日期"
