@@ -3054,14 +3054,14 @@ msgid "Last error: {}\n"
 msgstr "Último erro: {}\n"
 
 #: bCNC/Updates.py:67
-msgid "Latest Github Version:"
-msgstr "Versão mais recente Github:"
+msgid "Latest PyPI Version:"
+msgstr "Versão mais recente PyPI:"
 
 #: bCNC/Updates.py:73
 #, fuzzy
-#| msgid "Latest release version on on github"
-msgid "Latest release version on github"
-msgstr "Versão de lançamento mais recente do no github"
+#| msgid "Latest release version on on PyPI"
+msgid "Latest release version on PyPI"
+msgstr "Versão de lançamento mais recente do no PyPI"
 
 #: bCNC/EditorPage.py:154
 msgid "Layer"
@@ -4011,8 +4011,8 @@ msgid "Published at:"
 msgstr "Publicado em:"
 
 #: bCNC/Updates.py:80
-msgid "Published date of the latest github release"
-msgstr "Data de publicação da última versão do github"
+msgid "Published date of the latest PyPI release"
+msgstr "Data de publicação da última versão do PyPI"
 
 #: bCNC/plugins/midi2cnc.py:61
 msgid "Pulse per unit for X"
@@ -5782,8 +5782,8 @@ msgstr ""
 #~ msgid "$6 Invert probe pin"
 #~ msgstr "$6 Inverter pino de sonda"
 
-#~ msgid "Published date of the latest github relase"
-#~ msgstr "Data de publicação da última versão no github"
+#~ msgid "Published date of the latest PyPI relase"
+#~ msgstr "Data de publicação da última versão no PyPI"
 
 #~ msgid ""
 #~ "G-code is composed of G-code 'words', which consists of a letter followed "

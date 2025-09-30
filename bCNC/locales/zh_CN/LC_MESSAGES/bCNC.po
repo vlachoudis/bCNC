@@ -2966,14 +2966,14 @@ msgid "Last error: {}\n"
 msgstr "{}出现错误：\n"
 
 #: bCNC/Updates.py:67
-msgid "Latest Github Version:"
-msgstr "在Github上的最新版本:"
+msgid "Latest PyPI Version:"
+msgstr "在PyPI上的最新版本:"
 
 #: bCNC/Updates.py:73
 #, fuzzy
-#| msgid "Latest release version on on github"
-msgid "Latest release version on github"
-msgstr "在GitHub上发布的最新版本"
+#| msgid "Latest release version on on PyPI"
+msgid "Latest release version on PyPI"
+msgstr "在PyPI上发布的最新版本"
 
 #: bCNC/EditorPage.py:154
 msgid "Layer"
@@ -3916,8 +3916,8 @@ msgid "Published at:"
 msgstr "发布时间:"
 
 #: bCNC/Updates.py:80
-msgid "Published date of the latest github release"
-msgstr "发布最新github版本的日期"
+msgid "Published date of the latest PyPI release"
+msgstr "发布最新PyPI版本的日期"
 
 #: bCNC/plugins/midi2cnc.py:61
 msgid "Pulse per unit for X"
