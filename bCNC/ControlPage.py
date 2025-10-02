@@ -13,6 +13,7 @@ from tkinter import (
     W,
     E,
     EW,
+    NS,
     NSEW,
     CENTER,
     X,
@@ -31,6 +32,7 @@ from tkinter import (
     BooleanVar,
     Button,
     Checkbutton,
+    DoubleVar,
     Entry,
     Frame,
     Label,
@@ -505,7 +507,7 @@ class DROFrame(CNCRibbon.PageFrame):
     def updateCoords(self):
         try:
             focus = self.focus_get()
-        except Exception:
+        except KeyError:
             focus = None
         if focus is not self.xwork:
             self.xwork.delete(0, END)
@@ -563,7 +565,7 @@ class DROFrame(CNCRibbon.PageFrame):
         try:
             value = round(eval(self.xwork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(value, None, None, None, None, None)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -573,7 +575,7 @@ class DROFrame(CNCRibbon.PageFrame):
         try:
             value = round(eval(self.ywork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(None, value, None, None, None, None)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -583,7 +585,7 @@ class DROFrame(CNCRibbon.PageFrame):
         try:
             value = round(eval(self.zwork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(None, None, value, None, None, None)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -798,7 +800,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
     def updateCoords(self):
         try:
             focus = self.focus_get()
-        except Exception:
+        except KeyError:
             focus = None
         
         if focus is not self.awork:
@@ -865,7 +867,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         try:
             value = round(eval(self.awork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(None, None, None, value, None, None)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -875,7 +877,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         try:
             value = round(eval(self.bwork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(None, None, None, None, value, None)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -885,7 +887,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         try:
             value = round(eval(self.cwork.get(), None, CNC.vars), 3)
             self.app.mcontrol._wcsSet(None, None, None, None, None, value)
-        except Exception:
+        except ValueError:
             pass
 
     # ----------------------------------------------------------------------
@@ -911,14 +913,42 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         CNCRibbon.PageExLabelFrame.__init__(
             self, master, "Control", _("Control"), app)
 
+        try:
+            self.zsteplist = [float(x) for x in Utils.config.get("Control", "zsteplist").split()]
+        except ValueError:
+            self.zsteplist = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0]
+
+        try:
+            self.steplist = [float(x) for x in Utils.config.get("Control", "steplist").split()]
+        except ValueError:
+            self.steplist = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0, 500.0]
+
+        try:
+            step = float(Utils.config.get("Control", "step"))
+        except ValueError:
+            step = float(self.steplist[int(len(self.steplist)/2-1)])
+
+        try:
+            zstep = Utils.config.get("Control", "zstep")
+        except ValueError:
+            zstep = float(self.zsteplist[int(len(self.zsteplist)/2-1)])
+
+        try:
+            jogRate = float(Utils.config.get("Control", "jograte"))
+        except Exception:
+            JogRate = min(CNC.feedmax_x, CNC.feedmax_y, CNC.feedmax_z)
+
         frame = Frame(self())
         frame.pack(side=TOP, fill=X)
 
         row, col = 0, 0
         Label(frame, text=_("Z")).grid(row=row, column=col)
 
-        col += 3
+        col += 4
         Label(frame, text=_("Y")).grid(row=row, column=col)
+
+        col += 3
+        Label(frame, text=_("Jog Rate")).grid(row=row, column=col, columnspan=2)
 
         # ---
         row += 1
@@ -939,7 +969,26 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         tkExtra.Balloon.set(b, _("Move +Z"))
         self.addWidget(b)
 
-        col += 2
+        col += 1
+        self.zScaleValue = DoubleVar()
+        self.zScale = Scale(frame,
+                         variable=self.zScaleValue,
+                         resolution=0.001,
+                         from_=math.log10(float(self.zsteplist[0])),
+                         to=math.log10(float(self.zsteplist[-1])),
+                         orient="vertical",
+                         showvalue=0,
+                         command=self.setZValue)
+        self.zScale.grid(row=row, column=col, rowspan=3, sticky=NS)
+        if zstep == _NOZSTEP:
+            self.zScaleValue.set(math.log10(float(step)))
+        else:
+            self.zScaleValue.set(math.log10(float(zstep)))
+        tkExtra.Balloon.set(self.zScale, _("Z jog stepsize"))
+        self.addWidget(self.zScale)
+        col += 1
+
+        col += 1
         b = Button(
             frame,
             text=Unicode.UPPER_LEFT_TRIANGLE,
@@ -977,7 +1026,22 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         tkExtra.Balloon.set(b, _("Move +X +Y"))
         self.addWidget(b)
 
-        col += 2
+        col += 1
+        self.xyScaleValue = DoubleVar()
+        self.xyScale = Scale(frame,
+                variable=self.xyScaleValue,
+                resolution=0.001,
+                from_=math.log10(float(self.steplist[0])),
+                to=math.log10(float(self.steplist[-1])),
+                orient="vertical",
+                showvalue=0,
+                command=self.setXYValue)
+        self.xyScale.grid(row=row, column=col, rowspan=3, sticky=NS)
+        self.xyScale.set(math.log10(step))
+        tkExtra.Balloon.set(self.xyScale, _("XY jog stepsize"))
+        self.addWidget(self.xyScale)
+
+        col += 1
         b = Button(
             frame, text="\u00D710", command=self.mulStep,
             width=3, padx=1, pady=1
@@ -985,6 +1049,23 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Multiply step by 10"))
         self.addWidget(b)
+
+        def xceptReturn(event):
+            frame.focus()
+
+        self.jogValue = DoubleVar()
+        self.jogValue.set(float(jogRate))
+        self.checkJogValue = self.register(self.checkJogentry)
+        self.jograte = Entry(frame,
+                justify=RIGHT,
+                textvariable=self.jogValue,
+                validate='key',
+                validatecommand=(self.checkJogValue, '%P'),
+                width=4)
+        self.jograte.grid(row=row, column=col, columnspan=2, sticky=EW + N)
+        self.jograte.bind('<Return>',xceptReturn)
+        self.jograte.bind('<KP_Enter>',xceptReturn)
+        self.addWidget(self.jograte)
 
         col += 1
         b = Button(frame, text=_("+"), command=self.incStep,
@@ -995,10 +1076,9 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         # ---
         row += 1
-
-        col = 1
+        col = 2
         Label(frame, text=_("X"),
-              width=3, anchor=E).grid(row=row, column=col, sticky=E)
+              width=1, anchor=E).grid(row=row, column=col, sticky=E)
 
         col += 1
         b = Button(
@@ -1046,51 +1126,46 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(b)
 
         # --
-        col += 1
-        Label(frame, "", width=2).grid(row=row, column=col)
-
-        col += 1
+        col += 2
         self.step = tkExtra.Combobox(
-            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            command=self.setSliders
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.step.set(Utils.config.get("Control", "step"))
-        self.step.fill(
-            map(float, Utils.config.get("Control", "steplist").split()))
+        self.step.fill(self.steplist)
         tkExtra.Balloon.set(self.step, _("Step for every move operation"))
         self.addWidget(self.step)
+        self.step.bind('<<ComboboxSelected>>', self.setSliders)
 
-        # -- Separate zstep --
-        try:
-            zstep = Utils.config.get("Control", "zstep")
-            self.zstep = tkExtra.Combobox(
-                frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
-            )
-            self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
-            self.zstep.set(zstep)
-            zsl = [_NOZSTEP]
-            zsl.extend(
-                map(float, Utils.config.get("Control", "zsteplist").split()))
-            self.zstep.fill(zsl)
-            tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
-            self.addWidget(self.zstep)
-        except Exception:
-            self.zstep = self.step
+        # -- Separate zstep combobox --
+        self.zstep = tkExtra.Combobox(
+            frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            command=self.setSliders
+        )
+        self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
+        zsl = [_NOZSTEP]
+        zsl.extend(self.zsteplist)
+        self.zstep.fill(zsl)
+        self.zstep.set(zstep)
+        tkExtra.Balloon.set(self.zstep, _("Step for Z move operation"))
+        self.addWidget(self.zstep)
+        self.zstep.bind('<<ComboboxSelected>>', self.setSliders)
 
         # Default steppings
         try:
             self.step1 = Utils.getFloat("Control", "step1")
-        except Exception:
+        except ValueError:
             self.step1 = 0.1
 
         try:
             self.step2 = Utils.getFloat("Control", "step2")
-        except Exception:
+        except ValueError:
             self.step2 = 1
 
         try:
             self.step3 = Utils.getFloat("Control", "step3")
-        except Exception:
+        except ValueError:
             self.step3 = 10
 
         # ---
@@ -1109,7 +1184,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         tkExtra.Balloon.set(b, _("Move -Z"))
         self.addWidget(b)
 
-        col += 2
+        col += 3
         b = Button(
             frame,
             text=Unicode.LOWER_LEFT_TRIANGLE,
@@ -1168,9 +1243,15 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
     # ----------------------------------------------------------------------
     def saveConfig(self):
+        Utils.setFloat("Control", "jograte", self.jogValue.get())
         Utils.setFloat("Control", "step", self.step.get())
-        if self.zstep is not self.step:
-            Utils.setFloat("Control", "zstep", self.zstep.get())
+        zstep = self.zstep.get()
+        if zstep == _NOZSTEP:
+            Utils.setStr("Control", "zstep", zstep)
+        else:
+            Utils.setFloat("Control", "zstep", zstep)
+        Utils.setFloat("Control", "steplist", self.steplist)
+        Utils.setFloat("Control", "zsteplist", self.zsteplist)
 
     # ----------------------------------------------------------------------
     # Jogging
@@ -1188,52 +1269,56 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
     def moveXup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X{self.step.get()}")
+        self.app.mcontrol.jog(f"X{self.step.get()}", self.jogValue.get())
 
     def moveXdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X-{self.step.get()}")
+        self.app.mcontrol.jog(f"X-{self.step.get()}", self.jogValue.get())
 
     def moveYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"Y{self.step.get()}")
+        self.app.mcontrol.jog(f"Y{self.step.get()}", self.jogValue.get())
 
     def moveYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"Y-{self.step.get()}")
+        self.app.mcontrol.jog(f"Y-{self.step.get()}", self.jogValue.get())
 
     def moveXdownYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X-{self.step.get()}Y{self.step.get()}")
+        self.app.mcontrol.jog(f"X-{self.step.get()}Y{self.step.get()}",
+                              self.jogValue.get())
 
     def moveXupYup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X{self.step.get()}Y{self.step.get()}")
+        self.app.mcontrol.jog(f"X{self.step.get()}Y{self.step.get()}",
+                              self.jogValue.get())
 
     def moveXdownYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X-{self.step.get()}Y-{self.step.get()}")
+        self.app.mcontrol.jog(f"X-{self.step.get()}Y-{self.step.get()}",
+                              self.jogValue.get())
 
     def moveXupYdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"X{self.step.get()}Y-{self.step.get()}")
+        self.app.mcontrol.jog(f"X{self.step.get()}Y-{self.step.get()}",
+                              self.jogValue.get())
 
     def moveZup(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"Z{self.getStep('z')}")
+        self.app.mcontrol.jog(f"Z{self.getStep('z')}", self.jogValue.get())
 
     def moveZdown(self, event=None):
         if event is not None and not self.acceptKey():
             return
-        self.app.mcontrol.jog(f"Z-{self.getStep('z')}")
+        self.app.mcontrol.jog(f"Z-{self.getStep('z')}", self.jogValue.get())
 
     def go2origin(self, event=None):
         self.sendGCode("G90")
@@ -1244,12 +1329,56 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
     # ----------------------------------------------------------------------
     def setStep(self, s, zs=None):
         self.step.set(f"{s:.4g}")
-        if self.zstep is self.step or zs is None:
+        self.xyScaleValue.set(math.log10(s))
+        if zs is None or zs is _NOZSTEP:
+            self.zScaleValue.set(math.log10(s))
             self.event_generate("<<Status>>", data=_("Step: {:g}").format(s))
         else:
             self.zstep.set(f"{zs:.4g}")
+            self.zScaleValue.set(math.log10(zs))
             self.event_generate(
                 "<<Status>>", data=_("Step: {:g}  Zstep: {:g} ").format(s, zs))
+
+    def checkJogentry(self, inStr):
+        try:
+            if float(inStr) <= 0.0: return False
+        except ValueError:
+            return False
+        return True
+
+    #----------------------------------------------------------------------
+    # Slider methods
+    #----------------------------------------------------------------------
+    #
+    def setSliders(self):
+        xyvalue = self.step.get()
+        self.xyScaleValue.set(math.log10(float(xyvalue)))
+        # the following is enclosed in a try/except since it maybe called
+        # before the zstep combobox has been created
+        try:
+            zvalue = self.zstep.get()
+            if zvalue == _NOZSTEP:
+                self.zScaleValue.set(math.log10(float(xyvalue)))
+            else:
+                self.zScaleValue.set(math.log10(float(zvalue)))
+        except Exception:
+            pass
+
+    def setZValue(self, slider):
+        find_f = 10.0**float(slider)
+        tval = self.zsteplist[min(range(len(self.zsteplist)),
+                              key=lambda i: abs(self.zsteplist[i] - find_f))]
+        sval = str(tval)
+        self.zstep.set(sval)
+        self.zScaleValue.set(math.log10(tval))
+
+    def setXYValue(self, slider):
+        find_f = 10.0**float(slider)
+        tval = self.steplist[min(range(len(self.steplist)),
+                             key=lambda i: abs(self.steplist[i] - find_f))]
+        sval = str(tval)
+        self.step.set(sval)
+        self.xyScaleValue.set(math.log10(tval))
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -1258,7 +1387,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             step = float(step)
             if step <= 0.0:
                 step = 1.0
-        except Exception:
+        except ValueError:
             step = 1.0
         power = math.pow(10.0, math.floor(math.log10(step)))
         return round(step / power) * power, power
@@ -1373,8 +1502,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 # =============================================================================
 # abc ControlFrame
 # =============================================================================
-
-
 class abcControlFrame(CNCRibbon.PageExLabelFrame):
     def __init__(self, master, app):
         CNCRibbon.PageExLabelFrame.__init__(
@@ -1542,23 +1669,23 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             self.astep.fill(asl)
             tkExtra.Balloon.set(self.astep, _("Step for A move operation"))
             self.addWidget(self.astep)
-        except Exception:
+        except ValueError:
             self.astep = self.step
 
         # Default steppings
         try:
             self.step1 = Utils.getFloat("abcControl", "step1")
-        except Exception:
+        except ValueError:
             self.step1 = 0.1
 
         try:
             self.step2 = Utils.getFloat("abcControl", "step2")
-        except Exception:
+        except ValueError:
             self.step2 = 1
 
         try:
             self.step3 = Utils.getFloat("abcControl", "step3")
-        except Exception:
+        except ValueError:
             self.step3 = 10
 
         # ---
@@ -1728,7 +1855,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             step = float(step)
             if step <= 0.0:
                 step = 1.0
-        except Exception:
+        except ValueError:
             step = 1.0
         power = math.pow(10.0, math.floor(math.log10(step)))
         return round(step / power) * power, power
@@ -1844,8 +1971,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 # =============================================================================
 # StateFrame
 # =============================================================================
-
-
 class StateFrame(CNCRibbon.PageExLabelFrame):
     def __init__(self, master, app):
         global wcsvar
@@ -2348,5 +2473,7 @@ class ControlPage(CNCRibbon.Page):
 
         self._register(
             (ConnectionGroup, UserGroup, RunGroup),
-            (DROFrame, abcDROFrame, ControlFrame, abcControlFrame, StateFrame),
+            (DROFrame, abcDROFrame,
+             ControlFrame, abcControlFrame,
+             StateFrame)
         )

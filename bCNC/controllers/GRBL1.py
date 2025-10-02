@@ -32,9 +32,8 @@ class Controller(_GenericGRBL):
         self.has_override = True
         self.master = master
 
-    def jog(self, direction):
-        self.master.sendGCode(f"$J=G91 {direction} F100000")
-        # XXX is F100000 correct?
+    def jog(self, direction, feed=10000):
+        self.master.sendGCode(f"$J=G91 {direction} F{float(feed)}")
 
     def overrideSet(self):
         CNC.vars["_OvChanged"] = False  # Temporary
