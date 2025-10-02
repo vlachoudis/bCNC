@@ -38,7 +38,7 @@ class Controller(_GenericController):
         print("ec",oline,line,cmd)
         return False
 
-    def softReset(self, clearAlarm=True):
+    async def softReset(self, clearAlarm=True):
         # Don't do this, it resets all the config values in firmware.
         # if self.master.serial:
             # self.master.serial_write(b"\030")
@@ -83,10 +83,10 @@ class Controller(_GenericController):
             "Run", "Run", "Home", "Jog", "Door", "Alarm", "Alarm" ]
         return states[state]
 
-    def setState(self, stat):
+    async def setState(self, stat):
         state = self.mapState(stat)
         if CNC.vars["state"] != state or self.master.runningPrev != self.master.running:
-            self.master.controllerStateChange(state)
+            await self.master.controllerStateChange(state)
         self.master.runningPrev = self.master.running
 
         self.displayState(state)
@@ -108,9 +108,9 @@ class Controller(_GenericController):
             if key1 in sr:
                 CNC.vars[key2] = int(sr[key1])
 
-    def processStatusReport(self, sr):
+    async def processStatusReport(self, sr):
         if "stat" in sr:
-            self.setState(sr["stat"])
+            await self.setState(sr["stat"])
         self.setCNCfloats(sr, { "feed" : "curfeed",
                                 "vel":"curvel",
                                 "posx" : "wx",
@@ -154,9 +154,9 @@ class Controller(_GenericController):
         revision, status, lines_available = f
         # self.setState(status)  NO, THIS IS A DIFFERENT STATUS.
 
-    def parseValues(self, values):
+    async def parseValues(self, values):
         if "sr" in values:
-            self.processStatusReport(values["sr"])
+            await self.processStatusReport(values["sr"])
         if "err" in values: # JSON Syntax Errors
             self.processErrorReport(values["err"])
         if "er" in values:  # Lower level errors
@@ -164,7 +164,7 @@ class Controller(_GenericController):
         if "f" in values:
             self.processFooter(values["f"])
         if "r" in values:
-            self.parseValues(values["r"])
+            await self.parseValues(values["r"])
         else:
             # print(values)
             k = list(values.keys())
@@ -182,7 +182,7 @@ class Controller(_GenericController):
                     # CNC.vars[gcode+"B"] = values[k[0]]['b']
                     # CNC.vars[gcode+"C"] = values[k[0]]['c']
 
-    def parseLine(self, line, cline, sline):
+    async def parseLine(self, line, cline, sline):
         if not line:
             return True
 
@@ -196,7 +196,7 @@ class Controller(_GenericController):
                     if cline: del cline[0]
                     if sline: del sline[0]
                 self.master.sio_status = False
-            self.parseValues(values)
+            await self.parseValues(values)
 
         else:
             #We return false in order to tell that we can't parse this line
@@ -215,14 +215,14 @@ class Controller(_GenericController):
         #Parsing succesful
         return True
 
-    def purgeController(self):
+    async def purgeController(self):
         self.master.serial_write(b"!\004\n")
         self.master.serial.flush()
         time.sleep(1)
         # remember and send all G commands
         G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"] and x != "G43.1")  # remember $G
         TLO = CNC.vars["TLO"]
-        self.softReset(False)  # reset controller
+        await self.softReset(False)  # reset controller
         self.purgeControllerExtra()
         self.master.runEnded()
         self.master.stopProbe()
