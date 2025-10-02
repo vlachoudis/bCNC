@@ -292,7 +292,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         CNCRibbon.PageFrame.__init__(self, master, "ProbeCommon", app)
 
         lframe = tkExtra.ExLabelFrame(
-            self, text=_("Common"), foreground="DarkBlue")
+            self, text=_("Z-Sensor"), foreground="DarkBlue")
         lframe.pack(side=TOP, fill=X)
         frame = lframe.frame
 
@@ -341,23 +341,23 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.addWidget(ProbeCommonFrame.probeFeed)
 
         # ----
-        # Tool offset
+        # Probe sensor
         row += 1
         col = 0
-        Label(frame, text=_("TLO")).grid(row=row, column=col, sticky=E)
+        Label(frame, text=_("Sensor Height")).grid(row=row, column=col, sticky=E)
         col += 1
-        ProbeCommonFrame.tlo = tkExtra.FloatEntry(
+        ProbeCommonFrame.probeSensor = tkExtra.FloatEntry(
             frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
         )
-        ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
+        ProbeCommonFrame.probeSensor.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
-            ProbeCommonFrame.tlo, _("Set tool offset for probing"))
-        self.addWidget(ProbeCommonFrame.tlo)
-        self.tlo.bind("<Return>", self.tloSet)
-        self.tlo.bind("<KP_Enter>", self.tloSet)
+            ProbeCommonFrame.probeSensor, _("Set sensor height offset for probing"))
+        self.addWidget(ProbeCommonFrame.probeSensor)
+        self.tlo.bind("<Return>", self.sensorSet)
+        self.tlo.bind("<KP_Enter>", self.sensorSet)
 
         col += 1
-        b = Button(frame, text=_("set"), command=self.tloSet, padx=2, pady=1)
+        b = Button(frame, text=_("set"), command=self.sensorSet, padx=2, pady=1)
         b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
@@ -383,11 +383,9 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.loadConfig()
 
     # ------------------------------------------------------------------------
-    def tloSet(self, event=None):
+    def sensorSet(self, event=None):
         try:
-            CNC.vars["TLO"] = float(ProbeCommonFrame.tlo.get())
-            cmd = f"G43.1Z{ProbeCommonFrame.tlo.get()}"
-            self.sendGCode(cmd)
+            CNC.vars["Zsensor"] = float(ProbeCommonFrame.probeSensor.get())
         except Exception:
             pass
         self.app.mcontrol.viewParameters()
@@ -399,6 +397,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             CNC.vars["fastprbfeed"] = float(
                 ProbeCommonFrame.fastProbeFeed.get())
             CNC.vars["prbfeed"] = float(ProbeCommonFrame.probeFeed.get())
+            CNC.vars["Zsensor"] = float(ProbeCommonFrame.probeSensor.get())
             CNC.vars["prbcmd"] = str(
                 ProbeCommonFrame.probeCmd.get().split()[0])
             return False
@@ -406,13 +405,13 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
             return True
 
     # ------------------------------------------------------------------------
-    def updateTlo(self):
+    def updateSensor(self):
         try:
-            if self.focus_get() is not ProbeCommonFrame.tlo:
-                state = ProbeCommonFrame.tlo.cget("state")
-                state = ProbeCommonFrame.tlo["state"] = NORMAL
-                ProbeCommonFrame.tlo.set(str(CNC.vars.get("TLO", "")))
-                state = ProbeCommonFrame.tlo["state"] = state
+            if self.focus_get() is not ProbeCommonFrame.probeSensor:
+                state = ProbeCommonFrame.probeSensor.cget("state")
+                state = ProbeCommonFrame.probeSensor["state"] = NORMAL
+                ProbeCommonFrame.probeSensor.set(str(CNC.vars.get("Zsensor", "")))
+                state = ProbeCommonFrame.probeSensor["state"] = state
         except Exception:
             pass
 
@@ -421,7 +420,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         Utils.setFloat("Probe",
                        "fastfeed", ProbeCommonFrame.fastProbeFeed.get())
         Utils.setFloat("Probe", "feed", ProbeCommonFrame.probeFeed.get())
-        Utils.setFloat("Probe", "tlo", ProbeCommonFrame.tlo.get())
+        Utils.setFloat("Probe", "sensor", ProbeCommonFrame.probeSensor.get())
         Utils.setFloat("Probe", "cmd",
                        ProbeCommonFrame.probeCmd.get().split()[0])
 
@@ -429,7 +428,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
     def loadConfig(self):
         ProbeCommonFrame.fastProbeFeed.set(Utils.getFloat("Probe", "fastfeed"))
         ProbeCommonFrame.probeFeed.set(Utils.getFloat("Probe", "feed"))
-        ProbeCommonFrame.tlo.set(Utils.getFloat("Probe", "tlo"))
+        ProbeCommonFrame.probeSensor.set(Utils.getFloat("Probe", "sensor"))
         cmd = Utils.getStr("Probe", "cmd")
         for p in PROBE_CMD:
             if p.split()[0] == cmd:
@@ -891,6 +890,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         if self.probeautogotonext:
             self.probeautogotonext = False
             self.goto2Probe()
+            self.gotoAfterProbe()
 
     # -----------------------------------------------------------------------
     def warnMessage(self):
@@ -946,6 +946,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
             cmd += f"F{v}"
 
         if ok:
+            self.sendGCode(cmd)                 # search sensor switch
+            p = WCS.index(CNC.vars["WCS"]) + 1  # Actual Work Space
+            cmd = "G10 L20 P%d Z%s"%((p), ProbeCommonFrame.probeSensor.get())   # Sensor height compensation
+            self.sendGCode(cmd)
+            cmd = "G4 P1"                       # Wait 1s
             self.sendGCode(cmd)
         else:
             messagebox.showerror(
@@ -2222,11 +2227,12 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.setProbeParams()
 
     # -----------------------------------------------------------------------
-    def updateTool(self):
+    def updateToolHeight(self):
         state = self.toolHeight.cget("state")
         self.toolHeight.config(state=NORMAL)
         self.toolHeight.set(CNC.vars["toolheight"])
         self.toolHeight.config(state=state)
+        self.event_generate("<<StateTool>>")
 
     # -----------------------------------------------------------------------
     def calibrate(self, event=None):
@@ -2238,31 +2244,18 @@ class ToolFrame(CNCRibbon.PageFrame):
         lines.append("g53 g0 x[toolchangex] y[toolchangey]")
         lines.append("g53 g0 x[toolprobex] y[toolprobey]")
         lines.append("g53 g0 z[toolprobez]")
-        if CNC.vars["fastprbfeed"]:
-            prb_reverse = {"2": "4", "3": "5", "4": "2", "5": "3"}
-            CNC.vars["prbcmdreverse"] = (
-                CNC.vars["prbcmd"][:-1] + prb_reverse[CNC.vars["prbcmd"][-1]]
-            )
-            currentFeedrate = CNC.vars["fastprbfeed"]
-            while currentFeedrate > CNC.vars["prbfeed"]:
-                lines.append("%wait")
-                lines.append(
-                    f"g91 [prbcmd] {CNC.fmt('f', currentFeedrate)} "
-                    + "z[toolprobez-mz-tooldistance]"
-                )
-                lines.append("%wait")
-                lines.append(
-                    f"[prbcmdreverse] {CNC.fmt('f', currentFeedrate)} "
-                    + "z[toolprobez-mz]"
-                )
-                currentFeedrate /= 10
-        lines.append("%wait")
-        lines.append("g91 [prbcmd] f[prbfeed] z[toolprobez-mz-tooldistance]")
-        lines.append("g4 p1")  # wait a sec
+        lines.append("g91")
+        lines.append("[prbcmd] z-[tooldistance] f[fastprbfeed]")   # switch search
+        lines.append("g0 z[1]")                                    # Switch clearence
+        lines.append("[prbcmd] z[-2] f[prbfeed]")                  # Measure
+        lines.append("g90")                                        # restore initial state
+        lines.append("g4 p1")                                      # wait a sec
         lines.append("%wait")
         lines.append("%global toolheight; toolheight=wz")
         lines.append("%global toolmz; toolmz=prbz")
+        lines.append("%global Zsensor; Zsensor=wz")                # sensor height update
         lines.append("%update toolheight")
+        lines.append("%update Zsensor")
         lines.append("g53 g0 z[toolchangez]")
         lines.append("g53 g0 x[toolchangex] y[toolchangey]")
         lines.append("g90")
