@@ -5,8 +5,12 @@
 
 import math
 import os
+import sys
+import gc
 import re
 import types
+import time
+import Utils
 
 import undo
 import Unicode
@@ -99,8 +103,13 @@ MODAL_MODES = {
 
 ERROR_HANDLING = {}
 TOLERANCE = 1e-7
-MAXINT = 1000000000  # python3 doesn't have maxint
+MAXINT = sys.maxsize # python3 maxint->sys.maxsize
 
+# =============================================================================
+# Raise an alarm exception
+# =============================================================================
+class AlarmException(Exception):
+    pass
 
 # -----------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
@@ -125,13 +134,13 @@ class Probe:
     # ----------------------------------------------------------------------
     def init(self):
         self.filename = ""
-        self.xmin = 0.0
-        self.ymin = 0.0
-        self.zmin = -10.0
+        self.xmin = self.exmin = 0.0
+        self.ymin = self.eymin = 0.0
+        self.zmin = self.ezmin = -10.0
 
-        self.xmax = 10.0
-        self.ymax = 10.0
-        self.zmax = 3.0
+        self.xmax = self.exmax = 10.0
+        self.ymax = self.eymax = 10.0
+        self.zmax = self.ezmax = 3.0
 
         self._xstep = 1.0
         self._ystep = 1.0
@@ -767,6 +776,7 @@ class CNC:
 
     # ----------------------------------------------------------------------
     def __init__(self):
+        self.loadConfig(Utils.config)
         self.initPath()
         self.resetAllMargins()
 
@@ -918,6 +928,10 @@ class CNC:
             CNC.footer = config.get(section, "footer")
         except Exception:
             pass
+        try:
+            CNC.vars['safe'] = float(config.get(section, "safe"))
+        except Exception as err:
+            pass
 
         if CNC.inch:
             CNC.acceleration_x /= 25.4
@@ -944,7 +958,8 @@ class CNC:
 
     # ----------------------------------------------------------------------
     @staticmethod
-    def saveConfig(config):
+    def saveConfig(config=None):
+        Utils.setFloat("CNC", "safe", CNC.vars["safe"])
         pass
 
     # ----------------------------------------------------------------------
@@ -979,6 +994,8 @@ class CNC:
         self.dx = self.dy = self.dz = 0.0
         self.di = self.dj = self.dk = 0.0
         self.rval = 0.0
+        self.sval = None
+        self.e_val = None  # conflict with built in function eval()...
         self.pval = 0.0
         self.qval = 0.0
         self.unit = 1.0
@@ -999,15 +1016,19 @@ class CNC:
     # ----------------------------------------------------------------------
     def resetEnableMargins(self):
         # Selected blocks margin
-        CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] = 1000000.0
-        CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = -1000000.0
+        CNC.vars["xmin"] = CNC.vars["ymin"] = CNC.vars["zmin"] = \
+            CNC.vars["exmin"] = CNC.vars["eymin"] = CNC.vars["ezmin"] = \
+            CNC.vars["dxmin"] = CNC.vars["dymin"] = CNC.vars["dzmin"] = MAXINT
+        CNC.vars["xmax"] = CNC.vars["ymax"] = CNC.vars["zmax"] = \
+            CNC.vars["exmax"] = CNC.vars["eymax"] = CNC.vars["ezmax"] = \
+            CNC.vars["dxmax"] = CNC.vars["dymax"] = CNC.vars["dzmax"] = -MAXINT
 
     # ----------------------------------------------------------------------
     def resetAllMargins(self):
         self.resetEnableMargins()
         # All blocks margin
-        CNC.vars["axmin"] = CNC.vars["aymin"] = CNC.vars["azmin"] = 1000000.0
-        CNC.vars["axmax"] = CNC.vars["aymax"] = CNC.vars["azmax"] = -1000000.0
+        CNC.vars["axmin"] = CNC.vars["aymin"] = CNC.vars["azmin"] = MAXINT
+        CNC.vars["axmax"] = CNC.vars["aymax"] = CNC.vars["azmax"] = -MAXINT
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -1016,6 +1037,24 @@ class CNC:
             CNC.vars["xmin"] <= CNC.vars["xmax"]
             and CNC.vars["ymin"] <= CNC.vars["ymax"]
             and CNC.vars["zmin"] <= CNC.vars["zmax"]
+        )
+
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def isEnabledMarginValid():
+        return (
+            CNC.vars["exmin"] <= CNC.vars["exmax"]
+            and CNC.vars["eymin"] <= CNC.vars["eymax"]
+            and CNC.vars["ezmin"] <= CNC.vars["ezmax"]
+        )
+
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def isDisabledMarginValid():
+        return (
+            CNC.vars["dxmin"] <= CNC.vars["dxmax"]
+            and CNC.vars["dymin"] <= CNC.vars["dymax"]
+            and CNC.vars["dzmin"] <= CNC.vars["dzmax"]
         )
 
     # ----------------------------------------------------------------------
@@ -1362,6 +1401,8 @@ class CNC:
     # ----------------------------------------------------------------------
     def motionStart(self, cmds):
         self.mval = 0  # reset m command
+        self.sval = None
+        self.e_val = None
         for cmd in cmds:
             c = cmd[0].upper()
             try:
@@ -1483,6 +1524,12 @@ class CNC:
 
             elif c == "R":
                 self.rval = value * self.unit
+
+            elif c == "S":
+                self.sval = value
+
+            elif c == "E":
+                self.e_val = value
 
             elif c == "T":
                 self.tool = int(value)
@@ -1693,10 +1740,10 @@ class CNC:
             if self.gcode >= 2:  # reset at the end
                 self.rval = self.ival = self.jval = self.kval = 0.0
 
-        elif self.gcode in (28, 30, 92):
-            self.x = 0.0
-            self.y = 0.0
-            self.z = 0.0
+        elif self.gcode in (28, 30, 92,):
+            self.x = self.xval
+            self.y = self.yval
+            self.z = self.zval
             self.dx = 0
             self.dy = 0
             self.dz = 0
@@ -1767,12 +1814,18 @@ class CNC:
     # ----------------------------------------------------------------------
     def pathMargins(self, block):
         if block.enable:
-            CNC.vars["xmin"] = min(CNC.vars["xmin"], block.xmin)
-            CNC.vars["ymin"] = min(CNC.vars["ymin"], block.ymin)
-            CNC.vars["zmin"] = min(CNC.vars["zmin"], block.zmin)
-            CNC.vars["xmax"] = max(CNC.vars["xmax"], block.xmax)
-            CNC.vars["ymax"] = max(CNC.vars["ymax"], block.ymax)
-            CNC.vars["zmax"] = max(CNC.vars["zmax"], block.zmax)
+            CNC.vars["dxmin"] = min(CNC.vars["dxmin"], block.xmin)
+            CNC.vars["dymin"] = min(CNC.vars["dymin"], block.ymin)
+            CNC.vars["dzmin"] = min(CNC.vars["dzmin"], block.zmin)
+            CNC.vars["dxmax"] = max(CNC.vars["dxmax"], block.xmax)
+            CNC.vars["dymax"] = max(CNC.vars["dymax"], block.ymax)
+            CNC.vars["dzmax"] = max(CNC.vars["dzmax"], block.zmax)
+            CNC.vars["exmin"] = min(CNC.vars["exmin"], block.exmin)
+            CNC.vars["eymin"] = min(CNC.vars["eymin"], block.eymin)
+            CNC.vars["ezmin"] = min(CNC.vars["ezmin"], block.ezmin)
+            CNC.vars["exmax"] = max(CNC.vars["exmax"], block.exmax)
+            CNC.vars["eymax"] = max(CNC.vars["eymax"], block.eymax)
+            CNC.vars["ezmax"] = max(CNC.vars["ezmax"], block.ezmax)
 
         CNC.vars["axmin"] = min(CNC.vars["axmin"], block.xmin)
         CNC.vars["aymin"] = min(CNC.vars["aymin"], block.ymin)
@@ -2014,10 +2067,12 @@ class Block(list):
         self.expand = False  # Expand in editor
         self.color = None  # Custom color for path
         self._path = []  # canvas drawing paths
+        self._pathdata = []  # data for generating drawing paths
         self.sx = self.sy = self.sz = 0  # start  coordinates
         # (entry point first non rapid motion)
         self.ex = self.ey = self.ez = 0  # ending coordinates
         self.resetPath()
+        self.coords = None
 
     # ----------------------------------------------------------------------
     def copy(self, src):
@@ -2027,6 +2082,7 @@ class Block(list):
         self.color = src.color
         self[:] = src[:]
         self._path = []
+        self._pathdata = []
         self.sx = src.sx
         self.sy = src.sy
         self.sz = src.sz
@@ -2238,13 +2294,15 @@ class Block(list):
             pat = IDPAT.match(line)
             if pat:
                 self._name = pat.group(1)
+
         list.append(self, line)
 
     # ----------------------------------------------------------------------
     def resetPath(self):
-        del self._path[:]
-        self.xmin = self.ymin = self.zmin = 1000000.0
-        self.xmax = self.ymax = self.zmax = -1000000.0
+        self.clearPaths()
+        self.clearPathData()
+        self.xmin = self.ymin = self.zmin = self.exmin = self.eymin = self.ezmin = MAXINT
+        self.xmax = self.ymax = self.zmax = self.exmax = self.eymax = self.ezmax = -MAXINT
         self.length = 0.0  # cut length
         self.rapid = 0.0  # rapid length
         self.time = 0.0
@@ -2258,9 +2316,28 @@ class Block(list):
         self._path.append(p)
 
     # ----------------------------------------------------------------------
+    def addPathData(self, pd):
+        self._pathdata.append(pd)
+
+    # ----------------------------------------------------------------------
+    def clearPaths(self):
+        del self._path[:]
+
+    # ----------------------------------------------------------------------
+    def clearPathData(self):
+        del self._pathdata[:]
+
+    # ----------------------------------------------------------------------
     def path(self, item):
         try:
             return self._path[item]
+        except Exception:
+            return None
+
+    # ----------------------------------------------------------------------
+    def pathdata(self, item):
+        try:
+            return self._pathdata[item]
         except Exception:
             return None
 
@@ -2277,13 +2354,32 @@ class Block(list):
         self.ez = z
 
     # ----------------------------------------------------------------------
-    def pathMargins(self, xyz):
-        self.xmin = min(self.xmin, min(i[0] for i in xyz))
-        self.ymin = min(self.ymin, min(i[1] for i in xyz))
-        self.zmin = min(self.zmin, min(i[2] for i in xyz))
-        self.xmax = max(self.xmax, max(i[0] for i in xyz))
-        self.ymax = max(self.ymax, max(i[1] for i in xyz))
-        self.zmax = max(self.zmax, max(i[2] for i in xyz))
+    def getMinMax(self):
+        return self.xmin, self.ymin, self.zmin, self.xmax, self.ymax, self.zmax
+
+    # ----------------------------------------------------------------------
+    def getMinMaxE(self):
+        return self.exmin, self.eymin, self.ezmin, self.exmax, self.eymax, self.ezmax
+
+    # ----------------------------------------------------------------------
+    def pathMargins(self, xyz, show, start):
+
+        minFunction = max if start else min
+        maxFunction = min if start else max
+        self.xmin = min(self.xmin, minFunction(i[0] for i in xyz))
+        self.ymin = min(self.ymin, minFunction(i[1] for i in xyz))
+        self.zmin = min(self.zmin, minFunction(i[2] for i in xyz))
+        self.xmax = max(self.xmax, maxFunction(i[0] for i in xyz))
+        self.ymax = max(self.ymax, maxFunction(i[1] for i in xyz))
+        self.zmax = max(self.zmax, maxFunction(i[2] for i in xyz))
+
+        if show:
+            self.exmin = min(self.exmin, minFunction(i[0] for i in xyz))
+            self.eymin = min(self.eymin, minFunction(i[1] for i in xyz))
+            self.ezmin = min(self.ezmin, minFunction(i[2] for i in xyz))
+            self.exmax = max(self.exmax, maxFunction(i[0] for i in xyz))
+            self.eymax = max(self.eymax, maxFunction(i[1] for i in xyz))
+            self.ezmax = max(self.ezmax, maxFunction(i[2] for i in xyz))
 
 
 # =============================================================================
@@ -2313,18 +2409,12 @@ class GCode:
         self._modified = False
 
     # ----------------------------------------------------------------------
-    # Recalculate enabled path margins
+    # Recalculate path margins
     # ----------------------------------------------------------------------
-    def calculateEnableMargins(self):
-        self.cnc.resetEnableMargins()
+    def calculateMargins(self):
+        self.cnc.resetAllMargins()
         for block in self.blocks:
-            if block.enable:
-                CNC.vars["xmin"] = min(CNC.vars["xmin"], block.xmin)
-                CNC.vars["ymin"] = min(CNC.vars["ymin"], block.ymin)
-                CNC.vars["zmin"] = min(CNC.vars["zmin"], block.zmin)
-                CNC.vars["xmax"] = max(CNC.vars["xmax"], block.xmax)
-                CNC.vars["ymax"] = max(CNC.vars["ymax"], block.ymax)
-                CNC.vars["zmax"] = max(CNC.vars["zmax"], block.zmax)
+            self.cnc.pathMargins(block)
 
     # ----------------------------------------------------------------------
     def isModified(self):
@@ -2385,67 +2475,78 @@ class GCode:
                     self.blocks[-1]._name = value
                 return
 
-        # FIXME: Code to import legacy tabs can be probably removed in year
-        # 2020 or so:
-        if line.startswith("(Block-tab:"):
-            pat = BLOCKPAT.match(line)
-            if pat:
-                value = pat.group(2).strip()
-                items = map(float, value.split())
-                tablock = Block(f"legacy [tab,island,minz:{items[4]:f}]")
-                tablock.color = "orange"
-                tablock.extend(self.createTab(*items))
-                self.insBlocks(-1, [tablock], "Legacy tab")
-                print(
-                    "WARNING: Converted legacy tabs loaded from file to new "
-                    f"g-code island tabs: {tablock._name}"
-                )
-
-        if not self.blocks:
-            self.blocks.append(Block("Header"))
-
         cmds = CNC.parseLine(line)
+        if not self.blocks:
+            if cmds is None:
+                blockname = os.path.basename(self.filename) if self.filename else "Header"
+                self.blocks.append(Block(blockname))
+            else:
+                self.blocks.append(Block(line))
+
         if cmds is None:
             self.blocks[-1].append(line)
-            return
-
-        self.cnc.motionStart(cmds)
-
-        # rapid move up = end of block
-        if self._blocksExist:
-            self.blocks[-1].append(line)
-        elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
-            self.blocks[-1].append(line)
-            self.blocks.append(Block())
-        elif self.cnc.gcode == 0 and len(self.blocks) == 1:
-            self.blocks.append(Block())
-            self.blocks[-1].append(line)
         else:
+            self.cnc.motionStart(cmds)
             self.blocks[-1].append(line)
-
-        self.cnc.motionEnd()
+            self.cnc.motionEnd()
 
     # ----------------------------------------------------------------------
     # Load a file into editor
     # ----------------------------------------------------------------------
-    def load(self, filename=None):
+    def load(self, filename=None, timeout=sys.maxsize, update_function=None):
         if filename is None:
             filename = self.filename
         self.init()
         self.filename = filename
         try:
-            f = open(self.filename)
+            f = open(self.filename, "r", encoding='utf-8')
         except Exception:
             return False
         self._lastModified = os.stat(self.filename).st_mtime
+        self.clearBlocks()
         self.cnc.initPath()
         self.cnc.resetAllMargins()
-        self._blocksExist = False
-        for line in f:
-            self._addLine(line[:-1].replace("\x0d", ""))
-        self._trim()
-        f.close()
+        startTime = before = time.time()
+        n = 1
+        linecount = 0
+        try:
+            for line in f:
+                linecount += 1
+                n -= 1
+                if n <= 0:
+                    if time.time() - before > 0.25:
+                        gc.collect()    # keeping memory usage down is important for large files
+                        if(update_function):
+                            update_function()
+                        before = time.time()
+                    if time.time() - startTime > timeout:
+                        errmsg = "Timeout loading file: {0}. Read {1} lines then Interrupted...".format(timeout, linecount)
+                        sys.stderr.write(_("{0}\n").format(errmsg))
+                        sys.stderr.flush()
+                        if(update_function):
+                            update_function()
+                        raise AlarmException(errmsg)
+                    n = 100
+                self._addLine(line[:-1].replace("\x0d", ""))
+        finally:
+            f.close()
+            self._trim()
+            gc.collect()
+            if(update_function):
+                update_function()
+
         return True
+
+    # ----------------------------------------------------------------------
+    # Clear all Block memory
+    # ----------------------------------------------------------------------
+    def clearBlocks(self):
+        for block in self.blocks:
+            block.clearPaths()
+            block.clearPathData()
+        self._blocksExist = False
+        del self.blocks[:]
+        gc.collect()
 
     # ----------------------------------------------------------------------
     # Save to a file
@@ -3239,9 +3340,8 @@ class GCode:
     def setLinesUndo(self, lines):
         undoinfo = (self.setLinesUndo, list(self.lines()))
         # Delete all blocks and create new ones
-        del self.blocks[:]
+        self.clearBlocks()
         self.cnc.initPath()
-        self._blocksExist = False
         for line in lines:
             self._addLine(line)
         self._trim()
@@ -5115,10 +5215,15 @@ class GCode:
     # ----------------------------------------------------------------------
     # Use probe information to modify the g-code to autolevel
     # ----------------------------------------------------------------------
-    def compile(self, queue, stopFunc=None):
+    def compile(self, queue, stopFunc=None, startPos=(0,None)):
         paths = []
 
-        def add(line, path):
+        def add(line, path, pos):
+            if pos[0] < startPos[0]:
+                return
+            if pos[0] == startPos[0] and startPos[1] is not None:
+                if pos[1] is None or pos[1] < startPos[1]:
+                    return
             if line is not None:
                 if isinstance(line, str):
                     queue.put(line + "\n")
@@ -5129,7 +5234,7 @@ class GCode:
         autolevel = not self.probe.isEmpty()
         self.initPath()
         for line in CNC.compile(self.cnc.startup.splitlines()):
-            add(line, None)
+            add(line, None, startPos)
 
         every = 1
         for i, block in enumerate(self.blocks):
@@ -5152,9 +5257,9 @@ class GCode:
                     # either CodeType or tuple, list[] append at it as is
                     if (isinstance(cmds, types.CodeType)
                             or isinstance(cmds, int)):
-                        add(cmds, None)
+                        add(cmds, None, (i, j))
                     else:
-                        add(cmds, (i, j))
+                        add(cmds, (i, j), (i, j))
                     continue
 
                 skip = False
@@ -5178,7 +5283,7 @@ class GCode:
                     if not xyz:
                         # while auto-levelling, do not ignore non-movement
                         # commands, just append the line as-is
-                        add(line, None)
+                        add(line, None, (i, j))
                     else:
                         extra = ""
                         for c in cmds:
@@ -5209,7 +5314,7 @@ class GCode:
                                         f"{self.fmt('Z', z / self.cnc.unit)}",
                                         f"{extra}",
                                     ]),
-                                    (i, j),
+                                    (i, j), (i, j),
                                 )
                                 extra = ""
                             x1, y1, z1 = x2, y2, z2
@@ -5239,7 +5344,7 @@ class GCode:
 
                 if expand is not None:
                     for line in expand:
-                        add(line, None)
+                        add(line, None, (i, j))
                     expand = None
                     continue
                 elif skip:
@@ -5262,6 +5367,6 @@ class GCode:
                     if cmd is not None:
                         newcmd.append(cmd)
 
-                add("".join(newcmd), (i, j))
+                add("".join(newcmd), (i, j), (i, j))
 
         return paths
