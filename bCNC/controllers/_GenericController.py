@@ -293,9 +293,18 @@ class _GenericController:
             del sline[:]
             CNC.vars["version"] = line.split()[1]
             # Detect controller
-            if self.master.controller in ("GRBL0", "GRBL1"):
-                self.master.controllerSet(
-                    "GRBL%d" % (int(CNC.vars["version"][0])))
+            if self.master.controller in ("GRBL0", "GRBL1", "GRBL11f"):
+                ver = CNC.vars["version"]
+                # Ignore "Grbl for ARM32" etc
+                if not ver[0].isdigit():
+                    return True
+
+                if "1.1f" in ver:
+                    self.master.controllerSet("GRBL11f")
+                elif ver.startswith("0"):
+                    self.master.controllerSet("GRBL0")
+                else:
+                    self.master.controllerSet("GRBL1")
 
         else:
             # We return false in order to tell that we can't parse this line
