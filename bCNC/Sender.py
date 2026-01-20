@@ -849,17 +849,33 @@ class Sender:
                     self._stop = False
 
             if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
-                self._sumcline = sum(cline)
-                if self.mcontrol.gcode_case > 0:
-                    tosend = tosend.upper()
-                if self.mcontrol.gcode_case < 0:
-                    tosend = tosend.lower()
+                    self._sumcline = sum(cline)
+                    if self.mcontrol.gcode_case > 0:
+                        tosend = tosend.upper()
+                    if self.mcontrol.gcode_case < 0:
+                        tosend = tosend.lower()
 
-                self.serial_write(tosend)
+                    # --- INLINE COMMENT STRIPPING FIX ---
+                    import re
+                    # 1. Remove all text inside parentheses
+                    tosend = re.sub(r"\(.*?\)", "", tosend)
+                    
+                    # 2. Strip leading and trailing whitespaces
+                    tosend = tosend.strip()
+                    
+                    # 3. Force append newline character
+                    # (If the line was only a comment, it results in a blank "\n" line which is safe)
+                    tosend += "\n"
+                    # ------------------------------------
 
-                self.log.put((Sender.MSG_BUFFER, tosend))
+                    # Debug: Print representation of the string (shows hidden chars like \n)
+                    # print(repr(tosend)) 
+                    
+                    self.serial_write(tosend)
 
-                tosend = None
-                if not self.running and t - tg > G_POLL:
-                    self.mcontrol.viewState()
-                    tg = t
+                    self.log.put((Sender.MSG_BUFFER, tosend))
+
+                    tosend = None
+                    if not self.running and t - tg > G_POLL:
+                        self.mcontrol.viewState()
+                        tg = t
