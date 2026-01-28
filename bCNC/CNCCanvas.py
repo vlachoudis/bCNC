@@ -48,6 +48,7 @@ import bmath
 import Camera
 import tkExtra
 import Utils
+import DPI
 from CNC import CNC
 
 # Probe mapping we need PIL and numpy
@@ -73,12 +74,15 @@ VIEW_ISO2 = 4
 VIEW_ISO3 = 5
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
-INSERT_WIDTH2 = 3
-GANTRY_R = 4
-GANTRY_X = GANTRY_R * 2  # 10
-GANTRY_Y = GANTRY_R  # 5
-GANTRY_H = GANTRY_R * 5  # 20
-DRAW_TIME = 5  # Maximum draw time permitted
+# Get DPI manager for scaling constants
+_dpi = DPI.get_dpi_manager()
+
+INSERT_WIDTH2 = _dpi.scale(3)
+GANTRY_R = _dpi.scale(4)
+GANTRY_X = GANTRY_R * 2  # Scaled dynamically
+GANTRY_Y = GANTRY_R  # Scaled dynamically
+GANTRY_H = GANTRY_R * 5  # Scaled dynamically
+DRAW_TIME = 5  # Maximum draw time permitted (no scaling needed)
 
 INSERT_COLOR = "Blue"
 GANTRY_COLOR = "Red"
@@ -125,8 +129,8 @@ SHIFT_MASK = 1
 CONTROL_MASK = 4
 ALT_MASK = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
-CLOSE_DISTANCE = 5
-MAXDIST = 10000
+CLOSE_DISTANCE = _dpi.scale(5)
+MAXDIST = 10000  # Logical distance, no scaling needed
 ZOOM = 1.25
 
 S60 = math.sin(math.radians(60))
@@ -245,8 +249,10 @@ class CNCCanvas(Canvas):
         self.cameraZ = None  # if None it will not make any Z movement for the camera
         self.cameraSwitch = False  # Look at spindle(False) or camera(True)
         self._cameraAfter = None  # Camera anchor location "" for gantry
-        self._cameraMaxWidth = 640  # on zoom over this size crop the image
-        self._cameraMaxHeight = 480
+        # Scale camera dimensions for HiDPI displays
+        dpi = DPI.get_dpi_manager()
+        self._cameraMaxWidth = dpi.scale(640)  # on zoom over this size crop the image
+        self._cameraMaxHeight = dpi.scale(480)
         self._cameraImage = None
         self._cameraHori = None  # cross hair items
         self._cameraVert = None
@@ -1091,6 +1097,7 @@ class CNCCanvas(Canvas):
     # Clear highlight of selection
     # ----------------------------------------------------------------------
     def clearSelection(self):
+        dpi = DPI.get_dpi_manager()
         if self._lastActive is not None:
             self.itemconfig(self._lastActive, arrow=NONE)
             self._lastActive = None
@@ -1108,11 +1115,11 @@ class CNCCanvas(Canvas):
                     fill = ENABLE_COLOR
             else:
                 fill = ENABLE_COLOR
-            self.itemconfig(i, width=1, fill=fill)
+            self.itemconfig(i, width=dpi.scale_line_width(1), fill=fill)
 
-        self.itemconfig("sel2", width=1, fill=DISABLE_COLOR)
-        self.itemconfig("sel3", width=1, fill=TAB_COLOR)
-        self.itemconfig("sel4", width=1, fill=DISABLE_COLOR)
+        self.itemconfig("sel2", width=dpi.scale_line_width(1), fill=DISABLE_COLOR)
+        self.itemconfig("sel3", width=dpi.scale_line_width(1), fill=TAB_COLOR)
+        self.itemconfig("sel4", width=dpi.scale_line_width(1), fill=DISABLE_COLOR)
         for i in SELECTION_TAGS:
             self.dtag(i)
         self.delete("info")
@@ -1121,6 +1128,7 @@ class CNCCanvas(Canvas):
     # Highlight selected items
     # ----------------------------------------------------------------------
     def select(self, items):
+        dpi = DPI.get_dpi_manager()
         for b, i in items:
             block = self.gcode[b]
             if i is None:
@@ -1136,10 +1144,10 @@ class CNCCanvas(Canvas):
                     sel = block.enable and "sel" or "sel2"
                     self.addtag_withtag(sel, path)
 
-        self.itemconfig("sel", width=2, fill=SELECT_COLOR)
-        self.itemconfig("sel2", width=2, fill=SELECT2_COLOR)
-        self.itemconfig("sel3", width=2, fill=TAB_COLOR)
-        self.itemconfig("sel4", width=2, fill=TABS_COLOR)
+        self.itemconfig("sel", width=dpi.scale_line_width(2), fill=SELECT_COLOR)
+        self.itemconfig("sel2", width=dpi.scale_line_width(2), fill=SELECT2_COLOR)
+        self.itemconfig("sel3", width=dpi.scale_line_width(2), fill=TAB_COLOR)
+        self.itemconfig("sel4", width=dpi.scale_line_width(2), fill=TABS_COLOR)
         for i in SELECTION_TAGS:
             self.tag_raise(i)
         self.drawMargin()
@@ -1148,12 +1156,13 @@ class CNCCanvas(Canvas):
     # Select orientation marker
     # ----------------------------------------------------------------------
     def selectMarker(self, item):
+        dpi = DPI.get_dpi_manager()
         # find marker
         for i, paths in enumerate(self.gcode.orient.paths):
             if item in paths:
                 self._orientSelected = i
                 for j in paths:
-                    self.itemconfig(j, width=2)
+                    self.itemconfig(j, width=dpi.scale_line_width(2))
                 self.event_generate("<<OrientSelect>>", data=i)
                 return
         self._orientSelected = None
@@ -1162,12 +1171,13 @@ class CNCCanvas(Canvas):
     # Highlight marker that was selected
     # ----------------------------------------------------------------------
     def orientChange(self, marker):
-        self.itemconfig("Orient", width=1)
+        dpi = DPI.get_dpi_manager()
+        self.itemconfig("Orient", width=dpi.scale_line_width(1))
         if marker >= 0:
             self._orientSelected = marker
             try:
                 for i in self.gcode.orient.paths[self._orientSelected]:
-                    self.itemconfig(i, width=2)
+                    self.itemconfig(i, width=dpi.scale_line_width(2))
             except IndexError:
                 self.drawOrient()
         else:
@@ -1220,12 +1230,13 @@ class CNCCanvas(Canvas):
                     (xc + r * math.sin(f), yc + r * math.cos(f), 0.0)
                 )  # towards up
                 f += df
+            dpi = DPI.get_dpi_manager()
             self.create_line(
                 self.plotCoords(xyz),
                 fill=INFO_COLOR,
-                width=5,
+                width=dpi.scale_line_width(5),
                 arrow=LAST,
-                arrowshape=(32, 40, 12),
+                arrowshape=dpi.scale_tuple(32, 40, 12),
                 tag="info",
             )
 
@@ -1288,8 +1299,9 @@ class CNCCanvas(Canvas):
             self._cameraCircle = self.create_oval(
                 0, 0, 1, 1, outline=CAMERA_COLOR, tag="CrossHair"
             )
+            dpi = DPI.get_dpi_manager()
             self._cameraCircle2 = self.create_oval(
-                0, 0, 1, 1, outline=CAMERA_COLOR, dash=(3, 3), tag="CrossHair"
+                0, 0, 1, 1, outline=CAMERA_COLOR, dash=dpi.scale_tuple(3, 3), tag="CrossHair"
             )
             self.cameraPosition()
         try:
@@ -1414,13 +1426,14 @@ class CNCCanvas(Canvas):
     # Initialize gantry position
     # ----------------------------------------------------------------------
     def initPosition(self):
+        dpi = DPI.get_dpi_manager()
         self.configure(background=CANVAS_COLOR)
         self.delete(ALL)
         self._cameraImage = None
         gr = max(3, int(CNC.vars["diameter"] / 2.0 * self.zoom))
         if self.view == VIEW_XY:
             self._gantry1 = self.create_oval(
-                (-gr, -gr), (gr, gr), width=2, outline=GANTRY_COLOR
+                (-gr, -gr), (gr, gr), width=dpi.scale_line_width(2), outline=GANTRY_COLOR
             )
             self._gantry2 = None
         else:
@@ -1431,15 +1444,15 @@ class CNCCanvas(Canvas):
                 self._gantry1 = None
                 self._gantry2 = self.create_line(
                     (-gx, -gh, 0, 0, gx, -gh, -gx, -gh),
-                    width=2, fill=GANTRY_COLOR
+                    width=dpi.scale_line_width(2), fill=GANTRY_COLOR
                 )
             else:
                 self._gantry1 = self.create_oval(
-                    (-gx, -gh - gy, gx, -gh + gy), width=2,
+                    (-gx, -gh - gy, gx, -gh + gy), width=dpi.scale_line_width(2),
                     outline=GANTRY_COLOR
                 )
                 self._gantry2 = self.create_line(
-                    (-gx, -gh, 0, 0, gx, -gh), width=2, fill=GANTRY_COLOR
+                    (-gx, -gh, 0, 0, gx, -gh), width=dpi.scale_line_width(2), fill=GANTRY_COLOR
                 )
 
         self._lastInsert = None
@@ -1490,22 +1503,23 @@ class CNCCanvas(Canvas):
                 s = 10.0
             else:
                 s = 100.0
+        dpi = DPI.get_dpi_manager()
         xyz = [(0.0, 0.0, 0.0), (s, 0.0, 0.0)]
         self.create_line(
             self.plotCoords(xyz), tag="Axes", fill="Red",
-            dash=(3, 1), arrow=LAST
+            dash=dpi.scale_tuple(3, 1), arrow=LAST
         )
 
         xyz = [(0.0, 0.0, 0.0), (0.0, s, 0.0)]
         self.create_line(
             self.plotCoords(xyz), tag="Axes", fill="Green",
-            dash=(3, 1), arrow=LAST
+            dash=dpi.scale_tuple(3, 1), arrow=LAST
         )
 
         xyz = [(0.0, 0.0, 0.0), (0.0, 0.0, s)]
         self.create_line(
             self.plotCoords(xyz), tag="Axes", fill="Blue",
-            dash=(3, 1), arrow=LAST
+            dash=dpi.scale_tuple(3, 1), arrow=LAST
         )
 
     # ----------------------------------------------------------------------
@@ -1541,8 +1555,9 @@ class CNCCanvas(Canvas):
             (CNC.vars["axmin"], CNC.vars["aymax"], 0.0),
             (CNC.vars["axmin"], CNC.vars["aymin"], 0.0),
         ]
+        dpi = DPI.get_dpi_manager()
         self._amargin = self.create_line(
-            self.plotCoords(xyz), dash=(3, 2), fill=MARGIN_COLOR
+            self.plotCoords(xyz), dash=dpi.scale_tuple(3, 2), fill=MARGIN_COLOR
         )
         self.tag_lower(self._amargin)
 
@@ -1604,8 +1619,9 @@ class CNCCanvas(Canvas):
         xmax = self._dx
         ymax = self._dy
 
+        dpi = DPI.get_dpi_manager()
         self._workarea = self._drawRect(
-            xmin, ymin, xmax, ymax, 0.0, fill=WORK_COLOR, dash=(3, 2)
+            xmin, ymin, xmax, ymax, 0.0, fill=WORK_COLOR, dash=dpi.scale_tuple(3, 2)
         )
         self.tag_lower(self._workarea)
 
@@ -1617,6 +1633,7 @@ class CNCCanvas(Canvas):
         if not self.draw_grid:
             return
         if self.view in (VIEW_XY, VIEW_ISO1, VIEW_ISO2, VIEW_ISO3):
+            dpi = DPI.get_dpi_manager()
             xmin = (CNC.vars["axmin"] // 10) * 10
             xmax = (CNC.vars["axmax"] // 10 + 1) * 10
             ymin = (CNC.vars["aymin"] // 10) * 10
@@ -1628,7 +1645,7 @@ class CNCCanvas(Canvas):
                 xyz = [(xmin, y, 0), (xmax, y, 0)]
                 item = self.create_line(
                     self.plotCoords(xyz), tag="Grid",
-                    fill=GRID_COLOR, dash=(1, 3)
+                    fill=GRID_COLOR, dash=dpi.scale_tuple(1, 3)
                 )
                 self.tag_lower(item)
 
@@ -1638,7 +1655,7 @@ class CNCCanvas(Canvas):
                 x = i * 10.0
                 xyz = [(x, ymin, 0), (x, ymax, 0)]
                 item = self.create_line(
-                    self.plotCoords(xyz), fill=GRID_COLOR, tag="Grid", dash=(1, 3)
+                    self.plotCoords(xyz), fill=GRID_COLOR, tag="Grid", dash=dpi.scale_tuple(1, 3)
                 )
                 self.tag_lower(item)
 
@@ -1719,11 +1736,12 @@ class CNCCanvas(Canvas):
                 pass
 
             # Connecting line
+            dpi = DPI.get_dpi_manager()
             item = self.create_line(
                 self.plotCoords([(xm, ym, 0.0), (x, y, 0.0)]),
                 tag="Orient",
                 fill="Blue",
-                dash=(1, 1),
+                dash=dpi.scale_tuple(1, 1),
             )
             self.tag_lower(item)
             paths.append(item)
@@ -1732,8 +1750,9 @@ class CNCCanvas(Canvas):
 
         if self._orientSelected is not None:
             try:
+                dpi = DPI.get_dpi_manager()
                 for item in self.gcode.orient.paths[self._orientSelected]:
-                    self.itemconfig(item, width=2)
+                    self.itemconfig(item, width=dpi.scale_line_width(2))
             except (IndexError, TclError):
                 pass
 
@@ -1982,8 +2001,9 @@ class CNCCanvas(Canvas):
                     fill = DISABLE_COLOR
                 if self.cnc.gcode == 0:
                     if self.draw_rapid:
+                        dpi = DPI.get_dpi_manager()
                         return self.create_line(coords, fill=fill,
-                                                width=0, dash=(4, 3))
+                                                width=0, dash=dpi.scale_tuple(4, 3))
                 elif self.draw_paths:
                     return self.create_line(
                         coords, fill=fill, width=0, cap="projecting"
