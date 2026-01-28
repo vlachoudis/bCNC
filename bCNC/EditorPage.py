@@ -68,7 +68,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         tkExtra.Balloon.set(b, _("Cut [Ctrl-X]"))
-        b.grid(row=0, column=1, padx=0, pady=1, sticky=NSEW)
+        b.grid(row=0, column=1, padx=0, pady=Utils.scale(1), sticky=NSEW)
         self.addWidget(b)
 
         # ---
@@ -84,8 +84,11 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         tkExtra.Balloon.set(b, _("Copy [Ctrl-C]"))
-        b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
+        b.grid(row=1, column=1, padx=0, pady=Utils.scale(1), sticky=NSEW)
         self.addWidget(b)
+
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
 
 
 # =============================================================================
@@ -167,7 +170,7 @@ class SelectGroup(CNCRibbon.ButtonGroup):
             _("Filter"),
             "DarkGray",
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=16,
+            width=Utils.scale(16),
         )
         self.filterString.grid(
             row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW
@@ -176,6 +179,9 @@ class SelectGroup(CNCRibbon.ButtonGroup):
         self.addWidget(self.filterString)
         self.filterString.bind("<Return>", self.filter)
         self.filterString.bind("<KP_Enter>", self.filter)
+
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
 
     # -----------------------------------------------------------------------
     def filter(self, event=None):

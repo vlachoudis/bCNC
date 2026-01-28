@@ -46,8 +46,15 @@ from tkinter import (
 import tkinter.font as tkfont
 import configparser
 
+try:
+    from PIL import Image, ImageTk
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+
 import Ribbon
 import tkExtra
+import DPI
 
 from lib.log import say
 
@@ -104,9 +111,11 @@ __credits__ = (
     "@1bigpig\n"
     "@chamnit Sonny Jeon\n"
     "@harvie Tomas Mudrunka\n"
+    "@Monotoba Randall Morgan\n"
     "@onekk Carlo\n"
     "@SteveMoto\n"
-    "@willadams William Adams"
+    "@willadams William Adams\n"
+    "Claude Code AI Assistant"
 )
 __translations__ = (
     "Dutch - @hypothermic\n"
@@ -164,12 +173,32 @@ class Config:
 def loadIcons():
     global icons
     icons = {}
+
+    # Get DPI manager for scaling
+    dpi = DPI.get_dpi_manager()
+    scale = dpi.get_scale_factor()
+
     for img in glob.glob(f"{prgpath}{os.sep}icons{os.sep}*.gif"):
         name, ext = os.path.splitext(os.path.basename(img))
         try:
-            icons[name] = PhotoImage(file=img)
-            if getBool("CNC", "doublesizeicon"):
-                icons[name] = icons[name].zoom(2, 2)
+            # Use PIL for high-quality upscaling if available and scaling needed
+            if PIL_AVAILABLE and scale > 1.0:
+                try:
+                    pil_img = Image.open(img)
+                    # Upscale with high quality
+                    pil_img = dpi.upscale_icon(pil_img, scale)
+                    # Convert to PhotoImage
+                    icons[name] = ImageTk.PhotoImage(pil_img)
+                except Exception as e:
+                    # Fallback to standard PhotoImage loading
+                    say(f"PIL upscaling failed for {name}: {e}, using fallback")
+                    icons[name] = PhotoImage(file=img)
+            else:
+                # No scaling needed or PIL not available
+                icons[name] = PhotoImage(file=img)
+                # Fallback to simple zoom if doublesizeicon is set (legacy support)
+                if getBool("CNC", "doublesizeicon"):
+                    icons[name] = icons[name].zoom(2, 2)
         except TclError:
             pass
 
@@ -179,11 +208,65 @@ def loadIcons():
     for img in glob.glob(f"{prgpath}{os.sep}images{os.sep}*.gif"):
         name, ext = os.path.splitext(os.path.basename(img))
         try:
-            images[name] = PhotoImage(file=img)
-            if getBool("CNC", "doublesizeicon"):
-                images[name] = images[name].zoom(2, 2)
+            # Use PIL for high-quality upscaling if available and scaling needed
+            if PIL_AVAILABLE and scale > 1.0:
+                try:
+                    pil_img = Image.open(img)
+                    # Upscale with high quality
+                    pil_img = dpi.upscale_icon(pil_img, scale)
+                    # Convert to PhotoImage
+                    images[name] = ImageTk.PhotoImage(pil_img)
+                except Exception as e:
+                    # Fallback to standard PhotoImage loading
+                    say(f"PIL upscaling failed for {name}: {e}, using fallback")
+                    images[name] = PhotoImage(file=img)
+            else:
+                # No scaling needed or PIL not available
+                images[name] = PhotoImage(file=img)
+                # Fallback to simple zoom if doublesizeicon is set (legacy support)
+                if getBool("CNC", "doublesizeicon"):
+                    images[name] = images[name].zoom(2, 2)
         except TclError:
             pass
+
+
+# -----------------------------------------------------------------------------
+# DPI Scaling Helper Functions
+# -----------------------------------------------------------------------------
+def scale(value):
+    """Scale a pixel value according to DPI
+
+    Args:
+        value: Integer pixel value
+
+    Returns:
+        int: Scaled pixel value
+    """
+    return DPI.get_dpi_manager().scale(value)
+
+
+def scale_tuple(*values):
+    """Scale multiple pixel values according to DPI
+
+    Args:
+        *values: Variable number of integer pixel values
+
+    Returns:
+        tuple: Tuple of scaled values
+    """
+    return DPI.get_dpi_manager().scale_tuple(*values)
+
+
+def scale_font(font_size):
+    """Scale font size according to DPI
+
+    Args:
+        font_size: Font size (negative for pixels, positive for points)
+
+    Returns:
+        int: Scaled font size
+    """
+    return DPI.get_dpi_manager().scale_font_size(font_size)
 
 
 # -----------------------------------------------------------------------------
@@ -383,6 +466,17 @@ def getFont(name, default=None):
 
     if isinstance(value, str):
         value = tuple(value.split(","))
+
+    # Scale font size based on DPI
+    if isinstance(value, tuple) and len(value) >= 2:
+        dpi = DPI.get_dpi_manager()
+        scaled_value = list(value)
+        try:
+            size = int(value[1])
+            scaled_value[1] = str(dpi.scale_font_size(size))
+            value = tuple(scaled_value)
+        except (ValueError, IndexError):
+            pass
 
     if isinstance(value, tuple):
         font = makeFont(name, value)

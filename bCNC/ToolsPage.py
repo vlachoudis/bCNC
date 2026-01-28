@@ -41,13 +41,16 @@ import Ribbon
 import tkExtra
 import Unicode
 import Utils
+import DPI
 from CNC import CNC
 from Helpers import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
-_EXE_FONT = ("Helvetica", 12, "bold")
+# Scale font for HiDPI displays
+_dpi = DPI.get_dpi_manager()
+_EXE_FONT = ("Helvetica", _dpi.scale_font_size(12), "bold")
 
 
 # =============================================================================
@@ -634,7 +637,10 @@ class Config(_Base):
             ("units", "bool", 0, _("Units (inches)")),
             ("lasercutter", "bool", 0, _("Laser Cutter")),
             ("laseradaptive", "bool", 0, _("Laser Adaptive Power")),
-            ("doublesizeicon", "bool", 0, _("Double Size Icon")),
+            ("doublesizeicon", "bool", 0, _("Double Size Icon (DEPRECATED - use DPI settings)")),
+            ("DPI.mode", "str", "auto", _("HiDPI Mode (auto/manual) - requires restart")),
+            ("DPI.scale", "float", 1.0, _("HiDPI Manual Scale (1.0/1.5/2.0/2.5/3.0) - requires restart")),
+            ("DPI.detected", "float", 1.0, _("HiDPI Detected Scale (read-only)")),
             ("enable6axisopt", "bool", 0, _("Enable 6 Axis Displays")),
             ("acceleration_x", "mm", 25.0, _("Acceleration x")),
             ("acceleration_y", "mm", 25.0, _("Acceleration y")),
@@ -1508,6 +1514,10 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
         self.addWidget(b)
         app.tools.addButton("delete", b)
 
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(2, weight=1)
+
 
 # =============================================================================
 # CAM Group
@@ -1698,6 +1708,10 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
                     col += 1
                     row = 0
 
+        # Configure all columns for proper resizing
+        for i in range(col + 1):
+            self.frame.grid_columnconfigure(i, weight=1)
+
     # ----------------------------------------------------------------------
     def createMenu(self):
         menu = Menu(self, tearoff=0)
@@ -1819,6 +1833,9 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
         tkExtra.Balloon.set(b, _("Camera Configuration"))
         self.addWidget(b)
 
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+
     # ----------------------------------------------------------------------
     def fillLanguage(self):
         self.language.set(Utils.LANGUAGES.get(Utils.language, ""))
@@ -1906,7 +1923,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
         self.toolList = tkExtra.MultiListbox(
             frame,
             ((_("Name"), 24, None), (_("Value"), 12, None)),
-            height=20,
+            height=Utils.scale(20),
             header=False,
             stretch="last",
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
@@ -1923,7 +1940,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
         frame = Frame(paned)
         paned.add(frame)
 
-        toolHelp = Text(frame, width=20, height=5)
+        toolHelp = Text(frame, width=Utils.scale(20), height=Utils.scale(5))
         toolHelp.pack(side=LEFT, expand=YES, fill=BOTH)
         scroll = Scrollbar(frame, command=toolHelp.yview)
         scroll.pack(side=RIGHT, fill=Y)

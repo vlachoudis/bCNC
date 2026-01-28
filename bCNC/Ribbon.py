@@ -28,13 +28,16 @@ from tkinter import (
 )
 
 import Utils
+import DPI
 import tkExtra
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
 
-_TABFONT = ("Sans", "-14", "bold")
-_FONT = ("Sans", "-11")
+# Scale fonts for HiDPI displays
+_dpi = DPI.get_dpi_manager()
+_TABFONT = ("Sans", str(_dpi.scale_font_size(-14)), "bold")
+_FONT = ("Sans", str(_dpi.scale_font_size(-11)))
 
 _BACKGROUND_DISABLE = "#A6A2A0"
 _BACKGROUND = "#E6E2E0"
@@ -66,7 +69,7 @@ class LabelGroup(Frame):
         )
 
         # right frame as a separator
-        f = Frame(self, borderwidth=2,
+        f = Frame(self, borderwidth=Utils.scale(2),
                   relief=GROOVE, background=_BACKGROUND_DISABLE)
         f.pack(side=RIGHT, fill=Y, padx=0, pady=0)
 
@@ -98,7 +101,7 @@ class LabelGroup(Frame):
                 font=_FONT,
                 foreground=_FOREGROUND_GROUP,
                 background=_BACKGROUND_GROUP,
-                padx=2,
+                padx=Utils.scale(2),
                 pady=0,
             )  # Button takes 1px for border width
         self.label.pack(side=BOTTOM, fill=X, pady=0)
@@ -146,9 +149,9 @@ class LabelButton(Button, _KeyboardFocus):
             relief=FLAT,
             activebackground=_ACTIVE_COLOR,
             font=_FONT,
-            borderwidth=1,
+            borderwidth=Utils.scale(1),
             highlightthickness=0,
-            padx=2,
+            padx=Utils.scale(2),
             pady=0,
         )
         _KeyboardFocus._bind(self)
@@ -227,7 +230,7 @@ class MenuButton(Button, _KeyboardFocus):
             font=_FONT,
             borderwidth=0,
             highlightthickness=0,
-            padx=2,
+            padx=Utils.scale(2),
             pady=0,
             command=self.showMenu,
         )
@@ -314,7 +317,7 @@ class TabButton(Radiobutton):
             font=_TABFONT,
             borderwidth=0,
             highlightthickness=0,
-            padx=5,
+            padx=Utils.scale(5),
             pady=0,
             background=_BACKGROUND_DISABLE,
         )
@@ -608,7 +611,7 @@ class TabRibbonFrame(Frame):
 
         Label(frame, image=Utils.icons["sep"],
               background=_BACKGROUND_DISABLE).pack(
-            side=LEFT, padx=3
+            side=LEFT, padx=Utils.scale(3)
         )
 
         # --- Help ---
@@ -620,11 +623,11 @@ class TabRibbonFrame(Frame):
             background=_BACKGROUND_DISABLE,
         )
         tkExtra.Balloon.set(b, _("Help [F1]"))
-        b.pack(side=RIGHT, padx=2)
+        b.pack(side=RIGHT, padx=Utils.scale(2))
 
         Label(frame, image=Utils.icons["sep"],
               background=_BACKGROUND_DISABLE).pack(
-            side=RIGHT, padx=3
+            side=RIGHT, padx=Utils.scale(3)
         )
 
         # --- TabBar ---
@@ -666,7 +669,7 @@ class TabRibbonFrame(Frame):
         )
         tkExtra.Balloon.set(page._tab, page.__doc__)
 
-        page._tab.pack(side=side, fill=Y, padx=5)
+        page._tab.pack(side=side, fill=Y, padx=Utils.scale(5))
 
     # ----------------------------------------------------------------------
     # Unpack the old page
