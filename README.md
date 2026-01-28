@@ -1,15 +1,31 @@
-bCNC
-====
+bCNC-HiDPI
+==========
+
+## HiDPI-Enhanced Fork
+
+This is a fork of the excellent [bCNC project by Vasilis Vlachoudis](https://github.com/vlachoudis/bCNC) with comprehensive HiDPI/4K display support added. All credit for the original bCNC application goes to Vasilis Vlachoudis and the bCNC community.
+
+**Upstream Project**: https://github.com/vlachoudis/bCNC
+
+### What's New in bCNC-HiDPI
+
+This fork adds comprehensive high-resolution display support:
+
+- **Automatic HiDPI Detection**: Detects display DPI on startup across Linux, Windows, and macOS
+- **Dynamic UI Scaling**: All UI elements, fonts, and widgets automatically scale based on DPI
+- **Manual DPI Override**: Configure DPI manually in settings if auto-detection doesn't work perfectly
+- **Settings Persistence**: DPI preferences are saved and restored between sessions
+- **4K Display Support**: Properly handles 4K and other high-resolution displays
+- **Comprehensive Testing**: Includes unit tests for DPI detection and scaling functionality
+
+The HiDPI implementation is designed to be non-invasive and maintains full compatibility with standard displays while providing crisp, properly-scaled interfaces on high-resolution displays.
+
+### About bCNC
 
 GrblHAL (formerly GRBL) CNC command sender, autoleveler, g-code editor, digitizer, CAM
 and swiss army knife for all your CNC needs.
 
 An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a cross platform program (Windows, Linux, Mac) written in python. The sender is robust and fast able to work nicely with old or slow hardware like [Raspberry Pi](http://www.openbuilds.com/threads/bcnc-and-the-raspberry-pi.3038/) (As it was validated by the GRBL maintainer on heavy testing).
-
-## IMPORTANT! If you have any troubles using bCNC, please read [WIKI](https://github.com/vlachoudis/bCNC/wiki) and [DISCUSS](https://github.com/vlachoudis/bCNC/discussions) it first. Only create new [issues](https://github.com/vlachoudis/bCNC/issues) when you are certain there is a problem with actual bCNC code.
-
-[![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
-[![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
 
 All pull requests that do change GUI should have attached screenshots of GUI before and after the changes.
 Please note that all pull requests should pass the Travis-CI build in order to get merged.https://github.com/Harvie/cnc-simulator
@@ -18,31 +34,58 @@ Before making pull request, please test your code on ~~both python2 and~~ python
 
 ![bCNC screenshot](https://raw.githubusercontent.com/vlachoudis/bCNC/doc/Screenshots/bCNC.png)
 
-# Installation (using pip = recommended!)
+# Installation (HiDPI Fork)
 
-This is a short overview of the installation process, for more details see the ![bCNC installation](https://github.com/vlachoudis/bCNC/wiki/Installation) wiki page.
+## IMPORTANT: Remove Previous bCNC Installation First
 
-This is how you install (or upgrade) bCNC along with all required packages.
-You can use any of these commands (you need only one):
+If you have the upstream bCNC installed, you **must uninstall it first** to avoid conflicts:
 
-    pip install --upgrade bCNC
-    pip install --upgrade git+https://github.com/vlachoudis/bCNC
-    pip install . #in git directory
-    python -m pip install --upgrade bCNC
+    pip uninstall bCNC
 
-This is how you launch bCNC:
+For detailed installation instructions including troubleshooting, see [installing-bCNC-HiDPI.md](installing-bCNC-HiDPI.md).
+
+## Quick Install
+
+Clone this repository and install:
+
+    git clone https://github.com/Monotoba/bCNC-HiDPI.git
+    cd bCNC-HiDPI
+    pip install .
+
+Or install directly from GitHub:
+
+    pip install git+https://github.com/Monotoba/bCNC-HiDPI.git
+
+## Launch bCNC
 
     python -m bCNC
 
-Only problem with this approach is that it might not install Tkinter in some cases.
-So please keep that in mind and make sure it's installed in case of problems.
+or simply:
 
-If you run the `python -m bCNC` command in root directory of this git repository it will launch the git version.
-Every developer should always use this to launch bCNC to ensure that his/her code will work after packaging.
+    bCNC
 
-Note that on Windows XP you have to use `pyserial==3.0.1` or older as newer version do not work on XP.
+## HiDPI Configuration
 
-PyPI project: https://pypi.org/project/bCNC/
+The application will automatically detect your display DPI. To manually adjust:
+
+1. Launch bCNC
+2. Go to `CAM` → `Config/Controller` → `GUI` tab
+3. Find the `DPI Settings` section
+4. Toggle "Auto-detect DPI" or set manual DPI value (96 for standard, 144/192 for HiDPI/4K)
+
+## System Requirements
+
+- Python 3.8 or newer (Python 2 is no longer supported)
+- Tkinter (usually included with Python, see manual installation below if needed)
+- Works on Linux, Windows, and macOS
+- Optimized for both standard and HiDPI displays
+
+## Upstream Project
+
+For general bCNC documentation, tutorials, and community support, please visit:
+- **Original bCNC**: https://github.com/vlachoudis/bCNC
+- **bCNC Wiki**: https://github.com/vlachoudis/bCNC/wiki
+- **PyPI** (upstream): https://pypi.org/project/bCNC/
 
 # Installation (manual)
 You will need the following packages to run bCNC
@@ -146,6 +189,22 @@ installation directory.
     - moving, rotating, mirroring the g-code
 - Web pendant to be used via smart phones
 
+# Contributing Back to Upstream
+
+This fork's HiDPI improvements are designed to be contributed back to the upstream bCNC project. If you'd like to help get these changes merged:
+
+1. Test the HiDPI features on your system and report any issues
+2. Provide feedback on the implementation
+3. Help with additional testing on different platforms and display configurations
+
+The changes are structured to be non-invasive and maintain backward compatibility with existing installations.
+
+# Acknowledgements
+
+**Huge thanks to Vasilis Vlachoudis and all bCNC contributors** for creating and maintaining this excellent CNC control software. This fork simply adds HiDPI support on top of their outstanding work.
+
+All core functionality, features, and the overall design of bCNC are courtesy of the upstream project and its community.
+
 # Debugging
 You can log serial communication by changing the port to something like:
 
@@ -155,6 +214,38 @@ You can log serial communication by changing the port to something like:
 If a file isn't specified, the log is written to stderr.
 The 'raw' option outputs the data directly, instead of creating a hex dump.
 Further documentation is available at: https://pyserial.readthedocs.io/en/latest/url_handlers.html#spy
+
+# Technical Details: HiDPI Implementation
+
+The HiDPI support is implemented through a centralized DPI management system:
+
+## Modified Files
+
+### Core DPI System
+- `bCNC/DPI.py` - Core DPI detection and scaling logic with platform-specific detection
+- `bCNC/Utils.py` - Integration of DPI system with configuration management
+- `bCNC/bmain.py` - Early DPI initialization during application startup
+
+### UI Components
+- `bCNC/lib/tkExtra.py` - DPI-aware widget scaling
+- `bCNC/CNCCanvas.py` - Canvas scaling for proper rendering
+- `bCNC/CNCRibbon.py` - Ribbon UI scaling
+- All page files in `bCNC/` - Individual page widgets updated for DPI awareness
+
+### Configuration & Testing
+- Configuration UI in the GUI tab for manual DPI adjustment
+- Comprehensive unit tests in `tests/test_dpi.py`
+- Test configuration UI in `tests/test_dpi_config.py`
+
+## How It Works
+
+1. **Platform Detection**: Detects display DPI using platform-specific APIs (X11 on Linux, Windows API, macOS)
+2. **Scaling Factor**: Calculates scaling factor relative to standard 96 DPI
+3. **Widget Scaling**: Applies scaling to fonts, button sizes, paddings, and all UI elements
+4. **Configuration**: Saves DPI preferences to `~/.bCNC` configuration file
+5. **Override Capability**: Users can manually set DPI if auto-detection is incorrect
+
+The implementation is designed to be non-invasive and easily maintainable for future updates.
 
 # Disclaimer
   The software is made available "AS IS". It seems quite stable, but it is in

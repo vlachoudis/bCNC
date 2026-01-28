@@ -13,3 +13,36 @@ build
 
 flatpak/builddir
 flatpak/.flatpak-builder
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test cache
+.pytest_cache/
+.tox/
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDE
+.spyderproject
+.spyproject
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+re
