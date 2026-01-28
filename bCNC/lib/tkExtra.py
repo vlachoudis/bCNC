@@ -103,6 +103,12 @@ import bFileDialog
 import Unicode
 from Helpers import to_zip
 
+try:
+    import DPI
+except ImportError:
+    # Fallback if DPI module not available
+    DPI = None
+
 GLOBAL_CONTROL_BACKGROUND = "White"
 ARROW_LEFT = "\u2190"
 ARROW_UP = "\u2191"
@@ -859,6 +865,10 @@ class ExListbox(Listbox):
 
     # ----------------------------------------------------------------------
     def _showSearch(self):
+        # Get DPI manager for HiDPI scaling
+        dpi = DPI.get_dpi_manager() if DPI else None
+        scale = (lambda x: dpi.scale(x)) if dpi else (lambda x: x)
+
         if ExListbox._searchTop is None:
             ExListbox._searchTop = Toplevel()
             ExListbox._searchTop.overrideredirect(1)
@@ -868,7 +878,7 @@ class ExListbox(Listbox):
                 relief=SOLID,
                 background="Yellow",
                 takefocus=False,
-                borderwidth=1,
+                borderwidth=scale(1),
             )
             ExListbox._searchLabel.pack(fill=BOTH)
 
@@ -885,7 +895,7 @@ class ExListbox(Listbox):
             + self.winfo_width()
             - ExListbox._searchLabel.winfo_width()
         )
-        y = self.winfo_rooty() + self.winfo_height() - 12
+        y = self.winfo_rooty() + self.winfo_height() - scale(12)
         ExListbox._searchTop.wm_geometry(f"+{int(x)}+{int(y)}")
         ExListbox._searchTop.deiconify()
         ExListbox._searchTop.lift()
@@ -4461,6 +4471,11 @@ class Balloon:
             if Balloon._widget is None:
                 return
             widget = Balloon._widget
+
+            # Get DPI manager for HiDPI scaling
+            dpi = DPI.get_dpi_manager() if DPI else None
+            scale = (lambda x: dpi.scale(x)) if dpi else (lambda x: x)
+
             if Balloon._top is None:
                 Balloon._top = Toplevel()
                 Balloon._top.overrideredirect(1)
@@ -4470,7 +4485,7 @@ class Balloon:
                     foreground=Balloon.foreground,
                     background=Balloon.background,
                     relief=SOLID,
-                    borderwidth=1,
+                    borderwidth=scale(1),
                     font=Balloon.font,
                 )
                 Balloon._msg.pack()
@@ -4478,12 +4493,12 @@ class Balloon:
             Balloon._msg.config(text=widget._help)
             # Guess position
             x = widget.winfo_rootx() + widget.winfo_width() // 2
-            y = widget.winfo_rooty() + widget.winfo_height() + 5
+            y = widget.winfo_rooty() + widget.winfo_height() + scale(5)
             # if too far away use mouse
-            if abs(x - Balloon.x_mouse) > 30:
-                x = Balloon.x_mouse + 20
-            if abs(y - Balloon.y_mouse) > 30:
-                y = Balloon.y_mouse + 10
+            if abs(x - Balloon.x_mouse) > scale(30):
+                x = Balloon.x_mouse + scale(20)
+            if abs(y - Balloon.y_mouse) > scale(30):
+                y = Balloon.y_mouse + scale(10)
             Balloon._top.wm_geometry(f"+{int(x)}+{int(y)}")
             Balloon._top.deiconify()
             Balloon._top.lift()
@@ -4496,14 +4511,14 @@ class Balloon:
                 >= Balloon._top.winfo_screenwidth()
             ):
                 x = Balloon._top.winfo_screenwidth() - \
-                    Balloon._top.winfo_width() - 20
+                    Balloon._top.winfo_width() - scale(20)
                 move = True
             if (
                 Balloon._top.winfo_rooty() + Balloon._top.winfo_height()
                 >= Balloon._top.winfo_screenheight()
             ):
                 y = Balloon._top.winfo_screenheight() - \
-                    Balloon._top.winfo_height() - 10
+                    Balloon._top.winfo_height() - scale(10)
                 move = True
             if move:
                 Balloon._top.wm_geometry(f"+{int(x)}+{int(y)}")

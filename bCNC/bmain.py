@@ -57,6 +57,7 @@ except ImportError:
     print("testing mode, could not import serial")
 
 import Utils
+import DPI
 
 import bFileDialog
 import CNCCanvas
@@ -145,6 +146,12 @@ class Application(Tk, Sender):
     def __init__(self, **kw):
         Tk.__init__(self, **kw)
         Sender.__init__(self)
+
+        # Initialize DPI manager BEFORE loading icons
+        DPI.init_dpi_manager(self)
+        dpi_mgr = DPI.get_dpi_manager()
+        dpi_mgr.detect_system_dpi()
+        dpi_mgr.load_from_config()
 
         Utils.loadIcons()
         tkinter.CallWrapper = Utils.CallWrapper
@@ -722,9 +729,13 @@ class Application(Tk, Sender):
         global geometry
 
         if geometry is None:
+            # Scale default dimensions for HiDPI displays
+            dpi = DPI.get_dpi_manager()
+            default_width = dpi.scale(900)
+            default_height = dpi.scale(650)
             geometry = "x".join([
-                f"{Utils.getInt(Utils.__prg__, 'width', 900)}",
-                f"{Utils.getInt(Utils.__prg__, 'height', 650)}"
+                f"{Utils.getInt(Utils.__prg__, 'width', default_width)}",
+                f"{Utils.getInt(Utils.__prg__, 'height', default_height)}"
             ])
         try:
             self.geometry(geometry)
@@ -845,11 +856,14 @@ class Application(Tk, Sender):
         bg = "#707070"
         fg = "#ffffff"
 
-        font2 = "Helvetica -12"
-        font3 = "Helvetica -10"
+        # Get DPI manager for HiDPI scaling
+        dpi = DPI.get_dpi_manager()
 
-        frame = Frame(toplevel, borderwidth=2, relief=SUNKEN, background=bg)
-        frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
+        font2 = "Helvetica {}".format(dpi.scale_font_size(-12))
+        font3 = "Helvetica {}".format(dpi.scale_font_size(-10))
+
+        frame = Frame(toplevel, borderwidth=dpi.scale(2), relief=SUNKEN, background=bg)
+        frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=dpi.scale(5), pady=dpi.scale(5))
 
         # -----
         row = 0
@@ -862,7 +876,7 @@ class Application(Tk, Sender):
             padx=0,
             pady=0,
         )
-        la.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
+        la.grid(row=row, column=0, columnspan=2, padx=dpi.scale(5), pady=dpi.scale(5))
 
         row += 1
         la = Label(
@@ -876,12 +890,12 @@ class Application(Tk, Sender):
             background=bg,
             justify=LEFT,
         )
-        la.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
+        la.grid(row=row, column=0, columnspan=2, sticky=W, padx=dpi.scale(10), pady=dpi.scale(1))
 
         # -----
         row += 1
-        f = Frame(frame, borderwidth=1, relief=SUNKEN, height=2, background=bg)
-        f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
+        f = Frame(frame, borderwidth=dpi.scale(1), relief=SUNKEN, height=dpi.scale(2), background=bg)
+        f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=dpi.scale(5), pady=dpi.scale(5))
 
         # -----
         row += 1
@@ -893,7 +907,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -905,7 +919,7 @@ class Application(Tk, Sender):
             font=font2,
             cursor="hand1",
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W, padx=dpi.scale(2), pady=dpi.scale(2))
         la.bind("<Button-1>", lambda e: webbrowser.open(Utils.__www__))
 
         # -----
@@ -918,7 +932,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -928,7 +942,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -940,7 +954,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -950,7 +964,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -962,7 +976,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -972,7 +986,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -984,7 +998,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -994,7 +1008,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -1006,7 +1020,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -1016,7 +1030,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -1028,7 +1042,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -1038,7 +1052,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         # -----
         row += 1
@@ -1050,7 +1064,7 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E, padx=dpi.scale(10), pady=dpi.scale(2))
 
         la = Label(
             frame,
@@ -1060,13 +1074,13 @@ class Application(Tk, Sender):
             justify=LEFT,
             font=font2
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW, padx=dpi.scale(2), pady=dpi.scale(2))
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
         b = Button(toplevel, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        b.pack(pady=dpi.scale(5))
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)
@@ -1105,6 +1119,9 @@ class Application(Tk, Sender):
         toplevel = Toplevel(self)
         toplevel.transient(self)
         toplevel.title(_("Statistics"))
+
+        # Get DPI manager for HiDPI scaling
+        dpi = DPI.get_dpi_manager()
 
         if CNC.inch:
             unit = "in"
@@ -1292,7 +1309,7 @@ class Application(Tk, Sender):
             return t.destroy()
 
         b = Button(frame, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        b.pack(pady=dpi.scale(5))
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)
