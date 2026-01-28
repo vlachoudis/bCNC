@@ -182,6 +182,10 @@ class CommandsGroup(CNCRibbon.ButtonMenuGroup):
         tkExtra.Balloon.set(b, _("$ Display build information of Grbl"))
         self.addWidget(b)
 
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(2, weight=1)
+
 
 # =============================================================================
 class TerminalFrame(CNCRibbon.PageFrame):
@@ -193,7 +197,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
             self,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             selectmode=EXTENDED,
-            height=5,
+            height=Utils.scale(5),
         )
         self.terminal.grid(row=0, column=0, sticky=NSEW)
         sb = Scrollbar(self, orient=VERTICAL, command=self.terminal.yview)
@@ -206,7 +210,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
 
         # ---
         self.buffer = Listbox(
-            self, background="LightYellow", selectmode=EXTENDED, height=5
+            self, background="LightYellow", selectmode=EXTENDED, height=Utils.scale(5)
         )
         self.buffer.grid(row=1, column=0, sticky=NSEW)
         sb = Scrollbar(self, orient=VERTICAL, command=self.buffer.yview)

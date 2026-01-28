@@ -159,6 +159,11 @@ class FileGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Save gcode/dxf AS"))
         self.addWidget(b)
 
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(2, weight=1)
+        self.frame.grid_columnconfigure(3, weight=1)
+
 
 # =============================================================================
 # Options Group
@@ -208,6 +213,8 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
         )
         b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
         tkExtra.Balloon.set(b, _("About the program"))
+
+        self.frame.grid_columnconfigure(1, weight=1)
 
 
 # =============================================================================
@@ -285,7 +292,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
             self,
             False,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=16,
+            width=Utils.scale(16),
             command=self.comportClean,
         )
         self.portCombo.grid(row=row, column=col + 1, sticky=EW)

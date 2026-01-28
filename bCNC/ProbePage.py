@@ -117,7 +117,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
             value="Probe",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=Utils.scale(5), pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Simple probing along a direction"))
 
         # ---
@@ -131,7 +131,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
             value="Autolevel",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=Utils.scale(5), pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Autolevel Z surface"))
 
         # ---
@@ -145,7 +145,7 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
             value="Camera",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=Utils.scale(5), pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Work surface camera view and alignment"))
         if Camera.cv is None:
             b.config(state=DISABLED)
@@ -161,10 +161,14 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
             value="Tool",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=5, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=Utils.scale(5), pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Setup probing for manual tool change"))
 
         self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(1, weight=1)
+        self.frame.grid_columnconfigure(2, weight=1)
+        self.frame.grid_columnconfigure(3, weight=1)
 
 
 # =============================================================================
@@ -357,7 +361,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.tlo.bind("<KP_Enter>", self.tloSet)
 
         col += 1
-        b = Button(frame, text=_("set"), command=self.tloSet, padx=2, pady=1)
+        b = Button(frame, text=_("set"), command=self.tloSet, padx=Utils.scale(2), pady=Utils.scale(1))
         b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
@@ -458,8 +462,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Z"),
             variable=self.recz,  # onvalue=1, offvalue=0,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         tkExtra.Balloon.set(self.reczb, _("Record Z coordinate?"))
         self.reczb.pack(side=LEFT, expand=YES, fill=X)
@@ -470,8 +474,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("RAPID"),
             command=self.recordRapid,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         self.rr.pack(side=LEFT, expand=YES, fill=X)
         self.addWidget(self.rr)
@@ -481,8 +485,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("FEED"),
             command=self.recordFeed,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         self.rr.pack(side=LEFT, expand=YES, fill=X)
         self.addWidget(self.rr)
@@ -492,8 +496,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("POINT"),
             command=self.recordPoint,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         self.rr.pack(side=LEFT, expand=YES, fill=X)
         self.addWidget(self.rr)
@@ -503,8 +507,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("CIRCLE"),
             command=self.recordCircle,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         self.rr.pack(side=LEFT, expand=YES, fill=X)
         self.addWidget(self.rr)
@@ -514,8 +518,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("FINISH"),
             command=self.recordFinishAll,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
         self.rr.pack(side=LEFT, expand=YES, fill=X)
         self.addWidget(self.rr)
@@ -541,17 +545,17 @@ class ProbeFrame(CNCRibbon.PageFrame):
         col += 1
         self._probeX = Label(
             lframe(), foreground="DarkBlue", background="gray90")
-        self._probeX.grid(row=row, column=col, padx=1, sticky=EW + S)
+        self._probeX.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW + S)
 
         col += 1
         self._probeY = Label(
             lframe(), foreground="DarkBlue", background="gray90")
-        self._probeY.grid(row=row, column=col, padx=1, sticky=EW + S)
+        self._probeY.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW + S)
 
         col += 1
         self._probeZ = Label(
             lframe(), foreground="DarkBlue", background="gray90")
-        self._probeZ.grid(row=row, column=col, padx=1, sticky=EW + S)
+        self._probeZ.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW + S)
 
         # ---
         col += 1
@@ -562,14 +566,14 @@ class ProbeFrame(CNCRibbon.PageFrame):
             "",
             variable=self.probeautogoto,
             activebackground="LightYellow",
-            padx=2,
-            pady=1,
+            padx=Utils.scale(2),
+            pady=Utils.scale(1),
         )
 
         if self.probeautogoto.get() != 0:
             self.autogoto.select()
         tkExtra.Balloon.set(self.autogoto, _("Automatic GOTO after probing"))
-        self.autogoto.grid(row=row, column=col, padx=1, sticky=EW)
+        self.autogoto.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW)
         self.addWidget(self.autogoto)
 
         # ---
@@ -580,10 +584,10 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Goto"),
             compound=LEFT,
             command=self.goto2Probe,
-            padx=5,
+            padx=Utils.scale(5),
             pady=0,
         )
-        b.grid(row=row, column=col, padx=1, sticky=EW)
+        b.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW)
         self.addWidget(b)
         tkExtra.Balloon.set(b, _("Rapid goto to last probe location"))
 
@@ -623,10 +627,10 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Probe"),
             compound=LEFT,
             command=self.probe,
-            padx=5,
+            padx=Utils.scale(5),
             pady=0,
         )
-        b.grid(row=row, column=col, padx=1, sticky=EW)
+        b.grid(row=row, column=col, padx=Utils.scale(1), sticky=EW)
         self.addWidget(b)
         tkExtra.Balloon.set(b, _("Perform a single probe cycle"))
 
@@ -657,8 +661,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             text=_("Center"),
             compound=TOP,
             command=self.probeCenter,
-            width=48,
-            padx=5,
+            width=Utils.scale(48),
+            padx=Utils.scale(5),
             pady=0,
         )
         b.pack(side=RIGHT)
@@ -698,8 +702,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             image=Utils.icons["add"],
             compound=LEFT,
             command=lambda s=self: s.event_generate("<<AddMarker>>"),
-            padx=1,
-            pady=1,
+            padx=Utils.scale(1),
+            pady=Utils.scale(1),
         )
         b.grid(row=row, column=col, sticky=NSEW)
         self.addWidget(b)
@@ -746,8 +750,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             image=Utils.icons["x"],
             compound=LEFT,
             command=self.orientDelete,
-            padx=1,
-            pady=1,
+            padx=Utils.scale(1),
+            pady=Utils.scale(1),
         )
         b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
@@ -790,8 +794,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             image=Utils.icons["clear"],
             compound=LEFT,
             command=self.orientClear,
-            padx=1,
-            pady=1,
+            padx=Utils.scale(1),
+            pady=Utils.scale(1),
         )
         b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
@@ -807,7 +811,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             lframe(), foreground="DarkBlue", background="gray90", anchor=W
         )
         self.angle_orient.grid(
-            row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1
+            row=row, column=col, columnspan=2, sticky=EW, padx=Utils.scale(1), pady=Utils.scale(1)
         )
 
         # Buttons
@@ -818,8 +822,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
             image=Utils.icons["setsquare32"],
             compound=TOP,
             command=lambda a=app: a.insertCommand("ORIENT", True),
-            padx=1,
-            pady=1,
+            padx=Utils.scale(1),
+            pady=Utils.scale(1),
         )
         b.grid(row=row, rowspan=3, column=col, sticky=EW)
         self.addWidget(b)
@@ -834,13 +838,13 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.xo_orient = Label(
             lframe(), foreground="DarkBlue", background="gray90", anchor=W
         )
-        self.xo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+        self.xo_orient.grid(row=row, column=col, sticky=EW, padx=Utils.scale(1))
 
         col += 1
         self.yo_orient = Label(
             lframe(), foreground="DarkBlue", background="gray90", anchor=W
         )
-        self.yo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+        self.yo_orient.grid(row=row, column=col, sticky=EW, padx=Utils.scale(1))
 
         # ---
         row += 1
@@ -851,7 +855,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             lframe(), foreground="DarkBlue", background="gray90", anchor=W
         )
         self.err_orient.grid(
-            row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1
+            row=row, column=col, columnspan=2, sticky=EW, padx=Utils.scale(1), pady=Utils.scale(1)
         )
 
         lframe().grid_columnconfigure(1, weight=1)
@@ -1232,7 +1236,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeXmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeXmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmin, _("X minimum"))
@@ -1240,7 +1244,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeXmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmax, _("X maximum"))
@@ -1248,7 +1252,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXstep = Label(
-            lframe, foreground="DarkBlue", background="gray90", width=5
+            lframe, foreground="DarkBlue", background="gray90", width=Utils.scale(5)
         )
         self.probeXstep.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXstep, _("X step"))
@@ -1260,7 +1264,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
             to_=1000,
             command=self.draw,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=3,
+            width=Utils.scale(3),
         )
         self.probeXbins.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXbins, _("X bins"))
@@ -1272,7 +1276,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeYmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeYmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmin, _("Y minimum"))
@@ -1280,7 +1284,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeYmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmax, _("Y maximum"))
@@ -1288,7 +1292,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYstep = Label(
-            lframe, foreground="DarkBlue", background="gray90", width=5
+            lframe, foreground="DarkBlue", background="gray90", width=Utils.scale(5)
         )
         self.probeYstep.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYstep, _("Y step"))
@@ -1300,7 +1304,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
             to_=1000,
             command=self.draw,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=3,
+            width=Utils.scale(3),
         )
         self.probeYbins.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYbins, _("Y bins"))
@@ -1313,7 +1317,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeZmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeZmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmin, _("Z Minimum depth to scan"))
@@ -1321,7 +1325,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeZmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmax, _("Z safe to move"))
@@ -1538,7 +1542,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         self.switchButton.grid(
-            row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW
+            row=row, column=col, rowspan=3, padx=Utils.scale(5), pady=0, sticky=NSEW
         )
         tkExtra.Balloon.set(self.switchButton,
                             _("Switch between camera and spindle"))
@@ -1626,7 +1630,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
         self.location = tkExtra.Combobox(
             lframe, True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=16
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(16)
         )
         self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
         self.location.fill(CAMERA_LOCATION_ORDER)
@@ -1692,7 +1696,7 @@ class CameraFrame(CNCRibbon.PageFrame):
             self.diameter, _("Camera cross hair diameter [units]"))
 
         b = Button(
-            lframe, text=_("Get"), command=self.getDiameter, padx=1, pady=1)
+            lframe, text=_("Get"), command=self.getDiameter, padx=Utils.scale(1), pady=Utils.scale(1))
         b.grid(row=row, column=2, sticky=W)
         tkExtra.Balloon.set(b, _("Get diameter from active endmill"))
 
@@ -1730,14 +1734,14 @@ class CameraFrame(CNCRibbon.PageFrame):
         row += 1
         Label(lframe, text=_("Register:")).grid(row=row, column=0, sticky=E)
         b = Button(
-            lframe, text=_("1. Spindle"), command=self.registerSpindle, padx=1, pady=1
+            lframe, text=_("1. Spindle"), command=self.registerSpindle, padx=Utils.scale(1), pady=Utils.scale(1)
         )
         tkExtra.Balloon.set(
             b, _("Mark spindle position for calculating offset"))
         b.grid(row=row, column=1, sticky=EW)
         b = Button(
             lframe, text=_("2. Camera"),
-            command=self.registerCamera, padx=1, pady=1
+            command=self.registerCamera, padx=Utils.scale(1), pady=Utils.scale(1)
         )
         tkExtra.Balloon.set(
             b, _("Mark camera position for calculating offset"))
@@ -1869,7 +1873,7 @@ class ToolGroup(CNCRibbon.ButtonGroup):
             image=Utils.icons["calibrate32"],
             text=_("Calibrate"),
             compound=TOP,
-            width=48,
+            width=Utils.scale(48),
             background=Ribbon._BACKGROUND,
         )
         b.pack(side=LEFT, fill=BOTH, expand=YES)
@@ -1887,7 +1891,7 @@ class ToolGroup(CNCRibbon.ButtonGroup):
             image=Utils.icons["endmill32"],
             text=_("Change"),
             compound=TOP,
-            width=48,
+            width=Utils.scale(48),
             background=Ribbon._BACKGROUND,
         )
         b.pack(side=LEFT, fill=BOTH, expand=YES)
@@ -1915,7 +1919,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             True,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.policyChange,
-            width=16,
+            width=Utils.scale(16),
         )
         self.toolPolicy.grid(row=row, column=col, columnspan=3, sticky=EW)
         self.toolPolicy.fill(TOOL_POLICY)
@@ -1933,7 +1937,7 @@ class ToolFrame(CNCRibbon.PageFrame):
             True,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.waitChange,
-            width=16,
+            width=Utils.scale(16),
         )
         self.toolWait.grid(row=row, column=col, columnspan=3, sticky=EW)
         self.toolWait.fill(TOOL_WAIT)
@@ -1955,7 +1959,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Change:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.changeX = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.changeX.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1966,7 +1970,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.changeY = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.changeY.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1977,7 +1981,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.changeZ = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.changeZ.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1988,7 +1992,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         b = Button(
-            lframe, text=_("get"), command=self.getChange, padx=2, pady=1)
+            lframe, text=_("get"), command=self.getChange, padx=Utils.scale(2), pady=Utils.scale(1))
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Get current gantry position as machine tool change location")
@@ -2001,7 +2005,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Probe:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeX = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeX.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2012,7 +2016,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeY = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeY.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2023,7 +2027,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZ = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeZ.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2034,7 +2038,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         b = Button(lframe, text=_("get"),
-                   command=self.getProbe, padx=2, pady=1)
+                   command=self.getProbe, padx=Utils.scale(2), pady=Utils.scale(1))
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Get current gantry position as machine tool probe location")
@@ -2047,7 +2051,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Distance:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeDistance = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.probeDistance.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2065,7 +2069,7 @@ class ToolFrame(CNCRibbon.PageFrame):
               text=_("Calibration:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.toolHeight = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=Utils.scale(5)
         )
         self.toolHeight.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.toolHeight, _("Tool probe height"))
@@ -2073,7 +2077,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         b = Button(lframe,
-                   text=_("Calibrate"), command=self.calibrate, padx=2, pady=1)
+                   text=_("Calibrate"), command=self.calibrate, padx=Utils.scale(2), pady=Utils.scale(1))
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
             b, _("Perform a calibration probing to determine the height")
@@ -2083,6 +2087,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         lframe.grid_columnconfigure(1, weight=1)
         lframe.grid_columnconfigure(2, weight=1)
         lframe.grid_columnconfigure(3, weight=1)
+        lframe.grid_columnconfigure(4, minsize=Utils.scale(50))
 
         self.loadConfig()
 
