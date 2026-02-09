@@ -3,7 +3,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-import Utils
+import Utils, threading
 
 try:
     import cv2 as cv
@@ -39,10 +39,12 @@ class Camera:
         if cv is None:
             return
         self.prefix = prefix
-        self.idx = Utils.getInt("Camera", prefix)
+        self.idx = Utils.getIntOrStr("Camera", prefix)
         self.props = self._getCameraProperties(prefix)
         self.camera = None
         self.image = None
+        self.bgthread = None
+        self.bgimage = None
         self.frozen = None
         self.imagetk = None
 
@@ -152,13 +154,20 @@ class Camera:
         if not self.camera.isOpened():
             self.stop()
             return False
-        self.set()
+        if self.set():
+            self.bgimage = s, self.image
+            self.bgthread = threading.Thread(target=self._thread, daemon=True)
+            self.bgthread.start()
         return True
 
     # -----------------------------------------------------------------------
     def stop(self):
         if cv is None or self.camera is None:
             return
+        if self.bgthread:   # let thread finish its final .read()
+            temp = self.bgthread
+            self.bgthread = None
+            temp.join()
         self.camera.release()
         self.camera = None
 
@@ -174,12 +183,13 @@ class Camera:
         self.rotation = Utils.getFloat("Camera", self.prefix + "_rotation")
         self.xcenter = Utils.getFloat("Camera", self.prefix + "_xcenter")
         self.ycenter = Utils.getFloat("Camera", self.prefix + "_ycenter")
+        return Utils.getBool("Camera", self.prefix + "_threaded")
 
     # -----------------------------------------------------------------------
     # Read one image and rotated if needed
     # -----------------------------------------------------------------------
     def read(self):
-        s, self.image = self.camera.read()
+        s, self.image = self.bgimage if self.bgthread else self.camera.read()
         if s:
             self.image = self.rotate90(self.image)
         else:
@@ -189,6 +199,14 @@ class Camera:
         if self.frozen is not None:
             self.image = cv.addWeighted(self.image, 0.7, self.frozen, 0.3, 0.0)
         return s
+        
+    # -----------------------------------------------------------------------
+    # Read images in background, for cameras where you would otherwise
+    # receive an outdated image
+    # -----------------------------------------------------------------------
+    def _thread(self):
+        while self.bgthread:
+            self.bgimage = self.camera.read()
 
     # -----------------------------------------------------------------------
     # Save image to file

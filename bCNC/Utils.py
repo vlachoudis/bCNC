@@ -312,6 +312,19 @@ def getBool(section, name, default=False):
 
 
 # -----------------------------------------------------------------------------
+def getIntOrStr(section, name, default=0):
+    global config
+    try:
+        value = config.get(section, name)
+    except Exception:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        return value
+
+
+# -----------------------------------------------------------------------------
 # Return a font from a string
 # -----------------------------------------------------------------------------
 def makeFont(name, value=None):
