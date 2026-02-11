@@ -5,6 +5,7 @@
 #   Date: 17-Jun-2015
 
 import glob
+import gc
 import os
 import re
 import sys
@@ -270,7 +271,7 @@ class Sender:
                 CNC.vars["safe"] = float(line[1])
             except Exception:
                 pass
-            self.statusbar["text"] = f"Safe Z= {CNC.vars['safe']:g}"
+            self.statusbar.configText(text=f"Safe Z={CNC.vars['safe']:g}")
 
         # SA*VE [filename]: save to filename or to default name
         elif rexx.abbrev("SAVE", cmd, 2):
@@ -401,7 +402,8 @@ class Sender:
     # ----------------------------------------------------------------------
     # Load a file into editor
     # ----------------------------------------------------------------------
-    def load(self, filename):
+    def load(self, filename, timeout=sys.maxsize, update_function=None):
+        gc.collect()
         fn, ext = os.path.splitext(filename)
         ext = ext.lower()
         if ext == ".probe":
@@ -429,7 +431,7 @@ class Sender:
             self.gcode.importSVG(filename)
             self._saveConfigFile(filename)
         else:
-            self.gcode.load(filename)
+            self.gcode.load(filename, timeout=timeout, update_function=update_function)
             self._saveConfigFile()
         Utils.addRecent(filename)
 
@@ -619,7 +621,8 @@ class Sender:
         self.mcontrol.pause(event)
 
     def purgeController(self):
-        self.mcontrol.purgeController()
+        if self.serial:
+            self.mcontrol.purgeController()
 
     def g28Command(self):
         self.sendGCode("G28.1")  # FIXME: ???
