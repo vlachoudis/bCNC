@@ -32,7 +32,7 @@ setup(
         #   (it can be installed, but does not work)
         "pyserial ; sys_platform != 'win32'",
         "pyserial<=3.0.1 ; sys_platform == 'win32'",
-        "numpy>=1.12",
+        "numpy>=1.12,<2",
         "svgelements>=1,<2",
         "shxparser>=0.0.2",
         "Pillow>=4.0",
