@@ -154,17 +154,17 @@ class _GenericController:
 
         pos = ""
         if x is not None and abs(float(x)) < 10000.0:
-            pos += "X" + str(x)
+            pos += CNC.fmt("X", float(x))
         if y is not None and abs(float(y)) < 10000.0:
-            pos += "Y" + str(y)
+            pos += CNC.fmt("Y", float(y))
         if z is not None and abs(float(z)) < 10000.0:
-            pos += "Z" + str(z)
+            pos += CNC.fmt("Z", float(z))
         if a is not None and abs(float(a)) < 10000.0:
-            pos += "A" + str(a)
+            pos += CNC.fmt("A", float(a))
         if b is not None and abs(float(b)) < 10000.0:
-            pos += "B" + str(b)
+            pos += CNC.fmt("B", float(b))
         if c is not None and abs(float(c)) < 10000.0:
-            pos += "C" + str(c)
+            pos += CNC.fmt("C", float(c))
         cmd += pos
         self.master.sendGCode(cmd)
         self.viewParameters()
