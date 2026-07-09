@@ -48,7 +48,7 @@ import CNCRibbon
 import Ribbon
 import tkExtra
 import Utils
-from CNC import CNC, Block
+from CNC import CNC, Block, WCS
 
 from Helpers import N_
 
@@ -666,6 +666,92 @@ class ProbeFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(b, _("Center probing using a ring"))
 
         # ----------------------------------------------------------------
+        # Edge center (find midpoint of two opposite edges)
+        # ----------------------------------------------------------------
+        lframe = tkExtra.ExLabelFrame(
+            self, text=_("Edge Center"), foreground="DarkBlue")
+        lframe.pack(side=TOP, expand=YES, fill=X)
+
+        row, col = 0, 0
+
+        Label(lframe(), text=_("Axis:")).grid(
+            row=row, column=col, sticky=E)
+        col += 1
+        self.edgeAxis = tkExtra.Combobox(
+            lframe(), True, width=6,
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.edgeAxis.fill(["X", "Y"])
+        self.edgeAxis.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(
+            self.edgeAxis,
+            _("Axis along which to probe two opposite edges"))
+        self.addWidget(self.edgeAxis)
+
+        col += 1
+        Label(lframe(), text=_("WorkSize:")).grid(
+            row=row, column=col, sticky=E)
+        col += 1
+        self.edgeWork = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.edgeWork.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(
+            self.edgeWork,
+            _("Workpiece dimension along the chosen axis (edge-to-edge)"))
+        self.addWidget(self.edgeWork)
+
+        row += 1
+        col = 0
+        Label(lframe(), text=_("Z-Lift:")).grid(
+            row=row, column=col, sticky=E)
+        col += 1
+        self.edgeZLift = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.edgeZLift.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(
+            self.edgeZLift,
+            _("Z lift distance to safely clear the workpiece when crossing "
+              "to the opposite edge"))
+        self.addWidget(self.edgeZLift)
+
+        col += 1
+        Label(lframe(), text=_("ProbeDepth:")).grid(
+            row=row, column=col, sticky=E)
+        col += 1
+        self.edgeDepth = tkExtra.FloatEntry(
+            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.edgeDepth.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(
+            self.edgeDepth,
+            _("Fast probe travel distance toward each edge. Slow probe and "
+              "retraction are derived from this (slow = D/5, retract = D/10)"))
+        self.addWidget(self.edgeDepth)
+
+        # ---
+        row += 1
+        b = Button(
+            lframe(),
+            image=Utils.icons["target32"],
+            text=_("Center"),
+            compound=TOP,
+            command=self.probeEdgeCenter,
+            width=48,
+            padx=5,
+            pady=0,
+        )
+        b.grid(row=row, column=0, columnspan=4, sticky=EW)
+        self.addWidget(b)
+        tkExtra.Balloon.set(
+            b,
+            _("Probe two opposite edges along the chosen axis and set the "
+              "current WCS zero at the midpoint.\n"
+              "Direction convention: start the probe OUTSIDE edge 1 on the "
+              "-axis side; edge 1 is probed toward +axis, edge 2 toward "
+              "-axis."))
+
+        lframe().grid_columnconfigure(1, weight=1)
+        lframe().grid_columnconfigure(3, weight=1)
+
+        # ----------------------------------------------------------------
         # Align / Orient / Square ?
         # ----------------------------------------------------------------
         lframe = tkExtra.ExLabelFrame(
@@ -869,6 +955,12 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.diameter.set(Utils.getStr("Probe", "center"))
         self.warn = Utils.getBool("Warning", "probe", self.warn)
         self.probeautogoto.set(Utils.getBool("Probe", "autogoto"))
+        # Edge center
+        edgeaxis = Utils.getStr("Probe", "edgeaxis")
+        self.edgeAxis.set(edgeaxis if edgeaxis in ("X", "Y") else "Y")
+        self.edgeWork.set(Utils.getFloat("Probe", "edgework"))
+        self.edgeZLift.set(Utils.getFloat("Probe", "edgezlift"))
+        self.edgeDepth.set(Utils.getFloat("Probe", "edgeprobe"))
 
     # -----------------------------------------------------------------------
     def saveConfig(self):
@@ -878,6 +970,11 @@ class ProbeFrame(CNCRibbon.PageFrame):
         Utils.setFloat("Probe", "center", self.diameter.get())
         Utils.setBool("Warning", "probe", self.warn)
         Utils.setInt("Probe", "autogoto", self.probeautogoto.get())
+        # Edge center
+        Utils.setStr("Probe", "edgeaxis", self.edgeAxis.get())
+        Utils.setFloat("Probe", "edgework", self.edgeWork.get())
+        Utils.setFloat("Probe", "edgezlift", self.edgeZLift.get())
+        Utils.setFloat("Probe", "edgeprobe", self.edgeDepth.get())
 
     # -----------------------------------------------------------------------
     def updateProbe(self):
@@ -1007,6 +1104,141 @@ class ProbeFrame(CNCRibbon.PageFrame):
         lines.append("g53 g0 y[0.5*(tmp+prby)]")
         lines.append("%wait")
         lines.append("g90")
+        self.app.run(lines=lines)
+
+    # -----------------------------------------------------------------------
+    # Probe two opposite edges along an axis and set WCS zero at midpoint.
+    # Direction convention: probe starts OUTSIDE edge 1 on the -axis side.
+    #   edge 1 (lower coord): probed toward +axis
+    #   edge 2 (upper coord): probed toward -axis
+    # -----------------------------------------------------------------------
+    def probeEdgeCenter(self, event=None):
+        if ProbeCommonFrame.probeUpdate():
+            messagebox.showerror(
+                _("Probe Error"),
+                _("Invalid probe feed rate"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        self.warnMessage()
+
+        # Read user inputs
+        axis = str(self.edgeAxis.get()).strip().lower()
+        if axis not in ("x", "y"):
+            messagebox.showerror(
+                _("Edge Center Error"),
+                _("Axis must be X or Y"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        a = axis.upper()
+        prbvar = "prb" + axis  # prbx / prby
+
+        try:
+            workSize = abs(float(self.edgeWork.get()))
+            zLift = abs(float(self.edgeZLift.get()))
+            depth = abs(float(self.edgeDepth.get()))
+        except Exception:
+            workSize = zLift = depth = 0.0
+
+        if workSize < 0.001 or zLift < 0.001 or depth < 0.001:
+            messagebox.showerror(
+                _("Edge Center Error"),
+                _("WorkSize, Z-Lift and ProbeDepth must all be > 0"),
+                parent=self.winfo_toplevel(),
+            )
+            return
+
+        # Derived parameters (scheme A: retract = D/10, slow = D/5)
+        retraction = depth / 10.0
+        slowDepth = depth / 5.0
+
+        # Probe command / feeds
+        prbcmd = str(CNC.vars["prbcmd"])
+        fast = CNC.vars["fastprbfeed"]
+        slow = CNC.vars["prbfeed"]
+
+        # WCS command (mirror _GenericController._wcsSet so the active WCS
+        # receives the zero, not a hardcoded G54)
+        try:
+            p = WCS.index(CNC.vars["WCS"])
+        except (ValueError, KeyError):
+            messagebox.showerror(
+                _("Edge Center Error"),
+                _("Unknown active WCS: {}").format(CNC.vars.get("WCS")),
+                parent=self.winfo_toplevel(),
+            )
+            return
+        if p < 6:
+            wcs_cmd = "g10l20 p{:d} {:s}0".format(p + 1, a)
+        elif p == 6:
+            wcs_cmd = "g28.1 {:s}0".format(a)
+        elif p == 7:
+            wcs_cmd = "g30.1 {:s}0".format(a)
+        else:  # p == 8
+            wcs_cmd = "g92 {:s}0".format(a)
+
+        # Build the G-code/macro sequence. G91 is modal; one explicit g91 at
+        # the start keeps every subsequent G0/G38 relative until g90 at end.
+        lines = []
+        backoff = 2
+        lines.append("g91")
+        # === Edge 1 (lower side, probe toward +axis) ===
+        lines.append("{cmd} {ax}+{d:g} F{f:g}".format(
+            cmd=prbcmd, ax=a, d=depth, f=fast))
+        lines.append("%wait")
+        lines.append("%global p1; p1=" + prbvar)
+        lines.append("g0 {ax}-{r:g}".format(ax=a, r=retraction))
+        lines.append("{cmd} {ax}+{s:g} F{f:g}".format(
+            cmd=prbcmd, ax=a, s=slowDepth, f=slow))
+        lines.append("%wait")
+        lines.append("%global p1; p1=" + prbvar)
+        # Back off from edge 1 before lifting Z to avoid the probe tip
+        # dragging along the workpiece side.
+        lines.append("g0 {ax}-{backoff:g}".format(ax=a, backoff=backoff))
+        # === Cross over to the opposite side ===
+        # Z lift (full): moves up, safe.
+        lines.append("g0 z+{z:g}".format(z=zLift))
+        # Cross-over distance = WorkSize + backoff + small fixed margin (2mm). The
+        # margin only needs to clear edge 2 so the subsequent reverse probe
+        # (G38.2 -D) can contact it; adding the full probe depth was wasteful
+        # and increased soft-limit / clamp-collision risk.
+        lines.append("g0 {ax}+{t:g}".format(ax=a, t=workSize + backoff + 2))
+        # Z descent back to probe height, split into two legs for safety:
+        #   - first 2/3 of zLift: G0 rapid (efficiency; this region is well
+        #     clear of the workpiece top)
+        #   - last 1/3 of zLift: G38.3 probe cycle at F100 (the danger zone
+        #     near the surface; if an obstacle is hit the probe stops instead
+        #     of crashing through. If it stops early the subsequent edge-2
+        #     probe simply won't contact -> ALARM:5, a safe failure mode)
+        lines.append("g0 z-{z:g}".format(z=zLift * 2.0 / 3.0))
+        lines.append("g38.3 z-{z:g} F100".format(z=zLift / 3.0))
+        # === Edge 2 (upper side, probe toward -axis) ===
+        lines.append("{cmd} {ax}-{d:g} F{f:g}".format(
+            cmd=prbcmd, ax=a, d=depth, f=fast))
+        lines.append("%wait")
+        lines.append("%global p2; p2=" + prbvar)
+        lines.append("g0 {ax}+{r:g}".format(ax=a, r=retraction))  # backoff reversed
+        lines.append("{cmd} {ax}-{s:g} F{f:g}".format(
+            cmd=prbcmd, ax=a, s=slowDepth, f=slow))
+        lines.append("%wait")
+        lines.append("%global p2; p2=" + prbvar)
+        # Back off from edge 2 before lifting Z to avoid the probe tip
+        # dragging along the workpiece side.
+        lines.append("g0 {ax}+{backoff:g}".format(ax=a, backoff=backoff))
+        # === Move to midpoint (machine coordinates) and set WCS zero ===
+        # MUST lift Z before traversing to the midpoint: the path from edge 2
+        # to the center crosses OVER the workpiece, so staying at probe height
+        # would crash the probe into the side of the part.
+        lines.append("g0 z+{z:g}".format(z=zLift))
+        lines.append("g53 g0 {ax}[0.5*(p1+p2)]".format(ax=a))
+        lines.append("%wait")
+        lines.append("g90")
+        lines.append(wcs_cmd)
+        # NOTE: Z is left lifted at the midpoint on purpose. The center is
+        # over SOLID workpiece material, so lowering back to probe height
+        # there would crash into the top of the part. User can lower Z
+        # manually once they confirm the position is clear.
         self.app.run(lines=lines)
 
     # -----------------------------------------------------------------------
