@@ -1,0 +1,27 @@
+#version 150
+
+in float index;
+
+uniform vec3 canvas_color_rgb_up;
+uniform vec3 canvas_color_rgb_down;
+
+out vec3 color_;
+
+void main() {
+    if (index == 1.) {
+        gl_Position = vec4(-1., -1., 0., 1.);
+        color_ = canvas_color_rgb_down / 255.;
+    }
+    else if (index == 2.) {
+        gl_Position = vec4(1., -1., 0., 1.);
+        color_ = canvas_color_rgb_down / 255.;
+    }
+    else if (index == 3.) {
+        gl_Position = vec4(1., 1., 0., 1.);
+        color_ = canvas_color_rgb_up / 255.;
+    }
+    else if (index == 4.) {
+        gl_Position = vec4(-1., 1., 0., 1.);
+        color_ = canvas_color_rgb_up / 255.;
+    }
+}

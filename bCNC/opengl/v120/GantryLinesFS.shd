@@ -1,0 +1,7 @@
+#version 120
+
+uniform vec3 gantryColor;
+
+void main() {
+    gl_FragColor = vec4(gantryColor / 255. * 0.75, 1.);
+}

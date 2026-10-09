@@ -703,7 +703,7 @@ class ProgressDialog(Toplevel):
         self.destroy()
 
     # --------------------------------------------------------------------
-    def stop(self):
+    def stop(self, event = None):
         self.ended = True
         self.close()
 

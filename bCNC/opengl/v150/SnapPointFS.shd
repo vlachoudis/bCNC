@@ -1,0 +1,16 @@
+#version 150
+
+out vec4 fragColor;
+uniform float pointType; // 0: Point on Line ; 1: Line End ; 2: Arc Center
+
+void main() {
+    if (pointType == 1.) {
+        fragColor = vec4(1., 0., 0., 1.); // Red
+    }
+    else if (pointType == 2.) {
+        fragColor = vec4(0., 0.6, 0., 1.); // Green
+    }
+    else {
+        fragColor = vec4(1., 0.647, 0., 1.); // Orange
+    }
+}

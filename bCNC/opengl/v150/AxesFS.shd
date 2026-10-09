@@ -1,0 +1,23 @@
+#version 150
+
+in vec3 color;     // Color passed from vertex shader
+in float position_;
+
+const float dash1 = 6.0; // draw: 6 pixels
+const float dash2 = 2.0; // gap: 2 pixels
+
+out vec4 fragColor;
+
+void main() {
+
+    float loc = mod(position_, dash1 + dash2);
+
+    if (loc <= dash1)
+    {
+        fragColor = vec4(color, 1.0);
+    }
+    else
+    {
+        discard;
+    }
+}

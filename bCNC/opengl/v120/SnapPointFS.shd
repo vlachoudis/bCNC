@@ -1,0 +1,15 @@
+#version 120
+
+uniform float pointType; // 0: Point on Line ; 1: Line End ; 2: Arc Center
+
+void main() {
+    if (pointType == 1.) {
+        gl_FragColor = vec4(1., 0., 0., 1.); // Red
+    }
+    else if (pointType == 2.) {
+        gl_FragColor = vec4(0., 0.6, 0., 1.); // Green
+    }
+    else {
+        gl_FragColor = vec4(1., 0.647, 0., 1.); // Orange
+    }
+}

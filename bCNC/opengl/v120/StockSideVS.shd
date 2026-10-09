@@ -1,0 +1,40 @@
+#version 120
+
+attribute float index;
+
+uniform mat4 MVP;
+
+uniform sampler2D heightMap;
+
+uniform vec3 p1;
+uniform vec3 p2;
+
+varying float s;
+varying float z;
+
+void main() {
+    if (index == 1.)
+    {
+        s = 0;
+        z = p1.z;
+        gl_Position = MVP * vec4(p1, 1.);
+    }
+    else if (index == 2.)
+    {
+        s = 1;
+        z = p1.z;
+        gl_Position = MVP * vec4(p2.x, p2.y, p1.z, 1.);
+    }
+    else if (index == 3.)
+    {
+        s = 1;
+        z = p2.z;
+        gl_Position = MVP * vec4(p2, 1.);
+    }
+    else if (index == 4.)
+    {
+        s = 0;
+        z = p2.z;
+        gl_Position = MVP * vec4(p1.x, p1.y, p2.z, 1.);
+    }
+}

@@ -1,0 +1,65 @@
+// GLSL ES 1.00
+#version 100
+precision highp float;  // Required in fragment shader
+
+attribute float index; // Index of the line vertex
+
+uniform mat4 MVP;
+uniform vec2 location; // In canvas pixel units. Location of the center of the crosshair
+uniform float width;
+uniform float height;
+uniform float canvasWidth;
+uniform float canvasHeight;
+uniform float R; // Radius of the inner circle
+uniform vec2 zoom;
+uniform float cameraScale;
+
+varying float alpha; // To create the outer circle dash effect
+
+void main() {
+    // Change pixel units to unit units
+    float u = location.x / canvasWidth * 2. - 1.;
+    float v = 1. - location.y / canvasHeight * 2.;
+    float du = width * zoom.x / cameraScale;
+    float dv = height * zoom.y / cameraScale;
+
+    // We expect 146 lines (292 vertices):
+    // Inner circle: Index 1-144
+    // Outer circle: Index 145-288
+    // Vertical line: Index 289-290
+    // Horizontal line: Index 291-292
+
+    alpha = 1.;
+
+    // All this would have been much easier with newer glsl versions, using geometry shaders.
+
+    // Inner circle
+    if (index >= 1. && index <= 144.) {
+        gl_Position = vec4(u + R * zoom.x * cos(radians(ceil((index - 1.) / 2.) * 5.)), v + R * zoom.y * sin(radians(ceil((index - 1.) / 2.) * 5.)), 0., 1.);
+    }
+
+    // Outer circle
+    else if (index >= 145. && index <= 288.) {
+        gl_Position = vec4(u + 2. * R * zoom.x * cos(radians(ceil((index - 145.) / 2.) * 5.)), v + 2. * R * zoom.y * sin(radians(ceil((index - 145.) / 2.) * 5.)), 0., 1.);
+        
+        // Discard every other line to create a dashed line
+        if (mod(index - 1., 4.) > 1.) {
+            alpha = 0.;
+        }
+    }
+
+    // Vertical line
+    else if (index == 289.) {
+        gl_Position = vec4(u, v - dv / 2., 0., 1.);
+    }
+    else if (index == 290.) {
+        gl_Position = vec4(u, v + dv / 2., 0., 1.);
+    }
+    // Horizontal line
+    else if (index == 291.) {
+        gl_Position = vec4(u - du / 2., v, 0., 1.);
+    }
+    else if (index == 292.) {
+        gl_Position = vec4(u + du / 2., v, 0., 1.);
+    }
+}

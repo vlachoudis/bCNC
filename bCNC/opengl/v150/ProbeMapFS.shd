@@ -1,0 +1,9 @@
+#version 150
+
+in vec3 color;     // Color passed from vertex shader
+out vec4 fragColor;
+uniform float alpha; // Opacity
+
+void main() {
+    fragColor = vec4(color, alpha);
+}

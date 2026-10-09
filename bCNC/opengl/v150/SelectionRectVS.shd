@@ -1,0 +1,9 @@
+#version 150
+
+in vec2 uv; // Vertex of the selection rectangle, in unit coords
+
+uniform vec3 color;
+
+void main() {
+    gl_Position = vec4(uv, 0, 1);
+}

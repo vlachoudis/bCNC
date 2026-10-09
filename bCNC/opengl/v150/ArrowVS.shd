@@ -1,0 +1,70 @@
+#version 150
+
+// The arrow is drawn as a triangle. Three vertices are expected, with index = 1->3
+in float id; // id of the arrow
+in float index; // Index of the arrow vertex
+in vec3 location; // In world units. Location of the arrow tip
+in vec3 dir; // Direction of the arrow in world coordinates. Does not need to be normalized
+in float width; // In pixel units
+in float height; // In pixel units
+in float colorValue;
+in float flags;
+
+uniform mat4 MVP;
+uniform mat4 MVPinv;
+uniform float zoom; // CNCCanvas.zoom
+out vec3 color;     // Color passed to fragment shader
+
+void main() {
+    // All this would have been much easier with newer glsl versions, using geometry shaders.
+
+    // Apply a different color based on whether the path is selected/enabled
+    // No bitwise operations in GLSL 1.0. So we use a workaround
+    bool isSelected = (mod(flags, 2.0) == 1.0);
+    bool isEnabled = (floor(mod(flags / 2.0, 2.0)) == 1.0);
+
+    if (isSelected) {
+        if (isEnabled) {
+            color = vec3(0., 0., 1.); // BLUE
+        }
+        else {
+            color = vec3(0., 0.543, 0.543); // DARK_CYAN
+        }
+    }
+    else {
+        if (isEnabled) {
+            float R = floor(colorValue / 65536.0);
+            float G = floor(mod(floor(colorValue / 256.0), 256.0));
+            float B = mod(colorValue, 256.0);
+
+            color = vec3(R, G, B) / 255.;
+        }
+        else {
+            color = vec3(0.3, 0.3, 0.3); // GRAY
+        }
+    }
+
+    if (index == 1.) {
+        gl_Position = MVP * vec4(location, 1.);
+    }
+    else {
+        vec4 location_uc = MVP * vec4(location, 1.);
+        vec4 base = vec4(location - dir, 1.);
+
+        vec3 dir_w = normalize(location - base.xyz);
+
+        // Calculate the vertices of the arrow triangle
+        vec3 p_base = location - dir_w * height / zoom;
+        vec3 N = normalize((MVPinv * vec4(0., 0., -1., 1.)).xyz); // Normal to the canvas in world units
+        vec3 R = normalize(cross(dir_w, N));
+        if (R.x == 0.123 || width == 0. || height == 0.) return;
+
+        if (index == 2.) {
+            gl_Position = MVP * vec4(p_base - R * width / 2. / zoom, 1.);
+        }
+
+        else if (index == 3.) {
+            gl_Position = MVP * vec4(p_base + R * width / 2. / zoom, 1.);
+        }
+    }
+}

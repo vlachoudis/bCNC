@@ -1,0 +1,11 @@
+#version 120
+
+attribute vec2 pos; // Fullscreen triangle with coords: (-1, -1), (3, -1), (-1, 3)
+
+varying vec2 uv; // Texture coords for the whole viewport (0. -> 1.)
+
+void main() {
+    uv = pos * 0.5 + 0.5;
+
+    gl_Position = vec4(pos, 0.0, 1.0);
+}

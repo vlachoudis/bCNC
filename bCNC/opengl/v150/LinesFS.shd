@@ -1,0 +1,19 @@
+#version 150
+
+in vec3 color_;     // Color passed from vertex shader
+in float linePos;
+in float dashRatio_;
+out vec4 fragColor;
+
+uniform float zoom;
+
+void main() {
+    float dashSize = 8.; // dash size in pixels
+
+    if (mod(linePos * zoom, dashSize) <= dashRatio_ * dashSize) {
+        fragColor = vec4(color_, 1.0);
+    }
+    else {
+        discard;
+    }
+}

@@ -1,0 +1,30 @@
+#version 150
+in vec3 xyz;
+in float position;
+in float axis; // 1, 2, 3 for x, y, z
+
+out vec3 color;
+out float position_;
+
+uniform mat4 MVP;
+uniform float zoom;
+
+void main() {
+    gl_Position = MVP * vec4(xyz / zoom, 1.);
+
+    position_ = position;
+    
+    // Color per axis
+    if (axis == 1.0)
+    {
+        color = vec3(1, 0, 0);
+    }
+    else if (axis == 2.0)
+    {
+        color = vec3(0, 1, 0);
+    }
+    else if (axis == 3.0)
+    {
+        color = vec3(0, 0, 1);
+    }
+}

@@ -232,10 +232,13 @@ class Application(Tk, Sender):
         frame = Frame(self.paned)
         self.paned.add(frame)
 
-        # --- Canvas ---
-        self.canvasFrame = CNCCanvas.CanvasFrame(frame, self)
-        self.canvasFrame.pack(side=TOP, fill=BOTH, expand=YES)
-        # XXX FIXME do I need the self.canvas?
+        self.canvasContainer = Frame(frame)
+        self.canvasContainer.pack(side='top', expand=True, fill='both')
+
+        # --- 3D Canvas ---
+        self.canvasFrame = CNCCanvas.CanvasFrame(self.canvasContainer, self)
+        self.canvasFrame.pack(fill='both', expand=True)
+        
         self.canvas = self.canvasFrame.canvas
 
         # fist create Pages
@@ -537,6 +540,7 @@ class Application(Tk, Sender):
         # END - insertCount lines where ok was applied to for $xxx commands
         self._insertCount = (0)
         self._selectI = 0
+        self.lastProcessedPath = 0
         self.monitorSerial()
         self.canvasFrame.toggleDrawFlag()
 
@@ -1330,7 +1334,7 @@ class Application(Tk, Sender):
     # ----------------------------------------------------------------------
     def draw(self):
         view = CNCCanvas.VIEWS.index(self.canvasFrame.view.get())
-        self.canvas.draw(view)
+        self.canvas.updateAll(view)
         self.selectionChange()
 
     # ----------------------------------------------------------------------
@@ -2594,21 +2598,7 @@ class Application(Tk, Sender):
                 return
 
             # reset colors
-            before = time.time()
-            for ij in self._paths:  # Slow loop
-                if not ij:
-                    continue
-                path = self.gcode[ij[0]].path(ij[1])
-                if path:
-                    color = self.canvas.itemcget(path, "fill")
-                    if color != CNCCanvas.ENABLE_COLOR:
-                        self.canvas.itemconfig(
-                            path, width=1, fill=CNCCanvas.ENABLE_COLOR
-                        )
-                    # Force a periodic update since this loop can take time
-                    if time.time() - before > 0.25:
-                        self.update()
-                        before = time.time()
+            self.lastProcessedPath = 0
 
             # the buffer of the machine should be empty?
             self._runLines = len(self._paths) + 1  # plus the wait
@@ -2818,9 +2808,7 @@ class Application(Tk, Sender):
                         i, j = self._paths[self._selectI]
                         path = self.gcode[i].path(j)
                         if path:
-                            self.canvas.itemconfig(
-                                path, width=2, fill=CNCCanvas.PROCESS_COLOR
-                            )
+                            self.lastProcessedPath = path
                     self._selectI += 1
 
             if self._gcount >= self._runLines:

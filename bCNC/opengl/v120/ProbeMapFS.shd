@@ -1,0 +1,8 @@
+#version 120
+
+varying vec3 color;     // Color passed from vertex shader
+uniform float alpha; // Opacity
+
+void main() {
+    gl_FragColor = vec4(color, alpha);
+}

@@ -1,0 +1,14 @@
+#version 150
+
+uniform vec3 gantryColor;
+uniform vec3 light1dir;
+uniform vec3 light2dir;
+
+uniform mat4 MVP;
+
+in vec3 normal_;
+out vec4 fragColor;
+
+void main() {
+    fragColor = vec4(gantryColor / 255. * abs(dot(normal_, light1dir) + dot(normal_, light2dir) / 2.), 0.75);
+}

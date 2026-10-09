@@ -1,0 +1,54 @@
+#version 150
+
+in float id;
+in vec3 xyz;
+in float pos;
+in float colorValue;
+in float dashRatio;
+in float flags;
+
+out float id_;
+out float length_;
+out vec3 color_;
+out float dashRatio_;
+out float linePos;
+
+uniform mat4 MVP;
+uniform float zoom;
+uniform vec3 selectColor;
+uniform vec3 select2Color;
+uniform vec3 disableColor;
+
+void main() {
+    gl_Position = MVP * vec4(xyz, 1);
+
+    // Dummy operations, so that the linker does not optimize these variables
+    if (id == -1.0) return;
+    dashRatio_ = dashRatio;
+    linePos = pos;
+
+    // Apply a different color based on whether the path is selected/enabled
+    bool isSelected = (mod(flags, 2.0) == 1.0);
+    bool isEnabled = (floor(mod(flags / 2.0, 2.0)) == 1.0);
+
+    if (isSelected) {
+        if (isEnabled) {
+            color_ = selectColor / 255.;
+        }
+        else {
+            color_ = select2Color / 255.;
+        }
+    }
+    else {
+        if (isEnabled) {
+            float R = floor(colorValue / 65536.0);
+            float G = floor(mod(floor(colorValue / 256.0), 256.0));
+            float B = mod(colorValue, 256.0);
+
+            color_ = vec3(R, G, B) / 255.;
+        }
+        else {
+            color_ = disableColor / 255.;
+        }
+    }
+}

@@ -1,0 +1,46 @@
+#version 120
+
+attribute vec2 uv; // Normalized values from 0.0 - 1.0
+
+uniform mat4 MVP;
+
+uniform sampler2D heightMap;
+
+uniform vec3 stockMin;
+uniform vec3 stockMax;
+uniform float meshResolution;
+uniform vec2 uvmin; // Adapt the (meshResolution x meshResolution) size triangle mesh to the stock area visible on the screen,
+uniform vec2 uvmax; // so that when the user zooms in, we don't loose resolution
+
+varying vec3 normal;
+varying float z;
+
+void main() {
+    vec2 uv_ = uvmin + uv * (uvmax - uvmin);
+
+    vec2 xy = mix(stockMin.xy, stockMax.xy, uv_);
+
+    const vec2 unpackFactors = vec2(65280.0 / 65535.0, 255.0 / 65535.0);
+    float z_unit = dot(texture2D(heightMap, uv_).rg, unpackFactors);
+    z = mix(stockMin.z, stockMax.z, z_unit);
+
+    vec2 deltaUV_ = (uvmax - uvmin) / (meshResolution - 1);
+
+    z_unit = dot(texture2D(heightMap, uv_ - vec2(deltaUV_.x, 0.0)).rg, unpackFactors);
+    float hL = mix(stockMin.z, stockMax.z, z_unit);
+    z_unit = dot(texture2D(heightMap, uv_ + vec2(deltaUV_.x, 0.0)).rg, unpackFactors);
+    float hR = mix(stockMin.z, stockMax.z, z_unit);
+    z_unit = dot(texture2D(heightMap, uv_ - vec2(0.0, deltaUV_.y)).rg, unpackFactors);
+    float hD = mix(stockMin.z, stockMax.z, z_unit);
+    z_unit = dot(texture2D(heightMap, uv_ + vec2(0.0, deltaUV_.y)).rg, unpackFactors);
+    float hU = mix(stockMin.z, stockMax.z, z_unit);
+
+    float dx = deltaUV_.x * (stockMax.x - stockMin.x);
+    float dy = deltaUV_.y * (stockMax.y - stockMin.y);
+    float dzdx = (hR - hL) / (2.0 * dx);
+    float dzdy = (hU - hD) / (2.0 * dy);
+
+    normal = normalize(vec3(-dzdx, -dzdy, 1.0));
+
+    gl_Position = MVP * vec4(xy, z, 1.);
+}
