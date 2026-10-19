@@ -204,7 +204,7 @@ FLAG_ENABLED = 0b10
 openglFolder = f"{os.path.abspath(os.path.dirname(__file__))}{os.sep}opengl{os.sep}v120{os.sep}"
 
 # Simulator variables
-HEIGHTMAP_RES = 10000
+HEIGHTMAP_RES = 1024
 MESH_RES = 1000
 STOCK_MIN_X = 0
 STOCK_MAX_X = 100
