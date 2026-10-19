@@ -32,19 +32,19 @@ setup(
         #   (it can be installed, but does not work)
         "pyserial>=3.5 ; sys_platform != 'win32'",
         "pyserial<=3.0.1 ; sys_platform == 'win32'",
-        "numpy>=1.12",
+        "numpy>=1.21",
         "svgelements>=1,<2",
         "shxparser>=0.0.2",
         "Pillow>=4.0",
-        # Note there are no PyPI OpenCV packages for ARM
-        # (Raspberry PI, Orange PI, etc...)
-        "opencv-python==4.5.5.64 ; "
-        + "(\"arm\" not in platform_machine) and "
-        + "(\"aarch64\" not in platform_machine)",
-	"tkinter-gl>=1.0",
-	"PyOpenGL>=3.1",
-	#"PyOpenGL_accelerate",
-	"pyglm>=2.8.3"
+        # No reliable PyPI wheels on classic 32-bit ARM (Raspberry Pi, etc.);
+        # use the distro package there. aarch64 usually has wheels.
+        "opencv-python>=4.10,<6 ; "
+        + "platform_machine != 'armv6l' and "
+        + "platform_machine != 'armv7l'",
+        "tkinter-gl>=1.0",
+        "PyOpenGL>=3.1",
+        #"PyOpenGL_accelerate",
+        "pyglm>=2.8.3"
     ],
     entry_points={
         "console_scripts": [
