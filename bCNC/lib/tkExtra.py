@@ -3030,7 +3030,7 @@ class Combobox(Frame):
 
         # Arrow button
         self._post = IntVar()
-        self._post.trace("w", self._showList)
+        self._post.trace_add('write', self._showList)
         self._arrowBtn = Checkbutton(
             self,
             text="\u25BC",

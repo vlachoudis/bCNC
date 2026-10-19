@@ -1,0 +1,58 @@
+#version 120
+
+uniform vec3 light1dir;
+uniform vec3 light2dir;
+uniform float opacity;
+
+uniform sampler2D heightMap;
+uniform float zmin;
+uniform float zmax;
+
+varying float s;
+varying float z;
+
+uniform float side; // 1: up, 2: down, 3: left, 4: right
+
+void main() {
+    float h;
+    vec3 normal;
+    float z_unit;
+
+    const vec2 unpackFactors = vec2(65280.0 / 65535.0, 255.0 / 65535.0);
+
+    if (side == 1)
+    {
+        z_unit = dot(texture2D(heightMap, vec2(1.0 - s, 1.0)).rg, unpackFactors);
+        normal = vec3(0., 1., 0.);
+    }
+    else if (side == 2)
+    {
+        z_unit = dot(texture2D(heightMap, vec2(s, 0.0)).rg, unpackFactors);
+        normal = vec3(0., -1., 0.);
+    }
+    else if (side == 3)
+    {
+        z_unit = dot(texture2D(heightMap, vec2(0.0, 1.0 - s)).rg, unpackFactors);
+        normal = vec3(-1., 0., 0.);
+    }
+    else if (side == 4)
+    {
+        z_unit = dot(texture2D(heightMap, vec2(1.0, s)).rg, unpackFactors);
+        normal = vec3(1., 0., 0.);
+    }
+
+    h = mix(zmin, zmax, z_unit);
+
+    if (z > h)
+    {
+        discard;
+    }
+    
+    vec3 baseColor = vec3(0.82, 0.50, 0.19);
+
+    float diffuse = abs((dot(normal, light1dir) + dot(normal, light2dir)) / 2.);
+
+    float lighting = 0.25 + 0.75 * diffuse;
+
+    gl_FragColor = vec4(baseColor * lighting, opacity);
+}

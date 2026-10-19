@@ -672,6 +672,7 @@ class Sender:
         self._msg = None
         self._pause = False
         self.running = False
+        self.lastProcessedPath = 0
         CNC.vars["running"] = False
 
     # ----------------------------------------------------------------------

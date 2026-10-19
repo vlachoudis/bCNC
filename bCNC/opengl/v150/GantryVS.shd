@@ -1,0 +1,15 @@
+#version 150
+
+in vec3 xyz;
+in vec3 normal;
+
+uniform mat4 MVP;
+uniform vec3 location;
+uniform float diameter;
+
+out vec3 normal_;
+
+void main() {
+    gl_Position = MVP * vec4(xyz * diameter + location, 1.);
+    normal_ = normal;
+}

@@ -1,0 +1,12 @@
+// GLSL ES 1.00
+#version 100
+precision highp float;  // Required in fragment shader
+
+varying vec2 texCoords;
+varying vec3 color;
+
+uniform sampler2D ourTexture;
+
+void main() {
+    gl_FragColor = texture2D(ourTexture, texCoords) * vec4(color, 1.);
+}

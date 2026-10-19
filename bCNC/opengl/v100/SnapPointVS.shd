@@ -1,0 +1,32 @@
+// GLSL ES 1.00
+#version 100
+precision highp float;  // Required in fragment shader
+
+attribute float index; // Index of the line vertex
+
+uniform mat4 MVP;
+uniform vec3 location; // In world units. Location of the center of the SnapPoint square
+uniform float canvasWidth;
+uniform float canvasHeight;
+
+float SIZE = 8.; // Snap point size in pixels
+
+void main() {
+    vec2 uv = (MVP * vec4(location, 1.)).xy;
+    vec2 zoom = vec2(2. / canvasWidth, 2. / canvasHeight);
+
+    if (index == 1.) {
+        uv += vec2(-SIZE * zoom.x / 2., -SIZE * zoom.y / 2.);
+    }
+    else if (index == 2.) {
+        uv += vec2(SIZE * zoom.x / 2., -SIZE * zoom.y / 2.);
+    }
+    else if (index == 3.) {
+        uv += vec2(SIZE * zoom.x / 2., SIZE * zoom.y / 2.);
+    }
+    else if (index == 4.) {
+        uv += vec2(-SIZE * zoom.x / 2., SIZE * zoom.y / 2.);
+    }
+
+    gl_Position = vec4(uv.x, uv.y, 0., 1.);
+}

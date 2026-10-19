@@ -1,0 +1,41 @@
+#version 150
+
+in float index; // Index of the image rectangle vertex
+
+out vec2 texCoords;
+
+uniform mat4 MVP;
+uniform vec2 location; // In canvas pixel units. Location of the center of the image
+uniform float width;
+uniform float height;
+uniform float canvasWidth;
+uniform float canvasHeight;
+uniform vec2 zoom;
+uniform float cameraScale;
+
+void main() {
+    // Change pixel units to unit units
+    float u = location.x / canvasWidth * 2. - 1.;
+    float v = 1. - location.y / canvasHeight * 2.;
+    float du = width * zoom.x / cameraScale;
+    float dv = height * zoom.y / cameraScale;
+
+    //gl_Position = MVP * vec4(location, 1.0);
+
+    if (index == 1.){ // Lower left
+        texCoords = vec2(0., 0.);
+        gl_Position = vec4(u - du / 2., v - dv / 2., 0., 1.);
+    }
+    else if (index == 2.){ // Lower right
+        texCoords = vec2(1., 0.);
+        gl_Position = vec4(u + du / 2., v - dv / 2., 0., 1.);
+    }
+    else if (index == 3.){ // Upper right
+        texCoords = vec2(1., 1.);
+        gl_Position = vec4(u + du / 2., v + dv / 2., 0., 1.);
+    }
+    else if (index == 4.){ // Uper left
+        texCoords = vec2(0., 1.);
+        gl_Position = vec4(u - du / 2., v + dv / 2., 0., 1.);
+    }
+}

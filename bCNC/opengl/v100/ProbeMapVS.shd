@@ -1,0 +1,21 @@
+// GLSL ES 1.00
+#version 100
+precision highp float;  // Required in fragment shader
+
+attribute vec3 location; // In world units.
+attribute float colorValue;
+
+uniform mat4 MVP;
+uniform float heightScale;
+
+varying vec3 color;     // Color passed to fragment shader
+
+void main() {
+    float R = floor(colorValue / 65536.0);
+    float G = floor(mod(floor(colorValue / 256.0), 256.0));
+    float B = mod(colorValue, 256.0);
+
+    color = vec3(R, G, B) / 255.;
+    
+    gl_Position = MVP * vec4(location.x, location.y, location.z * heightScale, 1.);
+}

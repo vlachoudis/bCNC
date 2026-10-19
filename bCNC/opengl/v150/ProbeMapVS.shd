@@ -1,0 +1,19 @@
+#version 150
+
+in vec3 location; // In world units.
+in float colorValue;
+
+uniform mat4 MVP;
+uniform float heightScale;
+
+out vec3 color;     // Color passed to fragment shader
+
+void main() {
+    float R = floor(colorValue / 65536.0);
+    float G = floor(mod(floor(colorValue / 256.0), 256.0));
+    float B = mod(colorValue, 256.0);
+
+    color = vec3(R, G, B) / 255.;
+
+    gl_Position = MVP * vec4(location.x, location.y, location.z * heightScale, 1.);
+}

@@ -14,7 +14,7 @@ with open("README.md") as fh:
 
 setup(
     name="bCNC",
-    version="0.9.16",
+    version="1.0.0",
     license="GPLv2",
     description="Swiss army knife for all your CNC/g-code needs",
     long_description=long_description,
@@ -41,7 +41,10 @@ setup(
         "opencv-python==4.5.5.64 ; "
         + "(\"arm\" not in platform_machine) and "
         + "(\"aarch64\" not in platform_machine)",
-	"tkinter-gl>=1.0"
+	"tkinter-gl>=1.0",
+	"PyOpenGL>=3.1",
+	#"PyOpenGL_accelerate",
+	"pyglm>=2.8.3"
     ],
     entry_points={
         "console_scripts": [

@@ -1,0 +1,45 @@
+#version 150
+
+in float index;
+in vec3 location;
+in float hOffset;
+in float charoffset;
+in float charwidth;
+in float charheight;
+in float colorValue;
+
+out vec2 texCoords;
+out vec3 color;
+
+uniform mat4 MVP;
+uniform float textAtlasWidth;
+uniform float canvasWidth;
+uniform float canvasHeight;
+
+void main() {
+    // Prevent optimization of charoffset variable by the glCompileShader
+    gl_Position = vec4(charoffset, 0., 0., 0.);
+
+    float R = floor(colorValue / 65536.0);
+    float G = floor(mod(floor(colorValue / 256.0), 256.0));
+    float B = mod(colorValue, 256.0);
+
+    color = vec3(R, G, B) / 255.;
+
+    if (index == 1.){
+        texCoords = vec2(charoffset / textAtlasWidth, 0.);
+        gl_Position = MVP * vec4(location, 1.0) + vec4(hOffset / canvasWidth * 2., 0., 0., 0.);
+    }
+    else if (index == 2.){
+        texCoords = vec2((charoffset + charwidth) / textAtlasWidth, 0.);
+        gl_Position = MVP * vec4(location, 1.0) + vec4((hOffset + charwidth) / canvasWidth * 2., 0., 0., 0.);
+    }
+    else if (index == 3.){
+        texCoords = vec2((charoffset + charwidth) / textAtlasWidth, 1.);
+        gl_Position = MVP * vec4(location, 1.0) + vec4((hOffset + charwidth) / canvasWidth * 2., charheight / canvasHeight * 2., 0., 0.);
+    }
+    else if (index == 4.){
+        texCoords = vec2(charoffset / textAtlasWidth, 1.);
+        gl_Position = MVP * vec4(location, 1.0) + vec4(hOffset / canvasWidth * 2., charheight / canvasHeight * 2., 0., 0.);
+    }
+}

@@ -1,0 +1,34 @@
+#version 120
+
+uniform vec3 light1dir;
+uniform vec3 light2dir;
+uniform vec3 stockMin;
+uniform vec3 stockMax;
+uniform float opacity;
+
+varying vec3 normal;
+varying float z;
+
+void main() {
+    if (z <= stockMin.z)
+    {
+        discard;
+    }
+    
+    vec3 baseColor;
+    
+    if (z == stockMax.z)
+    {
+        baseColor = vec3(0.82, 0.50, 0.19);
+    }
+    else
+    {
+        baseColor = vec3(0.64, 0.50, 0.37);
+    }
+
+    float diffuse = abs((dot(normal, light1dir) + dot(normal, light2dir)) / 2.);
+
+    float lighting = 0.25 + 0.75 * diffuse;
+
+    gl_FragColor = vec4(baseColor * lighting, opacity);
+}

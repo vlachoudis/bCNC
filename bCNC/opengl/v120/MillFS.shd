@@ -1,0 +1,235 @@
+#version 120
+
+uniform sampler2D heightMap;
+
+uniform vec3 pA;
+uniform vec3 pB;
+uniform float toolRadius;
+uniform int toolType;
+
+uniform vec3 workMin;
+uniform vec3 workMax;
+
+varying vec2 uv;
+
+void main()
+{
+    // Height is stored in R and G channels, 8 bit each.
+    // The stock height resolution is (workMax-workMin) / 65536
+    
+    const vec2 unpackFactors = vec2(65280.0 / 65535.0, 255.0 / 65535.0);
+    float z_unit = dot(texture2D(heightMap, uv).rg, unpackFactors);
+    float oldHeight = mix(workMin.z, workMax.z, z_unit);
+
+    vec2 p = mix(workMin.xy, workMax.xy, uv);
+
+    float newHeight = oldHeight;
+
+    // The CPU scissor rectangle is a square bounding box.
+    // This shader performs the second, exact test.
+    // Check if the current point falls inside the slot area defined by the carved segment A->B
+
+    vec3 pL, pH;
+
+    // Check which point is the lowest 
+    if (pA.z <= pB.z)
+    {
+        pL = pA;
+        pH = pB;
+    } 
+    else
+    {
+        pL = pB;
+        pH = pA;
+    }
+
+    vec3 vLH = pH - pL;
+
+    float R2 = toolRadius * toolRadius;
+
+    float cutterZ;
+
+    if (toolType == 0) // ============== FLAT ENDMILL ==============
+    {   
+        // Are we inside the diameter around pL?
+        vec2 vL = p - pL.xy;
+        float dist2L = dot(vL, vL);
+
+        if (dist2L <= R2)
+        {
+            cutterZ = pL.z;
+            newHeight = min(oldHeight, cutterZ);
+        }
+        else
+        {
+            // Are pL and pH at the same z?
+            if (pH.z == pL.z)
+            {
+                // Are we inside the diameter around pH?
+                vec2 vH = p - pH.xy;
+                float dist2H = dot(vH, vH);
+
+                if (dist2H <= R2)
+                {
+                    cutterZ = pH.z;
+                    newHeight = min(oldHeight, cutterZ);
+                }
+                else
+                {
+                    // Are we between pL and pH, at a distance smaller than D/2?
+                    // Distance from the segment in the XY plane
+                    vec2 v = vLH.xy;
+                    vec2 w = p - pL.xy;
+
+                    float t = dot(w, v) / dot(v, v);
+
+                    if (t >= 0. && t <= 1.)
+                    {
+                        vec2 closest = pL.xy + t * (vLH.xy);
+                        float distance = length(p - closest);
+
+                        if (distance <= toolRadius)
+                        {
+                            cutterZ = pL.z;
+                            newHeight = min(oldHeight, cutterZ);
+                        }
+                    }
+                }
+            }
+            else // pL and pH are NOT at the same z
+            {
+                // Are we inside the milled slot?
+                vec2 v = vLH.xy;
+                vec2 w = p - pL.xy;
+
+                float t = dot(w, v) / dot(v, v);
+                float tc = clamp(t, 0., 1.);
+
+                vec2 closest = pL.xy + tc * (vLH.xy);
+                float distance = length(p - closest);
+
+                if (distance <= toolRadius)
+                {
+                    // Interpolate the height of the current location
+                    vec2 pProj = pL.xy + t * (vLH.xy);
+                    float distProj = length(p - pProj);
+                    float alpha1 = asin(distProj / toolRadius);
+                    float s1 = toolRadius * cos(alpha1);
+
+                    // Longitudinal and transverse unit vectors
+                    vec2 L = normalize(vLH.xy);
+                    vec2 T = normalize(p - pProj);
+
+                    vec2 pointAtSegment = p - L * s1 - T * distProj;
+
+                    cutterZ = pL.z + vLH.z * length(pointAtSegment - pL.xy) / length(vLH.xy);
+                    newHeight = min(oldHeight, cutterZ);
+                }
+            }
+        }
+    }
+
+    else if (toolType == 1) // ============== BALL ENDMILL ==============
+    {
+        vec2 d = pB.xy - pA.xy;
+        vec2 q = p - pA.xy;
+
+        float L2 = dot(d, d);
+
+        cutterZ = oldHeight;
+
+        // ------------------------------------------------------------
+        // No XY movement
+        // ------------------------------------------------------------
+        if (L2 < 1e-12)
+        {
+            float q2 = dot(q, q);
+
+            if (q2 <= R2)
+            {
+                cutterZ = pA.z - sqrt(R2 - q2);
+            }
+        }
+        else
+        {
+            // Position along A->B, normalized: t = 0 at A, t = 1 at B
+            float t = dot(q, d) / L2;
+
+            // Squared perpendicular distance to the infinite path
+            float h2 = max(0.0, dot(q, q) - t * t * L2);
+
+            // The path is more than R away?
+            if (h2 <= R2)
+            {
+                float L = sqrt(L2);
+
+                // Z slope per unit distance along the path
+                float k = (pB.z - pA.z) / L;
+
+                // Radius remaining in the direction of the path
+                float w2 = R2 - h2;
+                float w  = sqrt(w2);
+
+                // Physical distance of the query point along the path
+                float s = t * L;
+
+                // Location of the unconstrained minimum
+                float sOpt = s - k * w / sqrt(1.0 + k * k);
+
+                // ------------------------------------------------------------
+                // Interior of the segment
+                // ------------------------------------------------------------
+                if (sOpt >= 0.0 && sOpt <= L)
+                {
+                    cutterZ = pA.z + k * s - sqrt(1.0 + k * k) * w;
+                }
+                else
+                {
+                    // ------------------------------------------------------------
+                    // Before A
+                    // ------------------------------------------------------------
+                    if (sOpt < 0.0)
+                    {
+                        float ds = s;
+
+                        // A's ball does not reach the query point
+                        if (ds <= w)
+                        {
+                            cutterZ = pA.z - sqrt(w2 - ds * ds);
+                        }
+                    }
+                    else
+                    {
+                        // ------------------------------------------------------------
+                        // After B
+                        // ------------------------------------------------------------
+                        {
+                            float ds = L - s;
+
+                            // B's ball does not reach the query point
+                            if (ds <= w)
+                            {
+                                cutterZ = pB.z - sqrt(w2 - ds * ds);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Reference point at nose tip
+        cutterZ += toolRadius;
+
+        newHeight = min(oldHeight, cutterZ);
+    }
+
+    float newHeight_unit = (newHeight - workMin.z) / (workMax.z - workMin.z);
+    
+    newHeight_unit = clamp(newHeight_unit, 0.0, 1.0); // Avoid overflow
+
+    float val16 = floor(newHeight_unit * 65535. + 0.5);
+    float valH = floor(val16 / 256.);
+    float valL = val16 - valH * 256.;
+
+    gl_FragColor = vec4(valH / 255., valL/ 255., 0., 1.);
+}

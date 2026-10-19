@@ -2,6 +2,14 @@
 
 There are too much commits, so i've created this brief overview of new features in bCNC.
 
+## 1.0.0
+- Breaking changes:
+  - Canvas is now using OpenGL [#591](https://github.com/vlachoudis/bCNC/issues/591) Thanks to [koneklaudio](https://github.com/koneklaudio)
+- New features:
+  - Antialiasing
+  - Freely rotating 3D view in realtime
+  - G-code cutting simulator (Raspberry Pi support is not ready yet)
+
 ## 0.9.16
 - Breaking changes:
   - Python3.8 is the lowest supported version. Starting bCNC with any prior version will fail. [#1719](https://github.com/vlachoudis/bCNC/issues/1719)

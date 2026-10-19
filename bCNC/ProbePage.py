@@ -41,6 +41,7 @@ from tkinter import (
     Spinbox,
     LabelFrame,
     messagebox,
+    Frame
 )
 
 import Camera
@@ -306,8 +307,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
               text=_("Fast Probe Feed:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.fastProbeFeed = StringVar()
-        self.fastProbeFeed.trace(
-            "w", lambda *_: ProbeCommonFrame.probeUpdate())
+        self.fastProbeFeed.trace_add('write', lambda *_: ProbeCommonFrame.probeUpdate())
         ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(
             frame,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
@@ -328,7 +328,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         Label(frame, text=_("Probe Feed:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeFeedVar = StringVar()
-        self.probeFeedVar.trace("w", lambda *_: ProbeCommonFrame.probeUpdate())
+        self.probeFeedVar.trace_add('write', lambda *_: ProbeCommonFrame.probeUpdate())
         ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(
             frame,
             background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
@@ -1215,24 +1215,27 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         lframe = LabelFrame(self, text=_("Autolevel"), foreground="DarkBlue")
         lframe.pack(side=TOP, fill=X)
 
+        frame1 = Frame(lframe)
+        frame1.pack(side=TOP, fill=X)
+
         row, col = 0, 0
         # Empty
         col += 1
-        Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
+        Label(frame1, text=_("Min")).grid(row=row, column=col, sticky=EW)
         col += 1
-        Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
+        Label(frame1, text=_("Max")).grid(row=row, column=col, sticky=EW)
         col += 1
-        Label(lframe, text=_("Step")).grid(row=row, column=col, sticky=EW)
+        Label(frame1, text=_("Step")).grid(row=row, column=col, sticky=EW)
         col += 1
-        Label(lframe, text=_("N")).grid(row=row, column=col, sticky=EW)
+        Label(frame1, text=_("N")).grid(row=row, column=col, sticky=EW)
 
         # --- X ---
         row += 1
         col = 0
-        Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
+        Label(frame1, text=_("X:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeXmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeXmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmin, _("X minimum"))
@@ -1240,7 +1243,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeXmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmax, _("X maximum"))
@@ -1248,14 +1251,14 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXstep = Label(
-            lframe, foreground="DarkBlue", background="gray90", width=5
+            frame1, foreground="DarkBlue", background="gray90", width=5
         )
         self.probeXstep.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXstep, _("X step"))
 
         col += 1
         self.probeXbins = Spinbox(
-            lframe,
+            frame1,
             from_=2,
             to_=1000,
             command=self.draw,
@@ -1269,10 +1272,10 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         # --- Y ---
         row += 1
         col = 0
-        Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
+        Label(frame1, text=_("Y:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeYmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeYmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmin, _("Y minimum"))
@@ -1280,7 +1283,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeYmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmax, _("Y maximum"))
@@ -1288,14 +1291,14 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYstep = Label(
-            lframe, foreground="DarkBlue", background="gray90", width=5
+            frame1, foreground="DarkBlue", background="gray90", width=5
         )
         self.probeYstep.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYstep, _("Y step"))
 
         col += 1
         self.probeYbins = Spinbox(
-            lframe,
+            frame1,
             from_=2,
             to_=1000,
             command=self.draw,
@@ -1310,10 +1313,10 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         row += 1
         col = 0
 
-        Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
+        Label(frame1, text=_("Z:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeZmin = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeZmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmin, _("Z Minimum depth to scan"))
@@ -1321,18 +1324,43 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZmax = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
         )
         self.probeZmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmax, _("Z safe to move"))
         self.addWidget(self.probeZmax)
 
-        lframe.grid_columnconfigure(1, weight=2)
-        lframe.grid_columnconfigure(2, weight=2)
-        lframe.grid_columnconfigure(3, weight=1)
+        frame1.grid_columnconfigure(1, weight=2)
+        frame1.grid_columnconfigure(2, weight=2)
+        frame1.grid_columnconfigure(3, weight=1)
+
+        frame2 = Frame(lframe)
+        frame2.pack(side=TOP, fill=X)
+
+        Label(frame2, text=_("Color Map height scale:")).pack(side=LEFT)
+        self.probeMapHeightScale = tkExtra.FloatEntry(
+            frame2, 
+            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, 
+            width=5
+        )
+        self.probeMapHeightScale.pack(side=LEFT)
+        tkExtra.Balloon.set(self.probeMapHeightScale, _("Height scale of the Color Map. It only affects visualization."))
+        self.probeMapHeightScale.bind("<Return>", self.updateMapHeight)
+        self.probeMapHeightScale.bind("<KP_Enter>", self.updateMapHeight)
+        self.probeMapHeightScale.bind("<FocusOut>", self.updateMapHeight)
+        self.addWidget(self.probeMapHeightScale)
 
         self.loadConfig()
 
+    def updateMapHeight(self, *args):
+        try:
+            self.app.canvas.probeMapHeightScale = float(self.probeMapHeightScale.get())
+        except:
+            self.app.canvas.probeMapHeightScale = 1.
+        
+        self.app.canvas.updateProbeText()
+        
+        self.app.canvas.queueDraw()
     # -----------------------------------------------------------------------
     def setValues(self):
         probe = self.app.gcode.probe
@@ -1361,6 +1389,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Utils.setInt("Probe", "yn", self.probeYbins.get())
         Utils.setFloat("Probe", "zmin", self.probeZmin.get())
         Utils.setFloat("Probe", "zmax", self.probeZmax.get())
+        Utils.setFloat("Probe", "mapheightscale", self.probeMapHeightScale.get())
 
     # -----------------------------------------------------------------------
     def loadConfig(self):
@@ -1370,6 +1399,8 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         self.probeYmax.set(Utils.getFloat("Probe", "ymax"))
         self.probeZmin.set(Utils.getFloat("Probe", "zmin"))
         self.probeZmax.set(Utils.getFloat("Probe", "zmax"))
+        self.probeMapHeightScale.set(Utils.getFloat("Probe", "mapheightscale", 1.0))
+        self.updateMapHeight()
 
         self.probeXbins.delete(0, END)
         self.probeXbins.insert(0, max(2, Utils.getInt("Probe", "xn", 5)))
@@ -2299,7 +2330,7 @@ class ProbePage(CNCRibbon.Page):
 
         self.tabGroup = CNCRibbon.Page.groups["Probe"]
         self.tabGroup.tab.set("Probe")
-        self.tabGroup.tab.trace("w", self.tabChange)
+        self.tabGroup.tab.trace_add('write', self.tabChange)
 
     # -----------------------------------------------------------------------
     def tabChange(self, a=None, b=None, c=None):

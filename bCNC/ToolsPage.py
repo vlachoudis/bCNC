@@ -1935,7 +1935,7 @@ class ToolsFrame(CNCRibbon.PageFrame):
         self.tools.setWidget("toolHelpFrame", frame)
         self.tools.setWidget("toolHelp", toolHelp)
 
-        app.tools.active.trace("w", self.change)
+        app.tools.active.trace_add('write', self.change)
         self.change()
 
     # ----------------------------------------------------------------------
