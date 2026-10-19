@@ -1,7 +1,7 @@
 pyserial>=3.5
-numpy>=1.12,<2
+numpy>=1.21
 Pillow>=4.0
-opencv-python==4.5.5.62
+opencv-python>=4.10,<6
 svgelements>=1,<2
 shxparser>=0.0.2
 tkinter-gl>=1.0
