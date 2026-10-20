@@ -86,13 +86,7 @@ try:
         OpenGL.setPlatform('x11')
     from OpenGL import GL
 except ImportError:
-    raise ImportError(
-        """
-        This example requires PyOpenGL.
-
-        You can install it with "pip install PyOpenGL".
-        """)
-
+    raise ImportError("PyOpenGL is required. You can install it with 'pip install PyOpenGL'.")
 
 
 VIEW_XY = 0

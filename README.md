@@ -2,7 +2,7 @@ bCNC
 ====
 
 ## Apple/MacOS warning! We are working on new release and it seems to be broken on Mac, but have no way to test.
-## If you use MacOS, plese contact us [HERE](https://github.com/vlachoudis/bCNC/issues/591) so we can keep Mac support!
+## If you use MacOS, please contact us [HERE](https://github.com/vlachoudis/bCNC/issues/591) so we can keep Mac support!
 
 GrblHAL (formerly GRBL) CNC command sender, autoleveler, g-code editor, digitizer, CAM
 and swiss army knife for all your CNC needs.
@@ -16,7 +16,7 @@ An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/vlachoudis/bCNC)
 
 All pull requests that do change GUI should have attached screenshots of GUI before and after the changes.
-Please note that all pull requests should pass the Travis-CI build in order to get merged.https://github.com/Harvie/cnc-simulator
+Please note that all pull requests should pass the Travis-CI build in order to get merged.
 Most pull requests should also pass CodeFactor checks if there is not good reason for failure.
 Before making pull request, please test your code on ~~both python2 and~~ python3.
 
