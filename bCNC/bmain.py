@@ -769,8 +769,11 @@ class Application(Tk, Sender):
         Utils.setInt(Utils.__prg__, "height", str(self.winfo_height()))
         Utils.setInt(Utils.__prg__, "sash", str(self.paned.sash_coord(0)[0]))
 
-        # save windowState
-        Utils.setStr(Utils.__prg__, "windowstate", str(self.wm_state()))
+        # save windowState (do not persist minimized, or next launch stays hidden)
+        state = str(self.wm_state())
+        if state in ("iconic", "withdrawn"):
+            state = "normal"
+        Utils.setStr(Utils.__prg__, "windowstate", state)
         Utils.setStr(Utils.__prg__, "page", str(
             self.ribbon.getActivePage().name))
 
