@@ -212,7 +212,7 @@ if __name__ == "__main__":
 	sys.stdout.write("=" * 80 + "\n")
 	sys.stdout.write(
 		"WARNING: bCNC was recently ported to only support \n"
-		+ "python3.8 and newer.\n"
+		+ "python3.8 and newer. OpenGL support is now mandatory.\n"
 	)
 	sys.stdout.write(
 		"Most things seem to work reasonably well.\n"
