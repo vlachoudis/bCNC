@@ -4759,6 +4759,8 @@ class CanvasFrame(Frame):
             # (then use bbox zmax instead of the usual absolute 0).
             if bzmin >= 0.0:
                 zmax = bzmax
+            if zmax <= zmin:
+                zmax = zmin+1
 
         if xmax <= xmin:
             messagebox.showinfo("Warning", "Xmax must be greater than Xmin")
