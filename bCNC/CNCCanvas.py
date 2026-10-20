@@ -6,6 +6,7 @@
 import math
 import time
 import sys
+import threading
 from numpy import deg2rad
 from tkinter_gl import GLCanvas
 
@@ -3026,9 +3027,9 @@ class CNCCanvas(GLCanvas):
     # ----------------------------------------------------------------------
     # Parse and draw the file from the editor to g-code commands
     # ----------------------------------------------------------------------
-    def draw(self):
+    def draw(self, before_swap=None):
         width, height = self.winfo_width(), self.winfo_height()
-        
+
         # Check readiness of the buffer. Do not re-queueDraw() here: that
         # busy-loops inside update_idletasks() when the FBO is not ready yet.
         if glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE:
@@ -3136,10 +3137,47 @@ class CNCCanvas(GLCanvas):
             self.drawArrows(self.vectorArrowsVBO)
 
         glUseProgram(0)
-        
+
+        if before_swap is not None:
+            before_swap(width, height)
+
         self.swap_buffers()
         
         self._drawRequested = False
+
+    # ----------------------------------------------------------------------
+    # Capture canvas as a PIL Image (safe to call from other threads)
+    # ----------------------------------------------------------------------
+    def getScreenshot(self, timeout=2.0):
+        if not hasattr(Image, "frombytes"):
+            return None
+
+        result = []
+        done = threading.Event()
+
+        def before_swap(width, height):
+            if width < 1 or height < 1:
+                return
+            glPixelStorei(GL_PACK_ALIGNMENT, 1)
+            pixels = glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE)
+            image = Image.frombytes("RGB", (width, height), bytes(pixels))
+            result.append(image.transpose(Image.FLIP_TOP_BOTTOM))
+
+        def capture():
+            try:
+                self.make_current()
+                self.draw(before_swap=before_swap)
+            except Exception:
+                pass
+            finally:
+                done.set()
+
+        try:
+            self.after_idle(capture)
+        except Exception:
+            return None
+
+        return result[0] if done.wait(timeout) and result else None
 
     def drawBackground(self):
         glUseProgram(self.backgroundProgram)

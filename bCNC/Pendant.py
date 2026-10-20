@@ -143,22 +143,21 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
                 pass
 
         elif page == "/canvas":
-            if not Image:
-                return
-            ps = httpd.app.canvas.postscript(colormode="color")
             try:
+                img = httpd.app.canvas.getScreenshot() if Image else None
+                if img is None:
+                    raise RuntimeError("canvas screenshot unavailable")
                 with io.BytesIO() as out:
-                    Image.open(io.BytesIO(ps.encode('utf-8'))).save(out, "gif")
-                    self.do_HEAD(200, content="image/gif", cl=out.tell())
-                    out.seek(0)
-                    self.wfile.write(out.read())
+                    img.save(out, "gif")
+                    data = out.getvalue()
+                self.do_HEAD(200, content="image/gif", cl=len(data))
+                self.wfile.write(data)
             except Exception:
-                filename = os.path.join(iconpath, "warn.gif")
                 try:
-                    f = open(filename,"rb")
-                    self.do_HEAD(200, content="image/gif", cl=self.get_file_size(f))
-                    self.wfile.write(f.read())
-                    f.close()
+                    with open(os.path.join(iconpath, "warn.gif"), "rb") as f:
+                        data = f.read()
+                    self.do_HEAD(200, content="image/gif", cl=len(data))
+                    self.wfile.write(data)
                 except Exception:
                     pass
 
