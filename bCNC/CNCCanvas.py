@@ -4744,16 +4744,21 @@ class CanvasFrame(Frame):
                 bxmin, bxmax = CNC.vars["xmin"], CNC.vars["xmax"]
                 bymin, bymax = CNC.vars["ymin"], CNC.vars["ymax"]
                 bzmin = CNC.vars["zmin"]
+                bzmax = CNC.vars["zmax"]
             else:
                 bxmin = bymin = 0.0
                 bxmax = bymax = 10.0
                 bzmin = -10.0
+                bzmax = 0.0
             xmin = bxmin + xmin
             xmax = bxmax + xmax
             ymin = bymin + ymin
             ymax = bymax + ymax
             zmin = bzmin + zmin
-            # zmax stays as entered (absolute)
+            # Z max stays absolute, unless bbox is entirely at/above Z0
+            # (then use bbox zmax instead of the usual absolute 0).
+            if bzmin >= 0.0:
+                zmax = bzmax
 
         if xmax <= xmin:
             messagebox.showinfo("Warning", "Xmax must be greater than Xmin")
