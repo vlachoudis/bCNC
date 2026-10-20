@@ -206,11 +206,11 @@ openglFolder = f"{os.path.abspath(os.path.dirname(__file__))}{os.sep}opengl{os.s
 # Simulator variables
 HEIGHTMAP_RES = 1024
 MESH_RES = 1000
-STOCK_MIN_X = 0
-STOCK_MAX_X = 100
-STOCK_MIN_Y = 0
-STOCK_MAX_Y = 100
-STOCK_MIN_Z = -10.
+STOCK_MIN_X = -10.
+STOCK_MAX_X = 10.
+STOCK_MIN_Y = -10.
+STOCK_MAX_Y = 10.
+STOCK_MIN_Z = 0.
 STOCK_MAX_Z = 0.
 MILL_TYPES = {"Flat": 0, "Ball": 1}
 MILL_TYPE = "Flat"
@@ -3036,10 +3036,10 @@ class CNCCanvas(GLCanvas):
     def draw(self):
         width, height = self.winfo_width(), self.winfo_height()
         
-        # Check readiness of the buffer
+        # Check readiness of the buffer. Do not re-queueDraw() here: that
+        # busy-loops inside update_idletasks() when the FBO is not ready yet.
         if glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE:
             self._drawRequested = False
-            self.queueDraw()
             return
 
         glViewport(0, 0, width, height)
@@ -4662,6 +4662,14 @@ class CanvasFrame(Frame):
         tkExtra.Balloon.set(self.stockZmax, _("Z maximum"))
         self.addWidget(self.stockZmax)
 
+        row += 1
+        self.stockRelative = BooleanVar(value=True)
+        Checkbutton(
+            lframe,
+            text=_("Relative to G-code bounds"),
+            variable=self.stockRelative,
+        ).grid(row=row, column=0, columnspan=3, sticky=W)
+
         # --- Update button ---
         row += 1
         col = 1
@@ -4728,6 +4736,25 @@ class CanvasFrame(Frame):
             messagebox.showinfo("Warning", "Please fill in all the stock dimensions")
             return
         
+        # Resolve to absolute stock size first; all checks below use that.
+        if self.stockRelative.get():
+            # X/Y min/max and Z min are offsets added to the G-code bbox;
+            # Z max remains absolute. If no bbox yet, assume a 10mm cube.
+            if CNC.isMarginValid():
+                bxmin, bxmax = CNC.vars["xmin"], CNC.vars["xmax"]
+                bymin, bymax = CNC.vars["ymin"], CNC.vars["ymax"]
+                bzmin = CNC.vars["zmin"]
+            else:
+                bxmin = bymin = 0.0
+                bxmax = bymax = 10.0
+                bzmin = -10.0
+            xmin = bxmin + xmin
+            xmax = bxmax + xmax
+            ymin = bymin + ymin
+            ymax = bymax + ymax
+            zmin = bzmin + zmin
+            # zmax stays as entered (absolute)
+
         if xmax <= xmin:
             messagebox.showinfo("Warning", "Xmax must be greater than Xmin")
             return
@@ -4802,6 +4829,9 @@ class CanvasFrame(Frame):
         self.stockYmax.set(Utils.getFloat("Simulation", "ymax", STOCK_MAX_Y))
         self.stockZmin.set(Utils.getFloat("Simulation", "zmin", STOCK_MIN_Z))
         self.stockZmax.set(Utils.getFloat("Simulation", "zmax", STOCK_MAX_Z))
+        self.stockRelative.set(
+            bool(int(Utils.getBool("Simulation", "relative", True)))
+        )
 
         self.canvas.millType.set(Utils.getStr("Simulation", "milltype", MILL_TYPE))
         if self.canvas.millType.get() == '':
@@ -4844,6 +4874,7 @@ class CanvasFrame(Frame):
             Utils.setFloat("Simulation", "ymax", self.stockYmax.get())
             Utils.setFloat("Simulation", "zmin", self.stockZmin.get())
             Utils.setFloat("Simulation", "zmax", self.stockZmax.get())
+            Utils.setBool("Simulation", "relative", self.stockRelative.get())
             Utils.setStr("Simulation", "milltype", self.canvas.millType.get())
             Utils.setFloat("Simulation", "milldiameter", self.canvas.millDiameter.get())
             Utils.setInt("Simulation", "stockopacity", self.canvas.stockOpacity.get())
