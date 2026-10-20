@@ -6,7 +6,6 @@
 import math
 import time
 import sys
-import tkDialogs
 from numpy import deg2rad
 from tkinter_gl import GLCanvas
 
@@ -4472,39 +4471,34 @@ class CNCCanvas(GLCanvas):
 
         firstSegment = True
 
-        t = time.time()
-        tr = t + 0.5 # Time when we refresh
-
-        pd = tkDialogs.ProgressDialog(self.app, "Calculating final shape...")
+        tr = time.time() + 0.5  # Time when we refresh
+        sb = self.app.statusbar
+        sb.setLimits(0, 100)
 
         l = 0
         nl = len(lines16)
 
         for line in lines16:
             if time.time() >= tr:
-                if pd.ended:
-                    break
-                
-                pd.show(l / nl * 100)
-
+                sb.setProgress(l / nl * 100)
                 self.queueDraw()
+                self.app.update_idletasks()
                 tr += 0.5
 
             flags = int(line[7])
 
             if flags & FLAG_ENABLED:
-                if not self.millSelectedPathsOnly.get() or ((flags & FLAG_SELECTED) != 0):                
+                if not self.millSelectedPathsOnly.get() or ((flags & FLAG_SELECTED) != 0):
                     p1 = vec3(line[1:4])
                     p2 = vec3(line[9:12])
-        
-                    self.millSegment(p1, p2, millType, toolRadius, firstSegment)
-                    
-                    firstSegment = False
-            
-            l += 1
-        
-        pd.stop()
 
+                    self.millSegment(p1, p2, millType, toolRadius, firstSegment)
+
+                    firstSegment = False
+
+            l += 1
+
+        sb.clear()
         self.queueDraw()
 
     def resetStock(self):
