@@ -450,11 +450,11 @@ class CNCCanvas(GLCanvas):
         if mode == self.mode:
             return
 
-        self.mode = mode
-
+        # Init before committing so a failed sim setup leaves mode unchanged
         if mode == CNCCanvas.MODE_SIM:
-            self.initGL()
+            self.initGL_sim()
 
+        self.mode = mode
         self.fit2Screen()
     
     def get_camera_image(self):
@@ -781,8 +781,6 @@ class CNCCanvas(GLCanvas):
     def initGL_sim(self):
         if self._gl_initialized_sim == True:
             return
-        
-        self._gl_initialized_sim = True
 
         # Create textures (height map) and framebuffers for milling simulation.
         # The MillFS fragment shader reads the mapheight from FBO 0, writes changes to FBO 1, and then that area is copied back to FBO 0.
@@ -918,6 +916,8 @@ class CNCCanvas(GLCanvas):
         glBindBuffer(GL_ARRAY_BUFFER, self.stockSideVBO)     
         glBufferData(GL_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        self._gl_initialized_sim = True
 
     def updateStockMaterialBuffers(self, nx, ny):
         # Vertices (normalized from 0. to 1.)
@@ -4554,41 +4554,6 @@ class CNCCanvas(GLCanvas):
 
         self.queueDraw()
     
-    def is_raspberry_pi(self):
-        """
-        Detect if the app is running the app in a Pi, to disable Simulation
-        """
-        # 1. If it's not Linux, not a native Raspberry Pi
-        if not sys.platform.startswith('linux'):
-            return False
-            
-        # 2. If in Linux, find the model file
-        try:
-            model_path = '/sys/firmware/devicetree/base/model'
-            if os.path.exists(model_path):
-                with open(model_path, 'r', errors='ignore') as f:
-                    if 'raspberry pi' in f.read().lower():
-                        return True
-        except Exception:
-            pass # If not permission, go to Plan B
-            
-        # 3. Plan B: Check architecture and cpuinfo
-        try:
-            cpuinfo_path = '/proc/cpuinfo'
-            if os.path.exists(cpuinfo_path):
-                with open(cpuinfo_path, 'r') as f:
-                    cpuinfo = f.read().lower()
-                    if 'bcm2835' in cpuinfo or 'bcm2711' in cpuinfo or 'bcm2712' in cpuinfo:
-                        return True
-        except Exception:
-            pass
-
-        # 4. Plan C: Check Pi specific environment variables
-        if os.getenv('XDG_CURRENT_DESKTOP') == 'LXDE' and platform.machine() in ('armv7l', 'aarch64'):
-            return True
-
-        return False
-
 # =============================================================================
 # Canvas Frame with toolbar
 # =============================================================================
@@ -5085,7 +5050,8 @@ class CanvasFrame(Frame):
         tkExtra.Balloon.set(b, _("Set Canvas colors"))
         b.pack(side=LEFT)
 
-        if (self.canvas.glslVersion == "1.20") and (not self.canvas.is_raspberry_pi()):
+        # Sim shaders only ship in the GLSL 1.20 pack
+        if self.canvas.glslVersion == "1.20":
             b = Checkbutton(
                 toolbar,
                 image=Utils.icons["sim"],
@@ -5107,19 +5073,23 @@ class CanvasFrame(Frame):
         self.drawTime.pack(side=RIGHT)
         Label(toolbar, text=_("Timeout:")).pack(side=RIGHT)
 
-    def showSim(self, value = None):
-        if value is not None:
-            self.canvas.set_mode(value)
-            return
-        
-        if self.show_sim.get() == True:
-            self.canvas.set_mode(CNCCanvas.MODE_SIM)
-            self.simPanel.grid(row=1, column=0, sticky=NSEW)
+    def showSim(self):
+        if self.show_sim.get():
+            try:
+                self.canvas.set_mode(CNCCanvas.MODE_SIM)
+            except Exception as e:
+                self.show_sim.set(False)
+                messagebox.showerror(
+                    _("3D Simulation"),
+                    _("Failed to initialize 3D simulation.\n\n{}").format(e),
+                    parent=self,
+                )
+                return
 
+            self.simPanel.grid(row=1, column=0, sticky=NSEW)
             if self.first_time_sim_shown:
                 self.loadMillConfig()
                 self.first_time_sim_shown = False
-
         else:
             self.canvas.set_mode(CNCCanvas.MODE_CNC)
             self.simPanel.grid_forget()
