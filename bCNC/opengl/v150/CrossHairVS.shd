@@ -2,15 +2,15 @@
 
 in float index; // Index of the line vertex
 
-out mat4 MVP;
-out vec2 location; // In canvas pixel units. Location of the center of the crosshair
-out float width;
-out float height;
-out float canvasWidth;
-out float canvasHeight;
-out float R; // Radius of the inner circle
-out vec2 zoom;
-out float cameraScale;
+uniform mat4 MVP;
+uniform vec2 location; // In canvas pixel units. Location of the center of the crosshair
+uniform float width;
+uniform float height;
+uniform float canvasWidth;
+uniform float canvasHeight;
+uniform float R; // Radius of the inner circle
+uniform vec2 zoom;
+uniform float cameraScale;
 
 out float alpha; // To create the outer circle dash effect
 
