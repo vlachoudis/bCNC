@@ -18,8 +18,6 @@ from math import (
     sin,
     sqrt,
 )
-from tkinter import EXCEPTION
-
 from CNC import CNC, Block
 from ToolsPage import Plugin
 
@@ -148,72 +146,6 @@ class Tool(Plugin):
 
         return xadd, yadd, zadd, atot, ae  #
 
-    # Calc subsegments -----------------------------------------------------
-    def calcSegmentLength(self, xyz):
-        if xyz:
-            A = xyz[0]
-            B = xyz[1]
-            seglength_x = B[0] - A[0]
-            seglength_y = B[1] - A[1]
-            seglength_z = B[2] - A[2]
-            return math.sqrt(seglength_x**2 + seglength_y**2 + seglength_z**2)
-        else:
-            return 0
-
-    # ----------------------------------------------------------------------
-    # Extract all segments from commands ------------ -----------------------
-    def extractAllSegments(self, app, selectedBlock):
-        allSegments = []
-        allBlocks = app.gcode.blocks
-
-        for bid in selectedBlock:
-            bidSegments = []
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            app.gcode.initPath(bid)
-            for line in block:
-                try:
-                    cmd = app.cnc.breakLine(
-                        app.gcode.evaluate(app.cnc.compileLine(line))
-                    )
-                except EXCEPTION:
-                    cmd = None
-
-                if cmd:
-                    app.cnc.motionStart(cmd)
-                    xyz = app.cnc.motionPath()
-                    app.cnc.motionEnd()
-
-                    if xyz:
-                        # exclude if fast move or z only movement
-                        Zonly = (xyz[0][0] == xyz[1][0]
-                                 and xyz[0][1] == xyz[1][1])
-                        exclude = Zonly
-
-                        # save length for later use
-                        segLength = self.calcSegmentLength(xyz)
-
-                        if len(xyz) < 3:
-                            bidSegments.append(
-                                [xyz[0], xyz[1], exclude, segLength])
-                        else:
-                            for i in range(len(xyz) - 1):
-                                bidSegments.append(
-                                    [xyz[i], xyz[i + 1], exclude, segLength]
-                                )
-            # append bidSegmentes to allSegmentes
-            allSegments.append(bidSegments)
-
-        # Disabled used block
-        for bid in selectedBlock:
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            block.enable = False
-
-        return allSegments
-
     # ----------------------------------------------------------------------
     def execute(self, app):
         if self["splicesteps"] == "" or self["splicesteps"] < 4:
@@ -318,8 +250,9 @@ class Tool(Plugin):
                 _("Minimum Adaptative Feed has to be greater than 0"))
             return
 
-        # Get all segments from gcode
-        allSegments = self.extractAllSegments(app, selBlocks)
+        allSegments = app.gcode.extractSegments(
+            selBlocks, exclude_rapid=False, disable=True
+        )
 
         # Create holes locations
         for bidSegment in allSegments:
@@ -340,7 +273,7 @@ class Tool(Plugin):
                     u = -1
                 # ////////////-------------------------------------------------
                 # information: ------------------------------------------------
-                segLength = self.calcSegmentLength(segm)
+                segLength = segm[3]
                 # ////////-----------------------------------------------------
                 if idx == 0:
                     tr_block.append(

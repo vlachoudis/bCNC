@@ -4,7 +4,6 @@
 # Date: 9 November 2015
 # A special thanks to Vasilis for his patient explanations
 
-import math
 import os.path
 import re
 from collections import OrderedDict
@@ -176,72 +175,6 @@ class Tool(Plugin):
 
         self.finish_blocks(app, blocks, holesCounter)
 
-    # Calc subsegments -----------------------------------------------------
-    # TODO Move to Utils? A few plugins use this
-    def calcSegmentLength(self, xyz):
-        if xyz:
-            A = xyz[0]
-            B = xyz[1]
-            seglength_x = B[0] - A[0]
-            seglength_y = B[1] - A[1]
-            seglength_z = B[2] - A[2]
-            return math.sqrt(seglength_x**2 + seglength_y**2 + seglength_z**2)
-        else:
-            return 0
-
-    # Extract all segments from commands -----------------------------------
-    # TODO Move to Utils? A few plugins use this
-    def extractAllSegments(self, app, selectedBlock):
-        allSegments = []
-        allBlocks = app.gcode.blocks
-
-        for bid in selectedBlock:
-            bidSegments = []
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            app.gcode.initPath(bid)
-            for line in block:
-                try:
-                    cmd = app.cnc.breakLine(
-                        app.gcode.evaluate(app.cnc.compileLine(line))
-                    )
-                except Exception:
-                    cmd = None
-
-                if cmd:
-                    app.cnc.motionStart(cmd)
-                    xyz = app.cnc.motionPath()
-                    app.cnc.motionEnd()
-
-                    if xyz:
-                        # Exclude if fast move or z only movement
-                        G0 = "G0" in cmd[0].upper()
-                        Zonly = xyz[0][0] == xyz[1][0] and xyz[0][1] == xyz[1][1]
-                        exclude = G0 or Zonly
-
-                        # Save length for later use
-                        segLenth = self.calcSegmentLength(xyz)
-
-                        if len(xyz) < 3:
-                            bidSegments.append([xyz[0], xyz[1], exclude, segLenth])
-                        else:
-                            for i in range(len(xyz) - 1):
-                                bidSegments.append(
-                                    [xyz[i], xyz[i + 1], exclude, segLenth]
-                                )
-            # Append bidSegments to allSegments
-            allSegments.append(bidSegments)
-
-        # Disable used block
-        for bid in selectedBlock:
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            block.enable = False
-
-        return allSegments
-
     # ----------------------------------------------------------------------
     def execute(self, app):
         # Get inputs
@@ -300,8 +233,7 @@ class Tool(Plugin):
             app.setStatus(_("Driller abort: Please select some path"))
             return
 
-        # Get all segments from gcode
-        allSegments = self.extractAllSegments(app, selBlocks)
+        allSegments = app.gcode.extractSegments(selBlocks, disable=True)
 
         # Create holes locations
         allHoles = []

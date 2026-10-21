@@ -3612,6 +3612,53 @@ class GCode:
             self.cnc.initPath(block.ex, block.ey, block.ez)
 
     # ----------------------------------------------------------------------
+    # Extract motion subsegments from selected blocks.
+    # Each item is [start, end, exclude, length].
+    # ----------------------------------------------------------------------
+    def extractSegments(self, bids, exclude_rapid=True, disable=False):
+        allSegments = []
+        for bid in bids:
+            bidSegments = []
+            block = self.blocks[bid]
+            if block.name() in ("Header", "Footer"):
+                continue
+            self.initPath(bid)
+            for line in block:
+                try:
+                    cmd = self.cnc.breakLine(
+                        self.evaluate(self.cnc.compileLine(line))
+                    )
+                except Exception:
+                    cmd = None
+                if not cmd:
+                    continue
+
+                self.cnc.motionStart(cmd)
+                xyz = self.cnc.motionPath()
+                self.cnc.motionEnd()
+                if not xyz or len(xyz) < 2:
+                    continue
+
+                exclude = (
+                    xyz[0][0] == xyz[1][0] and xyz[0][1] == xyz[1][1]
+                ) or (exclude_rapid and self.cnc.gcode == 0)
+
+                for i in range(len(xyz) - 1):
+                    A, B = xyz[i], xyz[i + 1]
+                    length = math.sqrt(
+                        (B[0] - A[0]) ** 2
+                        + (B[1] - A[1]) ** 2
+                        + (B[2] - A[2]) ** 2
+                    )
+                    bidSegments.append([A, B, exclude, length])
+            allSegments.append(bidSegments)
+
+            if disable:
+                block.enable = False
+
+        return allSegments
+
+    # ----------------------------------------------------------------------
     # Move blocks/lines up
     # ----------------------------------------------------------------------
     def orderUp(self, items):

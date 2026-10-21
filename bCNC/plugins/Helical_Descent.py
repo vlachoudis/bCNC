@@ -26,9 +26,6 @@
 # mariob_1960@yahoo.com.ar
 # Date: 10 may 2018
 
-# Here import the libraries you need, these are necessary to modify the code
-import math
-
 # =============================================================================
 # My plugin
 # =============================================================================
@@ -100,74 +97,6 @@ class Tool(Plugin):
         self.buttons.append(
             "exe"
         )
-
-    # Calc line length -----------------------------------------------------
-    def calcSegmentLength(self, xyz):
-        if xyz:
-            p1 = xyz[0]
-            p2 = xyz[1]
-            return math.sqrt((p2[0] - p1[0]) ** 2
-                             + (p2[1] - p1[1]) ** 2
-                             + (p2[2] - p1[2]) ** 2
-                             )
-        else:
-            return 0
-
-    # Extract all segments from commands ------------------------------------
-    def extractAllSegments(self, app, selectedBlock):
-        allSegments = []
-        allBlocks = app.gcode.blocks
-
-        for bid in selectedBlock:
-            bidSegments = []
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            app.gcode.initPath(bid)
-            for line in block:
-                try:
-                    cmd = app.cnc.breakLine(
-                        app.gcode.evaluate(app.cnc.compileLine(line))
-                    )
-                except Exception:
-                    cmd = None
-
-                if cmd:
-                    app.cnc.motionStart(cmd)
-                    xyz = app.cnc.motionPath()
-                    app.cnc.motionEnd()
-
-                    if xyz:
-                        # exclude if fast move or z only movement
-                        G0 = ("g0" in cmd) or ("G0" in cmd)
-                        Zonly = (xyz[0][0] == xyz[1][0]
-                                 and xyz[0][1] == xyz[1][1])
-                        exclude = G0 or Zonly
-
-                        # save length for later use
-                        segLenth = self.calcSegmentLength(xyz)
-
-                        if len(xyz) < 3:
-                            bidSegments.append([xyz[0],
-                                                xyz[1],
-                                                exclude,
-                                                segLenth])
-                        else:
-                            for i in range(len(xyz) - 1):
-                                bidSegments.append(
-                                    [xyz[i], xyz[i + 1], exclude, segLenth]
-                                )
-            # append bidSegmentes to allSegmentes
-            allSegments.append(bidSegments)
-
-        # Disabled used block
-        for bid in selectedBlock:
-            block = allBlocks[bid]
-            if block.name() in ("Header", "Footer"):
-                continue
-            block.enable = True
-
-        return allSegments
 
     # ----------------------------------------------------------------------
     # This method is executed when user presses the plugin execute button
@@ -310,8 +239,7 @@ class Tool(Plugin):
                 app.editor.selectAll()
                 selBlocks = app.editor.getSelectedBlocks()
 
-            # Get all segments from gcode
-            allSegments = self.extractAllSegments(app, selBlocks)
+            allSegments = app.gcode.extractSegments(selBlocks)
 
             # Create holes locations
             allHoles = []
