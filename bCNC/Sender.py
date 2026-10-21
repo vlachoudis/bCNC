@@ -477,11 +477,11 @@ class Sender:
     # Serial write
     # ----------------------------------------------------------------------
     def serial_write(self, data):
+        if self.serial is None:
+            return 0
         if isinstance(data, bytes):
-            ret = self.serial.write(data)
-        else:
-            ret = self.serial.write(data.encode())
-        return ret
+            return self.serial.write(data)
+        return self.serial.write(data.encode())
 
     # ----------------------------------------------------------------------
     # Open serial port
@@ -621,7 +621,13 @@ class Sender:
         self.mcontrol.pause(event)
 
     def purgeController(self):
-        self.mcontrol.purgeController()
+        if self.serial is None:
+            self.runEnded()
+            return
+        try:
+            self.mcontrol.purgeController()
+        except Exception:
+            self.runEnded()
 
     def g28Command(self):
         self.sendGCode("G28.1")  # FIXME: ???
@@ -728,141 +734,142 @@ class Sender:
 
         while self.thread:
             t = time.time()
-            # refresh machine position?
-            if t - tr > SERIAL_POLL:
-                self.mcontrol.viewStatusReport()
-                tr = t
+            try:
+                # refresh machine position?
+                if t - tr > SERIAL_POLL:
+                    self.mcontrol.viewStatusReport()
+                    tr = t
 
-                # If Override change, attach feed
-                if CNC.vars["_OvChanged"]:
-                    self.mcontrol.overrideSet()
+                    # If Override change, attach feed
+                    if CNC.vars["_OvChanged"]:
+                        self.mcontrol.overrideSet()
 
-            # Fetch new command to send if...
-            if (
-                tosend is None
-                and not self.sio_wait
-                and not self._pause
-                and self.queue.qsize() > 0
-            ):
-                try:
-                    tosend = self.queue.get_nowait()
-                    if isinstance(tosend, tuple):
-                        # wait to empty the grbl buffer and status is Idle
-                        if tosend[0] == WAIT:
-                            # Don't count WAIT until we are idle!
-                            self.sio_wait = True
-                        elif tosend[0] == MSG:
-                            # Count executed commands as well
-                            self._gcount += 1
-                            if tosend[1] is not None:
-                                # show our message on machine status
-                                self._msg = tosend[1]
-                        elif tosend[0] == UPDATE:
-                            # Count executed commands as well
-                            self._gcount += 1
-                            self._update = tosend[1]
-                        else:
-                            # Count executed commands as well
-                            self._gcount += 1
-                        tosend = None
-
-                    elif not isinstance(tosend, str):
-                        try:
-                            tosend = self.gcode.evaluate(tosend, self)
-                            if isinstance(tosend, str):
-                                tosend += "\n"
+                # Fetch new command to send if...
+                if (
+                    tosend is None
+                    and not self.sio_wait
+                    and not self._pause
+                    and self.queue.qsize() > 0
+                ):
+                    try:
+                        tosend = self.queue.get_nowait()
+                        if isinstance(tosend, tuple):
+                            # wait to empty the grbl buffer and status is Idle
+                            if tosend[0] == WAIT:
+                                # Don't count WAIT until we are idle!
+                                self.sio_wait = True
+                            elif tosend[0] == MSG:
+                                # Count executed commands as well
+                                self._gcount += 1
+                                if tosend[1] is not None:
+                                    # show our message on machine status
+                                    self._msg = tosend[1]
+                            elif tosend[0] == UPDATE:
+                                # Count executed commands as well
+                                self._gcount += 1
+                                self._update = tosend[1]
                             else:
                                 # Count executed commands as well
                                 self._gcount += 1
-                        except Exception:
-                            for s in str(sys.exc_info()[1]).splitlines():
-                                self.log.put((Sender.MSG_ERROR, s))
-                            self._gcount += 1
                             tosend = None
-                except Empty:
-                    break
 
-                if tosend is not None:
-                    # All modification in tosend should be
-                    # done before adding it to cline
+                        elif not isinstance(tosend, str):
+                            try:
+                                tosend = self.gcode.evaluate(tosend, self)
+                                if isinstance(tosend, str):
+                                    tosend += "\n"
+                                else:
+                                    # Count executed commands as well
+                                    self._gcount += 1
+                            except Exception:
+                                for s in str(sys.exc_info()[1]).splitlines():
+                                    self.log.put((Sender.MSG_ERROR, s))
+                                self._gcount += 1
+                                tosend = None
+                    except Empty:
+                        continue
 
-                    # Keep track of last feed
-                    pat = FEEDPAT.match(tosend)
-                    if pat is not None:
-                        self._lastFeed = pat.group(2)
+                    if tosend is not None:
+                        # All modification in tosend should be
+                        # done before adding it to cline
 
-                    # Modify sent g-code to reflect overridden feed for
-                    # controllers without override support
-                    if not self.mcontrol.has_override:
-                        if CNC.vars["_OvChanged"]:
-                            CNC.vars["_OvChanged"] = False
-                            self._newFeed = (
-                                float(self._lastFeed) * CNC.vars["_OvFeed"] / 100.0
-                            )
-                            if (
-                                pat is None
-                                and self._newFeed != 0
-                                and not tosend.startswith("$")
-                            ):
-                                tosend = f"f{self._newFeed:g}{tosend}"
+                        # Keep track of last feed
+                        pat = FEEDPAT.match(tosend)
+                        if pat is not None:
+                            self._lastFeed = pat.group(2)
 
-                        # Apply override Feed
-                        if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
-                            pat = FEEDPAT.match(tosend)
-                            if pat is not None:
-                                try:
-                                    tosend = "{}f{:g}{}\n".format(
-                                        pat.group(1),
-                                        self._newFeed,
-                                        pat.group(3),
-                                    )
-                                except Exception:
-                                    pass
+                        # Modify sent g-code to reflect overridden feed for
+                        # controllers without override support
+                        if not self.mcontrol.has_override:
+                            if CNC.vars["_OvChanged"]:
+                                CNC.vars["_OvChanged"] = False
+                                self._newFeed = (
+                                    float(self._lastFeed) * CNC.vars["_OvFeed"] / 100.0
+                                )
+                                if (
+                                    pat is None
+                                    and self._newFeed != 0
+                                    and not tosend.startswith("$")
+                                ):
+                                    tosend = f"f{self._newFeed:g}{tosend}"
 
-                    # Bookkeeping of the buffers
-                    sline.append(tosend)
-                    cline.append(len(tosend))
+                            # Apply override Feed
+                            if CNC.vars["_OvFeed"] != 100 and self._newFeed != 0:
+                                pat = FEEDPAT.match(tosend)
+                                if pat is not None:
+                                    try:
+                                        tosend = "{}f{:g}{}\n".format(
+                                            pat.group(1),
+                                            self._newFeed,
+                                            pat.group(3),
+                                        )
+                                    except Exception:
+                                        pass
 
-            # Anything to receive?
-            if self.serial.inWaiting() or tosend is None:
-                try:
+                        # Bookkeeping of the buffers
+                        sline.append(tosend)
+                        cline.append(len(tosend))
+
+                # Anything to receive?
+                if self.serial.inWaiting() or tosend is None:
                     line = str(self.serial.readline().decode("ascii", "ignore")).strip()
-                except Exception:
-                    self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
+
+                    if not line:
+                        pass
+                    elif self.mcontrol.parseLine(line, cline, sline):
+                        pass
+                    else:
+                        self.log.put((Sender.MSG_RECEIVE, line))
+
+                # Received external message to stop
+                if self._stop:
                     self.emptyQueue()
-                    self.close()
-                    return
+                    tosend = None
+                    self.log.put((Sender.MSG_CLEAR, ""))
+                    # WARNING if runLines==maxint then it means we are
+                    # still preparing/sending lines from from bCNC.run(),
+                    # so don't stop
+                    if self._runLines != sys.maxsize:
+                        self._stop = False
 
-                if not line:
-                    pass
-                elif self.mcontrol.parseLine(line, cline, sline):
-                    pass
-                else:
-                    self.log.put((Sender.MSG_RECEIVE, line))
+                if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
+                    self._sumcline = sum(cline)
+                    if self.mcontrol.gcode_case > 0:
+                        tosend = tosend.upper()
+                    if self.mcontrol.gcode_case < 0:
+                        tosend = tosend.lower()
 
-            # Received external message to stop
-            if self._stop:
+                    self.serial_write(tosend)
+
+                    self.log.put((Sender.MSG_BUFFER, tosend))
+
+                    tosend = None
+                    if not self.running and t - tg > G_POLL:
+                        self.mcontrol.viewState()
+                        tg = t
+            except Exception:
+                # USB unplug / serial failure — stop I/O cleanly
+                self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
                 self.emptyQueue()
-                tosend = None
-                self.log.put((Sender.MSG_CLEAR, ""))
-                # WARNING if runLines==maxint then it means we are
-                # still preparing/sending lines from from bCNC.run(),
-                # so don't stop
-                if self._runLines != sys.maxsize:
-                    self._stop = False
-
-            if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
-                self._sumcline = sum(cline)
-                if self.mcontrol.gcode_case > 0:
-                    tosend = tosend.upper()
-                if self.mcontrol.gcode_case < 0:
-                    tosend = tosend.lower()
-
-                self.serial_write(tosend)
-
-                self.log.put((Sender.MSG_BUFFER, tosend))
-
-                tosend = None
-                if not self.running and t - tg > G_POLL:
-                    self.mcontrol.viewState()
-                    tg = t
+                self.close()
+                return

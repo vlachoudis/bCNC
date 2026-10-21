@@ -99,29 +99,33 @@ class Controller(_GenericController):
             self.master._gcount += 1
 
     def parseBracketSquare(self, line):
-        pat = POSPAT.match(line)
-        if pat:
-            if pat.group(1) == "PRB":
-                CNC.vars["prbx"] = float(pat.group(2))
-                CNC.vars["prby"] = float(pat.group(3))
-                CNC.vars["prbz"] = float(pat.group(4))
-                self.master.gcode.probe.add(
-                    CNC.vars["prbx"] + CNC.vars["wx"] - CNC.vars["mx"],
-                    CNC.vars["prby"] + CNC.vars["wy"] - CNC.vars["my"],
-                    CNC.vars["prbz"] + CNC.vars["wz"] - CNC.vars["mz"],
-                )
-                self.master._probeUpdate = True
-            CNC.vars[pat.group(1)] = [
-                float(pat.group(2)),
-                float(pat.group(3)),
-                float(pat.group(4)),
-            ]
-        else:
-            pat = TLOPAT.match(line)
+        try:
+            pat = POSPAT.match(line)
             if pat:
-                CNC.vars[pat.group(1)] = pat.group(2)
-                self.master._probeUpdate = True
-            elif DOLLARPAT.match(line):
-                CNC.vars["G"] = line[1:-1].split()
-                CNC.updateG()
-                self.master._gUpdate = True
+                if pat.group(1) == "PRB":
+                    CNC.vars["prbx"] = float(pat.group(2))
+                    CNC.vars["prby"] = float(pat.group(3))
+                    CNC.vars["prbz"] = float(pat.group(4))
+                    self.master.gcode.probe.add(
+                        CNC.vars["prbx"] + CNC.vars["wx"] - CNC.vars["mx"],
+                        CNC.vars["prby"] + CNC.vars["wy"] - CNC.vars["my"],
+                        CNC.vars["prbz"] + CNC.vars["wz"] - CNC.vars["mz"],
+                    )
+                    self.master._probeUpdate = True
+                CNC.vars[pat.group(1)] = [
+                    float(pat.group(2)),
+                    float(pat.group(3)),
+                    float(pat.group(4)),
+                ]
+            else:
+                pat = TLOPAT.match(line)
+                if pat:
+                    CNC.vars[pat.group(1)] = pat.group(2)
+                    self.master._probeUpdate = True
+                elif DOLLARPAT.match(line):
+                    CNC.vars["G"] = line[1:-1].split()
+                    CNC.updateG()
+                    self.master._gUpdate = True
+        except (ValueError, IndexError):
+            return False
+        return True

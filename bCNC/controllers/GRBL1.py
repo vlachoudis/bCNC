@@ -226,49 +226,53 @@ class Controller(_GenericGRBL):
             self.master._gcount += 1
 
     def parseBracketSquare(self, line):
-        word = SPLITPAT.split(line[1:-1])
-        if word[0] == "PRB":
-            CNC.vars["prbx"] = float(word[1])
-            CNC.vars["prby"] = float(word[2])
-            CNC.vars["prbz"] = float(word[3])
-            self.master.gcode.probe.add(
-                CNC.vars["prbx"] - CNC.vars["wcox"],
-                CNC.vars["prby"] - CNC.vars["wcoy"],
-                CNC.vars["prbz"] - CNC.vars["wcoz"],
-            )
-            self.master._probeUpdate = True
-            CNC.vars[word[0]] = word[1:]
-        if word[0] == "G92":
-            CNC.vars["G92X"] = float(word[1])
-            CNC.vars["G92Y"] = float(word[2])
-            CNC.vars["G92Z"] = float(word[3])
-            if len(word) > 4:
-                CNC.vars["G92A"] = float(word[4])
-            if len(word) > 5:
-                CNC.vars["G92B"] = float(word[5])
-            if len(word) > 6:
-                CNC.vars["G92C"] = float(word[6])
-            CNC.vars[word[0]] = word[1:]
-            self.master._gUpdate = True
-        if word[0] == "G28":
-            CNC.vars["G28X"] = float(word[1])
-            CNC.vars["G28Y"] = float(word[2])
-            CNC.vars["G28Z"] = float(word[3])
-            CNC.vars[word[0]] = word[1:]
-            self.master._gUpdate = True
-        if word[0] == "G30":
-            CNC.vars["G30X"] = float(word[1])
-            CNC.vars["G30Y"] = float(word[2])
-            CNC.vars["G30Z"] = float(word[3])
-            CNC.vars[word[0]] = word[1:]
-            self.master._gUpdate = True
-        elif word[0] == "GC":
-            CNC.vars["G"] = word[1].split()
-            CNC.updateG()
-            self.master._gUpdate = True
-        elif word[0] == "TLO":
-            CNC.vars[word[0]] = word[1]
-            self.master._probeUpdate = True
-            self.master._gUpdate = True
-        else:
-            CNC.vars[word[0]] = word[1:]
+        try:
+            word = SPLITPAT.split(line[1:-1])
+            if word[0] == "PRB":
+                CNC.vars["prbx"] = float(word[1])
+                CNC.vars["prby"] = float(word[2])
+                CNC.vars["prbz"] = float(word[3])
+                self.master.gcode.probe.add(
+                    CNC.vars["prbx"] - CNC.vars["wcox"],
+                    CNC.vars["prby"] - CNC.vars["wcoy"],
+                    CNC.vars["prbz"] - CNC.vars["wcoz"],
+                )
+                self.master._probeUpdate = True
+                CNC.vars[word[0]] = word[1:]
+            if word[0] == "G92":
+                CNC.vars["G92X"] = float(word[1])
+                CNC.vars["G92Y"] = float(word[2])
+                CNC.vars["G92Z"] = float(word[3])
+                if len(word) > 4:
+                    CNC.vars["G92A"] = float(word[4])
+                if len(word) > 5:
+                    CNC.vars["G92B"] = float(word[5])
+                if len(word) > 6:
+                    CNC.vars["G92C"] = float(word[6])
+                CNC.vars[word[0]] = word[1:]
+                self.master._gUpdate = True
+            if word[0] == "G28":
+                CNC.vars["G28X"] = float(word[1])
+                CNC.vars["G28Y"] = float(word[2])
+                CNC.vars["G28Z"] = float(word[3])
+                CNC.vars[word[0]] = word[1:]
+                self.master._gUpdate = True
+            if word[0] == "G30":
+                CNC.vars["G30X"] = float(word[1])
+                CNC.vars["G30Y"] = float(word[2])
+                CNC.vars["G30Z"] = float(word[3])
+                CNC.vars[word[0]] = word[1:]
+                self.master._gUpdate = True
+            elif word[0] == "GC":
+                CNC.vars["G"] = word[1].split()
+                CNC.updateG()
+                self.master._gUpdate = True
+            elif word[0] == "TLO":
+                CNC.vars[word[0]] = word[1]
+                self.master._probeUpdate = True
+                self.master._gUpdate = True
+            else:
+                CNC.vars[word[0]] = word[1:]
+        except (ValueError, IndexError):
+            return False
+        return True

@@ -91,7 +91,10 @@ class _GenericController:
     # ----------------------------------------------------------------------
     def softReset(self, clearAlarm=True):
         if self.master.serial:
-            self.master.serial_write(b"\030")
+            try:
+                self.master.serial_write(b"\030")
+            except Exception:
+                pass
         self.master.stopProbe()
         if clearAlarm:
             self.master._alarm = False
@@ -109,6 +112,8 @@ class _GenericController:
         self.master.sendGCode("$H")
 
     def viewStatusReport(self):
+        if self.master.serial is None:
+            return
         self.master.serial_write(b"?")
         self.master.sio_status = True
 
@@ -175,23 +180,30 @@ class _GenericController:
         self.master.event_generate("<<CanvasFocus>>")
 
     # ----------------------------------------------------------------------
+    def _serialRealtime(self, data):
+        if self.master.serial is None:
+            return False
+        try:
+            self.master.serial_write(data)
+            self.master.serial.flush()
+            return True
+        except Exception:
+            return False
+
+    # ----------------------------------------------------------------------
     def feedHold(self, event=None):
         if event is not None and not self.master.acceptKey(True):
             return
-        if self.master.serial is None:
+        if not self._serialRealtime(b"!"):
             return
-        self.master.serial_write(b"!")
-        self.master.serial.flush()
         self.master._pause = True
 
     # ----------------------------------------------------------------------
     def resume(self, event=None):
         if event is not None and not self.master.acceptKey(True):
             return
-        if self.master.serial is None:
+        if not self._serialRealtime(b"~"):
             return
-        self.master.serial_write(b"~")
-        self.master.serial.flush()
         self.master._msg = None
         self.master._alarm = False
         self.master._pause = False
@@ -214,7 +226,7 @@ class _GenericController:
         self.master.serial.flush()
         time.sleep(1)
         # remember and send all G commands
-        G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"])  # remember $G
+        G = " ".join([x for x in CNC.vars["G"] if x and x[0] == "G"])  # remember $G
         TLO = CNC.vars["TLO"]
         self.softReset(False)  # reset controller
         self.purgeControllerExtra()
@@ -256,7 +268,8 @@ class _GenericController:
 
         elif line[0] == "[":
             self.master.log.put((self.master.MSG_RECEIVE, line))
-            self.parseBracketSquare(line)
+            if not self.parseBracketSquare(line):
+                CNC.vars["state"] = f"Garbage receive: {line}"
 
         elif "error:" in line or "ALARM:" in line:
             self.master.log.put((self.master.MSG_ERROR, line))
