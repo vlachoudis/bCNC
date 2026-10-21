@@ -2524,10 +2524,8 @@ class Application(Tk, Sender):
     # -----------------------------------------------------------------------
     def close(self):
         Sender.close(self)
-        try:
-            self.dro.updateState()
-        except TclError:
-            pass
+        # Refresh DRO from monitorSerial (safe if called from serial thread)
+        self._posUpdate = True
 
     # -----------------------------------------------------------------------
     # An entry function should be called periodically during compiling
@@ -2692,7 +2690,7 @@ class Application(Tk, Sender):
                         self._insertCount = 1
 
                 elif msg == Sender.MSG_OK:
-                    if self.terminal.size() > 0:
+                    if self.terminal.size() > 0 and self.buffer.size() > 0:
                         if self._insertCount:
                             pos = self.terminal.size() - self._insertCount
                             self._insertCount = 0
@@ -2704,7 +2702,7 @@ class Application(Tk, Sender):
                     self.terminal.insert(END, line)
 
                 elif msg == Sender.MSG_ERROR:
-                    if self.terminal.size() > 0:
+                    if self.terminal.size() > 0 and self.buffer.size() > 0:
                         if self._insertCount:
                             pos = self.terminal.size() - self._insertCount
                             self._insertCount = 0

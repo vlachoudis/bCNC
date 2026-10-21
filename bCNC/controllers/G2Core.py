@@ -220,7 +220,7 @@ class Controller(_GenericController):
         self.master.serial.flush()
         time.sleep(1)
         # remember and send all G commands
-        G = " ".join([x for x in CNC.vars["G"] if x[0] == "G"] and x != "G43.1")  # remember $G
+        G = " ".join([x for x in CNC.vars["G"] if x[0] == "G" and x != "G43.1"])  # remember $G
         TLO = CNC.vars["TLO"]
         self.softReset(False)  # reset controller
         self.purgeControllerExtra()

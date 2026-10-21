@@ -867,9 +867,13 @@ class Sender:
                     if not self.running and t - tg > G_POLL:
                         self.mcontrol.viewState()
                         tg = t
-            except Exception:
-                # USB unplug / serial failure — stop I/O cleanly
-                self.log.put((Sender.MSG_RECEIVE, str(sys.exc_info()[1])))
-                self.emptyQueue()
-                self.close()
-                return
+            except Exception as e:
+                self.log.put((Sender.MSG_RECEIVE, str(e)))
+                # Tear down only on serial death (SerialException is an OSError)
+                # or if the port was already closed from another thread.
+                if isinstance(e, OSError) or self.serial is None:
+                    self.emptyQueue()
+                    self.close()
+                    return
+                traceback.print_exc()
+                tosend = None
