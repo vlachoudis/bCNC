@@ -1356,7 +1356,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
     def updateMapHeight(self, *args):
         try:
             self.app.canvas.probeMapHeightScale = float(self.probeMapHeightScale.get())
-        except:
+        except Exception:
             self.app.canvas.probeMapHeightScale = 1.
         
         self.app.canvas.updateProbeText()

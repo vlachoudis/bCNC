@@ -504,8 +504,6 @@ class Surfacer():
 			offsetPathList = self.applyOffsets(rotatingBufferSlicesPathList)
 			offsetPathTopIntersected = self.getTopSegs2(offsetPathList)
 # 			print ("intersect done")
-			l = len(rotatingBufferSlicesPathList)
-			n = int((l-1)/2)
 			block.extend( self.generategcode(offsetPathTopIntersected,evenSense))
 			if self.direction =="x":
 				block.append(CNC.gline(x=dir1endend,f=self.finishfeed))

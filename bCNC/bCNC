@@ -11,12 +11,12 @@ python2 -m bCNC
 "
 
 
-DIR=`dirname $0`
+DIR=$(dirname $0)
 PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins:${DIR}/controllers
 export DIR PYTHONPATH
 
 #Autodetect python version
-[ .$PYTHON = . ] && PYTHON=`which python2`
+[ .$PYTHON = . ] && PYTHON=$(which python2)
 [ .$PYTHON = . ] && PYTHON=python
 
 ${PYTHON} ${DIR}/__main__.py $*

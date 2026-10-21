@@ -399,7 +399,7 @@ class CNCCanvas(GLCanvas):
 
         try:
             profile_mask = glGetIntegerv(GL_CONTEXT_PROFILE_MASK)
-        except:
+        except Exception:
             profile_mask = "?"
             
         print("Profile mask:", profile_mask)
@@ -1569,7 +1569,7 @@ class CNCCanvas(GLCanvas):
             self._lastEnd = start
             self._mouseAction = ACTION_MOVE
 
-        elif self.action  == ACTION_RULER:
+        elif self.action == ACTION_RULER:
             self._snapPoint, self._snapPointType = self.snapPoint(vec2(event.x, event.y))
             
             # Are we clicking on an already existing measure end?
@@ -4520,12 +4520,12 @@ class CNCCanvas(GLCanvas):
         sb = self.app.statusbar
         sb.setLimits(0, 100)
 
-        l = 0
+        idx = 0
         nl = len(lines16)
 
         for line in lines16:
             if time.time() >= tr:
-                sb.setProgress(l / nl * 100)
+                sb.setProgress(idx / nl * 100)
                 self.queueDraw()
                 self.app.update_idletasks()
                 tr += 0.5
@@ -4541,7 +4541,7 @@ class CNCCanvas(GLCanvas):
 
                     firstSegment = False
 
-            l += 1
+            idx += 1
 
         sb.clear()
         self.queueDraw()
@@ -4745,7 +4745,7 @@ class CanvasFrame(Frame):
             ymax = float(self.stockYmax.get())
             zmin = float(self.stockZmin.get())
             zmax = float(self.stockZmax.get())
-        except:
+        except Exception:
             messagebox.showinfo("Warning", "Please fill in all the stock dimensions")
             return
         
