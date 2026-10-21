@@ -18,7 +18,8 @@ from math import (
     sin,
     sqrt,
 )
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "Mario S Basz"

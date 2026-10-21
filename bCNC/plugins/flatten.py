@@ -3,7 +3,8 @@
 # Author:    Filippo Rivato
 # Date:      2015/10/04
 
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "Filippo Rivato"

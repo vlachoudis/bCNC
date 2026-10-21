@@ -8,7 +8,7 @@ from math import (
 )
 
 from bpath import EPS, Path, Segment, eq
-from CNC import Block
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"

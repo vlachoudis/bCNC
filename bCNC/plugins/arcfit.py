@@ -1,7 +1,7 @@
 # Author: @harvie Tomas Mudrunka
 # Date: 25 sept 2018
 
-from CNC import Block
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"

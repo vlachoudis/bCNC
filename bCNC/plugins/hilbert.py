@@ -4,7 +4,8 @@
 # Date:      11 March 2016
 # Done in Annonay at Hotel "Du midi" after a business trip and 10 hours of work.
 
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 from Helpers import to_zip
 

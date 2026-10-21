@@ -8,7 +8,8 @@ import math
 import random
 import time
 
-from CNC import CCW, CNC, CW, Block
+from CNC import CCW, CNC, CW
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "Gonzalo Cobos Bergillos"

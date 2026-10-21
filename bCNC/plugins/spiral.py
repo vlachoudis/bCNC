@@ -8,7 +8,8 @@ import sys  # Trouble Shooting Only!
 
 from tkinter import messagebox
 
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "T Marks"

@@ -6,7 +6,8 @@
 
 
 # from bmath import Vector
-from CNC import CNC, CW, Block
+from CNC import CNC, CW
+from GCode import Block
 from ToolsPage import Plugin
 from builtins import isinstance
 

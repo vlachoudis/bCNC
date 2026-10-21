@@ -13,7 +13,7 @@ import numpy as np
 import ply
 import stl  # FIXME: write smaller STL parser
 
-from CNC import Block
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "@harvie Tomas Mudrunka"

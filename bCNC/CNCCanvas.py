@@ -68,7 +68,7 @@ import bmath
 import Camera
 import tkExtra
 import Utils
-from CNC import CNC, Probe
+from CNC import CNC
 
 # Probe mapping we need PIL and numpy
 try:

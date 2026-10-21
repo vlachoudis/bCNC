@@ -3,7 +3,8 @@
 # Author:    Filippo Rivato
 # Date: December 2015
 
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 from PIL.FontFile import FontFile
 from shxparser.shxparser import ShxFont,ShxPath

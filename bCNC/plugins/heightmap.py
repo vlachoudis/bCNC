@@ -12,7 +12,8 @@
 import math
 import importlib
 
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from imageToGcode import (
     Image_Matrix_Numpy,
     Image_Matrix_List,

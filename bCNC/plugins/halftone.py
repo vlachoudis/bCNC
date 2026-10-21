@@ -5,7 +5,8 @@
 
 import math
 
-from CNC import CNC, CW, Block
+from CNC import CNC, CW
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "Filippo Rivato"

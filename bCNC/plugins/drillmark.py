@@ -6,7 +6,8 @@
 import math
 
 # Here import the libraries you need, these are necessary to modify the code
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "Attila Kolinger"

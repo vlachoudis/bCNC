@@ -68,7 +68,8 @@ import tkExtra
 # Load configuration before anything else
 # and if needed replace the  translate function _()
 # before any string is initialized
-from CNC import CNC, WAIT, GCode
+from CNC import CNC, WAIT
+from GCode import GCode
 import Ribbon
 import Pendant
 from CNCRibbon import Page

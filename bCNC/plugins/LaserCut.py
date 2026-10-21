@@ -11,7 +11,8 @@ __email__ = ""
 __name__ = _("LaserCut")
 __version__ = "1.1"
 
-from CNC import CNC,Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 from tkinter import messagebox
 

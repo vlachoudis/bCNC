@@ -10,7 +10,7 @@
 # To correct: That's why the first point starts,
 
 
-from CNC import CNC  # , Block  # << without this error it does not find CNC.vars
+from CNC import CNC
 from ToolsPage import Plugin
 
 __author__ = "Mario Basz"

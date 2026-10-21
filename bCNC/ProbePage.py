@@ -49,7 +49,8 @@ import CNCRibbon
 import Ribbon
 import tkExtra
 import Utils
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 
 from Helpers import N_
 

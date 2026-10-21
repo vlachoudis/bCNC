@@ -14,7 +14,8 @@ from tkinter import (
 import tkinter.font as tkfont
 
 import tkExtra
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 
 BLOCK_COLOR = "LightYellow"
 COMMENT_COLOR = "Blue"

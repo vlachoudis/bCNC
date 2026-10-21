@@ -4,7 +4,8 @@
 # Date:      30-Dec-2019
 
 from bmath import Vector
-from CNC import CNC, Block
+from CNC import CNC
+from GCode import Block
 from ToolsPage import Plugin
 
 __author__ = "DodoLaSaumure"
