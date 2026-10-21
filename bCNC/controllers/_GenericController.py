@@ -124,7 +124,7 @@ class _GenericController:
         self.master.sendGCode("$G")
 
     # ----------------------------------------------------------------------
-    def jog(self, direction):
+    def jog(self, direction, feed=10000):
         self.master.sendGCode(f"G91G0{direction}")
         self.master.sendGCode("G90")
 
