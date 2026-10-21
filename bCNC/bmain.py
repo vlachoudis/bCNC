@@ -2795,6 +2795,15 @@ class Application(Tk, Sender):
                 Page.frames["ProbeCommon"].updateTlo()
             self._update = None
 
+        # Deferred from serial thread (Tk / purge must run on main thread)
+        if self._cycleStartRun:
+            self._cycleStartRun = False
+            self.event_generate("<<Run>>")
+
+        if self._jobDonePending:
+            self._jobDonePending = False
+            self.jobDone()
+
         if self.running:
             self.statusbar.setProgress(
                 self._runLines - self.queue.qsize(), self._gcount

@@ -105,6 +105,8 @@ class Sender:
         self._probeUpdate = False  # Update probe
         self._gUpdate = False  # Update $G
         self._update = None  # Generic update
+        self._cycleStartRun = False  # Request <<Run>> from main thread
+        self._jobDonePending = False  # Request jobDone from main thread
 
         self.running = False
         self.runningPrev = None
@@ -710,7 +712,7 @@ class Sender:
                 and self.running is False
                 and state in ("Idle")):
             self.cleanAfter = False
-            self.jobDone()
+            self._jobDonePending = True
 
     # ----------------------------------------------------------------------
     # thread performing I/O on serial line

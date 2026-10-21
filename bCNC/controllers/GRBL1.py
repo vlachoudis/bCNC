@@ -204,7 +204,7 @@ class Controller(_GenericGRBL):
                                 and not self.master.running):
                             print("Stream requested by CYCLE START "
                                   + "machine button")
-                            self.master.event_generate("<<Run>>", when="tail")
+                            self.master._cycleStartRun = True
                         else:
                             print(
                                 "Ignoring machine stream request, "
