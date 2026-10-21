@@ -5,6 +5,7 @@ uniform sampler2D heightMap;
 uniform vec3 pA;
 uniform vec3 pB;
 uniform float toolRadius;
+uniform float toolSlope; // V-bit: 1/tan(halfAngle); unused for Flat/Ball
 uniform int toolType;
 
 uniform vec3 workMin;
@@ -221,6 +222,23 @@ void main()
         cutterZ += toolRadius;
 
         newHeight = min(oldHeight, cutterZ);
+    }
+
+    else if (toolType == 2) // ============== V-BIT ==============
+    {
+        // Cone: cutterZ = tipZ + dist_xy * toolSlope, capped by toolRadius
+        vec2 d = pB.xy - pA.xy;
+        float L2 = dot(d, d);
+        vec3 tip;
+
+        if (L2 < 1e-12)
+            tip = pL; // plunge: same XY, use lowest Z
+        else
+            tip = mix(pA, pB, clamp(dot(p - pA.xy, d) / L2, 0.0, 1.0));
+
+        float dist = length(p - tip.xy);
+        if (dist <= toolRadius)
+            newHeight = min(oldHeight, tip.z + dist * toolSlope);
     }
 
     float newHeight_unit = (newHeight - workMin.z) / (workMax.z - workMin.z);

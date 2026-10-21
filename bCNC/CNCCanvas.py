@@ -206,9 +206,10 @@ STOCK_MIN_Y = -10.
 STOCK_MAX_Y = 10.
 STOCK_MIN_Z = 0.
 STOCK_MAX_Z = 0.
-MILL_TYPES = {"Flat": 0, "Ball": 1}
+MILL_TYPES = {"Flat": 0, "Ball": 1, "V-bit": 2}
 MILL_TYPE = "Flat"
 MILL_DIAMETER = 6.
+MILL_ANGLE = 60.  # Included tip angle for V-bit
 
 # -----------------------------------------------------------------------------
 def mouseCursor(action):
@@ -441,8 +442,9 @@ class CNCCanvas(GLCanvas):
         self.initPosition()
 
         # Milling vars
-        self.millType = StringVar(value="Flat")
-        self.millDiameter = DoubleVar(value=6.0)
+        self.millType = StringVar(value=MILL_TYPE)
+        self.millDiameter = DoubleVar(value=MILL_DIAMETER)
+        self.millAngle = DoubleVar(value=MILL_ANGLE)
         self.stockOpacity = IntVar(value=100)
         self.millSelectedPathsOnly = BooleanVar(value=False)
     
@@ -833,6 +835,7 @@ class CNCCanvas(GLCanvas):
         self.millProgram_pA = glGetUniformLocation(self.millProgram, "pA")
         self.millProgram_pB = glGetUniformLocation(self.millProgram, "pB")
         self.millProgram_toolRadius = glGetUniformLocation(self.millProgram, "toolRadius")
+        self.millProgram_toolSlope = glGetUniformLocation(self.millProgram, "toolSlope")
         self.millProgram_toolType = glGetUniformLocation(self.millProgram, "toolType")
         self.millProgram_workMin = glGetUniformLocation(self.millProgram, "workMin")
         self.millProgram_workMax = glGetUniformLocation(self.millProgram, "workMax")
@@ -4399,7 +4402,7 @@ class CNCCanvas(GLCanvas):
 
         return vec2(uvminx, uvminy), vec2(uvmaxx, uvmaxy)
 
-    def millSegment(self, p1: vec3, p2: vec3, toolType: int, toolRadius: float, updateParams: bool = True):
+    def millSegment(self, p1: vec3, p2: vec3, toolType: int, toolRadius: float, toolSlope: float = 0.0, updateParams: bool = True):
         """
         Single-pass, scissored milling update.
 
@@ -4418,6 +4421,7 @@ class CNCCanvas(GLCanvas):
         if updateParams: # Use False if these parameters did not change from the last call to millSegment, to reduce gpu load
             glUniform1i(self.millProgram_heightMap, 0)
             glUniform1f(self.millProgram_toolRadius, toolRadius)
+            glUniform1f(self.millProgram_toolSlope, toolSlope)
             glUniform1i(self.millProgram_toolType, toolType) # TODO: tool type as argument
             glUniform3f(self.millProgram_workMin, STOCK_MIN_X, STOCK_MIN_Y, STOCK_MIN_Z)
             glUniform3f(self.millProgram_workMax, STOCK_MAX_X, STOCK_MAX_Y, STOCK_MAX_Z)
@@ -4504,8 +4508,11 @@ class CNCCanvas(GLCanvas):
         lines16 = numpy.reshape(self.pathVertices, (-1, 16))
 
         millType = MILL_TYPES[self.millType.get()]
-
         toolRadius = self.millDiameter.get() / 2.
+        toolSlope = 0.0
+        if millType == MILL_TYPES["V-bit"]:
+            angle = min(max(float(self.millAngle.get() or MILL_ANGLE), 1.0), 179.0)
+            toolSlope = 1.0 / math.tan(math.radians(angle) * 0.5)
 
         firstSegment = True
 
@@ -4530,7 +4537,7 @@ class CNCCanvas(GLCanvas):
                     p1 = vec3(line[1:4])
                     p2 = vec3(line[9:12])
 
-                    self.millSegment(p1, p2, millType, toolRadius, firstSegment)
+                    self.millSegment(p1, p2, millType, toolRadius, toolSlope, firstSegment)
 
                     firstSegment = False
 
@@ -4675,10 +4682,7 @@ class CanvasFrame(Frame):
 
         lframe = LabelFrame(self.simPanel, text=_("End Mill"), foreground="DarkBlue", padx=5)
         lframe.pack(side='top', fill='x', pady=10)
-        self.millType = tkinter.OptionMenu(lframe, self.canvas.millType, "Flat", "Ball")
-        #self.millType = tkExtra.Combobox(lframe, True, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, textvariable=self.canvas.millType)
-        #self.millType.fill(["Flat", "Ball"])
-        #self.millType.set("Flat")
+        self.millType = tkinter.OptionMenu(lframe, self.canvas.millType, *MILL_TYPES)
         self.millType.pack(side='top', fill='x')
         tkExtra.Balloon.set(self.millType, _("Type of End Mill"))
 
@@ -4690,6 +4694,18 @@ class CanvasFrame(Frame):
         self.millDiameter.pack(side='left', fill='x', expand=True, padx=5)
         tkExtra.Balloon.set(self.millDiameter, _("Mill Diameter"))
         self.addWidget(self.millDiameter)
+
+        lineFrame = Frame(lframe)
+        lineFrame.pack(side='top', fill='x', pady=5)
+
+        self.millAngleLabel = Label(lineFrame, text=_("Angle:"))
+        self.millAngleLabel.pack(side='left')
+        self.millAngle = tkExtra.FloatEntry(lineFrame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=10, textvariable=self.canvas.millAngle)
+        self.millAngle.pack(side='left', fill='x', expand=True, padx=5)
+        tkExtra.Balloon.set(self.millAngle, _("V-bit included tip angle (degrees)"))
+        self.addWidget(self.millAngle)
+        self.canvas.millType.trace_add('write', self.onMillTypeChange)
+        self.onMillTypeChange()
 
         Label(self.simPanel, text=_("Opacity:")).pack(side='top', fill='x')
 
@@ -4714,6 +4730,12 @@ class CanvasFrame(Frame):
 
     def changeStockOpacity(self, value):
         self.canvas.queueDraw()
+
+    def onMillTypeChange(self, *args):
+        state = 'normal' if self.canvas.millType.get() == "V-bit" else 'disabled'
+        self.millAngleLabel.config(state=state)
+        self.millAngle.config(state=state)
+
     # ----------------------------------------------------------------------
     def updateStockSize(self):
         try:
@@ -4819,8 +4841,6 @@ class CanvasFrame(Frame):
         RAPID_COLOR = Utils.getStr("Color", "canvas.rapid", DEFAULT_RAPID_COLOR)
 
     def loadMillConfig(self):
-        global MILL_TYPE, MILL_DIAMETER
-
         self.stockXmin.set(Utils.getFloat("Simulation", "xmin", STOCK_MIN_X))
         self.stockXmax.set(Utils.getFloat("Simulation", "xmax", STOCK_MAX_X))
         self.stockYmin.set(Utils.getFloat("Simulation", "ymin", STOCK_MIN_Y))
@@ -4832,12 +4852,16 @@ class CanvasFrame(Frame):
         )
 
         self.canvas.millType.set(Utils.getStr("Simulation", "milltype", MILL_TYPE))
-        if self.canvas.millType.get() == '':
-            self.canvas.millType.set("Flat")
+        if self.canvas.millType.get() not in MILL_TYPES:
+            self.canvas.millType.set(MILL_TYPE)
 
         self.canvas.millDiameter.set(Utils.getFloat("Simulation", "milldiameter", MILL_DIAMETER))
         if self.canvas.millDiameter.get() == 0:
-            self.canvas.millDiameter.set(6.0)
+            self.canvas.millDiameter.set(MILL_DIAMETER)
+
+        self.canvas.millAngle.set(Utils.getFloat("Simulation", "millangle", MILL_ANGLE))
+        if not (0.0 < self.canvas.millAngle.get() < 180.0):
+            self.canvas.millAngle.set(MILL_ANGLE)
 
         self.canvas.stockOpacity.set(Utils.getInt("Simulation", "stockopacity", 100))
         if self.canvas.stockOpacity.get() == 0:
@@ -4875,6 +4899,7 @@ class CanvasFrame(Frame):
             Utils.setBool("Simulation", "relative", self.stockRelative.get())
             Utils.setStr("Simulation", "milltype", self.canvas.millType.get())
             Utils.setFloat("Simulation", "milldiameter", self.canvas.millDiameter.get())
+            Utils.setFloat("Simulation", "millangle", self.canvas.millAngle.get())
             Utils.setInt("Simulation", "stockopacity", self.canvas.stockOpacity.get())
 
     # ----------------------------------------------------------------------
