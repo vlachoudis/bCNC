@@ -2,7 +2,6 @@
 
 #Autodetect python version
 [ .$PYTHON = . ] && PYTHON=$(which python3)
-[ .$PYTHON = . ] && PYTHON=$(which python2)
 [ .$PYTHON = . ] && PYTHON=python
 
 #Autodetect bCNC install

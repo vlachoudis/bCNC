@@ -5,7 +5,7 @@ echo "DO NOT USE THIS IF YOU ARE A BCNC DEVELOPER"
 echo "GO TO REPOSITORY ROOT AND LAUNCH BCNC USING"
 echo "FOLLOWING COMMAND:"
 echo
-echo "python2 -m bCNC"
+echo "python -m bCNC"
 echo "###########################################"
 echo
 

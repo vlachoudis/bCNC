@@ -1,4 +1,4 @@
-#!/bin/python2
+#!/usr/bin/env python3
 
 # Copyright (c) 2019 Tomas 'Harvie' Mudrunka
 # Released under MIT license
@@ -58,8 +58,8 @@ while True:
     # Compare
     if received != byte:
         print(
-            f"\nERROR!\nExpected: {byte.encode('hex')}\n"
-            f"Received: {received.encode('hex')}"
+            f"\nERROR!\nExpected: {byte.hex()}\n"
+            f"Received: {received.hex()}"
         )
 
     # Stats

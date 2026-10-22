@@ -71,7 +71,7 @@ class UndoRedo:
 
     # -----------------------------------------------------------------------
     # Split the undoinfo into [msg, ]func/list [, args]
-    # msg can exists or not check for str/unicode
+    # msg may be missing; accept str/bytes
     # func can be a list or an executable
     # if func is a list then there are no args
     # @return always a tuple of 3 with msg, func, args

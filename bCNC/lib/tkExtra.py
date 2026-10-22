@@ -595,7 +595,7 @@ class AutoScrollbar(Scrollbar):
             return
         if flo <= 0.001 and fhi >= 0.999:
             if self.method == 0:
-                # grid_remove is currently missing from Tkinter!
+                # grid_remove is currently missing from tkinter!
                 self.tk.call("grid", "remove", self)
             else:
                 self.tk.call("pack", "forget", self)

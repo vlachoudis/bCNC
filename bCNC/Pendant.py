@@ -296,17 +296,17 @@ class Pendant(httpserver.BaseHTTPRequestHandler):
             f.close()
         except OSError:
             self.wfile.write(("\n".join([
-                u"<!DOCTYPE html>",
-                u"<html>",
-                u"<head>",
-                u"<title>Errortitle</title>",
-                u"<meta name=\"viewport\" content=\"width=device-width,"
-                u"initial-scale=1, user-scalable=yes\" />",
-                u"</head>",
-                u"<body>",
-                u"Page not found.",
-                u"</body>",
-                u"</html>"
+                "<!DOCTYPE html>",
+                "<html>",
+                "<head>",
+                "<title>Errortitle</title>",
+                "<meta name=\"viewport\" content=\"width=device-width,"
+                "initial-scale=1, user-scalable=yes\" />",
+                "</head>",
+                "<body>",
+                "Page not found.",
+                "</body>",
+                "</html>"
             ])).encode())
 
 

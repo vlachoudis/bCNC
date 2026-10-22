@@ -1677,7 +1677,7 @@ def goldenSectionSearch(func, ax, bx, cx, x, d=1, eps=_accuracy):
 # -----------------------------------------------------------------------------
 # Generators for calculating a) the permutations of a sequence and
 # b) the combinations and selections of a number of elements from a
-# sequence. Uses Python 2.2 generators.
+# sequence. Uses generators.
 # Similar solutions found also in comp.lang.python
 # Keywords: generator, combination, permutation, selection
 #

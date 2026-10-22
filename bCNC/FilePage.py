@@ -4,7 +4,6 @@
 # Date: 18-Jun-2015
 
 import os
-import sys
 from tkinter import (
     YES,
     W,
@@ -405,14 +404,14 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         devices += [""]
         devices += sorted(set(hwgrep))
         devices += [""]
-        # Pyserial raw spy currently broken in python3
-        # TODO: search for python3 replacement for raw spy
-        if sys.version_info[0] != 3:
+        # spy://?raw broken on py3 until pyserial 3.6+ (#467)
+        import serial
+        if tuple(map(int, serial.__version__.split(".")[:2])) >= (3, 6):
             devices += sorted(
                 "spy://" + x[0] + "?raw&color" + "\t(Debug) " + x[1]
                 for x in self.comportsGet()
             )
-        else:
+        else: #Fallback for broken pyserial version
             devices += sorted(
                 "spy://" + x[0] + "?color" + "\t(Debug) " + x[1]
                 for x in self.comportsGet()

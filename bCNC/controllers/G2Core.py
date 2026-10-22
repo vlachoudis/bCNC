@@ -1,13 +1,10 @@
 # G2Core motion controller plugin
 
-from __future__ import absolute_import
-from __future__ import print_function
-from _GenericController import _GenericController
-from _GenericController import POSPAT, TLOPAT, DOLLARPAT
-from CNC import CNC
-
-import time
 import json
+import time
+
+from _GenericController import POSPAT, TLOPAT, DOLLARPAT, _GenericController
+from CNC import CNC
 
 
 class Controller(_GenericController):

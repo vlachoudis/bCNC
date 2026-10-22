@@ -590,7 +590,6 @@ class Application(Tk, Sender):
             self, title, message, input, type_, from_, to_)
         v = d.show()
 
-        # XXX: basestring replaced
         if isinstance(v, (str, bytes)):
             v = v.strip()
         print("entered " + str(type(v)) + ": " + str(v))

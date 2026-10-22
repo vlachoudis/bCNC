@@ -6,7 +6,7 @@ DO NOT USE THIS IF YOU ARE A BCNC DEVELOPER
 GO TO REPOSITORY ROOT AND LAUNCH BCNC USING
 FOLLOWING COMMAND:
 
-python2 -m bCNC
+python -m bCNC
 ###########################################
 "
 
@@ -16,7 +16,7 @@ PYTHONPATH=${DIR}:${DIR}/lib:${DIR}/plugins:${DIR}/controllers
 export DIR PYTHONPATH
 
 #Autodetect python version
-[ .$PYTHON = . ] && PYTHON=$(which python2)
+[ .$PYTHON = . ] && PYTHON=$(which python3)
 [ .$PYTHON = . ] && PYTHON=python
 
 ${PYTHON} ${DIR}/__main__.py $*
