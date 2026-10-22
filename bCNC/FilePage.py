@@ -287,6 +287,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
             width=16,
             command=self.comportClean,
         )
+        self.portCombo._listbox.configure(font=("Courier", 9))
         self.portCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(
             self.portCombo, _("Select (or manual enter) port to connect")
@@ -373,7 +374,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
 
     # -----------------------------------------------------------------------
     def comportClean(self, event=None):
-        clean = self.portCombo.get().split("\t")[0]
+        clean = (self.portCombo.get().split() or [""])[0]
         if self.portCombo.get() != clean:
             print("comport fix")
             self.portCombo.set(clean)
@@ -426,13 +427,22 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
                 devices_clean += [i]
             devprev = i.split("\t")[0]
 
+        # Align tab-separated columns with spaces for the dropdown menu
+        width = max(len(i.split("\t")[0]) for i in devices_clean)
+        devices_clean = [
+            i.replace("\t", " " * (width - len(i.split("\t")[0]) + 1), 1)
+            if "\t" in i
+            else i
+            for i in devices_clean
+        ]
+
         self.portCombo.fill(devices_clean)
 
     # -----------------------------------------------------------------------
     def saveConfig(self):
         # Connection
         Utils.setStr("Connection", "controller", self.app.controller)
-        Utils.setStr("Connection", "port", self.portCombo.get().split("\t")[0])
+        Utils.setStr("Connection", "port", (self.portCombo.get().split() or [""])[0])
         Utils.setStr("Connection", "baud", self.baudCombo.get())
         Utils.setBool("Connection", "openserial", self.autostart.get())
 
