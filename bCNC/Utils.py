@@ -31,6 +31,7 @@ from tkinter import (
     TkVersion,
     TclVersion,
     BooleanVar,
+    Tk,
     Toplevel,
     Button,
     Checkbutton,
@@ -715,7 +716,18 @@ class ReportDialog(Toplevel):
     # ----------------------------------------------------------------------
     @staticmethod
     def sendErrorReport():
-        ReportDialog(None)
+        import tkinter
+
+        # Avoid orphan empty Tk window when called after main destroy
+        own = False
+        root = tkinter._default_root
+        if root is None:
+            root = Tk()
+            root.withdraw()
+            own = True
+        ReportDialog(root)
+        if own:
+            root.destroy()
 
 
 # =============================================================================
