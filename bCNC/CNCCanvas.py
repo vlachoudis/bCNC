@@ -4,21 +4,33 @@
 # Date: 24-Aug-2014
 
 import math
-import time
+import os
 import sys
 import threading
-from tkinter_gl import GLCanvas
+import time
+from ctypes import c_void_p
 
+try:
+    import OpenGL
+    if sys.platform == 'linux':
+        # PyOpenGL is broken with Wayland; must set platform before importing GL
+        OpenGL.setPlatform('x11')
+    from OpenGL.GL import *
+except ImportError as e:
+    raise ImportError(
+        "PyOpenGL is required. You can install it with 'pip install PyOpenGL'."
+    ) from e
+
+from pyglm.glm import (
+    mat4x4, mat3x3, ortho, identity, value_ptr, inverse, translate, rotate,
+    vec2, vec3, vec4, normalize, lookAt, dot, cross, distance, length2,
+)
+from tkinter_gl import GLCanvas
 
 try:
     import cv2 as cv
 except ImportError:
     cv = None
-
-from OpenGL.GL import *
-from ctypes import c_void_p
-from pyglm.glm import mat4x4, mat3x3, ortho, identity, value_ptr, inverse, translate, rotate, vec2, vec3, vec4, normalize, lookAt, dot, cross, distance, length2
-import os
 
 from tkinter import (
     TclError,
@@ -67,19 +79,9 @@ from CNC import CNC
 try:
     from PIL import Image, ImageFont, ImageDraw
     import numpy
-
 except Exception:
     from tkinter import Image
     numpy = None
-
-try:
-    import OpenGL
-    if sys.platform == 'linux':
-        # PyOpenGL is broken with wayland:
-        OpenGL.setPlatform('x11')
-    from OpenGL import GL
-except ImportError:
-    raise ImportError("PyOpenGL is required. You can install it with 'pip install PyOpenGL'.")
 
 
 VIEW_XY = 0
@@ -375,7 +377,7 @@ class CNCCanvas(GLCanvas):
         self.reset()
 
         # Print OpenGL version info
-        print("========== OpenGL ==========")
+        print("================================ OpenGL ========================================")
         print("OpenGL version:", glGetString(GL_VERSION))
         print("OpenGL renderer:", glGetString(GL_RENDERER))
         print("GLSL version:", glGetString(GL_SHADING_LANGUAGE_VERSION))
@@ -384,7 +386,7 @@ class CNCCanvas(GLCanvas):
             profile_mask = glGetIntegerv(GL_CONTEXT_PROFILE_MASK)
         except Exception:
             profile_mask = "?"
-            
+
         print("Profile mask:", profile_mask)
 
         # Try GLSL 1.20. If failed, change to 1.50
@@ -414,7 +416,7 @@ class CNCCanvas(GLCanvas):
                 print("Running GLSL 1.00")
                 self.glslVersion = "1.00"
         
-        print("============================")
+        print("================================================================================")
 
         # Data of Texture atlas for text rendering
         self.create_char_texture(f"{os.path.abspath(os.path.dirname(__file__))}{os.sep}opengl{os.sep}DejaVuSans.ttf", 12)
