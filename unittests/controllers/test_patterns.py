@@ -4,6 +4,10 @@ POSPAT cases adapted from https://github.com/vlachoudis/bCNC/pull/1452
 """
 import unittest
 
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pathfix
 from _GenericController import (
     DOLLARPAT,

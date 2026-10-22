@@ -20,8 +20,8 @@ tags:
 
 clean:
 	git clean -Xf
-	find bCNC -type d -name __pycache__ -prune -exec rm -rf {} +
-	find bCNC \( -name '*.pyc' -o -name '*.pyo' \) -delete
+	find bCNC tests unittests -type d -name __pycache__ -prune -exec rm -rf {} +
+	find bCNC tests unittests \( -name '*.pyc' -o -name '*.pyo' \) -delete
 
 upload:
 	rm -f dist/*
