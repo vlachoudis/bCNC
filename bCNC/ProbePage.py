@@ -1144,6 +1144,8 @@ class ProbeFrame(CNCRibbon.PageFrame):
     def selectMarker(self, marker):
         self.orientUpdateScale()
         self.scale_orient.set(marker + 1)
+        # Scale.set does not invoke command — update fields/canvas explicitly
+        self.changeMarker(marker + 1)
 
     def recordAppend(self, line):
         hasblock = None

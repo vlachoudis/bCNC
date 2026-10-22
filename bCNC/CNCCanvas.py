@@ -356,6 +356,7 @@ class CNCCanvas(GLCanvas):
         
         self.infoVertices = numpy.array([], dtype=numpy.float32)
         self.pathVertices = numpy.array([], dtype=numpy.float32)
+        self.orientVertices = numpy.array([], dtype=numpy.float32)
 
         # Selection Rectangle
         self.SelectionRectVertices = numpy.array([], dtype=numpy.float32)
@@ -2072,22 +2073,33 @@ class CNCCanvas(GLCanvas):
 
             elif self._mouseAction in (ACTION_SELECT_SINGLE,
                                        ACTION_SELECT_DOUBLE):
+                items = []
                 try:
                     closest = self.find_closest(
                         event.x,
                         event.y,
-                        self.pathVertices,
+                        self.orientVertices,
                         CLOSE_DISTANCE
                     )
                 except Exception:
-                    pass
-
-                items = []
-                for i in closest:
+                    closest = []
+                if closest:
+                    self.selectMarker(closest[0])
+                else:
                     try:
-                        items.append(self._items[i])
-                    except KeyError:
-                        pass
+                        closest = self.find_closest(
+                            event.x,
+                            event.y,
+                            self.pathVertices,
+                            CLOSE_DISTANCE
+                        )
+                    except Exception:
+                        closest = []
+                    for i in closest:
+                        try:
+                            items.append(self._items[i])
+                        except KeyError:
+                            pass
             if items:
                 self.app.select(
                     items,
@@ -2782,19 +2794,11 @@ class CNCCanvas(GLCanvas):
     # Select orientation marker
     # ----------------------------------------------------------------------
     def selectMarker(self, item):
-        # find marker
+        item = int(item)
         for i, paths in enumerate(self.gcode.orient.paths):
             if item in paths:
-                self._orientSelected = i
-                for j in paths:
-                    self.orientDict[j][3] = FLAG_ENABLED | FLAG_SELECTED
-                
-                self.update_lines_buffer(self.orientVBO, self.orientDict)
-
                 self.event_generate("<<OrientSelect>>", data=i)
                 return
-            
-        self._orientSelected = None
 
     # ----------------------------------------------------------------------
     # Highlight marker that was selected
@@ -2814,7 +2818,8 @@ class CNCCanvas(GLCanvas):
         else:
             self._orientSelected = None
         
-        self.update_lines_buffer(self.orientVBO, self.orientDict)
+        self.orientVertices = self.update_lines_buffer(
+            self.orientVBO, self.orientDict)
 
         self.queueDraw()
 
@@ -3951,7 +3956,8 @@ class CNCCanvas(GLCanvas):
             except IndexError:
                 pass
         
-        self.update_lines_buffer(self.orientVBO, self.orientDict)
+        self.orientVertices = self.update_lines_buffer(
+            self.orientVBO, self.orientDict)
         
         self.queueDraw()
 
