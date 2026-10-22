@@ -41,4 +41,6 @@ jobs:
 
       - name: Run unit tests
         run: |
-          find unittests -mindepth 1 -type d -not -name '_*' -exec echo python -m unittest discover -s "{}" -v \;
+          python -m unittest discover -s unittests/controllers -v
+          python -m unittest discover -s unittests/cnc -v
+          python -m unittest discover -s unittests/cam -v
