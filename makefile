@@ -1,32 +1,31 @@
 NAME = bCNC
+POT = bCNC/locales/${NAME}.pot
 SOURCES =	bCNC/*.py \
 		bCNC/controllers/*.py \
 		bCNC/lib/*.py \
 		bCNC/plugins/*.py
-.PHONY = help
+
+.PHONY: help pot tags clean upload
 
 help:
-	@echo see source
+	@echo "Targets: pot tags clean upload"
 
-pot: bCNC/${NAME}.pot
+pot: ${POT}
 
-bCNC/${NAME}.pot: ${SOURCES}
-	xgettext --from-code=UTF-8 --keyword=N_ -d ${NAME} -o $@ $^
+${POT}: ${SOURCES}
+	xgettext --from-code=UTF-8 --keyword=_ --keyword=N_ -d ${NAME} -o $@ $^
 
 tags:
-	ctags bCNC/*.py bCNC/lib/*.py bCNC/plugins/*.py
+	ctags bCNC/*.py bCNC/controllers/*.py bCNC/lib/*.py bCNC/plugins/*.py
 
 clean:
 	git clean -Xf
-	rm -f bCNC/*.pyc bCNC/*.pyo
-	rm -f bCNC/controllers/*.pyc bCNC/controllers/*.pyo
-	rm -f bCNC/lib/*.pyc bCNC/lib/*.pyo
-	rm -f bCNC/plugins/*.pyc bCNC/plugins/*.pyo
+	find bCNC -type d -name __pycache__ -prune -exec rm -rf {} +
+	find bCNC \( -name '*.pyc' -o -name '*.pyo' \) -delete
 
 upload:
 	rm -f dist/*
-	#python2 setup.py sdist upload
-	python setup.py sdist
+	python3 setup.py sdist
 	twine upload dist/*
 	git tag -f pypi
 	git push -f --tags up
