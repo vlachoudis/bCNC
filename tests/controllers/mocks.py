@@ -14,6 +14,8 @@ class MockGCode:
 
 
 class MockSender:
+    MSG_OK = 0
+    MSG_ERROR = 1
     MSG_RECEIVE = 2
 
     def __init__(self):
@@ -28,9 +30,11 @@ class MockSender:
         self._posUpdate = False
         self._probeUpdate = False
         self._gUpdate = False
+        self._update = False
         self._gcount = 0
         self._cycleStartRun = False
         self.written = []
+
 
     def controllerStateChange(self, state):
         pass
