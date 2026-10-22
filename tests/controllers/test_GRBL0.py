@@ -1,28 +1,10 @@
-import os
-import queue
-import sys
 import unittest
 
 import pathfix
 
 import GRBL0
 from CNC import CNC
-
-
-class MockSender:
-    MSG_RECEIVE = 2
-    def __init__(self):
-        self._alarm = False
-        self._msg = None
-        self.sio_wait = False
-        self.log = queue.Queue()
-        self.gcode = MockGCode()
-
-class MockGCode:
-    class Probe:
-        def add(self, x, y, z): pass
-    def __init__(self):
-        self.probe = self.Probe()
+from mocks import MockSender
 
 
 class TestGRBL0(unittest.TestCase):
