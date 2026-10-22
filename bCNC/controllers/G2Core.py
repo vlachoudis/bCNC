@@ -15,7 +15,7 @@ class Controller(_GenericController):
         self.gcode_case = 1
         self.has_override = False
         self.master = master
-        print("G2Core loaded")
+        #print("G2Core loaded")
 
     def setTLO(self, tlo):
         self.master.serial_write('{{tofz:{0}}}\n{{gc:"G0"}}\n'.format(tlo))

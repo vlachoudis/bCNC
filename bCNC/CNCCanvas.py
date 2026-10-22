@@ -4593,7 +4593,7 @@ class CanvasFrame(Frame):
 
         self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
         # OpenGL context
-        print(f"self.canvas.winfo_id(): {self.canvas.winfo_id()}")
+        #print(f"self.canvas.winfo_id(): {self.canvas.winfo_id()}")
         self.canvas.grid(row=1, column=1, sticky=NSEW)
 
         self.createCanvasToolbar(toolbar)
