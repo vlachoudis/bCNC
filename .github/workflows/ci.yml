@@ -23,6 +23,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
+      - name: Check no bytecode committed
+        run: |
+          if git ls-files '*.pyc' '*.pyo' | grep -q .; then
+            echo "Bytecode files must not be committed:"
+            git ls-files '*.pyc' '*.pyo'
+            exit 1
+          fi
+
       - name: Install package
         run: pip install -e . build
 

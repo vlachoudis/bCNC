@@ -11,12 +11,12 @@ An advanced fully featured g-code sender for grblHAL (formerly GRBL). bCNC is a 
 
 ## IMPORTANT! If you have any troubles using bCNC, please read [WIKI](https://github.com/vlachoudis/bCNC/wiki) and [DISCUSS](https://github.com/vlachoudis/bCNC/discussions) it first. Only create new [issues](https://github.com/vlachoudis/bCNC/issues) when you are certain there is a problem with actual bCNC code.
 
-[![Build Status](https://travis-ci.com/vlachoudis/bCNC.svg?branch=master)](https://travis-ci.com/vlachoudis/bCNC)
+[![CI](https://github.com/vlachoudis/bCNC/actions/workflows/ci.yml/badge.svg)](https://github.com/vlachoudis/bCNC/actions/workflows/ci.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/vlachoudis/bcnc/badge)](https://www.codefactor.io/repository/github/vlachoudis/bcnc)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/vlachoudis/bCNC)
 
 All pull requests that do change GUI should have attached screenshots of GUI before and after the changes.
-Please note that all pull requests should pass the Travis-CI build in order to get merged.
+Please note that all pull requests should pass the GitHub Actions CI build in order to get merged.
 Most pull requests should also pass CodeFactor checks if there is not good reason for failure.
 Before making pull request, please test your code on ~~both python2 and~~ python3.
 
