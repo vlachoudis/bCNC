@@ -22,7 +22,7 @@ from queue import (
 import Pendant
 import rexx
 import Utils
-from CNC import CNC, MSG, UPDATE, WAIT
+from CNC import CNC, MSG, PARENPAT, UPDATE, WAIT
 from GCode import GCode
 
 __author__ = "Vasilis Vlachoudis"
@@ -793,6 +793,9 @@ class Sender:
                     if tosend is not None:
                         # All modification in tosend should be
                         # done before adding it to cline
+
+                        # Strip inline (parentheses) comments
+                        tosend = PARENPAT.sub("", tosend).strip() + "\n"
 
                         # Keep track of last feed
                         pat = FEEDPAT.match(tosend)
