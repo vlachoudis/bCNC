@@ -6,10 +6,6 @@ Copyright (c) 2015 Julien Rebetez
 	lib/ply.py
 	lib/utils.py
 
-svg.path ( https://github.com/regebro/svg.path )
-Copyright (c) 2013-2014 Lennart Regebro
-	lib/svg/*
-
 This is the text of their original license:
 
 The MIT License (MIT)
