@@ -7,7 +7,6 @@ import math
 import time
 import sys
 import threading
-from numpy import deg2rad
 from tkinter_gl import GLCanvas
 
 
@@ -41,24 +40,18 @@ from tkinter import (
     VERTICAL,
     ALL,
     DISABLED,
-    LAST,
-    SCROLL,
-    UNITS,
     StringVar,
     IntVar,
     BooleanVar,
     DoubleVar,
     Button,
-    Canvas,
     Checkbutton,
     Frame,
     Label,
     Radiobutton,
-    Scrollbar,
     OptionMenu,
     Toplevel,
     LabelFrame,
-    Variable,
     messagebox,
     Scale
 )
@@ -97,11 +90,6 @@ VIEW_ISO2 = 4
 VIEW_ISO3 = 5
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
-INSERT_WIDTH2 = 3
-GANTRY_R = 4
-GANTRY_X = GANTRY_R * 2  # 10
-GANTRY_Y = GANTRY_R  # 5
-GANTRY_H = GANTRY_R * 5  # 20
 DRAW_TIME = 5  # Maximum draw time permitted
 
 # Customizable colors
@@ -141,7 +129,6 @@ customColors = {
     }
 
 # Fixed colors
-INSERT_COLOR = "Blue"
 WORK_COLOR = "Orange"
 INFO_COLOR = "Gold"
 
@@ -168,7 +155,6 @@ ALT_MASK = 8
 CONTROLSHIFT_MASK = SHIFT_MASK | CONTROL_MASK
 CLOSE_DISTANCE = 5
 CLOSE_DISTANCE_TO_ENDS = 15 # Snap to line ends instead to line, if closer than this
-MAXDIST = 10000
 ZOOM = 1.25
 AXIS_LENGTH = 100 # Coord system axis length in pixels
 
@@ -241,7 +227,6 @@ class CNCCanvas(GLCanvas):
         self.parentFrame : Frame = master
 
         # Global variables
-        self.view = 0
         self.app = app
         self.cnc = app.cnc
         self.gcode = app.gcode
@@ -307,8 +292,6 @@ class CNCCanvas(GLCanvas):
         self.bind("<Control-Key-equal>", self.menuZoomIn)
         self.bind("<Control-Key-minus>", self.menuZoomOut)
 
-        self.x0 = 0.0
-        self.y0 = 0.0
         self.zoom = 1.
         self.__tzoom = 1.0  # delayed zoom (temporary)
         self._items = {}
@@ -318,7 +301,6 @@ class CNCCanvas(GLCanvas):
         self._mouseAction = None
         self._vector = None
         self._lastActive = None
-        self._lastGantry = None
         self._gantryLocation = vec3(0, 0, 0)
         self._drawRequested = False
 
@@ -2681,7 +2663,6 @@ class CNCCanvas(GLCanvas):
     # Display gantry
     # ----------------------------------------------------------------------
     def gantry(self, wx, wy, wz, mx, my, mz):
-        self._lastGantry = (wx, wy, wz)
         self.updateGantry(wx, wy, wz)
         if self._showCamera and self.cameraAnchor == NONE:
             self.cameraPosition()
@@ -3640,7 +3621,7 @@ class CNCCanvas(GLCanvas):
         
         self.after('idle', self.draw)
         
-    def updateAll(self, view=None):
+    def updateAll(self):
         
         self._last = (0.0, 0.0, 0.0)
         self.initPosition()
@@ -3662,15 +3643,11 @@ class CNCCanvas(GLCanvas):
     # Initialize gantry position
     # ----------------------------------------------------------------------
     def initPosition(self):
-        
-        # TODO: Anything apart from paths must be deleted...?
-        #self.delete(ALL)
         self.pathVertices = self.deleteLines(self.pathDict, self.pathVertices, self.pathVBO)
         self.deleteArrows(self.pathArrows, self.pathArrowsVBO)
 
         self.updateGantry(0, 0, 0)
 
-        self._lastInsert = None
         self._lastActive = None
         self._vector = None
         self._items.clear()
@@ -3971,7 +3948,7 @@ class CNCCanvas(GLCanvas):
                 for item in self.gcode.orient.paths[self._orientSelected]:
                     self.orientDict[item][3] = FLAG_ENABLED | FLAG_SELECTED
 
-            except (IndexError, TclError):
+            except IndexError:
                 pass
         
         self.update_lines_buffer(self.orientVBO, self.orientDict)
@@ -4592,8 +4569,6 @@ class CanvasFrame(Frame):
         self.update()
 
         self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
-        # OpenGL context
-        #print(f"self.canvas.winfo_id(): {self.canvas.winfo_id()}")
         self.canvas.grid(row=1, column=1, sticky=NSEW)
 
         self.createCanvasToolbar(toolbar)
@@ -4804,7 +4779,7 @@ class CanvasFrame(Frame):
 
     # ----------------------------------------------------------------------
     def loadConfig(self):
-        global INSERT_COLOR, GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
+        global GANTRY_COLOR, MARGIN_COLOR, GRID_COLOR
         global ENABLE_COLOR, DISABLE_COLOR, SELECT_COLOR
         global SELECT2_COLOR, PROCESS_COLOR, MOVE_COLOR, RULER_COLOR
         global CAMERA_COLOR, PROBE_TEXT_COLOR, CANVAS_COLOR_UP, CANVAS_COLOR_DOWN
@@ -4822,7 +4797,6 @@ class CanvasFrame(Frame):
 
         DRAW_TIME = Utils.getInt("Canvas", "drawtime", DRAW_TIME)
 
-        INSERT_COLOR = Utils.getStr("Color", "canvas.insert", INSERT_COLOR)
         GANTRY_COLOR = Utils.getStr("Color", "canvas.gantry", DEFAULT_GANTRY_COLOR)
         MARGIN_COLOR = Utils.getStr("Color", "canvas.margin", DEFAULT_MARGIN_COLOR)
         GRID_COLOR = Utils.getStr("Color", "canvas.grid", DEFAULT_GRID_COLOR)
