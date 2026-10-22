@@ -55,9 +55,12 @@ You will need the following packages to run bCNC
   or under the names tkinter, python3-tkinter, python-tk
 - pyserial or under the name python-serial, python-pyserial
 - numpy
+- Pillow (PIL)
+- tkinter-gl and PyOpenGL — required for the OpenGL 3D canvas
+- pyglm
 - Optionally:
-- python-imaging-tk: the PIL libraries for autolevel height map
-- python-opencv: for webcam streaming on web pendant
+- opencv-python: for webcam/camera overlay and web pendant streaming
+  (on 32-bit ARM / Raspberry Pi use the distro package instead)
 - scipy: for 100 times faster 3D mesh slicing
 
 Expand the directory or download it from github

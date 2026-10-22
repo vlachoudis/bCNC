@@ -15,12 +15,6 @@ try:
 except ImportError:
     np = None
 
-try:
-    from PIL import Image, ImageTk
-except ImportError:
-    print("Unable to import Image, ImageTk from Pillow\n")
-    cv = None
-
 
 # -----------------------------------------------------------------------------
 def hasOpenCV():
@@ -44,7 +38,6 @@ class Camera:
         self.camera = None
         self.image = None
         self.frozen = None
-        self.imagetk = None
 
     def _getCameraProperties(self, prefix):
         """Gather user-defined camera configuration properties
@@ -280,48 +273,3 @@ class Camera:
             self.frozen = self.image.copy()
         else:
             self.frozen = None
-
-    # -----------------------------------------------------------------------
-    # Return center portion of the image to be used as a template
-    # -----------------------------------------------------------------------
-    def getCenterTemplate(self, r):
-        h, w = self.original.shape[:-1]
-        w2 = w // 2
-        h2 = h // 2
-        return self.original[h2 - r: h2 + r, w2 - r: w2 + r]
-
-    # -----------------------------------------------------------------------
-    # return location of matching template
-    # -----------------------------------------------------------------------
-    def matchTemplate(self, template):
-        method = cv.TM_CCOEFF_NORMED
-        res = cv.matchTemplate(self.original, template, method)
-        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
-
-        h, w = self.original.shape[:-1]
-        w2 = w // 2
-        h2 = h // 2
-
-        h, w = template.shape[:-1]
-        r = w // 2
-
-        # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
-        if method in (cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED):
-            top_left = min_loc
-        else:
-            top_left = max_loc
-        dx = w2 - r - top_left[0]
-        dy = h2 - r - top_left[1]
-        return dx, dy
-
-    # -----------------------------------------------------------------------
-    # Convert to Tk image
-    # -----------------------------------------------------------------------
-    def toTk(self):
-        if self.image is None:
-            return None
-        self.imagetk = ImageTk.PhotoImage(
-            image=Image.fromarray(cv.cvtColor(self.image, cv.COLOR_BGR2RGB),
-                                  "RGB")
-        )
-        return self.imagetk

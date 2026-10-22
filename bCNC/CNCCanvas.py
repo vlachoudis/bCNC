@@ -221,8 +221,8 @@ class CNCCanvas(GLCanvas):
         return (numpy.array(self.winfo_rgb(colorName)) * 255. / 65535.).astype(int)
     
 
-    def __init__(self, master, app, *kw, **kwargs):
-        super().__init__(master) # TODO: Handle takefocus and background parameters
+    def __init__(self, master, app):
+        super().__init__(master)
         
         self.parentFrame : Frame = master
 
@@ -4574,7 +4574,7 @@ class CanvasFrame(Frame):
         self.pack(side='top', fill='both', expand=True)
         self.update()
 
-        self.canvas = CNCCanvas(self, app, takefocus=True, background="White")
+        self.canvas = CNCCanvas(self, app)
         self.canvas.grid(row=1, column=1, sticky=NSEW)
 
         self.createCanvasToolbar(toolbar)
