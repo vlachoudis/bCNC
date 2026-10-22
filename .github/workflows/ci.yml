@@ -24,9 +24,9 @@ jobs:
           cache: pip
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e . build
 
       - name: Compile and package
         run: |
           python -tt -m compileall -f bCNC
-          python setup.py sdist
+          python -m build --sdist

@@ -15,7 +15,7 @@ with open("README.md") as fh:
 setup(
     name="bCNC",
     version="1.0.0",
-    license="GPLv2",
+    license="GPL-2.0-only",
     description="Swiss army knife for all your CNC/g-code needs",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -53,8 +53,8 @@ setup(
     },
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Operating System :: OS Independent",
+
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
         "Topic :: Multimedia :: Graphics :: Capture",
         "Topic :: Multimedia :: Graphics :: Editors :: Vector-Based",
