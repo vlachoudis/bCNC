@@ -8,10 +8,8 @@ import os.path
 import meshcut
 import numpy as np
 
-# FIXME: write PLY parser which supports binary PLY files
-#        (currently can only do ASCII PLY)
-import ply
-import stl  # FIXME: write smaller STL parser
+import bply
+import bstl
 
 from GCode import Block
 from ToolsPage import Plugin
@@ -20,13 +18,7 @@ __author__ = "@harvie Tomas Mudrunka"
 # __email__  = ""
 
 __name__ = _("slicemesh")
-__version__ = "0.0.6"
-
-
-# If needed trimesh supports following formats:
-# binary/ASCII STL, Wavefront OBJ, ASCII OFF, binary/ASCII PLY, GLTF/GLB 2.0, 3MF, XAML, 3DXML, etc.
-# https://github.com/mikedh/trimesh
-# but it depends on numpy, scipy and networkx
+__version__ = "0.0.7"
 
 
 class Tool(Plugin):
@@ -90,16 +82,11 @@ class Tool(Plugin):
 
 Currently it supports following formats:
 STL (Binary and ASCII)
-PLY (ASCII only)
+PLY (Binary and ASCII)
 
 You can use external software to edit and convert meshes to desired format.
 It can also help you to visually inspect your meshes before slicing.
 Example of useful free software for working with meshes is called "MeshLab".
-
-WARNING:
-
-Recently we've noticed bug #1223, which causes this plugin to fail with some big(-ish) STL files.
-Luckily PLY import is unaffected, so if you experience troubles, you can try to convert your file to a different format.
 
 Also bCNC lacks proper 3D CAM features, so you can only apply 2D CAM operations on resulting slices.
 Also note you can export resulting slices to DXF and SVG if needed.
@@ -194,8 +181,8 @@ Also note you can export resulting slices to DXF and SVG if needed.
         if fext == ".STL":
             verts, faces = self.load_stl(file)
         elif fext == ".PLY":
-            with open(file) as f:
-                verts, faces, _ = ply.load_ply(f)
+            with open(file, "rb") as f:
+                verts, faces, _ = bply.load_ply(f)
         else:
             print("unknown file extension", fext)
             return None
@@ -333,11 +320,7 @@ Also note you can export resulting slices to DXF and SVG if needed.
         return new_verts, new_faces
 
     def load_stl(self, stl_fname):
-        m = stl.mesh.Mesh.from_file(stl_fname)
-
-        # Flatten our vert array to Nx3 and generate corresponding faces array
-        verts = m.vectors.reshape(-1, 3)
-        faces = np.arange(len(verts)).reshape(-1, 3)
-
+        with open(stl_fname, "rb") as f:
+            verts, faces = bstl.load_stl(f)
         verts, faces = self.merge_close_vertices(verts, faces)
         return verts, faces

@@ -2,8 +2,6 @@ NAME = bCNC
 SOURCES =	bCNC/*.py \
 		bCNC/controllers/*.py \
 		bCNC/lib/*.py \
-		bCNC/lib/python_utils/*.py \
-		bCNC/lib/stl/*.py \
 		bCNC/plugins/*.py
 .PHONY = help
 
@@ -23,8 +21,6 @@ clean:
 	rm -f bCNC/*.pyc bCNC/*.pyo
 	rm -f bCNC/controllers/*.pyc bCNC/controllers/*.pyo
 	rm -f bCNC/lib/*.pyc bCNC/lib/*.pyo
-	rm -f bCNC/lib/python_utils/*.pyc bCNC/lib/python_utils/*.pyo
-	rm -f bCNC/lib/stl/*.pyc bCNC/lib/stl/*.pyo
 	rm -f bCNC/plugins/*.pyc bCNC/plugins/*.pyo
 
 upload:

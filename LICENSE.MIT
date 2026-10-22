@@ -3,7 +3,7 @@ Following components were sublicensed from MIT to bCNC's license (GPLv2):
 MeshCut ( https://github.com/julienr/meshcut )
 Copyright (c) 2015 Julien Rebetez
 	lib/mescut.py
-	lib/ply.py
+	lib/bply.py
 	lib/utils.py
 
 This is the text of their original license:

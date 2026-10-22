@@ -1,5 +1,8 @@
 import math
+import os
 import struct
+
+import numpy as np
 
 ASCII_FACET = """facet normal {normal[0]:.4f} {normal[1]:.4f} {normal[2]:.4f}
 outer loop
@@ -145,3 +148,77 @@ class Binary_STL_Writer(ASCII_STL_Writer):
             0,
         ]
         self.fp.write(struct.pack(BINARY_FACET, *data))
+
+
+# Binary STL: 80-byte header, uint32 triangle count, then 50 bytes per facet
+_HEADER = 80
+_COUNT = 4
+_FACET = 50  # 12 float32 + uint16 attribute
+
+
+def load_stl(fileobj):
+    """Load an STL mesh (ASCII or binary) from a path or file-like object.
+
+    Returns verts (Nx3) and faces (Mx3). Each triangle contributes three
+    vertices; callers may merge duplicates.
+    """
+    if isinstance(fileobj, (str, bytes, os.PathLike)):
+        with open(fileobj, "rb") as f:
+            data = f.read()
+    else:
+        data = fileobj.read()
+        if isinstance(data, str):
+            data = data.encode("latin1")
+
+    if _is_ascii(data):
+        return _load_ascii(data)
+    return _load_binary(data)
+
+
+def _is_ascii(data):
+    """Detect ASCII STL. Some binary files start with b'solid'."""
+    if len(data) < _HEADER + _COUNT:
+        return True
+    if not data.lstrip().lower().startswith(b"solid"):
+        return False
+    (ntris,) = struct.unpack_from("<I", data, _HEADER)
+    return _HEADER + _COUNT + ntris * _FACET != len(data)
+
+
+def _load_ascii(data):
+    text = data.decode("ascii", errors="ignore")
+    verts = []
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) >= 4 and parts[0].lower() == "vertex":
+            verts.append(
+                (float(parts[1]), float(parts[2]), float(parts[3]))
+            )
+    if not verts or len(verts) % 3 != 0:
+        raise ValueError("invalid ASCII STL: expected vertex triplets")
+    verts = np.asarray(verts, dtype=np.float64)
+    faces = np.arange(len(verts), dtype=np.int_).reshape(-1, 3)
+    return verts, faces
+
+
+def _load_binary(data):
+    if len(data) < _HEADER + _COUNT:
+        raise ValueError("invalid binary STL: file too short")
+    (ntris,) = struct.unpack_from("<I", data, _HEADER)
+    expected = _HEADER + _COUNT + ntris * _FACET
+    if len(data) < expected:
+        raise ValueError(
+            f"invalid binary STL: expected {expected} bytes, got {len(data)}"
+        )
+    verts = np.empty((ntris * 3, 3), dtype=np.float64)
+    offset = _HEADER + _COUNT
+    for i in range(ntris):
+        # normal(3) + v0(3) + v1(3) + v2(3) + attribute(1 uint16)
+        vals = struct.unpack_from("<12fH", data, offset)
+        offset += _FACET
+        base = i * 3
+        verts[base] = vals[3:6]
+        verts[base + 1] = vals[6:9]
+        verts[base + 2] = vals[9:12]
+    faces = np.arange(ntris * 3, dtype=np.int_).reshape(-1, 3)
+    return verts, faces
