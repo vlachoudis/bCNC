@@ -268,6 +268,7 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
                                                              dist_tol)
 
         if len(intersections) == 2:
+            lines = []
             for intersection in intersections:
                 p, T = _walk_polyline(tid,
                                       intersection,
@@ -276,7 +277,12 @@ def cross_section_mesh(mesh, plane, dist_tol=1e-8):
                                       plane,
                                       dist_tol)
                 if len(p) > 1:
-                    P.append(np.array(p))
+                    lines.append(np.array(p))
+            if len(lines) == 2:
+                # Non-manifold / interior start: two opposite walks that
+                # should be joined into one polyline (meshcut upstream fix).
+                lines = [np.concatenate((lines[0][::-1], lines[1]), axis=0)]
+            P += lines
     return P
 
 
