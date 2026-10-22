@@ -38,3 +38,6 @@ jobs:
         run: |
           python -tt -m compileall -f bCNC
           python -m build --sdist
+
+      - name: Run controller tests
+        run: python -m unittest discover -s tests/controllers -v
