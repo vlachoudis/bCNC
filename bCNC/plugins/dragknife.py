@@ -16,7 +16,7 @@ __author__ = "@harvie Tomas Mudrunka"
 # __email__  = ""
 
 __name__ = _("DragKnife")
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
 class Tool(Plugin):
@@ -72,6 +72,15 @@ class Tool(Plugin):
             ),
             ("feed", "mm", 200, _("feedrate")),
             (
+                "overcut",
+                "mm",
+                0.0,
+                _("path overcut"),
+                _(
+                    "continue along closed path start; helps close dragknife cuts"
+                ),
+            ),
+            (
                 "simulate",
                 "bool",
                 False,
@@ -118,6 +127,7 @@ This fact introduces the need for preprocessing the g-code to account with that 
         swivelz = self.fromMm("swivelz")
         initdir = self["initdir"]
         CNC.vars["cutfeed"] = self.fromMm("feed")
+        overcut = self.fromMm("overcut")
         simulate = self["simulate"]
         simpreci = self["simpreci"]
         dwell = self["dwell"]
@@ -142,6 +152,22 @@ This fact introduces the need for preprocessing the g-code to account with that 
 
             opath = app.gcode.toPath(bid)[0]
             npath = Path(f"dragknife {dragoff}: {app.gcode[bid].name()}")
+
+            # Overcut: for closed paths, re-walk the start
+            if overcut > 0 and opath.isClosed():
+                rem = overcut
+                for seg in list(opath):
+                    if rem <= 0:
+                        break
+                    take = min(rem, seg.length())
+                    s = Segment(
+                        seg.type,
+                        seg.A,
+                        seg.distPoint(take),
+                        seg.C if seg.type != Segment.LINE else None,
+                    )
+                    opath.append(s)
+                    rem -= take
 
             if not simulate:
 
