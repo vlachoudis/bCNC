@@ -284,8 +284,7 @@ class Application(Tk, Sender):
             messagebox.showwarning(
                 "bCNC configuration",
                 f"The following pages \"{' '.join(errors)}\" are found in "
-                "your ${HOME}/.bCNC initialization "
-                "file, which are either spelled wrongly or "
+                "your bCNC config file, which are either spelled wrongly or "
                 "no longer exist in bCNC",
                 parent=self,
             )

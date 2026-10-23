@@ -43,7 +43,7 @@ It is strongly recommended to validate the content of the blocks after each modi
 Field descriptions.
 ===================
 - Name: 
-   Name of the current setup. The setup will be stored in the bCNC configuration file used at bCNC startup, default .bCNC.
+   Name of the current setup. The setup will be stored in configuration file and loaded at startup.
 - XYZ feed rate:
    G1/G2/G3 feed rate in mm/s or inch/s based on bCNC settting.
 - Laser Power:
