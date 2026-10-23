@@ -1,0 +1,31 @@
+name: Shader validate (glslang)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'bCNC/opengl/**'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'bCNC/opengl/**'
+
+jobs:
+  shader-glslang:
+    name: Shader validate (glslang)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install glslang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y glslang-tools
+
+      - name: Validate shaders
+        run: python -m unittest discover -s unittests/opengl -p 'test_glslang.py' -v
