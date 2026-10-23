@@ -429,7 +429,8 @@ class Tool(Plugin):
     def __init__(self, master):
         Plugin.__init__(self, master, "Offset")
         self.icon = "offset"
-        self.group = "CAM_Core+"
+        self.group = "CAM-core-big"
+        self.order = 20
         self.variables = [
             ("name", "db", "", _("Name")),
             ("endmill", "db", "", _("End Mill")),

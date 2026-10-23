@@ -8,7 +8,6 @@ import os
 import sys
 import time
 import traceback
-from operator import attrgetter
 from tkinter import (
     TclError,
     YES,
@@ -527,6 +526,7 @@ class Plugin(DataBase):
         self.plugin = True
         self.group = "Macros"
         self.oneshot = False
+        self.order = 99  # ribbon position within group (lower = earlier)
         self.help = None
 
 
@@ -809,410 +809,6 @@ class Stock(DataBase):
 
 
 # =============================================================================
-# Cut material
-# =============================================================================
-class Cut(DataBase):
-    def __init__(self, master):
-        DataBase.__init__(self, master, "Cut")
-        self.icon = "cut"
-        self.variables = [
-            ("name", "db", "", _("Name")),
-            ("surface", "mm", "", _("Surface Z")),
-            ("depth", "mm", "", _("Target Depth")),
-            ("stepz", "mm", "", _("Depth Increment")),
-            ("feed", "mm", "", _("Feed")),
-            ("feedz", "mm", "", _("Plunge Feed")),
-            (
-                "strategy",
-                "flat,helical+bottom,helical,ramp",
-                "helical+bottom",
-                _("Cutting strategy"),
-            ),
-            (
-                "ramp",
-                "int",
-                10,
-                _("Ramp length"),
-                _(
-                    "positive value = relative to tool diameter (5 to 10 "
-                    + "probably makes sense), negative = absolute ramp "
-                    + "distance (you probably don't need this). Also note "
-                    + "that ramp can't currently be shorter than affected "
-                    + "g-code segment."
-                ),
-            ),
-            ("cutFromTop", "bool", False, _("First cut at surface height")),
-            (
-                "spring",
-                "bool",
-                False,
-                _("Spring pass"),
-                _(
-                    "Do the last cut once more in opposite direction. "
-                    + "Helix bottom is disabled in such case."
-                ),
-            ),
-            (
-                "exitpoint",
-                "on path,inside,outside",
-                "on path",
-                _("Exit strategy (useful for threads)"),
-                _(
-                    "You should probably always use 'on path', unless "
-                    + "you are threadmilling!"
-                ),
-            ),
-            ("islandsLeave", "bool", True, _("Leave islands uncut")),
-            (
-                "islandsSelectedOnly",
-                "bool",
-                True,
-                _("Only leave selected islands uncut"),
-            ),
-            (
-                "islandsCompensate",
-                "bool",
-                False,
-                _("Compensate islands for cutter radius"),
-                _(
-                    "Add additional margin/offset around islands to "
-                    + "compensate for endmill radius. This is automatically "
-                    + "done for all islands if they are marked as tabs."
-                ),
-            ),
-            ("islandsCut", "bool", True, _("Cut contours of selected islands")),
-        ]
-        self.buttons.append("exe")
-        self.help = "\n".join([
-            "Cut selected toolpath into Z depth of stock material.",
-            "",
-            "For short paths, you should probably use helical cut with "
-            + "bottom.",
-            "For long toolpaths and pocketing you should use ramp cut "
-            + "(length around 10).",
-            "Also there's classic flat cuting strategy, but that will lead to "
-            + "plunging straight down to material, which is not really "
-            + "desirable (especially when milling harder materials).",
-            "",
-            "If you have generated tabs and want them to be left uncut, you "
-            + "should check \"leave islands\" and uncheck "
-            + "\"cut contours of islands\"",
-            "If you want islands to get finishing pass, cou can use "
-            + "\"cut contours of selected islands\" or cut them "
-            + "individually afterwards.",
-        ])
-
-    # ----------------------------------------------------------------------
-    def execute(self, app):
-        # Cuting dimensions
-        surface = self.fromMm("surface", None)
-        depth = self.fromMm("depth", None)
-        step = self.fromMm("stepz", None)
-
-        # Cuting speed
-        try:
-            feed = self.fromMm("feed", None)
-        except Exception:
-            feed = None
-        try:
-            feedz = self.fromMm("feedz", None)
-        except Exception:
-            feedz = None
-
-        # Cuting strategy
-        strategy = self["strategy"]
-        cutFromTop = self["cutFromTop"]
-        springPass = self["spring"]
-
-        # Islands
-        islandsLeave = self["islandsLeave"]
-        islandsCut = self["islandsCut"]
-        islandsSelectedOnly = self["islandsSelectedOnly"]
-        islandsCompensate = self["islandsCompensate"]
-
-        # Decide if helix or ramp
-        helix = False
-        if strategy in ["helical+bottom", "helical", "ramp+bottom", "ramp"]:
-            helix = True
-
-        # Decide if ramp
-        ramp = 0
-        if strategy in ["ramp+bottom", "ramp"]:
-            helixBottom = True
-            ramp = self["ramp"]
-            if ramp < 0:
-                ramp = self.master.fromMm(float(ramp))
-
-        # Decide if bottom
-        helixBottom = False
-        if strategy in ["helical+bottom", "ramp+bottom", "ramp"]:
-            helixBottom = True
-
-        # Decide exit point
-        exitpoint = self["exitpoint"]
-        if exitpoint == "inside":
-            exitpoint = 1
-        elif exitpoint == "outside":
-            exitpoint = -1
-        else:
-            exitpoint = None
-
-        # Execute cut
-        app.executeOnSelection(
-            "CUT",
-            True,
-            depth,
-            step,
-            surface,
-            feed,
-            feedz,
-            cutFromTop,
-            helix,
-            helixBottom,
-            ramp,
-            islandsLeave,
-            islandsCut,
-            islandsSelectedOnly,
-            exitpoint,
-            springPass,
-            islandsCompensate,
-        )
-        app.setStatus(_("CUT selected paths"))
-
-
-# =============================================================================
-# Drill material
-# =============================================================================
-class Drill(DataBase):
-    def __init__(self, master):
-        DataBase.__init__(self, master, "Drill")
-        self.icon = "drill"
-        self.variables = [
-            ("name", "db", "", _("Name")),
-            ("center", "bool", True, _("Drill in center only")),
-            ("depth", "mm", "", _("Target Depth")),
-            ("peck", "mm", "", _("Peck depth")),
-            ("dwell", "float", "", _("Dwell (s)")),
-            ("distance", "mm", "", _("Distance (mm)")),
-            ("number", "int", "", _("Number")),
-        ]
-        self.help = "\n".join([
-            "Drill a hole in the center of the selected path or drill many "
-            + "holes along the selected path.",
-            "",
-            "MODULE PARAMETERS:",
-            "",
-            "* center : if checked, there is only one drill in the center of "
-            + "the selected path. (Otherwise drill along path)",
-            "",
-            "* depth : Depth of the drill. If not provided, stock material "
-            + "thickness is used. (usually negative value)",
-            "",
-            "* peck: Peck step depth. If provided, drill with peck depth "
-            + "step, raising the drill to z travel value. If not provided, "
-            + "one pass drill is generated.",
-            "",
-            "* dwell: Dwell time at the bottom. If pecking is defined, dwell "
-            + "also at lifted height.",
-            "",
-            "* distance: Distance between drills if drilling along path. "
-            + "(Number of drills will superceed this parameter))",
-            "",
-            "* number: Number of drills if drilling along path. If nonzero, "
-            + "Parameter 'distance' has no effect.",
-        ])
-        self.buttons.append("exe")
-
-    # ----------------------------------------------------------------------
-    def execute(self, app):
-        h = self.fromMm("depth", None)
-        p = self.fromMm("peck", None)
-        e = self.fromMm("distance", None)
-        c = self["center"]
-        try:
-            d = self["dwell"]
-        except Exception:
-            d = None
-        try:
-            n = int(self["number"])
-        except Exception:
-            n = 0
-        app.executeOnSelection("DRILL", True, h, p, d, e, n, c)
-        app.setStatus(_("DRILL selected points"))
-
-
-# =============================================================================
-# Profile
-# =============================================================================
-class Profile(DataBase):
-    def __init__(self, master):
-        DataBase.__init__(self, master, "Profile")
-        self.icon = "profile"
-        self.variables = [
-            ("name", "db", "", _("Name")),
-            (
-                "endmill",
-                "db",
-                "",
-                _("End Mill"),
-                _("Size of this endmill will be used as offset distance"),
-            ),
-            (
-                "direction",
-                "inside,outside",
-                "outside",
-                _("Direction"),
-                _("Should we machine on inside or outside of the shape?"),
-            ),
-            ("offset", "float", 0.0, _("Additional offset distance")),
-            (
-                "overcut",
-                "bool",
-                1,
-                _("Overcut"),
-                _("Sets if we want to overcut or not."),
-            ),
-            (
-                "pocket",
-                "bool",
-                0,
-                _("Pocket"),
-                _(
-                    "Generate pocket after profiling? Useful for making "
-                    + "pockets with overcuts."
-                ),
-            ),
-        ]
-        self.buttons.append("exe")
-        self.help = "\n".join([
-            "This plugin offsets shapes to create toolpaths for profiling "
-            + "operation.",
-            "Shape needs to be offset by the radius of endmill to get cut "
-            + "correctly.",
-            "",
-            "Currently we have two modes.",
-            "",
-            "Without overcut:",
-            "#overcut-without",
-            "",
-            "And with overcut:",
-            "#overcut-with",
-            "",
-            "Blue is the original shape from CAD",
-            "Turquoise is the generated toolpath",
-            "Grey is simulation of how part will look after machining",
-        ])
-
-    # ----------------------------------------------------------------------
-    def execute(self, app):
-        if self["endmill"]:
-            self.master["endmill"].makeCurrent(self["endmill"])
-        direction = self["direction"]
-        name = self["name"]
-        pocket = self["pocket"]
-        if name == "default" or name == "":
-            name = None
-        app.profile(direction, self["offset"], self["overcut"], name, pocket)
-        app.setStatus(_("Generate profile path"))
-
-
-# =============================================================================
-# Pocket
-# =============================================================================
-class Pocket(DataBase):
-    def __init__(self, master):
-        DataBase.__init__(self, master, "Pocket")
-        self.icon = "pocket"
-        self.variables = [
-            ("name", "db", "", _("Name")),
-            ("endmill", "db", "", _("End Mill")),
-        ]
-        self.buttons.append("exe")
-        self.help = """Remove all material inside selected shape
-"""
-
-    # ----------------------------------------------------------------------
-    def execute(self, app):
-        if self["endmill"]:
-            self.master["endmill"].makeCurrent(self["endmill"])
-        name = self["name"]
-        if name == "default" or name == "":
-            name = None
-        app.pocket(name)
-        app.setStatus(_("Generate pocket path"))
-
-
-# =============================================================================
-# Tabs
-# =============================================================================
-class Tabs(DataBase):
-    def __init__(self, master):
-        DataBase.__init__(self, master, "Tabs")
-        self.icon = "tab"
-        self.variables = [
-            ("name", "db", "", _("Name")),
-            ("ntabs", "int", 5, _("Number of tabs")),
-            ("dtabs", "mm", 0.0, _("Min. Distance of tabs")),
-            ("dx", "mm", 5.0, "Width"),
-            ("z", "mm", -3.0, _("Height")),
-        ]
-        self.buttons.append("exe")
-        self.help = "\n".join([
-            "Create tabs, which will be left uncut to hold the part in place "
-            + "after cutting.",
-            "",
-            "Tabs after creation:",
-            "#tabs-created",
-            "",
-            "Tabs after cutting the path they're attached to:",
-            "#tabs-cut",
-            "",
-            "Tab shows the size of material, which will be left in place "
-            + "after cutting. It's compensated for endmill diameter during "
-            + "cut operation.",
-            "",
-            "Note that tabs used to be square, but if there was a diagonal "
-            + "segment crossing such tab, it resulted in larger tab without "
-            + "any reason. If we use circular tabs, the tab size is always "
-            + "the same, no matter the angle of segment.",
-            "",
-            "You can move selected tabs using \"Move\" feature in \"Editor\". "
-            + "If you want to modify individual tabs, you have to first use "
-            + "\"Split\" feature to break the block into individual tabs. "
-            + "After moving them, you can \"Join\" them back together.",
-        ])
-
-    # ----------------------------------------------------------------------
-    def execute(self, app):
-        try:
-            ntabs = int(self["ntabs"])
-        except Exception:
-            ntabs = 0
-
-        dtabs = self.fromMm("dtabs", 0.0)
-        dx = self.fromMm("dx", self.master.fromMm(5.0))
-        dy = dx
-        z = self.fromMm("z", -self.master.fromMm(3.0))
-
-        if ntabs < 0:
-            ntabs = 0
-        if dtabs < 0.0:
-            dtabs = 0
-
-        if ntabs == 0 and dtabs == 0:
-            messagebox.showerror(
-                _("Tabs error"),
-                _("You cannot have both the number of tabs or distance equal "
-                  + "to zero"),
-            )
-
-        circ = True
-
-        app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, circ)
-        app.setStatus(_("Create tabs on blocks"))
-
-
-# =============================================================================
 # Controller setup
 # =============================================================================
 class Controller(_Base):
@@ -1320,16 +916,11 @@ class Tools:
             Font,
             Color,
             Controller,
-            Cut,
-            Drill,
             EndMill,
             Events,
             Material,
-            Pocket,
-            Profile,
             Shortcut,
             Stock,
-            Tabs,
         ]:
             tool = cls(self)
             self.addTool(tool)
@@ -1350,11 +941,11 @@ class Tools:
         self.tools[tool.name.upper()] = tool
 
     # ----------------------------------------------------------------------
-    # Return a list of plugins
+    # Return a list of plugins (sorted by ribbon order, then name)
     # ----------------------------------------------------------------------
     def pluginList(self):
         plugins = [x for x in self.tools.values() if x.plugin]
-        return sorted(plugins, key=attrgetter("name"))
+        return sorted(plugins, key=lambda t: (t.order, t.name))
 
     # ----------------------------------------------------------------------
     def setListbox(self, listbox):
@@ -1566,192 +1157,64 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
 
 # =============================================================================
 # CAM Group
+# Ribbon layout (preserved via plugin group + order):
+#   CAM-core-big  → large buttons  (Cut, Offset, Profile, ...)
+#   CAM-core      → compact buttons (Pocket, Drill, Tabs, Island, DragKnife, ...)
+#   CAM           → more compact buttons
 # =============================================================================
 class CAMGroup(CNCRibbon.ButtonMenuGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonMenuGroup.__init__(self, master, N_("CAM"), app)
         self.grid3rows()
 
-        # ===
-        col, row = 0, 0
-        b = Ribbon.LabelRadiobutton(
-            self.frame,
-            image=Utils.icons["cut32"],
-            text=_("Cut"),
-            compound=TOP,
-            anchor=W,
-            variable=app.tools.active,
-            value="Cut",
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(
-            b, _("Cut for the full stock thickness selected code"))
-        self.addWidget(b)
+        col = 0
+        for tool in self._pluginsIn("CAM-core-big"):
+            b = self._pluginButton(tool, large=True)
+            b.grid(row=0, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+            col += 1
 
-        col += 1
-        # Find plugins in the plugins directory and load them
-        for group in ["CAM_Core+"]:
-            for tool in app.tools.pluginList():
-                if tool.group != group:
-                    continue
-                # ===
-                if tool.oneshot:
-                    b = Ribbon.LabelButton(
-                        self.frame,
-                        image=Utils.icons[tool.icon + "32"],
-                        text=_(tool.name),
-                        compound=TOP,
-                        anchor=W,
-                        command=lambda s=self, a=app, t=tool: a.tools[
-                            t.name.upper()
-                        ].execute(a),
-                        # command=tool.execute,
-                        background=Ribbon._BACKGROUND,
-                    )
-                else:
-                    b = Ribbon.LabelRadiobutton(
-                        self.frame,
-                        image=Utils.icons[tool.icon + "32"],
-                        text=tool.name,
-                        compound=TOP,
-                        anchor=W,
-                        variable=app.tools.active,
-                        value=tool.name,
-                        background=Ribbon._BACKGROUND,
-                    )
-
-                b.grid(row=row, column=col, rowspan=3,
-                       padx=1, pady=0, sticky=NSEW)
-                tkExtra.Balloon.set(b, tool.__doc__)
-                self.addWidget(b)
-
+        row = 0
+        for tool in self._pluginsIn("CAM-core", "CAM"):
+            b = self._pluginButton(tool, large=False)
+            b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+            row += 1
+            if row == 3:
                 col += 1
+                row = 0
 
-        # ===
-        b = Ribbon.LabelRadiobutton(
-            self.frame,
-            image=Utils.icons["profile32"],
-            text=_("Profile"),
-            compound=TOP,
-            anchor=W,
-            variable=app.tools.active,
-            value="Profile",
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(
-            b, _("Perform a profile operation on selected code"))
+    # ----------------------------------------------------------------------
+    def _pluginsIn(self, *groups):
+        return [t for t in self.app.tools.pluginList() if t.group in groups]
+
+    # ----------------------------------------------------------------------
+    def _pluginButton(self, tool, large=False):
+        app = self.app
+        icon = tool.icon + "32" if large else tool.icon
+        compound = TOP if large else LEFT
+        if tool.oneshot:
+            b = Ribbon.LabelButton(
+                self.frame,
+                image=Utils.icons[icon],
+                text=_(tool.name),
+                compound=compound,
+                anchor=W,
+                command=lambda a=app, t=tool: a.tools[t.name.upper()].execute(a),
+                background=Ribbon._BACKGROUND,
+            )
+        else:
+            b = Ribbon.LabelRadiobutton(
+                self.frame,
+                image=Utils.icons[icon],
+                text=_(tool.name),
+                compound=compound,
+                anchor=W,
+                variable=app.tools.active,
+                value=tool.name,
+                background=Ribbon._BACKGROUND,
+            )
+        tkExtra.Balloon.set(b, tool.__doc__)
         self.addWidget(b)
-
-        # ===
-        col += 1
-        row = 0
-        b = Ribbon.LabelRadiobutton(
-            self.frame,
-            image=Utils.icons["pocket"],
-            text=_("Pocket"),
-            compound=LEFT,
-            anchor=W,
-            variable=app.tools.active,
-            value="Pocket",
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(
-            b, _("Perform a pocket operation on selected code"))
-        self.addWidget(b)
-
-        # ---
-        row += 1
-        b = Ribbon.LabelRadiobutton(
-            self.frame,
-            image=Utils.icons["drill"],
-            text=_("Drill"),
-            compound=LEFT,
-            anchor=W,
-            variable=app.tools.active,
-            value="Drill",
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(
-            b, _("Insert a drill cycle on current objects/location"))
-        self.addWidget(b)
-
-        # ---
-        row += 1
-        b = Ribbon.LabelRadiobutton(
-            self.frame,
-            image=Utils.icons["tab"],
-            text=_("Tabs"),
-            compound=LEFT,
-            anchor=W,
-            variable=app.tools.active,
-            value="Tabs",
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(b, _("Insert holding tabs"))
-        self.addWidget(b)
-
-        # ---
-        col += 1
-        row = 0
-        b = Ribbon.LabelButton(
-            self.frame,
-            image=Utils.icons["island"],
-            text=_("Island"),
-            compound=LEFT,
-            anchor=W,
-            command=lambda s=app: s.insertCommand("ISLAND", True),
-            background=Ribbon._BACKGROUND,
-        )
-        b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-        tkExtra.Balloon.set(b, _("Toggle island"))
-        self.addWidget(b)
-
-        # ---
-        row += 1
-
-        # Find plugins in the plugins directory and load them
-        for group in ["CAM_Core", "CAM"]:
-            for tool in app.tools.pluginList():
-                if tool.group != group:
-                    continue
-                # ===
-                if tool.oneshot:
-                    b = Ribbon.LabelButton(
-                        self.frame,
-                        image=Utils.icons[tool.icon],
-                        text=_(tool.name),
-                        compound=LEFT,
-                        anchor=W,
-                        command=lambda s=self, a=app, t=tool: a.tools[
-                            t.name.upper()
-                        ].execute(a),
-                        background=Ribbon._BACKGROUND,
-                    )
-                else:
-                    b = Ribbon.LabelRadiobutton(
-                        self.frame,
-                        image=Utils.icons[tool.icon],
-                        text=tool.name,
-                        compound=LEFT,
-                        anchor=W,
-                        variable=app.tools.active,
-                        value=tool.name,
-                        background=Ribbon._BACKGROUND,
-                    )
-
-                b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
-                tkExtra.Balloon.set(b, tool.__doc__)
-                self.addWidget(b)
-
-                row += 1
-                if row == 3:
-                    col += 1
-                    row = 0
+        return b
 
     # ----------------------------------------------------------------------
     def createMenu(self):
@@ -1759,7 +1222,6 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
         for group in ("Artistic", "Generator", "Development"):
             submenu = Menu(menu, tearoff=0)
             menu.add_cascade(label=group, menu=submenu)
-            # Find plugins in the plugins directory and load them
             for tool in self.app.tools.pluginList():
                 if tool.group != group:
                     continue
@@ -1768,7 +1230,7 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
                         label=_(tool.name),
                         image=Utils.icons[tool.icon],
                         compound=LEFT,
-                        command=lambda s=self, a=self.app, t=tool: a.tools[
+                        command=lambda a=self.app, t=tool: a.tools[
                             t.name.upper()
                         ].execute(a),
                     )

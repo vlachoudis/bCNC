@@ -28,7 +28,8 @@ class Tool(Plugin):
         Plugin.__init__(self, master, "DragKnife")
         # <<< This is the name of file used as icon for the ribbon button. It will be search in the "icons" subfolder
         self.icon = "dragknife"
-        self.group = "CAM_Core"  # <<< This is the name of group that plugin belongs
+        self.group = "CAM-core"
+        self.order = 50
         # Here we are creating the widgets presented to the user inside the plugin
         # Name, Type , Default value, Description
         self.variables = [  # <<< Define a list of components for the GUI
