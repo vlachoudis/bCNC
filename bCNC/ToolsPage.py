@@ -123,6 +123,12 @@ class _Base:
         pass
 
     # ----------------------------------------------------------------------
+    # Whether right-click may clear this color entry to blank
+    # ----------------------------------------------------------------------
+    def colorAllowClear(self, name):
+        return False
+
+    # ----------------------------------------------------------------------
     # Update variables after edit command
     # ----------------------------------------------------------------------
     def update(self):
@@ -546,9 +552,58 @@ class Font(Ini):
 
 
 # -----------------------------------------------------------------------------
-class Color(Ini):
+class Color(_Base):
+    """Canvas display colors (Config → Colors / canvas toolbar)."""
+
     def __init__(self, master):
-        Ini.__init__(self, master, "Color", "color")
+        _Base.__init__(self, master, "Color")
+        self.icon = "color"
+        self.help = _(
+            "Canvas display colors.\n"
+            "Click a color cell to pick a color.\n"
+            "Right-click clears blankable colors (e.g. rapid moves).\n"
+            "Execute restores default colors."
+        )
+        # Import here to avoid circular import at module load
+        import CNCCanvas
+
+        self._cc = CNCCanvas
+        self.variables = [
+            (key, "color", getattr(CNCCanvas, "DEFAULT_" + info["color"]),
+             _(info["description"]))
+            for key, info in CNCCanvas.customColors.items()
+        ]
+        self.buttons.append("exe")
+
+    # ----------------------------------------------------------------------
+    def colorAllowClear(self, name):
+        return self._cc.customColors.get(name, {}).get("canBeBlank", False)
+
+    # ----------------------------------------------------------------------
+    def _apply(self, app=None):
+        for key, info in self._cc.customColors.items():
+            value = self[key]
+            if value == "" and not info.get("canBeBlank"):
+                value = getattr(self._cc, "DEFAULT_" + info["color"])
+                self[key] = value
+            setattr(self._cc, info["color"], value)
+        if app is None and self.master.listbox is not None:
+            app = self.master.listbox.winfo_toplevel()
+        if app is not None and getattr(app, "canvasFrame", None) is not None:
+            app.canvasFrame.canvas.queueDraw()
+
+    # ----------------------------------------------------------------------
+    def update(self):
+        self._apply()
+        return False
+
+    # ----------------------------------------------------------------------
+    def execute(self, app):
+        for key, info in self._cc.customColors.items():
+            self[key] = getattr(self._cc, "DEFAULT_" + info["color"])
+        self.populate()
+        self._apply(app)
+        self.save()
 
 
 # -----------------------------------------------------------------------------
@@ -1858,7 +1913,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             value="Events",
         )
         menu.add_radiobutton(
-            label=_("Colors"),
+            label=_("Canvas colors"),
             image=Utils.icons["color"],
             compound=LEFT,
             variable=self.app.tools.active,
@@ -1917,6 +1972,8 @@ class ToolsFrame(CNCRibbon.PageFrame):
         self.toolList.bindList("<Return>", self.edit)
         self.toolList.bindList("<Key-space>", self.edit)
         self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
+        # Replace listbox popup on value column: clear blankable colors, else menu
+        self.toolList.listbox(1).bind("<Button-3>", self.colorClearOrMenu)
         self.tools.setListbox(self.toolList)
         self.addWidget(self.toolList)
 
@@ -1964,6 +2021,25 @@ class ToolsFrame(CNCRibbon.PageFrame):
                 else:
                     helptext = f"{helpname}:\nnot available yet!"
                 messagebox.showinfo(helpname, helptext)
+
+    # ----------------------------------------------------------------------
+    # Right-click value column: clear blankable color, else listbox menu
+    # ----------------------------------------------------------------------
+    def colorClearOrMenu(self, event):
+        tool = self.tools.getActive()
+        lb = self.toolList.listbox(1)
+        active = lb.nearest(event.y)
+        self.toolList.activate(active)
+        try:
+            n, t = tool.variables[active][:2]
+        except (IndexError, TypeError, AttributeError):
+            return lb.popupMenu(event)
+        if t == "color" and tool.colorAllowClear(n):
+            tool[n] = ""
+            tool.update()
+            tool.populate()
+            return "break"
+        return lb.popupMenu(event)
 
     # ----------------------------------------------------------------------
     # Edit tool listbox

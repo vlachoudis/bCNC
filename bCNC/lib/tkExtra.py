@@ -2704,56 +2704,71 @@ class InPlaceList(InPlaceEdit):
 class InPlaceColor(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
-        b = Button(self.frame, text="x", padx=0,
-                   pady=0, command=self.clearColor)
-        b.pack(side=LEFT)
-        self.edit = Button(self.frame, command=self.selectColor)
-        self.edit.pack(side=RIGHT, expand=YES, fill=BOTH)
-        self.edit.focus_set()
+        # Placeholder for get()/ok(); picker opens immediately in show()
+        self.edit = Label(self.frame)
+        self.edit.pack(expand=YES, fill=BOTH)
 
     # ----------------------------------------------------------------------
     def set(self, value):
         if value is None:
             value = self.listbox.get(self.item)
         self.value = value
-        if self.value is None or self.value == "":
-            self.value = "White"
-        if value != "":
-            self.edit.config(text=value, background=value,
-                             activebackground=value)
+        if value:
+            try:
+                self.edit.config(text=value, background=value)
+            except TclError:
+                pass
         return value
 
     # ----------------------------------------------------------------------
     def get(self):
-        return self.edit["text"]
+        return self.value
+
+    # ----------------------------------------------------------------------
+    def show(self):
+        # Open the color picker on first click; apply or cancel immediately
+        try:
+            self.frame.wait_visibility()
+            self.selectColor()
+            if self.frame is not None:
+                try:
+                    if self.frame.winfo_exists():
+                        self.frame.wait_window()
+                except TclError:
+                    pass
+        except TclError:
+            pass
 
     # ----------------------------------------------------------------------
     def selectColor(self):
-        self.frame.unbind("<FocusOut>")
+        try:
+            self.frame.unbind("<FocusOut>")
+            self.frame.grab_release()
+        except TclError:
+            pass
+
+        initial = self.value if self.value else "White"
         try:
             rgb, colorStr = askcolor(
                 title="Color",
-                initialcolor=self.value,
+                initialcolor=initial,
                 parent=self.listbox.master
             )
         except TclError:
             colorStr = None
-        if colorStr is not None:
-            colorStr = str(colorStr)
-            self.value = colorStr
-            self.edit.config(
-                text=colorStr, background=colorStr, activebackground=colorStr
-            )
-        self.frame.bind("<FocusOut>", self.cancel)
-        self.edit.focus_set()
 
-    # ----------------------------------------------------------------------
-    def clearColor(self):
-        self.frame.unbind("<FocusOut>")
-        self.value = None
-        self.edit.config(text="", background="White", activebackground="White")
-        self.frame.bind("<FocusOut>", self.cancel)
-        self.edit.focus_set()
+        if colorStr is not None:
+            self.value = str(colorStr)
+            try:
+                self.edit.config(
+                    text=self.value, background=self.value
+                )
+            except TclError:
+                pass
+            self.ok()
+        else:
+            self.value = None
+            self.cancel()
 
 
 # =============================================================================
