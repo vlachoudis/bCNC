@@ -44,3 +44,54 @@ jobs:
           python -m unittest discover -s unittests/controllers -v
           python -m unittest discover -s unittests/cnc -v
           python -m unittest discover -s unittests/cam -v
+
+  shader-glslang:
+    name: Shader validate (glslang)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install glslang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y glslang-tools
+
+      - name: Validate shaders
+        run: python -m unittest discover -s unittests/opengl -p 'test_glslang.py' -v
+
+  shader-compile:
+    name: Shader compile (Mesa/EGL)
+    runs-on: ubuntu-latest
+    env:
+      PYOPENGL_PLATFORM: egl
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      GALLIUM_DRIVER: llvmpipe
+      EGL_PLATFORM: surfaceless
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install Mesa / EGL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libegl1 \
+            libgl1 \
+            libgl1-mesa-dri \
+            libgles2
+
+      - name: Install PyOpenGL
+        run: pip install "PyOpenGL>=3.1"
+
+      - name: Compile and link shaders
+        run: python -m unittest discover -s unittests/opengl -p 'test_compile.py' -v
