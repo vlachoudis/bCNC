@@ -15,8 +15,34 @@ import pathfix  # noqa: F401  # shared unittests bootstrap
 from shaders import iter_shader_pairs
 
 
+def _require_numpy():
+    """PyOpenGL needs NumPy; without it NumpyHandler fails to load and CI can go green wrongly."""
+    try:
+        import numpy  # noqa: F401
+    except ImportError as exc:
+        raise RuntimeError(
+            "numpy is required for OpenGL shader compile tests "
+            "(PyOpenGL cannot load NumpyHandler without it)"
+        ) from exc
+
+
+def _require_numpy_handler():
+    """Fail if PyOpenGL did not register its NumPy format handler."""
+    _require_numpy()
+    try:
+        from OpenGL.arrays.numpymodule import NumpyHandler
+    except ImportError as exc:
+        raise RuntimeError(
+            "OpenGL.arrays.numpymodule.NumpyHandler could not be imported: %s" % exc
+        ) from exc
+    if NumpyHandler is None:
+        raise RuntimeError("OpenGL.arrays.numpymodule.NumpyHandler is None")
+    return NumpyHandler
+
+
 def _create_egl_context():
     """Create a 1x1 EGL pbuffer + OpenGL core context. Returns cleanup callable."""
+    _require_numpy()
     from OpenGL.EGL import (
         EGL_CONTEXT_MAJOR_VERSION,
         EGL_CONTEXT_MINOR_VERSION,
@@ -159,6 +185,7 @@ def _require_tools():
 def _egl_probe():
     """Return (ok, error_message)."""
     try:
+        _require_numpy_handler()
         cleanup = _create_egl_context()
         cleanup()
         return True, ""
@@ -182,6 +209,7 @@ class TestMesaCompileLink(unittest.TestCase):
                 "(required when CI or BCNC_REQUIRE_SHADER_TOOLS is set): %s"
                 % _EGL_ERROR
             )
+        _require_numpy_handler()
         cls._cleanup = _create_egl_context()
         from OpenGL.GL import (
             GL_RENDERER,

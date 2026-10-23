@@ -91,7 +91,9 @@ jobs:
             libgles2
 
       - name: Install PyOpenGL
-        run: pip install "PyOpenGL>=3.1"
+        # NumPy is required: without it PyOpenGL skips NumpyHandler and shader
+        # uploads can silently misbehave while the unittest still reports OK.
+        run: pip install "PyOpenGL>=3.1" "numpy>=1.20"
 
       - name: Compile and link shaders
         run: python -m unittest discover -s unittests/opengl -p 'test_compile.py' -v
