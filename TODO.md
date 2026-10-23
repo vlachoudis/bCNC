@@ -1,0 +1,6 @@
+- Maybe split GCode class into two (one for document model and one for CAM library)
+- Probably should store settings to ~/.config/bCNC.ini rather than ~/.bCNC
+- Leftovers from OpenGL migration
+  - Sel3 and Sel4 were removed. Were they used for something???
+  - When activating/deactivating a block, paths were not updated in the canvas. Redraw Display button must be clicked. Should it be automatic?
+  - Check path color change in bmain.py, during gcode execution. If performance is not good, try updating the buffer when calling set_color
