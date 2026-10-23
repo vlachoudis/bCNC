@@ -110,6 +110,8 @@ CANVAS_COLOR_UP = DEFAULT_CANVAS_COLOR_UP = "White" # If 2 different colors are 
 CANVAS_COLOR_DOWN = DEFAULT_CANVAS_COLOR_DOWN = "White"
 AXES_TEXT_COLOR = DEFAULT_AXES_TEXT_COLOR = "Black"
 RAPID_COLOR = DEFAULT_RAPID_COLOR = ""
+STOCK_COLOR = DEFAULT_STOCK_COLOR = "#D18030"  # Uncut stock surface (simulator)
+STOCK_CUT_COLOR = DEFAULT_STOCK_CUT_COLOR = "#A3805E"  # Machined stock surface (simulator)
 customColors = {
     "canvas.gantry": {"color": "GANTRY_COLOR", "description": "Gantry", "canBeBlank": False},
     "canvas.margin": {"color": "MARGIN_COLOR", "description": "Margin (Requires Redraw)", "canBeBlank": False},
@@ -126,7 +128,9 @@ customColors = {
     "canvas.backgroundUp": {"color": "CANVAS_COLOR_UP", "description": "Background Upper", "canBeBlank": False},
     "canvas.backgroundDown": {"color": "CANVAS_COLOR_DOWN", "description": "Background Lower", "canBeBlank": False},
     "canvas.axestext": {"color": "AXES_TEXT_COLOR", "description": "Axes Text (Requires App restart)", "canBeBlank": False},
-    "canvas.rapid": {"color": "RAPID_COLOR", "description": "Rapid Moves (G0) (Requires Redraw)", "canBeBlank": True}
+    "canvas.rapid": {"color": "RAPID_COLOR", "description": "Rapid Moves (G0) (Requires Redraw)", "canBeBlank": True},
+    "canvas.stock": {"color": "STOCK_COLOR", "description": "Simulator Stock", "canBeBlank": False},
+    "canvas.stockcut": {"color": "STOCK_CUT_COLOR", "description": "Simulator Stock Cut", "canBeBlank": False},
     }
 
 # Fixed colors
@@ -4255,6 +4259,8 @@ class CNCCanvas(GLCanvas):
         glUniform3f(glGetUniformLocation(self.stockTopProgram, "stockMax"), STOCK_MAX_X, STOCK_MAX_Y, STOCK_MAX_Z)
         glUniform1f(glGetUniformLocation(self.stockTopProgram, "meshResolution"), MESH_RES)
         glUniform1f(glGetUniformLocation(self.stockTopProgram, "opacity"), self.stockOpacity.get() / 100.)
+        glUniform3fv(glGetUniformLocation(self.stockTopProgram, "stockColor"), 1, value_ptr(vec3(self.rgb8(STOCK_COLOR))))
+        glUniform3fv(glGetUniformLocation(self.stockTopProgram, "stockCutColor"), 1, value_ptr(vec3(self.rgb8(STOCK_CUT_COLOR))))
 
         uvmin, uvmax = self.getStockVisibleArea()
         glUniform2f(glGetUniformLocation(self.stockTopProgram, "uvmin"), uvmin.x, uvmin.y)
@@ -4293,6 +4299,7 @@ class CNCCanvas(GLCanvas):
         glUniform3f(glGetUniformLocation(self.stockBottomProgram, "stockMin"), STOCK_MIN_X, STOCK_MIN_Y, STOCK_MIN_Z)
         glUniform3f(glGetUniformLocation(self.stockBottomProgram, "stockMax"), STOCK_MAX_X, STOCK_MAX_Y, STOCK_MAX_Z)
         glUniform1f(glGetUniformLocation(self.stockBottomProgram, "opacity"), self.stockOpacity.get() / 100.)
+        glUniform3fv(glGetUniformLocation(self.stockBottomProgram, "stockColor"), 1, value_ptr(vec3(self.rgb8(STOCK_COLOR))))
 
         light1dir = normalize(inverse(MVP) * vec4(1.0, -0.25, -1.0, 0)).xyz
         light2dir = normalize(inverse(MVP) * vec4(-0.5, -0.125, -0.5, 0)).xyz
@@ -4345,6 +4352,7 @@ class CNCCanvas(GLCanvas):
         glUniform3f(self.stockSideProgram_p1, p1.x, p1.y, p1.z)
         glUniform3f(self.stockSideProgram_p2, p2.x, p2.y, p2.z)
         glUniform1f(self.stockSideProgram_opacity, self.stockOpacity.get() / 100.)
+        glUniform3fv(glGetUniformLocation(self.stockSideProgram, "stockColor"), 1, value_ptr(vec3(self.rgb8(STOCK_COLOR))))
 
         light1dir = normalize(inverse(MVP) * vec4(1.0, -0.25, -1.0, 0)).xyz
         light2dir = normalize(inverse(MVP) * vec4(-0.5, -0.125, -0.5, 0)).xyz

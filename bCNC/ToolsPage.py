@@ -559,7 +559,7 @@ class Color(_Base):
         _Base.__init__(self, master, "Color")
         self.icon = "color"
         self.help = _(
-            "Canvas display colors.\n"
+            "Canvas and simulator display colors.\n"
             "Click a color cell to pick a color.\n"
             "Right-click clears blankable colors (e.g. rapid moves).\n"
             "Execute restores default colors."

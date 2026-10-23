@@ -5,6 +5,8 @@ uniform vec3 light2dir;
 uniform vec3 stockMin;
 uniform vec3 stockMax;
 uniform float opacity;
+uniform vec3 stockColor;
+uniform vec3 stockCutColor;
 
 varying vec3 normal;
 varying float z;
@@ -19,11 +21,11 @@ void main() {
     
     if (z == stockMax.z)
     {
-        baseColor = vec3(0.82, 0.50, 0.19);
+        baseColor = stockColor / 255.;
     }
     else
     {
-        baseColor = vec3(0.64, 0.50, 0.37);
+        baseColor = stockCutColor / 255.;
     }
 
     float diffuse = abs((dot(normal, light1dir) + dot(normal, light2dir)) / 2.);

@@ -3,6 +3,7 @@
 uniform vec3 light1dir;
 uniform vec3 light2dir;
 uniform float opacity;
+uniform vec3 stockColor;
 
 uniform sampler2D heightMap;
 
@@ -23,7 +24,7 @@ void main() {
 
     vec3 normal = vec3(0, 0, -1.);
     
-    vec3 baseColor = vec3(0.82, 0.50, 0.19);
+    vec3 baseColor = stockColor / 255.;
 
     float diffuse = abs((dot(normal, light1dir) + dot(normal, light2dir)) / 2.);
 
