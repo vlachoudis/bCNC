@@ -94,6 +94,7 @@ def N_(message):
 
 __www__ = "https://github.com/vlachoudis/bCNC"
 __contribute__ = (
+    "@koneklaudio Alain Lata\n"
     "@effer Filippo Rivato\n"
     "@carlosgs Carlos Garcia Saura\n"
     "@dguerizec\n"
