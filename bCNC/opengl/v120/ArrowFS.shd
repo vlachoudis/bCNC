@@ -1,6 +1,6 @@
 #version 120
 
-varying vec3 color;    // Color passed from vertex shader
+nvarying vec3 color;    // Color passed from vertex shader
 
 void main() {
     gl_FragColor = vec4(color, 1.);
