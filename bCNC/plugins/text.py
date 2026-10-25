@@ -42,6 +42,7 @@ class Tool(Plugin):
             ("FontSize", "mm", 10.0, _("Font size"),"enter here font height"),
             ("FontFile", "file", "", _("Font file"),"pick the ttf or shx font"),
             ("Closed", "bool", True, _("Close Contours"),"only for ttf fonts"),
+            ("DrillDots", "bool", False, _("Dotted font (drill holes)"),"Allows adding very small text labels that can not be milled accurately on wood. Also works for sheet material and templates. Works only with dotted TTF fonts."),
             ("ImageToAscii", "file", "", _("Image to Ascii")),
             ("CharsWidth", "int", 80, _("Image chars width"),"for ttf fonts only"),
         ]
@@ -56,6 +57,7 @@ class Tool(Plugin):
         textToWrite = self["Text"]
         fontFileName = self["FontFile"]
         closed = self["Closed"]
+        drillDots = self["DrillDots"]
         imageFileName = self["ImageToAscii"]
         charsWidth = self["CharsWidth"]
 
@@ -97,7 +99,7 @@ class Tool(Plugin):
                 app.setStatus(_("Text abort: That's embarrassing, "+ "I can't read this font file!"))
                 return
         else :
-            self.ttftoGcode(fontFileName,textToWrite,closed,fontSize,depth,block,app)
+            self.ttftoGcode(fontFileName,textToWrite,closed,drillDots,fontSize,depth,block,app)
 
 #     (x0,y0) -- Move to Position.
 #     ((x0,y0), (x1, y1)) --- Straight Line start->end
@@ -152,7 +154,7 @@ class Tool(Plugin):
         app.refresh()
         app.setStatus("Generated Text")
 
-    def ttftoGcode(self,fontFileName,textToWrite,closed,fontSize,depth,block,app):
+    def ttftoGcode(self,fontFileName,textToWrite,closed,drillDots,fontSize,depth,block,app):
         try:
             import ttf
 
@@ -189,7 +191,8 @@ class Tool(Plugin):
                     gc and not c == " "
                 ):  # FIXME: for some reason space is not mapped correctly!!!
                     self.writeGlyphContour(
-                        block, font, gc, fontSize, depth, xOffset, yOffset
+                        block, font, gc, fontSize, depth, drillDots,
+                        xOffset, yOffset
                     )
 
                 if glyphIndx < len(adv):
@@ -213,19 +216,38 @@ class Tool(Plugin):
 
     # Write GCode from glyph contours
     def writeGlyphContour(
-            self, block, font, contours, fontSize, depth, xO, yO):
+            self, block, font, contours, fontSize, depth, drillDots, xO, yO):
         scale = fontSize / font.header.units_per_em
         xO = xO * fontSize
         yO = yO * fontSize
         for cont in contours:
             block.append("( ---------- cut-here ---------- )")
             block.append(CNC.zsafe())
-            block.append(
-                CNC.grapid(xO + cont[0].x * scale, yO + cont[0].y * scale))
-            block.append(CNC.zenter(depth))
-            block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
-            for p in cont:
-                block.append(CNC.gline(xO + p.x * scale, yO + p.y * scale))
+            if drillDots:
+                self.drillContour(block, cont, scale, depth, xO, yO)
+            else:
+                self.millContour(block, cont, scale, depth, xO, yO)
+
+    def millContour(self, block, cont, scale, depth, xO, yO):
+        block.append(
+            CNC.grapid(xO + cont[0].x * scale, yO + cont[0].y * scale))
+        block.append(CNC.zenter(depth))
+        block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
+        for p in cont:
+            block.append(CNC.gline(xO + p.x * scale, yO + p.y * scale))
+
+    # Drill a single hole at the center of the contour's bounding box
+    def drillContour(self, block, cont, scale, depth, xO, yO):
+        xMin = min(p.x for p in cont)
+        xMax = max(p.x for p in cont)
+        yMin = min(p.y for p in cont)
+        yMax = max(p.y for p in cont)
+        x = (xMin + xMax) / 2
+        y = (yMin + yMax) / 2
+        block.append(CNC.grapid(xO + x * scale, yO + y * scale))
+        block.append(CNC.gcode(1, [("f", CNC.vars["cutfeed"])]))
+        block.append(CNC.zenter(depth))
+        block.append(CNC.zsafe())
 
     def image_to_ascii(self, image):
         ascii_chars = ["#", "A", "@", "%", "S", "+", "<", "*", ":", ",", "."]
