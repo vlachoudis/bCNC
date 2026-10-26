@@ -323,7 +323,6 @@ class FileDialog(Toplevel):
         self.fileList.bindList("<Key-BackSpace>", self.upDir)
         self.fileList.bind("<<ListboxSelect>>", self.select)
         self.fileList.bind("<<ListboxSort>>", self.sortChanged)
-        self.fileList.bind("<Configure>", self.resize)
 
         frame = Frame(self)
         frame.pack(side=BOTTOM, fill=X)
@@ -406,6 +405,7 @@ class FileDialog(Toplevel):
             self.focus_set()
             self.fileList.focus_set()
             self.wait_visibility()
+            self._restoreSash()
             self.grab_set()
             self.wait_window()
         except TclError:
@@ -413,20 +413,14 @@ class FileDialog(Toplevel):
         return self.selFile
 
     # ----------------------------------------------------------------------
-    # Restore sash size on creation
-    # ----------------------------------------------------------------------
-    def resize(self, event):
-        if FileDialog.sash is not None:
-            FileDialog.sash.reverse()
-            # XXX XXX ERROR: paneframe doesn't update the width/height
-            # so all sash placement is wrong
-            self.fileList.paneframe.update()
-            # self.fileList.paneframe.update_idletasks()
-            if FileDialog.sash is not None:
-                n = len(FileDialog.sash) - 1
-                for i, x in enumerate(FileDialog.sash):
-                    self.fileList.paneframe.sash_place(n - i, x, 1)
-                FileDialog.sash = None
+    def _restoreSash(self):
+        """Restore column sash positions saved on the previous dialog close."""
+        sash = FileDialog.sash
+        if sash is None:
+            return
+        FileDialog.sash = None
+        for i, x in enumerate(sash):
+            self.fileList.paneframe.sash_place(i, x, 1)
 
     # ----------------------------------------------------------------------
     # Create buttons for the path
