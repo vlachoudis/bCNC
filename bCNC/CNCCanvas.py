@@ -109,9 +109,9 @@ PROBE_TEXT_COLOR = DEFAULT_PROBE_TEXT_COLOR = "Green"
 CANVAS_COLOR_UP = DEFAULT_CANVAS_COLOR_UP = "White" # If 2 different colors are given for the backgound, a vertical gradient is shown
 CANVAS_COLOR_DOWN = DEFAULT_CANVAS_COLOR_DOWN = "White"
 AXES_TEXT_COLOR = DEFAULT_AXES_TEXT_COLOR = "Black"
-RAPID_COLOR = DEFAULT_RAPID_COLOR = ""
-STOCK_COLOR = DEFAULT_STOCK_COLOR = "#D18030"  # Uncut stock surface (simulator)
-STOCK_CUT_COLOR = DEFAULT_STOCK_CUT_COLOR = "#A3805E"  # Machined stock surface (simulator)
+RAPID_COLOR = DEFAULT_RAPID_COLOR = "Gray"
+STOCK_COLOR = DEFAULT_STOCK_COLOR = "BurlyWood"  # Uncut stock surface (simulator)
+STOCK_CUT_COLOR = DEFAULT_STOCK_CUT_COLOR = "BurlyWood4"  # Machined stock surface (simulator)
 customColors = {
     "canvas.gantry": {"color": "GANTRY_COLOR", "description": "Gantry", "canBeBlank": False},
     "canvas.margin": {"color": "MARGIN_COLOR", "description": "Margin (Requires Redraw)", "canBeBlank": False},
