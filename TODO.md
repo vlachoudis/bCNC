@@ -1,3 +1,5 @@
+- Ensure serial communication does not mutualy block each other with other components like GUI. (own thread? async design?)
+- Split probe/orient/autolevel logic to separate file?
 - Probably should store settings to ~/.config/bCNC.ini rather than ~/.bCNC
 - Leftovers from OpenGL migration
   - Sel3 and Sel4 were removed. Were they used for something???
