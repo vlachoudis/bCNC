@@ -44,6 +44,7 @@ jobs:
           python -m unittest discover -s unittests/controllers -v
           python -m unittest discover -s unittests/cnc -v
           python -m unittest discover -s unittests/cam -v
+          python bCNC/lib/rexx.py
 
   shader-compile:
     name: Shader compile (Mesa/EGL)
