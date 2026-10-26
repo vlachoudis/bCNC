@@ -29,6 +29,7 @@ from bpath import Path, Segment
 from camProfile import apply_profile
 from cut import apply_cut
 from drill import apply_drill
+from inkscape import apply_inkscape
 from pocket import apply_pocket
 
 
@@ -130,6 +131,77 @@ class TestGCodeCAM(unittest.TestCase):
         self.assertIn("(pass -2.000000)", text)
         self.assertGreaterEqual(text.lower().count("z-1"), 1)
         self.assertGreaterEqual(text.lower().count("z-2"), 1)
+
+
+class TestInkscapeCleanup(unittest.TestCase):
+    """Raise/plunge cleanup for Z=0 plotting and classic Z<0 cuts (PR #1506)."""
+
+    def _lines(self, gcode):
+        return list(gcode.lines())
+
+    def test_comments_noop_raise_plunge_at_z0(self):
+        gcode = GCode()
+        header = Block("Header")
+        header.extend(["M3 S1000", "G0 Z10"])
+        a = Block("a")
+        a.extend(["G0 X0 Y0 Z5", "G1 Z0", "G1 X10 Y0", "G0 Z5"])
+        # Next segment starts at same XY — raise/plunge is pointless.
+        b = Block("b")
+        b.extend(["G0 Z5", "G0 X10 Y0", "G0 Z0", "G1 X20 Y0", "G0 Z5"])
+        gcode.blocks = [header, a, b]
+
+        apply_inkscape(gcode, None)
+        out = self._lines(gcode)
+
+        self.assertIn("M3 S1000", out)
+        self.assertIn("G0 Z10", out)
+        self.assertIn("G1 X10 Y0", out)
+        self.assertIn("(G0 Z5)", out)
+        self.assertIn("(G0 X10 Y0)", out)
+        self.assertIn("(G0 Z0)", out)
+        self.assertIn("G1 X20 Y0", out)
+
+    def test_keeps_safe_z_travel_between_distant_segments(self):
+        gcode = GCode()
+        a = Block("a")
+        a.extend(["G0 X0 Y0 Z5", "G1 Z0", "G1 X10 Y0", "G0 Z5"])
+        b = Block("b")
+        b.extend(["G0 Z5", "G0 X100 Y100", "G0 Z0", "G1 X110 Y100", "G0 Z5"])
+        gcode.blocks = [a, b]
+
+        apply_inkscape(gcode, None)
+        out = self._lines(gcode)
+
+        self.assertIn("G0 Z5", out)
+        self.assertIn("G0 X100 Y100", out)
+        self.assertIn("G0 Z0", out)
+        self.assertNotIn("(G0 X100 Y100)", out)
+
+    def test_classic_negative_z_raise_plunge(self):
+        gcode = GCode()
+        block = Block("cut")
+        block.extend(
+            [
+                "G0 X0 Y0 Z5",
+                "G1 Z-1",
+                "G1 X10 Y0",
+                "G0 Z5",
+                "G0 Z5",
+                "G0 X10 Y0",
+                "G0 Z-1",
+                "G1 X20 Y0",
+                "G0 Z5",
+            ]
+        )
+        gcode.blocks = [block]
+
+        apply_inkscape(gcode, None)
+        out = self._lines(gcode)
+
+        self.assertIn("(G0 Z5)", out)
+        self.assertIn("(G0 X10 Y0)", out)
+        self.assertIn("(G0 Z-1)", out)
+        self.assertIn("G1 X20 Y0", out)
 
 
 if __name__ == "__main__":

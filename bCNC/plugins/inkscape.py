@@ -1,16 +1,14 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 #
-# Inkscape g-code tools on slice/slice it raises the tool to the
-# safe height then plunges again.
-# Comment out all these patterns
+# Postprocess Inkscape Gcodetools / SVG-style g-code: comment out needless
+# raise-then-plunge pairs (Z up / Z down with no real XY move).
 #
-# FIXME needs re-working...
+# Works for any cutting/plotting plane (not only Z<0). Net Z of a pending
+# no-XY sequence must return to the start plane (within tolerance).
 #
-# Postprocess Inkscape Gcodetools output: comment out needless
-# raise-then-plunge pairs (Z up / Z down with no XY move).
-#
-# 2026-10: moved to separate plugin as this is support for legacy inkscape plugin. is anyone even using this?
+# 2026-10: more flexible Z-plane handling by @tschundler (PR #1506 / issue #1505)
+# 2026-10: moved to separate plugin as this is support for legacy inkscape plugin
 
 
 import rexx
@@ -21,7 +19,22 @@ __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
 __name__ = _("Inkscape")
-__version__ = "0.1"
+__version__ = "0.2"
+
+# Fuzzy zero for floating-point deltas (mm). Same idea as PR #1506.
+_ZERO = 0.001
+# Sentinel so header Z setup is not mistaken for a removable raise/plunge.
+_HEADER_DZ = 1e6
+
+
+def _is_zero(value):
+    return -_ZERO < value < _ZERO
+
+
+def _comment_line(line):
+    if line[:1] in ("(", "%", "#", ";"):
+        return line
+    return f"({line})"
 
 
 def apply_inkscape(gcode, items):
@@ -29,31 +42,42 @@ def apply_inkscape(gcode, items):
     # FIXME needs re-working for real selection scope.
     gcode.initPath()
     newlines = []
-    last = -1  # line index of last raise with dx=dy=0.0
+    pending = []  # Accumulator for lines we may want to nullify.
+    dz = _HEADER_DZ
 
     for line in gcode.lines():
-        # step id
-        # 0 - normal cutting z<0
-        # 1 - z>0 raised  with dx=dy=0.0
-        # 2 - z<0 plunged with dx=dy=0.0
         cmd = CNC.parseLine(line)
         if cmd is None:
-            newlines.append(line)
+            if pending:
+                pending.append(line)
+            else:
+                newlines.append(line)
             continue
+
         gcode.cnc.motionStart(cmd)
-        if gcode.cnc.dx == 0.0 and gcode.cnc.dy == 0.0:
-            if gcode.cnc.z > 0.0 and gcode.cnc.dz > 0.0:
-                last = len(newlines)
-            elif gcode.cnc.z < 0.0 and gcode.cnc.dz < 0.0 and last >= 0:
-                for i in range(last, len(newlines)):
-                    s = newlines[i]
-                    if s and s[0] != "(":
-                        newlines[i] = f"({s})"
-                last = -1
-        else:
-            last = -1
-        newlines.append(line)
+        # No XY motion, but maybe Z motion.
+        if _is_zero(gcode.cnc.dx) and _is_zero(gcode.cnc.dy):
+            dz += gcode.cnc.dz
+            # Upward (or zero) Z, or continuation of a pending block → candidate.
+            if pending or dz >= 0:
+                pending.append(line)
+                gcode.cnc.motionEnd()
+                continue
         gcode.cnc.motionEnd()
+
+        # XY motion has resumed / continues — flush pending.
+        if pending:
+            if _is_zero(dz):
+                pending = [_comment_line(s) for s in pending]
+            newlines.extend(pending)
+            pending = []
+
+        newlines.append(line)
+        dz = 0
+
+    # Footer usually has no XY motion; keep it.
+    if pending:
+        newlines.extend(pending)
 
     gcode.addUndo(gcode.setLinesUndo(newlines))
 
