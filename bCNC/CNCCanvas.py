@@ -383,22 +383,22 @@ class CNCCanvas(GLCanvas):
 
         # Print OpenGL version info
         print("================================ OpenGL ========================================")
-        print("OpenGL version:", glGetString(GL_VERSION))
-        print("OpenGL renderer:", glGetString(GL_RENDERER))
-        print("GLSL version:", glGetString(GL_SHADING_LANGUAGE_VERSION))
+        print("OpenGL version :", glGetString(GL_VERSION).decode())
+        print("OpenGL renderer:", glGetString(GL_RENDERER).decode())
+        print("GLSL version   :", glGetString(GL_SHADING_LANGUAGE_VERSION).decode())
 
         try:
             profile_mask = glGetIntegerv(GL_CONTEXT_PROFILE_MASK)
         except Exception:
             profile_mask = "?"
 
-        print("Profile mask:", profile_mask)
+        print("Profile mask   :", profile_mask)
 
         # Try GLSL 1.20. If failed, change to 1.50
         global openglFolder
         try:
             self.initGL()
-            print("Running GLSL 1.20")
+            print("Running GLSL   : 1.20")
             self.glslVersion = "1.20"
         except Exception as e:
             print("----------")
@@ -409,7 +409,7 @@ class CNCCanvas(GLCanvas):
             try:
                 openglFolder = f"{os.path.abspath(os.path.dirname(__file__))}{os.sep}opengl{os.sep}v150{os.sep}"
                 self.initGL()
-                print("Running GLSL 1.50")
+                print("Running GLSL   : 1.50")
                 self.glslVersion = "1.50"
             except Exception as e:
                 print("----------")
@@ -418,7 +418,7 @@ class CNCCanvas(GLCanvas):
                 print("----------")
                 openglFolder = f"{os.path.abspath(os.path.dirname(__file__))}{os.sep}opengl{os.sep}v100{os.sep}"
                 self.initGL()
-                print("Running GLSL 1.00")
+                print("Running GLSL   : 1.00")
                 self.glslVersion = "1.00"
         
         print("================================================================================")
