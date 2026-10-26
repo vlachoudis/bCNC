@@ -22,6 +22,7 @@ from tkinter import (
     RIGHT,
     BOTTOM,
     FLAT,
+    RAISED,
     HORIZONTAL,
     END,
     NORMAL,
@@ -37,6 +38,8 @@ from tkinter import (
     Menu,
     Radiobutton,
     Scale,
+    Text,
+    Toplevel,
     messagebox,
 )
 
@@ -144,6 +147,178 @@ class ConnectionGroup(CNCRibbon.ButtonMenuGroup):
 
 
 # =============================================================================
+# User Button
+# =============================================================================
+class UserButton(Ribbon.LabelButton):
+    TOOLTIP = "User configurable button.\n<RightClick> to configure"
+
+    def __init__(self, master, cnc, button, *args, **kwargs):
+        if button == 0:
+            Button.__init__(self, master, *args, **kwargs)
+        else:
+            Ribbon.LabelButton.__init__(self, master, *args, **kwargs)
+        self.cnc = cnc
+        self.button = button
+        self.get()
+        self.bind("<Button-3>", self.edit)
+        self.bind("<Control-Button-1>", self.edit)
+        self["command"] = self.execute
+
+    # ----------------------------------------------------------------------
+    # get information from configuration
+    # ----------------------------------------------------------------------
+    def get(self):
+        if self.button == 0:
+            return
+        name = self.name()
+        self["text"] = name
+        self["image"] = Utils.icons.get(self.icon(), Utils.icons["material"])
+        self["compound"] = LEFT
+        tooltip = self.tooltip()
+        if not tooltip:
+            tooltip = UserButton.TOOLTIP
+        tkExtra.Balloon.set(self, tooltip)
+
+    # ----------------------------------------------------------------------
+    def name(self):
+        return Utils.getStr("Buttons", f"name.{int(self.button)}", str(self.button))
+
+    # ----------------------------------------------------------------------
+    def icon(self):
+        return Utils.getStr("Buttons", f"icon.{int(self.button)}", None)
+
+    # ----------------------------------------------------------------------
+    def tooltip(self):
+        return Utils.getStr("Buttons", f"tooltip.{int(self.button)}")
+
+    # ----------------------------------------------------------------------
+    def command(self):
+        return Utils.getStr("Buttons", f"command.{int(self.button)}")
+
+    # ----------------------------------------------------------------------
+    # Edit button
+    # ----------------------------------------------------------------------
+    def edit(self, event=None):
+        UserButtonDialog(self, self)
+        self.get()
+
+    # ----------------------------------------------------------------------
+    # Execute command
+    # ----------------------------------------------------------------------
+    def execute(self):
+        cmd = self.command()
+        if not cmd:
+            self.edit()
+            return
+        for line in cmd.splitlines():
+            self.cnc.pendant.put(line)
+
+
+# =============================================================================
+# User Configurable Buttons
+# =============================================================================
+class UserButtonDialog(Toplevel):
+    NONE = "<none>"
+
+    def __init__(self, master, button):
+        Toplevel.__init__(self, master)
+        self.title(_("User configurable button"))
+        self.transient(master)
+        self.button = button
+
+        # Name
+        row, col = 0, 0
+        Label(self, text=_("Name:")).grid(row=row, column=col, sticky=E)
+        col += 1
+        self.name = Entry(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
+        tkExtra.Balloon.set(self.name, _("Name to appear on button"))
+
+        # Icon
+        row, col = row + 1, 0
+        Label(self, text=_("Icon:")).grid(row=row, column=col, sticky=E)
+        col += 1
+        self.icon = Label(self, relief=RAISED)
+        self.icon.grid(row=row, column=col, sticky=EW)
+        col += 1
+        self.iconCombo = tkExtra.Combobox(
+            self, True, width=5, command=self.iconChange)
+        lst = list(sorted(Utils.icons.keys()))
+        lst.insert(0, UserButtonDialog.NONE)
+        self.iconCombo.fill(lst)
+        self.iconCombo.grid(row=row, column=col, sticky=EW)
+        tkExtra.Balloon.set(self.iconCombo, _("Icon to appear on button"))
+
+        # Tooltip
+        row, col = row + 1, 0
+        Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
+        col += 1
+        self.tooltip = Entry(self,
+                             background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
+        tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
+
+        # Tooltip
+        row, col = row + 1, 0
+        Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N + E)
+        col += 1
+        self.command = Text(
+            self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
+            width=40, height=10
+        )
+        self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
+
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(row, weight=1)
+
+        # Actions
+        row += 1
+        f = Frame(self)
+        f.grid(row=row, column=0, columnspan=3, sticky=EW)
+        Button(f, text=_("Cancel"), command=self.cancel).pack(side=RIGHT)
+        Button(f, text=_("Ok"), command=self.ok).pack(side=RIGHT)
+
+        # Set variables
+        self.name.insert(0, self.button.name())
+        self.tooltip.insert(0, self.button.tooltip())
+        icon = self.button.icon()
+        if icon is None:
+            self.iconCombo.set(UserButtonDialog.NONE)
+        else:
+            self.iconCombo.set(icon)
+        self.icon["image"] = Utils.icons.get(icon, "")
+        self.command.insert("1.0", self.button.command())
+
+        # Wait action
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_set()
+        self.wait_window()
+
+    # ----------------------------------------------------------------------
+    def ok(self, event=None):
+        n = self.button.button
+        Utils.config.set("Buttons", f"name.{int(n)}", self.name.get().strip())
+        icon = self.iconCombo.get()
+        if icon == UserButtonDialog.NONE:
+            icon = ""
+        Utils.config.set("Buttons", f"icon.{int(n)}", icon)
+        Utils.config.set("Buttons", f"tooltip.{int(n)}",
+                         self.tooltip.get().strip())
+        Utils.config.set("Buttons", f"command.{int(n)}",
+                         self.command.get("1.0", END).strip())
+        self.destroy()
+
+    # ----------------------------------------------------------------------
+    def cancel(self):
+        self.destroy()
+
+    # ----------------------------------------------------------------------
+    def iconChange(self):
+        self.icon["image"] = Utils.icons.get(self.iconCombo.get(), "")
+
+
+# =============================================================================
 # User Group
 # =============================================================================
 class UserGroup(CNCRibbon.ButtonGroup):
@@ -153,7 +328,7 @@ class UserGroup(CNCRibbon.ButtonGroup):
 
         n = Utils.getInt("Buttons", "n", 6)
         for i in range(1, n):
-            b = Utils.UserButton(
+            b = UserButton(
                 self.frame, self.app, i, anchor=W,
                 background=Ribbon._BACKGROUND
             )
@@ -1014,7 +1189,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(b)
 
         col += 1
-        b = Utils.UserButton(
+        b = UserButton(
             frame,
             self.app,
             0,
