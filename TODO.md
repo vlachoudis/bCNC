@@ -1,3 +1,4 @@
+- fromPath() cutting algorithm and similar CAM features still in GCode.py, maybe move to bcam???
 - can lib/rexx.py be replaced with stdlib functions??
 - Ensure serial communication does not mutualy block each other with other components like GUI. (own thread? async design?)
 - Split probe/orient/autolevel logic to separate file?
