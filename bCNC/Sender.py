@@ -212,7 +212,24 @@ class Sender:
     # NOTE: must not be named register() — Tk/Misc.register shadows it via MRO
     # ----------------------------------------------------------------------
     def registerCommand(self, name, handler, minlen=None):
-        self.commands[name.upper()] = (handler, minlen)
+        name = name.upper()
+        #Check for name conflict
+        mine = minlen if minlen is not None else len(name)
+        for other, (_, ominlen) in self.commands.items():
+            theirs = ominlen if ominlen is not None else len(other)
+            shared = 0
+            for a, b in zip(name, other):
+                if a != b:
+                    break
+                shared += 1
+            if shared >= mine and shared >= theirs:
+                print(
+                    f"ERROR: command '{name}' conflicts with '{other}'",
+                    file=sys.stderr,
+                )
+                return
+        #Actually register
+        self.commands[name] = (handler, minlen)
 
     # ----------------------------------------------------------------------
     def matchCommand(self, cmd):
