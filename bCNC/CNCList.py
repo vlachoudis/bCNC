@@ -3,6 +3,7 @@
 # Author:       vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import contextlib
 import json
 import re
 from tkinter import (
@@ -54,10 +55,8 @@ class CNCListbox(Listbox):
         self.bind("<Control-Key-D>", self.dump)
         self.bind("<Delete>", self.deleteBlock)
         self.bind("<BackSpace>", self.deleteBlock)
-        try:
+        with contextlib.suppress(TclError):
             self.bind("<KP_Delete>", self.deleteBlock)
-        except Exception:
-            pass
 
         self.bind("<Control-Key-b>", self.insertBlock)
         self.bind("<Control-Key-r>", self.fill)
@@ -129,13 +128,13 @@ class CNCListbox(Listbox):
         """Select the row under the cursor unless it is already selected."""
         try:
             y = self.nearest(event.y)
-            if 0 <= y < self.size() and not self.selection_includes(y):
-                self.selection_clear(0, END)
-                self.selection_set(y)
-                self.activate(y)
-                self.event_generate("<<ListboxSelect>>")
         except TclError:
-            pass
+            return
+        if 0 <= y < self.size() and not self.selection_includes(y):
+            self.selection_clear(0, END)
+            self.selection_set(y)
+            self.activate(y)
+            self.event_generate("<<ListboxSelect>>")
 
     # ----------------------------------------------------------------------
     # Change the value of a list item
@@ -840,10 +839,9 @@ class CNCListbox(Listbox):
 
         for bi in items:
             bid, lid = bi
-            try:
-                block = self.gcode[bid]
-            except Exception:
+            if not (0 <= bid < len(self.gcode.blocks)):
                 continue
+            block = self.gcode[bid]
 
             if double:
                 if block.expand:

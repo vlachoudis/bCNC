@@ -246,12 +246,9 @@ class Probe:
     def add(self, x, y, z):
         if not self.start:
             return
-        i = round((x - self.xmin) / self._xstep)
-        if i < 0.0 or i > self.xn:
-            return
-
-        j = round((y - self.ymin) / self._ystep)
-        if j < 0.0 or j > self.yn:
+        i = int(round((x - self.xmin) / self._xstep))
+        j = int(round((y - self.ymin) / self._ystep))
+        if not (0 <= i < self.xn and 0 <= j < self.yn):
             return
 
         rem = abs(x - (i * self._xstep + self.xmin))
@@ -262,11 +259,8 @@ class Probe:
         if rem > self._ystep / 10.0:
             return
 
-        try:
-            self.matrix[int(j)][int(i)] = z
-            self.points.append([x, y, z])
-        except IndexError:
-            pass
+        self.matrix[j][i] = z
+        self.points.append([x, y, z])
 
         if len(self.points) >= self.xn * self.yn:
             self.start = False
@@ -2371,12 +2365,10 @@ class GCode:
                     if "I" in new or "J" in new or "K" in new:
                         check += "IJK"
                     for c in check:
-                        try:
-                            if c not in present and new.get(c) != old.get(c):
-                                newcmd.append(
-                                    self.fmt(c, new[c] / self.cnc.unit))
-                        except Exception:
-                            pass
+                        # Append missing axis only when new has a changed value
+                        if c not in present and c in new and new[c] != old.get(c):
+                            newcmd.append(
+                                self.fmt(c, new[c] / self.cnc.unit))
                     undoinfo.append(
                         self.setLineUndo(bid, lid, " ".join(newcmd)))
                 self.cnc.motionEnd()
