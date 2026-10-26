@@ -10,6 +10,11 @@ import os
 import sys
 import traceback
 
+# Bootstrap: make _() available in builtins before other bCNC modules are imported
+# (they use _ at class/definition time). loadConfiguration() may replace this
+# with a selected language later.
+gettext.install("bCNC", localedir=None)
+
 from tkinter import (
     TclError,
     YES,

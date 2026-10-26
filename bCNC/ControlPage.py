@@ -50,7 +50,7 @@ import Utils
 from CNC import DISTANCE_MODE, FEED_MODE, PLANE, WCS
 from _GenericGRBL import ERROR_CODES
 
-from Helpers import N_
+from Utils import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"

@@ -24,7 +24,7 @@ import Ribbon
 import tkExtra
 import Utils
 
-from Helpers import N_
+from Utils import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"

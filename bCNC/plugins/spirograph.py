@@ -9,7 +9,6 @@ import math
 from CNC import CNC
 from GCode import Block
 from ToolsPage import Plugin
-from Helpers import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
@@ -77,7 +76,7 @@ class Spirograph:
         block.append(f"(Internal Radius = {self.RInt:g})")
         block.append(f"(Offset Radius = {self.ROff:g})")
 
-        xi, yi = to_zip(*(self.calc_dots()))
+        xi, yi = list(zip(*(self.calc_dots())))
 
         block.append(CNC.zsafe())
         block.append(CNC.grapid(xi[0], yi[0]))

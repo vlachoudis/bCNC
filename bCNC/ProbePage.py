@@ -52,7 +52,7 @@ import Utils
 from CNC import CNC
 from GCode import Block
 
-from Helpers import N_
+from Utils import N_
 
 __author__ = Utils.__author__
 __email__ = Utils.__email__

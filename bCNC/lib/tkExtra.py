@@ -101,7 +101,6 @@ from tkinter.colorchooser import askcolor
 
 import bFileDialog
 import Unicode
-from Helpers import to_zip
 
 GLOBAL_CONTROL_BACKGROUND = "White"
 ARROW_LEFT = "\u2190"
@@ -1635,7 +1634,7 @@ class MultiListbox(Frame):
         for li in self._lists:
             result.append(li.get(first, last))
         if last:
-            return to_zip(*result)
+            return list(zip(*result))
         return result
 
     # ----------------------------------------------------------------------

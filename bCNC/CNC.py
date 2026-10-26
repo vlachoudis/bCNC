@@ -7,8 +7,6 @@
 import math
 import re
 
-from Helpers import to_zip
-
 PARENPAT = re.compile(r"(\(.*?\))")
 SEMIPAT = re.compile(r"(;.*)")
 CMDPAT = re.compile(r"([A-Za-z]+)")
@@ -456,7 +454,7 @@ class CNC:
     # ----------------------------------------------------------------------
     @staticmethod
     def glinev(g, v, feed=None):
-        pairs = to_zip("xyz", v)
+        pairs = list(zip("xyz", v))
         if feed is not None:
             pairs.append(("f", feed))
         return CNC.gcode(g, pairs)
@@ -464,7 +462,7 @@ class CNC:
     # ----------------------------------------------------------------------
     @staticmethod
     def garcv(g, v, ijk):
-        return CNC.gcode(g, to_zip("xyz", v) + to_zip("ij", ijk[:2]))
+        return CNC.gcode(g, list(zip("xyz", v)) + list(zip("ij", ijk[:2])))
 
     # ----------------------------------------------------------------------
     @staticmethod

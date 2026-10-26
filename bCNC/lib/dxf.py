@@ -37,7 +37,6 @@ import sys
 
 import spline
 from bmath import Vector
-from Helpers import to_zip
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
@@ -554,7 +553,7 @@ class Entity(dict):
         """Convert complex objects (SPLINE,ELLIPSE) to polylines"""
         if self.type == "SPLINE":
             # Convert to polyline
-            xyz = to_zip(self[10], self[20], self[30])
+            xyz = list(zip(self[10], self[20], self[30]))
             flag = int(self.get(70, 0))
             closed = bool(flag & Entity.CLOSED)
             knots = self[40]

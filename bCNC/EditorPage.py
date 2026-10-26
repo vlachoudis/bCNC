@@ -26,7 +26,7 @@ import tkExtra
 import Utils
 from CNCCanvas import ACTION_MOVE, ACTION_ORIGIN
 
-from Helpers import N_
+from Utils import N_
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"

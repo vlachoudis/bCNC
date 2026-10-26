@@ -20,7 +20,6 @@ from math import (
 from operator import itemgetter
 
 from bmath import Vector, quadratic
-from Helpers import to_zip
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
@@ -1940,10 +1939,10 @@ class Path(list):
 
             elif entity.type in ("POLYLINE", "LWPOLYLINE", "SPLINE"):
                 # split it into multiple line segments
-                xy = to_zip(
+                xy = list(zip(
                     dxf.convert(entity[10], units),
                     dxf.convert(entity[20], units)
-                )
+                ))
                 if entity.isClosed():
                     xy.append(xy[0])
                 bulge = entity.bulge()

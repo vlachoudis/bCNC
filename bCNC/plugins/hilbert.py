@@ -7,7 +7,6 @@
 from CNC import CNC
 from GCode import Block
 from ToolsPage import Plugin
-from Helpers import to_zip
 
 __author__ = "Filippo Rivato"
 __email__ = "f.rivato@gmail.com"
@@ -71,7 +70,7 @@ class Hilbert:
 
         blocks = []
         block = Block(self.name)
-        xi, yi = to_zip(*(self.hilbert(0.0, 0.0, size, 0.0, 0.0, size, n)))
+        xi, yi = list(zip(*(self.hilbert(0.0, 0.0, size, 0.0, 0.0, size, n))))
 
         block.append(CNC.zsafe())
         block.append(CNC.grapid(xi[0], yi[0]))

@@ -42,7 +42,6 @@ def usage(rc):
 
 # -----------------------------------------------------------------------------
 def main():
-    import Helpers
     import bmain
     import tkExtra
     import Utils

@@ -5,7 +5,6 @@
 import sys
 
 import bmath
-from Helpers import to_zip
 
 
 # =============================================================================
@@ -454,7 +453,7 @@ if __name__ == "__main__":
         for entity in layer.entities:
             if entity.type == "SPLINE":
                 x, y = spline2Polyline(
-                    to_zip(entity[10], entity[20]),
+                    list(zip(entity[10], entity[20])),
                     int(entity[71]),
                     True,
                     SPLINE_SEGMENTS,
