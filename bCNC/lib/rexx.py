@@ -48,15 +48,8 @@ def abbrev(information, info, mlngt=0):
     return true if the info is an abbreviation of information
     with minimum length mlngt
     """
-    if mlngt > 0:
-        length = mlngt
-    else:
-        length = len(info)
-
-    cond1 = len(information) >= len(info)
-    cond2 = len(info) >= length
-    cond3 = information[: len(info)] == info
-    return cond1 and cond2 and cond3
+    length = mlngt if mlngt > 0 else len(info)
+    return len(information) >= len(info) >= length and information.startswith(info)
 
 
 # center
@@ -128,7 +121,7 @@ def left(str_, length, pad=" "):
     if length < len(str_):
         return str_[0:length]
     else:
-        return str_ + (pad * (length - len(str_)))
+        return str_.ljust(length, pad)
 
 
 # translate
@@ -151,7 +144,7 @@ def translate(str_, tableo=None, tablei=None, pad=" "):
     else:
         tablei += pad * (-dl)
 
-    tbl = string.maketrans(tablei, tableo)
+    tbl = str.maketrans(tablei, tableo)
     return str_.translate(tbl)
 
 
