@@ -3,13 +3,37 @@
 
 from GCode import Block
 from bpath import Segment
-from ToolsPage import Plugin
+from ToolsPage import Plugin, run_on_selection
 
 __author__ = "@harvie Tomas Mudrunka"
 # __email__  = ""
 
 __name__ = _("ClosePath")
 __version__ = "0.1"
+
+
+def apply_close(gcode, items):
+    undoinfo = []
+    for bid in items:
+        block = gcode.blocks[bid]
+        if block.name() in ("Header", "Footer"):
+            continue
+        paths = gcode.toPath(bid)
+        if not paths:
+            continue
+
+        eblock = Block("closed " + block.name())
+        for path in paths:
+            if not path.isClosed():
+                path.append(Segment(Segment.LINE, path[-1].B, path[0].A))
+            eblock = gcode.fromPath(path, eblock)
+        undoinfo.append(gcode.setBlockNameUndo(bid, eblock._name))
+        undoinfo.append(gcode.setBlockLinesUndo(bid, eblock))
+    gcode.addUndo(undoinfo)
+
+
+def run_close(app):
+    return run_on_selection(app, "CLOSE", apply_close)
 
 
 class Tool(Plugin):
@@ -27,22 +51,11 @@ class Tool(Plugin):
         self.commands = {"CLOSE": (self.cmdline, 4)}
 
     def cmdline(self, app, args, oline=None):
-        app.executeOnSelection("CLOSE", True)
+        run_close(app)
 
     # ----------------------------------------------------------------------
     # This method is executed when user presses the plugin execute button
     # ----------------------------------------------------------------------
     def execute(self, app):
-        for bid in app.editor.getSelectedBlocks():
-            if len(app.gcode.toPath(bid)) < 1:
-                continue
-
-            eblock = Block("closed " + app.gcode[bid].name())
-            for path in app.gcode.toPath(bid):
-                if not path.isClosed():
-                    path.append(Segment(Segment.LINE, path[-1].B, path[0].A))
-                eblock = app.gcode.fromPath(path, eblock)
-            app.gcode[bid] = eblock
-
-        app.refresh()  # <<< refresh editor
+        run_close(app)
         app.setStatus(_("Generated: Closepath"))  # <<< feed back result

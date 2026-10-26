@@ -1,10 +1,37 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from ToolsPage import Plugin
+from ToolsPage import Plugin, run_on_selection
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
+
+
+def apply_island(gcode, items, island=None):
+    undoinfo = []
+    remove = ["island"]
+    for bid in items:
+        isl = island
+
+        if gcode.blocks[bid].name() in ("Header", "Footer"):
+            continue
+
+        if isl is None:
+            isl = not gcode.blocks[bid].operationTest("island")
+        if isl:
+            tag = "island"
+            gcode.blocks[bid].color = "#ff0000"
+        else:
+            tag = ""
+            gcode.blocks[bid].color = None
+
+        undoinfo.append(gcode.addBlockOperationUndo(bid, tag, remove))
+
+    gcode.addUndo(undoinfo)
+
+
+def run_island(app, island=None):
+    return run_on_selection(app, "ISLAND", apply_island, island)
 
 
 class Tool(Plugin):
@@ -23,7 +50,7 @@ class Tool(Plugin):
             isl = args[1].upper() == "1"
         else:
             isl = None
-        app.executeOnSelection("ISLAND", True, isl)
+        run_island(app, isl)
 
     def execute(self, app):
-        app.insertCommand("ISLAND", True)
+        run_island(app)

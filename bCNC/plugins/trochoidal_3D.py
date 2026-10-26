@@ -21,6 +21,7 @@ from math import (
 from CNC import CNC
 from GCode import Block
 from ToolsPage import Plugin
+from trochoidPath import run_trochprofile
 
 __author__ = "Mario S Basz"
 __email__ = "mariob_1960@yaho.com.ar"
@@ -206,7 +207,8 @@ class Tool(Plugin):
             depthIncrement = self["depthIncrement"]
             tabsnumber = tabsWidth = tabsHeight = 0
 
-            app.trochprofile_bcnc(
+            run_trochprofile(
+                app,
                 2 * cutradius,
                 direction,
                 self["offset"],

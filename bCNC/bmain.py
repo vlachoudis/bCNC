@@ -1462,7 +1462,6 @@ class Application(Tk, Sender):
         R("CONTROL", lambda a, args, o: a.ribbon.changePage("Control"), 4)
         R("DOWN", lambda a, args, o: a.editor.orderDown())
         R("UP", lambda a, args, o: a.editor.orderUp())
-        R("DIRECTION", A.cmdDirection, 3)
         R("ECHO", A.cmdEcho)
         R("FEED", A.cmdFeed)
         R("INVERT", lambda a, args, o: a.editor.invertBlocks(), 3)
@@ -1483,7 +1482,6 @@ class Application(Tk, Sender):
         R("OPTIMIZE", A.cmdOptimize, 3)
         R("ORIENT", A.cmdOrient, 4)
         R("ORIGIN", A.cmdOrigin, 3)
-        R("REVERSE", lambda a, args, o: a.executeOnSelection("REVERSE", True), 3)
         R("ROTATE", A.cmdRotate, 3)
         R("ROUND", A.cmdRound, 3)
         R("RULER", lambda a, args, o: a.canvas.setActionRuler(), 2)
@@ -1565,24 +1563,6 @@ class Application(Tk, Sender):
     def cmdClear(self, args, oline=None):
         self.ribbon.changePage("Terminal")
         Page.frames["Terminal"].clear()
-
-    def cmdDirection(self, args, oline=None):
-        if rexx.abbrev("CLIMB", args[1].upper(), 2):
-            direction = -2
-        elif rexx.abbrev("CONVENTIONAL", args[1].upper(), 2):
-            direction = 2
-        elif rexx.abbrev("CW", args[1].upper(), 2):
-            direction = 1
-        elif rexx.abbrev("CCW", args[1].upper(), 2):
-            direction = -1
-        else:
-            messagebox.showerror(
-                _("Direction command error"),
-                _("Invalid direction {} specified").format(args[1]),
-                parent=self,
-            )
-            return "break"
-        self.executeOnSelection("DIRECTION", True, direction)
 
     def cmdEcho(self, args, oline):
         self.setStatus(oline[5:].strip())
@@ -1899,20 +1879,10 @@ class Application(Tk, Sender):
         sel = None
         if cmd == "AUTOLEVEL":
             sel = self.gcode.autolevel(items)
-        elif cmd == "CUT":
-            sel = self.gcode.cut(items, *args)
-        elif cmd == "CLOSE":
-            sel = self.gcode.close(items)
-        elif cmd == "DIRECTION":
-            sel = self.gcode.cutDirection(items, *args)
-        elif cmd == "DRILL":
-            sel = self.gcode.drill(items, *args)
         elif cmd == "ORDER":
             self.gcode.orderLines(items, *args)
         elif cmd == "INKSCAPE":
             self.gcode.inkscapeLines()
-        elif cmd == "ISLAND":
-            self.gcode.island(items, *args)
         elif cmd == "MIRRORH":
             self.gcode.mirrorHLines(items)
         elif cmd == "MIRRORV":
@@ -1923,15 +1893,10 @@ class Application(Tk, Sender):
             self.gcode.optimize(items)
         elif cmd == "ORIENT":
             self.gcode.orientLines(items)
-        elif cmd == "REVERSE":
-            self.gcode.reverse(items, *args)
         elif cmd == "ROUND":
             self.gcode.roundLines(items, *args)
         elif cmd == "ROTATE":
             self.gcode.rotateLines(items, *args)
-        elif cmd == "TABS":
-            sel = self.gcode.createTabs(items, *args)
-
         # Fill listbox and update selection
         self.editor.fill()
         if sel is not None:
@@ -1944,148 +1909,6 @@ class Application(Tk, Sender):
         self.setStatus(
             f"{cmd} {' '.join([str(a) for a in args if a is not None])}"
         )
-
-    # -----------------------------------------------------------------------
-    def profile(
-        self,
-        direction=None,
-        offset=0.0,
-        overcut=False,
-        name=None,
-        pocket=False,
-    ):
-        tool = self.tools["EndMill"]
-        ofs = self.tools.fromMm(tool["diameter"]) / 2.0
-        sign = 1.0
-
-        if direction is None:
-            pass
-        elif rexx.abbrev("INSIDE", direction.upper()):
-            sign = -1.0
-        elif rexx.abbrev("OUTSIDE", direction.upper()):
-            sign = 1.0
-        else:
-            try:
-                ofs = float(direction) / 2.0
-            except Exception:
-                pass
-
-        # additional offset
-        try:
-            ofs += float(offset)
-        except Exception:
-            pass
-
-        self.busy()
-        blocks = self.editor.getSelectedBlocks()
-        # on return we have the blocks with the new blocks to select
-        msg = self.gcode.profile(blocks, ofs * sign, overcut, name, pocket)
-        if msg:
-            messagebox.showwarning(
-                "Open paths", f"WARNING: {msg}", parent=self)
-        self.editor.fill()
-        self.editor.selectBlocks(blocks)
-        self.draw()
-        self.notBusy()
-        self.setStatus(_("Profile block distance={:g}").format(ofs * sign))
-
-    # -----------------------------------------------------------------------
-    def pocket(self, name=None):
-        tool = self.tools["EndMill"]
-        diameter = self.tools.fromMm(tool["diameter"])
-        try:
-            stepover = tool["stepover"] / 100.0
-        except TypeError:
-            stepover = 0.0
-
-        self.busy()
-        blocks = self.editor.getSelectedBlocks()
-        # on return we have the blocks with the new blocks to select
-        msg = self.gcode.pocket(blocks, diameter, stepover, name)
-        if msg:
-            messagebox.showwarning(
-                _("Open paths"), _("WARNING: {}").format(msg), parent=self
-            )
-        self.editor.fill()
-        self.editor.selectBlocks(blocks)
-        self.draw()
-        self.notBusy()
-
-    # -----------------------------------------------------------------------
-    def trochprofile_bcnc(
-        self,
-        cutDiam=0.0,
-        direction=None,
-        offset=0.0,
-        overcut=False,
-        adaptative=False,
-        adaptedRadius=0.0,
-        tooldiameter=0.0,
-        targetDepth=0.0,
-        depthIncrement=0.0,
-        tabsnumber=0.0,
-        tabsWidth=0.0,
-        tabsHeight=0.0,
-    ):
-        adaptedRadius = float(adaptedRadius)
-        ofs = float(cutDiam) / 2.0
-        sign = 1.0
-
-        if direction is None:
-            pass
-        elif rexx.abbrev("INSIDE", direction.upper()):
-            sign = -1.0
-        elif rexx.abbrev("OUTSIDE", direction.upper()):
-            sign = 1.0
-        elif rexx.abbrev("ON", direction.upper()):
-            ofs = 0
-        else:
-            try:
-                ofs = float(direction) / 2.0
-            except Exception:
-                pass
-
-        # additional offset
-        try:
-            ofs += float(offset)
-        except Exception:
-            pass
-
-        self.busy()
-        blocks = self.editor.getSelectedBlocks()
-        # on return we have the blocks with the new blocks to select
-        msg = self.gcode.trochprofile_cnc(
-            blocks,
-            ofs * sign,
-            overcut,
-            adaptative,
-            adaptedRadius,
-            cutDiam,
-            tooldiameter,
-            targetDepth,
-            depthIncrement,
-            tabsnumber,
-            tabsWidth,
-            tabsHeight,
-        )
-        if msg:
-            messagebox.showwarning(
-                "Open paths", f"WARNING: {msg}", parent=self)
-        msg2 = adaptative
-        if msg2:
-            messagebox.showwarning(
-                "Adaptative",
-                "WARNING: Adaptive route generated, but Trocoidal still does "
-                + "not implement it. Use will give wrong results in the "
-                + "corners!",
-                parent=self,
-            )
-
-        self.editor.fill()
-        self.editor.selectBlocks(blocks)
-        self.draw()
-        self.notBusy()
-        self.setStatus(_("Profile block distance={:g}").format(ofs * sign))
 
     # -----------------------------------------------------------------------
     def edit(self, event=None):

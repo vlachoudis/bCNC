@@ -1,15 +1,35 @@
-"""Basic headless CAM tests for GCode / bpath (no Tk / serial)."""
+"""Basic headless CAM tests for bcam + document apply_* (no Tk / serial)."""
 import unittest
 
 import os
 import sys
+import types
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pathfix
 
+# Stub ToolsPage so plugin modules can be imported without Tk GUI
+if "ToolsPage" not in sys.modules:
+    _tp = types.ModuleType("ToolsPage")
+
+    class _Plugin:
+        def __init__(self, *a, **k):
+            pass
+
+    def _run_on_selection(app, opname, apply_fn, *args, **kwargs):
+        return apply_fn(app.gcode, app.editor.getSelectedBlocks(), *args, **kwargs)
+
+    _tp.Plugin = _Plugin
+    _tp.run_on_selection = _run_on_selection
+    sys.modules["ToolsPage"] = _tp
+
 from GCode import Block, GCode
 from bmath import Vector
 from bpath import Path, Segment
+from camProfile import apply_profile
+from cut import apply_cut
+from drill import apply_drill
+from pocket import apply_pocket
 
 
 def rect_block(name="rect", width=20.0, height=10.0):
@@ -61,9 +81,8 @@ class TestGCodeCAM(unittest.TestCase):
 
     def test_profile_inside_offset(self):
         blocks = [0]
-        msg = self.gcode.profile(blocks, offset=-1.5)
+        apply_profile(self.gcode, blocks, offset=-1.5)
 
-        self.assertEqual(msg, "")
         self.assertEqual(blocks, [1])
         self.assertFalse(self.gcode.blocks[0].enable)
         self.assertTrue(self.gcode.blocks[1].enable)
@@ -76,9 +95,8 @@ class TestGCodeCAM(unittest.TestCase):
 
     def test_pocket_generates_longer_toolpath(self):
         blocks = [0]
-        msg = self.gcode.pocket(blocks, diameter=3.0, stepover=0.4, name=None)
+        apply_pocket(self.gcode, blocks, diameter=3.0, stepover=0.4)
 
-        self.assertEqual(msg, "")
         self.assertEqual(len(blocks), 1)
         pocket = self.gcode.blocks[blocks[0]]
         self.assertTrue(pocket.enable)
@@ -91,7 +109,7 @@ class TestGCodeCAM(unittest.TestCase):
         self.assertGreater(len(pocket), len(self.gcode.blocks[0]))
 
     def test_drill_center(self):
-        err = self.gcode.drill([0], depth=-2.0, center=True)
+        err = apply_drill(self.gcode, [0], depth=-2.0, center=True)
         self.assertIsNone(err)
 
         block = self.gcode.blocks[0]
@@ -102,7 +120,7 @@ class TestGCodeCAM(unittest.TestCase):
         self.assertTrue(any(line.startswith("g0 z") for line in lines))
 
     def test_cut_multiple_depth_passes(self):
-        err = self.gcode.cut([0], depth=-2.0, stepz=1.0)
+        err = apply_cut(self.gcode, [0], depth=-2.0, stepz=1.0)
         self.assertIsNone(err)
 
         block = self.gcode.blocks[0]
@@ -112,3 +130,7 @@ class TestGCodeCAM(unittest.TestCase):
         self.assertIn("(pass -2.000000)", text)
         self.assertGreaterEqual(text.lower().count("z-1"), 1)
         self.assertGreaterEqual(text.lower().count("z-2"), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

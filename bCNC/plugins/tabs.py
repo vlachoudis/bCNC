@@ -3,10 +3,66 @@
 
 from tkinter import messagebox
 
-from ToolsPage import Plugin
+import bcam
+from GCode import Block
+from ToolsPage import Plugin, run_on_selection
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
+
+
+def apply_tabs(gcode, items, ntabs, dtabs, dx, dy, z, circ=True):
+    """Insert holding-tab island blocks after the last selected path."""
+    if ntabs == 0 and dtabs == 0:
+        return
+
+    tablocks = []
+    for bid in items:
+        block = gcode.blocks[bid]
+        if block.name() in ("Header", "Footer"):
+            continue
+
+        # update minz for selected islands/tabs rather than doing
+        # tabs of tabs
+        if block.operationTest("island"):
+            block._name = f"{block.nameNop()} [island,minz:{z:f}]"
+            continue
+
+        tablock = Block(f"{block.nameNop()} [tab,island,minz:{z:f}]")
+        # tablock.color = "#FF0000"
+        tablock.color = "orange"
+        tablock.enable = False  # Prevent tabs from being cut as path
+
+        for path in gcode.toPath(bid):
+            length = path.length()
+            d = max(length / float(ntabs), dtabs)
+            s = d / 2.0  # start from half distance to add first tab
+
+            while s <= length:
+                P = path.distPoint(s)
+                s += d
+                tablock.extend(
+                    gcode.fromPath(
+                        bcam.tab_path(P[0], P[1], dx, dy, circ),
+                        None,
+                        None,
+                        False,
+                        False,
+                        False,
+                        None,
+                        None,
+                        False,
+                    )
+                )
+                tablock.append("( ---------- cut-here ---------- )")
+
+        del tablock[-1]  # remove last cut-here
+        tablocks.append(tablock)
+    gcode.insBlocks(bid + 1, tablocks, "Tabs created")
+
+
+def run_tabs(app, *args, **kwargs):
+    return run_on_selection(app, "TABS", apply_tabs, *args, **kwargs)
 
 
 class Tool(Plugin):
@@ -66,10 +122,7 @@ class Tool(Plugin):
                 return d
 
         dx = f(3, self.fromMm("dx"))
-        app.executeOnSelection(
-            "TABS",
-            True,
-            i(1, int(self["ntabs"])),
+        run_tabs(app, i(1, int(self["ntabs"])),
             f(2, self.fromMm("dtabs")),
             dx,
             f(4, dx),  # dy defaults to dx (same as GUI)
@@ -101,5 +154,5 @@ class Tool(Plugin):
             )
             return
 
-        app.executeOnSelection("TABS", True, ntabs, dtabs, dx, dy, z, True)
+        run_tabs(app, ntabs, dtabs, dx, dy, z, True)
         app.setStatus(_("Create tabs on blocks"))

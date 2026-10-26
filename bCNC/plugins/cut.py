@@ -1,10 +1,322 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
-from ToolsPage import Plugin
+from bmath import Vector
+from CNC import CNC
+from GCode import Block
+from ToolsPage import Plugin, run_on_selection
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
+
+
+def cut_path(
+    gcode,
+    newblock,
+    path,
+    z,
+    depth,
+    stepz,
+    helix=False,
+    helixBottom=True,
+    ramp=0,
+    islandPaths=[],
+    exitpoint=None,
+    springPass=False,
+):
+    closed = path.isClosed()
+    zigzag = True  # FIXME: Add UI to set this?
+    entry = True
+    exit_ = False
+
+    # Calculate ramp
+    if ramp > 0:
+        ramp = abs(ramp) * CNC.vars["diameter"]  # n times tool diameter
+    if ramp < 0:
+        ramp = abs(ramp)  # absolute
+    if ramp == 0:
+        ramp = None  # No ramp
+
+    # Calculate exit point for thread milling
+    centr = Vector(path.center())
+    if exitpoint == 1:
+        exitpoint = centr
+    elif exitpoint == -1:
+        exitpoint = path[-1].B + (path[-1].B - centr)
+    else:
+        exitpoint = None
+
+    # Mark in which island we are inside
+    if islandPaths:
+        for island in reversed(islandPaths):
+            path.intersectPath(island)
+        for island in reversed(islandPaths):
+            path.markInside(island, island._inside)
+
+    # Decide if doing additional "appendix" passes after loop
+    # (eg.: spring pass or helixbottom)
+    appendix = False
+    if (springPass and closed) or (helix and helixBottom):
+        appendix = True
+
+    # iterate over depth passes:
+    retract = True
+    while (z - depth) > 1e-7:
+        # Go one step lower
+        z = max(z - stepz, depth)
+
+        # Detect last pass of loop
+        if abs(z - depth) < 1e-7 and not appendix:
+            exit_ = True
+
+        # Flat cuts:
+        if not helix:
+            newblock.append(f"(pass {z:f})")
+            if zigzag:
+                gcode.fromPath(
+                    path,
+                    newblock,
+                    z,
+                    retract,
+                    True,
+                    exit_,
+                    exitpoint=exitpoint
+                )
+                if not closed:
+                    path.invert()
+            else:
+                gcode.fromPath(
+                    path,
+                    newblock,
+                    z,
+                    True,
+                    True,
+                    exit_,
+                    exitpoint=exitpoint
+                )
+
+        # Helical/Ramp cuts:
+        else:
+            if helixBottom:
+                exit_ = False
+
+            if closed:
+                newblock.append(
+                    f"(pass {z + stepz:f} to {z:f})")
+                gcode.fromPath(
+                    path,
+                    newblock,
+                    z,
+                    retract,
+                    entry,
+                    exit_,
+                    z + stepz,
+                    ramp,
+                    exitpoint=exitpoint,
+                )
+            else:
+                # Cut open path back and forth while descending
+                newblock.append(
+                    f"(pass {z + stepz:f} to {z + stepz / 2:f})")
+                gcode.fromPath(
+                    path,
+                    newblock,
+                    z + stepz / 2,
+                    retract,
+                    entry,
+                    False,
+                    z + stepz,
+                    ramp,
+                    exitpoint=exitpoint,
+                )
+                path.invert()
+                newblock.append(f"(pass {z + stepz / 2:f} to {z:f})")
+                gcode.fromPath(
+                    path,
+                    newblock,
+                    z,
+                    False,
+                    False,
+                    exit_,
+                    z + stepz / 2,
+                    ramp,
+                    exitpoint=exitpoint,
+                )
+                path.invert()
+
+        retract = False
+        entry = False
+
+    # Do appendix passes like spring pass or helixbottom
+    if appendix:
+        if springPass and closed:
+            ramp = None  # Do not truncate pass when inverting direction
+            path.invert()
+            if not closed:
+                retract = True
+                entry = True
+            newblock.append(f"(pass {z:f} spring)")
+        else:
+            newblock.append(f"(pass {z:f} bottom)")
+
+        gcode.fromPath(
+            path,
+            newblock,
+            z,
+            retract,
+            entry,
+            True,
+            exitpoint=exitpoint,
+            truncate=ramp,
+        )
+
+    return newblock
+
+
+def apply_cut(
+    gcode,
+    items,
+    depth=None,
+    stepz=None,
+    surface=None,
+    feed=None,
+    feedz=None,
+    cutFromTop=False,
+    helix=False,
+    helixBottom=True,
+    ramp=0,
+    islandsLeave=False,
+    islandsCut=False,
+    islandsSelectedOnly=True,
+    exitpoint=None,
+    springPass=False,
+    islandsCompensate=False,
+):
+    if surface is None:
+        surface = gcode.cnc["surface"]
+    if stepz is None:
+        stepz = gcode.cnc["stepz"]
+    if depth is None:
+        depth = surface - gcode.cnc["thickness"]
+
+    # override temporarily the feed if needed
+    if feed is not None:  # swap feed with cnc[cutfeed]
+        gcode.cnc["cutfeed"], feed = feed, gcode.cnc["cutfeed"]
+    if feedz is not None:
+        gcode.cnc["cutfeedz"], feedz = feedz, gcode.cnc["cutfeedz"]
+
+    # Test if cutting within stock boundaries
+    if surface > gcode.cnc["surface"]:
+        return (
+            "ERROR: Starting cut height is higher than stock surface. "
+            "Please change stock surface in Tools->Stock or cut depth."
+        )
+    if (
+        depth < gcode.cnc["surface"] - gcode.cnc["thickness"]
+        or depth > gcode.cnc["surface"]
+    ):
+        return (
+            f"ERROR: Cut depth {depth:g} outside stock surface: "
+            f"{gcode.cnc['surface']:g} .. "
+            f"{gcode.cnc['surface'] - gcode.cnc['thickness']:g}\n"
+            "Please change stock surface in Tools->Stock or cut depth."
+        )
+
+    # Determine operation block name
+    if abs(depth - (gcode.cnc["surface"] - gcode.cnc["thickness"])) < 1e-7:
+        opname = "cut"
+        if helix:
+            opname = "helicut"
+    else:
+        opname = f"cut:{depth:g}"
+        if helix:
+            opname = f"helicut:{depth:g}"
+
+    stepz = abs(stepz)
+    undoinfo = []
+
+    # Get list of islands and remove them from items
+    islands = []
+    islandPaths = []
+    if islandsLeave:
+        for bid, block in enumerate(gcode.blocks):
+            if islandsSelectedOnly and bid not in items:
+                continue
+            if block.operationTest("island"):
+                islands.append(bid)
+                # determine island height
+                islz = gcode.cnc["safe"]
+                if block.operationGet("minz") is not None:
+                    islz = float(block.operationGet("minz"))
+                # determine if we should offset island
+                # (tabs are always offset)
+                isloffset = False
+                if islandsCompensate or block.operationTest("tab"):
+                    isloffset = True
+                # load island paths
+                for islandPath in gcode.toPath(bid):
+                    # compensate for cutter diameter if needed
+                    if isloffset:
+                        islandPath = islandPath.offsetClean(
+                            CNC.vars["diameter"] / 2
+                        )[0]
+                    islandPath._inside = islz
+                    islandPaths.append(islandPath)
+
+    # Remove islands from paths to cut if not requested
+    # TODO: maybe also remove all islands with "tab" tag
+    if not islandsCut and islands:
+        for island in islands:
+            if island in items:
+                items.remove(island)
+    # Check if there are any paths left
+    if not items:
+        return "You must select toolpaths along with islands!"
+
+    for bid in items:
+        block = gcode.blocks[bid]
+        if block.name() in ("Header", "Footer"):
+            continue
+        block.enable = True
+        newblock = Block(block.name())
+
+        # Do not apply islands on islands:
+        islandPathsClean = islandPaths
+        if bid in items and bid in islands:
+            islandPathsClean = []
+
+        for path in gcode.toPath(bid):
+            z0 = surface + stepz if cutFromTop else surface
+            cut_path(
+                gcode,
+                newblock,
+                path,
+                z0,
+                depth,
+                stepz,
+                helix,
+                helixBottom,
+                ramp,
+                islandPathsClean,
+                exitpoint,
+                springPass,
+            )
+        if newblock:
+            undoinfo.append(gcode.addBlockOperationUndo(bid, opname))
+            undoinfo.append(gcode.setBlockLinesUndo(bid, newblock))
+    gcode.addUndo(undoinfo)
+
+    # restore feed
+    if feed is not None:
+        gcode.cnc["cutfeed"] = feed
+    if feedz is not None:
+        gcode.cnc["cutfeedz"] = feedz
+
+
+
+# -----------------------------------------------------------------------------
+def run_cut(app, *args, **kwargs):
+    return run_on_selection(app, "CUT", apply_cut, *args, **kwargs)
 
 
 class Tool(Plugin):
@@ -111,7 +423,8 @@ class Tool(Plugin):
                 p.append(float(args[i]))
             except Exception:
                 p.append(None)
-        app.executeOnSelection("CUT", True, *p)
+        run_cut(app, *p)
+        app.setStatus(_("CUT selected paths"))
 
     def execute(self, app):
         surface = self.fromMm("surface", None)
@@ -154,9 +467,8 @@ class Tool(Plugin):
         else:
             exitpoint = None
 
-        app.executeOnSelection(
-            "CUT",
-            True,
+        run_cut(
+            app,
             depth,
             step,
             surface,
