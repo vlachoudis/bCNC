@@ -42,7 +42,7 @@ class Tool(Plugin):
             ("FontSize", "mm", 10.0, _("Font size"),"enter here font height"),
             ("FontFile", "file", "", _("Font file"),"pick the ttf or shx font"),
             ("Closed", "bool", True, _("Close Contours"),"only for ttf fonts"),
-            ("DrillDots", "bool", False, _("Dotted font (drill holes)"),"Allows adding very small text labels that can not be milled accurately on wood. Also works for sheet material and templates. Works only with dotted TTF fonts."),
+            ("DrillDots", "bool", False, _("Dotted font (drill holes)"),"Instead of engraving glyph shape outlines, only drill one hole per shape. Good for: small text, sheet material and templates. You need some kind of artistic dotted TTF font that has each letter rendered as many individual dots rather than single shape."),
             ("ImageToAscii", "file", "", _("Image to Ascii")),
             ("CharsWidth", "int", 80, _("Image chars width"),"for ttf fonts only"),
         ]
