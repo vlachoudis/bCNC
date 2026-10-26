@@ -1851,190 +1851,83 @@ class CNCCanvas(GLCanvas):
             glBindBuffer(GL_ARRAY_BUFFER, 0)
             self.queueDraw()
 
+    # ----------------------------------------------------------------------
+    # Path hit-testing helpers (pathVertices: 16 float32s per segment)
+    # ----------------------------------------------------------------------
+    def _canvas_rect_unit(self, x1, y1, x2, y2):
+        """Axis-aligned selection rect in canvas unit coords."""
+        a = self.canvas2Unit(vec2(x1, y1))
+        b = self.canvas2Unit(vec2(x2, y2))
+        return min(a.x, b.x), max(a.x, b.x), min(a.y, b.y), max(a.y, b.y)
+
+    def _lines_to_canvas_unit(self, lines):
+        """World segment endpoints -> (N, 4) canvas-unit x0,y0,x1,y1."""
+        xyz = numpy.reshape(lines, (-1, 8))[:, 1:4]
+        homog = numpy.c_[xyz, numpy.ones(len(xyz), dtype=numpy.float32)]
+        return (numpy.array(self.PMatrix * self.MVMatrix) @ homog.T).T[:, :2].reshape((-1, 4))
+
+    @staticmethod
+    def _lines_intersect_rect(linesCanvasUnit, xmin, xmax, ymin, ymax):
+        """Liang-Barsky style clip test: True where a segment overlaps the rect."""
+        dx = linesCanvasUnit[:, 2] - linesCanvasUnit[:, 0]
+        dy = linesCanvasUnit[:, 3] - linesCanvasUnit[:, 1]
+        p = numpy.stack([-dx, dx, -dy, dy], axis=1)
+        q = numpy.stack([
+            linesCanvasUnit[:, 0] - xmin, xmax - linesCanvasUnit[:, 0],
+            linesCanvasUnit[:, 1] - ymin, ymax - linesCanvasUnit[:, 1],
+        ], axis=1)
+        with numpy.errstate(divide='ignore', invalid='ignore'):
+            r = q / p
+        u1 = numpy.where(p < 0, r, 0.0)
+        u2 = numpy.where(p > 0, r, 1.0)
+        outside = numpy.any((p == 0) & (q < 0), axis=1)
+        return (numpy.max(u1, axis=1) <= numpy.min(u2, axis=1)) & ~outside
+
+    @staticmethod
+    def _ids_where(lines, mask):
+        return numpy.unique(lines.reshape((-1, 16))[:, 0][mask]).tolist()
+
+    def _items_from_ids(self, ids):
+        return [self._items[i] for i in ids if i in self._items]
+
+    def _try_find(self, fn, *args):
+        try:
+            return fn(*args)
+        except Exception:
+            return []
+
     def find_overlapping(self, x1, y1, x2, y2, lines):
-        # Unit coordinates of the selection area boundaries
-        xy1 = self.canvas2Unit(vec2(x1, y1))
-        xy2 = self.canvas2Unit(vec2(x2, y2))
+        rect = self._canvas_rect_unit(x1, y1, x2, y2)
+        segs = self._lines_to_canvas_unit(lines)
+        return self._ids_where(lines, self._lines_intersect_rect(segs, *rect))
 
-        xmin = min(xy1.x, xy2.x)
-        xmax = max(xy1.x, xy2.x)
-        ymin = min(xy1.y, xy2.y)
-        ymax = max(xy1.y, xy2.y)
-        
-        # lines is a numpy array containing data for n lines
-        # It has a size of 16·n, dtype=float32
-        # It contains alternatively the starting and end point of a line in World coordinates.
-        # A point is defined with 8 float32 numbers
-        
-        points = (numpy.reshape(lines, (-1, 8))[:, 1:4]).reshape((-1, 3))# x,y,z
-        additionalColumn = numpy.ones((points.shape[0], 1), dtype=numpy.float32)
-        
-        points = numpy.hstack((points, additionalColumn)).reshape((-1, 4))
-
-        # Change world coordinates of the line points to canvas unit coords
-        MVP = numpy.array(self.PMatrix * self.MVMatrix)
-        
-        pointsCanvasUnit = (MVP @ points.T).T
-        
-        # Keep just x and y. Reshape to have starting and end point of each line in the same row
-        linesCanvasUnit = pointsCanvasUnit[:, :2].reshape((-1, 4))
-
-        dx = linesCanvasUnit[:, 2] - linesCanvasUnit[:, 0]
-        dy = linesCanvasUnit[:, 3] - linesCanvasUnit[:, 1]
-
-        p = numpy.stack([-dx, dx, -dy, dy], axis=1)  # shape (N, 4)
-        q = numpy.stack([linesCanvasUnit[:, 0] - xmin, xmax - linesCanvasUnit[:, 0],
-                    linesCanvasUnit[:, 1] - ymin, ymax - linesCanvasUnit[:, 1]], axis=1)
-
-        with numpy.errstate(divide='ignore', invalid='ignore'):
-            r = q / p  # shape (N, 4)
-
-        # Identify conditions
-        mask_neg = p < 0
-        mask_pos = p > 0
-        mask_zero_and_q_neg = (p == 0) & (q < 0)
-        any_outside = numpy.any(mask_zero_and_q_neg, axis=1)
-
-        # Initialize u1 and u2
-        u1 = numpy.where(mask_neg, r, 0.0)
-        u2 = numpy.where(mask_pos, r, 1.0)
-
-        u1_max = numpy.max(u1, axis=1)
-        u2_min = numpy.min(u2, axis=1)
-
-        intersects = (u1_max <= u2_min) & ~any_outside
-        
-        # Get the ids of the overlapped lines (id is the 1st parameter of the lines array)
-        lineIds = lines.reshape((-1, 16))[:, 0]
-        
-        selectedIds = numpy.unique(lineIds[intersects]).tolist()
-        
-        return selectedIds
-        
     def find_enclosed(self, x1, y1, x2, y2, lines):
-        # Unit coordinates of the selection area boundaries
-        xy1 = self.canvas2Unit(vec2(x1, y1))
-        xy2 = self.canvas2Unit(vec2(x2, y2))
-
-        xmin = min(xy1.x, xy2.x)
-        xmax = max(xy1.x, xy2.x)
-        ymin = min(xy1.y, xy2.y)
-        ymax = max(xy1.y, xy2.y)
-        
-        # lines is a numpy array containing data for n lines
-        # It has a size of 16·n, dtype=float32
-        # It contains alternatively the starting and end point of a line in World coordinates.
-        # A point is defined with 8 float32 numbers
-        
-        points = (numpy.reshape(lines, (-1, 8))[:, 1:4]).reshape((-1, 3))# x,y,z
-        additionalColumn = numpy.ones((points.shape[0], 1), dtype=numpy.float32)
-        
-        points = numpy.hstack((points, additionalColumn)).reshape((-1, 4))
-
-        # Change world coordinates of the line points to canvas unit coords
-        MVP = numpy.array(self.PMatrix * self.MVMatrix)
-        
-        pointsCanvasUnit = (MVP @ points.T).T
-        
-        # Keep just x and y. Reshape to have starting and end point of each line in the same row
-        linesCanvasUnit = pointsCanvasUnit[:, :2].reshape((-1, 4))
-
-        # Boolean mask for both endpoints inside
+        xmin, xmax, ymin, ymax = self._canvas_rect_unit(x1, y1, x2, y2)
+        xa, ya, xb, yb = self._lines_to_canvas_unit(lines).T
         mask = (
-            (linesCanvasUnit[:, 0] >= xmin) & (linesCanvasUnit[:, 0] <= xmax) &
-            (linesCanvasUnit[:, 1] >= ymin) & (linesCanvasUnit[:, 1] <= ymax) &
-            (linesCanvasUnit[:, 2] >= xmin) & (linesCanvasUnit[:, 2] <= xmax) &
-            (linesCanvasUnit[:, 3] >= ymin) & (linesCanvasUnit[:, 3] <= ymax)
+            (xa >= xmin) & (xa <= xmax) & (ya >= ymin) & (ya <= ymax) &
+            (xb >= xmin) & (xb <= xmax) & (yb >= ymin) & (yb <= ymax)
         )
+        return self._ids_where(lines, mask)
 
-        lines_16 = numpy.reshape(lines, (-1, 16))[:, 0]
-        
-        return numpy.unique(lines_16[mask]).tolist() 
-    
-    def find_closest(self, x, y, lines, tolerance, returnIndex = False, excludeSelected = False):
-        # Unit coordinates of the selection area boundaries
+    def find_closest(self, x, y, lines, tolerance, returnIndex=False, excludeSelected=False):
         xy = self.canvas2Unit(vec2(x, y))
+        tx = tolerance / self.winfo_width() * 2
+        ty = tolerance / self.winfo_height() * 2
+        rect = (xy.x - tx, xy.x + tx, xy.y - ty, xy.y + ty)
 
-        # tolerance in unit distance
-        unitTolX = tolerance / self.winfo_width() * 2
-        unitTolY = tolerance / self.winfo_height() * 2
-        
-        xmin = xy.x - unitTolX
-        xmax = xy.x + unitTolX
-        ymin = xy.y - unitTolY
-        ymax = xy.y + unitTolY
-        
-        # lines is a numpy array containing data for n lines
-        # It has a size of 16·n, dtype=float32
-        # It contains alternatively the starting and end point of a line in World coordinates.
-        # A point is defined with 8 float32 numbers
-        
-        points = (numpy.reshape(lines, (-1, 8))[:, 1:4]).reshape((-1, 3))# x,y,z
-        additionalColumn = numpy.ones((points.shape[0], 1), dtype=numpy.float32)
-        
-        points = numpy.hstack((points, additionalColumn)).reshape((-1, 4))
-
-        # Change world coordinates of the line points to canvas unit coords
-        MVP = numpy.array(self.PMatrix * self.MVMatrix)
-        
-        pointsCanvasUnit = (MVP @ points.T).T
-        
-        # Keep just x and y. Reshape to have starting and end point of each line in the same row
-        linesCanvasUnit = pointsCanvasUnit[:, :2].reshape((-1, 4))
-
-        dx = linesCanvasUnit[:, 2] - linesCanvasUnit[:, 0]
-        dy = linesCanvasUnit[:, 3] - linesCanvasUnit[:, 1]
-
-        p = numpy.stack([-dx, dx, -dy, dy], axis=1)  # shape (N, 4)
-        q = numpy.stack([linesCanvasUnit[:, 0] - xmin, xmax - linesCanvasUnit[:, 0],
-                    linesCanvasUnit[:, 1] - ymin, ymax - linesCanvasUnit[:, 1]], axis=1)
-
-        with numpy.errstate(divide='ignore', invalid='ignore'):
-            r = q / p  # shape (N, 4)
-
-        # Identify conditions
-        mask_neg = p < 0
-        mask_pos = p > 0
-        mask_zero_and_q_neg = (p == 0) & (q < 0)
-        any_outside = numpy.any(mask_zero_and_q_neg, axis=1)
-
-        # Initialize u1 and u2
-        u1 = numpy.where(mask_neg, r, 0.0)
-        u2 = numpy.where(mask_pos, r, 1.0)
-
-        u1_max = numpy.max(u1, axis=1)
-        u2_min = numpy.min(u2, axis=1)
-
-        intersects = (u1_max <= u2_min) & ~any_outside
+        segs = self._lines_to_canvas_unit(lines)
+        hit = self._lines_intersect_rect(segs, *rect)
 
         if excludeSelected:
-            lines16 = numpy.reshape(lines, (-1, 16))
-            selection_mask = (lines16[:, 7].astype(int) & FLAG_SELECTED) == FLAG_SELECTED
-            intersects = intersects & ~selection_mask
-        
-        # TODO: Return the closest one, not the first in the list...
+            flags = numpy.reshape(lines, (-1, 16))[:, 7].astype(int)
+            hit &= (flags & FLAG_SELECTED) != FLAG_SELECTED
 
-        # If returnIndex is True, return the index of the closest line in the lines array, instead of the closest line ID
+        # First hit in the rect (not necessarily geometrically closest)
         if returnIndex:
-            indices = numpy.arange(lines.size / 16)
-            selectedIndices = indices[intersects].tolist()
+            return numpy.flatnonzero(hit).tolist()[:1]
+        return self._ids_where(lines, hit)[:1]
 
-            if len(selectedIndices) == 0:
-                return []
-            else:
-                return [selectedIndices[0]]
-            
-        else:
-            # Get the ids of the overlapped lines (id is the 1st parameter of the lines array)
-            lineIds = lines.reshape((-1, 16))[:, 0]
-            
-            selectedIds = numpy.unique(lineIds[intersects]).tolist()
-            
-            if len(selectedIds) == 0:
-                return []
-            else:
-                return [selectedIds[0]]
-    
     # ----------------------------------------------------------------------
     # Canvas release button1. Select area
     # ----------------------------------------------------------------------
@@ -2044,69 +1937,29 @@ class CNCCanvas(GLCanvas):
             ACTION_SELECT_DOUBLE,
             ACTION_SELECT_AREA,
         ):
-            closest = numpy.array([])
-            
+            items = []
+
             if self._mouseAction == ACTION_SELECT_AREA:
-                if self._x < event.x:  # From left->right enclosed
-                    try:
-                        closest = self.find_enclosed(
-                            self._x,
-                            self._y,
-                            event.x,
-                            event.y,
-                            self.pathVertices
-                        )
-                    except Exception:
-                        pass
-
-                else:  # From right->left overlapping
-                    try:
-                        closest = self.find_overlapping(
-                            self._x,
-                            self._y,
-                            event.x,
-                            event.y,
-                            self.pathVertices
-                        )
-                    except Exception:
-                        pass
-
-                items = []
-                for i in closest:
-                    try:
-                        items.append(self._items[i])
-                    except Exception:
-                        pass
+                # left->right = enclosed; right->left = overlapping
+                finder = self.find_enclosed if self._x < event.x else self.find_overlapping
+                items = self._items_from_ids(
+                    self._try_find(finder, self._x, self._y, event.x, event.y, self.pathVertices)
+                )
 
             elif self._mouseAction in (ACTION_SELECT_SINGLE,
                                        ACTION_SELECT_DOUBLE):
-                items = []
-                try:
-                    closest = self.find_closest(
-                        event.x,
-                        event.y,
-                        self.orientVertices,
-                        CLOSE_DISTANCE
-                    )
-                except Exception:
-                    closest = []
+                closest = self._try_find(
+                    self.find_closest, event.x, event.y, self.orientVertices, CLOSE_DISTANCE
+                )
                 if closest:
                     self.selectMarker(closest[0])
                 else:
-                    try:
-                        closest = self.find_closest(
-                            event.x,
-                            event.y,
-                            self.pathVertices,
-                            CLOSE_DISTANCE
+                    items = self._items_from_ids(
+                        self._try_find(
+                            self.find_closest, event.x, event.y, self.pathVertices, CLOSE_DISTANCE
                         )
-                    except Exception:
-                        closest = []
-                    for i in closest:
-                        try:
-                            items.append(self._items[i])
-                        except KeyError:
-                            pass
+                    )
+
             if items:
                 self.app.select(
                     items,
@@ -2947,8 +2800,9 @@ class CNCCanvas(GLCanvas):
         
         self.cameraPosition()
 
+        image = None
         try:
-            self.cameraImage = self.get_camera_image()
+            image = self.get_camera_image()
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self.cameraTexture)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
@@ -2956,14 +2810,13 @@ class CNCCanvas(GLCanvas):
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                         len(self.cameraImage[0]),
-                         len(self.cameraImage),
-                         0, GL_RGBA, GL_UNSIGNED_BYTE, self.cameraImage)
-            
-            self.queueDraw()
-
+                         len(image[0]), len(image),
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, image)
         except Exception:
-            pass
+            image = None  # keep last good frame; refresh loop continues below
+        if image is not None:
+            self.cameraImage = image
+            self.queueDraw()
 
         self._cameraAfter = self.after(100, self.cameraRefresh)
 
@@ -3163,7 +3016,7 @@ class CNCCanvas(GLCanvas):
                 self.make_current()
                 self.draw(before_swap=before_swap)
             except Exception:
-                pass
+                result.clear()
             finally:
                 done.set()
 
