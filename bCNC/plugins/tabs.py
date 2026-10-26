@@ -25,6 +25,7 @@ class Tool(Plugin):
             ("z", "mm", -3.0, _("Height")),
         ]
         self.buttons.append("exe")
+        self.commands = {"TABS": (self.cmdline, 3)}
         self.help = "\n".join([
             "Create tabs, which will be left uncut to hold the part in place "
             + "after cutting.",
@@ -49,6 +50,32 @@ class Tool(Plugin):
             + "\"Split\" feature to break the block into individual tabs. "
             + "After moving them, you can \"Join\" them back together.",
         ])
+
+    # TAB*S [ntabs] [dtabs] [dx] [dy] [z] [circular]
+    def cmdline(self, app, args, oline=None):
+        def i(n, d):
+            try:
+                return int(args[n])
+            except Exception:
+                return d
+
+        def f(n, d):
+            try:
+                return float(args[n])
+            except Exception:
+                return d
+
+        dx = f(3, self.fromMm("dx"))
+        app.executeOnSelection(
+            "TABS",
+            True,
+            i(1, int(self["ntabs"])),
+            f(2, self.fromMm("dtabs")),
+            dx,
+            f(4, dx),  # dy defaults to dx (same as GUI)
+            f(5, self.fromMm("z")),
+            bool(args[6]) if len(args) > 6 else True,
+        )
 
     def execute(self, app):
         try:

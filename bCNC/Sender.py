@@ -20,8 +20,8 @@ from queue import (
 )
 
 import Pendant
-import rexx
 import Utils
+import rexx
 from CNC import CNC, MSG, PARENPAT, UPDATE, WAIT
 from GCode import GCode
 
@@ -87,6 +87,8 @@ class Sender:
         # Global variables
         self.history = []
         self._historyPos = None
+        # CLI command registry: NAME -> (handler, minlen|None)
+        self.commands = {}
 
         self.controllers = {}
         self.controllerLoad()
@@ -207,139 +209,37 @@ class Sender:
         return False
 
     # ----------------------------------------------------------------------
-    # Execute a single command
+    # NOTE: must not be named register() — Tk/Misc.register shadows it via MRO
+    # ----------------------------------------------------------------------
+    def registerCommand(self, name, handler, minlen=None):
+        self.commands[name.upper()] = (handler, minlen)
+
+    # ----------------------------------------------------------------------
+    def matchCommand(self, cmd):
+        hit = self.commands.get(cmd)
+        if hit is not None:
+            return hit[0]
+        for name, (fn, minlen) in self.commands.items():
+            if minlen is not None and rexx.abbrev(name, cmd, minlen):
+                return fn
+        return None
+
+    # ----------------------------------------------------------------------
+    # Execute a single command (registry; same system as Application.execute)
     # ----------------------------------------------------------------------
     def executeCommand(self, line):
         if line is None:
             return
-
         oline = line.strip()
-        line = oline.replace(",", " ").split()
-        cmd = line[0].upper()
-
-        # ABS*OLUTE: Set absolute coordinates
-        if rexx.abbrev("ABSOLUTE", cmd, 3):
-            self.sendGCode("G90")
-
-        # HELP: open browser to display help
-        elif cmd == "HELP":
-            self.help()
-
-        # HOME: perform a homing cycle
-        elif cmd == "HOME":
-            self.home()
-
-        # LO*AD [filename]: load filename containing g-code
-        elif rexx.abbrev("LOAD", cmd, 2):
-            self.load(line[1])
-
-        # OPEN: open serial connection to grbl
-        # CLOSE: close serial connection to grbl
-        elif cmd in ("OPEN", "CLOSE"):
-            self.openClose()
-
-        # QU*IT: quit program
-        # EX*IT: exit program
-        elif rexx.abbrev("QUIT", cmd, 2) or rexx.abbrev("EXIT", cmd, 2):
-            self.quit()
-
-        # PAUSE: pause cycle
-        elif cmd == "PAUSE":
-            self.pause()
-
-        # RESUME: resume
-        elif cmd == "RESUME":
-            self.resume()
-
-        # FEEDHOLD: feedhold
-        elif cmd == "FEEDHOLD":
-            self.feedHold()
-
-        # REL*ATIVE: switch to relative coordinates
-        elif rexx.abbrev("RELATIVE", cmd, 3):
-            self.sendGCode("G91")
-
-        # RESET: perform a soft reset to grbl
-        elif cmd == "RESET":
-            self.softReset()
-
-        # RUN: run g-code
-        elif cmd == "RUN":
-            self.run()
-
-        # SAFE [z]: safe z to move
-        elif cmd == "SAFE":
-            try:
-                CNC.vars["safe"] = float(line[1])
-            except Exception:
-                pass
-            self.statusbar["text"] = f"Safe Z= {CNC.vars['safe']:g}"
-
-        # SA*VE [filename]: save to filename or to default name
-        elif rexx.abbrev("SAVE", cmd, 2):
-            if len(line) > 1:
-                self.save(line[1])
-            else:
-                self.saveAll()
-
-        # SENDHEX: send a hex-char in grbl
-        elif cmd == "SENDHEX":
-            self.sendHex(line[1])
-
-        # SET [x [y [z]]]: set x,y,z coordinates to current workspace
-        elif cmd == "SET":
-            try:
-                x = float(line[1])
-            except Exception:
-                x = None
-            try:
-                y = float(line[2])
-            except Exception:
-                y = None
-            try:
-                z = float(line[3])
-            except Exception:
-                z = None
-            self._wcsSet(x, y, z)
-
-        elif cmd == "SET0":
-            self._wcsSet(0.0, 0.0, 0.0)
-
-        elif cmd == "SETX":
-            try:
-                x = float(line[1])
-            except Exception:
-                x = ""
-            self._wcsSet(x, None, None)
-
-        elif cmd == "SETY":
-            try:
-                y = float(line[1])
-            except Exception:
-                y = ""
-            self._wcsSet(None, y, None)
-
-        elif cmd == "SETZ":
-            try:
-                z = float(line[1])
-            except Exception:
-                z = ""
-            self._wcsSet(None, None, z)
-
-        # STOP: stop current run
-        elif cmd == "STOP":
-            self.stopRun()
-
-        # UNL*OCK: unlock grbl
-        elif rexx.abbrev("UNLOCK", cmd, 3):
-            self.unlock()
-
-        # Send commands to SMOOTHIE
-        elif self.mcontrol.executeCommand(oline, line, cmd):
-            pass
-
-        else:
-            return _("unknown command"), _("Invalid command {}").format(oline)
+        args = oline.replace(",", " ").split()
+        cmd = args[0].upper()
+        handler = self.matchCommand(cmd)
+        if handler:
+            handler(self, args, oline)
+            return
+        if self.mcontrol.executeCommand(oline, args, cmd):
+            return
+        return _("unknown command"), _("Invalid command {}").format(oline)
 
     # ----------------------------------------------------------------------
     def help(self, event=None):

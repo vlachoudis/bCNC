@@ -24,6 +24,10 @@ class Tool(Plugin):
         self.icon = "closepath"
         self.group = "CAM"  # <<< This is the name of group that plugin belongs
         self.oneshot = True
+        self.commands = {"CLOSE": (self.cmdline, 4)}
+
+    def cmdline(self, app, args, oline=None):
+        app.executeOnSelection("CLOSE", True)
 
     # ----------------------------------------------------------------------
     # This method is executed when user presses the plugin execute button

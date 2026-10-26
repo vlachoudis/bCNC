@@ -16,6 +16,14 @@ class Tool(Plugin):
         self.group = "CAM-core"
         self.order = 40
         self.oneshot = True
+        self.commands = {"ISLAND": (self.cmdline, 3)}
+
+    def cmdline(self, app, args, oline=None):
+        if len(args) > 1:
+            isl = args[1].upper() == "1"
+        else:
+            isl = None
+        app.executeOnSelection("ISLAND", True, isl)
 
     def execute(self, app):
         app.insertCommand("ISLAND", True)

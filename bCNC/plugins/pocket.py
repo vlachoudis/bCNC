@@ -20,8 +20,12 @@ class Tool(Plugin):
             ("endmill", "db", "", _("End Mill")),
         ]
         self.buttons.append("exe")
+        self.commands = {"POCKET": (self.cmdline, 3)}
         self.help = """Remove all material inside selected shape
 """
+
+    def cmdline(self, app, args, oline=None):
+        app.pocket()
 
     def execute(self, app):
         if self["endmill"]:

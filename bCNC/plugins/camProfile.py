@@ -51,6 +51,7 @@ class Tool(Plugin):
             ),
         ]
         self.buttons.append("exe")
+        self.commands = {"PROFILE": (self.cmdline, 3)}
         self.help = "\n".join([
             "This plugin offsets shapes to create toolpaths for profiling "
             + "operation.",
@@ -69,6 +70,9 @@ class Tool(Plugin):
             "Turquoise is the generated toolpath",
             "Grey is simulation of how part will look after machining",
         ])
+
+    def cmdline(self, app, args, oline=None):
+        app.profile(args[1] if len(args) > 1 else None)
 
     def execute(self, app):
         if self["endmill"]:

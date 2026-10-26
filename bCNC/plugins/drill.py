@@ -50,6 +50,17 @@ class Tool(Plugin):
             + "Parameter 'distance' has no effect.",
         ])
         self.buttons.append("exe")
+        self.commands = {"DRILL": (self.cmdline, 3)}
+
+    # DRI*LL [depth] [peck]
+    def cmdline(self, app, args, oline=None):
+        p = []
+        for i in range(1, 3):
+            try:
+                p.append(float(args[i]))
+            except Exception:
+                p.append(None)
+        app.executeOnSelection("DRILL", True, *p)
 
     def execute(self, app):
         h = self.fromMm("depth", None)

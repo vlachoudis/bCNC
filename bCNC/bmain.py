@@ -158,6 +158,7 @@ class Application(Tk, Sender):
 
         # Global variables
         self.tools = Tools(self.gcode)
+        self.registerCommands()
         self.controller = None
         self.loadConfig()
         # --- Ribbon ---
@@ -1441,6 +1442,95 @@ class Application(Tk, Sender):
         self.execute(line)
 
     # -----------------------------------------------------------------------
+    # Register CLI handlers (plugins + builtins)
+    # -----------------------------------------------------------------------
+    def registerCommands(self):
+        for tool in self.tools.pluginList():
+            for name, spec in getattr(tool, "commands", {}).items():
+                self.registerCommand(
+                    name, *(spec if isinstance(spec, tuple) else (spec,))
+                )
+
+        R = self.registerCommand
+        A = Application
+        # one-liners as lambdas; heavier cmds as methods below
+        R("ABOUT", lambda a, args, o: a.about(), 3)
+        R("AUTOLEVEL", lambda a, args, o: a.executeOnSelection("AUTOLEVEL", True), 4)
+        R("CAMERA", A.cmdCamera, 3)
+        R("CLEAR", A.cmdClear, 3)
+        R("CLS", A.cmdClear)
+        R("CONTROL", lambda a, args, o: a.ribbon.changePage("Control"), 4)
+        R("DOWN", lambda a, args, o: a.editor.orderDown())
+        R("UP", lambda a, args, o: a.editor.orderUp())
+        R("DIRECTION", A.cmdDirection, 3)
+        R("ECHO", A.cmdEcho)
+        R("FEED", A.cmdFeed)
+        R("INVERT", lambda a, args, o: a.editor.invertBlocks(), 3)
+        R("MSG", A.cmdMsg)
+        R("MESSAGE", A.cmdMsg)
+        R("FILTER", A.cmdFilter, 3)
+        R("ALL", A.cmdFilter)
+        R("EDIT", lambda a, args, o: a.edit(), 2)
+        R("IMPORT", A.cmdImport, 2)
+        R("INKSCAPE", A.cmdInkscape, 3)
+        R("ISO1", lambda a, args, o: a.canvasFrame.viewISO1())
+        R("ISO2", lambda a, args, o: a.canvasFrame.viewISO2())
+        R("ISO3", lambda a, args, o: a.canvasFrame.viewISO3())
+        R("LOAD", A.cmdLoad, 2)
+        R("MIRROR", A.cmdMirror, 3)
+        R("ORDER", A.cmdOrder, 2)
+        R("MOVE", A.cmdMove, 2)
+        R("OPTIMIZE", A.cmdOptimize, 3)
+        R("ORIENT", A.cmdOrient, 4)
+        R("ORIGIN", A.cmdOrigin, 3)
+        R("REVERSE", lambda a, args, o: a.executeOnSelection("REVERSE", True), 3)
+        R("ROTATE", A.cmdRotate, 3)
+        R("ROUND", A.cmdRound, 3)
+        R("RULER", lambda a, args, o: a.canvas.setActionRuler(), 2)
+        R("STATISTICS", lambda a, args, o: a.showStats(), 4)
+        R("STEP", A.cmdStep)
+        R("SPINDLE", A.cmdSpindle, 3)
+        R("STOP", lambda a, args, o: a.stopRun())
+        R("TERMINAL", lambda a, args, o: a.ribbon.changePage("Terminal"), 4)
+        R("BIT", A.cmdTool)
+        R("TOOL", A.cmdTool)
+        R("MILL", A.cmdTool)
+        R("TOOLS", lambda a, args, o: a.ribbon.changePage("CAM"))
+        R("UNLOCK", lambda a, args, o: a.unlock(), 3)
+        R("USER", A.cmdUser, 2)
+        R("RRAPID", lambda a, args, o: Page.frames["Probe:Probe"].recordRapid(), 2)
+        R("RFEED", lambda a, args, o: Page.frames["Probe:Probe"].recordFeed(), 2)
+        R("RPOINT", lambda a, args, o: Page.frames["Probe:Probe"].recordPoint(), 2)
+        R("RCIRCLE", lambda a, args, o: Page.frames["Probe:Probe"].recordCircle(), 2)
+        R("RFINISH", lambda a, args, o: Page.frames["Probe:Probe"].recordFinishAll(), 3)
+        R("XY", lambda a, args, o: a.canvasFrame.viewXY())
+        R("YX", lambda a, args, o: a.canvasFrame.viewXY())
+        R("XZ", lambda a, args, o: a.canvasFrame.viewXZ())
+        R("ZX", lambda a, args, o: a.canvasFrame.viewXZ())
+        R("YZ", lambda a, args, o: a.canvasFrame.viewYZ())
+        R("ZY", lambda a, args, o: a.canvasFrame.viewYZ())
+        R("ABSOLUTE", lambda a, args, o: a.sendGCode("G90"), 3)
+        R("HELP", lambda a, args, o: a.help())
+        R("HOME", lambda a, args, o: a.home())
+        R("OPEN", lambda a, args, o: a.openClose())
+        R("QUIT", lambda a, args, o: a.quit(), 2)
+        R("EXIT", lambda a, args, o: a.quit(), 2)
+        R("PAUSE", lambda a, args, o: a.pause())
+        R("RESUME", lambda a, args, o: a.resume())
+        R("FEEDHOLD", lambda a, args, o: a.feedHold())
+        R("RELATIVE", lambda a, args, o: a.sendGCode("G91"), 3)
+        R("RESET", lambda a, args, o: a.softReset())
+        R("RUN", lambda a, args, o: a.run())
+        R("SAFE", A.cmdSafe)
+        R("SAVE", A.cmdSave, 2)
+        R("SENDHEX", lambda a, args, o: a.sendHex(args[1]))
+        R("SET", A.cmdSet)
+        R("SET0", lambda a, args, o: a._wcsSet(0.0, 0.0, 0.0))
+        R("SETX", A.cmdSetX)
+        R("SETY", A.cmdSetY)
+        R("SETZ", A.cmdSetZ)
+
+    # -----------------------------------------------------------------------
     # Execute a single command
     # -----------------------------------------------------------------------
     def execute(self, line):
@@ -1458,518 +1548,335 @@ class Application(Tk, Sender):
         if self.executeGcode(line):
             return "break"
 
-        oline = line.strip()
-        line = oline.replace(",", " ").split()
-        cmd = line[0].upper()
+        rc = self.executeCommand(line.strip())
+        if rc:
+            messagebox.showerror(rc[0], rc[1], parent=self)
+        return "break"
 
-        # ABO*UT: About dialog
-        if rexx.abbrev("ABOUT", cmd, 3):
-            self.about()
+    def cmdCamera(self, args, oline=None):
+        # FIXME will make crazy the button state
+        if rexx.abbrev("SWITCH", args[1].upper(), 1):
+            Page.groups["Probe:Camera"].switchCamera()
+        elif rexx.abbrev("SPINDLE", args[1].upper(), 2):
+            Page.frames["Probe:Camera"].registerSpindle()
+        elif rexx.abbrev("CAMERA", args[1].upper(), 1):
+            Page.frames["Probe:Camera"].registerCamera()
 
-        elif rexx.abbrev("AUTOLEVEL", cmd, 4):
-            self.executeOnSelection("AUTOLEVEL", True)
+    def cmdClear(self, args, oline=None):
+        self.ribbon.changePage("Terminal")
+        Page.frames["Terminal"].clear()
 
-        # CAM*ERA: camera actions
-        elif rexx.abbrev("CAMERA", cmd, 3):
-            # FIXME will make crazy the button state
-            if rexx.abbrev("SWITCH", line[1].upper(), 1):
-                Page.groups["Probe:Camera"].switchCamera()
-
-            elif rexx.abbrev("SPINDLE", line[1].upper(), 2):
-                Page.frames["Probe:Camera"].registerSpindle()
-
-            elif rexx.abbrev("CAMERA", line[1].upper(), 1):
-                Page.frames["Probe:Camera"].registerCamera()
-
-        # CLE*AR: clear terminal
-        elif rexx.abbrev("CLEAR", cmd, 3) or cmd == "CLS":
-            self.ribbon.changePage("Terminal")
-            Page.frames["Terminal"].clear()
-
-        # CLOSE: close path - join end with start with a line segment
-        elif rexx.abbrev("CLOSE", cmd, 4):
-            self.executeOnSelection("CLOSE", True)
-
-        # CONT*ROL: switch to control tab
-        elif rexx.abbrev("CONTROL", cmd, 4):
-            self.ribbon.changePage("Control")
-
-        # CUT [depth] [pass-per-depth] [z-surface] [feed] [feedz]: replicate
-        # selected blocks to cut-height
-        # default values are taken from the active material
-        elif cmd == "CUT":
-            try:
-                depth = float(line[1])
-            except Exception:
-                depth = None
-
-            try:
-                step = float(line[2])
-            except Exception:
-                step = None
-
-            try:
-                surface = float(line[3])
-            except Exception:
-                surface = None
-
-            try:
-                feed = float(line[4])
-            except Exception:
-                feed = None
-
-            try:
-                feedz = float(line[5])
-            except Exception:
-                feedz = None
-            self.executeOnSelection(
-                "CUT", True, depth, step, surface, feed, feedz)
-
-        # DOWN: move downward in cutting order the selected blocks
-        # UP: move upwards in cutting order the selected blocks
-        elif cmd == "DOWN":
-            self.editor.orderDown()
-        elif cmd == "UP":
-            self.editor.orderUp()
-
-        # DIR*ECTION
-        elif rexx.abbrev("DIRECTION", cmd, 3):
-            if rexx.abbrev("CLIMB", line[1].upper(), 2):
-                direction = -2
-            elif rexx.abbrev("CONVENTIONAL", line[1].upper(), 2):
-                direction = 2
-            elif rexx.abbrev("CW", line[1].upper(), 2):
-                direction = 1
-            elif rexx.abbrev("CCW", line[1].upper(), 2):
-                direction = -1
-            else:
-                messagebox.showerror(
-                    _("Direction command error"),
-                    _("Invalid direction {} specified").format(line[1]),
-                    parent=self,
-                )
-                return "break"
-            self.executeOnSelection("DIRECTION", True, direction)
-
-        # DRI*LL [depth] [peck]: perform drilling at all penetrations points
-        elif rexx.abbrev("DRILL", cmd, 3):
-            try:
-                h = float(line[1])
-            except Exception:
-                h = None
-
-            try:
-                p = float(line[2])
-            except Exception:
-                p = None
-            self.executeOnSelection("DRILL", True, h, p)
-
-        # ECHO <msg>: echo message
-        elif cmd == "ECHO":
-            self.setStatus(oline[5:].strip())
-
-        # FEED on/off: append feed commands on every motion line for
-        # feed override testing
-        elif cmd == "FEED":
-            try:
-                CNC.appendFeed = line[1].upper() == "ON"
-            except Exception:
-                CNC.appendFeed = True
-            self.setStatus(
-                CNC.appendFeed
-                and "Feed appending turned on"
-                or "Feed appending turned off"
+    def cmdDirection(self, args, oline=None):
+        if rexx.abbrev("CLIMB", args[1].upper(), 2):
+            direction = -2
+        elif rexx.abbrev("CONVENTIONAL", args[1].upper(), 2):
+            direction = 2
+        elif rexx.abbrev("CW", args[1].upper(), 2):
+            direction = 1
+        elif rexx.abbrev("CCW", args[1].upper(), 2):
+            direction = -1
+        else:
+            messagebox.showerror(
+                _("Direction command error"),
+                _("Invalid direction {} specified").format(args[1]),
+                parent=self,
             )
+            return "break"
+        self.executeOnSelection("DIRECTION", True, direction)
 
-        # INV*ERT: invert selected blocks
-        elif rexx.abbrev("INVERT", cmd, 3):
-            self.editor.invertBlocks()
+    def cmdEcho(self, args, oline):
+        self.setStatus(oline[5:].strip())
 
-        # MSG|MESSAGE <msg>: echo message
-        elif cmd in ("MSG", "MESSAGE"):
-            messagebox.showinfo(
-                "Message", oline[oline.find(" ") + 1:].strip(), parent=self
-            )
+    def cmdFeed(self, args, oline=None):
+        try:
+            CNC.appendFeed = args[1].upper() == "ON"
+        except Exception:
+            CNC.appendFeed = True
+        self.setStatus(
+            CNC.appendFeed
+            and "Feed appending turned on"
+            or "Feed appending turned off"
+        )
 
-        # FIL*TER: filter editor blocks with text
-        elif rexx.abbrev("FILTER", cmd, 3) or cmd == "ALL":
-            try:
-                self.editor.filter = line[1]
-            except Exception:
-                self.editor.filter = None
-            self.editor.fill()
+    def cmdMsg(self, args, oline):
+        messagebox.showinfo(
+            "Message", oline[oline.find(" ") + 1:].strip(), parent=self
+        )
 
-        # ED*IT: edit current line or item
-        elif rexx.abbrev("EDIT", cmd, 2):
-            self.edit()
+    def cmdFilter(self, args, oline=None):
+        try:
+            self.editor.filter = args[1]
+        except Exception:
+            self.editor.filter = None
+        self.editor.fill()
 
-        # IM*PORT <filename>: import filename with gcode or dxf at cursor
-        # location or at the end of the file
-        elif rexx.abbrev("IMPORT", cmd, 2):
-            try:
-                self.importFile(line[1])
-            except Exception:
-                self.importFile()
+    def cmdImport(self, args, oline=None):
+        try:
+            self.importFile(args[1])
+        except Exception:
+            self.importFile()
 
-        # INK*SCAPE: remove unnecessary Z motion as a result of inkscape
-        # gcodetools
-        elif rexx.abbrev("INKSCAPE", cmd, 3):
-            if len(line) > 1 and rexx.abbrev("ALL", line[1].upper()):
-                self.editor.selectAll()
-            self.executeOnSelection("INKSCAPE", True)
+    def cmdInkscape(self, args, oline=None):
+        if len(args) > 1 and rexx.abbrev("ALL", args[1].upper()):
+            self.editor.selectAll()
+        self.executeOnSelection("INKSCAPE", True)
 
-        # ISLAND set or toggle island tag
-        elif rexx.abbrev("ISLAND", cmd, 3):
-            if len(line) > 1:
-                if line[1].upper() == "1":
-                    isl = True
-                else:
-                    isl = False
-            else:
-                isl = None
-            self.executeOnSelection("ISLAND", True, isl)
-
-        # ISO1: switch to ISO1 projection
-        elif cmd == "ISO1":
-            self.canvasFrame.viewISO1()
-        # ISO2: switch to ISO2 projection
-        elif cmd == "ISO2":
-            self.canvasFrame.viewISO2()
-        # ISO3: switch to ISO3 projection
-        elif cmd == "ISO3":
-            self.canvasFrame.viewISO3()
-
-        # LO*AD [filename]: load filename containing g-code
-        elif rexx.abbrev("LOAD", cmd, 2) and len(line) == 1:
+    def cmdLoad(self, args, oline=None):
+        if len(args) == 1:
             self.loadDialog()
+        else:
+            self.load(args[1])
 
-        # MIR*ROR [H*ORIZONTAL/V*ERTICAL]: mirror selected objects
-        # horizontally or vertically
-        elif rexx.abbrev("MIRROR", cmd, 3):
-            if len(line) == 1:
-                return "break"
-            line1 = line[1].upper()
-            if not self.editor.curselection():
-                self.editor.selectAll()
-            if rexx.abbrev("HORIZONTAL", line1):
-                self.executeOnSelection("MIRRORH", False)
-            elif rexx.abbrev("VERTICAL", line1):
-                self.executeOnSelection("MIRRORV", False)
+    def cmdMirror(self, args, oline=None):
+        if len(args) == 1:
+            return "break"
+        line1 = args[1].upper()
+        if not self.editor.curselection():
+            self.editor.selectAll()
+        if rexx.abbrev("HORIZONTAL", line1):
+            self.executeOnSelection("MIRRORH", False)
+        elif rexx.abbrev("VERTICAL", line1):
+            self.executeOnSelection("MIRRORV", False)
 
-        elif rexx.abbrev("ORDER", cmd, 2):
-            if line[1].upper() == "UP":
-                self.editor.orderUp()
-            elif line[1].upper() == "DOWN":
-                self.editor.orderDown()
+    def cmdOrder(self, args, oline=None):
+        if args[1].upper() == "UP":
+            self.editor.orderUp()
+        elif args[1].upper() == "DOWN":
+            self.editor.orderDown()
 
-        # MO*VE [|CE*NTER|BL|BR|TL|TR|UP|DOWN|x] [[y [z]]]:
-        # move selected objects either by mouse or by coordinates
-        elif rexx.abbrev("MOVE", cmd, 2):
-            if len(line) == 1:
-                self.canvas.setActionMove()
-                return "break"
-            line1 = line[1].upper()
-            dz = 0.0
-            if rexx.abbrev("CENTER", line1, 2):
-                dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
-                dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
-                self.editor.selectAll()
-            elif line1 == "BL":
-                dx = -CNC.vars["xmin"]
-                dy = -CNC.vars["ymin"]
-                self.editor.selectAll()
-            elif line1 == "BC":
-                dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
-                dy = -CNC.vars["ymin"]
-                self.editor.selectAll()
-            elif line1 == "BR":
-                dx = -CNC.vars["xmax"]
-                dy = -CNC.vars["ymin"]
-                self.editor.selectAll()
-            elif line1 == "TL":
-                dx = -CNC.vars["xmin"]
-                dy = -CNC.vars["ymax"]
-                self.editor.selectAll()
-            elif line1 == "TC":
-                dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
-                dy = -CNC.vars["ymax"]
-                self.editor.selectAll()
-            elif line1 == "TR":
-                dx = -CNC.vars["xmax"]
-                dy = -CNC.vars["ymax"]
-                self.editor.selectAll()
-            elif line1 == "LC":
-                dx = -CNC.vars["xmin"]
-                dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
-                self.editor.selectAll()
-            elif line1 == "RC":
-                dx = -CNC.vars["xmax"]
-                dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
-                self.editor.selectAll()
-            elif line1 in ("UP", "DOWN"):
-                dx = line1
-                dy = dz = line1
-            else:
-                try:
-                    dx = float(line[1])
-                except Exception:
-                    dx = 0.0
-                try:
-                    dy = float(line[2])
-                except Exception:
-                    dy = 0.0
-                try:
-                    dz = float(line[3])
-                except Exception:
-                    dz = 0.0
-            self.executeOnSelection("MOVE", False, dx, dy, dz)
-
-        # OPT*IMIZE: reorder selected blocks to minimize rapid motions
-        elif rexx.abbrev("OPTIMIZE", cmd, 3):
-            if not self.editor.curselection():
-                messagebox.showinfo(
-                    _("Optimize"),
-                    _("Please select the blocks of gcode you want "
-                      + "to optimize."),
-                    parent=self,
-                )
-            else:
-                self.executeOnSelection("OPTIMIZE", True)
-
-        # # FIXME comment for ORIENT not OPTIMIZE
-        # OPT*IMIZE: reorder selected blocks to minimize rapid motions
-        elif rexx.abbrev("ORIENT", cmd, 4):
-            if not self.editor.curselection():
-                self.editor.selectAll()
-            self.executeOnSelection("ORIENT", False)
-
-        # ORI*GIN x y z: move origin to x,y,z by moving all to -x -y -z
-        elif rexx.abbrev("ORIGIN", cmd, 3):
+    def cmdMove(self, args, oline=None):
+        if len(args) == 1:
+            self.canvas.setActionMove()
+            return "break"
+        line1 = args[1].upper()
+        dz = 0.0
+        if rexx.abbrev("CENTER", line1, 2):
+            dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
+            dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
+            self.editor.selectAll()
+        elif line1 == "BL":
+            dx = -CNC.vars["xmin"]
+            dy = -CNC.vars["ymin"]
+            self.editor.selectAll()
+        elif line1 == "BC":
+            dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
+            dy = -CNC.vars["ymin"]
+            self.editor.selectAll()
+        elif line1 == "BR":
+            dx = -CNC.vars["xmax"]
+            dy = -CNC.vars["ymin"]
+            self.editor.selectAll()
+        elif line1 == "TL":
+            dx = -CNC.vars["xmin"]
+            dy = -CNC.vars["ymax"]
+            self.editor.selectAll()
+        elif line1 == "TC":
+            dx = -(CNC.vars["xmin"] + CNC.vars["xmax"]) / 2.0
+            dy = -CNC.vars["ymax"]
+            self.editor.selectAll()
+        elif line1 == "TR":
+            dx = -CNC.vars["xmax"]
+            dy = -CNC.vars["ymax"]
+            self.editor.selectAll()
+        elif line1 == "LC":
+            dx = -CNC.vars["xmin"]
+            dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
+            self.editor.selectAll()
+        elif line1 == "RC":
+            dx = -CNC.vars["xmax"]
+            dy = -(CNC.vars["ymin"] + CNC.vars["ymax"]) / 2.0
+            self.editor.selectAll()
+        elif line1 in ("UP", "DOWN"):
+            dx = line1
+            dy = dz = line1
+        else:
             try:
-                dx = -float(line[1])
+                dx = float(args[1])
             except Exception:
                 dx = 0.0
             try:
-                dy = -float(line[2])
+                dy = float(args[2])
             except Exception:
                 dy = 0.0
             try:
-                dz = -float(line[3])
+                dz = float(args[3])
             except Exception:
                 dz = 0.0
+        self.executeOnSelection("MOVE", False, dx, dy, dz)
+
+    def cmdOptimize(self, args, oline=None):
+        if not self.editor.curselection():
+            messagebox.showinfo(
+                _("Optimize"),
+                _("Please select the blocks of gcode you want "
+                  + "to optimize."),
+                parent=self,
+            )
+        else:
+            self.executeOnSelection("OPTIMIZE", True)
+
+    def cmdOrient(self, args, oline=None):
+        if not self.editor.curselection():
             self.editor.selectAll()
-            self.executeOnSelection("MOVE", False, dx, dy, dz)
+        self.executeOnSelection("ORIENT", False)
 
-        # POC*KET: create pocket path
-        elif rexx.abbrev("POCKET", cmd, 3):
-            self.pocket()
+    def cmdOrigin(self, args, oline=None):
+        try:
+            dx = -float(args[1])
+        except Exception:
+            dx = 0.0
+        try:
+            dy = -float(args[2])
+        except Exception:
+            dy = 0.0
+        try:
+            dz = -float(args[3])
+        except Exception:
+            dz = 0.0
+        self.editor.selectAll()
+        self.executeOnSelection("MOVE", False, dx, dy, dz)
 
-        # PROF*ILE [offset]: create profile path
-        elif rexx.abbrev("PROFILE", cmd, 3):
-            if len(line) > 1:
-                self.profile(line[1])
-            else:
-                self.profile()
-
-        # REV*ERSE: reverse path direction
-        elif rexx.abbrev("REVERSE", cmd, 3):
-            self.executeOnSelection("REVERSE", True)
-
-        # ROT*ATE [CCW|CW|FLIP|ang] [x0 [y0]]: rotate selected blocks
-        # counter-clockwise(90) / clockwise(-90) / flip(180)
-        # 90deg or by a specific angle and a pivot point
-        elif rexx.abbrev("ROTATE", cmd, 3):
-            line1 = line[1].upper()
-            x0 = y0 = 0.0
-            if line1 == "CCW":
-                ang = 90.0
-            elif line1 == "CW":
-                ang = -90.0
-            elif line1 == "FLIP":
-                ang = 180.0
-            else:
-                try:
-                    ang = float(line[1])
-                except Exception:
-                    pass
-                try:
-                    x0 = float(line[2])
-                except Exception:
-                    pass
-                try:
-                    y0 = float(line[3])
-                except Exception:
-                    pass
-            self.executeOnSelection("ROTATE", False, ang, x0, y0)
-
-        # ROU*ND [n]: round all digits to n fractional digits
-        elif rexx.abbrev("ROUND", cmd, 3):
-            acc = None
-            if len(line) > 1:
-                if rexx.abbrev("ALL", line[1].upper()):
-                    self.editor.selectAll()
-                else:
-                    try:
-                        acc = int(line[1])
-                    except Exception:
-                        pass
-            self.executeOnSelection("ROUND", False, acc)
-
-        # RU*LER: measure distances with mouse ruler
-        elif rexx.abbrev("RULER", cmd, 2):
-            self.canvas.setActionRuler()
-
-        # STAT*ISTICS: show statistics of current job
-        elif rexx.abbrev("STATISTICS", cmd, 4):
-            self.showStats()
-
-        # STEP [s]: set motion step size to s
-        elif cmd == "STEP":
+    def cmdRotate(self, args, oline=None):
+        line1 = args[1].upper()
+        x0 = y0 = 0.0
+        if line1 == "CCW":
+            ang = 90.0
+        elif line1 == "CW":
+            ang = -90.0
+        elif line1 == "FLIP":
+            ang = 180.0
+        else:
             try:
-                self.control.setStep(float(line[1]))
+                ang = float(args[1])
             except Exception:
                 pass
+            try:
+                x0 = float(args[2])
+            except Exception:
+                pass
+            try:
+                y0 = float(args[3])
+            except Exception:
+                pass
+        self.executeOnSelection("ROTATE", False, ang, x0, y0)
 
-        # SPI*NDLE [ON|OFF|speed]: turn on/off spindle
-        elif rexx.abbrev("SPINDLE", cmd, 3):
-            if len(line) > 1:
-                if line[1].upper() == "OFF":
-                    self.gstate.spindle.set(False)
-                elif line[1].upper() == "ON":
-                    self.gstate.spindle.set(True)
-                else:
-                    try:
-                        rpm = int(line[1])
-                        if rpm == 0:
-                            self.gstate.spindleSpeed.set(0)
-                            self.gstate.spindle.set(False)
-                        else:
-                            self.gstate.spindleSpeed.set(rpm)
-                            self.gstate.spindle.set(True)
-                    except Exception:
-                        pass
+    def cmdRound(self, args, oline=None):
+        acc = None
+        if len(args) > 1:
+            if rexx.abbrev("ALL", args[1].upper()):
+                self.editor.selectAll()
             else:
-                # toggle spindle
-                self.gstate.spindle.set(not self.gstate.spindle.get())
-            self.gstate.spindleControl()
-
-        # STOP: stop current run
-        elif cmd == "STOP":
-            self.stopRun()
-
-        # TAB*S [ntabs] [dtabs] [dx] [dy] [z]: create tabs on selected blocks
-        # default values are taken from the active tab
-        elif rexx.abbrev("TABS", cmd, 3):
-            tabs = self.tools["TABS"]
-            try:
-                ntabs = int(line[1])
-            except Exception:
-                ntabs = int(tabs["ntabs"])
-            try:
-                dtabs = float(line[2])
-            except Exception:
-                dtabs = tabs.fromMm("dtabs")
-            try:
-                dx = float(line[3])
-            except Exception:
-                dx = tabs.fromMm("dx")
-            try:
-                dy = float(line[4])
-            except Exception:
-                dy = tabs.fromMm("dy")
-            try:
-                z = float(line[5])
-            except Exception:
-                z = tabs.fromMm("z")
-            try:
-                circular = bool(line[6])
-            except Exception:
-                circular = True
-            self.executeOnSelection(
-                "TABS", True, ntabs, dtabs, dx, dy, z, circular)
-
-        # TERM*INAL: switch to terminal tab
-        elif rexx.abbrev("TERMINAL", cmd, 4):
-            self.ribbon.changePage("Terminal")
-
-        # TOOL [diameter]: set diameter of cutting tool
-        elif cmd in ("BIT", "TOOL", "MILL"):
-            try:
-                diam = float(line[1])
-            except Exception:
-                tool = self.tools["EndMill"]
-                diam = self.tools.fromMm(tool["diameter"])
-            self.setStatus(_("EndMill: {} {}").format(tool["name"], diam))
-
-        # TOOLS
-        elif cmd == "TOOLS":
-            self.ribbon.changePage("CAM")
-
-        # UNL*OCK: unlock grbl
-        elif rexx.abbrev("UNLOCK", cmd, 3):
-            self.unlock()
-
-        # US*ER cmd: execute user command, cmd=number or name
-        elif rexx.abbrev("USER", cmd, 2):
-            n = Utils.getInt("Buttons", "n", 6)
-            try:
-                idx = int(line[1])
-            except Exception:
                 try:
-                    name = line[1].upper()
-                    for i in range(n):
-                        if name == Utils.getStr("Buttons", f"name.{int(i)}", "").upper():
-                            idx = i
-                            break
+                    acc = int(args[1])
                 except Exception:
-                    return "break"
-            if idx < 0 or idx >= n:
-                self.setStatus(_("Invalid user command {}").format(line[1]))
-                return "break"
-            cmd = Utils.getStr("Buttons", f"command.{int(idx)}", "")
-            for line in cmd.splitlines():
-                self.execute(line)
+                    pass
+        self.executeOnSelection("ROUND", False, acc)
 
-        # RR*APID:
-        elif rexx.abbrev("RRAPID", cmd, 2):
-            Page.frames["Probe:Probe"].recordRapid()
+    def cmdStep(self, args, oline=None):
+        try:
+            self.control.setStep(float(args[1]))
+        except Exception:
+            pass
 
-        # RF*EED:
-        elif rexx.abbrev("RFEED", cmd, 2):
-            Page.frames["Probe:Probe"].recordFeed()
-
-        # RP*OINT:
-        elif rexx.abbrev("RPOINT", cmd, 2):
-            Page.frames["Probe:Probe"].recordPoint()
-
-        # RC*IRCLE:
-        elif rexx.abbrev("RCIRCLE", cmd, 2):
-            Page.frames["Probe:Probe"].recordCircle()
-
-        # RFI*NISH:
-        elif rexx.abbrev("RFINISH", cmd, 3):
-            Page.frames["Probe:Probe"].recordFinishAll()
-
-        # XY: switch to XY view
-        # YX: switch to XY view
-        elif cmd in ("XY", "YX"):
-            self.canvasFrame.viewXY()
-
-        # XZ: switch to XZ view
-        # ZX: switch to XZ view
-        elif cmd in ("XZ", "ZX"):
-            self.canvasFrame.viewXZ()
-
-        # YZ: switch to YZ view
-        # ZY: switch to YZ view
-        elif cmd in ("YZ", "ZY"):
-            self.canvasFrame.viewYZ()
-
+    def cmdSpindle(self, args, oline=None):
+        if len(args) > 1:
+            if args[1].upper() == "OFF":
+                self.gstate.spindle.set(False)
+            elif args[1].upper() == "ON":
+                self.gstate.spindle.set(True)
+            else:
+                try:
+                    rpm = int(args[1])
+                    if rpm == 0:
+                        self.gstate.spindleSpeed.set(0)
+                        self.gstate.spindle.set(False)
+                    else:
+                        self.gstate.spindleSpeed.set(rpm)
+                        self.gstate.spindle.set(True)
+                except Exception:
+                    pass
         else:
-            rc = self.executeCommand(oline)
-            if rc:
-                messagebox.showerror(rc[0], rc[1], parent=self)
+            self.gstate.spindle.set(not self.gstate.spindle.get())
+        self.gstate.spindleControl()
+
+    def cmdTool(self, args, oline=None):
+        tool = self.tools["EndMill"]
+        try:
+            diam = float(args[1])
+        except Exception:
+            diam = self.tools.fromMm(tool["diameter"])
+        self.setStatus(_("EndMill: {} {}").format(tool["name"], diam))
+
+    def cmdUser(self, args, oline=None):
+        n = Utils.getInt("Buttons", "n", 6)
+        try:
+            idx = int(args[1])
+        except Exception:
+            try:
+                name = args[1].upper()
+                for i in range(n):
+                    if name == Utils.getStr(
+                        "Buttons", f"name.{int(i)}", ""
+                    ).upper():
+                        idx = i
+                        break
+            except Exception:
+                return "break"
+        if idx < 0 or idx >= n:
+            self.setStatus(_("Invalid user command {}").format(args[1]))
             return "break"
+        cmd = Utils.getStr("Buttons", f"command.{int(idx)}", "")
+        for line in cmd.splitlines():
+            self.execute(line)
+
+    def cmdSafe(self, args, oline=None):
+        try:
+            CNC.vars["safe"] = float(args[1])
+        except Exception:
+            pass
+        self.statusbar["text"] = f"Safe Z= {CNC.vars['safe']:g}"
+
+    def cmdSave(self, args, oline=None):
+        if len(args) > 1:
+            self.save(args[1])
+        else:
+            self.saveAll()
+
+    def cmdSet(self, args, oline=None):
+        try:
+            x = float(args[1])
+        except Exception:
+            x = None
+        try:
+            y = float(args[2])
+        except Exception:
+            y = None
+        try:
+            z = float(args[3])
+        except Exception:
+            z = None
+        self._wcsSet(x, y, z)
+
+    def cmdSetX(self, args, oline=None):
+        try:
+            x = float(args[1])
+        except Exception:
+            x = ""
+        self._wcsSet(x, None, None)
+
+    def cmdSetY(self, args, oline=None):
+        try:
+            y = float(args[1])
+        except Exception:
+            y = ""
+        self._wcsSet(None, y, None)
+
+    def cmdSetZ(self, args, oline=None):
+        try:
+            z = float(args[1])
+        except Exception:
+            z = ""
+        self._wcsSet(None, None, z)
 
     # -----------------------------------------------------------------------
     # Execute a command over the selected lines

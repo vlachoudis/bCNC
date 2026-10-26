@@ -83,6 +83,7 @@ class Tool(Plugin):
             ("islandsCut", "bool", True, _("Cut contours of selected islands")),
         ]
         self.buttons.append("exe")
+        self.commands = {"CUT": self.cmdline}
         self.help = "\n".join([
             "Cut selected toolpath into Z depth of stock material.",
             "",
@@ -101,6 +102,16 @@ class Tool(Plugin):
             + "\"cut contours of selected islands\" or cut them "
             + "individually afterwards.",
         ])
+
+    # CUT [depth] [step] [surface] [feed] [feedz]
+    def cmdline(self, app, args, oline=None):
+        p = []
+        for i in range(1, 6):
+            try:
+                p.append(float(args[i]))
+            except Exception:
+                p.append(None)
+        app.executeOnSelection("CUT", True, *p)
 
     def execute(self, app):
         surface = self.fromMm("surface", None)
