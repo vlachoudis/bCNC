@@ -2407,15 +2407,6 @@ class GCode:
         return changed
 
     # ----------------------------------------------------------------------
-    def orderLines(self, items, direction):
-        if direction == "UP":
-            self.orderUp(items)
-        elif direction == "DOWN":
-            self.orderDown(items)
-        else:
-            pass
-
-    # ----------------------------------------------------------------------
     # Move position by dx,dy,dz
     # ----------------------------------------------------------------------
     def moveLines(self, items, dx, dy, dz=0.0):

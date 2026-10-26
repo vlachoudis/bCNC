@@ -40,7 +40,7 @@ def apply_reverse(gcode, items):
 
 
 def run_reverse(app):
-    return run_on_selection(app, "REVERSE", apply_reverse)
+    return run_on_selection(app, apply_reverse)
 
 
 class Tool(Plugin):

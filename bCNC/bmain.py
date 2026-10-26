@@ -1455,7 +1455,7 @@ class Application(Tk, Sender):
         A = Application
         # one-liners as lambdas; heavier cmds as methods below
         R("ABOUT", lambda a, args, o: a.about(), 3)
-        R("AUTOLEVEL", lambda a, args, o: a.executeOnSelection("AUTOLEVEL", True), 4)
+        R("AUTOLEVEL", lambda a, args, o: a.executeOnSelection(True, a.gcode.autolevel), 4)
         R("CAMERA", A.cmdCamera, 3)
         R("CLEAR", A.cmdClear, 3)
         R("CLS", A.cmdClear)
@@ -1599,7 +1599,7 @@ class Application(Tk, Sender):
     def cmdInkscape(self, args, oline=None):
         if len(args) > 1 and rexx.abbrev("ALL", args[1].upper()):
             self.editor.selectAll()
-        self.executeOnSelection("INKSCAPE", True)
+        self.executeOnSelection(True, lambda items: self.gcode.inkscapeLines())
 
     def cmdLoad(self, args, oline=None):
         if len(args) == 1:
@@ -1614,9 +1614,9 @@ class Application(Tk, Sender):
         if not self.editor.curselection():
             self.editor.selectAll()
         if rexx.abbrev("HORIZONTAL", line1):
-            self.executeOnSelection("MIRRORH", False)
+            self.executeOnSelection(False, self.gcode.mirrorHLines)
         elif rexx.abbrev("VERTICAL", line1):
-            self.executeOnSelection("MIRRORV", False)
+            self.executeOnSelection(False, self.gcode.mirrorVLines)
 
     def cmdOrder(self, args, oline=None):
         if args[1].upper() == "UP":
@@ -1682,7 +1682,7 @@ class Application(Tk, Sender):
                 dz = float(args[3])
             except Exception:
                 dz = 0.0
-        self.executeOnSelection("MOVE", False, dx, dy, dz)
+        self.executeOnSelection(False, self.gcode.moveLines, dx, dy, dz)
 
     def cmdOptimize(self, args, oline=None):
         if not self.editor.curselection():
@@ -1693,12 +1693,12 @@ class Application(Tk, Sender):
                 parent=self,
             )
         else:
-            self.executeOnSelection("OPTIMIZE", True)
+            self.executeOnSelection(True, self.gcode.optimize)
 
     def cmdOrient(self, args, oline=None):
         if not self.editor.curselection():
             self.editor.selectAll()
-        self.executeOnSelection("ORIENT", False)
+        self.executeOnSelection(False, self.gcode.orientLines)
 
     def cmdOrigin(self, args, oline=None):
         try:
@@ -1714,7 +1714,7 @@ class Application(Tk, Sender):
         except Exception:
             dz = 0.0
         self.editor.selectAll()
-        self.executeOnSelection("MOVE", False, dx, dy, dz)
+        self.executeOnSelection(False, self.gcode.moveLines, dx, dy, dz)
 
     def cmdRotate(self, args, oline=None):
         line1 = args[1].upper()
@@ -1738,7 +1738,7 @@ class Application(Tk, Sender):
                 y0 = float(args[3])
             except Exception:
                 pass
-        self.executeOnSelection("ROTATE", False, ang, x0, y0)
+        self.executeOnSelection(False, self.gcode.rotateLines, ang, x0, y0)
 
     def cmdRound(self, args, oline=None):
         acc = None
@@ -1750,7 +1750,7 @@ class Application(Tk, Sender):
                     acc = int(args[1])
                 except Exception:
                     pass
-        self.executeOnSelection("ROUND", False, acc)
+        self.executeOnSelection(False, self.gcode.roundLines, acc)
 
     def cmdStep(self, args, oline=None):
         try:
@@ -1859,9 +1859,10 @@ class Application(Tk, Sender):
         self._wcsSet(None, None, z)
 
     # -----------------------------------------------------------------------
-    # Execute a command over the selected lines
+    # Run fn(items, *args) on the editor selection with busy/redraw.
+    # fn may return: None, an error string, or a new selection.
     # -----------------------------------------------------------------------
-    def executeOnSelection(self, cmd, blocksonly, *args):
+    def executeOnSelection(self, blocksonly, fn, *args):
         if blocksonly:
             items = self.editor.getSelectedBlocks()
         else:
@@ -1869,35 +1870,13 @@ class Application(Tk, Sender):
         if not items:
             messagebox.showwarning(
                 _("Nothing to do"),
-                _("Operation {} requires some gcode to be selected").format(
-                    cmd),
+                _("Operation requires some gcode to be selected"),
                 parent=self,
             )
             return
 
         self.busy()
-        sel = None
-        if cmd == "AUTOLEVEL":
-            sel = self.gcode.autolevel(items)
-        elif cmd == "ORDER":
-            self.gcode.orderLines(items, *args)
-        elif cmd == "INKSCAPE":
-            self.gcode.inkscapeLines()
-        elif cmd == "MIRRORH":
-            self.gcode.mirrorHLines(items)
-        elif cmd == "MIRRORV":
-            self.gcode.mirrorVLines(items)
-        elif cmd == "MOVE":
-            self.gcode.moveLines(items, *args)
-        elif cmd == "OPTIMIZE":
-            self.gcode.optimize(items)
-        elif cmd == "ORIENT":
-            self.gcode.orientLines(items)
-        elif cmd == "ROUND":
-            self.gcode.roundLines(items, *args)
-        elif cmd == "ROTATE":
-            self.gcode.rotateLines(items, *args)
-        # Fill listbox and update selection
+        sel = fn(items, *args)
         self.editor.fill()
         if sel is not None:
             if isinstance(sel, str):
@@ -1906,9 +1885,7 @@ class Application(Tk, Sender):
                 self.editor.select(sel, clear=True)
         self.drawAfter()
         self.notBusy()
-        self.setStatus(
-            f"{cmd} {' '.join([str(a) for a in args if a is not None])}"
-        )
+        return sel
 
     # -----------------------------------------------------------------------
     def edit(self, event=None):

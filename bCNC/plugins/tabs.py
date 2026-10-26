@@ -62,7 +62,7 @@ def apply_tabs(gcode, items, ntabs, dtabs, dx, dy, z, circ=True):
 
 
 def run_tabs(app, *args, **kwargs):
-    return run_on_selection(app, "TABS", apply_tabs, *args, **kwargs)
+    return run_on_selection(app, apply_tabs, *args, **kwargs)
 
 
 class Tool(Plugin):

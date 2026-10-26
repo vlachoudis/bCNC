@@ -138,7 +138,7 @@ def apply_drill(
 
 
 def run_drill(app, *args, **kwargs):
-    return run_on_selection(app, "DRILL", apply_drill, *args, **kwargs)
+    return run_on_selection(app, apply_drill, *args, **kwargs)
 
 
 class Tool(Plugin):

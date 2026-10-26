@@ -316,7 +316,7 @@ def apply_cut(
 
 # -----------------------------------------------------------------------------
 def run_cut(app, *args, **kwargs):
-    return run_on_selection(app, "CUT", apply_cut, *args, **kwargs)
+    return run_on_selection(app, apply_cut, *args, **kwargs)
 
 
 class Tool(Plugin):

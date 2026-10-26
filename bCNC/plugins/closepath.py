@@ -33,7 +33,7 @@ def apply_close(gcode, items):
 
 
 def run_close(app):
-    return run_on_selection(app, "CLOSE", apply_close)
+    return run_on_selection(app, apply_close)
 
 
 class Tool(Plugin):

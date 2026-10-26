@@ -16,7 +16,7 @@ if "ToolsPage" not in sys.modules:
         def __init__(self, *a, **k):
             pass
 
-    def _run_on_selection(app, opname, apply_fn, *args, **kwargs):
+    def _run_on_selection(app, apply_fn, *args, **kwargs):
         return apply_fn(app.gcode, app.editor.getSelectedBlocks(), *args, **kwargs)
 
     _tp.Plugin = _Plugin

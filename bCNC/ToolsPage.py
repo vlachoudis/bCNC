@@ -534,23 +534,12 @@ class Plugin(DataBase):
 # Run apply_fn(gcode, items, ...) on the editor selection with busy/redraw.
 # apply_fn may return an error string, or None/falsy on success.
 # -----------------------------------------------------------------------------
-def run_on_selection(app, opname, apply_fn, *args, **kwargs):
-    items = app.editor.getSelectedBlocks()
-    if not items:
-        messagebox.showwarning(
-            _("Nothing to do"),
-            _("Operation {} requires some gcode to be selected").format(opname),
-            parent=app,
-        )
-        return
-    app.busy()
-    err = apply_fn(app.gcode, items, *args, **kwargs)
-    app.editor.fill()
-    if err:
-        messagebox.showerror(_("Operation error"), err, parent=app)
-    app.drawAfter()
-    app.notBusy()
-    return err
+def run_on_selection(app, apply_fn, *args, **kwargs):
+    return app.executeOnSelection(
+        True,
+        lambda items, *a: apply_fn(app.gcode, items, *a, **kwargs),
+        *args,
+    )
 
 
 # =============================================================================

@@ -79,7 +79,7 @@ def apply_direction(gcode, items, direction=-1):
 
 
 def run_direction(app, direction=-1):
-    return run_on_selection(app, "DIRECTION", apply_direction, direction)
+    return run_on_selection(app, apply_direction, direction)
 
 
 class Tool(Plugin):

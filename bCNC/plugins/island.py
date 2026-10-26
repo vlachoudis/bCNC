@@ -31,7 +31,7 @@ def apply_island(gcode, items, island=None):
 
 
 def run_island(app, island=None):
-    return run_on_selection(app, "ISLAND", apply_island, island)
+    return run_on_selection(app, apply_island, island)
 
 
 class Tool(Plugin):
