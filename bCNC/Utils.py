@@ -54,8 +54,6 @@ import configparser
 
 import tkExtra
 
-from lib.log import say
-
 try:
     import serial
 except Exception:
@@ -517,7 +515,7 @@ def addException():
             # FIXME: self outside of Class
             ReportDialog(self.widget)  # noqa: F821 - see fixme
     except Exception:
-        say(str(sys.exc_info()))
+        print(sys.exc_info())
 
 
 # =============================================================================

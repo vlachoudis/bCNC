@@ -253,9 +253,7 @@ def _isnum(str_):
 
 
 if __name__ == "__main__":
-    from .log import say
-
-    say("abbrev")
+    print("abbrev")
     assert abbrev("information", "info", 4)
     assert abbrev("information", "", 0)
     assert not abbrev("information", "Info", 4)
@@ -265,7 +263,7 @@ if __name__ == "__main__":
     assert not abbrev("info", "information", 3)
     assert not abbrev("info", "info", 5)
 
-    say("center")
+    print("center")
     assert center("****", 0, "-") == ""
     assert center("****", 8, "-") == "--****--"
     assert center("****", 7, "-") == "-****--"
@@ -276,7 +274,7 @@ if __name__ == "__main__":
     assert center("1234567", 4, "-") == "2345"
     assert center("1234567", 5, "-") == "23456"
 
-    say("datatype")
+    print("datatype")
     assert not datatype("")
     assert not datatype("foobar")
     assert not datatype("foo bar")
@@ -322,19 +320,19 @@ if __name__ == "__main__":
     assert not datatype("+.")
     assert not datatype("++0")
 
-    say("insert")
+    print("insert")
     assert insert("abc", "def", 2) == "deabcf"
     assert insert("abc", "def", 3) == "defabc"
     assert insert("abc", "def", 5) == "def  abc"
     assert insert("abc", "def", 5, "*") == "def**abc"
 
-    say("translate")
+    print("translate")
     assert translate("Foo Bar", "", "") == "Foo Bar"
     assert translate("Foo Bar", xrange(1, 255)) == "Gpp!Cbs"
     assert translate("", "klasjdf", "woieruw") == ""
     assert translate("foobar", "abcdef", "fedcba") == "aooefr"
 
-    say("verify")
+    print("verify")
     assert verify("foobar", "barfo", 0, 0) == -1
     assert verify("foobar", "barfo", 1, 0) == 0
     assert verify("", "barfo") == -1
@@ -343,4 +341,4 @@ if __name__ == "__main__":
     assert verify("foobar", "barf", 0, 3) == -1
     assert verify("", "") == -1
 
-    say("All Test passed")
+    print("All Test passed")
