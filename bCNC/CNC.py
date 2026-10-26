@@ -225,125 +225,45 @@ class CNC:
     @staticmethod
     def loadConfig(config):
         section = "CNC"
-        try:
-            CNC.inch = bool(int(config.get(section, "units")))
-        except Exception:
-            pass
-        try:
-            CNC.lasercutter = bool(int(config.get(section, "lasercutter")))
-        except Exception:
-            pass
-        try:
-            CNC.laseradaptive = bool(int(config.get(section, "laseradaptive")))
-        except Exception:
-            pass
-        try:
-            CNC.enable6axisopt = bool(int(
-                config.get(section, "enable6axisopt")))
-        except Exception:
-            pass
-        try:
-            CNC.doublesizeicon = bool(int(
-                config.get(section, "doublesizeicon")))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_x = float(config.get(section, "acceleration_x"))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_y = float(config.get(section, "acceleration_y"))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_z = float(config.get(section, "acceleration_z"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_x = float(config.get(section, "feedmax_x"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_y = float(config.get(section, "feedmax_y"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_z = float(config.get(section, "feedmax_z"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_x = float(config.get(section, "travel_x"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_y = float(config.get(section, "travel_y"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_z = float(config.get(section, "travel_z"))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_a = float(config.get(section, "acceleration_a"))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_b = float(config.get(section, "acceleration_b"))
-        except Exception:
-            pass
-        try:
-            CNC.acceleration_c = float(config.get(section, "acceleration_c"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_a = float(config.get(section, "feedmax_a"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_b = float(config.get(section, "feedmax_b"))
-        except Exception:
-            pass
-        try:
-            CNC.feedmax_c = float(config.get(section, "feedmax_c"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_a = float(config.get(section, "travel_a"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_b = float(config.get(section, "travel_b"))
-        except Exception:
-            pass
-        try:
-            CNC.travel_c = float(config.get(section, "travel_c"))
-        except Exception:
-            pass
-        try:
-            CNC.accuracy = float(config.get(section, "accuracy"))
-        except Exception:
-            pass
-        try:
-            CNC.digits = int(config.get(section, "round"))
-        except Exception:
-            pass
-        try:
-            CNC.drozeropad = int(config.get(section, "drozeropad"))
-        except Exception:
-            pass
 
-        try:
-            CNC.startup = config.get(section, "startup")
-        except Exception:
-            pass
-        try:
-            CNC.header = config.get(section, "header")
-        except Exception:
-            pass
-        try:
-            CNC.footer = config.get(section, "footer")
-        except Exception:
-            pass
+        def booli(s):
+            return bool(int(s))
+
+        for attr, key, cast in (
+            ("inch", "units", booli),
+            ("lasercutter", "lasercutter", booli),
+            ("laseradaptive", "laseradaptive", booli),
+            ("enable6axisopt", "enable6axisopt", booli),
+            ("doublesizeicon", "doublesizeicon", booli),
+            ("acceleration_x", "acceleration_x", float),
+            ("acceleration_y", "acceleration_y", float),
+            ("acceleration_z", "acceleration_z", float),
+            ("feedmax_x", "feedmax_x", float),
+            ("feedmax_y", "feedmax_y", float),
+            ("feedmax_z", "feedmax_z", float),
+            ("travel_x", "travel_x", float),
+            ("travel_y", "travel_y", float),
+            ("travel_z", "travel_z", float),
+            ("acceleration_a", "acceleration_a", float),
+            ("acceleration_b", "acceleration_b", float),
+            ("acceleration_c", "acceleration_c", float),
+            ("feedmax_a", "feedmax_a", float),
+            ("feedmax_b", "feedmax_b", float),
+            ("feedmax_c", "feedmax_c", float),
+            ("travel_a", "travel_a", float),
+            ("travel_b", "travel_b", float),
+            ("travel_c", "travel_c", float),
+            ("accuracy", "accuracy", float),
+            ("digits", "round", int),
+            ("drozeropad", "drozeropad", int),
+            ("startup", "startup", str),
+            ("header", "header", str),
+            ("footer", "footer", str),
+        ):
+            try:
+                setattr(CNC, attr, cast(config.get(section, key)))
+            except Exception:
+                continue  # keep existing class default
 
         if CNC.inch:
             CNC.acceleration_x /= 25.4
@@ -366,7 +286,7 @@ class CNC:
             try:
                 ERROR_HANDLING[cmd.upper()] = int(value)
             except Exception:
-                pass
+                continue
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -718,11 +638,13 @@ class CNC:
                         ch = ")"
                     bracket -= 1
                     if bracket == 0:
+                        # FIXME show the error!!!!
                         try:
-                            out.append(compile(expr, "", "eval"))
+                            compiled = compile(expr, "", "eval")
                         except Exception:
-                            # FIXME show the error!!!!
-                            pass
+                            compiled = None
+                        if compiled is not None:
+                            out.append(compiled)
                         expr = ""
                     else:
                         expr += ch
@@ -1175,6 +1097,7 @@ class CNC:
             block.time += length / self.feed
             self.totalTime += length / self.feed
         else:
+            t = 0.0
             try:
                 if CNC.vars["feedmode"] == 94:
                     # Normal mode
@@ -1182,10 +1105,10 @@ class CNC:
                 elif CNC.vars["feedmode"] == 93:
                     # Inverse mode
                     t = length * self.feed
-                block.time += t
-                self.totalTime += t
             except Exception:
-                pass
+                t = 0.0
+            block.time += t
+            self.totalTime += t
             block.length += length
 
         self.totalLength += length

@@ -4,6 +4,7 @@
 # Author: vvlachoudis@gmail.com
 # Date: 24-Aug-2014
 
+import contextlib
 import os
 import socket
 import sys
@@ -384,10 +385,8 @@ class Application(Tk, Sender):
         self.bind("<<Delete>>", self.editor.deleteBlock)
         self.canvas.bind("<Delete>", self.editor.deleteBlock)
         self.canvas.bind("<BackSpace>", self.editor.deleteBlock)
-        try:
+        with contextlib.suppress(Exception):
             self.canvas.bind("<KP_Delete>", self.editor.deleteBlock)
-        except Exception:
-            pass
         self.bind("<<Invert>>", self.editor.invertBlocks)
         self.bind("<<Expand>>", self.editor.toggleExpand)
         self.bind("<<EnableToggle>>", self.editor.toggleEnable)
@@ -730,16 +729,12 @@ class Application(Tk, Sender):
                 f"{Utils.getInt(Utils.__prg__, 'width', 900)}",
                 f"{Utils.getInt(Utils.__prg__, 'height', 650)}"
             ])
-        try:
+        with contextlib.suppress(Exception):
             self.geometry(geometry)
-        except Exception:
-            pass
 
         # restore windowsState
-        try:
+        with contextlib.suppress(Exception):
             self.wm_state(Utils.getStr(Utils.__prg__, "windowstate", "normal"))
-        except Exception:
-            pass
 
         self._swapKeyboard = Utils.getInt("Control", "swap", 0)
 
@@ -1084,10 +1079,8 @@ class Application(Tk, Sender):
         toplevel.wait_visibility()
         toplevel.resizable(False, False)
 
-        try:
+        with contextlib.suppress(Exception):
             toplevel.grab_set()
-        except Exception:
-            pass
         b.focus_set()
         toplevel.lift()
         if timer:
@@ -1311,10 +1304,8 @@ class Application(Tk, Sender):
         toplevel.wait_visibility()
         toplevel.resizable(False, False)
 
-        try:
+        with contextlib.suppress(Exception):
             toplevel.grab_set()
-        except Exception:
-            pass
         b.focus_set()
         toplevel.lift()
         toplevel.wait_window()
@@ -1723,15 +1714,15 @@ class Application(Tk, Sender):
             try:
                 ang = float(args[1])
             except Exception:
-                pass
+                ang = 0.0
             try:
                 x0 = float(args[2])
             except Exception:
-                pass
+                x0 = 0.0
             try:
                 y0 = float(args[3])
             except Exception:
-                pass
+                y0 = 0.0
         self.executeOnSelection(False, self.gcode.rotateLines, ang, x0, y0)
 
     def cmdRound(self, args, oline=None):
@@ -1743,14 +1734,12 @@ class Application(Tk, Sender):
                 try:
                     acc = int(args[1])
                 except Exception:
-                    pass
+                    acc = None
         self.executeOnSelection(False, self.gcode.roundLines, acc)
 
     def cmdStep(self, args, oline=None):
-        try:
+        with contextlib.suppress(Exception):
             self.control.setStep(float(args[1]))
-        except Exception:
-            pass
 
     def cmdSpindle(self, args, oline=None):
         if len(args) > 1:
@@ -1761,14 +1750,14 @@ class Application(Tk, Sender):
             else:
                 try:
                     rpm = int(args[1])
-                    if rpm == 0:
-                        self.gstate.spindleSpeed.set(0)
-                        self.gstate.spindle.set(False)
-                    else:
-                        self.gstate.spindleSpeed.set(rpm)
-                        self.gstate.spindle.set(True)
                 except Exception:
-                    pass
+                    rpm = None
+                if rpm == 0:
+                    self.gstate.spindleSpeed.set(0)
+                    self.gstate.spindle.set(False)
+                elif rpm is not None:
+                    self.gstate.spindleSpeed.set(rpm)
+                    self.gstate.spindle.set(True)
         else:
             self.gstate.spindle.set(not self.gstate.spindle.get())
         self.gstate.spindleControl()
@@ -1804,10 +1793,8 @@ class Application(Tk, Sender):
             self.execute(line)
 
     def cmdSafe(self, args, oline=None):
-        try:
+        with contextlib.suppress(Exception):
             CNC.vars["safe"] = float(args[1])
-        except Exception:
-            pass
         self.statusbar["text"] = f"Safe Z= {CNC.vars['safe']:g}"
 
     def cmdSave(self, args, oline=None):
@@ -2275,10 +2262,8 @@ class Application(Tk, Sender):
         CNC.vars["running"] = True  # enable running status
         CNC.vars["_OvChanged"] = True  # force a feed change if any
         if self._onStart:
-            try:
+            with contextlib.suppress(Exception):
                 os.system(self._onStart)
-            except Exception:
-                pass
 
         if lines is None:
             self.statusbar.setLimits(0, 9999)
