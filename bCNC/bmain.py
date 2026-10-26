@@ -1471,7 +1471,6 @@ class Application(Tk, Sender):
         R("ALL", A.cmdFilter)
         R("EDIT", lambda a, args, o: a.edit(), 2)
         R("IMPORT", A.cmdImport, 2)
-        R("INKSCAPE", A.cmdInkscape, 3)
         R("ISO1", lambda a, args, o: a.canvasFrame.viewISO1())
         R("ISO2", lambda a, args, o: a.canvasFrame.viewISO2())
         R("ISO3", lambda a, args, o: a.canvasFrame.viewISO3())
@@ -1595,11 +1594,6 @@ class Application(Tk, Sender):
             self.importFile(args[1])
         except Exception:
             self.importFile()
-
-    def cmdInkscape(self, args, oline=None):
-        if len(args) > 1 and rexx.abbrev("ALL", args[1].upper()):
-            self.editor.selectAll()
-        self.executeOnSelection(True, lambda items: self.gcode.inkscapeLines())
 
     def cmdLoad(self, args, oline=None):
         if len(args) == 1:

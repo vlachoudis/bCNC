@@ -205,11 +205,6 @@ class EditGroup(CNCRibbon.ButtonMenuGroup):
                     lambda a=app: a.event_generate("<<ChangeColor>>"),
                 ),
                 (_("Import"), "load", lambda a=app: a.insertCommand("IMPORT", True)),
-                (
-                    _("Postprocess Inkscape g-code"),
-                    "inkscape",
-                    lambda a=app: a.insertCommand("INKSCAPE all", True),
-                ),
                 (_("Round"), "digits", lambda s=app: s.insertCommand("ROUND", True)),
             ],
         )
