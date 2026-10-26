@@ -5,3 +5,4 @@
   - Sel3 and Sel4 were removed. Were they used for something???
   - When activating/deactivating a block, paths were not updated in the canvas. Redraw Display button must be clicked. Should it be automatic?
   - Check path color change in bmain.py, during gcode execution. If performance is not good, try updating the buffer when calling set_color
+- Tighter integration of 6-Axis? Right now ABC is just copypased XYZ class
