@@ -9,11 +9,15 @@ from tkinter import (
     TclError,
     END,
     ACTIVE,
+    DISABLED,
+    LEFT,
     Listbox,
+    Menu,
 )
 import tkinter.font as tkfont
 
 import tkExtra
+import Utils
 from CNC import CNC
 from GCode import Block
 
@@ -57,6 +61,7 @@ class CNCListbox(Listbox):
 
         self.bind("<Control-Key-b>", self.insertBlock)
         self.bind("<Control-Key-r>", self.fill)
+        self.bind("<Button-3>", self.popupMenu)
 
         self._blockPos = []  # listbox position of each block
         self._items = []  # each listbox lien which item (bid,lid) shows
@@ -72,6 +77,65 @@ class CNCListbox(Listbox):
     def commandFocus(self, event=None):
         self.app.commandFocus(event)
         return "break"
+
+    # ----------------------------------------------------------------------
+    # Right-click context menu (clipboard, edit, selection)
+    # Entries: (label, icon, command) or None for a separator
+    # ----------------------------------------------------------------------
+    def popupMenu(self, event):
+        if str(self["state"]) == DISABLED:
+            return "break"
+
+        self._selectUnderCursor(event)
+        self.focus_set()
+
+        menu = Menu(self, tearoff=0)
+        for item in (
+            (_("Cut"), "cut", self.cut),
+            (_("Copy"), "copy", self.copy),
+            (_("Paste"), "paste", self.paste),
+            None,
+            (_("Add"), "add", self.insertItem),
+            (_("Clone"), "clone", self.clone),
+            (_("Delete"), "x", self.deleteBlock),
+            None,
+            (_("Enable"), "enable", self.enable),
+            (_("Disable"), "disable", self.disable),
+            (_("Expand"), "expand", self.toggleExpand),
+            (_("Comment"), "comment", self.commentRow),
+            (_("Join"), "union", self.joinBlocks),
+            (_("Split"), "cut", self.splitBlocks),
+            (_("Color"), "color", self.changeColor),
+            None,
+            (_("Select all"),        "select_all",    lambda: (self.selectAll(),    self.event_generate("<<ListboxSelect>>"))),
+            (_("Select none"),       "select_none",   lambda: (self.selectClear(),  self.event_generate("<<ListboxSelect>>"))),
+            (_("Invert selection"),  "select_invert", lambda: (self.selectInvert(), self.event_generate("<<ListboxSelect>>"))),
+            (_("Select layer"),      "select_layer",  lambda: (self.selectLayer(),   self.event_generate("<<ListboxSelect>>"))),
+            None,
+            (_("Order up"), "up", self.orderUp),
+            (_("Order down"), "down", self.orderDown),
+        ):
+            if item is None:
+                menu.add_separator()
+            else:
+                label, icon, command = item
+                menu.add_command(label=label, image=Utils.icons[icon], compound=LEFT, command=command)
+
+        menu.tk_popup(event.x_root, event.y_root)
+        return "break"
+
+    # ----------------------------------------------------------------------
+    def _selectUnderCursor(self, event):
+        """Select the row under the cursor unless it is already selected."""
+        try:
+            y = self.nearest(event.y)
+            if 0 <= y < self.size() and not self.selection_includes(y):
+                self.selection_clear(0, END)
+                self.selection_set(y)
+                self.activate(y)
+                self.event_generate("<<ListboxSelect>>")
+        except TclError:
+            pass
 
     # ----------------------------------------------------------------------
     # Change the value of a list item
