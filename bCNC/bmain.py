@@ -146,6 +146,8 @@ geometry = None
 class Application(Tk, Sender):
     def __init__(self, **kw):
         Tk.__init__(self, **kw)
+        if sys.platform == "darwin":
+            tkExtra.forceLightAppearance(self)
         Sender.__init__(self)
 
         Utils.loadIcons()
