@@ -162,6 +162,11 @@ class Application(Tk, Sender):
         self.registerCommands()
         self.controller = None
         self.loadConfig()
+
+        # Disable dark mode on MacOS
+        with contextlib.suppress(TclError):
+            self.tk.call('tk::unsupported::MacWindowStyle', 'appearance', self, 'aqua')
+
         # --- Ribbon ---
         self.ribbon = Ribbon.TabRibbonFrame(self)
         self.ribbon.pack(side=TOP, fill=X)
