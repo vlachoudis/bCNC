@@ -103,12 +103,31 @@ import bFileDialog
 import Unicode
 
 GLOBAL_CONTROL_BACKGROUND = "White"
+GLOBAL_PANEL_BACKGROUND = "#D5D2D0"
 ARROW_LEFT = "\u2190"
 ARROW_UP = "\u2191"
 ARROW_RIGHT = "\u2192"
 ARROW_DOWN = "\u2193"
 
 CROSS = "\u2A2F"  # x -cross product
+
+
+# -----------------------------------------------------------------------------
+def forceLightAppearance(root):
+    """Disable dark mode until it is properly supported and use a proper
+    panel background instead of the default white"""
+    try:
+        root.wm_attributes("-appearance", "light")
+    except TclError:
+        pass
+    background = GLOBAL_PANEL_BACKGROUND
+    root.config(background=background)
+    root.option_add("*highlightBackground", background)
+    for widget in ("Frame", "Labelframe", "Label", "Toplevel",
+                   "Checkbutton", "Radiobutton", "Scale", "Canvas"):
+        root.option_add(f"*{widget}.background", background)
+
+
 MULT = "\u00D7"  # x -multiplication
 
 DIAMOND_SQUARE = "\u26CB"
