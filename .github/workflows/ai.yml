@@ -1,0 +1,25 @@
+name: AI Code Audit with Copilot
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  copilot-audit:
+    runs-on: ubuntu-latest
+    
+    # Required permissions for Copilot authentication and repo access
+    permissions:
+      contents: read
+      copilot-requests: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run GitHub Copilot CLI
+        uses: austenstone/copilot-cli@v4
+        with:
+          prompt: 'Audit the recent changes in this PR for potential performance bottlenecks and security vulnerabilities.'
+          allow-all-paths: false
