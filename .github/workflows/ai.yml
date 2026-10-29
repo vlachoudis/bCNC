@@ -1,6 +1,8 @@
 name: AI Code Audit with Copilot
 
 on:
+  push:
+    branches: [master]
   pull_request:
     branches: [ main ]
 
