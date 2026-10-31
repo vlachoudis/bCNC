@@ -2470,6 +2470,7 @@ class Application(Tk, Sender):
         # Update probe and draw point
         if self._probeUpdate:
             Page.frames["Probe:Probe"].updateProbe()
+            Page.frames["Probe:ProbeOrigin"].updateProbe()
             Page.frames["ProbeCommon"].updateTlo()
             self.canvas.drawProbe()
             self._probeUpdate = False
