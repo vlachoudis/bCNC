@@ -16,8 +16,8 @@ from tkinter import (
     VERTICAL,
     EXTENDED,
     Menu,
-    Scrollbar,
 )
+from tkinter.ttk import Scrollbar
 
 import CNCList
 import CNCRibbon
@@ -165,8 +165,6 @@ class SelectGroup(CNCRibbon.ButtonGroup):
         self.filterString = tkExtra.LabelEntry(
             self.frame,
             _("Filter"),
-            "DarkGray",
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=16,
         )
         self.filterString.grid(
@@ -765,8 +763,6 @@ class EditorFrame(CNCRibbon.PageFrame):
             self,
             app,
             selectmode=EXTENDED,
-            exportselection=0,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.editor.pack(side=LEFT, expand=TRUE, fill=BOTH)
         self.addWidget(self.editor)
