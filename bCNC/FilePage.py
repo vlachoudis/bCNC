@@ -286,7 +286,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
             width=16,
             command=self.comportClean,
         )
-        self.portCombo._listbox.configure(font=("Courier", 9))
         self.portCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(
             self.portCombo, _("Select (or manual enter) port to connect")
