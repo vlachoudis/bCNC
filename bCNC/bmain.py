@@ -39,7 +39,6 @@ from tkinter import (
     Tk,
     Toplevel,
     Button,
-    Entry,
     Frame,
     Label,
     Listbox,
@@ -47,9 +46,10 @@ from tkinter import (
     PhotoImage,
     Spinbox,
     LabelFrame,
-    PanedWindow,
     messagebox,
 )
+from tkinter import ttk
+from tkinter.ttk import Entry, PanedWindow
 
 try:
     import serial
@@ -163,9 +163,8 @@ class Application(Tk, Sender):
         self.controller = None
         self.loadConfig()
 
-        # Disable dark mode on MacOS
-        with contextlib.suppress(TclError):
-            self.tk.call('tk::unsupported::MacWindowStyle', 'appearance', self, 'aqua')
+        if sys.platform == "darwin":
+            tkExtra.setTheme(self)
 
         # --- Ribbon ---
         self.ribbon = Ribbon.TabRibbonFrame(self)
@@ -176,46 +175,45 @@ class Application(Tk, Sender):
         self.paned.pack(fill=BOTH, expand=YES)
 
         # Status bar
-        frame = Frame(self)
+        frame = ttk.Frame(self)
         frame.pack(side=BOTTOM, fill=X)
-        self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
+        self.statusbar = tkExtra.TtkProgressBar(frame, height=20)
         self.statusbar.pack(side=LEFT, fill=X, expand=YES)
-        self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
+        self.statusbar.configText(fill=tkExtra.readoutColor(self), anchor="w")
 
-        self.statusz = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusz = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusz.pack(side=RIGHT)
-        self.statusy = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusy = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusy.pack(side=RIGHT)
-        self.statusx = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusx = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusx.pack(side=RIGHT)
 
         # Buffer bar
-        self.bufferbar = tkExtra.ProgressBar(
-            frame, height=20, width=40, relief=SUNKEN)
+        self.bufferbar = tkExtra.TtkProgressBar(frame, height=20, width=40)
         self.bufferbar.pack(side=RIGHT, expand=NO)
         self.bufferbar.setLimits(0, 100)
         tkExtra.Balloon.set(self.bufferbar, _("Controller buffer fill"))
 
         # --- Left side ---
-        frame = Frame(self.paned)
+        frame = ttk.Frame(self.paned)
         self.paned.add(frame)  # , minsize=340)
 
-        pageframe = Frame(frame)
+        pageframe = ttk.Frame(frame)
         pageframe.pack(side=TOP, expand=YES, fill=BOTH)
         self.ribbon.setPageFrame(pageframe)
 
         # Command bar
-        f = Frame(frame)
+        f = ttk.Frame(frame)
         f.pack(side=BOTTOM, fill=X)
-        self.cmdlabel = Label(f, text=_("Command:"))
+        self.cmdlabel = ttk.Label(f, text=_("Command:"))
         self.cmdlabel.pack(side=LEFT)
-        self.command = Entry(f, relief=SUNKEN, background="White")  # !!!
+        self.command = Entry(f)
         self.command.pack(side=RIGHT, fill=X, expand=YES)
         self.command.bind("<Return>", self.cmdExecute)
         self.command.bind("<Up>", self.commandHistoryUp)
@@ -238,7 +236,7 @@ class Application(Tk, Sender):
 
         # --- Right side ---
         frame = Frame(self.paned)
-        self.paned.add(frame)
+        self.paned.add(frame, weight=1)
 
         self.canvasContainer = Frame(frame)
         self.canvasContainer.pack(side='top', expand=True, fill='both')
@@ -549,7 +547,7 @@ class Application(Tk, Sender):
         self.monitorSerial()
         self.canvasFrame.toggleDrawFlag()
 
-        self.paned.sash_place(0, Utils.getInt(Utils.__prg__, "sash", 340), 0)
+        self.paned.sashpos(0, Utils.getInt(Utils.__prg__, "sash", 340))
 
         # Auto start pendant and serial
         if Utils.getBool("Connection", "pendant"):
@@ -567,7 +565,7 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def setStatus(self, msg, force_update=False):
-        self.statusbar.configText(text=msg, fill="DarkBlue")
+        self.statusbar.configText(text=msg, fill=tkExtra.readoutColor(self))
         if force_update:
             self.statusbar.update_idletasks()
             self.bufferbar.update_idletasks()
@@ -767,7 +765,7 @@ class Application(Tk, Sender):
         # Program
         Utils.setInt(Utils.__prg__, "width", str(self.winfo_width()))
         Utils.setInt(Utils.__prg__, "height", str(self.winfo_height()))
-        Utils.setInt(Utils.__prg__, "sash", str(self.paned.sash_coord(0)[0]))
+        Utils.setInt(Utils.__prg__, "sash", str(self.paned.sashpos(0)))
 
         # save windowState (do not persist minimized, or next launch stays hidden)
         state = str(self.wm_state())
@@ -1141,7 +1139,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['xmin']:g} .. {CNC.vars['xmax']:g} "
                  + f"[{CNC.vars['xmax'] - CNC.vars['xmin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1153,7 +1151,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['ymin']:g} .. {CNC.vars['ymax']:g} "
                  + f"[{CNC.vars['ymax'] - CNC.vars['ymin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1165,7 +1163,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['zmin']:g} .. {CNC.vars['zmax']:g} "
                  + f"[{CNC.vars['zmax'] - CNC.vars['zmin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1173,7 +1171,7 @@ class Application(Tk, Sender):
         col = 0
         Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=str(e), foreground="DarkBlue").grid(
+        Label(frame, text=str(e), foreground=tkExtra.readoutColor(self)).grid(
             row=row, column=col, sticky=W
         )
 
@@ -1182,7 +1180,7 @@ class Application(Tk, Sender):
         col = 0
         Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{le:g} {unit}", foreground="DarkBlue").grid(
+        Label(frame, text=f"{le:g} {unit}", foreground=tkExtra.readoutColor(self)).grid(
             row=row, column=col, sticky=W
         )
 
@@ -1191,7 +1189,7 @@ class Application(Tk, Sender):
         col = 0
         Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{r:g} {unit}", foreground="DarkBlue").grid(
+        Label(frame, text=f"{r:g} {unit}", foreground=tkExtra.readoutColor(self)).grid(
             row=row, column=col, sticky=W
         )
 
@@ -1205,7 +1203,7 @@ class Application(Tk, Sender):
         Label(
             frame,
             text=f"{int(h)}:{int(m):02}:{int(s):02} s",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
@@ -1222,7 +1220,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['axmin']:g} .. {CNC.vars['axmax']:g} "
                  + f"[{CNC.vars['axmax'] - CNC.vars['axmin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1234,7 +1232,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['aymin']:g} .. {CNC.vars['aymax']:g} "
                  + f"[{CNC.vars['aymax'] - CNC.vars['aymin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1246,7 +1244,7 @@ class Application(Tk, Sender):
             frame,
             text=f"{CNC.vars['azmin']:g} .. {CNC.vars['azmax']:g} "
                  + f"[{CNC.vars['azmax'] - CNC.vars['azmin']:g}] {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1257,7 +1255,7 @@ class Application(Tk, Sender):
         Label(
             frame,
             text=str(len(self.gcode.blocks)),
-            foreground="DarkBlue"
+            foreground=tkExtra.readoutColor(self)
         ).grid(
             row=row,
             column=col,
@@ -1271,7 +1269,7 @@ class Application(Tk, Sender):
         Label(
             frame,
             text=f"{self.cnc.totalLength:g} {unit}",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         # ---
@@ -1284,7 +1282,7 @@ class Application(Tk, Sender):
         Label(
             frame,
             text=f"{int(int(h))}:{int(int(m)):02}:{int(int(s)):02} s",
-            foreground="DarkBlue",
+            foreground=tkExtra.readoutColor(self),
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
@@ -1887,11 +1885,11 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def commandFocusIn(self, event=None):
-        self.cmdlabel["foreground"] = "Blue"
+        self.cmdlabel["foreground"] = tkExtra.readoutColor(self)
 
     # -----------------------------------------------------------------------
     def commandFocusOut(self, event=None):
-        self.cmdlabel["foreground"] = "Black"
+        self.cmdlabel["foreground"] = ""
 
     # -----------------------------------------------------------------------
     # FIXME why it is not called?
@@ -2186,7 +2184,7 @@ class Application(Tk, Sender):
         if self.serial is not None:
             self.close()
             serialPage.connectBtn.config(
-                text=_("Open"), background="Salmon", activebackground="Salmon"
+                text=_("Open"), style=tkExtra.stateColor(self, "Salmon", "Ribbon.TButton")
             )
         else:
             serialPage = Page.frames["Serial"]
@@ -2195,8 +2193,7 @@ class Application(Tk, Sender):
             if self.open(device, baudrate):
                 serialPage.connectBtn.config(
                     text=_("Close"),
-                    background="LightGreen",
-                    activebackground="LightGreen",
+                    style=tkExtra.stateColor(self, "LightGreen", "Ribbon.TButton"),
                 )
                 self.enable()
 

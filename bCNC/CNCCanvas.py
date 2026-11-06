@@ -32,6 +32,7 @@ try:
 except ImportError:
     cv = None
 
+import tkinter as tk
 from tkinter import (
     TclError,
     FALSE,
@@ -56,15 +57,16 @@ from tkinter import (
     IntVar,
     BooleanVar,
     DoubleVar,
+    messagebox,
+    Scale
+)
+from tkinter.ttk import (
     Button,
     Checkbutton,
     Frame,
     Label,
-    Radiobutton,
     OptionMenu,
-    LabelFrame,
-    messagebox,
-    Scale
+    Radiobutton,
 )
 import tkinter
 
@@ -92,6 +94,16 @@ VIEW_ISO3 = 5
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
 DRAW_TIME = 5  # Maximum draw time permitted
+
+# Colors used instead of the default ones in dark mode
+DARK_COLORS = {
+    "ENABLE_COLOR": "White",
+    "AXES_TEXT_COLOR": "White",
+    "CANVAS_COLOR_UP": tkExtra.DARK["field"],
+    "CANVAS_COLOR_DOWN": tkExtra.DARK["field"],
+    "GRID_COLOR": "#5A5A5A",
+    "SELECT_COLOR": "#5AA9FF",
+}
 
 # Customizable colors
 GANTRY_COLOR = DEFAULT_GANTRY_COLOR ="Red"
@@ -231,7 +243,7 @@ class CNCCanvas(GLCanvas):
     def __init__(self, master, app):
         super().__init__(master)
         
-        self.parentFrame : Frame = master
+        self.parentFrame : tk.Frame = master
 
         # Global variables
         self.app = app
@@ -3484,6 +3496,13 @@ class CNCCanvas(GLCanvas):
         self._drawRequested = True
         
         self.after('idle', self.draw)
+
+    # coalesce the bursts of expose events into a single draw
+    def _handle_expose(self, event):
+        self.queueDraw()
+
+    def _handle_map(self, event):
+        self.queueDraw()
         
     def updateAll(self):
         
@@ -4410,9 +4429,9 @@ class CNCCanvas(GLCanvas):
 # =============================================================================
 # Canvas Frame with toolbar
 # =============================================================================
-class CanvasFrame(Frame):
+class CanvasFrame(tk.Frame):
     def __init__(self, master, app, *kw, **kwargs):
-        Frame.__init__(self, master, *kw, **kwargs)
+        tk.Frame.__init__(self, master, *kw, **kwargs)
         self.app = app
 
         self.draw_axes = BooleanVar()
@@ -4430,7 +4449,7 @@ class CanvasFrame(Frame):
         self.loadConfig()
         self.view.trace_add('write', self.viewChange)
 
-        toolbar = Frame(self, relief=RAISED)
+        toolbar = Frame(self)
         toolbar.grid(row=0, column=0, columnspan=2, sticky=EW)
 
         # Ensure the Frame exists at the OS level before OpenGL initializes
@@ -4444,22 +4463,22 @@ class CanvasFrame(Frame):
 
         # --- SIM Panel ---
         
-        self.simPanel = Frame(self, padx=5, pady=10)
+        self.simPanel = tk.Frame(self, padx=5, pady=10)
 
-        lframe = LabelFrame(self.simPanel, text=_("Stock dimensions"), foreground="DarkBlue", padx=5, pady = 5)
+        lframe = tk.LabelFrame(self.simPanel, text=_("Stock dimensions"), foreground=tkExtra.readoutColor(self.simPanel), padx=5, pady = 5)
         lframe.pack(side='top', fill='x')
 
         row, col = 0, 0
         # Empty
         col += 1
-        Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
+        tk.Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
         col += 1
-        Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
+        tk.Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
 
         # --- X ---
         row += 1
         col = 0
-        Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
+        tk.Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.stockXmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
         self.stockXmin.grid(row=row, column=col, sticky=EW)
@@ -4475,7 +4494,7 @@ class CanvasFrame(Frame):
         # --- Y ---
         row += 1
         col = 0
-        Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
+        tk.Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.stockYmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
         self.stockYmin.grid(row=row, column=col, sticky=EW)
@@ -4491,7 +4510,7 @@ class CanvasFrame(Frame):
         # --- Z ---
         row += 1
         col = 0
-        Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
+        tk.Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.stockZmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
         self.stockZmin.grid(row=row, column=col, sticky=EW)
@@ -4506,7 +4525,7 @@ class CanvasFrame(Frame):
 
         row += 1
         self.stockRelative = BooleanVar(value=True)
-        Checkbutton(
+        tk.Checkbutton(
             lframe,
             text=_("Relative to G-code bounds"),
             variable=self.stockRelative,
@@ -4515,7 +4534,7 @@ class CanvasFrame(Frame):
         # --- Update button ---
         row += 1
         col = 1
-        bRefresh = Button(lframe, text=_("Update"), compound=LEFT, command=self.updateStockSize, image=Utils.icons["refresh"], padx=2, pady=1)
+        bRefresh = tk.Button(lframe, text=_("Update"), compound=LEFT, command=self.updateStockSize, image=Utils.icons["refresh"], padx=2, pady=1)
         bRefresh.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.addWidget(bRefresh)
 
@@ -4524,25 +4543,25 @@ class CanvasFrame(Frame):
 
         # --- End Mill data ---
 
-        lframe = LabelFrame(self.simPanel, text=_("End Mill"), foreground="DarkBlue", padx=5)
+        lframe = tk.LabelFrame(self.simPanel, text=_("End Mill"), foreground=tkExtra.readoutColor(self.simPanel), padx=5)
         lframe.pack(side='top', fill='x', pady=10)
         self.millType = tkinter.OptionMenu(lframe, self.canvas.millType, *MILL_TYPES)
         self.millType.pack(side='top', fill='x')
         tkExtra.Balloon.set(self.millType, _("Type of End Mill"))
 
-        lineFrame = Frame(lframe)
+        lineFrame = tk.Frame(lframe)
         lineFrame.pack(side='top', fill='x', pady=10)
 
-        Label(lineFrame, text=_("Diameter:")).pack(side='left')
+        tk.Label(lineFrame, text=_("Diameter:")).pack(side='left')
         self.millDiameter = tkExtra.FloatEntry(lineFrame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=10, textvariable=self.canvas.millDiameter)
         self.millDiameter.pack(side='left', fill='x', expand=True, padx=5)
         tkExtra.Balloon.set(self.millDiameter, _("Mill Diameter"))
         self.addWidget(self.millDiameter)
 
-        lineFrame = Frame(lframe)
+        lineFrame = tk.Frame(lframe)
         lineFrame.pack(side='top', fill='x', pady=5)
 
-        self.millAngleLabel = Label(lineFrame, text=_("Angle:"))
+        self.millAngleLabel = tk.Label(lineFrame, text=_("Angle:"))
         self.millAngleLabel.pack(side='left')
         self.millAngle = tkExtra.FloatEntry(lineFrame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=10, textvariable=self.canvas.millAngle)
         self.millAngle.pack(side='left', fill='x', expand=True, padx=5)
@@ -4551,9 +4570,9 @@ class CanvasFrame(Frame):
         self.canvas.millType.trace_add('write', self.onMillTypeChange)
         self.onMillTypeChange()
 
-        Label(self.simPanel, text=_("Opacity:")).pack(side='top', fill='x')
+        tk.Label(self.simPanel, text=_("Opacity:")).pack(side='top', fill='x')
 
-        Scale(
+        tkExtra.ValueScale(
             self.simPanel,
             from_=0,
             to=100,
@@ -4563,10 +4582,10 @@ class CanvasFrame(Frame):
             command=self.changeStockOpacity
         ).pack(side='top', fill='x')
 
-        self.millSelectedPathsOnly = Checkbutton(self.simPanel, text=_("Mill selected paths only"), variable=self.canvas.millSelectedPathsOnly)
+        self.millSelectedPathsOnly = tk.Checkbutton(self.simPanel, text=_("Mill selected paths only"), variable=self.canvas.millSelectedPathsOnly)
         self.millSelectedPathsOnly.pack(side='top', fill='x', pady=10)
 
-        b = Button(self.simPanel, text=_("Run simulation"), compound=LEFT, command=self.canvas.runSimulation, image=Utils.icons["start"], padx=2, pady=1)
+        b = tk.Button(self.simPanel, text=_("Run simulation"), compound=LEFT, command=self.canvas.runSimulation, image=Utils.icons["start"], padx=2, pady=1)
         b.pack(side='top', fill='x', pady=10)
 
         self.grid_rowconfigure(1, weight=1)
@@ -4662,12 +4681,30 @@ class CanvasFrame(Frame):
 
         DRAW_TIME = Utils.getInt("Canvas", "drawtime", DRAW_TIME)
 
+        self.loadColors()
+        self.winfo_toplevel().bind(
+            "<<AppearanceChanged>>", self.appearanceChanged, add="+")
+
+    # ----------------------------------------------------------------------
+    def loadColors(self):
+        dark = tkExtra.isDark(self)
         for key, info in customColors.items():
-            default = globals()["DEFAULT_" + info["color"]]
+            name = info["color"]
+            default = globals()["DEFAULT_" + name]
             value = Utils.getStr("Color", key, default)
             if value == "" and not info.get("canBeBlank"):
                 value = default
-            globals()[info["color"]] = value
+            # the colors not changed by the user follow the dark mode
+            if dark and name in DARK_COLORS and value.lower() == default.lower():
+                value = DARK_COLORS[name]
+            globals()[name] = value
+
+    # ----------------------------------------------------------------------
+    def appearanceChanged(self, event=None):
+        self.loadColors()
+        for text in self.canvas.axesText.values():
+            text[2] = self.canvas.rgb8(AXES_TEXT_COLOR)
+        self.canvas.updateAll()
 
     def loadMillConfig(self):
         self.stockXmin.set(Utils.getFloat("Simulation", "xmin", STOCK_MIN_X))
@@ -4729,8 +4766,7 @@ class CanvasFrame(Frame):
     # Canvas toolbar FIXME XXX should be moved to CNCCanvas
     # ----------------------------------------------------------------------
     def createCanvasToolbar(self, toolbar):
-        b = OptionMenu(toolbar, self.view, *VIEWS)
-        b.config(padx=0, pady=1)
+        b = OptionMenu(toolbar, self.view, self.view.get(), *VIEWS)
         b.unbind("F10")
         b.pack(side=LEFT)
         tkExtra.Balloon.set(b, _("Change viewing angle"))
@@ -4765,8 +4801,8 @@ class CanvasFrame(Frame):
         # -----
         b = Radiobutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["select"],
-            indicatoron=FALSE,
             variable=self.canvas.actionVar,
             value=ACTION_SELECT,
             command=self.canvas.setActionSelect,
@@ -4777,8 +4813,8 @@ class CanvasFrame(Frame):
 
         b = Radiobutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["pan"],
-            indicatoron=FALSE,
             variable=self.canvas.actionVar,
             value=ACTION_PAN,
             command=self.canvas.setActionPan,
@@ -4788,8 +4824,8 @@ class CanvasFrame(Frame):
 
         b = Radiobutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["ruler"],
-            indicatoron=FALSE,
             variable=self.canvas.actionVar,
             value=ACTION_RULER,
             command=self.canvas.setActionRuler,
@@ -4807,8 +4843,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["axes"],
-            indicatoron=False,
             variable=self.draw_axes,
             command=self.drawAxes,
         )
@@ -4817,8 +4853,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["grid"],
-            indicatoron=False,
             variable=self.draw_grid,
             command=self.drawGrid,
         )
@@ -4827,8 +4863,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["margins"],
-            indicatoron=False,
             variable=self.draw_margin,
             command=self.drawMargin,
         )
@@ -4837,9 +4873,9 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             text="P",
             image=Utils.icons["measure"],
-            indicatoron=False,
             variable=self.draw_probe,
             command=self.drawProbe,
         )
@@ -4848,8 +4884,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["endmill"],
-            indicatoron=False,
             variable=self.draw_paths,
             command=self.toggleDrawFlag,
         )
@@ -4858,8 +4894,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["rapid"],
-            indicatoron=False,
             variable=self.draw_rapid,
             command=self.toggleDrawFlag,
         )
@@ -4868,8 +4904,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["workspace"],
-            indicatoron=False,
             variable=self.draw_workarea,
             command=self.drawWorkarea,
         )
@@ -4878,8 +4914,8 @@ class CanvasFrame(Frame):
 
         b = Checkbutton(
             toolbar,
+            style="Toolbutton",
             image=Utils.icons["camera"],
-            indicatoron=False,
             variable=self.draw_camera,
             command=self.drawCamera,
         )
@@ -4902,8 +4938,8 @@ class CanvasFrame(Frame):
         if self.canvas.glslVersion == "1.20":
             b = Checkbutton(
                 toolbar,
+                style="Toolbutton",
                 image=Utils.icons["sim"],
-                indicatoron=False,
                 variable=self.show_sim,
                 command=self.showSim
             )
