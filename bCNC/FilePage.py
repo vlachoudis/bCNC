@@ -15,10 +15,9 @@ from tkinter import (
     TOP,
     RIGHT,
     BooleanVar,
-    Checkbutton,
-    Label,
     Menu,
 )
+from tkinter.ttk import Checkbutton, Label
 import CNCRibbon
 import Ribbon
 import tkExtra
@@ -178,7 +177,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Send Error Report"))
 
         # ---
@@ -192,7 +191,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Check Updates"))
 
         col, row = 1, 2
@@ -205,7 +204,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("About the program"))
 
 
@@ -215,7 +214,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 class PendantGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Pendant"), app)
-        self.grid3rows()
+        self.grid2rows()
 
         col, row = 0, 0
         b = Ribbon.LabelButton(
