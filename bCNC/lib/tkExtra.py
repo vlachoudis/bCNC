@@ -97,6 +97,8 @@ from tkinter import (
     PanedWindow,
 )
 from tkinter import _setit, _cnfmerge
+from tkinter import ttk
+from tkinter import font as tkfont
 from tkinter.colorchooser import askcolor
 
 import bFileDialog
@@ -348,21 +350,34 @@ def bindClasses(root):
 # =============================================================================
 # LabelEntry. display a label when entry field is empty
 # =============================================================================
-class LabelEntry(Entry):
+class LabelEntry(ttk.Entry):
     def __init__(self, master, label=None, labelcolor=None, **kw):
-        Entry.__init__(self, master, **kw)
+        for key in ("background", "bg", "foreground", "fg"):
+            kw.pop(key, None)
+        ttk.Entry.__init__(self, master, **kw)
         self.label = label
         self._empty = True
-        self._fg = self["foreground"]
-        if labelcolor is not None:
-            self.labelcolor = labelcolor
-        else:
-            self.labelcolor = self._fg
+        self._fg = ""  # the style's text color
+        self._labelcolor = labelcolor
         self.bind("<FocusIn>", self._focusIn)
         self.bind("<FocusOut>", self._focusOut)
         self["validate"] = "key"
         self["validatecommand"] = (self.register(self.validate), "%P")
+        self.winfo_toplevel().bind(
+            "<<AppearanceChanged>>", self._recolor, add="+")
         self.showLabel()
+
+    # ----------------------------------------------------------------------
+    @property
+    def labelcolor(self):
+        if self._labelcolor is not None:
+            return self._labelcolor
+        return (DARK if isDark(self) else LIGHT)["disabled"]
+
+    # ----------------------------------------------------------------------
+    def _recolor(self, event=None):
+        if self._empty:
+            self["foreground"] = self.labelcolor
 
     # ----------------------------------------------------------------------
     def showLabel(self):
@@ -406,18 +421,24 @@ class LabelEntry(Entry):
         if self._empty:
             return ""
         else:
-            return Entry.get(self)
+            return ttk.Entry.get(self)
 
 
 # =============================================================================
 # _ValidatingEntry
 # =============================================================================
-class _ValidatingEntry(Entry):
+class _ValidatingEntry(ttk.Entry):
     """base class for validating entry widgets"""
 
     # ----------------------------------------------------------------------
     def __init__(self, master, value="", **kw):
-        Entry.__init__(self, master, **kw)
+        # ttk has no per-widget disabledforeground, use a derived style
+        color = kw.pop("disabledforeground", None)
+        if color:
+            kw["style"] = f"Disabled{color}.TEntry"
+            ttk.Style(master).map(
+                kw["style"], foreground=[("disabled", color)])
+        ttk.Entry.__init__(self, master, **kw)
         self["validate"] = "key"
         self["validatecommand"] = (self.register(self.validate), "%P")
 
@@ -2384,7 +2405,7 @@ class InPlaceEdit:
         self.listbox = listbox
 
         # Create and set value
-        self.frame = Frame(listbox, relief=None)
+        self.frame = ttk.Frame(listbox)
         self.createWidget()
         self.old = self.set(value)
         self.defaultBinds()
@@ -2415,10 +2436,18 @@ class InPlaceEdit:
             pass
 
     # ----------------------------------------------------------------------
+    # Options of the classic widgets that ttk widgets do not have
+    # ----------------------------------------------------------------------
+    def _kw(self):
+        skip = ("bg", "background", "fg", "foreground", "relief", "bd",
+                "borderwidth", "highlightthickness", "disabledforeground")
+        return {k: v for k, v in self.kw.items() if k not in skip}
+
+    # ----------------------------------------------------------------------
     # Override method if another widget is requested
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.edit = Entry(self.frame, **self.kw)
+        self.edit = ttk.Entry(self.frame, **self._kw())
         self.edit.pack(expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2529,6 +2558,8 @@ class InPlaceEdit:
         if isinstance(self.listbox, Listbox):
             self.listbox.delete(self.active)
             self.listbox.insert(self.active, self.value)
+        elif isinstance(self.listbox, ListView):
+            self.listbox.set(self.active, self.value)
 
     # ----------------------------------------------------------------------
     def ok(self, event=None):
@@ -2567,7 +2598,7 @@ class InPlaceEdit:
 class InPlaceSpinbox(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.edit = Spinbox(self.frame, **self.kw)
+        self.edit = ttk.Spinbox(self.frame, **self._kw())
         self.edit.pack(expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2586,7 +2617,7 @@ class InPlaceSpinbox(InPlaceEdit):
 class InPlaceInteger(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.edit = IntegerEntry(self.frame, **self.kw)
+        self.edit = IntegerEntry(self.frame, **self._kw())
         self.edit.pack(expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2595,7 +2626,7 @@ class InPlaceInteger(InPlaceEdit):
 class InPlaceFloat(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.edit = FloatEntry(self.frame, **self.kw)
+        self.edit = FloatEntry(self.frame, **self._kw())
         self.edit.pack(expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2615,20 +2646,22 @@ class InPlaceList(InPlaceEdit):
 
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.frame.config(relief=RAISED)
-        sb = Scrollbar(self.frame)
+        self.frame.config(relief=RAISED, borderwidth=1)
+        sb = ttk.Scrollbar(self.frame)
         sb.pack(side=RIGHT, fill=Y)
         if self.height is None:
             if len(self.values) < 10:
                 self.height = max(len(self.values) + 1, 3)
             else:
                 self.height = 10
-        self.edit = ExListbox(
+        self.edit = ListView(
             self.frame,
+            style="Tool.Treeview",
             selectmode=BROWSE,
             height=self.height,
             yscrollcommand=sb.set,
         )
+        self.edit.tag_configure("row", font="TkDefaultFont")
         sb.config(command=self.edit.yview)
         self.edit.pack(side=LEFT, fill=BOTH, expand=YES)
         self.edit.bind("<ButtonRelease-1>", self.ok)
@@ -2704,7 +2737,7 @@ class InPlaceColor(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
         # Placeholder for get()/ok(); picker opens immediately in show()
-        self.edit = Label(self.frame)
+        self.edit = ttk.Label(self.frame)
         self.edit.pack(expand=YES, fill=BOTH)
 
     # ----------------------------------------------------------------------
@@ -2781,7 +2814,7 @@ class InPlaceMaxLength(InPlaceEdit):
     # ----------------------------------------------------------------------
     def createWidget(self):
         self.edit = MaxLengthEntry(
-            self.frame, maxlength=self.maxlength, **self.kw)
+            self.frame, maxlength=self.maxlength, **self._kw())
         self.edit.pack(expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2814,13 +2847,8 @@ class InPlaceText(InPlaceEdit):
         if sys.platform in ("win32", "win64"):
             self.toplevel.update_idletasks()
         self.toplevel.overrideredirect(1)
-        self.edit = Text(
-            self.toplevel,
-            width=70,
-            height=10,
-            background=GLOBAL_CONTROL_BACKGROUND,
-            undo=True,
-        )
+        self.edit = Text(self.toplevel, width=70, height=10, undo=True)
+        themeText(self.edit)
         self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
         self.edit.focus_set()
 
@@ -2917,12 +2945,12 @@ class InPlaceFile(InPlaceEdit):
 
     # ----------------------------------------------------------------------
     def createWidget(self):
-        self.edit = Entry(self.frame, width=5, **self.kw)
+        self.edit = ttk.Entry(self.frame, width=5, **self._kw())
         self.edit.pack(side=LEFT, expand=YES, fill=BOTH)
-        b = Button(
+        b = ttk.Button(
             self.frame,
             image=self._icon,
-            padx=0, pady=0,
+            width=0,
             command=self.fileDialog
         )
         b.pack(side=RIGHT)
@@ -4489,7 +4517,9 @@ class Balloon:
                 )
                 Balloon._msg.pack()
                 Balloon._top.bind("<1>", Balloon.hide)
-            Balloon._msg.config(text=widget._help)
+            c = DARK if isDark(widget) else LIGHT
+            Balloon._msg.config(
+                text=widget._help, foreground=c["tipfg"], background=c["tipbg"])
             # Guess position
             x = widget.winfo_rootx() + widget.winfo_width() // 2
             y = widget.winfo_rooty() + widget.winfo_height() + 5
@@ -4529,16 +4559,17 @@ class Balloon:
 # =============================================================================
 # A LabelFrame that can collapse/expand
 # =============================================================================
-class ExLabelFrame(LabelFrame):
+class ExLabelFrame(ttk.LabelFrame):
     def __init__(self, master, *args, **kwargs):
+        kwargs.pop("foreground", None)
         if "command" in kwargs:
             self.command = kwargs.get("command")
             del kwargs["command"]
         else:
             self.command = None
 
-        LabelFrame.__init__(self, master, *args, **kwargs)
-        self.frame = Frame(self)
+        ttk.LabelFrame.__init__(self, master, *args, **kwargs)
+        self.frame = ttk.Frame(self)
         self.frame.pack(expand=YES, fill=BOTH)
         self.bind("<Button-1>", self.click)
         if self["height"] == 0:
@@ -5101,6 +5132,802 @@ class TabPageSet(Frame):
 
 
 # =============================================================================
+# =============================================================================
+class TtkCombobox(ttk.Combobox):
+    def __init__(self, master, command=None, **kw):
+        ttk.Combobox.__init__(self, master, **kw)
+        self._readonly = kw.get("state") == "readonly"
+        if command is not None:
+            self.bind("<<ComboboxSelected>>", lambda e: command())
+
+    # ----------------------------------------------------------------------
+    def fill(self, values):
+        # values may be an iterator (e.g. map), Tk needs a real sequence
+        self["values"] = list(values)
+
+    # ----------------------------------------------------------------------
+    # enabling (state normal) a readonly combobox keeps it readonly
+    def configure(self, cnf=None, **kw):
+        if self._readonly:
+            for d in (cnf, kw):
+                if isinstance(d, dict) and d.get("state") == "normal":
+                    d["state"] = "readonly"
+        if "command" in kw:
+            command = kw.pop("command")
+            self.bind("<<ComboboxSelected>>", lambda e: command())
+        return ttk.Combobox.configure(self, cnf, **kw)
+
+    config = configure
+
+
+# =============================================================================
+# ttk.Scale with a value label and optional resolution (snapping)
+# =============================================================================
+class ValueScale(ttk.Frame):
+    def __init__(self, master, from_=0, to=100, resolution=1, variable=None,
+                 command=None, orient=HORIZONTAL, **kw):
+        ttk.Frame.__init__(self, master)
+        to = kw.pop("to_", to)
+        self._resolution = resolution
+        self._command = command
+        self._variable = variable
+        self.value = ttk.Label(self, width=4, anchor=E)
+        self.value.pack(side=LEFT)
+        self.scale = ttk.Scale(self, from_=from_, to=to, orient=orient,
+                               variable=variable, command=self._changed, **kw)
+        self.scale.pack(side=LEFT, fill=X, expand=YES)
+        if variable is not None:
+            variable.trace_add("write", lambda *a: self._showValue())
+        self._showValue()
+
+    # ----------------------------------------------------------------------
+    def _snap(self, value):
+        value = float(value)
+        res = self._resolution
+        if res:
+            low = float(self.scale.cget("from"))
+            value = low + round((value - low) / res) * res
+        return int(value) if value == int(value) else value
+
+    # ----------------------------------------------------------------------
+    def _showValue(self):
+        try:
+            self.value.config(text=str(self._snap(self.scale.get())))
+        except (TclError, ValueError):
+            pass
+
+    # ----------------------------------------------------------------------
+    def _changed(self, value):
+        value = self._snap(value)
+        if self._variable is not None and self.scale.get() != value:
+            self._variable.set(value)
+        self._showValue()
+        if self._command is not None:
+            self._command(str(value))
+
+    # ----------------------------------------------------------------------
+    def configure(self, cnf=None, **kw):
+        kw.update(cnf or {})
+        if "resolution" in kw:
+            self._resolution = kw.pop("resolution")
+        for key in ("to_", "from_"):
+            if key in kw:
+                kw[key[:-1]] = kw.pop(key)
+        if kw:
+            self.scale.configure(**kw)
+        self._showValue()
+
+    config = configure
+
+    # ----------------------------------------------------------------------
+    def cget(self, key):
+        value = self.scale.cget(key)
+        return float(value) if key in ("from", "to") else value
+
+    def get(self):
+        return self._snap(self.scale.get())
+
+    def set(self, value):
+        self.scale.set(value)
+
+    def bind(self, sequence=None, func=None, add=None):
+        return self.scale.bind(sequence, func, add)
+
+    # Balloon binds through bind() above, so events come from the inner scale
+    @property
+    def _help(self):
+        return self.scale._help
+
+    @_help.setter
+    def _help(self, text):
+        self.scale._help = text
+
+
+# =============================================================================
+# ttk.Treeview used as a Listbox: one text column, Listbox style methods
+# =============================================================================
+class ListView(ttk.Treeview):
+    # color names used by the application, mapped to theme colors
+    _SEMANTIC = {"Blue": "sent", "Red": "error", "Magenta": "info",
+                 "Gray": "disabled", "LightYellow": "buffer"}
+    textOffset = 8  # distance of the text from the left edge of a row
+
+    def __init__(self, master, selectmode="extended", font=None, **kw):
+        kw.setdefault("show", "tree")
+        for key in ("exportselection", "background", "bg"):
+            kw.pop(key, None)
+        ttk.Treeview.__init__(
+            self, master, columns=(), selectmode=selectmode, **kw)
+        self.column("#0", stretch=True, width=100)
+        self._iids = []
+        self._colors = {}  # tag -> (foreground, background) as requested
+        self._itemColors = {}  # item id -> (foreground, background)
+        self._quiet = False
+        self.tag_configure("row", font=font or listFont())
+        self.winfo_toplevel().bind(
+            "<<AppearanceChanged>>", self._recolor, add="+")
+        # same virtual event as a Listbox, only for changes by the user
+        self.bind("<<TreeviewSelect>>", self._selected, add="+")
+
+    # ----------------------------------------------------------------------
+    def _index(self, index, insert=False):
+        if index == END:
+            return len(self._iids) if insert else len(self._iids) - 1
+        if index == ACTIVE:
+            focus = self.focus()
+            return self._iids.index(focus) if focus in self._iids else 0
+        return int(index)
+
+    # ----------------------------------------------------------------------
+    def _color(self, color):
+        name = self._SEMANTIC.get(color)
+        if name is None:
+            return color
+        return (DARK if isDark(self) else LIGHT)[name]
+
+    # ----------------------------------------------------------------------
+    def _recolor(self, event=None):
+        for tag, (color, back) in self._colors.items():
+            options = {}
+            if color:
+                options["foreground"] = self._color(color)
+            if back:
+                options["background"] = self._color(back)
+            if options:
+                self.tag_configure(tag, **options)
+
+    # ----------------------------------------------------------------------
+    def _selected(self, event=None):
+        if not self._quiet:
+            self.event_generate("<<ListboxSelect>>")
+
+    # ----------------------------------------------------------------------
+    def _silently(self, func, *args):
+        """Selection changes by the program do not send <<ListboxSelect>>"""
+        self._quiet = True
+        try:
+            func(*args)
+        finally:
+            self.after_idle(self._unquiet)
+
+    def _unquiet(self):
+        self._quiet = False
+
+    # ----------------------------------------------------------------------
+    def configure(self, cnf=None, **kw):
+        kw.update(cnf or {})
+        if "state" in kw:
+            self.state(["!disabled"] if kw.pop("state") != DISABLED
+                       else ["disabled"])
+        if kw:
+            return ttk.Treeview.configure(self, **kw)
+
+    config = configure
+
+    def __setitem__(self, key, value):
+        if key == "state":
+            self.configure(state=value)
+        else:
+            ttk.Treeview.__setitem__(self, key, value)
+
+    # ----------------------------------------------------------------------
+    def insert(self, index, *items):
+        pos = min(self._index(index, True), len(self._iids))
+        for text in items:
+            iid = ttk.Treeview.insert(
+                self, "", pos, text=str(text), tags=("row",))
+            self._iids.insert(pos, iid)
+            pos += 1
+
+    # ----------------------------------------------------------------------
+    def delete(self, first, last=None):
+        a = self._index(first)
+        b = a if last is None else self._index(last)
+        iids = self._iids[a:b + 1]
+        if iids:
+            ttk.Treeview.delete(self, *iids)
+            del self._iids[a:b + 1]
+            for iid in iids:
+                self._itemColors.pop(iid, None)
+
+    # ----------------------------------------------------------------------
+    def get(self, first, last=None):
+        a = self._index(first)
+        if last is None:
+            return self.item(self._iids[a], "text")
+        b = self._index(last)
+        return tuple(self.item(i, "text") for i in self._iids[a:b + 1])
+
+    # ----------------------------------------------------------------------
+    def size(self):
+        return len(self._iids)
+
+    # ----------------------------------------------------------------------
+    def itemconfig(self, index, **kw):
+        i = self._index(index)
+        if not 0 <= i < len(self._iids):
+            return
+        iid = self._iids[i]
+        # options accumulate like in a Listbox
+        color, back = self._itemColors.get(iid, (None, None))
+        color = kw.get("foreground", color)
+        back = kw.get("background", back)
+        self._itemColors[iid] = (color, back)
+        if color or back:
+            tag = f"c_{color}_{back}"
+            self._colors[tag] = (color, back)
+            self._recolor()
+            self.item(iid, tags=("row", tag))
+
+
+    # ----------------------------------------------------------------------
+    def see(self, index):
+        i = self._index(index)
+        if 0 <= i < len(self._iids):
+            ttk.Treeview.see(self, self._iids[i])
+
+    # ----------------------------------------------------------------------
+    def curselection(self):
+        selected = set(self.selection())
+        return tuple(i for i, iid in enumerate(self._iids) if iid in selected)
+
+    # ----------------------------------------------------------------------
+    # Listbox style selection and cursor handling (indices, not item ids)
+    # ----------------------------------------------------------------------
+    def activate(self, index):
+        i = self._index(index)
+        if 0 <= i < len(self._iids):
+            self.focus(self._iids[i])
+
+    # ----------------------------------------------------------------------
+    def selection_set(self, first, last=None):
+        a = self._index(first)
+        b = a if last is None else self._index(last)
+        self._silently(ttk.Treeview.selection_set, self, self._iids[a:b + 1])
+
+    # ----------------------------------------------------------------------
+    def selection_clear(self, first=None, last=None):
+        self._silently(ttk.Treeview.selection_remove, self, self._iids)
+
+    # ----------------------------------------------------------------------
+    def selection_includes(self, index):
+        i = self._index(index)
+        return 0 <= i < len(self._iids) and self._iids[i] in self.selection()
+
+    # ----------------------------------------------------------------------
+    def index(self, index):
+        return self._index(index)
+
+    # ----------------------------------------------------------------------
+    def nearest(self, y):
+        iid = self.identify_row(y)
+        if iid in self._iids:
+            return self._iids.index(iid)
+        return max(len(self._iids) - 1, 0)
+
+    # ----------------------------------------------------------------------
+    def bbox(self, index, column=None):
+        i = self._index(index)
+        if not 0 <= i < len(self._iids):
+            return None
+        box = ttk.Treeview.bbox(self, self._iids[i], column or "#0")
+        return tuple(box) if box else None
+
+    # ----------------------------------------------------------------------
+    def set(self, index, text):
+        i = self._index(index)
+        if 0 <= i < len(self._iids):
+            self.item(self._iids[i], text=str(text))
+
+    # ----------------------------------------------------------------------
+    def listbox(self, i=0):
+        return self
+
+    # ----------------------------------------------------------------------
+    def popupMenu(self, event):
+        i = self.nearest(event.y)
+        menu = Menu(self, tearoff=0)
+
+        def copy():
+            self.clipboard_clear()
+            self.clipboard_append(self.get(i))
+        menu.add_command(label="Copy", command=copy)
+        menu.tk_popup(event.x_root, event.y_root)
+        return "break"
+
+
+# =============================================================================
+# Two column list (name, value) for the tools; Listbox style access is by the
+# value column, as the in-place editors and the tools work on the value
+# =============================================================================
+class ToolList(ListView):
+    def __init__(self, master, **kw):
+        kw.setdefault("selectmode", "browse")
+        kw.setdefault("style", "Tool.Treeview")
+        ListView.__init__(self, master, **kw)
+        self.configure(columns=("value",))
+        self.column("#0", stretch=False, width=190, minwidth=60)
+        self.column("value", stretch=True, width=120)
+        self.tag_configure("row", font="TkDefaultFont")
+        self._raw = {}  # item id -> full value
+        self.sortAssist = None
+
+    # ----------------------------------------------------------------------
+    def insert(self, index, item):
+        name, value = item
+        pos = min(self._index(index, True), len(self._iids))
+        iid = ttk.Treeview.insert(self, "", pos, text=str(name),
+                                  values=(self._shown(value),), tags=("row",))
+        self._iids.insert(pos, iid)
+        self._raw[iid] = str(value)
+
+    # ----------------------------------------------------------------------
+    def get(self, first, last=None):
+        return self._raw[self._iids[self._index(first)]]
+
+    def row(self, index):
+        i = self._index(index)
+        return (self.item(self._iids[i], "text"), self._raw[self._iids[i]])
+
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def _shown(value):
+        """Multi line values are shown on one line"""
+        return str(value).replace("\r", "").replace("\n", " ")
+
+    # ----------------------------------------------------------------------
+    def delete(self, first, last=None):
+        a = self._index(first)
+        b = a if last is None else self._index(last)
+        for iid in self._iids[a:b + 1]:
+            self._raw.pop(iid, None)
+        ListView.delete(self, first, last)
+
+    # ----------------------------------------------------------------------
+    def set(self, index, text):
+        i = self._index(index)
+        if 0 <= i < len(self._iids):
+            self._raw[self._iids[i]] = str(text)
+            self.item(self._iids[i], values=(self._shown(text),))
+
+    # ----------------------------------------------------------------------
+    def bbox(self, index, column="value"):
+        return ListView.bbox(self, index, column)
+
+    # ----------------------------------------------------------------------
+    def bindList(self, sequence, func):
+        return self.bind(sequence, func)
+
+    # ----------------------------------------------------------------------
+    def bindValue(self, sequence, func):
+        """Binding that only reacts on the value column"""
+        def handler(event):
+            if event.type != "2" and self.identify_column(event.x) != "#1":
+                return None
+            return func(event)
+        return self.bind(sequence, handler)
+
+    # ----------------------------------------------------------------------
+    def itemconfig(self, index, **kw):
+        back = kw.get("background")
+        if back:
+            # contrasting text on the colored row
+            try:
+                r, g, b = (v // 256 for v in self.winfo_rgb(back))
+                kw["foreground"] = "#000000" if (r * 299 + g * 587 + b * 114) \
+                    > 128000 else "#FFFFFF"
+            except TclError:
+                return
+        ListView.itemconfig(self, index, **kw)
+
+
+
+
+# =============================================================================
+class Separator(ttk.Frame):
+    """The ttk separator draws its own bright 3D lines, this is one flat line"""
+
+    def __init__(self, master, **kw):
+        ttk.Frame.__init__(self, master, style="Separator.TFrame", width=1,
+                           **kw)
+
+
+# =============================================================================
+class TtkProgressBar(ttk.Frame):
+    """Progress bar with a text label on top, see ProgressBar"""
+
+    setAuto = ProgressBar.setAuto
+    setShowTime = ProgressBar.setShowTime
+    setStartTime = ProgressBar.setStartTime
+    setLimits = ProgressBar.setLimits
+    setProgress = ProgressBar.setProgress
+    getProgress = ProgressBar.getProgress
+    autoText = ProgressBar.autoText
+    clear = ProgressBar.clear
+
+    def __init__(self, master, width=1, height=20):
+        ttk.Frame.__init__(self, master, width=width, height=height)
+        self.bar = ttk.Progressbar(self, maximum=100)
+        self.bar.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.label = ttk.Label(self, style="Progress.TLabel")
+        self.label.place(relx=0.5, rely=0.5, anchor="center")
+        # drawn instead of the above while a program is running
+        self.canvas = ProgressBar(self, height=height, highlightthickness=0)
+        self.running = False
+        self.auto = True
+        self.showTime = True
+        self.setLimits()
+        self.winfo_toplevel().bind(
+            "<<AppearanceChanged>>", self._appearanceChanged, add="+"
+        )
+
+    # ----------------------------------------------------------------------
+    def _appearanceChanged(self, event=None):
+        if self.running:
+            self.canvas.config(background=self._emptyColor())
+
+    # ----------------------------------------------------------------------
+    def _emptyColor(self):
+        return DARK["field"] if isDark(self) else "DarkGray"
+
+    # ----------------------------------------------------------------------
+    def draw(self, event=None):
+        self.bar["value"] = 100 * (self.done - self.low) / self.length
+        c = self.canvas
+        c.low, c.high, c.length = self.low, self.high, self.length
+        c.done, c.now = self.done, self.now
+        c.draw()
+
+    # ----------------------------------------------------------------------
+    def setText(self, txt):
+        self.label["text"] = txt
+        self.canvas.setText(txt)
+
+    # ----------------------------------------------------------------------
+    def configText(self, text=None, anchor=None, fill=None):
+        if text is not None:
+            self.setText(text)
+        if anchor == "w":
+            self.label.place(relx=0, rely=0.5, anchor="w")
+            self.canvas.itemconfig(self.canvas.text, anchor="w", justify=LEFT)
+        if fill is not None:
+            self.canvas.configText(fill=fill)
+
+    # ----------------------------------------------------------------------
+    # DarkGray background is the running state, anything else the idle one
+    def config(self, **kw):
+        background = kw.pop("background", None)
+        self.running = background == "DarkGray"
+        if self.running:
+            self.canvas.config(background=self._emptyColor())
+            self.canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
+        elif background is not None:
+            self.canvas.place_forget()
+        if kw:
+            ttk.Frame.config(self, **kw)
+
+
+# =============================================================================
+# Theme following the system appearance
+# =============================================================================
+LIGHT = {
+    "background": "#D9D9D9", "foreground": "#000000", "field": "#FFFFFF",
+    "active": "#ECECEC", "selected": "#ECECEC", "relief": "raised", "coord": "#8B0000", "separator": "#A0A0A0",
+    "caption": "#A6A2A0", "readout": "#00008B",
+    "light": "#F4F4F4", "darkc": "#A0A0A0", "border": "#7A7A7A",
+    "tabborder": "#9A9A9A", "tablight": "#FFFFFF", "disabled": "#A3A3A3",
+    "trough": "#C4C4C4", "edge": "#7A7A7A", "handle": "#ECECEC",
+    "grip": "#8F8F8F",
+    "sent": "#0000FF", "error": "#FF0000", "info": "#FF00FF",
+    "buffer": "#FFFFE0", "tipbg": "#FFFFE0", "tipfg": "#000000",
+}
+DARK = {
+    "background": "#2B2B2B", "foreground": "#EDEDED", "field": "#1E1E1E",
+    "active": "#3C3C3C", "selected": "#4A4A4A", "relief": "raised",
+    "light": "#505050", "darkc": "#181818", "border": "#101010",
+    "coord": "#FF8080", "separator": "#444444",
+    "tabborder": "#3A3A3A", "tablight": "#666666", "disabled": "#808080",
+    "caption": "#202020", "readout": "#8CB4FF",
+    "trough": "#1E1E1E", "edge": "#101010", "handle": "#4A4A4A",
+    "grip": "#8A8A8A",
+    "sent": "#7AA2FF", "error": "#FF6B6B", "info": "#FF8CFF",
+    "buffer": "#3A3A28", "tipbg": "#4A4A3A", "tipfg": "#EDEDED",
+}
+
+
+def isDark(root):
+    try:
+        return sum(root.winfo_rgb("systemWindowBackgroundColor")) < 3 * 32768
+    except TclError:  # not macOS
+        return False
+
+
+def stateColor(root, color, base="TButton"):
+    """Style name of a button coloured with a machine state color"""
+    dark = isDark(root)
+    name = f"State{color}{int(dark)}.{base}"
+    if dark:
+        # same hue, dimmed to fit the dark panels
+        rgb = [int(v * 0.5) // 256 for v in root.winfo_rgb(color)]
+        color = "#%02x%02x%02x" % tuple(rgb)
+    fg = "white" if dark else "black"
+    style = ttk.Style(root)
+    style.configure(name, background=color, foreground=fg)
+    style.map(name, background=[("active", "LightYellow" if not dark
+                                 else "#606040")])
+    return name
+
+
+_listFont = None
+
+
+def listFont():
+    """Platform fixed font, 2 sizes bigger, used by list views"""
+    global _listFont
+    if _listFont is None:
+        _listFont = tkfont.nametofont("TkFixedFont").copy()
+        size = int(_listFont.cget("size"))
+        _listFont.configure(size=size + 2 if size > 0 else size - 2)
+    return _listFont
+
+
+_scaleImages = []
+_scaleCount = 0
+
+
+def _scaleElements(style, c):
+    """Same slider look (bar trough, square grip handle) in every ttk theme"""
+    global _scaleCount
+    try:
+        from PIL import Image, ImageDraw, ImageTk
+    except ImportError:
+        return
+
+    def trough(w=9, h=14):
+        img = Image.new("RGBA", (w, h), c["edge"])
+        ImageDraw.Draw(img).rectangle((1, 1, w - 2, h - 2), fill=c["trough"])
+        return img
+
+    def handle(fill, grip, w=28, h=14):
+        img = Image.new("RGBA", (w, h), c["edge"])
+        d = ImageDraw.Draw(img)
+        d.rectangle((1, 1, w - 2, h - 2), fill=fill)
+        mid = w // 2
+        for x in (mid - 3, mid, mid + 3):
+            d.line((x, 3, x, h - 4), fill=grip)
+        return img
+
+    bar = ImageTk.PhotoImage(trough())
+    knob = ImageTk.PhotoImage(handle(c["handle"], c["grip"]))
+    off = ImageTk.PhotoImage(handle(c["trough"], c["edge"]))
+    _scaleImages.extend((bar, knob, off))
+    # element names must be unique, the node name is the last component
+    _scaleCount += 1
+    prefix = f"Custom{_scaleCount}.Scale"
+    style.element_create(f"{prefix}.trough", "image", bar,
+                         border=(3, 3, 3, 3), sticky="ew")
+    style.element_create(f"{prefix}.slider", "image", knob,
+                         ("disabled", off))
+    style.layout("Horizontal.TScale", [(f"{prefix}.trough", {
+        "sticky": "nswe", "children": [
+            (f"{prefix}.slider", {"side": "left", "sticky": ""})]})])
+
+
+def readoutColor(widget):
+    """Text color for values displayed in the current appearance"""
+    return (DARK if isDark(widget) else LIGHT)["readout"]
+
+
+def themeText(widget):
+    """Colors a classic tk Text/Listbox like the ttk entries, also when the
+    appearance changes"""
+    def colors(event=None):
+        c = DARK if isDark(widget) else LIGHT
+        options = {"background": c["field"], "foreground": c["foreground"],
+                   "insertbackground": c["foreground"],
+                   "selectbackground": c["selected"],
+                   "selectforeground": c["foreground"],
+                   "highlightthickness": 0}
+        try:
+            known = widget.keys()
+            widget.config(**{k: v for k, v in options.items() if k in known})
+        except TclError:
+            pass
+    colors()
+    widget.winfo_toplevel().bind("<<AppearanceChanged>>", colors, add="+")
+
+
+def applyTheme(root):
+    dark = isDark(root)
+    c = DARK if dark else LIGHT
+    bg, fg, field = c["background"], c["foreground"], c["field"]
+    style = ttk.Style(root)
+    # one base theme for both appearances, so only colors differ and the
+    # layout can not change when switching; clam allows to set the 3D edges
+    style.theme_use("clam")
+    style.configure(".", background=bg, foreground=fg)
+    style.configure("Tab.Toolbutton", anchor="center")
+    style.configure(".", lightcolor=c["light"], darkcolor=c["darkc"],
+                    bordercolor=c["border"])
+    # keep the sizes of the default theme
+    # groove: dark outer line and light inner line on all four sides
+    # disabled labels and checkboxes keep the panel background
+    style.map(".", background=[("disabled", bg), ("active", c["active"])],
+              foreground=[("disabled", c["disabled"])])
+    style.configure("TLabelframe", relief="raised",
+                    lightcolor=c["light"], darkcolor=c["light"])
+    # concave tabs: soft outer line, dark inner line on top-left and
+    # light inner line on bottom-right
+    style.configure("Toolbutton", bordercolor=c["tabborder"],
+                    lightcolor=c["tablight"], darkcolor=c["darkc"])
+    style.map("Toolbutton", lightcolor=[("pressed", c["tablight"])],
+              darkcolor=[("pressed", c["darkc"])])
+    style.configure("TButton", padding="1.5p", width=-9)
+    style.configure("Toolbutton", padding="0.75p")
+    style.configure("TMenubutton", padding="7.5p 2.25p", width=-9)
+    style.configure("TCheckbutton", padding="0.75p")
+    style.configure("TRadiobutton", padding="0.75p")
+    style.configure("TEntry", fieldbackground=field, foreground=fg,
+                    insertcolor=fg)
+    style.configure("TCombobox", fieldbackground=field, foreground=fg,
+                    arrowcolor=fg)
+    disabledBg = [("disabled", bg)]
+    disabledFg = [("disabled", c.get("disabled", "#A3A3A3"))]
+    style.map("TCombobox",
+              fieldbackground=disabledBg + [("readonly", field)],
+              foreground=disabledFg + [("readonly", fg)],
+              selectbackground=[("readonly", field)],
+              selectforeground=[("readonly", fg)])
+    style.map("TEntry", fieldbackground=disabledBg, foreground=disabledFg)
+    style.configure("Horizontal.TProgressbar", troughcolor=field if dark else bg)
+    style.configure("Progress.TLabel", background=field if dark else bg)
+    style.configure("Coord.TLabel", foreground=c["coord"])
+    _scaleElements(style, c)
+    # clam scrollbars are bright by default
+    style.configure("TScrollbar", troughcolor=field, background=c["selected"],
+                    bordercolor=c["border"], arrowcolor=fg,
+                    lightcolor=c["light"], darkcolor=c["darkc"])
+    style.map("TScrollbar", background=[("active", c["tablight"])])
+    # entries, dropdowns and buttons are all 22px high
+    style.configure("TButton", padding=(2, 0))
+    style.configure("Editor.Treeview",
+                    rowheight=listFont().metrics("linespace") + 2)
+    style.configure("Tool.Treeview", rowheight=tkfont.nametofont(
+        "TkDefaultFont").metrics("linespace") + 4)
+    # list views (terminal, buffer)
+    style.configure("Treeview", background=field, fieldbackground=field,
+                    foreground=fg, borderwidth=1)
+    style.map("Treeview", background=[("selected", c["selected"])],
+              foreground=[("selected", fg)])
+    style.configure("Buffer.Treeview", background=c["buffer"],
+                    fieldbackground=c["buffer"])
+    # rows sized to fit the platform's fixed font (set per item in ListView)
+    style.configure("Treeview", rowheight=listFont().metrics("linespace") + 2)
+    style.configure("Treeview.Item", padding=(6, 0, 0, 0))
+    # no expand indicator in front of the text, only a small left padding
+    style.layout("Treeview.Item", [("Treeitem.padding", {
+        "sticky": "nswe", "children": [
+            ("Treeitem.image", {"side": "left", "sticky": ""}),
+            ("Treeitem.focus", {"side": "left", "sticky": "", "children": [
+                ("Treeitem.text", {"side": "left", "sticky": ""})]})]})])
+    # minimum button width in characters, same in both themes
+    style.configure("TButton", width=-5)
+    style.configure("Readout.TLabel", foreground=c["readout"])
+    style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5)
+    style.configure("Left.Ribbon.TButton", anchor="w")
+    # toggle (radio/check) buttons of the ribbon, same metrics as Ribbon.TButton
+    style.configure("Ribbon.Toolbutton", padding=(8, "1.5p"), width=-5,
+                    relief=c["relief"], anchor="center")
+    style.configure("Left.Ribbon.Toolbutton", anchor="w")
+    global _tabFont
+    _tabFont = tkfont.nametofont("TkDefaultFont").copy()
+    _tabFont.configure(weight="bold")
+    style.configure("Tab.Toolbutton", font=_tabFont)
+    global _wcsFont
+    _wcsFont = tkfont.nametofont("TkDefaultFont").copy()
+    _wcsFont.configure(weight="bold")
+    style.configure("WCS.Toolbutton", font=_wcsFont, foreground=c["coord"],
+                    anchor="center", justify="center", relief=c["relief"],
+                    padding=1)
+    global _statusFont
+    _statusFont = tkfont.nametofont("TkDefaultFont").copy()
+    _statusFont.configure(weight="bold")
+    # taller buttons of the connection status and the DRO (X=0, Set WPOS...)
+    pad = (2, 2)
+    style.configure("Status.TButton", font=_statusFont, padding=pad)
+    style.configure("Dro.TButton", padding=pad)
+    global _executeFont
+    _executeFont = tkfont.nametofont("TkDefaultFont").copy()
+    _executeFont.configure(weight="bold")
+    _executeFont.configure(size=int(_executeFont.cget("size")) + 2)
+    style.configure("Execute.TButton", font=_executeFont,
+                    foreground=c["coord"])
+    style.configure("Center.Toolbutton", anchor="center", justify="center")
+    style.configure("Caption.TLabel", background=c["caption"])
+    style.configure("Caption.TButton", background=c["caption"])
+    style.map("Caption.TButton", background=[("active", c["active"])])
+    # Same metrics as Caption.TLabel (see LabelGroup in Ribbon.py)
+    style.configure("Caption.TButton", padding=(2, 1), borderwidth=0,
+                    font=("Sans", "-11"), shiftrelief=0)
+    # Same element stack for both, so theme borders don't change their height
+    style.layout("Caption.TButton", [("Label.padding", {"sticky": "nswe",
+                 "children": [("Label.label", {"sticky": "nswe"})]})])
+    style.layout("Caption.TLabel", [("Label.padding", {"sticky": "nswe",
+                 "children": [("Label.label", {"sticky": "nswe"})]})])
+    style.configure("Separator.TFrame", background=c["separator"])
+    style.configure("Toolbutton", relief="flat")
+    style.map("Toolbutton", relief=[("pressed", "sunken"),
+                                    ("selected", "sunken")])
+    for name in ("TButton", "TCombobox", "Toolbutton", "TMenubutton"):
+        style.configure(name, background=bg)
+        style.map(name, background=[("selected", c["selected"]),
+                                    ("active", c["active"])])
+    for name in ("TButton", "TCombobox", "TMenubutton"):
+        style.configure(name, relief=c["relief"])
+        style.map(name, background=[("selected", c["selected"]),
+                                    ("active", c["active"])],
+                  relief=[("pressed", "sunken"), ("selected", "sunken")])
+    for name in ("TCheckbutton", "TRadiobutton"):
+        style.map(name, background=[("active", c["active"])])
+        # concave box: dark upper-left, light lower-right edge
+        style.configure(name, indicatorbackground=field,
+                        indicatorforeground=fg,
+                        upperbordercolor=c["darkc"],
+                        lowerbordercolor=c["light"])
+        style.map(name, indicatorbackground=[("pressed", c["active"]),
+                                             ("!pressed", field)],
+                  indicatorforeground=[("disabled", c["selected"]),
+                                       ("!disabled", fg)])
+    root.option_add("*TCombobox*Listbox.background", field)
+    root.option_add("*TCombobox*Listbox.foreground", fg)
+    root.option_add("*TCombobox*Listbox.selectBackground", c["selected"])
+    root.option_add("*TCombobox*Listbox.selectForeground", fg)
+    # white focus ring around classic tk Entry widgets
+    entry = {"highlightbackground": bg}
+    root.option_add("*Entry.highlightBackground", bg)
+
+    def recolor(widget):
+        for child in widget.winfo_children():
+            if child.winfo_class() == "Entry":
+                child.config(**entry)
+            recolor(child)
+    recolor(root)
+
+
+def setTheme(root, interval=1000):
+    state = [None]
+
+    def check():
+        dark = isDark(root)
+        if dark != state[0]:
+            state[0] = dark
+            applyTheme(root)
+            root.event_generate("<<AppearanceChanged>>")
+        root.after(interval, check)
+
+    check()
+
+
 if __name__ == "__main__":
     root = Tk()
     frame = Frame(root)
