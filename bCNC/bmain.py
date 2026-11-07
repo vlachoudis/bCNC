@@ -170,7 +170,7 @@ class Application(Tk, Sender):
         # Status bar
         frame = ttk.Frame(self)
         frame.pack(side=BOTTOM, fill=X)
-        self.statusbar = tkExtra.TtkProgressBar(frame, height=20)
+        self.statusbar = tkExtra.TtkProgressBar(frame)
         self.statusbar.pack(side=LEFT, fill=X, expand=YES)
         self.statusbar.configText(fill=tkExtra.readoutColor(self), anchor="w")
 
@@ -188,7 +188,7 @@ class Application(Tk, Sender):
         self.statusx.pack(side=RIGHT)
 
         # Buffer bar
-        self.bufferbar = tkExtra.TtkProgressBar(frame, height=20, width=40)
+        self.bufferbar = tkExtra.TtkProgressBar(frame, width=6)
         self.bufferbar.pack(side=RIGHT, expand=NO)
         self.bufferbar.setLimits(0, 100)
         tkExtra.Balloon.set(self.bufferbar, _("Controller buffer fill"))
@@ -201,7 +201,8 @@ class Application(Tk, Sender):
         frame = ttk.Frame(self.paned)
         self.paned.add(frame)  # , minsize=340)
 
-        pageframe = ttk.Frame(frame)
+        left, top, right, bottom = tkExtra.PANEL_PADDING
+        pageframe = ttk.Frame(frame, padding=(left, top, right, 0))
         pageframe.pack(side=TOP, expand=YES, fill=BOTH)
         self.ribbon.setPageFrame(pageframe)
 
@@ -847,21 +848,26 @@ class Application(Tk, Sender):
         font2 = "Helvetica -12"
         font3 = "Helvetica -10"
 
-        frame = ttk.Frame(toplevel, borderwidth=2, relief=SUNKEN)
-        frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
+        outer = ttk.Frame(toplevel, padding=tkExtra.DIALOG_PADDING)
+        outer.pack(side=TOP, expand=TRUE, fill=BOTH)
+        frame = ttk.Frame(outer, borderwidth=2, relief=SUNKEN)
+        frame.pack(side=TOP, expand=TRUE, fill=BOTH)
 
         # -----
         row = 0
+        box = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        box.grid(row=row, column=0, columnspan=2)
         la = ttk.Label(
-            frame,
+            box,
             image=Utils.icons["bCNC"],
             relief=RAISED,
         )
-        la.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
+        la.pack()
 
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=_(
                 "bCNC/\tAn advanced fully featured\n"
                 "\tg-code sender for GRBL."
@@ -869,164 +875,184 @@ class Application(Tk, Sender):
             font=font3,
             justify=LEFT,
         )
-        la.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
+        la.grid(row=row, column=0, columnspan=2, sticky=W)
 
         # -----
         row += 1
-        f = ttk.Frame(frame, borderwidth=1, relief=SUNKEN, height=2)
-        f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
+        sep = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        sep.grid(row=row, column=0, columnspan=2, sticky=EW)
+        f = ttk.Frame(sep, borderwidth=1, relief=SUNKEN, height=2)
+        f.pack(fill=X)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="www:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__www__,
             justify=LEFT,
             font=font2,
             cursor="hand1",
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W)
         la.bind("<Button-1>", lambda e: webbrowser.open(Utils.__www__))
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="email:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__email__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="author:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__author__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="contributors:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__contribute__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="translations:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__translations__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="credits:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__credits__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="version:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__version__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="last change:",
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
         la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__date__,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = ttk.Button(toplevel, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        bar = ttk.Frame(toplevel, padding=tkExtra.DIALOG_PADDING)
+        bar.pack()
+        b = ttk.Button(bar, text=_("Close"), command=closeFunc)
+        b.pack()
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)
@@ -1251,8 +1277,10 @@ class Application(Tk, Sender):
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = ttk.Button(frame, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        bar = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        bar.pack()
+        b = ttk.Button(bar, text=_("Close"), command=closeFunc)
+        b.pack()
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)

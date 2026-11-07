@@ -352,7 +352,8 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.tlo.bind("<KP_Enter>", self.tloSet)
 
         col += 1
-        b = Button(frame, text=_("set"), command=self.tloSet)
+        b = Button(frame, text=_("set"), command=self.tloSet,
+                   style="Field.TButton")
         b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
@@ -444,7 +445,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         recframe = tkExtra.ExLabelFrame(
             self, text=_("Record"))
-        recframe.pack(side=TOP, expand=YES, fill=X)
+        recframe.pack(side=TOP, expand=YES, fill=X, pady=(0, tkExtra.PANEL_GAP))
 
         self.recz = IntVar()
         self.reczb = Checkbutton(
@@ -509,7 +510,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         # ----------------------------------------------------------------
         lframe = tkExtra.ExLabelFrame(
             self, text=_("Probe"))
-        lframe.pack(side=TOP, fill=X)
+        lframe.pack(side=TOP, fill=X, pady=(0, tkExtra.PANEL_GAP))
 
         row, col = 0, 0
         Label(lframe(), text=_("Probe:")).grid(row=row, column=col, sticky=E)
@@ -608,7 +609,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         # ----------------------------------------------------------------
         lframe = tkExtra.ExLabelFrame(
             self, text=_("Center"))
-        lframe.pack(side=TOP, expand=YES, fill=X)
+        lframe.pack(side=TOP, expand=YES, fill=X, pady=(0, tkExtra.PANEL_GAP))
 
         Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
         self.diameter = tkExtra.FloatEntry(
@@ -766,7 +767,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             lframe(), style="Readout.TLabel", anchor=W
         )
         self.angle_orient.grid(
-            row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1
+            row=row, column=col, columnspan=2, sticky=EW
         )
 
         # Buttons
@@ -791,13 +792,13 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.xo_orient = Label(
             lframe(), style="Readout.TLabel", anchor=W
         )
-        self.xo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+        self.xo_orient.grid(row=row, column=col, sticky=EW)
 
         col += 1
         self.yo_orient = Label(
             lframe(), style="Readout.TLabel", anchor=W
         )
-        self.yo_orient.grid(row=row, column=col, sticky=EW, padx=1)
+        self.yo_orient.grid(row=row, column=col, sticky=EW)
 
         # ---
         row += 1
@@ -808,7 +809,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
             lframe(), style="Readout.TLabel", anchor=W
         )
         self.err_orient.grid(
-            row=row, column=col, columnspan=2, sticky=EW, padx=1, pady=1
+            row=row, column=col, columnspan=2, sticky=EW
         )
 
         lframe().grid_columnconfigure(1, weight=1)
@@ -1507,7 +1508,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, "Probe:Camera", app)
         self.label["background"] = Ribbon._BACKGROUND_GROUP2
-        self.grid3rows()
+        self.grid2rows()
 
         self.switch = BooleanVar()
         self.edge = BooleanVar()
@@ -1525,7 +1526,7 @@ class CameraGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         self.switchButton.grid(
-            row=row, column=col, rowspan=3, padx=5, pady=0, sticky=NSEW
+            row=row, column=col, rowspan=2, sticky=NSEW
         )
         tkExtra.Balloon.set(self.switchButton,
                             _("Switch between camera and spindle"))

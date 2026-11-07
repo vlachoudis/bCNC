@@ -1929,7 +1929,7 @@ class Separator(ttk.Frame):
 
 
 # =============================================================================
-class TtkProgressBar(ttk.Frame):
+class TtkProgressBar(ttk.Label):
     """Progress bar with a text label on top, see ProgressBar"""
 
     setAuto = ProgressBar.setAuto
@@ -1941,14 +1941,19 @@ class TtkProgressBar(ttk.Frame):
     autoText = ProgressBar.autoText
     clear = ProgressBar.clear
 
-    def __init__(self, master, width=1, height=20):
-        ttk.Frame.__init__(self, master, width=width, height=height)
-        self.bar = ttk.Progressbar(self, maximum=100)
+    def __init__(self, master, width=1):
+        # a label like the coordinates of the status bar: the same sunken edge
+        # and the height of one line of text
+        ttk.Label.__init__(self, master, text=" ", width=width,
+                           style="Coord.TLabel", relief="sunken")
+        inner = ttk.Frame(self)  # inside the sunken edge
+        inner.place(x=2, y=2, relwidth=1, relheight=1, width=-4, height=-4)
+        self.bar = ttk.Progressbar(inner, maximum=100)
         self.bar.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.label = ttk.Label(self, style="Progress.TLabel", padding=0)
-        self.label.place(relx=0.5, rely=0.5, relheight=1, height=-2, anchor="center")
+        self.label = ttk.Label(inner, style="Progress.TLabel", padding=0)
+        self.label.place(relx=0.5, rely=0.5, relheight=1, anchor="center")
         # drawn instead of the above while a program is running
-        self.canvas = ProgressBar(self, height=height, highlightthickness=0)
+        self.canvas = ProgressBar(inner, height=1, highlightthickness=0)
         self.running = False
         self.auto = True
         self.showTime = True
@@ -1984,7 +1989,7 @@ class TtkProgressBar(ttk.Frame):
         if text is not None:
             self.setText(text)
         if anchor == "w":
-            self.label.place(relx=0, x=2, rely=0.5, relheight=1, height=-2, anchor="w")
+            self.label.place(relx=0, x=2, rely=0.5, relheight=1, anchor="w")
             self.canvas.itemconfig(self.canvas.text, anchor="w", justify=LEFT)
         if fill is not None:
             self.canvas.configText(fill=fill)
@@ -2006,6 +2011,12 @@ class TtkProgressBar(ttk.Frame):
 # =============================================================================
 # Theme following the system appearance
 # =============================================================================
+# Offsets shared by the side panels (left panel, simulation panel)
+PANEL_PADDING = (5, 0, 5, 10)  # around the content: left, top, right, bottom
+PANEL_GAP = 10  # between two groups
+GROUP_PADDING = 5  # inside a group (label frame)
+DIALOG_PADDING = 5  # around the content of a dialog
+
 LIGHT = {
     "background": "#D9D9D9", "foreground": "#000000", "field": "#FFFFFF",
     "active": "#ECECEC", "selected": "#ECECEC", "relief": "raised", "coord": "#8B0000", "separator": "#A0A0A0",
@@ -2232,7 +2243,7 @@ def applyTheme(root):
     # disabled labels and checkboxes keep the panel background
     style.map(".", background=[("disabled", bg), ("active", c["active"])],
               foreground=[("disabled", c["disabled"])])
-    style.configure("TLabelframe", relief="raised",
+    style.configure("TLabelframe", relief="raised", padding=GROUP_PADDING,
                     lightcolor=c["light"], darkcolor=c["light"])
     # tabs and tool buttons: flat, a pressed one gets the 1px sunken edge of
     # the inputs, no outline
@@ -2264,17 +2275,24 @@ def applyTheme(root):
     for name in ("TButton", "TMenubutton"):
         style.configure(name, bordercolor=bg, lightcolor=c["light"],
                         darkcolor=c["darkc"])
-    style.configure("Horizontal.TProgressbar", troughcolor=field if dark else bg)
-    style.configure("Progress.TLabel", background=field if dark else bg)
-    style.configure("Coord.TLabel", foreground=c["coord"])
+    # the sections of the status bar: panel color, only the sunken 1px edge
+    sunken = dict(bordercolor=bg, lightcolor=c["light"], darkcolor=c["darkc"])
+    style.configure("Horizontal.TProgressbar", troughcolor=bg, **sunken)
+    style.configure("Progress.TLabel", background=bg)
+    # no border element: the text takes the whole line, as in the captions
+    style.layout("Progress.TLabel", [("Label.padding", {"sticky": "nswe",
+                 "children": [("Label.label", {"sticky": "nswe"})]})])
+    style.configure("Coord.TLabel", foreground=c["coord"], **sunken)
     _scaleElements(style, c)
     # clam scrollbars are bright by default
     style.configure("TScrollbar", troughcolor=field, background=c["selected"],
                     bordercolor=c["border"], arrowcolor=fg,
                     lightcolor=c["light"], darkcolor=c["darkc"])
     style.map("TScrollbar", background=[("active", c["tablight"])])
-    # entries, dropdowns and buttons are all 22px high
-    style.configure("TButton", padding=(2, 0))
+    # entries and dropdowns are 22px high, buttons 26px
+    style.configure("TButton", padding=(2, 2))
+    # a button next to an input is as high as the input
+    style.configure("Field.TButton", padding=(2, 0))
     style.configure("Editor.Treeview",
                     rowheight=listFont().metrics("linespace") + 2)
     style.configure("Tool.Treeview", rowheight=tkfont.nametofont(
@@ -2298,6 +2316,8 @@ def applyTheme(root):
     # minimum button width in characters, same in both themes
     style.configure("TButton", width=-5)
     style.configure("Readout.TLabel", foreground=c["readout"])
+    # labels of the About dialog grid
+    style.configure("Dialog.TLabel", padding=(6, 2))
     style.configure("Divider.TFrame", background=c["border"])
     style.configure("DividerLight.TFrame", background=c["light"])
     style.configure("Current.TButton", foreground=c["sent"])
@@ -2321,10 +2341,9 @@ def applyTheme(root):
     global _statusFont
     _statusFont = tkfont.nametofont("TkDefaultFont").copy()
     _statusFont.configure(weight="bold")
-    # taller buttons of the connection status and the DRO (X=0, Set WPOS...)
+    # taller connection status button
     pad = (2, 2)
     style.configure("Status.TButton", font=_statusFont, padding=pad)
-    style.configure("Dro.TButton", padding=pad)
     global _executeFont
     _executeFont = tkfont.nametofont("TkDefaultFont").copy()
     _executeFont.configure(weight="bold")
@@ -2336,7 +2355,7 @@ def applyTheme(root):
     style.configure("Caption.TButton", background=c["caption"])
     style.map("Caption.TButton", background=[("active", c["active"])])
     # Same metrics as Caption.TLabel (see LabelGroup in Ribbon.py)
-    style.configure("Caption.TButton", padding=(2, 1), borderwidth=0,
+    style.configure("Caption.TButton", padding=0, borderwidth=0,
                     font=("Sans", "-11"), shiftrelief=0)
     # Same element stack for both, so theme borders don't change their height
     style.layout("Caption.TButton", [("Label.padding", {"sticky": "nswe",

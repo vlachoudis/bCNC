@@ -267,11 +267,11 @@ class FileDialog(Toplevel):
         self.dirframe.pack(side=TOP, fill=X)
         Label(self.dirframe, text=_("Directory:")).grid(row=0, column=0)
 
-        self.downButton = Label(
-            self.dirframe, text="\u25BC", padding=(3, 1), relief=RAISED
+        self.downButton = Button(
+            self.dirframe, text="\u25BC", width=1, command=self.history
         )
-        self.downButton.bind("<Button-1>", self.history)
-        self.downButton.grid(row=0, column=99)
+        self.downButton.grid(row=0, column=99, sticky=NSEW)
+        self.after_idle(self._squareHistory)
 
         if FileDialog.newfolder is None:
             FileDialog.newfolder = PhotoImage(data=_ICON)
@@ -476,11 +476,16 @@ class FileDialog(Toplevel):
         self.changePath(path)
 
     # ----------------------------------------------------------------------
+    def _squareHistory(self):
+        self.dirframe.grid_columnconfigure(
+            99, minsize=self.dirframe.winfo_reqheight())
+
+    # ----------------------------------------------------------------------
     def history(self, event=None):
         if self._popup is not None:
             self._historyDestroy()
             return
-        self.downButton["relief"] = SUNKEN
+        self.downButton.state(["pressed"])
         self._popup = Toplevel(self)
         self._popup.transient(self)
         self._popup.overrideredirect(1)
@@ -542,7 +547,7 @@ class FileDialog(Toplevel):
 
     # ----------------------------------------------------------------------
     def _historyDestroy(self, event=None):
-        self.downButton["relief"] = RAISED
+        self.downButton.state(["!pressed"])
         self._popup.destroy()
         self._popup = None
         self.grab_set()

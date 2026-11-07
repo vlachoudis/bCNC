@@ -68,7 +68,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         tkExtra.Balloon.set(b, _("Cut [Ctrl-X]"))
-        b.grid(row=0, column=1, padx=0, pady=1, sticky=NSEW)
+        b.grid(row=0, column=1, sticky=NSEW)
         self.addWidget(b)
 
         # ---
@@ -84,7 +84,7 @@ class ClipboardGroup(CNCRibbon.ButtonGroup):
             background=Ribbon._BACKGROUND,
         )
         tkExtra.Balloon.set(b, _("Copy [Ctrl-C]"))
-        b.grid(row=1, column=1, padx=0, pady=1, sticky=NSEW)
+        b.grid(row=1, column=1, sticky=NSEW)
         self.addWidget(b)
 
 

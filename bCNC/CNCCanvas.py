@@ -4454,9 +4454,9 @@ class CanvasFrame(Frame):
 
         # --- SIM Panel ---
         
-        self.simPanel = Frame(self, padding=(5, 10))
+        self.simPanel = Frame(self, padding=tkExtra.PANEL_PADDING)
 
-        lframe = LabelFrame(self.simPanel, text=_("Stock dimensions"), padding=5)
+        lframe = LabelFrame(self.simPanel, text=_("Stock dimensions"))
         lframe.pack(side='top', fill='x')
 
         row, col = 0, 0
@@ -4534,28 +4534,28 @@ class CanvasFrame(Frame):
 
         # --- End Mill data ---
 
-        lframe = LabelFrame(self.simPanel, text=_("End Mill"), padding=(5, 0))
-        lframe.pack(side='top', fill='x', pady=10)
-        self.millType = OptionMenu(lframe, self.canvas.millType, self.canvas.millType.get(), *MILL_TYPES)
+        lframe = LabelFrame(self.simPanel, text=_("End Mill"))
+        lframe.pack(side='top', fill='x', pady=tkExtra.PANEL_GAP)
+        self.millType = tkExtra.Combobox(lframe, True, textvariable=self.canvas.millType, values=list(MILL_TYPES))
         self.millType.pack(side='top', fill='x')
         tkExtra.Balloon.set(self.millType, _("Type of End Mill"))
 
         lineFrame = Frame(lframe)
-        lineFrame.pack(side='top', fill='x', pady=10)
+        lineFrame.pack(side='top', fill='x')
 
         Label(lineFrame, text=_("Diameter:")).pack(side='left')
         self.millDiameter = tkExtra.FloatEntry(lineFrame, width=10, textvariable=self.canvas.millDiameter)
-        self.millDiameter.pack(side='left', fill='x', expand=True, padx=5)
+        self.millDiameter.pack(side='left', fill='x', expand=True)
         tkExtra.Balloon.set(self.millDiameter, _("Mill Diameter"))
         self.addWidget(self.millDiameter)
 
         lineFrame = Frame(lframe)
-        lineFrame.pack(side='top', fill='x', pady=5)
+        lineFrame.pack(side='top', fill='x')
 
         self.millAngleLabel = Label(lineFrame, text=_("Angle:"))
         self.millAngleLabel.pack(side='left')
         self.millAngle = tkExtra.FloatEntry(lineFrame, width=10, textvariable=self.canvas.millAngle)
-        self.millAngle.pack(side='left', fill='x', expand=True, padx=5)
+        self.millAngle.pack(side='left', fill='x', expand=True)
         tkExtra.Balloon.set(self.millAngle, _("V-bit included tip angle (degrees)"))
         self.addWidget(self.millAngle)
         self.canvas.millType.trace_add('write', self.onMillTypeChange)
@@ -4574,10 +4574,10 @@ class CanvasFrame(Frame):
         ).pack(side='top', fill='x')
 
         self.millSelectedPathsOnly = Checkbutton(self.simPanel, text=_("Mill selected paths only"), variable=self.canvas.millSelectedPathsOnly)
-        self.millSelectedPathsOnly.pack(side='top', fill='x', pady=10)
+        self.millSelectedPathsOnly.pack(side='top', fill='x', pady=tkExtra.PANEL_GAP)
 
         b = Button(self.simPanel, text=_("Run simulation"), compound=LEFT, command=self.canvas.runSimulation, image=Utils.icons["start"])
-        b.pack(side='top', fill='x', pady=10)
+        b.pack(side='top', fill='x', pady=tkExtra.PANEL_GAP)
 
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -4757,8 +4757,8 @@ class CanvasFrame(Frame):
     # Canvas toolbar FIXME XXX should be moved to CNCCanvas
     # ----------------------------------------------------------------------
     def createCanvasToolbar(self, toolbar):
-        b = OptionMenu(toolbar, self.view, self.view.get(), *VIEWS)
-        b.unbind("F10")
+        b = tkExtra.Combobox(toolbar, True, textvariable=self.view,
+                             values=list(VIEWS), width=max(map(len, VIEWS)))
         b.pack(side=LEFT)
         tkExtra.Balloon.set(b, _("Change viewing angle"))
 
@@ -4785,7 +4785,7 @@ class CanvasFrame(Frame):
 
         Label(toolbar, text=_("Tool:"),
               image=Utils.icons["sep"], compound=LEFT).pack(
-            side=LEFT, padx=2
+            side=LEFT
         )
         # -----
         # Tools
@@ -4829,7 +4829,7 @@ class CanvasFrame(Frame):
         # -----------
         Label(toolbar, text=_("Draw:"), image=Utils.icons["sep"],
               compound=LEFT).pack(
-            side=LEFT, padx=2
+            side=LEFT
         )
 
         b = Checkbutton(

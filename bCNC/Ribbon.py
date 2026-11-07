@@ -60,9 +60,14 @@ class LabelGroup(Frame):
         self.frame = Frame(self)
         self.frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=0, pady=0)
 
+        # fixed height caption, the same for the label and the button variants
+        caption = Frame(self, height=16)
+        caption.pack_propagate(False)
+        caption.pack(side=BOTTOM, fill=X)
+
         if command:
             self.label = Button(
-                self,
+                caption,
                 text=name,
                 image=Utils.icons["triangle_down"],
                 compound=RIGHT,
@@ -71,14 +76,13 @@ class LabelGroup(Frame):
             )
         else:
             self.label = Label(
-                self,
+                caption,
                 style="Caption.TLabel",
                 text=_(name),
                 font=_FONT,
                 anchor="center",
-                padding=(2, 1),
             )
-        self.label.pack(side=BOTTOM, fill=X, pady=0)
+        self.label.pack(fill=BOTH, expand=TRUE)
 
     # -----------------------------------------------------------------------
     def grid2rows(self):
@@ -523,7 +527,7 @@ class TabRibbonFrame(Frame):
         self.tool["redo"] = b
 
         tkExtra.Separator(frame).pack(
-            side=LEFT, fill=Y, padx=3
+            side=LEFT, fill=Y
         )
 
         # --- Help ---
@@ -535,10 +539,10 @@ class TabRibbonFrame(Frame):
             style="TButton",
         )
         tkExtra.Balloon.set(b, _("Help [F1]"))
-        b.pack(side=RIGHT, padx=2)
+        b.pack(side=RIGHT)
 
         tkExtra.Separator(frame).pack(
-            side=RIGHT, fill=Y, padx=3
+            side=RIGHT, fill=Y
         )
 
         # --- TabBar ---
@@ -580,7 +584,7 @@ class TabRibbonFrame(Frame):
         )
         tkExtra.Balloon.set(page._tab, page.__doc__)
 
-        page._tab.pack(side=side, fill=Y, padx=5)
+        page._tab.pack(side=side, fill=Y)
         self.after_idle(self._equalTabs)
 
     # ----------------------------------------------------------------------
@@ -650,7 +654,8 @@ class TabRibbonFrame(Frame):
             frame.pack(in_=self._ribbonFrame, **args)
 
         for frame, args in page.frames:
-            frame.pack(in_=self._pageFrame, **args)
+            frame.pack(in_=self._pageFrame,
+                       **{"pady": (0, tkExtra.PANEL_GAP), **args})
 
         self.oldActive = page
         page.activate()

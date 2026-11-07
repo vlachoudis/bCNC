@@ -50,25 +50,25 @@ class CheckUpdateDialog(Toplevel):
         la.pack(side=TOP, fill=BOTH)
 
         # ----
-        frame = LabelFrame(self, text="Version", padding=(3, 5))
+        frame = LabelFrame(self, text="Version")
         frame.pack(side=TOP, fill=BOTH)
 
         la = Label(frame, text=_("Installed Version:"))
-        la.grid(row=0, column=0, sticky=E, pady=1)
+        la.grid(row=0, column=0, sticky=E)
 
         la = Label(frame, text=version, anchor=W)
         la.grid(row=0, column=1, sticky=EW)
         tkExtra.Balloon.set(la, _("Running version of bCNC"))
 
         la = Label(frame, text=_("Latest PyPI Version:"))
-        la.grid(row=1, column=0, sticky=E, pady=1)
+        la.grid(row=1, column=0, sticky=E)
 
         self.webversion = Label(frame, anchor=W)
         self.webversion.grid(row=1, column=1, sticky=EW)
         tkExtra.Balloon.set(self.webversion,
                             _("Latest release version on PyPI"))
         la = Label(frame, text=_("Published at:"))
-        la.grid(row=2, column=0, sticky=E, pady=1)
+        la.grid(row=2, column=0, sticky=E)
 
         self.published = Label(frame, anchor=W)
         self.published.grid(row=2, column=1, sticky=EW)
@@ -79,11 +79,11 @@ class CheckUpdateDialog(Toplevel):
         frame.grid_columnconfigure(1, weight=1)
 
         # ----
-        frame = LabelFrame(self, text=_("Check Interval"), padding=(3, 5))
+        frame = LabelFrame(self, text=_("Check Interval"))
         frame.pack(fill=BOTH)
 
         la = Label(frame, text=_("Last Check:"))
-        la.grid(row=0, column=0, sticky=E, pady=1)
+        la.grid(row=0, column=0, sticky=E)
 
         # Last check
         lastCheck = Utils.getInt(Utils.__prg__, "lastcheck", 0)
@@ -97,7 +97,7 @@ class CheckUpdateDialog(Toplevel):
         tkExtra.Balloon.set(la, _("Date last checked"))
 
         la = Label(frame, text=_("Interval (days):"))
-        la.grid(row=1, column=0, sticky=E, pady=1)
+        la.grid(row=1, column=0, sticky=E)
 
         checkInt = Utils.getInt(Utils.__prg__, "checkinterval", 30)
         self.checkInterval = IntVar()
