@@ -2322,7 +2322,8 @@ def applyTheme(root):
     style.configure("DividerLight.TFrame", background=c["light"])
     style.configure("Current.TButton", foreground=c["sent"])
     style.configure("Forward.TButton", foreground=c["disabled"])
-    style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5)
+    style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5,
+                    justify="center")
     style.configure("Left.Ribbon.TButton", anchor="w")
     # toggle (radio/check) buttons of the ribbon, same metrics as Ribbon.TButton
     style.configure("Ribbon.Toolbutton", padding=(8, "1.5p"), width=-5,

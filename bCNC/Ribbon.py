@@ -118,11 +118,12 @@ class _KeyboardFocus:
 
 
 def _ribbonStyle(kw, style):
-    """ttk buttons have no anchor, width and background options: the left
-    aligned style is used when the icon is beside the text"""
+    """ttk buttons have no anchor, justify, width and background options: the
+    left aligned style is used when the icon is beside the text"""
     left = kw.pop("anchor", None) == "w" and kw.get("compound") != TOP
     kw.pop("background", None)
     kw.pop("width", None)
+    kw.pop("justify", None)
     kw.setdefault("style", ("Left." if left else "") + style)
     return kw
 
