@@ -2166,50 +2166,31 @@ _fieldImages = []
 
 
 def _recessed(root, style, c):
-    """Text inputs are drawn with a sunken 3D frame like the check boxes:
-    dark on the top and left, light on the bottom and right, 1px, no line
-    around"""
-    dark, light = c["darkc"], c["light"]  # same as the check boxes
-
-    def frame(fill, tl=dark, br=light):
-        img = PhotoImage(width=3, height=3)
-        for y in range(3):
-            for x in range(3):
-                if (x, y) == (1, 1):
-                    color = fill
-                elif max(x, y) == 2:  # bottom, right
-                    color = br
-                else:  # top, left
-                    color = tl
-                img.put(color, to=(x, y))
-        _fieldImages.append(img)
-        return img
-    focus = "#4a6984"
-    normal = frame(c["field"])
-    element = f"Recessed.field{len(_fieldImages)}"
-    style.element_create(
-        element, "image", normal,
-        ("disabled", frame(c["background"])),
-        ("focus", frame(c["field"], focus, focus)),
-        border=1, sticky="nswe")
+    """Text inputs get a sunken 3D frame like the check boxes: dark on the top
+    and left, light on the bottom and right, 1px. It is the built-in border
+    of the buttons, drawn sunken and filled with the color of the inputs
+    (images would make the layout of a page slow)"""
     for name in ("TEntry", "TSpinbox", "TCombobox"):
         field = name[1:] + ".field"
         layout = style.layout(name)
         arrow = [item for item in layout if item[0].endswith(".downarrow")]
         for i, (old, opts) in enumerate(layout):
-            if old == field or old.startswith("Recessed.field"):
+            if old in (field, "Button.border"):
                 new = dict(opts)
                 new.pop("border", None)
-                if name == "TCombobox":  # the arrow button is inside
+                if name == "TCombobox" and old == field:
+                    # the arrow button is inside the frame
                     new["children"] = arrow + list(opts["children"])
-                layout[i] = (element, new)
+                layout[i] = ("Button.border", new)
         if name == "TCombobox":
             layout = [item for item in layout if item not in arrow]
         style.layout(name, layout)
-    # the frame is 1px, the padding gives the other pixel back
-    style.configure("TEntry", padding=2)
-    style.configure("TCombobox", padding=2)
-    style.configure("TSpinbox", padding=(3, 3, 11, 3))
+        style.configure(name, relief="sunken", background=c["field"],
+                        bordercolor=c["background"], lightcolor=c["light"],
+                        darkcolor=c["darkc"])
+        style.map(name, background=[("disabled", c["background"])],
+                  bordercolor=[("focus", "#4a6984")],
+                  relief=[("disabled", "sunken")])
 
 
 def _groove(style, c):
@@ -2277,7 +2258,6 @@ def applyTheme(root):
               selectforeground=[("readonly", fg)])
     style.map("TEntry", fieldbackground=disabledBg, foreground=disabledFg)
     style.map("TSpinbox", fieldbackground=disabledBg, foreground=disabledFg)
-    _recessed(root, style, c)
     _groove(style, c)
     # raised 1px 3D edge on buttons, no outline: light top and left, dark
     # bottom and right
@@ -2401,6 +2381,7 @@ def applyTheme(root):
                 child.config(**entry)
             recolor(child)
     recolor(root)
+    _recessed(root, style, c)  # after the button styles it builds on
 
 
 def setTheme(root, interval=1000):
