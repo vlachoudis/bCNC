@@ -38,16 +38,18 @@ from tkinter import (
     BooleanVar,
     Tk,
     Toplevel,
+    Text,
+    PhotoImage,
+    messagebox,
+)
+from tkinter.ttk import (
     Button,
     Checkbutton,
     Entry,
     Frame,
     Label,
-    Scrollbar,
-    Text,
-    PhotoImage,
     LabelFrame,
-    messagebox,
+    Scrollbar,
 )
 import tkinter.font as tkfont
 import configparser
@@ -572,7 +574,8 @@ class ReportDialog(Toplevel):
         )
         la.pack(side=TOP)
 
-        self.text = Text(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.text = Text(frame)
+        tkExtra.themeText(self.text)
         self.text.pack(side=LEFT, expand=YES, fill=BOTH)
 
         sb = Scrollbar(frame, orient=VERTICAL, command=self.text.yview)
@@ -586,7 +589,7 @@ class ReportDialog(Toplevel):
         la = Label(frame, text=_("Your email"))
         la.pack(side=LEFT)
 
-        self.email = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.email = Entry(frame)
         self.email.pack(side=LEFT, expand=YES, fill=X)
 
         # Automatic error reporting
@@ -596,8 +599,6 @@ class ReportDialog(Toplevel):
             frame,
             text=_("Automatic error reporting"),
             variable=self.err,
-            anchor=E,
-            justify=RIGHT,
         )
         b.pack(side=RIGHT)
 

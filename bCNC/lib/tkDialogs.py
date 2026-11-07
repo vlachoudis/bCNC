@@ -55,17 +55,19 @@ from tkinter import (
     IntVar,
     Tk,
     Toplevel,
+)
+from tkinter import _cnfmerge
+from tkinter.ttk import (
     Button,
     Checkbutton,
     Entry,
     Frame,
     Label,
-    Radiobutton,
-    OptionMenu,
-    Spinbox,
     LabelFrame,
+    OptionMenu,
+    Radiobutton,
+    Spinbox,
 )
-from tkinter import _cnfmerge
 
 import bFileDialog
 import tkExtra
@@ -102,8 +104,8 @@ class Dialog(Toplevel):
 
         cnf = _cnfmerge((cnf, kw))
 
-        fbot = Frame(self, relief=RAISED, bd=1)
-        ftop = Frame(self, relief=RAISED, bd=1)
+        fbot = Frame(self, relief=RAISED, borderwidth=1)
+        ftop = Frame(self, relief=RAISED, borderwidth=1)
         fbot.pack(side=BOTTOM, fill=BOTH)
         ftop.pack(side=TOP, fill=BOTH, expand=YES)
         self.tk.call("grid", "anchor", fbot._w, CENTER)
@@ -181,7 +183,7 @@ class InputDialog(Toplevel):
         elif type_ == "spin":
             self.entry = IntVar()
             self.entry.set(input_)
-            w = Spinbox(self, text=self.entry, from_=from_, to_=to_)
+            w = Spinbox(self, textvariable=self.entry, from_=from_, to_=to_)
 
         else:  # default str
             self.entry = Entry(self)
@@ -286,7 +288,7 @@ class FindReplaceDialog(Toplevel):
         label.pack(side=LEFT)
 
         self.findString_entry = Entry(
-            findString_frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            findString_frame
         )
         self.findString_entry.pack(side=RIGHT, fill=X, expand=YES)
 
@@ -298,8 +300,7 @@ class FindReplaceDialog(Toplevel):
             label.pack(side=LEFT)
 
             self.replaceString_entry = Entry(
-                replaceString_frame,
-                background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                replaceString_frame
             )
             self.replaceString_entry.pack(side=RIGHT, fill=X, expand=YES)
 
@@ -313,7 +314,7 @@ class FindReplaceDialog(Toplevel):
             variable=self.caseVar,
         )
         self.case_check.pack(side=RIGHT)
-        self.case_check.deselect()
+        self.caseVar.set(1)
 
         self.bind("<Escape>", self._close)
         self.bind("<Alt-Key-c>", self._close)
@@ -427,7 +428,7 @@ class Printer(Toplevel):
         self.cmd_label.grid(row=1, column=0, sticky=E)
 
         self.cmd_entry = Entry(
-            frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=30
+            frame, width=30
         )
         self.cmd_entry.grid(row=1, column=1, columnspan=2, sticky=EW)
         self.cmd_entry.insert(0, Printer.cmd)
@@ -442,7 +443,7 @@ class Printer(Toplevel):
         b.grid(row=2, column=0, sticky=W)
 
         self.file_entry = Entry(
-            frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=25
+            frame, width=25
         )
         self.file_entry.grid(row=2, column=1, sticky=EW)
 
@@ -471,7 +472,7 @@ class Printer(Toplevel):
         lbl.grid(row=row, column=0, sticky=E)
 
         paperlist = sorted(Printer.PAPER_FORMAT.keys())
-        o = OptionMenu(frame, self.paperVar, *paperlist)
+        o = OptionMenu(frame, self.paperVar, self.paperVar.get(), *paperlist)
         o.grid(row=row, column=1, sticky=W)
 
         lbl = Label(frame, text="Copies")
@@ -479,10 +480,9 @@ class Printer(Toplevel):
 
         s = Spinbox(
             frame,
-            text=self.copiesVar,
+            textvariable=self.copiesVar,
             from_=1,
             to=100,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=3,
         )
         s.grid(row=row, column=3, sticky=W)
@@ -659,12 +659,13 @@ class ProgressDialog(Toplevel):
         self.transient(master)
         self.title(title)
         self.bar = tkExtra.ProgressBar(
-            self, width=200, height=24, background="DarkGray"
+            self, width=200, height=24, highlightthickness=0,
+            background=tkExtra.DARK["field"] if tkExtra.isDark(self) else "DarkGray",
         )
         self.bar.pack(side=TOP, expand=YES, fill=X)
         self.label = Label(self, width=60)
         self.label.pack(side=TOP, expand=YES, fill=BOTH)
-        b = Button(self, text="Stop", foreground="Darkred", command=self.stop)
+        b = Button(self, text="Stop", command=self.stop)
         b.pack(side=BOTTOM, fill=X, pady=2)
         self.ended = False
 

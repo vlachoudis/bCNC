@@ -22,12 +22,9 @@ from tkinter import (
     IntVar,
     Tk,
     Toplevel,
-    Button,
-    Frame,
-    Label,
-    Spinbox,
-    LabelFrame,
 )
+
+from tkinter.ttk import Button, Frame, Label, LabelFrame, Spinbox
 
 import tkExtra
 import Utils
@@ -50,11 +47,11 @@ class CheckUpdateDialog(Toplevel):
 
         # -----
         la = Label(self, image=Utils.icons["bCNC"],
-                   relief=RAISED, padx=0, pady=0)
+                   relief=RAISED)
         la.pack(side=TOP, fill=BOTH)
 
         # ----
-        frame = LabelFrame(self, text="Version", padx=3, pady=5)
+        frame = LabelFrame(self, text="Version", padding=(3, 5))
         frame.pack(side=TOP, fill=BOTH)
 
         la = Label(frame, text=_("Installed Version:"))
@@ -83,7 +80,7 @@ class CheckUpdateDialog(Toplevel):
         frame.grid_columnconfigure(1, weight=1)
 
         # ----
-        frame = LabelFrame(self, text=_("Check Interval"), padx=3, pady=5)
+        frame = LabelFrame(self, text=_("Check Interval"), padding=(3, 5))
         frame.pack(fill=BOTH)
 
         la = Label(frame, text=_("Last Check:"))
@@ -109,10 +106,9 @@ class CheckUpdateDialog(Toplevel):
 
         s = Spinbox(
             frame,
-            text=self.checkInterval,
+            textvariable=self.checkInterval,
             from_=0,
             to_=365,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         s.grid(row=1, column=1, sticky=EW)
         frame.grid_columnconfigure(1, weight=1)
@@ -181,7 +177,7 @@ class CheckUpdateDialog(Toplevel):
             if self.isNewer(latest_version):
                 self.webversion.config(background="LightGreen")
                 self.checkButton.config(
-                    text=_("Download"), background="LightYellow",
+                    text=_("Download"),
                     command=self.download
                 )
                 tkExtra.Balloon.set(
@@ -208,7 +204,6 @@ class CheckUpdateDialog(Toplevel):
         import webbrowser
 
         webbrowser.open("https://pypi.org/project/bCNC/")
-        self.checkButton.config(background="LightGray")
 
     # ----------------------------------------------------------------------
     def close(self, event=None):

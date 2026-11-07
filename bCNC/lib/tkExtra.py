@@ -5447,6 +5447,7 @@ def applyTheme(root):
     # layout can not change when switching; clam allows to set the 3D edges
     style.theme_use("clam")
     style.configure(".", background=bg, foreground=fg)
+    root.option_add("*Toplevel.background", bg)
     style.configure("Tab.Toolbutton", anchor="center")
     style.configure(".", lightcolor=c["light"], darkcolor=c["darkc"],
                     bordercolor=c["border"])
@@ -5470,6 +5471,8 @@ def applyTheme(root):
     style.configure("TRadiobutton", padding="0.75p")
     style.configure("TEntry", fieldbackground=field, foreground=fg,
                     insertcolor=fg)
+    style.configure("TSpinbox", fieldbackground=field, foreground=fg,
+                    insertcolor=fg, arrowcolor=fg)
     style.configure("TCombobox", fieldbackground=field, foreground=fg,
                     arrowcolor=fg)
     disabledBg = [("disabled", bg)]
@@ -5480,6 +5483,7 @@ def applyTheme(root):
               selectbackground=[("readonly", field)],
               selectforeground=[("readonly", fg)])
     style.map("TEntry", fieldbackground=disabledBg, foreground=disabledFg)
+    style.map("TSpinbox", fieldbackground=disabledBg, foreground=disabledFg)
     style.configure("Horizontal.TProgressbar", troughcolor=field if dark else bg)
     style.configure("Progress.TLabel", background=field if dark else bg)
     style.configure("Coord.TLabel", foreground=c["coord"])
