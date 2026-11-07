@@ -65,7 +65,6 @@ from tkinter import (
     EXTENDED,
     Tk,
     Toplevel,
-    Listbox,
     PhotoImage,
 )
 from tkinter.ttk import Button, Entry, Frame, Label, Scrollbar
@@ -498,13 +497,14 @@ class FileDialog(Toplevel):
 
         sb = Scrollbar(self._popup, orient=VERTICAL, takefocus=False)
         sb.pack(side=RIGHT, fill=Y)
-        self._popupList = Listbox(
+        self._popupList = tkExtra.ListView(
             self._popup,
+            style="Tool.Treeview",
             selectmode=BROWSE,
             takefocus=True,
             yscrollcommand=sb.set,
         )
-        tkExtra.themeText(self._popupList)
+        self._popupList.tag_configure("row", font="TkDefaultFont")
         self._popupList.pack(side=LEFT, fill=BOTH, expand=YES)
         self._popupList.bind("<ButtonRelease-1>", self._historyClick)
         self._popupList.bind("<Return>", self._historyClick)

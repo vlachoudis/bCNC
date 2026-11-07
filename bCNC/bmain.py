@@ -38,9 +38,7 @@ from tkinter import (
     DISABLED,
     Tk,
     Toplevel,
-    Button,
     Frame,
-    Label,
     Listbox,
     Text,
     PhotoImage,
@@ -846,66 +844,52 @@ class Application(Tk, Sender):
         toplevel.transient(self)
         toplevel.title(_("About {} v{}").format(Utils.__prg__, __version__))
 
-        bg = "#707070"
-        fg = "#ffffff"
-
         font2 = "Helvetica -12"
         font3 = "Helvetica -10"
 
-        frame = Frame(toplevel, borderwidth=2, relief=SUNKEN, background=bg)
+        frame = ttk.Frame(toplevel, borderwidth=2, relief=SUNKEN)
         frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
 
         # -----
         row = 0
-        la = Label(
+        la = ttk.Label(
             frame,
             image=Utils.icons["bCNC"],
-            foreground=fg,
-            background=bg,
             relief=RAISED,
-            padx=0,
-            pady=0,
         )
         la.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
 
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text=_(
                 "bCNC/\tAn advanced fully featured\n"
                 "\tg-code sender for GRBL."
             ),
             font=font3,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
         )
         la.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
 
         # -----
         row += 1
-        f = Frame(frame, borderwidth=1, relief=SUNKEN, height=2, background=bg)
+        f = ttk.Frame(frame, borderwidth=1, relief=SUNKEN, height=2)
         f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="www:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
         la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=Utils.__www__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            activeforeground="Blue",
             font=font2,
             cursor="hand1",
         )
@@ -914,21 +898,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="email:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
         la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=__email__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -936,21 +916,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="author:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=__author__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -958,21 +934,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="contributors:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=Utils.__contribute__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -980,21 +952,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="translations:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=Utils.__translations__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -1002,21 +970,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="credits:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=Utils.__credits__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -1024,21 +988,17 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="version:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=__version__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
@@ -1046,30 +1006,26 @@ class Application(Tk, Sender):
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
             text="last change:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
         la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
 
-        la = Label(
+        la = ttk.Label(
             frame,
             text=__date__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
         la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = Button(toplevel, text=_("Close"), command=closeFunc)
+        b = ttk.Button(toplevel, text=_("Close"), command=closeFunc)
         b.pack(pady=5)
         frame.grid_columnconfigure(1, weight=1)
 
