@@ -1672,6 +1672,27 @@ class ToolList(ListView):
         self.tag_configure("row", font="TkDefaultFont")
         self._raw = {}  # item id -> full value
         self.sortAssist = None
+        # a Treeview without headings can not resize its columns, so the
+        # border between the two columns is a handle that can be dragged
+        self._divider = []
+        for style in ("Divider.TFrame", "DividerLight.TFrame"):
+            line = ttk.Frame(self, style=style, width=1, cursor="sb_h_double_arrow")
+            line.bind("<B1-Motion>", self._dragDivider)
+            self._divider.append(line)
+        self.bind("<Configure>", self._placeDivider, add="+")
+
+    # ----------------------------------------------------------------------
+    def _placeDivider(self, event=None):
+        x = int(self.column("#0", "width"))
+        self._divider[0].place(x=x, y=0, relheight=1, width=1)
+        self._divider[1].place(x=x + 1, y=0, relheight=1, width=1)
+
+    # ----------------------------------------------------------------------
+    def _dragDivider(self, event):
+        x = event.x_root - self.winfo_rootx()
+        x = max(60, min(x, self.winfo_width() - 60))
+        self.column("#0", width=x)
+        self._placeDivider()
 
     # ----------------------------------------------------------------------
     def insert(self, index, item):
@@ -2297,6 +2318,8 @@ def applyTheme(root):
     # minimum button width in characters, same in both themes
     style.configure("TButton", width=-5)
     style.configure("Readout.TLabel", foreground=c["readout"])
+    style.configure("Divider.TFrame", background=c["border"])
+    style.configure("DividerLight.TFrame", background=c["light"])
     style.configure("Current.TButton", foreground=c["sent"])
     style.configure("Forward.TButton", foreground=c["disabled"])
     style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5)
