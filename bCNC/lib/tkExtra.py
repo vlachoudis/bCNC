@@ -86,7 +86,6 @@ from tkinter import (
     Label,
     Listbox,
     Menu,
-    Message,
     Radiobutton,
     Scrollbar,
     Text,
@@ -4161,9 +4160,10 @@ class Balloon:
             if Balloon._top is None:
                 Balloon._top = Toplevel()
                 Balloon._top.overrideredirect(1)
-                Balloon._msg = Message(
+                Balloon._msg = ttk.Label(
                     Balloon._top,
-                    aspect=300,
+                    wraplength=300,
+                    padding=2,
                     foreground=Balloon.foreground,
                     background=Balloon.background,
                     relief=SOLID,
@@ -4172,6 +4172,11 @@ class Balloon:
                 )
                 Balloon._msg.pack()
                 Balloon._top.bind("<1>", Balloon.hide)
+                # the first mapping of the window has rounded corners
+                Balloon._top.wm_attributes("-alpha", 0)
+                Balloon._top.update()
+                Balloon._top.withdraw()
+                Balloon._top.wm_attributes("-alpha", 1)
             c = DARK if isDark(widget) else LIGHT
             Balloon._msg.config(
                 text=widget._help, foreground=c["tipfg"], background=c["tipbg"])
