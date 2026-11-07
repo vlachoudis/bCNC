@@ -161,8 +161,6 @@ class ProbeTabGroup(CNCRibbon.ButtonGroup):
         tkExtra.Balloon.set(b, _("Setup probing for manual tool change"))
 
         self.frame.grid_rowconfigure(0, weight=1)
-        for c in range(4):
-            self.frame.grid_columnconfigure(c, uniform="probetab")
 
 
 # =============================================================================

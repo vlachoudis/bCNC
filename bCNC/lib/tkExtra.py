@@ -2414,10 +2414,20 @@ def applyTheme(root):
     entry = {"highlightbackground": bg}
     root.option_add("*Entry.highlightBackground", bg)
 
+    # classic tk menus, also on Linux (the native menus of macOS ignore this)
+    menu = {"background": bg, "foreground": fg,
+            "activebackground": c["selected"], "activeforeground": fg,
+            "disabledforeground": c["disabled"]}
+    for name in ("background", "foreground", "activeBackground",
+                 "activeForeground", "disabledForeground"):
+        root.option_add(f"*Menu.{name}", menu[name.lower()])
+
     def recolor(widget):
         for child in widget.winfo_children():
             if child.winfo_class() == "Entry":
                 child.config(**entry)
+            elif child.winfo_class() == "Menu":
+                child.config(**menu)
             recolor(child)
     recolor(root)
     _recessed(root, style, c)  # after the button styles it builds on
