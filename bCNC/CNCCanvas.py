@@ -65,6 +65,7 @@ from tkinter.ttk import (
     Checkbutton,
     Frame,
     Label,
+    LabelFrame,
     OptionMenu,
     Radiobutton,
 )
@@ -4463,30 +4464,30 @@ class CanvasFrame(tk.Frame):
 
         # --- SIM Panel ---
         
-        self.simPanel = tk.Frame(self, padx=5, pady=10)
+        self.simPanel = Frame(self, padding=(5, 10))
 
-        lframe = tk.LabelFrame(self.simPanel, text=_("Stock dimensions"), foreground=tkExtra.readoutColor(self.simPanel), padx=5, pady = 5)
+        lframe = LabelFrame(self.simPanel, text=_("Stock dimensions"), padding=5)
         lframe.pack(side='top', fill='x')
 
         row, col = 0, 0
         # Empty
         col += 1
-        tk.Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
+        Label(lframe, text=_("Min")).grid(row=row, column=col, sticky=EW)
         col += 1
-        tk.Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
+        Label(lframe, text=_("Max")).grid(row=row, column=col, sticky=EW)
 
         # --- X ---
         row += 1
         col = 0
-        tk.Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
+        Label(lframe, text=_("X:")).grid(row=row, column=col, sticky=E)
         col += 1
-        self.stockXmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockXmin = tkExtra.FloatEntry(lframe, width=5)
         self.stockXmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockXmin, _("X minimum"))
         self.addWidget(self.stockXmin)
 
         col += 1
-        self.stockXmax = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockXmax = tkExtra.FloatEntry(lframe, width=5)
         self.stockXmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockXmax, _("X maximum"))
         self.addWidget(self.stockXmax)
@@ -4494,15 +4495,15 @@ class CanvasFrame(tk.Frame):
         # --- Y ---
         row += 1
         col = 0
-        tk.Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
+        Label(lframe, text=_("Y:")).grid(row=row, column=col, sticky=E)
         col += 1
-        self.stockYmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockYmin = tkExtra.FloatEntry(lframe, width=5)
         self.stockYmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockYmin, _("Y minimum"))
         self.addWidget(self.stockYmin)
 
         col += 1
-        self.stockYmax = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockYmax = tkExtra.FloatEntry(lframe, width=5)
         self.stockYmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockYmax, _("Y maximum"))
         self.addWidget(self.stockYmax)
@@ -4510,22 +4511,22 @@ class CanvasFrame(tk.Frame):
         # --- Z ---
         row += 1
         col = 0
-        tk.Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
+        Label(lframe, text=_("Z:")).grid(row=row, column=col, sticky=E)
         col += 1
-        self.stockZmin = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockZmin = tkExtra.FloatEntry(lframe, width=5)
         self.stockZmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockZmin, _("Z minimum"))
         self.addWidget(self.stockZmin)
 
         col += 1
-        self.stockZmax = tkExtra.FloatEntry(lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5)
+        self.stockZmax = tkExtra.FloatEntry(lframe, width=5)
         self.stockZmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.stockZmax, _("Z maximum"))
         self.addWidget(self.stockZmax)
 
         row += 1
         self.stockRelative = BooleanVar(value=True)
-        tk.Checkbutton(
+        Checkbutton(
             lframe,
             text=_("Relative to G-code bounds"),
             variable=self.stockRelative,
@@ -4534,7 +4535,7 @@ class CanvasFrame(tk.Frame):
         # --- Update button ---
         row += 1
         col = 1
-        bRefresh = tk.Button(lframe, text=_("Update"), compound=LEFT, command=self.updateStockSize, image=Utils.icons["refresh"], padx=2, pady=1)
+        bRefresh = Button(lframe, text=_("Update"), compound=LEFT, command=self.updateStockSize, image=Utils.icons["refresh"])
         bRefresh.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.addWidget(bRefresh)
 
@@ -4543,34 +4544,34 @@ class CanvasFrame(tk.Frame):
 
         # --- End Mill data ---
 
-        lframe = tk.LabelFrame(self.simPanel, text=_("End Mill"), foreground=tkExtra.readoutColor(self.simPanel), padx=5)
+        lframe = LabelFrame(self.simPanel, text=_("End Mill"), padding=(5, 0))
         lframe.pack(side='top', fill='x', pady=10)
-        self.millType = tkinter.OptionMenu(lframe, self.canvas.millType, *MILL_TYPES)
+        self.millType = OptionMenu(lframe, self.canvas.millType, self.canvas.millType.get(), *MILL_TYPES)
         self.millType.pack(side='top', fill='x')
         tkExtra.Balloon.set(self.millType, _("Type of End Mill"))
 
-        lineFrame = tk.Frame(lframe)
+        lineFrame = Frame(lframe)
         lineFrame.pack(side='top', fill='x', pady=10)
 
-        tk.Label(lineFrame, text=_("Diameter:")).pack(side='left')
-        self.millDiameter = tkExtra.FloatEntry(lineFrame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=10, textvariable=self.canvas.millDiameter)
+        Label(lineFrame, text=_("Diameter:")).pack(side='left')
+        self.millDiameter = tkExtra.FloatEntry(lineFrame, width=10, textvariable=self.canvas.millDiameter)
         self.millDiameter.pack(side='left', fill='x', expand=True, padx=5)
         tkExtra.Balloon.set(self.millDiameter, _("Mill Diameter"))
         self.addWidget(self.millDiameter)
 
-        lineFrame = tk.Frame(lframe)
+        lineFrame = Frame(lframe)
         lineFrame.pack(side='top', fill='x', pady=5)
 
-        self.millAngleLabel = tk.Label(lineFrame, text=_("Angle:"))
+        self.millAngleLabel = Label(lineFrame, text=_("Angle:"))
         self.millAngleLabel.pack(side='left')
-        self.millAngle = tkExtra.FloatEntry(lineFrame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=10, textvariable=self.canvas.millAngle)
+        self.millAngle = tkExtra.FloatEntry(lineFrame, width=10, textvariable=self.canvas.millAngle)
         self.millAngle.pack(side='left', fill='x', expand=True, padx=5)
         tkExtra.Balloon.set(self.millAngle, _("V-bit included tip angle (degrees)"))
         self.addWidget(self.millAngle)
         self.canvas.millType.trace_add('write', self.onMillTypeChange)
         self.onMillTypeChange()
 
-        tk.Label(self.simPanel, text=_("Opacity:")).pack(side='top', fill='x')
+        Label(self.simPanel, text=_("Opacity:")).pack(side='top', fill='x')
 
         tkExtra.ValueScale(
             self.simPanel,
@@ -4582,10 +4583,10 @@ class CanvasFrame(tk.Frame):
             command=self.changeStockOpacity
         ).pack(side='top', fill='x')
 
-        self.millSelectedPathsOnly = tk.Checkbutton(self.simPanel, text=_("Mill selected paths only"), variable=self.canvas.millSelectedPathsOnly)
+        self.millSelectedPathsOnly = Checkbutton(self.simPanel, text=_("Mill selected paths only"), variable=self.canvas.millSelectedPathsOnly)
         self.millSelectedPathsOnly.pack(side='top', fill='x', pady=10)
 
-        b = tk.Button(self.simPanel, text=_("Run simulation"), compound=LEFT, command=self.canvas.runSimulation, image=Utils.icons["start"], padx=2, pady=1)
+        b = Button(self.simPanel, text=_("Run simulation"), compound=LEFT, command=self.canvas.runSimulation, image=Utils.icons["start"])
         b.pack(side='top', fill='x', pady=10)
 
         self.grid_rowconfigure(1, weight=1)
