@@ -232,10 +232,10 @@ class Application(Tk, Sender):
         self.widgets.append(self.command)
 
         # --- Right side ---
-        frame = Frame(self.paned)
+        frame = ttk.Frame(self.paned)
         self.paned.add(frame, weight=1)
 
-        self.canvasContainer = Frame(frame)
+        self.canvasContainer = ttk.Frame(frame)
         self.canvasContainer.pack(side='top', expand=True, fill='both')
 
         # --- 3D Canvas ---
