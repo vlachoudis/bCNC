@@ -4430,9 +4430,9 @@ class CNCCanvas(GLCanvas):
 # =============================================================================
 # Canvas Frame with toolbar
 # =============================================================================
-class CanvasFrame(tk.Frame):
+class CanvasFrame(Frame):
     def __init__(self, master, app, *kw, **kwargs):
-        tk.Frame.__init__(self, master, *kw, **kwargs)
+        Frame.__init__(self, master, *kw, **kwargs)
         self.app = app
 
         self.draw_axes = BooleanVar()
