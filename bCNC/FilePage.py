@@ -282,7 +282,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         self.portCombo = tkExtra.Combobox(
             self,
             False,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=16,
             command=self.comportClean,
         )
@@ -301,7 +300,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         b.grid(row=row, column=col, sticky=E)
 
         self.baudCombo = tkExtra.Combobox(
-            self, True, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            self, True
         )
         self.baudCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(self.baudCombo, _("Select connection baud rate"))
@@ -317,7 +316,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         self.ctrlCombo = tkExtra.Combobox(
             self,
             True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.ctrlChange,
         )
         self.ctrlCombo.grid(row=row, column=col + 1, sticky=EW)

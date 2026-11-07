@@ -34,24 +34,16 @@ except ImportError:
 
 import tkinter as tk
 from tkinter import (
-    TclError,
-    FALSE,
     N,
     S,
     W,
     E,
-    NS,
     EW,
     NSEW,
     CENTER,
     NONE,
-    BOTH,
     LEFT,
     RIGHT,
-    RAISED,
-    HORIZONTAL,
-    VERTICAL,
-    ALL,
     DISABLED,
     StringVar,
     IntVar,
@@ -1661,7 +1653,6 @@ class CNCCanvas(GLCanvas):
         return (int(line16[0][7]) & FLAG_SELECTED) == FLAG_SELECTED
 
 
-
     def midClick(self, event):
         self.focus_set()
         self._x = self._xp = event.x
@@ -3237,7 +3228,6 @@ class CNCCanvas(GLCanvas):
 
         disable_color = vec3(self.rgb8(DISABLE_COLOR))
         glUniform3fv(self.linesProgram_disable_color, 1, value_ptr(disable_color))
-
 
 
         glLineWidth(lineWidth)

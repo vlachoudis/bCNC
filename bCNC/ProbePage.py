@@ -307,7 +307,6 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.fastProbeFeed.trace_add('write', lambda *_: ProbeCommonFrame.probeUpdate())
         ProbeCommonFrame.fastProbeFeed = tkExtra.FloatEntry(
             frame,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=5,
             textvariable=self.fastProbeFeed,
         )
@@ -328,7 +327,6 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         self.probeFeedVar.trace_add('write', lambda *_: ProbeCommonFrame.probeUpdate())
         ProbeCommonFrame.probeFeed = tkExtra.FloatEntry(
             frame,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=5,
             textvariable=self.probeFeedVar,
         )
@@ -344,7 +342,7 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         Label(frame, text=_("TLO")).grid(row=row, column=col, sticky=E)
         col += 1
         ProbeCommonFrame.tlo = tkExtra.FloatEntry(
-            frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame
         )
         ProbeCommonFrame.tlo.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -368,7 +366,6 @@ class ProbeCommonFrame(CNCRibbon.PageFrame):
         ProbeCommonFrame.probeCmd = tkExtra.Combobox(
             frame,
             True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=16,
             command=ProbeCommonFrame.probeUpdate,
         )
@@ -500,7 +497,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         self.addWidget(self.rr)
 
         self.recsiz = tkExtra.FloatEntry(
-            recframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            recframe()
         )
         tkExtra.Balloon.set(self.recsiz, _("Circle radius"))
         self.recsiz.set(10)
@@ -567,7 +564,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXdir = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.probeXdir.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXdir, _("Probe along X direction"))
@@ -575,7 +572,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYdir = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.probeYdir.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYdir, _("Probe along Y direction"))
@@ -583,7 +580,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZdir = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.probeZdir.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZdir, _("Probe along Z direction"))
@@ -615,7 +612,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         Label(lframe(), text=_("Diameter:")).pack(side=LEFT)
         self.diameter = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.diameter.pack(side=LEFT, expand=YES, fill=X)
         tkExtra.Balloon.set(
@@ -684,7 +681,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         Label(lframe(), text=_("Gcode:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.x_orient = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.x_orient.grid(row=row, column=col, sticky=EW)
         self.x_orient.bind("<FocusOut>", self.orientUpdate)
@@ -695,7 +692,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.y_orient = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.y_orient.grid(row=row, column=col, sticky=EW)
         self.y_orient.bind("<FocusOut>", self.orientUpdate)
@@ -724,7 +721,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
         Label(lframe(), text=_("WPos:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.xm_orient = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.xm_orient.grid(row=row, column=col, sticky=EW)
         self.xm_orient.bind("<FocusOut>", self.orientUpdate)
@@ -736,7 +733,7 @@ class ProbeFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.ym_orient = tkExtra.FloatEntry(
-            lframe(), background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe()
         )
         self.ym_orient.grid(row=row, column=col, sticky=EW)
         self.ym_orient.bind("<FocusOut>", self.orientUpdate)
@@ -1197,7 +1194,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(frame1, text=_("X:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeXmin = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeXmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmin, _("X minimum"))
@@ -1205,7 +1202,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeXmax = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeXmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeXmax, _("X maximum"))
@@ -1236,7 +1233,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(frame1, text=_("Y:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeYmin = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeYmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmin, _("Y minimum"))
@@ -1244,7 +1241,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeYmax = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeYmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeYmax, _("Y maximum"))
@@ -1276,7 +1273,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(frame1, text=_("Z:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeZmin = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeZmin.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmin, _("Z Minimum depth to scan"))
@@ -1284,7 +1281,7 @@ class AutolevelFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZmax = tkExtra.FloatEntry(
-            frame1, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            frame1, width=5
         )
         self.probeZmax.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.probeZmax, _("Z safe to move"))
@@ -1300,7 +1297,6 @@ class AutolevelFrame(CNCRibbon.PageFrame):
         Label(frame2, text=_("Color Map height scale:")).pack(side=LEFT)
         self.probeMapHeightScale = tkExtra.FloatEntry(
             frame2, 
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, 
             width=5
         )
         self.probeMapHeightScale.pack(side=LEFT)
@@ -1617,7 +1613,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Location:")).grid(row=row, column=0, sticky=E)
         self.location = tkExtra.Combobox(
             lframe, True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=16
+            width=16
         )
         self.location.grid(row=row, column=1, columnspan=3, sticky=EW)
         self.location.fill(CAMERA_LOCATION_ORDER)
@@ -1628,7 +1624,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         row += 1
         Label(lframe, text=_("Rotation:")).grid(row=row, column=0, sticky=E)
         self.rotation = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.rotation.grid(row=row, column=1, sticky=EW)
         self.rotation.bind("<Return>", self.updateValues)
@@ -1640,7 +1636,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         Label(lframe,
               text=_("Haircross Offset:")).grid(row=row, column=0, sticky=E)
         self.xcenter = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.xcenter.grid(row=row, column=1, sticky=EW)
         self.xcenter.bind("<Return>", self.updateValues)
@@ -1649,7 +1645,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(self.xcenter, _("Haircross X offset [unit]"))
 
         self.ycenter = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.ycenter.grid(row=row, column=2, sticky=EW)
         self.ycenter.bind("<Return>", self.updateValues)
@@ -1661,7 +1657,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         row += 1
         Label(lframe, text=_("Scale:")).grid(row=row, column=0, sticky=E)
         self.scale = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.scale.grid(row=row, column=1, sticky=EW)
         self.scale.bind("<Return>", self.updateValues)
@@ -1673,7 +1669,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         row += 1
         Label(lframe, text=_("Crosshair:")).grid(row=row, column=0, sticky=E)
         self.diameter = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.diameter.grid(row=row, column=1, sticky=EW)
         self.diameter.bind("<Return>", self.updateValues)
@@ -1691,7 +1687,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         row += 1
         Label(lframe, text=_("Offset:")).grid(row=row, column=0, sticky=E)
         self.dx = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.dx.grid(row=row, column=1, sticky=EW)
         self.dx.bind("<Return>", self.updateValues)
@@ -1700,7 +1696,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(self.dx, _("Camera offset from gantry"))
 
         self.dy = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.dy.grid(row=row, column=2, sticky=EW)
         self.dy.bind("<Return>", self.updateValues)
@@ -1709,7 +1705,7 @@ class CameraFrame(CNCRibbon.PageFrame):
         tkExtra.Balloon.set(self.dy, _("Camera offset from gantry"))
 
         self.z = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            lframe
         )
         self.z.grid(row=row, column=3, sticky=EW)
         self.z.bind("<Return>", self.updateValues)
@@ -1903,7 +1899,6 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.toolPolicy = tkExtra.Combobox(
             lframe,
             True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.policyChange,
             width=16,
         )
@@ -1921,7 +1916,6 @@ class ToolFrame(CNCRibbon.PageFrame):
         self.toolWait = tkExtra.Combobox(
             lframe,
             True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.waitChange,
             width=16,
         )
@@ -1945,7 +1939,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Change:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.changeX = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.changeX.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1956,7 +1950,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.changeY = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.changeY.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1967,7 +1961,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.changeZ = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.changeZ.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1991,7 +1985,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Probe:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeX = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.probeX.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2002,7 +1996,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeY = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.probeY.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2013,7 +2007,7 @@ class ToolFrame(CNCRibbon.PageFrame):
 
         col += 1
         self.probeZ = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.probeZ.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2037,7 +2031,7 @@ class ToolFrame(CNCRibbon.PageFrame):
         Label(lframe, text=_("Distance:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.probeDistance = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.probeDistance.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -2055,7 +2049,7 @@ class ToolFrame(CNCRibbon.PageFrame):
               text=_("Calibration:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.toolHeight = tkExtra.FloatEntry(
-            lframe, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            lframe, width=5
         )
         self.toolHeight.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.toolHeight, _("Tool probe height"))

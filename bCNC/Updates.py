@@ -20,7 +20,6 @@ from tkinter import (
     RAISED,
     DISABLED,
     IntVar,
-    Tk,
     Toplevel,
 )
 
@@ -230,12 +229,3 @@ def need2Check():
         return False
 
     return lastCheck + checkInt * 86400 < int(time.time())
-
-
-# =============================================================================
-if __name__ == "__main__":
-    tk = Tk()
-    Utils.loadIcons()
-    Utils.loadConfiguration()
-    dlg = CheckUpdateDialog(tk, 0)
-    tk.mainloop()

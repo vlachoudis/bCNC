@@ -172,11 +172,6 @@ def main():
             palette[color_name] = color2.strip()
             custom_color_count += 1
 
-            if color_count == 0:
-                tkExtra.GLOBAL_CONTROL_BACKGROUND = color2
-            elif color_count == 1:
-                tkExtra.GLOBAL_FONT_COLOR = color2
-
     if custom_color_count > 0:
         print("Changing palette")
         application.tk_setPalette(**palette)

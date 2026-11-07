@@ -18,10 +18,7 @@ gettext.install("bCNC", localedir=None)
 from tkinter import (
     TclError,
     YES,
-    N,
     W,
-    E,
-    EW,
     X,
     Y,
     BOTH,
@@ -29,7 +26,6 @@ from tkinter import (
     TOP,
     RIGHT,
     BOTTOM,
-    RAISED,
     VERTICAL,
     END,
     DISABLED,
@@ -347,30 +343,6 @@ def makeFont(name, value=None):
         except Exception:
             pass
     return font
-
-
-# -----------------------------------------------------------------------------
-# Create a font string
-# -----------------------------------------------------------------------------
-def fontString(font):
-    name = str(font[0])
-    size = str(font[1])
-    if name.find(" ") >= 0:
-        s = f"\"{name}\" {size}"
-    else:
-        s = f"{name} {size}"
-
-    try:
-        if font[2] == tkfont.BOLD:
-            s += " bold"
-    except Exception:
-        pass
-    try:
-        if font[3] == tkfont.ITALIC:
-            s += " italic"
-    except Exception:
-        pass
-    return s
 
 
 # -----------------------------------------------------------------------------

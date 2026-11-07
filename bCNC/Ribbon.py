@@ -3,7 +3,6 @@
 # Date: 18-Jun-2015
 
 from tkinter import (
-    FALSE,
     YES,
     TRUE,
     X,
@@ -13,9 +12,6 @@ from tkinter import (
     TOP,
     RIGHT,
     BOTTOM,
-    RAISED,
-    FLAT,
-    GROOVE,
     NORMAL,
     DISABLED,
     StringVar,
@@ -38,22 +34,14 @@ __email__ = "vvlachoudis@gmail.com"
 _TABFONT = ("Sans", "-14", "bold")
 _FONT = ("Sans", "-11")
 
-_BACKGROUND_DISABLE = "#A6A2A0"
 _BACKGROUND = "#E6E2E0"
-_BACKGROUND_GROUP = "#B6B2B0"
 
 _BACKGROUND_GROUP2 = "#B0C0C0"
-_BACKGROUND_GROUP3 = "#A0C0A0"
-_BACKGROUND_GROUP4 = "#B0C0A0"
 
-_FOREGROUND_GROUP = "White"
 _ACTIVE_COLOR = "LightYellow"
 _LABEL_SELECT_COLOR = "#C0FFC0"
 
 # Ribbon show state
-RIBBON_HIDDEN = 0  # Hidden
-RIBBON_SHOWN = 1  # Displayed
-RIBBON_TEMP = -1  # Show temporarily
 
 
 # =============================================================================

@@ -18,7 +18,6 @@ from tkinter import (
     EXTENDED,
 )
 from tkinter.ttk import (
-    Button,
     Scrollbar,
 )
 

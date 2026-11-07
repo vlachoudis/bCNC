@@ -6,7 +6,6 @@
 import math
 from tkinter import (
     TclError,
-    FALSE,
     YES,
     N,
     S,
@@ -21,7 +20,6 @@ from tkinter import (
     TOP,
     RIGHT,
     BOTTOM,
-    FLAT,
     RAISED,
     HORIZONTAL,
     END,
@@ -258,9 +256,9 @@ class UserButtonDialog(Toplevel):
         Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N + E)
         col += 1
         self.command = Text(
-            self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=40, height=10
+            self, width=40, height=10
         )
+        tkExtra.themeText(self.command)
         self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
 
         self.grid_columnconfigure(2, weight=1)
@@ -1162,7 +1160,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         self.step = tkExtra.Combobox(
-            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame, width=6
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
         frame.grid_columnconfigure(col, weight=1)
@@ -1177,7 +1175,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         try:
             zstep = Utils.config.get("Control", "zstep")
             self.zstep = tkExtra.Combobox(
-                frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                frame, width=4
             )
             self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.zstep.set(zstep)
@@ -1619,7 +1617,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         self.step = tkExtra.Combobox(
-            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame, width=6
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.step.set(Utils.config.get("abcControl", "step"))
@@ -1633,7 +1631,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         try:
             astep = Utils.config.get("abcControl", "astep")
             self.astep = tkExtra.Combobox(
-                frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                frame, width=4
             )
             self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.astep.set(astep)
@@ -1979,7 +1977,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.distanceChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.distance.fill(sorted(DISTANCE_MODE.values()))
         self.distance.grid(row=row, column=col, columnspan=2, sticky=EW)
@@ -2000,7 +1997,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.unitsChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.units.fill(sorted(UNITS.values()))
         self.units.grid(row=row, column=col, sticky=EW)
@@ -2016,7 +2012,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         self.toolEntry = tkExtra.IntegerEntry(
-            f, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            f, width=5
         )
         self.toolEntry.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.toolEntry, _("Tool number [T#]"))
@@ -2036,7 +2032,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.planeChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.plane.fill(sorted(PLANE.values()))
         self.plane.grid(row=row, column=col, sticky=EW)
@@ -2054,7 +2049,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         col += 1
         self.feedRate = tkExtra.FloatEntry(
             f,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             disabledforeground="Black",
             width=5,
         )
@@ -2079,7 +2073,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.feedModeChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.feedMode.fill(sorted(FEED_MODE.values()))
         self.feedMode.grid(row=row, column=col, sticky=EW)
@@ -2096,7 +2089,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         col += 1
         self.tlo = tkExtra.FloatEntry(
             f,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             disabledforeground="Black",
             width=5,
         )

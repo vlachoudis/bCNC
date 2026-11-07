@@ -63,7 +63,6 @@ from tkinter import (
     ACTIVE,
     BROWSE,
     EXTENDED,
-    Tk,
     Toplevel,
     PhotoImage,
 )
@@ -552,10 +551,7 @@ class FileDialog(Toplevel):
 
     # ----------------------------------------------------------------------
     def upDir(self, event):
-        if not tkExtra.ExListbox._search:
-            self.changePath(os.path.dirname(self.path))
-        else:
-            event.widget.handleKey(event)
+        self.changePath(os.path.dirname(self.path))
 
     # ----------------------------------------------------------------------
     def changePath(self, path):
@@ -750,7 +746,6 @@ class FileDialog(Toplevel):
         FileDialog.width = self.winfo_width()
         FileDialog.height = self.winfo_height()
         FileDialog.sash = self.fileList.widths()
-        tkExtra.ExListbox.resetSearch()
         self.grab_release()
         self.destroy()
 
@@ -977,44 +972,10 @@ class SaveAsDialog(FileDialog):
         return True
 
 
-# =============================================================================
-class DirectoryDialog(FileDialog):
-    _title = _("Choose Directory")
-
-    def __init__(self, **kw):
-        FileDialog.__init__(self, **kw)
-        self.files = False
-        self.seldir = True
-        self.filename.insert(0, self.path)
-
-    # ----------------------------------------------------------------------
-    def changePath(self, path):
-        path = os.path.abspath(path)
-        FileDialog.changePath(self, path)
-        self.filename.delete(0, END)
-        self.filename.insert(0, path)
-
-
-# =============================================================================
-def askfilename(**options):
-    """Ask for a filename"""
-    if FileDialog._active:
-        return ""
-    return FileDialog(**options).show()
-
-
 def askopenfilename(**options):
     """Ask for a filename to open"""
     if FileDialog._active:
         return ""
-    return OpenDialog(**options).show()
-
-
-def askopenfilenames(**options):
-    """Ask for a multiple filenames to open"""
-    if FileDialog._active:
-        return ()
-    options["multiple"] = True
     return OpenDialog(**options).show()
 
 
@@ -1023,28 +984,3 @@ def asksaveasfilename(**options):
     if FileDialog._active:
         return ""
     return SaveAsDialog(**options).show()
-
-
-def askdirectory(**options):
-    """Ask for a directory"""
-    if FileDialog._active:
-        return ""
-    return DirectoryDialog(**options).show()
-
-
-# =============================================================================
-if __name__ == "__main__":
-    import sys
-
-    root = Tk()
-    root.withdraw()
-    initdir = None
-    if len(sys.argv) > 1:
-        initdir = os.path.abspath(sys.argv[1])
-
-    files = asksaveasfilename(
-        title=_("Open"),
-        initialdir=initdir,
-        filetypes=(("All", "*"), ("Python", "*.py"),
-                   ("Flair", ("*.flair", "*.inp"))),
-    )
