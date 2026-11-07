@@ -45,7 +45,6 @@ from tkinter import (
     Text,
     PhotoImage,
     Spinbox,
-    LabelFrame,
     messagebox,
 )
 from tkinter import ttk
@@ -1108,6 +1107,8 @@ class Application(Tk, Sender):
         toplevel = Toplevel(self)
         toplevel.transient(self)
         toplevel.title(_("Statistics"))
+        body = ttk.Frame(toplevel)
+        body.pack(fill=BOTH, expand=True)
 
         if CNC.inch:
             unit = "in"
@@ -1127,135 +1128,135 @@ class Application(Tk, Sender):
                 t += block.time
 
         # ===========
-        frame = LabelFrame(toplevel, text=_(
-            "Enabled GCode"), foreground="DarkRed")
+        frame = ttk.LabelFrame(body, text=_(
+            "Enabled GCode"))
         frame.pack(fill=BOTH)
 
         # ---
         row, col = 0, 0
-        Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['xmin']:g} .. {CNC.vars['xmax']:g} "
                  + f"[{CNC.vars['xmax'] - CNC.vars['xmin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['ymin']:g} .. {CNC.vars['ymax']:g} "
                  + f"[{CNC.vars['ymax'] - CNC.vars['ymin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['zmin']:g} .. {CNC.vars['zmax']:g} "
                  + f"[{CNC.vars['zmax'] - CNC.vars['zmin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=str(e), foreground=tkExtra.readoutColor(self)).grid(
+        ttk.Label(frame, text=str(e), style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{le:g} {unit}", foreground=tkExtra.readoutColor(self)).grid(
+        ttk.Label(frame, text=f"{le:g} {unit}", style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{r:g} {unit}", foreground=tkExtra.readoutColor(self)).grid(
+        ttk.Label(frame, text=f"{r:g} {unit}", style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
         col += 1
         h, m = divmod(t, 60)  # t in min
         s = (m - int(m)) * 60
-        Label(
+        ttk.Label(
             frame,
             text=f"{int(h)}:{int(m):02}:{int(s):02} s",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
 
         # ===========
-        frame = LabelFrame(toplevel, text=_("All GCode"), foreground="DarkRed")
+        frame = ttk.LabelFrame(body, text=_("All GCode"))
         frame.pack(fill=BOTH)
 
         # ---
         row, col = 0, 0
-        Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['axmin']:g} .. {CNC.vars['axmax']:g} "
                  + f"[{CNC.vars['axmax'] - CNC.vars['axmin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['aymin']:g} .. {CNC.vars['aymax']:g} "
                  + f"[{CNC.vars['aymax'] - CNC.vars['aymin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['azmin']:g} .. {CNC.vars['azmax']:g} "
                  + f"[{CNC.vars['azmax'] - CNC.vars['azmin']:g}] {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=str(len(self.gcode.blocks)),
-            foreground=tkExtra.readoutColor(self)
+            style="Readout.TLabel"
         ).grid(
             row=row,
             column=col,
@@ -1264,37 +1265,37 @@ class Application(Tk, Sender):
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{self.cnc.totalLength:g} {unit}",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
         col += 1
         h, m = divmod(self.cnc.totalTime, 60)  # t in min
         s = (m - int(m)) * 60
-        Label(
+        ttk.Label(
             frame,
             text=f"{int(int(h))}:{int(int(m)):02}:{int(int(s)):02} s",
-            foreground=tkExtra.readoutColor(self),
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
 
         # ===========
-        frame = Frame(toplevel)
+        frame = ttk.Frame(body)
         frame.pack(fill=X)
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = Button(frame, text=_("Close"), command=closeFunc)
+        b = ttk.Button(frame, text=_("Close"), command=closeFunc)
         b.pack(pady=5)
         frame.grid_columnconfigure(1, weight=1)
 
