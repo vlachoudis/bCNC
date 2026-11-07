@@ -5250,8 +5250,8 @@ class TtkProgressBar(ttk.Frame):
         ttk.Frame.__init__(self, master, width=width, height=height)
         self.bar = ttk.Progressbar(self, maximum=100)
         self.bar.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.label = ttk.Label(self, style="Progress.TLabel")
-        self.label.place(relx=0.5, rely=0.5, anchor="center")
+        self.label = ttk.Label(self, style="Progress.TLabel", padding=0)
+        self.label.place(relx=0.5, rely=0.5, relheight=1, height=-2, anchor="center")
         # drawn instead of the above while a program is running
         self.canvas = ProgressBar(self, height=height, highlightthickness=0)
         self.running = False
@@ -5289,7 +5289,7 @@ class TtkProgressBar(ttk.Frame):
         if text is not None:
             self.setText(text)
         if anchor == "w":
-            self.label.place(relx=0, rely=0.5, anchor="w")
+            self.label.place(relx=0, x=2, rely=0.5, relheight=1, height=-2, anchor="w")
             self.canvas.itemconfig(self.canvas.text, anchor="w", justify=LEFT)
         if fill is not None:
             self.canvas.configText(fill=fill)

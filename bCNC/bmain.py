@@ -169,10 +169,6 @@ class Application(Tk, Sender):
         self.ribbon = Ribbon.TabRibbonFrame(self)
         self.ribbon.pack(side=TOP, fill=X)
 
-        # Main frame
-        self.paned = PanedWindow(self, orient=HORIZONTAL)
-        self.paned.pack(fill=BOTH, expand=YES)
-
         # Status bar
         frame = ttk.Frame(self)
         frame.pack(side=BOTTOM, fill=X)
@@ -198,6 +194,10 @@ class Application(Tk, Sender):
         self.bufferbar.pack(side=RIGHT, expand=NO)
         self.bufferbar.setLimits(0, 100)
         tkExtra.Balloon.set(self.bufferbar, _("Controller buffer fill"))
+
+        # Main frame
+        self.paned = PanedWindow(self, orient=HORIZONTAL)
+        self.paned.pack(fill=BOTH, expand=YES)
 
         # --- Left side ---
         frame = ttk.Frame(self.paned)
