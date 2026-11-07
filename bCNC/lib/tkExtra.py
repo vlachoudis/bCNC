@@ -32,6 +32,8 @@
 #  Email: Vasilis.Vlachoudis@cern.ch
 #   Date: 12-Oct-2006
 
+import functools
+import subprocess
 import sys
 import time
 
@@ -2042,7 +2044,24 @@ DARK = {
 }
 
 
+@functools.lru_cache(maxsize=1)
+def _desktopDark(period):
+    """Dark appearance of a GNOME based desktop (Ubuntu). The answer is kept
+    until the period (2 s) changes, so the desktop is not asked all the time"""
+    out = ""
+    for key in ("color-scheme", "gtk-theme"):
+        try:
+            out += subprocess.run(
+                ["gsettings", "get", "org.gnome.desktop.interface", key],
+                capture_output=True, text=True, timeout=1).stdout
+        except (OSError, subprocess.SubprocessError):
+            pass
+    return "dark" in out.lower()
+
+
 def isDark(root):
+    if sys.platform.startswith("linux"):
+        return _desktopDark(int(time.time() // 2))
     try:
         return sum(root.winfo_rgb("systemWindowBackgroundColor")) < 3 * 32768
     except TclError:  # not macOS

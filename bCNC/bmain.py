@@ -160,8 +160,7 @@ class Application(Tk, Sender):
         self.controller = None
         self.loadConfig()
 
-        if sys.platform == "darwin":
-            tkExtra.setTheme(self)
+        tkExtra.setTheme(self)
 
         # --- Ribbon ---
         self.ribbon = Ribbon.TabRibbonFrame(self)
