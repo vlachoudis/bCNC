@@ -5225,6 +5225,135 @@ class ToolList(ListView):
 
 
 # =============================================================================
+# Multi column list with sortable headers for the file dialog. Items are rows
+# (tuples); the first column is the one in the tree column
+# =============================================================================
+class FileList(ListView):
+    def __init__(self, master, columns, height=20, selectmode="browse", **kw):
+        kw.setdefault("style", "Tool.Treeview")
+        kw["show"] = "tree headings"
+        ListView.__init__(self, master, selectmode=selectmode,
+                          height=height, **kw)
+        self.configure(columns=[f"c{i}" for i in range(1, len(columns))])
+        self.tag_configure("row", font="TkDefaultFont")
+        self._titles = [title for title, _w, _a in columns]
+        self._rows = {}  # item id -> row
+        self._sortColumn = -1
+        self._sortReverse = False
+        measure = tkfont.nametofont("TkDefaultFont").measure("0")
+        for i, (title, width, _a) in enumerate(columns):
+            col = "#0" if i == 0 else f"c{i}"
+            self.column(col, width=width * measure, stretch=i == 0)
+            self.heading(col, text=title,
+                         command=lambda i=i: self.sort(i))
+        self.bind("<Button-3>", self._popup, add="+")
+        self._menu = None
+
+    # ----------------------------------------------------------------------
+    def insert(self, index, *rows):
+        pos = min(self._index(index, True), len(self._iids))
+        for row in rows:
+            iid = ttk.Treeview.insert(
+                self, "", pos, text=str(row[0]),
+                values=[str(v) for v in row[1:]], tags=("row",))
+            self._iids.insert(pos, iid)
+            self._rows[iid] = tuple(row)
+            pos += 1
+
+    # ----------------------------------------------------------------------
+    def delete(self, first, last=None):
+        a = self._index(first)
+        b = a if last is None else self._index(last)
+        for iid in self._iids[a:b + 1]:
+            self._rows.pop(iid, None)
+        ListView.delete(self, first, last)
+
+    # ----------------------------------------------------------------------
+    def get(self, first, last=None):
+        a = self._index(first)
+        if last is None:
+            return self._rows[self._iids[a]]
+        b = self._index(last)
+        return tuple(self._rows[i] for i in self._iids[a:b + 1])
+
+    # ----------------------------------------------------------------------
+    def set(self, index, text):
+        i = self._index(index)
+        if 0 <= i < len(self._iids):
+            iid = self._iids[i]
+            self._rows[iid] = (str(text),) + self._rows[iid][1:]
+            self.item(iid, text=str(text))
+
+    # ----------------------------------------------------------------------
+    def setColor(self, index, color):
+        self.itemconfig(index, foreground=color)
+
+    # ----------------------------------------------------------------------
+    def bindList(self, sequence, func):
+        return self.bind(sequence, func)
+
+    # ----------------------------------------------------------------------
+    def sort(self, column, reverse=None):
+        """Sort by a column; clicking the same one again reverses it"""
+        if reverse is None:
+            reverse = column == self._sortColumn and not self._sortReverse
+        order = sorted(
+            range(len(self._iids)), reverse=reverse,
+            key=lambda i: self._rows[self._iids[i]][column])
+        iids = [self._iids[i] for i in order]
+        for pos, iid in enumerate(iids):
+            self.move(iid, "", pos)
+        self._iids[:] = iids
+        for i, title in enumerate(self._titles):
+            mark = ""
+            if i == column:
+                mark = " " + (Unicode.BLACK_DOWN_POINTING_TRIANGLE if reverse
+                              else Unicode.BLACK_UP_POINTING_TRIANGLE)
+            self.heading("#0" if i == 0 else f"c{i}", text=title + mark)
+        self._sortColumn = column
+        self._sortReverse = reverse
+        self.event_generate("<<ListboxSort>>")
+
+    # ----------------------------------------------------------------------
+    def saveSort(self):
+        return self._sortColumn, self._sortReverse
+
+    # ----------------------------------------------------------------------
+    def restoreSort(self, arg):
+        if arg[0] >= 0:
+            self.sort(*arg)
+
+    # ----------------------------------------------------------------------
+    def widths(self):
+        return [self.column("#0", "width")] + [
+            self.column(f"c{i}", "width") for i in range(1, len(self._titles))]
+
+    # ----------------------------------------------------------------------
+    def setWidths(self, widths):
+        for i, width in enumerate(widths):
+            self.column("#0" if i == 0 else f"c{i}", width=width)
+
+    # ----------------------------------------------------------------------
+    def setPopupMenu(self, items):
+        self._menu = items
+
+    # ----------------------------------------------------------------------
+    def _popup(self, event):
+        if not self._menu:
+            return None
+        iid = self.identify_row(event.y)
+        if iid in self._iids:
+            self.selection_set(self._iids.index(iid))
+            self.activate(self._iids.index(iid))
+        menu = Menu(self, tearoff=0)
+        for label, underline, command in self._menu:
+            menu.add_command(label=label, underline=underline,
+                             command=command)
+        menu.tk_popup(event.x_root, event.y_root)
+        return "break"
+
+
+# =============================================================================
 class Separator(ttk.Frame):
     """The ttk separator draws its own bright 3D lines, this is one flat line"""
 
@@ -5518,6 +5647,8 @@ def applyTheme(root):
     # minimum button width in characters, same in both themes
     style.configure("TButton", width=-5)
     style.configure("Readout.TLabel", foreground=c["readout"])
+    style.configure("Current.TButton", foreground=c["sent"])
+    style.configure("Forward.TButton", foreground=c["disabled"])
     style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5)
     style.configure("Left.Ribbon.TButton", anchor="w")
     # toggle (radio/check) buttons of the ribbon, same metrics as Ribbon.TButton

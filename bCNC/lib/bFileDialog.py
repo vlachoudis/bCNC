@@ -65,14 +65,10 @@ from tkinter import (
     EXTENDED,
     Tk,
     Toplevel,
-    Button,
-    Entry,
-    Frame,
-    Label,
     Listbox,
-    Scrollbar,
     PhotoImage,
 )
+from tkinter.ttk import Button, Entry, Frame, Label, Scrollbar
 import tkinter.messagebox as messagebox
 
 import tkExtra
@@ -274,7 +270,7 @@ class FileDialog(Toplevel):
         Label(self.dirframe, text=_("Directory:")).grid(row=0, column=0)
 
         self.downButton = Label(
-            self.dirframe, text="\u25BC", padx=3, pady=1, relief=RAISED
+            self.dirframe, text="\u25BC", padding=(3, 1), relief=RAISED
         )
         self.downButton.bind("<Button-1>", self.history)
         self.downButton.grid(row=0, column=99)
@@ -285,8 +281,6 @@ class FileDialog(Toplevel):
         Button(
             self.dirframe,
             image=FileDialog.newfolder,
-            padx=3,
-            pady=3,
             command=self.newFolder,
         ).grid(row=0, column=100)
         self.dirframe.grid_columnconfigure(98, weight=1)
@@ -297,8 +291,10 @@ class FileDialog(Toplevel):
             selectmode = EXTENDED
         else:
             selectmode = BROWSE
-        self.fileList = tkExtra.ColorMultiListbox(
-            self,
+        listFrame = Frame(self)
+        listFrame.pack(expand=YES, fill=BOTH)
+        self.fileList = tkExtra.FileList(
+            listFrame,
             (
                 (_("Name"), 30, None),
                 (_("Type"), 12, None),
@@ -308,7 +304,10 @@ class FileDialog(Toplevel):
             height=20,
             selectmode=selectmode,
         )
-        self.fileList.pack(expand=YES, fill=BOTH)
+        scroll = Scrollbar(listFrame, command=self.fileList.yview)
+        scroll.pack(side=RIGHT, fill=Y)
+        self.fileList.configure(yscrollcommand=scroll.set)
+        self.fileList.pack(side=LEFT, expand=YES, fill=BOTH)
         self.fileList.setPopupMenu(
             [
                 ("Rename", 0, self.rename),
@@ -329,8 +328,7 @@ class FileDialog(Toplevel):
 
         lbl = Label(frame, text=_("File name:"))
         lbl.grid(row=0, column=0, sticky=E)
-        self.filename = Entry(frame,
-                              background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.filename = Entry(frame)
         self.filename.grid(row=0, column=1, sticky=EW)
         self.ok = Button(frame, text=_("Open"), command=self.openFilename)
         self.ok.grid(row=0, column=2, sticky=EW)
@@ -399,7 +397,8 @@ class FileDialog(Toplevel):
             self.geometry(f"{int(FileDialog.width)}x{int(FileDialog.height)}")
 
         self.buttonPath(self.path)
-        self.typeCombo.set(self.typeCombo.get(0))  # will fill the files
+        self.typeCombo.set(self.typeCombo.get(0))
+        self.typeChange()  # fills the files
         try:
             self.lift()
             self.focus_set()
@@ -419,8 +418,7 @@ class FileDialog(Toplevel):
         if sash is None:
             return
         FileDialog.sash = None
-        for i, x in enumerate(sash):
-            self.fileList.paneframe.sash_place(i, x, 1)
+        self.fileList.setWidths(sash)
 
     # ----------------------------------------------------------------------
     # Create buttons for the path
@@ -450,7 +448,6 @@ class FileDialog(Toplevel):
                         self.dirframe,
                         text=path[i],
                         command=lambda s=self, b=i: s.button(b),
-                        padx=1,
                     )
                 )
                 i += 1
@@ -463,13 +460,10 @@ class FileDialog(Toplevel):
             del self.buttons[lp:]
 
         for i in range(lp):
-            self.buttons[i]["foreground"] = "black"
-            self.buttons[i]["activeforeground"] = "black"
-        self.buttons[lp - 1]["foreground"] = "blue"
-        self.buttons[lp - 1]["activeforeground"] = "blue"
+            self.buttons[i]["style"] = "TButton"
+        self.buttons[lp - 1]["style"] = "Current.TButton"
         for i in range(lp, len(self.buttons)):
-            self.buttons[i]["foreground"] = "darkgray"
-            self.buttons[i]["activeforeground"] = "darkgray"
+            self.buttons[i]["style"] = "Forward.TButton"
 
     # ----------------------------------------------------------------------
     def button(self, b):
@@ -506,11 +500,11 @@ class FileDialog(Toplevel):
         sb.pack(side=RIGHT, fill=Y)
         self._popupList = Listbox(
             self._popup,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             selectmode=BROWSE,
             takefocus=True,
             yscrollcommand=sb.set,
         )
+        tkExtra.themeText(self._popupList)
         self._popupList.pack(side=LEFT, fill=BOTH, expand=YES)
         self._popupList.bind("<ButtonRelease-1>", self._historyClick)
         self._popupList.bind("<Return>", self._historyClick)
@@ -583,7 +577,7 @@ class FileDialog(Toplevel):
     # ----------------------------------------------------------------------
     def fill(self, path=None):
         self.fileList.delete(0, END)
-        self.fileList.listbox(0).resetSearch()
+        
 
         if path is None:
             path = self.path
@@ -661,7 +655,7 @@ class FileDialog(Toplevel):
         if self.seldir:
             fn = os.path.basename(fn)
         for i in range(self.fileList.size()):
-            if fn == self.fileList.listbox(0).get(i):
+            if fn == self.fileList.get(i)[0]:
                 self.fileList.see(i)
                 self.fileList.activate(i)
                 self.fileList.selection_set(i)
@@ -755,10 +749,7 @@ class FileDialog(Toplevel):
         FileDialog._active = False
         FileDialog.width = self.winfo_width()
         FileDialog.height = self.winfo_height()
-        FileDialog.sash = [
-            self.fileList.paneframe.sash_coord(i)[0]
-            for i in range(len(self.fileList.listboxes()) - 1)
-        ]
+        FileDialog.sash = self.fileList.widths()
         tkExtra.ExListbox.resetSearch()
         self.grab_release()
         self.destroy()
@@ -863,7 +854,7 @@ class FileDialog(Toplevel):
         self.fileList.selection_clear(0, END)
         self.fileList.selection_set(END)
         self.fileList.activate(END)
-        edit = tkExtra.InPlaceEdit(self.fileList.listbox(0))
+        edit = tkExtra.InPlaceEdit(self.fileList)
         if edit.value:
             try:
                 os.mkdir(os.path.join(self.path, edit.value))
@@ -887,8 +878,8 @@ class FileDialog(Toplevel):
 
     # ----------------------------------------------------------------------
     def rename(self, event=None):
-        fn = self.fileList.listbox(0).get(ACTIVE)
-        edit = tkExtra.InPlaceEdit(self.fileList.listbox(0))
+        fn = self.fileList.get(ACTIVE)[0]
+        edit = tkExtra.InPlaceEdit(self.fileList)
         if edit.value and edit.value != fn:
             try:
                 os.rename(
@@ -911,7 +902,7 @@ class FileDialog(Toplevel):
             return
         try:
             for i in sel:
-                fn = self.fileList.listbox(0).get(i)
+                fn = self.fileList.get(i)[0]
                 filename = os.path.join(self.path, fn)
                 s = os.lstat(filename)
                 if S_ISDIR(s[ST_MODE]):
