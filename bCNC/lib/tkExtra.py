@@ -1356,14 +1356,17 @@ class ValueScale(ttk.Frame):
     def __init__(self, master, from_=0, to=100, resolution=1, variable=None,
                  command=None, orient=HORIZONTAL, **kw):
         ttk.Frame.__init__(self, master)
-        to = kw.pop("to_", to)
+        to = float(kw.pop("to_", to))  # the config gives strings
+        from_ = float(from_)
         self._resolution = resolution
         self._command = command
         self._variable = variable
+        self._range = (from_, to)
         self.value = ttk.Label(self, width=4, anchor=E)
         self.value.pack(side=LEFT)
-        self.scale = ttk.Scale(self, from_=from_, to=to, orient=orient,
-                               variable=variable, command=self._changed, **kw)
+        self.scale = ttk.Scale(self, from_=from_, to=max(to, from_ + 1),
+                               orient=orient, variable=variable,
+                               command=self._changed, **kw)
         self.scale.pack(side=LEFT, fill=X, expand=YES)
         if variable is not None:
             variable.trace_add("write", lambda *a: self._showValue())
@@ -1374,7 +1377,7 @@ class ValueScale(ttk.Frame):
         value = float(value)
         res = self._resolution
         if res:
-            low = float(self.scale.cget("from"))
+            low = float(self._range[0])
             value = low + round((value - low) / res) * res
         return int(value) if value == int(value) else value
 
@@ -1402,6 +1405,14 @@ class ValueScale(ttk.Frame):
         for key in ("to_", "from_"):
             if key in kw:
                 kw[key[:-1]] = kw.pop(key)
+        if "from" in kw or "to" in kw:
+            # an empty range would put the handle on the right, keep the
+            # real range here and give the scale a usable one
+            low, high = self._range
+            low = float(kw.pop("from", low))
+            high = float(kw.pop("to", high))
+            self._range = (low, high)
+            self.scale.configure(**{"from": low, "to": max(high, low + 1)})
         if kw:
             self.scale.configure(**kw)
         self._showValue()
@@ -1410,8 +1421,9 @@ class ValueScale(ttk.Frame):
 
     # ----------------------------------------------------------------------
     def cget(self, key):
-        value = self.scale.cget(key)
-        return float(value) if key in ("from", "to") else value
+        if key in ("from", "to"):
+            return float(self._range[key == "to"])
+        return self.scale.cget(key)
 
     def get(self):
         return self._snap(self.scale.get())
@@ -2046,29 +2058,57 @@ def _scaleElements(style, c):
     except ImportError:
         return
 
-    def trough(w=9, h=14):
-        img = Image.new("RGBA", (w, h), c["edge"])
-        ImageDraw.Draw(img).rectangle((1, 1, w - 2, h - 2), fill=c["trough"])
-        return img
+    dark, light = c["darkc"], c["light"]  # as the inputs and the buttons
 
-    def handle(fill, grip, w=28, h=14):
-        img = Image.new("RGBA", (w, h), c["edge"])
+    def bevel(img, fill, tl, br):
+        """1px frame: tl on the top and left, br on the bottom and right"""
+        w, h = img.size
         d = ImageDraw.Draw(img)
+        d.rectangle((0, 0, w - 1, h - 1), fill=br)
+        d.rectangle((0, 0, w - 2, h - 2), fill=tl)
         d.rectangle((1, 1, w - 2, h - 2), fill=fill)
-        mid = w // 2
-        for x in (mid - 3, mid, mid + 3):
-            d.line((x, 3, x, h - 4), fill=grip)
+        d.point((w - 1, 0), fill=br)
+        d.point((0, h - 1), fill=br)
+
+    def trough(fill, w=9, h=14):
+        # sunken like the inputs
+        img = Image.new("RGBA", (w, h))
+        bevel(img, fill, dark, light)
         return img
 
-    bar = ImageTk.PhotoImage(trough())
-    knob = ImageTk.PhotoImage(handle(c["handle"], c["grip"]))
-    off = ImageTk.PhotoImage(handle(c["trough"], c["edge"]))
+    def handle(grip, w=28, h=12):
+        # like the arrow button of a dropdown: an outline and inside it a 1px
+        # raised edge; it sits inside the frame of the trough
+        img = Image.new("RGBA", (w, h), c["border"])
+        d = ImageDraw.Draw(img)
+        d.rectangle((1, 1, w - 2, h - 2), fill=dark)
+        d.rectangle((1, 1, w - 3, h - 3), fill=light)
+        d.rectangle((2, 2, w - 3, h - 3), fill=c["background"])
+        d.point((w - 2, 1), fill=dark)
+        d.point((1, h - 2), fill=dark)
+        mid = w // 2
+        for x in (mid - 4, mid - 1, mid + 2):
+            d.line((x, 4, x, h - 5), fill=grip[0])
+            d.line((x + 1, 4, x + 1, h - 5), fill=grip[1])
+        return img
+
+    # an enabled slider has the background of the inputs
+    bar = ImageTk.PhotoImage(trough(c["field"]))
+    barOff = ImageTk.PhotoImage(trough(c["background"]))
+    # the grooves are stronger than the other edges so the handle is easy to
+    # see, in both themes
+    groove = (("#000000", c["grip"]) if c["background"] < "#808080"
+              else ("#555555", "#FFFFFF"))
+    knob = ImageTk.PhotoImage(handle(groove))
+    off = ImageTk.PhotoImage(handle((c["darkc"], c["light"])))
+    _scaleImages.extend((barOff,))
     _scaleImages.extend((bar, knob, off))
     # element names must be unique, the node name is the last component
     _scaleCount += 1
     prefix = f"Custom{_scaleCount}.Scale"
     style.element_create(f"{prefix}.trough", "image", bar,
-                         border=(3, 3, 3, 3), sticky="ew")
+                         ("disabled", barOff), border=(1, 1, 1, 1),
+                         sticky="ew")
     style.element_create(f"{prefix}.slider", "image", knob,
                          ("disabled", off))
     style.layout("Horizontal.TScale", [(f"{prefix}.trough", {
@@ -2090,7 +2130,8 @@ def themeText(widget):
                    "insertbackground": c["foreground"],
                    "selectbackground": c["selected"],
                    "selectforeground": c["foreground"],
-                   "highlightthickness": 0}
+                   "highlightthickness": 0,
+                   "relief": "sunken", "borderwidth": 2}
         try:
             known = widget.keys()
             widget.config(**{k: v for k, v in options.items() if k in known})
@@ -2098,6 +2139,77 @@ def themeText(widget):
             pass
     colors()
     widget.winfo_toplevel().bind("<<AppearanceChanged>>", colors, add="+")
+
+
+_fieldImages = []
+
+
+def _recessed(root, style, c):
+    """Text inputs are drawn with a sunken 3D frame like the check boxes:
+    dark on the top and left, light on the bottom and right, 1px, no line
+    around"""
+    dark, light = c["darkc"], c["light"]  # same as the check boxes
+
+    def frame(fill, tl=dark, br=light):
+        img = PhotoImage(width=3, height=3)
+        for y in range(3):
+            for x in range(3):
+                if (x, y) == (1, 1):
+                    color = fill
+                elif max(x, y) == 2:  # bottom, right
+                    color = br
+                else:  # top, left
+                    color = tl
+                img.put(color, to=(x, y))
+        _fieldImages.append(img)
+        return img
+    focus = "#4a6984"
+    normal = frame(c["field"])
+    element = f"Recessed.field{len(_fieldImages)}"
+    style.element_create(
+        element, "image", normal,
+        ("disabled", frame(c["background"])),
+        ("focus", frame(c["field"], focus, focus)),
+        border=1, sticky="nswe")
+    for name in ("TEntry", "TSpinbox", "TCombobox"):
+        field = name[1:] + ".field"
+        layout = style.layout(name)
+        arrow = [item for item in layout if item[0].endswith(".downarrow")]
+        for i, (old, opts) in enumerate(layout):
+            if old == field or old.startswith("Recessed.field"):
+                new = dict(opts)
+                new.pop("border", None)
+                if name == "TCombobox":  # the arrow button is inside
+                    new["children"] = arrow + list(opts["children"])
+                layout[i] = (element, new)
+        if name == "TCombobox":
+            layout = [item for item in layout if item not in arrow]
+        style.layout(name, layout)
+    # the frame is 1px, the padding gives the other pixel back
+    style.configure("TEntry", padding=2)
+    style.configure("TCombobox", padding=2)
+    style.configure("TSpinbox", padding=(3, 3, 11, 3))
+
+
+def _groove(style, c):
+    """Frames of the sections: a thin 3D groove, read top to bottom and left
+    to right every side is one dark and then one light pixel"""
+    dark, light = c["border"], c["light"]
+    img = PhotoImage(width=5, height=5)
+    for y in range(5):
+        for x in range(5):
+            if (x, y) == (2, 2):
+                img.transparency_set(x, y, True)
+            elif min(x, y) == 0 or max(x, y) == 4:  # outer line
+                top_left = (y == 0 and x < 4) or (x == 0 and y < 4)
+                img.put(dark if top_left else light, to=(x, y))
+            else:  # inner line
+                top_left = (y == 1 and x < 3) or (x == 1 and y < 3)
+                img.put(light if top_left else dark, to=(x, y))
+    _fieldImages.append(img)
+    element = f"Recessed.groove{len(_fieldImages)}"
+    style.element_create(element, "image", img, border=2, sticky="nswe")
+    style.layout("TLabelframe", [(element, {"sticky": "nswe"})])
 
 
 def applyTheme(root):
@@ -2120,12 +2232,10 @@ def applyTheme(root):
               foreground=[("disabled", c["disabled"])])
     style.configure("TLabelframe", relief="raised",
                     lightcolor=c["light"], darkcolor=c["light"])
-    # concave tabs: soft outer line, dark inner line on top-left and
-    # light inner line on bottom-right
-    style.configure("Toolbutton", bordercolor=c["tabborder"],
-                    lightcolor=c["tablight"], darkcolor=c["darkc"])
-    style.map("Toolbutton", lightcolor=[("pressed", c["tablight"])],
-              darkcolor=[("pressed", c["darkc"])])
+    # tabs and tool buttons: flat, a pressed one gets the 1px sunken edge of
+    # the inputs, no outline
+    style.configure("Toolbutton", bordercolor=bg, lightcolor=c["light"],
+                    darkcolor=c["darkc"])
     style.configure("TButton", padding="1.5p", width=-9)
     style.configure("Toolbutton", padding="0.75p")
     style.configure("TMenubutton", padding="7.5p 2.25p", width=-9)
@@ -2146,6 +2256,13 @@ def applyTheme(root):
               selectforeground=[("readonly", fg)])
     style.map("TEntry", fieldbackground=disabledBg, foreground=disabledFg)
     style.map("TSpinbox", fieldbackground=disabledBg, foreground=disabledFg)
+    _recessed(root, style, c)
+    _groove(style, c)
+    # raised 1px 3D edge on buttons, no outline: light top and left, dark
+    # bottom and right
+    for name in ("TButton", "TMenubutton"):
+        style.configure(name, bordercolor=bg, lightcolor=c["light"],
+                        darkcolor=c["darkc"])
     style.configure("Horizontal.TProgressbar", troughcolor=field if dark else bg)
     style.configure("Progress.TLabel", background=field if dark else bg)
     style.configure("Coord.TLabel", foreground=c["coord"])
