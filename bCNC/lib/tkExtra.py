@@ -5250,6 +5250,33 @@ class FileList(ListView):
         self._menu = None
 
     # ----------------------------------------------------------------------
+    def _color(self, color):
+        """The color, darkened (light) or lightened (dark) until it can be
+        read on the rows (4.5:1) and on the selected row (3:1)"""
+        color = ListView._color(self, color)
+        c = DARK if isDark(self) else LIGHT
+        backs = [[v / 65535 for v in self.winfo_rgb(c[k])]
+                 for k in ("field", "selected")]
+        target = [1.0, 1.0, 1.0] if isDark(self) else [0.0, 0.0, 0.0]
+        rgb = [v / 65535 for v in self.winfo_rgb(color)]
+
+        def lum(rgb):
+            lin = [v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+                   for v in rgb]
+            return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+        def contrast(a, b):
+            hi, lo = max(lum(a), lum(b)), min(lum(a), lum(b))
+            return (hi + 0.05) / (lo + 0.05)
+
+        for step in range(21):
+            mixed = [v + (t - v) * step / 20 for v, t in zip(rgb, target)]
+            if (contrast(mixed, backs[0]) >= 4.5
+                    and contrast(mixed, backs[1]) >= 3):
+                break
+        return "#%02x%02x%02x" % tuple(int(v * 255) for v in mixed)
+
+    # ----------------------------------------------------------------------
     def insert(self, index, *rows):
         pos = min(self._index(index, True), len(self._iids))
         for row in rows:
