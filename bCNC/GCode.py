@@ -36,6 +36,12 @@ BLOCKPAT = re.compile(r"^\(Block-([A-Za-z]+):\s*(.*)\)")
 
 TOLERANCE = 1e-7
 
+# Motion words for inferred Header splitting. Canned cycles are the ones
+# CNC.motionPath expands; G0 is rapid-only and does not end the pre-cut phase.
+_MOTION_G = (0, 1, 2, 3, 81, 82, 83, 85, 86, 89)
+_CUTTING_G = (1, 2, 3, 81, 82, 83, 85, 86, 89)
+_CANNED_G = (81, 82, 83, 85, 86, 89)
+
 
 # -----------------------------------------------------------------------------
 # Return a value combined from two dictionaries new/old
@@ -902,6 +908,10 @@ class GCode:
         self.undoredo.reset()
         self._lastModified = 0
         self._modified = False
+        # Inferred loads stay in the pre-cut phase until a real machining
+        # move. load() and setLinesUndo() reset this with _blocksExist.
+        self._preCut = True
+        self._holdInHeader = False
 
     # ----------------------------------------------------------------------
     # Recalculate enabled path margins
@@ -962,6 +972,131 @@ class GCode:
             return line
 
     # ----------------------------------------------------------------------
+    # Words on this line, plus modal motion, for inferred block boundaries.
+    # Inherited G0 must not turn M3/M4, dwell, S/F words, or comments into
+    # a rapid. A combined cutting move is never startup-only.
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def _lineWords(cmds):
+        g_codes = []
+        m_codes = []
+        axis = False
+        arc = False
+        for cmd in cmds:
+            if not cmd or not cmd[0].isalpha():
+                continue
+            letter = cmd[0].upper()
+            try:
+                value = float(cmd[1:]) if len(cmd) > 1 else 0.0
+            except ValueError:
+                continue
+            if letter == "G":
+                g_codes.append(int(value))
+            elif letter == "M":
+                m_codes.append(int(value))
+            elif letter in "XYZABCUVW":
+                axis = True
+            elif letter in "IJKR":
+                arc = True
+        return g_codes, m_codes, axis, arc
+
+    @staticmethod
+    def _motionWords(g_codes):
+        explicit = None
+        dwell = False
+        for code in g_codes:
+            if code == 4:
+                dwell = True
+            elif code in _MOTION_G:
+                explicit = code
+        return explicit, dwell
+
+    def _inspectLine(self, cmds):
+        g_codes, m_codes, axis, arc = self._lineWords(cmds)
+        explicit, dwell = self._motionWords(g_codes)
+        spindle = any(code in (3, 4) for code in m_codes)
+        # G4 X.. uses X as dwell time; there is no motion word on the line.
+        if dwell and explicit is None:
+            return "startup", False
+        rapid, cutting = self._motionClass(explicit, axis, arc)
+        return self._lineKind(cutting, rapid, spindle or dwell), rapid
+
+    def _motionClass(self, explicit, axis, arc):
+        motion = explicit if explicit is not None else self.cnc.gcode
+        moved = (
+            self.cnc.dx != 0.0 or self.cnc.dy != 0.0 or self.cnc.dz != 0.0
+        )
+        rapid = motion == 0 and (
+            explicit == 0 or (explicit is None and axis and moved)
+        )
+        cutting = motion in _CUTTING_G and (
+            motion in _CANNED_G or arc or axis or moved
+        )
+        return rapid, cutting
+
+    @staticmethod
+    def _lineKind(cutting, rapid, startup):
+        if cutting:
+            return "cut"
+        if startup and not rapid:
+            return "startup"
+        if rapid:
+            return "move"
+        return "preface"
+
+    # ----------------------------------------------------------------------
+    # Fold provisional pre-cut blocks back into Header, keeping line order.
+    # ----------------------------------------------------------------------
+    def _mergePreCutPrefix(self):
+        if len(self.blocks) <= 1:
+            return
+        header = self.blocks[0]
+        for block in self.blocks[1:]:
+            header.extend(block)
+        del self.blocks[1:]
+
+    # ----------------------------------------------------------------------
+    # Explicit (Block-name) files keep authored grouping. Until the first
+    # cut, an M3/M4 or dwell extends Header through the provisional
+    # rapid prefix. Later spindle changes stay in the block that owns them.
+    # Returns True when the line was placed.
+    # ----------------------------------------------------------------------
+    def _placePreCut(self, kind, line):
+        if self._blocksExist or not self._preCut:
+            return False
+        if kind == "startup":
+            self._mergePreCutPrefix()
+            self._holdInHeader = True
+        elif self._holdInHeader and kind == "cut":
+            self._preCut = False
+            self._holdInHeader = False
+            if len(self.blocks) == 1:
+                self.blocks.append(Block())
+        elif not (self._holdInHeader and kind == "preface"):
+            if kind in ("move", "cut"):
+                self._holdInHeader = False
+            if kind == "cut":
+                self._preCut = False
+            return False
+        self.blocks[-1].append(line)
+        return True
+
+    # ----------------------------------------------------------------------
+    # rapid move up = end of block
+    # ----------------------------------------------------------------------
+    def _placeLine(self, line, rapid):
+        if self._blocksExist:
+            self.blocks[-1].append(line)
+        elif rapid and self.cnc.dz > 0.0:
+            self.blocks[-1].append(line)
+            self.blocks.append(Block())
+        elif rapid and len(self.blocks) == 1:
+            self.blocks.append(Block())
+            self.blocks[-1].append(line)
+        else:
+            self.blocks[-1].append(line)
+
+    # ----------------------------------------------------------------------
     # add new line to list create block if necessary
     # ----------------------------------------------------------------------
     def _addLine(self, line):
@@ -1009,18 +1144,9 @@ class GCode:
             return
 
         self.cnc.motionStart(cmds)
-
-        # rapid move up = end of block
-        if self._blocksExist:
-            self.blocks[-1].append(line)
-        elif self.cnc.gcode == 0 and self.cnc.dz > 0.0:
-            self.blocks[-1].append(line)
-            self.blocks.append(Block())
-        elif self.cnc.gcode == 0 and len(self.blocks) == 1:
-            self.blocks.append(Block())
-            self.blocks[-1].append(line)
-        else:
-            self.blocks[-1].append(line)
+        kind, rapid = self._inspectLine(cmds)
+        if not self._placePreCut(kind, line):
+            self._placeLine(line, rapid)
 
         self.cnc.motionEnd()
 
@@ -1040,6 +1166,8 @@ class GCode:
         self.cnc.initPath()
         self.cnc.resetAllMargins()
         self._blocksExist = False
+        self._preCut = True
+        self._holdInHeader = False
         for line in f:
             self._addLine(line[:-1].replace("\x0d", ""))
         self._trim()
@@ -1841,6 +1969,8 @@ class GCode:
         del self.blocks[:]
         self.cnc.initPath()
         self._blocksExist = False
+        self._preCut = True
+        self._holdInHeader = False
         for line in lines:
             self._addLine(line)
         self._trim()
