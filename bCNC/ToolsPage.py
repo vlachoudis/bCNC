@@ -25,15 +25,11 @@ from tkinter import (
     DISABLED,
     ACTIVE,
     StringVar,
-    Button,
-    Frame,
-    Label,
     Menu,
-    Scrollbar,
     Text,
-    PanedWindow,
     messagebox,
 )
+from tkinter.ttk import Button, Frame, Label, PanedWindow, Scrollbar
 
 import CNCRibbon
 import Ribbon
@@ -46,7 +42,6 @@ from Utils import N_
 __author__ = "Vasilis Vlachoudis"
 __email__ = "Vasilis.Vlachoudis@cern.ch"
 
-_EXE_FONT = ("Helvetica", 12, "bold")
 
 
 # =============================================================================
@@ -188,7 +183,10 @@ class _Base:
                     + var[3] + "\n" + var[4] + "\n\n"
                 )
 
-        self.master.widget["paned"].remove(self.master.widget["toolHelpFrame"])
+        paned = self.master.widget["paned"]
+        helpFrame = self.master.widget["toolHelpFrame"]
+        if str(helpFrame) in paned.panes():  # ttk raises if it is not a pane
+            paned.forget(helpFrame)
         self.master.widget["toolHelp"].config(state=NORMAL)
         self.master.widget["toolHelp"].delete(1.0, END)
         if len(varhelp) > 0:
@@ -203,7 +201,7 @@ class _Base:
                 else:
                     self.master.widget["toolHelp"].insert(END, line + "\n")
             self.master.widget["paned"].add(self.master.widget[
-                "toolHelpFrame"])
+                "toolHelpFrame"], weight=1)
         self.master.widget["toolHelp"].config(state=DISABLED)
 
     # ----------------------------------------------------------------------
@@ -1062,7 +1060,7 @@ class DataBaseGroup(CNCRibbon.ButtonGroup):
             value="Stock",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, rowspan=3, padx=2, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Stock material currently on machine"))
         self.addWidget(b)
 
@@ -1182,13 +1180,13 @@ class CAMGroup(CNCRibbon.ButtonMenuGroup):
         col = 0
         for tool in self._pluginsIn("CAM-core-big"):
             b = self._pluginButton(tool, large=True)
-            b.grid(row=0, column=col, rowspan=3, padx=1, pady=0, sticky=NSEW)
+            b.grid(row=0, column=col, rowspan=3, padx=0, pady=0, sticky=NSEW)
             col += 1
 
         row = 0
         for tool in self._pluginsIn("CAM-core", "CAM"):
             b = self._pluginButton(tool, large=False)
-            b.grid(row=row, column=col, padx=2, pady=0, sticky=NSEW)
+            b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
             row += 1
             if row == 3:
                 col += 1
@@ -1270,7 +1268,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
         f = Frame(self.frame)
         f.grid(row=row, column=col, columnspan=2, padx=0, pady=0, sticky=NSEW)
 
-        b = Label(f, image=Utils.icons["globe"], background=Ribbon._BACKGROUND)
+        b = Label(f, image=Utils.icons["globe"])
         b.pack(side=LEFT)
 
         self.language = Ribbon.LabelCombobox(
@@ -1295,7 +1293,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             value="CNC",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Machine configuration for bCNC"))
         self.addWidget(b)
 
@@ -1311,7 +1309,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             value="Shortcut",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Shortcuts configuration"))
         self.addWidget(b)
 
@@ -1328,7 +1326,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             value="Controller",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Controller (GRBL) configuration"))
         self.addWidget(b)
 
@@ -1344,7 +1342,7 @@ class ConfigGroup(CNCRibbon.ButtonMenuGroup):
             value="Camera",
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=1, pady=0, sticky=NSEW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Camera Configuration"))
         self.addWidget(b)
 
@@ -1416,45 +1414,39 @@ class ToolsFrame(CNCRibbon.PageFrame):
         paned.pack(expand=YES, fill=BOTH)
 
         frame = Frame(paned)
-        paned.add(frame)
+        paned.add(frame, weight=1)
 
         b = Button(
             frame,
+            style="Execute.TButton",
             text=_("Execute"),
             image=Utils.icons["gear"],
             compound=LEFT,
-            foreground="DarkRed",
-            activeforeground="DarkRed",
-            activebackground="LightYellow",
-            font=_EXE_FONT,
             command=self.execute,
         )
         b.pack(side=TOP, fill=X)
         self.tools.addButton("exe", b)
 
-        self.toolList = tkExtra.MultiListbox(
-            frame,
-            ((_("Name"), 24, None), (_("Value"), 12, None)),
-            height=20,
-            header=False,
-            stretch="last",
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-        )
-        self.toolList.sortAssist = None
-        self.toolList.pack(fill=BOTH, expand=YES)
+        scroll = Scrollbar(frame)
+        scroll.pack(side=RIGHT, fill=Y)
+        self.toolList = tkExtra.ToolList(
+            frame, height=20, yscrollcommand=scroll.set)
+        scroll.config(command=self.toolList.yview)
+        self.toolList.pack(side=LEFT, fill=BOTH, expand=YES)
         self.toolList.bindList("<Double-1>", self.help)
         self.toolList.bindList("<Return>", self.edit)
         self.toolList.bindList("<Key-space>", self.edit)
-        self.toolList.listbox(1).bind("<ButtonRelease-1>", self.edit)
+        self.toolList.bindValue("<ButtonRelease-1>", self.edit)
         # Replace listbox popup on value column: clear blankable colors, else menu
-        self.toolList.listbox(1).bind("<Button-3>", self.colorClearOrMenu)
+        self.toolList.bindValue("<Button-3>", self.colorClearOrMenu)
         self.tools.setListbox(self.toolList)
         self.addWidget(self.toolList)
 
         frame = Frame(paned)
-        paned.add(frame)
+        paned.add(frame, weight=1)
 
         toolHelp = Text(frame, width=20, height=5)
+        tkExtra.themeText(toolHelp)
         toolHelp.pack(side=LEFT, expand=YES, fill=BOTH)
         scroll = Scrollbar(frame, command=toolHelp.yview)
         scroll.pack(side=RIGHT, fill=Y)
@@ -1485,7 +1477,10 @@ class ToolsFrame(CNCRibbon.PageFrame):
     # Edit tool listbox
     # ----------------------------------------------------------------------
     def help(self, event=None, rename=False):
-        item = self.toolList.get(self.toolList.curselection())[0]
+        sel = self.toolList.curselection()
+        if not sel:
+            return
+        item = self.toolList.row(sel[0])[0]
         for var in self.tools.getActive().variables:
             if var[3] == item or _(var[3]) == item:
                 varname = var[0]

@@ -38,18 +38,15 @@ from tkinter import (
     DISABLED,
     Tk,
     Toplevel,
-    Button,
-    Entry,
     Frame,
-    Label,
     Listbox,
     Text,
     PhotoImage,
     Spinbox,
-    LabelFrame,
-    PanedWindow,
     messagebox,
 )
+from tkinter import ttk
+from tkinter.ttk import Entry, PanedWindow
 
 try:
     import serial
@@ -163,59 +160,57 @@ class Application(Tk, Sender):
         self.controller = None
         self.loadConfig()
 
-        # Disable dark mode on MacOS
-        with contextlib.suppress(TclError):
-            self.tk.call('tk::unsupported::MacWindowStyle', 'appearance', self, 'aqua')
+        tkExtra.setTheme(self)
 
         # --- Ribbon ---
         self.ribbon = Ribbon.TabRibbonFrame(self)
         self.ribbon.pack(side=TOP, fill=X)
 
-        # Main frame
-        self.paned = PanedWindow(self, orient=HORIZONTAL)
-        self.paned.pack(fill=BOTH, expand=YES)
-
         # Status bar
-        frame = Frame(self)
+        frame = ttk.Frame(self)
         frame.pack(side=BOTTOM, fill=X)
-        self.statusbar = tkExtra.ProgressBar(frame, height=20, relief=SUNKEN)
+        self.statusbar = tkExtra.TtkProgressBar(frame)
         self.statusbar.pack(side=LEFT, fill=X, expand=YES)
-        self.statusbar.configText(fill="DarkBlue", justify=LEFT, anchor=W)
+        self.statusbar.configText(fill=tkExtra.readoutColor(self), anchor="w")
 
-        self.statusz = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusz = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusz.pack(side=RIGHT)
-        self.statusy = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusy = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusy.pack(side=RIGHT)
-        self.statusx = Label(
-            frame, foreground="DarkRed", relief=SUNKEN, anchor=W, width=10
+        self.statusx = ttk.Label(
+            frame, style="Coord.TLabel", relief=SUNKEN, anchor=W, width=10
         )
         self.statusx.pack(side=RIGHT)
 
         # Buffer bar
-        self.bufferbar = tkExtra.ProgressBar(
-            frame, height=20, width=40, relief=SUNKEN)
+        self.bufferbar = tkExtra.TtkProgressBar(frame, width=6)
         self.bufferbar.pack(side=RIGHT, expand=NO)
         self.bufferbar.setLimits(0, 100)
         tkExtra.Balloon.set(self.bufferbar, _("Controller buffer fill"))
 
+        # Main frame
+        self.paned = PanedWindow(self, orient=HORIZONTAL)
+        self.paned.pack(fill=BOTH, expand=YES)
+
         # --- Left side ---
-        frame = Frame(self.paned)
+        frame = ttk.Frame(self.paned)
         self.paned.add(frame)  # , minsize=340)
 
-        pageframe = Frame(frame)
+        left, top, right, bottom = tkExtra.PANEL_PADDING
+        pageframe = ttk.Frame(frame, padding=(left, top, right, 0))
         pageframe.pack(side=TOP, expand=YES, fill=BOTH)
         self.ribbon.setPageFrame(pageframe)
 
         # Command bar
-        f = Frame(frame)
+        f = ttk.Frame(frame)
         f.pack(side=BOTTOM, fill=X)
-        self.cmdlabel = Label(f, text=_("Command:"))
+        self.cmdlabel = ttk.Label(f, text=_("Command:"))
         self.cmdlabel.pack(side=LEFT)
-        self.command = Entry(f, relief=SUNKEN, background="White")  # !!!
+        self.command = Entry(f)
         self.command.pack(side=RIGHT, fill=X, expand=YES)
         self.command.bind("<Return>", self.cmdExecute)
         self.command.bind("<Up>", self.commandHistoryUp)
@@ -237,10 +232,10 @@ class Application(Tk, Sender):
         self.widgets.append(self.command)
 
         # --- Right side ---
-        frame = Frame(self.paned)
-        self.paned.add(frame)
+        frame = ttk.Frame(self.paned)
+        self.paned.add(frame, weight=1)
 
-        self.canvasContainer = Frame(frame)
+        self.canvasContainer = ttk.Frame(frame)
         self.canvasContainer.pack(side='top', expand=True, fill='both')
 
         # --- 3D Canvas ---
@@ -549,7 +544,7 @@ class Application(Tk, Sender):
         self.monitorSerial()
         self.canvasFrame.toggleDrawFlag()
 
-        self.paned.sash_place(0, Utils.getInt(Utils.__prg__, "sash", 340), 0)
+        self.paned.sashpos(0, Utils.getInt(Utils.__prg__, "sash", 340))
 
         # Auto start pendant and serial
         if Utils.getBool("Connection", "pendant"):
@@ -567,7 +562,7 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def setStatus(self, msg, force_update=False):
-        self.statusbar.configText(text=msg, fill="DarkBlue")
+        self.statusbar.configText(text=msg, fill=tkExtra.readoutColor(self))
         if force_update:
             self.statusbar.update_idletasks()
             self.bufferbar.update_idletasks()
@@ -767,7 +762,7 @@ class Application(Tk, Sender):
         # Program
         Utils.setInt(Utils.__prg__, "width", str(self.winfo_width()))
         Utils.setInt(Utils.__prg__, "height", str(self.winfo_height()))
-        Utils.setInt(Utils.__prg__, "sash", str(self.paned.sash_coord(0)[0]))
+        Utils.setInt(Utils.__prg__, "sash", str(self.paned.sashpos(0)))
 
         # save windowState (do not persist minimized, or next launch stays hidden)
         state = str(self.wm_state())
@@ -849,231 +844,214 @@ class Application(Tk, Sender):
         toplevel.transient(self)
         toplevel.title(_("About {} v{}").format(Utils.__prg__, __version__))
 
-        bg = "#707070"
-        fg = "#ffffff"
-
         font2 = "Helvetica -12"
         font3 = "Helvetica -10"
 
-        frame = Frame(toplevel, borderwidth=2, relief=SUNKEN, background=bg)
-        frame.pack(side=TOP, expand=TRUE, fill=BOTH, padx=5, pady=5)
+        outer = ttk.Frame(toplevel, padding=tkExtra.DIALOG_PADDING)
+        outer.pack(side=TOP, expand=TRUE, fill=BOTH)
+        frame = ttk.Frame(outer, borderwidth=2, relief=SUNKEN)
+        frame.pack(side=TOP, expand=TRUE, fill=BOTH)
 
         # -----
         row = 0
-        la = Label(
-            frame,
+        box = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        box.grid(row=row, column=0, columnspan=2)
+        la = ttk.Label(
+            box,
             image=Utils.icons["bCNC"],
-            foreground=fg,
-            background=bg,
             relief=RAISED,
-            padx=0,
-            pady=0,
         )
-        la.grid(row=row, column=0, columnspan=2, padx=5, pady=5)
+        la.pack()
 
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=_(
                 "bCNC/\tAn advanced fully featured\n"
                 "\tg-code sender for GRBL."
             ),
             font=font3,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
         )
-        la.grid(row=row, column=0, columnspan=2, sticky=W, padx=10, pady=1)
+        la.grid(row=row, column=0, columnspan=2, sticky=W)
 
         # -----
         row += 1
-        f = Frame(frame, borderwidth=1, relief=SUNKEN, height=2, background=bg)
-        f.grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=5)
+        sep = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        sep.grid(row=row, column=0, columnspan=2, sticky=EW)
+        f = ttk.Frame(sep, borderwidth=1, relief=SUNKEN, height=2)
+        f.pack(fill=X)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="www:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__www__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            activeforeground="Blue",
             font=font2,
             cursor="hand1",
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W)
         la.bind("<Button-1>", lambda e: webbrowser.open(Utils.__www__))
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="email:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__email__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=W, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=W)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="author:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__author__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="contributors:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__contribute__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="translations:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__translations__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="credits:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=NE, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=NE)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=Utils.__credits__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="version:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__version__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         # -----
         row += 1
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text="last change:",
-            foreground=fg,
-            background=bg,
             justify=LEFT,
             font=font2,
         )
-        la.grid(row=row, column=0, sticky=E, padx=10, pady=2)
+        la.grid(row=row, column=0, sticky=E)
 
-        la = Label(
+        la = ttk.Label(
             frame,
+            style="Dialog.TLabel",
             text=__date__,
-            foreground=fg,
-            background=bg,
             justify=LEFT,
-            font=font2
+            font=font2,
         )
-        la.grid(row=row, column=1, sticky=NW, padx=2, pady=2)
+        la.grid(row=row, column=1, sticky=NW)
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = Button(toplevel, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        bar = ttk.Frame(toplevel, padding=tkExtra.DIALOG_PADDING)
+        bar.pack()
+        b = ttk.Button(bar, text=_("Close"), command=closeFunc)
+        b.pack()
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)
@@ -1110,6 +1088,8 @@ class Application(Tk, Sender):
         toplevel = Toplevel(self)
         toplevel.transient(self)
         toplevel.title(_("Statistics"))
+        body = ttk.Frame(toplevel)
+        body.pack(fill=BOTH, expand=True)
 
         if CNC.inch:
             unit = "in"
@@ -1129,135 +1109,135 @@ class Application(Tk, Sender):
                 t += block.time
 
         # ===========
-        frame = LabelFrame(toplevel, text=_(
-            "Enabled GCode"), foreground="DarkRed")
+        frame = ttk.LabelFrame(body, text=_(
+            "Enabled GCode"))
         frame.pack(fill=BOTH)
 
         # ---
         row, col = 0, 0
-        Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['xmin']:g} .. {CNC.vars['xmax']:g} "
                  + f"[{CNC.vars['xmax'] - CNC.vars['xmin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['ymin']:g} .. {CNC.vars['ymax']:g} "
                  + f"[{CNC.vars['ymax'] - CNC.vars['ymin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['zmin']:g} .. {CNC.vars['zmax']:g} "
                  + f"[{CNC.vars['zmax'] - CNC.vars['zmin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=str(e), foreground="DarkBlue").grid(
+        ttk.Label(frame, text=str(e), style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{le:g} {unit}", foreground="DarkBlue").grid(
+        ttk.Label(frame, text=f"{le:g} {unit}", style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Rapid:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(frame, text=f"{r:g} {unit}", foreground="DarkBlue").grid(
+        ttk.Label(frame, text=f"{r:g} {unit}", style="Readout.TLabel").grid(
             row=row, column=col, sticky=W
         )
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
         col += 1
         h, m = divmod(t, 60)  # t in min
         s = (m - int(m)) * 60
-        Label(
+        ttk.Label(
             frame,
             text=f"{int(h)}:{int(m):02}:{int(s):02} s",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
 
         # ===========
-        frame = LabelFrame(toplevel, text=_("All GCode"), foreground="DarkRed")
+        frame = ttk.LabelFrame(body, text=_("All GCode"))
         frame.pack(fill=BOTH)
 
         # ---
         row, col = 0, 0
-        Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Margins X:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['axmin']:g} .. {CNC.vars['axmax']:g} "
                  + f"[{CNC.vars['axmax'] - CNC.vars['axmin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Y:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['aymin']:g} .. {CNC.vars['aymax']:g} "
                  + f"[{CNC.vars['aymax'] - CNC.vars['aymin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text="... Z:").grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{CNC.vars['azmin']:g} .. {CNC.vars['azmax']:g} "
                  + f"[{CNC.vars['azmax'] - CNC.vars['azmin']:g}] {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("# Blocks:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=str(len(self.gcode.blocks)),
-            foreground="DarkBlue"
+            style="Readout.TLabel"
         ).grid(
             row=row,
             column=col,
@@ -1266,38 +1246,40 @@ class Application(Tk, Sender):
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Length:")).grid(row=row, column=col, sticky=E)
         col += 1
-        Label(
+        ttk.Label(
             frame,
             text=f"{self.cnc.totalLength:g} {unit}",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         # ---
         row += 1
         col = 0
-        Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
+        ttk.Label(frame, text=_("Time:")).grid(row=row, column=col, sticky=E)
         col += 1
         h, m = divmod(self.cnc.totalTime, 60)  # t in min
         s = (m - int(m)) * 60
-        Label(
+        ttk.Label(
             frame,
             text=f"{int(int(h))}:{int(int(m)):02}:{int(int(s)):02} s",
-            foreground="DarkBlue",
+            style="Readout.TLabel",
         ).grid(row=row, column=col, sticky=W)
 
         frame.grid_columnconfigure(1, weight=1)
 
         # ===========
-        frame = Frame(toplevel)
+        frame = ttk.Frame(body)
         frame.pack(fill=X)
 
         def closeFunc(e=None, t=toplevel):
             return t.destroy()
 
-        b = Button(frame, text=_("Close"), command=closeFunc)
-        b.pack(pady=5)
+        bar = ttk.Frame(frame, padding=tkExtra.DIALOG_PADDING)
+        bar.pack()
+        b = ttk.Button(bar, text=_("Close"), command=closeFunc)
+        b.pack()
         frame.grid_columnconfigure(1, weight=1)
 
         toplevel.bind("<Escape>", closeFunc)
@@ -1887,11 +1869,11 @@ class Application(Tk, Sender):
 
     # -----------------------------------------------------------------------
     def commandFocusIn(self, event=None):
-        self.cmdlabel["foreground"] = "Blue"
+        self.cmdlabel["foreground"] = tkExtra.readoutColor(self)
 
     # -----------------------------------------------------------------------
     def commandFocusOut(self, event=None):
-        self.cmdlabel["foreground"] = "Black"
+        self.cmdlabel["foreground"] = ""
 
     # -----------------------------------------------------------------------
     # FIXME why it is not called?
@@ -2186,7 +2168,7 @@ class Application(Tk, Sender):
         if self.serial is not None:
             self.close()
             serialPage.connectBtn.config(
-                text=_("Open"), background="Salmon", activebackground="Salmon"
+                text=_("Open"), style=tkExtra.stateColor(self, "Salmon", "Ribbon.TButton")
             )
         else:
             serialPage = Page.frames["Serial"]
@@ -2195,8 +2177,7 @@ class Application(Tk, Sender):
             if self.open(device, baudrate):
                 serialPage.connectBtn.config(
                     text=_("Close"),
-                    background="LightGreen",
-                    activebackground="LightGreen",
+                    style=tkExtra.stateColor(self, "LightGreen", "Ribbon.TButton"),
                 )
                 self.enable()
 

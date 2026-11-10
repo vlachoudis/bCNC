@@ -6,9 +6,8 @@
 from tkinter import (BOTH,
                      LEFT,
                      TOP,
-                     Frame,
-                     LabelFrame,
                      )
+from tkinter.ttk import Frame, LabelFrame
 
 import Ribbon
 import tkExtra
@@ -86,8 +85,7 @@ class PageFrame(Frame, _LinkApp):
 # =============================================================================
 class PageLabelFrame(LabelFrame, _LinkApp):
     def __init__(self, master, name, name_alias_lng, app):
-        LabelFrame.__init__(
-            self, master, text=name_alias_lng, foreground="DarkBlue")
+        LabelFrame.__init__(self, master, text=name_alias_lng)
         _LinkApp.__init__(self, app)
         self.name = name
 
@@ -97,9 +95,7 @@ class PageLabelFrame(LabelFrame, _LinkApp):
 # =============================================================================
 class PageExLabelFrame(tkExtra.ExLabelFrame, _LinkApp):
     def __init__(self, master, name, name_alias_lng, app):
-        tkExtra.ExLabelFrame.__init__(
-            self, master, text=name_alias_lng, foreground="DarkBlue"
-        )
+        tkExtra.ExLabelFrame.__init__(self, master, text=name_alias_lng)
         _LinkApp.__init__(self, app)
         self.name = name
 

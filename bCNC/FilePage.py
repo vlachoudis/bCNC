@@ -15,10 +15,9 @@ from tkinter import (
     TOP,
     RIGHT,
     BooleanVar,
-    Checkbutton,
-    Label,
     Menu,
 )
+from tkinter.ttk import Checkbutton, Label
 import CNCRibbon
 import Ribbon
 import tkExtra
@@ -178,7 +177,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Send Error Report"))
 
         # ---
@@ -192,7 +191,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Check Updates"))
 
         col, row = 1, 2
@@ -205,7 +204,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
             anchor=W,
             background=Ribbon._BACKGROUND,
         )
-        b.grid(row=row, column=col, padx=0, pady=0, sticky=EW)
+        b.grid(row=row, column=col, padx=0, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("About the program"))
 
 
@@ -215,7 +214,7 @@ class OptionsGroup(CNCRibbon.ButtonGroup):
 class PendantGroup(CNCRibbon.ButtonGroup):
     def __init__(self, master, app):
         CNCRibbon.ButtonGroup.__init__(self, master, N_("Pendant"), app)
-        self.grid3rows()
+        self.grid2rows()
 
         col, row = 0, 0
         b = Ribbon.LabelButton(
@@ -283,11 +282,9 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         self.portCombo = tkExtra.Combobox(
             self,
             False,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=16,
             command=self.comportClean,
         )
-        self.portCombo._listbox.configure(font=("Courier", 9))
         self.portCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(
             self.portCombo, _("Select (or manual enter) port to connect")
@@ -303,7 +300,7 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         b.grid(row=row, column=col, sticky=E)
 
         self.baudCombo = tkExtra.Combobox(
-            self, True, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            self, True
         )
         self.baudCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(self.baudCombo, _("Select connection baud rate"))
@@ -319,7 +316,6 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
         self.ctrlCombo = tkExtra.Combobox(
             self,
             True,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             command=self.ctrlChange,
         )
         self.ctrlCombo.grid(row=row, column=col + 1, sticky=EW)
