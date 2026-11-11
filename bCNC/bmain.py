@@ -1460,6 +1460,8 @@ class Application(Tk, Sender):
         R("UP", lambda a, args, o: a.editor.orderUp())
         R("ECHO", A.cmdEcho)
         R("FEED", A.cmdFeed)
+        R("FEED+10", lambda a, args, o: a.gstate.adjustFeedOverride(10))
+        R("FEED-10", lambda a, args, o: a.gstate.adjustFeedOverride(-10))
         R("INVERT", lambda a, args, o: a.editor.invertBlocks(), 3)
         R("MSG", A.cmdMsg)
         R("MESSAGE", A.cmdMsg)

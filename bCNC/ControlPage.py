@@ -2239,7 +2239,7 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             variable=self.override,
             showvalue=True,
             orient=HORIZONTAL,
-            from_=25,
+            from_=10,
             to_=200,
             resolution=1,
         )
@@ -2350,6 +2350,21 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         CNC.vars["_OvChanged"] = True
 
     # ----------------------------------------------------------------------
+    def adjustFeedOverride(self, delta):
+        current = CNC.vars["_OvFeed"]
+        target = max(10, min(200, current + delta))
+
+        if target == current:
+            return
+
+        CNC.vars["_OvFeed"] = target
+        CNC.vars["_OvChanged"] = True
+
+        # Update the slider only when Feed is selected.
+        if self.overrideCombo.get() == "Feed":
+            self.override.set(target)
+
+    # ----------------------------------------------------------------------
     def resetOverride(self, event=None):
         self.override.set(100)
         self.overrideChange()
@@ -2357,12 +2372,15 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
     # ----------------------------------------------------------------------
     def overrideComboChange(self):
         n = self.overrideCombo.get()
-        if n == "Rapid":
-            self.overrideScale.config(to_=100, resolution=25)
-        else:
-            self.overrideScale.config(to_=200, resolution=1)
-        self.override.set(CNC.vars["_Ov" + n])
 
+        if n == "Rapid":
+            self.overrideScale.config(from_=25, to_=100, resolution=25)
+        elif n == "Feed":
+            self.overrideScale.config(from_=10, to_=200, resolution=1)
+        else:
+            self.overrideScale.config(from_=25, to_=200, resolution=1)
+
+        self.override.set(CNC.vars["_Ov" + n])
     # ----------------------------------------------------------------------
     def _gChange(self, value, dictionary):
         for k, v in dictionary.items():
