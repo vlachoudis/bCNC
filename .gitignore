@@ -13,3 +13,5 @@ build
 
 flatpak/builddir
 flatpak/.flatpak-builder
+
+ptar
