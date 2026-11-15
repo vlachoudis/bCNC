@@ -2073,10 +2073,18 @@ def isDark(root):
         return False
 
 
+_stateStyles = set()
+
+
 def stateColor(root, color, base="TButton"):
     """Style name of a button coloured with a machine state color"""
     dark = isDark(root)
     name = f"State{color}{int(dark)}.{base}"
+    # Configuring a style makes Tk lay out every ttk widget again. This is
+    # called on each serial monitor tick, so do it only once per style
+    if name in _stateStyles:
+        return name
+    _stateStyles.add(name)
     if dark:
         # same hue, dimmed to fit the dark panels
         rgb = [int(v * 0.5) // 256 for v in root.winfo_rgb(color)]
