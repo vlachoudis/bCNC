@@ -543,6 +543,11 @@ class ProgressBar(Canvas):
         else:
             self.coords(self.text, 1, height / 2)
 
+        if self.itemcget(self.text, "justify") == CENTER:
+            self.coords(self.text, width / 2, height / 2)
+        else:
+            self.coords(self.text, 1, height / 2)
+
 
 # =============================================================================
 # Class to edit in place the contents of a listbox
