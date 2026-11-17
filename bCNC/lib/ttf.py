@@ -693,6 +693,22 @@ class TruetypeInfo:
             newContour.append(p)
             if i == gv.contoursEnd[c]:
                 c += 1
+                # TrueType contours may start with an OFF-curve point.
+                # Rotate so the contour starts on an ON point, or insert
+                # a virtual ON point if there is none at all.
+                if not newContour[0].ON_CURVE:
+                    on = next(
+                        (k for k, q in enumerate(newContour) if q.ON_CURVE), None
+                    )
+                    if on is not None:
+                        newContour = newContour[on:] + newContour[:on]
+                    else:
+                        a, b = newContour[0], newContour[-1]
+                        mid = GlyphPoint()
+                        mid.x = (a.x + b.x) / 2.0
+                        mid.y = (a.y + b.y) / 2.0
+                        mid.ON_CURVE = True
+                        newContour.insert(0, mid)
                 newContour.append(newContour[0])  # add first point
                 contours.append(newContour)  # add contour to list
                 newContour = []
