@@ -490,7 +490,6 @@ class DROFrame(CNCRibbon.PageFrame):
         self.xmachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.xmachine.grid(row=row, column=col, padx=1, sticky=EW)
@@ -499,7 +498,6 @@ class DROFrame(CNCRibbon.PageFrame):
         self.ymachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.ymachine.grid(row=row, column=col, padx=1, sticky=EW)
@@ -508,7 +506,6 @@ class DROFrame(CNCRibbon.PageFrame):
         self.zmachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.zmachine.grid(row=row, column=col, padx=1, sticky=EW)
@@ -861,7 +858,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.amachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.amachine.grid(row=row, column=col, padx=1, sticky=EW)
@@ -869,7 +865,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.bmachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.bmachine.grid(row=row, column=col, padx=1, sticky=EW)
@@ -878,7 +873,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.cmachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
         self.cmachine.grid(row=row, column=col, padx=1, sticky=EW)
