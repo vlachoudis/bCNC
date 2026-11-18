@@ -1261,9 +1261,9 @@ class ExLabelFrame(ttk.LabelFrame):
         ttk.LabelFrame.__init__(self, master, *args, **kwargs)
         self.frame = ttk.Frame(self)
         self.frame.pack(expand=YES, fill=BOTH)
+        # keeps the title row and the border while collapsed, in any theme
+        self._stub = ttk.Frame(self, height=1)
         self.bind("<Button-1>", self.click)
-        if self["height"] == 0:
-            self["height"] = 20
         self.width = self["width"]
 
     # ----------------------------------------------------------------------
@@ -1279,6 +1279,7 @@ class ExLabelFrame(ttk.LabelFrame):
     def collapse(self):
         self["width"] = self.winfo_width()
         self.frame.pack_forget()
+        self._stub.pack()
         lbl = self["text"]
         if lbl[-1] in (
             Unicode.BLACK_UP_POINTING_TRIANGLE,
@@ -1290,6 +1291,7 @@ class ExLabelFrame(ttk.LabelFrame):
     # ----------------------------------------------------------------------
     def expand(self):
         self["width"] = self.width
+        self._stub.pack_forget()
         self.frame.pack(fill=BOTH)
         lbl = self["text"]
         if lbl[-1] in (
@@ -2422,6 +2424,11 @@ def applyTheme(root):
                      "Tab.Toolbutton"):
             style.configure(name, focusthickness=0)
         style.configure("Quick.TButton", padding=0)
+        # group frames like the Tk ones: the title on the border, no padding
+        # above and below the content
+        style.configure("TLabelframe", labeloutside=False,
+                        labelmargins=(8, 0, 8, 0),
+                        padding=(GROUP_PADDING, 0, GROUP_PADDING, 0))
         style.configure("Ribbon.TButton", padding=(1, 0), width=0)
         style.configure("Ribbon.Toolbutton", padding=(1, 0), width=0)
         style.configure("Tab.Toolbutton", padding=(7, 0))
