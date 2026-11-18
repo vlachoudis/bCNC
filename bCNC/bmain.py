@@ -63,6 +63,7 @@ import rexx
 import Updates
 import tkDialogs
 import tkExtra
+from theme import currentTheme
 # Load configuration before anything else
 # and if needed replace the  translate function _()
 # before any string is initialized
@@ -160,6 +161,7 @@ class Application(Tk, Sender):
         self.controller = None
         self.loadConfig()
 
+        currentTheme.load(Utils.getStr)
         tkExtra.setTheme(self)
 
         # --- Ribbon ---
@@ -745,13 +747,6 @@ class Application(Tk, Sender):
 
         Ribbon._FONT = Utils.getFont("ribbon.label", Ribbon._FONT)
         Ribbon._TABFONT = Utils.getFont("ribbon.tab", Ribbon._TABFONT)
-
-        Ribbon._ACTIVE_COLOR = Utils.getStr(
-            "Color", "ribbon.active", Ribbon._ACTIVE_COLOR
-        )
-        Ribbon._LABEL_SELECT_COLOR = Utils.getStr(
-            "Color", "ribbon.select", Ribbon._LABEL_SELECT_COLOR
-        )
 
         self.tools.loadConfig()
         Sender.loadConfig(self)

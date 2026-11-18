@@ -27,6 +27,7 @@ from tkinter.ttk import (
 
 import Utils
 import tkExtra
+from theme import currentTheme
 
 __author__ = "Vasilis Vlachoudis"
 __email__ = "vvlachoudis@gmail.com"
@@ -37,9 +38,6 @@ _FONT = ("Sans", "-11")
 _BACKGROUND = "#E6E2E0"
 
 _BACKGROUND_GROUP2 = "#B0C0C0"
-
-_ACTIVE_COLOR = "LightYellow"
-_LABEL_SELECT_COLOR = "#C0FFC0"
 
 # Ribbon show state
 
@@ -106,7 +104,7 @@ class _KeyboardFocus:
     # -----------------------------------------------------------------------
     def _focusIn(self, event):
         self.__backgroundColor = self.cget("background")
-        self.config(background=_ACTIVE_COLOR)
+        self.config(background=currentTheme.getColor("ribbon.active"))
 
     # -----------------------------------------------------------------------
     def _focusOut(self, event):
@@ -204,7 +202,9 @@ class MenuButton(Button):
     @staticmethod
     def createMenuFromList(master, menulist):
         mainmenu = menu = Menu(master,
-                               tearoff=0, activebackground=_ACTIVE_COLOR)
+                               tearoff=0,
+                               activebackground=currentTheme.getColor(
+                                   "ribbon.active"))
         for item in menulist:
             if item is None:
                 menu.add_separator()

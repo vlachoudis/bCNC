@@ -78,6 +78,7 @@ from tkinter.colorchooser import askcolor
 
 import bFileDialog
 import Unicode
+from theme import currentTheme
 
 
 # Key state codes
@@ -2065,6 +2066,13 @@ def _desktopDark(period):
 
 
 def isDark(root):
+    """The theme in use: the system appearance, or the forced one"""
+    if not currentTheme.followSystem:
+        return currentTheme.forceDark
+    return _systemDark(root)
+
+
+def _systemDark(root):
     if sys.platform.startswith("linux"):
         return _desktopDark(int(time.time() // 2))
     try:
@@ -2259,6 +2267,7 @@ def _groove(style, c):
 
 def applyTheme(root):
     dark = isDark(root)
+    currentTheme.dark = dark
     c = DARK if dark else LIGHT
     bg, fg, field = c["background"], c["foreground"], c["field"]
     style = ttk.Style(root)
@@ -2396,6 +2405,13 @@ def applyTheme(root):
     style.layout("Caption.TLabel", [("Label.padding", {"sticky": "nswe",
                  "children": [("Label.label", {"sticky": "nswe"})]})])
     style.configure("Separator.TFrame", background=c["separator"])
+    # ribbon: hovered and checked buttons
+    active = currentTheme.getColor("ribbon.active")
+    select = currentTheme.getColor("ribbon.select")
+    style.map("Ribbon.TButton", background=[("active", active)])
+    style.map("Ribbon.Toolbutton", background=[("active", active),
+                                               ("selected", select)])
+    style.map("Tab.Toolbutton", background=[("active", active)])
     style.configure("Toolbutton", relief="flat")
     style.map("Toolbutton", relief=[("pressed", "sunken"),
                                     ("selected", "sunken")])
@@ -2455,6 +2471,7 @@ def setTheme(root, interval=1000):
             state[0] = dark
             applyTheme(root)
             root.event_generate("<<AppearanceChanged>>")
-        root.after(interval, check)
+        if currentTheme.followSystem:  # a fixed theme needs no polling
+            root.after(interval, check)
 
     check()

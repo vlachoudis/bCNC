@@ -22,6 +22,7 @@ import CNCRibbon
 import Ribbon
 import tkExtra
 import Utils
+from theme import currentTheme
 
 from Utils import N_
 
@@ -44,7 +45,8 @@ BAUDS = [2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400]
 class _RecentMenuButton(Ribbon.MenuButton):
     # ----------------------------------------------------------------------
     def createMenu(self):
-        menu = Menu(self, tearoff=0, activebackground=Ribbon._ACTIVE_COLOR)
+        menu = Menu(self, tearoff=0,
+                    activebackground=currentTheme.getColor("ribbon.active"))
         for i in range(Utils._maxRecent):
             filename = Utils.getRecent(i)
             if filename is None:

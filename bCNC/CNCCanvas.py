@@ -67,6 +67,7 @@ import bmath
 import Camera
 import tkExtra
 import Utils
+from theme import currentTheme
 from CNC import CNC
 
 # Probe mapping we need PIL and numpy
@@ -87,16 +88,6 @@ VIEW_ISO3 = 5
 VIEWS = ["X-Y", "X-Z", "Y-Z", "ISO1", "ISO2", "ISO3"]
 
 DRAW_TIME = 5  # Maximum draw time permitted
-
-# Colors used instead of the default ones in dark mode
-DARK_COLORS = {
-    "ENABLE_COLOR": "White",
-    "AXES_TEXT_COLOR": "White",
-    "CANVAS_COLOR_UP": tkExtra.DARK["field"],
-    "CANVAS_COLOR_DOWN": tkExtra.DARK["field"],
-    "GRID_COLOR": "#5A5A5A",
-    "SELECT_COLOR": "#5AA9FF",
-}
 
 # Customizable colors
 GANTRY_COLOR = DEFAULT_GANTRY_COLOR ="Red"
@@ -4678,17 +4669,8 @@ class CanvasFrame(Frame):
 
     # ----------------------------------------------------------------------
     def loadColors(self):
-        dark = tkExtra.isDark(self)
         for key, info in customColors.items():
-            name = info["color"]
-            default = globals()["DEFAULT_" + name]
-            value = Utils.getStr("Color", key, default)
-            if value == "" and not info.get("canBeBlank"):
-                value = default
-            # the colors not changed by the user follow the dark mode
-            if dark and name in DARK_COLORS and value.lower() == default.lower():
-                value = DARK_COLORS[name]
-            globals()[name] = value
+            globals()[info["color"]] = currentTheme.getColor(key)
 
     # ----------------------------------------------------------------------
     def appearanceChanged(self, event=None):
