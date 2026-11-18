@@ -81,6 +81,8 @@ class LabelGroup(Frame):
                 anchor="center",
             )
         self.label.pack(fill=BOTH, expand=TRUE)
+        # the caption is not shortened when the buttons are narrower than it
+        caption.configure(width=self.label.winfo_reqwidth())
 
     # -----------------------------------------------------------------------
     def grid2rows(self):
@@ -165,6 +167,10 @@ class LabelRadiobutton(Radiobutton, _KeyboardFocus):
 # =============================================================================
 class LabelCombobox(tkExtra.TtkCombobox):
     def __init__(self, master, **kw):
+        kw.setdefault("style", "Ribbon.TCombobox")
+        if tkExtra.compact and tkExtra.ribbonFont is not None:
+            # the width in characters is measured in the font of the widget
+            kw.setdefault("font", tkExtra.ribbonFont)
         tkExtra.TtkCombobox.__init__(self, master, state="readonly", **kw)
 
 
@@ -471,7 +477,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<New>>",
             image=Utils.icons["new"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("New file"))
         b.pack(side=LEFT)
@@ -481,7 +487,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<Open>>",
             image=Utils.icons["load"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("Open file [Ctrl-O]"))
         b.pack(side=LEFT)
@@ -491,7 +497,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<Save>>",
             image=Utils.icons["save"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("Save all [Ctrl-S]"))
         b.pack(side=LEFT)
@@ -501,7 +507,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<Undo>>",
             image=Utils.icons["undo"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("Undo [Ctrl-Z]"))
         b.pack(side=LEFT)
@@ -511,7 +517,7 @@ class TabRibbonFrame(Frame):
             frame,
             image=Utils.icons["triangle_down"],
             command=self.undolist,
-            style="TButton",
+            style="Quick.TButton",
         )
         b.pack(side=LEFT, fill=Y)
         self.tool["undolist"] = b
@@ -521,7 +527,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<Redo>>",
             image=Utils.icons["redo"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("Redo [Ctrl-Y]"))
         b.pack(side=LEFT)
@@ -537,7 +543,7 @@ class TabRibbonFrame(Frame):
             self,
             "<<Help>>",
             image=Utils.icons["info"],
-            style="TButton",
+            style="Quick.TButton",
         )
         tkExtra.Balloon.set(b, _("Help [F1]"))
         b.pack(side=RIGHT)
@@ -586,7 +592,8 @@ class TabRibbonFrame(Frame):
         tkExtra.Balloon.set(page._tab, page.__doc__)
 
         page._tab.pack(side=side, fill=Y)
-        self.after_idle(self._equalTabs)
+        if not tkExtra.compact:
+            self.after_idle(self._equalTabs)
 
     # ----------------------------------------------------------------------
     # Same width for all the tabs

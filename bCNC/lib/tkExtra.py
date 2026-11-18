@@ -2024,6 +2024,9 @@ PANEL_PADDING = (5, 0, 5, 10)  # around the content: left, top, right, bottom
 PANEL_GAP = 10  # between two groups
 GROUP_PADDING = 5  # inside a group (label frame)
 DIALOG_PADDING = 5  # around the content of a dialog
+compact = True  # ui.layout.compact: sizes close to the original Tk version
+ribbonFont = None  # fonts of the ribbon buttons and tabs, used when compact
+ribbonTabFont = None
 
 LIGHT = {
     "background": "#D9D9D9", "foreground": "#000000", "field": "#FFFFFF",
@@ -2412,6 +2415,22 @@ def applyTheme(root):
     style.map("Ribbon.Toolbutton", background=[("active", active),
                                                ("selected", select)])
     style.map("Tab.Toolbutton", background=[("active", active)])
+    # sizes of the ribbon: the compact layout is close to the Tk one
+    style.configure("Quick.TButton", padding="1.5p")
+    if compact:
+        for name in ("Quick.TButton", "Ribbon.TButton", "Ribbon.Toolbutton",
+                     "Tab.Toolbutton"):
+            style.configure(name, focusthickness=0)
+        style.configure("Quick.TButton", padding=0)
+        style.configure("Ribbon.TButton", padding=(1, 0), width=0)
+        style.configure("Ribbon.Toolbutton", padding=(1, 0), width=0)
+        style.configure("Tab.Toolbutton", padding=(7, 0))
+        if ribbonFont is not None:
+            style.configure("Ribbon.TButton", font=ribbonFont)
+            style.configure("Ribbon.Toolbutton", font=ribbonFont)
+            style.configure("Ribbon.TCombobox", font=ribbonFont)
+        if ribbonTabFont is not None:
+            style.configure("Tab.Toolbutton", font=ribbonTabFont)
     style.configure("Toolbutton", relief="flat")
     style.map("Toolbutton", relief=[("pressed", "sunken"),
                                     ("selected", "sunken")])

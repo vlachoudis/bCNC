@@ -162,6 +162,7 @@ class Application(Tk, Sender):
         self.loadConfig()
 
         currentTheme.load(Utils.getStr)
+        tkExtra.compact = Utils.getBool("bCNC", "ui.layout.compact", True)
         tkExtra.setTheme(self)
 
         # --- Ribbon ---
@@ -747,6 +748,8 @@ class Application(Tk, Sender):
 
         Ribbon._FONT = Utils.getFont("ribbon.label", Ribbon._FONT)
         Ribbon._TABFONT = Utils.getFont("ribbon.tab", Ribbon._TABFONT)
+        tkExtra.ribbonFont = Ribbon._FONT
+        tkExtra.ribbonTabFont = Ribbon._TABFONT
 
         self.tools.loadConfig()
         Sender.loadConfig(self)
