@@ -12,7 +12,6 @@ from tkinter import (
     ACTIVE,
     DISABLED,
     LEFT,
-    Listbox,
     Menu,
 )
 import tkinter.font as tkfont
@@ -32,9 +31,11 @@ MAXINT = 1000000000  # python3 doesn't have maxint
 # =============================================================================
 # CNC Listbox
 # =============================================================================
-class CNCListbox(Listbox):
+class CNCListbox(tkExtra.ListView):
     def __init__(self, master, app, *kw, **kwargs):
-        Listbox.__init__(self, master, *kw, **kwargs)
+        tkExtra.ListView.__init__(
+            self, master, style="Editor.Treeview", font=tkExtra.listFont(),
+            **kwargs)
         self.bind("<Button-1>", self.button1)
         self.bind("<ButtonRelease-1>", self.release1)
         self.bind("<Double-1>", self.double)
@@ -66,7 +67,7 @@ class CNCListbox(Listbox):
         self._items = []  # each listbox lien which item (bid,lid) shows
         self.app = app
         self.gcode = app.gcode
-        self.font = tkfont.nametofont(self.cget("font"))
+        self.font = tkExtra.listFont()
         self._ystart = 0
         self._double = False  # double clicked handled
         self._hadfocus = False
@@ -371,10 +372,9 @@ class CNCListbox(Listbox):
             txt0 = txt
             txt = self.gcode[bid].name()
             self.set(active, txt)
-            edit = tkExtra.InPlaceEdit(self, select=False, bg=self.cget("bg"))
+            edit = tkExtra.InPlaceEdit(self, select=False)
         else:
-            edit = tkExtra.InPlaceEdit(
-                self, x=x, select=False, bg=self.cget("bg"))
+            edit = tkExtra.InPlaceEdit(self, x=x, select=False)
 
         if edit.value is None or edit.value == txt:
             if lid is None:
@@ -474,7 +474,7 @@ class CNCListbox(Listbox):
         self.selection_set(active)
         self.see(active)
 
-        edit = tkExtra.InPlaceEdit(self, bg=self.cget("bg"))
+        edit = tkExtra.InPlaceEdit(self)
         ypos = self.yview()[0]
         self.delete(active)
 
@@ -609,9 +609,10 @@ class CNCListbox(Listbox):
             return None
 
         txt = self.get(y)
-        if event.x <= self.font.measure(txt[:2]):
+        x = event.x - self.textOffset
+        if x <= self.font.measure(txt[:2]):
             return 0
-        elif event.x <= self.font.measure(txt[:5]):
+        elif x <= self.font.measure(txt[:5]):
             return 1
         else:
             return 2

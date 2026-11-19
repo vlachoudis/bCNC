@@ -20,14 +20,10 @@ from tkinter import (
     RAISED,
     DISABLED,
     IntVar,
-    Tk,
     Toplevel,
-    Button,
-    Frame,
-    Label,
-    Spinbox,
-    LabelFrame,
 )
+
+from tkinter.ttk import Button, Frame, Label, LabelFrame, Spinbox
 
 import tkExtra
 import Utils
@@ -50,29 +46,29 @@ class CheckUpdateDialog(Toplevel):
 
         # -----
         la = Label(self, image=Utils.icons["bCNC"],
-                   relief=RAISED, padx=0, pady=0)
+                   relief=RAISED)
         la.pack(side=TOP, fill=BOTH)
 
         # ----
-        frame = LabelFrame(self, text="Version", padx=3, pady=5)
+        frame = LabelFrame(self, text="Version")
         frame.pack(side=TOP, fill=BOTH)
 
         la = Label(frame, text=_("Installed Version:"))
-        la.grid(row=0, column=0, sticky=E, pady=1)
+        la.grid(row=0, column=0, sticky=E)
 
         la = Label(frame, text=version, anchor=W)
         la.grid(row=0, column=1, sticky=EW)
         tkExtra.Balloon.set(la, _("Running version of bCNC"))
 
         la = Label(frame, text=_("Latest PyPI Version:"))
-        la.grid(row=1, column=0, sticky=E, pady=1)
+        la.grid(row=1, column=0, sticky=E)
 
         self.webversion = Label(frame, anchor=W)
         self.webversion.grid(row=1, column=1, sticky=EW)
         tkExtra.Balloon.set(self.webversion,
                             _("Latest release version on PyPI"))
         la = Label(frame, text=_("Published at:"))
-        la.grid(row=2, column=0, sticky=E, pady=1)
+        la.grid(row=2, column=0, sticky=E)
 
         self.published = Label(frame, anchor=W)
         self.published.grid(row=2, column=1, sticky=EW)
@@ -83,11 +79,11 @@ class CheckUpdateDialog(Toplevel):
         frame.grid_columnconfigure(1, weight=1)
 
         # ----
-        frame = LabelFrame(self, text=_("Check Interval"), padx=3, pady=5)
+        frame = LabelFrame(self, text=_("Check Interval"))
         frame.pack(fill=BOTH)
 
         la = Label(frame, text=_("Last Check:"))
-        la.grid(row=0, column=0, sticky=E, pady=1)
+        la.grid(row=0, column=0, sticky=E)
 
         # Last check
         lastCheck = Utils.getInt(Utils.__prg__, "lastcheck", 0)
@@ -101,7 +97,7 @@ class CheckUpdateDialog(Toplevel):
         tkExtra.Balloon.set(la, _("Date last checked"))
 
         la = Label(frame, text=_("Interval (days):"))
-        la.grid(row=1, column=0, sticky=E, pady=1)
+        la.grid(row=1, column=0, sticky=E)
 
         checkInt = Utils.getInt(Utils.__prg__, "checkinterval", 30)
         self.checkInterval = IntVar()
@@ -109,10 +105,9 @@ class CheckUpdateDialog(Toplevel):
 
         s = Spinbox(
             frame,
-            text=self.checkInterval,
+            textvariable=self.checkInterval,
             from_=0,
             to_=365,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         s.grid(row=1, column=1, sticky=EW)
         frame.grid_columnconfigure(1, weight=1)
@@ -181,7 +176,7 @@ class CheckUpdateDialog(Toplevel):
             if self.isNewer(latest_version):
                 self.webversion.config(background="LightGreen")
                 self.checkButton.config(
-                    text=_("Download"), background="LightYellow",
+                    text=_("Download"),
                     command=self.download
                 )
                 tkExtra.Balloon.set(
@@ -208,7 +203,6 @@ class CheckUpdateDialog(Toplevel):
         import webbrowser
 
         webbrowser.open("https://pypi.org/project/bCNC/")
-        self.checkButton.config(background="LightGray")
 
     # ----------------------------------------------------------------------
     def close(self, event=None):
@@ -235,12 +229,3 @@ def need2Check():
         return False
 
     return lastCheck + checkInt * 86400 < int(time.time())
-
-
-# =============================================================================
-if __name__ == "__main__":
-    tk = Tk()
-    Utils.loadIcons()
-    Utils.loadConfiguration()
-    dlg = CheckUpdateDialog(tk, 0)
-    tk.mainloop()

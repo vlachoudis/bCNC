@@ -16,7 +16,8 @@ from tkinter import (
     NORMAL,
     DISABLED,
     EXTENDED,
-    Listbox,
+)
+from tkinter.ttk import (
     Scrollbar,
 )
 
@@ -189,12 +190,7 @@ class TerminalFrame(CNCRibbon.PageFrame):
         CNCRibbon.PageFrame.__init__(self, master, N_("Terminal"), app)
 
         # ---
-        self.terminal = Listbox(
-            self,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            selectmode=EXTENDED,
-            height=5,
-        )
+        self.terminal = tkExtra.ListView(self, selectmode=EXTENDED, height=5)
         self.terminal.grid(row=0, column=0, sticky=NSEW)
         sb = Scrollbar(self, orient=VERTICAL, command=self.terminal.yview)
         sb.grid(row=0, column=1, sticky=NS)
@@ -205,8 +201,8 @@ class TerminalFrame(CNCRibbon.PageFrame):
                             _("Terminal communication with controller"))
 
         # ---
-        self.buffer = Listbox(
-            self, background="LightYellow", selectmode=EXTENDED, height=5
+        self.buffer = tkExtra.ListView(
+            self, style="Buffer.Treeview", selectmode=EXTENDED, height=5
         )
         self.buffer.grid(row=1, column=0, sticky=NSEW)
         sb = Scrollbar(self, orient=VERTICAL, command=self.buffer.yview)

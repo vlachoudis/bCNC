@@ -6,7 +6,6 @@
 import math
 from tkinter import (
     TclError,
-    FALSE,
     YES,
     N,
     S,
@@ -21,7 +20,6 @@ from tkinter import (
     TOP,
     RIGHT,
     BOTTOM,
-    FLAT,
     RAISED,
     HORIZONTAL,
     END,
@@ -30,18 +28,12 @@ from tkinter import (
     #  UNITS,
     IntVar,
     BooleanVar,
-    Button,
-    Checkbutton,
-    Entry,
-    Frame,
-    Label,
     Menu,
-    Radiobutton,
-    Scale,
     Text,
     Toplevel,
     messagebox,
 )
+from tkinter.ttk import Button, Checkbutton, Entry, Frame, Label, Radiobutton
 
 from CNC import CNC
 import CNCRibbon
@@ -63,6 +55,7 @@ _LOWSTEP = 0.0001
 _HIGHSTEP = 1000.0
 _HIGHZSTEP = 10.0
 _NOZSTEP = "XY"
+_PADSIZE = 40  # side of a jog pad button, pixels
 _HIGHASTEP = 90.0
 _NOASTEP = "BC"
 
@@ -230,7 +223,7 @@ class UserButtonDialog(Toplevel):
         row, col = 0, 0
         Label(self, text=_("Name:")).grid(row=row, column=col, sticky=E)
         col += 1
-        self.name = Entry(self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.name = Entry(self, )
         self.name.grid(row=row, column=col, columnspan=2, sticky=EW)
         tkExtra.Balloon.set(self.name, _("Name to appear on button"))
 
@@ -254,7 +247,7 @@ class UserButtonDialog(Toplevel):
         Label(self, text=_("Tool Tip:")).grid(row=row, column=col, sticky=E)
         col += 1
         self.tooltip = Entry(self,
-                             background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+                             )
         self.tooltip.grid(row=row, column=col, columnspan=2, sticky=EW)
         tkExtra.Balloon.set(self.tooltip, _("Tooltip for button"))
 
@@ -263,9 +256,9 @@ class UserButtonDialog(Toplevel):
         Label(self, text=_("Command:")).grid(row=row, column=col, sticky=N + E)
         col += 1
         self.command = Text(
-            self, background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            width=40, height=10
+            self, width=40, height=10
         )
+        tkExtra.themeText(self.command)
         self.command.grid(row=row, column=col, columnspan=2, sticky=EW)
 
         self.grid_columnconfigure(2, weight=1)
@@ -332,6 +325,7 @@ class UserGroup(CNCRibbon.ButtonGroup):
                 self.frame, self.app, i, anchor=W,
                 background=Ribbon._BACKGROUND
             )
+
             col, row = divmod(i - 1, 3)
             b.grid(row=row, column=col, sticky=NSEW)
             self.addWidget(b)
@@ -412,13 +406,16 @@ class DROFrame(CNCRibbon.PageFrame):
         self.state = Button(
             self,
             text=Sender.NOT_CONNECTED,
-            font=DROFrame.dro_status,
             command=self.showState,
-            cursor="hand1",
-            background=Sender.STATECOLOR[Sender.NOT_CONNECTED],
-            activebackground="LightYellow",
         )
         self.state.grid(row=row, column=col, columnspan=3, sticky=EW)
+        self.state.config(
+            style=tkExtra.stateColor(
+                self, Sender.STATECOLOR[Sender.NOT_CONNECTED], "Status.TButton")
+        )
+        self.winfo_toplevel().bind(
+            "<<AppearanceChanged>>", lambda e: self.updateState(), add="+"
+        )
         tkExtra.Balloon.set(
             self.state,
             _(
@@ -438,12 +435,9 @@ class DROFrame(CNCRibbon.PageFrame):
         self.xwork = Entry(
             self,
             font=DROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
-        self.xwork.grid(row=row, column=col, padx=1, sticky=EW)
+        self.xwork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.xwork, _("X work position (click to set)"))
         self.xwork.bind("<FocusIn>", self.workFocus)
         self.xwork.bind("<Return>", self.setX)
@@ -454,12 +448,9 @@ class DROFrame(CNCRibbon.PageFrame):
         self.ywork = Entry(
             self,
             font=DROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
-        self.ywork.grid(row=row, column=col, padx=1, sticky=EW)
+        self.ywork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.ywork, _("Y work position (click to set)"))
         self.ywork.bind("<FocusIn>", self.workFocus)
         self.ywork.bind("<Return>", self.setY)
@@ -470,12 +461,9 @@ class DROFrame(CNCRibbon.PageFrame):
         self.zwork = Entry(
             self,
             font=DROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
-        self.zwork.grid(row=row, column=col, padx=1, sticky=EW)
+        self.zwork.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.zwork, _("Z work position (click to set)"))
         self.zwork.bind("<FocusIn>", self.workFocus)
         self.zwork.bind("<Return>", self.setZ)
@@ -490,28 +478,25 @@ class DROFrame(CNCRibbon.PageFrame):
         self.xmachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.xmachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.xmachine.grid(row=row, column=col, sticky=EW)
 
         col += 1
         self.ymachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.ymachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.ymachine.grid(row=row, column=col, sticky=EW)
 
         col += 1
         self.zmachine = Label(
             self,
             font=DROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.zmachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.zmachine.grid(row=row, column=col, sticky=EW)
 
         # Set buttons
         row += 1
@@ -521,9 +506,6 @@ class DROFrame(CNCRibbon.PageFrame):
             self,
             text=_("X=0"),
             command=self.setX0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         self.xzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -537,9 +519,6 @@ class DROFrame(CNCRibbon.PageFrame):
             self,
             text=_("Y=0"),
             command=self.setY0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         self.yzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -553,9 +532,6 @@ class DROFrame(CNCRibbon.PageFrame):
             self,
             text=_("Z=0"),
             command=self.setZ0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         self.zzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -571,9 +547,6 @@ class DROFrame(CNCRibbon.PageFrame):
             self,
             text=_("XY=0"),
             command=self.setXY0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         self.xyzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -587,9 +560,6 @@ class DROFrame(CNCRibbon.PageFrame):
             self,
             text=_("XYZ=0"),
             command=self.setXYZ0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         self.xyzzero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
         tkExtra.Balloon.set(
@@ -609,10 +579,7 @@ class DROFrame(CNCRibbon.PageFrame):
             text=_("Set WPOS"),
             image=Utils.icons["origin"],
             compound=LEFT,
-            activebackground="LightYellow",
             command=lambda s=self: s.event_generate("<<SetWPOS>>"),
-            padx=2,
-            pady=1,
         )
         b.pack(side=LEFT, fill=X, expand=YES)
         tkExtra.Balloon.set(b, _("Set WPOS to mouse location"))
@@ -623,10 +590,7 @@ class DROFrame(CNCRibbon.PageFrame):
             text=_("Move Gantry"),
             image=Utils.icons["gantry"],
             compound=LEFT,
-            activebackground="LightYellow",
             command=lambda s=self: s.event_generate("<<MoveGantry>>"),
-            padx=2,
-            pady=1,
         )
         b.pack(side=RIGHT, fill=X, expand=YES)
         tkExtra.Balloon.set(b, _("Move gantry to mouse location [g]"))
@@ -674,7 +638,10 @@ class DROFrame(CNCRibbon.PageFrame):
         msg = self.app._msg or CNC.vars["state"]
         if CNC.vars["pins"] is not None and CNC.vars["pins"] != "":
             msg += " [" + CNC.vars["pins"] + "]"
-        self.state.config(text=msg, background=CNC.vars["color"])
+        self.state.config(
+            text=msg,
+            style=tkExtra.stateColor(self, CNC.vars["color"], "Status.TButton")
+        )
 
     # ----------------------------------------------------------------------
     def updateCoords(self):
@@ -806,10 +773,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.awork = Entry(
             frame,
             font=abcDROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
         self.awork.grid(row=row, column=col, sticky=EW)
@@ -823,10 +787,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.bwork = Entry(
             frame,
             font=abcDROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
         self.bwork.grid(row=row, column=col, sticky=EW)
@@ -840,10 +801,7 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.cwork = Entry(
             frame,
             font=abcDROFrame.dro_wpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             width=8,
-            relief=FLAT,
-            borderwidth=0,
             justify=RIGHT,
         )
         self.cwork.grid(row=row, column=col, sticky=EW)
@@ -861,27 +819,24 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
         self.amachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.amachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.amachine.grid(row=row, column=col, sticky=EW)
         col += 1
         self.bmachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.bmachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.bmachine.grid(row=row, column=col, sticky=EW)
 
         col += 1
         self.cmachine = Label(
             frame,
             font=abcDROFrame.dro_mpos,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             anchor=E,
         )
-        self.cmachine.grid(row=row, column=col, padx=1, sticky=EW)
+        self.cmachine.grid(row=row, column=col, sticky=EW)
 
         # Set buttons
         row += 1
@@ -891,9 +846,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             frame,
             text=_("A=0"),
             command=self.setA0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         azero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -907,9 +859,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             frame,
             text=_("B=0"),
             command=self.setB0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         bzero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -923,9 +872,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             frame,
             text=_("C=0"),
             command=self.setC0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         czero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -941,9 +887,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             frame,
             text=_("BC=0"),
             command=self.setBC0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         bczero.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(
@@ -957,9 +900,6 @@ class abcDROFrame(CNCRibbon.PageExLabelFrame):
             frame,
             text=_("ABC=0"),
             command=self.setABC0,
-            activebackground="LightYellow",
-            padx=2,
-            pady=1,
         )
         abczero.grid(row=row, column=col, pady=0, sticky=EW, columnspan=2)
         tkExtra.Balloon.set(
@@ -1107,10 +1047,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_UP_POINTING_TRIANGLE,
             command=self.moveZup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
-        b.grid(row=row, column=col, sticky=EW)
+        b.grid(row=row, column=col, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Move +Z"))
         self.addWidget(b)
 
@@ -1120,8 +1058,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.UPPER_LEFT_TRIANGLE,
             command=self.moveXdownYup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -X +Y"))
@@ -1133,8 +1069,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_UP_POINTING_TRIANGLE,
             command=self.moveYup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +Y"))
@@ -1145,8 +1079,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.UPPER_RIGHT_TRIANGLE,
             command=self.moveXupYup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +X +Y"))
@@ -1155,7 +1087,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         col += 2
         b = Button(
             frame, text="\u00D710", command=self.mulStep,
-            width=3, padx=1, pady=1
+            width=3, 
         )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Multiply step by 10"))
@@ -1163,7 +1095,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         b = Button(frame, text=_("+"), command=self.incStep,
-                   width=3, padx=1, pady=1)
+                   width=3, )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
         self.addWidget(b)
@@ -1181,8 +1113,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
             command=self.moveXdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -X"))
@@ -1196,8 +1126,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LARGE_CIRCLE,
             command=self.go2origin,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(
@@ -1213,8 +1141,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
             command=self.moveXup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +X"))
@@ -1222,13 +1148,15 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         # --
         col += 1
-        Label(frame, "", width=2).grid(row=row, column=col)
+        Label(frame, width=2).grid(row=row, column=col)
 
         col += 1
         self.step = tkExtra.Combobox(
-            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame, width=6
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
+        frame.grid_columnconfigure(col, weight=1)
+        frame.grid_columnconfigure(col + 1, weight=1)
         self.step.set(Utils.config.get("Control", "step"))
         self.step.fill(
             map(float, Utils.config.get("Control", "steplist").split()))
@@ -1239,7 +1167,7 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
         try:
             zstep = Utils.config.get("Control", "zstep")
             self.zstep = tkExtra.Combobox(
-                frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                frame, width=4
             )
             self.zstep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.zstep.set(zstep)
@@ -1277,10 +1205,8 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
             command=self.moveZdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
-        b.grid(row=row, column=col, sticky=EW)
+        b.grid(row=row, column=col, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Move -Z"))
         self.addWidget(b)
 
@@ -1290,8 +1216,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LOWER_LEFT_TRIANGLE,
             command=self.moveXdownYdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -X -Y"))
@@ -1303,8 +1227,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
             command=self.moveYdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -Y"))
@@ -1316,8 +1238,6 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LOWER_RIGHT_TRIANGLE,
             command=self.moveXupYdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +X -Y"))
@@ -1325,16 +1245,25 @@ class ControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 2
         b = Button(
-            frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
+            frame, text="\u00F710", command=self.divStep, )
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Divide step by 10"))
         self.addWidget(b)
 
         col += 1
-        b = Button(frame, text=_("-"), command=self.decStep, padx=1, pady=1)
+        b = Button(frame, text=_("-"), command=self.decStep, )
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
         self.addWidget(b)
+
+        # 3x3 jog pad: all cells the same square size
+        for i in range(3):
+            frame.grid_columnconfigure(2 + i, minsize=_PADSIZE)
+            frame.grid_rowconfigure(1 + i, minsize=_PADSIZE)
+        for w in frame.grid_slaves():
+            info = w.grid_info()
+            if 2 <= int(info["column"]) <= 4 and 1 <= int(info["row"]) <= 3:
+                w.grid_configure(sticky=NSEW)
 
         try:
             self.tk.call("grid", "anchor", self, CENTER)
@@ -1577,10 +1506,8 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_UP_POINTING_TRIANGLE,
             command=self.moveAup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
-        b.grid(row=row, column=col, sticky=EW)
+        b.grid(row=row, column=col, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Move +A"))
         self.addWidget(b)
 
@@ -1590,8 +1517,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.UPPER_LEFT_TRIANGLE,
             command=self.moveBdownCup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
 
         b.grid(row=row, column=col, sticky=EW)
@@ -1604,8 +1529,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_UP_POINTING_TRIANGLE,
             command=self.moveCup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +C"))
@@ -1617,8 +1540,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.UPPER_RIGHT_TRIANGLE,
             command=self.moveBupCup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +B +C"))
@@ -1627,7 +1548,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         col += 2
         b = Button(
             frame, text="\u00D710", command=self.mulStep,
-            width=3, padx=1, pady=1
+            width=3, 
         )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Multiply step by 10"))
@@ -1635,7 +1556,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         b = Button(
-            frame, text=_("+"), command=self.incStep, width=3, padx=1, pady=1)
+            frame, text=_("+"), command=self.incStep, width=3, )
         b.grid(row=row, column=col, sticky=EW + S)
         tkExtra.Balloon.set(b, _("Increase step by 1 unit"))
         self.addWidget(b)
@@ -1653,8 +1574,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_LEFT_POINTING_TRIANGLE,
             command=self.moveBdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -B"))
@@ -1666,8 +1585,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LARGE_CIRCLE,
             command=self.go2abcorigin,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Return ABC to 0."))
@@ -1679,8 +1596,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_RIGHT_POINTING_TRIANGLE,
             command=self.moveBup,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +B"))
@@ -1688,11 +1603,11 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
         # --
         col += 1
-        Label(frame, "", width=2).grid(row=row, column=col)
+        Label(frame, width=2).grid(row=row, column=col)
 
         col += 1
         self.step = tkExtra.Combobox(
-            frame, width=6, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+            frame, width=6
         )
         self.step.grid(row=row, column=col, columnspan=2, sticky=EW)
         self.step.set(Utils.config.get("abcControl", "step"))
@@ -1706,7 +1621,7 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
         try:
             astep = Utils.config.get("abcControl", "astep")
             self.astep = tkExtra.Combobox(
-                frame, width=4, background=tkExtra.GLOBAL_CONTROL_BACKGROUND
+                frame, width=4
             )
             self.astep.grid(row=row, column=0, columnspan=1, sticky=EW)
             self.astep.set(astep)
@@ -1745,10 +1660,8 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
             command=self.moveAdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
-        b.grid(row=row, column=col, sticky=EW)
+        b.grid(row=row, column=col, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Move -A"))
         self.addWidget(b)
 
@@ -1758,8 +1671,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LOWER_LEFT_TRIANGLE,
             command=self.moveBdownCdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -B -C"))
@@ -1771,8 +1682,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.BLACK_DOWN_POINTING_TRIANGLE,
             command=self.moveCdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move -C"))
@@ -1784,8 +1693,6 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
             text=Unicode.LOWER_RIGHT_TRIANGLE,
             command=self.moveBupCdown,
             width=width,
-            height=height,
-            activebackground="LightYellow",
         )
         b.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(b, _("Move +B -C"))
@@ -1793,13 +1700,13 @@ class abcControlFrame(CNCRibbon.PageExLabelFrame):
 
         col += 2
         b = Button(
-            frame, text="\u00F710", command=self.divStep, padx=1, pady=1)
+            frame, text="\u00F710", command=self.divStep, )
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Divide step by 10"))
         self.addWidget(b)
 
         col += 1
-        b = Button(frame, text=_("-"), command=self.decStep, padx=1, pady=1)
+        b = Button(frame, text=_("-"), command=self.decStep, )
         b.grid(row=row, column=col, sticky=EW + N)
         tkExtra.Balloon.set(b, _("Decrease step by 1 unit"))
         self.addWidget(b)
@@ -2039,16 +1946,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         for p, w in enumerate(WCS):
             col += 1
             b = Radiobutton(
-                f2,
+                f2, style="WCS.Toolbutton",
                 text=w,
-                foreground="DarkRed",
-                font="Helvetica,14",
-                padx=1,
-                pady=1,
                 variable=wcsvar,
                 value=p,
-                indicatoron=FALSE,
-                activebackground="LightYellow",
                 command=self.wcsChange,
             )
             b.pack(side=LEFT, fill=X, expand=YES)
@@ -2065,7 +1966,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.distanceChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.distance.fill(sorted(DISTANCE_MODE.values()))
         self.distance.grid(row=row, column=col, columnspan=2, sticky=EW)
@@ -2086,7 +1986,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.unitsChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.units.fill(sorted(UNITS.values()))
         self.units.grid(row=row, column=col, sticky=EW)
@@ -2102,15 +2001,16 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         self.toolEntry = tkExtra.IntegerEntry(
-            f, background=tkExtra.GLOBAL_CONTROL_BACKGROUND, width=5
+            f, width=5
         )
         self.toolEntry.grid(row=row, column=col, sticky=EW)
         tkExtra.Balloon.set(self.toolEntry, _("Tool number [T#]"))
         self.addWidget(self.toolEntry)
 
         col += 1
-        b = Button(f, text=_("set"), command=self.setTool, padx=1, pady=1)
-        b.grid(row=row, column=col, sticky=W)
+        b = Button(f, text=_("set"), command=self.setTool,
+                   style="Field.TButton")
+        b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
         # Plane
@@ -2122,7 +2022,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.planeChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.plane.fill(sorted(PLANE.values()))
         self.plane.grid(row=row, column=col, sticky=EW)
@@ -2140,7 +2039,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         col += 1
         self.feedRate = tkExtra.FloatEntry(
             f,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             disabledforeground="Black",
             width=5,
         )
@@ -2151,8 +2049,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(self.feedRate)
 
         col += 1
-        b = Button(f, text=_("set"), command=self.setFeedRate, padx=1, pady=1)
-        b.grid(row=row, column=col, columnspan=2, sticky=W)
+        b = Button(f, text=_("set"), command=self.setFeedRate,
+                   style="Field.TButton")
+        b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
         # Feed mode
@@ -2165,7 +2064,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
             True,
             command=self.feedModeChange,
             width=5,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
         )
         self.feedMode.fill(sorted(FEED_MODE.values()))
         self.feedMode.grid(row=row, column=col, sticky=EW)
@@ -2182,7 +2080,6 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         col += 1
         self.tlo = tkExtra.FloatEntry(
             f,
-            background=tkExtra.GLOBAL_CONTROL_BACKGROUND,
             disabledforeground="Black",
             width=5,
         )
@@ -2193,8 +2090,9 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         self.addWidget(self.tlo)
 
         col += 1
-        b = Button(f, text=_("set"), command=self.setTLO, padx=1, pady=1)
-        b.grid(row=row, column=col, columnspan=2, sticky=W)
+        b = Button(f, text=_("set"), command=self.setTLO,
+                   style="Field.TButton")
+        b.grid(row=row, column=col, sticky=EW)
         self.addWidget(b)
 
         # g92
@@ -2228,16 +2126,15 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         self.overrideCombo.grid(row=row, column=col, pady=0, sticky=EW)
         tkExtra.Balloon.set(self.overrideCombo, _("Select override type."))
 
-        b = Button(f, text=_("Reset"), pady=0, command=self.resetOverride)
+        b = Button(f, text=_("Reset"), command=self.resetOverride)
         b.grid(row=row + 1, column=col, pady=0, sticky=NSEW)
         tkExtra.Balloon.set(b, _("Reset override to 100%"))
 
         col += 1
-        self.overrideScale = Scale(
+        self.overrideScale = tkExtra.ValueScale(
             f,
             command=self.overrideChange,
             variable=self.override,
-            showvalue=True,
             orient=HORIZONTAL,
             from_=25,
             to_=200,
@@ -2259,26 +2156,22 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         row += 2
         col = 0
         b = Checkbutton(
-            f,
+            f, style="Toolbutton",
             text=_("Spindle"),
             image=Utils.icons["spinningtop"],
             command=self.spindleControl,
             compound=LEFT,
-            indicatoron=False,
             variable=self.spindle,
-            padx=1,
-            pady=0,
         )
         tkExtra.Balloon.set(b, _("Start/Stop spindle (M3/M5)"))
         b.grid(row=row, column=col, pady=0, sticky=NSEW)
         self.addWidget(b)
 
         col += 1
-        b = Scale(
+        b = tkExtra.ValueScale(
             f,
             variable=self.spindleSpeed,
             command=self.spindleControl,
-            showvalue=True,
             orient=HORIZONTAL,
             from_=Utils.config.get("CNC", "spindlemin"),
             to_=Utils.config.get("CNC", "spindlemax"),
@@ -2300,14 +2193,16 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
         Label(f, text=_("Coolant:")).grid(row=row, column=col, sticky=E)
         col += 1
 
+        # equal width buttons
+        fc = Frame(f)
+        fc.grid(row=row, column=col, columnspan=4, sticky=EW)
+        col = 0
+
         coolantDisable = Checkbutton(
-            f,
+            fc, style="Center.Toolbutton",
             text=_("OFF"),
             command=self.coolantOff,
-            indicatoron=False,
             variable=self.coolant,
-            padx=1,
-            pady=0,
         )
         tkExtra.Balloon.set(coolantDisable, _("Stop cooling (M9)"))
         coolantDisable.grid(row=row, column=col, pady=0, sticky=NSEW)
@@ -2315,13 +2210,10 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         floodEnable = Checkbutton(
-            f,
+            fc, style="Center.Toolbutton",
             text=_("Flood"),
             command=self.coolantFlood,
-            indicatoron=False,
             variable=self.flood,
-            padx=1,
-            pady=0,
         )
         tkExtra.Balloon.set(floodEnable, _("Start flood (M8)"))
         floodEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
@@ -2329,17 +2221,16 @@ class StateFrame(CNCRibbon.PageExLabelFrame):
 
         col += 1
         mistEnable = Checkbutton(
-            f,
+            fc, style="Center.Toolbutton",
             text=_("Mist"),
             command=self.coolantMist,
-            indicatoron=False,
             variable=self.mist,
-            padx=1,
-            pady=0,
         )
         tkExtra.Balloon.set(mistEnable, _("Start mist (M7)"))
         mistEnable.grid(row=row, column=col, pady=0, sticky=NSEW)
         self.addWidget(mistEnable)
+        for c in range(3):
+            fc.grid_columnconfigure(c, weight=1, uniform="coolant")
         f.grid_columnconfigure(1, weight=1)
 
     # ----------------------------------------------------------------------

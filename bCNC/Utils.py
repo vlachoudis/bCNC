@@ -18,10 +18,7 @@ gettext.install("bCNC", localedir=None)
 from tkinter import (
     TclError,
     YES,
-    N,
     W,
-    E,
-    EW,
     X,
     Y,
     BOTH,
@@ -29,7 +26,6 @@ from tkinter import (
     TOP,
     RIGHT,
     BOTTOM,
-    RAISED,
     VERTICAL,
     END,
     DISABLED,
@@ -38,16 +34,18 @@ from tkinter import (
     BooleanVar,
     Tk,
     Toplevel,
+    Text,
+    PhotoImage,
+    messagebox,
+)
+from tkinter.ttk import (
     Button,
     Checkbutton,
     Entry,
     Frame,
     Label,
-    Scrollbar,
-    Text,
-    PhotoImage,
     LabelFrame,
-    messagebox,
+    Scrollbar,
 )
 import tkinter.font as tkfont
 import configparser
@@ -348,30 +346,6 @@ def makeFont(name, value=None):
 
 
 # -----------------------------------------------------------------------------
-# Create a font string
-# -----------------------------------------------------------------------------
-def fontString(font):
-    name = str(font[0])
-    size = str(font[1])
-    if name.find(" ") >= 0:
-        s = f"\"{name}\" {size}"
-    else:
-        s = f"{name} {size}"
-
-    try:
-        if font[2] == tkfont.BOLD:
-            s += " bold"
-    except Exception:
-        pass
-    try:
-        if font[3] == tkfont.ITALIC:
-            s += " italic"
-    except Exception:
-        pass
-    return s
-
-
-# -----------------------------------------------------------------------------
 # Get font from configuration
 # -----------------------------------------------------------------------------
 def getFont(name, default=None):
@@ -572,7 +546,8 @@ class ReportDialog(Toplevel):
         )
         la.pack(side=TOP)
 
-        self.text = Text(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.text = Text(frame)
+        tkExtra.themeText(self.text)
         self.text.pack(side=LEFT, expand=YES, fill=BOTH)
 
         sb = Scrollbar(frame, orient=VERTICAL, command=self.text.yview)
@@ -586,7 +561,7 @@ class ReportDialog(Toplevel):
         la = Label(frame, text=_("Your email"))
         la.pack(side=LEFT)
 
-        self.email = Entry(frame, background=tkExtra.GLOBAL_CONTROL_BACKGROUND)
+        self.email = Entry(frame)
         self.email.pack(side=LEFT, expand=YES, fill=X)
 
         # Automatic error reporting
@@ -596,8 +571,6 @@ class ReportDialog(Toplevel):
             frame,
             text=_("Automatic error reporting"),
             variable=self.err,
-            anchor=E,
-            justify=RIGHT,
         )
         b.pack(side=RIGHT)
 
