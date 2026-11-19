@@ -4743,6 +4743,10 @@ class CanvasFrame(Frame):
                              values=list(VIEWS), width=max(map(len, VIEWS)))
         b.pack(side=LEFT)
         tkExtra.Balloon.set(b, _("Change viewing angle"))
+        # apply the saved view; the canvas has no size yet, so fit it again
+        # when it gets one
+        self.viewChange()
+        self._fitId = self.canvas.bind("<Configure>", self._firstFit, add="+")
 
         b = Button(
             toolbar, image=Utils.icons["zoom_in"],
@@ -4957,6 +4961,12 @@ class CanvasFrame(Frame):
     def redraw(self, event=None):
         self.canvas.reset()
         self.event_generate("<<ViewChange>>")
+
+    # ----------------------------------------------------------------------
+    def _firstFit(self, event):
+        if event.width > 1 and event.height > 1:
+            self.canvas.unbind("<Configure>", self._fitId)
+            self.canvas.fit2Screen()
 
     # ----------------------------------------------------------------------
     def viewChange(self, a=None, b=None, c=None):
