@@ -287,6 +287,13 @@ class SerialFrame(CNCRibbon.PageLabelFrame):
             width=16,
             command=self.comportClean,
         )
+        # monospaced dropdown list, its columns are aligned with spaces (a
+        # listbox, or a menu on macOS)
+        popdown = self.tk.call("ttk::combobox::PopdownWindow", self.portCombo)
+        for name in ("f.l", "menu"):
+            if self.tk.call("winfo", "exists", f"{popdown}.{name}"):
+                self.tk.call(f"{popdown}.{name}", "configure", "-font",
+                             ("Courier", 9))
         self.portCombo.grid(row=row, column=col + 1, sticky=EW)
         tkExtra.Balloon.set(
             self.portCombo, _("Select (or manual enter) port to connect")
