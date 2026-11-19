@@ -254,7 +254,9 @@ class FileDialog(Toplevel):
     ):
 
         Toplevel.__init__(self)
-        self.transient(master)
+        # a transient window is dragged very slowly on macOS with Tk 9
+        if self.tk.call("tk", "windowingsystem") != "aqua":
+            self.transient(master)
         self.title(title)
         self.protocol("WM_DELETE_WINDOW", self.close)
 
@@ -263,7 +265,11 @@ class FileDialog(Toplevel):
         if title is None:
             title = self._title
 
-        self.dirframe = Frame(self)
+        # offsets of the content, unless compact: the dialog padding above,
+        # twice on the left and right, twice below the last row
+        self._side = 0 if tkExtra.compact else 2 * tkExtra.DIALOG_PADDING
+        pad = 0 if tkExtra.compact else tkExtra.DIALOG_PADDING
+        self.dirframe = Frame(self, padding=(self._side, pad))
         self.dirframe.pack(side=TOP, fill=X)
         Label(self.dirframe, text=_("Directory:")).grid(row=0, column=0)
 
@@ -281,8 +287,21 @@ class FileDialog(Toplevel):
             image=FileDialog.newfolder,
             command=self.newFolder,
         ).grid(row=0, column=100)
+        # the path buttons: when they do not fit, the first ones are not shown
+        # (an ellipsis instead), the label and the buttons at the right stay
+        self.pathFrame = Frame(self.dirframe, height=1)
+        self.pathFrame.grid(row=0, column=98, sticky=NSEW)
+        self.pathBar = Frame(self.pathFrame)
+        self.pathBar.place(x=0, y=0, relheight=1)
+        self._skip = 0  # the path buttons not shown
+        self._current = 0  # the button of the current folder
+        self.more = Button(self.pathFrame, text="\u2026",
+                           style="Path.Toolbutton", command=self._up)
+        self.pathFrame.bind("<Configure>", self._fitPath)
+        self.pathBar.bind("<Configure>", self._fitPath)
         self.dirframe.grid_columnconfigure(98, weight=1)
         self.buttons = []
+        self.seps = []  # the slash before each button, or None
 
         self.multiple = multiple
         if multiple:
@@ -290,12 +309,12 @@ class FileDialog(Toplevel):
         else:
             selectmode = BROWSE
         listFrame = Frame(self)
-        listFrame.pack(expand=YES, fill=BOTH)
+        listFrame.pack(expand=YES, fill=BOTH, padx=self._side)
         self.fileList = tkExtra.FileList(
             listFrame,
             (
                 (_("Name"), 30, None),
-                (_("Type"), 12, None),
+                (_("Type"), 6, None),
                 (_("Size"), 8, None),
                 (_("Date"), 17, None),
             ),
@@ -321,8 +340,10 @@ class FileDialog(Toplevel):
         self.fileList.bind("<<ListboxSelect>>", self.select)
         self.fileList.bind("<<ListboxSort>>", self.sortChanged)
 
-        frame = Frame(self)
-        frame.pack(side=BOTTOM, fill=X)
+        # packed before the list, so it keeps its place at any window size
+        frame = Frame(self, padding=(self._side, pad, self._side, 2 * pad))
+        frame.pack(side=BOTTOM, fill=X, before=listFrame)
+        self.bottom = frame
 
         lbl = Label(frame, text=_("File name:"))
         lbl.grid(row=0, column=0, sticky=E)
@@ -397,6 +418,12 @@ class FileDialog(Toplevel):
         self.buttonPath(self.path)
         self.typeCombo.set(self.typeCombo.get(0))
         self.typeChange()  # fills the files
+        # the smallest window shows the bottom block whole (it is wider than
+        # the list with all the columns at their minimum width)
+        self.update_idletasks()
+        self.minsize(self.bottom.winfo_reqwidth(),
+                     self.dirframe.winfo_reqheight()
+                     + self.bottom.winfo_reqheight() + 100)
         try:
             self.lift()
             self.focus_set()
@@ -417,6 +444,7 @@ class FileDialog(Toplevel):
             return
         FileDialog.sash = None
         self.fileList.setWidths(sash)
+        self.fileList.after_idle(self.fileList.fit)
 
     # ----------------------------------------------------------------------
     # Create buttons for the path
@@ -441,27 +469,76 @@ class FileDialog(Toplevel):
 
         if lb < lp:  # Create new buttons
             while i < lp:
+                # flat buttons and slashes, the path reads as a string; the
+                # first slash is the root button itself
+                sep = None
+                if i > 1 or i == 1 and path[0] != os.sep:
+                    sep = Label(self.pathBar, text=os.sep)
+                    sep.grid(row=0, column=2 * i)
+                self.seps.append(sep)
                 self.buttons.append(
                     Button(
-                        self.dirframe,
+                        self.pathBar,
                         text=path[i],
                         command=lambda s=self, b=i: s.button(b),
                     )
                 )
+                self.buttons[-1].grid(row=0, column=2 * i + 1)
                 i += 1
-                self.buttons[-1].grid(row=0, column=i)
 
         elif lp < lb and not same:  # Use existing buttons
             while i < lb:
                 self.buttons[i].grid_forget()
+                if self.seps[i] is not None:
+                    self.seps[i].grid_forget()
                 i += 1
             del self.buttons[lp:]
+            del self.seps[lp:]
 
+        self._current = lp - 1
+        suffix = "Path.Toolbutton"
         for i in range(lp):
-            self.buttons[i]["style"] = "TButton"
-        self.buttons[lp - 1]["style"] = "Current.TButton"
+            self.buttons[i]["style"] = suffix
+        self.buttons[lp - 1]["style"] = "Current." + suffix
         for i in range(lp, len(self.buttons)):
-            self.buttons[i]["style"] = "Forward.TButton"
+            self.buttons[i]["style"] = "Forward." + suffix
+        for i, sep in enumerate(self.seps):
+            if sep is not None:
+                sep["style"] = "Forward.Path.TLabel" if i >= lp \
+                    else "TLabel"
+        self.after_idle(self._fitPath)
+
+    # ----------------------------------------------------------------------
+    def _fitPath(self, event=None):
+        """Show the last path buttons that fit, an ellipsis for the others"""
+        widths = [b.winfo_reqwidth()
+                  + (0 if sep is None else sep.winfo_reqwidth())
+                  for b, sep in zip(self.buttons, self.seps)]
+        avail = self.pathFrame.winfo_width()
+        self.pathFrame.configure(height=self.pathBar.winfo_reqheight())
+        skip = 0
+        if sum(widths) > avail:
+            more = self.more.winfo_reqwidth()
+            # the button of the current folder is always shown
+            last = min(len(widths) - 1, self._current)
+            while skip < last and sum(widths[skip:]) > avail - more:
+                skip += 1
+            if skip > 0:
+                self.pathBar.place_configure(x=more - sum(widths[:skip]))
+                self.more.place(x=0, y=0, relheight=1)
+                self.more.lift()
+            else:  # only the forward buttons do not fit
+                self.pathBar.place_configure(x=0)
+                self.more.place_forget()
+        else:
+            self.pathBar.place_configure(x=0)
+            self.more.place_forget()
+        self._skip = skip
+
+    # ----------------------------------------------------------------------
+    def _up(self):
+        """The ellipsis opens the parent of the current folder, each time"""
+        self.upDir(None)
 
     # ----------------------------------------------------------------------
     def button(self, b):

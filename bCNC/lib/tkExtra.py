@@ -1790,13 +1790,88 @@ class FileList(ListView):
         self._sortColumn = -1
         self._sortReverse = False
         measure = tkfont.nametofont("TkDefaultFont").measure("0")
+        self._minw = [max(width * measure // 2, 4 * measure)
+                      for _t, width, _a in columns]
+        # the name column is narrowed down to this width before the others
+        self._nameFloor = max(self._minw[0], columns[0][1] * measure * 2 // 3)
         for i, (title, width, _a) in enumerate(columns):
             col = "#0" if i == 0 else f"c{i}"
-            self.column(col, width=width * measure, stretch=i == 0)
+            self.column(col, width=width * measure, stretch=i == 0,
+                        minwidth=self._minw[i])
             self.heading(col, text=title,
                          command=lambda i=i: self.sort(i))
         self.bind("<Button-3>", self._popup, add="+")
         self._menu = None
+        # a dragged column separator gives or takes the width of the
+        # neighbours, so the columns always fill the list
+        self._dragged = None
+        self._slack = 0
+        self._want = self.widths()  # the widths the columns return to
+        self.bind("<ButtonPress-1>", self._press, add="+")
+        self.bind("<B1-Motion>",
+                  lambda e: self.after_idle(self.fit, True), add="+")
+        self.bind("<ButtonRelease-1>", self._release, add="+")
+        self._lastWidth = 0
+        self.bind("<Configure>", self._configured, add="+")
+
+    # ----------------------------------------------------------------------
+    def _configured(self, event):
+        # only a change of the width needs the columns to be fitted again
+        if self._dragged is None and event.width != self._lastWidth:
+            self._lastWidth = event.width
+            self.after_idle(self._measure)
+
+    # ----------------------------------------------------------------------
+    def _measure(self):
+        """The border of the list is known while the columns fill it"""
+        slack = self.winfo_width() - sum(self.widths())
+        if 0 <= slack <= 12:
+            self._slack = slack
+        self.fit()
+
+    # ----------------------------------------------------------------------
+    def _press(self, event):
+        self._dragged = None
+        if self.identify_region(event.x, event.y) == "separator":
+            self._dragged = int(self.identify_column(event.x)[1:])
+
+    # ----------------------------------------------------------------------
+    def _release(self, event):
+        self.fit()
+        self._want = self.widths()
+        self._dragged = None
+
+    # ----------------------------------------------------------------------
+    def fit(self, live=False):
+        """Make the columns fill the list: take what is too much from the
+        columns in turn (down to their minimum), give what is missing to
+        one column. Window: the name column gives up width down to its
+        floor, then the others, the last first, then the name column. Dragged
+        separator: the columns after it; a column before it would move the
+        separator under the pointer, so the last one waits for the release"""
+        drag, n = self._dragged, len(self._minw)
+        if drag is None:
+            widths = list(self._want)
+            steps = ([(0, self._nameFloor)]
+                     + [(j, self._minw[j]) for j in range(n - 1, 0, -1)]
+                     + [(0, self._minw[0])])
+            sink = 0
+        else:
+            if live and drag == n - 1:
+                return
+            widths = self.widths()
+            steps = [(j, self._minw[j]) for j in range(drag + 1, n)]
+            if drag > 0 and not live:
+                steps.append((0, self._minw[0]))
+            sink = drag + 1 if drag < n - 1 else 0
+        excess = sum(widths) - (self.winfo_width() - self._slack)
+        for j, low in steps:
+            take = min(max(excess, 0), max(0, widths[j] - low))
+            widths[j] -= take
+            excess -= take
+        if excess < 0:
+            widths[sink] -= excess
+        self._apply(widths)
 
     # ----------------------------------------------------------------------
     def _color(self, color):
@@ -1905,9 +1980,14 @@ class FileList(ListView):
             self.column(f"c{i}", "width") for i in range(1, len(self._titles))]
 
     # ----------------------------------------------------------------------
-    def setWidths(self, widths):
+    def _apply(self, widths):
         for i, width in enumerate(widths):
             self.column("#0" if i == 0 else f"c{i}", width=width)
+
+    # ----------------------------------------------------------------------
+    def setWidths(self, widths):
+        self._apply(widths)
+        self._want = self.widths()
 
     # ----------------------------------------------------------------------
     def setPopupMenu(self, items):
@@ -2368,6 +2448,11 @@ def applyTheme(root):
     style.configure("DividerLight.TFrame", background=c["light"])
     style.configure("Current.TButton", foreground=c["sent"])
     style.configure("Forward.TButton", foreground=c["disabled"])
+    # the path of the file dialog: flat buttons, no minimum width
+    style.configure("Path.Toolbutton", padding=0, borderwidth=1, width=0)
+    style.configure("Current.Path.Toolbutton", foreground=c["sent"])
+    style.configure("Forward.Path.Toolbutton", foreground=c["disabled"])
+    style.configure("Forward.Path.TLabel", foreground=c["disabled"])
     style.configure("Ribbon.TButton", padding=(8, "1.5p"), width=-5,
                     justify="center")
     style.configure("Left.Ribbon.TButton", anchor="w")
