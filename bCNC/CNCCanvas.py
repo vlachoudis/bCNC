@@ -2340,7 +2340,20 @@ class CNCCanvas(GLCanvas):
 
         v12 = p2 - p1
 
-        return numpy.rad2deg(numpy.arccos(abs(dot(normalize(v12), planeNormal))))
+        v = normalize(v12)
+        n = normalize(planeNormal)
+
+        d = abs(dot(v, n))
+        c = numpy.linalg.norm(numpy.cross(v, n))
+
+        angle = numpy.rad2deg(numpy.arctan2(c, d))
+
+        if numpy.isclose(angle, 90, 1e-5):
+            angle = 90
+        elif numpy.isclose(angle, 0, 1e-5):
+            angle = 0
+
+        return angle
 
     def canvas2WorldPlane(self, coords: vec2, planeNormal : vec3, planePoint : vec3, thresholdAngle = 20): # -> vec3 | None:
         # return the point of the plane where we picked on the canvas, in world coordinates
@@ -2353,15 +2366,24 @@ class CNCCanvas(GLCanvas):
         p1 = (MVPinv * vec4(coords_u, 0, 1)).xyz
         p2 = (MVPinv * vec4(coords_u, 1, 1)).xyz
         
-        v12 = p2 - p1
+        v12 = normalize(p2 - p1)
+        n = normalize(planeNormal)   
+
+        # Calculate the angle between the ray and the plane.
+        sin_angle = abs(dot(n, v12))
+        sin_angle = numpy.clip(sin_angle, 0.0, 1.0)
+
+        angle = numpy.rad2deg(numpy.arcsin(sin_angle))
 
         # If we are too parallel to the plane, return None
-        angle = 90 - numpy.rad2deg(numpy.arccos(abs(dot(normalize(v12), planeNormal))))
         if angle == 0 or angle < abs(thresholdAngle):
             return None
 
-        n = normalize(planeNormal)
         denom = dot(n, v12)
+
+        if abs(denom) < 1e-8:
+            return None
+        
         t = dot(n, planePoint - p1) / denom
 
         intersection = p1 + v12 * t
